@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="40"
+   height="40"
+   fill="none"
+   version="1.1"
+   viewBox="0 0 40 40"
+   id="svg12"
+   sodipodi:docname="icon.svg"
+   inkscape:export-filename="/Users/benoitf/git/benoitf/container-desktop/buildResources/icon.png"
+   inkscape:export-xdpi="1228.8"
+   inkscape:export-ydpi="1228.8"
+   inkscape:version="1.2-alpha (0bd5040e, 2022-02-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs16" />
+  <sodipodi:namedview
+     id="namedview14"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:blackoutopacity="0.0"
+     showgrid="false"
+     inkscape:zoom="6.41875"
+     inkscape:cx="19.941577"
+     inkscape:cy="20.097371"
+     inkscape:window-width="1696"
+     inkscape:window-height="1140"
+     inkscape:window-x="750"
+     inkscape:window-y="272"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg12" />
+  <g
+     transform="matrix(1.1473 0 0 1.1473 1.9288 -4.2099)"
+     id="g10">
+    <path
+       d="m15 16.5 15.502 7.0687-15.502 12.931-14.502-12.069z"
+       fill="#c4c4c4"
+       id="path2" />
+    <path
+       d="m15.502 11.703 15.502 7.0687-15.502 12.931-14.502-12.069z"
+       fill="#e9e9e9"
+       id="path4" />
+    <path
+       d="m15.502 11.703 15.502 7.0687-15.502 12.931-14.502-12.069z"
+       fill="#e9e9e9"
+       id="path6" />
+    <path
+       d="m15.502 5.7033 15.502 7.0687-15.502 12.931-14.502-12.069z"
+       fill="#7a59fa"
+       id="path8" />
+  </g>
+</svg>

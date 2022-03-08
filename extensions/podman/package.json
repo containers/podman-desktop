@@ -1,0 +1,33 @@
+{
+  "name": "podman",
+  "displayName": "podman extension",
+  "description": "podman extension",
+  "version": "0.0.1",
+  "icon": "icon.png",
+  "publisher": "benoitf",
+  "license": "apache-2.0",
+  "engines": {
+    "container-desktop": "^0.0.1"
+  },
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "docker.info",
+        "title": "podman: Specific info about podman"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "./scripts/build.js",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@tmpwip/extension-api": "^0.0.1"
+  },
+  "devDependencies": {
+    "7zip-min": "^1.4.1",
+    "mkdirp": "^1.0.4",
+    "zip-local": "^0.3.5"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "name": "container-desktop",
+  "license": "apache-2.0",
+  "private": true,
+  "engines": {
+    "node": ">=v16.13",
+    "npm": ">=8.1"
+  },
+  "main": "packages/main/dist/index.cjs",
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "extensions/*"
+    ]
+  },
+  "scripts": {
+    "build": "npm run build:main && npm run build:preload && npm run build:renderer && npm run build:extensions",
+    "build:main": "cd ./packages/main && vite build",
+    "build:extensions": "npm run build:extensions:docker && npm run build:extensions:lima && npm run build:extensions:crc && npm run build:extensions:podman",
+    "build:extensions:crc": "cd ./extensions/crc && npm run build",
+    "build:extensions:docker": "cd ./extensions/docker && npm run build",
+    "build:extensions:lima": "cd ./extensions/lima && npm run build",
+    "build:extensions:podman": "cd ./extensions/podman && npm run build",
+    "build:extension-api": "cd ./packages/extension-api && vite build",
+    "build:preload": "cd ./packages/preload && vite build",
+    "build:preload:types": "dts-cb -i \"packages/preload/tsconfig.json\" -o \"packages/preload/exposedInMainWorld.d.ts\"",
+    "build:renderer": "vite -c packages/renderer/vite.config.js build",
+    "compile": "cross-env MODE=production npm run build && electron-builder build -mwl --config .electron-builder.config.js --dir --config.asar=false",
+    "compile:dmg": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js",
+    "test": "npm run test:main && npm run test:preload && npm run test:renderer && npm run test:e2e",
+    "test:e2e": "npm run build && vitest run",
+    "test:main": "vitest run -r packages/main --passWithNoTests",
+    "test:preload": "vitest run -r packages/preload --passWithNoTests",
+    "test:renderer": "vitest run -r packages/renderer --passWithNoTests",
+    "watch": "node scripts/watch.js",
+    "lint": "eslint . --ext js,ts,svelte",
+    "typecheck:main": "tsc --noEmit -p packages/main/tsconfig.json",
+    "typecheck:preload": "tsc --noEmit -p packages/preload/tsconfig.json",
+    "typecheck:renderer": "npm run build:preload:types",
+    "typecheck": "npm run typecheck:main && npm run typecheck:preload && npm run typecheck:renderer"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@types/dockerode": "^3.3.3",
+    "@typescript-eslint/eslint-plugin": "5.11.0",
+    "@typescript-eslint/parser": "^5.11.0",
+    "cross-env": "7.0.3",
+    "dts-for-context-bridge": "0.7.1",
+    "electron": "17.0.0",
+    "electron-builder": "22.14.13",
+    "electron-devtools-installer": "3.2.0",
+    "eslint": "8.8.0",
+    "happy-dom": "2.31.1",
+    "nano-staged": "0.5.0",
+    "playwright": "1.18.1",
+    "postcss-import": "^14.0.2",
+    "simple-git-hooks": "2.7.0",
+    "typescript": "4.5.5",
+    "vite": "2.7.13",
+    "vitest": "0.2.8"
+  },
+  "dependencies": {
+    "dockerode": "^3.3.1",
+    "electron-updater": "4.6.5",
+    "tar-fs": "^2.1.1"
+  },
+  "resolutionsComments": {
+    "ssh2": "Need to use an old version of ssh2 to avoid vite/rollup issue on loading some internal lib"
+  },
+  "resolutions": {
+    "ssh2": "0.8.9"
+  }
+}
