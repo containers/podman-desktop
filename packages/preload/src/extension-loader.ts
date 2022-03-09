@@ -33,6 +33,7 @@ export interface AnalyzedExtension {
     id: string,
     // root folder (where is package.json)
     path: string,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
     manifest: any,
     // main entry
     mainPath: string,
@@ -41,6 +42,7 @@ export interface AnalyzedExtension {
 
 export interface ActivatedExtension {
     id: string;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
     deactivateFunction: any;
     extensionContext: containerDesktopAPI.ExtensionContext
 }
@@ -55,6 +57,7 @@ export class ExtensionLoader {
     constructor(
         private commandRegistry: CommandRegistry,
         private containerProviderRegistry: ContainerProviderRegistry,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         private apiSender: any,
     ) {
 
@@ -192,9 +195,11 @@ export class ExtensionLoader {
     createApi(): typeof containerDesktopAPI {
         const commandRegistry = this.commandRegistry;
         const commands: typeof containerDesktopAPI.commands = {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): containerDesktopAPI.Disposable {
                 return commandRegistry.registerCommand(command, callback, thisArg);
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             executeCommand<T = unknown>(commandId: string, ...args: any[]): PromiseLike<T> {
                 return commandRegistry.executeCommand(commandId, ...args);
             },
@@ -263,6 +268,7 @@ export class ExtensionLoader {
         }
 
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async loadManifest(extensionPath: string): Promise<any> {
         const manifestPath = path.join(extensionPath, 'package.json');
         return new Promise((resolve, reject) => {

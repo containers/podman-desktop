@@ -23,6 +23,7 @@ export interface ContainerInfo extends Dockerode.ContainerInfo {
 }
 
 export interface HostConfig {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     PortBindings?: any;
 }
 
