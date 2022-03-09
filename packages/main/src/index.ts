@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -89,13 +89,17 @@ if (import.meta.env.PROD) {
 
 const nativeTrayIcon = nativeImage.createFromDataURL(trayIcon);
 
-let tray = null
+let tray = null;
 app.whenReady().then(() => {
-  tray = new Tray(nativeTrayIcon)
+  tray = new Tray(nativeTrayIcon);
   const contextMenu = Menu.buildFromTemplate([
-    { label: 'Podman', type: 'radio' },
-    { label: 'Kubernetes', type: 'separator' },
+    { label: 'Podman', type: 'radio', checked: false },
+    { type: 'separator' },
+    { label: 'Kubernetes', type: 'radio', checked: false },
+    { type: 'separator' },
     { label: 'OpenShift', type: 'radio', checked: true },
-  ])
-  tray.setContextMenu(contextMenu)
-})
+    { type: 'separator' },
+    { label: 'Quit', type: 'normal', role: 'quit' },
+  ]);
+  tray.setContextMenu(contextMenu);
+});
