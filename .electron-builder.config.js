@@ -36,6 +36,15 @@ const config = {
     'packages/**/dist/**',
     'extensions/**/builtin/*.cdix/**',
   ],
+  mac: {
+    target: {
+      target: 'default',
+      arch: [
+        'x64',
+        'arm64'
+      ]
+    },
+  },
   dmg: {
     contents: [
       {
