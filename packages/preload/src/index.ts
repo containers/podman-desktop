@@ -28,8 +28,8 @@ import { ContainerProviderRegistry } from './container-registry';
 import { ExtensionLoader } from './extension-loader';
 import EventEmitter from 'events';
 import type { ImageInfo } from './api/image-info';
-import { ImageInspectInfo } from './api/image-inspect-info';
-import { ProviderInfo } from './api/provider-info';
+import type { ImageInspectInfo } from './api/image-inspect-info';
+import type { ProviderInfo } from './api/provider-info';
 const shell = require('electron').shell;
 
 // initialize extension loader mechanism
@@ -41,6 +41,7 @@ function initExtensions(): void {
           eventEmitter.emit(channel, data);
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         receive: (channel: string, func: any) => {
             eventEmitter.on(channel, (data) => {
                 func(data);

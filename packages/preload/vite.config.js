@@ -19,7 +19,6 @@
 import {chrome} from '../../.electron-vendors.cache.json';
 import {join} from 'path';
 import {builtinModules} from 'module';
-import commonjs from '@rollup/plugin-commonjs';
 const PACKAGE_ROOT = __dirname;
 
 /**

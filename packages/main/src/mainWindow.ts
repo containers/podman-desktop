@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { BrowserWindow, BrowserWindowConstructorOptions, ipcMain} from 'electron';
+import type { BrowserWindowConstructorOptions} from 'electron';
+import { BrowserWindow, ipcMain} from 'electron';
 import {join} from 'path';
 import {URL} from 'url';
 import * as os from 'os';
@@ -34,22 +35,23 @@ async function createWindow() {
       webviewTag: false, // The webview tag is not recommended. Consider alternatives like iframe or Electron's BrowserView. https://www.electronjs.org/docs/latest/api/webview-tag#warning
       preload: join(__dirname, '../../preload/dist/index.cjs'),
     },
-  }
+  };
   const osType = os.type();
   if (osType === 'Darwin') {
-    browserWindowConstructorOptions.titleBarStyle = "hiddenInset";
+    browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
   }
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
 
   setTimeout(() => {
     console.log('SEND SEND SEND message');
-    browserWindow.webContents.send("container-stopped-event", "containerID");
+    browserWindow.webContents.send('container-stopped-event', 'containerID');
     }, 5000);
 
 
-  ipcMain.on("container-stopped-event", (event: any, info: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ipcMain.on('container-stopped-event', (event: any, info: any) => {
     console.log('SEND SEND SEND message', info);
-    browserWindow.webContents.send("container-stopped-event", event);
+    browserWindow.webContents.send('container-stopped-event', event);
       });
 
   /**

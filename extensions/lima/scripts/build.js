@@ -2,12 +2,10 @@
 const zipper = require('zip-local');
 const path = require('path');
 const package = require('../package.json');
-const mkdirp = require('mkdirp');
 const fs = require('fs');
 
 const destFile = path.resolve(__dirname, `../${package.name}.cdix`);
 const builtinDirectory = path.resolve(__dirname, '../builtin');
-const unzippedDirectory = path.resolve(builtinDirectory, `${package.name}.cdix`);
 // remove the .cdix file before zipping
 if (fs.existsSync(destFile)) {
     fs.rmSync(destFile);

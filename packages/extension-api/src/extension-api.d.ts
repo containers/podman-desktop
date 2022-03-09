@@ -28,12 +28,21 @@ declare module '@tmpwip/extension-api' {
 		title: string;
 		command: string;
 		tooltip?: string;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		arguments?: any[];
 	}
 
     export class Disposable {
 
         constructor(func: () => void);
+        /**
+         * Creates a new Disposable calling the provided function
+         * on dispose.
+         * @param callOnDispose Function that disposes something.
+         */
+         // eslint-disable-next-line @typescript-eslint/ban-types
+         constructor(callOnDispose: Function);
+                 
         /**
          * Dispose this object.
          */
@@ -50,18 +59,15 @@ declare module '@tmpwip/extension-api' {
          * @return Returns a new disposable which, upon dispose, will
          * dispose all provided disposables.
          */
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         static from(...disposableLikes: { dispose: () => any }[]): Disposable;
 
-        /**
-         * Creates a new Disposable calling the provided function
-         * on dispose.
-         * @param callOnDispose Function that disposes something.
-         */
-        constructor(callOnDispose: Function);
+
 
     }
 
     export interface ExtensionContext {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		readonly subscriptions: { dispose(): any }[];
     }
 
@@ -80,7 +86,9 @@ declare module '@tmpwip/extension-api' {
     }
 
     export namespace commands {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         export function registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
     }
 

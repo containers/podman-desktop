@@ -16,10 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Disposable } from "./types/disposable";
+import { Disposable } from './types/disposable';
 
 export interface CommandHandler {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	callback: any;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	thisArg: any;
 }
 
@@ -27,6 +29,7 @@ export class CommandRegistry {
 
     private commands = new Map<string, CommandHandler>();
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
     registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable {
         
         if (this.commands.has(command)) {
@@ -42,6 +45,7 @@ export class CommandRegistry {
         });
     }
     
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
     async executeCommand<T = unknown>(commandId: string, ...args: any[]): Promise<T> {
         // command is on node world, just execute it
         if (this.commands.has(commandId)) {
