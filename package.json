@@ -26,6 +26,7 @@
     "build:preload:types": "dts-cb -i \"packages/preload/tsconfig.json\" -o \"packages/preload/exposedInMainWorld.d.ts\"",
     "build:renderer": "vite -c packages/renderer/vite.config.js build",
     "compile": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js --dir --config.asar=false",
+    "compile:next": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js",
     "compile:pull-request": "cross-env MODE=production npm run build && electron-builder build --publish never --config .electron-builder.config.js",
     "compile:dmg": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js",
     "test": "npm run test:main && npm run test:preload && npm run test:renderer && npm run test:e2e",
