@@ -27,7 +27,7 @@ if (process.env.VITE_APP_VERSION === undefined) {
  */
 const config = {
   productName: "container-desktop",
-    appId: "com.example.yourapp",
+    appId: "com.github.containers.desktop",
   directories: {
     output: 'dist',
     buildResources: 'buildResources',
