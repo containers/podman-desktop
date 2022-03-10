@@ -33,6 +33,7 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       githubTag: ${{ steps.TAG_UTIL.outputs.githubTag}}
+      desktopVersion: ${{ steps.TAG_UTIL.outputs.desktopVersion}}
     steps:
       - uses: actions/checkout@v2
       - name: Generate tag utilities
@@ -40,13 +41,14 @@ jobs:
         run: |
             CURRENT_DAY=$(date +'%Y%m%d')
             SHORT_SHA1=$(git rev-parse --short HEAD)
-            echo "::set-output name=githubTag::$(date +'%Y%m%d%H%M%S')"
-            echo "::set-output name=chectlVersion::0.0.$CURRENT_DAY-next"
-            echo "::set-output name=githubReleaseName::0.0.$CURRENT_DAY-next.$SHORT_SHA1"
+            TAG_PATTERN=0.0.$(date +'%Y%m%d%H%M%S')
+            echo "::set-output name=githubTag::v$TAG_PATTERN"
+            echo "::set-output name=desktopVersion::$TAG_PATTERN"
       - name: tag
         run: |
           git config --local user.name ${{ github.actor }}
-          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.chectl_version }}\",#g" package.json
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" package.json
+          cat package.json
           echo "Tagging with ${{ steps.TAG_UTIL.outputs.githubTag }}"
           git tag ${{ steps.TAG_UTIL.outputs.githubTag }}
           git push origin ${{ steps.TAG_UTIL.outputs.githubTag }}
