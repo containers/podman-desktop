@@ -27,7 +27,27 @@ env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 jobs:
+
+  tag:
+    name: Tagging
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Generate tag utilities
+        id: TAG_UTIL
+        run: |
+            CURRENT_DAY=$(date +'%Y%m%d')
+            SHORT_SHA1=$(git rev-parse --short HEAD)
+            echo "::set-output name=gh_tag::$(date +'%Y%m%d%H%M%S')"
+            echo "::set-output name=chectl_version::0.0.$CURRENT_DAY-next"
+            echo "::set-output name=gh_release_name::0.0.$CURRENT_DAY-next.$SHORT_SHA1"
+      - name: tag
+        run: |
+          git config --local user.name ${{ github.actor }}
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.chectl_version }}\",#g" package.json
+          git tag ${{ steps.TAG_UTIL.outputs.gh_tag }}
+
   windows:
+    needs: tag
     name: Windows
     runs-on: windows-2022
     timeout-minutes: 60
@@ -63,6 +83,7 @@ jobs:
         run: yarn compile:next
 
   linux:
+    needs: tag
     name: Linux
     runs-on: ubuntu-20.04
     timeout-minutes: 40
@@ -96,6 +117,7 @@ jobs:
         run: yarn compile:next
 
   darwin:
+    needs: tag
     name: macOS
     runs-on: macos-11
     timeout-minutes: 40
