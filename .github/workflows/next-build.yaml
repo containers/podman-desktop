@@ -32,6 +32,7 @@ jobs:
     name: Tagging
     runs-on: ubuntu-20.04
     steps:
+      - uses: actions/checkout@v2
       - name: Generate tag utilities
         id: TAG_UTIL
         run: |
