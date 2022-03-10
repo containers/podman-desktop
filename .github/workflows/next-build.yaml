@@ -67,12 +67,15 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 40
     steps:
+
+      - name: setup env
+        run: sudo snap install snapcraft --classic  
+
       - uses: actions/checkout@v2
 
       - uses: actions/setup-node@v2
         with:
           node-version: 16
-
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -84,7 +87,6 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-
 
       - name: Execute yarn
         run: yarn --frozen-lockfile --network-timeout 180000
