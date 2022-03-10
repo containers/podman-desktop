@@ -78,9 +78,9 @@ const config = {
       },
     ],
   },
-  extraMetadata: {
+  /*extraMetadata: {
     version: process.env.VITE_APP_VERSION,
-  },
+  },*/
 };
 
 module.exports = config;
