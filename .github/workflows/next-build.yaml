@@ -31,6 +31,8 @@ jobs:
   tag:
     name: Tagging
     runs-on: ubuntu-20.04
+    outputs:
+      githubTag: ${{ steps.TAG_UTIL.outputs.githubTag}}
     steps:
       - uses: actions/checkout@v2
       - name: Generate tag utilities
@@ -38,14 +40,15 @@ jobs:
         run: |
             CURRENT_DAY=$(date +'%Y%m%d')
             SHORT_SHA1=$(git rev-parse --short HEAD)
-            echo "::set-output name=gh_tag::$(date +'%Y%m%d%H%M%S')"
-            echo "::set-output name=chectl_version::0.0.$CURRENT_DAY-next"
-            echo "::set-output name=gh_release_name::0.0.$CURRENT_DAY-next.$SHORT_SHA1"
+            echo "::set-output name=githubTag::$(date +'%Y%m%d%H%M%S')"
+            echo "::set-output name=chectlVersion::0.0.$CURRENT_DAY-next"
+            echo "::set-output name=githubReleaseName::0.0.$CURRENT_DAY-next.$SHORT_SHA1"
       - name: tag
         run: |
           git config --local user.name ${{ github.actor }}
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.chectl_version }}\",#g" package.json
           git tag ${{ steps.TAG_UTIL.outputs.gh_tag }}
+          git push origin ${{ steps.TAG_UTIL.outputs.gh_tag }}
 
   windows:
     needs: tag
@@ -53,8 +56,9 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v2
-
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.tag.outputs.githubTag}}
       - uses: actions/setup-node@v2
         with:
           node-version: 16
@@ -93,7 +97,9 @@ jobs:
       - name: setup env
         run: sudo snap install snapcraft --classic  
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.tag.outputs.githubTag}}
 
       - uses: actions/setup-node@v2
         with:
@@ -123,7 +129,9 @@ jobs:
     runs-on: macos-11
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.tag.outputs.githubTag}}
 
       - uses: actions/setup-node@v2
         with:
