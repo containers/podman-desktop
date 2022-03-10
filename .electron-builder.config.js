@@ -36,6 +36,18 @@ const config = {
     'packages/**/dist/**',
     'extensions/**/builtin/*.cdix/**',
   ],
+  win: {
+    target: [
+    'portable',
+    'nsis'
+    ]
+  },
+
+  linux: {
+    target: [
+    'tar.gz',
+    ]
+  },
   mac: {
     target: {
       target: 'default',
