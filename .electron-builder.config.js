@@ -36,6 +36,12 @@ const config = {
     'packages/**/dist/**',
     'extensions/**/builtin/*.cdix/**',
   ],
+  portable: {
+    artifactName: '${productName}-${version}.${ext}'
+  },
+  nsis: {
+    artifactName: '${productName}-${version}-setup.${ext}'
+  },
   win: {
     target: [
     'portable',
