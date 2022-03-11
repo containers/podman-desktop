@@ -168,10 +168,20 @@ jobs:
     name: Release
     runs-on: ubuntu-20.04
     steps:
-      - name: Create the release
-        uses: softprops/action-gh-release@v1
+      - name: Release the draft release
+        uses: actions/github-script@v6
         with:
-          name: ${{ needs.tag.outputs.desktopVersion}}
-          tag_name: ${{ needs.tag.outputs.githubTag}}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const response = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: "${{ needs.tag.outputs.githubTag}}"
+            });
+            github.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: response.data.id,
+              draft: false,
+              prerelease: false,
+            });
