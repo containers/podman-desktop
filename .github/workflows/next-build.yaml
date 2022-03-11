@@ -183,20 +183,9 @@ jobs:
       - name: id
         run: echo the release id is ${{ needs.tag.outputs.releaseId}}
 
-      - name: Release the draft release
-        uses: actions/github-script@v6
+      - name: Publish release
+        uses: StuYarrow/publish-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const response = await github.rest.repos.getReleaseByTag({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag: "${{ needs.tag.outputs.githubTag}}"
-            });
-            github.repos.updateRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: response.data.id,
-              draft: false,
-              prerelease: false,
-            });
+          id: ${{ needs.tag.outputs.releaseId}}
