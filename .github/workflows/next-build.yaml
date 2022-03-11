@@ -35,6 +35,8 @@ jobs:
     outputs:
       githubTag: ${{ steps.TAG_UTIL.outputs.githubTag}}
       desktopVersion: ${{ steps.TAG_UTIL.outputs.desktopVersion}}
+      releaseId: ${{ steps.create_release.outputs.id}}
+
     steps:
       - uses: actions/checkout@v2
       - name: Generate tag utilities
@@ -55,6 +57,16 @@ jobs:
           echo "Tagging with ${{ steps.TAG_UTIL.outputs.githubTag }}"
           git tag ${{ steps.TAG_UTIL.outputs.githubTag }}
           git push origin ${{ steps.TAG_UTIL.outputs.githubTag }}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.TAG_UTIL.outputs.githubTag }}
+          release_name: ${{ steps.TAG_UTIL.outputs.githubTag }}
+          draft: true
+          prerelease: false
 
   windows:
     needs: tag
@@ -168,6 +180,9 @@ jobs:
     name: Release
     runs-on: ubuntu-20.04
     steps:
+      - name: id
+        run: echo the release id is ${{ needs.tag.outputs.releaseId}}
+
       - name: Release the draft release
         uses: actions/github-script@v6
         with:
