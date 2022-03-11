@@ -318,10 +318,10 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
       <div class="pf-c-empty-state__content">
         <i class="fas fa-cubes pf-c-empty-state__icon" aria-hidden="true"></i>
     
-        <h1 class="pf-c-title pf-m-lg">No container</h1>
+        <h1 class="pf-c-title pf-m-lg">No containers</h1>
         <div
           class="pf-c-empty-state__body"
-        >No container</div>
+        >No containers</div>
         
       </div>
     </div>
