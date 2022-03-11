@@ -11,6 +11,17 @@
 import type { ContainerInfo } from '../../../preload/src/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte'
 
+interface ContainerInfoUI {
+  id: string;
+  name: string;
+  image: string;
+  engine: string;
+  state: string;
+  port: string;
+  hasPublicPort: boolean;
+  openingUrl?: string;
+}
+
 let openChoiceModal = false
 let fromDockerfileModal = false
 
@@ -19,14 +30,24 @@ let dockerImageProviderName = '';
 let buildInProgress= false;
 let buildFinished = false;
 
-let containers = [];
+let containers: ContainerInfoUI[] = [];
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 onMount(async () => {
   filtered.subscribe(value => {
-  containers = value;
-});
+  containers = value.map((containerInfo: ContainerInfo) => {
+    return {
+      id: containerInfo.Id,
+      name: getName(containerInfo),
+      image: getImage(containerInfo),
+      state: getState(containerInfo),
+      engine: getEngine(containerInfo),
+      port: getPort(containerInfo),
+      hasPublicPort: hasPublicPort(containerInfo),
+      openingUrl: getOpeningUrl(containerInfo),
+    };
+  })});
 
 providerInfos.subscribe(value => {
   if (value.length > 0) {
@@ -78,7 +99,7 @@ async function buildDockerImage(): Promise<void> {
 
   const data: any = document.getElementById("dockerImageFolder");
   if (data && data.files && data.files.length > 0) {
-    const dockerFilePath = Array.from(data.files).map(item => item?.path).find(itemPath => itemPath.endsWith('Dockerfile'));
+    const dockerFilePath = Array.from(data.files).map((item:any) => item?.path).find(itemPath => itemPath.endsWith('Dockerfile'));
     if (dockerFilePath) {
 
       const rootDirectory = dockerFilePath.replace(/\\/g,'/').replace(/\/[^\/]*$/, '');;
@@ -121,31 +142,31 @@ function hasPublicPort(containerInfo: ContainerInfo): boolean {
   return publicPorts.length > 0;
 }
 
-
-function openBrowser(containerInfo: ContainerInfo): void {
-  console.log('container.Ports && container.Ports.length', containerInfo.Ports);
-  console.log('containerInfo.Ports.length', containerInfo.Ports.length);
-
+function getOpeningUrl(containerInfo: ContainerInfo): string {
   const ports = containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort);
-  if (ports.length > 0) {
-    const port = ports[0];
-    const url = `http://localhost:${port}`;
-    console.log('opening url', url);
-    window.openExternal(url);
+  if (ports && ports.length > 0) {
+    return `http://localhost:${ports[0]}`;
+  } else {
+    return '';
   }
+}
+
+function openBrowser(containerInfo: ContainerInfoUI): void {
+    console.log('opening url', containerInfo.openingUrl);
+    window.openExternal(containerInfo.openingUrl);
 }
 
 function getEngine(containerInfo: ContainerInfo): string {
   return containerInfo.engine;
 }
 
-async function startContainer(containerInfo: ContainerInfo) {
-  await window.startContainer(containerInfo.engine, containerInfo.Id);
+async function startContainer(containerInfo: ContainerInfoUI) {
+  await window.startContainer(containerInfo.engine, containerInfo.id);
   console.log('container started');
 }
 
-async function stopContainer(containerInfo: ContainerInfo) {
-  await window.stopContainer(containerInfo.engine, containerInfo.Id);
+async function stopContainer(containerInfo: ContainerInfoUI) {
+  await window.stopContainer(containerInfo.engine, containerInfo.id);
   console.log('container stopped');
 }
 
@@ -262,26 +283,26 @@ async function stopContainer(containerInfo: ContainerInfo) {
                   <div class="flex items-center">
                     <div class="flex-shrink-0 w-10 py-3">
                         <!--<Fa class="h-10 w-10 rounded-full {getColorForState(container)}" icon={faBox} />-->
-                        <ContainerIcon  state="{container?.State}"/>
+                        <ContainerIcon state="{container.state}"/>
                     </div>
                     <div class="ml-4">
                       <div class="flex flex-row">
-                        <div class="text-sm text-gray-200">{getName(container)}</div>
-                        <div class="pl-2 text-sm text-violet-400">{getImage(container)}</div>
+                        <div class="text-sm text-gray-200">{container.name}</div>
+                        <div class="pl-2 text-sm text-violet-400">{container.image}</div>
                       </div>
                       <div class="flex flex-row text-xs font-extra-light text-gray-500">
-                        <div>{getState(container)}</div>
-                        <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">{getEngine(container)}</div>
-                        <div class="pl-2 pr-2">{getPort(container)}</div>
+                        <div>{container.state}</div>
+                        <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">{container.engine}</div>
+                        <div class="pl-2 pr-2">{container.port}</div>
                     </div>
                   </div>
                   </div>
                 </td>
                 <td class="px-6 py-2 whitespace-nowrap">
                   <div class="flex flex-row justify-end">
-                    <button title="Open Browser" on:click={() => openBrowser(container)} hidden class:block="{container?.State === 'running' && hasPublicPort(container)}" ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon={faExternalLinkSquareAlt} /></button>
-                    <button title="Start Container" on:click={() => startContainer(container)} hidden class:block="{container?.State !== 'running'}" ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon={faPlayCircle} /></button>
-                    <button title="Stop Container" on:click={() => stopContainer(container)} hidden class:block="{container?.State === 'running'}" ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon={faStopCircle} /></button>
+                    <button title="Open Browser" on:click={() => openBrowser(container)} hidden class:block="{container.state === 'RUNNING' && container.hasPublicPort}" ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon={faExternalLinkSquareAlt} /></button>
+                    <button title="Start Container" on:click={() => startContainer(container)} hidden class:block="{container.state !== 'RUNNING'}" ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon={faPlayCircle} /></button>
+                    <button title="Stop Container" on:click={() => stopContainer(container)} hidden class:block="{container.state === 'RUNNING'}" ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon={faStopCircle} /></button>
                     <!--<button title="Delete Container"><Fa class="cursor-pointer h-10 w-10 rounded-full text-3xl text-sky-800" icon={faTrash} /></button>-->
                 </div>
                 </td>
