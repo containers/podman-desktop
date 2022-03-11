@@ -42,7 +42,7 @@ jobs:
         run: |
             CURRENT_DAY=$(date +'%Y%m%d')
             SHORT_SHA1=$(git rev-parse --short HEAD)
-            TAG_PATTERN=0.0.$(date +'%Y%m%d%H%M%S')
+            TAG_PATTERN=0.0.$(date +'%Y%m%d%H%M')-${SHORT_SHA1}
             echo "::set-output name=githubTag::v$TAG_PATTERN"
             echo "::set-output name=desktopVersion::$TAG_PATTERN"
       - name: tag
@@ -129,7 +129,7 @@ jobs:
         timeout-minutes: 20
         run: yarn compile:next
 
-  darwin:
+  mac:
     needs: tag
     name: macOS
     runs-on: macos-11
@@ -163,3 +163,15 @@ jobs:
         timeout-minutes: 20
         run: yarn compile:next
 
+  release:
+    needs: [windows, linux, mac]
+    name: Release
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Create the release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ needs.tag.outputs.desktopVersion}}
+          tag_name: ${{ needs.tag.outputs.githubTag}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
