@@ -93,11 +93,6 @@ let tray = null;
 app.whenReady().then(() => {
   tray = new Tray(nativeTrayIcon);
   const contextMenu = Menu.buildFromTemplate([
-    { label: 'Podman', type: 'radio', checked: false },
-    { type: 'separator' },
-    { label: 'Kubernetes', type: 'radio', checked: false },
-    { type: 'separator' },
-    { label: 'OpenShift', type: 'radio', checked: true },
     { type: 'separator' },
     { label: 'Quit', type: 'normal', role: 'quit' },
   ]);
