@@ -164,7 +164,7 @@ jobs:
         run: yarn compile:next
 
   release:
-    needs: [windows, linux, mac]
+    needs: [windows, linux, mac, tag]
     name: Release
     runs-on: ubuntu-20.04
     steps:
