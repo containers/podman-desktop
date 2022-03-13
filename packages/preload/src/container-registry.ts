@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@
 
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { Disposable } from './types/disposable';
-import Dockerode from 'dockerode';  
+import Dockerode from 'dockerode';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
@@ -45,13 +45,12 @@ export class ContainerProviderRegistry {
     constructor(private apiSender: any) {
 
     }
-    
+
     private providers: Map<string, containerDesktopAPI.ContainerProvider> = new Map();
     private providerLifecycles: Map<string, InternalContainerProviderLifecycle> = new Map();
     private internalProviders: Map<string, InternalContainerProvider> = new Map();
 
     async registerContainerProviderLifecycle(providerLifecycle: containerDesktopAPI.ContainerProviderLifecycle): Promise<Disposable> {
-
         const providerName = providerLifecycle.provideName();
         const internalProviderLifecycle = {
             internal: providerLifecycle,
@@ -130,7 +129,7 @@ export class ContainerProviderRegistry {
         async listImages(): Promise<ImageInfo[]> {
             const images = await Promise.all(Array.from(this.internalProviders.values()).map(async (provider) => {
                 try {
-                const images = await provider.api.listImages({all:true});
+                const images = await provider.api.listImages({all:false});
                 return images.map((image) => {
                     const imageInfo: ImageInfo = {...image,
                         engine: provider.name,
@@ -153,7 +152,7 @@ export class ContainerProviderRegistry {
             }
             await providerLifecycle.internal.start();
             this.apiSender.send('provider-lifecycle-change', {});
-        }    
+        }
 
         async stopProviderLifecycle(providerName: string): Promise<void> {
             // need to find the container engine of the container
@@ -163,7 +162,7 @@ export class ContainerProviderRegistry {
             }
             await providerLifecycle.internal.stop();
             this.apiSender.send('provider-lifecycle-change', {});
-        }    
+        }
 
     async stopContainer(engineName: string, id: string): Promise<void> {
         // need to find the container engine of the container
@@ -172,8 +171,8 @@ export class ContainerProviderRegistry {
             throw new Error('no engine matching this container');
         }
         return engine.api.getContainer(id).stop();
-    }    
-    
+    }
+
     async startContainer(engineName: string, id: string): Promise<void> {
         // need to find the container engine of the container
         const engine = this.internalProviders.get(engineName);
@@ -276,5 +275,5 @@ export class ContainerProviderRegistry {
         });
     }
 
-    
+
 }
