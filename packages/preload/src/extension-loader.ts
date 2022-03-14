@@ -24,6 +24,7 @@ import type { CommandRegistry } from './command-registry';
 import type { ContainerProviderRegistry } from './container-registry';
 import type { ExtensionInfo } from './api/extension-info';
 import * as zipper from 'zip-local';
+import { Disposable } from './types/disposable';
 
 /**
  * Handle the loading of an extension
@@ -222,6 +223,8 @@ export class ExtensionLoader {
             }*/
 
             return <typeof containerDesktopAPI>{
+                // Types
+                Disposable: Disposable,
                 commands,
                 container,
             };
