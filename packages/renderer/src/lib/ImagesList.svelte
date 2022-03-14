@@ -103,7 +103,7 @@ function getId(imageInfo: ImageInfo) {
 
 function getTag(imageInfo: ImageInfo) {
   if(!imageInfo.RepoTags){
-    return '<node>'
+    return '<none>'
   }
   return imageInfo.RepoTags.map((tag => {
     return tag.split(':')[1];
