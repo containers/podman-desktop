@@ -1,23 +1,40 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faBox } from '@fortawesome/free-solid-svg-icons';
 import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
-import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 
-import { onMount } from 'svelte';
 import { filtered, searchPattern } from '../stores/images';
-import { searchPattern as searchPatternContainer } from '../stores/containers';
 import type { ImageInfo } from '../../../preload/src/api/image-info';
 import type { ImageInspectInfo } from '../../../preload/src/api/image-inspect-info';
 import type { ContainerCreateOptions } from '../../../preload/src/api/container-info';
+import { onMount } from 'svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
+
+interface ImageInfoUI {
+  id: string;
+  name: string;
+  engine: string;
+  tag: string;
+}
+let images: ImageInfoUI[] = [];
+
+onMount(async () => {
+  filtered.subscribe(value => {
+    images = value.map((imageInfo: ImageInfo) => {
+      return {
+        id: imageInfo.Id,
+        name: getName(imageInfo),
+        engine: getEngine(imageInfo),
+        tag: getTag(imageInfo),
+      };
+    });
+  });
+});
+
 let runContainerFromImageModal = false;
 let modalImageInspectInfo: ImageInspectInfo;
-let modalImageInfo: ImageInfo;
+let modalImageInfo: ImageInfoUI;
 
 function getName(imageInfo: ImageInfo) {
   // get name
@@ -32,20 +49,16 @@ let modalContainerName = '';
 let modalContainerPortMapping: string[];
 let modalExposedPorts = [];
 
-async function runImage(imageInfo: ImageInfo) {
+async function runImage(imageInfo: ImageInfoUI) {
   modalExposedPorts = [];
   modalImageInspectInfo = undefined;
   modalContainerPortMapping = [];
   modalImageInfo = imageInfo;
-  const imageInspectInfo = await window.getImageInspect(imageInfo.engine, imageInfo.Id);
+  const imageInspectInfo = await window.getImageInspect(imageInfo.engine, imageInfo.id);
   modalImageInspectInfo = imageInspectInfo;
   modalExposedPorts = Array.from(Object.keys(modalImageInspectInfo?.Config?.ExposedPorts || {}));
   modalContainerPortMapping = new Array<string>(modalExposedPorts.length);
   runContainerFromImageModal = true;
-}
-
-function toggleCreateContainer(): void {
-  runContainerFromImageModal = !runContainerFromImageModal;
 }
 
 async function startContainer() {
@@ -63,7 +76,7 @@ async function startContainer() {
     ExposedPorts[port] = {};
   });
 
-  const Image = modalImageInfo.Id;
+  const Image = modalImageInfo.id;
 
   const HostConfig = {
     PortBindings,
@@ -148,16 +161,6 @@ function getEngine(containerInfo: ImageInfo): string {
             class="w-full py-2 outline-none bg-gray-700" />
         </div>
       </div>
-      <!--
-  <div class="flex flex-1 justify-end">
-  <div class="py-5 px-5">
-    <button type="button" on:click="{() => toggleCreateContainer()}" class="text-white bg-violet-700 hover:bg-violet-800 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 ">
-      <Fa class="h-10 w-8 cursor-pointer rounded-full text-xl text-white" icon={faPlusCircle} />
-      Create container
-    </button>
-  </div>
-</div>
--->
     </div>
     <table class="min-w-full divide-y divide-gray-800">
       <!--<thead class="bg-gray-700">
@@ -173,19 +176,19 @@ function getEngine(containerInfo: ImageInfo): string {
               </tr>
             </thead>-->
       <tbody class="bg-gray-800 divide-y divide-gray-200">
-        {#each $filtered as image}
+        {#each images as image}
           <tr>
             <td class="px-6 py-2 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="ml-4">
                   <div class="flex flex-row">
-                    <div class="text-sm text-gray-200">{getName(image)}</div>
-                    <div class="pl-2 text-sm text-violet-400">{getId(image)}</div>
+                    <div class="text-sm text-gray-200">{image.name}</div>
+                    <div class="pl-2 text-sm text-violet-400">{image.id}</div>
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-500">
-                    <div>{getTag(image)}</div>
+                    <div>{image.tag}</div>
                     <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">
-                      {getEngine(image)}
+                      {image.engine}
                     </div>
                   </div>
                 </div>
@@ -253,7 +256,7 @@ function getEngine(containerInfo: ImageInfo): string {
           <!--<form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">-->
           <div class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
             <h3 class="text-xl font-medium text-gray-900 dark:text-white">
-              Create Container {getName(modalImageInfo)}
+              Create Container {modalImageInfo.name}
             </h3>
 
             <div>
