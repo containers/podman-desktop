@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,6 +32,31 @@ declare module '@tmpwip/extension-api' {
 		arguments?: any[];
 	}
 
+  export interface MenuItem {
+
+    /**
+     * Unique within a single menu. Should be same as commandId for handler
+     */
+    id: string;
+
+    type?: ('normal' | 'separator' | 'submenu' | 'checkbox' | 'radio');
+    label?: string;
+    sublabel?: string;
+    icon?: string;
+    /**
+     * If false, the menu item will be greyed out and unclickable.
+     */
+    enabled?: boolean;
+    /**
+    * If false, the menu item will be entirely hidden.
+    */
+    visible?: boolean;
+    /**
+     * Should only be specified for `checkbox` or `radio` type menu items.
+     */
+    checked?: boolean;
+  }
+
     export class Disposable {
 
         constructor(func: () => void);
@@ -41,8 +66,8 @@ declare module '@tmpwip/extension-api' {
          * @param callOnDispose Function that disposes something.
          */
          // eslint-disable-next-line @typescript-eslint/ban-types
-         constructor(callOnDispose: Function);
-                 
+        constructor(callOnDispose: Function);
+
         /**
          * Dispose this object.
          */
@@ -76,8 +101,7 @@ declare module '@tmpwip/extension-api' {
         start(): Promise<void>;
         stop(): Promise<void>;
         status(): string;
-        handleLifecycleChange(callback: (event: string) => void): Promise<void> 
-        
+        handleLifecycleChange(callback: (event: string) => void): Promise<void>
     }
 
     export interface ContainerProvider {
@@ -95,6 +119,15 @@ declare module '@tmpwip/extension-api' {
     export namespace container {
         export function registerContainerProvider(provider: ContainerProvider): PromiseLike<Disposable>;
         export function registerContainerProviderLifecycle(providerLifecycle: ContainerProviderLifecycle): PromiseLike<Disposable>;
+    }
+
+    export namespace tray {
+      /**
+       *
+       * @param providerName the same as of ContainerProviderLifecycle.provideName() value, need to place menu item properly
+       * @param item
+       */
+      export function registerMenuItem(providerName: string, item: MenuItem): Disposable;
     }
 
 

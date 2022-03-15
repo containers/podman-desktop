@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import type { CommandRegistry } from './command-registry';
 import type { ContainerProviderRegistry } from './container-registry';
 import type { ExtensionInfo } from './api/extension-info';
 import * as zipper from 'zip-local';
+import type { TrayMenuRegistry } from './tray-menu-registry';
 import { Disposable } from './types/disposable';
 
 /**
@@ -60,6 +61,7 @@ export class ExtensionLoader {
         private containerProviderRegistry: ContainerProviderRegistry,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         private apiSender: any,
+        private trayMenuRegistry: TrayMenuRegistry,
     ) {
 
     }
@@ -82,7 +84,7 @@ export class ExtensionLoader {
         // save original load method
         const internalLoad = module._load;
         const analyzedExtensions = this.analyzedExtensions;
-    
+
         // if we try to resolve theia module, return the filename entry to use cache.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         module._load = function (request: string, parent: any): any {
@@ -108,7 +110,7 @@ export class ExtensionLoader {
 
         const filename = path.basename(filePath);
         const dirname = path.dirname(filePath);
-        
+
         const unpackedDirectory = path.resolve(dirname, `../unpacked/${filename}`);
         console.log('unpackedDirectory', unpackedDirectory);
         fs.mkdirSync(unpackedDirectory, {recursive: true});
@@ -161,8 +163,6 @@ export class ExtensionLoader {
         const entries = await fs.promises.readdir(path, {withFileTypes: true});
         return entries.filter(entry => entry.isDirectory).map(directory  => path + '/' + directory.name + `/builtin/${directory.name}.cdix`);
     }
-
-    
 
     async loadExtension(extensionPath: string): Promise<void> {
         // load manifest
@@ -217,6 +217,13 @@ export class ExtensionLoader {
                 return containerProviderRegistry.registerContainerProviderLifecycle(providerLifecycle);
             },
         };
+
+        const trayMenuRegistry = this.trayMenuRegistry;
+        const tray: typeof containerDesktopAPI.tray = {
+          registerMenuItem(providerName: string, item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
+            return trayMenuRegistry.registerMenuItem(providerName, item);
+          },
+        };
         /*
             export namespace container {
                 export function registerContainerProvider(provider: ContainerProvider): Disposable;
@@ -227,6 +234,7 @@ export class ExtensionLoader {
                 Disposable: Disposable,
                 commands,
                 container,
+                tray,
             };
     }
 

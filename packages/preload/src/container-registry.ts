@@ -23,6 +23,7 @@ import type { ContainerCreateOptions, ContainerInfo } from './api/container-info
 import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { ProviderInfo } from './api/provider-info';
+import type { TrayMenuRegistry } from './tray-menu-registry';
 
 const tar: {pack: (dir: string) => NodeJS.ReadableStream} = require('tar-fs');
 
@@ -42,7 +43,7 @@ export interface InternalContainerProviderLifecycle {
 export class ContainerProviderRegistry {
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    constructor(private apiSender: any) {
+    constructor(private apiSender: any, private readonly trayMenuRegistry: TrayMenuRegistry) {
 
     }
 
@@ -57,10 +58,12 @@ export class ContainerProviderRegistry {
             status: providerLifecycle.status(),
         };
         this.providerLifecycles.set(providerName, internalProviderLifecycle);
+        this.trayMenuRegistry.addContainerProviderLifecycle(providerName, providerLifecycle);
         return Disposable.create(() => {
             this.internalProviders.delete(providerName);
             this.providers.delete(providerName);
             this.apiSender.send('provider-lifecycle-change', {});
+            this.trayMenuRegistry.removeContainerProviderLifecycle(providerName);
         });
 
     }
