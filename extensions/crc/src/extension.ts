@@ -21,36 +21,31 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 
-
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  let socketPath;
+  const isWindows = os.platform() === 'win32';
+  if (isWindows) {
+    socketPath = '//./pipe/crc-podman';
+  } else {
+    socketPath = path.resolve(os.homedir(), '.crc/machines/crc/docker.sock');
+  }
 
-    let socketPath;
-    const isWindows = os.platform() === 'win32';
-    if (isWindows) {
-        socketPath = '//./pipe/crc-podman';
-    } else {
-        socketPath = path.resolve(os.homedir(), '.crc/machines/crc/docker.sock');
-    }
+  const dockerContainerProvider: extensionApi.ContainerProvider = {
+    provideName: () => 'crc/podman',
 
-
-    const dockerContainerProvider: extensionApi.ContainerProvider = {
-        provideName: () => 'crc/podman',
-
-        provideConnection: async (): Promise<string> => {
-            return socketPath;
-        },
-    };
-    if (fs.existsSync(socketPath)) {
-        const disposable = await extensionApi.container.registerContainerProvider(dockerContainerProvider);
-        extensionContext.subscriptions.push(disposable);
-        console.log('crc extension is active');
-    } else {
-        console.error(`Could not find crc podman socket at ${socketPath}`);
-    }
-
+    provideConnection: async (): Promise<string> => {
+      return socketPath;
+    },
+  };
+  if (fs.existsSync(socketPath)) {
+    const disposable = await extensionApi.container.registerContainerProvider(dockerContainerProvider);
+    extensionContext.subscriptions.push(disposable);
+    console.log('crc extension is active');
+  } else {
+    console.error(`Could not find crc podman socket at ${socketPath}`);
+  }
 }
 
 export function deactivate(): void {
-    console.log('stopping crc extension');
+  console.log('stopping crc extension');
 }
-

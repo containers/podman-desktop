@@ -19,44 +19,41 @@
 import { Disposable } from './types/disposable';
 
 export interface CommandHandler {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	callback: any;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	thisArg: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  callback: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  thisArg: any;
 }
 
 export class CommandRegistry {
+  private commands = new Map<string, CommandHandler>();
 
-    private commands = new Map<string, CommandHandler>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable {
+    if (this.commands.has(command)) {
+      throw new Error(`command '${command}' already exists`);
+    }
+    // keep command
+    this.commands.set(command, {
+      callback,
+      thisArg,
+    });
+    return Disposable.create(() => {
+      this.commands.delete(command);
+    });
+  }
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable {
-
-        if (this.commands.has(command)) {
-			throw new Error(`command '${command}' already exists`);
-		}
-        // keep command
-        this.commands.set(command, {
-            callback,
-            thisArg,
-        });
-        return Disposable.create(() => {
-            this.commands.delete(command);
-        });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async executeCommand<T = unknown>(commandId: string, ...args: any[]): Promise<T> {
+    // command is on node world, just execute it
+    if (this.commands.has(commandId)) {
+      const command = this.commands.get(commandId);
+      if (command) {
+        return command.callback.apply(command.thisArg, args);
+      }
     }
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async executeCommand<T = unknown>(commandId: string, ...args: any[]): Promise<T> {
-        // command is on node world, just execute it
-        if (this.commands.has(commandId)) {
-            const command = this.commands.get(commandId);
-            if (command) {
-                return command.callback.apply(command.thisArg, args);
-            }
-        }
-
-        // should try to execute on client side
-        throw new Error('Unknown command: ' + commandId);
-    }
+    // should try to execute on client side
+    throw new Error('Unknown command: ' + commandId);
+  }
 }
-

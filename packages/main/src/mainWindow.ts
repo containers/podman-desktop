@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { BrowserWindowConstructorOptions} from 'electron';
-import { BrowserWindow, ipcMain} from 'electron';
-import {join} from 'path';
-import {URL} from 'url';
+import type { BrowserWindowConstructorOptions } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
+import { join } from 'path';
+import { URL } from 'url';
 import * as os from 'os';
 
 async function createWindow() {
@@ -45,14 +45,13 @@ async function createWindow() {
   setTimeout(() => {
     console.log('SEND SEND SEND message');
     browserWindow.webContents.send('container-stopped-event', 'containerID');
-    }, 5000);
-
+  }, 5000);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ipcMain.on('container-stopped-event', (event: any, info: any) => {
     console.log('SEND SEND SEND message', info);
     browserWindow.webContents.send('container-stopped-event', event);
-      });
+  });
 
   /**
    * If you install `show: true` then it can cause issues when trying to close the window.
@@ -73,10 +72,10 @@ async function createWindow() {
    * Vite dev server for development.
    * `file://../renderer/index.html` for production and test
    */
-  const pageUrl = import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL !== undefined
-    ? import.meta.env.VITE_DEV_SERVER_URL
-    : new URL('../renderer/dist/index.html', 'file://' + __dirname).toString();
-
+  const pageUrl =
+    import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL !== undefined
+      ? import.meta.env.VITE_DEV_SERVER_URL
+      : new URL('../renderer/dist/index.html', 'file://' + __dirname).toString();
 
   await browserWindow.loadURL(pageUrl);
 

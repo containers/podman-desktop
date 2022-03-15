@@ -10,7 +10,6 @@
  * @see https://vitejs.dev/guide/env-and-mode.html#env-files Vite Env Variables Doc
  */
 interface ImportMetaEnv {
-
   /**
    * The value of the variable is set in scripts/watch.js and depend on packages/main/vite.config.js
    */
@@ -18,5 +17,5 @@ interface ImportMetaEnv {
 }
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv
+  readonly env: ImportMetaEnv;
 }

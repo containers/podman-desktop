@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,8 +20,8 @@ import { writable, derived } from 'svelte/store';
 import type { ContainerInfo } from '../../../preload/src/api/container-info';
 
 export async function fetchContainers() {
-     const result = await window.listContainers();
-     containersInfos.set(result);
+  const result = await window.listContainers();
+  containersInfos.set(result);
 }
 
 fetchContainers();
@@ -30,30 +30,29 @@ export const containersInfos = writable([]);
 export const searchPattern = writable('');
 
 function getName(containerInfo: ContainerInfo) {
-     return JSON.stringify(containerInfo).toLowerCase();
-   }
+  return JSON.stringify(containerInfo).toLowerCase();
+}
 
-export const filtered = derived(
-     [searchPattern, containersInfos], 
-     ([$searchPattern, $containersInfos]) => $containersInfos.filter(containerInfo => getName(containerInfo).includes($searchPattern.toLowerCase())),
- );
+export const filtered = derived([searchPattern, containersInfos], ([$searchPattern, $containersInfos]) =>
+  $containersInfos.filter(containerInfo => getName(containerInfo).includes($searchPattern.toLowerCase())),
+);
 
 // need to refresh when extension is started or stopped
 window.addEventListener('extension-started', () => {
-     fetchContainers();
+  fetchContainers();
 });
 window.addEventListener('extension-stopped', () => {
-     fetchContainers();
+  fetchContainers();
 });
 
 window.events?.receive('container-stopped-event', () => {
-     fetchContainers();
+  fetchContainers();
 });
 
 window.events?.receive('container-started-event', () => {
-     fetchContainers();
+  fetchContainers();
 });
 
 window.events?.receive('provider-change', () => {
-     fetchContainers();
+  fetchContainers();
 });
