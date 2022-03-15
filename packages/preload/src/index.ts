@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,6 +30,7 @@ import EventEmitter from 'events';
 import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { ProviderInfo } from './api/provider-info';
+import { TrayMenuRegistry } from './tray-menu-registry';
 const shell = require('electron').shell;
 
 // initialize extension loader mechanism
@@ -50,9 +51,10 @@ function initExtensions(): void {
       };
 
     contextBridge.exposeInMainWorld('events', apiSender);
-      
+
     const commandRegistry = new CommandRegistry();
-    const containerProviderRegistry = new ContainerProviderRegistry(apiSender);
+    const trayMenuRegistry = new TrayMenuRegistry(commandRegistry);
+    const containerProviderRegistry = new ContainerProviderRegistry(apiSender, trayMenuRegistry);
 
     contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
         return containerProviderRegistry.listContainers();
@@ -77,7 +79,7 @@ function initExtensions(): void {
     contextBridge.exposeInMainWorld('startProviderLifecycle', async (providerName: string): Promise<void> => {
         return containerProviderRegistry.startProviderLifecycle(providerName);
     });
-    
+
     contextBridge.exposeInMainWorld('stopProviderLifecycle', async (providerName: string): Promise<void> => {
         return containerProviderRegistry.stopProviderLifecycle(providerName);
     });
@@ -95,7 +97,7 @@ function initExtensions(): void {
         return containerProviderRegistry.getProviderInfos();
     });
 
-    const extensionLoader = new ExtensionLoader(commandRegistry, containerProviderRegistry, apiSender);
+    const extensionLoader = new ExtensionLoader(commandRegistry, containerProviderRegistry, apiSender, trayMenuRegistry);
     contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
         return extensionLoader.listExtensions();
     });
@@ -112,8 +114,10 @@ function initExtensions(): void {
         shell.openExternal(link);
     });
 
+    contextBridge.exposeInMainWorld('trayMenu', trayMenuRegistry);
+
     extensionLoader.start();
-   
+
 
 }
 

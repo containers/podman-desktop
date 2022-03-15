@@ -17,9 +17,10 @@
  ***********************************************************************/
 
 import trayIcon from './tray-icon.png';
-import {app, Menu, nativeImage, Tray} from 'electron';
+import {app, nativeImage, Tray} from 'electron';
 import './security-restrictions';
 import {restoreOrCreateWindow} from '/@/mainWindow';
+import { TrayMenu } from './tray-menu';
 
 
 /**
@@ -89,12 +90,10 @@ if (import.meta.env.PROD) {
 
 const nativeTrayIcon = nativeImage.createFromDataURL(trayIcon);
 
-let tray = null;
+let tray: Tray | null = null;
+
+
 app.whenReady().then(() => {
   tray = new Tray(nativeTrayIcon);
-  const contextMenu = Menu.buildFromTemplate([
-    { type: 'separator' },
-    { label: 'Quit', type: 'normal', role: 'quit' },
-  ]);
-  tray.setContextMenu(contextMenu);
+  new TrayMenu(tray);
 });

@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,11 +18,12 @@
 
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { Disposable } from './types/disposable';
-import Dockerode from 'dockerode';  
+import Dockerode from 'dockerode';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { ProviderInfo } from './api/provider-info';
+import type { TrayMenuRegistry } from './tray-menu-registry';
 
 const tar: {pack: (dir: string) => NodeJS.ReadableStream} = require('tar-fs');
 
@@ -42,10 +43,10 @@ export interface InternalContainerProviderLifecycle {
 export class ContainerProviderRegistry {
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    constructor(private apiSender: any) {
+    constructor(private apiSender: any, private readonly trayMenuRegistry: TrayMenuRegistry) {
 
     }
-    
+
     private providers: Map<string, containerDesktopAPI.ContainerProvider> = new Map();
     private providerLifecycles: Map<string, InternalContainerProviderLifecycle> = new Map();
     private internalProviders: Map<string, InternalContainerProvider> = new Map();
@@ -58,10 +59,12 @@ export class ContainerProviderRegistry {
             status: providerLifecycle.status(),
         };
         this.providerLifecycles.set(providerName, internalProviderLifecycle);
+        this.trayMenuRegistry.addContainerProviderLifecycle(providerName, providerLifecycle);
         return Disposable.create(() => {
             this.internalProviders.delete(providerName);
             this.providers.delete(providerName);
             this.apiSender.send('provider-lifecycle-change', {});
+            this.trayMenuRegistry.removeContainerProviderLifecycle(providerName);
         });
 
     }
@@ -153,7 +156,7 @@ export class ContainerProviderRegistry {
             }
             await providerLifecycle.internal.start();
             this.apiSender.send('provider-lifecycle-change', {});
-        }    
+        }
 
         async stopProviderLifecycle(providerName: string): Promise<void> {
             // need to find the container engine of the container
@@ -163,7 +166,7 @@ export class ContainerProviderRegistry {
             }
             await providerLifecycle.internal.stop();
             this.apiSender.send('provider-lifecycle-change', {});
-        }    
+        }
 
     async stopContainer(engineName: string, id: string): Promise<void> {
         // need to find the container engine of the container
@@ -172,8 +175,8 @@ export class ContainerProviderRegistry {
             throw new Error('no engine matching this container');
         }
         return engine.api.getContainer(id).stop();
-    }    
-    
+    }
+
     async startContainer(engineName: string, id: string): Promise<void> {
         // need to find the container engine of the container
         const engine = this.internalProviders.get(engineName);
@@ -276,5 +279,5 @@ export class ContainerProviderRegistry {
         });
     }
 
-    
+
 }
