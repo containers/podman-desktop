@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ipcMain, BrowserWindow, Menu } from 'electron';
-import type { MenuItemConstructorOptions, Tray } from 'electron';
+import { ipcMain, BrowserWindow, Menu, nativeImage } from 'electron';
+import type { MenuItemConstructorOptions, Tray, NativeImage} from 'electron';
 import * as path from 'node:path';
+import statusStarted from './assets/status-started.png';
+import statusStopped from './assets/status-stopped.png';
+import statusUnknown from './assets/status-unknown.png';
 
 interface ContainerProvider {
   providerName: string;
@@ -147,8 +150,19 @@ export class TrayMenu {
     return result;
   }
 
-  private getStatusIcon(status: string): string {
-    return path.join(__dirname, '..', 'assets', `status-${status}.png`);
+  private getStatusIcon(status: string): NativeImage {
+    let image;
+    switch(status) {
+      case 'started':
+        image = statusStarted;
+        break;
+      case 'stopped':
+        image = statusStopped;
+        break;
+      default:
+        image = statusUnknown;
+    }
+    return nativeImage.createFromDataURL(image) ;
   }
 
   private sendItemClick(param: { type: string; providerName: string }): void {
