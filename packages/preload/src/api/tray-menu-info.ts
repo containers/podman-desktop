@@ -22,7 +22,7 @@ export interface MenuItem {
    */
   id: string;
 
-  type?: ('normal' | 'separator' | 'submenu' | 'checkbox' | 'radio');
+  type?: 'normal' | 'separator' | 'submenu' | 'checkbox' | 'radio';
   label?: string;
   sublabel?: string;
   icon?: string;
@@ -31,8 +31,8 @@ export interface MenuItem {
    */
   enabled?: boolean;
   /**
-  * If false, the menu item will be entirely hidden.
-  */
+   * If false, the menu item will be entirely hidden.
+   */
   visible?: boolean;
   /**
    * Should only be specified for `checkbox` or `radio` type menu items.

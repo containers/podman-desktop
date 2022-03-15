@@ -16,14 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ContainerProviderLifecycle } from '@tmpwip/extension-api';
-import {ipcRenderer} from 'electron';
+import type { ContainerProviderLifecycle } from '@tmpwip/extension-api';
+import { ipcRenderer } from 'electron';
 import type { MenuItem } from './api/tray-menu-info';
 import type { CommandRegistry } from './command-registry';
 import { Disposable } from './types/disposable';
 
 export class TrayMenuRegistry {
-
   private menuItems = new Map<string, MenuItem>();
   private containerProviders = new Map<string, ContainerProviderLifecycle>();
 
@@ -36,12 +35,12 @@ export class TrayMenuRegistry {
       }
     });
 
-    ipcRenderer.on('tray-menu-provider-click', (_, param: {type: string, providerName: string}) => {
+    ipcRenderer.on('tray-menu-provider-click', (_, param: { type: string; providerName: string }) => {
       const provider = this.containerProviders.get(param.providerName);
-      if(provider){
-        if(param.type === 'Start') {
+      if (provider) {
+        if (param.type === 'Start') {
           provider.start();
-        } else if(param.type === 'Stop'){
+        } else if (param.type === 'Stop') {
           provider.stop();
         }
       }
@@ -50,7 +49,7 @@ export class TrayMenuRegistry {
 
   registerMenuItem(providerName: string, menuItem: MenuItem): Disposable {
     this.menuItems.set(menuItem.id, menuItem);
-    ipcRenderer.send('add-tray-menu-item', {providerName ,menuItem});
+    ipcRenderer.send('add-tray-menu-item', { providerName, menuItem });
     return Disposable.create(() => {
       this.menuItems.delete(menuItem.id);
       // TODO: notify main
@@ -59,9 +58,9 @@ export class TrayMenuRegistry {
 
   addContainerProviderLifecycle(providerName: string, crl: ContainerProviderLifecycle): void {
     this.containerProviders.set(providerName, crl);
-    ipcRenderer.send('add-tray-container-provider', {providerName, status: crl.status()});
-    crl.handleLifecycleChange((e) => {
-      ipcRenderer.send('update-tray-container-provider', {providerName, status: crl.status()});
+    ipcRenderer.send('add-tray-container-provider', { providerName, status: crl.status() });
+    crl.handleLifecycleChange(() => {
+      ipcRenderer.send('update-tray-container-provider', { providerName, status: crl.status() });
     });
   }
 

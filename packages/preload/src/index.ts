@@ -20,7 +20,7 @@
  * @module preload
  */
 
-import {contextBridge} from 'electron';
+import { contextBridge } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ExtensionInfo } from './api/extension-info';
 import { CommandRegistry } from './command-registry';
@@ -35,90 +35,98 @@ const shell = require('electron').shell;
 
 // initialize extension loader mechanism
 function initExtensions(): void {
+  const eventEmitter = new EventEmitter();
+  const apiSender = {
+    send: (channel: string, data: string) => {
+      eventEmitter.emit(channel, data);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    receive: (channel: string, func: any) => {
+      eventEmitter.on(channel, data => {
+        func(data);
+      });
+    },
+  };
 
-    const eventEmitter = new EventEmitter();
-    const apiSender = {
-        send: (channel: string, data: string) => {
-          eventEmitter.emit(channel, data);
-        },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        receive: (channel: string, func: any) => {
-            eventEmitter.on(channel, (data) => {
-                func(data);
-            });
-       },
-      };
+  contextBridge.exposeInMainWorld('events', apiSender);
 
-    contextBridge.exposeInMainWorld('events', apiSender);
+  const commandRegistry = new CommandRegistry();
+  const trayMenuRegistry = new TrayMenuRegistry(commandRegistry);
+  const containerProviderRegistry = new ContainerProviderRegistry(apiSender, trayMenuRegistry);
 
-    const commandRegistry = new CommandRegistry();
-    const trayMenuRegistry = new TrayMenuRegistry(commandRegistry);
-    const containerProviderRegistry = new ContainerProviderRegistry(apiSender, trayMenuRegistry);
+  contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
+    return containerProviderRegistry.listContainers();
+  });
 
-    contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
-        return containerProviderRegistry.listContainers();
-    });
+  contextBridge.exposeInMainWorld('listImages', async (): Promise<ImageInfo[]> => {
+    return containerProviderRegistry.listImages();
+  });
 
-    contextBridge.exposeInMainWorld('listImages', async (): Promise<ImageInfo[]> => {
-        return containerProviderRegistry.listImages();
-    });
+  contextBridge.exposeInMainWorld('startContainer', async (engine: string, containerId: string): Promise<void> => {
+    return containerProviderRegistry.startContainer(engine, containerId);
+  });
 
-    contextBridge.exposeInMainWorld('startContainer', async (engine: string, containerId: string): Promise<void> => {
-        return containerProviderRegistry.startContainer(engine, containerId);
-    });
+  contextBridge.exposeInMainWorld(
+    'createAndStartContainer',
+    async (engine: string, options: ContainerCreateOptions): Promise<void> => {
+      return containerProviderRegistry.createAndStartContainer(engine, options);
+    },
+  );
 
-    contextBridge.exposeInMainWorld('createAndStartContainer', async (engine: string, options: ContainerCreateOptions): Promise<void> => {
-        return containerProviderRegistry.createAndStartContainer(engine, options);
-    });
+  contextBridge.exposeInMainWorld('stopContainer', async (engine: string, containerId: string): Promise<void> => {
+    return containerProviderRegistry.stopContainer(engine, containerId);
+  });
 
-    contextBridge.exposeInMainWorld('stopContainer', async (engine: string, containerId: string): Promise<void> => {
-        return containerProviderRegistry.stopContainer(engine, containerId);
-    });
+  contextBridge.exposeInMainWorld('startProviderLifecycle', async (providerName: string): Promise<void> => {
+    return containerProviderRegistry.startProviderLifecycle(providerName);
+  });
 
-    contextBridge.exposeInMainWorld('startProviderLifecycle', async (providerName: string): Promise<void> => {
-        return containerProviderRegistry.startProviderLifecycle(providerName);
-    });
+  contextBridge.exposeInMainWorld('stopProviderLifecycle', async (providerName: string): Promise<void> => {
+    return containerProviderRegistry.stopProviderLifecycle(providerName);
+  });
 
-    contextBridge.exposeInMainWorld('stopProviderLifecycle', async (providerName: string): Promise<void> => {
-        return containerProviderRegistry.stopProviderLifecycle(providerName);
-    });
+  contextBridge.exposeInMainWorld(
+    'buildImage',
+    async (
+      buildDirectory: string,
+      imageName: string,
+      eventCollect: (eventName: string, data: string) => void,
+    ): Promise<unknown> => {
+      return containerProviderRegistry.buildImage(buildDirectory, imageName, eventCollect);
+    },
+  );
 
+  contextBridge.exposeInMainWorld(
+    'getImageInspect',
+    async (engine: string, imageId: string): Promise<ImageInspectInfo> => {
+      return containerProviderRegistry.getImageInspect(engine, imageId);
+    },
+  );
 
-    contextBridge.exposeInMainWorld('buildImage', async (buildDirectory: string, imageName: string, eventCollect: (eventName: string, data: string) => void): Promise<unknown> => {
-        return containerProviderRegistry.buildImage(buildDirectory, imageName, eventCollect);
-    });
+  contextBridge.exposeInMainWorld('getProviderInfos', (): Promise<ProviderInfo[]> => {
+    return containerProviderRegistry.getProviderInfos();
+  });
 
-    contextBridge.exposeInMainWorld('getImageInspect', async (engine: string, imageId: string): Promise<ImageInspectInfo> => {
-        return containerProviderRegistry.getImageInspect(engine, imageId);
-    });
+  const extensionLoader = new ExtensionLoader(commandRegistry, containerProviderRegistry, apiSender, trayMenuRegistry);
+  contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
+    return extensionLoader.listExtensions();
+  });
 
-    contextBridge.exposeInMainWorld('getProviderInfos', (): Promise<ProviderInfo[]> => {
-        return containerProviderRegistry.getProviderInfos();
-    });
+  contextBridge.exposeInMainWorld('stopExtension', async (extensionId: string): Promise<void> => {
+    return extensionLoader.deactivateExtension(extensionId);
+  });
+  contextBridge.exposeInMainWorld('startExtension', async (extensionId: string): Promise<void> => {
+    return extensionLoader.startExtension(extensionId);
+  });
 
-    const extensionLoader = new ExtensionLoader(commandRegistry, containerProviderRegistry, apiSender, trayMenuRegistry);
-    contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
-        return extensionLoader.listExtensions();
-    });
+  contextBridge.exposeInMainWorld('openExternal', (link: string): void => {
+    shell.openExternal(link);
+  });
 
-    contextBridge.exposeInMainWorld('stopExtension', async (extensionId: string): Promise<void> => {
-        return extensionLoader.deactivateExtension(extensionId);
-    });
-    contextBridge.exposeInMainWorld('startExtension', async (extensionId: string): Promise<void> => {
-        return extensionLoader.startExtension(extensionId);
-    });
+  contextBridge.exposeInMainWorld('trayMenu', trayMenuRegistry);
 
-
-    contextBridge.exposeInMainWorld('openExternal', (link:string): void => {
-        shell.openExternal(link);
-    });
-
-    contextBridge.exposeInMainWorld('trayMenu', trayMenuRegistry);
-
-    extensionLoader.start();
-
-
+  extensionLoader.start();
 }
 
 // start extensions

@@ -32,317 +32,323 @@ import { Disposable } from './types/disposable';
  */
 
 export interface AnalyzedExtension {
-    id: string,
-    // root folder (where is package.json)
-    path: string,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    manifest: any,
-    // main entry
-    mainPath: string,
-    api: typeof containerDesktopAPI,
+  id: string;
+  // root folder (where is package.json)
+  path: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  manifest: any;
+  // main entry
+  mainPath: string;
+  api: typeof containerDesktopAPI;
 }
 
 export interface ActivatedExtension {
-    id: string;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    deactivateFunction: any;
-    extensionContext: containerDesktopAPI.ExtensionContext
+  id: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  deactivateFunction: any;
+  extensionContext: containerDesktopAPI.ExtensionContext;
 }
 
 export class ExtensionLoader {
+  private overrideRequireDone = false;
 
-    private overrideRequireDone = false;
+  private activatedExtensions = new Map<string, ActivatedExtension>();
+  private analyzedExtensions = new Map<string, AnalyzedExtension>();
 
-    private activatedExtensions = new Map<string, ActivatedExtension>();
-    private analyzedExtensions = new Map<string, AnalyzedExtension>();
+  constructor(
+    private commandRegistry: CommandRegistry,
+    private containerProviderRegistry: ContainerProviderRegistry,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private apiSender: any,
+    private trayMenuRegistry: TrayMenuRegistry,
+  ) {}
 
-    constructor(
-        private commandRegistry: CommandRegistry,
-        private containerProviderRegistry: ContainerProviderRegistry,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        private apiSender: any,
-        private trayMenuRegistry: TrayMenuRegistry,
-    ) {
+  async listExtensions(): Promise<ExtensionInfo[]> {
+    return Array.from(this.analyzedExtensions.values()).map(extension => ({
+      name: extension.manifest.name,
+      version: extension.manifest.version,
+      publisher: extension.manifest.publisher,
+      state: this.activatedExtensions.get(extension.id) ? 'active' : 'inactive',
+      id: extension.id,
+    }));
+  }
 
-    }
+  protected overrideRequire() {
+    if (!this.overrideRequireDone) {
+      this.overrideRequireDone = true;
+      const module = require('module');
+      // save original load method
+      const internalLoad = module._load;
+      const analyzedExtensions = this.analyzedExtensions;
 
-    async listExtensions(): Promise<ExtensionInfo[]> {
-        return Array.from(this.analyzedExtensions.values()).map(extension => ({
-            name: extension.manifest.name,
-            version: extension.manifest.version,
-            publisher: extension.manifest.publisher,
-            state: this.activatedExtensions.get(extension.id) ? 'active' : 'inactive',
-            id: extension.id,
-
-        }));
-    }
-
-    protected overrideRequire() {
-        if (!this.overrideRequireDone) {
-            this.overrideRequireDone = true;
-            const module = require('module');
-        // save original load method
-        const internalLoad = module._load;
-        const analyzedExtensions = this.analyzedExtensions;
-
-        // if we try to resolve theia module, return the filename entry to use cache.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        module._load = function (request: string, parent: any): any {
-            if (request !== '@tmpwip/extension-api') {
-                console.log('loading...', request, parent);
-                // eslint-disable-next-line prefer-rest-params
-                return internalLoad.apply(this, arguments);
-            }
-            console.log('in require function, loading with parent', parent.filename);
-
-            const extension = Array.from(analyzedExtensions.values()).find(extension => path.normalize(parent.filename).startsWith(path.normalize((extension.path))));
-            if (extension && extension.api) {
-                return extension.api;
-            }
-            throw new Error('Unable to find extension API');
-        };
-    }
-    }
-
-    async loadPackagedFile(filePath: string): Promise<void> {
-        // need to unpack the file before load it
-        console.log('loadPackagedFile', filePath);
-
-        const filename = path.basename(filePath);
-        const dirname = path.dirname(filePath);
-
-        const unpackedDirectory = path.resolve(dirname, `../unpacked/${filename}`);
-        console.log('unpackedDirectory', unpackedDirectory);
-        fs.mkdirSync(unpackedDirectory, {recursive: true});
-        // extract to an existing directory
-        zipper.sync.unzip(filePath).save(unpackedDirectory);
-
-        await this.loadExtension(unpackedDirectory);
-        this.apiSender.send('extension-started', {});
-    }
-
-
-    async start() {
-
-        // add watcher to the $HOME/container-desktop
-        const pluginsDirectory = path.resolve(os.homedir(), '.local/share/container-desktop/plugins');
-        if (fs.existsSync(pluginsDirectory)) {
-            // add watcher
-            fs.watch(pluginsDirectory, (_, filename) => {
-                // need to load the file
-                const packagedFile = path.resolve(pluginsDirectory, filename);
-                setTimeout(() => this.loadPackagedFile(packagedFile), 1000);
-            });
+      // if we try to resolve theia module, return the filename entry to use cache.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      module._load = function (request: string, parent: any): any {
+        if (request !== '@tmpwip/extension-api') {
+          console.log('loading...', request, parent);
+          // eslint-disable-next-line prefer-rest-params
+          return internalLoad.apply(this, arguments);
         }
+        console.log('in require function, loading with parent', parent.filename);
 
-        let folders;
-        // scan all extensions that we can find from the extensions folder
-        if (import.meta.env.PROD) {
-            console.log('IN PRODUCTION MODE');
-           // in production mode, use the extensions locally
-           console.log('dirname is', __dirname);
-           folders = await this.readProductionFolders(path.join(__dirname, '../../../extensions'));
-        } else {
-            // in development mode, use the extensions locally
-            folders = await this.readDevelopmentFolders(path.join(__dirname, '../../../extensions'));
+        const extension = Array.from(analyzedExtensions.values()).find(extension =>
+          path.normalize(parent.filename).startsWith(path.normalize(extension.path)),
+        );
+        if (extension && extension.api) {
+          return extension.api;
         }
-        console.log('found folders', folders);
+        throw new Error('Unable to find extension API');
+      };
+    }
+  }
 
-        // ok now load all extensions from these folders
-        await Promise.all(folders.map(folder => this.loadExtension(folder)));
+  async loadPackagedFile(filePath: string): Promise<void> {
+    // need to unpack the file before load it
+    console.log('loadPackagedFile', filePath);
 
+    const filename = path.basename(filePath);
+    const dirname = path.dirname(filePath);
+
+    const unpackedDirectory = path.resolve(dirname, `../unpacked/${filename}`);
+    console.log('unpackedDirectory', unpackedDirectory);
+    fs.mkdirSync(unpackedDirectory, { recursive: true });
+    // extract to an existing directory
+    zipper.sync.unzip(filePath).save(unpackedDirectory);
+
+    await this.loadExtension(unpackedDirectory);
+    this.apiSender.send('extension-started', {});
+  }
+
+  async start() {
+    // add watcher to the $HOME/container-desktop
+    const pluginsDirectory = path.resolve(os.homedir(), '.local/share/container-desktop/plugins');
+    if (fs.existsSync(pluginsDirectory)) {
+      // add watcher
+      fs.watch(pluginsDirectory, (_, filename) => {
+        // need to load the file
+        const packagedFile = path.resolve(pluginsDirectory, filename);
+        setTimeout(() => this.loadPackagedFile(packagedFile), 1000);
+      });
     }
 
-    async readDevelopmentFolders(path: string): Promise<string[]> {
-        const entries = await fs.promises.readdir(path, {withFileTypes: true});
-        return entries.filter(entry => entry.isDirectory).map(directory  => path + '/' + directory.name).filter(item => !item.includes('docker')).filter(item => !item.includes('lima'));
+    let folders;
+    // scan all extensions that we can find from the extensions folder
+    if (import.meta.env.PROD) {
+      console.log('IN PRODUCTION MODE');
+      // in production mode, use the extensions locally
+      console.log('dirname is', __dirname);
+      folders = await this.readProductionFolders(path.join(__dirname, '../../../extensions'));
+    } else {
+      // in development mode, use the extensions locally
+      folders = await this.readDevelopmentFolders(path.join(__dirname, '../../../extensions'));
     }
+    console.log('found folders', folders);
 
+    // ok now load all extensions from these folders
+    await Promise.all(folders.map(folder => this.loadExtension(folder)));
+  }
 
-    async readProductionFolders(path: string): Promise<string[]> {
-        const entries = await fs.promises.readdir(path, {withFileTypes: true});
-        return entries.filter(entry => entry.isDirectory).map(directory  => path + '/' + directory.name + `/builtin/${directory.name}.cdix`);
-    }
+  async readDevelopmentFolders(path: string): Promise<string[]> {
+    const entries = await fs.promises.readdir(path, { withFileTypes: true });
+    return entries
+      .filter(entry => entry.isDirectory)
+      .map(directory => path + '/' + directory.name)
+      .filter(item => !item.includes('docker'))
+      .filter(item => !item.includes('lima'));
+  }
 
-    async loadExtension(extensionPath: string): Promise<void> {
-        // load manifest
-        const manifest = await this.loadManifest(extensionPath);
-        console.log('manifest is', manifest);
+  async readProductionFolders(path: string): Promise<string[]> {
+    const entries = await fs.promises.readdir(path, { withFileTypes: true });
+    return entries
+      .filter(entry => entry.isDirectory)
+      .map(directory => path + '/' + directory.name + `/builtin/${directory.name}.cdix`);
+  }
 
-        console.log('overriding require');
-        this.overrideRequire();
+  async loadExtension(extensionPath: string): Promise<void> {
+    // load manifest
+    const manifest = await this.loadManifest(extensionPath);
+    console.log('manifest is', manifest);
 
-        // create api object
-        console.log('create API object');
-        const api = this.createApi();
+    console.log('overriding require');
+    this.overrideRequire();
 
-        const extension: AnalyzedExtension = {
-            id: manifest.name,
-            manifest,
-            path: extensionPath,
-            mainPath: path.resolve(extensionPath, manifest.main),
-            api,
-        };
+    // create api object
+    console.log('create API object');
+    const api = this.createApi();
 
-        this.analyzedExtensions.set(extension.id, extension);
+    const extension: AnalyzedExtension = {
+      id: manifest.name,
+      manifest,
+      path: extensionPath,
+      mainPath: path.resolve(extensionPath, manifest.main),
+      api,
+    };
 
-        console.log('load runtime...' + extension.mainPath);
-        const runtime = this.loadRuntime(extension.mainPath);
+    this.analyzedExtensions.set(extension.id, extension);
 
-        console.log('Activate extension...');
-        return this.activateExtension(extension, runtime);
-    }
+    console.log('load runtime...' + extension.mainPath);
+    const runtime = this.loadRuntime(extension.mainPath);
 
-    createApi(): typeof containerDesktopAPI {
-        const commandRegistry = this.commandRegistry;
-        const commands: typeof containerDesktopAPI.commands = {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): containerDesktopAPI.Disposable {
-                return commandRegistry.registerCommand(command, callback, thisArg);
-            },
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            executeCommand<T = unknown>(commandId: string, ...args: any[]): PromiseLike<T> {
-                return commandRegistry.executeCommand(commandId, ...args);
-            },
-        };
+    console.log('Activate extension...');
+    return this.activateExtension(extension, runtime);
+  }
 
-        //export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
+  createApi(): typeof containerDesktopAPI {
+    const commandRegistry = this.commandRegistry;
+    const commands: typeof containerDesktopAPI.commands = {
+      registerCommand(
+        command: string,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        callback: (...args: any[]) => any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        thisArg?: any,
+      ): containerDesktopAPI.Disposable {
+        return commandRegistry.registerCommand(command, callback, thisArg);
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      executeCommand<T = unknown>(commandId: string, ...args: any[]): PromiseLike<T> {
+        return commandRegistry.executeCommand(commandId, ...args);
+      },
+    };
 
-        const containerProviderRegistry = this.containerProviderRegistry;
-        const container: typeof containerDesktopAPI.container = {
-            async registerContainerProvider(provider: containerDesktopAPI.ContainerProvider): Promise<containerDesktopAPI.Disposable> {
-                return containerProviderRegistry.registerContainerProvider(provider);
-            },
-            async registerContainerProviderLifecycle(providerLifecycle: containerDesktopAPI.ContainerProviderLifecycle): Promise<containerDesktopAPI.Disposable> {
-                return containerProviderRegistry.registerContainerProviderLifecycle(providerLifecycle);
-            },
-        };
+    //export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
 
-        const trayMenuRegistry = this.trayMenuRegistry;
-        const tray: typeof containerDesktopAPI.tray = {
-          registerMenuItem(providerName: string, item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
-            return trayMenuRegistry.registerMenuItem(providerName, item);
-          },
-        };
-        /*
+    const containerProviderRegistry = this.containerProviderRegistry;
+    const container: typeof containerDesktopAPI.container = {
+      async registerContainerProvider(
+        provider: containerDesktopAPI.ContainerProvider,
+      ): Promise<containerDesktopAPI.Disposable> {
+        return containerProviderRegistry.registerContainerProvider(provider);
+      },
+      async registerContainerProviderLifecycle(
+        providerLifecycle: containerDesktopAPI.ContainerProviderLifecycle,
+      ): Promise<containerDesktopAPI.Disposable> {
+        return containerProviderRegistry.registerContainerProviderLifecycle(providerLifecycle);
+      },
+    };
+
+    const trayMenuRegistry = this.trayMenuRegistry;
+    const tray: typeof containerDesktopAPI.tray = {
+      registerMenuItem(providerName: string, item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
+        return trayMenuRegistry.registerMenuItem(providerName, item);
+      },
+    };
+    /*
             export namespace container {
                 export function registerContainerProvider(provider: ContainerProvider): Disposable;
             }*/
 
-            return <typeof containerDesktopAPI>{
-                // Types
-                Disposable: Disposable,
-                commands,
-                container,
-                tray,
-            };
-    }
+    return <typeof containerDesktopAPI>{
+      // Types
+      Disposable: Disposable,
+      commands,
+      container,
+      tray,
+    };
+  }
 
+  loadRuntime(extensionPathFolder: string): NodeRequire {
+    // cleaning the cache for all files of that plug-in.
+    Object.keys(require.cache).forEach(function (key): void {
+      const mod: NodeJS.Module | undefined = require.cache[key];
 
-    loadRuntime(extensionPathFolder: string): NodeRequire {
-            // cleaning the cache for all files of that plug-in.
-            Object.keys(require.cache).forEach(function (key): void {
-                const mod: NodeJS.Module | undefined = require.cache[key];
+      // attempting to reload a native module will throw an error, so skip them
+      if (mod?.id.endsWith('.node')) {
+        return;
+      }
 
-                // attempting to reload a native module will throw an error, so skip them
-                if (mod?.id.endsWith('.node')) {
-                    return;
-                }
-
-                // remove children that are part of the plug-in
-                let i = mod?.children.length || 0;
-                while (i--) {
-                    const childMod: NodeJS.Module | undefined = mod?.children[i];
-                    // ensure the child module is not null, is in the plug-in folder, and is not a native module (see above)
-                    if (childMod && childMod.id.startsWith(extensionPathFolder) && !childMod.id.endsWith('.node')) {
-                        // cleanup exports - note that some modules (e.g. ansi-styles) define their
-                        // exports in an immutable manner, so overwriting the exports throws an error
-                        delete childMod.exports;
-                        mod?.children.splice(i, 1);
-                        for (let j = 0; j < childMod.children.length; j++) {
-                            delete childMod.children[j];
-                        }
-                    }
-                }
-
-                if (key.startsWith(extensionPathFolder)) {
-                    // delete entry
-                    delete require.cache[key];
-                    const ix = mod?.parent?.children.indexOf(mod) || 0;
-                    if (ix >= 0) {
-                        mod?.parent?.children.splice(ix, 1);
-                    }
-                }
-
-            });
-            return require(extensionPathFolder);
+      // remove children that are part of the plug-in
+      let i = mod?.children.length || 0;
+      while (i--) {
+        const childMod: NodeJS.Module | undefined = mod?.children[i];
+        // ensure the child module is not null, is in the plug-in folder, and is not a native module (see above)
+        if (childMod && childMod.id.startsWith(extensionPathFolder) && !childMod.id.endsWith('.node')) {
+          // cleanup exports - note that some modules (e.g. ansi-styles) define their
+          // exports in an immutable manner, so overwriting the exports throws an error
+          delete childMod.exports;
+          mod?.children.splice(i, 1);
+          for (let j = 0; j < childMod.children.length; j++) {
+            delete childMod.children[j];
+          }
         }
+      }
 
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async loadManifest(extensionPath: string): Promise<any> {
-        const manifestPath = path.join(extensionPath, 'package.json');
-        return new Promise((resolve, reject) => {
-            fs.readFile(manifestPath, 'utf8', (err, data) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(JSON.parse(data));
-                }
-            });
-        });
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
-        const subscriptions: containerDesktopAPI.Disposable[] = [];
-
-        const extensionContext: containerDesktopAPI.ExtensionContext = {
-            subscriptions,
-        };
-        let deactivateFunction = undefined;
-        if (typeof extensionMain['deactivate'] === 'function') {
-            deactivateFunction = extensionMain['deactivate'];
+      if (key.startsWith(extensionPathFolder)) {
+        // delete entry
+        delete require.cache[key];
+        const ix = mod?.parent?.children.indexOf(mod) || 0;
+        if (ix >= 0) {
+          mod?.parent?.children.splice(ix, 1);
         }
-        if (typeof extensionMain['activate'] === 'function') {
-            // return exports
-            await extensionMain['activate'].apply(undefined, [extensionContext]);
+      }
+    });
+    return require(extensionPathFolder);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async loadManifest(extensionPath: string): Promise<any> {
+    const manifestPath = path.join(extensionPath, 'package.json');
+    return new Promise((resolve, reject) => {
+      fs.readFile(manifestPath, 'utf8', (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(JSON.parse(data));
         }
-        const id = extension.id;
-        const activatedExtension: ActivatedExtension = {
-            id,
-            deactivateFunction,
-            extensionContext,
-        };
-        this.activatedExtensions.set(extension.id, activatedExtension);
+      });
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
+    const subscriptions: containerDesktopAPI.Disposable[] = [];
+
+    const extensionContext: containerDesktopAPI.ExtensionContext = {
+      subscriptions,
+    };
+    let deactivateFunction = undefined;
+    if (typeof extensionMain['deactivate'] === 'function') {
+      deactivateFunction = extensionMain['deactivate'];
     }
-
-    async deactivateExtension(extensionId: string): Promise<void> {
-        const extension = this.activatedExtensions.get(extensionId);
-        if (extension) {
-            if (extension.deactivateFunction) {
-                await extension.deactivateFunction();
-            }
-
-            // dispose subscriptions
-            extension.extensionContext.subscriptions.forEach((subscription) => {
-                subscription.dispose();
-            });
-
-            this.activatedExtensions.delete(extensionId);
-        }
+    if (typeof extensionMain['activate'] === 'function') {
+      // return exports
+      await extensionMain['activate'].apply(undefined, [extensionContext]);
     }
+    const id = extension.id;
+    const activatedExtension: ActivatedExtension = {
+      id,
+      deactivateFunction,
+      extensionContext,
+    };
+    this.activatedExtensions.set(extension.id, activatedExtension);
+  }
 
+  async deactivateExtension(extensionId: string): Promise<void> {
+    const extension = this.activatedExtensions.get(extensionId);
+    if (extension) {
+      if (extension.deactivateFunction) {
+        await extension.deactivateFunction();
+      }
 
-    async stopAllExtensions(): Promise<void> {
-        await Promise.all(Array.from(this.activatedExtensions.keys()).map((extensionId) => this.deactivateExtension(extensionId)));
+      // dispose subscriptions
+      extension.extensionContext.subscriptions.forEach(subscription => {
+        subscription.dispose();
+      });
+
+      this.activatedExtensions.delete(extensionId);
     }
+  }
 
-    async startExtension(extensionId: string): Promise<void> {
-        const extension = this.analyzedExtensions.get(extensionId);
-        if (extension) {
-            await this.loadExtension(extension?.path);
-        }
+  async stopAllExtensions(): Promise<void> {
+    await Promise.all(
+      Array.from(this.activatedExtensions.keys()).map(extensionId => this.deactivateExtension(extensionId)),
+    );
+  }
+
+  async startExtension(extensionId: string): Promise<void> {
+    const extension = this.analyzedExtensions.get(extensionId);
+    if (extension) {
+      await this.loadExtension(extension?.path);
     }
-
+  }
 }

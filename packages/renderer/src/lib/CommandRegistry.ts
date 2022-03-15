@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,10 +17,9 @@
  ***********************************************************************/
 
 export class CommandRegistry {
-
-    init(): void {
-      //eslint-disable-next-line
-    const ninja:any = document.getElementById('command-palette');
+  init(): void {
+    //eslint-disable-next-line
+    const ninja: any = document.getElementById('command-palette');
     ninja.data = [
       {
         id: 'Projects',
@@ -43,7 +42,7 @@ export class CommandRegistry {
           // open menu if closed. Because you can open directly that menu from it's hotkey
           ninja.open({ parent: 'Theme' });
           // if menu opened that prevent it from closing on select that action, no need if you don't have child actions
-          return {keepOpen: true};
+          return { keepOpen: true };
         },
       },
       {
@@ -67,5 +66,5 @@ export class CommandRegistry {
         },
       },
     ];
-    }
+  }
 }

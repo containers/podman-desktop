@@ -1,14 +1,13 @@
-import type {MaybeMocked} from 'vitest';
-import {beforeEach, expect, test, vi} from 'vitest';
-import {restoreOrCreateWindow} from '../src/mainWindow';
+import type { MaybeMocked } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
+import { restoreOrCreateWindow } from '../src/mainWindow';
 
-import {BrowserWindow} from 'electron';
+import { BrowserWindow } from 'electron';
 
 /**
  * Mock real electron BrowserWindow API
  */
 vi.mock('electron', () => {
-
   const bw = vi.fn() as MaybeMocked<typeof BrowserWindow>;
   // @ts-expect-error It's work in runtime, but I Haven't idea how to fix this type error
   bw.getAllWindows = vi.fn(() => bw.mock.instances);
@@ -20,17 +19,15 @@ vi.mock('electron', () => {
   bw.prototype.focus = vi.fn();
   bw.prototype.restore = vi.fn();
 
-  return {BrowserWindow: bw};
+  return { BrowserWindow: bw };
 });
-
 
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
-
 test('Should create new window', async () => {
-  const {mock} = vi.mocked(BrowserWindow);
+  const { mock } = vi.mocked(BrowserWindow);
   expect(mock.instances).toHaveLength(0);
 
   await restoreOrCreateWindow();
@@ -39,9 +36,8 @@ test('Should create new window', async () => {
   expect(mock.instances[0].loadURL).toHaveBeenCalledWith(expect.stringMatching(/index\.html$/));
 });
 
-
 test('Should restore existing window', async () => {
-  const {mock} = vi.mocked(BrowserWindow);
+  const { mock } = vi.mocked(BrowserWindow);
 
   // Create Window and minimize it
   await restoreOrCreateWindow();
@@ -54,9 +50,8 @@ test('Should restore existing window', async () => {
   expect(appWindow.restore).toHaveBeenCalledOnce();
 });
 
-
 test('Should create new window if previous was destroyed', async () => {
-  const {mock} = vi.mocked(BrowserWindow);
+  const { mock } = vi.mocked(BrowserWindow);
 
   // Create Window and destroy it
   await restoreOrCreateWindow();
