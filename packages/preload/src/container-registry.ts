@@ -52,7 +52,6 @@ export class ContainerProviderRegistry {
     private internalProviders: Map<string, InternalContainerProvider> = new Map();
 
     async registerContainerProviderLifecycle(providerLifecycle: containerDesktopAPI.ContainerProviderLifecycle): Promise<Disposable> {
-
         const providerName = providerLifecycle.provideName();
         const internalProviderLifecycle = {
             internal: providerLifecycle,
@@ -133,7 +132,7 @@ export class ContainerProviderRegistry {
         async listImages(): Promise<ImageInfo[]> {
             const images = await Promise.all(Array.from(this.internalProviders.values()).map(async (provider) => {
                 try {
-                const images = await provider.api.listImages({all:true});
+                const images = await provider.api.listImages({all:false});
                 return images.map((image) => {
                     const imageInfo: ImageInfo = {...image,
                         engine: provider.name,
