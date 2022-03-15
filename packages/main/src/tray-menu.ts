@@ -105,25 +105,8 @@ export class TrayMenu {
 
   private updateMenu(): void {
     const generatedMenuTemplate: MenuItemConstructorOptions[] = [];
-    for (const [providerName, item] of this.menuItems) {
+    for (const [, item] of this.menuItems) {
       generatedMenuTemplate.push(this.createContainerProviderMenuItem(item));
-
-      generatedMenuTemplate.push({
-        label: 'Start',
-        enabled: item.status !== 'started',
-        click: () => {
-          this.sendItemClick({ type: 'Start', providerName });
-        },
-      });
-
-      generatedMenuTemplate.push({
-        label: 'Stop',
-        enabled: item.status !== 'stopped',
-        click: () => {
-          this.sendItemClick({ type: 'Stop', providerName });
-        },
-      });
-      generatedMenuTemplate.push({ type: 'separator' });
     }
 
     generatedMenuTemplate.push(...this.menuTemplate);
@@ -136,9 +119,30 @@ export class TrayMenu {
     const result: MenuItemConstructorOptions = {
       label: item.providerName,
       icon: this.getStatusIcon(item.status),
-      type: item.childItems.length > 0 ? 'submenu' : 'normal',
-      submenu: item.childItems,
+      type: 'submenu',
+      submenu: [],
     };
+
+    (result.submenu as MenuItemConstructorOptions[]).push({
+      label: 'Start',
+      enabled: item.status !== 'started',
+      click: () => {
+        this.sendItemClick({ type: 'Start', providerName: item.providerName });
+      },
+    });
+
+    (result.submenu as MenuItemConstructorOptions[]).push({
+      label: 'Stop',
+      enabled: item.status !== 'stopped',
+      click: () => {
+        this.sendItemClick({ type: 'Stop', providerName: item.providerName });
+      },
+    });
+    (result.submenu as MenuItemConstructorOptions[]).push({ type: 'separator' });
+
+    if(item.childItems.length > 0) {
+      (result.submenu as MenuItemConstructorOptions[]).push(...item.childItems);
+    }
 
     return result;
   }
