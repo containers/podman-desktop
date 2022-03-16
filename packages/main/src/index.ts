@@ -93,4 +93,8 @@ let tray: Tray | null = null;
 app.whenReady().then(() => {
   tray = new Tray(nativeTrayIcon);
   new TrayMenu(tray);
+  
+  if (process.platform === 'darwin') {
+    app.dock.hide();
+  }
 });
