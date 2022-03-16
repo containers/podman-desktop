@@ -29,7 +29,7 @@
     "compile": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js --dir --config.asar=false",
     "compile:next": "cross-env MODE=production npm run build && electron-builder build --publish always --config .electron-builder.config.js",
     "compile:pull-request": "cross-env MODE=production npm run build && electron-builder build --publish never --config .electron-builder.config.js",
-    "compile:dmg": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js",
+    "compile:current": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js",
     "test": "npm run test:main && npm run test:preload && npm run test:renderer && npm run test:e2e",
     "test:e2e": "npm run build && vitest run",
     "test:main": "vitest run -r packages/main --passWithNoTests",
