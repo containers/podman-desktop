@@ -17,8 +17,7 @@
  ***********************************************************************/
 
 import { ipcMain, BrowserWindow, Menu, nativeImage } from 'electron';
-import type { MenuItemConstructorOptions, Tray, NativeImage} from 'electron';
-import * as path from 'node:path';
+import type { MenuItemConstructorOptions, Tray, NativeImage } from 'electron';
 import statusStarted from './assets/status-started.png';
 import statusStopped from './assets/status-stopped.png';
 import statusUnknown from './assets/status-unknown.png';
@@ -34,6 +33,8 @@ interface ContainerProviderMenuItem extends ContainerProvider {
 
 export class TrayMenu {
   private readonly menuTemplate: MenuItemConstructorOptions[] = [
+    { type: 'separator' },
+    { label: 'Dashboard', type: 'normal', click: this.showMainWindow.bind(this) },
     { type: 'separator' },
     { label: 'Quit', type: 'normal', role: 'quit' },
   ];
@@ -143,7 +144,7 @@ export class TrayMenu {
     });
     (result.submenu as MenuItemConstructorOptions[]).push({ type: 'separator' });
 
-    if(item.childItems.length > 0) {
+    if (item.childItems.length > 0) {
       (result.submenu as MenuItemConstructorOptions[]).push(...item.childItems);
     }
 
@@ -152,7 +153,7 @@ export class TrayMenu {
 
   private getStatusIcon(status: string): NativeImage {
     let image;
-    switch(status) {
+    switch (status) {
       case 'started':
         image = statusStarted;
         break;
@@ -162,7 +163,7 @@ export class TrayMenu {
       default:
         image = statusUnknown;
     }
-    return nativeImage.createFromDataURL(image) ;
+    return nativeImage.createFromDataURL(image);
   }
 
   private sendItemClick(param: { type: string; providerName: string }): void {
@@ -170,5 +171,19 @@ export class TrayMenu {
     if (window) {
       window.webContents.send('tray-menu-provider-click', param);
     }
+  }
+
+  private showMainWindow(): void {
+    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+
+    if (window?.isMinimized()) {
+      window.restore();
+    }
+
+    if (!window?.isVisible()) {
+      window?.show();
+    }
+
+    window?.moveTop();
   }
 }
