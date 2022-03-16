@@ -29,12 +29,14 @@ body:
     validations:
       required: true 
 
-  - type: input
+  - type: dropdown
     id: version
     attributes:
       label: Version
       description: What version of our software are you running?
-      placeholder: "0.0.1"
+      options:
+        - "0.0.1"
+        - "next (development version)"
     validations:
       required: true 
 
