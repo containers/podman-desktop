@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { BrowserWindowConstructorOptions } from 'electron';
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, ipcMain, app } from 'electron';
 import { join } from 'path';
 import { URL } from 'url';
 import * as os from 'os';
@@ -67,6 +67,19 @@ async function createWindow() {
     }
   });
 
+  browserWindow.on('close', e => {
+    e.preventDefault();
+    if (os.platform() === 'linux') {
+      browserWindow.minimize();
+    } else {
+      browserWindow.hide();
+    }
+  });
+
+  app.on('before-quit', () => {
+    browserWindow.destroy();
+  });
+
   /**
    * URL for main window.
    * Vite dev server for development.
@@ -94,6 +107,10 @@ export async function restoreOrCreateWindow() {
 
   if (window.isMinimized()) {
     window.restore();
+  }
+
+  if (!window.isVisible()) {
+    window.show();
   }
 
   window.focus();
