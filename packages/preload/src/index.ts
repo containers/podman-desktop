@@ -67,6 +67,10 @@ function initExtensions(): void {
     return containerProviderRegistry.startContainer(engine, containerId);
   });
 
+  contextBridge.exposeInMainWorld('restartContainer', async (engine: string, containerId: string): Promise<void> => {
+    return containerProviderRegistry.restartContainer(engine, containerId);
+  });
+
   contextBridge.exposeInMainWorld(
     'createAndStartContainer',
     async (engine: string, options: ContainerCreateOptions): Promise<void> => {
