@@ -177,7 +177,7 @@ function getEngine(containerInfo: ImageInfo): string {
             </thead>-->
       <tbody class="bg-gray-800 divide-y divide-gray-200">
         {#each images as image}
-          <tr>
+          <tr class="group hover:cursor-pointer">
             <td class="px-6 py-2 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="ml-4">
@@ -198,7 +198,7 @@ function getEngine(containerInfo: ImageInfo): string {
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap">
-              <div class="flex flex-row justify-end">
+              <div class="hidden group-hover:flex flex-row justify-end">
                 <button title="Run Image" on:click="{() => runImage(image)}"
                   ><Fa
                     class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800"
