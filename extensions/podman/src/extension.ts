@@ -174,8 +174,13 @@ async function registerProviderFor(directory: string, socketPath: string) {
 }
 
 function execPromise(command, args): Promise<boolean> {
+  const env = process.env;
+  // In production mode, applications don't have access to the 'user' path like brew
+  if (isMac) {
+    env.PATH = env.PATH.concat(':/usr/local/bin').concat(':/opt/homebrew/bin');
+  }
   return new Promise((resolve, reject) => {
-    const process = spawn(command, args);
+    const process = spawn(command, args, { env });
     process.on('close', () => resolve(true));
     process.on('error', err => reject(err));
   });
