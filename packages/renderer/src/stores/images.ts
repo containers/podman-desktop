@@ -49,6 +49,15 @@ window.addEventListener('image-build', () => {
 });
 
 window?.events.receive('provider-change', () => {
-  console.log('receive provider change event, fetchImages...');
+  fetchImages();
+});
+
+window.events.receive('image-pull-event', () => {
+  fetchImages();
+});
+window.events.receive('image-remove-event', () => {
+  fetchImages();
+});
+window.events.receive('image-build-event', () => {
   fetchImages();
 });

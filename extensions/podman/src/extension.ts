@@ -145,9 +145,22 @@ async function monitorQemuMachine(qemuFileToWatch) {
   watchers.set(qemuFileToWatch, watcher);
 }
 
+function getNameFromDirectory(directory: string): string {
+  let name;
+  if (directory === 'podman-machine-default') {
+    name = 'Podman';
+  } else if (directory.startsWith('podman-machine-')) {
+    const sub = directory.substring('podman-machine-'.length);
+    name = `Podman(${sub})`;
+  } else {
+    name = `Podman(${directory})`;
+  }
+  return name;
+}
+
 async function registerProviderFor(directory: string, socketPath: string) {
   const provider: extensionApi.ContainerProvider = {
-    provideName: () => `podman-machine-${directory}`,
+    provideName: () => getNameFromDirectory(directory),
 
     provideConnection: async (): Promise<string> => {
       return socketPath;
@@ -170,7 +183,7 @@ function execPromise(command, args): Promise<boolean> {
 
 async function registerProviderLifecycle(directory: string, status: string) {
   const providerLifecycle: extensionApi.ContainerProviderLifecycle = {
-    provideName: () => `podman-machine-${directory}`,
+    provideName: () => getNameFromDirectory(directory),
     status: () => status,
 
     start: async (): Promise<void> => {

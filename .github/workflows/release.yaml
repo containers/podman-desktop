@@ -15,18 +15,66 @@
 #
 # SPDX-License-Identifier: Apache-2.0
  
-name: pr-check
+name: release
 
-on: [pull_request]
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  DEBUG: electron-builder
 
 jobs:
+
+  tag:
+    name: Tagging
+    runs-on: ubuntu-20.04
+    outputs:
+      githubTag: ${{ steps.TAG_UTIL.outputs.githubTag}}
+      desktopVersion: ${{ steps.TAG_UTIL.outputs.desktopVersion}}
+      releaseId: ${{ steps.create_release.outputs.id}}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate tag utilities
+        id: TAG_UTIL
+        run: |
+            TAG_PATTERN=${{ github.event.inputs.version }}
+            echo "::set-output name=githubTag::v$TAG_PATTERN"
+            echo "::set-output name=desktopVersion::$TAG_PATTERN"
+      - name: tag
+        run: |
+          git config --local user.name ${{ github.actor }}
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" package.json
+          cat package.json
+          git add package.json
+          git commit -m "chore: tag ${{ steps.TAG_UTIL.outputs.githubTag }}"
+          echo "Tagging with ${{ steps.TAG_UTIL.outputs.githubTag }}"
+          git tag ${{ steps.TAG_UTIL.outputs.githubTag }}
+          git push origin ${{ steps.TAG_UTIL.outputs.githubTag }}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.TAG_UTIL.outputs.githubTag }}
+          release_name: ${{ steps.TAG_UTIL.outputs.githubTag }}
+          draft: true
+          prerelease: false
+
   windows:
+    needs: tag
     name: Windows
     runs-on: windows-2022
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v2
-
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.tag.outputs.githubTag}}
       - uses: actions/setup-node@v2
         with:
           node-version: 16
@@ -53,27 +101,25 @@ jobs:
 
       - name: Run Build
         timeout-minutes: 20
-        run: yarn compile:pull-request
-
-      - name: List Build
-        run: ls ./dist/
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: windows-exe
-          path: ./dist/container-desktop*.exe
+        run: yarn compile:next
 
   linux:
+    needs: tag
     name: Linux
     runs-on: ubuntu-20.04
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v2
+
+      - name: setup env
+        run: sudo snap install snapcraft --classic  
+
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.tag.outputs.githubTag}}
 
       - uses: actions/setup-node@v2
         with:
           node-version: 16
-
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -86,32 +132,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-
       - name: Execute yarn
         run: yarn --frozen-lockfile --network-timeout 180000
 
       - name: Run Build
         timeout-minutes: 20
-        run: yarn compile:pull-request
+        run: yarn compile:next
 
-      - name: List Build
-        run: ls -la ./dist/
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: linux-appimage
-          path: ./dist/container-desktop-*.AppImage
-      - uses: actions/upload-artifact@v3
-        with:
-          name: linux-snap
-          path: ./dist/container-desktop_*.snap
-
-  darwin:
+  mac:
+    needs: tag
     name: macOS
     runs-on: macos-11
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.tag.outputs.githubTag}}
 
       - uses: actions/setup-node@v2
         with:
@@ -135,43 +171,19 @@ jobs:
 
       - name: Run Build
         timeout-minutes: 20
-        run: yarn compile:pull-request
+        run: yarn compile:next
 
-      - name: List Build
-        run: ls -la ./dist/
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: macos-dmg
-          path: ./dist/container-desktop-*.dmg
-
-
-  lint-format:
-    name: linter and formatters
+  release:
+    needs: [windows, linux, mac, tag]
+    name: Release
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: id
+        run: echo the release id is ${{ needs.tag.outputs.releaseId}}
+
+      - name: Publish release
+        uses: StuYarrow/publish-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          node-version: 16
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v2
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Execute yarn
-        run: yarn --frozen-lockfile
-
-      - name: Run linter
-        run: yarn lint:check
-
-      - name: Run formatter
-        run: yarn format:check
+          id: ${{ needs.tag.outputs.releaseId}}

@@ -94,6 +94,17 @@ export class ContainerProviderRegistry {
         } else if (evt.status === 'destroy') {
           // need to notify that a container has been destroyed
           this.apiSender.send('container-stopped-event', evt.id);
+        } else if (evt.status === 'remove' && evt?.Type === 'container') {
+          this.apiSender.send('container-removed-event', evt.id);
+        } else if (evt.status === 'pull' && evt?.Type === 'image') {
+          // need to notify that image are being pulled
+          this.apiSender.send('image-pull-event', evt.id);
+        } else if (evt.status === 'remove' && evt?.Type === 'image') {
+          // need to notify that image are being pulled
+          this.apiSender.send('image-remove-event', evt.id);
+        } else if (evt.status === 'build' && evt?.Type === 'image') {
+          // need to notify that image are being pulled
+          this.apiSender.send('image-build-event', evt.id);
         }
       });
     });
@@ -179,6 +190,15 @@ export class ContainerProviderRegistry {
       throw new Error('no engine matching this container');
     }
     return engine.api.getContainer(id).start();
+  }
+
+  async restartContainer(engineName: string, id: string): Promise<void> {
+    // need to find the container engine of the container
+    const engine = this.internalProviders.get(engineName);
+    if (!engine) {
+      throw new Error('no engine matching this container');
+    }
+    return engine.api.getContainer(id).restart();
   }
 
   async createAndStartContainer(engineName: string, options: ContainerCreateOptions): Promise<void> {

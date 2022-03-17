@@ -2,8 +2,9 @@
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
 import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPaste } from '@fortawesome/free-solid-svg-icons';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import { filtered, searchPattern } from '../stores/containers';
@@ -34,7 +35,11 @@ let containers: ContainerInfoUI[] = [];
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
+let copyText;
+
 onMount(async () => {
+  copyText = document.getElementById('noContainerCommandLine') as HTMLElement;
+
   filtered.subscribe(value => {
     containers = value.map((containerInfo: ContainerInfo) => {
       return {
@@ -56,6 +61,11 @@ onMount(async () => {
     }
   });
 });
+
+function copyRunInstructionToClipboard() {
+  const text = copyText?.innerText;
+  navigator.clipboard.writeText(text);
+}
 
 function keydownChoice(e: KeyboardEvent) {
   e.stopPropagation();
@@ -162,6 +172,11 @@ function getEngine(containerInfo: ContainerInfo): string {
 async function startContainer(containerInfo: ContainerInfoUI) {
   await window.startContainer(containerInfo.engine, containerInfo.id);
   console.log('container started');
+}
+
+async function restartContainer(containerInfo: ContainerInfoUI) {
+  await window.restartContainer(containerInfo.engine, containerInfo.id);
+  console.log('container restarted');
 }
 
 async function stopContainer(containerInfo: ContainerInfoUI) {
@@ -283,7 +298,7 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
             </thead>-->
       <tbody class="bg-gray-800 divide-y divide-gray-200">
         {#each containers as container}
-          <tr>
+          <tr class="group hover:cursor-pointer">
             <td class="px-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 w-10 py-3">
@@ -306,7 +321,7 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap">
-              <div class="flex flex-row justify-end">
+              <div class=" flex-row justify-end hidden group-hover:flex ">
                 <button
                   title="Open Browser"
                   on:click="{() => openBrowser(container)}"
@@ -331,7 +346,11 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
                   ><Fa
                     class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800"
                     icon="{faStopCircle}" /></button>
-                <!--<button title="Delete Container"><Fa class="cursor-pointer h-10 w-10 rounded-full text-3xl text-sky-800" icon={faTrash} /></button>-->
+                <button
+                  title="Restart Container"
+                  on:click="{() => restartContainer(container)}"
+                  class="disabled:opacity-25  cursor-pointer disabled:cursor-default">
+                  <Fa class="h-10 w-10 rounded-full text-3xl text-sky-800" icon="{faArrowsRotate}" /></button>
               </div>
             </td>
           </tr>
@@ -346,7 +365,13 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
       <i class="fas fa-cubes pf-c-empty-state__icon" aria-hidden="true"></i>
 
       <h1 class="pf-c-title pf-m-lg">No containers</h1>
-      <div class="pf-c-empty-state__body">No containers</div>
+
+      <div class="pf-c-empty-state__body">Run a first container using the following command line:</div>
+      <div class="flex flex-row bg-gray-800 w-full items-center p-2 mt-2">
+        <div id="noContainerCommandLine">podman run redhat/ubi8-micro echo hello world</div>
+        <button title="Copy To Clipboard" class="mr-5" on:click="{() => copyRunInstructionToClipboard()}"
+          ><Fa class="ml-3 h-5 w-5 cursor-pointer rounded-full text-3xl text-sky-800" icon="{faPaste}" /></button>
+      </div>
     </div>
   </div>
 </div>

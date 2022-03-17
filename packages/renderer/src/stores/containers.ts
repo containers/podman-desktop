@@ -53,6 +53,10 @@ window.events?.receive('container-started-event', () => {
   fetchContainers();
 });
 
+window.events?.receive('container-removed-event', () => {
+  fetchContainers();
+});
+
 window.events?.receive('provider-change', () => {
   fetchContainers();
 });
