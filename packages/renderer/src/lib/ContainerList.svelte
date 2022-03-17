@@ -2,6 +2,7 @@
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
 import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
@@ -162,6 +163,11 @@ function getEngine(containerInfo: ContainerInfo): string {
 async function startContainer(containerInfo: ContainerInfoUI) {
   await window.startContainer(containerInfo.engine, containerInfo.id);
   console.log('container started');
+}
+
+async function restartContainer(containerInfo: ContainerInfoUI) {
+  await window.restartContainer(containerInfo.engine, containerInfo.id);
+  console.log('container restarted');
 }
 
 async function stopContainer(containerInfo: ContainerInfoUI) {
@@ -331,7 +337,12 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
                   ><Fa
                     class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800"
                     icon="{faStopCircle}" /></button>
-                <!--<button title="Delete Container"><Fa class="cursor-pointer h-10 w-10 rounded-full text-3xl text-sky-800" icon={faTrash} /></button>-->
+                <button
+                  disabled="{container.state !== 'RUNNING'}"
+                  title="Restart Container"
+                  on:click="{() => restartContainer(container)}"
+                  class="disabled:opacity-25  cursor-pointer disabled:cursor-default">
+                  <Fa class="h-10 w-10 rounded-full text-3xl text-sky-800" icon="{faArrowsRotate}" /></button>
               </div>
             </td>
           </tr>

@@ -181,6 +181,15 @@ export class ContainerProviderRegistry {
     return engine.api.getContainer(id).start();
   }
 
+  async restartContainer(engineName: string, id: string): Promise<void> {
+    // need to find the container engine of the container
+    const engine = this.internalProviders.get(engineName);
+    if (!engine) {
+      throw new Error('no engine matching this container');
+    }
+    return engine.api.getContainer(id).restart();
+  }
+
   async createAndStartContainer(engineName: string, options: ContainerCreateOptions): Promise<void> {
     // need to find the container engine of the container
     const engine = this.internalProviders.get(engineName);
