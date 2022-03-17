@@ -20,7 +20,7 @@ import type { BrowserWindowConstructorOptions } from 'electron';
 import { BrowserWindow, ipcMain, app } from 'electron';
 import { join } from 'path';
 import { URL } from 'url';
-import * as os from 'os';
+import { isLinux, isMac } from './util';
 
 async function createWindow() {
   const browserWindowConstructorOptions: BrowserWindowConstructorOptions = {
@@ -36,8 +36,7 @@ async function createWindow() {
       preload: join(__dirname, '../../preload/dist/index.cjs'),
     },
   };
-  const osType = os.type();
-  if (osType === 'Darwin') {
+  if (isMac) {
     browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
   }
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
@@ -61,6 +60,9 @@ async function createWindow() {
    */
   browserWindow.on('ready-to-show', () => {
     browserWindow?.show();
+    if (isMac) {
+      app.dock.show();
+    }
 
     if (import.meta.env.DEV) {
       browserWindow?.webContents.openDevTools();
@@ -69,10 +71,13 @@ async function createWindow() {
 
   browserWindow.on('close', e => {
     e.preventDefault();
-    if (os.platform() === 'linux') {
+    if (isLinux) {
       browserWindow.minimize();
     } else {
       browserWindow.hide();
+      if (isMac) {
+        app.dock.hide();
+      }
     }
   });
 

@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ipcMain, BrowserWindow, Menu, nativeImage } from 'electron';
+import { app, ipcMain, BrowserWindow, Menu, nativeImage } from 'electron';
 import type { MenuItemConstructorOptions, Tray, NativeImage } from 'electron';
 import statusStarted from './assets/status-started.png';
 import statusStopped from './assets/status-stopped.png';
 import statusUnknown from './assets/status-unknown.png';
+import { isMac } from './util';
 
 interface ContainerProvider {
   providerName: string;
@@ -182,8 +183,11 @@ export class TrayMenu {
 
     if (!window?.isVisible()) {
       window?.show();
+      if (isMac) {
+        app.dock.show();
+      }
     }
-
+    window?.focus();
     window?.moveTop();
   }
 }

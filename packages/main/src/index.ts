@@ -21,6 +21,7 @@ import { app, nativeImage, Tray } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
+import { isMac } from './util';
 
 /**
  * Prevent multiple instances
@@ -41,7 +42,7 @@ app.disableHardwareAcceleration();
  * Shout down background process if all windows was closed
  */
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  if (!isMac) {
     app.quit();
   }
 });
@@ -93,8 +94,4 @@ let tray: Tray | null = null;
 app.whenReady().then(() => {
   tray = new Tray(nativeTrayIcon);
   new TrayMenu(tray);
-
-  if (process.platform === 'darwin') {
-    app.dock.hide();
-  }
 });
