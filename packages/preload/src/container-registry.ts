@@ -94,6 +94,8 @@ export class ContainerProviderRegistry {
         } else if (evt.status === 'destroy') {
           // need to notify that a container has been destroyed
           this.apiSender.send('container-stopped-event', evt.id);
+        } else if (evt.status === 'remove' && evt?.Type === 'container') {
+          this.apiSender.send('container-removed-event', evt.id);
         } else if (evt.status === 'pull' && evt?.Type === 'image') {
           // need to notify that image are being pulled
           this.apiSender.send('image-pull-event', evt.id);
