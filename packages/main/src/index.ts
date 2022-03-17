@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import trayIcon from './tray-icon.png';
+import trayIcon from './assets/tray-icon.png';
 import { app, nativeImage, Tray } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
