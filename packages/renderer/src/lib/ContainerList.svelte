@@ -298,7 +298,7 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
             </thead>-->
       <tbody class="bg-gray-800 divide-y divide-gray-200">
         {#each containers as container}
-          <tr>
+          <tr class="group hover:cursor-pointer">
             <td class="px-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 w-10 py-3">
@@ -321,7 +321,7 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap">
-              <div class="flex flex-row justify-end">
+              <div class=" flex-row justify-end hidden group-hover:flex ">
                 <button
                   title="Open Browser"
                   on:click="{() => openBrowser(container)}"
