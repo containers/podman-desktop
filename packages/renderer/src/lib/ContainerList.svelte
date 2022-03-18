@@ -1,27 +1,15 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
-import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
-import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faPaste } from '@fortawesome/free-solid-svg-icons';
-import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import { filtered, searchPattern } from '../stores/containers';
 import { providerInfos } from '../stores/providers';
 import type { ContainerInfo } from '../../../preload/src/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
-
-interface ContainerInfoUI {
-  id: string;
-  name: string;
-  image: string;
-  engine: string;
-  state: string;
-  port: string;
-  hasPublicPort: boolean;
-  openingUrl?: string;
-}
+import { router } from 'tinro';
+import ContainerDetails from './ContainerDetails.svelte';
+import type { ContainerInfoUI } from './container/ContainerInfoUI';
+import ContainerActions from './container/ContainerActions.svelte';
 
 let openChoiceModal = false;
 let fromDockerfileModal = false;
@@ -31,9 +19,22 @@ let dockerImageProviderName = '';
 let buildInProgress = false;
 let buildFinished = false;
 
+let isExpanded = false;
+let selectedContainer: ContainerInfoUI | undefined;
+
 let containers: ContainerInfoUI[] = [];
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
+
+$: {
+  // need to update the detail container when list is changing
+  if (selectedContainer) {
+    const containerInNewList = containers.find(c => c.id === selectedContainer.id);
+    if (containerInNewList) {
+      selectedContainer = containerInNewList;
+    }
+  }
+}
 
 let copyText;
 
@@ -44,10 +45,12 @@ onMount(async () => {
     containers = value.map((containerInfo: ContainerInfo) => {
       return {
         id: containerInfo.Id,
+        shortId: containerInfo.Id.substring(0, 8),
         name: getName(containerInfo),
         image: getImage(containerInfo),
         state: getState(containerInfo),
         engine: getEngine(containerInfo),
+        command: containerInfo.Command,
         port: getPort(containerInfo),
         hasPublicPort: hasPublicPort(containerInfo),
         openingUrl: getOpeningUrl(containerInfo),
@@ -65,6 +68,17 @@ onMount(async () => {
 function copyRunInstructionToClipboard() {
   const text = copyText?.innerText;
   navigator.clipboard.writeText(text);
+}
+
+function expandContainerSelection(container: ContainerInfoUI) {
+  if (selectedContainer?.name === container.name) {
+    selectedContainer = undefined;
+    isExpanded = false;
+    return;
+  }
+  isExpanded = true;
+  router.goto(`/containers/${container.id}/logs`);
+  selectedContainer = container;
 }
 
 function keydownChoice(e: KeyboardEvent) {
@@ -160,33 +174,18 @@ function getOpeningUrl(containerInfo: ContainerInfo): string {
   }
 }
 
-function openBrowser(containerInfo: ContainerInfoUI): void {
-  console.log('opening url', containerInfo.openingUrl);
-  window.openExternal(containerInfo.openingUrl);
-}
-
 function getEngine(containerInfo: ContainerInfo): string {
   return containerInfo.engine;
 }
-
-async function startContainer(containerInfo: ContainerInfoUI) {
-  await window.startContainer(containerInfo.engine, containerInfo.id);
-  console.log('container started');
-}
-
-async function restartContainer(containerInfo: ContainerInfoUI) {
-  await window.restartContainer(containerInfo.engine, containerInfo.id);
-  console.log('container restarted');
-}
-
-async function stopContainer(containerInfo: ContainerInfoUI) {
-  await window.stopContainer(containerInfo.engine, containerInfo.id);
-  console.log('container stopped');
-}
 </script>
 
-<div class="flex flex-col">
-  <div class="min-w-full">
+<!--{#if selectedContainer}
+
+<Route path="/" redirect="{`/containers/${selectedContainer.id}/logs`}" />
+{/if}
+-->
+<div class="flex flex-col min-h-full">
+  <div class="min-w-full flex-1">
     <div class="flex flex-row">
       <div class="py-5 px-5 lg:w-[35rem] w-[22rem]">
         <div class="flex items-center bg-gray-700 text-gray-400">
@@ -283,8 +282,13 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
   </tbody>
 </table>
 -->
-    <table class="min-w-full divide-y divide-gray-800" class:hidden="{containers.length === 0}">
-      <!--<thead class="bg-gray-700">
+    <div class="min-w-full h-[calc(100%_-_5.5rem)] flex flex-row">
+      <table
+        class="divide-y divide-gray-800 h-2 flex-1"
+        class:min-w-full="{!isExpanded}"
+        class:w-100="{isExpanded}"
+        class:hidden="{containers.length === 0}">
+        <!--<thead class="bg-gray-700">
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
@@ -296,67 +300,55 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Engine</th>
               </tr>
             </thead>-->
-      <tbody class="bg-gray-800 divide-y divide-gray-200">
-        {#each containers as container}
-          <tr class="group hover:cursor-pointer">
-            <td class="px-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 w-10 py-3">
-                  <!--<Fa class="h-10 w-10 rounded-full {getColorForState(container)}" icon={faBox} />-->
-                  <ContainerIcon state="{container.state}" />
-                </div>
-                <div class="ml-4">
-                  <div class="flex flex-row">
-                    <div class="text-sm text-gray-200">{container.name}</div>
-                    <div class="pl-2 text-sm text-violet-400">{container.image}</div>
+        <tbody class="bg-gray-800 divide-y divide-gray-200">
+          {#each containers as container}
+            <tr class="group">
+              <td
+                class="px-4 whitespace-nowrap hover:cursor-pointer"
+                on:click="{() => expandContainerSelection(container)}">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 w-10 py-3">
+                    <!--<Fa class="h-10 w-10 rounded-full {getColorForState(container)}" icon={faBox} />-->
+                    <ContainerIcon state="{container.state}" />
                   </div>
-                  <div class="flex flex-row text-xs font-extra-light text-gray-500">
-                    <div>{container.state}</div>
-                    <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">
-                      {container.engine}
+                  <div class="ml-4">
+                    <div class="flex flex-nowrap">
+                      <div
+                        class="text-sm text-gray-200 overflow-hidden text-ellipsis"
+                        class:w-24="{isExpanded}"
+                        title="{container.name}">
+                        {container.name}
+                      </div>
+                      <div
+                        class="pl-2 text-sm text-violet-400 overflow-hidden text-ellipsis"
+                        class:w-24="{isExpanded}"
+                        title="{container.image}">
+                        {container.image}
+                      </div>
                     </div>
-                    <div class="pl-2 pr-2">{container.port}</div>
+                    <div class="flex flex-row text-xs font-extra-light text-gray-500">
+                      <div>{container.state}</div>
+                      <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">
+                        {container.engine}
+                      </div>
+                      <div class="pl-2 pr-2">{container.port}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </td>
-            <td class="px-6 py-2 whitespace-nowrap">
-              <div class=" flex-row justify-end hidden group-hover:flex ">
-                <button
-                  title="Open Browser"
-                  on:click="{() => openBrowser(container)}"
-                  hidden
-                  class:block="{container.state === 'RUNNING' && container.hasPublicPort}"
-                  ><Fa
-                    class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800"
-                    icon="{faExternalLinkSquareAlt}" /></button>
-                <button
-                  title="Start Container"
-                  on:click="{() => startContainer(container)}"
-                  hidden
-                  class:block="{container.state !== 'RUNNING'}"
-                  ><Fa
-                    class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800"
-                    icon="{faPlayCircle}" /></button>
-                <button
-                  title="Stop Container"
-                  on:click="{() => stopContainer(container)}"
-                  hidden
-                  class:block="{container.state === 'RUNNING'}"
-                  ><Fa
-                    class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800"
-                    icon="{faStopCircle}" /></button>
-                <button
-                  title="Restart Container"
-                  on:click="{() => restartContainer(container)}"
-                  class="disabled:opacity-25  cursor-pointer disabled:cursor-default">
-                  <Fa class="h-10 w-10 rounded-full text-3xl text-sky-800" icon="{faArrowsRotate}" /></button>
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
+              </td>
+              <td class="px-6 py-2 whitespace-nowrap" class:hidden="{isExpanded}">
+                <div class=" flex-row justify-end hidden group-hover:flex ">
+                  <ContainerActions container="{container}" />
+                </div>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+      {#if selectedContainer}
+        <ContainerDetails container="{selectedContainer}" />
+      {/if}
+    </div>
   </div>
 </div>
 <div class="h-full min-w-full flex flex-col" class:hidden="{containers.length > 0}">
