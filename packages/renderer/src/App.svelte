@@ -36,6 +36,7 @@ function jumpToImages() {
 
 <svelte:window bind:innerWidth />
 <Route path="/*" breadcrumb="Home" let:meta>
+  <Route path="/" redirect="/containers" />
   <main class="min-h-screen flex flex-col h-screen bg-gray-800">
     <ninja-keys id="command-palette" placeholder="" openHotkey="F1" hideBreadcrumbs class="dark"></ninja-keys>
 
@@ -174,14 +175,11 @@ function jumpToImages() {
       </nav>
 
       <div class="w-full h-full bg-zinc-800 flex flex-col">
-        <Route path="/containers">
+        <Route path="/containers/*">
           <ContainerList />
         </Route>
         <Route path="/images">
           <ImagesList />
-        </Route>
-        <Route path="/">
-          <ContainerList />
         </Route>
         <Route path="/extensions">
           <ExtensionList />
