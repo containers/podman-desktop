@@ -32,7 +32,7 @@ const podmanMachineDirectoryWindows = path.resolve(os.homedir(), '.local/share/c
 const podmanMachineQemuDirectoryMac = path.resolve(podmanMachineSocketsDirectoryMac, 'qemu');
 const watchers = new Map<string, fs.FSWatcher>();
 const currentProviders: extensionApi.Disposable[] = [];
-const lifecycleProviders = new Map<string, extensionApi.ContainerProviderLifecycle>();
+const lifecycleProviders = new Map<string, extensionApi.ProviderLifecycle>();
 let storedExtensionContext;
 let refreshMachine = false;
 let stopLoop = false;
@@ -71,7 +71,7 @@ async function initMachinesWindows() {
       // socket is npipe link
       const socketPath = `//./pipe/podman-${directory}`;
       const available = await socketAvailable(socketPath);
-      let status = 'stopped';
+      let status: extensionApi.ProviderStatus = 'stopped';
       if (available) {
         registerProviderFor(directory, socketPath);
         status = 'started';
@@ -93,7 +93,7 @@ async function initMachinesMac() {
       // podman.sock link
       const socketPath = path.resolve(podmanMachineSocketsDirectoryMac, directory, 'podman.sock');
       const available = await socketAvailable(socketPath);
-      let status = 'stopped';
+      let status: extensionApi.ProviderStatus = 'stopped';
       if (available) {
         registerProviderFor(directory, socketPath);
         status = 'started';
@@ -186,8 +186,8 @@ function execPromise(command, args): Promise<boolean> {
   });
 }
 
-async function registerProviderLifecycle(directory: string, status: string) {
-  const providerLifecycle: extensionApi.ContainerProviderLifecycle = {
+async function registerProviderLifecycle(directory: string, status: extensionApi.ProviderStatus) {
+  const providerLifecycle: extensionApi.ProviderLifecycle = {
     provideName: () => getNameFromDirectory(directory),
     status: () => status,
 
@@ -202,7 +202,7 @@ async function registerProviderLifecycle(directory: string, status: string) {
       await execPromise('podman', ['machine', 'stop', directory]);
       console.log('machine is stopped !');
     },
-    handleLifecycleChange: async (callback: (event: string) => void): Promise<void> => {
+    handleLifecycleChange: async (callback: (event: extensionApi.ProviderStatus) => void): Promise<void> => {
       callback('started');
     },
   };

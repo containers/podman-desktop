@@ -39,7 +39,7 @@ declare module '@tmpwip/extension-api' {
 
     type?: 'normal' | 'separator' | 'submenu' | 'checkbox' | 'radio';
     label?: string;
-    sublabel?: string;
+
     icon?: string;
     /**
      * If false, the menu item will be greyed out and unclickable.
@@ -90,17 +90,23 @@ declare module '@tmpwip/extension-api' {
     readonly subscriptions: { dispose(): any }[];
   }
 
-  export interface ContainerProviderLifecycle {
+  export type ProviderStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
+  export interface ProviderLifecycle {
     provideName(): string;
     start(): Promise<void>;
     stop(): Promise<void>;
-    status(): string;
-    handleLifecycleChange(callback: (event: string) => void): Promise<void>;
+    status(): ProviderStatus;
+    handleLifecycleChange(callback: (event: ProviderStatus) => void): Promise<void>;
   }
 
   export interface ContainerProvider {
     provideName(): string;
     provideConnection(): PromiseLike<string>;
+  }
+
+  export interface KubernetesProvider {
+    name(): string;
+    getApiURL(): PromiseLike<string>;
   }
 
   export namespace commands {
@@ -112,9 +118,12 @@ declare module '@tmpwip/extension-api' {
 
   export namespace container {
     export function registerContainerProvider(provider: ContainerProvider): PromiseLike<Disposable>;
-    export function registerContainerProviderLifecycle(
-      providerLifecycle: ContainerProviderLifecycle,
-    ): PromiseLike<Disposable>;
+    export function registerContainerProviderLifecycle(providerLifecycle: ProviderLifecycle): PromiseLike<Disposable>;
+  }
+
+  export namespace kubernetes {
+    export function registerProvider(provider: KubernetesProvider): PromiseLike<Disposable>;
+    export function registerLifecycle(clusterLifecycle: ClusterLifecycle): PromiseLike<Disposable>;
   }
 
   export namespace tray {

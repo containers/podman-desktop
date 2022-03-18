@@ -10,6 +10,18 @@
     "container-desktop": "^0.0.1"
   },
   "main": "./dist/extension.js",
+  "source": "./src/extension.ts",
+  "targets": {
+    "main": {
+      "context": "node",
+      "isLibrary": true,
+      "includeNodeModules": {
+        "@tmpwip/extension-api": false
+      },
+      "scopeHoist": true,
+      "sourceMap": true
+    }
+  },
   "contributes": {
     "commands": [
       {
@@ -19,15 +31,17 @@
     ]
   },
   "scripts": {
-    "build": "tsc && node ./scripts/build.js",
-    "watch": "tsc -w"
+    "build": "parcel build && node ./scripts/build.js",
+    "watch": "parcel watch"
   },
   "dependencies": {
-    "@tmpwip/extension-api": "^0.0.1"
+    "@tmpwip/extension-api": "^0.0.1",
+    "got": "9.6.0"
   },
   "devDependencies": {
     "7zip-min": "^1.4.1",
     "mkdirp": "^1.0.4",
+    "parcel": "^2.4.0",
     "zip-local": "^0.3.5"
   }
 }

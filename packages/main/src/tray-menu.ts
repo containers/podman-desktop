@@ -22,10 +22,12 @@ import statusStarted from './assets/status-started.png';
 import statusStopped from './assets/status-stopped.png';
 import statusUnknown from './assets/status-unknown.png';
 import { isMac } from './util';
+import statusBusy from './assets/status-busy.png';
 
+type ProviderStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
 interface ContainerProvider {
   providerName: string;
-  status: string;
+  status: ProviderStatus;
 }
 
 interface ContainerProviderMenuItem extends ContainerProvider {
@@ -35,11 +37,10 @@ interface ContainerProviderMenuItem extends ContainerProvider {
 export class TrayMenu {
   private readonly menuTemplate: MenuItemConstructorOptions[] = [
     { type: 'separator' },
-    { label: 'Dashboard', type: 'normal', click: this.showMainWindow.bind(this) },
+    { label: 'Dashboard', click: this.showMainWindow.bind(this) },
     { type: 'separator' },
     { label: 'Quit', type: 'normal', role: 'quit' },
   ];
-  private generatedMenuTemplate: MenuItemConstructorOptions[] = [];
   private menuItems = new Map<string, ContainerProviderMenuItem>();
 
   constructor(private readonly tray: Tray) {
@@ -130,7 +131,7 @@ export class TrayMenu {
 
     (result.submenu as MenuItemConstructorOptions[]).push({
       label: 'Start',
-      enabled: item.status !== 'started',
+      enabled: item.status === 'stopped',
       click: () => {
         this.sendItemClick({ type: 'Start', providerName: item.providerName });
       },
@@ -138,7 +139,7 @@ export class TrayMenu {
 
     (result.submenu as MenuItemConstructorOptions[]).push({
       label: 'Stop',
-      enabled: item.status !== 'stopped',
+      enabled: item.status === 'started',
       click: () => {
         this.sendItemClick({ type: 'Stop', providerName: item.providerName });
       },
@@ -152,7 +153,7 @@ export class TrayMenu {
     return result;
   }
 
-  private getStatusIcon(status: string): NativeImage {
+  private getStatusIcon(status: ProviderStatus): NativeImage {
     let image;
     switch (status) {
       case 'started':
@@ -160,6 +161,10 @@ export class TrayMenu {
         break;
       case 'stopped':
         image = statusStopped;
+        break;
+      case 'starting':
+      case 'stopping':
+        image = statusBusy;
         break;
       default:
         image = statusUnknown;

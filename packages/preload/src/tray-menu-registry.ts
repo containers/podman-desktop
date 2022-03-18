@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContainerProviderLifecycle } from '@tmpwip/extension-api';
+import type { ProviderLifecycle } from '@tmpwip/extension-api';
 import { ipcRenderer } from 'electron';
 import type { MenuItem } from './api/tray-menu-info';
 import type { CommandRegistry } from './command-registry';
@@ -24,7 +24,7 @@ import { Disposable } from './types/disposable';
 
 export class TrayMenuRegistry {
   private menuItems = new Map<string, MenuItem>();
-  private containerProviders = new Map<string, ContainerProviderLifecycle>();
+  private containerProviders = new Map<string, ProviderLifecycle>();
 
   constructor(private readonly commandRegistry: CommandRegistry) {
     ipcRenderer.on('tray-menu-item-click', (_, menuItemId: string) => {
@@ -56,7 +56,7 @@ export class TrayMenuRegistry {
     });
   }
 
-  addContainerProviderLifecycle(providerName: string, crl: ContainerProviderLifecycle): void {
+  addContainerProviderLifecycle(providerName: string, crl: ProviderLifecycle): void {
     this.containerProviders.set(providerName, crl);
     ipcRenderer.send('add-tray-container-provider', { providerName, status: crl.status() });
     crl.handleLifecycleChange(() => {
