@@ -172,6 +172,9 @@ jobs:
       - name: Run Build
         timeout-minutes: 20
         run: yarn compile:next
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
 
   release:
     needs: [windows, linux, mac, tag]
