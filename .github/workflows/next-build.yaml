@@ -68,10 +68,17 @@ jobs:
           draft: true
           prerelease: true
 
-  windows:
+  build:
+    name: Build / ${{ matrix.os }}
     needs: tag
-    name: Windows
-    runs-on: windows-2022
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-2022, ubuntu-20.04, macos-11]
+        include:
+        - os: macos-11
+          cscLink: ${{ secrets.CSC_LINK }}
+          cscKeyPassword: ${{ secrets.CSC_KEY_PASSWORD }}
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
@@ -104,82 +111,12 @@ jobs:
       - name: Run Build
         timeout-minutes: 20
         run: yarn compile:next
-
-  linux:
-    needs: tag
-    name: Linux
-    runs-on: ubuntu-20.04
-    timeout-minutes: 40
-    steps:
-
-      - name: setup env
-        run: sudo snap install snapcraft --classic  
-
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ needs.tag.outputs.githubTag}}
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v2
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Execute yarn
-        run: yarn --frozen-lockfile --network-timeout 180000
-
-      - name: Run Build
-        timeout-minutes: 20
-        run: yarn compile:next
-
-  mac:
-    needs: tag
-    name: macOS
-    runs-on: macos-11
-    timeout-minutes: 40
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ needs.tag.outputs.githubTag}}
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v2
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Execute yarn
-        if: ${{ steps.cacheNodeModules.outputs.cache-hit != 'true' }}
-        run: yarn --frozen-lockfile --network-timeout 180000
-
-      - name: Run Build
-        timeout-minutes: 20
-        run: yarn compile:next
         env:
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ matrix.cscLink }}
+          CSC_KEY_PASSWORD: ${{ matrix.cscKeyPassword }}
 
   release:
-    needs: [windows, linux, mac, tag]
+    needs: [tag, build]
     name: Release
     runs-on: ubuntu-20.04
     steps:
