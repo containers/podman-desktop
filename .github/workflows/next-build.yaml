@@ -69,16 +69,13 @@ jobs:
           prerelease: true
 
   build:
-    name: Build
+    name: Build / ${{ matrix.os }}
     needs: tag
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-2022, ubuntu-20.04, macos-11]
-        include:
-        - os: macos-11
-          cscLink: ${{ secrets.CSC_LINK }}
-          cscKeyPassword: ${{ secrets.CSC_KEY_PASSWORD }}
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
@@ -108,12 +105,15 @@ jobs:
         run: |
           yarn --frozen-lockfile --network-timeout 180000
 
+      - name: Set macOS environment variables
+        if: ${{ matrix.os=='macos-11' }}
+        run: |
+          echo "CSC_LINK=${{secrets.CSC_LINK}}" >> $GITHUB_ENV
+          echo "CSC_KEY_PASSWORD=${{secrets.CSC_KEY_PASSWORD}}" >> $GITHUB_ENV
+
       - name: Run Build
         timeout-minutes: 20
         run: yarn compile:next
-        env:
-          CSC_LINK: ${{ matrix.cscLink }}
-          CSC_KEY_PASSWORD: ${{ matrix.cscKeyPassword }}
 
   release:
     needs: [tag, build]
