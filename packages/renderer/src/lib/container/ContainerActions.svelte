@@ -10,7 +10,8 @@ import { router } from 'tinro';
 
 export let container: ContainerInfoUI;
 
-const buttonStyle = 'border border-opacity-30 border-purple-500 p-1 mx-1 shadow-md shadow-gray-700';
+const buttonStyle = 'border-2 border-opacity-30 border-violet-800  p-1 mx-1 shadow-md shadow-gray-900';
+const iconStyle = 'h-10 w-10 cursor-pointer rounded-full text-3xl text-violet-500';
 
 async function startContainer(containerInfo: ContainerInfoUI) {
   await window.startContainer(containerInfo.engine, containerInfo.id);
@@ -42,30 +43,27 @@ function openTerminalContainer(containerInfo: ContainerInfoUI): void {
   hidden
   class="{buttonStyle}"
   class:block="{container.state === 'RUNNING' && container.hasPublicPort}"
-  ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon="{faExternalLinkSquareAlt}" /></button>
+  ><Fa class="{iconStyle}" icon="{faExternalLinkSquareAlt}" /></button>
 <button
   title="Open Terminal"
   class="{buttonStyle}"
   on:click="{() => openTerminalContainer(container)}"
   hidden
-  class:block="{container.state === 'RUNNING'}"
-  ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon="{faTerminal}" /></button>
+  class:block="{container.state === 'RUNNING'}"><Fa class="{iconStyle}" icon="{faTerminal}" /></button>
 <button
   title="Start Container"
   class="{buttonStyle}"
   on:click="{() => startContainer(container)}"
   hidden
-  class:block="{container.state !== 'RUNNING'}"
-  ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon="{faPlayCircle}" /></button>
+  class:block="{container.state !== 'RUNNING'}"><Fa class="{iconStyle}" icon="{faPlayCircle}" /></button>
 <button
   title="Stop Container"
   class="{buttonStyle}"
   on:click="{() => stopContainer(container)}"
   hidden
-  class:block="{container.state === 'RUNNING'}"
-  ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon="{faStopCircle}" /></button>
+  class:block="{container.state === 'RUNNING'}"><Fa class="{iconStyle}" icon="{faStopCircle}" /></button>
 <!-- </button>  class="disabled:opacity-25  cursor-pointer disabled:cursor-default">-->
 <button title="Restart Container" class="{buttonStyle}" on:click="{() => restartContainer(container)}">
-  <Fa class="h-10 w-10 rounded-full text-3xl text-sky-800" icon="{faArrowsRotate}" /></button>
+  <Fa class="{iconStyle}" icon="{faArrowsRotate}" /></button>
 <button class="{buttonStyle}" title="Delete Container" on:click="{() => deleteContainer(container)}">
-  <Fa class="h-10 w-10 rounded-full text-3xl text-sky-800" icon="{faTrash}" /></button>
+  <Fa class="{iconStyle}" icon="{faTrash}" /></button>

@@ -25,6 +25,7 @@ let containers: ContainerInfoUI[] = [];
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
+// track if need to expand the details if someone wants details
 router.subscribe(route => {
   if (route.path && route.path.startsWith('/containers/')) {
     const containerId = route.path.split('/')[2];
@@ -304,7 +305,7 @@ function getEngine(containerInfo: ContainerInfo): string {
             </thead>-->
         <tbody class="bg-gray-800 divide-y divide-gray-200">
           {#each containers as container}
-            <tr class="group">
+            <tr class="group h-16">
               <td
                 class="px-4 whitespace-nowrap hover:cursor-pointer"
                 on:click="{() => expandContainerSelection(container)}">
