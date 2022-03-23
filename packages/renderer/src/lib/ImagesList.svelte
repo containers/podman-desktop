@@ -7,6 +7,7 @@ import type { ImageInfo } from '../../../preload/src/api/image-info';
 import type { ImageInspectInfo } from '../../../preload/src/api/image-inspect-info';
 import type { ContainerCreateOptions } from '../../../preload/src/api/container-info';
 import { onMount } from 'svelte';
+import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -215,16 +216,7 @@ function getEngine(containerInfo: ImageInfo): string {
     </table>
   </div>
 </div>
-<div class="h-full min-w-full flex flex-col" class:hidden="{$filtered.length > 0}">
-  <div class="pf-c-empty-state h-full">
-    <div class="pf-c-empty-state__content">
-      <i class="fas fa-cubes pf-c-empty-state__icon" aria-hidden="true"></i>
-
-      <h1 class="pf-c-title pf-m-lg">No images</h1>
-      <div class="pf-c-empty-state__body">No images</div>
-    </div>
-  </div>
-</div>
+<ImageEmptyScreen images="{$filtered}" />
 
 {#if runContainerFromImageModal}
   <div
