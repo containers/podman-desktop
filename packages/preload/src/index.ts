@@ -96,6 +96,10 @@ function initExtensions(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('deleteContainer', async (engine: string, containerId: string): Promise<void> => {
+    return containerProviderRegistry.deleteContainer(engine, containerId);
+  });
+
   contextBridge.exposeInMainWorld('startProviderLifecycle', async (providerName: string): Promise<void> => {
     return containerProviderRegistry.startProviderLifecycle(providerName);
   });

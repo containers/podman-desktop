@@ -4,7 +4,7 @@ import { filtered, searchPattern } from '../stores/containers';
 import { providerInfos } from '../stores/providers';
 import type { ContainerInfo } from '../../../preload/src/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
-import { router } from 'tinro';
+import { router, Route } from 'tinro';
 import ContainerDetails from './ContainerDetails.svelte';
 import type { ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
@@ -24,6 +24,18 @@ let selectedContainer: ContainerInfoUI | undefined;
 let containers: ContainerInfoUI[] = [];
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
+
+router.subscribe(route => {
+  if (route.path && route.path.startsWith('/containers/')) {
+    const containerId = route.path.split('/')[2];
+    console.log('found container with id', containerId);
+    console.log('selected container', selectedContainer);
+    if (containerId && !selectedContainer) {
+      selectedContainer = containers.find(container => container.id === containerId);
+      isExpanded = true;
+    }
+  }
+});
 
 $: {
   // need to update the detail container when list is changing
