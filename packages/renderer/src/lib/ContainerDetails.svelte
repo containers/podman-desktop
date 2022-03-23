@@ -76,7 +76,7 @@ export let container: ContainerInfoUI;
           </section>
         </div>
         <div class="flex flex-row-reverse w-full">
-          <div class="flex h-2">
+          <div class="flex h-10">
             <ContainerActions container="{container}" />
           </div>
         </div>

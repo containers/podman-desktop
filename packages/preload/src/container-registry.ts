@@ -183,6 +183,18 @@ export class ContainerProviderRegistry {
     return engine.api.getContainer(id).stop();
   }
 
+  async deleteContainer(engineName: string, id: string): Promise<void> {
+    // need to find the container engine of the container
+    const engine = this.internalProviders.get(engineName);
+    if (!engine) {
+      throw new Error('no engine matching this container');
+    }
+
+    const container = engine.api.getContainer(id);
+    // use force to delete it even it is running
+    return container.remove({ force: true });
+  }
+
   async startContainer(engineName: string, id: string): Promise<void> {
     // need to find the container engine of the container
     const engine = this.internalProviders.get(engineName);
