@@ -34,7 +34,7 @@ export interface InternalContainerProvider {
 }
 
 export interface InternalContainerProviderLifecycle {
-  internal: containerDesktopAPI.ContainerProviderLifecycle;
+  internal: containerDesktopAPI.ProviderLifecycle;
   status: string;
 }
 
@@ -47,7 +47,7 @@ export class ContainerProviderRegistry {
   private internalProviders: Map<string, InternalContainerProvider> = new Map();
 
   async registerContainerProviderLifecycle(
-    providerLifecycle: containerDesktopAPI.ContainerProviderLifecycle,
+    providerLifecycle: containerDesktopAPI.ProviderLifecycle,
   ): Promise<Disposable> {
     const providerName = providerLifecycle.provideName();
     const internalProviderLifecycle = {

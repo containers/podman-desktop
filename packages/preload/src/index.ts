@@ -31,6 +31,7 @@ import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { ProviderInfo } from './api/provider-info';
 import { TrayMenuRegistry } from './tray-menu-registry';
+import { ClusterProviderRegistry } from './cluster-registry';
 const shell = require('electron').shell;
 
 // initialize extension loader mechanism
@@ -53,6 +54,7 @@ function initExtensions(): void {
 
   const commandRegistry = new CommandRegistry();
   const trayMenuRegistry = new TrayMenuRegistry(commandRegistry);
+  const clusterRegistry = new ClusterProviderRegistry(trayMenuRegistry);
   const containerProviderRegistry = new ContainerProviderRegistry(apiSender, trayMenuRegistry);
 
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
@@ -130,7 +132,13 @@ function initExtensions(): void {
     return containerProviderRegistry.getProviderInfos();
   });
 
-  const extensionLoader = new ExtensionLoader(commandRegistry, containerProviderRegistry, apiSender, trayMenuRegistry);
+  const extensionLoader = new ExtensionLoader(
+    commandRegistry,
+    containerProviderRegistry,
+    apiSender,
+    trayMenuRegistry,
+    clusterRegistry,
+  );
   contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
     return extensionLoader.listExtensions();
   });

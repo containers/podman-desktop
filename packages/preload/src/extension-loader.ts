@@ -26,6 +26,7 @@ import type { ExtensionInfo } from './api/extension-info';
 import * as zipper from 'zip-local';
 import type { TrayMenuRegistry } from './tray-menu-registry';
 import { Disposable } from './types/disposable';
+import type { ClusterProviderRegistry } from './cluster-registry';
 
 /**
  * Handle the loading of an extension
@@ -61,6 +62,7 @@ export class ExtensionLoader {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private apiSender: any,
     private trayMenuRegistry: TrayMenuRegistry,
+    private clusterProviderRegistry: ClusterProviderRegistry,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -221,7 +223,7 @@ export class ExtensionLoader {
         return containerProviderRegistry.registerContainerProvider(provider);
       },
       async registerContainerProviderLifecycle(
-        providerLifecycle: containerDesktopAPI.ContainerProviderLifecycle,
+        providerLifecycle: containerDesktopAPI.ProviderLifecycle,
       ): Promise<containerDesktopAPI.Disposable> {
         return containerProviderRegistry.registerContainerProviderLifecycle(providerLifecycle);
       },
@@ -233,10 +235,18 @@ export class ExtensionLoader {
         return trayMenuRegistry.registerMenuItem(providerName, item);
       },
     };
-    /*
-            export namespace container {
-                export function registerContainerProvider(provider: ContainerProvider): Disposable;
-            }*/
+
+    const clusterProviderRegistry = this.clusterProviderRegistry;
+    const kubernetes: typeof containerDesktopAPI.kubernetes = {
+      registerProvider(provider: containerDesktopAPI.KubernetesProvider): Promise<containerDesktopAPI.Disposable> {
+        return clusterProviderRegistry.registerClusterProvider(provider);
+      },
+      registerLifecycle(
+        clusterLifecycle: containerDesktopAPI.ProviderLifecycle,
+      ): Promise<containerDesktopAPI.Disposable> {
+        return clusterProviderRegistry.registerClusterLifecycle(clusterLifecycle);
+      },
+    };
 
     return <typeof containerDesktopAPI>{
       // Types
@@ -244,6 +254,7 @@ export class ExtensionLoader {
       commands,
       container,
       tray,
+      kubernetes,
     };
   }
 
