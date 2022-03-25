@@ -183,6 +183,18 @@ export class ContainerProviderRegistry {
     return engine.api.getContainer(id).stop();
   }
 
+  async deleteContainer(engineName: string, id: string): Promise<void> {
+    // need to find the container engine of the container
+    const engine = this.internalProviders.get(engineName);
+    if (!engine) {
+      throw new Error('no engine matching this container');
+    }
+
+    const container = engine.api.getContainer(id);
+    // use force to delete it even it is running
+    return container.remove({ force: true });
+  }
+
   async startContainer(engineName: string, id: string): Promise<void> {
     // need to find the container engine of the container
     const engine = this.internalProviders.get(engineName);
@@ -199,6 +211,67 @@ export class ContainerProviderRegistry {
       throw new Error('no engine matching this container');
     }
     return engine.api.getContainer(id).restart();
+  }
+
+  async logsContainer(engineName: string, id: string, callback: (name: string, data: string) => void): Promise<void> {
+    let firstMessage = true;
+    // need to find the container engine of the container
+    const engine = this.internalProviders.get(engineName);
+    if (!engine) {
+      throw new Error('no engine matching this container');
+    }
+    const containerStream = await engine.api.getContainer(id).logs({
+      follow: true,
+      stdout: true,
+      stderr: true,
+    });
+
+    containerStream.on('end', () => {
+      callback('end', '');
+    });
+
+    containerStream.on('data', chunk => {
+      if (firstMessage) {
+        firstMessage = false;
+        callback('first-message', '');
+      }
+      callback('data', chunk.toString('utf-8'));
+    });
+  }
+
+  async shellInContainer(
+    engineName: string,
+    id: string,
+    onData: (data: Buffer) => void,
+  ): Promise<(param: string) => void> {
+    // need to find the container engine of the container
+    const engine = this.internalProviders.get(engineName);
+    if (!engine) {
+      throw new Error('no engine matching this container');
+    }
+    const exec = await engine.api.getContainer(id).exec({
+      AttachStdin: true,
+      AttachStdout: true,
+      AttachStderr: true,
+      Cmd: ['/bin/bash'],
+      Tty: true,
+    });
+
+    const execStream = await exec.start({
+      Tty: true,
+      stdin: true,
+      hijack: true,
+    });
+
+    execStream.on('data', chunk => {
+      onData(chunk.toString('utf-8'));
+    });
+
+    const writeFunction = (param: string) => {
+      execStream.write(param);
+    };
+
+    return writeFunction;
   }
 
   async createAndStartContainer(engineName: string, options: ContainerCreateOptions): Promise<void> {

@@ -84,6 +84,24 @@ function initExtensions(): void {
     return containerProviderRegistry.stopContainer(engine, containerId);
   });
 
+  contextBridge.exposeInMainWorld(
+    'logsContainer',
+    async (engine: string, containerId: string, callback: (name: string, data: string) => void): Promise<void> => {
+      return containerProviderRegistry.logsContainer(engine, containerId, callback);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'shellInContainer',
+    async (engine: string, containerId: string, onData: (data: Buffer) => void): Promise<(param: string) => void> => {
+      return containerProviderRegistry.shellInContainer(engine, containerId, onData);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('deleteContainer', async (engine: string, containerId: string): Promise<void> => {
+    return containerProviderRegistry.deleteContainer(engine, containerId);
+  });
+
   contextBridge.exposeInMainWorld('startProviderLifecycle', async (providerName: string): Promise<void> => {
     return containerProviderRegistry.startProviderLifecycle(providerName);
   });

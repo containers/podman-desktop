@@ -54,7 +54,10 @@ const config = {
     'tar.gz',
     ]
   },
+  afterSign: 'electron-builder-notarize',
   mac: {
+    hardenedRuntime: true,
+    entitlements: './node_modules/electron-builder-notarize/entitlements.mac.inherit.plist',
     target: {
       target: 'default',
       arch: [
