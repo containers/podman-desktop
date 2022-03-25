@@ -11,17 +11,6 @@
   },
   "main": "./dist/extension.js",
   "source": "./src/extension.ts",
-  "targets": {
-    "main": {
-      "context": "node",
-      "isLibrary": true,
-      "includeNodeModules": {
-        "@tmpwip/extension-api": false
-      },
-      "scopeHoist": true,
-      "sourceMap": true
-    }
-  },
   "contributes": {
     "commands": [
       {
@@ -31,8 +20,8 @@
     ]
   },
   "scripts": {
-    "build": "parcel build && node ./scripts/build.js",
-    "watch": "parcel watch"
+    "build": "rollup --config rollup.config.js --compact --environment BUILD:production  && node ./scripts/build.js",
+    "watch": "rollup --config rollup.config.js -w"
   },
   "dependencies": {
     "@tmpwip/extension-api": "^0.0.1",
@@ -41,7 +30,6 @@
   "devDependencies": {
     "7zip-min": "^1.4.1",
     "mkdirp": "^1.0.4",
-    "parcel": "^2.4.0",
     "zip-local": "^0.3.5"
   }
 }
