@@ -15,6 +15,7 @@ import { onMount } from 'svelte';
 import ExtensionList from './lib/ExtensionList.svelte';
 import ImagesList from './lib/ImagesList.svelte';
 import ProviderList from './lib/ProviderList.svelte';
+import Logo from './lib/logo/Logo.svelte';
 let containersCountValue;
 
 router.mode.hash();
@@ -45,16 +46,7 @@ function jumpToImages() {
         <div class="flex lg:w-1/5 flex-wrap items-center text-base ml-auto"></div>
         <div
           class="flex order-none title-font font-medium items-center text-white align-middle justify-center mb-4 md:mb-0">
-          <svg width="33" height="40" viewBox="0 0 33 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 16.5L30.5021 23.5687L15 36.5L0.497832 24.4313L15 16.5Z" fill="#C4C4C4"></path>
-            <path d="M15.5022 11.7033L31.0043 18.772L15.5022 31.7033L1.00003 19.6346L15.5022 11.7033Z" fill="#E9E9E9"
-            ></path>
-            <path d="M15.5022 11.7033L31.0043 18.772L15.5022 31.7033L1.00003 19.6346L15.5022 11.7033Z" fill="#E9E9E9"
-            ></path>
-            <path d="M15.5022 5.70331L31.0043 12.772L15.5022 25.7033L1.00003 13.6346L15.5022 5.70331Z" fill="#7A59FA"
-            ></path>
-          </svg>
-
+          <Logo />
           <span class="ml-3 text-xl block text-gray-300">Container Desktop</span>
         </div>
         <div class="lg:w-2/5 inline-flex lg:justify-end ml-5 lg:ml-0"></div>
