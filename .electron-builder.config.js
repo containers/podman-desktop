@@ -36,6 +36,9 @@ const config = {
     'packages/**/dist/**',
     'extensions/**/builtin/*.cdix/**',
   ],
+  extraResources: [
+    'packages/main/src/assets/**',
+  ],
   portable: {
     artifactName: '${productName}-${version}.${ext}'
   },

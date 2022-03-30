@@ -16,12 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import trayIcon from './assets/tray-icon.png';
-import { app, nativeImage, Tray } from 'electron';
+import { app, Tray } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
 import { isMac } from './util';
+import * as path from 'path';
 
 /**
  * Prevent multiple instances
@@ -87,11 +87,18 @@ if (import.meta.env.PROD) {
     .catch(e => console.error('Failed check updates:', e));
 }
 
-const nativeTrayIcon = nativeImage.createFromDataURL(trayIcon);
-
 let tray: Tray | null = null;
 
 app.whenReady().then(() => {
-  tray = new Tray(nativeTrayIcon);
+  // choose right folder for resources
+  // see extraResources in electron-builder config file
+  let assetsFolder;
+  if (import.meta.env.PROD) {
+    assetsFolder = path.resolve(process.resourcesPath, 'packages/main/src/assets');
+  } else {
+    assetsFolder = path.resolve(__dirname, '../src/assets');
+  }
+  const imagePath = path.resolve(assetsFolder, 'tray-iconTemplate.png');
+  tray = new Tray(imagePath);
   new TrayMenu(tray);
 });
