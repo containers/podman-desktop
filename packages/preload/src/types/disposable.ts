@@ -16,7 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export class Disposable {
+export interface IDisposable {
+  dispose(): void;
+}
+
+export class Disposable implements IDisposable {
   private disposable: undefined | (() => void);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

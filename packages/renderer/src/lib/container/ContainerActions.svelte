@@ -14,22 +14,22 @@ const buttonStyle = 'border-2 border-opacity-30 border-violet-800  p-1 mx-1 shad
 const iconStyle = 'h-10 w-10 cursor-pointer rounded-full text-3xl text-violet-500';
 
 async function startContainer(containerInfo: ContainerInfoUI) {
-  await window.startContainer(containerInfo.engine, containerInfo.id);
+  await window.startContainer(containerInfo.engineId, containerInfo.id);
 }
 
 async function restartContainer(containerInfo: ContainerInfoUI) {
-  await window.restartContainer(containerInfo.engine, containerInfo.id);
+  await window.restartContainer(containerInfo.engineId, containerInfo.id);
 }
 
 async function stopContainer(containerInfo: ContainerInfoUI) {
-  await window.stopContainer(containerInfo.engine, containerInfo.id);
+  await window.stopContainer(containerInfo.engineId, containerInfo.id);
 }
 function openBrowser(containerInfo: ContainerInfoUI): void {
   window.openExternal(containerInfo.openingUrl);
 }
 
 function deleteContainer(containerInfo: ContainerInfoUI): void {
-  window.deleteContainer(containerInfo.engine, containerInfo.id);
+  window.deleteContainer(containerInfo.engineId, containerInfo.id);
 }
 function openTerminalContainer(containerInfo: ContainerInfoUI): void {
   console.log('openTerminalContainer container', containerInfo.name);

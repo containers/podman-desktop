@@ -24,15 +24,20 @@ import * as fs from 'fs';
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   const socketPath = path.resolve(os.homedir(), '.lima/podman/sock/podman.sock');
 
-  const dockerContainerProvider: extensionApi.ContainerProvider = {
-    provideName: () => 'Lima',
+  const provider = extensionApi.provider.createProvider({ name: 'Lima', status: 'unknown' });
+  extensionContext.subscriptions.push(provider);
 
-    provideConnection: async (): Promise<string> => {
-      return socketPath;
+  const containerProviderConnection: extensionApi.ContainerProviderConnection = {
+    name: 'Lima',
+    type: 'podman',
+    status: () => 'unknown',
+    endpoint: {
+      socketPath,
     },
   };
+
   if (fs.existsSync(socketPath)) {
-    const disposable = await extensionApi.container.registerContainerProvider(dockerContainerProvider);
+    const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
     extensionContext.subscriptions.push(disposable);
     console.log('Lima extension is active');
   } else {

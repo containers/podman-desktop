@@ -9,7 +9,7 @@ let waiting = false;
 
 async function startProviderLifecycle(provider: ProviderInfo): Promise<void> {
   waiting = true;
-  await window.startProviderLifecycle(provider.name);
+  await window.startProviderLifecycle(provider.id);
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   console.log('receive response from the server side: started');
   waiting = false;
@@ -17,7 +17,7 @@ async function startProviderLifecycle(provider: ProviderInfo): Promise<void> {
 
 async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
   waiting = true;
-  await window.stopProviderLifecycle(provider.name);
+  await window.stopProviderLifecycle(provider.id);
   console.log('receive response from the server side: stopped');
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   waiting = false;
@@ -30,19 +30,18 @@ async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
       <div class="px-6 py-4">
         <div class="font-bold text-gray-200 text-sm mb-2 h-10">{provider.name}</div>
         <div class="text-gray-300 text-sm h-5">
-          {#if provider.lifecycle}
-            Status: {provider.lifecycle.status}
-          {/if}
+          Status: {provider.status}
         </div>
       </div>
       <div class="px-6 pt-4 pb-2 h-12">
         <div class="flex flex-row">
-          {#if provider.lifecycle}
+          {#if provider.lifecycleMethods?.includes('start')}
             <button
               type="button"
               on:click="{() => startProviderLifecycle(provider)}"
-              class:hidden="{provider?.lifecycle?.status === 'started'}"
-              class="text-white bg-violet-700 hover:bg-violet-800 disabled:hover:bg-gray-600 disabled:bg-gray-500 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-xs px-3 py-1.5 text-center inline-flex items-center mr-2 ">
+              hidden
+              class:inline-flex="{provider.status === 'stopped'}"
+              class="text-white bg-violet-700 hover:bg-violet-800 disabled:hover:bg-gray-600 disabled:bg-gray-500 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-xs px-3 py-1.5 text-center items-center mr-2 ">
               {#if waiting === true}
                 <svg
                   class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
@@ -64,8 +63,9 @@ async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
             <button
               type="button"
               on:click="{() => stopProviderLifecycle(provider)}"
-              class:hidden="{provider?.lifecycle?.status !== 'started'}"
-              class="text-white bg-violet-700 hover:bg-violet-800 disabled:hover:bg-gray-600 disabled:bg-gray-500 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-xs px-3 py-1.5 text-center inline-flex items-center">
+              hidden
+              class:inline-flex="{provider.status === 'started'}"
+              class="text-white bg-violet-700 hover:bg-violet-800 disabled:hover:bg-gray-600 disabled:bg-gray-500 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-xs px-3 py-1.5 text-center items-center">
               {#if waiting === true}
                 <svg
                   class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
@@ -89,9 +89,10 @@ async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
       </div>
 
       <div class="px-6 py-6 flex-wrap font-thin break-words text-gray-400 text-xs">
-        {#if provider.connection}
-          Connection:
-          {provider.connection}
+        {#if provider.containerConnections}
+          {#each provider.containerConnections as connection}
+            <div>{connection.name} / {connection.status}: {connection.endpoint.socketPath}</div>
+          {/each}
         {/if}
       </div>
     </div>

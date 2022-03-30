@@ -57,7 +57,8 @@ onMount(async () => {
         name: getName(containerInfo),
         image: getImage(containerInfo),
         state: getState(containerInfo),
-        engine: getEngine(containerInfo),
+        engineId: getEngineId(containerInfo),
+        engineName: getEngineName(containerInfo),
         command: containerInfo.Command,
         port: getPort(containerInfo),
         hasPublicPort: hasPublicPort(containerInfo),
@@ -177,8 +178,12 @@ function getOpeningUrl(containerInfo: ContainerInfo): string {
   }
 }
 
-function getEngine(containerInfo: ContainerInfo): string {
-  return containerInfo.engine;
+function getEngineId(containerInfo: ContainerInfo): string {
+  return containerInfo.engineId;
+}
+
+function getEngineName(containerInfo: ContainerInfo): string {
+  return containerInfo.engineName;
 }
 </script>
 
@@ -332,7 +337,7 @@ function getEngine(containerInfo: ContainerInfo): string {
                     <div class="flex flex-row text-xs font-extra-light text-gray-500">
                       <div>{container.state}</div>
                       <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">
-                        {container.engine}
+                        {container.engineName}
                       </div>
                       <div class="pl-2 pr-2">{container.port}</div>
                     </div>

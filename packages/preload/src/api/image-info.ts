@@ -19,5 +19,6 @@
 import type Dockerode from 'dockerode';
 
 export interface ImageInfo extends Dockerode.ImageInfo {
-  engine: string;
+  engineId: string;
+  engineName: string;
 }

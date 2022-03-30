@@ -21,7 +21,8 @@ export interface ContainerInfoUI {
   shortId: string;
   name: string;
   image: string;
-  engine: string;
+  engineId: string;
+  engineName: string;
   state: string;
   port: string;
   command: string;

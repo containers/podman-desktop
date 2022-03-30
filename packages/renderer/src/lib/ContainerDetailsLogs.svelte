@@ -39,7 +39,7 @@ function callback(name: string, data: string) {
 
 async function fetchContainerLogs() {
   // grab logs of the container
-  await window.logsContainer(container.engine, container.id, callback);
+  await window.logsContainer(container.engineId, container.id, callback);
 }
 
 router.subscribe(async route => {

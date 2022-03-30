@@ -21,12 +21,11 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import type { CommandRegistry } from './command-registry';
-import type { ContainerProviderRegistry } from './container-registry';
 import type { ExtensionInfo } from './api/extension-info';
 import * as zipper from 'zip-local';
 import type { TrayMenuRegistry } from './tray-menu-registry';
 import { Disposable } from './types/disposable';
-import type { ClusterProviderRegistry } from './cluster-registry';
+import type { ProviderRegistry } from './provider-registry';
 
 /**
  * Handle the loading of an extension
@@ -58,11 +57,10 @@ export class ExtensionLoader {
 
   constructor(
     private commandRegistry: CommandRegistry,
-    private containerProviderRegistry: ContainerProviderRegistry,
+    private providerRegistry: ProviderRegistry,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private apiSender: any,
     private trayMenuRegistry: TrayMenuRegistry,
-    private clusterProviderRegistry: ClusterProviderRegistry,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -215,17 +213,10 @@ export class ExtensionLoader {
 
     //export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
 
-    const containerProviderRegistry = this.containerProviderRegistry;
-    const container: typeof containerDesktopAPI.container = {
-      async registerContainerProvider(
-        provider: containerDesktopAPI.ContainerProvider,
-      ): Promise<containerDesktopAPI.Disposable> {
-        return containerProviderRegistry.registerContainerProvider(provider);
-      },
-      async registerContainerProviderLifecycle(
-        providerLifecycle: containerDesktopAPI.ProviderLifecycle,
-      ): Promise<containerDesktopAPI.Disposable> {
-        return containerProviderRegistry.registerContainerProviderLifecycle(providerLifecycle);
+    const containerProviderRegistry = this.providerRegistry;
+    const provider: typeof containerDesktopAPI.provider = {
+      createProvider(providerOptions: containerDesktopAPI.ProviderOptions): containerDesktopAPI.Provider {
+        return containerProviderRegistry.createProvider(providerOptions);
       },
     };
 
@@ -236,25 +227,12 @@ export class ExtensionLoader {
       },
     };
 
-    const clusterProviderRegistry = this.clusterProviderRegistry;
-    const kubernetes: typeof containerDesktopAPI.kubernetes = {
-      registerProvider(provider: containerDesktopAPI.KubernetesProvider): Promise<containerDesktopAPI.Disposable> {
-        return clusterProviderRegistry.registerClusterProvider(provider);
-      },
-      registerLifecycle(
-        clusterLifecycle: containerDesktopAPI.ProviderLifecycle,
-      ): Promise<containerDesktopAPI.Disposable> {
-        return clusterProviderRegistry.registerClusterLifecycle(clusterLifecycle);
-      },
-    };
-
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
       commands,
-      container,
+      provider,
       tray,
-      kubernetes,
     };
   }
 

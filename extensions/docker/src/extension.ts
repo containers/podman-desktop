@@ -27,16 +27,21 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   } else {
     socketPath = '/var/run/docker.sock';
   }
-  const dockerContainerProvider: extensionApi.ContainerProvider = {
-    provideName: () => 'Docker',
 
-    provideConnection: async (): Promise<string> => {
-      return socketPath;
+  const provider = extensionApi.provider.createProvider({ name: 'Docker', status: 'ready' });
+
+  const containerProviderConnection: extensionApi.ContainerProviderConnection = {
+    name: 'Docker',
+    type: 'docker',
+    status: () => 'unknown',
+    endpoint: {
+      socketPath,
     },
   };
 
-  const disposable = await extensionApi.container.registerContainerProvider(dockerContainerProvider);
+  const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
   extensionContext.subscriptions.push(disposable);
+  extensionContext.subscriptions.push(provider);
 }
 
 export function deactivate(): void {

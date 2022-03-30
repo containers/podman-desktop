@@ -22,15 +22,15 @@ import Dockerode from 'dockerode';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
-import type { ProviderInfo } from './api/provider-info';
-import type { TrayMenuRegistry } from './tray-menu-registry';
 
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 export interface InternalContainerProvider {
   name: string;
-  connection: string;
-  api: Dockerode;
+  id: string;
+  connection: containerDesktopAPI.ContainerProviderConnection;
+  // api not there if status is stopped
+  api?: Dockerode;
 }
 
 export interface InternalContainerProviderLifecycle {
@@ -40,48 +40,16 @@ export interface InternalContainerProviderLifecycle {
 
 export class ContainerProviderRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any, private readonly trayMenuRegistry: TrayMenuRegistry) {}
+  constructor(private apiSender: any) {}
 
-  private providers: Map<string, containerDesktopAPI.ContainerProvider> = new Map();
-  private providerLifecycles: Map<string, InternalContainerProviderLifecycle> = new Map();
+  private containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
   private internalProviders: Map<string, InternalContainerProvider> = new Map();
 
-  async registerContainerProviderLifecycle(
-    providerLifecycle: containerDesktopAPI.ProviderLifecycle,
-  ): Promise<Disposable> {
-    const providerName = providerLifecycle.provideName();
-    const internalProviderLifecycle = {
-      internal: providerLifecycle,
-      status: providerLifecycle.status(),
-    };
-    this.providerLifecycles.set(providerName, internalProviderLifecycle);
-    this.trayMenuRegistry.addContainerProviderLifecycle(providerName, providerLifecycle);
-    return Disposable.create(() => {
-      this.internalProviders.delete(providerName);
-      this.providers.delete(providerName);
-      this.apiSender.send('provider-lifecycle-change', {});
-      this.trayMenuRegistry.removeContainerProviderLifecycle(providerName);
-    });
-  }
-
-  async registerContainerProvider(provider: containerDesktopAPI.ContainerProvider): Promise<Disposable> {
-    const providerName = provider.provideName();
-    const connection = await provider.provideConnection();
-
-    this.providers.set(providerName, provider);
-
-    const internalProvider: InternalContainerProvider = {
-      name: providerName,
-      connection,
-      api: new Dockerode({ socketPath: connection }),
-    };
-
-    this.internalProviders.set(providerName, internalProvider);
-    this.apiSender.send('provider-change', {});
-
-    // listen to events
-    internalProvider.api.getEvents((err, stream) => {
-      console.log('error is', err);
+  handleEvents(api: Dockerode) {
+    api.getEvents((err, stream) => {
+      if (err) {
+        console.log('error is', err);
+      }
       stream?.on('data', data => {
         const evt = JSON.parse(data.toString());
         console.log('event is', evt);
@@ -108,10 +76,55 @@ export class ContainerProviderRegistry {
         }
       });
     });
+  }
+
+  registerContainerConnection(
+    provider: containerDesktopAPI.Provider,
+    containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
+  ): Disposable {
+    const providerName = containerProviderConnection.name;
+    const id = `${provider.id}.${providerName}`;
+    this.containerProviders.set(id, containerProviderConnection);
+
+    const internalProvider: InternalContainerProvider = {
+      id,
+      name: provider.name,
+      connection: containerProviderConnection,
+    };
+    let previousStatus = containerProviderConnection.status();
+
+    if (containerProviderConnection.status() === 'started') {
+      internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
+      this.handleEvents(internalProvider.api);
+    }
+
+    // track the status of the provider
+    const timer = setInterval(async () => {
+      const newStatus = containerProviderConnection.status();
+      if (newStatus !== previousStatus) {
+        if (newStatus === 'stopped') {
+          internalProvider.api = undefined;
+          this.apiSender.send('provider-change', {});
+        }
+        if (newStatus === 'started') {
+          internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
+          this.handleEvents(internalProvider.api);
+          this.internalProviders.set(id, internalProvider);
+          this.apiSender.send('provider-change', {});
+        }
+        previousStatus = newStatus;
+      }
+    }, 2000);
+
+    this.internalProviders.set(id, internalProvider);
+    this.apiSender.send('provider-change', {});
+
+    // listen to events
 
     return Disposable.create(() => {
-      this.internalProviders.delete(providerName);
-      this.providers.delete(providerName);
+      clearInterval(timer);
+      this.internalProviders.delete(id);
+      this.containerProviders.delete(id);
       this.apiSender.send('provider-change', {});
     });
   }
@@ -120,9 +133,12 @@ export class ContainerProviderRegistry {
     const containers = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
         try {
+          if (!provider.api) {
+            return [];
+          }
           const containers = await provider.api.listContainers({ all: true });
           return containers.map(container => {
-            const containerInfo: ContainerInfo = { ...container, engine: provider.name };
+            const containerInfo: ContainerInfo = { ...container, engineName: provider.name, engineId: provider.id };
             return containerInfo;
           });
         } catch (error) {
@@ -139,9 +155,12 @@ export class ContainerProviderRegistry {
     const images = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
         try {
+          if (!provider.api) {
+            return [];
+          }
           const images = await provider.api.listImages({ all: false });
           return images.map(image => {
-            const imageInfo: ImageInfo = { ...image, engine: provider.name };
+            const imageInfo: ImageInfo = { ...image, engineName: provider.name, engineId: provider.id };
             return imageInfo;
           });
         } catch (error) {
@@ -154,73 +173,39 @@ export class ContainerProviderRegistry {
     return flatttenedImages;
   }
 
-  async startProviderLifecycle(providerName: string): Promise<void> {
+  protected getMatchingContainer(engineId: string, id: string): Dockerode.Container {
     // need to find the container engine of the container
-    const providerLifecycle = this.providerLifecycles.get(providerName);
-    if (!providerLifecycle) {
-      throw new Error('no provider matching this providerName');
-    }
-    await providerLifecycle.internal.start();
-    this.apiSender.send('provider-lifecycle-change', {});
-  }
-
-  async stopProviderLifecycle(providerName: string): Promise<void> {
-    // need to find the container engine of the container
-    const providerLifecycle = this.providerLifecycles.get(providerName);
-    if (!providerLifecycle) {
-      throw new Error('no provider matching this providerName');
-    }
-    await providerLifecycle.internal.stop();
-    this.apiSender.send('provider-lifecycle-change', {});
-  }
-
-  async stopContainer(engineName: string, id: string): Promise<void> {
-    // need to find the container engine of the container
-    const engine = this.internalProviders.get(engineName);
+    const engine = this.internalProviders.get(engineId);
     if (!engine) {
       throw new Error('no engine matching this container');
     }
-    return engine.api.getContainer(id).stop();
+    if (!engine.api) {
+      throw new Error('no running provider for the matching container');
+    }
+    return engine.api.getContainer(id);
   }
 
-  async deleteContainer(engineName: string, id: string): Promise<void> {
-    // need to find the container engine of the container
-    const engine = this.internalProviders.get(engineName);
-    if (!engine) {
-      throw new Error('no engine matching this container');
-    }
+  async stopContainer(engineId: string, id: string): Promise<void> {
+    return this.getMatchingContainer(engineId, id).stop();
+  }
 
-    const container = engine.api.getContainer(id);
+  async deleteContainer(engineId: string, id: string): Promise<void> {
     // use force to delete it even it is running
-    return container.remove({ force: true });
+    return this.getMatchingContainer(engineId, id).remove({ force: true });
   }
 
-  async startContainer(engineName: string, id: string): Promise<void> {
-    // need to find the container engine of the container
-    const engine = this.internalProviders.get(engineName);
-    if (!engine) {
-      throw new Error('no engine matching this container');
-    }
-    return engine.api.getContainer(id).start();
+  async startContainer(engineId: string, id: string): Promise<void> {
+    return this.getMatchingContainer(engineId, id).start();
   }
 
-  async restartContainer(engineName: string, id: string): Promise<void> {
-    // need to find the container engine of the container
-    const engine = this.internalProviders.get(engineName);
-    if (!engine) {
-      throw new Error('no engine matching this container');
-    }
-    return engine.api.getContainer(id).restart();
+  async restartContainer(engineId: string, id: string): Promise<void> {
+    return this.getMatchingContainer(engineId, id).restart();
   }
 
-  async logsContainer(engineName: string, id: string, callback: (name: string, data: string) => void): Promise<void> {
+  async logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void): Promise<void> {
     let firstMessage = true;
-    // need to find the container engine of the container
-    const engine = this.internalProviders.get(engineName);
-    if (!engine) {
-      throw new Error('no engine matching this container');
-    }
-    const containerStream = await engine.api.getContainer(id).logs({
+    const container = this.getMatchingContainer(engineId, id);
+    const containerStream = await container.logs({
       follow: true,
       stdout: true,
       stderr: true,
@@ -240,20 +225,15 @@ export class ContainerProviderRegistry {
   }
 
   async shellInContainer(
-    engineName: string,
+    engineId: string,
     id: string,
     onData: (data: Buffer) => void,
   ): Promise<(param: string) => void> {
-    // need to find the container engine of the container
-    const engine = this.internalProviders.get(engineName);
-    if (!engine) {
-      throw new Error('no engine matching this container');
-    }
-    const exec = await engine.api.getContainer(id).exec({
+    const exec = await this.getMatchingContainer(engineId, id).exec({
       AttachStdin: true,
       AttachStdout: true,
       AttachStderr: true,
-      Cmd: ['/bin/bash'],
+      Cmd: ['/bin/sh'],
       Tty: true,
     });
 
@@ -274,26 +254,33 @@ export class ContainerProviderRegistry {
     return writeFunction;
   }
 
-  async createAndStartContainer(engineName: string, options: ContainerCreateOptions): Promise<void> {
+  async createAndStartContainer(engineId: string, options: ContainerCreateOptions): Promise<void> {
     // need to find the container engine of the container
-    const engine = this.internalProviders.get(engineName);
+    const engine = this.internalProviders.get(engineId);
     if (!engine) {
       throw new Error('no engine matching this container');
+    }
+    if (!engine.api) {
+      throw new Error('no running provider for the matching container');
     }
     const container = await engine.api.createContainer(options);
     return container.start();
   }
 
-  async getImageInspect(engineName: string, id: string): Promise<ImageInspectInfo> {
+  async getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo> {
     // need to find the container engine of the container
-    const engine = this.internalProviders.get(engineName);
-    if (!engine) {
+    const provider = this.internalProviders.get(engineId);
+    if (!provider) {
       throw new Error('no engine matching this container');
     }
-    const imageObject = engine.api.getImage(id);
+    if (!provider.api) {
+      throw new Error('no running provider for the matching container');
+    }
+    const imageObject = provider.api.getImage(id);
     const imageInspect = await imageObject.inspect();
     return {
-      engine: engineName,
+      engineName: provider.name,
+      engineId: provider.id,
       ...imageInspect,
     };
   }
@@ -304,10 +291,10 @@ export class ContainerProviderRegistry {
     eventCollect: (eventName: string, data: string) => void,
   ): Promise<unknown> {
     console.log('building image', imageName, 'from rootDirectory', rootDirectory);
-    const firstProvider = Array.from(this.internalProviders.values())[0];
-
-    // const firstProvider = this.internalProviders.get('Lima')!;
-
+    const firstProvider = Array.from(this.internalProviders.values()).filter(provider => provider.api)[0];
+    if (!firstProvider.api) {
+      throw new Error('No provider with a running engine');
+    }
     console.log('building using provider', firstProvider.name);
 
     const tarStream = tar.pack(rootDirectory);
@@ -338,33 +325,5 @@ export class ContainerProviderRegistry {
 
     firstProvider.api.modem.followProgress(streamingPromise, onFinished, onProgress);
     return promise;
-  }
-
-  async getProviderInfos(): Promise<ProviderInfo[]> {
-    // get unique keys
-    const lifecycleKeys = Array.from(this.providerLifecycles.keys());
-    const providerKeys = Array.from(this.providers.keys());
-
-    // get unique set
-    const uniqueKeys = Array.from(new Set([...lifecycleKeys, ...providerKeys]));
-
-    return uniqueKeys.map(key => {
-      // matching provider ?
-      const internalProvider = this.internalProviders.get(key);
-      const internalProviderLifecycle = this.providerLifecycles.get(key);
-
-      let lifecycle;
-      if (internalProviderLifecycle) {
-        lifecycle = {
-          status: internalProviderLifecycle.status,
-        };
-      }
-
-      return {
-        name: key,
-        connection: internalProvider?.connection,
-        lifecycle,
-      };
-    });
   }
 }

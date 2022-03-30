@@ -42,13 +42,11 @@ async function createWindow() {
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
 
   setTimeout(() => {
-    console.log('SEND SEND SEND message');
     browserWindow.webContents.send('container-stopped-event', 'containerID');
   }, 5000);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ipcMain.on('container-stopped-event', (event: any, info: any) => {
-    console.log('SEND SEND SEND message', info);
+  ipcMain.on('container-stopped-event', (event: any) => {
     browserWindow.webContents.send('container-stopped-event', event);
   });
 
