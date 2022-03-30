@@ -15,7 +15,8 @@ $: searchPattern.set(searchTerm);
 interface ImageInfoUI {
   id: string;
   name: string;
-  engine: string;
+  engineId: string;
+  engineName: string;
   tag: string;
 }
 let images: ImageInfoUI[] = [];
@@ -26,7 +27,8 @@ onMount(async () => {
       return {
         id: imageInfo.Id,
         name: getName(imageInfo),
-        engine: getEngine(imageInfo),
+        engineId: getEngineId(imageInfo),
+        engineName: getEngineName(imageInfo),
         tag: getTag(imageInfo),
       };
     });
@@ -55,7 +57,7 @@ async function runImage(imageInfo: ImageInfoUI) {
   modalImageInspectInfo = undefined;
   modalContainerPortMapping = [];
   modalImageInfo = imageInfo;
-  const imageInspectInfo = await window.getImageInspect(imageInfo.engine, imageInfo.id);
+  const imageInspectInfo = await window.getImageInspect(imageInfo.engineId, imageInfo.id);
   modalImageInspectInfo = imageInspectInfo;
   modalExposedPorts = Array.from(Object.keys(modalImageInspectInfo?.Config?.ExposedPorts || {}));
   modalContainerPortMapping = new Array<string>(modalExposedPorts.length);
@@ -90,7 +92,7 @@ async function startContainer() {
     ExposedPorts,
   };
   console.log('calling create and start with options', options);
-  const response = await window.createAndStartContainer(modalImageInspectInfo.engine, options);
+  const response = await window.createAndStartContainer(modalImageInspectInfo.engineId, options);
   runContainerFromImageModal = false;
 
   // redirect to containers
@@ -132,8 +134,12 @@ function getColorForState(imageInfo: ImageInfo): string {
   return 'text-gray-700';
 }
 
-function getEngine(containerInfo: ImageInfo): string {
-  return containerInfo.engine;
+function getEngineId(containerInfo: ImageInfo): string {
+  return containerInfo.engineId;
+}
+
+function getEngineName(containerInfo: ImageInfo): string {
+  return containerInfo.engineName;
 }
 </script>
 
@@ -189,7 +195,7 @@ function getEngine(containerInfo: ImageInfo): string {
                   <div class="flex flex-row text-xs font-extra-light text-gray-500">
                     <div>{image.tag}</div>
                     <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">
-                      {image.engine}
+                      {image.engineName}
                     </div>
                   </div>
                 </div>

@@ -25,70 +25,30 @@ import * as childProcess from 'node:child_process';
 import type { Status } from './daemon-commander';
 import { DaemonCommander } from './daemon-commander';
 
-type StatusHandler = (event: extensionApi.ProviderStatus) => void;
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 const commander = new DaemonCommander();
 let daemonProcess: childProcess.ChildProcess;
 let statusFetchTimer: NodeJS.Timer;
 
 let crcStatus: Status;
 
-const statusHandlers = new Set<StatusHandler>();
-
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  let socketPath;
-  const isWindows = os.platform() === 'win32';
-  if (isWindows) {
-    socketPath = '//./pipe/crc-podman';
-  } else {
-    socketPath = path.resolve(os.homedir(), '.crc/machines/crc/docker.sock');
-  }
+  // detect preset of CRC
+  const preset = await readPreset();
 
-  const dockerContainerProvider: extensionApi.ContainerProvider = {
-    provideName: () => 'crc/podman',
+  // create CRC provider
+  const provider = extensionApi.provider.createProvider({ name: 'CodeReady Containers', status: 'unknown' });
+  extensionContext.subscriptions.push(provider);
 
-    provideConnection: async (): Promise<string> => {
-      return socketPath;
-    },
-  };
-  if (fs.existsSync(socketPath)) {
-    const disposable = await extensionApi.container.registerContainerProvider(dockerContainerProvider);
-    extensionContext.subscriptions.push(disposable);
-    console.log('crc extension is active');
-  } else {
-    console.error(`Could not find crc podman socket at ${socketPath}`);
-  }
-
-  registerCrcCluster();
-}
-
-export function deactivate(): void {
-  console.log('stopping crc extension');
-  if (daemonProcess) {
-    daemonProcess.kill();
-  }
-  if (statusFetchTimer) {
-    clearInterval(statusFetchTimer);
-  }
-}
-
-async function registerCrcCluster(): Promise<void> {
   try {
-    const daemonStarted = await daemonStart();
-    if (!daemonStarted) {
-      return;
-    }
-    await delay(8000);
-
     // initial status
     crcStatus = await commander.status();
   } catch (err) {
-    console.error(err);
+    console.error('error in CRC extension', err);
   }
 
-  const clusterLifecycle: extensionApi.ProviderLifecycle = {
-    provideName: () => 'CRC',
+  const providerLifecycle: extensionApi.ProviderLifecycle = {
+    status: () => convertToStatus(crcStatus?.CrcStatus),
+
     start: async () => {
       try {
         await commander.start();
@@ -97,50 +57,31 @@ async function registerCrcCluster(): Promise<void> {
       }
     },
     stop: async () => {
+      console.log('extension:crc: receive the call stop');
       try {
         await commander.stop();
       } catch (err) {
         console.error(err);
       }
     },
-    status: () => {
-      return convertToStatus(crcStatus.CrcStatus);
-    },
-    handleLifecycleChange: async handler => {
-      statusHandlers.add(handler);
-      if (!statusFetchTimer) {
-        startStatusUpdateTimer();
-      }
-    },
   };
-  extensionApi.kubernetes.registerLifecycle(clusterLifecycle);
-}
 
-function convertToStatus(crcStatus: string): extensionApi.ProviderStatus {
-  switch (crcStatus) {
-    case 'Running':
-      return 'started';
-    case 'Starting':
-      return 'starting';
-    case 'Stopping':
-      return 'stopping';
-    case 'Stopped':
-      return 'stopped';
-    default:
-      return 'unknown';
+  provider.registerLifecycle(providerLifecycle);
+  if (preset === 'Podman') {
+    // podman connection ?
+    registerPodmanConnection(provider, extensionContext);
+  } else if (preset === 'OpenShift') {
+    // OpenShift
+    registerOpenShiftLocalCluster(provider, extensionContext);
+  }
+
+  startStatusUpdateTimer();
+
+  const daemonStarted = await daemonStart();
+  if (!daemonStarted) {
+    return;
   }
 }
-
-async function startStatusUpdateTimer(): Promise<void> {
-  statusFetchTimer = setInterval(async () => {
-    crcStatus = await commander.status();
-    statusHandlers.forEach(h => h(convertToStatus(crcStatus.CrcStatus)));
-  }, 2000);
-}
-
-// async function crcBinary(): Promise<string> {
-//   return which('crc');
-// }
 
 async function daemonStart(): Promise<boolean> {
   // const crc = await crcBinary();
@@ -154,6 +95,7 @@ async function daemonStart(): Promise<boolean> {
   if (os.platform() !== 'darwin') {
     return false;
   }
+
   daemonProcess = childProcess.spawn('/usr/local/bin/crc', ['daemon', '--watchdog'], {
     detached: true,
     windowsHide: true,
@@ -174,4 +116,117 @@ async function daemonStart(): Promise<boolean> {
   });
 
   return true;
+}
+
+function registerPodmanConnection(provider: extensionApi.Provider, extensionContext: extensionApi.ExtensionContext) {
+  let socketPath;
+  const isWindows = os.platform() === 'win32';
+  if (isWindows) {
+    socketPath = '//./pipe/crc-podman';
+  } else {
+    socketPath = path.resolve(os.homedir(), '.crc/machines/crc/docker.sock');
+  }
+
+  if (fs.existsSync(socketPath)) {
+    const status = () => convertToStatus(crcStatus.CrcStatus);
+
+    const containerConnection: extensionApi.ContainerProviderConnection = {
+      name: 'Podman',
+      type: 'podman',
+      endpoint: {
+        socketPath,
+      },
+      status,
+    };
+
+    const disposable = provider.registerContainerProviderConnection(containerConnection);
+    extensionContext.subscriptions.push(disposable);
+  } else {
+    console.error(`Could not find crc podman socket at ${socketPath}`);
+  }
+}
+
+export function deactivate(): void {
+  console.log('stopping crc extension');
+  if (daemonProcess) {
+    daemonProcess.kill();
+  }
+  if (statusFetchTimer) {
+    clearInterval(statusFetchTimer);
+  }
+}
+
+async function registerOpenShiftLocalCluster(
+  provider: extensionApi.Provider,
+  extensionContext: extensionApi.ExtensionContext,
+): Promise<void> {
+  const status = () => convertToStatus(crcStatus.CrcStatus);
+  const apiURL = 'https://api.crc.testing:6443';
+  const kubernetesProviderConnection: extensionApi.KubernetesProviderConnection = {
+    name: 'OpenShift',
+    endpoint: {
+      apiURL,
+    },
+    status,
+  };
+
+  const disposable = provider.registerKubernetesProviderConnection(kubernetesProviderConnection);
+  extensionContext.subscriptions.push(disposable);
+}
+
+function convertToStatus(crcStatus: string): extensionApi.ProviderConnectionStatus {
+  switch (crcStatus) {
+    case 'Running':
+      return 'started';
+    case 'Starting':
+      return 'starting';
+    case 'Stopping':
+      return 'stopping';
+    case 'Stopped':
+      return 'stopped';
+    default:
+      return 'unknown';
+  }
+}
+
+async function startStatusUpdateTimer(): Promise<void> {
+  statusFetchTimer = setInterval(async () => {
+    crcStatus = await commander.status();
+  }, 2000);
+}
+
+// async function crcBinary(): Promise<string> {
+//   return which('crc');
+// }
+
+function execPromise(command, args?: string[]): Promise<string> {
+  const env = process.env;
+  // In production mode, applications don't have access to the 'user' path like brew
+  return new Promise((resolve, reject) => {
+    let output = '';
+    const process = childProcess.spawn(command, args, { env });
+    process.stdout.setEncoding('utf8');
+    process.stdout.on('data', data => {
+      output += data;
+    });
+
+    process.on('close', () => resolve(output.trim()));
+    process.on('error', err => reject(err));
+  });
+}
+
+async function readPreset(): Promise<'Podman' | 'OpenShift' | 'unknown'> {
+  try {
+    const stdout = await execPromise('/usr/local/bin/crc', ['config', 'get', 'preset']);
+    if (stdout.includes('podman')) {
+      return 'Podman';
+    } else if (stdout.includes('openshift')) {
+      return 'OpenShift';
+    } else {
+      return 'unknown';
+    }
+  } catch (err) {
+    console.log('error while getting preset', err);
+    return 'unknown';
+  }
 }

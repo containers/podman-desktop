@@ -20,94 +20,105 @@ import * as extensionApi from '@tmpwip/extension-api';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
-import * as net from 'net';
 import { spawn } from 'child_process';
+
+type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
 const isWindows = os.platform() === 'win32';
 const isMac = os.platform() === 'darwin';
 const isLinux = os.platform() === 'linux';
 
+const listeners = new Set<StatusHandler>();
 const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), '.local/share/containers/podman/machine');
 const podmanMachineDirectoryWindows = path.resolve(os.homedir(), '.local/share/containers/podman/machine/wsl/wsldist');
-const podmanMachineQemuDirectoryMac = path.resolve(podmanMachineSocketsDirectoryMac, 'qemu');
-const watchers = new Map<string, fs.FSWatcher>();
-const currentProviders: extensionApi.Disposable[] = [];
-const lifecycleProviders = new Map<string, extensionApi.ProviderLifecycle>();
 let storedExtensionContext;
-let refreshMachine = false;
 let stopLoop = false;
 
+// current status of machines
+const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
+const currentConnections = new Map<string, extensionApi.Disposable>();
+
+type MachineJSON = {
+  Name: string;
+  Running: boolean;
+};
+
+async function updateMachines(provider: extensionApi.Provider): Promise<void> {
+  // init machines available
+  const machineListOutput = await execPromise('podman', ['machine', 'list', '--format', 'json']);
+
+  // parse output
+  const machines = JSON.parse(machineListOutput) as MachineJSON[];
+
+  // update status of existing machines
+  machines.forEach(machine => {
+    const running = machine?.Running === true;
+    const status = running ? 'started' : 'stopped';
+    const previousStatus = podmanMachinesStatuses.get(machine.Name);
+    if (previousStatus !== status) {
+      // notify status change
+      listeners.forEach(listener => listener(machine.Name, status));
+    }
+    podmanMachinesStatuses.set(machine.Name, status);
+  });
+
+  // remove machine no longer there
+  const machinesToRemove = Array.from(podmanMachinesStatuses.keys()).filter(
+    machine => !machines.find(m => m.Name === machine),
+  );
+  machinesToRemove.forEach(machine => podmanMachinesStatuses.delete(machine));
+
+  // create connections for new machines
+  const connectionsToCreate = Array.from(podmanMachinesStatuses.keys()).filter(
+    machineStatusKey => !currentConnections.has(machineStatusKey),
+  );
+  await Promise.all(
+    connectionsToCreate.map(async machineName => {
+      // podman.sock link
+      let socketPath;
+      if (isMac) {
+        socketPath = path.resolve(podmanMachineSocketsDirectoryMac, machineName, 'podman.sock');
+      } else if (isWindows) {
+        socketPath = `//./pipe/podman-${machineName}`;
+      }
+      registerProviderFor(provider, machineName, socketPath);
+    }),
+  );
+
+  // delete connections for machines no longer there
+  machinesToRemove.forEach(machine => {
+    const disposable = currentConnections.get(machine);
+    if (disposable) {
+      console.log('disposing the connection', machine);
+      disposable.dispose();
+      currentConnections.delete(machine);
+    }
+  });
+}
+
 // on linux, socket is started by the system service on a path like /run/user/1000/podman/podman.sock
-async function initDefaultLinux() {
+async function initDefaultLinux(provider: extensionApi.Provider) {
   // grab user id of the user
   const userInfo = os.userInfo();
   const uid = userInfo.uid;
 
   const socketPath = `/run/user/${uid}/podman/podman.sock`;
-  const available = await socketAvailable(socketPath);
-  if (available) {
-    const provider: extensionApi.ContainerProvider = {
-      provideName: () => 'podman',
-
-      provideConnection: async (): Promise<string> => {
-        return socketPath;
-      },
-    };
-    const disposable = await extensionApi.container.registerContainerProvider(provider);
-    currentProviders.push(disposable);
-    storedExtensionContext.subscriptions.push(disposable);
+  if (!fs.existsSync(socketPath)) {
+    return;
   }
-}
 
-async function initMachinesWindows() {
-  // we search for all directories in wsldist folder
-  const children = await fs.promises.readdir(podmanMachineDirectoryWindows, { withFileTypes: true });
-  // grab all directories
-  const directories = children.filter(c => c.isDirectory()).map(c => c.name);
+  const containerProviderConnection: extensionApi.ContainerProviderConnection = {
+    name: 'Podman',
+    type: 'podman',
+    status: () => 'started',
+    endpoint: {
+      socketPath,
+    },
+  };
 
-  // ok now for each directory, register a provider if socket is working
-  await Promise.all(
-    directories.map(async directory => {
-      // socket is npipe link
-      const socketPath = `//./pipe/podman-${directory}`;
-      const available = await socketAvailable(socketPath);
-      let status: extensionApi.ProviderStatus = 'stopped';
-      if (available) {
-        registerProviderFor(directory, socketPath);
-        status = 'started';
-      }
-      registerProviderLifecycle(directory, status);
-    }),
-  );
-}
-
-async function initMachinesMac() {
-  // we search for all sockets and try to connect if possible
-  const children = await fs.promises.readdir(podmanMachineSocketsDirectoryMac, { withFileTypes: true });
-  // grab all directories except qemu one
-  const directories = children.filter(c => c.isDirectory() && c.name !== 'qemu').map(c => c.name);
-
-  // ok now for each directory, register a provider if socket is working
-  await Promise.all(
-    directories.map(async directory => {
-      // podman.sock link
-      const socketPath = path.resolve(podmanMachineSocketsDirectoryMac, directory, 'podman.sock');
-      const available = await socketAvailable(socketPath);
-      let status: extensionApi.ProviderStatus = 'stopped';
-      if (available) {
-        registerProviderFor(directory, socketPath);
-        status = 'started';
-      }
-      registerProviderLifecycle(directory, status);
-
-      // monitor qemu file
-      const children = await fs.promises.readdir(podmanMachineQemuDirectoryMac, { withFileTypes: true });
-      const qemuFile = children.filter(c => c.isFile() && c.name.startsWith(`${directory}_`)).map(c => c.name);
-      if (qemuFile.length === 1) {
-        monitorQemuMachine(path.resolve(podmanMachineQemuDirectoryMac, qemuFile[0]));
-      }
-    }),
-  );
+  const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
+  currentConnections.set('podman', disposable);
+  storedExtensionContext.subscriptions.push(disposable);
 }
 
 async function timeout(time: number): Promise<void> {
@@ -116,132 +127,88 @@ async function timeout(time: number): Promise<void> {
   });
 }
 
-async function refreshMachinesCronMac() {
-  // we need to refresh as during the last 5 seconds, we need a refresh
-  if (refreshMachine) {
-    await Promise.all(currentProviders.map(provider => provider.dispose()));
-    currentProviders.length = 0;
-    initMachinesMac();
-    // we disable the refresh for a while
-    refreshMachine = false;
-  }
-
+async function monitorMachines(provider: extensionApi.Provider) {
   // call us again
   if (!stopLoop) {
+    updateMachines(provider);
     await timeout(5000);
-    refreshMachinesCronMac();
+    monitorMachines(provider);
   }
 }
 
-async function monitorQemuMachine(qemuFileToWatch) {
-  if (watchers.get(qemuFileToWatch)) {
-    // already watching, skip
-    return;
-  }
-  const watcher = fs.watch(qemuFileToWatch, () => {
-    // we refresh the list of machines every time there is a new event in that directory
-    refreshMachine = true;
-  });
-  watchers.set(qemuFileToWatch, watcher);
-}
-
-function getNameFromDirectory(directory: string): string {
+function prettyMachineName(machineName: string): string {
   let name;
-  if (directory === 'podman-machine-default') {
+  if (machineName === 'podman-machine-default') {
     name = 'Podman';
-  } else if (directory.startsWith('podman-machine-')) {
-    const sub = directory.substring('podman-machine-'.length);
+  } else if (machineName.startsWith('podman-machine-')) {
+    const sub = machineName.substring('podman-machine-'.length);
     name = `Podman(${sub})`;
   } else {
-    name = `Podman(${directory})`;
+    name = `Podman(${machineName})`;
   }
   return name;
 }
-
-async function registerProviderFor(directory: string, socketPath: string) {
-  const provider: extensionApi.ContainerProvider = {
-    provideName: () => getNameFromDirectory(directory),
-
-    provideConnection: async (): Promise<string> => {
-      return socketPath;
+async function registerProviderFor(provider: extensionApi.Provider, machineName: string, socketPath: string) {
+  const lifecycle: extensionApi.ProviderConnectionLifecycle = {
+    start: async (): Promise<void> => {
+      // start the machine
+      console.log(`executing podman machine start ${machineName}`);
+      await execPromise('podman', ['machine', 'start', machineName]);
+      console.log(`podman machine ${machineName} started`);
+    },
+    stop: async (): Promise<void> => {
+      console.log(`executing podman machine stop ${machineName}`);
+      await execPromise('podman', ['machine', 'stop', machineName]);
+      console.log(`podman machine ${machineName} stopped`);
     },
   };
 
-  console.log('Registering podman provider for', directory);
-  const disposable = await extensionApi.container.registerContainerProvider(provider);
-  currentProviders.push(disposable);
+  const containerProviderConnection: extensionApi.ContainerProviderConnection = {
+    name: prettyMachineName(machineName),
+    type: 'podman',
+    status: () => podmanMachinesStatuses.get(machineName),
+    lifecycle,
+    endpoint: {
+      socketPath,
+    },
+  };
+
+  const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
+  currentConnections.set(machineName, disposable);
   storedExtensionContext.subscriptions.push(disposable);
 }
 
-function execPromise(command, args): Promise<boolean> {
+function execPromise(command, args?: string[]): Promise<string> {
   const env = process.env;
   // In production mode, applications don't have access to the 'user' path like brew
   if (isMac) {
     env.PATH = env.PATH.concat(':/usr/local/bin').concat(':/opt/homebrew/bin');
   }
   return new Promise((resolve, reject) => {
+    let output = '';
     const process = spawn(command, args, { env });
-    process.on('close', () => resolve(true));
+    process.stdout.setEncoding('utf8');
+    process.stdout.on('data', data => {
+      output += data;
+    });
+
+    process.on('close', () => resolve(output.trim()));
     process.on('error', err => reject(err));
   });
 }
 
-async function registerProviderLifecycle(directory: string, status: extensionApi.ProviderStatus) {
-  const providerLifecycle: extensionApi.ProviderLifecycle = {
-    provideName: () => getNameFromDirectory(directory),
-    status: () => status,
-
-    start: async (): Promise<void> => {
-      // start the machine
-      console.log(`executing podman machine start ${directory}`);
-      await execPromise('podman', ['machine', 'start', directory]);
-      console.log('machine is started !');
-    },
-    stop: async (): Promise<void> => {
-      console.log(`executing podman machine stop ${directory}`);
-      await execPromise('podman', ['machine', 'stop', directory]);
-      console.log('machine is stopped !');
-    },
-    handleLifecycleChange: async (callback: (event: extensionApi.ProviderStatus) => void): Promise<void> => {
-      callback('started');
-    },
-  };
-  console.log('Registering podman provider lifecyclefor', directory);
-  const disposable = await extensionApi.container.registerContainerProviderLifecycle(providerLifecycle);
-  // currentProviders.push(disposable);
-  storedExtensionContext.subscriptions.push(disposable);
-  lifecycleProviders.set(directory, providerLifecycle);
-}
-
-async function socketAvailable(socketPath): Promise<boolean> {
-  const client = new net.Socket();
-  const promise = new Promise<boolean>(res => {
-    client.connect(socketPath, () => {
-      // stop connection
-      client.destroy();
-      res(true);
-    });
-    client.on('error', () => res(false));
-  });
-  return promise;
-}
-
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   storedExtensionContext = extensionContext;
+
+  const provider = extensionApi.provider.createProvider({ name: 'Podman', status: 'unknown' });
+  extensionContext.subscriptions.push(provider);
 
   // no podman for now, skip
   if (isMac) {
     if (!fs.existsSync(podmanMachineSocketsDirectoryMac)) {
       return;
     }
-    // track all podman machines available
-    fs.watch(podmanMachineSocketsDirectoryMac, () => {
-      // we refresh the list of machines every time there is a new event in that directory
-      refreshMachine = true;
-    });
-    // do the first initialization
-    initMachinesMac();
-    refreshMachinesCronMac();
+    monitorMachines(provider);
   } else if (isLinux) {
     // on Linux, need to run the system service for unlimited time
     const process = spawn('podman', ['system', 'service', '--time=0']);
@@ -250,12 +217,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       process.kill();
     });
     extensionContext.subscriptions.push(disposable);
-    initDefaultLinux();
+    initDefaultLinux(provider);
   } else if (isWindows) {
     if (!fs.existsSync(podmanMachineDirectoryWindows)) {
       return;
     }
-    initMachinesWindows();
+    monitorMachines(provider);
   }
 }
 

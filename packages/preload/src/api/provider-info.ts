@@ -16,12 +16,33 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface ProviderInfoLifecycle {
-  status: string;
+import type { ProviderConnectionStatus, ProviderStatus } from '@tmpwip/extension-api';
+
+type LifecycleMethod = 'start' | 'stop';
+
+export interface ProviderContainerConnectionInfo {
+  name: string;
+  status: ProviderConnectionStatus;
+  endpoint: {
+    socketPath: string;
+  };
+  lifecycleMethods?: LifecycleMethod[];
+}
+
+export interface ProviderKubernetesConnectionInfo {
+  name: string;
+  status: ProviderConnectionStatus;
+  endpoint: {
+    apiURL: string;
+  };
+  lifecycleMethods?: LifecycleMethod[];
 }
 
 export interface ProviderInfo {
+  id: string;
   name: string;
-  connection?: string;
-  lifecycle?: ProviderInfoLifecycle;
+  containerConnections: ProviderContainerConnectionInfo[];
+  kubernetesConnections: ProviderKubernetesConnectionInfo[];
+  status: ProviderStatus;
+  lifecycleMethods?: LifecycleMethod[];
 }

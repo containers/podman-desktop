@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ProviderStatus } from '@tmpwip/extension-api';
 import { app, ipcMain, BrowserWindow, Menu, nativeImage } from 'electron';
 import type { MenuItemConstructorOptions, Tray, NativeImage } from 'electron';
 import statusStarted from './assets/status-started.png';
@@ -24,9 +25,8 @@ import statusUnknown from './assets/status-unknown.png';
 import { isMac } from './util';
 import statusBusy from './assets/status-busy.png';
 
-type ProviderStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
 interface ContainerProvider {
-  providerName: string;
+  name: string;
   status: ProviderStatus;
 }
 
@@ -44,11 +44,11 @@ export class TrayMenu {
   private menuItems = new Map<string, ContainerProviderMenuItem>();
 
   constructor(private readonly tray: Tray) {
-    ipcMain.on('add-tray-menu-item', (_, param: { providerName: string; menuItem: MenuItemConstructorOptions }) => {
+    ipcMain.on('tray:add-menu-item', (_, param: { providerName: string; menuItem: MenuItemConstructorOptions }) => {
       param.menuItem.click = () => {
         const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
         if (window) {
-          window.webContents.send('tray-menu-item-click', param.menuItem.id);
+          window.webContents.send('tray:menu-item-click', param.menuItem.id);
         }
       };
       const provider = this.menuItems.get(param.providerName);
@@ -58,21 +58,21 @@ export class TrayMenu {
       } else {
         this.menuItems.set(param.providerName, {
           childItems: [param.menuItem],
-          providerName: 'temp',
+          name: 'temp',
           status: 'unknown',
         });
       }
     });
 
-    ipcMain.on('add-tray-container-provider', (_, container: ContainerProvider) => {
+    ipcMain.on('tray:add-provider', (_, container: ContainerProvider) => {
       this.addContainerProviderItems(container);
     });
 
-    ipcMain.on('update-tray-container-provider', (_, container: ContainerProvider) => {
+    ipcMain.on('tray:update-provider', (_, container: ContainerProvider) => {
       this.updateContainerProvider(container);
     });
 
-    ipcMain.on('delete-tray-container-provider', (_, providerName) => {
+    ipcMain.on('tray:delete-provider', (_, providerName) => {
       this.deleteContainerProvider(providerName);
     });
 
@@ -83,21 +83,21 @@ export class TrayMenu {
   private addContainerProviderItems(cp: ContainerProvider): void {
     const providerItem: ContainerProviderMenuItem = {
       childItems: [],
-      providerName: cp.providerName,
+      name: cp.name,
       status: cp.status,
     };
 
-    const oldProvider = this.menuItems.get(cp.providerName);
-    if (oldProvider && oldProvider.providerName === 'temp') {
-      this.menuItems.delete(cp.providerName);
+    const oldProvider = this.menuItems.get(cp.name);
+    if (oldProvider && oldProvider.name === 'temp') {
+      this.menuItems.delete(cp.name);
       providerItem.childItems.push(...oldProvider.childItems);
     }
-    this.menuItems.set(cp.providerName, providerItem);
+    this.menuItems.set(cp.name, providerItem);
     this.updateMenu();
   }
 
   private updateContainerProvider(cp: ContainerProvider): void {
-    const provider = this.menuItems.get(cp.providerName);
+    const provider = this.menuItems.get(cp.name);
     if (provider) {
       provider.status = cp.status;
     }
@@ -123,7 +123,7 @@ export class TrayMenu {
 
   private createContainerProviderMenuItem(item: ContainerProviderMenuItem): MenuItemConstructorOptions {
     const result: MenuItemConstructorOptions = {
-      label: item.providerName,
+      label: item.name,
       icon: this.getStatusIcon(item.status),
       type: 'submenu',
       submenu: [],
@@ -133,7 +133,7 @@ export class TrayMenu {
       label: 'Start',
       enabled: item.status === 'stopped',
       click: () => {
-        this.sendItemClick({ type: 'Start', providerName: item.providerName });
+        this.sendItemClick({ type: 'Start', providerName: item.name });
       },
     });
 
@@ -141,7 +141,7 @@ export class TrayMenu {
       label: 'Stop',
       enabled: item.status === 'started',
       click: () => {
-        this.sendItemClick({ type: 'Stop', providerName: item.providerName });
+        this.sendItemClick({ type: 'Stop', providerName: item.name });
       },
     });
     (result.submenu as MenuItemConstructorOptions[]).push({ type: 'separator' });
@@ -175,7 +175,7 @@ export class TrayMenu {
   private sendItemClick(param: { type: string; providerName: string }): void {
     const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
     if (window) {
-      window.webContents.send('tray-menu-provider-click', param);
+      window.webContents.send('tray:menu-provider-click', param);
     }
   }
 

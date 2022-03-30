@@ -19,5 +19,6 @@
 import type Dockerode from 'dockerode';
 
 export interface ImageInspectInfo extends Dockerode.ImageInspectInfo {
-  engine: string;
+  engineId: string;
+  engineName: string;
 }

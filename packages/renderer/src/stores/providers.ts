@@ -16,15 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
+import type { ProviderInfo } from '../../../preload/src/api/provider-info';
 export async function fetchProviders() {
   const result = await window.getProviderInfos();
-  console.log('providers result', result);
   providerInfos.set(result);
 }
 
 fetchProviders();
-export const providerInfos = writable([]);
+export const providerInfos: Writable<ProviderInfo[]> = writable([]);
 
 // need to refresh when extension is started or stopped
 window.addEventListener('extension-started', () => {
@@ -43,5 +44,9 @@ window?.events.receive('provider-lifecycle-change', () => {
 });
 
 window?.events.receive('provider-change', () => {
+  fetchProviders();
+});
+
+window?.events.receive('provider:update-status', () => {
   fetchProviders();
 });

@@ -16,18 +16,40 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderLifecycle } from '@tmpwip/extension-api';
+import type { Provider, ProviderConnectionStatus, ProviderLifecycle, ProviderStatus } from '@tmpwip/extension-api';
 import { ipcRenderer } from 'electron';
 import type { MenuItem } from './api/tray-menu-info';
 import type { CommandRegistry } from './command-registry';
+import type { ProviderRegistry } from './provider-registry';
 import { Disposable } from './types/disposable';
+
+export interface TrayProviderConnectionInfo {
+  name: string;
+  status: ProviderConnectionStatus;
+}
+
+export interface TrayProviderInfo {
+  name: string;
+  status: ProviderStatus;
+}
 
 export class TrayMenuRegistry {
   private menuItems = new Map<string, MenuItem>();
-  private containerProviders = new Map<string, ProviderLifecycle>();
+  private providers = new Map<string, ProviderLifecycle>();
+  constructor(private readonly commandRegistry: CommandRegistry, readonly providerRegistry: ProviderRegistry) {
+    // add as listener
+    providerRegistry.addProviderListener((name: string, provider: Provider) => {
+      if (name === 'provider:update-status') {
+        ipcRenderer.send('tray:update-provider', { name: provider.name, status: provider.status });
+      }
 
-  constructor(private readonly commandRegistry: CommandRegistry) {
-    ipcRenderer.on('tray-menu-item-click', (_, menuItemId: string) => {
+      //this.registerProvider(provider.name, provider.);
+    });
+    providerRegistry.addProviderLifecycleListener((name: string, provider: Provider, lifecycle: ProviderLifecycle) => {
+      this.registerProvider(provider.name, lifecycle);
+    });
+
+    ipcRenderer.on('tray:menu-item-click', (_, menuItemId: string) => {
       try {
         this.commandRegistry.executeCommand(menuItemId);
       } catch (err) {
@@ -35,8 +57,8 @@ export class TrayMenuRegistry {
       }
     });
 
-    ipcRenderer.on('tray-menu-provider-click', (_, param: { type: string; providerName: string }) => {
-      const provider = this.containerProviders.get(param.providerName);
+    ipcRenderer.on('tray:menu-provider-click', (_, param: { type: string; providerName: string }) => {
+      const provider = this.providers.get(param.providerName);
       if (provider) {
         if (param.type === 'Start') {
           provider.start();
@@ -49,23 +71,20 @@ export class TrayMenuRegistry {
 
   registerMenuItem(providerName: string, menuItem: MenuItem): Disposable {
     this.menuItems.set(menuItem.id, menuItem);
-    ipcRenderer.send('add-tray-menu-item', { providerName, menuItem });
+    ipcRenderer.send('tray:add-menu-item', { providerName, menuItem });
     return Disposable.create(() => {
       this.menuItems.delete(menuItem.id);
       // TODO: notify main
     });
   }
 
-  addContainerProviderLifecycle(providerName: string, crl: ProviderLifecycle): void {
-    this.containerProviders.set(providerName, crl);
-    ipcRenderer.send('add-tray-container-provider', { providerName, status: crl.status() });
-    crl.handleLifecycleChange(() => {
-      ipcRenderer.send('update-tray-container-provider', { providerName, status: crl.status() });
-    });
+  registerProvider(providerName: string, providerLifecycle: ProviderLifecycle): void {
+    this.providers.set(providerName, providerLifecycle);
+    ipcRenderer.send('tray:add-provider', { name: providerName, status: providerLifecycle.status() });
   }
 
-  removeContainerProviderLifecycle(providerName: string) {
-    this.containerProviders.delete(providerName);
-    ipcRenderer.send('delete-tray-container-provider', providerName);
+  unregisterProvider(providerName: string) {
+    this.providers.delete(providerName);
+    ipcRenderer.send('tray:delete-provider', providerName);
   }
 }

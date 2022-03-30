@@ -41,7 +41,8 @@ export const filtered = derived([searchPattern, containersInfos], ([$searchPatte
 window.addEventListener('extension-started', () => {
   fetchContainers();
 });
-window.addEventListener('extension-stopped', () => {
+
+window.addEventListener('tray:update-provider', () => {
   fetchContainers();
 });
 

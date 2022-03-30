@@ -90,23 +90,65 @@ declare module '@tmpwip/extension-api' {
     readonly subscriptions: { dispose(): any }[];
   }
 
-  export type ProviderStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
+  export type ProviderStatus =
+    | 'installed'
+    | 'configured'
+    | 'ready'
+    | 'started'
+    | 'stopped'
+    | 'starting'
+    | 'stopping'
+    | 'error'
+    | 'unknown';
+
   export interface ProviderLifecycle {
-    provideName(): string;
     start(): Promise<void>;
     stop(): Promise<void>;
     status(): ProviderStatus;
-    handleLifecycleChange(callback: (event: ProviderStatus) => void): Promise<void>;
   }
 
-  export interface ContainerProvider {
-    provideName(): string;
-    provideConnection(): PromiseLike<string>;
+  export interface ProviderOptions {
+    name: string;
+    status: ProviderStatus;
   }
 
-  export interface KubernetesProvider {
-    name(): string;
-    getApiURL(): PromiseLike<string>;
+  export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
+
+  export interface ProviderConnectionLifecycle {
+    start(): Promise<void>;
+    stop(): Promise<void>;
+  }
+
+  export interface ContainerProviderConnectionEndpoint {
+    socketPath: string;
+  }
+
+  export interface ContainerProviderConnection {
+    name: string;
+    type: 'docker' | 'podman';
+    endpoint: ContainerProviderConnectionEndpoint;
+    lifecycle?: ProviderConnectionLifecycle;
+    status(): ProviderConnectionStatus;
+  }
+
+  export interface KubernetesProviderConnectionEndpoint {
+    apiURL: string;
+  }
+  export interface KubernetesProviderConnection {
+    name: string;
+    endpoint: KubernetesProviderConnectionEndpoint;
+    lifecycle?: ProviderConnectionLifecycle;
+    status(): ProviderConnectionStatus;
+  }
+
+  export interface Provider {
+    registerContainerProviderConnection(connection: ContainerProviderConnection): Disposable;
+    registerKubernetesProviderConnection(connection: KubernetesProviderConnection): Disposable;
+    registerLifecycle(lifecycle: ProviderLifecycle): Disposable;
+    dispose(): void;
+    readonly name: string;
+    readonly id: string;
+    readonly status: ProviderStatus;
   }
 
   export namespace commands {
@@ -116,22 +158,16 @@ declare module '@tmpwip/extension-api' {
     export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
   }
 
-  export namespace container {
-    export function registerContainerProvider(provider: ContainerProvider): PromiseLike<Disposable>;
-    export function registerContainerProviderLifecycle(providerLifecycle: ProviderLifecycle): PromiseLike<Disposable>;
-  }
-
-  export namespace kubernetes {
-    export function registerProvider(provider: KubernetesProvider): PromiseLike<Disposable>;
-    export function registerLifecycle(clusterLifecycle: ClusterLifecycle): PromiseLike<Disposable>;
+  export namespace provider {
+    export function createProvider(provider: ProviderOptions): Provider;
   }
 
   export namespace tray {
     /**
      *
-     * @param providerName the same as of ContainerProviderLifecycle.provideName() value, need to place menu item properly
+     * @param providerId the same as the id on Provider provided by createProvider() method, need to place menu item properly
      * @param item
      */
-    export function registerMenuItem(providerName: string, item: MenuItem): Disposable;
+    export function registerMenuItem(providerId: string, item: MenuItem): Disposable;
   }
 }
