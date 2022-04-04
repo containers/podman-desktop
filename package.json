@@ -11,7 +11,8 @@
   "workspaces": {
     "packages": [
       "packages/*",
-      "extensions/*"
+      "extensions/*",
+      "website"
     ]
   },
   "scripts": {
@@ -43,7 +44,8 @@
     "typecheck:main": "tsc --noEmit -p packages/main/tsconfig.json",
     "typecheck:preload": "tsc --noEmit -p packages/preload/tsconfig.json",
     "typecheck:renderer": "npm run build:preload:types",
-    "typecheck": "npm run typecheck:main && npm run typecheck:preload && npm run typecheck:renderer"
+    "typecheck": "npm run typecheck:main && npm run typecheck:preload && npm run typecheck:renderer",
+    "website:build": "cd website && yarn run docusaurus build"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.1",
