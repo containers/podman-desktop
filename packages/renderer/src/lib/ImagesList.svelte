@@ -8,16 +8,21 @@ import type { ImageInspectInfo } from '../../../preload/src/api/image-inspect-in
 import type { ContainerCreateOptions } from '../../../preload/src/api/container-info';
 import { onMount } from 'svelte';
 import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
+import moment from 'moment';
+import filesize from 'filesize';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 interface ImageInfoUI {
   id: string;
+  shortId: string;
   name: string;
   engineId: string;
   engineName: string;
   tag: string;
+  humanCreationDate: string;
+  humanSize: string;
 }
 let images: ImageInfoUI[] = [];
 
@@ -26,6 +31,9 @@ onMount(async () => {
     images = value.map((imageInfo: ImageInfo) => {
       return {
         id: imageInfo.Id,
+        shortId: getShortId(imageInfo.Id),
+        humanCreationDate: getHumanDate(imageInfo.Created),
+        humanSize: getHumanSize(imageInfo.Size),
         name: getName(imageInfo),
         engineId: getEngineId(imageInfo),
         engineName: getEngineName(imageInfo),
@@ -38,6 +46,22 @@ onMount(async () => {
 let runContainerFromImageModal = false;
 let modalImageInspectInfo: ImageInspectInfo;
 let modalImageInfo: ImageInfoUI;
+
+// extract SHA256 from image id and take the first 12 digits
+function getShortId(id: string): string {
+  if (id.startsWith('sha256:')) {
+    id = id.substring('sha256:'.length);
+  }
+  return id.substring(0, 12);
+}
+
+function getHumanSize(size: number): string {
+  return filesize(size);
+}
+
+function getHumanDate(date: number): string {
+  return moment(date * 1000).fromNow();
+}
 
 function getName(imageInfo: ImageInfo) {
   // get name
@@ -106,14 +130,6 @@ function keydownDockerfileChoice(e: KeyboardEvent) {
   }
 }
 
-function getId(imageInfo: ImageInfo) {
-  let id = imageInfo.Id;
-  if (id.startsWith('sha256:')) {
-    id = id.substring('sha256:'.length);
-  }
-  return id.substring(0, 12);
-}
-
 function getTag(imageInfo: ImageInfo) {
   if (!imageInfo.RepoTags) {
     return '<none>';
@@ -121,17 +137,6 @@ function getTag(imageInfo: ImageInfo) {
   return imageInfo.RepoTags.map(tag => {
     return tag.split(':')[1];
   }).join(',');
-}
-
-function getSize(imageInfo: ImageInfo) {
-  return imageInfo.Size;
-}
-
-function getColorForState(imageInfo: ImageInfo): string {
-  if (imageInfo.Id === 'running') {
-    return 'text-emerald-500';
-  }
-  return 'text-gray-700';
 }
 
 function getEngineId(containerInfo: ImageInfo): string {
@@ -185,12 +190,12 @@ function getEngineName(containerInfo: ImageInfo): string {
       <tbody class="bg-gray-800 divide-y divide-gray-200">
         {#each images as image}
           <tr class="group hover:cursor-pointer">
-            <td class="px-6 py-2 whitespace-nowrap">
+            <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
                 <div class="ml-4">
                   <div class="flex flex-row">
                     <div class="text-sm text-gray-200">{image.name}</div>
-                    <div class="pl-2 text-sm text-violet-400">{image.id}</div>
+                    <div class="pl-2 text-sm text-violet-400">{image.shortId}</div>
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-500">
                     <div>{image.tag}</div>
@@ -202,6 +207,16 @@ function getEngineName(containerInfo: ImageInfo): string {
                 <div class="flex flex-row text-xs font-extra-light text-gray-500">
                   <!--  <div>{getSize(image)}</div>-->
                 </div>
+              </div>
+            </td>
+            <td class="px-6 py-2 whitespace-nowrap w-10">
+              <div class="flex items-center">
+                <div class="ml-2 text-sm text-gray-200">{image.humanCreationDate}</div>
+              </div>
+            </td>
+            <td class="px-6 py-2 whitespace-nowrap w-10">
+              <div class="flex items-center">
+                <div class="ml-2 text-sm text-gray-200">{image.humanSize}</div>
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap">
