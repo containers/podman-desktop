@@ -9,8 +9,8 @@ const title = 'Container Desktop';
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title,
-  url: 'https://your-docusaurus-test-site.com',
-  baseUrl: '/',
+  url: 'https://containers.github.io',
+  baseUrl: '/desktop/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
