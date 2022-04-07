@@ -12,5 +12,7 @@
     --pf-global--primary-color--light-300: #6d28d9;
     --pf-global--primary-color--dark-300: #6d28d9;
     
-
+    --pf-global--BackgroundColor--300: #4B5563;
+    
+    --pf-c-form__helper-text--m-error--Color: #FF0000;
 }

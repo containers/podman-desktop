@@ -13,10 +13,39 @@
   "contributes": {
     "commands": [
       {
-        "command": "docker.info",
+        "command": "podman.info",
         "title": "podman: Specific info about podman"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Podman Machine",
+      "properties": {
+        "podman.machine.cpus": {
+          "type": "number",
+          "format": "cpu",
+          "minimum": 1,
+          "default": 1,
+          "scope": "ContainerConnection",
+          "description": "CPUs of the machine"
+        },
+        "podman.machine.memory": {
+          "type": "number",
+          "format": "memory",
+          "minimum": 1024,
+          "default": 2048,
+          "scope": "ContainerConnection",
+          "description": "Memory of the machine"
+        },
+        "podman.machine.diskSize": {
+          "type": "number",
+          "format": "diskSize",
+          "default": 100,
+          "scope": "ContainerConnection",
+          "description": "Disk Size in GB of the machine"
+        }
+
+      }
+    }
   },
   "scripts": {
     "build": "tsc && node ./scripts/build.js",

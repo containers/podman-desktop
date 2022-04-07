@@ -26,6 +26,7 @@ import * as zipper from 'zip-local';
 import type { TrayMenuRegistry } from './tray-menu-registry';
 import { Disposable } from './types/disposable';
 import type { ProviderRegistry } from './provider-registry';
+import type { ConfigurationRegistry } from './configuration-registry';
 
 /**
  * Handle the loading of an extension
@@ -58,6 +59,7 @@ export class ExtensionLoader {
   constructor(
     private commandRegistry: CommandRegistry,
     private providerRegistry: ProviderRegistry,
+    private configurationRegistry: ConfigurationRegistry,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private apiSender: any,
     private trayMenuRegistry: TrayMenuRegistry,
@@ -184,8 +186,15 @@ export class ExtensionLoader {
       api,
     };
 
-    this.analyzedExtensions.set(extension.id, extension);
+    const extensionConfiguration = manifest?.contributes?.configuration;
+    if (extensionConfiguration) {
+      // add information about the current extension
+      extensionConfiguration.extension = extension;
+      extensionConfiguration.id = 'extensions.' + extension.id;
+      this.configurationRegistry.registerConfigurations([extensionConfiguration]);
+    }
 
+    this.analyzedExtensions.set(extension.id, extension);
     console.log('load runtime...' + extension.mainPath);
     const runtime = this.loadRuntime(extension.mainPath);
 
@@ -226,12 +235,22 @@ export class ExtensionLoader {
         return trayMenuRegistry.registerMenuItem(providerName, item);
       },
     };
+    const configurationRegistry = this.configurationRegistry;
+    const configuration: typeof containerDesktopAPI.configuration = {
+      getConfiguration(
+        section?: string,
+        scope?: containerDesktopAPI.ConfigurationScope,
+      ): containerDesktopAPI.Configuration {
+        return configurationRegistry.getConfiguration(section, scope);
+      },
+    };
 
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
       commands,
       provider,
+      configuration,
       tray,
     };
   }

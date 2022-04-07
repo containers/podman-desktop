@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { ContainerInfoUI } from './container/ContainerInfoUI';
+import { TerminalSettings } from '../../../preload/src/terminal-settings';
 import { router } from 'tinro';
 import { onMount } from 'svelte';
 import { Terminal } from 'xterm';
@@ -37,12 +38,18 @@ async function executeShellIntoContainer() {
 }
 
 // refresh
-function refreshTerminal() {
+async function refreshTerminal() {
   // missing element, return
   if (!terminalXtermDiv) {
     return;
   }
-  shellTerminal = new Terminal();
+
+  // grab font size
+  const fontSize = window.getConfigurationValue<number>(TerminalSettings.SectionName + '.' + TerminalSettings.FontSize);
+  const lineHeight = window.getConfigurationValue<number>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
+  );
+  shellTerminal = new Terminal({ fontSize, lineHeight });
   const fitAddon = new FitAddon();
   shellTerminal.loadAddon(fitAddon);
 
