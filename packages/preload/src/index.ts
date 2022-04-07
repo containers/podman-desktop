@@ -20,6 +20,7 @@
  * @module preload
  */
 
+import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { contextBridge } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ExtensionInfo } from './api/extension-info';
@@ -33,6 +34,9 @@ import type { ProviderInfo } from './api/provider-info';
 import { TrayMenuRegistry } from './tray-menu-registry';
 import { ProviderRegistry } from './provider-registry';
 import type { Provider } from '@tmpwip/extension-api';
+import type { IConfigurationPropertyRecordedSchema } from './configuration-registry';
+import { ConfigurationRegistry } from './configuration-registry';
+import { TerminalInit } from './terminal-init';
 const shell = require('electron').shell;
 
 // initialize extension loader mechanism
@@ -63,6 +67,11 @@ function initExtensions(): void {
       apiSender.send('provider:update-status', provider.name);
     }
   });
+
+  const configurationRegistry = new ConfigurationRegistry();
+  configurationRegistry.init();
+  const terminalInit = new TerminalInit(configurationRegistry);
+  terminalInit.init();
 
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
     return containerProviderRegistry.listContainers();
@@ -139,7 +148,42 @@ function initExtensions(): void {
     return providerRegistry.getProviderInfos();
   });
 
-  const extensionLoader = new ExtensionLoader(commandRegistry, providerRegistry, apiSender, trayMenuRegistry);
+  contextBridge.exposeInMainWorld(
+    'getConfigurationProperties',
+    async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
+      return configurationRegistry.getConfigurationProperties();
+    },
+  );
+
+  // can't send configuration object as it is not serializable
+  // https://www.electronjs.org/docs/latest/api/context-bridge#parameter--error--return-type-support
+
+  contextBridge.exposeInMainWorld(
+    'getConfigurationValue',
+    <T>(key: string, scope?: containerDesktopAPI.ConfigurationScope): T | undefined => {
+      // extract parent key with first name before first . notation
+      const parentKey = key.substring(0, key.indexOf('.'));
+      // extract child key with first name after first . notation
+      const childKey = key.substring(key.indexOf('.') + 1);
+      return configurationRegistry.getConfiguration(parentKey, scope).get(childKey);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'updateConfigurationValue',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (key: string, value: any, scope?: containerDesktopAPI.ConfigurationScope): Promise<void> => {
+      return configurationRegistry.updateConfigurationValue(key, value, scope);
+    },
+  );
+
+  const extensionLoader = new ExtensionLoader(
+    commandRegistry,
+    providerRegistry,
+    configurationRegistry,
+    apiSender,
+    trayMenuRegistry,
+  );
   contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
     return extensionLoader.listExtensions();
   });

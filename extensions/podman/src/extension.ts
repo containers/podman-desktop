@@ -36,11 +36,22 @@ let stopLoop = false;
 
 // current status of machines
 const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
+const podmanMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
 
 type MachineJSON = {
   Name: string;
+  CPUs: number;
+  Memory: string;
+  DiskSize: string;
   Running: boolean;
+};
+
+type MachineInfo = {
+  name: string;
+  cpus: number;
+  memory: number;
+  diskSize: number;
 };
 
 async function updateMachines(provider: extensionApi.Provider): Promise<void> {
@@ -59,6 +70,13 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       // notify status change
       listeners.forEach(listener => listener(machine.Name, status));
     }
+    podmanMachinesInfo.set(machine.Name, {
+      name: machine.Name,
+      memory: parseInt(machine.Memory) / 1048576,
+      cpus: machine.CPUs,
+      diskSize: parseInt(machine.DiskSize) / 1073741824,
+    });
+
     podmanMachinesStatuses.set(machine.Name, status);
   });
 
@@ -66,7 +84,10 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   const machinesToRemove = Array.from(podmanMachinesStatuses.keys()).filter(
     machine => !machines.find(m => m.Name === machine),
   );
-  machinesToRemove.forEach(machine => podmanMachinesStatuses.delete(machine));
+  machinesToRemove.forEach(machine => {
+    podmanMachinesStatuses.delete(machine);
+    podmanMachinesInfo.delete(machine);
+  });
 
   // create connections for new machines
   const connectionsToCreate = Array.from(podmanMachinesStatuses.keys()).filter(
@@ -81,7 +102,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       } else if (isWindows) {
         socketPath = `//./pipe/podman-${machineName}`;
       }
-      registerProviderFor(provider, machineName, socketPath);
+      registerProviderFor(provider, podmanMachinesInfo.get(machineName), socketPath);
     }),
   );
 
@@ -139,34 +160,34 @@ async function monitorMachines(provider: extensionApi.Provider) {
 function prettyMachineName(machineName: string): string {
   let name;
   if (machineName === 'podman-machine-default') {
-    name = 'Podman';
+    name = 'Podman Machine';
   } else if (machineName.startsWith('podman-machine-')) {
     const sub = machineName.substring('podman-machine-'.length);
-    name = `Podman(${sub})`;
+    name = `Podman Machine ${sub}`;
   } else {
-    name = `Podman(${machineName})`;
+    name = `Podman Machine ${machineName}`;
   }
   return name;
 }
-async function registerProviderFor(provider: extensionApi.Provider, machineName: string, socketPath: string) {
+async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (): Promise<void> => {
       // start the machine
-      console.log(`executing podman machine start ${machineName}`);
-      await execPromise('podman', ['machine', 'start', machineName]);
-      console.log(`podman machine ${machineName} started`);
+      console.log(`executing podman machine start ${machineInfo.name}`);
+      await execPromise('podman', ['machine', 'start', machineInfo.name]);
+      console.log(`podman machine ${machineInfo.name} started`);
     },
     stop: async (): Promise<void> => {
-      console.log(`executing podman machine stop ${machineName}`);
-      await execPromise('podman', ['machine', 'stop', machineName]);
-      console.log(`podman machine ${machineName} stopped`);
+      console.log(`executing podman machine stop ${machineInfo.name}`);
+      await execPromise('podman', ['machine', 'stop', machineInfo.name]);
+      console.log(`podman machine ${machineInfo.name} stopped`);
     },
   };
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
-    name: prettyMachineName(machineName),
+    name: prettyMachineName(machineInfo.name),
     type: 'podman',
-    status: () => podmanMachinesStatuses.get(machineName),
+    status: () => podmanMachinesStatuses.get(machineInfo.name),
     lifecycle,
     endpoint: {
       socketPath,
@@ -174,7 +195,16 @@ async function registerProviderFor(provider: extensionApi.Provider, machineName:
   };
 
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
-  currentConnections.set(machineName, disposable);
+
+  // get configuration for this connection
+  const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
+
+  // Set values for the machine
+  containerConfiguration.update('machine.cpus', machineInfo.cpus);
+  containerConfiguration.update('machine.memory', machineInfo.memory);
+  containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
+
+  currentConnections.set(machineInfo.name, disposable);
   storedExtensionContext.subscriptions.push(disposable);
 }
 
