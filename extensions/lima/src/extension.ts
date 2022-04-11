@@ -24,7 +24,7 @@ import * as fs from 'fs';
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   const socketPath = path.resolve(os.homedir(), '.lima/podman/sock/podman.sock');
 
-  const provider = extensionApi.provider.createProvider({ name: 'Lima', status: 'unknown' });
+  const provider = extensionApi.provider.createProvider({ name: 'Lima', id: 'lima', status: 'unknown' });
   extensionContext.subscriptions.push(provider);
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {

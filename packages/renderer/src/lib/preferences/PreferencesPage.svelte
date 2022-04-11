@@ -12,12 +12,17 @@ import TreeView from '../treeview/TreeView.svelte';
 import type { TreeViewDataItem } from '../treeview/TreeViewDataItem';
 import PreferencesRendering from './PreferencesRendering.svelte';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
+import { providerInfos } from '../../stores/providers';
+import PreferencesProviderRendering from './PreferencesProviderRendering.svelte';
 
 let items: TreeViewDataItem[] = [];
 let properties: IConfigurationPropertyRecordedSchema[];
 
 function onSelectedItem(item: TreeViewDataItem) {
-  if (item.id.startsWith('container-connection@')) {
+  if (item.id.startsWith('provider@')) {
+    const providerId = item.id.split('@')[1];
+    router.goto(`/preferences/provider/${providerId}`);
+  } else if (item.id.startsWith('container-connection@')) {
     // extract provider by the name before the @
     const provider = item.id.split('@')[1];
     const connection = item.id.split('@')[2];
@@ -27,8 +32,16 @@ function onSelectedItem(item: TreeViewDataItem) {
   }
 }
 
-async function buildTreeViewData(configProperties: IConfigurationPropertyRecordedSchema[]): Promise<void> {
+async function buildTreeViewData(configProperties?: IConfigurationPropertyRecordedSchema[]): Promise<void> {
   const treeViewDataItems: TreeViewDataItem[] = [];
+
+  if (!configProperties) {
+    if (properties) {
+      configProperties = properties;
+    } else {
+      return;
+    }
+  }
 
   // first, add all features (using the default scope)
   configProperties
@@ -59,23 +72,33 @@ async function buildTreeViewData(configProperties: IConfigurationPropertyRecorde
 
   // now map all the connections
   const providers = await window.getProviderInfos();
-  const containerConnectionsTreeViewDataItem = [];
+  const providerTreeViewDataItems = [];
   providers.forEach(provider => {
+    const providerTreeViewDataItem = {
+      id: `provider@${provider.internalId}`,
+      name: provider.name,
+      children: [],
+    };
+    providerTreeViewDataItems.push(providerTreeViewDataItem);
+
+    // add under the provider the container connection links
     provider.containerConnections.forEach(connection => {
-      containerConnectionsTreeViewDataItem.push({
+      providerTreeViewDataItem.children.push({
         // encode socketpath as base64
-        id: `container-connection@${provider.id}@${Buffer.from(connection.endpoint.socketPath).toString('base64')}`,
-        name: `${connection.name} (${provider.name})`,
+        id: `container-connection@${provider.internalId}@${Buffer.from(connection.endpoint.socketPath).toString(
+          'base64',
+        )}`,
+        name: `${connection.name}`,
         children: [],
       });
     });
   });
 
-  if (containerConnectionsTreeViewDataItem.length > 0) {
+  if (providerTreeViewDataItems.length > 0) {
     treeViewDataItems.push({
-      id: 'container-connection@',
-      name: 'Container Provider Resources',
-      children: containerConnectionsTreeViewDataItem,
+      id: 'providers',
+      name: 'Resources',
+      children: providerTreeViewDataItems,
     });
   }
 
@@ -85,6 +108,9 @@ async function buildTreeViewData(configProperties: IConfigurationPropertyRecorde
 onMount(async () => {
   configurationProperties.subscribe(value => {
     buildTreeViewData(value);
+  });
+  providerInfos.subscribe(() => {
+    buildTreeViewData();
   });
 });
 </script>
@@ -101,10 +127,13 @@ onMount(async () => {
   <Route path="/default/:key" let:meta>
     <PreferencesRendering key="{meta.params.key}" properties="{properties}" />
   </Route>
+  <Route path="/provider/:providerInternalId" let:meta>
+    <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
+  </Route>
   <Route path="/container-connection/" let:meta />
   <Route path="/container-connection/:provider/:connection" let:meta>
     <PreferencesContainerConnectionRendering
-      providerId="{meta.params.provider}"
+      providerInternalId="{meta.params.provider}"
       connection="{meta.params.connection}"
       properties="{properties}" />
   </Route>

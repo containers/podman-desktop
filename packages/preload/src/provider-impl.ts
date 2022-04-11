@@ -22,27 +22,49 @@ import type { ContainerProviderRegistry } from './container-registry';
 import type {
   ContainerProviderConnection,
   KubernetesProviderConnection,
+  ContainerProviderConnectionFactory,
   Provider,
   ProviderLifecycle,
   ProviderOptions,
   ProviderStatus,
+  ProviderConnectionStatus,
 } from '@tmpwip/extension-api';
 import type { ProviderRegistry } from './provider-registry';
 
 export class ProviderImpl implements Provider, IDisposable {
   private containerProviderConnections: Set<ContainerProviderConnection>;
+  private containerProviderConnectionsStatuses: Map<string, ProviderConnectionStatus>;
   private kubernetesProviderConnections: Set<KubernetesProviderConnection>;
+  // optional factory
+  private _containerProviderConnectionFactory: ContainerProviderConnectionFactory | undefined = undefined;
   private _status: ProviderStatus;
 
   constructor(
-    private _id: string,
+    private _internalId: string,
     private providerOptions: ProviderOptions,
     private providerRegistry: ProviderRegistry,
     private containerRegistry: ContainerProviderRegistry,
   ) {
+    this.containerProviderConnectionsStatuses = new Map();
     this.containerProviderConnections = new Set();
     this.kubernetesProviderConnections = new Set();
     this._status = providerOptions.status;
+
+    // monitor connection statuses
+    setInterval(async () => {
+      this.containerProviderConnections.forEach(providerConnection => {
+        const status = providerConnection.status();
+        const key = providerConnection.endpoint.socketPath;
+        if (status !== this.containerProviderConnectionsStatuses.get(key)) {
+          this.providerRegistry.onDidChangeContainerProviderConnectionStatus(this, providerConnection);
+          this.containerProviderConnectionsStatuses.set(key, status);
+        }
+      });
+    }, 2000);
+  }
+
+  get containerProviderConnectionFactory(): ContainerProviderConnectionFactory | undefined {
+    return this._containerProviderConnectionFactory;
   }
 
   get name(): string {
@@ -57,8 +79,12 @@ export class ProviderImpl implements Provider, IDisposable {
     return this._status;
   }
 
+  get internalId(): string {
+    return this._internalId;
+  }
+
   get id(): string {
-    return this._id;
+    return this.providerOptions.id;
   }
 
   get containerConnections(): ContainerProviderConnection[] {
@@ -73,6 +99,15 @@ export class ProviderImpl implements Provider, IDisposable {
     this.providerRegistry.disposeProvider(this);
   }
 
+  setContainerProviderConnectionFactory(
+    containerProviderConnectionFactory: ContainerProviderConnectionFactory,
+  ): Disposable {
+    this._containerProviderConnectionFactory = containerProviderConnectionFactory;
+    return Disposable.create(() => {
+      this._containerProviderConnectionFactory = undefined;
+    });
+  }
+
   registerKubernetesProviderConnection(kubernetesProviderConnection: KubernetesProviderConnection): Disposable {
     this.kubernetesProviderConnections.add(kubernetesProviderConnection);
     return Disposable.create(() => {
@@ -83,10 +118,12 @@ export class ProviderImpl implements Provider, IDisposable {
   registerContainerProviderConnection(containerProviderConnection: ContainerProviderConnection): Disposable {
     this.containerProviderConnections.add(containerProviderConnection);
     const disposable = this.containerRegistry.registerContainerConnection(this, containerProviderConnection);
+    this.providerRegistry.onDidRegisterContainerConnection(this, containerProviderConnection);
 
     return Disposable.create(() => {
       this.containerProviderConnections.delete(containerProviderConnection);
       disposable.dispose();
+      this.providerRegistry.onDidUnregisterContainerConnection(this, containerProviderConnection);
     });
   }
 

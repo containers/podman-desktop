@@ -1,39 +1,34 @@
 <script lang="ts">
 import type { IConfigurationPropertyRecordedSchema } from '../../../../preload/src/configuration-registry';
-import PreferencesRenderingItem from './PreferencesRenderingItem.svelte';
 
 import { Buffer } from 'buffer';
 import type { ContainerProviderConnection } from '@tmpwip/extension-api';
 import { providerInfos } from '../../stores/providers';
-import { onMount } from 'svelte';
-import type { ProviderInfo } from '../../../../preload/src/api/provider-info';
+import { beforeUpdate, onMount } from 'svelte';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../preload/src/api/provider-info';
+import { router } from 'tinro';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
-export let providerId: string = undefined;
+export let providerInternalId: string = undefined;
 export let connection: string = undefined;
-export let matchingRecords: IConfigurationPropertyRecordedSchema[] = [];
 
 let socketPath: string = '';
 let scope: ContainerProviderConnection;
 let providers: ProviderInfo[] = [];
 onMount(() => {
+  lifecycleError = '';
   providerInfos.subscribe(value => {
     providers = value;
   });
 });
 
-function getMatchingRecords() {
-  return [];
-}
-
 $: socketPath = Buffer.from(connection, 'base64').toString();
 
-$: matchingRecords = getMatchingRecords();
+let providerInfo: ProviderInfo;
+$: providerInfo = providers.find(provider => provider.internalId === providerInternalId);
 
-let providerName;
-$: providerName = providers.filter(provider => provider.id === providerId).map(provider => provider.name)[0];
 $: connectionName = providers
-  .filter(provider => provider.id === providerId)
+  .filter(provider => provider.internalId === providerInternalId)
   .map(provider => {
     const matchingConnection = provider.containerConnections?.filter(
       connection => connection.endpoint.socketPath === socketPath,
@@ -69,12 +64,118 @@ $: scope = {
     socketPath,
   },
 } as ContainerProviderConnection;
+
+let containerConnectionInfo: ProviderContainerConnectionInfo = undefined;
+$: containerConnectionInfo = providerInfo?.containerConnections?.find(
+  connection => connection.endpoint.socketPath === socketPath,
+);
+
+function createNewConnection(providerId: string) {
+  router.goto(`/preferences/provider/${providerId}`);
+}
+
+let lifecycleError = '';
+router.subscribe(async route => {
+  lifecycleError = '';
+});
+async function startConnection() {
+  lifecycleError = undefined;
+  try {
+    await window.providerConnectionLifecycle.start(providerInfo.internalId, containerConnectionInfo);
+  } catch (err) {
+    lifecycleError = err;
+  }
+}
+
+async function stopConnection() {
+  lifecycleError = undefined;
+  await window.providerConnectionLifecycle.stop(providerInfo.internalId, containerConnectionInfo);
+}
+
+async function deleteConnection() {
+  lifecycleError = undefined;
+  await window.providerConnectionLifecycle.delete(providerInfo.internalId, containerConnectionInfo);
+  router.goto('/preferences/providers');
+}
 </script>
 
 <div class="flex flex-1 flex-col">
-  <h1 class="capitalize text-xl">{connectionName} settings</h1>
-  <p class="capitalize text-sm">provider: {providerName}</p>
-  <!--Connection Rendering with title being provider and connection {connection} aka {socketPath} with response {providerName} and connection name {connectionName}-->
+  <div class="flex flex-row align-middle my-4">
+    <div class="capitalize text-xl">{connectionName} settings</div>
+    {#if providerInfo?.containerProviderConnectionCreation}
+      <div class="flex-1 ml-10">
+        <button
+          on:click="{() => createNewConnection(providerInfo.internalId)}"
+          class="pf-c-button pf-m-secondary"
+          type="button">
+          <span class="pf-c-button__icon pf-m-start">
+            <i class="fas fa-plus-circle" aria-hidden="true"></i>
+          </span>
+          Create New
+        </button>
+      </div>
+    {/if}
+  </div>
+  <p class="capitalize text-sm">provider: {providerInfo?.name}</p>
+
+  <!-- Display lifecycle -->
+  {#if containerConnectionInfo?.lifecycleMethods && containerConnectionInfo.lifecycleMethods.length > 0}
+    <div class="py-2 flex flex:row ">
+      <!-- start is enabled only in stopped mode-->
+      {#if containerConnectionInfo.lifecycleMethods.includes('start')}
+        <div class="px-2 text-sm italic  text-gray-400">
+          <button
+            disabled="{containerConnectionInfo.status !== 'stopped'}"
+            on:click="{() => startConnection()}"
+            class="pf-c-button pf-m-primary"
+            type="button">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-play" aria-hidden="true"></i>
+            </span>
+            Start
+          </button>
+        </div>
+      {/if}
+
+      <!-- stop is enabled only in started mode-->
+      {#if containerConnectionInfo.lifecycleMethods.includes('stop')}
+        <div class="px-2 text-sm italic  text-gray-400">
+          <button
+            disabled="{containerConnectionInfo.status !== 'started'}"
+            on:click="{() => stopConnection()}"
+            class="pf-c-button pf-m-primary"
+            type="button">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-stop" aria-hidden="true"></i>
+            </span>
+            Stop
+          </button>
+        </div>
+      {/if}
+
+      <!-- delete is disabled if it is running-->
+      {#if containerConnectionInfo.lifecycleMethods.includes('delete')}
+        <div class="px-2 text-sm italic  text-gray-400">
+          <button
+            disabled="{containerConnectionInfo.status !== 'stopped'}"
+            on:click="{() => deleteConnection()}"
+            class="pf-c-button pf-m-secondary"
+            type="button">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-trash" aria-hidden="true"></i>
+            </span>
+            Delete
+          </button>
+        </div>
+      {/if}
+    </div>
+
+    {#if lifecycleError}
+      <div class="text-red-600">
+        {lifecycleError}
+      </div>
+    {/if}
+  {/if}
 
   {#each connectionSettings as connectionSetting}
     <!--key is {connectionSetting.id} and value {connectionSetting.value}  <br />-->
@@ -98,26 +199,14 @@ $: scope = {
     {/if}
   {/each}
 
-  {#if connectionSettings.length === 0}
-    <div class="pf-c-empty-state h-full">
-      <div class="pf-c-empty-state__content">
-        <i class="fas fa-cubes pf-c-empty-state__icon" aria-hidden="true"></i>
-        <h1 class="pf-c-title pf-m-lg">No settings</h1>
-        <div class="pf-c-empty-state__body">No settings provided by this provider</div>
-      </div>
+  {#if containerConnectionInfo}
+    <div class="pl-1 py-2">
+      <div class="text-sm italic  text-gray-400">Status</div>
+      <div class="pl-3">{containerConnectionInfo.status}</div>
+    </div>
+    <div class="pl-1 py-2">
+      <div class="text-sm italic  text-gray-400">Socket</div>
+      <div class="pl-3">{containerConnectionInfo.endpoint.socketPath}</div>
     </div>
   {/if}
-  <br /><br /><br /><br />
-
-  <table class="divide-y divide-gray-800 mt-2 min-w-full">
-    <tbody class="bg-gray-800 divide-y divide-gray-200 ">
-      {#each matchingRecords as record}
-        <tr>
-          <td>
-            <PreferencesRenderingItem record="{record}" />
-          </td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
 </div>

@@ -231,8 +231,8 @@ export class ExtensionLoader {
 
     const trayMenuRegistry = this.trayMenuRegistry;
     const tray: typeof containerDesktopAPI.tray = {
-      registerMenuItem(providerName: string, item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
-        return trayMenuRegistry.registerMenuItem(providerName, item);
+      registerMenuItem(providerId: string, item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
+        return trayMenuRegistry.registerMenuItem(providerId, item);
       },
     };
     const configurationRegistry = this.configurationRegistry;

@@ -18,7 +18,7 @@
 
 import type { ProviderConnectionStatus, ProviderStatus } from '@tmpwip/extension-api';
 
-type LifecycleMethod = 'start' | 'stop';
+export type LifecycleMethod = 'start' | 'stop' | 'delete';
 
 export interface ProviderContainerConnectionInfo {
   name: string;
@@ -39,10 +39,13 @@ export interface ProviderKubernetesConnectionInfo {
 }
 
 export interface ProviderInfo {
+  internalId: string;
   id: string;
   name: string;
   containerConnections: ProviderContainerConnectionInfo[];
   kubernetesConnections: ProviderKubernetesConnectionInfo[];
   status: ProviderStatus;
   lifecycleMethods?: LifecycleMethod[];
+  // can create provider connection from ContainerProviderConnectionFactory params
+  containerProviderConnectionCreation: boolean;
 }

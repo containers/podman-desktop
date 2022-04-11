@@ -36,7 +36,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const preset = await readPreset();
 
   // create CRC provider
-  const provider = extensionApi.provider.createProvider({ name: 'CodeReady Containers', status: 'unknown' });
+  const provider = extensionApi.provider.createProvider({ name: 'CodeReady Containers', id: 'crc', status: 'unknown' });
   extensionContext.subscriptions.push(provider);
 
   try {

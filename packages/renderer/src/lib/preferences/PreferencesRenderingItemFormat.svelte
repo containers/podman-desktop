@@ -1,4 +1,6 @@
 <script lang="ts">
+import { invalid } from 'moment';
+
 import { onMount } from 'svelte';
 
 import {
@@ -9,6 +11,9 @@ import {
 let recordValue = '';
 let invalidEntry = false;
 let invalidText = undefined;
+export let showUpdate = false;
+export let invalidRecord = (error: string) => {};
+export let validRecord = () => {};
 
 export let record: IConfigurationPropertyRecordedSchema;
 
@@ -19,8 +24,19 @@ onMount(async () => {
     } catch (err) {
       console.error('Error getting configuration value', err);
     }
+  } else if (record.default) {
+    recordValue = record.default;
   }
 });
+
+function invalid() {
+  // call the callback
+  invalidRecord(invalidText);
+}
+
+function valid() {
+  validRecord();
+}
 
 function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
   const userValue = event.target.value;
@@ -29,27 +45,27 @@ function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
     if (userValue === '') {
       invalidEntry = true;
       invalidText = `Expecting a number`;
-      return;
+      return invalid();
     }
     if (isNaN(numberValue)) {
       invalidEntry = true;
       invalidText = `${userValue} is not a number`;
-      return;
+      return invalid();
     }
 
     // check range
     if (record.minimum && numberValue < record.minimum) {
       invalidEntry = true;
       invalidText = 'Minimun value is ' + record.minimum;
-      return;
+      return invalid();
     }
     if (record.maximum && numberValue > record.maximum) {
       invalidEntry = true;
       invalidText = 'Maximum value is ' + record.maximum;
-      return;
+      return invalid();
     }
   }
-
+  valid();
   invalidEntry = false;
   invalidText = undefined;
 }
@@ -78,6 +94,7 @@ function update(record: IConfigurationPropertyRecordedSchema) {
     <input
       on:input="{event => checkValue(record, event)}"
       class="pf-c-form-control"
+      name="{record.id}"
       type="text"
       bind:value="{recordValue}"
       readonly="{!!record.readonly}"
@@ -90,12 +107,14 @@ function update(record: IConfigurationPropertyRecordedSchema) {
       </p>
     {/if}
   </div>
-  {#if !!record.readonly === false && !invalidEntry}
-    <button on:click="{() => update(record)}" class="pf-c-button pf-m-primary w-40 px-4" type="button">
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-save" aria-hidden="true"></i>
-      </span>
-      Update
-    </button>
+  {#if showUpdate}
+    {#if !!record.readonly === false && !invalidEntry}
+      <button on:click="{() => update(record)}" class="pf-c-button pf-m-primary w-40 px-4" type="button">
+        <span class="pf-c-button__icon pf-m-start">
+          <i class="fas fa-save" aria-hidden="true"></i>
+        </span>
+        Update
+      </button>
+    {/if}
   {/if}
 </div>

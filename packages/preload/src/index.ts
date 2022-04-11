@@ -30,7 +30,7 @@ import { ExtensionLoader } from './extension-loader';
 import EventEmitter from 'events';
 import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
-import type { ProviderInfo } from './api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from './api/provider-info';
 import { TrayMenuRegistry } from './tray-menu-registry';
 import { ProviderRegistry } from './provider-registry';
 import type { Provider } from '@tmpwip/extension-api';
@@ -126,6 +126,27 @@ function initExtensions(): void {
     return providerRegistry.stopProviderLifecycle(providerId);
   });
 
+  contextBridge.exposeInMainWorld('providerConnectionLifecycle', {
+    start: async (
+      providerId: string,
+      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    ): Promise<void> => {
+      return providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo);
+    },
+    stop: async (
+      providerId: string,
+      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    ): Promise<void> => {
+      return providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo);
+    },
+    delete: async (
+      providerId: string,
+      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    ): Promise<void> => {
+      return providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo);
+    },
+  });
+
   contextBridge.exposeInMainWorld(
     'buildImage',
     async (
@@ -157,7 +178,6 @@ function initExtensions(): void {
 
   // can't send configuration object as it is not serializable
   // https://www.electronjs.org/docs/latest/api/context-bridge#parameter--error--return-type-support
-
   contextBridge.exposeInMainWorld(
     'getConfigurationValue',
     <T>(key: string, scope?: containerDesktopAPI.ConfigurationScope): T | undefined => {
@@ -174,6 +194,14 @@ function initExtensions(): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (key: string, value: any, scope?: containerDesktopAPI.ConfigurationScope): Promise<void> => {
       return configurationRegistry.updateConfigurationValue(key, value, scope);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'createProviderConnection',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (internalProviderId: string, params: { [key: string]: any }): Promise<void> => {
+      return providerRegistry.createProviderConnection(internalProviderId, params);
     },
   );
 

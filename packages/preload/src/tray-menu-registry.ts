@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Provider, ProviderConnectionStatus, ProviderLifecycle, ProviderStatus } from '@tmpwip/extension-api';
+import type { ProviderConnectionStatus, ProviderStatus } from '@tmpwip/extension-api';
 import { ipcRenderer } from 'electron';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from './api/provider-info';
 import type { MenuItem } from './api/tray-menu-info';
 import type { CommandRegistry } from './command-registry';
 import type { ProviderRegistry } from './provider-registry';
@@ -35,19 +36,49 @@ export interface TrayProviderInfo {
 
 export class TrayMenuRegistry {
   private menuItems = new Map<string, MenuItem>();
-  private providers = new Map<string, ProviderLifecycle>();
+  private providers = new Map<string, ProviderInfo>();
   constructor(private readonly commandRegistry: CommandRegistry, readonly providerRegistry: ProviderRegistry) {
     // add as listener
-    providerRegistry.addProviderListener((name: string, provider: Provider) => {
+    providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
+      if (name === 'provider:create') {
+        this.providers.set(providerInfo.internalId, providerInfo);
+      } else if (name === 'provider:delete') {
+        this.providers.delete(providerInfo.internalId);
+      }
       if (name === 'provider:update-status') {
-        ipcRenderer.send('tray:update-provider', { name: provider.name, status: provider.status });
+        ipcRenderer.send('tray:provider', 'update', providerInfo);
       }
 
       //this.registerProvider(provider.name, provider.);
     });
-    providerRegistry.addProviderLifecycleListener((name: string, provider: Provider, lifecycle: ProviderLifecycle) => {
-      this.registerProvider(provider.name, lifecycle);
+    providerRegistry.addProviderLifecycleListener((name: string, provider: ProviderInfo) => {
+      this.registerProvider(provider);
     });
+
+    providerRegistry.addProviderContainerConnectionLifecycleListener(
+      (name: string, providerInfo: ProviderInfo, containerProviderConnectionInfo: ProviderContainerConnectionInfo) => {
+        // notify tray menu registry
+        if (name === 'provider-container-connection:register') {
+          ipcRenderer.send('tray:container-provider-connection', 'add', providerInfo, containerProviderConnectionInfo);
+        }
+        if (name === 'provider-container-connection:unregister') {
+          ipcRenderer.send(
+            'tray:container-provider-connection',
+            'delete',
+            providerInfo,
+            containerProviderConnectionInfo,
+          );
+        }
+        if (name === 'provider-container-connection:update-status') {
+          ipcRenderer.send(
+            'tray:container-provider-connection',
+            'update',
+            providerInfo,
+            containerProviderConnectionInfo,
+          );
+        }
+      },
+    );
 
     ipcRenderer.on('tray:menu-item-click', (_, menuItemId: string) => {
       try {
@@ -57,16 +88,57 @@ export class TrayMenuRegistry {
       }
     });
 
-    ipcRenderer.on('tray:menu-provider-click', (_, param: { type: string; providerName: string }) => {
-      const provider = this.providers.get(param.providerName);
+    ipcRenderer.on('tray:menu-provider-click', (_, param: { action: string; providerInfo: ProviderInfo }) => {
+      const provider = this.providers.get(param.providerInfo.internalId);
       if (provider) {
-        if (param.type === 'Start') {
-          provider.start();
-        } else if (param.type === 'Stop') {
-          provider.stop();
+        if (param.action === 'Start') {
+          providerRegistry.startProviderLifecycle(param.providerInfo.internalId);
+        } else if (param.action === 'Stop') {
+          providerRegistry.stopProviderLifecycle(param.providerInfo.internalId);
         }
       }
     });
+
+    ipcRenderer.on(
+      'tray:menu-provider-container-connection-click',
+      async (
+        _,
+        param: {
+          action: string;
+          providerInfo: ProviderInfo;
+          providerContainerConnectionInfo: ProviderContainerConnectionInfo;
+        },
+      ) => {
+        const provider = this.providers.get(param.providerInfo.internalId);
+        if (provider) {
+          if (param.action === 'Start') {
+            try {
+              await providerRegistry.startProviderConnection(
+                param.providerInfo.internalId,
+                param.providerContainerConnectionInfo,
+              );
+            } catch (err) {
+              ipcRenderer.send('dialog:show-error', {
+                title: `Error while starting ${param.providerContainerConnectionInfo.name}`,
+                body: '' + err,
+              });
+            }
+          } else if (param.action === 'Stop') {
+            try {
+              await providerRegistry.stopProviderConnection(
+                param.providerInfo.internalId,
+                param.providerContainerConnectionInfo,
+              );
+            } catch (err) {
+              ipcRenderer.send('dialog:show-error', {
+                title: `Error while stopping ${param.providerContainerConnectionInfo.name}`,
+                body: '' + err,
+              });
+            }
+          }
+        }
+      },
+    );
   }
 
   registerMenuItem(providerName: string, menuItem: MenuItem): Disposable {
@@ -78,13 +150,11 @@ export class TrayMenuRegistry {
     });
   }
 
-  registerProvider(providerName: string, providerLifecycle: ProviderLifecycle): void {
-    this.providers.set(providerName, providerLifecycle);
-    ipcRenderer.send('tray:add-provider', { name: providerName, status: providerLifecycle.status() });
+  registerProvider(providerInfo: ProviderInfo): void {
+    ipcRenderer.send('tray:provider', 'add', providerInfo);
   }
 
-  unregisterProvider(providerName: string) {
-    this.providers.delete(providerName);
-    ipcRenderer.send('tray:delete-provider', providerName);
+  unregisterProvider(providerInfo: ProviderInfo) {
+    ipcRenderer.send('tray:provider', 'delete', providerInfo);
   }
 }

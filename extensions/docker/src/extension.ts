@@ -28,7 +28,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     socketPath = '/var/run/docker.sock';
   }
 
-  const provider = extensionApi.provider.createProvider({ name: 'Docker', status: 'ready' });
+  const provider = extensionApi.provider.createProvider({ name: 'Docker', id: 'docker', status: 'ready' });
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: 'Docker',
