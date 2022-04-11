@@ -108,6 +108,7 @@ declare module '@tmpwip/extension-api' {
   }
 
   export interface ProviderOptions {
+    id: string;
     name: string;
     status: ProviderStatus;
   }
@@ -115,8 +116,9 @@ declare module '@tmpwip/extension-api' {
   export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
 
   export interface ProviderConnectionLifecycle {
-    start(): Promise<void>;
-    stop(): Promise<void>;
+    start?(): Promise<void>;
+    stop?(): Promise<void>;
+    delete?(): Promise<void>;
   }
 
   export interface ContainerProviderConnectionEndpoint {
@@ -141,7 +143,16 @@ declare module '@tmpwip/extension-api' {
     status(): ProviderConnectionStatus;
   }
 
+  // create programmatically a ContainerProviderConnection
+  export interface ContainerProviderConnectionFactory {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    create(params: { [key: string]: any }): Promise<void>;
+  }
+
   export interface Provider {
+    setContainerProviderConnectionFactory(
+      containerProviderConnectionFactory: ContainerProviderConnectionFactory,
+    ): Disposable;
     registerContainerProviderConnection(connection: ContainerProviderConnection): Disposable;
     registerKubernetesProviderConnection(connection: KubernetesProviderConnection): Disposable;
     registerLifecycle(lifecycle: ProviderLifecycle): Disposable;

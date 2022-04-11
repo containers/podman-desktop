@@ -45,5 +45,5 @@ $: {
     <div class="ml-2">{recordUI.title}</div>
   </div>
   <div class="mb-1">{recordUI.description}</div>
-  <PreferencesRenderingItemFormat record="{recordUI.original}" />
+  <PreferencesRenderingItemFormat showUpdate="{true}" record="{recordUI.original}" />
 </div>

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { app, Tray } from 'electron';
+import { ipcMain, app, Tray, dialog } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
@@ -101,4 +101,8 @@ app.whenReady().then(() => {
   const imagePath = path.resolve(assetsFolder, 'tray-iconTemplate.png');
   tray = new Tray(imagePath);
   new TrayMenu(tray);
+});
+
+ipcMain.on('dialog:show-error', (_, param: { title: string; body: string }): void => {
+  dialog.showErrorBox(param.title, param.body);
 });

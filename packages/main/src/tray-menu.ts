@@ -24,13 +24,14 @@ import statusStopped from './assets/status-stopped.png';
 import statusUnknown from './assets/status-unknown.png';
 import { isMac } from './util';
 import statusBusy from './assets/status-busy.png';
+import type { ProviderInfo, ProviderContainerConnectionInfo } from '../../preload/src/api/provider-info';
 
-interface ContainerProvider {
-  name: string;
-  status: ProviderStatus;
+// extends type from the plugin
+interface ProviderMenuItem extends ProviderInfo {
+  childItems: MenuItemConstructorOptions[];
 }
-
-interface ContainerProviderMenuItem extends ContainerProvider {
+interface ProviderContainerConnectionInfoMenuItem extends ProviderContainerConnectionInfo {
+  providerInfo: ProviderInfo;
   childItems: MenuItemConstructorOptions[];
 }
 
@@ -41,78 +42,149 @@ export class TrayMenu {
     { type: 'separator' },
     { label: 'Quit', type: 'normal', role: 'quit' },
   ];
-  private menuItems = new Map<string, ContainerProviderMenuItem>();
+  private menuProviderItems = new Map<string, ProviderMenuItem>();
+  private menuContainerProviderConnectionItems = new Map<string, ProviderContainerConnectionInfoMenuItem>();
 
   constructor(private readonly tray: Tray) {
-    ipcMain.on('tray:add-menu-item', (_, param: { providerName: string; menuItem: MenuItemConstructorOptions }) => {
+    ipcMain.on('tray:add-menu-item', (_, param: { providerId: string; menuItem: MenuItemConstructorOptions }) => {
       param.menuItem.click = () => {
         const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
         if (window) {
           window.webContents.send('tray:menu-item-click', param.menuItem.id);
         }
       };
-      const provider = this.menuItems.get(param.providerName);
+      // grab matching provider
+      const provider = Array.from(this.menuProviderItems.values()).find(item => item.id === param.providerId);
       if (provider) {
         provider.childItems.push(param.menuItem);
         this.updateMenu();
       } else {
-        this.menuItems.set(param.providerName, {
+        this.menuProviderItems.set(param.providerId, {
+          id: param.providerId,
+          internalId: '',
           childItems: [param.menuItem],
           name: 'temp',
           status: 'unknown',
+          containerConnections: [],
+          kubernetesConnections: [],
+          lifecycleMethods: [],
+          containerProviderConnectionCreation: false,
         });
       }
     });
 
-    ipcMain.on('tray:add-provider', (_, container: ContainerProvider) => {
-      this.addContainerProviderItems(container);
-    });
+    // Handle provider container connection
+    ipcMain.on(
+      'tray:container-provider-connection',
+      (
+        _,
+        action: string,
+        providerInfo: ProviderInfo,
+        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      ): void => {
+        // lifecycle on the provider, so do not add entry for the connection
+        if (providerInfo.lifecycleMethods) {
+          return;
+        }
 
-    ipcMain.on('tray:update-provider', (_, container: ContainerProvider) => {
-      this.updateContainerProvider(container);
-    });
+        if (action === 'add') {
+          this.addProviderContainerConnectionItems(providerInfo, providerContainerConnectionInfo);
+        } else if (action === 'update') {
+          this.updateProviderContainerConnectionItems(providerInfo, providerContainerConnectionInfo);
+        } else if (action === 'delete') {
+          this.deleteProviderContainerConnectionItems(providerInfo, providerContainerConnectionInfo);
+        }
+      },
+    );
 
-    ipcMain.on('tray:delete-provider', (_, providerName) => {
-      this.deleteContainerProvider(providerName);
+    ipcMain.on('tray:provider', (_, action: string, provider: ProviderInfo): void => {
+      if (action === 'add') {
+        this.addProviderItems(provider);
+      } else if (action === 'update') {
+        this.updateProvider(provider);
+      } else if (action === 'delete') {
+        this.deleteProvider(provider);
+      }
     });
 
     // create menu first time
     this.updateMenu();
   }
 
-  private addContainerProviderItems(cp: ContainerProvider): void {
-    const providerItem: ContainerProviderMenuItem = {
+  private addProviderContainerConnectionItems(
+    providerInfo: ProviderInfo,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  ): void {
+    const providerContainerConnectionInfoMenuItem: ProviderContainerConnectionInfoMenuItem = {
+      ...providerContainerConnectionInfo,
+      providerInfo,
       childItems: [],
-      name: cp.name,
-      status: cp.status,
+    };
+    this.menuContainerProviderConnectionItems.set(
+      providerContainerConnectionInfoMenuItem.endpoint.socketPath,
+      providerContainerConnectionInfoMenuItem,
+    );
+    this.updateMenu();
+  }
+
+  private updateProviderContainerConnectionItems(
+    _provider: ProviderInfo,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  ): void {
+    const menuProviderItem = this.menuContainerProviderConnectionItems.get(
+      providerContainerConnectionInfo.endpoint.socketPath,
+    );
+    if (menuProviderItem) {
+      menuProviderItem.status = providerContainerConnectionInfo.status;
+    }
+    this.updateMenu();
+  }
+
+  private deleteProviderContainerConnectionItems(
+    _provider: ProviderInfo,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  ): void {
+    this.menuContainerProviderConnectionItems.delete(providerContainerConnectionInfo.endpoint.socketPath);
+    this.updateMenu();
+  }
+
+  private addProviderItems(provider: ProviderInfo): void {
+    const providerMenuItem: ProviderMenuItem = {
+      ...provider,
+      childItems: [],
     };
 
-    const oldProvider = this.menuItems.get(cp.name);
+    const oldProvider = this.menuProviderItems.get(providerMenuItem.internalId);
     if (oldProvider && oldProvider.name === 'temp') {
-      this.menuItems.delete(cp.name);
-      providerItem.childItems.push(...oldProvider.childItems);
+      this.menuProviderItems.delete(provider.internalId);
+      providerMenuItem.childItems.push(...oldProvider.childItems);
     }
-    this.menuItems.set(cp.name, providerItem);
+    this.menuProviderItems.set(provider.internalId, providerMenuItem);
     this.updateMenu();
   }
 
-  private updateContainerProvider(cp: ContainerProvider): void {
-    const provider = this.menuItems.get(cp.name);
-    if (provider) {
-      provider.status = cp.status;
+  private updateProvider(provider: ProviderInfo): void {
+    const menuProviderItem =
+      this.menuProviderItems.get(provider.internalId) ||
+      Array.from(this.menuProviderItems.values()).find(item => item.id === provider.id);
+    if (menuProviderItem) {
+      menuProviderItem.status = provider.status;
     }
     this.updateMenu();
   }
 
-  private deleteContainerProvider(providerName: string): void {
-    this.menuItems.delete(providerName);
+  private deleteProvider(provider: ProviderInfo): void {
+    this.menuProviderItems.delete(provider.internalId);
     this.updateMenu();
   }
 
   private updateMenu(): void {
     const generatedMenuTemplate: MenuItemConstructorOptions[] = [];
-    for (const [, item] of this.menuItems) {
-      generatedMenuTemplate.push(this.createContainerProviderMenuItem(item));
+    for (const [, item] of this.menuProviderItems) {
+      generatedMenuTemplate.push(this.createProviderMenuItem(item));
+    }
+    for (const [, item] of this.menuContainerProviderConnectionItems) {
+      generatedMenuTemplate.push(this.createProviderConnectionMenuItem(item));
     }
 
     generatedMenuTemplate.push(...this.menuTemplate);
@@ -121,7 +193,7 @@ export class TrayMenu {
     this.tray.setContextMenu(contextMenu);
   }
 
-  private createContainerProviderMenuItem(item: ContainerProviderMenuItem): MenuItemConstructorOptions {
+  private createProviderMenuItem(item: ProviderMenuItem): MenuItemConstructorOptions {
     const result: MenuItemConstructorOptions = {
       label: item.name,
       icon: this.getStatusIcon(item.status),
@@ -133,7 +205,7 @@ export class TrayMenu {
       label: 'Start',
       enabled: item.status === 'stopped',
       click: () => {
-        this.sendItemClick({ type: 'Start', providerName: item.name });
+        this.sendItemClick({ action: 'Start', providerInfo: item });
       },
     });
 
@@ -141,13 +213,55 @@ export class TrayMenu {
       label: 'Stop',
       enabled: item.status === 'started',
       click: () => {
-        this.sendItemClick({ type: 'Stop', providerName: item.name });
+        this.sendItemClick({ action: 'Stop', providerInfo: item });
       },
     });
     (result.submenu as MenuItemConstructorOptions[]).push({ type: 'separator' });
 
     if (item.childItems.length > 0) {
       (result.submenu as MenuItemConstructorOptions[]).push(...item.childItems);
+    }
+
+    return result;
+  }
+
+  private createProviderConnectionMenuItem(
+    providerContainerConnectionInfoMenuItem: ProviderContainerConnectionInfoMenuItem,
+  ): MenuItemConstructorOptions {
+    const result: MenuItemConstructorOptions = {
+      label: providerContainerConnectionInfoMenuItem.name,
+      icon: this.getStatusIcon(providerContainerConnectionInfoMenuItem.status),
+      type: 'submenu',
+      submenu: [],
+    };
+
+    (result.submenu as MenuItemConstructorOptions[]).push({
+      label: 'Start',
+      enabled: providerContainerConnectionInfoMenuItem.status === 'stopped',
+      click: () => {
+        this.sendProviderContainerConnectionInfoMenuItemClick({
+          action: 'Start',
+          providerInfo: providerContainerConnectionInfoMenuItem.providerInfo,
+          providerContainerConnectionInfo: providerContainerConnectionInfoMenuItem,
+        });
+      },
+    });
+
+    (result.submenu as MenuItemConstructorOptions[]).push({
+      label: 'Stop',
+      enabled: providerContainerConnectionInfoMenuItem.status === 'started',
+      click: () => {
+        this.sendProviderContainerConnectionInfoMenuItemClick({
+          action: 'Stop',
+          providerInfo: providerContainerConnectionInfoMenuItem.providerInfo,
+          providerContainerConnectionInfo: providerContainerConnectionInfoMenuItem,
+        });
+      },
+    });
+    (result.submenu as MenuItemConstructorOptions[]).push({ type: 'separator' });
+
+    if (providerContainerConnectionInfoMenuItem.childItems.length > 0) {
+      (result.submenu as MenuItemConstructorOptions[]).push(...providerContainerConnectionInfoMenuItem.childItems);
     }
 
     return result;
@@ -172,10 +286,21 @@ export class TrayMenu {
     return nativeImage.createFromDataURL(image);
   }
 
-  private sendItemClick(param: { type: string; providerName: string }): void {
+  private sendItemClick(param: { action: string; providerInfo: ProviderInfo }): void {
     const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
     if (window) {
       window.webContents.send('tray:menu-provider-click', param);
+    }
+  }
+
+  private sendProviderContainerConnectionInfoMenuItemClick(param: {
+    action: string;
+    providerInfo: ProviderInfo;
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo;
+  }): void {
+    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+    if (window) {
+      window.webContents.send('tray:menu-provider-container-connection-click', param);
     }
   }
 

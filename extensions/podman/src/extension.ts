@@ -110,7 +110,6 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   machinesToRemove.forEach(machine => {
     const disposable = currentConnections.get(machine);
     if (disposable) {
-      console.log('disposing the connection', machine);
       disposable.dispose();
       currentConnections.delete(machine);
     }
@@ -173,14 +172,13 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (): Promise<void> => {
       // start the machine
-      console.log(`executing podman machine start ${machineInfo.name}`);
       await execPromise('podman', ['machine', 'start', machineInfo.name]);
-      console.log(`podman machine ${machineInfo.name} started`);
     },
     stop: async (): Promise<void> => {
-      console.log(`executing podman machine stop ${machineInfo.name}`);
       await execPromise('podman', ['machine', 'stop', machineInfo.name]);
-      console.log(`podman machine ${machineInfo.name} stopped`);
+    },
+    delete: async (): Promise<void> => {
+      await execPromise('podman', ['machine', 'rm', '-f', machineInfo.name]);
     },
   };
 
@@ -216,22 +214,71 @@ function execPromise(command, args?: string[]): Promise<string> {
   }
   return new Promise((resolve, reject) => {
     let output = '';
+    let err = '';
     const process = spawn(command, args, { env });
+    process.on('error', err => {
+      reject(err);
+    });
     process.stdout.setEncoding('utf8');
     process.stdout.on('data', data => {
       output += data;
     });
+    process.stderr.setEncoding('utf8');
+    process.stderr.on('data', data => {
+      err += data;
+    });
 
-    process.on('close', () => resolve(output.trim()));
-    process.on('error', err => reject(err));
+    process.on('close', exitCode => {
+      if (exitCode !== 0) {
+        reject(err);
+      }
+      resolve(output.trim());
+    });
   });
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   storedExtensionContext = extensionContext;
 
-  const provider = extensionApi.provider.createProvider({ name: 'Podman', status: 'unknown' });
+  const provider = extensionApi.provider.createProvider({ name: 'Podman', id: 'podman', status: 'unknown' });
   extensionContext.subscriptions.push(provider);
+
+  // allows to create machines
+  if (isMac || isWindows) {
+    provider.setContainerProviderConnectionFactory({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      create: async (params: { [key: string]: any }): Promise<void> => {
+        const parameters = [];
+        parameters.push('machine');
+        parameters.push('init');
+
+        // cpus
+        if (params['podman.factory.machine.cpus']) {
+          parameters.push('--cpus');
+          parameters.push(params['podman.factory.machine.cpus']);
+        }
+
+        // memory
+        if (params['podman.factory.machine.memory']) {
+          parameters.push('--memory');
+          parameters.push(params['podman.factory.machine.memory']);
+        }
+
+        // disk size
+        if (params['podman.factory.machine.diskSize']) {
+          parameters.push('--disk-size');
+          parameters.push(params['podman.factory.machine.diskSize']);
+        }
+
+        // name at the end
+        if (params['podman.factory.machine.name']) {
+          parameters.push(params['podman.factory.machine.name']);
+        }
+
+        await execPromise('podman', parameters);
+      },
+    });
+  }
 
   // no podman for now, skip
   if (isMac) {

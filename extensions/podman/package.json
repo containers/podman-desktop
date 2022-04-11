@@ -42,8 +42,35 @@
           "default": 100,
           "scope": "ContainerConnection",
           "description": "Disk Size in GB of the machine"
+        },
+        "podman.factory.machine.name": {
+          "type": "string",
+          "default": "my-machine",
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Name of the machine"
+        },
+        "podman.factory.machine.cpus": {
+          "type": "number",
+          "format": "cpu",
+          "default": 1,
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "CPUs of the machine"
+        },
+        "podman.factory.machine.memory": {
+          "type": "number",
+          "format": "memory",
+          "minimum": 1024,
+          "default": 2048,
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Memory of the machine"
+        },
+        "podman.factory.machine.diskSize": {
+          "type": "number",
+          "format": "diskSize",
+          "default": 100,
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Disk Size in GB of the machine"
         }
-
       }
     }
   },

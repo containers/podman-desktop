@@ -49,7 +49,7 @@ export interface IConfigurationPropertySchema {
   readonly?: boolean;
 }
 
-export type ConfigurationScope = 'DEFAULT' | 'ContainerConnection';
+export type ConfigurationScope = 'DEFAULT' | 'ContainerConnection' | 'ContainerProviderConnectionFactory';
 
 export interface IConfigurationExtensionInfo {
   id: string;

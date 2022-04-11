@@ -117,6 +117,7 @@ function jumpToImages() {
               {/if}
             </a>
           </li>
+          <!--
           <li
             class="pf-c-nav__item flex w-full justify-between {meta.url === '/providers'
               ? 'dark:text-white pf-m-current'
@@ -140,6 +141,7 @@ function jumpToImages() {
               <span class="hidden md:block group-hover:block mr-5">Providers</span>
             </a>
           </li>
+          -->
           <li
             class="pf-c-nav__item flex w-full justify-between {meta.url === '/extensions'
               ? 'dark:text-white pf-m-current'
