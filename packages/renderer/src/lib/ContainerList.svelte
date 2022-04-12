@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { filtered, searchPattern } from '../stores/containers';
-import { providerInfos } from '../stores/providers';
+
 import type { ContainerInfo } from '../../../preload/src/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
 import { router, Route } from 'tinro';
@@ -11,12 +11,6 @@ import ContainerActions from './container/ContainerActions.svelte';
 import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';
 
 let openChoiceModal = false;
-let fromDockerfileModal = false;
-
-let dockerImageName = 'my-custom-image';
-let dockerImageProviderName = '';
-let buildInProgress = false;
-let buildFinished = false;
 
 let isExpanded = false;
 let selectedContainer: ContainerInfoUI | undefined;
@@ -48,6 +42,11 @@ $: {
   }
 }
 
+function fromExistingImage(): void {
+  openChoiceModal = false;
+  window.location.href = '#/images';
+}
+
 onMount(async () => {
   filtered.subscribe(value => {
     containers = value.map((containerInfo: ContainerInfo) => {
@@ -65,12 +64,6 @@ onMount(async () => {
         openingUrl: getOpeningUrl(containerInfo),
       };
     });
-  });
-
-  providerInfos.subscribe(value => {
-    if (value.length > 0) {
-      dockerImageProviderName = value[0].name;
-    }
   });
 });
 
@@ -92,51 +85,13 @@ function keydownChoice(e: KeyboardEvent) {
   }
 }
 
-function keydownDockerfileChoice(e: KeyboardEvent) {
-  e.stopPropagation();
-  if (e.key === 'Escape') {
-    fromDockerfileModal = false;
-  }
-}
-
 function toggleCreateContainer(): void {
   openChoiceModal = !openChoiceModal;
 }
 
-function fromExistingImage(): void {
-  openChoiceModal = false;
-  fromDockerfileModal = false;
-  window.location.href = '#/images';
-}
-
 function fromDockerfile(): void {
   openChoiceModal = false;
-  fromDockerfileModal = true;
-}
-
-let buildLog = '';
-
-function eventCollect(eventName: string, data: string): void {
-  buildLog += `${data}<br/>`;
-}
-
-async function buildDockerImage(): Promise<void> {
-  buildLog = '';
-  buildInProgress = true;
-  buildFinished = false;
-
-  const data: any = document.getElementById('dockerImageFolder');
-  if (data && data.files && data.files.length > 0) {
-    const dockerFilePath = Array.from(data.files)
-      .map((item: any) => item?.path)
-      .find(itemPath => itemPath.endsWith('Dockerfile'));
-    if (dockerFilePath) {
-      const rootDirectory = dockerFilePath.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
-      await window.buildImage(rootDirectory, dockerImageName, eventCollect);
-      buildFinished = true;
-      window.dispatchEvent(new CustomEvent('image-build', { detail: { name: dockerImageName } }));
-    }
-  }
+  router.goto('/images/build');
 }
 
 function getName(containerInfo: ContainerInfo) {
@@ -362,159 +317,38 @@ function getEngineName(containerInfo: ContainerInfo): string {
 </div>
 
 {#if openChoiceModal}
-  <div
-    class="modal z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0"
-    tabindex="{0}"
-    autofocus
-    on:keydown="{keydownChoice}">
-    <div class="modal-overlay fixed w-full h-full bg-gray-900 opacity-50"></div>
-
-    <div class="relative px-4 w-full max-w-4xl h-full md:h-auto">
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-        <section class="text-gray-400 bg-gray-700 body-font border-gray-200 border-2">
-          <div class="container px-5 py-24 mx-auto flex flex-wrap">
-            <div class="flex flex-wrap -m-4">
-              <div class="p-4 lg:w-1/2 md:w-full ">
-                <div
-                  class="flex border-2 rounded-lg border-gray-800 p-8 sm:flex-row flex-col hover:bg-gray-800 hover:cursor-pointer"
-                  on:click="{() => fromDockerfile()}">
-                  <div
-                    class="w-16 h-16 sm:mr-8 sm:mb-0 mb-4 inline-flex items-center justify-center rounded-full bg-gray-800 text-indigo-400 flex-shrink-0">
-                    <svg
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      class="w-8 h-8"
-                      viewBox="0 0 24 24">
-                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                    </svg>
-                  </div>
-                  <div class="flex-grow">
-                    <h2 class="text-white text-lg title-font font-medium mb-3">From Dockerfile</h2>
-                    <p class="leading-relaxed text-base">Build image using a local Dockerfile.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="p-4 lg:w-1/2 md:w-full">
-                <div
-                  class="flex border-2 rounded-lg border-gray-800 p-8 sm:flex-row flex-col hover:bg-gray-800 hover:cursor-pointer"
-                  on:click="{() => fromExistingImage()}">
-                  <div
-                    class="w-16 h-16 sm:mr-8 sm:mb-0 mb-4 inline-flex items-center justify-center rounded-full bg-gray-800 text-indigo-400 flex-shrink-0">
-                    <svg
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      class="w-6 h-6"
-                      viewBox="0 0 24 24">
-                      <circle cx="6" cy="6" r="3"></circle>
-                      <circle cx="6" cy="18" r="3"></circle>
-                      <path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"></path>
-                    </svg>
-                  </div>
-                  <div class="flex-grow">
-                    <h2 class="text-white text-lg title-font font-medium mb-3">From existing image</h2>
-                    <p class="leading-relaxed text-base">Use an existing image from the system to build a container.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  </div>
-{/if}
-
-{#if fromDockerfileModal}
-  <div
-    class="modal z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0"
-    tabindex="{0}"
-    autofocus
-    on:keydown="{keydownDockerfileChoice}">
-    <div class="modal-overlay fixed w-full h-full bg-gray-900 opacity-50"></div>
-
-    <div class="relative px-4 w-full max-w-4xl h-full md:h-auto">
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-          <div class="flex justify-end p-2">
-            <button
-              on:click="{() => {
-                fromDockerfileModal = false;
-              }}"
-              type="button"
-              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
-              data-modal-toggle="authentication-modal">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
-                ><path
-                  fill-rule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"></path
-                ></svg>
-            </button>
-          </div>
-          <!--<form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">-->
-          <div class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
-            <h3 class="text-xl font-medium text-gray-900 dark:text-white">Build Image From Dockerfile</h3>
-            <button
-              hidden="{!buildFinished}"
-              on:click="{() => fromExistingImage()}"
-              class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              >Done</button>
-
-            <div class="flex w-full h-full text-gray-300">
-              {@html buildLog}
-            </div>
-
-            <div hidden="{buildInProgress}">
-              <label for="dockerImageFolder" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                >Dockerfile base directory</label>
-              <input
-                type="file"
-                webkitdirectory
-                name="dockerImageFolder"
-                id="dockerImageFolder"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                required />
-            </div>
-            <div hidden="{buildInProgress}">
-              <label for="dockerImageName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                >Image Name</label>
-              <input
-                type="text"
-                bind:value="{dockerImageName}"
-                name="dockerImageName"
-                id="dockerImageName"
-                placeholder="Enter image name"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                required />
-              <label
-                for="dockerImageProviderName"
-                class="py-6 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                >Provider
-                <select
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                  name="providerChoice"
-                  bind:value="{dockerImageProviderName}">
-                  {#each $providerInfos as provider}
-                    <option value="{provider.name}">{provider.name}</option>
-                  {/each}
-                </select>
-              </label>
-            </div>
-
-            <button
-              hidden="{buildInProgress}"
-              on:click="{() => buildDockerImage()}"
-              class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              >Build</button>
-            <!-- </form>-->
-          </div>
+  <div class="pf-c-backdrop">
+    <div class="pf-l-bullseye">
+      <div
+        class="pf-c-modal-box pf-m-sm modal z-50 "
+        tabindex="{0}"
+        autofocus
+        aria-modal="true"
+        on:keydown="{keydownChoice}"
+        aria-labelledby="modal-title-modal-basic-example-modal"
+        aria-describedby="modal-description-modal-basic-example-modal">
+        <button
+          class="pf-c-button pf-m-plain"
+          type="button"
+          aria-label="Close dialog"
+          on:click="{() => toggleCreateContainer()}">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+        <header class="pf-c-modal-box__header" on:keydown="{keydownChoice}">
+          <h1 class="pf-c-modal-box__title">Create a new container</h1>
+        </header>
+        <div class="pf-c-modal-box__body">
+          <ul class="list-disc">
+            <li>Create a container from a ContainerFile description. Browse a local content description.</li>
+            <li>Or create a container from an existing image stored in the local registry.</li>
+          </ul>
         </div>
+        <footer class="pf-c-modal-box__footer">
+          <button class="pf-c-button pf-m-primary" type="button" on:click="{() => fromDockerfile()}"
+            >From Containerfile/Dockerfile</button>
+          <button class="pf-c-button pf-m-secondary" type="button" on:click="{() => fromExistingImage()}"
+            >From existing image</button>
+        </footer>
       </div>
     </div>
   </div>

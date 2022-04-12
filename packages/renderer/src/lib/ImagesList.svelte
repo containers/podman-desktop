@@ -10,6 +10,7 @@ import { onMount } from 'svelte';
 import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
 import moment from 'moment';
 import filesize from 'filesize';
+import { router } from 'tinro';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -53,6 +54,10 @@ function getShortId(id: string): string {
     id = id.substring('sha256:'.length);
   }
   return id.substring(0, 12);
+}
+
+function gotoBuildImage(): void {
+  router.goto('/images/build');
 }
 
 function getHumanSize(size: number): string {
@@ -171,6 +176,16 @@ function getEngineName(containerInfo: ImageInfo): string {
             name="containerSearchName"
             placeholder="Search...."
             class="w-full py-2 outline-none bg-gray-700" />
+        </div>
+      </div>
+      <div class="flex flex-1 justify-end">
+        <div class="py-5 px-5">
+          <button on:click="{() => gotoBuildImage()}" class="pf-c-button pf-m-primary" type="button">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-cube" aria-hidden="true"></i>
+            </span>
+            Build Image...
+          </button>
         </div>
       </div>
     </div>

@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { BrowserWindowConstructorOptions } from 'electron';
-import { BrowserWindow, ipcMain, app } from 'electron';
+import { BrowserWindow, ipcMain, app, dialog } from 'electron';
 import { join } from 'path';
 import { URL } from 'url';
 import { isLinux, isMac } from './util';
@@ -65,6 +65,26 @@ async function createWindow() {
     if (import.meta.env.DEV) {
       browserWindow?.webContents.openDevTools();
     }
+  });
+
+  // select a file using native widget
+  ipcMain.on('dialog:openFile', async (_, param: { dialogId: string; message: string }) => {
+    const response = await dialog.showOpenDialog(browserWindow, {
+      properties: ['openFile'],
+      message: param.message,
+    });
+    // send the response back
+    browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
+  });
+
+  // select a folder using native widget
+  ipcMain.on('dialog:openFolder', async (_, param: { dialogId: string; message: string }) => {
+    const response = await dialog.showOpenDialog(browserWindow, {
+      properties: ['openDirectory'],
+      message: param.message,
+    });
+    // send the response back
+    browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
   });
 
   browserWindow.on('close', e => {
