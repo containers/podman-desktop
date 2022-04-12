@@ -1,7 +1,7 @@
 {
   "name": "crc",
-  "displayName": "crc extension",
-  "description": "crc extension",
+  "displayName": "Manages CodeReady Containers",
+  "description": "Allow to start and stop CodeReady Containers and use Podman",
   "version": "0.0.1",
   "icon": "icon.png",
   "publisher": "benoitf",
@@ -14,7 +14,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "docker.info",
+        "command": "crc.info",
         "title": "crc: Specific info about crc"
       }
     ]
