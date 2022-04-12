@@ -22,6 +22,7 @@ import Dockerode from 'dockerode';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
+import type { ProviderContainerConnectionInfo } from './api/provider-info';
 
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
@@ -286,19 +287,30 @@ export class ContainerProviderRegistry {
   }
 
   async buildImage(
-    rootDirectory: string,
+    containerBuildContextDirectory: string,
+    relativeContainerFilePath: string,
     imageName: string,
-    eventCollect: (eventName: string, data: string) => void,
+    selectedProvider: ProviderContainerConnectionInfo,
+    eventCollect: (eventName: 'stream' | 'error', data: string) => void,
   ): Promise<unknown> {
-    console.log('building image', imageName, 'from rootDirectory', rootDirectory);
-    const firstProvider = Array.from(this.internalProviders.values()).filter(provider => provider.api)[0];
-    if (!firstProvider.api) {
+    // grab all connections
+    const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+      containerProvider => containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath,
+    );
+    if (!matchingContainerProvider || !matchingContainerProvider.api) {
       throw new Error('No provider with a running engine');
     }
-    console.log('building using provider', firstProvider.name);
-
-    const tarStream = tar.pack(rootDirectory);
-    const streamingPromise = await firstProvider.api.buildImage(tarStream, { t: imageName });
+    const tarStream = tar.pack(containerBuildContextDirectory);
+    let streamingPromise;
+    try {
+      streamingPromise = await matchingContainerProvider.api.buildImage(tarStream, {
+        dockerfile: relativeContainerFilePath,
+        t: imageName,
+      });
+    } catch (error) {
+      console.log('error in buildImage', error);
+      throw error;
+    }
     // eslint-disable-next-line @typescript-eslint/ban-types
     let resolve: (output: {}) => void;
     let reject: (err: Error) => void;
@@ -315,15 +327,21 @@ export class ContainerProviderRegistry {
       resolve(output);
     }
 
-    function onProgress(event: { stream?: string; status?: string; progress?: string }) {
+    function onProgress(event: {
+      stream?: string;
+      status?: string;
+      progress?: string;
+      error?: string;
+      errorDetails?: { message?: string };
+    }) {
       if (event.stream) {
         eventCollect('stream', event.stream);
+      } else if (event.error) {
+        eventCollect('error', event.error);
       }
-      // console.log('status=>',event.status);
-      // console.log('progress=>',event.progress);
     }
 
-    firstProvider.api.modem.followProgress(streamingPromise, onFinished, onProgress);
+    matchingContainerProvider.api.modem.followProgress(streamingPromise, onFinished, onProgress);
     return promise;
   }
 }

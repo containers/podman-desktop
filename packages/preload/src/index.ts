@@ -21,7 +21,7 @@
  */
 
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
-import { contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ExtensionInfo } from './api/extension-info';
 import { CommandRegistry } from './command-registry';
@@ -33,11 +33,16 @@ import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from './api/provider-info';
 import { TrayMenuRegistry } from './tray-menu-registry';
 import { ProviderRegistry } from './provider-registry';
-import type { Provider } from '@tmpwip/extension-api';
 import type { IConfigurationPropertyRecordedSchema } from './configuration-registry';
 import { ConfigurationRegistry } from './configuration-registry';
 import { TerminalInit } from './terminal-init';
+import { Deferred } from './util/deferred';
 const shell = require('electron').shell;
+
+let idDialog = 0;
+export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
+
+const dialogResponses = new Map<string, DialogResultCallback>();
 
 // initialize extension loader mechanism
 function initExtensions(): void {
@@ -62,9 +67,9 @@ function initExtensions(): void {
   const providerRegistry = new ProviderRegistry(containerProviderRegistry);
   const trayMenuRegistry = new TrayMenuRegistry(commandRegistry, providerRegistry);
 
-  providerRegistry.addProviderListener((name: string, provider: Provider) => {
+  providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
     if (name === 'provider:update-status') {
-      apiSender.send('provider:update-status', provider.name);
+      apiSender.send('provider:update-status', providerInfo.name);
     }
   });
 
@@ -150,11 +155,19 @@ function initExtensions(): void {
   contextBridge.exposeInMainWorld(
     'buildImage',
     async (
-      buildDirectory: string,
+      containerBuildContextDirectory: string,
+      relativeContainerFilePath: string,
       imageName: string,
+      selectedProvider: ProviderContainerConnectionInfo,
       eventCollect: (eventName: string, data: string) => void,
     ): Promise<unknown> => {
-      return containerProviderRegistry.buildImage(buildDirectory, imageName, eventCollect);
+      return containerProviderRegistry.buildImage(
+        containerBuildContextDirectory,
+        relativeContainerFilePath,
+        imageName,
+        selectedProvider,
+        eventCollect,
+      );
     },
   );
 
@@ -228,6 +241,69 @@ function initExtensions(): void {
   });
 
   contextBridge.exposeInMainWorld('trayMenu', trayMenuRegistry);
+
+  // Handle callback on dialog file/folder by calling the callback once we get the answer
+  ipcRenderer.on(
+    'dialog:open-file-or-folder-response',
+    (_, dialogId: string, openDialogReturnValue: Electron.OpenDialogReturnValue) => {
+      // grab from stored map
+      const callback = dialogResponses.get(dialogId);
+      if (callback) {
+        callback(openDialogReturnValue);
+
+        // remove callback
+        dialogResponses.delete(dialogId);
+      } else {
+        console.error('Got response for an unknown dialog id', dialogId);
+      }
+    },
+  );
+
+  contextBridge.exposeInMainWorld('openFileDialog', async (message: string) => {
+    // generate id
+    const dialogId = idDialog;
+    idDialog++;
+
+    // create defer object
+    const defer = new Deferred<Electron.OpenDialogReturnValue>();
+
+    // store the dialogID
+    dialogResponses.set(`${dialogId}`, (result: Electron.OpenDialogReturnValue) => {
+      defer.resolve(result);
+    });
+
+    // ask to open file dialog
+    ipcRenderer.send('dialog:openFile', {
+      dialogId: `${dialogId}`,
+      message,
+    });
+
+    // wait for response
+    return defer.promise;
+  });
+
+  contextBridge.exposeInMainWorld('openFolderDialog', async (message: string) => {
+    // generate id
+    const dialogId = idDialog;
+    idDialog++;
+
+    // create defer object
+    const defer = new Deferred<Electron.OpenDialogReturnValue>();
+
+    // store the dialogID
+    dialogResponses.set(`${dialogId}`, (result: Electron.OpenDialogReturnValue) => {
+      defer.resolve(result);
+    });
+
+    // ask to open file dialog
+    ipcRenderer.send('dialog:openFolder', {
+      dialogId: `${dialogId}`,
+      message,
+    });
+
+    // wait for response
+    return defer.promise;
+  });
 
   extensionLoader.start();
 }

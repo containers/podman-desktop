@@ -17,6 +17,7 @@ import ImagesList from './lib/ImagesList.svelte';
 import ProviderList from './lib/ProviderList.svelte';
 import Logo from './lib/logo/Logo.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
+import BuildImageFromContainerFile from './lib/image/BuildImageFromContainerFile.svelte';
 let containersCountValue;
 
 router.mode.hash();
@@ -195,6 +196,9 @@ function jumpToImages() {
         </Route>
         <Route path="/images">
           <ImagesList />
+        </Route>
+        <Route path="/images/build">
+          <BuildImageFromContainerFile />
         </Route>
         <Route path="/extensions">
           <ExtensionList />
