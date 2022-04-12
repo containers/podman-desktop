@@ -25,6 +25,7 @@ import statusUnknown from './assets/status-unknown.png';
 import { isMac } from './util';
 import statusBusy from './assets/status-busy.png';
 import type { ProviderInfo, ProviderContainerConnectionInfo } from '../../preload/src/api/provider-info';
+import type { AnimatedTray, TrayIconStatus } from './tray-animate-icon';
 
 // extends type from the plugin
 interface ProviderMenuItem extends ProviderInfo {
@@ -36,6 +37,8 @@ interface ProviderContainerConnectionInfoMenuItem extends ProviderContainerConne
 }
 
 export class TrayMenu {
+  private globalStatus: TrayIconStatus = 'initialized';
+
   private readonly menuTemplate: MenuItemConstructorOptions[] = [
     { type: 'separator' },
     { label: 'Dashboard', click: this.showMainWindow.bind(this) },
@@ -45,7 +48,7 @@ export class TrayMenu {
   private menuProviderItems = new Map<string, ProviderMenuItem>();
   private menuContainerProviderConnectionItems = new Map<string, ProviderContainerConnectionInfoMenuItem>();
 
-  constructor(private readonly tray: Tray) {
+  constructor(private readonly tray: Tray, private readonly animatedTray: AnimatedTray) {
     ipcMain.on('tray:add-menu-item', (_, param: { providerId: string; menuItem: MenuItemConstructorOptions }) => {
       param.menuItem.click = () => {
         const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
@@ -191,6 +194,38 @@ export class TrayMenu {
 
     const contextMenu = Menu.buildFromTemplate(generatedMenuTemplate);
     this.tray.setContextMenu(contextMenu);
+
+    // update animated tray status
+    this.updateGlobalStatus();
+  }
+
+  protected updateGlobalStatus() {
+    // do we have any provider or any connection ?
+    const hasOneProviderBeingStarted = Array.from(this.menuProviderItems.values()).find(
+      item => item.status === 'started',
+    );
+    const hasOneProviderConnectionBeingStarted = Array.from(this.menuContainerProviderConnectionItems.values()).find(
+      item => item.status === 'started',
+    );
+
+    const hasOneStarted = hasOneProviderBeingStarted || hasOneProviderConnectionBeingStarted;
+    // is that one provider is being stopped or being started
+    const hasOneProviderStartingOrStopping = Array.from(this.menuProviderItems.values()).find(
+      item => item.status === 'starting' || item.status === 'stopping',
+    );
+    const hasOneProviderConnectionStartingOrStopping = Array.from(
+      this.menuContainerProviderConnectionItems.values(),
+    ).find(item => item.status === 'starting' || item.status === 'stopping');
+    const hasOneStartingOrStopping = hasOneProviderStartingOrStopping || hasOneProviderConnectionStartingOrStopping;
+
+    if (hasOneStartingOrStopping !== undefined) {
+      this.globalStatus = 'updating';
+    } else if (hasOneStarted !== undefined) {
+      this.globalStatus = 'ready';
+    } else {
+      this.globalStatus = 'initialized';
+    }
+    this.animatedTray.setStatus(this.globalStatus);
   }
 
   private createProviderMenuItem(item: ProviderMenuItem): MenuItemConstructorOptions {
