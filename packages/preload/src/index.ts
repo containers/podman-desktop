@@ -37,6 +37,7 @@ import type { IConfigurationPropertyRecordedSchema } from './configuration-regis
 import { ConfigurationRegistry } from './configuration-registry';
 import { TerminalInit } from './terminal-init';
 import { Deferred } from './util/deferred';
+import { getFreePort } from './util/port';
 const shell = require('electron').shell;
 
 let idDialog = 0;
@@ -303,6 +304,10 @@ function initExtensions(): void {
 
     // wait for response
     return defer.promise;
+  });
+
+  contextBridge.exposeInMainWorld('getFreePort', async (port: number): Promise<number> => {
+    return getFreePort(port);
   });
 
   extensionLoader.start();

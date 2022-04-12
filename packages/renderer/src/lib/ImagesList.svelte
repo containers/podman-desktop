@@ -11,6 +11,7 @@ import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
 import moment from 'moment';
 import filesize from 'filesize';
 import { router } from 'tinro';
+import * as net from 'net';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -26,6 +27,20 @@ interface ImageInfoUI {
   humanSize: string;
 }
 let images: ImageInfoUI[] = [];
+
+function getPort(portDescriptor: string): Promise<number | undefined> {
+  let port: number;
+  if (portDescriptor.endsWith('/tcp')) {
+    port = parseInt(portDescriptor.substring(0, portDescriptor.length - 4));
+  } else {
+    port = parseInt(portDescriptor);
+  }
+  // invalid port
+  if (port === NaN) {
+    return Promise.resolve(undefined);
+  }
+  return window.getFreePort(port);
+}
 
 onMount(async () => {
   filtered.subscribe(value => {
@@ -89,7 +104,15 @@ async function runImage(imageInfo: ImageInfoUI) {
   const imageInspectInfo = await window.getImageInspect(imageInfo.engineId, imageInfo.id);
   modalImageInspectInfo = imageInspectInfo;
   modalExposedPorts = Array.from(Object.keys(modalImageInspectInfo?.Config?.ExposedPorts || {}));
+
+  // auto-assign ports from available free port
   modalContainerPortMapping = new Array<string>(modalExposedPorts.length);
+  await Promise.all(
+    modalExposedPorts.map(async (port, index) => {
+      const localPort = await getPort(port);
+      modalContainerPortMapping[index] = `${localPort}`;
+    }),
+  );
   runContainerFromImageModal = true;
 }
 
@@ -284,7 +307,7 @@ function getEngineName(containerInfo: ImageInfo): string {
           <!--<form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">-->
           <div class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
             <h3 class="text-xl font-medium text-gray-900 dark:text-white">
-              Create Container {modalImageInfo.name}
+              Create container from image {modalImageInfo.name}
             </h3>
 
             <div>
@@ -295,7 +318,7 @@ function getEngineName(containerInfo: ImageInfo): string {
                 bind:value="{modalContainerName}"
                 name="modalContainerName"
                 id="modalContainerName"
-                placeholder="Enter container name"
+                placeholder="Enter container name (leave blank to have one generated)"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                 required />
               <!-- add a label for each port-->
@@ -304,19 +327,24 @@ function getEngineName(containerInfo: ImageInfo): string {
                 class:hidden="{modalExposedPorts.length === 0}"
                 class="pt-6 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Port Mapping</label>
               {#each modalExposedPorts as port, index}
-                <input
-                  type="text"
-                  bind:value="{modalContainerPortMapping[index]}"
-                  placeholder="Enter value for port {port}"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                  required />
+                <div class="flex flex-row justify-center items-center w-full">
+                  <span class="flex-1 inline-block align-middle whitespace-nowrap">Local port for {port}:</span>
+
+                  <input
+                    type="text"
+                    bind:value="{modalContainerPortMapping[index]}"
+                    placeholder="Enter value for port {port}"
+                    class="bg-gray-50 border ml-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                    required />
+                </div>
               {/each}
             </div>
 
-            <button
-              on:click="{() => startContainer()}"
-              class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              >Start Container</button>
+            <button on:click="{() => startContainer()}" class="w-full pf-c-button pf-m-primary">
+              <span class="pf-c-button__icon pf-m-start">
+                <i class="fas fa-play" aria-hidden="true"></i>
+              </span>
+              Start Container</button>
 
             <!-- </form>-->
           </div>
