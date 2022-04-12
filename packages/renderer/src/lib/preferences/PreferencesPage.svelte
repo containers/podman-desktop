@@ -14,8 +14,12 @@ import PreferencesRendering from './PreferencesRendering.svelte';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
 import { providerInfos } from '../../stores/providers';
 import PreferencesProviderRendering from './PreferencesProviderRendering.svelte';
+import { extensionInfos } from '../../stores/extensions';
+import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
+import type { ExtensionInfo } from '../../../../preload/src/api/extension-info';
 
 let items: TreeViewDataItem[] = [];
+let extensions: ExtensionInfo[] = [];
 let properties: IConfigurationPropertyRecordedSchema[];
 
 function onSelectedItem(item: TreeViewDataItem) {
@@ -27,6 +31,12 @@ function onSelectedItem(item: TreeViewDataItem) {
     const provider = item.id.split('@')[1];
     const connection = item.id.split('@')[2];
     router.goto(`/preferences/container-connection/${provider}/${connection}`);
+  } else if (item.id === 'extensions') {
+    router.goto(`/preferences/extensions`);
+  } else if (item.id.startsWith('extension@')) {
+    // extract extension by the name before the @
+    const extensionId = item.id.split('@')[1];
+    router.goto(`/preferences/extension/${extensionId}`);
   } else {
     router.goto(`/preferences/default/${item.id}`);
   }
@@ -70,6 +80,24 @@ async function buildTreeViewData(configProperties?: IConfigurationPropertyRecord
       properties = configProperties;
     });
 
+  // now adds the extensions
+  const extensionsTreeViewDataItems = [];
+  extensions.forEach(extension => {
+    const extensionItem = {
+      id: `extension@${extension.name}`,
+      name: extension.name,
+      children: [],
+    };
+    extensionsTreeViewDataItems.push(extensionItem);
+  });
+  if (extensionsTreeViewDataItems.length > 0) {
+    treeViewDataItems.push({
+      id: 'extensions',
+      name: 'Extensions Catalog',
+      children: extensionsTreeViewDataItems,
+    });
+  }
+
   // now map all the connections
   const providers = await window.getProviderInfos();
   const providerTreeViewDataItems = [];
@@ -112,6 +140,10 @@ onMount(async () => {
   providerInfos.subscribe(() => {
     buildTreeViewData();
   });
+  extensionInfos.subscribe(value => {
+    extensions = value;
+    buildTreeViewData();
+  });
 });
 </script>
 
@@ -126,6 +158,10 @@ onMount(async () => {
   </Route>
   <Route path="/default/:key" let:meta>
     <PreferencesRendering key="{meta.params.key}" properties="{properties}" />
+  </Route>
+  <Route path="/extensions" let:meta />
+  <Route path="/extension/:extensionId" let:meta>
+    <PreferencesExtensionRendering extensionId="{meta.params.extensionId}" />
   </Route>
   <Route path="/provider/:providerInternalId" let:meta>
     <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />

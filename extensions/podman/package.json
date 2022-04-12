@@ -1,7 +1,7 @@
 {
   "name": "podman",
-  "displayName": "podman extension",
-  "description": "podman extension",
+  "displayName": "Manage podman containers and podman machines",
+  "description": "Manage podman containers and podman machines",
   "version": "0.0.1",
   "icon": "icon.png",
   "publisher": "benoitf",

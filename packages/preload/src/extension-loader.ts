@@ -68,6 +68,7 @@ export class ExtensionLoader {
   async listExtensions(): Promise<ExtensionInfo[]> {
     return Array.from(this.analyzedExtensions.values()).map(extension => ({
       name: extension.manifest.name,
+      displayName: extension.manifest.displayName,
       version: extension.manifest.version,
       publisher: extension.manifest.publisher,
       state: this.activatedExtensions.get(extension.id) ? 'active' : 'inactive',
