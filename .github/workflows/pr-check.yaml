@@ -99,12 +99,8 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: linux-appimage
-          path: ./dist/container-desktop-*.AppImage
-      - uses: actions/upload-artifact@v3
-        with:
-          name: linux-snap
-          path: ./dist/container-desktop_*.snap
+          name: linux-tgz
+          path: ./dist/container-desktop-*.tar.gz
 
   darwin:
     name: macOS
