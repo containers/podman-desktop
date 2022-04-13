@@ -4508,7 +4508,7 @@ electron-builder-notarize@^1.4.0:
     js-yaml "^3.14.0"
     read-pkg-up "^7.0.0"
 
-electron-builder@23.0.3:
+electron-builder@^23.0.3:
   version "23.0.3"
   resolved "https://registry.yarnpkg.com/electron-builder/-/electron-builder-23.0.3.tgz#16264a0d8e3d40da1467bcc8ef7917538b54a3bc"
   integrity sha512-0lnTsljAgcOMuIiOjPcoFf+WxOOe/O04hZPgIvvUBXIbz3kolbNu0Xdch1f5WuQ40NdeZI7oqs8Eo395PcuGHQ==
@@ -4526,9 +4526,9 @@ electron-builder@23.0.3:
     update-notifier "^5.1.0"
     yargs "^17.0.1"
 
-electron-devtools-installer@3.2.0:
+electron-devtools-installer@^3.2.0:
   version "3.2.0"
-  resolved "https://registry.npmjs.org/electron-devtools-installer/-/electron-devtools-installer-3.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-3.2.0.tgz#acc48d24eb7033fe5af284a19667e73b78d406d0"
   integrity sha512-t3UczsYugm4OAbqvdImMCImIMVdFzJAHgbwHpkl5jmfu1izVgUcP/mnrPqJIpEeCK1uZGpt+yHgWEN+9EwoYhQ==
   dependencies:
     rimraf "^3.0.2"
@@ -4593,10 +4593,10 @@ electron-updater@4.6.5:
     lodash.isequal "^4.5.0"
     semver "^7.3.5"
 
-electron@17.0.0:
-  version "17.0.0"
-  resolved "https://registry.npmjs.org/electron/-/electron-17.0.0.tgz"
-  integrity sha512-3UXcBQMwbMWdPvGHaSdPMluHrd+/bc+K143MyvE5zVZ+S1XCHt4sau7dj6svJHns5llN0YG/c6h/vRfadIp8Zg==
+electron@^17.0.0:
+  version "17.4.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-17.4.0.tgz#9ad7b6bac92241dad5e8ab3e9f652f0ed3114859"
+  integrity sha512-eMuCOZMB9qsY63qzxEkyyqM09qs6mrbPBBDJJZgd8pnPWftE4zKmFp3B1vdHzjQ+1c1r/siigxbWTrpDNNri0A==
   dependencies:
     "@electron/get" "^1.13.0"
     "@types/node" "^14.6.2"
