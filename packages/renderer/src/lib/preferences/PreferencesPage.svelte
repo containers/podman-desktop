@@ -53,7 +53,38 @@ async function buildTreeViewData(configProperties?: IConfigurationPropertyRecord
     }
   }
 
-  // first, add all features (using the default scope)
+  // map all the connections
+  const providers = await window.getProviderInfos();
+  const providerTreeViewDataItems = [];
+  providers.forEach(provider => {
+    const providerTreeViewDataItem = {
+      id: `provider@${provider.internalId}`,
+      name: provider.name,
+      children: [],
+    };
+    providerTreeViewDataItems.push(providerTreeViewDataItem);
+
+    // add under the provider the container connection links
+    provider.containerConnections.forEach(connection => {
+      providerTreeViewDataItem.children.push({
+        // encode socketpath as base64
+        id: `container-connection@${provider.internalId}@${Buffer.from(connection.endpoint.socketPath).toString(
+          'base64',
+        )}`,
+        name: `${connection.name}`,
+        children: [],
+      });
+    });
+  });
+
+  if (providerTreeViewDataItems.length > 0) {
+    treeViewDataItems.push({
+      id: 'providers',
+      name: 'Resources',
+      children: providerTreeViewDataItems,
+    });
+  }
+  // then, add all features (using the default scope)
   configProperties
     .filter(property => property.scope === ConfigurationRegistry.DEFAULT_SCOPE)
     .forEach(property => {
@@ -95,38 +126,6 @@ async function buildTreeViewData(configProperties?: IConfigurationPropertyRecord
       id: 'extensions',
       name: 'Extensions Catalog',
       children: extensionsTreeViewDataItems,
-    });
-  }
-
-  // now map all the connections
-  const providers = await window.getProviderInfos();
-  const providerTreeViewDataItems = [];
-  providers.forEach(provider => {
-    const providerTreeViewDataItem = {
-      id: `provider@${provider.internalId}`,
-      name: provider.name,
-      children: [],
-    };
-    providerTreeViewDataItems.push(providerTreeViewDataItem);
-
-    // add under the provider the container connection links
-    provider.containerConnections.forEach(connection => {
-      providerTreeViewDataItem.children.push({
-        // encode socketpath as base64
-        id: `container-connection@${provider.internalId}@${Buffer.from(connection.endpoint.socketPath).toString(
-          'base64',
-        )}`,
-        name: `${connection.name}`,
-        children: [],
-      });
-    });
-  });
-
-  if (providerTreeViewDataItems.length > 0) {
-    treeViewDataItems.push({
-      id: 'providers',
-      name: 'Resources',
-      children: providerTreeViewDataItems,
     });
   }
 
