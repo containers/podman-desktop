@@ -38,6 +38,8 @@ async function createWindow() {
   };
   if (isMac) {
     browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
+  } else if (isLinux) {
+    browserWindowConstructorOptions.frame = false;
   }
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
 
