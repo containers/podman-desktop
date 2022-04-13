@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Introduction
 
-Let's discover **Container Desktop in less than 5 minutes**.
+Let's discover **Podman Desktop in less than 5 minutes**.
 
 ## Getting Started
 

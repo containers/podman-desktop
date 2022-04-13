@@ -13,7 +13,7 @@ async function grabfilenameforMac(
   if (grabbed) {
     return;
   }
-  const result = await fetch('https://api.github.com/repos/containers/desktop/releases/latest');
+  const result = await fetch('https://api.github.com/repos/containers/podman-desktop/releases/latest');
   const jsonContent = await result.json();
   const assets = jsonContent.assets;
   const armMacDmg = assets.filter(asset => (asset.name as string).endsWith('-arm64.dmg'));
