@@ -314,7 +314,7 @@ function initExtensions(): void {
   });
 
   contextBridge.exposeInMainWorld('providerLog', {
-    startLogs: (providerId: string, handler: LogHandler ): Promise<boolean> => {
+    startLogs: (providerId: string, handler: LogHandler): Promise<boolean> => {
       return logRegistry.startLogs(providerId, handler);
     },
     stopLogs: (providerId: string): Promise<boolean> => {

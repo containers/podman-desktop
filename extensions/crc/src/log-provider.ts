@@ -21,9 +21,7 @@ import type { DaemonCommander } from './daemon-commander';
 
 export class LogProvider {
   private timeout: NodeJS.Timeout;
-  constructor(private readonly commander: DaemonCommander){
-
-  }
+  constructor(private readonly commander: DaemonCommander) {}
 
   async startSendingLogs(handler: LogHandler): Promise<void> {
     let lastLogLine = 0;
@@ -33,16 +31,13 @@ export class LogProvider {
         const logsDiff = logs.Messages.slice(lastLogLine, logs.Messages.length - 1);
         lastLogLine = logs.Messages.length;
         handler(logsDiff);
-      } catch(e) {
-          console.log('Logs tick: ' + e);
+      } catch (e) {
+        console.log('Logs tick: ' + e);
       }
     }, 1000);
-
   }
 
   stopSendingLogs(): void {
     clearInterval(this.timeout);
   }
-
-
 }

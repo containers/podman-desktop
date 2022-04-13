@@ -19,7 +19,6 @@
 import type { LogHandler, LogProvider } from '@tmpwip/extension-api';
 
 export class LogRegistry {
-
   private logs: Map<string, LogProvider> = new Map();
   private idCount = 0;
 
@@ -36,7 +35,7 @@ export class LogRegistry {
   }
 
   stopLogs(providerId: string, internalId?: string): Promise<boolean> {
-    if(!this.logs.has(providerId)){
+    if (!this.logs.has(providerId)) {
       return Promise.reject(`Can't find log provider for ${providerId}`);
     }
 
@@ -45,12 +44,11 @@ export class LogRegistry {
   }
 
   startLogs(providerId: string, handler: LogHandler): Promise<boolean> {
-    if(!this.logs.has(providerId)){
+    if (!this.logs.has(providerId)) {
       return Promise.reject(`Can't find log provider for ${providerId}`);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.logs.get(providerId)!.startLogs(handler);
   }
-
 }

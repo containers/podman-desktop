@@ -88,7 +88,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       crcLogProvider.stopSendingLogs();
       return Promise.resolve(true);
     },
-    startLogs: async (handler) => {
+    startLogs: async handler => {
       crcLogProvider.startSendingLogs(handler);
       return Promise.resolve(true);
     },
@@ -97,7 +97,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   provider.registerLogProvider(logProvider);
 
   startStatusUpdateTimer();
-
 }
 
 async function daemonStart(): Promise<boolean> {

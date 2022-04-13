@@ -73,7 +73,7 @@ export class ProviderImpl implements Provider, IDisposable {
   }
   registerLogProvider(logProvider: LogProvider, connection?: ContainerProviderConnection): Disposable {
     let id: string;
-    if(connection) {
+    if (connection) {
       id = `${this._internalId}.${connection.name}`;
       this.containerNameLogProviders.set(connection.name, id);
     } else {
@@ -84,7 +84,7 @@ export class ProviderImpl implements Provider, IDisposable {
 
     return Disposable.create(() => {
       this.logRegistry.deleteProvider(id);
-      if(connection){
+      if (connection) {
         this.containerNameLogProviders.delete(connection.name);
       } else {
         this.containerNameLogProviders.delete(id);

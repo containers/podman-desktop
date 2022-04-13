@@ -197,7 +197,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     stopLogs: () => {
       return Promise.resolve(true);
     },
-    startLogs: (handler) => {
+    startLogs: handler => {
       handler([latestLog]);
       return Promise.resolve(true);
     },

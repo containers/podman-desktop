@@ -12,9 +12,9 @@ import Modal from '../dialogs/Modal.svelte';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
 
-let showModal: ProviderInfo  =  undefined;
+let showModal: ProviderInfo = undefined;
 
-let logs = "";
+let logs = '';
 
 let providerLifecycleError = '';
 router.subscribe(async route => {
@@ -50,7 +50,7 @@ async function stopProvider(): Promise<void> {
 }
 
 async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
-  logs = "";
+  logs = '';
   window.providerLog.startLogs(provider.internalId, (newLogs: string[]) => {
     logs += newLogs.join('\n');
   });
@@ -59,7 +59,6 @@ async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
 async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
   await window.providerLog.stopLogs(provider.internalId);
 }
-
 </script>
 
 <div class="flex flex-1 flex-col">
@@ -108,13 +107,15 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
         <div class="px-2 text-sm italic  text-gray-400">
           <button
             type="button"
-            on:click="{() => {showModal = providerInfo; startReceivinLogs(providerInfo)}}"
-            class="pf-c-button pf-m-primary"
-            >
+            on:click="{() => {
+              showModal = providerInfo;
+              startReceivinLogs(providerInfo);
+            }}"
+            class="pf-c-button pf-m-primary">
             <span class="pf-c-button__icon pf-m-start">
               <i class="fas fa-history" aria-hidden="true"></i>
             </span>
-          Logs
+            Logs
           </button>
         </div>
       {/if}
@@ -133,18 +134,15 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
   {/if}
 </div>
 {#if showModal}
-  <Modal on:close="{() => {stopReceivingLogs(showModal); showModal = undefined }}">
-    <h2 slot="header">
-      Logs
-    </h2>
+  <Modal
+    on:close="{() => {
+      stopReceivingLogs(showModal);
+      showModal = undefined;
+    }}">
+    <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px;">
-      <div style='width:100%; height:100%; display: flex; flexDirection: column;'>
-        <textarea
-            class="logs"
-            readOnly
-            name="log"
-            value={logs}
-            />
+      <div style="width:100%; height:100%; display: flex; flexDirection: column;">
+        <textarea class="logs" readOnly name="log" value="{logs}"></textarea>
       </div>
     </div>
   </Modal>

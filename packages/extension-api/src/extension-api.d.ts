@@ -146,7 +146,7 @@ declare module '@tmpwip/extension-api' {
 
   export interface LogProvider {
     startLogs(handler: LogHandler): Promise<boolean>;
-    stopLogs(): Promise<boolean>
+    stopLogs(): Promise<boolean>;
   }
 
   // create programmatically a ContainerProviderConnection
