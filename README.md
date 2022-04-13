@@ -1,5 +1,5 @@
 # Podman Desktop
-Manage different engine containers from a single UI and tray application
+Manage different container engines from a single UI and tray icon
 
 <p align="center">
   <img alt="Container Desktop" src="https://raw.githubusercontent.com/containers/desktop/media/screenshot.png">
