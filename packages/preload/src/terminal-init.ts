@@ -26,7 +26,7 @@ export class TerminalInit {
 
   init() {
     const terminalPlatformConfiguration: IConfigurationNode = {
-      id: 'features.terminal',
+      id: 'dashboard.terminal',
       title: 'Terminal',
       type: 'object',
       properties: {
