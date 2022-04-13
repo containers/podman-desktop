@@ -1,4 +1,4 @@
-# Container Desktop
+# Podman Desktop
 Manage different engine containers from a single UI and tray application
 
 <p align="center">
@@ -23,11 +23,11 @@ It can connect to multiple engines at the same time and provides an unified inte
 
 Specific runtime plug-ins provides support for different container engine.
 
-There are plug-ins to handle [Podman container engine](https://github.com/containers/podman), [CodeReady container](https://github.com/code-ready/crc), [Podman Lima machines](https://github.com/lima-vm/lima), Docker, etc.
+There are plug-ins to handle [Podman container engine](https://github.com/containers/podman), [crc](https://github.com/code-ready/crc), [Podman Lima machines](https://github.com/lima-vm/lima), Docker, etc.
 
 ## Download
 
-Find latest binaries for Windows, MacOS and Linux on https://github.com/containers/desktop/releases/
+Find latest binaries for Windows, MacOS and Linux on https://github.com/containers/podman-desktop/releases/
 
 There are `next` builds produced after each commit in main branch.
 
@@ -38,19 +38,19 @@ For macOS it may require to perform this additional step: `xattr -r -d com.apple
 ## Roadmap
 Upcoming milestones are defined with GitHub issue tracker.
 
-Track milestones at https://github.com/containers/desktop/milestones
+Track milestones at https://github.com/containers/podman-desktop/milestones
 
 ## Contributing
 If you are interested in fixing issues and contributing directly to the desktop code:
-- :bug: [File bugs or feature requests](https://github.com/containers/desktop/issues/new/choose)
+- :bug: [File bugs or feature requests](https://github.com/containers/podman-desktop/issues/new/choose)
 - :checkered_flag: [Contributing guide](./CONTRIBUTING.md)
-- :ok_hand: [Review or contribute pull requests](https://github.com/containers/desktop/pulls)
+- :ok_hand: [Review or contribute pull requests](https://github.com/containers/podman-desktop/pulls)
 
 ## Communication
 
-For bugs/feature requests please [file issues](https://github.com/containers/desktop/issues/new/choose)
+For bugs/feature requests please [file issues](https://github.com/containers/podman-desktop/issues/new/choose)
 
-Discussions are possible using Github Discussions https://github.com/containers/desktop/discussions/
+Discussions are possible using Github Discussions https://github.com/containers/podman-desktop/discussions/
 
 ## Code of Conduct
 
