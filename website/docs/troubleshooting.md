@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Troubleshooting
 
-Here, find some answers to the question : I have downloaded Container Desktop but I am unable to see any of my image or container
+Here, find some answers to the question : I have downloaded Podman Desktop but I am unable to see any of my image or container
 
 ## Podman
 

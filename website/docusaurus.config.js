@@ -4,18 +4,18 @@
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
-const title = 'Container Desktop';
+const title = 'Podman Desktop';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title,
   url: 'https://containers.github.io',
-  baseUrl: '/desktop/',
+  baseUrl: '/podman-desktop/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'containers',
-  projectName: 'desktop',
+  projectName: 'podman-desktop',
   deploymentBranch: 'gh-pages',
   trailingSlash: false,
   plugins: [
@@ -72,7 +72,7 @@ const config = {
           {to: '/downloads', label: 'Downloads', position: 'left'},
           /*{to: '/blog', label: 'Blog', position: 'left'},*/
           {
-            href: 'https://github.com/containers/desktop',
+            href: 'https://github.com/containers/podman-desktop',
             className: 'header-github-link',
             position: 'right',
           },
@@ -98,7 +98,7 @@ const config = {
               },*/
               {
                 label: 'GitHub',
-                href: 'https://github.com/containers/desktop',
+                href: 'https://github.com/containers/podman-desktop',
               },
             ],
           },

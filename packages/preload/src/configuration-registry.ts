@@ -90,7 +90,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   }
 
   protected getSettingsFile(): string {
-    const configurationDirectory = path.resolve(os.homedir(), '.local/share/containers/desktop/configuration');
+    const configurationDirectory = path.resolve(os.homedir(), '.local/share/containers/podman-desktop/configuration');
     // create directory if it does not exist
     return path.resolve(configurationDirectory, 'settings.json');
   }

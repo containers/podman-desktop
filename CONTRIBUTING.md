@@ -1,7 +1,7 @@
-# Contributing to Container Desktop
+# Contributing to Podman Desktop
 
 <p align="center">
-  <img alt="Container Desktop" src="https://raw.githubusercontent.com/containers/desktop/media/screenshot.png">
+  <img alt="Podman Desktop" src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png">
 </p>
 
 We'd love to have you join the community! Below summarizes the processes
@@ -19,7 +19,7 @@ that we follow.
 ## Reporting Issues
 
 Before reporting an issue, check our backlog of
-[open issues](https://github.com/containers/desktop/issues)
+[open issues](https://github.com/containers/podman-desktop/issues)
 to see if someone else has already reported it. If so, feel free to add
 your scenario, or additional information, to the discussion. Or simply
 "subscribe" to it to be notified when it is updated.
@@ -34,8 +34,8 @@ Please don't include any private/sensitive information in your issue!
 
 ## Working On Issues
 
-Once you have decided to contribute to Container Desktop by working on an issue, check our
-backlog of [open issues](https://github.com/containers/desktop/issues) looking
+Once you have decided to contribute to Podman Desktop by working on an issue, check our
+backlog of [open issues](https://github.com/containers/podman-desktop/issues) looking
 for any that do not have an `status/in-progress` label attached to it.  Often issues
 will be assigned to someone, to be worked on at a later time.  If you have the
 time to work on the issue now add yourself as an assignee, and set the
@@ -45,7 +45,7 @@ the `status/in-progress` label be set and a member will do so for you.
 
 ## Contributing
 
-This section describes how to start a contribution to Container Desktop.
+This section describes how to start a contribution to Podman Desktop.
 
 ### Prepare your environment
 
@@ -53,13 +53,13 @@ Requirements: Node.js 16 and yarn
 
 It is building an electron application so it is working on both Windows, MacOS and Linux.
 
-### Fork and clone Container Desktop
+### Fork and clone Podman Desktop
 
-First you need to fork this project on GitHub.
+First you need to fork this project https://github.com/containers/podman-desktop on GitHub.
 
 Then clone your fork locally:
 ```shell
-$ git clone https://github.com/<you>/desktop
+$ git clone https://github.com/<you>/podman-desktop
 $ cd desktop
 ```
 
@@ -164,10 +164,10 @@ All pull requests and branch-merges automatically run:
 * format/lint checking
 * build check across different platforms (Windows, macOS, Linux)
 
-You can follow these jobs in Github Actions https://github.com/containers/desktop/actions
+You can follow these jobs in Github Actions https://github.com/containers/podman-desktop/actions
 
 ## Communication
 
-For bugs/feature requests please [file issues](https://github.com/containers/desktop/issues/new/choose)
+For bugs/feature requests please [file issues](https://github.com/containers/podman-desktop/issues/new/choose)
 
-Discussions are possible using Github Discussions https://github.com/containers/desktop/discussions/
+Discussions are possible using Github Discussions https://github.com/containers/podman-desktop/discussions/

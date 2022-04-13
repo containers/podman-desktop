@@ -2,7 +2,7 @@
 Manage different container engines from a single UI and tray icon
 
 <p align="center">
-  <img alt="Container Desktop" src="https://raw.githubusercontent.com/containers/desktop/media/screenshot.png">
+  <img alt="Podman Desktop" src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png">
 </p>
 
 

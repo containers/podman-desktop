@@ -89,7 +89,7 @@ function Hero() {
             }}
           </BrowserOnly>
         </div>
-        <img className="w-2/3" src="https://raw.githubusercontent.com/containers/desktop/media/screenshot.png" />
+        <img className="w-2/3" src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png" />
       </div>
     </section>
   );
