@@ -192,6 +192,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
       <div class="px-2 text-sm italic  text-gray-400">
         <button
           type="button"
+          disabled="{containerConnectionInfo.status !== 'started'}"
           on:click="{() => {showModal = providerInfo; startReceivinLogs(providerInfo)}}"
           class="pf-c-button pf-m-primary"
           >

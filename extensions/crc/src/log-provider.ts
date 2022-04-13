@@ -34,7 +34,7 @@ export class LogProvider {
         lastLogLine = logs.Messages.length;
         handler(logsDiff);
       } catch(e) {
-          console.log("Logs tick: " + e);
+          console.log('Logs tick: ' + e);
       }
     }, 1000);
 
