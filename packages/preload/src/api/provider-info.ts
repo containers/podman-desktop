@@ -48,4 +48,5 @@ export interface ProviderInfo {
   lifecycleMethods?: LifecycleMethod[];
   // can create provider connection from ContainerProviderConnectionFactory params
   containerProviderConnectionCreation: boolean;
+  logs: Map<string, string>;
 }

@@ -142,6 +142,12 @@ declare module '@tmpwip/extension-api' {
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
   }
+  export type LogHandler = (log: string[]) => void;
+
+  export interface LogProvider {
+    startLogs(handler: LogHandler): Promise<boolean>;
+    stopLogs(): Promise<boolean>
+  }
 
   // create programmatically a ContainerProviderConnection
   export interface ContainerProviderConnectionFactory {
@@ -156,6 +162,7 @@ declare module '@tmpwip/extension-api' {
     registerContainerProviderConnection(connection: ContainerProviderConnection): Disposable;
     registerKubernetesProviderConnection(connection: KubernetesProviderConnection): Disposable;
     registerLifecycle(lifecycle: ProviderLifecycle): Disposable;
+    registerLogProvider(logProvider: LogProvider, connection?: ContainerProviderConnection): Disposable;
     dispose(): void;
     readonly name: string;
     readonly id: string;

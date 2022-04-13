@@ -24,12 +24,15 @@ import * as childProcess from 'node:child_process';
 // import * as which from 'which';
 import type { Status } from './daemon-commander';
 import { DaemonCommander } from './daemon-commander';
+import { LogProvider } from './log-provider';
 
 const commander = new DaemonCommander();
 let daemonProcess: childProcess.ChildProcess;
 let statusFetchTimer: NodeJS.Timer;
 
 let crcStatus: Status;
+
+const crcLogProvider = new LogProvider(commander);
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // detect preset of CRC
@@ -38,6 +41,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // create CRC provider
   const provider = extensionApi.provider.createProvider({ name: 'CodeReady Containers', id: 'crc', status: 'unknown' });
   extensionContext.subscriptions.push(provider);
+
+  const daemonStarted = await daemonStart();
+  if (!daemonStarted) {
+    return;
+  }
 
   try {
     // initial status
@@ -75,12 +83,21 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     registerOpenShiftLocalCluster(provider, extensionContext);
   }
 
+  const logProvider: extensionApi.LogProvider = {
+    stopLogs: () => {
+      crcLogProvider.stopSendingLogs();
+      return Promise.resolve(true);
+    },
+    startLogs: async (handler) => {
+      crcLogProvider.startSendingLogs(handler);
+      return Promise.resolve(true);
+    },
+  };
+
+  provider.registerLogProvider(logProvider);
+
   startStatusUpdateTimer();
 
-  const daemonStarted = await daemonStart();
-  if (!daemonStarted) {
-    return;
-  }
 }
 
 async function daemonStart(): Promise<boolean> {

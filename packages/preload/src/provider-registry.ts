@@ -30,6 +30,7 @@ import type {
   LifecycleMethod,
 } from './api/provider-info';
 import type { ContainerProviderRegistry } from './container-registry';
+import type { LogRegistry } from './log-registry';
 import { ProviderImpl } from './provider-impl';
 import { Disposable } from './types/disposable';
 
@@ -59,7 +60,7 @@ export class ProviderRegistry {
   private lifecycleListeners: ProviderLifecycleListener[];
   private containerConnectionLifecycleListeners: ContainerConnectionProviderLifecycleListener[];
 
-  constructor(private containerRegistry: ContainerProviderRegistry) {
+  constructor(private containerRegistry: ContainerProviderRegistry, private logRegistry: LogRegistry) {
     this.providers = new Map();
     this.listeners = [];
     this.lifecycleListeners = [];
@@ -83,7 +84,7 @@ export class ProviderRegistry {
 
   createProvider(providerOptions: ProviderOptions): Provider {
     const id = `${this.count}`;
-    const providerImpl = new ProviderImpl(id, providerOptions, this, this.containerRegistry);
+    const providerImpl = new ProviderImpl(id, providerOptions, this, this.containerRegistry, this.logRegistry);
     this.count++;
     this.providers.set(id, providerImpl);
     this.listeners.forEach(listener => listener('provider:create', this.getProviderInfo(providerImpl)));
@@ -228,6 +229,7 @@ export class ProviderRegistry {
       kubernetesConnections,
       status: provider.status,
       containerProviderConnectionCreation,
+      logs: provider.logProviderIds,
     };
 
     // lifecycle ?

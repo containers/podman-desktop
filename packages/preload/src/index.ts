@@ -38,6 +38,8 @@ import { ConfigurationRegistry } from './configuration-registry';
 import { TerminalInit } from './terminal-init';
 import { Deferred } from './util/deferred';
 import { getFreePort } from './util/port';
+import type { LogHandler } from '@tmpwip/extension-api';
+import { LogRegistry } from './log-registry';
 const shell = require('electron').shell;
 
 let idDialog = 0;
@@ -65,7 +67,8 @@ function initExtensions(): void {
 
   const commandRegistry = new CommandRegistry();
   const containerProviderRegistry = new ContainerProviderRegistry(apiSender);
-  const providerRegistry = new ProviderRegistry(containerProviderRegistry);
+  const logRegistry = new LogRegistry();
+  const providerRegistry = new ProviderRegistry(containerProviderRegistry, logRegistry);
   const trayMenuRegistry = new TrayMenuRegistry(commandRegistry, providerRegistry);
 
   providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
@@ -308,6 +311,15 @@ function initExtensions(): void {
 
   contextBridge.exposeInMainWorld('getFreePort', async (port: number): Promise<number> => {
     return getFreePort(port);
+  });
+
+  contextBridge.exposeInMainWorld('providerLog', {
+    startLogs: (providerId: string, handler: LogHandler ): Promise<boolean> => {
+      return logRegistry.startLogs(providerId, handler);
+    },
+    stopLogs: (providerId: string): Promise<boolean> => {
+      return logRegistry.stopLogs(providerId);
+    },
   });
 
   extensionLoader.start();

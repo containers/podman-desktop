@@ -169,10 +169,11 @@ function prettyMachineName(machineName: string): string {
   return name;
 }
 async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
+  let latestLog: string;
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (): Promise<void> => {
       // start the machine
-      await execPromise('podman', ['machine', 'start', machineInfo.name]);
+      latestLog = await execPromise('podman', ['machine', 'start', machineInfo.name]);
     },
     stop: async (): Promise<void> => {
       await execPromise('podman', ['machine', 'stop', machineInfo.name]);
@@ -192,6 +193,16 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     },
   };
 
+  const logProvider: extensionApi.LogProvider = {
+    stopLogs: () => {
+      return Promise.resolve(true);
+    },
+    startLogs: (handler) => {
+      handler([latestLog]);
+      return Promise.resolve(true);
+    },
+  };
+
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
 
   // get configuration for this connection
@@ -204,6 +215,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
 
   currentConnections.set(machineInfo.name, disposable);
   storedExtensionContext.subscriptions.push(disposable);
+  storedExtensionContext.subscriptions.push(provider.registerLogProvider(logProvider, containerProviderConnection));
 }
 
 function execPromise(command, args?: string[]): Promise<string> {

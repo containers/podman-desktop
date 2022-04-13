@@ -7,9 +7,14 @@ import { onMount } from 'svelte';
 import type { ProviderInfo } from '../../../../preload/src/api/provider-info';
 import PreferencesContainerConnectionCreationRendering from './PreferencesContainerConnectionCreationRendering.svelte';
 import { router } from 'tinro';
+import Modal from '../dialogs/Modal.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
+
+let showModal: ProviderInfo  =  undefined;
+
+let logs = "";
 
 let providerLifecycleError = '';
 router.subscribe(async route => {
@@ -43,6 +48,18 @@ async function stopProvider(): Promise<void> {
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   waiting = false;
 }
+
+async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
+  logs = "";
+  window.providerLog.startLogs(provider.internalId, (newLogs: string[]) => {
+    logs += newLogs.join('\n');
+  });
+}
+
+async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
+  await window.providerLog.stopLogs(provider.internalId);
+}
+
 </script>
 
 <div class="flex flex-1 flex-col">
@@ -87,6 +104,20 @@ async function stopProvider(): Promise<void> {
           </button>
         </div>
       {/if}
+      {#if providerInfo.logs}
+        <div class="px-2 text-sm italic  text-gray-400">
+          <button
+            type="button"
+            on:click="{() => {showModal = providerInfo; startReceivinLogs(providerInfo)}}"
+            class="pf-c-button pf-m-primary"
+            >
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-history" aria-hidden="true"></i>
+            </span>
+          Logs
+          </button>
+        </div>
+      {/if}
     </div>
 
     {#if providerLifecycleError}
@@ -101,3 +132,20 @@ async function stopProvider(): Promise<void> {
     <PreferencesContainerConnectionCreationRendering providerInfo="{providerInfo}" properties="{properties}" />
   {/if}
 </div>
+{#if showModal}
+  <Modal on:close="{() => {stopReceivingLogs(showModal); showModal = undefined }}">
+    <h2 slot="header">
+      Logs
+    </h2>
+    <div id="log" style="height: 400px;">
+      <div style='width:100%; height:100%; display: flex; flexDirection: column;'>
+        <textarea
+            class="logs"
+            readOnly
+            name="log"
+            value={logs}
+            />
+      </div>
+    </div>
+  </Modal>
+{/if}
