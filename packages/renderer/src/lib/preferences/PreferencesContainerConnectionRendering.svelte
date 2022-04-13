@@ -197,11 +197,11 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
               showModal = providerInfo;
               startReceivinLogs(providerInfo);
             }}"
-            class="pf-c-button pf-m-primary">
+            class="pf-c-button pf-m-secondary">
             <span class="pf-c-button__icon pf-m-start">
               <i class="fas fa-history" aria-hidden="true"></i>
             </span>
-            Logs
+            Show Logs
           </button>
         </div>
       {/if}
