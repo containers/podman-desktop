@@ -40,7 +40,7 @@ function jumpToImages() {
 <svelte:window bind:innerWidth />
 <Route path="/*" breadcrumb="Home" let:meta>
   <Route path="/" redirect="/containers" />
-  <main class="min-h-screen flex flex-col h-screen bg-gray-800">
+  <main class="min-h-screen flex flex-col h-screen bg-zinc-900">
     <ninja-keys id="command-palette" placeholder="" openHotkey="F1" hideBreadcrumbs class="dark"></ninja-keys>
 
     <header id="navbar" class="text-gray-400 bg-zinc-900 body-font" style="-webkit-app-region: drag;">

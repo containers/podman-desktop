@@ -147,7 +147,9 @@ onMount(async () => {
 </script>
 
 <div class="flex h-full">
-  <TreeView items="{items}" onSelect="{item => onSelectedItem(item)}" />
+  <div class="pr-2">
+    <TreeView items="{items}" onSelect="{item => onSelectedItem(item)}" />
+  </div>
   <Route path="/">
     {#if items.length > 0}
       <PreferencesRendering key="{items[0].id}" properties="{properties}" />

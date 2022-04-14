@@ -23,8 +23,6 @@ $: searchPattern.set(searchTerm);
 router.subscribe(route => {
   if (route.path && route.path.startsWith('/containers/')) {
     const containerId = route.path.split('/')[2];
-    console.log('found container with id', containerId);
-    console.log('selected container', selectedContainer);
     if (containerId && !selectedContainer) {
       selectedContainer = containers.find(container => container.id === containerId);
       isExpanded = true;
@@ -247,7 +245,7 @@ function getEngineName(containerInfo: ContainerInfo): string {
 -->
     <div class="min-w-full h-[calc(100%_-_5.5rem)] flex flex-row">
       <table
-        class="divide-y divide-gray-800 h-2 flex-1"
+        class="divide-y divide-gray-800 h-2 flex-1 border-t border-t-zinc-700"
         class:min-w-full="{!isExpanded}"
         class:w-100="{isExpanded}"
         class:hidden="{containers.length === 0}">
@@ -263,9 +261,9 @@ function getEngineName(containerInfo: ContainerInfo): string {
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Engine</th>
               </tr>
             </thead>-->
-        <tbody class="bg-gray-800 divide-y divide-gray-200">
+        <tbody class="bg-zinc-800 divide-y divide-zinc-700">
           {#each containers as container}
-            <tr class="group h-16">
+            <tr class="group h-16 hover:bg-zinc-700">
               <td
                 class="px-4 whitespace-nowrap hover:cursor-pointer"
                 on:click="{() => expandContainerSelection(container)}">
