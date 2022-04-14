@@ -26,8 +26,8 @@ if (process.env.VITE_APP_VERSION === undefined) {
  * @see https://www.electron.build/configuration/configuration
  */
 const config = {
-  productName: "container-desktop",
-    appId: "com.github.containers.desktop",
+  productName: "Podman Desktop",
+  appId: "com.github.containers.desktop",
   directories: {
     output: 'dist',
     buildResources: 'buildResources',
@@ -40,10 +40,10 @@ const config = {
     'packages/main/src/assets/**',
   ],
   portable: {
-    artifactName: '${productName}-${version}.${ext}'
+    artifactName: 'podman-desktop-${version}.${ext}'
   },
   nsis: {
-    artifactName: '${productName}-${version}-setup.${ext}'
+    artifactName: 'podman-desktop-${version}-setup.${ext}'
   },
   win: {
     target: [

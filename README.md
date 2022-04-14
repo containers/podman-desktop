@@ -31,10 +31,6 @@ Find latest binaries for Windows, MacOS and Linux on https://github.com/containe
 
 There are `next` builds produced after each commit in main branch.
 
-⚠️ For now the binaries are not signed.
-
-For macOS it may require to perform this additional step: `xattr -r -d com.apple.quarantine container-desktop.app`
-
 ## Roadmap
 Upcoming milestones are defined with GitHub issue tracker.
 

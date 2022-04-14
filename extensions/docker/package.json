@@ -7,7 +7,7 @@
   "publisher": "benoitf",
   "license": "apache-2.0",
   "engines": {
-    "container-desktop": "^0.0.1"
+    "podman-desktop": "^0.0.1"
   },
   "main": "./dist/extension.js",
   "contributes": {

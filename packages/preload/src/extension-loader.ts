@@ -123,8 +123,8 @@ export class ExtensionLoader {
   }
 
   async start() {
-    // add watcher to the $HOME/container-desktop
-    const pluginsDirectory = path.resolve(os.homedir(), '.local/share/container-desktop/plugins');
+    // add watcher to the $HOME/podman-desktop
+    const pluginsDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins');
     if (fs.existsSync(pluginsDirectory)) {
       // add watcher
       fs.watch(pluginsDirectory, (_, filename) => {
