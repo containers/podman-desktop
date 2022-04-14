@@ -20,5 +20,21 @@ Get started by **[Downloading](/downloads) the product** for your Operating Syst
 Run the development server:
 
 ```sh
-$ podman run redhat/ubi8-micro echo hello world
+$ podman run quay.io/podman/hello
+!... Hello Podman World ...!
+
+	 .--"--.
+       / -     - \
+      / (O)   (O) \
+   ~~~| -=(,Y,)=- |
+    .---. /`  \   |~~
+ ~/  o  o \~~~~.----. ~~
+  | =(X)= |~  / (O (O) \
+   ~~~~~~~  ~| =(Y_)=-  |
+  ~~~~    ~~~|   U      |~~
+
+Project:   https://github.com/containers/podman
+Website:   https://podman.io
+Documents: https://docs.podman.io
+Twitter:   @Podman_io
 ```
