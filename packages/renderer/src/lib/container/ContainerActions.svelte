@@ -10,8 +10,8 @@ import { router } from 'tinro';
 
 export let container: ContainerInfoUI;
 
-const buttonStyle = 'border-2 border-opacity-30 border-violet-800  p-1 mx-1 shadow-md shadow-gray-900';
-const iconStyle = 'h-10 w-10 cursor-pointer rounded-full text-3xl text-violet-500';
+const buttonStyle = 'p-1 mx-1 shadow-md shadow-gray-900  hover:bg-zinc-800';
+const iconStyle = 'p-1 h-7 w-7 cursor-pointer rounded-full text-3xl text-violet-500 hover:text-violet-600';
 
 async function startContainer(containerInfo: ContainerInfoUI) {
   await window.startContainer(containerInfo.engineId, containerInfo.id);

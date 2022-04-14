@@ -1,27 +1,58 @@
-
 :root {
-    --pf-global--primary-color--100: #6d28d9;
-    --pf-global--primary-color--light-100: #6d28d9;
-    --pf-global--primary-color--dark-100: #6d28d9;
+  --pf-global--primary-color--100: #892ca0;
+  --pf-global--primary-color--light-100: #892ca0;
+  --pf-global--primary-color--dark-100: #892ca0;
 
-    --pf-global--primary-color--200: #5b21b6;
-    --pf-global--primary-color--light-200: #5b21b6;
-    --pf-global--primary-color--dark-200: #5b21b6;
+  --pf-global--primary-color--200: #7e1d96ff;
+  --pf-global--primary-color--light-200: #7e1d96ff;
+  --pf-global--primary-color--dark-200: #7e1d96ff;
 
-    --pf-global--primary-color--300: #6d28d9;
-    --pf-global--primary-color--light-300: #6d28d9;
-    --pf-global--primary-color--dark-300: #6d28d9;
-    
-    --pf-global--BackgroundColor--300: #4B5563;
-    
-    --pf-c-form__helper-text--m-error--Color: #FF0000;
+  --pf-global--primary-color--300: #892ca0;
+  --pf-global--primary-color--light-300: #892ca0;
+  --pf-global--primary-color--dark-300: #892ca0;
 
- 
+  --pf-global--BackgroundColor--300: #4b5563;
 
-    --pf-global--BackgroundColor: #ff0000;
+  --pf-c-form__helper-text--m-error--Color: #ff0000;
+
+  --pf-global--LineHeight--md: 0.9rem;
+  --pf-global--FontWeight--normal: 100;
+  --pf-c-nav__link--after--BorderColor: #892ca0;
+  --pf-global--BackgroundColor: #ff0000;
+}
+
+.pf-c-nav {
+  --pf-c-nav__link--before--BorderBottomWidth: 0;
+  --pf-c-nav__link--FontWeight: 600;
+  --pf-c-nav__link--m-current--BackgroundColor: rgba(255, 255, 255, 0.2);
+
+  /* gray 200*/
+  --pf-c-nav__link--Color: #e2e8f0;
+  --pf-c-nav__link--m-current--Color: #e2e8f0;
+}
+
+.pf-c-nav__link::after {
+  --pf-c-nav__link--after--BorderColor: #892ca0;
+  --pf-c-nav__link--m-current--after--BorderColor: #892ca0;
+}
+.pf-c-button {
+  --pf-c-button--FontSize: 13px;
 }
 
 .pf-c-button.pf-m-secondary {
-    --pf-c-button--m-secondary--Color: rgb(71, 8, 90);
-    --pf-c-button--m-secondary--BackgroundColor: rgba(214, 154, 240, 0.507);
+  --pf-c-button--m-secondary--Color: #333;
+  --pf-c-button--m-secondary--BackgroundColor: #a6c5bf;
+  --pf-c-button--after--BorderColor: #3c6eb4;
+}
+
+nav .pf-c-badge.pf-m-read {
+  --pf-c-badge--Color: #475569;
+  --pf-c-badge--BackgroundColor: #a6c5bf;
+}
+
+.pf-c-tree-view {
+  --pf-c-tree-view__node--PaddingTop--base: 0.3rem;
+  --pf-c-tree-view__node--PaddingTop: 0.2rem;
+  --pf-c-tree-view__node--PaddingBottom: 0.2rem;
+  --pf-c-tree-view__node--indent--base: calc(0.6rem * 2 + var(--pf-c-tree-view__node-toggle-icon--MinWidth));
 }

@@ -11,7 +11,9 @@ import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
 import moment from 'moment';
 import filesize from 'filesize';
 import { router } from 'tinro';
-import * as net from 'net';
+
+const buttonStyle = 'p-1 mx-1 shadow-md shadow-gray-900  hover:bg-gray-700';
+const iconStyle = 'p-1 h-7 w-7 cursor-pointer rounded-full text-3xl text-violet-500 hover:text-violet-600';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -207,12 +209,12 @@ function getEngineName(containerInfo: ImageInfo): string {
             <span class="pf-c-button__icon pf-m-start">
               <i class="fas fa-cube" aria-hidden="true"></i>
             </span>
-            Build Image...
+            Build Image
           </button>
         </div>
       </div>
     </div>
-    <table class="min-w-full divide-y divide-gray-800">
+    <table class="min-w-full divide-y divide-gray-800 border-t border-t-zinc-700">
       <!--<thead class="bg-gray-700">
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
@@ -225,9 +227,9 @@ function getEngineName(containerInfo: ImageInfo): string {
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Engine</th>
               </tr>
             </thead>-->
-      <tbody class="bg-gray-800 divide-y divide-gray-200">
+      <tbody class="bg-zinc-800 divide-y divide-zinc-700">
         {#each images as image}
-          <tr class="group hover:cursor-pointer">
+          <tr class="group hover:cursor-pointer hover:bg-zinc-700">
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
                 <div class="ml-4">
@@ -259,10 +261,8 @@ function getEngineName(containerInfo: ImageInfo): string {
             </td>
             <td class="px-6 py-2 whitespace-nowrap">
               <div class="hidden group-hover:flex flex-row justify-end">
-                <button title="Run Image" on:click="{() => runImage(image)}"
-                  ><Fa
-                    class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800"
-                    icon="{faPlayCircle}" /></button>
+                <button class="{buttonStyle}" title="Run Image" on:click="{() => runImage(image)}"
+                  ><Fa class="{iconStyle}" icon="{faPlayCircle}" /></button>
                 <!--  <button title="Start Container" on:click={() => startContainer(image)} hidden class:block="{container?.State !== 'running'}" ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon={faPlayCircle} /></button>
                     <button title="Stop Container" on:click={() => stopContainer(image)} hidden class:block="{container?.State === 'running'}" ><Fa class="h-10 w-10 cursor-pointer rounded-full text-3xl text-sky-800" icon={faStopCircle} /></button>
                     <button title="Delete Container"><Fa class="cursor-pointer h-10 w-10 rounded-full text-3xl text-sky-800" icon={faTrash} /></button>
