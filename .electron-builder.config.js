@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 if (process.env.VITE_APP_VERSION === undefined) {
-  const now = new Date;
-  process.env.VITE_APP_VERSION = `${now.getUTCFullYear() - 2000}.${now.getUTCMonth() + 1}.${now.getUTCDate()}-${now.getUTCHours() * 60 + now.getUTCMinutes()}`;
+  const now = new Date();
+  process.env.VITE_APP_VERSION = `${now.getUTCFullYear() - 2000}.${now.getUTCMonth() + 1}.${now.getUTCDate()}-${
+    now.getUTCHours() * 60 + now.getUTCMinutes()
+  }`;
 }
 
 /**
@@ -26,47 +28,35 @@ if (process.env.VITE_APP_VERSION === undefined) {
  * @see https://www.electron.build/configuration/configuration
  */
 const config = {
-  productName: "Podman Desktop",
-  appId: "com.github.containers.desktop",
+  productName: 'Podman Desktop',
+  appId: 'com.github.containers.desktop',
   directories: {
     output: 'dist',
     buildResources: 'buildResources',
   },
-  files: [
-    'packages/**/dist/**',
-    'extensions/**/builtin/*.cdix/**',
-  ],
-  extraResources: [
-    'packages/main/src/assets/**',
-  ],
+  files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**'],
+  extraResources: ['packages/main/src/assets/**'],
   portable: {
-    artifactName: 'podman-desktop-${version}.${ext}'
+    artifactName: 'podman-desktop-${version}.${ext}',
   },
   nsis: {
-    artifactName: 'podman-desktop-${version}-setup.${ext}'
+    artifactName: 'podman-desktop-${version}-setup.${ext}',
   },
   win: {
-    target: [
-    'portable',
-    'nsis'
-    ]
+    target: ['portable', 'nsis'],
   },
 
   linux: {
-    target: [
-    'tar.gz',
-    ]
+    target: ['tar.gz'],
   },
   afterSign: 'electron-builder-notarize',
   mac: {
+    artifactName: 'podman-desktop-${version}-${arch}.${ext}',
     hardenedRuntime: true,
     entitlements: './node_modules/electron-builder-notarize/entitlements.mac.inherit.plist',
     target: {
       target: 'default',
-      arch: [
-        'x64',
-        'arm64'
-      ]
+      arch: ['x64', 'arm64'],
     },
   },
   dmg: {
@@ -74,13 +64,13 @@ const config = {
       {
         x: 410,
         y: 150,
-        type: "link",
-        path: "/Applications",
+        type: 'link',
+        path: '/Applications',
       },
       {
         x: 130,
         y: 150,
-        type: "file",
+        type: 'file',
       },
     ],
   },
