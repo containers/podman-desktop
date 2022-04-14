@@ -1,5 +1,5 @@
 {
-  "name": "container-desktop",
+  "name": "podman-desktop",
   "version": "0.0.2-next",
   "license": "apache-2.0",
   "private": true,
