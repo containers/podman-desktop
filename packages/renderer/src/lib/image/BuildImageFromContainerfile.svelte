@@ -45,12 +45,12 @@ async function buildContainerImage(): Promise<void> {
 
   if (containerFilePath) {
     // extract the relative path from the containerFilePath and containerBuildContextDirectory
-    const relativeContainerFilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
+    const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
 
     try {
       await window.buildImage(
         containerBuildContextDirectory,
-        relativeContainerFilePath,
+        relativeContainerfilePath,
         containerImageName,
         selectedProvider,
         eventCollect,
@@ -75,8 +75,8 @@ onMount(() => {
 
 let logsTerminal;
 
-async function getContainerFileLocation() {
-  const result = await window.openFileDialog('Select ContainerFile to build');
+async function getContainerfileLocation() {
+  const result = await window.openFileDialog('Select Containerfile to build');
 
   if (!result.canceled && result.filePaths.length === 1) {
     containerFilePath = result.filePaths[0];
@@ -129,16 +129,16 @@ function initTerminal() {
 
 {#if providerConnections.length > 0}
   <div class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
-    <h3 class="text-xl font-medium  :text-white">Build Image From ContainerFile</h3>
+    <h3 class="text-xl font-medium  :text-white">Build Image From Containerfile</h3>
     <div hidden="{buildStarted}">
-      <label for="containerFilePath" class="block mb-2 text-sm font-medium text-gray-300">ContainerFile path</label>
+      <label for="containerFilePath" class="block mb-2 text-sm font-medium text-gray-300">Containerfile path</label>
       <input
-        on:click="{() => getContainerFileLocation()}"
+        on:click="{() => getContainerfileLocation()}"
         name="containerFilePath"
         id="containerFilePath"
         bind:value="{containerFilePath}"
         readonly
-        placeholder="Select ContainerFile to build..."
+        placeholder="Select Containerfile to build..."
         class=" text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
         required />
     </div>

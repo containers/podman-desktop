@@ -337,7 +337,7 @@ function getEngineName(containerInfo: ContainerInfo): string {
         </header>
         <div class="pf-c-modal-box__body">
           <ul class="list-disc">
-            <li>Create a container from a ContainerFile description. Browse a local content description.</li>
+            <li>Create a container from a Containerfile description. Browse a local content description.</li>
             <li>Or create a container from an existing image stored in the local registry.</li>
           </ul>
         </div>
