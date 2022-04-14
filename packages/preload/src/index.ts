@@ -157,14 +157,14 @@ function initExtensions(): void {
     'buildImage',
     async (
       containerBuildContextDirectory: string,
-      relativeContainerFilePath: string,
+      relativeContainerfilePath: string,
       imageName: string,
       selectedProvider: ProviderContainerConnectionInfo,
       eventCollect: (eventName: string, data: string) => void,
     ): Promise<unknown> => {
       return containerProviderRegistry.buildImage(
         containerBuildContextDirectory,
-        relativeContainerFilePath,
+        relativeContainerfilePath,
         imageName,
         selectedProvider,
         eventCollect,

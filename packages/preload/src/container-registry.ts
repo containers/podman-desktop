@@ -288,7 +288,7 @@ export class ContainerProviderRegistry {
 
   async buildImage(
     containerBuildContextDirectory: string,
-    relativeContainerFilePath: string,
+    relativeContainerfilePath: string,
     imageName: string,
     selectedProvider: ProviderContainerConnectionInfo,
     eventCollect: (eventName: 'stream' | 'error', data: string) => void,
@@ -304,7 +304,7 @@ export class ContainerProviderRegistry {
     let streamingPromise;
     try {
       streamingPromise = await matchingContainerProvider.api.buildImage(tarStream, {
-        dockerfile: relativeContainerFilePath,
+        dockerfile: relativeContainerfilePath,
         t: imageName,
       });
     } catch (error) {
