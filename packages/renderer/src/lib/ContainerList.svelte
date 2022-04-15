@@ -23,7 +23,9 @@ $: searchPattern.set(searchTerm);
 router.subscribe(route => {
   if (route.path && route.path.startsWith('/containers/')) {
     const containerId = route.path.split('/')[2];
-    if (containerId && !selectedContainer) {
+    if (!containerId) {
+      selectedContainer = undefined;
+    } else if (containerId && !selectedContainer) {
       selectedContainer = containers.find(container => container.id === containerId);
       isExpanded = true;
     }
