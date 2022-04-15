@@ -28,8 +28,9 @@ function openBrowser(containerInfo: ContainerInfoUI): void {
   window.openExternal(containerInfo.openingUrl);
 }
 
-function deleteContainer(containerInfo: ContainerInfoUI): void {
-  window.deleteContainer(containerInfo.engineId, containerInfo.id);
+async function deleteContainer(containerInfo: ContainerInfoUI): Promise<void> {
+  await window.deleteContainer(containerInfo.engineId, containerInfo.id);
+  router.goto('/containers/');
 }
 function openTerminalContainer(containerInfo: ContainerInfoUI): void {
   console.log('openTerminalContainer container', containerInfo.name);
