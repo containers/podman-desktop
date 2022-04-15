@@ -29,7 +29,7 @@ And check a connection can be made with the CLI
 $ podman run quay.io/podman/hello
 !... Hello Podman World ...!
 
-	 .--"--.
+         .--"--.
        / -     - \
       / (O)   (O) \
    ~~~| -=(,Y,)=- |
