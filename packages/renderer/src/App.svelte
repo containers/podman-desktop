@@ -170,7 +170,7 @@ function jumpToImages() {
           </li>
           -->
           <li
-            class="pf-c-nav__item flex w-full justify-between {meta.url === '/preferences'
+            class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/preferences')
               ? 'dark:text-white pf-m-current'
               : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
             <a href="/preferences" class="pf-c-nav__link">
