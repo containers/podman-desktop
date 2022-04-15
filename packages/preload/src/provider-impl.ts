@@ -23,7 +23,6 @@ import type {
   ContainerProviderConnection,
   KubernetesProviderConnection,
   ContainerProviderConnectionFactory,
-  LogProvider,
   Provider,
   ProviderLifecycle,
   ProviderOptions,
@@ -31,13 +30,11 @@ import type {
   ProviderConnectionStatus,
 } from '@tmpwip/extension-api';
 import type { ProviderRegistry } from './provider-registry';
-import type { LogRegistry } from './log-registry';
 
 export class ProviderImpl implements Provider, IDisposable {
   private containerProviderConnections: Set<ContainerProviderConnection>;
   private containerProviderConnectionsStatuses: Map<string, ProviderConnectionStatus>;
   private kubernetesProviderConnections: Set<KubernetesProviderConnection>;
-  private containerNameLogProviders: Map<string, string>;
   // optional factory
   private _containerProviderConnectionFactory: ContainerProviderConnectionFactory | undefined = undefined;
   private _status: ProviderStatus;
@@ -47,12 +44,10 @@ export class ProviderImpl implements Provider, IDisposable {
     private providerOptions: ProviderOptions,
     private providerRegistry: ProviderRegistry,
     private containerRegistry: ContainerProviderRegistry,
-    private logRegistry: LogRegistry,
   ) {
     this.containerProviderConnectionsStatuses = new Map();
     this.containerProviderConnections = new Set();
     this.kubernetesProviderConnections = new Set();
-    this.containerNameLogProviders = new Map();
     this._status = providerOptions.status;
 
     // monitor connection statuses
@@ -70,26 +65,6 @@ export class ProviderImpl implements Provider, IDisposable {
 
   get containerProviderConnectionFactory(): ContainerProviderConnectionFactory | undefined {
     return this._containerProviderConnectionFactory;
-  }
-  registerLogProvider(logProvider: LogProvider, connection?: ContainerProviderConnection): Disposable {
-    let id: string;
-    if (connection) {
-      id = `${this._internalId}.${connection.name}`;
-      this.containerNameLogProviders.set(connection.name, id);
-    } else {
-      id = this.internalId;
-      this.containerNameLogProviders.set(id, id);
-    }
-    this.logRegistry.addProvider(id, logProvider);
-
-    return Disposable.create(() => {
-      this.logRegistry.deleteProvider(id);
-      if (connection) {
-        this.containerNameLogProviders.delete(connection.name);
-      } else {
-        this.containerNameLogProviders.delete(id);
-      }
-    });
   }
 
   get name(): string {
@@ -118,10 +93,6 @@ export class ProviderImpl implements Provider, IDisposable {
 
   get kubernetesConnections(): KubernetesProviderConnection[] {
     return Array.from(this.kubernetesProviderConnections.values());
-  }
-
-  get logProviderIds(): Map<string, string> {
-    return this.containerNameLogProviders;
   }
 
   dispose(): void {

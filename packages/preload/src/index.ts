@@ -38,8 +38,7 @@ import { ConfigurationRegistry } from './configuration-registry';
 import { TerminalInit } from './terminal-init';
 import { Deferred } from './util/deferred';
 import { getFreePort } from './util/port';
-import type { LogHandler } from '@tmpwip/extension-api';
-import { LogRegistry } from './log-registry';
+
 const shell = require('electron').shell;
 
 let idDialog = 0;
@@ -67,8 +66,7 @@ function initExtensions(): void {
 
   const commandRegistry = new CommandRegistry();
   const containerProviderRegistry = new ContainerProviderRegistry(apiSender);
-  const logRegistry = new LogRegistry();
-  const providerRegistry = new ProviderRegistry(containerProviderRegistry, logRegistry);
+  const providerRegistry = new ProviderRegistry(containerProviderRegistry);
   const trayMenuRegistry = new TrayMenuRegistry(commandRegistry, providerRegistry);
 
   providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
@@ -313,15 +311,35 @@ function initExtensions(): void {
     return getFreePort(port);
   });
 
-  contextBridge.exposeInMainWorld('providerLog', {
-    startLogs: (providerId: string, handler: LogHandler): Promise<boolean> => {
-      return logRegistry.startLogs(providerId, handler);
+  type logFn = (...data: unknown[]) => void;
+
+  contextBridge.exposeInMainWorld('logs', {
+    startReceiveLogs: (
+      providerId: string,
+      log: logFn,
+      warn: logFn,
+      error: logFn,
+      containerConnectionInfo?: ProviderContainerConnectionInfo,
+    ) => {
+      let context;
+      if (containerConnectionInfo) {
+        context = providerRegistry.getMatchingContainerLifecycleContext(providerId, containerConnectionInfo);
+      } else {
+        context = providerRegistry.getMatchingLifecycleContext(providerId);
+      }
+      context.log.setLogHandler({ log: log, warn: warn, error: error });
     },
-    stopLogs: (providerId: string): Promise<boolean> => {
-      return logRegistry.stopLogs(providerId);
+
+    stopReceiveLogs: (providerId: string, containerConnectionInfo?: ProviderContainerConnectionInfo) => {
+      let context;
+      if (containerConnectionInfo) {
+        context = providerRegistry.getMatchingContainerLifecycleContext(providerId, containerConnectionInfo);
+      } else {
+        context = providerRegistry.getMatchingLifecycleContext(providerId);
+      }
+      context.log.removeLogHandler();
     },
   });
-
   extensionLoader.start();
 }
 

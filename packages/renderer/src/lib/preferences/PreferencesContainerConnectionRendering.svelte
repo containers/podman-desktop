@@ -8,6 +8,7 @@ import { beforeUpdate, onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../preload/src/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
+import { LogHandler } from './LogHandler';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -101,21 +102,23 @@ async function deleteConnection() {
 
 let showModal: ProviderInfo = undefined;
 
-let logs = '';
-
-function getId(provider: ProviderInfo): string {
-  return provider.logs.get(containerConnectionInfo.name);
-}
+let logContent: string;
 async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
-  logs = '';
-
-  window.providerLog.startLogs(getId(provider), (newLogs: string[]) => {
-    logs += newLogs.join('\n');
+  logContent = '';
+  const logHandler = new LogHandler(newContent => {
+    logContent += newContent;
   });
+  window.logs.startReceiveLogs(
+    provider.internalId,
+    logHandler.log.bind(logHandler),
+    logHandler.warn.bind(logHandler),
+    logHandler.error.bind(logHandler),
+    containerConnectionInfo,
+  );
 }
 
 async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
-  await window.providerLog.stopLogs(getId(provider));
+  await window.logs.stopReceiveLogs(provider.internalId, containerConnectionInfo);
 }
 </script>
 
@@ -188,23 +191,21 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
           </button>
         </div>
       {/if}
-      {#if providerInfo.logs}
-        <div class="px-2 text-sm italic  text-gray-400">
-          <button
-            type="button"
-            disabled="{containerConnectionInfo.status !== 'started'}"
-            on:click="{() => {
-              showModal = providerInfo;
-              startReceivinLogs(providerInfo);
-            }}"
-            class="pf-c-button pf-m-secondary">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-history" aria-hidden="true"></i>
-            </span>
-            Show Logs
-          </button>
-        </div>
-      {/if}
+      <div class="px-2 text-sm italic  text-gray-400">
+        <button
+          type="button"
+          disabled="{containerConnectionInfo.status !== 'started'}"
+          on:click="{() => {
+            showModal = providerInfo;
+            startReceivinLogs(providerInfo);
+          }}"
+          class="pf-c-button pf-m-secondary">
+          <span class="pf-c-button__icon pf-m-start">
+            <i class="fas fa-history" aria-hidden="true"></i>
+          </span>
+          Show Logs
+        </button>
+      </div>
     </div>
 
     {#if lifecycleError}
@@ -256,7 +257,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px;">
       <div style="width:100%; height:100%; display: flex; flexDirection: column;">
-        <textarea class="logs" readOnly name="log" value="{logs}"></textarea>
+        <textarea class="logs" readOnly name="log" value="{logContent}"></textarea>
       </div>
     </div>
   </Modal>

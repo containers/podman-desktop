@@ -17,27 +17,19 @@
  ***********************************************************************/
 
 import type { Logger } from '@tmpwip/extension-api';
-import type { DaemonCommander } from './daemon-commander';
 
-export class LogProvider {
-  private timeout: NodeJS.Timeout;
-  constructor(private readonly commander: DaemonCommander) {}
+export class LogHandler implements Logger {
+  constructor(private readonly update: (newContent: string) => void) {}
 
-  async startSendingLogs(logger: Logger): Promise<void> {
-    let lastLogLine = 0;
-    this.timeout = setInterval(async () => {
-      try {
-        const logs = await this.commander.logs();
-        const logsDiff: string[] = logs.Messages.slice(lastLogLine, logs.Messages.length - 1);
-        lastLogLine = logs.Messages.length;
-        logger.log(logsDiff.join('\n'));
-      } catch (e) {
-        console.log('Logs tick: ' + e);
-      }
-    }, 3000);
+  log(...data: unknown[]): void {
+    this.update(data.join('\n'));
   }
 
-  stopSendingLogs(): void {
-    clearInterval(this.timeout);
+  error(...data: unknown[]): void {
+    this.update(data.join('\n'));
+  }
+
+  warn(...data: unknown[]): void {
+    this.update(data.join('\n'));
   }
 }

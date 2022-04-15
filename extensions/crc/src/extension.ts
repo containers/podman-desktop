@@ -57,8 +57,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const providerLifecycle: extensionApi.ProviderLifecycle = {
     status: () => convertToStatus(crcStatus?.CrcStatus),
 
-    start: async () => {
+    start: async context => {
       try {
+        crcLogProvider.startSendingLogs(context.log);
         await commander.start();
       } catch (err) {
         console.error(err);
@@ -68,6 +69,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       console.log('extension:crc: receive the call stop');
       try {
         await commander.stop();
+        crcLogProvider.stopSendingLogs();
       } catch (err) {
         console.error(err);
       }
@@ -82,19 +84,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     // OpenShift
     registerOpenShiftLocalCluster(provider, extensionContext);
   }
-
-  const logProvider: extensionApi.LogProvider = {
-    stopLogs: () => {
-      crcLogProvider.stopSendingLogs();
-      return Promise.resolve(true);
-    },
-    startLogs: async handler => {
-      crcLogProvider.startSendingLogs(handler);
-      return Promise.resolve(true);
-    },
-  };
-
-  provider.registerLogProvider(logProvider);
 
   startStatusUpdateTimer();
 }

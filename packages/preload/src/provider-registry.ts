@@ -30,7 +30,7 @@ import type {
   LifecycleMethod,
 } from './api/provider-info';
 import type { ContainerProviderRegistry } from './container-registry';
-import type { LogRegistry } from './log-registry';
+import { LifecycleContextImpl } from './lifecycle-context';
 import { ProviderImpl } from './provider-impl';
 import { Disposable } from './types/disposable';
 
@@ -56,11 +56,13 @@ export class ProviderRegistry {
   private providerStatuses = new Map<string, ProviderStatus>();
 
   private providerLifecycles: Map<string, ProviderLifecycle> = new Map();
+  private providerLifecycleContexts: Map<string, LifecycleContextImpl> = new Map();
+  private connectionLifecycleContexts: Map<ContainerProviderConnection, LifecycleContextImpl> = new Map();
   private listeners: ProviderEventListener[];
   private lifecycleListeners: ProviderLifecycleListener[];
   private containerConnectionLifecycleListeners: ContainerConnectionProviderLifecycleListener[];
 
-  constructor(private containerRegistry: ContainerProviderRegistry, private logRegistry: LogRegistry) {
+  constructor(private containerRegistry: ContainerProviderRegistry) {
     this.providers = new Map();
     this.listeners = [];
     this.lifecycleListeners = [];
@@ -84,7 +86,7 @@ export class ProviderRegistry {
 
   createProvider(providerOptions: ProviderOptions): Provider {
     const id = `${this.count}`;
-    const providerImpl = new ProviderImpl(id, providerOptions, this, this.containerRegistry, this.logRegistry);
+    const providerImpl = new ProviderImpl(id, providerOptions, this, this.containerRegistry);
     this.count++;
     this.providers.set(id, providerImpl);
     this.listeners.forEach(listener => listener('provider:create', this.getProviderInfo(providerImpl)));
@@ -99,6 +101,7 @@ export class ProviderRegistry {
   // need to call dispose() method to unregister the lifecycle
   registerLifecycle(providerImpl: ProviderImpl, lifecycle: ProviderLifecycle): Disposable {
     this.providerLifecycles.set(providerImpl.internalId, lifecycle);
+    this.providerLifecycleContexts.set(providerImpl.internalId, new LifecycleContextImpl());
 
     this.lifecycleListeners.forEach(listener =>
       listener('provider:register-lifecycle', this.getProviderInfo(providerImpl), lifecycle),
@@ -106,6 +109,7 @@ export class ProviderRegistry {
 
     return Disposable.create(() => {
       this.providerLifecycles.delete(providerImpl.internalId);
+      this.providerLifecycleContexts.delete(providerImpl.internalId);
       this.lifecycleListeners.forEach(listener =>
         listener('provider:removal-lifecycle', this.getProviderInfo(providerImpl), lifecycle),
       );
@@ -152,11 +156,13 @@ export class ProviderRegistry {
   async startProviderLifecycle(providerId: string): Promise<void> {
     const provider = this.getMatchingProvider(providerId);
     const providerLifecycle = this.getMatchingProviderLifecycle(providerId);
+    const context = this.getMatchingLifecycleContext(providerId);
 
     this.lifecycleListeners.forEach(listener =>
       listener('provider:before-start-lifecycle', this.getProviderInfo(provider), providerLifecycle),
     );
-    await providerLifecycle.start();
+
+    await providerLifecycle.start(context);
     this.lifecycleListeners.forEach(listener =>
       listener('provider:after-start-lifecycle', this.getProviderInfo(provider), providerLifecycle),
     );
@@ -165,11 +171,12 @@ export class ProviderRegistry {
   async stopProviderLifecycle(providerId: string): Promise<void> {
     const provider = this.getMatchingProvider(providerId);
     const providerLifecycle = this.getMatchingProviderLifecycle(providerId);
+    const context = this.getMatchingLifecycleContext(providerId);
 
     this.lifecycleListeners.forEach(listener =>
       listener('provider:before-stop-lifecycle', this.getProviderInfo(provider), providerLifecycle),
     );
-    await providerLifecycle.stop();
+    await providerLifecycle.stop(context);
     this.lifecycleListeners.forEach(listener =>
       listener('provider:after-stop-lifecycle', this.getProviderInfo(provider), providerLifecycle),
     );
@@ -229,7 +236,6 @@ export class ProviderRegistry {
       kubernetesConnections,
       status: provider.status,
       containerProviderConnectionCreation,
-      logs: provider.logProviderIds,
     };
 
     // lifecycle ?
@@ -263,6 +269,29 @@ export class ProviderRegistry {
       throw new Error(`no provider matching provider id ${providerId}`);
     }
     return provider;
+  }
+
+  getMatchingLifecycleContext(providerId: string): LifecycleContextImpl {
+    const context = this.providerLifecycleContexts.get(providerId);
+    if (!context) {
+      throw new Error(`no lifecycle context matching provider id ${providerId}`);
+    }
+
+    return context;
+  }
+
+  getMatchingContainerLifecycleContext(
+    providerId: string,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  ): LifecycleContextImpl {
+    const connection = this.getMatchingContainerConnectionFromProvider(providerId, providerContainerConnectionInfo);
+
+    const context = this.connectionLifecycleContexts.get(connection);
+    if (!context) {
+      throw new Error('The connection does not have context to start');
+    }
+
+    return context;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -308,7 +337,13 @@ export class ProviderRegistry {
     if (!lifecycle || !lifecycle.start) {
       throw new Error('The container connection does not support start lifecycle');
     }
-    return lifecycle.start();
+
+    const context = this.connectionLifecycleContexts.get(connection);
+    if (!context) {
+      throw new Error('The connection does not have context to start');
+    }
+
+    return lifecycle.start(context);
   }
 
   async stopProviderConnection(
@@ -325,7 +360,13 @@ export class ProviderRegistry {
     if (!lifecycle || !lifecycle.stop) {
       throw new Error('The container connection does not support stop lifecycle');
     }
-    return lifecycle.stop();
+
+    const context = this.connectionLifecycleContexts.get(connection);
+    if (!context) {
+      throw new Error('The connection does not have context to start');
+    }
+
+    return lifecycle.stop(context);
   }
 
   async deleteProviderConnection(
@@ -346,6 +387,7 @@ export class ProviderRegistry {
   }
 
   onDidRegisterContainerConnection(provider: ProviderImpl, containerConnection: ContainerProviderConnection) {
+    this.connectionLifecycleContexts.set(containerConnection, new LifecycleContextImpl());
     // notify listeners
     this.containerConnectionLifecycleListeners.forEach(listener => {
       listener(

@@ -169,14 +169,17 @@ function prettyMachineName(machineName: string): string {
   return name;
 }
 async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
-  let latestLog: string;
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
-    start: async (): Promise<void> => {
-      // start the machine
-      latestLog = await execPromise('podman', ['machine', 'start', machineInfo.name]);
+    start: async (context): Promise<void> => {
+      try {
+        // start the machine
+        await execPromise('podman', ['machine', 'start', machineInfo.name], context.log);
+      } catch (err) {
+        console.error(err);
+      }
     },
-    stop: async (): Promise<void> => {
-      await execPromise('podman', ['machine', 'stop', machineInfo.name]);
+    stop: async (context): Promise<void> => {
+      await execPromise('podman', ['machine', 'stop', machineInfo.name], context.log);
     },
     delete: async (): Promise<void> => {
       await execPromise('podman', ['machine', 'rm', '-f', machineInfo.name]);
@@ -193,16 +196,6 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     },
   };
 
-  const logProvider: extensionApi.LogProvider = {
-    stopLogs: () => {
-      return Promise.resolve(true);
-    },
-    startLogs: handler => {
-      handler([latestLog]);
-      return Promise.resolve(true);
-    },
-  };
-
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
 
   // get configuration for this connection
@@ -215,10 +208,9 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
 
   currentConnections.set(machineInfo.name, disposable);
   storedExtensionContext.subscriptions.push(disposable);
-  storedExtensionContext.subscriptions.push(provider.registerLogProvider(logProvider, containerProviderConnection));
 }
 
-function execPromise(command, args?: string[]): Promise<string> {
+function execPromise(command, args?: string[], logger?: extensionApi.Logger): Promise<string> {
   const env = process.env;
   // In production mode, applications don't have access to the 'user' path like brew
   if (isMac) {
@@ -234,10 +226,12 @@ function execPromise(command, args?: string[]): Promise<string> {
     process.stdout.setEncoding('utf8');
     process.stdout.on('data', data => {
       output += data;
+      logger?.log(data);
     });
     process.stderr.setEncoding('utf8');
     process.stderr.on('data', data => {
       err += data;
+      logger?.error(data);
     });
 
     process.on('close', exitCode => {
