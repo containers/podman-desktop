@@ -9,8 +9,8 @@ const title = 'Podman Desktop';
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title,
-  url: 'https://containers.github.io',
-  baseUrl: '/podman-desktop/',
+  url: 'https://podman-desktop.io',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
@@ -37,7 +37,7 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/container/desktop/tree/main/website',
+          editUrl: 'https://github.com/container/podman-desktop/tree/main/website',
         },
         // disable for now the blog posts
         blog: false,
@@ -59,7 +59,7 @@ const config = {
       navbar: {
         title,
         logo: {
-          alt: 'My Site Logo',
+          alt: 'Podman Desktop Logo',
           src: 'img/logo.svg',
         },
         items: [
