@@ -56,7 +56,7 @@ const config = {
     entitlements: './node_modules/electron-builder-notarize/entitlements.mac.inherit.plist',
     target: {
       target: 'default',
-      arch: ['x64', 'arm64'],
+      arch: ['x64', 'arm64', 'universal'],
     },
   },
   dmg: {
