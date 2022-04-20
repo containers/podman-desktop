@@ -18,23 +18,23 @@
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function writeToTerminal(xterm: any, data: string[], colorPrefix: string): void {
-  if(Array.isArray(data)) {
+  if (Array.isArray(data)) {
     for (const it of data) {
       writeMultilineString(xterm, it, colorPrefix);
     }
-  }else {
+  } else {
     writeMultilineString(xterm, data, colorPrefix);
   }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function writeMultilineString(xterm: any, data: string, colorPrefix: string): void {
-  if(data.includes('\n')) {
+  if (data.includes('\n')) {
     const toWrite = data.split('\n');
-    for(const s of toWrite){
+    for (const s of toWrite) {
       xterm.write(colorPrefix + s + '\n\r');
     }
-  } else{
+  } else {
     xterm.write(colorPrefix + data + '\r');
   }
 }

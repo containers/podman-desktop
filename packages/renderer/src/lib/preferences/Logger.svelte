@@ -42,14 +42,14 @@ function refreshTerminal() {
 }
 onMount(async () => {
   refreshTerminal();
-  if(onInit){
+  if (onInit) {
     onInit();
   }
 });
 
 onDestroy(() => {
   window.removeEventListener('resize', resizeHandler);
-})
+});
 </script>
 
 <div style="width:100%; height:100%;" bind:this="{logsXtermDiv}"></div>

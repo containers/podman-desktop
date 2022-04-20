@@ -54,12 +54,7 @@ async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
   const logHandler = (newContent: any[]) => {
     writeToTerminal(logsTerminal, newContent);
   };
-  window.providerLogs.startReceiveLogs(
-    provider.internalId,
-    logHandler,
-    logHandler,
-    logHandler,
-  );
+  window.providerLogs.startReceiveLogs(provider.internalId, logHandler, logHandler, logHandler);
 }
 
 async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
@@ -146,7 +141,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px; width: 647px;">
       <div style="width:100%; height:100%; flexDirection: column;">
-        <Logger bind:logsTerminal={logsTerminal} onInit={() => startReceivinLogs(showModal)} />
+        <Logger bind:logsTerminal onInit="{() => startReceivinLogs(showModal)}" />
       </div>
     </div>
   </Modal>
