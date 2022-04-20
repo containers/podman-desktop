@@ -16,20 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Logger } from '@tmpwip/extension-api';
-
-export class LogHandler implements Logger {
-  constructor(private readonly update: (newContent: string) => void) {}
-
-  log(...data: unknown[]): void {
-    this.update(data.join('\n'));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function writeToTerminal(xterm: any, data: string[], colorPrefix: string): void {
+  if(Array.isArray(data)) {
+    for (const it of data) {
+      writeMultilineString(xterm, it, colorPrefix);
+    }
+  }else {
+    writeMultilineString(xterm, data, colorPrefix);
   }
+}
 
-  error(...data: unknown[]): void {
-    this.update(data.join('\n'));
-  }
-
-  warn(...data: unknown[]): void {
-    this.update(data.join('\n'));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function writeMultilineString(xterm: any, data: string, colorPrefix: string): void {
+  if(data.includes('\n')) {
+    const toWrite = data.split('\n');
+    for(const s of toWrite){
+      xterm.write(colorPrefix + s + '\n\r');
+    }
+  } else{
+    xterm.write(colorPrefix + data + '\r');
   }
 }

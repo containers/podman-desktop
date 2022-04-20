@@ -1,13 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-.logs {
-  background-color: black;
-  color: white;
-  resize: none;
-  border: 0px;
-  padding: 5px;
-  width: 100%;
-  height: 100%;
-}

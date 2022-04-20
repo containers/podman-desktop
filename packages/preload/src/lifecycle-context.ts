@@ -36,13 +36,13 @@ export class LoggerImpl implements Logger {
       for (const message of this.buffer) {
         switch (message.type) {
           case LogType.LOG:
-            handler.log(...message.data);
+            handler.log(message.data);
             break;
           case LogType.ERROR:
-            handler.error(...message.data);
+            handler.error(message.data);
             break;
           case LogType.WARN:
-            handler.warn(...message.data);
+            handler.warn(message.data);
             break;
         }
       }
@@ -56,17 +56,14 @@ export class LoggerImpl implements Logger {
   log(...data: unknown[]): void {
     this.logHandler?.log(...data);
     this.buffer.push({ type: LogType.LOG, data });
-    console.log(...data);
   }
   error(...data: unknown[]): void {
     this.logHandler?.error(...data);
     this.buffer.push({ type: LogType.ERROR, data });
-    console.error(...data);
   }
   warn(...data: unknown[]): void {
     this.logHandler?.warn(...data);
     this.buffer.push({ type: LogType.WARN, data });
-    console.warn(...data);
   }
 }
 

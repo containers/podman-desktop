@@ -1,21 +1,19 @@
 <script lang="ts">
 import type { IConfigurationPropertyRecordedSchema } from '../../../../preload/src/configuration-registry';
 
-import type { ContainerProviderConnection } from '@tmpwip/extension-api';
 import { providerInfos } from '../../stores/providers';
 import { onMount } from 'svelte';
 import type { ProviderInfo } from '../../../../preload/src/api/provider-info';
 import PreferencesContainerConnectionCreationRendering from './PreferencesContainerConnectionCreationRendering.svelte';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
-import { LogHandler } from './LogHandler';
+import Logger from './Logger.svelte';
+import { writeToTerminal } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
 
 let showModal: ProviderInfo = undefined;
-
-let logContent: string;
 
 let providerLifecycleError = '';
 router.subscribe(async route => {
@@ -34,6 +32,8 @@ let providerInfo: ProviderInfo;
 $: providerInfo = providers.filter(provider => provider.internalId === providerInternalId)[0];
 let waiting = false;
 
+let logsTerminal;
+
 async function startProvider(): Promise<void> {
   waiting = true;
   await window.startProviderLifecycle(providerInfo.internalId);
@@ -51,20 +51,19 @@ async function stopProvider(): Promise<void> {
 }
 
 async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
-  logContent = '';
-  const logHandler = new LogHandler(newContent => {
-    logContent += newContent;
-  });
-  window.logs.startReceiveLogs(
+  const logHandler = (newContent: any[]) => {
+    writeToTerminal(logsTerminal, newContent);
+  };
+  window.providerLogs.startReceiveLogs(
     provider.internalId,
-    logHandler.log.bind(logHandler),
-    logHandler.warn.bind(logHandler),
-    logHandler.error.bind(logHandler),
+    logHandler,
+    logHandler,
+    logHandler,
   );
 }
 
 async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
-  await window.logs.stopReceiveLogs(provider.internalId);
+  await window.providerLogs.stopReceiveLogs(provider.internalId);
 }
 </script>
 
@@ -115,7 +114,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
           type="button"
           on:click="{() => {
             showModal = providerInfo;
-            startReceivinLogs(providerInfo);
+            // startReceivinLogs(providerInfo);
           }}"
           class="pf-c-button pf-m-secondary">
           <span class="pf-c-button__icon pf-m-start">
@@ -145,9 +144,9 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
       showModal = undefined;
     }}">
     <h2 slot="header">Logs</h2>
-    <div id="log" style="height: 400px;">
-      <div style="width:100%; height:100%; display: flex; flexDirection: column;">
-        <textarea class="logs" readOnly name="log" value="{logContent}"></textarea>
+    <div id="log" style="height: 400px; width: 647px;">
+      <div style="width:100%; height:100%; flexDirection: column;">
+        <Logger bind:logsTerminal={logsTerminal} onInit={() => startReceivinLogs(showModal)} />
       </div>
     </div>
   </Modal>

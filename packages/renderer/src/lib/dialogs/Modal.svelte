@@ -12,8 +12,8 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: calc(100vw - 4em);
-  max-width: 32em;
+  width: calc(200vw - 4em);
+  max-width: 42em;
   max-height: calc(100vh - 4em);
   overflow: auto;
   transform: translate(-50%, -50%);
@@ -76,5 +76,5 @@ if (previously_focused) {
   <hr style="margin-bottom: 9px;" />
 
   <!-- svelte-ignore a11y-autofocus -->
-  <button autofocus on:click="{close}" class="pf-c-button pf-m-primary"> Close </button>
+  <button autofocus on:click="{close}" class="pf-c-button pf-m-primary pf-m-block"> Close </button>
 </div>

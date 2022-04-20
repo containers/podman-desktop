@@ -313,7 +313,7 @@ function initExtensions(): void {
 
   type logFn = (...data: unknown[]) => void;
 
-  contextBridge.exposeInMainWorld('logs', {
+  contextBridge.exposeInMainWorld('providerLogs', {
     startReceiveLogs: (
       providerId: string,
       log: logFn,
