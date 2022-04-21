@@ -1,15 +1,19 @@
 <script lang="ts">
 import type { IConfigurationPropertyRecordedSchema } from '../../../../preload/src/configuration-registry';
 
-import type { ContainerProviderConnection } from '@tmpwip/extension-api';
 import { providerInfos } from '../../stores/providers';
 import { onMount } from 'svelte';
 import type { ProviderInfo } from '../../../../preload/src/api/provider-info';
 import PreferencesContainerConnectionCreationRendering from './PreferencesContainerConnectionCreationRendering.svelte';
 import { router } from 'tinro';
+import Modal from '../dialogs/Modal.svelte';
+import Logger from './Logger.svelte';
+import { writeToTerminal } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
+
+let showModal: ProviderInfo = undefined;
 
 let providerLifecycleError = '';
 router.subscribe(async route => {
@@ -28,6 +32,8 @@ let providerInfo: ProviderInfo;
 $: providerInfo = providers.filter(provider => provider.internalId === providerInternalId)[0];
 let waiting = false;
 
+let logsTerminal;
+
 async function startProvider(): Promise<void> {
   waiting = true;
   await window.startProviderLifecycle(providerInfo.internalId);
@@ -42,6 +48,17 @@ async function stopProvider(): Promise<void> {
   console.log('receive response from the server side: stopped');
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   waiting = false;
+}
+
+async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
+  const logHandler = (newContent: any[]) => {
+    writeToTerminal(logsTerminal, newContent);
+  };
+  window.providerLogs.startReceiveLogs(provider.internalId, logHandler, logHandler, logHandler);
+}
+
+async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
+  await window.providerLogs.stopReceiveLogs(provider.internalId);
 }
 </script>
 
@@ -87,6 +104,20 @@ async function stopProvider(): Promise<void> {
           </button>
         </div>
       {/if}
+      <div class="px-2 text-sm italic  text-gray-400">
+        <button
+          type="button"
+          on:click="{() => {
+            showModal = providerInfo;
+            // startReceivinLogs(providerInfo);
+          }}"
+          class="pf-c-button pf-m-secondary">
+          <span class="pf-c-button__icon pf-m-start">
+            <i class="fas fa-history" aria-hidden="true"></i>
+          </span>
+          Show Logs
+        </button>
+      </div>
     </div>
 
     {#if providerLifecycleError}
@@ -101,3 +132,17 @@ async function stopProvider(): Promise<void> {
     <PreferencesContainerConnectionCreationRendering providerInfo="{providerInfo}" properties="{properties}" />
   {/if}
 </div>
+{#if showModal}
+  <Modal
+    on:close="{() => {
+      stopReceivingLogs(showModal);
+      showModal = undefined;
+    }}">
+    <h2 slot="header">Logs</h2>
+    <div id="log" style="height: 400px; width: 647px;">
+      <div style="width:100%; height:100%; flexDirection: column;">
+        <Logger bind:logsTerminal onInit="{() => startReceivinLogs(showModal)}" />
+      </div>
+    </div>
+  </Modal>
+{/if}

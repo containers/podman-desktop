@@ -7,6 +7,9 @@ import { providerInfos } from '../../stores/providers';
 import { beforeUpdate, onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../preload/src/api/provider-info';
 import { router } from 'tinro';
+import Modal from '../dialogs/Modal.svelte';
+import Logger from './Logger.svelte';
+import { writeToTerminal } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -97,6 +100,27 @@ async function deleteConnection() {
   await window.providerConnectionLifecycle.delete(providerInfo.internalId, containerConnectionInfo);
   router.goto('/preferences/providers');
 }
+
+let showModal: ProviderInfo = undefined;
+
+let logsTerminal;
+
+async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
+  const logHandler = (newContent: any[], colorPrefix: string) => {
+    writeToTerminal(logsTerminal, newContent, colorPrefix);
+  };
+  window.providerLogs.startReceiveLogs(
+    provider.internalId,
+    data => logHandler(data, '\x1b[37m'),
+    data => logHandler(data, '\x1b[33m'),
+    data => logHandler(data, '\x1b[1;31m'),
+    containerConnectionInfo,
+  );
+}
+
+async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
+  await window.providerLogs.stopReceiveLogs(provider.internalId, containerConnectionInfo);
+}
 </script>
 
 <div class="flex flex-1 flex-col">
@@ -168,6 +192,20 @@ async function deleteConnection() {
           </button>
         </div>
       {/if}
+      <div class="px-2 text-sm italic  text-gray-400">
+        <button
+          type="button"
+          disabled="{containerConnectionInfo.status !== 'started'}"
+          on:click="{() => {
+            showModal = providerInfo;
+          }}"
+          class="pf-c-button pf-m-secondary">
+          <span class="pf-c-button__icon pf-m-start">
+            <i class="fas fa-history" aria-hidden="true"></i>
+          </span>
+          Show Logs
+        </button>
+      </div>
     </div>
 
     {#if lifecycleError}
@@ -210,3 +248,17 @@ async function deleteConnection() {
     </div>
   {/if}
 </div>
+{#if showModal}
+  <Modal
+    on:close="{() => {
+      stopReceivingLogs(showModal);
+      showModal = undefined;
+    }}">
+    <h2 slot="header">Logs</h2>
+    <div id="log" style="height: 400px; width: 650px;">
+      <div style="width:100%; height:100%;">
+        <Logger bind:logsTerminal onInit="{() => startReceivinLogs(showModal)}" />
+      </div>
+    </div>
+  </Modal>
+{/if}

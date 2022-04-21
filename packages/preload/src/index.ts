@@ -38,6 +38,7 @@ import { ConfigurationRegistry } from './configuration-registry';
 import { TerminalInit } from './terminal-init';
 import { Deferred } from './util/deferred';
 import { getFreePort } from './util/port';
+
 const shell = require('electron').shell;
 
 let idDialog = 0;
@@ -310,6 +311,35 @@ function initExtensions(): void {
     return getFreePort(port);
   });
 
+  type logFn = (...data: unknown[]) => void;
+
+  contextBridge.exposeInMainWorld('providerLogs', {
+    startReceiveLogs: (
+      providerId: string,
+      log: logFn,
+      warn: logFn,
+      error: logFn,
+      containerConnectionInfo?: ProviderContainerConnectionInfo,
+    ) => {
+      let context;
+      if (containerConnectionInfo) {
+        context = providerRegistry.getMatchingContainerLifecycleContext(providerId, containerConnectionInfo);
+      } else {
+        context = providerRegistry.getMatchingLifecycleContext(providerId);
+      }
+      context.log.setLogHandler({ log: log, warn: warn, error: error });
+    },
+
+    stopReceiveLogs: (providerId: string, containerConnectionInfo?: ProviderContainerConnectionInfo) => {
+      let context;
+      if (containerConnectionInfo) {
+        context = providerRegistry.getMatchingContainerLifecycleContext(providerId, containerConnectionInfo);
+      } else {
+        context = providerRegistry.getMatchingLifecycleContext(providerId);
+      }
+      context.log.removeLogHandler();
+    },
+  });
   extensionLoader.start();
 }
 

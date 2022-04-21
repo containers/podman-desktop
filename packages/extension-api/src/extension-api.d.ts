@@ -102,8 +102,8 @@ declare module '@tmpwip/extension-api' {
     | 'unknown';
 
   export interface ProviderLifecycle {
-    start(): Promise<void>;
-    stop(): Promise<void>;
+    start(startContext: LifecycleContext): Promise<void>;
+    stop(startContext: LifecycleContext): Promise<void>;
     status(): ProviderStatus;
   }
 
@@ -115,9 +115,22 @@ declare module '@tmpwip/extension-api' {
 
   export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
 
+  export interface Logger {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    log(...data: any[]): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    error(...data: any[]): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    warn(...data: any[]): void;
+  }
+
+  export interface LifecycleContext {
+    log: Logger;
+  }
+
   export interface ProviderConnectionLifecycle {
-    start?(): Promise<void>;
-    stop?(): Promise<void>;
+    start?(startContext: LifecycleContext): Promise<void>;
+    stop?(stopContext: LifecycleContext): Promise<void>;
     delete?(): Promise<void>;
   }
 
