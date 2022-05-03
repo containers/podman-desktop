@@ -345,12 +345,9 @@ export class TrayMenu {
     if (window?.isMinimized()) {
       window.restore();
     }
-
-    if (!window?.isVisible()) {
-      window?.show();
-      if (isMac) {
-        app.dock.show();
-      }
+    window?.show();
+    if (isMac) {
+      app.dock.show();
     }
     window?.focus();
     window?.moveTop();
