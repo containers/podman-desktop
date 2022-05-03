@@ -45,9 +45,33 @@ const config = {
   win: {
     target: ['portable', 'nsis'],
   },
-
+  flatpak: {
+    license: 'LICENSE',
+    finishArgs: [
+      // allow to execute commands remotely
+      '--socket=session-bus',
+      '--socket=wayland',
+      '--socket=x11',
+      '--share=ipc',
+      // Open GL
+      '--device=dri',
+      // Read/write home directory access
+      '--filesystem=home',
+      // Read podman socket
+      '--filesystem=xdg-run/podman',
+      // Allow communication with network
+      '--share=network',
+      // System notifications with libnotify
+      '--talk-name=org.freedesktop.Notifications',
+    ],
+    useWaylandFlags: 'true',
+    artifactName: 'podman-desktop-${version}.${ext}',
+    runtimeVersion: '21.08',
+    branch: 'main',
+  },
   linux: {
-    target: ['tar.gz'],
+    icon: './buildResources/icon-512x512.png',
+    target: ['flatpak', 'tar.gz'],
   },
   afterSign: 'electron-builder-notarize',
   mac: {

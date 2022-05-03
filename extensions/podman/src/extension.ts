@@ -210,11 +210,15 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   storedExtensionContext.subscriptions.push(disposable);
 }
 
-function execPromise(command, args?: string[], logger?: extensionApi.Logger): Promise<string> {
+function execPromise(command: string, args?: string[], logger?: extensionApi.Logger): Promise<string> {
   const env = process.env;
   // In production mode, applications don't have access to the 'user' path like brew
   if (isMac) {
     env.PATH = env.PATH.concat(':/usr/local/bin').concat(':/opt/homebrew/bin');
+  } else if (env.FLATPAK_ID) {
+    // need to execute the command on the host
+    args = ['--host', command, ...args];
+    command = 'flatpak-spawn';
   }
   return new Promise((resolve, reject) => {
     let output = '';
@@ -294,10 +298,18 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     monitorMachines(provider);
   } else if (isLinux) {
     // on Linux, need to run the system service for unlimited time
-    const process = spawn('podman', ['system', 'service', '--time=0']);
+    let command = 'podman';
+    let args = ['system', 'service', '--time=0'];
+    const env = process.env;
+    if (env.FLATPAK_ID) {
+      // need to execute the command on the host
+      command = 'flatpak-spawn';
+      args = ['--host', 'podman', ...args];
+    }
+    const podmanProcess = spawn(command, args);
     await timeout(500);
     const disposable = extensionApi.Disposable.create(() => {
-      process.kill();
+      podmanProcess.kill();
     });
     extensionContext.subscriptions.push(disposable);
     initDefaultLinux(provider);
