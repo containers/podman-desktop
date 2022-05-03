@@ -90,6 +90,14 @@ jobs:
       - name: Execute yarn
         run: yarn --frozen-lockfile --network-timeout 180000
 
+      - name: Install flatpak
+        run: |
+          sudo apt-get install flatpak -y
+          sudo apt-get install flatpak-builder -y
+          sudo apt-get install elfutils -y
+          flatpak remote-add --if-not-exists flathub --user https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install flathub --user -y org.freedesktop.Platform/x86_64/21.08
+
       - name: Run Build
         timeout-minutes: 20
         run: yarn compile:pull-request
@@ -101,6 +109,11 @@ jobs:
         with:
           name: linux
           path: ./dist/podman-desktop-*.tar.gz
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: flatpak
+          path: ./dist/podman-desktop-*.flatpak
 
   darwin:
     name: macOS

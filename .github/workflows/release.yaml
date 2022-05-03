@@ -103,6 +103,15 @@ jobs:
         run: |
           yarn --frozen-lockfile --network-timeout 180000
 
+      - name: Install flatpak on Linux
+        if: ${{ matrix.os=='ubuntu-20.04' }}
+        run: |
+          sudo apt-get install flatpak -y
+          sudo apt-get install flatpak-builder -y
+          sudo apt-get install elfutils -y
+          flatpak remote-add --if-not-exists flathub --user https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install flathub --user -y org.freedesktop.Platform/x86_64/21.08
+
       - name: Set macOS environment variables
         if: ${{ matrix.os=='macos-11' }}
         run: |
