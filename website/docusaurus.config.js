@@ -37,7 +37,7 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/container/podman-desktop/tree/main/website',
+          editUrl: 'https://github.com/containers/podman-desktop/tree/main/website',
         },
         // disable for now the blog posts
         blog: false,
