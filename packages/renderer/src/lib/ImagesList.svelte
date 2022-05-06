@@ -255,8 +255,8 @@ function getEngineName(containerInfo: ImageInfo): string {
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
-              <div class="flex items-center">
-                <div class="ml-2 text-sm text-gray-200">{image.humanSize}</div>
+              <div class="flex">
+                <div class="w-full text-right text-sm text-gray-200">{image.humanSize}</div>
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap">
