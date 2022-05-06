@@ -121,6 +121,10 @@ function initExtensions(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('deleteImage', async (engine: string, imageId: string): Promise<void> => {
+    return containerProviderRegistry.deleteImage(engine, imageId);
+  });
+
   contextBridge.exposeInMainWorld('deleteContainer', async (engine: string, containerId: string): Promise<void> => {
     return containerProviderRegistry.deleteContainer(engine, containerId);
   });

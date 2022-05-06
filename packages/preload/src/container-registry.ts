@@ -186,8 +186,25 @@ export class ContainerProviderRegistry {
     return engine.api.getContainer(id);
   }
 
+  protected getMatchingImage(engineId: string, imageId: string): Dockerode.Image {
+    // need to find the container engine
+    const engine = this.internalProviders.get(engineId);
+    if (!engine) {
+      throw new Error('no engine matching this image');
+    }
+    if (!engine.api) {
+      throw new Error('no running provider for the matching image');
+    }
+    return engine.api.getImage(imageId);
+  }
+
   async stopContainer(engineId: string, id: string): Promise<void> {
     return this.getMatchingContainer(engineId, id).stop();
+  }
+
+  async deleteImage(engineId: string, id: string): Promise<void> {
+    // use force to delete it even it is running
+    return this.getMatchingImage(engineId, id).remove();
   }
 
   async deleteContainer(engineId: string, id: string): Promise<void> {
