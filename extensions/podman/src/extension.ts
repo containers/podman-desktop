@@ -100,7 +100,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       if (isMac) {
         socketPath = path.resolve(podmanMachineSocketsDirectoryMac, machineName, 'podman.sock');
       } else if (isWindows) {
-        socketPath = `//./pipe/podman-${machineName}`;
+        socketPath = calcWinPipeName(machineName);
       }
       registerProviderFor(provider, podmanMachinesInfo.get(machineName), socketPath);
     }),
@@ -114,6 +114,11 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       currentConnections.delete(machine);
     }
   });
+}
+
+function calcWinPipeName(machineName: string): string {
+  name = machineName.startsWith('podman') ? machineName : 'podman-' + machineName;
+  return `//./pipe/${name}`;
 }
 
 // on linux, socket is started by the system service on a path like /run/user/1000/podman/podman.sock
