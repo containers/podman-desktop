@@ -33,7 +33,6 @@ async function deleteContainer(containerInfo: ContainerInfoUI): Promise<void> {
   router.goto('/containers/');
 }
 function openTerminalContainer(containerInfo: ContainerInfoUI): void {
-  console.log('openTerminalContainer container', containerInfo.name);
   router.goto(`/containers/${container.id}/terminal`);
 }
 </script>

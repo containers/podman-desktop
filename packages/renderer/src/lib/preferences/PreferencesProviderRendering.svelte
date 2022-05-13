@@ -38,14 +38,12 @@ async function startProvider(): Promise<void> {
   waiting = true;
   await window.startProviderLifecycle(providerInfo.internalId);
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
-  console.log('receive response from the server side: started');
   waiting = false;
 }
 
 async function stopProvider(): Promise<void> {
   waiting = true;
   await window.stopProviderLifecycle(providerInfo.internalId);
-  console.log('receive response from the server side: stopped');
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   waiting = false;
 }

@@ -23,6 +23,7 @@ import type { ContainerCreateOptions, ContainerInfo } from './api/container-info
 import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { ProviderContainerConnectionInfo } from './api/provider-info';
+import type { ImageRegistry } from './image-registry';
 
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
@@ -41,7 +42,7 @@ export interface InternalContainerProviderLifecycle {
 
 export class ContainerProviderRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any) {}
+  constructor(private apiSender: any, private imageRegistry: ImageRegistry) {}
 
   private containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
   private internalProviders: Map<string, InternalContainerProvider> = new Map();
@@ -174,7 +175,7 @@ export class ContainerProviderRegistry {
     return flatttenedImages;
   }
 
-  protected getMatchingContainer(engineId: string, id: string): Dockerode.Container {
+  protected getMatchingEngine(engineId: string): Dockerode {
     // need to find the container engine of the container
     const engine = this.internalProviders.get(engineId);
     if (!engine) {
@@ -183,19 +184,32 @@ export class ContainerProviderRegistry {
     if (!engine.api) {
       throw new Error('no running provider for the matching container');
     }
-    return engine.api.getContainer(id);
+    return engine.api;
+  }
+
+  protected getMatchingEngineFromConnection(
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  ): Dockerode {
+    // grab all connections
+    const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+      containerProvider =>
+        containerProvider.connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath,
+    );
+    if (!matchingContainerProvider || !matchingContainerProvider.api) {
+      throw new Error('No provider with a running engine');
+    }
+    if (!matchingContainerProvider.api) {
+      throw new Error('no running provider for the matching container');
+    }
+    return matchingContainerProvider.api;
+  }
+
+  protected getMatchingContainer(engineId: string, id: string): Dockerode.Container {
+    return this.getMatchingEngine(engineId).getContainer(id);
   }
 
   protected getMatchingImage(engineId: string, imageId: string): Dockerode.Image {
-    // need to find the container engine
-    const engine = this.internalProviders.get(engineId);
-    if (!engine) {
-      throw new Error('no engine matching this image');
-    }
-    if (!engine.api) {
-      throw new Error('no running provider for the matching image');
-    }
-    return engine.api.getImage(imageId);
+    return this.getMatchingEngine(engineId).getImage(imageId);
   }
 
   async stopContainer(engineId: string, id: string): Promise<void> {
@@ -205,6 +219,58 @@ export class ContainerProviderRegistry {
   async deleteImage(engineId: string, id: string): Promise<void> {
     // use force to delete it even it is running
     return this.getMatchingImage(engineId, id).remove();
+  }
+
+  getImageName(inspectInfo: Dockerode.ImageInspectInfo) {
+    const tags = inspectInfo.RepoTags;
+    if (!tags) {
+      throw new Error('Cannot push an image without a tag');
+    }
+    // take the first tag
+    return tags[0];
+  }
+
+  async pushImage(engineId: string, imageTag: string, callback: (name: string, data: string) => void): Promise<void> {
+    const engine = this.getMatchingEngine(engineId);
+    const image = await engine.getImage(imageTag);
+
+    const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
+    const pushStream = await image.push({ authconfig });
+    pushStream.on('end', () => {
+      callback('end', '');
+    });
+    let firstMessage = true;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pushStream.on('data', (chunk: any) => {
+      if (firstMessage) {
+        firstMessage = false;
+        callback('first-message', '');
+      }
+      callback('data', chunk.toString('utf-8'));
+    });
+  }
+  async pullImage(
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    imageName: string,
+    callback: (name: string, data: string) => void,
+  ): Promise<void> {
+    const authconfig = this.imageRegistry.getAuthconfigForImage(imageName);
+    const pullStream = await this.getMatchingEngineFromConnection(providerContainerConnectionInfo).pull(imageName, {
+      authconfig,
+    });
+
+    pullStream.on('end', () => {
+      callback('end', '');
+    });
+    let firstMessage = true;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pullStream.on('data', (chunk: any) => {
+      if (firstMessage) {
+        firstMessage = false;
+        callback('first-message', '');
+      }
+      callback('data', chunk.toString('utf-8'));
+    });
   }
 
   async deleteContainer(engineId: string, id: string): Promise<void> {

@@ -85,6 +85,20 @@ declare module '@tmpwip/extension-api' {
     static from(...disposableLikes: { dispose: () => any }[]): Disposable;
   }
 
+  /**
+   * Event to subscribe
+   */
+  export interface Event<T> {
+    /**
+     * @param listener The listener function will be called when the event happens.
+     * @param thisArgs The `this`-argument which will be used when calling the event listener.
+     * @param disposables An array to which a {@link Disposable} will be added.
+     * @return A disposable which unsubscribes the event listener.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]): Disposable;
+  }
+
   export interface ExtensionContext {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly subscriptions: { dispose(): any }[];
@@ -184,6 +198,36 @@ declare module '@tmpwip/extension-api' {
 
   export namespace provider {
     export function createProvider(provider: ProviderOptions): Provider;
+  }
+
+  export interface Registry extends RegistryCreateOptions {
+    source: string;
+  }
+
+  export interface RegistryCreateOptions {
+    serverUrl: string;
+    username: string;
+    secret: string;
+  }
+
+  export interface RegistryProvider {
+    readonly name: string;
+    create(registryCreateOptions: RegistryCreateOptions): Registry;
+  }
+
+  /**
+   * Handle registries from different sources
+   */
+  export namespace registry {
+    export function registerRegistryProvider(registryProvider: RegistryProvider): Disposable;
+
+    // expose a registry from a source
+    export function registerRegistry(registry: Registry): Disposable;
+    // remove registry from a source
+    export function unregisterRegistry(registry: Registry): void;
+
+    export const onDidRegisterRegistry: Event<Registry>;
+    export const onDidUnregisterRegistry: Event<Registry>;
   }
 
   export namespace tray {
