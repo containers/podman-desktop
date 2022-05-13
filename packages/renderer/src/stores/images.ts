@@ -61,3 +61,10 @@ window.events.receive('image-remove-event', () => {
 window.events.receive('image-build-event', () => {
   fetchImages();
 });
+window.events?.receive('registry-register', () => {
+  fetchImages();
+});
+
+window.events?.receive('registry-unregister', () => {
+  fetchImages();
+});

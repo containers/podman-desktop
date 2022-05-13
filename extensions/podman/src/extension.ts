@@ -21,12 +21,13 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import { spawn } from 'child_process';
+import { RegistrySetup } from './registry-setup';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
-const isWindows = os.platform() === 'win32';
-const isMac = os.platform() === 'darwin';
-const isLinux = os.platform() === 'linux';
+export const isWindows = os.platform() === 'win32';
+export const isMac = os.platform() === 'darwin';
+export const isLinux = os.platform() === 'linux';
 
 const listeners = new Set<StatusHandler>();
 const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), '.local/share/containers/podman/machine');
@@ -324,6 +325,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     }
     monitorMachines(provider);
   }
+
+  // register the registries
+  const registrySetup = new RegistrySetup();
+  await registrySetup.setup(extensionContext);
 }
 
 export function deactivate(): void {

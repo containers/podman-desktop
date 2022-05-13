@@ -1,0 +1,174 @@
+/**********************************************************************
+ * Copyright (C) 2022 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
+import * as extensionApi from '@tmpwip/extension-api';
+import * as path from 'node:path';
+import * as os from 'node:os';
+import * as fs from 'node:fs';
+import { isLinux, isMac, isWindows } from './extension';
+
+export type ContainerAuthConfigEntry = {
+  [key: string]: {
+    auth: string;
+  };
+};
+
+export type ContainersAuthConfigFile = {
+  auths?: ContainerAuthConfigEntry;
+};
+
+export class RegistrySetup {
+  private localRegistries: Map<string, extensionApi.Registry> = new Map();
+
+  protected getAuthFileLocation(): string {
+    let podmanConfigContainersPath;
+
+    if (isMac || isWindows) {
+      podmanConfigContainersPath = path.resolve(os.homedir(), '.config/containers');
+    } else if (isLinux) {
+      const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'];
+      podmanConfigContainersPath = path.resolve(xdgRuntimeDirectory, 'containers');
+    }
+
+    // resolve the auth.json file path
+    return path.resolve(podmanConfigContainersPath, 'auth.json');
+  }
+
+  protected async updateRegistries(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+    // read the file
+    const authFile = await this.readAuthFile();
+    const inFileRegistries: extensionApi.Registry[] = [];
+    const source = 'podman';
+    if (authFile.auths) {
+      // loop over the auth entries
+      for (const [key, value] of Object.entries(authFile.auths)) {
+        const serverUrl = key;
+        const decoded = Buffer.from(value.auth, 'base64').toString();
+
+        // split the decoded string into username and password separated by :
+        const [username, secret] = decoded.split(':');
+
+        const registry = {
+          source,
+          serverUrl,
+          username,
+          secret,
+        };
+        inFileRegistries.push(registry);
+      }
+    }
+
+    // compare file and inMemory registries
+    // For each registry in the file that is not in the inMemory, add it
+    const toBeAdded = inFileRegistries.filter(fileRegistry => !this.localRegistries.has(fileRegistry.serverUrl));
+    toBeAdded.forEach(registry => {
+      extensionContext.subscriptions.push(extensionApi.registry.registerRegistry(registry));
+      this.localRegistries.set(registry.serverUrl, registry);
+    });
+    // For each registry in the inMemory that is not in the file, remove it
+    const toBeRemoved = Array.from(this.localRegistries.values()).filter(
+      localRegistry =>
+        !inFileRegistries.find(inFileLocalRegistry => inFileLocalRegistry.serverUrl === localRegistry.serverUrl),
+    );
+    toBeRemoved.forEach(registry => {
+      this.localRegistries.delete(registry.serverUrl);
+      extensionApi.registry.unregisterRegistry(registry);
+    });
+  }
+
+  public async setup(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+    extensionApi.registry.registerRegistryProvider({
+      name: 'podman',
+      create: function (registryCreateOptions: extensionApi.RegistryCreateOptions): extensionApi.Registry {
+        const registry: extensionApi.Registry = {
+          source: '',
+          ...registryCreateOptions,
+        };
+        return registry;
+      },
+    });
+    // handle addition of the registry in the file
+    extensionApi.registry.onDidRegisterRegistry(async registry => {
+      // external change, update the local registries
+      if (!this.localRegistries.has(registry.serverUrl)) {
+        this.localRegistries.set(registry.serverUrl, registry);
+        // update the file
+        const authFile = await this.readAuthFile();
+        if (!authFile.auths) {
+          authFile.auths = {};
+        }
+        authFile.auths[registry.serverUrl] = {
+          auth: Buffer.from(`${registry.username}:${registry.secret}`).toString('base64'),
+        };
+
+        await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));
+      }
+    });
+
+    // handle removal of the registry in the file
+    extensionApi.registry.onDidUnregisterRegistry(async registry => {
+      // external change, update the local registries
+      if (this.localRegistries.has(registry.serverUrl)) {
+        this.localRegistries.delete(registry.serverUrl);
+        // update the file
+        const authFile = await this.readAuthFile();
+        if (authFile.auths) {
+          delete authFile.auths[registry.serverUrl];
+        }
+        await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));
+      }
+    });
+
+    // need to monitor this file
+    fs.watchFile(this.getAuthFileLocation(), () => {
+      this.updateRegistries(extensionContext);
+    });
+
+    // check if the file exists
+    if (!fs.existsSync(this.getAuthFileLocation())) {
+      return;
+    }
+    // else init with the content of this file
+    this.updateRegistries(extensionContext);
+  }
+
+  protected readAuthFile(): Promise<ContainersAuthConfigFile> {
+    return new Promise((resolve, reject) => {
+      fs.readFile(this.getAuthFileLocation(), 'utf8', (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(JSON.parse(data));
+        }
+      });
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected writeAuthFile(data: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(this.getAuthFileLocation(), data, 'utf8', err => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+}

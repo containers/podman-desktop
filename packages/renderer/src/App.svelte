@@ -18,6 +18,7 @@ import ProviderList from './lib/ProviderList.svelte';
 import Logo from './lib/logo/Logo.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
+import PullImage from './lib/image/PullImage.svelte';
 let containersCountValue;
 
 router.mode.hash();
@@ -30,11 +31,6 @@ onMount(async () => {
     containersCountValue = value.length;
   });
 });
-
-function jumpToImages() {
-  console.log('click on images...');
-  window.location.href = '#/images';
-}
 </script>
 
 <svelte:window bind:innerWidth />
@@ -201,6 +197,9 @@ function jumpToImages() {
         </Route>
         <Route path="/images/build">
           <BuildImageFromContainerfile />
+        </Route>
+        <Route path="/images/pull">
+          <PullImage />
         </Route>
         <Route path="/extensions">
           <ExtensionList />

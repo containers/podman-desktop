@@ -38,6 +38,7 @@ import { ConfigurationRegistry } from './configuration-registry';
 import { TerminalInit } from './terminal-init';
 import { Deferred } from './util/deferred';
 import { getFreePort } from './util/port';
+import { ImageRegistry } from './image-registry';
 
 const shell = require('electron').shell;
 
@@ -65,7 +66,8 @@ function initExtensions(): void {
   contextBridge.exposeInMainWorld('events', apiSender);
 
   const commandRegistry = new CommandRegistry();
-  const containerProviderRegistry = new ContainerProviderRegistry(apiSender);
+  const imageRegistry = new ImageRegistry(apiSender);
+  const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry);
   const providerRegistry = new ProviderRegistry(containerProviderRegistry);
   const trayMenuRegistry = new TrayMenuRegistry(commandRegistry, providerRegistry);
 
@@ -91,6 +93,24 @@ function initExtensions(): void {
   contextBridge.exposeInMainWorld('startContainer', async (engine: string, containerId: string): Promise<void> => {
     return containerProviderRegistry.startContainer(engine, containerId);
   });
+
+  contextBridge.exposeInMainWorld(
+    'pullImage',
+    async (
+      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      imageName: string,
+      callback: (name: string, data: string) => void,
+    ): Promise<void> => {
+      return containerProviderRegistry.pullImage(providerContainerConnectionInfo, imageName, callback);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'pushImage',
+    async (engine: string, imageId: string, callback: (name: string, data: string) => void): Promise<void> => {
+      return containerProviderRegistry.pushImage(engine, imageId, callback);
+    },
+  );
 
   contextBridge.exposeInMainWorld('restartContainer', async (engine: string, containerId: string): Promise<void> => {
     return containerProviderRegistry.restartContainer(engine, containerId);
@@ -188,6 +208,40 @@ function initExtensions(): void {
     return providerRegistry.getProviderInfos();
   });
 
+  contextBridge.exposeInMainWorld('registry', {
+    hasAuthconfigForImage: (imageName: string): boolean => {
+      if (imageName.indexOf(',') !== -1) {
+        const allImageNames = imageName.split(',');
+        let hasAuth = false;
+        for (const imageName of allImageNames) {
+          hasAuth = hasAuth || imageRegistry.getAuthconfigForImage(imageName) !== undefined;
+        }
+        return hasAuth;
+      }
+      const authconfig = imageRegistry.getAuthconfigForImage(imageName);
+      return authconfig !== undefined;
+    },
+    getRegistries: async (): Promise<readonly containerDesktopAPI.Registry[]> => {
+      return imageRegistry.getRegistries();
+    },
+    getProviderNames: async (): Promise<string[]> => {
+      return imageRegistry.getProviderNames();
+    },
+    unregisterRegistry: async (registry: containerDesktopAPI.Registry): Promise<void> => {
+      console.log('expose in world unregister', registry);
+      return imageRegistry.unregisterRegistry(registry);
+    },
+    registerRegistry: async (registry: containerDesktopAPI.Registry): Promise<containerDesktopAPI.Disposable> => {
+      return imageRegistry.registerRegistry(registry);
+    },
+    createRegistry: async (
+      providerName: string,
+      registryCreateOptions: containerDesktopAPI.RegistryCreateOptions,
+    ): Promise<containerDesktopAPI.Disposable> => {
+      return imageRegistry.createRegistry(providerName, registryCreateOptions);
+    },
+  });
+
   contextBridge.exposeInMainWorld(
     'getConfigurationProperties',
     async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
@@ -228,6 +282,7 @@ function initExtensions(): void {
     commandRegistry,
     providerRegistry,
     configurationRegistry,
+    imageRegistry,
     apiSender,
     trayMenuRegistry,
   );

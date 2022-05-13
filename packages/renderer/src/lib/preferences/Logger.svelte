@@ -14,7 +14,6 @@ let resizeHandler;
 function refreshTerminal() {
   // missing element, return
   if (!logsXtermDiv) {
-    console.log('missing xterm div, exiting...');
     return;
   }
   // grab font size

@@ -11,14 +11,12 @@ async function startProviderLifecycle(provider: ProviderInfo): Promise<void> {
   waiting = true;
   await window.startProviderLifecycle(provider.internalId);
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
-  console.log('receive response from the server side: started');
   waiting = false;
 }
 
 async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
   waiting = true;
   await window.stopProviderLifecycle(provider.internalId);
-  console.log('receive response from the server side: stopped');
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   waiting = false;
 }

@@ -32,6 +32,11 @@ onMount(async () => {
   });
 });
 
+let hasModal = false;
+function handleModal(param: boolean) {
+  hasModal = param;
+}
+
 // extract SHA256 from image id and take the first 12 digits
 function getShortId(id: string): string {
   if (id.startsWith('sha256:')) {
@@ -44,6 +49,9 @@ function gotoBuildImage(): void {
   router.goto('/images/build');
 }
 
+function gotoPullImage(): void {
+  router.goto('/images/pull');
+}
 function getHumanSize(size: number): string {
   return filesize(size);
 }
@@ -106,7 +114,13 @@ function getEngineName(containerInfo: ImageInfo): string {
         </div>
       </div>
       <div class="flex flex-1 justify-end">
-        <div class="py-5 px-5">
+        <div class="py-5 px-5 space-x-2">
+          <button on:click="{() => gotoPullImage()}" class="pf-c-button pf-m-primary" type="button">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
+            </span>
+            Pull Image
+          </button>
           <button on:click="{() => gotoBuildImage()}" class="pf-c-button pf-m-primary" type="button">
             <span class="pf-c-button__icon pf-m-start">
               <i class="fas fa-cube" aria-hidden="true"></i>
@@ -147,8 +161,8 @@ function getEngineName(containerInfo: ImageInfo): string {
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap">
-              <div class="hidden group-hover:flex flex-row justify-end">
-                <ImageActions image="{image}" />
+              <div hidden class="flex group-hover:flex flex-row justify-end" class:flex="{hasModal === true}">
+                <ImageActions image="{image}" hasModalCallback="{handleModal}" />
               </div>
             </td>
           </tr>

@@ -27,6 +27,7 @@ import type { TrayMenuRegistry } from './tray-menu-registry';
 import { Disposable } from './types/disposable';
 import type { ProviderRegistry } from './provider-registry';
 import type { ConfigurationRegistry } from './configuration-registry';
+import type { ImageRegistry } from './image-registry';
 
 /**
  * Handle the loading of an extension
@@ -60,6 +61,7 @@ export class ExtensionLoader {
     private commandRegistry: CommandRegistry,
     private providerRegistry: ProviderRegistry,
     private configurationRegistry: ConfigurationRegistry,
+    private imageRegistry: ImageRegistry,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private apiSender: any,
     private trayMenuRegistry: TrayMenuRegistry,
@@ -246,10 +248,33 @@ export class ExtensionLoader {
       },
     };
 
+    const imageRegistry = this.imageRegistry;
+    const registry: typeof containerDesktopAPI.registry = {
+      registerRegistry: (registry: containerDesktopAPI.Registry): Disposable => {
+        return imageRegistry.registerRegistry(registry);
+      },
+
+      unregisterRegistry: (registry: containerDesktopAPI.Registry): void => {
+        return imageRegistry.unregisterRegistry(registry);
+      },
+
+      onDidRegisterRegistry: (listener, thisArg, disposables) => {
+        return imageRegistry.onDidRegisterRegistry(listener, thisArg, disposables);
+      },
+
+      onDidUnregisterRegistry: (listener, thisArg, disposables) => {
+        return imageRegistry.onDidUnregisterRegistry(listener, thisArg, disposables);
+      },
+      registerRegistryProvider: (registryProvider: containerDesktopAPI.RegistryProvider): Disposable => {
+        return imageRegistry.registerRegistryProvider(registryProvider);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
       commands,
+      registry,
       provider,
       configuration,
       tray,

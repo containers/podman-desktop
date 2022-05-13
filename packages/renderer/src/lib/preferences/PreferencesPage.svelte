@@ -17,6 +17,7 @@ import PreferencesProviderRendering from './PreferencesProviderRendering.svelte'
 import { extensionInfos } from '../../stores/extensions';
 import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
 import type { ExtensionInfo } from '../../../../preload/src/api/extension-info';
+import PreferencesRegistriesRendering from './PreferencesRegistriesRendering.svelte';
 
 let items: TreeViewDataItem[] = [];
 let extensions: ExtensionInfo[] = [];
@@ -37,6 +38,8 @@ function onSelectedItem(item: TreeViewDataItem) {
     // extract extension by the name before the @
     const extensionId = item.id.split('@')[1];
     router.goto(`/preferences/extension/${extensionId}`);
+  } else if (item.id === 'registries') {
+    router.goto('/preferences/registries');
   } else {
     router.goto(`/preferences/default/${item.id}`);
   }
@@ -84,6 +87,14 @@ async function buildTreeViewData(configProperties?: IConfigurationPropertyRecord
       children: providerTreeViewDataItems,
     });
   }
+
+  // Add registries
+  treeViewDataItems.push({
+    id: 'registries',
+    name: 'Registries',
+    children: [],
+  });
+
   // then, add all features (using the default scope)
   configProperties
     .filter(property => property.scope === ConfigurationRegistry.DEFAULT_SCOPE)
@@ -166,6 +177,9 @@ onMount(async () => {
   </Route>
   <Route path="/provider/:providerInternalId" let:meta>
     <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
+  </Route>
+  <Route path="/registries">
+    <PreferencesRegistriesRendering />
   </Route>
   <Route path="/container-connection/" let:meta />
   <Route path="/container-connection/:provider/:connection" let:meta>
