@@ -25,9 +25,9 @@ function toggleRegistryModal(): void {
   <h1 class="capitalize text-xl">Registries</h1>
 
   <div class="container mx-auto">
-    <div class="grid lg:grid-cols-3">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 space-x-4">
       {#each registries as registry}
-        <div class="w-full p-4 lg:w-60">
+        <div class="w-full p-4 md:w-60">
           <div class="p-2 bg-white rounded shadow-md">
             <div class="flex justify-end flex-wrap ">
               <button
@@ -45,7 +45,7 @@ function toggleRegistryModal(): void {
           </div>
         </div>
       {/each}
-      <div class="w-full p-4 lg:w-60 lg:h-60">
+      <div class="w-full p-4 md:w-60 md:h-60">
         <div
           on:click="{() => {
             toggleRegistryModal();
