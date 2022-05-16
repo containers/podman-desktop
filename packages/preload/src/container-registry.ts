@@ -69,6 +69,12 @@ export class ContainerProviderRegistry {
         } else if (evt.status === 'pull' && evt?.Type === 'image') {
           // need to notify that image are being pulled
           this.apiSender.send('image-pull-event', evt.id);
+        } else if (evt.status === 'tag' && evt?.Type === 'image') {
+          // need to notify that image are being tagged
+          this.apiSender.send('image-tag-event', evt.id);
+        } else if (evt.status === 'untag' && evt?.Type === 'image') {
+          // need to notify that image are being untagged
+          this.apiSender.send('image-untag-event', evt.id);
         } else if (evt.status === 'remove' && evt?.Type === 'image') {
           // need to notify that image are being pulled
           this.apiSender.send('image-remove-event', evt.id);

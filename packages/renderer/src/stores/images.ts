@@ -68,3 +68,11 @@ window.events?.receive('registry-register', () => {
 window.events?.receive('registry-unregister', () => {
   fetchImages();
 });
+
+window.events?.receive('image-tag-event', () => {
+  fetchImages();
+});
+
+window.events?.receive('image-untag-event', () => {
+  fetchImages();
+});
