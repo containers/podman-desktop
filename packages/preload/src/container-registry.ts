@@ -26,6 +26,18 @@ import type { ProviderContainerConnectionInfo } from './api/provider-info';
 import type { ImageRegistry } from './image-registry';
 
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
+export interface PullEvent {
+  stream?: string;
+  id?: string;
+  status?: string;
+  progress?: string;
+  progressDetail?: {
+    current?: number;
+    total?: number;
+  };
+  error?: string;
+  errorDetails?: { message?: string };
+}
 
 export interface InternalContainerProvider {
   name: string;
@@ -258,25 +270,35 @@ export class ContainerProviderRegistry {
   async pullImage(
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
     imageName: string,
-    callback: (name: string, data: string) => void,
+    callback: (event: PullEvent) => void,
   ): Promise<void> {
     const authconfig = this.imageRegistry.getAuthconfigForImage(imageName);
-    const pullStream = await this.getMatchingEngineFromConnection(providerContainerConnectionInfo).pull(imageName, {
+    const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
+    const pullStream = await matchingEngine.pull(imageName, {
       authconfig,
     });
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    let resolve: () => void;
+    let reject: (err: Error) => void;
+    const promise = new Promise<void>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
 
-    pullStream.on('end', () => {
-      callback('end', '');
-    });
-    let firstMessage = true;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pullStream.on('data', (chunk: any) => {
-      if (firstMessage) {
-        firstMessage = false;
-        callback('first-message', '');
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    function onFinished(err: Error | null) {
+      if (err) {
+        return reject(err);
       }
-      callback('data', chunk.toString('utf-8'));
-    });
+      resolve();
+    }
+
+    function onProgress(event: PullEvent) {
+      callback(event);
+    }
+    matchingEngine.modem.followProgress(pullStream, onFinished, onProgress);
+
+    return promise;
   }
 
   async deleteContainer(engineId: string, id: string): Promise<void> {

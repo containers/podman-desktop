@@ -5,7 +5,8 @@ import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import type { ProviderInfo } from '../../../../preload/src/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../preload/src/api/provider-info';
+import type { PullEvent } from '../../../../preload/src/container-registry';
 import { TerminalSettings } from '../../../../preload/src/terminal-settings';
 
 import { providerInfos } from '../../stores/providers';
@@ -25,32 +26,55 @@ $: providerConnections = providers
   .map(provider => provider.containerConnections)
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-$: selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
 
+let selectedProviderConnection: ProviderContainerConnectionInfo;
 $: initTerminal();
+
+const lineNumberPerId = new Map<string, number>();
+let lineIndex = 0;
 
 let terminalIntialized = false;
 
-let gotErrorDuringPull = false;
-function callback(name: string, data: string) {
-  if (name === 'first-message') {
-    // clear on the first message
-    logsPull?.clear();
-    logsPull?.reset();
-  } else if (name === 'data') {
-    // parse JSON message
-    const jsonObject = JSON.parse(data);
-    if (jsonObject.status) {
-      logsPull.write(jsonObject.status + '\n\r');
-    } else if (jsonObject.error) {
-      gotErrorDuringPull = true;
-      logsPull.write(jsonObject.error.replaceAll('\n', '\n\r') + '\n\r');
+function callback(event: PullEvent) {
+  let lineIndexToWrite;
+  if (event.status) {
+    if (event.id) {
+      const lineNumber = lineNumberPerId.get(event.id);
+      if (lineNumber) {
+        lineIndexToWrite = lineNumber;
+      } else {
+        lineIndex++;
+        lineIndexToWrite = lineIndex;
+        lineNumberPerId.set(event.id, lineIndex);
+      }
     }
-  } else if (name === 'end') {
-    if (!gotErrorDuringPull) {
-      pullFinished = true;
+  }
+  // no index, append
+  if (!lineIndexToWrite) {
+    lineIndex++;
+    lineIndexToWrite = lineIndex;
+  }
+
+  if (event.status) {
+    // move cursor to the home
+    logsPull.write(`\u001b[${lineIndexToWrite};0H`);
+    // erase the line
+    logsPull.write(`\u001B[2K`);
+    // do we have id ?
+    if (event.id) {
+      logsPull.write(`${event.id}: `);
     }
-    pullInProgress = false;
+    logsPull.write(event.status);
+    // do we have progress ?
+    if (event.progress && event.progress !== '') {
+      logsPull.write(event.progress);
+    } else if (event.progressDetail && event.progressDetail.current && event.progressDetail.total) {
+      logsPull.write(` ${Math.round((event.progressDetail.current / event.progressDetail.total) * 100)}%`);
+    }
+    // write end of line
+    logsPull.write(`\n\r`);
+  } else if (event.error) {
+    logsPull.write(event.error.replaceAll('\n', '\n\r') + '\n\r');
   }
 }
 let pullLogsXtermDiv: HTMLDivElement;
@@ -88,7 +112,8 @@ function initTerminal() {
 }
 
 async function pullImage() {
-  gotErrorDuringPull = false;
+  lineNumberPerId.clear();
+  lineIndex = 0;
   await tick();
   initTerminal();
   await tick();
@@ -97,6 +122,8 @@ async function pullImage() {
   pullInProgress = true;
   try {
     await window.pullImage(selectedProviderConnection, imageToPull.name, callback);
+    pullInProgress = false;
+    pullFinished = true;
   } catch (error) {
     pullError = error;
   }
@@ -113,6 +140,9 @@ async function gotoManageRegistries() {
 onMount(() => {
   providerInfos.subscribe(value => {
     providers = value;
+    if (!selectedProviderConnection) {
+      selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
+    }
   });
 });
 
