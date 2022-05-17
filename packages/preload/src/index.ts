@@ -25,6 +25,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ExtensionInfo } from './api/extension-info';
 import { CommandRegistry } from './command-registry';
+import type { PullEvent } from './container-registry';
 import { ContainerProviderRegistry } from './container-registry';
 import { ExtensionLoader } from './extension-loader';
 import EventEmitter from 'events';
@@ -99,7 +100,7 @@ function initExtensions(): void {
     async (
       providerContainerConnectionInfo: ProviderContainerConnectionInfo,
       imageName: string,
-      callback: (name: string, data: string) => void,
+      callback: (event: PullEvent) => void,
     ): Promise<void> => {
       return containerProviderRegistry.pullImage(providerContainerConnectionInfo, imageName, callback);
     },
@@ -228,7 +229,6 @@ function initExtensions(): void {
       return imageRegistry.getProviderNames();
     },
     unregisterRegistry: async (registry: containerDesktopAPI.Registry): Promise<void> => {
-      console.log('expose in world unregister', registry);
       return imageRegistry.unregisterRegistry(registry);
     },
     registerRegistry: async (registry: containerDesktopAPI.Registry): Promise<containerDesktopAPI.Disposable> => {
