@@ -33,7 +33,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: 'Docker',
     type: 'docker',
-    status: () => 'unknown',
+    status: () => 'started',
     endpoint: {
       socketPath,
     },
