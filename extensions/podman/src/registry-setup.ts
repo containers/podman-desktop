@@ -20,7 +20,7 @@ import * as extensionApi from '@tmpwip/extension-api';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
-import { isLinux, isMac, isWindows } from './extension';
+import { isLinux, isMac, isWindows } from './util';
 
 export type ContainerAuthConfigEntry = {
   [key: string]: {

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ipcMain, app, Tray, dialog } from 'electron';
+import { ipcMain, app, Tray, dialog, BrowserWindow } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
@@ -98,4 +98,30 @@ app.whenReady().then(() => {
 
 ipcMain.on('dialog:show-error', (_, param: { title: string; body: string }): void => {
   dialog.showErrorBox(param.title, param.body);
+});
+
+ipcMain.handle(
+  'dialog:show-dialog',
+  async (_, param: { type: string; title: string; message: string; items: string[] }): Promise<string | undefined> => {
+    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const result = await dialog.showMessageBox(window!, {
+      title: param.title,
+      message: param.message,
+      buttons: param.items,
+      type: param.type,
+    });
+    if (result) {
+      return param.items[result.response];
+    }
+
+    return undefined;
+  },
+);
+
+ipcMain.on('window:set-progress', (_, param: { message: string; increment: number }) => {
+  const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+  if (window) {
+    window.setProgressBar(param.increment / 100, { mode: 'normal' });
+  }
 });

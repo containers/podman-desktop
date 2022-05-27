@@ -1,0 +1,21 @@
+{
+  "version": "4.1.0",
+  "platform": {
+    "win32": {
+      "url": "https://github.com/containers/podman/releases/download/v4.1.0/podman-v4.1.0.msi",
+      "fileName": "podman-v4.1.0.msi"
+    },
+    "darwin": {
+      "arch": {
+        "arm64": {
+          "url": "https://github.com/containers-contribs/podman-installer/releases/download/0.0.1-alpha/podman-macos-aarch64.pkg",
+          "fileName": "podman-macos-aarch64.pkg"
+        },
+        "x64": {
+          "url": "https://github.com/containers-contribs/podman-installer/releases/download/0.0.1-alpha/podman-macos-amd64.pkg",
+          "fileName": "podman-macos-amd64.pkg"
+        }
+      }
+    }
+  }
+}

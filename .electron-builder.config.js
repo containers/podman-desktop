@@ -35,7 +35,7 @@ const config = {
     buildResources: 'buildResources',
   },
   files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**'],
-  extraResources: ['packages/main/src/assets/**'],
+  extraResources: ['packages/main/src/assets/**', 'extensions/podman/builtin/podman.cdix/assets/**'],
   portable: {
     artifactName: 'podman-desktop-${version}.${ext}',
   },

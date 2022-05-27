@@ -17,23 +17,34 @@
  ***********************************************************************/
 
 import * as extensionApi from '@tmpwip/extension-api';
-import * as path from 'path';
-import * as os from 'os';
-import * as fs from 'fs';
-import { spawn } from 'child_process';
+import * as path from 'node:path';
+import * as os from 'node:os';
+import * as fs from 'node:fs';
+import { spawn } from 'node:child_process';
 import { RegistrySetup } from './registry-setup';
+import { promisify } from 'node:util';
+import { isLinux, isMac, isWindows } from './util';
+import {
+  fetchLatestPodmanVersion,
+  getBundledPodmanVersion,
+  installBundledPodman,
+  installPodman,
+} from './podman-install';
+import { lte } from 'semver';
+
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
-
-export const isWindows = os.platform() === 'win32';
-export const isMac = os.platform() === 'darwin';
-export const isLinux = os.platform() === 'linux';
 
 const listeners = new Set<StatusHandler>();
 const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), '.local/share/containers/podman/machine');
 const podmanMachineDirectoryWindows = path.resolve(os.homedir(), '.local/share/containers/podman/machine/wsl/wsldist');
 let storedExtensionContext;
 let stopLoop = false;
+
+let podmanInfo: PodmanInfo;
+let updateCheckTimer: NodeJS.Timer;
 
 // current status of machines
 const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
@@ -55,9 +66,21 @@ type MachineInfo = {
   diskSize: number;
 };
 
+interface PodmanInfo {
+  podmanVersion: string;
+  lastUpdateCheck: number;
+}
+
+function getPodman(): string {
+  if (isWindows) {
+    return 'c:\\Program Files\\RedHat\\Podman\\podman.exe';
+  }
+  return 'podman';
+}
+
 async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   // init machines available
-  const machineListOutput = await execPromise('podman', ['machine', 'list', '--format', 'json']);
+  const machineListOutput = await execPromise(getPodman(), ['machine', 'list', '--format', 'json']);
 
   // parse output
   const machines = JSON.parse(machineListOutput) as MachineJSON[];
@@ -118,7 +141,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
 }
 
 function calcWinPipeName(machineName: string): string {
-  name = machineName.startsWith('podman') ? machineName : 'podman-' + machineName;
+  const name = machineName.startsWith('podman') ? machineName : 'podman-' + machineName;
   return `//./pipe/${name}`;
 }
 
@@ -179,16 +202,16 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     start: async (context): Promise<void> => {
       try {
         // start the machine
-        await execPromise('podman', ['machine', 'start', machineInfo.name], context.log);
+        await execPromise(getPodman(), ['machine', 'start', machineInfo.name], context.log);
       } catch (err) {
         console.error(err);
       }
     },
     stop: async (context): Promise<void> => {
-      await execPromise('podman', ['machine', 'stop', machineInfo.name], context.log);
+      await execPromise(getPodman(), ['machine', 'stop', machineInfo.name], context.log);
     },
     delete: async (): Promise<void> => {
-      await execPromise('podman', ['machine', 'rm', '-f', machineInfo.name]);
+      await execPromise(getPodman(), ['machine', 'rm', '-f', machineInfo.name]);
     },
   };
 
@@ -253,8 +276,78 @@ function execPromise(command: string, args?: string[], logger?: extensionApi.Log
   });
 }
 
+async function getLastRunInfo(storagePath: string): Promise<PodmanInfo | undefined> {
+  const podmanInfoPath = path.resolve(storagePath, 'podman-ext.json');
+  if (!fs.existsSync(storagePath)) {
+    await promisify(fs.mkdir)(storagePath);
+  }
+
+  if (!fs.existsSync(podmanInfoPath)) {
+    return undefined;
+  }
+
+  try {
+    const infoBuffer = await readFile(podmanInfoPath);
+    return JSON.parse(infoBuffer.toString('utf8'));
+  } catch (err) {
+    console.error(err);
+  }
+
+  return undefined;
+}
+
+interface InstalledPodman {
+  version: string;
+}
+
+export async function getPodmanInstallation(): Promise<InstalledPodman | undefined> {
+  try {
+    const versionOut = await execPromise(getPodman(), ['--version']);
+    const versionArr = versionOut.split(' ');
+    const version = versionArr[versionArr.length - 1];
+    return { version };
+  } catch (err) {
+    // no podman binary
+    return undefined;
+  }
+}
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   storedExtensionContext = extensionContext;
+  const podmanInfoRaw = await getLastRunInfo(extensionContext.storagePath);
+  podmanInfo = new PodmanInfoImpl(podmanInfoRaw, extensionContext.storagePath);
+  const bundledPodmanVersion = getBundledPodmanVersion();
+
+  if (!podmanInfoRaw) {
+    const installedPodman = await getPodmanInstallation();
+    if (!installedPodman) {
+      const dialogResult = await extensionApi.window.showDialog(
+        'question',
+        'Podman',
+        `Podman is not installed on this system, installing Podman ${bundledPodmanVersion}.`,
+        'OK',
+        'Cancel',
+      );
+      if (dialogResult === 'OK') {
+        await installBundledPodman();
+        const newInstalledPodman = await getPodmanInstallation();
+        // write podman version
+        if (newInstalledPodman) {
+          podmanInfo.podmanVersion = newInstalledPodman.version;
+        }
+      } else {
+        return; // exiting as without podman this extension useless
+      }
+    } else {
+      //TODO: check if podman requires update
+      // startPodmanUpdateCheck();
+      checkInstalledPodmanVersion(installedPodman.version, bundledPodmanVersion);
+    }
+  } else {
+    //TODO: check if podman requires update
+    // startPodmanUpdateCheck();
+    checkInstalledPodmanVersion(podmanInfo.podmanVersion, bundledPodmanVersion);
+  }
 
   const provider = extensionApi.provider.createProvider({ name: 'Podman', id: 'podman', status: 'unknown' });
   extensionContext.subscriptions.push(provider);
@@ -291,7 +384,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           parameters.push(params['podman.factory.machine.name']);
         }
 
-        await execPromise('podman', parameters);
+        await execPromise(getPodman(), parameters);
       },
     });
   }
@@ -331,7 +424,102 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   await registrySetup.setup(extensionContext);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function startPodmanUpdateCheck(): void {
+  const currentTime = new Date().getMilliseconds();
+  const oneDay = 86400000;
+  if (currentTime - podmanInfo.lastUpdateCheck < oneDay) {
+    doCheckUpdate();
+  } else {
+    // setup timer
+    updateCheckTimer = setTimeout(() => doCheckUpdate(), oneDay - currentTime - podmanInfo.lastUpdateCheck);
+  }
+}
+
+async function doCheckUpdate(): Promise<void> {
+  const latestVersion = await fetchLatestPodmanVersion();
+  if (latestVersion.name !== podmanInfo.podmanVersion) {
+    //TODO: better to use some sort of notifications for this
+    const answer = await extensionApi.window.showDialog(
+      'question',
+      'Podman Update',
+      `There are new Podman ${latestVersion.name}.\nDo you want to install it?`,
+      'Yes',
+      'No',
+    );
+    if (answer === 'Yes') {
+      await installPodman(latestVersion);
+      const newInstalledPodman = await getPodmanInstallation();
+      // write podman version
+      if (newInstalledPodman) {
+        podmanInfo.podmanVersion = newInstalledPodman.version;
+      }
+    }
+  }
+
+  podmanInfo.lastUpdateCheck = new Date().getMilliseconds();
+}
+
+async function checkInstalledPodmanVersion(installedVersion: string, bundledVersion: string): Promise<void> {
+  if (lte(installedVersion, bundledVersion)) {
+    const answer = await extensionApi.window.showDialog(
+      'question',
+      'Podman',
+      `You have Podman ${installedVersion}.\nDo you want to update to ${bundledVersion}?`,
+      'Yes',
+      'No',
+    );
+    if (answer === 'Yes') {
+      await installBundledPodman();
+      podmanInfo.podmanVersion = bundledVersion;
+    }
+  }
+}
+
 export function deactivate(): void {
   stopLoop = true;
+  if (updateCheckTimer) {
+    clearTimeout(updateCheckTimer);
+    updateCheckTimer = undefined;
+  }
   console.log('stopping podman extension');
+}
+
+class PodmanInfoImpl implements PodmanInfo {
+  constructor(private podmanInfo: PodmanInfo, private readonly storagePath: string) {
+    if (!podmanInfo) {
+      this.podmanInfo = { lastUpdateCheck: 0 } as PodmanInfo;
+    }
+  }
+
+  set podmanVersion(version: string) {
+    if (this.podmanInfo.podmanVersion !== version) {
+      this.podmanInfo.podmanVersion = version;
+      this.writeInfo();
+    }
+  }
+
+  get podmanVersion(): string {
+    return this.podmanInfo.podmanVersion;
+  }
+
+  set lastUpdateCheck(lastCheck: number) {
+    if (this.podmanInfo.lastUpdateCheck !== lastCheck) {
+      this.podmanInfo.lastUpdateCheck = lastCheck;
+      this.writeInfo();
+    }
+  }
+
+  get lastUpdateCheck(): number {
+    return this.podmanInfo.lastUpdateCheck;
+  }
+
+  private async writeInfo(): Promise<void> {
+    try {
+      const podmanInfoPath = path.resolve(this.storagePath, 'podman-ext.json');
+      await writeFile(podmanInfoPath, JSON.stringify(this.podmanInfo));
+    } catch (err) {
+      console.error(err);
+    }
+  }
 }

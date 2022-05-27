@@ -28,6 +28,8 @@ import { Disposable } from './types/disposable';
 import type { ProviderRegistry } from './provider-registry';
 import type { ConfigurationRegistry } from './configuration-registry';
 import type { ImageRegistry } from './image-registry';
+import type { Dialogs } from './dialog-impl';
+import type { ProgressElection } from './progress-impl';
 
 /**
  * Handle the loading of an extension
@@ -56,6 +58,7 @@ export class ExtensionLoader {
 
   private activatedExtensions = new Map<string, ActivatedExtension>();
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
+  private extensionsStoragePath = '';
 
   constructor(
     private commandRegistry: CommandRegistry,
@@ -65,6 +68,8 @@ export class ExtensionLoader {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private apiSender: any,
     private trayMenuRegistry: TrayMenuRegistry,
+    private dialogs: Dialogs,
+    private progress: ProgressElection,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -134,6 +139,11 @@ export class ExtensionLoader {
         const packagedFile = path.resolve(pluginsDirectory, filename);
         setTimeout(() => this.loadPackagedFile(packagedFile), 1000);
       });
+    }
+
+    this.extensionsStoragePath = path.resolve(os.homedir(), '.podman-desktop');
+    if (!fs.existsSync(this.extensionsStoragePath)) {
+      fs.mkdirSync(this.extensionsStoragePath);
     }
 
     let folders;
@@ -270,6 +280,20 @@ export class ExtensionLoader {
       },
     };
 
+    const dialogs = this.dialogs;
+    const progress = this.progress;
+    const windowObj: typeof containerDesktopAPI.window = {
+      showDialog: (type: containerDesktopAPI.DialogType, title: string, message: string, ...items: string[]) => {
+        return dialogs.showDialog(type, title, message, items);
+      },
+
+      withProgress: <R>(
+        task: (progress: containerDesktopAPI.Progress<{ message?: string; increment: number }>) => Promise<R>,
+      ): Promise<R> => {
+        return progress.withProgress(task);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -278,6 +302,7 @@ export class ExtensionLoader {
       provider,
       configuration,
       tray,
+      window: windowObj,
     };
   }
 
@@ -339,6 +364,7 @@ export class ExtensionLoader {
 
     const extensionContext: containerDesktopAPI.ExtensionContext = {
       subscriptions,
+      storagePath: path.resolve(this.extensionsStoragePath, extension.id),
     };
     let deactivateFunction = undefined;
     if (typeof extensionMain['deactivate'] === 'function') {

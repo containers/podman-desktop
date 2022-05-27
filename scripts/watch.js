@@ -123,7 +123,7 @@ const setupPreloadPackageWatcher = ({ws}) =>
    const folderName = path.resolve(__dirname, '../extensions/' + name);
 
   console.log('dirname is', folderName);
-    spawnProcess = spawn('yarn', ['--cwd',  folderName, 'watch'] );
+    spawnProcess = spawn('yarn', ['--cwd',  folderName, 'watch'] , { shell: process.platform == 'win32'});
 
     spawnProcess.stdout.on('data', d => d.toString().trim() && console.warn(d.toString(), {timestamp: true}));
     spawnProcess.stderr.on('data', d => {
@@ -135,7 +135,7 @@ const setupPreloadPackageWatcher = ({ws}) =>
     // Stops the watch script when the application has been quit
     spawnProcess.on('exit', process.exit);
 
- };  
+ };
 
 (async () => {
   try {
