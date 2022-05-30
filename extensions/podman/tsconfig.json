@@ -9,7 +9,6 @@
     "outDir": "dist",
     "target": "ES6",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
     "skipLibCheck": true,
     "types": [
         "node",

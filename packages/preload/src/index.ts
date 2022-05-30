@@ -41,7 +41,7 @@ import { Deferred } from './util/deferred';
 import { getFreePort } from './util/port';
 import { ImageRegistry } from './image-registry';
 import { Dialogs } from './dialog-impl';
-import { ProgressElection } from './progress-impl';
+import { ProgressImpl } from './progress-impl';
 
 const shell = require('electron').shell;
 
@@ -288,7 +288,7 @@ function initExtensions(): void {
     apiSender,
     trayMenuRegistry,
     new Dialogs(),
-    new ProgressElection(),
+    new ProgressImpl(),
   );
   contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
     return extensionLoader.listExtensions();

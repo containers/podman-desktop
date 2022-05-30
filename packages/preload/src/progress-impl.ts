@@ -18,7 +18,7 @@
 import type * as extensionApi from '@tmpwip/extension-api';
 import { ipcRenderer } from 'electron';
 
-export class ProgressElection {
+export class ProgressImpl {
   withProgress<R>(
     task: (progress: extensionApi.Progress<{ message?: string; increment?: number }>) => Promise<R>,
   ): Promise<R> {

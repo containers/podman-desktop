@@ -29,7 +29,7 @@ import type { ProviderRegistry } from './provider-registry';
 import type { ConfigurationRegistry } from './configuration-registry';
 import type { ImageRegistry } from './image-registry';
 import type { Dialogs } from './dialog-impl';
-import type { ProgressElection } from './progress-impl';
+import type { ProgressImpl } from './progress-impl';
 
 /**
  * Handle the loading of an extension
@@ -69,7 +69,7 @@ export class ExtensionLoader {
     private apiSender: any,
     private trayMenuRegistry: TrayMenuRegistry,
     private dialogs: Dialogs,
-    private progress: ProgressElection,
+    private progress: ProgressImpl,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {

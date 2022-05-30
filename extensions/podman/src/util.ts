@@ -50,7 +50,6 @@ export function fetchJson<T>(url: string): Promise<T> {
 }
 
 export function downloadFile(url: string, dest: string): Promise<void> {
-  console.error('Download: ' + url + ' to: ' + dest);
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest, { flags: 'wx' });
 

@@ -16,11 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ipcMain, app, Tray, dialog, BrowserWindow } from 'electron';
+import { ipcMain, app, Tray, dialog } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
-import { isMac } from './util';
+import { findWindow, isMac } from './util';
 import { AnimatedTray } from './tray-animate-icon';
 
 /**
@@ -103,7 +103,7 @@ ipcMain.on('dialog:show-error', (_, param: { title: string; body: string }): voi
 ipcMain.handle(
   'dialog:show-dialog',
   async (_, param: { type: string; title: string; message: string; items: string[] }): Promise<string | undefined> => {
-    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+    const window = findWindow();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const result = await dialog.showMessageBox(window!, {
       title: param.title,
@@ -120,7 +120,7 @@ ipcMain.handle(
 );
 
 ipcMain.on('window:set-progress', (_, param: { message: string; increment: number }) => {
-  const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+  const window = findWindow();
   if (window) {
     window.setProgressBar(param.increment / 100, { mode: 'normal' });
   }

@@ -17,12 +17,12 @@
  ***********************************************************************/
 
 import type { ProviderStatus } from '@tmpwip/extension-api';
-import { app, ipcMain, BrowserWindow, Menu, nativeImage } from 'electron';
+import { app, ipcMain, Menu, nativeImage } from 'electron';
 import type { MenuItemConstructorOptions, Tray, NativeImage } from 'electron';
 import statusStarted from './assets/status-started.png';
 import statusStopped from './assets/status-stopped.png';
 import statusUnknown from './assets/status-unknown.png';
-import { isMac } from './util';
+import { findWindow, isMac } from './util';
 import statusBusy from './assets/status-busy.png';
 import type { ProviderInfo, ProviderContainerConnectionInfo } from '../../preload/src/api/provider-info';
 import type { AnimatedTray, TrayIconStatus } from './tray-animate-icon';
@@ -51,7 +51,7 @@ export class TrayMenu {
   constructor(private readonly tray: Tray, private readonly animatedTray: AnimatedTray) {
     ipcMain.on('tray:add-menu-item', (_, param: { providerId: string; menuItem: MenuItemConstructorOptions }) => {
       param.menuItem.click = () => {
-        const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+        const window = findWindow();
         if (window) {
           window.webContents.send('tray:menu-item-click', param.menuItem.id);
         }
@@ -322,7 +322,7 @@ export class TrayMenu {
   }
 
   private sendItemClick(param: { action: string; providerInfo: ProviderInfo }): void {
-    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+    const window = findWindow();
     if (window) {
       window.webContents.send('tray:menu-provider-click', param);
     }
@@ -333,14 +333,14 @@ export class TrayMenu {
     providerInfo: ProviderInfo;
     providerContainerConnectionInfo: ProviderContainerConnectionInfo;
   }): void {
-    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+    const window = findWindow();
     if (window) {
       window.webContents.send('tray:menu-provider-container-connection-click', param);
     }
   }
 
   private showMainWindow(): void {
-    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+    const window = findWindow();
 
     if (window?.isMinimized()) {
       window.restore();

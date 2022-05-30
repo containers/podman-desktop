@@ -324,11 +324,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       const dialogResult = await extensionApi.window.showDialog(
         'question',
         'Podman',
-        `Podman is not installed on this system, installing Podman ${bundledPodmanVersion}.`,
-        'OK',
-        'Cancel',
+        `Podman is not installed on this system, would you like to install Podman ${bundledPodmanVersion}?`,
+        'Yes',
+        'No',
       );
-      if (dialogResult === 'OK') {
+      if (dialogResult === 'Yes') {
         await installBundledPodman();
         const newInstalledPodman = await getPodmanInstallation();
         // write podman version
