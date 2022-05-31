@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import type { ProviderConnectionStatus, ProviderStatus } from '@tmpwip/extension-api';
-import { ipcRenderer } from 'electron';
+import { ipcMain, dialog } from 'electron';
+import type { TrayMenu } from '../tray-menu';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from './api/provider-info';
 import type { MenuItem } from './api/tray-menu-info';
 import type { CommandRegistry } from './command-registry';
@@ -37,7 +38,12 @@ export interface TrayProviderInfo {
 export class TrayMenuRegistry {
   private menuItems = new Map<string, MenuItem>();
   private providers = new Map<string, ProviderInfo>();
-  constructor(private readonly commandRegistry: CommandRegistry, readonly providerRegistry: ProviderRegistry) {
+
+  constructor(
+    private trayMenu: TrayMenu,
+    private readonly commandRegistry: CommandRegistry,
+    readonly providerRegistry: ProviderRegistry,
+  ) {
     // add as listener
     providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
       if (name === 'provider:create') {
@@ -46,10 +52,8 @@ export class TrayMenuRegistry {
         this.providers.delete(providerInfo.internalId);
       }
       if (name === 'provider:update-status') {
-        ipcRenderer.send('tray:provider', 'update', providerInfo);
+        this.trayMenu.updateProvider(providerInfo);
       }
-
-      //this.registerProvider(provider.name, provider.);
     });
     providerRegistry.addProviderLifecycleListener((name: string, provider: ProviderInfo) => {
       this.registerProvider(provider);
@@ -59,28 +63,18 @@ export class TrayMenuRegistry {
       (name: string, providerInfo: ProviderInfo, containerProviderConnectionInfo: ProviderContainerConnectionInfo) => {
         // notify tray menu registry
         if (name === 'provider-container-connection:register') {
-          ipcRenderer.send('tray:container-provider-connection', 'add', providerInfo, containerProviderConnectionInfo);
+          trayMenu.handleConnection('add', providerInfo, containerProviderConnectionInfo);
         }
         if (name === 'provider-container-connection:unregister') {
-          ipcRenderer.send(
-            'tray:container-provider-connection',
-            'delete',
-            providerInfo,
-            containerProviderConnectionInfo,
-          );
+          trayMenu.handleConnection('delete', providerInfo, containerProviderConnectionInfo);
         }
         if (name === 'provider-container-connection:update-status') {
-          ipcRenderer.send(
-            'tray:container-provider-connection',
-            'update',
-            providerInfo,
-            containerProviderConnectionInfo,
-          );
+          trayMenu.handleConnection('update', providerInfo, containerProviderConnectionInfo);
         }
       },
     );
 
-    ipcRenderer.on('tray:menu-item-click', (_, menuItemId: string) => {
+    ipcMain.on('tray:menu-item-click', (_, menuItemId: string) => {
       try {
         this.commandRegistry.executeCommand(menuItemId);
       } catch (err) {
@@ -88,7 +82,7 @@ export class TrayMenuRegistry {
       }
     });
 
-    ipcRenderer.on('tray:menu-provider-click', (_, param: { action: string; providerInfo: ProviderInfo }) => {
+    ipcMain.on('tray:menu-provider-click', (_, param: { action: string; providerInfo: ProviderInfo }) => {
       const provider = this.providers.get(param.providerInfo.internalId);
       if (provider) {
         if (param.action === 'Start') {
@@ -99,7 +93,7 @@ export class TrayMenuRegistry {
       }
     });
 
-    ipcRenderer.on(
+    ipcMain.on(
       'tray:menu-provider-container-connection-click',
       async (
         _,
@@ -118,10 +112,7 @@ export class TrayMenuRegistry {
                 param.providerContainerConnectionInfo,
               );
             } catch (err) {
-              ipcRenderer.send('dialog:show-error', {
-                title: `Error while starting ${param.providerContainerConnectionInfo.name}`,
-                body: '' + err,
-              });
+              dialog.showErrorBox(`Error while starting ${param.providerContainerConnectionInfo.name}`, '' + err);
             }
           } else if (param.action === 'Stop') {
             try {
@@ -130,10 +121,7 @@ export class TrayMenuRegistry {
                 param.providerContainerConnectionInfo,
               );
             } catch (err) {
-              ipcRenderer.send('dialog:show-error', {
-                title: `Error while stopping ${param.providerContainerConnectionInfo.name}`,
-                body: '' + err,
-              });
+              dialog.showErrorBox(`Error while stopping ${param.providerContainerConnectionInfo.name}`, '' + err);
             }
           }
         }
@@ -143,7 +131,7 @@ export class TrayMenuRegistry {
 
   registerMenuItem(providerName: string, menuItem: MenuItem): Disposable {
     this.menuItems.set(menuItem.id, menuItem);
-    ipcRenderer.send('tray:add-menu-item', { providerName, menuItem });
+    ipcMain.emit('tray:add-menu-item', '', { providerName, menuItem });
     return Disposable.create(() => {
       this.menuItems.delete(menuItem.id);
       // TODO: notify main
@@ -151,10 +139,10 @@ export class TrayMenuRegistry {
   }
 
   registerProvider(providerInfo: ProviderInfo): void {
-    ipcRenderer.send('tray:provider', 'add', providerInfo);
+    this.trayMenu.addProviderItems(providerInfo);
   }
 
   unregisterProvider(providerInfo: ProviderInfo) {
-    ipcRenderer.send('tray:provider', 'delete', providerInfo);
+    this.trayMenu.deleteProvider(providerInfo);
   }
 }

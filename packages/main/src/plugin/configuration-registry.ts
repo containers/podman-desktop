@@ -118,13 +118,16 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     configurations.forEach(configuration => {
       for (const key in configuration.properties) {
         properties.push(key);
-        const configProperty = {
+        const configProperty: IConfigurationPropertyRecordedSchema = {
           ...configuration.properties[key],
-          extension: configuration?.extension,
           title: configuration.title,
           id: key,
           parentId: configuration.id,
         };
+        if (configuration.extension) {
+          configProperty.extension = { id: configuration.extension?.id };
+        }
+
         // register default if not yet set
         if (
           configProperty.default &&

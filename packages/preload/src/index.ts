@@ -22,34 +22,20 @@
 
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { contextBridge, ipcRenderer } from 'electron';
-import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
-import type { ExtensionInfo } from './api/extension-info';
-import { CommandRegistry } from './command-registry';
-import type { PullEvent } from './container-registry';
-import { ContainerProviderRegistry } from './container-registry';
-import { ExtensionLoader } from './extension-loader';
 import EventEmitter from 'events';
-import type { ImageInfo } from './api/image-info';
-import type { ImageInspectInfo } from './api/image-inspect-info';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from './api/provider-info';
-import { TrayMenuRegistry } from './tray-menu-registry';
-import { ProviderRegistry } from './provider-registry';
-import type { IConfigurationPropertyRecordedSchema } from './configuration-registry';
-import { ConfigurationRegistry } from './configuration-registry';
-import { TerminalInit } from './terminal-init';
+import type { ContainerCreateOptions, ContainerInfo } from '../../main/src/plugin/api/container-info';
+import type { ImageInfo } from '../../main/src/plugin/api/image-info';
+import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
+import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../main/src/plugin/api/provider-info';
+import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin/configuration-registry';
+import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import { Deferred } from './util/deferred';
-import { getFreePort } from './util/port';
-import { ImageRegistry } from './image-registry';
 
-const shell = require('electron').shell;
-
-let idDialog = 0;
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
-const dialogResponses = new Map<string, DialogResultCallback>();
-
 // initialize extension loader mechanism
-function initExtensions(): void {
+function initExposure(): void {
   const eventEmitter = new EventEmitter();
   const apiSender = {
     send: (channel: string, data: string) => {
@@ -65,36 +51,24 @@ function initExtensions(): void {
   };
 
   contextBridge.exposeInMainWorld('events', apiSender);
-
-  const commandRegistry = new CommandRegistry();
-  const imageRegistry = new ImageRegistry(apiSender);
-  const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry);
-  const providerRegistry = new ProviderRegistry(containerProviderRegistry);
-  const trayMenuRegistry = new TrayMenuRegistry(commandRegistry, providerRegistry);
-
-  providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
-    if (name === 'provider:update-status') {
-      apiSender.send('provider:update-status', providerInfo.name);
-    }
+  ipcRenderer.on('api-sender', (_, channel, data) => {
+    apiSender.send(channel, data);
   });
 
-  const configurationRegistry = new ConfigurationRegistry();
-  configurationRegistry.init();
-  const terminalInit = new TerminalInit(configurationRegistry);
-  terminalInit.init();
-
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
-    return containerProviderRegistry.listContainers();
+    return ipcRenderer.invoke('container-provider-registry:listContainers');
   });
 
   contextBridge.exposeInMainWorld('listImages', async (): Promise<ImageInfo[]> => {
-    return containerProviderRegistry.listImages();
+    return ipcRenderer.invoke('container-provider-registry:listImages');
   });
 
   contextBridge.exposeInMainWorld('startContainer', async (engine: string, containerId: string): Promise<void> => {
-    return containerProviderRegistry.startContainer(engine, containerId);
+    return ipcRenderer.invoke('container-provider-registry:startContainer', engine, containerId);
   });
 
+  let onDataCallbacksPullImageId = 0;
+  const onDataCallbacksPullImage = new Map<number, (event: PullEvent) => void>();
   contextBridge.exposeInMainWorld(
     'pullImage',
     async (
@@ -102,82 +76,187 @@ function initExtensions(): void {
       imageName: string,
       callback: (event: PullEvent) => void,
     ): Promise<void> => {
-      return containerProviderRegistry.pullImage(providerContainerConnectionInfo, imageName, callback);
+      onDataCallbacksPullImageId++;
+      onDataCallbacksPullImage.set(onDataCallbacksPullImageId, callback);
+      return ipcRenderer.invoke(
+        'container-provider-registry:pullImage',
+        providerContainerConnectionInfo,
+        imageName,
+        onDataCallbacksPullImageId,
+      );
+    },
+  );
+  ipcRenderer.on(
+    'container-provider-registry:pullImage-onData',
+    (_, onDataCallbacksPullImageId: number, event: PullEvent) => {
+      // grab callback from the map
+      const callback = onDataCallbacksPullImage.get(onDataCallbacksPullImageId);
+      if (callback) {
+        callback(event);
+      }
     },
   );
 
+  let onDataCallbacksPushImageId = 0;
+  const onDataCallbacksPushImage = new Map<number, (name: string, data: string) => void>();
   contextBridge.exposeInMainWorld(
     'pushImage',
     async (engine: string, imageId: string, callback: (name: string, data: string) => void): Promise<void> => {
-      return containerProviderRegistry.pushImage(engine, imageId, callback);
+      onDataCallbacksPushImageId++;
+      onDataCallbacksPushImage.set(onDataCallbacksPushImageId, callback);
+      return ipcRenderer.invoke('container-provider-registry:pushImage', engine, imageId, onDataCallbacksPushImageId);
+    },
+  );
+  ipcRenderer.on(
+    'container-provider-registry:pushImage-onData',
+    (_, onDataCallbacksPushImageId: number, name: string, data: string) => {
+      // grab callback from the map
+      const callback = onDataCallbacksPushImage.get(onDataCallbacksPushImageId);
+      if (callback) {
+        callback(name, data);
+      }
     },
   );
 
   contextBridge.exposeInMainWorld('restartContainer', async (engine: string, containerId: string): Promise<void> => {
-    return containerProviderRegistry.restartContainer(engine, containerId);
+    return ipcRenderer.invoke('container-provider-registry:restartContainer', engine, containerId);
   });
 
   contextBridge.exposeInMainWorld(
     'createAndStartContainer',
     async (engine: string, options: ContainerCreateOptions): Promise<void> => {
-      return containerProviderRegistry.createAndStartContainer(engine, options);
+      return ipcRenderer.invoke('container-provider-registry:createAndStartContainer', engine, options);
     },
   );
 
   contextBridge.exposeInMainWorld('stopContainer', async (engine: string, containerId: string): Promise<void> => {
-    return containerProviderRegistry.stopContainer(engine, containerId);
+    return ipcRenderer.invoke('container-provider-registry:stopContainer', engine, containerId);
   });
+  contextBridge.exposeInMainWorld('deleteContainer', async (engine: string, containerId: string): Promise<void> => {
+    return ipcRenderer.invoke('container-provider-registry:deleteContainer', engine, containerId);
+  });
+
+  let onDataCallbacksLogsContainerId = 0;
+  const onDataCallbacksLogsContainer = new Map<number, (name: string, data: string) => void>();
 
   contextBridge.exposeInMainWorld(
     'logsContainer',
     async (engine: string, containerId: string, callback: (name: string, data: string) => void): Promise<void> => {
-      return containerProviderRegistry.logsContainer(engine, containerId, callback);
+      onDataCallbacksLogsContainerId++;
+      onDataCallbacksLogsContainer.set(onDataCallbacksLogsContainerId, callback);
+      return ipcRenderer.invoke(
+        'container-provider-registry:logsContainer',
+        engine,
+        containerId,
+        onDataCallbacksLogsContainerId,
+      );
+    },
+  );
+  ipcRenderer.on(
+    'container-provider-registry:logsContainer-onData',
+    (_, onDataCallbacksLogsContainerId: number, name: string, data: string) => {
+      // grab callback from the map
+      const callback = onDataCallbacksLogsContainer.get(onDataCallbacksLogsContainerId);
+      if (callback) {
+        callback(name, data);
+      }
+    },
+  );
+
+  // callbacks for shellInContainer
+  let onDataCallbacksShellInContainerId = 0;
+  const onDataCallbacksShellInContainer = new Map<number, (data: Buffer) => void>();
+  contextBridge.exposeInMainWorld(
+    'shellInContainer',
+    async (engine: string, containerId: string, onData: (data: Buffer) => void): Promise<number> => {
+      onDataCallbacksShellInContainerId++;
+      onDataCallbacksShellInContainer.set(onDataCallbacksShellInContainerId, onData);
+      return ipcRenderer.invoke(
+        'container-provider-registry:shellInContainer',
+        engine,
+        containerId,
+        onDataCallbacksShellInContainerId,
+      );
+    },
+  );
+
+  contextBridge.exposeInMainWorld('shellInContainerSend', async (dataId: number, content: string): Promise<void> => {
+    return ipcRenderer.invoke('container-provider-registry:shellInContainerSend', dataId, content);
+  });
+
+  ipcRenderer.on(
+    'container-provider-registry:shellInContainer-onData',
+    (_, onDataCallbacksShellInContainerId: number, data: Buffer) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInContainer.get(onDataCallbacksShellInContainerId);
+      if (callback) {
+        callback(data);
+      }
     },
   );
 
   contextBridge.exposeInMainWorld(
-    'shellInContainer',
-    async (engine: string, containerId: string, onData: (data: Buffer) => void): Promise<(param: string) => void> => {
-      return containerProviderRegistry.shellInContainer(engine, containerId, onData);
+    'getImageInspect',
+    async (engine: string, imageId: string): Promise<ImageInspectInfo> => {
+      return ipcRenderer.invoke('container-provider-registry:getImageInspect', engine, imageId);
     },
   );
 
   contextBridge.exposeInMainWorld('deleteImage', async (engine: string, imageId: string): Promise<void> => {
-    return containerProviderRegistry.deleteImage(engine, imageId);
-  });
-
-  contextBridge.exposeInMainWorld('deleteContainer', async (engine: string, containerId: string): Promise<void> => {
-    return containerProviderRegistry.deleteContainer(engine, containerId);
+    return ipcRenderer.invoke('container-provider-registry:deleteImage', engine, imageId);
   });
 
   contextBridge.exposeInMainWorld('startProviderLifecycle', async (providerId: string): Promise<void> => {
-    return providerRegistry.startProviderLifecycle(providerId);
+    return ipcRenderer.invoke('provider-registry:startProviderLifecycle', providerId);
   });
 
   contextBridge.exposeInMainWorld('stopProviderLifecycle', async (providerId: string): Promise<void> => {
-    return providerRegistry.stopProviderLifecycle(providerId);
+    return ipcRenderer.invoke('provider-registry:stopProviderLifecycle', providerId);
   });
 
-  contextBridge.exposeInMainWorld('providerConnectionLifecycle', {
-    start: async (
-      providerId: string,
-      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-    ): Promise<void> => {
-      return providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo);
+  contextBridge.exposeInMainWorld(
+    'createProviderConnection',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (internalProviderId: string, params: { [key: string]: any }): Promise<void> => {
+      return ipcRenderer.invoke('provider-registry:createProviderConnection', internalProviderId, params);
     },
-    stop: async (
-      providerId: string,
-      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-    ): Promise<void> => {
-      return providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo);
+  );
+
+  contextBridge.exposeInMainWorld(
+    'startProviderConnectionLifecycle',
+    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<void> => {
+      return ipcRenderer.invoke(
+        'provider-registry:startProviderConnectionLifecycle',
+        providerId,
+        providerContainerConnectionInfo,
+      );
     },
-    delete: async (
-      providerId: string,
-      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-    ): Promise<void> => {
-      return providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo);
+  );
+
+  contextBridge.exposeInMainWorld(
+    'stopProviderConnectionLifecycle',
+    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<void> => {
+      return ipcRenderer.invoke(
+        'provider-registry:stopProviderConnectionLifecycle',
+        providerId,
+        providerContainerConnectionInfo,
+      );
     },
-  });
+  );
+
+  contextBridge.exposeInMainWorld(
+    'deleteProviderConnectionLifecycle',
+    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<void> => {
+      return ipcRenderer.invoke(
+        'provider-registry:deleteProviderConnectionLifecycle',
+        providerId,
+        providerContainerConnectionInfo,
+      );
+    },
+  );
+
+  let onDataCallbacksBuildImageId = 0;
+  const onDataCallbacksBuildImage = new Map<number, (eventName: string, data: string) => void>();
 
   contextBridge.exposeInMainWorld(
     'buildImage',
@@ -188,64 +267,62 @@ function initExtensions(): void {
       selectedProvider: ProviderContainerConnectionInfo,
       eventCollect: (eventName: string, data: string) => void,
     ): Promise<unknown> => {
-      return containerProviderRegistry.buildImage(
+      onDataCallbacksBuildImageId++;
+      onDataCallbacksBuildImage.set(onDataCallbacksBuildImageId, eventCollect);
+      return ipcRenderer.invoke(
+        'container-provider-registry:buildImage',
         containerBuildContextDirectory,
         relativeContainerfilePath,
         imageName,
         selectedProvider,
-        eventCollect,
+        onDataCallbacksBuildImageId,
       );
     },
   );
-
-  contextBridge.exposeInMainWorld(
-    'getImageInspect',
-    async (engine: string, imageId: string): Promise<ImageInspectInfo> => {
-      return containerProviderRegistry.getImageInspect(engine, imageId);
+  ipcRenderer.on(
+    'container-provider-registry:buildImage-onData',
+    (_, onDataCallbacksBuildImageId: number, eventName: string, data: string) => {
+      // grab callback from the map
+      const callback = onDataCallbacksBuildImage.get(onDataCallbacksBuildImageId);
+      if (callback) {
+        callback(eventName, data);
+      }
     },
   );
 
   contextBridge.exposeInMainWorld('getProviderInfos', async (): Promise<ProviderInfo[]> => {
-    return providerRegistry.getProviderInfos();
+    return ipcRenderer.invoke('provider-registry:getProviderInfos');
   });
 
-  contextBridge.exposeInMainWorld('registry', {
-    hasAuthconfigForImage: (imageName: string): boolean => {
-      if (imageName.indexOf(',') !== -1) {
-        const allImageNames = imageName.split(',');
-        let hasAuth = false;
-        for (const imageName of allImageNames) {
-          hasAuth = hasAuth || imageRegistry.getAuthconfigForImage(imageName) !== undefined;
-        }
-        return hasAuth;
-      }
-      const authconfig = imageRegistry.getAuthconfigForImage(imageName);
-      return authconfig !== undefined;
-    },
-    getRegistries: async (): Promise<readonly containerDesktopAPI.Registry[]> => {
-      return imageRegistry.getRegistries();
-    },
-    getProviderNames: async (): Promise<string[]> => {
-      return imageRegistry.getProviderNames();
-    },
-    unregisterRegistry: async (registry: containerDesktopAPI.Registry): Promise<void> => {
-      return imageRegistry.unregisterRegistry(registry);
-    },
-    registerRegistry: async (registry: containerDesktopAPI.Registry): Promise<containerDesktopAPI.Disposable> => {
-      return imageRegistry.registerRegistry(registry);
-    },
-    createRegistry: async (
-      providerName: string,
-      registryCreateOptions: containerDesktopAPI.RegistryCreateOptions,
-    ): Promise<containerDesktopAPI.Disposable> => {
-      return imageRegistry.createRegistry(providerName, registryCreateOptions);
-    },
+  contextBridge.exposeInMainWorld('getImageRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
+    return ipcRenderer.invoke('image-registry:getRegistries');
   });
+  contextBridge.exposeInMainWorld('getImageRegistryProviderNames', async (): Promise<string[]> => {
+    return ipcRenderer.invoke('image-registry:getProviderNames');
+  });
+
+  contextBridge.exposeInMainWorld('hasAuthconfigForImage', async (imageName: string): Promise<boolean> => {
+    return ipcRenderer.invoke('image-registry:hasAuthconfigForImage', imageName);
+  });
+
+  contextBridge.exposeInMainWorld(
+    'createImageRegistry',
+    async (providerName: string, registryCreateOptions: containerDesktopAPI.RegistryCreateOptions): Promise<void> => {
+      return ipcRenderer.invoke('image-registry:createRegistry', providerName, registryCreateOptions);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'unregisterImageRegistry',
+    async (registry: containerDesktopAPI.Registry): Promise<void> => {
+      return ipcRenderer.invoke('image-registry:unregisterRegistry', registry);
+    },
+  );
 
   contextBridge.exposeInMainWorld(
     'getConfigurationProperties',
     async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
-      return configurationRegistry.getConfigurationProperties();
+      return ipcRenderer.invoke('configuration-registry:getConfigurationProperties');
     },
   );
 
@@ -253,12 +330,8 @@ function initExtensions(): void {
   // https://www.electronjs.org/docs/latest/api/context-bridge#parameter--error--return-type-support
   contextBridge.exposeInMainWorld(
     'getConfigurationValue',
-    <T>(key: string, scope?: containerDesktopAPI.ConfigurationScope): T | undefined => {
-      // extract parent key with first name before first . notation
-      const parentKey = key.substring(0, key.indexOf('.'));
-      // extract child key with first name after first . notation
-      const childKey = key.substring(key.indexOf('.') + 1);
-      return configurationRegistry.getConfiguration(parentKey, scope).get(childKey);
+    <T>(key: string, scope?: containerDesktopAPI.ConfigurationScope): Promise<T | undefined> => {
+      return ipcRenderer.invoke('configuration-registry:getConfigurationValue', key, scope);
     },
   );
 
@@ -266,42 +339,25 @@ function initExtensions(): void {
     'updateConfigurationValue',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (key: string, value: any, scope?: containerDesktopAPI.ConfigurationScope): Promise<void> => {
-      return configurationRegistry.updateConfigurationValue(key, value, scope);
+      return ipcRenderer.invoke('configuration-registry:updateConfigurationValue', key, value, scope);
     },
   );
 
-  contextBridge.exposeInMainWorld(
-    'createProviderConnection',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (internalProviderId: string, params: { [key: string]: any }): Promise<void> => {
-      return providerRegistry.createProviderConnection(internalProviderId, params);
-    },
-  );
-
-  const extensionLoader = new ExtensionLoader(
-    commandRegistry,
-    providerRegistry,
-    configurationRegistry,
-    imageRegistry,
-    apiSender,
-    trayMenuRegistry,
-  );
   contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
-    return extensionLoader.listExtensions();
+    return ipcRenderer.invoke('extension-loader:listExtensions');
   });
 
   contextBridge.exposeInMainWorld('stopExtension', async (extensionId: string): Promise<void> => {
-    return extensionLoader.deactivateExtension(extensionId);
+    return ipcRenderer.invoke('extension-loader:deactivateExtension', extensionId);
   });
+
   contextBridge.exposeInMainWorld('startExtension', async (extensionId: string): Promise<void> => {
-    return extensionLoader.startExtension(extensionId);
+    return ipcRenderer.invoke('extension-loader:startExtension', extensionId);
   });
 
-  contextBridge.exposeInMainWorld('openExternal', (link: string): void => {
-    shell.openExternal(link);
+  contextBridge.exposeInMainWorld('openExternal', async (link: string): Promise<void> => {
+    return ipcRenderer.invoke('shell:openExternal', link);
   });
-
-  contextBridge.exposeInMainWorld('trayMenu', trayMenuRegistry);
 
   // Handle callback on dialog file/folder by calling the callback once we get the answer
   ipcRenderer.on(
@@ -319,6 +375,10 @@ function initExtensions(): void {
       }
     },
   );
+
+  let idDialog = 0;
+
+  const dialogResponses = new Map<string, DialogResultCallback>();
 
   contextBridge.exposeInMainWorld('openFileDialog', async (message: string) => {
     // generate id
@@ -367,40 +427,62 @@ function initExtensions(): void {
   });
 
   contextBridge.exposeInMainWorld('getFreePort', async (port: number): Promise<number> => {
-    return getFreePort(port);
+    return ipcRenderer.invoke('system:get-free-port', port);
   });
 
-  type logFn = (...data: unknown[]) => void;
+  type LogFunction = (...data: unknown[]) => void;
 
-  contextBridge.exposeInMainWorld('providerLogs', {
-    startReceiveLogs: (
+  let onDataCallbacksStartReceiveLogsId = 0;
+
+  const onDataCallbacksStartReceiveLogs = new Map<number, containerDesktopAPI.Logger>();
+  contextBridge.exposeInMainWorld(
+    'startReceiveLogs',
+    async (
       providerId: string,
-      log: logFn,
-      warn: logFn,
-      error: logFn,
+      log: LogFunction,
+      warn: LogFunction,
+      error: LogFunction,
       containerConnectionInfo?: ProviderContainerConnectionInfo,
-    ) => {
-      let context;
-      if (containerConnectionInfo) {
-        context = providerRegistry.getMatchingContainerLifecycleContext(providerId, containerConnectionInfo);
-      } else {
-        context = providerRegistry.getMatchingLifecycleContext(providerId);
-      }
-      context.log.setLogHandler({ log: log, warn: warn, error: error });
+    ): Promise<void> => {
+      onDataCallbacksStartReceiveLogsId++;
+      const logger: containerDesktopAPI.Logger = {
+        log,
+        warn,
+        error,
+      };
+      onDataCallbacksStartReceiveLogs.set(onDataCallbacksStartReceiveLogsId, logger);
+      return ipcRenderer.invoke(
+        'provider-registry:startReceiveLogs',
+        providerId,
+        onDataCallbacksStartReceiveLogsId,
+        containerConnectionInfo,
+      );
     },
+  );
+  ipcRenderer.on(
+    'provider-registry:startReceiveLogs-onData',
+    (_, onDataCallbacksStartReceiveLogsId: number, channel: string, data: unknown[]) => {
+      // grab callback from the map
+      const callback = onDataCallbacksStartReceiveLogs.get(onDataCallbacksStartReceiveLogsId);
+      if (callback) {
+        if (channel === 'log') {
+          callback.log(data);
+        } else if (channel === 'warn') {
+          callback.log(data);
+        } else if (channel === 'error') {
+          callback.log(data);
+        }
+      }
+    },
+  );
 
-    stopReceiveLogs: (providerId: string, containerConnectionInfo?: ProviderContainerConnectionInfo) => {
-      let context;
-      if (containerConnectionInfo) {
-        context = providerRegistry.getMatchingContainerLifecycleContext(providerId, containerConnectionInfo);
-      } else {
-        context = providerRegistry.getMatchingLifecycleContext(providerId);
-      }
-      context.log.removeLogHandler();
+  contextBridge.exposeInMainWorld(
+    'stopReceiveLogs',
+    async (providerId: string, containerConnectionInfo?: ProviderContainerConnectionInfo): Promise<void> => {
+      return ipcRenderer.invoke('provider-registry:stopReceiveLogs', providerId, containerConnectionInfo);
     },
-  });
-  extensionLoader.start();
+  );
 }
 
-// start extensions
-initExtensions();
+// expose methods
+initExposure();

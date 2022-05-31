@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { writable, derived } from 'svelte/store';
-import type { ImageInfo } from '../../../preload/src/api/image-info';
+import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
 export async function fetchImages() {
   const result = await window.listImages();
   imagesInfos.set(result);

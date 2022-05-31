@@ -20,7 +20,6 @@ import { writable } from 'svelte/store';
 
 export async function fetchConfigurationProperties() {
   const result = await window.getConfigurationProperties();
-  console.log('store of configurationProperties', result);
   const properties = [];
   for (const key in result) {
     properties.push(result[key]);

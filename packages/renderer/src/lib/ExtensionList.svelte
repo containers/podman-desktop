@@ -5,7 +5,7 @@ import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
 import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import { extensionInfos } from '../stores/extensions';
-import type { ExtensionInfo } from '../../../preload/src/api/extension-info';
+import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
 
 let extensions = [];
 onMount(async () => {

@@ -16,25 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Registry } from '@tmpwip/extension-api';
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import type * as Dockerode from 'dockerode';
 
-export async function fetchRegistries() {
-  const result = await window.getImageRegistries();
-  registriesInfos.set(result);
+export interface ImageInfo extends Dockerode.ImageInfo {
+  engineId: string;
+  engineName: string;
 }
-
-fetchRegistries();
-export const registriesInfos: Writable<readonly Registry[]> = writable([]);
-
-export const searchPattern = writable('');
-
-// need to refresh when new registry are updated/deleted
-window.events?.receive('registry-register', () => {
-  fetchRegistries();
-});
-
-window.events?.receive('registry-unregister', () => {
-  fetchRegistries();
-});

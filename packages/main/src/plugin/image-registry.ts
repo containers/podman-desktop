@@ -19,7 +19,7 @@
 import { Disposable } from './types/disposable';
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { Emitter } from './events/emitter';
-import type Dockerode from 'dockerode';
+import type * as Dockerode from 'dockerode';
 export class ImageRegistry {
   private registries: containerDesktopAPI.Registry[] = [];
   private providers: Map<string, containerDesktopAPI.RegistryProvider> = new Map();

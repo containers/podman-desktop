@@ -3,7 +3,7 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { onMount, onDestroy } from 'svelte';
 import 'xterm/css/xterm.css';
-import { TerminalSettings } from '../../../../preload/src/terminal-settings';
+import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
 export let logsTerminal;
 export let onInit: () => void;
@@ -11,14 +11,16 @@ let logsXtermDiv: HTMLDivElement;
 
 let resizeHandler;
 
-function refreshTerminal() {
+async function refreshTerminal() {
   // missing element, return
   if (!logsXtermDiv) {
     return;
   }
   // grab font size
-  const fontSize = window.getConfigurationValue<number>(TerminalSettings.SectionName + '.' + TerminalSettings.FontSize);
-  const lineHeight = window.getConfigurationValue<number>(
+  const fontSize = await window.getConfigurationValue<number>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
+  );
+  const lineHeight = await window.getConfigurationValue<number>(
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
 

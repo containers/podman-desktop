@@ -6,7 +6,7 @@ import { onMount } from 'svelte';
 import {
   ConfigurationRegistry,
   IConfigurationPropertyRecordedSchema,
-} from '../../../../preload/src/configuration-registry';
+} from '../../../../main/src/plugin/configuration-registry';
 
 let recordValue = '';
 let invalidEntry = false;
@@ -20,7 +20,7 @@ export let record: IConfigurationPropertyRecordedSchema;
 onMount(async () => {
   if (record.scope === ConfigurationRegistry.DEFAULT_SCOPE) {
     try {
-      recordValue = window.getConfigurationValue(record.id, record.scope);
+      recordValue = await window.getConfigurationValue(record.id, record.scope);
     } catch (err) {
       console.error('Error getting configuration value', err);
     }
