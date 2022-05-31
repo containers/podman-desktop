@@ -24,20 +24,9 @@ import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { ProviderContainerConnectionInfo } from './api/provider-info';
 import type { ImageRegistry } from './image-registry';
+import type { PullEvent } from './api/pull-event';
 
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
-export interface PullEvent {
-  stream?: string;
-  id?: string;
-  status?: string;
-  progress?: string;
-  progressDetail?: {
-    current?: number;
-    total?: number;
-  };
-  error?: string;
-  errorDetails?: { message?: string };
-}
 
 export interface InternalContainerProvider {
   name: string;

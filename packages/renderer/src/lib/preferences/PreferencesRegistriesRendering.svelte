@@ -12,7 +12,7 @@ onMount(() => {
 });
 
 function removeRegistry(registry: Registry): void {
-  window.registry.unregisterRegistry(registry);
+  window.unregisterImageRegistry(registry);
 }
 
 let showRegistryModal = false;

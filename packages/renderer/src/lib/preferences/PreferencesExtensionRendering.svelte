@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { extensionInfos } from '../../stores/extensions';
-import type { ExtensionInfo } from '../../../../preload/src/api/extension-info';
+import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 export let extensionId: string = undefined;
 
 let extensions: ExtensionInfo[] = [];

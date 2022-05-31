@@ -3,7 +3,7 @@ import { providerInfos } from '../stores/providers';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
 import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
-import type { ProviderInfo } from '../../../preload/src/api/provider-info';
+import type { ProviderInfo } from '../../../main/src/plugin/api/provider-info';
 
 let waiting = false;
 

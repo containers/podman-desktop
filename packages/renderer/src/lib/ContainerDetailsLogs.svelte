@@ -5,7 +5,7 @@ import { onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
-import { TerminalSettings } from '../../../preload/src/terminal-settings';
+import { TerminalSettings } from '../../../main/src/plugin/terminal-settings';
 
 export let container: ContainerInfoUI;
 
@@ -47,15 +47,17 @@ router.subscribe(async route => {
   currentRouterPath = route.path;
 });
 
-function refreshTerminal() {
+async function refreshTerminal() {
   // missing element, return
   if (!logsXtermDiv) {
     console.log('missing xterm div, exiting...');
     return;
   }
   // grab font size
-  const fontSize = window.getConfigurationValue<number>(TerminalSettings.SectionName + '.' + TerminalSettings.FontSize);
-  const lineHeight = window.getConfigurationValue<number>(
+  const fontSize = await window.getConfigurationValue<number>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
+  );
+  const lineHeight = await window.getConfigurationValue<number>(
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
 

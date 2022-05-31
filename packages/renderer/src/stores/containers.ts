@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { writable, derived } from 'svelte/store';
-import type { ContainerInfo } from '../../../preload/src/api/container-info';
+import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 
 export async function fetchContainers() {
   const result = await window.listContainers();

@@ -24,8 +24,8 @@ import statusStopped from './assets/status-stopped.png';
 import statusUnknown from './assets/status-unknown.png';
 import { isMac } from './util';
 import statusBusy from './assets/status-busy.png';
-import type { ProviderInfo, ProviderContainerConnectionInfo } from '../../preload/src/api/provider-info';
 import type { AnimatedTray, TrayIconStatus } from './tray-animate-icon';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from './plugin/api/provider-info';
 
 // extends type from the plugin
 interface ProviderMenuItem extends ProviderInfo {
@@ -51,10 +51,7 @@ export class TrayMenu {
   constructor(private readonly tray: Tray, private readonly animatedTray: AnimatedTray) {
     ipcMain.on('tray:add-menu-item', (_, param: { providerId: string; menuItem: MenuItemConstructorOptions }) => {
       param.menuItem.click = () => {
-        const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
-        if (window) {
-          window.webContents.send('tray:menu-item-click', param.menuItem.id);
-        }
+        ipcMain.emit('tray:menu-item-click', '', param.menuItem.id);
       };
       // grab matching provider
       const provider = Array.from(this.menuProviderItems.values()).find(item => item.id === param.providerId);
@@ -76,45 +73,31 @@ export class TrayMenu {
       }
     });
 
-    // Handle provider container connection
-    ipcMain.on(
-      'tray:container-provider-connection',
-      (
-        _,
-        action: string,
-        providerInfo: ProviderInfo,
-        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-      ): void => {
-        // lifecycle on the provider, so do not add entry for the connection
-        if (providerInfo.lifecycleMethods) {
-          return;
-        }
-
-        if (action === 'add') {
-          this.addProviderContainerConnectionItems(providerInfo, providerContainerConnectionInfo);
-        } else if (action === 'update') {
-          this.updateProviderContainerConnectionItems(providerInfo, providerContainerConnectionInfo);
-        } else if (action === 'delete') {
-          this.deleteProviderContainerConnectionItems(providerInfo, providerContainerConnectionInfo);
-        }
-      },
-    );
-
-    ipcMain.on('tray:provider', (_, action: string, provider: ProviderInfo): void => {
-      if (action === 'add') {
-        this.addProviderItems(provider);
-      } else if (action === 'update') {
-        this.updateProvider(provider);
-      } else if (action === 'delete') {
-        this.deleteProvider(provider);
-      }
-    });
-
     // create menu first time
     this.updateMenu();
   }
 
-  private addProviderContainerConnectionItems(
+  // Handle provider container connection
+  handleConnection(
+    action: string,
+    providerInfo: ProviderInfo,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  ): void {
+    // lifecycle on the provider, so do not add entry for the connection
+    if (providerInfo.lifecycleMethods) {
+      return;
+    }
+
+    if (action === 'add') {
+      this.addProviderContainerConnectionItems(providerInfo, providerContainerConnectionInfo);
+    } else if (action === 'update') {
+      this.updateProviderContainerConnectionItems(providerInfo, providerContainerConnectionInfo);
+    } else if (action === 'delete') {
+      this.deleteProviderContainerConnectionItems(providerInfo, providerContainerConnectionInfo);
+    }
+  }
+
+  public addProviderContainerConnectionItems(
     providerInfo: ProviderInfo,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
   ): void {
@@ -130,7 +113,7 @@ export class TrayMenu {
     this.updateMenu();
   }
 
-  private updateProviderContainerConnectionItems(
+  public updateProviderContainerConnectionItems(
     _provider: ProviderInfo,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
   ): void {
@@ -143,7 +126,7 @@ export class TrayMenu {
     this.updateMenu();
   }
 
-  private deleteProviderContainerConnectionItems(
+  public deleteProviderContainerConnectionItems(
     _provider: ProviderInfo,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
   ): void {
@@ -151,7 +134,7 @@ export class TrayMenu {
     this.updateMenu();
   }
 
-  private addProviderItems(provider: ProviderInfo): void {
+  public addProviderItems(provider: ProviderInfo): void {
     const providerMenuItem: ProviderMenuItem = {
       ...provider,
       childItems: [],
@@ -166,7 +149,7 @@ export class TrayMenu {
     this.updateMenu();
   }
 
-  private updateProvider(provider: ProviderInfo): void {
+  public updateProvider(provider: ProviderInfo): void {
     const menuProviderItem =
       this.menuProviderItems.get(provider.internalId) ||
       Array.from(this.menuProviderItems.values()).find(item => item.id === provider.id);
@@ -176,7 +159,7 @@ export class TrayMenu {
     this.updateMenu();
   }
 
-  private deleteProvider(provider: ProviderInfo): void {
+  public deleteProvider(provider: ProviderInfo): void {
     this.menuProviderItems.delete(provider.internalId);
     this.updateMenu();
   }
@@ -322,10 +305,8 @@ export class TrayMenu {
   }
 
   private sendItemClick(param: { action: string; providerInfo: ProviderInfo }): void {
-    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
-    if (window) {
-      window.webContents.send('tray:menu-provider-click', param);
-    }
+    // send empty event
+    ipcMain.emit('tray:menu-provider-click', '', param);
   }
 
   private sendProviderContainerConnectionInfoMenuItemClick(param: {
@@ -333,10 +314,7 @@ export class TrayMenu {
     providerInfo: ProviderInfo;
     providerContainerConnectionInfo: ProviderContainerConnectionInfo;
   }): void {
-    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
-    if (window) {
-      window.webContents.send('tray:menu-provider-container-connection-click', param);
-    }
+    ipcMain.emit('tray:menu-provider-container-connection-click', '', param);
   }
 
   private showMainWindow(): void {

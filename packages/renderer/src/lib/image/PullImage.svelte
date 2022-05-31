@@ -5,9 +5,9 @@ import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../preload/src/api/provider-info';
-import type { PullEvent } from '../../../../preload/src/container-registry';
-import { TerminalSettings } from '../../../../preload/src/terminal-settings';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { PullEvent } from '../../../../main/src/plugin/container-registry';
+import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
 import { providerInfos } from '../../stores/providers';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
@@ -79,7 +79,7 @@ function callback(event: PullEvent) {
 }
 let pullLogsXtermDiv: HTMLDivElement;
 
-function initTerminal() {
+async function initTerminal() {
   if (terminalIntialized) {
     return;
   }
@@ -90,8 +90,10 @@ function initTerminal() {
   }
 
   // grab font size
-  const fontSize = window.getConfigurationValue<number>(TerminalSettings.SectionName + '.' + TerminalSettings.FontSize);
-  const lineHeight = window.getConfigurationValue<number>(
+  const fontSize = await window.getConfigurationValue<number>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
+  );
+  const lineHeight = await window.getConfigurationValue<number>(
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
 
