@@ -267,8 +267,14 @@ export class ExtensionLoader {
     const dialogs = this.dialogs;
     const progress = this.progress;
     const windowObj: typeof containerDesktopAPI.window = {
-      showDialog: (type: containerDesktopAPI.DialogType, title: string, message: string, ...items: string[]) => {
-        return dialogs.showDialog(type, title, message, items);
+      showInformationMessage: (title: string, message: string, ...items: string[]) => {
+        return dialogs.showDialog('info', title, message, items);
+      },
+      showWarningMessage: (title: string, message: string, ...items: string[]) => {
+        return dialogs.showDialog('warning', title, message, items);
+      },
+      showErrorMessage: (title: string, message: string, ...items: string[]) => {
+        return dialogs.showDialog('error', title, message, items);
       },
 
       withProgress: <R>(

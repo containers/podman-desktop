@@ -314,8 +314,6 @@ declare module '@tmpwip/extension-api' {
     affectsConfiguration(section: string, scope?: ConfigurationScope): boolean;
   }
 
-  export type DialogType = 'none' | 'info' | 'error' | 'question' | 'warning';
-
   /**
    * Defines a generalized way of reporting progress updates.
    */
@@ -330,19 +328,38 @@ declare module '@tmpwip/extension-api' {
 
   export namespace window {
     /**
-     * Show an dialog window. Optionally provide an array of items which will be presented as
+     * Show an information message. Optionally provide an array of items which will be presented as
      * clickable buttons.
      *
      * @param message The message to show.
      * @param items A set of items that will be rendered as actions in the message.
      * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
      */
-    export function showDialog(
-      type: DialogType,
+    export function showInformationMessage(
       title: string,
       message: string,
       ...items: string[]
     ): Promise<string | undefined>;
+
+    /**
+     * Show a warning message. Optionally provide an array of items which will be presented as
+     * clickable buttons.
+     *
+     * @param message The message to show.
+     * @param items A set of items that will be rendered as actions in the message.
+     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     */
+    export function showWarningMessage(title: string, message: string, ...items: string[]): Promise<string | undefined>;
+
+    /**
+     * Show a error message. Optionally provide an array of items which will be presented as
+     * clickable buttons.
+     *
+     * @param message The message to show.
+     * @param items A set of items that will be rendered as actions in the message.
+     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     */
+    export function showErrorMessage(title: string, message: string, ...items: string[]): Promise<string | undefined>;
 
     export function withProgress<R>(
       task: (progress: Progress<{ message?: string; increment: number }>) => Promise<R>,

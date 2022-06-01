@@ -87,7 +87,7 @@ async function installWinBundledPodman(): Promise<boolean> {
       if (fs.existsSync(msiPath)) {
         await executeInstaller('msiexec', ['/i', msiPath, '/qb', '/norestart']);
         progress.report({ increment: 80 });
-        await extensionApi.window.showDialog('info', 'Podman', 'Podman is successfully installed.', 'OK');
+        await extensionApi.window.showInformationMessage('Podman', 'Podman is successfully installed.', 'OK');
         return true;
       } else {
         throw new Error(`Can't find Podman msi package! Path: ${msiPath} doesn't exists.`);
@@ -95,8 +95,7 @@ async function installWinBundledPodman(): Promise<boolean> {
     } catch (err) {
       console.error('Error during install!');
       console.error(err);
-      await extensionApi.window.showDialog(
-        'error',
+      await extensionApi.window.showErrorMessage(
         'Podman Error',
         'Unexpected error, during Podman installation: ' + err,
         'OK',
@@ -114,7 +113,7 @@ async function installWinPodman(release: PodmanRelease): Promise<boolean> {
     const latestMsi = release.assets.find(it => it.name.endsWith('.msi'));
     if (!latestMsi) {
       progress.report({ increment: -1 });
-      throw new Error('Can\'t find latest MSI bundle');
+      throw new Error("Can't find latest MSI bundle");
     }
 
     const msiPath = path.resolve(os.tmpdir(), latestMsi.name);
@@ -132,14 +131,13 @@ async function installWinPodman(release: PodmanRelease): Promise<boolean> {
       if (fs.existsSync(msiPath)) {
         await executeInstaller('msiexec', ['/i', msiPath, '/qb', '/norestart']);
         progress.report({ increment: 80 });
-        await extensionApi.window.showDialog('info', 'Podman', 'Podman is successfully installed.', 'OK');
+        await extensionApi.window.showInformationMessage('Podman', 'Podman is successfully installed.', 'OK');
         return true;
       }
     } catch (err) {
       console.error('Error during install!');
       console.error(err);
-      await extensionApi.window.showDialog(
-        'error',
+      await extensionApi.window.showErrorMessage(
         'Podman Error',
         'Unexpected error, during Podman installation: ' + err,
         'OK',

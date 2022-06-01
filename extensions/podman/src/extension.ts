@@ -321,8 +321,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   if (!podmanInfoRaw) {
     const installedPodman = await getPodmanInstallation();
     if (!installedPodman) {
-      const dialogResult = await extensionApi.window.showDialog(
-        'question',
+      const dialogResult = await extensionApi.window.showInformationMessage(
         'Podman',
         `Podman is not installed on this system, would you like to install Podman ${bundledPodmanVersion}?`,
         'Yes',
@@ -440,8 +439,7 @@ async function doCheckUpdate(): Promise<void> {
   const latestVersion = await fetchLatestPodmanVersion();
   if (latestVersion.name !== podmanInfo.podmanVersion) {
     //TODO: better to use some sort of notifications for this
-    const answer = await extensionApi.window.showDialog(
-      'question',
+    const answer = await extensionApi.window.showInformationMessage(
       'Podman Update',
       `There are new Podman ${latestVersion.name}.\nDo you want to install it?`,
       'Yes',
@@ -462,8 +460,7 @@ async function doCheckUpdate(): Promise<void> {
 
 async function checkInstalledPodmanVersion(installedVersion: string, bundledVersion: string): Promise<void> {
   if (lte(installedVersion, bundledVersion)) {
-    const answer = await extensionApi.window.showDialog(
-      'question',
+    const answer = await extensionApi.window.showInformationMessage(
       'Podman',
       `You have Podman ${installedVersion}.\nDo you want to update to ${bundledVersion}?`,
       'Yes',

@@ -19,8 +19,9 @@
 import { dialog } from 'electron';
 import { findWindow } from '../util';
 
+type DialogType = 'none' | 'info' | 'error' | 'question' | 'warning';
 export class Dialogs {
-  async showDialog(type: string, title: string, message: string, items: string[]): Promise<string | undefined> {
+  async showDialog(type: DialogType, title: string, message: string, items: string[]): Promise<string | undefined> {
     const window = findWindow();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const result = await dialog.showMessageBox(window!, {
