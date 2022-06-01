@@ -2,7 +2,7 @@
 import { onMount } from 'svelte';
 import { filtered, searchPattern } from '../stores/containers';
 
-import type { ContainerInfo } from '../../../preload/src/api/container-info';
+import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
 import { router, Route } from 'tinro';
 import ContainerDetails from './ContainerDetails.svelte';

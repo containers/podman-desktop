@@ -1,9 +1,9 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../preload/src/configuration-registry';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
 import { providerInfos } from '../../stores/providers';
 import { onMount } from 'svelte';
-import type { ProviderInfo } from '../../../../preload/src/api/provider-info';
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesContainerConnectionCreationRendering from './PreferencesContainerConnectionCreationRendering.svelte';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
@@ -50,13 +50,13 @@ async function stopProvider(): Promise<void> {
 
 async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
   const logHandler = (newContent: any[]) => {
-    writeToTerminal(logsTerminal, newContent);
+    writeToTerminal(logsTerminal, newContent, '\x1b[37m');
   };
-  window.providerLogs.startReceiveLogs(provider.internalId, logHandler, logHandler, logHandler);
+  window.startReceiveLogs(provider.internalId, logHandler, logHandler, logHandler);
 }
 
 async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
-  await window.providerLogs.stopReceiveLogs(provider.internalId);
+  await window.stopReceiveLogs(provider.internalId);
 }
 </script>
 

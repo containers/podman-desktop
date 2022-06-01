@@ -18,13 +18,14 @@ let runContainerFromImageModal = false;
 let pushImageModal = false;
 let modalImageInfo: ImageInfoUI;
 let errorMessage: string = undefined;
+let isAuthenticatedForThisImage: boolean = false;
 
 async function runImage(imageInfo: ImageInfoUI) {
   modalImageInfo = imageInfo;
   runContainerFromImageModal = true;
 }
 
-$: isAuthenticatedForThisImage = window.registry.hasAuthconfigForImage(image.name);
+$: window.hasAuthconfigForImage(image.name).then(result => (isAuthenticatedForThisImage = result));
 let imageInfoToPush = undefined;
 
 async function deleteImage(imageInfo: ImageInfoUI): Promise<void> {

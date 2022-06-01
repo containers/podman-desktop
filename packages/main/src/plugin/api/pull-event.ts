@@ -16,9 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type Dockerode from 'dockerode';
-
-export interface ImageInfo extends Dockerode.ImageInfo {
-  engineId: string;
-  engineName: string;
+export interface PullEvent {
+  stream?: string;
+  id?: string;
+  status?: string;
+  progress?: string;
+  progressDetail?: {
+    current?: number;
+    total?: number;
+  };
+  error?: string;
+  errorDetails?: { message?: string };
 }

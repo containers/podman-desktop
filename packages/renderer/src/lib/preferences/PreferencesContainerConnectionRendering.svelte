@@ -1,11 +1,11 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../preload/src/configuration-registry';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
 import { Buffer } from 'buffer';
 import type { ContainerProviderConnection } from '@tmpwip/extension-api';
 import { providerInfos } from '../../stores/providers';
 import { beforeUpdate, onMount } from 'svelte';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../preload/src/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import Logger from './Logger.svelte';
@@ -52,16 +52,15 @@ $: configurationKeys = properties
   .sort((a, b) => a.id.localeCompare(b.id));
 
 // key + value for the properties declared for the ContainerConnection scope and has a value
-let connectionSettings;
-$: connectionSettings = configurationKeys
-  .map(configurationKey => {
+let connectionSettings = [];
+$: Promise.all(
+  configurationKeys.map(async configurationKey => {
     return {
       ...configurationKey,
-      value: window.getConfigurationValue(configurationKey.id, scope),
+      value: await window.getConfigurationValue(configurationKey.id, scope),
     };
-  })
-  .filter(configurationKey => configurationKey.value !== undefined);
-
+  }),
+).then(values => (connectionSettings = values.filter(configurationKey => configurationKey.value !== undefined)));
 $: scope = {
   endpoint: {
     socketPath,
@@ -84,7 +83,7 @@ router.subscribe(async route => {
 async function startConnection() {
   lifecycleError = undefined;
   try {
-    await window.providerConnectionLifecycle.start(providerInfo.internalId, containerConnectionInfo);
+    await window.startProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo);
   } catch (err) {
     lifecycleError = err;
   }
@@ -92,12 +91,12 @@ async function startConnection() {
 
 async function stopConnection() {
   lifecycleError = undefined;
-  await window.providerConnectionLifecycle.stop(providerInfo.internalId, containerConnectionInfo);
+  await window.stopProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo);
 }
 
 async function deleteConnection() {
   lifecycleError = undefined;
-  await window.providerConnectionLifecycle.delete(providerInfo.internalId, containerConnectionInfo);
+  await window.deleteProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo);
   router.goto('/preferences/providers');
 }
 
@@ -109,7 +108,7 @@ async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
   const logHandler = (newContent: any[], colorPrefix: string) => {
     writeToTerminal(logsTerminal, newContent, colorPrefix);
   };
-  window.providerLogs.startReceiveLogs(
+  window.startReceiveLogs(
     provider.internalId,
     data => logHandler(data, '\x1b[37m'),
     data => logHandler(data, '\x1b[33m'),
@@ -119,7 +118,7 @@ async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
 }
 
 async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
-  await window.providerLogs.stopReceiveLogs(provider.internalId, containerConnectionInfo);
+  await window.stopReceiveLogs(provider.internalId, containerConnectionInfo);
 }
 </script>
 

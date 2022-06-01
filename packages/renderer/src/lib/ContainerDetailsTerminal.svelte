@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { ContainerInfoUI } from './container/ContainerInfoUI';
-import { TerminalSettings } from '../../../preload/src/terminal-settings';
+import { TerminalSettings } from '../../../main/src/plugin/terminal-settings';
 import { router } from 'tinro';
 import { onMount } from 'svelte';
 import { Terminal } from 'xterm';
@@ -29,11 +29,11 @@ async function executeShellIntoContainer() {
   }
 
   // grab logs of the container
-  const sendCallback = await window.shellInContainer(container.engineId, container.id, receiveCallback);
+  const sendCallbackId = await window.shellInContainer(container.engineId, container.id, receiveCallback);
 
-  // pass data from xterm to docker
+  // pass data from xterm to container
   shellTerminal?.onData(data => {
-    sendCallback(data);
+    window.shellInContainerSend(sendCallbackId, data);
   });
 }
 
@@ -45,8 +45,10 @@ async function refreshTerminal() {
   }
 
   // grab font size
-  const fontSize = window.getConfigurationValue<number>(TerminalSettings.SectionName + '.' + TerminalSettings.FontSize);
-  const lineHeight = window.getConfigurationValue<number>(
+  const fontSize = await window.getConfigurationValue<number>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
+  );
+  const lineHeight = await window.getConfigurationValue<number>(
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
   shellTerminal = new Terminal({ fontSize, lineHeight });

@@ -13,7 +13,7 @@ let registryToCreate: Registry = {
 };
 
 onMount(async () => {
-  providerSourceNames = await window.registry.getProviderNames();
+  providerSourceNames = await window.getImageRegistryProviderNames();
   if (providerSourceNames.length > 0) {
     registryToCreate.source = providerSourceNames[0];
   }
@@ -61,7 +61,7 @@ let creationError = '';
 async function addRegistry() {
   creationError = '';
   try {
-    await window.registry.createRegistry(registryToCreate.source, registryToCreate);
+    await window.createImageRegistry(registryToCreate.source, registryToCreate);
     toggleCallback();
   } catch (error) {
     creationError = error;

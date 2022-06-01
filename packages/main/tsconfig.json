@@ -5,6 +5,7 @@
     "sourceMap": false,
     "moduleResolution": "Node",
     "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "isolatedModules": true,
 

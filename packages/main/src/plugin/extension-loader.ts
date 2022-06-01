@@ -95,12 +95,9 @@ export class ExtensionLoader {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       module._load = function (request: string, parent: any): any {
         if (request !== '@tmpwip/extension-api') {
-          console.log('loading...', request, parent);
           // eslint-disable-next-line prefer-rest-params
           return internalLoad.apply(this, arguments);
         }
-        console.log('in require function, loading with parent', parent.filename);
-
         const extension = Array.from(analyzedExtensions.values()).find(extension =>
           path.normalize(parent.filename).startsWith(path.normalize(extension.path)),
         );
@@ -114,13 +111,10 @@ export class ExtensionLoader {
 
   async loadPackagedFile(filePath: string): Promise<void> {
     // need to unpack the file before load it
-    console.log('loadPackagedFile', filePath);
-
     const filename = path.basename(filePath);
     const dirname = path.dirname(filePath);
 
     const unpackedDirectory = path.resolve(dirname, `../unpacked/${filename}`);
-    console.log('unpackedDirectory', unpackedDirectory);
     fs.mkdirSync(unpackedDirectory, { recursive: true });
     // extract to an existing directory
     zipper.sync.unzip(filePath).save(unpackedDirectory);
@@ -149,16 +143,12 @@ export class ExtensionLoader {
     let folders;
     // scan all extensions that we can find from the extensions folder
     if (import.meta.env.PROD) {
-      console.log('IN PRODUCTION MODE');
       // in production mode, use the extensions locally
-      console.log('dirname is', __dirname);
       folders = await this.readProductionFolders(path.join(__dirname, '../../../extensions'));
     } else {
       // in development mode, use the extensions locally
       folders = await this.readDevelopmentFolders(path.join(__dirname, '../../../extensions'));
     }
-    console.log('found folders', folders);
-
     // ok now load all extensions from these folders
     await Promise.all(folders.map(folder => this.loadExtension(folder)));
   }
@@ -182,13 +172,9 @@ export class ExtensionLoader {
   async loadExtension(extensionPath: string): Promise<void> {
     // load manifest
     const manifest = await this.loadManifest(extensionPath);
-    console.log('manifest is', manifest);
-
-    console.log('overriding require');
     this.overrideRequire();
 
     // create api object
-    console.log('create API object');
     const api = this.createApi();
 
     const extension: AnalyzedExtension = {
@@ -208,10 +194,8 @@ export class ExtensionLoader {
     }
 
     this.analyzedExtensions.set(extension.id, extension);
-    console.log('load runtime...' + extension.mainPath);
     const runtime = this.loadRuntime(extension.mainPath);
 
-    console.log('Activate extension...');
     return this.activateExtension(extension, runtime);
   }
 
@@ -372,7 +356,9 @@ export class ExtensionLoader {
     }
     if (typeof extensionMain['activate'] === 'function') {
       // return exports
+      console.log(`Activating extension (${extension.id})`);
       await extensionMain['activate'].apply(undefined, [extensionContext]);
+      console.log(`Activation extension (${extension.id}) ended`);
     }
     const id = extension.id;
     const activatedExtension: ActivatedExtension = {

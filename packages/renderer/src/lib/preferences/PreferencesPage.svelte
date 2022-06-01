@@ -6,7 +6,7 @@ import { Route, router } from 'tinro';
 import {
   ConfigurationRegistry,
   IConfigurationPropertyRecordedSchema,
-} from '../../../../preload/src/configuration-registry';
+} from '../../../../main/src/plugin/configuration-registry';
 
 import TreeView from '../treeview/TreeView.svelte';
 import type { TreeViewDataItem } from '../treeview/TreeViewDataItem';
@@ -16,7 +16,7 @@ import { providerInfos } from '../../stores/providers';
 import PreferencesProviderRendering from './PreferencesProviderRendering.svelte';
 import { extensionInfos } from '../../stores/extensions';
 import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
-import type { ExtensionInfo } from '../../../../preload/src/api/extension-info';
+import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import PreferencesRegistriesRendering from './PreferencesRegistriesRendering.svelte';
 
 let items: TreeViewDataItem[] = [];

@@ -1,7 +1,5 @@
 <script lang="ts">
 import { filtered, searchPattern } from '../stores/images';
-import type { ImageInfo } from '../../../preload/src/api/image-info';
-import type { ImageInspectInfo } from '../../../preload/src/api/image-inspect-info';
 import { onMount } from 'svelte';
 import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
 import moment from 'moment';
@@ -9,6 +7,7 @@ import filesize from 'filesize';
 import { router } from 'tinro';
 import type { ImageInfoUI } from './image/ImageInfoUI';
 import ImageActions from './image/ImageActions.svelte';
+import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);

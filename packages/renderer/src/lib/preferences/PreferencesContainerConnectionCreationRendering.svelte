@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../preload/src/configuration-registry';
-import type { ProviderInfo } from '../../../../preload/src/api/provider-info';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;

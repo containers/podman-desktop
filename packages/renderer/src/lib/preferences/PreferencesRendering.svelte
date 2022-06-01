@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../preload/src/configuration-registry';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRenderingItem from './PreferencesRenderingItem.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];

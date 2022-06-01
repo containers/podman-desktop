@@ -16,12 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ipcMain, app, Tray, dialog } from 'electron';
+import { app, Tray } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
 import { findWindow, isMac } from './util';
 import { AnimatedTray } from './tray-animate-icon';
+import { PluginSystem } from './plugin';
 
 /**
  * Prevent multiple instances
@@ -93,11 +94,10 @@ app.whenReady().then(() => {
   const animatedTray = new AnimatedTray();
   tray = new Tray(animatedTray.getDefaultImage());
   animatedTray.setTray(tray);
-  new TrayMenu(tray, animatedTray);
-});
-
-ipcMain.on('dialog:show-error', (_, param: { title: string; body: string }): void => {
-  dialog.showErrorBox(param.title, param.body);
+  const trayMenu = new TrayMenu(tray, animatedTray);
+  // start extensions
+  const pluginSystem = new PluginSystem(trayMenu);
+  pluginSystem.initExtensions();
 });
 
 ipcMain.handle(

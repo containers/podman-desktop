@@ -18,7 +18,7 @@
 
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
-import type { ProviderInfo } from '../../../preload/src/api/provider-info';
+import type { ProviderInfo } from '../../../main/src/plugin/api/provider-info';
 export async function fetchProviders() {
   const result = await window.getProviderInfos();
   providerInfos.set(result);

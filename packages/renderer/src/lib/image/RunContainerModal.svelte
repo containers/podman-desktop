@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { ImageInfoUI } from './ImageInfoUI';
-import type { ImageInspectInfo } from '../../../../preload/src/api/image-inspect-info';
-import type { ContainerCreateOptions } from '../../../../preload/src/api/container-info';
+import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
+import type { ContainerCreateOptions } from '../../../../main/src/plugin/api/container-info';
 import { onMount } from 'svelte';
 
 export let image: ImageInfoUI;
