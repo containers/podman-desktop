@@ -15,17 +15,24 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type * as extensionApi from '@tmpwip/extension-api';
-import { ipcRenderer } from 'electron';
 
-export class ProgressImpl {
-  withProgress<R>(
-    task: (progress: extensionApi.Progress<{ message?: string; increment?: number }>) => Promise<R>,
-  ): Promise<R> {
-    return task({
-      report: value => {
-        ipcRenderer.send('window:set-progress', value);
-      },
+import { dialog } from 'electron';
+import { findWindow } from '../util';
+
+export class Dialogs {
+  async showDialog(type: string, title: string, message: string, items: string[]): Promise<string | undefined> {
+    const window = findWindow();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const result = await dialog.showMessageBox(window!, {
+      title: title,
+      message: message,
+      buttons: items,
+      type: type,
     });
+    if (result) {
+      return items[result.response];
+    }
+
+    return undefined;
   }
 }

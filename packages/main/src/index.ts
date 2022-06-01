@@ -20,7 +20,7 @@ import { app, Tray } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
-import { findWindow, isMac } from './util';
+import { isMac } from './util';
 import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
 
@@ -98,30 +98,4 @@ app.whenReady().then(() => {
   // start extensions
   const pluginSystem = new PluginSystem(trayMenu);
   pluginSystem.initExtensions();
-});
-
-ipcMain.handle(
-  'dialog:show-dialog',
-  async (_, param: { type: string; title: string; message: string; items: string[] }): Promise<string | undefined> => {
-    const window = findWindow();
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const result = await dialog.showMessageBox(window!, {
-      title: param.title,
-      message: param.message,
-      buttons: param.items,
-      type: param.type,
-    });
-    if (result) {
-      return param.items[result.response];
-    }
-
-    return undefined;
-  },
-);
-
-ipcMain.on('window:set-progress', (_, param: { message: string; increment: number }) => {
-  const window = findWindow();
-  if (window) {
-    window.setProgressBar(param.increment / 100, { mode: 'normal' });
-  }
 });

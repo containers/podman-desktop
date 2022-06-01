@@ -22,7 +22,7 @@
     "src/**/*.ts",
     "exposedInMainWorld.d.ts",
     "../../types/**/*.d.ts"
-  ],
+, "../main/src/plugin/progress-impl.ts", "../main/src/plugin/dialog-impl.ts"  ],
   "exclude": [
     "**/*.spec.ts",
     "**/*.test.ts"

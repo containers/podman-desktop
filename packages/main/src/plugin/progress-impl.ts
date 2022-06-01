@@ -15,10 +15,20 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { ipcRenderer } from 'electron';
+import type * as extensionApi from '@tmpwip/extension-api';
+import { findWindow } from '../util';
 
-export class Dialogs {
-  showDialog(type: string, title: string, message: string, items: string[]): Promise<string | undefined> {
-    return ipcRenderer.invoke('dialog:show-dialog', { title, message, items, type });
+export class ProgressImpl {
+  withProgress<R>(
+    task: (progress: extensionApi.Progress<{ message?: string; increment?: number }>) => Promise<R>,
+  ): Promise<R> {
+    return task({
+      report: value => {
+        const window = findWindow();
+        if (window) {
+          window.setProgressBar(value.increment ?? 1 / 100, { mode: 'normal' });
+        }
+      },
+    });
   }
 }

@@ -114,7 +114,7 @@ async function installWinPodman(release: PodmanRelease): Promise<boolean> {
     const latestMsi = release.assets.find(it => it.name.endsWith('.msi'));
     if (!latestMsi) {
       progress.report({ increment: -1 });
-      throw new Error("Can't find latest MSI bundle");
+      throw new Error('Can\'t find latest MSI bundle');
     }
 
     const msiPath = path.resolve(os.tmpdir(), latestMsi.name);
