@@ -75,7 +75,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && node ./scripts/build.js",
+    "build": "tsc && npx ts-node ./scripts/download.ts && node ./scripts/build.js",
     "watch": "tsc -w"
   },
   "dependencies": {
@@ -83,7 +83,10 @@
   },
   "devDependencies": {
     "7zip-min": "^1.4.1",
+    "hasha": "^5.2.2",
     "mkdirp": "^1.0.4",
+    "octokit": "^1.7.1",
+    "ts-node": "^10.8.0",
     "zip-local": "^0.3.5"
   }
 }
