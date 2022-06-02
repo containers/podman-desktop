@@ -23,6 +23,7 @@ export class CancellationTokenImpl implements extensionApi.CancellationToken {
   isCancellationRequested: boolean;
 
   private readonly cancellationEmitter = new Emitter();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onCancellationRequested: extensionApi.Event<any> = this.cancellationEmitter.event;
 
   constructor() {
