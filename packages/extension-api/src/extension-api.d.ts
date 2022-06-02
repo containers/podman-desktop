@@ -102,6 +102,13 @@ declare module '@tmpwip/extension-api' {
   export interface ExtensionContext {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly subscriptions: { dispose(): any }[];
+
+    /**
+     * An absolute file path in which the extension can store state.
+     * The directory might not exist on disk and creation is
+     * up to the extension.
+     */
+    readonly storagePath: string;
   }
 
   export type ProviderStatus =
@@ -305,5 +312,109 @@ declare module '@tmpwip/extension-api' {
      * @return `true` if the given section has changed.
      */
     affectsConfiguration(section: string, scope?: ConfigurationScope): boolean;
+  }
+
+  /**
+   * Defines a generalized way of reporting progress updates.
+   */
+  export interface Progress<T> {
+    /**
+     * Report a progress update.
+     * @param value A progress item, like a message and/or an
+     * report on how much work finished
+     */
+    report(value: T): void;
+  }
+
+  /**
+ * A location in the editor at which progress information can be shown. It depends on the
+ * location how progress is visually represented.
+ */
+  export enum ProgressLocation {
+    /**
+     * Show progress bar under app icon in launcher bar.
+     */
+    APP_ICON = 1,
+  }
+
+  /**
+   * Value-object describing where and how progress should show.
+   */
+  export interface ProgressOptions {
+
+    /**
+     * The location at which progress should show.
+     */
+    location: ProgressLocation;
+
+    /**
+     * A human-readable string which will be used to describe the
+     * operation.
+     */
+    title?: string;
+
+    /**
+     * Controls if a cancel button should show to allow the user to
+     * cancel the long running operation.  Note that currently only
+     * `ProgressLocation.Notification` is supporting to show a cancel
+     * button.
+     */
+    cancellable?: boolean;
+  }
+
+  /**
+   * A cancellation token is passed to an asynchronous or long running
+   * operation to request cancellation.
+   */
+  export interface CancellationToken {
+
+    /**
+     * Is `true` when the token has been cancelled, `false` otherwise.
+     */
+    isCancellationRequested: boolean;
+
+    /**
+     * An {@link Event} which fires upon cancellation.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onCancellationRequested: Event<any>;
+  }
+
+  export namespace window {
+    /**
+     * Show an information message. Optionally provide an array of items which will be presented as
+     * clickable buttons.
+     *
+     * @param message The message to show.
+     * @param items A set of items that will be rendered as actions in the message.
+     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     */
+    export function showInformationMessage(
+      title: string,
+      message: string,
+      ...items: string[]
+    ): Promise<string | undefined>;
+
+    /**
+     * Show a warning message. Optionally provide an array of items which will be presented as
+     * clickable buttons.
+     *
+     * @param message The message to show.
+     * @param items A set of items that will be rendered as actions in the message.
+     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     */
+    export function showWarningMessage(title: string, message: string, ...items: string[]): Promise<string | undefined>;
+
+    /**
+     * Show a error message. Optionally provide an array of items which will be presented as
+     * clickable buttons.
+     *
+     * @param message The message to show.
+     * @param items A set of items that will be rendered as actions in the message.
+     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     */
+    export function showErrorMessage(title: string, message: string, ...items: string[]): Promise<string | undefined>;
+
+    export function withProgress<R>(options: ProgressOptions, task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Promise<R>): Promise<R>;
   }
 }

@@ -42,6 +42,8 @@ import { shell } from 'electron';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
+import { Dialogs } from './dialog-impl';
+import { ProgressImpl } from './progress-impl';
 
 export class PluginSystem {
   constructor(private trayMenu: TrayMenu) {}
@@ -94,6 +96,8 @@ export class PluginSystem {
       imageRegistry,
       apiSender,
       trayMenuRegistry,
+      new Dialogs(),
+      new ProgressImpl(),
     );
 
     ipcMain.handle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {

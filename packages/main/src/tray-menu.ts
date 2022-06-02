@@ -17,12 +17,12 @@
  ***********************************************************************/
 
 import type { ProviderStatus } from '@tmpwip/extension-api';
-import { app, ipcMain, BrowserWindow, Menu, nativeImage } from 'electron';
+import { app, ipcMain, Menu, nativeImage } from 'electron';
 import type { MenuItemConstructorOptions, Tray, NativeImage } from 'electron';
 import statusStarted from './assets/status-started.png';
 import statusStopped from './assets/status-stopped.png';
 import statusUnknown from './assets/status-unknown.png';
-import { isMac } from './util';
+import { findWindow, isMac } from './util';
 import statusBusy from './assets/status-busy.png';
 import type { AnimatedTray, TrayIconStatus } from './tray-animate-icon';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from './plugin/api/provider-info';
@@ -318,7 +318,7 @@ export class TrayMenu {
   }
 
   private showMainWindow(): void {
-    const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+    const window = findWindow();
 
     if (window?.isMinimized()) {
       window.restore();

@@ -28,6 +28,9 @@ import { Disposable } from './types/disposable';
 import type { ProviderRegistry } from './provider-registry';
 import type { ConfigurationRegistry } from './configuration-registry';
 import type { ImageRegistry } from './image-registry';
+import type { Dialogs } from './dialog-impl';
+import type { ProgressImpl} from './progress-impl';
+import { ProgressLocation } from './progress-impl';
 
 /**
  * Handle the loading of an extension
@@ -56,6 +59,7 @@ export class ExtensionLoader {
 
   private activatedExtensions = new Map<string, ActivatedExtension>();
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
+  private extensionsStoragePath = '';
 
   constructor(
     private commandRegistry: CommandRegistry,
@@ -65,6 +69,8 @@ export class ExtensionLoader {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private apiSender: any,
     private trayMenuRegistry: TrayMenuRegistry,
+    private dialogs: Dialogs,
+    private progress: ProgressImpl,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -128,6 +134,11 @@ export class ExtensionLoader {
         const packagedFile = path.resolve(pluginsDirectory, filename);
         setTimeout(() => this.loadPackagedFile(packagedFile), 1000);
       });
+    }
+
+    this.extensionsStoragePath = path.resolve(os.homedir(), '.podman-desktop');
+    if (!fs.existsSync(this.extensionsStoragePath)) {
+      fs.mkdirSync(this.extensionsStoragePath);
     }
 
     let folders;
@@ -254,6 +265,26 @@ export class ExtensionLoader {
       },
     };
 
+    const dialogs = this.dialogs;
+    const progress = this.progress;
+    const windowObj: typeof containerDesktopAPI.window = {
+      showInformationMessage: (title: string, message: string, ...items: string[]) => {
+        return dialogs.showDialog('info', title, message, items);
+      },
+      showWarningMessage: (title: string, message: string, ...items: string[]) => {
+        return dialogs.showDialog('warning', title, message, items);
+      },
+      showErrorMessage: (title: string, message: string, ...items: string[]) => {
+        return dialogs.showDialog('error', title, message, items);
+      },
+
+      withProgress: <R>(options: containerDesktopAPI.ProgressOptions,
+        task: (progress: containerDesktopAPI.Progress<{ message?: string; increment?: number }>, token: containerDesktopAPI.CancellationToken) => Promise<R>,
+      ): Promise<R> => {
+        return progress.withProgress(options, task);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -262,6 +293,8 @@ export class ExtensionLoader {
       provider,
       configuration,
       tray,
+      ProgressLocation,
+      window: windowObj,
     };
   }
 
@@ -323,6 +356,7 @@ export class ExtensionLoader {
 
     const extensionContext: containerDesktopAPI.ExtensionContext = {
       subscriptions,
+      storagePath: path.resolve(this.extensionsStoragePath, extension.id),
     };
     let deactivateFunction = undefined;
     if (typeof extensionMain['deactivate'] === 'function') {

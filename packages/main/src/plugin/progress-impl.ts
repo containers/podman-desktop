@@ -15,14 +15,28 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import type * as extensionApi from '@tmpwip/extension-api';
+import { findWindow } from '../util';
+import { CancellationTokenImpl } from './cancellation-token';
 
-import { BrowserWindow } from 'electron';
-import * as os from 'os';
+export enum ProgressLocation {
+  /**
+   * Show progress bar under app icon in launcher bar.
+   */
+  APP_ICON = 1,
+}
 
-export const isWindows = os.platform() === 'win32';
-export const isMac = os.platform() === 'darwin';
-export const isLinux = os.platform() === 'linux';
-
-export function findWindow(): Electron.BrowserWindow | undefined {
-  return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+export class ProgressImpl {
+  withProgress<R>(options: extensionApi.ProgressOptions,
+    task: (progress: extensionApi.Progress<{ message?: string; increment?: number }>, token: extensionApi.CancellationToken) => Promise<R>,
+  ): Promise<R> {
+    return task({
+      report: value => {
+        const window = findWindow();
+        if (window) {
+          window.setProgressBar(value.increment ?? 1 / 100, { mode: 'normal' });
+        }
+      },
+    }, new CancellationTokenImpl());
+  }
 }
