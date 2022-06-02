@@ -11,8 +11,8 @@ export default function Home(): JSX.Element {
   return (
     <Layout title={siteConfig.title} description="Downloads">
       <TailWindThemeSelector />
-      <MacOSDownloads />
       <WindowsDownloads />
+      <MacOSDownloads />
       <LinuxDownloads />
     </Layout>
   );
