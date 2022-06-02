@@ -16,13 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { BrowserWindow } from 'electron';
-import * as os from 'os';
+import { dialog } from 'electron';
+import { findWindow } from '../util';
 
-export const isWindows = os.platform() === 'win32';
-export const isMac = os.platform() === 'darwin';
-export const isLinux = os.platform() === 'linux';
+type DialogType = 'none' | 'info' | 'error' | 'question' | 'warning';
+export class Dialogs {
+  async showDialog(type: DialogType, title: string, message: string, items: string[]): Promise<string | undefined> {
+    const window = findWindow();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const result = await dialog.showMessageBox(window!, {
+      title: title,
+      message: message,
+      buttons: items,
+      type: type,
+    });
+    if (result) {
+      return items[result.response];
+    }
 
-export function findWindow(): Electron.BrowserWindow | undefined {
-  return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+    return undefined;
+  }
 }

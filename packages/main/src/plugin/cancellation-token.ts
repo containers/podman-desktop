@@ -16,13 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { BrowserWindow } from 'electron';
-import * as os from 'os';
+import type * as extensionApi from '@tmpwip/extension-api';
+import { Emitter } from './events/emitter';
 
-export const isWindows = os.platform() === 'win32';
-export const isMac = os.platform() === 'darwin';
-export const isLinux = os.platform() === 'linux';
+export class CancellationTokenImpl implements extensionApi.CancellationToken {
+  isCancellationRequested: boolean;
 
-export function findWindow(): Electron.BrowserWindow | undefined {
-  return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+  private readonly cancellationEmitter = new Emitter();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onCancellationRequested: extensionApi.Event<any> = this.cancellationEmitter.event;
+
+  constructor() {
+    this.isCancellationRequested = false;
+  }
 }
