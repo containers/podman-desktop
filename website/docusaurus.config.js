@@ -8,7 +8,7 @@ const title = 'Podman Desktop';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title,
+  title:'Podman Desktop',
   url: 'https://podman-desktop.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -69,7 +69,9 @@ const config = {
             position: 'left',
             label: 'Documentation',
           },
+          {to: '/features', label: 'Features', position: 'left'},
           {to: '/downloads', label: 'Downloads', position: 'left'},
+          {to: '/extend', label: 'Extend', position: 'left'},
           /*{to: '/blog', label: 'Blog', position: 'left'},*/
           {
             href: 'https://github.com/containers/podman-desktop',
@@ -99,6 +101,10 @@ const config = {
               {
                 label: 'GitHub',
                 href: 'https://github.com/containers/podman-desktop',
+              },
+              {
+                label: 'Chat with us',
+                href: 'https://discordapp.com/invite/TCTB38RWpf',
               },
             ],
           },

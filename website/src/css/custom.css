@@ -22,14 +22,19 @@ h3 {
 /*
 Apply style on documentation
 */
-.docs-doc-page div.main-wrapper a {
-  @apply text-violet-600;
+[data-theme='dark'].docs-doc-page .main-wrapper a {
+  @apply text-purple-300;
 }
+
+.docs-doc-page .main-wrapper a {
+  @apply text-purple-700;
+}
+
 
 /* You can override the default Infima variables here. */
 :root {
   --ifm-color-primary: #6d28d9;
-  --ifm-color-primary-dark: #6223c5;
+  --ifm-color-primary-dark: #7c3aed;
   --ifm-color-primary-darker: #5c21ba;
   --ifm-color-primary-darkest: #4c1b99;
   --ifm-color-primary-light: #7c3edd;
@@ -40,8 +45,8 @@ Apply style on documentation
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #6d28d9;
-  --ifm-color-primary-dark: #6223c5;
+  --ifm-color-primary: #a778fa;
+  --ifm-color-primary-dark: #7c3aed;
   --ifm-color-primary-darker: #5c21ba;
   --ifm-color-primary-darkest: #4c1b99;
   --ifm-color-primary-light: #7c3edd;
@@ -89,4 +94,9 @@ svg.darkToggleIcon_node_modules-\@docusaurus-theme-classic-lib-next-theme-ColorM
 svg.lightToggleIcon_node_modules-\@docusaurus-theme-classic-lib-next-theme-ColorModeToggle-styles-module {
   width: 16px;
   color: #343e50;
+}
+
+/* inline icons after the link name */
+li.footer__item a svg {
+  display: inline;
 }

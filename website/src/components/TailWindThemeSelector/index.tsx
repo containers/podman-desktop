@@ -1,27 +1,60 @@
 import React from 'react';
-import { useColorMode } from '@docusaurus/theme-common';
 import { useEffect } from 'react';
+import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
 
-const updadeTailwindDarkTheme = () => {
-  const { colorMode } = useColorMode();
-  useEffect(() => {
-    const html = document.documentElement;
-    if (colorMode === 'dark') {
+function TailWindThemeSelector(): JSX.Element {
+
+  function updadeTailwindDarkTheme() {
+  if (!document || !document.documentElement) {
+    return;
+  }
+
+
+  const html = document.documentElement;
+  
+  if (html.dataset?.theme === 'dark') {
+    html.classList.add('dark');
+    setTimeout(() => {
       html.classList.add('dark');
-    } else {
+    }, 100);
+      
+  } else {
+    html.classList.remove('dark');
+    setTimeout(() => {
       html.classList.remove('dark');
+    }, 100);
+
+  }
+}
+  useEffect(() => {
+    if (ExecutionEnvironment.canUseDOM) {
+      updadeTailwindDarkTheme();
     }
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    return () => {};
-  }, [colorMode]);
-};
+}, [ExecutionEnvironment.canUseDOM]);
 
-export const ThemeProvider = () => {
-  updadeTailwindDarkTheme();
-  return <div></div>;
-};
+// monitor the attribute managed by docusaurus
+useEffect(() => {
+  if (!ExecutionEnvironment.canUseDOM) {
+    return;
+  }
+  const mutationObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+          if (mutation.attributeName === 'data-theme' && mutation.type == 'attributes') {
+                updadeTailwindDarkTheme();
+          }
+      });
+  });
+  mutationObserver.observe(document.documentElement, {
+      attributes: true,
+      childList: false,
+      subtree: false,
+  });
+  return () => {
+      mutationObserver.disconnect();
+  };
+}, [ExecutionEnvironment.canUseDOM]);
 
-export default function TailWindThemeSelector(): JSX.Element {
-  updadeTailwindDarkTheme();
   return <div></div>;
 }
+
+export default TailWindThemeSelector;
