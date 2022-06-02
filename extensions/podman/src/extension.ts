@@ -118,7 +118,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
 }
 
 function calcWinPipeName(machineName: string): string {
-  name = machineName.startsWith('podman') ? machineName : 'podman-' + machineName;
+  const name = machineName.startsWith('podman') ? machineName : 'podman-' + machineName;
   return `//./pipe/${name}`;
 }
 

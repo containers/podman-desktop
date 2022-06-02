@@ -176,7 +176,7 @@ export class ExtensionLoader {
     this.overrideRequire();
 
     // create api object
-    const api = this.createApi();
+    const api = this.createApi(manifest);
 
     const extension: AnalyzedExtension = {
       id: manifest.name,
@@ -200,7 +200,8 @@ export class ExtensionLoader {
     return this.activateExtension(extension, runtime);
   }
 
-  createApi(): typeof containerDesktopAPI {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createApi(extManifest: any): typeof containerDesktopAPI {
     const commandRegistry = this.commandRegistry;
     const commands: typeof containerDesktopAPI.commands = {
       registerCommand(
@@ -268,14 +269,14 @@ export class ExtensionLoader {
     const dialogs = this.dialogs;
     const progress = this.progress;
     const windowObj: typeof containerDesktopAPI.window = {
-      showInformationMessage: (title: string, message: string, ...items: string[]) => {
-        return dialogs.showDialog('info', title, message, items);
+      showInformationMessage: (message: string, ...items: string[]) => {
+        return dialogs.showDialog('info', extManifest.name, message, items);
       },
-      showWarningMessage: (title: string, message: string, ...items: string[]) => {
-        return dialogs.showDialog('warning', title, message, items);
+      showWarningMessage: (message: string, ...items: string[]) => {
+        return dialogs.showDialog('warning', extManifest.name, message, items);
       },
-      showErrorMessage: (title: string, message: string, ...items: string[]) => {
-        return dialogs.showDialog('error', title, message, items);
+      showErrorMessage: (message: string, ...items: string[]) => {
+        return dialogs.showDialog('error', extManifest.name, message, items);
       },
 
       withProgress: <R>(

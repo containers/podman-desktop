@@ -387,11 +387,7 @@ declare module '@tmpwip/extension-api' {
      * @param items A set of items that will be rendered as actions in the message.
      * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
      */
-    export function showInformationMessage(
-      title: string,
-      message: string,
-      ...items: string[]
-    ): Promise<string | undefined>;
+    export function showInformationMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
     /**
      * Show a warning message. Optionally provide an array of items which will be presented as
@@ -401,7 +397,7 @@ declare module '@tmpwip/extension-api' {
      * @param items A set of items that will be rendered as actions in the message.
      * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
      */
-    export function showWarningMessage(title: string, message: string, ...items: string[]): Promise<string | undefined>;
+    export function showWarningMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
     /**
      * Show a error message. Optionally provide an array of items which will be presented as
@@ -411,7 +407,7 @@ declare module '@tmpwip/extension-api' {
      * @param items A set of items that will be rendered as actions in the message.
      * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
      */
-    export function showErrorMessage(title: string, message: string, ...items: string[]): Promise<string | undefined>;
+    export function showErrorMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
     export function withProgress<R>(
       options: ProgressOptions,
