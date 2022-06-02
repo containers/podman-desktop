@@ -327,9 +327,9 @@ declare module '@tmpwip/extension-api' {
   }
 
   /**
- * A location in the editor at which progress information can be shown. It depends on the
- * location how progress is visually represented.
- */
+   * A location in the editor at which progress information can be shown. It depends on the
+   * location how progress is visually represented.
+   */
   export enum ProgressLocation {
     /**
      * Show progress bar under app icon in launcher bar.
@@ -341,7 +341,6 @@ declare module '@tmpwip/extension-api' {
    * Value-object describing where and how progress should show.
    */
   export interface ProgressOptions {
-
     /**
      * The location at which progress should show.
      */
@@ -367,7 +366,6 @@ declare module '@tmpwip/extension-api' {
    * operation to request cancellation.
    */
   export interface CancellationToken {
-
     /**
      * Is `true` when the token has been cancelled, `false` otherwise.
      */
@@ -415,6 +413,9 @@ declare module '@tmpwip/extension-api' {
      */
     export function showErrorMessage(title: string, message: string, ...items: string[]): Promise<string | undefined>;
 
-    export function withProgress<R>(options: ProgressOptions, task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Promise<R>): Promise<R>;
+    export function withProgress<R>(
+      options: ProgressOptions,
+      task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Promise<R>,
+    ): Promise<R>;
   }
 }

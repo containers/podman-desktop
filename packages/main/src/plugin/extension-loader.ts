@@ -29,7 +29,7 @@ import type { ProviderRegistry } from './provider-registry';
 import type { ConfigurationRegistry } from './configuration-registry';
 import type { ImageRegistry } from './image-registry';
 import type { Dialogs } from './dialog-impl';
-import type { ProgressImpl} from './progress-impl';
+import type { ProgressImpl } from './progress-impl';
 import { ProgressLocation } from './progress-impl';
 
 /**
@@ -278,8 +278,12 @@ export class ExtensionLoader {
         return dialogs.showDialog('error', title, message, items);
       },
 
-      withProgress: <R>(options: containerDesktopAPI.ProgressOptions,
-        task: (progress: containerDesktopAPI.Progress<{ message?: string; increment?: number }>, token: containerDesktopAPI.CancellationToken) => Promise<R>,
+      withProgress: <R>(
+        options: containerDesktopAPI.ProgressOptions,
+        task: (
+          progress: containerDesktopAPI.Progress<{ message?: string; increment?: number }>,
+          token: containerDesktopAPI.CancellationToken,
+        ) => Promise<R>,
       ): Promise<R> => {
         return progress.withProgress(options, task);
       },

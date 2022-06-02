@@ -27,16 +27,23 @@ export enum ProgressLocation {
 }
 
 export class ProgressImpl {
-  withProgress<R>(options: extensionApi.ProgressOptions,
-    task: (progress: extensionApi.Progress<{ message?: string; increment?: number }>, token: extensionApi.CancellationToken) => Promise<R>,
+  withProgress<R>(
+    options: extensionApi.ProgressOptions,
+    task: (
+      progress: extensionApi.Progress<{ message?: string; increment?: number }>,
+      token: extensionApi.CancellationToken,
+    ) => Promise<R>,
   ): Promise<R> {
-    return task({
-      report: value => {
-        const window = findWindow();
-        if (window) {
-          window.setProgressBar(value.increment ?? 1 / 100, { mode: 'normal' });
-        }
+    return task(
+      {
+        report: value => {
+          const window = findWindow();
+          if (window) {
+            window.setProgressBar(value.increment ?? 1 / 100, { mode: 'normal' });
+          }
+        },
       },
-    }, new CancellationTokenImpl());
+      new CancellationTokenImpl(),
+    );
   }
 }

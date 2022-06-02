@@ -27,6 +27,5 @@ export class CancellationTokenImpl implements extensionApi.CancellationToken {
 
   constructor() {
     this.isCancellationRequested = false;
-
   }
 }
