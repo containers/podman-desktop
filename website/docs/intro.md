@@ -23,7 +23,7 @@ Run the development server:
 $ podman run quay.io/podman/hello
 !... Hello Podman World ...!
 
-	 .--"--.
+         .--"--.
        / -     - \
       / (O)   (O) \
    ~~~| -=(,Y,)=- |
