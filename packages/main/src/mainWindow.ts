@@ -31,8 +31,8 @@ async function createWindow() {
     height: 600,
     webPreferences: {
       webSecurity: false,
-      nativeWindowOpen: true,
-      webviewTag: false, // The webview tag is not recommended. Consider alternatives like iframe or Electron's BrowserView. https://www.electronjs.org/docs/latest/api/webview-tag#warning
+      //nativeWindowOpen: true,
+      webviewTag: true, // The webview tag is not recommended. Consider alternatives like iframe or Electron's BrowserView. https://www.electronjs.org/docs/latest/api/webview-tag#warning
       preload: join(__dirname, '../../preload/dist/index.cjs'),
     },
   };

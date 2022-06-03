@@ -113,6 +113,23 @@ const setupPreloadPackageWatcher = ({ws}) =>
     },
   });
 
+const setupPreloadDockerExtensionPackageWatcher = ({ws}) =>
+  getWatcher({
+    name: 'reload-page-on-preload-docker-extension-package-change',
+    configFile: 'packages/preload-docker-extension/vite.config.js',
+    writeBundle() {
+      // Generating exposedInMainWorld.d.ts when preload package is changed.
+      generateAsync({
+        input: 'packages/preload-docker-extension/tsconfig.json',
+        output: 'packages/preload-docker-extension/exposedInDockerExtension.d.ts',
+      });
+
+      ws.send({
+        type: 'full-reload',
+      });
+    },
+  });
+
 
 /**
  * Start or restart App when source files are changed
@@ -150,6 +167,7 @@ const setupPreloadPackageWatcher = ({ws}) =>
     await setupExtensionApiWatcher('lima');
     await setupExtensionApiWatcher('podman');
     await setupPreloadPackageWatcher(viteDevServer);
+    await setupPreloadDockerExtensionPackageWatcher(viteDevServer);
     await setupMainPackageWatcher(viteDevServer);
   } catch (e) {
     console.error(e);
