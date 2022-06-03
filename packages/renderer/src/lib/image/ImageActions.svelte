@@ -7,6 +7,7 @@ import RunContainerModal from './RunContainerModal.svelte';
 import { onMount } from 'svelte';
 import PushImage from './PushImageModal.svelte';
 import PushImageModal from './PushImageModal.svelte';
+import Modal from '../dialogs/Modal.svelte';
 
 export let hasModalCallback: (flag: boolean) => void;
 export let image: ImageInfoUI;
@@ -54,18 +55,28 @@ async function pushImage(imageInfo: ImageInfoUI): Promise<void> {
   <Fa class="{iconStyle}" icon="{faTrash}" /></button>
 
 {#if pushImageModal}
-  <PushImageModal
-    imageInfoToPush="{imageInfoToPush}"
-    closeCallback="{() => {
-      (pushImageModal = false), hasModalCallback(false);
-    }}" />
+  <Modal
+    on:close="{() => {
+      pushImageModal = false;
+    }}">
+    <PushImageModal
+      imageInfoToPush="{imageInfoToPush}"
+      closeCallback="{() => {
+        (pushImageModal = false), hasModalCallback(false);
+      }}" />
+  </Modal>
 {/if}
 {#if runContainerFromImageModal}
-  <RunContainerModal
-    image="{modalImageInfo}"
-    closeCallback="{() => {
+  <Modal
+    on:close="{() => {
       runContainerFromImageModal = false;
-    }}" />
+    }}">
+    <RunContainerModal
+      image="{modalImageInfo}"
+      closeCallback="{() => {
+        runContainerFromImageModal = false;
+      }}" />
+  </Modal>
 {/if}
 
 {#if errorMessage}

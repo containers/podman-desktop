@@ -69,12 +69,6 @@ if (previously_focused) {
 
 <div class="modal-background" on:click="{close}"></div>
 
-<div class="modal bg-gray-700" role="dialog" aria-modal="true" bind:this="{modal}">
-  <slot name="header" />
-  <hr />
+<div class="modal" role="dialog" aria-modal="true" bind:this="{modal}">
   <slot />
-  <hr style="margin-bottom: 9px;" />
-
-  <!-- svelte-ignore a11y-autofocus -->
-  <button autofocus on:click="{close}" class="pf-c-button pf-m-primary pf-m-block"> Close </button>
 </div>

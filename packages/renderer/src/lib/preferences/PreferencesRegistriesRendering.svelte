@@ -3,6 +3,7 @@ import { onMount } from 'svelte';
 import type { Registry } from '@tmpwip/extension-api';
 import { registriesInfos } from '../../stores/registries';
 import PreferencesRegistriesCreateRegistryModal from './PreferencesRegistriesCreateRegistryModal.svelte';
+import Modal from '../dialogs/Modal.svelte';
 
 let registries: readonly Registry[] = [];
 onMount(() => {
@@ -62,5 +63,10 @@ function toggleRegistryModal(): void {
 </div>
 
 {#if showRegistryModal}
-  <PreferencesRegistriesCreateRegistryModal toggleCallback="{toggleRegistryModal}" />
+  <Modal
+    on:close="{() => {
+      showRegistryModal = false;
+    }}">
+    <PreferencesRegistriesCreateRegistryModal toggleCallback="{toggleRegistryModal}" />
+  </Modal>
 {/if}
