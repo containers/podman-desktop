@@ -1,0 +1,9 @@
+{
+  "version": "4.1.0",
+  "platform": {
+    "win32": {
+      "version": "v4.1.0",
+      "fileName": "podman-v4.1.0.msi"
+    }
+  }
+}
