@@ -9,6 +9,7 @@ import ContainerDetails from './ContainerDetails.svelte';
 import type { ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
 import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';
+import Modal from './dialogs/Modal.svelte';
 
 let openChoiceModal = false;
 
@@ -317,39 +318,40 @@ function getEngineName(containerInfo: ContainerInfo): string {
 </div>
 
 {#if openChoiceModal}
-  <div class="pf-c-backdrop">
-    <div class="pf-l-bullseye">
-      <div
-        class="pf-c-modal-box pf-m-sm modal z-50 "
-        tabindex="{0}"
-        autofocus
-        aria-modal="true"
-        on:keydown="{keydownChoice}"
-        aria-labelledby="modal-title-modal-basic-example-modal"
-        aria-describedby="modal-description-modal-basic-example-modal">
-        <button
-          class="pf-c-button pf-m-plain"
-          type="button"
-          aria-label="Close dialog"
-          on:click="{() => toggleCreateContainer()}">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
-        <header class="pf-c-modal-box__header" on:keydown="{keydownChoice}">
-          <h1 class="pf-c-modal-box__title">Create a new container</h1>
-        </header>
-        <div class="pf-c-modal-box__body">
-          <ul class="list-disc">
-            <li>Create a container from a Containerfile description. Browse a local content description.</li>
-            <li>Or create a container from an existing image stored in the local registry.</li>
-          </ul>
-        </div>
-        <footer class="pf-c-modal-box__footer">
-          <button class="pf-c-button pf-m-primary" type="button" on:click="{() => fromDockerfile()}"
-            >From Containerfile/Dockerfile</button>
-          <button class="pf-c-button pf-m-secondary" type="button" on:click="{() => fromExistingImage()}"
-            >From existing image</button>
-        </footer>
+  <Modal
+    on:close="{() => {
+      openChoiceModal = false;
+    }}">
+    <div
+      class="pf-c-modal-box pf-m-sm modal z-50 "
+      tabindex="{0}"
+      autofocus
+      aria-modal="true"
+      on:keydown="{keydownChoice}"
+      aria-labelledby="modal-title-modal-basic-example-modal"
+      aria-describedby="modal-description-modal-basic-example-modal">
+      <button
+        class="pf-c-button pf-m-plain"
+        type="button"
+        aria-label="Close dialog"
+        on:click="{() => toggleCreateContainer()}">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+      <header class="pf-c-modal-box__header" on:keydown="{keydownChoice}">
+        <h1 class="pf-c-modal-box__title">Create a new container</h1>
+      </header>
+      <div class="pf-c-modal-box__body">
+        <ul class="list-disc">
+          <li>Create a container from a Containerfile description. Browse a local content description.</li>
+          <li>Or create a container from an existing image stored in the local registry.</li>
+        </ul>
       </div>
+      <footer class="pf-c-modal-box__footer">
+        <button class="pf-c-button pf-m-primary" type="button" on:click="{() => fromDockerfile()}"
+          >From Containerfile/Dockerfile</button>
+        <button class="pf-c-button pf-m-secondary" type="button" on:click="{() => fromExistingImage()}"
+          >From existing image</button>
+      </footer>
     </div>
-  </div>
+  </Modal>
 {/if}
