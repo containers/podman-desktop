@@ -130,23 +130,23 @@ app.on('web-contents-created', (_, contents) => {
    *
    * @see https://www.electronjs.org/docs/latest/tutorial/security#12-verify-webview-options-before-creation
    */
-  contents.on('will-attach-webview', (event, webPreferences, params) => {
-    const { origin } = new URL(params.src);
-    if (!ALLOWED_ORIGINS_AND_PERMISSIONS.has(origin)) {
-      if (import.meta.env.DEV) {
-        console.warn(`A webview tried to attach ${params.src}, but was blocked.`);
-      }
+  // contents.on('will-attach-webview', (event, webPreferences, params) => {
+  //   const { origin } = new URL(params.src);
+  //   if (!ALLOWED_ORIGINS_AND_PERMISSIONS.has(origin)) {
+  //     if (import.meta.env.DEV) {
+  //       console.warn(`A webview tried to attach ${params.src}, but was blocked.`);
+  //     }
 
-      event.preventDefault();
-      return;
-    }
+  //     //event.preventDefault();
+  //     // return;
+  //   }
 
-    // Strip away preload scripts if unused or verify their location is legitimate
-    delete webPreferences.preload;
-    // @ts-expect-error `preloadURL` exists - see https://www.electronjs.org/docs/latest/api/web-contents#event-will-attach-webview
-    delete webPreferences.preloadURL;
+  //   // Strip away preload scripts if unused or verify their location is legitimate
+  //   delete webPreferences.preload;
+  //   // @ts-expect-error `preloadURL` exists - see https://www.electronjs.org/docs/latest/api/web-contents#event-will-attach-webview
+  //   delete webPreferences.preloadURL;
 
-    // Disable Node.js integration
-    webPreferences.nodeIntegration = false;
-  });
+  //   // Disable Node.js integration
+  //   webPreferences.nodeIntegration = false;
+  // });
 });

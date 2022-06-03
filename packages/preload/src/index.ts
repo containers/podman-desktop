@@ -24,6 +24,7 @@ import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { contextBridge, ipcRenderer } from 'electron';
 import EventEmitter from 'events';
 import type { ContainerCreateOptions, ContainerInfo } from '../../main/src/plugin/api/container-info';
+import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
@@ -359,6 +360,10 @@ function initExposure(): void {
     return ipcRenderer.invoke('shell:openExternal', link);
   });
 
+  contextBridge.exposeInMainWorld('listContributions', async (): Promise<ContributionInfo[]> => {
+    return ipcRenderer.invoke('contributions:listContributions');
+  });
+
   // Handle callback on dialog file/folder by calling the callback once we get the answer
   ipcRenderer.on(
     'dialog:open-file-or-folder-response',
@@ -482,6 +487,67 @@ function initExposure(): void {
       return ipcRenderer.invoke('provider-registry:stopReceiveLogs', providerId, containerConnectionInfo);
     },
   );
+
+  let onDataCallbacksShellInContainerDDExtensionInstallId = 0;
+  const onDataCallbacksShellInContainerDDExtension = new Map<number, (data: string) => void>();
+  const onDataCallbacksShellInContainerDDExtensionError = new Map<number, (data: string) => void>();
+  const onDataCallbacksShellInContainerDDExtensionResolve = new Map<
+    number,
+    (value: void | PromiseLike<void>) => void
+  >();
+
+  contextBridge.exposeInMainWorld(
+    'ddExtensionInstall',
+    async (
+      imageName: string,
+      logCallback: (data: string) => void,
+      errorCallback: (data: string) => void,
+    ): Promise<void> => {
+      onDataCallbacksShellInContainerDDExtensionInstallId++;
+      onDataCallbacksShellInContainerDDExtension.set(onDataCallbacksShellInContainerDDExtensionInstallId, logCallback);
+      onDataCallbacksShellInContainerDDExtensionError.set(
+        onDataCallbacksShellInContainerDDExtensionInstallId,
+        errorCallback,
+      );
+      ipcRenderer.send('docker-desktop-plugin:install', imageName, onDataCallbacksShellInContainerDDExtensionInstallId);
+
+      return new Promise(resolve => {
+        onDataCallbacksShellInContainerDDExtensionResolve.set(
+          onDataCallbacksShellInContainerDDExtensionInstallId,
+          resolve,
+        );
+      });
+    },
+  );
+
+  ipcRenderer.on('docker-desktop-plugin:install-log', (_, callbackId: number, data: string) => {
+    const callback = onDataCallbacksShellInContainerDDExtension.get(callbackId);
+    if (callback) {
+      callback(data);
+    }
+  });
+
+  ipcRenderer.on('docker-desktop-plugin:install-error', (_, callbackId: number, data: string) => {
+    const callback = onDataCallbacksShellInContainerDDExtensionError.get(callbackId);
+    if (callback) {
+      callback(data);
+    }
+  });
+
+  ipcRenderer.on('docker-desktop-plugin:install-end', (_, callbackId: number) => {
+    const resolveCallback = onDataCallbacksShellInContainerDDExtensionResolve.get(callbackId);
+    if (resolveCallback) {
+      resolveCallback();
+    }
+  });
+
+  contextBridge.exposeInMainWorld('ddExtensionDelete', async (extensionName: string): Promise<void> => {
+    return ipcRenderer.invoke('docker-desktop-plugin:delete', extensionName);
+  });
+
+  contextBridge.exposeInMainWorld('getDDPreloadPath', async (): Promise<string> => {
+    return ipcRenderer.invoke('docker-desktop-plugin:get-preload-script');
+  });
 }
 
 // expose methods

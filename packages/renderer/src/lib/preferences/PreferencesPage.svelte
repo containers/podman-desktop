@@ -18,6 +18,7 @@ import { extensionInfos } from '../../stores/extensions';
 import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import PreferencesRegistriesRendering from './PreferencesRegistriesRendering.svelte';
+import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
 
 let items: TreeViewDataItem[] = [];
 let extensions: ExtensionInfo[] = [];
@@ -34,6 +35,8 @@ function onSelectedItem(item: TreeViewDataItem) {
     router.goto(`/preferences/container-connection/${provider}/${connection}`);
   } else if (item.id === 'extensions') {
     router.goto(`/preferences/extensions`);
+  } else if (item.id === 'ddExtensions') {
+    router.goto(`/preferences/ddExtensions`);
   } else if (item.id.startsWith('extension@')) {
     // extract extension by the name before the @
     const extensionId = item.id.split('@')[1];
@@ -140,6 +143,13 @@ async function buildTreeViewData(configProperties?: IConfigurationPropertyRecord
     });
   }
 
+  // now adds the Docker Desktop Extensions
+  treeViewDataItems.push({
+    id: 'ddExtensions',
+    name: 'Docker Desktop Extensions',
+    children: [],
+  });
+
   items = treeViewDataItems;
 }
 
@@ -158,7 +168,7 @@ onMount(async () => {
 </script>
 
 <div class="flex h-full">
-  <div class="pr-2">
+  <div class="pr-2 w-[250px]">
     <TreeView items="{items}" onSelect="{item => onSelectedItem(item)}" />
   </div>
   <Route path="/">
@@ -170,6 +180,9 @@ onMount(async () => {
   </Route>
   <Route path="/default/:key" let:meta>
     <PreferencesRendering key="{meta.params.key}" properties="{properties}" />
+  </Route>
+  <Route path="/ddExtensions" let:meta>
+    <PreferencesPageDockerExtensions />
   </Route>
   <Route path="/extensions" let:meta />
   <Route path="/extension/:extensionId" let:meta>

@@ -54,7 +54,13 @@ export class ContainerProviderRegistry {
         console.log('error is', err);
       }
       stream?.on('data', data => {
-        const evt = JSON.parse(data.toString());
+        let evt;
+        try {
+          evt = JSON.parse(data.toString());
+        } catch (err) {
+          console.error(data.toString(), err);
+          return;
+        }
         console.log('event is', evt);
         if (evt.status === 'stop') {
           // need to notify that a container has been stopped
@@ -192,6 +198,37 @@ export class ContainerProviderRegistry {
       throw new Error('no running provider for the matching container');
     }
     return engine.api;
+  }
+
+  public getFirstRunningConnection(): [ProviderContainerConnectionInfo, Dockerode] {
+    // grab all connections
+    const matchingContainerProviders = Array.from(this.internalProviders.entries()).filter(
+      containerProvider => containerProvider[1].api,
+    );
+    if (!matchingContainerProviders || matchingContainerProviders.length === 0) {
+      throw new Error('No provider with a running engine');
+    }
+
+    const matchingConnection = matchingContainerProviders[0];
+    if (!matchingConnection[1].api) {
+      throw new Error('No provider with a running engine');
+    }
+
+    const matchingConnectionName = matchingConnection[0];
+    const matchingConnectionObject = this.containerProviders.get(matchingConnectionName);
+    if (!matchingConnectionObject) {
+      throw new Error('Unable to find a running engine');
+    }
+
+    return [
+      {
+        name: matchingConnectionObject.name,
+        endpoint: {
+          socketPath: matchingConnectionObject.endpoint.socketPath,
+        },
+      } as ProviderContainerConnectionInfo,
+      matchingConnection[1].api,
+    ];
   }
 
   protected getMatchingEngineFromConnection(

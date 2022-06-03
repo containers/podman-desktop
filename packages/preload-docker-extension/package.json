@@ -1,0 +1,10 @@
+{
+    "name": "preload-docker-extension",
+    "version": "0.0.0",
+    "type": "module",
+    "license": "apache-2.0",
+    "devDependencies": {
+      "@docker/extension-api-client-types": "0.2.3"
+    }
+  }
+  

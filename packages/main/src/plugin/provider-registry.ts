@@ -182,9 +182,7 @@ export class ProviderRegistry {
     );
   }
 
-  protected getProviderContainerConnectionInfo(
-    connection: ContainerProviderConnection,
-  ): ProviderContainerConnectionInfo {
+  public getProviderContainerConnectionInfo(connection: ContainerProviderConnection): ProviderContainerConnectionInfo {
     const containerProviderConnection: ProviderContainerConnectionInfo = {
       name: connection.name,
       status: connection.status(),

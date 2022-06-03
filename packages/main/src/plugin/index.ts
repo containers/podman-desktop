@@ -44,6 +44,10 @@ import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
 import { Dialogs } from './dialog-impl';
 import { ProgressImpl } from './progress-impl';
+import type { ContributionInfo } from './api/contribution-info';
+import { ContributionManager } from './contribution-manager';
+import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation';
+import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter';
 
 export class PluginSystem {
   constructor(private trayMenu: TrayMenu) {}
@@ -100,6 +104,7 @@ export class PluginSystem {
       new ProgressImpl(),
     );
 
+    const contributionManager = new ContributionManager(apiSender);
     ipcMain.handle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
     });
@@ -367,6 +372,10 @@ export class PluginSystem {
       },
     );
 
+    ipcMain.handle('contributions:listContributions', async (): Promise<ContributionInfo[]> => {
+      return contributionManager.listContributions();
+    });
+
     ipcMain.handle('extension-loader:listExtensions', async (): Promise<ExtensionInfo[]> => {
       return extensionLoader.listExtensions();
     });
@@ -448,6 +457,18 @@ export class PluginSystem {
         return providerRegistry.createProviderConnection(internalProviderId, params);
       },
     );
+
+    const dockerDesktopInstallation = new DockerDesktopInstallation(
+      apiSender,
+      containerProviderRegistry,
+      contributionManager,
+    );
+    await dockerDesktopInstallation.init();
+
+    const dockerExtensionAdapter = new DockerPluginAdapter(contributionManager);
+    dockerExtensionAdapter.init();
+
+    await contributionManager.init();
 
     await extensionLoader.start();
   }

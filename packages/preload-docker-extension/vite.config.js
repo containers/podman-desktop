@@ -16,12 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import {node} from '../../.electron-vendors.cache.json';
+import {chrome} from '../../.electron-vendors.cache.json';
 import {join} from 'path';
 import {builtinModules} from 'module';
-
 const PACKAGE_ROOT = __dirname;
-
 
 /**
  * @type {import('vite').UserConfig}
@@ -36,9 +34,17 @@ const config = {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
   },
+  /*plugins: [
+    commonjs({
+      dynamicRequireTargets: [
+        // include using a glob pattern (either a string or an array of strings)
+        'node_modules/ssh2/lib/protocol/crypto/poly1305.js',
+      ]
+      }),
+  ],*/
   build: {
     sourcemap: 'inline',
-    target: `node${node}`,
+    target: `chrome${chrome}`,
     outDir: 'dist',
     assetsDir: '.',
     minify: process.env.MODE !== 'development',
@@ -49,8 +55,6 @@ const config = {
     rollupOptions: {
       external: [
         'electron',
-        'tar-fs',
-        'electron-devtools-installer',
         ...builtinModules.flatMap(p => [p, `node:${p}`]),
       ],
       output: {
