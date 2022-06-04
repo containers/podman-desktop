@@ -44,8 +44,14 @@ export class DaemonCommander {
       method: 'GET',
     };
 
-    const { body } = await got(options);
-    return JSON.parse(body);
+    try {
+      const { body } = await got(options);
+      return JSON.parse(body);
+    } catch (error) {
+      return {
+        CrcStatus: 'Not running',
+      };
+    }
   }
 
   async logs() {

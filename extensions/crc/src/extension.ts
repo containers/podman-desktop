@@ -133,7 +133,7 @@ function registerPodmanConnection(provider: extensionApi.Provider, extensionCont
   }
 
   if (fs.existsSync(socketPath)) {
-    const status = () => convertToStatus(crcStatus.CrcStatus);
+    const status = () => convertToStatus(crcStatus?.CrcStatus);
 
     const containerConnection: extensionApi.ContainerProviderConnection = {
       name: 'Podman',
@@ -165,7 +165,7 @@ async function registerOpenShiftLocalCluster(
   provider: extensionApi.Provider,
   extensionContext: extensionApi.ExtensionContext,
 ): Promise<void> {
-  const status = () => convertToStatus(crcStatus.CrcStatus);
+  const status = () => convertToStatus(crcStatus?.CrcStatus);
   const apiURL = 'https://api.crc.testing:6443';
   const kubernetesProviderConnection: extensionApi.KubernetesProviderConnection = {
     name: 'OpenShift',
