@@ -6,7 +6,7 @@ import { router } from 'tinro';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import type { PullEvent } from '../../../../main/src/plugin/container-registry';
+import type { PullEvent } from '../../../../main/src/plugin/api/pull-event';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
 import { providerInfos } from '../../stores/providers';
@@ -21,8 +21,7 @@ let imageToPull = {
   registryServerUrl: undefined,
 };
 
-let providers: ProviderInfo[] = [];
-$: providerConnections = providers
+$: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
@@ -140,12 +139,9 @@ async function gotoManageRegistries() {
 }
 
 onMount(() => {
-  providerInfos.subscribe(value => {
-    providers = value;
-    if (!selectedProviderConnection) {
-      selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
-    }
-  });
+  if (!selectedProviderConnection) {
+    selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
+  }
 });
 
 let imageNameInvalid = 'Please enter a value';
