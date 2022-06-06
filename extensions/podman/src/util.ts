@@ -21,3 +21,10 @@ import * as os from 'node:os';
 export const isWindows = os.platform() === 'win32';
 export const isMac = os.platform() === 'darwin';
 export const isLinux = os.platform() === 'linux';
+
+/**
+ * @returns true if app running in dev mode
+ */
+export function isDev(): boolean {
+  return process.argv[2] === '--dev';
+}

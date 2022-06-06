@@ -1,22 +1,33 @@
 {
   "compilerOptions": {
     "lib": [
-        "ES2017",
-        "webworker"
+      "ES2017",
     ],
     "sourceMap": true,
     "rootDir": "src",
     "outDir": "dist",
     "target": "esnext",
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "types": [
-        "node",
+      "node",
     ]
-},
-"include": [
+  },
+  "include": [
     "src"
-]
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS",
+      "lib": [
+        "ES2020",
+        "DOM"
+      ],
+      "types": [
+        "node"
+      ]
+    }
+  }
 }

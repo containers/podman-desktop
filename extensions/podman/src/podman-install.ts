@@ -24,7 +24,7 @@ import { spawn } from 'node:child_process';
 
 import * as podmanTool from './podman.json';
 import { getPodmanInstallation } from './podman-cli';
-import { isWindows } from './util';
+import { isDev, isWindows } from './util';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -163,13 +163,12 @@ abstract class BaseInstaller implements Installer {
   abstract install(): Promise<boolean>;
 
   protected getAssetsFolder(): string {
-    // this is electron var 'resourcesPath'
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((import.meta as any).env.PROD) {
+    if (isDev()) {
+      return path.resolve(__dirname, '..', 'assets');
+    } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return path.resolve((process as any).resourcesPath, 'extensions', 'podman', 'builtin', 'podman.cdix', 'assets');
-    } else {
-      return path.resolve(__dirname, '..', 'assets');
     }
   }
 }
