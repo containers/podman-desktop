@@ -558,7 +558,7 @@ function MainFeatures() {
 export default function Home(): JSX.Element {
   
   return (
-    <Layout title="Manage Podman from a Desktop App" description="Containers and Kubernetes for application developers">
+    <Layout title="Leverage Podman with a Desktop App" description="Containers and Kubernetes for application developers">
       <TailWindThemeSelector />
       <Hero />
       <ManageEverythingFromTheTray />
