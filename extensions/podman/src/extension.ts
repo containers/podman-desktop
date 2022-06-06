@@ -17,17 +17,17 @@
  ***********************************************************************/
 
 import * as extensionApi from '@tmpwip/extension-api';
-import * as path from 'path';
-import * as os from 'os';
-import * as fs from 'fs';
-import { spawn } from 'child_process';
+import * as path from 'node:path';
+import * as os from 'node:os';
+import * as fs from 'node:fs';
+import { spawn } from 'node:child_process';
 import { RegistrySetup } from './registry-setup';
 
-type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
+import { isLinux, isMac, isWindows } from './util';
+import { PodmanInstall } from './podman-install';
+import { execPromise, getPodmanCli } from './podman-cli';
 
-export const isWindows = os.platform() === 'win32';
-export const isMac = os.platform() === 'darwin';
-export const isLinux = os.platform() === 'linux';
+type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
 const listeners = new Set<StatusHandler>();
 const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), '.local/share/containers/podman/machine');
@@ -57,7 +57,7 @@ type MachineInfo = {
 
 async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   // init machines available
-  const machineListOutput = await execPromise('podman', ['machine', 'list', '--format', 'json']);
+  const machineListOutput = await execPromise(getPodmanCli(), ['machine', 'list', '--format', 'json']);
 
   // parse output
   const machines = JSON.parse(machineListOutput) as MachineJSON[];
@@ -179,16 +179,16 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     start: async (context): Promise<void> => {
       try {
         // start the machine
-        await execPromise('podman', ['machine', 'start', machineInfo.name], context.log);
+        await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], context.log);
       } catch (err) {
         console.error(err);
       }
     },
     stop: async (context): Promise<void> => {
-      await execPromise('podman', ['machine', 'stop', machineInfo.name], context.log);
+      await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], context.log);
     },
     delete: async (): Promise<void> => {
-      await execPromise('podman', ['machine', 'rm', '-f', machineInfo.name]);
+      await execPromise(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name]);
     },
   };
 
@@ -216,45 +216,10 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   storedExtensionContext.subscriptions.push(disposable);
 }
 
-function execPromise(command: string, args?: string[], logger?: extensionApi.Logger): Promise<string> {
-  const env = process.env;
-  // In production mode, applications don't have access to the 'user' path like brew
-  if (isMac) {
-    env.PATH = env.PATH.concat(':/usr/local/bin').concat(':/opt/homebrew/bin');
-  } else if (env.FLATPAK_ID) {
-    // need to execute the command on the host
-    args = ['--host', command, ...args];
-    command = 'flatpak-spawn';
-  }
-  return new Promise((resolve, reject) => {
-    let output = '';
-    let err = '';
-    const process = spawn(command, args, { env });
-    process.on('error', err => {
-      reject(err);
-    });
-    process.stdout.setEncoding('utf8');
-    process.stdout.on('data', data => {
-      output += data;
-      logger?.log(data);
-    });
-    process.stderr.setEncoding('utf8');
-    process.stderr.on('data', data => {
-      err += data;
-      logger?.error(data);
-    });
-
-    process.on('close', exitCode => {
-      if (exitCode !== 0) {
-        reject(err);
-      }
-      resolve(output.trim());
-    });
-  });
-}
-
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   storedExtensionContext = extensionContext;
+  const podmanInstall = new PodmanInstall(extensionContext.storagePath);
+  await podmanInstall.checkAndInstallPodman();
 
   const provider = extensionApi.provider.createProvider({ name: 'Podman', id: 'podman', status: 'unknown' });
   extensionContext.subscriptions.push(provider);
@@ -291,7 +256,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           parameters.push(params['podman.factory.machine.name']);
         }
 
-        await execPromise('podman', parameters);
+        await execPromise(getPodmanCli(), parameters);
       },
     });
   }
