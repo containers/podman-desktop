@@ -157,7 +157,7 @@ export class ExtensionLoader {
   async readDevelopmentFolders(path: string): Promise<string[]> {
     const entries = await fs.promises.readdir(path, { withFileTypes: true });
     return entries
-      .filter(entry => entry.isDirectory)
+      .filter(entry => entry.isDirectory())
       .map(directory => path + '/' + directory.name)
       .filter(item => !item.includes('docker'))
       .filter(item => !item.includes('lima'));
@@ -166,7 +166,7 @@ export class ExtensionLoader {
   async readProductionFolders(path: string): Promise<string[]> {
     const entries = await fs.promises.readdir(path, { withFileTypes: true });
     return entries
-      .filter(entry => entry.isDirectory)
+      .filter(entry => entry.isDirectory())
       .map(directory => path + '/' + directory.name + `/builtin/${directory.name}.cdix`);
   }
 
