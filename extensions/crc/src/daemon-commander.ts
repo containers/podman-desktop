@@ -39,13 +39,10 @@ export class DaemonCommander {
   }
 
   async status(): Promise<Status> {
-    const options = {
-      url: this.apiPath + '/status',
-      method: 'GET',
-    };
+    const url = this.apiPath + '/status';
 
     try {
-      const { body } = await got(options);
+      const { body } = await got.get(url);
       return JSON.parse(body);
     } catch (error) {
       console.log('Error getting status:', error);
@@ -56,119 +53,65 @@ export class DaemonCommander {
   }
 
   async logs() {
-    const options = {
-      url: this.apiPath + '/logs',
-      method: 'GET',
-    };
-
-    const { body } = await got(options);
+    const url = this.apiPath + '/logs';
+    const { body } = await got.get(url);
     return JSON.parse(body);
   }
 
   async version() {
-    const options = {
-      url: this.apiPath + '/version',
-      method: 'GET',
-    };
+    const url = this.apiPath + '/version';
 
-    const { body } = await got(options);
+    const { body } = await got(url);
     return JSON.parse(body);
   }
 
   async start() {
-    const options = {
-      url: this.apiPath + '/start',
-      method: 'GET',
-    };
-
-    const { body } = await got(options);
+    const url = this.apiPath + '/start';
+    const { body } = await got.get(url);
     return JSON.parse(body);
   }
 
   async stop() {
-    const options = {
-      url: this.apiPath + '/stop',
-      method: 'GET',
-    };
+    const url = this.apiPath + '/stop';
 
-    const { body } = await got(options);
+    const { body } = await got.get(url);
     return body;
   }
 
   async delete() {
-    const options = {
-      url: this.apiPath + '/delete',
-      method: 'GET',
-    };
+    const url = this.apiPath + '/delete';
 
-    const { body } = await got(options);
+    const { body } = await got.get(url);
     return body;
   }
 
   async configGet() {
-    const options = {
-      url: this.apiPath + '/config',
-      method: 'GET',
-    };
+    const url = this.apiPath + '/config';
 
-    const { body } = await got(options);
+    const { body } = await got(url);
     return JSON.parse(body);
-  }
-
-  async configSet(values: unknown): Promise<string> {
-    const options = {
-      url: this.apiPath + '/config',
-    };
-
-    await got.post(options, {
-      json: true,
-      responseType: 'json',
-      body: values,
-    });
-    return 'OK';
   }
 
   async consoleUrl() {
-    const options = {
-      url: this.apiPath + '/webconsoleurl',
-      method: 'GET',
-    };
+    const url = this.apiPath + '/webconsoleurl';
 
-    const { body } = await got(options);
+    const { body } = await got(url);
     return JSON.parse(body);
   }
 
-  async telemetryPost(values: unknown): Promise<string> {
-    const options = {
-      url: this.apiPath + '/telemetry',
-    };
-
-    await got.post(options, {
-      json: true,
-      responseType: 'json',
-      body: values,
-    });
-    return 'OK';
-  }
-
   async pullSecretStore(value: unknown): Promise<string> {
-    const options = {
-      url: this.apiPath + '/pull-secret',
-    };
+    const url = this.apiPath + '/pull-secret';
 
-    await got.post(options, {
-      body: value,
+    await got.post(url, {
+      json: value,
     });
     return 'OK';
   }
 
   async pullSecretAvailable() {
-    const options = {
-      url: this.apiPath + '/pull-secret',
-      method: 'GET',
-    };
+    const url = this.apiPath + '/pull-secret';
 
-    const { body } = await got(options);
+    const { body } = await got.get(url);
     return body;
   }
 }
