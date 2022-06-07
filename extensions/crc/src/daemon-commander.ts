@@ -48,6 +48,7 @@ export class DaemonCommander {
       const { body } = await got(options);
       return JSON.parse(body);
     } catch (error) {
+      console.log('Error getting status:', error);
       return {
         CrcStatus: 'Not running',
       };
