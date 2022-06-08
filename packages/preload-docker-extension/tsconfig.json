@@ -20,7 +20,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "exposedInMainWorld.d.ts",
+    "exposedInDockerExtension.d.ts",
     "../../types/**/*.d.ts"
   ],
   "exclude": [

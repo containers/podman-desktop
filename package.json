@@ -17,7 +17,7 @@
     ]
   },
   "scripts": {
-    "build": "npm run build:main && npm run build:preload && npm run build:preload-docker-extensions && npm run build:renderer && npm run build:extensions",
+    "build": "npm run build:main && npm run build:preload && npm run build:preload-docker-extension && npm run build:renderer && npm run build:extensions",
     "build:main": "cd ./packages/main && vite build",
     "build:extensions": "npm run build:extensions:docker && npm run build:extensions:lima && npm run build:extensions:crc && npm run build:extensions:podman",
     "build:extensions:crc": "cd ./extensions/crc && npm run build",
@@ -26,7 +26,7 @@
     "build:extensions:podman": "cd ./extensions/podman && npm run build",
     "build:extension-api": "cd ./packages/extension-api && vite build",
     "build:preload": "cd ./packages/preload && vite build",
-    "build:preload-docker-extensions": "cd ./packages/preload && vite build",
+    "build:preload-docker-extension": "cd ./packages/preload-docker-extension && vite build",
     "build:preload:types": "dts-cb -i \"packages/preload/tsconfig.json\" -o \"packages/preload/exposedInMainWorld.d.ts\"",
     "build:renderer": "vite -c packages/renderer/vite.config.js build",
     "compile": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js --dir --config.asar=false",
@@ -79,7 +79,8 @@
   "dependencies": {
     "dockerode": "^3.3.1",
     "electron-updater": "4.6.5",
-    "tar-fs": "^2.1.1"
+    "tar-fs": "^2.1.1",
+    "@docker/extension-api-client-types": "0.2.3"
   },
   "resolutionsComments": {
     "ssh2": "Need to use an old version of ssh2 to avoid vite/rollup issue on loading some internal lib"
