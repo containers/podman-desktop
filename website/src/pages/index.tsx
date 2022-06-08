@@ -15,10 +15,13 @@ import {
   faEye,
   faGaugeHigh,
   faListCheck,
+  faPlug,
   faPuzzlePiece,
   faRocket,
   faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
+import ThemedImage from '@theme/ThemedImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 function DownloadClientLinks() {
   let operatingSystem = '';
@@ -106,7 +109,7 @@ function Hero() {
           </div>
           <div className="flex justify-center">
             <img
-              className="md: w-5/6 lg:w-11/12 w-full"
+              className="md:w-5/6 lg:w-11/12 w-full"
               src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
             />
           </div>
@@ -199,12 +202,24 @@ function Extensibility() {
           <SectionTitle name="extensibility" />
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-light leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
-            Bring new features with plug-ins.
+            Bring new features with Docker Desktop Extensions or Podman Desktop plug-ins.
           </h2>
         </div>
 
         <div className="flex flex-col w-full text-center">
           <div className="mx-10">
+            <FontAwesomeIcon size="3x" icon={faPlug} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
+          </div>
+          <p className="leading-relaxed">Docker Desktop UI extensions support.</p>
+          <p className="leading-relaxed">Implementation of host and ui API for Docker Desktop extensions</p>
+          <p className="leading-relaxed">Reuse existing extensions directly in Podman Desktop</p>
+        
+          <ThemedImage className="py-4 md:w-5/6 lg:w-11/12 w-full" alt="Reuse Docker Desktop extensions" sources={{
+              light: useBaseUrl('img/ddextensions/dd-support.png'),
+              dark: useBaseUrl('img/ddextensions/dd-support.png'),
+            }} />
+
+          <div className="mx-10 mt-10">
             <FontAwesomeIcon size="3x" icon={faPuzzlePiece} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
           </div>
           <div className="flex flex-col items-center">
@@ -212,7 +227,7 @@ function Extensibility() {
             <p className="leading-relaxed">JavaScript extensions can contribute new behaviour</p>
 
             <div className="text-left my-4">
-              <p className="-ml-5">Current plug-ins:</p>
+              <p className="-ml-5">Current Podman Desktop plug-ins:</p>
               <ul className="list-disc text-left">
                 <li>Podman</li>
                 <li>Docker</li>
@@ -220,8 +235,12 @@ function Extensibility() {
                 <li>CRC/OpenShift Local</li>
               </ul>
             </div>
+
+
+
+
             <Link
-              title="Download for Linux"
+              title="Extend Podman Desktop"
               className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
               to="/extend">
               <div className="mt-3 text-purple-900 dark:text-purple-400 inline-flex items-center">
@@ -568,6 +587,7 @@ export default function Home(): JSX.Element {
       <Extensibility />
       <MainFeatures />
       <MultipleAtSameTime />
+
     </Layout>
   );
 }
