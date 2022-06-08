@@ -9,12 +9,13 @@ let preloadPath: string;
 $: currentContrib = $contributions.find(contrib => contrib.name === name);
 
 afterUpdate(() => {
-  source = currentContrib.uiUri;
+  console.log('contribution', currentContrib);
+  source = currentContrib?.uiUri;
 });
 
 onMount(async () => {
   preloadPath = await window.getDDPreloadPath();
-  source = currentContrib.uiUri;
+  source = currentContrib?.uiUri;
 });
 </script>
 
