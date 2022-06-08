@@ -93,6 +93,29 @@ function FeatureManageResources() {
 }
 
 
+
+function FeatureDDExtensions() {
+  return (
+  <section className="text-gray-600 dark:text-gray-400 body-font">
+  <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
+    <div className="w-5/6 mb-10 md:mb-0">
+    <ThemedImage className="py-4" alt="Pull image and manage registries" sources={{
+              light: useBaseUrl('img/ddextensions/dd-support.png'),
+              dark: useBaseUrl('img/ddextensions/dd-support.png'),
+            }} />
+    </div>
+<div className="lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 flex flex-col md:items-start md:text-left items-center text-center">
+  <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 dark:text-white">Import Docker Desktop extensions</h1>
+
+<p className="leading-relaxed list-item">Specify OCI image of a Docker Desktop extension to import it.</p>
+<p className="leading-relaxed list-item">For example: security scanner or deploy to OpenShift extensions.</p>
+</div>
+
+</div>
+</section>);
+
+}
+
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
@@ -101,6 +124,7 @@ export default function Home(): JSX.Element {
       <FeatureManageContainers />
       <FeatureManageImages />
       <FeatureManageResources />
+      <FeatureDDExtensions />
     </Layout>
   );
 }
