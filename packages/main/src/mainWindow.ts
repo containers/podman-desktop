@@ -18,6 +18,7 @@
 
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { BrowserWindow, ipcMain, app, dialog } from 'electron';
+import contextMenu from 'electron-context-menu';
 import { join } from 'path';
 import { URL } from 'url';
 import { isLinux, isMac } from './util';
@@ -103,6 +104,10 @@ async function createWindow() {
 
   app.on('before-quit', () => {
     browserWindow.destroy();
+  });
+
+  contextMenu({
+    showInspectElement: import.meta.env.DEV,
   });
 
   /**
