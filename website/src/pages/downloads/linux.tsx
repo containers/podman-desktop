@@ -125,8 +125,9 @@ export default function Home(): JSX.Element {
   return (
     <Layout title={siteConfig.title} description="Downloads for macOS">
       <TailWindThemeSelector />
-      <main className="h-screen"></main>
-      <LinuxDownloads />
+      <main className="h-screen">
+        <LinuxDownloads />
+      </main>
     </Layout>
   );
 }
