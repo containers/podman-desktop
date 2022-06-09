@@ -222,7 +222,7 @@ function execPromise(command, args?: string[]): Promise<string> {
 
 async function readPreset(): Promise<'Podman' | 'OpenShift' | 'unknown'> {
   try {
-    const stdout = await execPromise('/usr/local/bin/crc', ['config', 'get', 'preset']);
+    const stdout = await execPromise('crc', ['config', 'get', 'preset']);
     if (stdout.includes('podman')) {
       return 'Podman';
     } else if (stdout.includes('openshift')) {
