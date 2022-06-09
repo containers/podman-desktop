@@ -17,7 +17,7 @@
 
   --pf-global--LineHeight--md: 0.9rem;
   --pf-global--FontWeight--normal: 100;
-  --pf-c-nav__link--after--BorderColor: #892ca0;
+  --pf-c-nav__link--after--BorderColor: #8772c7;
   --pf-global--BackgroundColor: #ff0000;
 }
 
@@ -28,13 +28,13 @@
 
   /* gray 200*/
   --pf-c-nav__link--Color: #e2e8f0;
-  --pf-c-nav__link--m-current--Color: #e2e8f0;
+  --pf-c-nav__link--m-current--Color: #fff;
 }
 
 .pf-c-nav__link::after {
-  --pf-c-nav__link--after--BorderColor: #892ca0;
-  --pf-c-nav__link--m-current--after--BorderColor: #892ca0;
-}
+  --pf-c-nav__link--after--BorderColor: #8772c7;
+  --pf-c-nav__link--m-current--after--BorderColor: #8772c7;
+ }
 .pf-c-button {
   --pf-c-button--FontSize: 13px;
 }

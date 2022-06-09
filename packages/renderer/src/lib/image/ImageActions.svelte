@@ -12,8 +12,8 @@ import Modal from '../dialogs/Modal.svelte';
 export let hasModalCallback: (flag: boolean) => void;
 export let image: ImageInfoUI;
 
-const buttonStyle = 'p-1 mx-1 shadow-md shadow-gray-900  hover:bg-zinc-800';
-const iconStyle = 'p-1 h-7 w-7 cursor-pointer rounded-full text-3xl text-violet-500 hover:text-violet-600';
+const buttonStyle = 'flex p-2 mx-2 border border-violet-500 hover:border-violet-600 shadow-md shadow-gray-900 ';
+const iconStyle = 'items-center align-middle h-full w-6 cursor-pointer text-2xl text-violet-500 hover:text-violet-600 ';
 
 let runContainerFromImageModal = false;
 let pushImageModal = false;
