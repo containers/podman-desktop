@@ -134,15 +134,16 @@ export class RegistrySetup {
       }
     });
 
+    // check if the file exists
+    if (!fs.existsSync(this.getAuthFileLocation())) {
+      return;
+    }
+
     // need to monitor this file
     fs.watchFile(this.getAuthFileLocation(), () => {
       this.updateRegistries(extensionContext);
     });
 
-    // check if the file exists
-    if (!fs.existsSync(this.getAuthFileLocation())) {
-      return;
-    }
     // else init with the content of this file
     this.updateRegistries(extensionContext);
   }
