@@ -8,6 +8,8 @@ import { router } from 'tinro';
 import type { ImageInfoUI } from './image/ImageInfoUI';
 import ImageActions from './image/ImageActions.svelte';
 import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
+import Fa from 'svelte-fa/src/fa.svelte';
+import { faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -87,14 +89,20 @@ function getEngineName(containerInfo: ImageInfo): string {
 }
 </script>
 
-<div class="flex flex-col">
-  <div class="min-w-full">
+<div class="flex flex-col min-h-full">
+  <div class="min-w-full flex-1">
+    <div class="flex">
+      <div class="pt-5 px-5">
+        <p class="text-xl">Images</p>
+        <p class="text-sm text-gray-400">Hover over an image to view action buttons.</p>
+      </div>
+    </div>
     <div class="flex flex-row">
-      <div class="py-5 px-5 lg:w-[35rem] w-[22rem]">
+      <div class="pt-2 px-5 lg:w-[35rem] w-[22rem]">
         <div class="flex items-center bg-gray-700 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="w-6 h-6 ml-2 mr-2 "
+            class="w-5 h-5 ml-2 mr-2 "
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor">
@@ -108,8 +116,8 @@ function getEngineName(containerInfo: ImageInfo): string {
             bind:value="{searchTerm}"
             type="text"
             name="containerSearchName"
-            placeholder="Search...."
-            class="w-full py-2 outline-none bg-gray-700" />
+            placeholder="Search images...."
+            class="w-full py-2 outline-none text-sm bg-gray-700" />
         </div>
       </div>
       <div class="flex flex-1 justify-end">
@@ -132,9 +140,12 @@ function getEngineName(containerInfo: ImageInfo): string {
     <table class="min-w-full divide-y divide-gray-800 border-t border-t-zinc-700">
       <tbody class="bg-zinc-800 divide-y divide-zinc-700">
         {#each images as image}
-          <tr class="group hover:cursor-pointer hover:bg-zinc-700">
-            <td class="px-6 py-2 whitespace-nowrap w-10">
+          <tr class="group h-12 hover:cursor-pointer hover:bg-zinc-700">
+            <td class="px-4 whitespace-nowrap w-10">
               <div class="flex items-center">
+                <div class="flex-shrink-0 w-3 py-3">
+                  <Fa class="text-gray-400" icon="{faLayerGroup}" />
+                </div>
                 <div class="ml-4">
                   <div class="flex flex-row">
                     <div class="text-sm text-gray-200">{image.name}</div>
@@ -159,8 +170,8 @@ function getEngineName(containerInfo: ImageInfo): string {
                 <div class="w-full text-right text-sm text-gray-200">{image.humanSize}</div>
               </div>
             </td>
-            <td class="px-6 py-2 whitespace-nowrap">
-              <div hidden class="flex group-hover:flex flex-row justify-end" class:flex="{hasModal === true}">
+            <td class="px-6 whitespace-nowrap">
+              <div class="flex opacity-0 flex-row justify-end group-hover:opacity-100">
                 <ImageActions image="{image}" hasModalCallback="{handleModal}" />
               </div>
             </td>

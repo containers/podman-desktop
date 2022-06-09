@@ -10,8 +10,8 @@ import { router } from 'tinro';
 
 export let container: ContainerInfoUI;
 
-const buttonStyle = 'p-1 mx-1 shadow-md shadow-gray-900  hover:bg-zinc-800';
-const iconStyle = 'p-1 h-7 w-7 cursor-pointer rounded-full text-3xl text-violet-500 hover:text-violet-600';
+const buttonStyle = 'flex p-2 mx-2 border border-violet-500 hover:border-violet-600 shadow-md shadow-gray-900 ';
+const iconStyle = 'items-center align-middle h-full w-6 cursor-pointer text-2xl text-violet-500 hover:text-violet-600 ';
 
 async function startContainer(containerInfo: ContainerInfoUI) {
   await window.startContainer(containerInfo.engineId, containerInfo.id);
@@ -62,7 +62,6 @@ function openTerminalContainer(containerInfo: ContainerInfoUI): void {
   on:click="{() => stopContainer(container)}"
   hidden
   class:block="{container.state === 'RUNNING'}"><Fa class="{iconStyle}" icon="{faStopCircle}" /></button>
-<!-- </button>  class="disabled:opacity-25  cursor-pointer disabled:cursor-default">-->
 <button title="Restart Container" class="{buttonStyle}" on:click="{() => restartContainer(container)}">
   <Fa class="{iconStyle}" icon="{faArrowsRotate}" /></button>
 <button class="{buttonStyle}" title="Delete Container" on:click="{() => deleteContainer(container)}">

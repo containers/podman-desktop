@@ -4,7 +4,7 @@ import { filtered, searchPattern } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
-import { router, Route } from 'tinro';
+import { router } from 'tinro';
 import ContainerDetails from './ContainerDetails.svelte';
 import type { ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
@@ -48,6 +48,8 @@ function fromExistingImage(): void {
   window.location.href = '#/images';
 }
 
+let multipleEngines = false;
+
 onMount(async () => {
   filtered.subscribe(value => {
     containers = value.map((containerInfo: ContainerInfo) => {
@@ -65,6 +67,16 @@ onMount(async () => {
         openingUrl: getOpeningUrl(containerInfo),
       };
     });
+
+    // multiple engines ?
+    const engineNamesArray = containers.map(container => container.engineName);
+    // remove duplicates
+    const engineNames = [...new Set(engineNamesArray)];
+    if (engineNames.length > 1) {
+      multipleEngines = true;
+    } else {
+      multipleEngines = false;
+    }
   });
 });
 
@@ -143,19 +155,22 @@ function getEngineName(containerInfo: ContainerInfo): string {
 }
 </script>
 
-<!--{#if selectedContainer}
-
-<Route path="/" redirect="{`/containers/${selectedContainer.id}/logs`}" />
-{/if}
--->
 <div class="flex flex-col min-h-full">
   <div class="min-w-full flex-1">
+    <div class="flex">
+      <div class="pt-5 px-5">
+        <p class="text-xl">Containers</p>
+        <p class="text-sm text-gray-400">
+          Hover over a container to view action buttons; click to open up full details.
+        </p>
+      </div>
+    </div>
     <div class="flex flex-row">
-      <div class="py-5 px-5 lg:w-[35rem] w-[22rem]">
+      <div class="pt-2 px-5 lg:w-[35rem] w-[22rem]">
         <div class="flex items-center bg-gray-700 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="w-6 h-6 ml-2 mr-2 "
+            class="w-5 h-5 ml-2 mr-2 "
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor">
@@ -169,8 +184,8 @@ function getEngineName(containerInfo: ContainerInfo): string {
             bind:value="{searchTerm}"
             type="text"
             name="containerSearchName"
-            placeholder="Search...."
-            class="w-full py-2 outline-none bg-gray-700" />
+            placeholder="Search containers...."
+            class="w-full py-2 outline-none text-sm bg-gray-700" />
         </div>
       </div>
       <div class="flex flex-1 justify-end">
@@ -184,95 +199,20 @@ function getEngineName(containerInfo: ContainerInfo): string {
         </div>
       </div>
     </div>
-    <!--
-        <table
-  class="pf-c-table pf-m-grid-md"
-  role="grid"
-  aria-label="This is a simple table example"
-  id="table-basic"
->
-
-<svg
-  class="pf-c-spinner"
-  role="progressbar"
-  viewBox="0 0 100 100"
-  aria-label="Loading..."
->
-  <circle class="pf-c-spinner__path" cx="50" cy="50" r="45" fill="none" />
-</svg>
-  <caption>This is the table caption</caption>
-  <thead>
-    <tr role="row">
-      <th role="columnheader" scope="col">Repositories</th>
-      <th role="columnheader" scope="col">Branches</th>
-      <th role="columnheader" scope="col">Pull requests</th>
-      <th role="columnheader" scope="col">Workspaces</th>
-      <th role="columnheader" scope="col">Last commit</th>
-    </tr>
-  </thead>
-
-  <tbody role="rowgroup">
-    <tr role="row">
-      <td role="cell" data-label="Repository name">Repository 1</td>
-      <td role="cell" data-label="Branches">10</td>
-      <td role="cell" data-label="Pull requests">25</td>
-      <td role="cell" data-label="Workspaces">5</td>
-      <td role="cell" data-label="Last commit">2 days ago</td>
-    </tr>
-
-    <tr role="row">
-      <td role="cell" data-label="Repository name">Repository 2</td>
-      <td role="cell" data-label="Branches">10</td>
-      <td role="cell" data-label="Pull requests">25</td>
-      <td role="cell" data-label="Workspaces">5</td>
-      <td role="cell" data-label="Last commit">2 days ago</td>
-    </tr>
-
-    <tr role="row">
-      <td role="cell" data-label="Repository name">Repository 3</td>
-      <td role="cell" data-label="Branches">10</td>
-      <td role="cell" data-label="Pull requests">25</td>
-      <td role="cell" data-label="Workspaces">5</td>
-      <td role="cell" data-label="Last commit">2 days ago</td>
-    </tr>
-
-    <tr role="row">
-      <td role="cell" data-label="Repository name">Repository 4</td>
-      <td role="cell" data-label="Branches">10</td>
-      <td role="cell" data-label="Pull requests">25</td>
-      <td role="cell" data-label="Workspaces">5</td>
-      <td role="cell" data-label="Last commit">2 days ago</td>
-    </tr>
-  </tbody>
-</table>
--->
     <div class="min-w-full h-[calc(100%_-_5.5rem)] flex flex-row">
       <table
         class="divide-y divide-gray-800 h-2 flex-1 border-t border-t-zinc-700"
         class:min-w-full="{!isExpanded}"
         class:w-100="{isExpanded}"
         class:hidden="{containers.length === 0}">
-        <!--<thead class="bg-gray-700">
-              <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">State</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ports</th>
-                <th scope="col" class="relative px-6 py-3">
-                  <span class="sr-only">Edit</span>
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Engine</th>
-              </tr>
-            </thead>-->
         <tbody class="bg-zinc-800 divide-y divide-zinc-700">
           {#each containers as container}
-            <tr class="group h-16 hover:bg-zinc-700">
+            <tr class="group h-12 hover:bg-zinc-700">
               <td
                 class="px-4 whitespace-nowrap hover:cursor-pointer"
                 on:click="{() => expandContainerSelection(container)}">
                 <div class="flex items-center">
-                  <div class="flex-shrink-0 w-10 py-3">
-                    <!--<Fa class="h-10 w-10 rounded-full {getColorForState(container)}" icon={faBox} />-->
+                  <div class="flex-shrink-0 w-3 py-3">
                     <ContainerIcon state="{container.state}" />
                   </div>
                   <div class="ml-4">
@@ -292,16 +232,20 @@ function getEngineName(containerInfo: ContainerInfo): string {
                     </div>
                     <div class="flex flex-row text-xs font-extra-light text-gray-500">
                       <div>{container.state}</div>
-                      <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">
-                        {container.engineName}
-                      </div>
+                      <!-- Hide in case of single engines-->
+                      {#if multipleEngines}
+                        <div
+                          class="mx-2 px-2 inline-flex text-xs font-extralight rounded-sm bg-zinc-700 text-slate-400">
+                          {container.engineName}
+                        </div>
+                      {/if}
                       <div class="pl-2 pr-2">{container.port}</div>
                     </div>
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-2 whitespace-nowrap" class:hidden="{isExpanded}">
-                <div class=" flex-row justify-end hidden group-hover:flex ">
+              <td class="px-6 whitespace-nowrap" class:hidden="{isExpanded}">
+                <div class="flex-row justify-end hidden group-hover:flex ">
                   <ContainerActions container="{container}" />
                 </div>
               </td>
