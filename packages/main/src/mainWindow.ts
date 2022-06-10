@@ -107,6 +107,7 @@ async function createWindow() {
   });
 
   contextMenu({
+    showLearnSpelling: false,
     showLookUpSelection: false,
     showSearchWithGoogle: false,
     showCopyImage: false,
@@ -116,7 +117,6 @@ async function createWindow() {
     showSaveLinkAs: false,
     showInspectElement: import.meta.env.DEV,
     showServices: false,
-    // TODO: If required - set learnSpelling to false once supported or disable from electron webPreferences(spellcheck: false) but be aware of side-effects
   });
 
   /**
