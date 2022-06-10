@@ -6,6 +6,7 @@ const fs = require('fs');
 
 const destFile = path.resolve(__dirname, `../${package.name}.cdix`);
 const builtinDirectory = path.resolve(__dirname, '../builtin');
+const unzippedDirectory = path.resolve(builtinDirectory, `${package.name}.cdix`);
 // remove the .cdix file before zipping
 if (fs.existsSync(destFile)) {
     fs.rmSync(destFile);
@@ -21,8 +22,6 @@ zipper.sync.zip(path.resolve(__dirname, '../')).compress().save(destFile);
 
 
 // create unzipped built-in
-/*
 mkdirp(unzippedDirectory).then(() => {
         zipper.sync.unzip(destFile).save(unzippedDirectory);
 });
-*/
