@@ -35,7 +35,7 @@
     "xterm-addon-fit": "^0.5.0"
   },
   "dependencies": {
-    "electron-context-menu": "^3.1.2",
+    "electron-context-menu": "^3.2.0",
     "tinro": "^0.6.12"
   }
 }
