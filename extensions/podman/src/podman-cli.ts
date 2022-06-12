@@ -31,7 +31,7 @@ export function execPromise(command: string, args?: string[], logger?: extension
   const env = process.env;
   // In production mode, applications don't have access to the 'user' path like brew
   if (isMac) {
-    env.PATH = env.PATH.concat(':/usr/local/bin').concat(':/opt/homebrew/bin');
+    env.PATH = env.PATH.concat(':/usr/local/bin').concat(':/opt/homebrew/bin').concat(':/opt/local/bin');
   } else if (env.FLATPAK_ID) {
     // need to execute the command on the host
     args = ['--host', command, ...args];
