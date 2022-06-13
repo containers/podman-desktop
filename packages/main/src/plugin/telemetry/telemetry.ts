@@ -1,0 +1,247 @@
+/**********************************************************************
+ * Copyright (C) 2022 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
+import Analytics from 'analytics-node';
+import { app, dialog } from 'electron';
+import { Identity } from './identity';
+import * as os from 'node:os';
+import type { LinuxOs } from 'getos';
+import getos from 'getos';
+import * as osLocale from 'os-locale';
+import { promisify } from 'node:util';
+import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry';
+import { findWindow } from '../../util';
+
+/**
+ * Handle the telemetry reporting.
+ */
+export class Telemetry {
+  private static readonly SEGMENT_KEY = 'Mhl7GXADk5M1vG6r9FXztbCqWRQY8XPy';
+
+  private identity: Identity;
+
+  private locale: string | undefined;
+
+  private analytics: Analytics | undefined;
+
+  private telemetryEnabled = false;
+
+  private telemetryInitialized = false;
+
+  private pendingItems: { eventName: string; properties: unknown }[] = [];
+
+  constructor(private configurationRegistry: ConfigurationRegistry) {
+    this.identity = new Identity();
+  }
+
+  async init(): Promise<void> {
+    const telemetryConfigurationNode: IConfigurationNode = {
+      id: 'dashboard.telemetry',
+      title: 'Telemetry',
+      type: 'object',
+      properties: {
+        ['telemetry.enabled']: {
+          description: 'Is that telemetry should be enabled ?',
+          type: 'boolean',
+          default: true,
+        },
+        ['telemetry.check']: {
+          description: 'Dialog prompt for telemetry',
+          type: 'boolean',
+          default: false,
+        },
+      },
+    };
+
+    this.configurationRegistry.registerConfigurations([telemetryConfigurationNode]);
+
+    // grab value
+    const telemetryConfiguration = this.configurationRegistry.getConfiguration('telemetry');
+    const check = telemetryConfiguration.get<boolean>('check');
+
+    // initalize objects
+    this.analytics = new Analytics(Telemetry.SEGMENT_KEY);
+
+    // needs to prompt the user for the first time he launches the app
+    if (!check) {
+      dialog
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        .showMessageBox(findWindow()!, {
+          title: 'Telemetry',
+          message: `Help Red Hat improve\n ${app.getName()} by allowing to collect anonymized usage data.`,
+          buttons: ['OK'],
+          type: 'info',
+          checkboxChecked: true,
+          checkboxLabel: 'Enable telemetry',
+          detail:
+            'Read about our privacy statement:\n https://developers.redhat.com/article/tool-data-collection\n\nYou can update your choice later by changing the Telemetry preference.',
+        })
+        .then(async messageBoxReturnValue => {
+          // check has been performed, we asked the user and he answered, so check is done
+          await this.configurationRegistry.updateConfigurationValue('telemetry.check', true, 'DEFAULT');
+          // if the user said yes, we enable the telemetry
+          if (messageBoxReturnValue.checkboxChecked) {
+            await this.configurationRegistry.updateConfigurationValue('telemetry.enabled', true, 'DEFAULT');
+            this.configureTelemetry();
+          } else {
+            // else we disable it
+            await this.configurationRegistry.updateConfigurationValue('telemetry.enabled', false, 'DEFAULT');
+          }
+        });
+    } else {
+      //
+      const enabled = telemetryConfiguration.get<boolean>('enabled');
+      if (enabled === true) {
+        await this.configureTelemetry();
+        this.telemetryEnabled = true;
+      }
+      this.telemetryInitialized = true;
+    }
+  }
+
+  protected async configureTelemetry(): Promise<void> {
+    const anonymousId = await this.identity.getUserId();
+    const traits = await this.getSegmentIdentifyTraits();
+
+    this.analytics?.identify({
+      anonymousId,
+      traits,
+    });
+
+    this.internalTrack('startup');
+    let sendShutdownAnalytics = false;
+
+    app.on('before-quit', async e => {
+      if (!sendShutdownAnalytics) {
+        e.preventDefault();
+        await this.internalTrack('shutdown');
+        await this.analytics?.flush();
+        sendShutdownAnalytics = true;
+        app.quit();
+      }
+    });
+
+    // send all pending items
+    this.pendingItems.forEach(item => {
+      this.internalTrack(item.eventName, item.properties);
+    });
+    this.pendingItems.length = 0;
+    this.telemetryInitialized = true;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected async internalTrack(event: string, eventProperties?: any): Promise<void> {
+    const anonymousId = await this.identity.getUserId();
+
+    const context = await this.getContext();
+    if (!eventProperties) {
+      eventProperties = {};
+    }
+
+    const properties = {
+      app_name: app.getName(),
+      app_version: app.getVersion(),
+      ...eventProperties,
+    };
+
+    const integrations = {
+      All: true,
+    };
+
+    this.analytics?.track({ anonymousId, event, context, properties, integrations });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async track(event: string, eventProperties?: any): Promise<void> {
+    if (!this.telemetryInitialized) {
+      this.pendingItems.push({ eventName: event, properties: eventProperties });
+    }
+    if (!this.telemetryEnabled) {
+      return;
+    }
+    this.internalTrack(event, eventProperties);
+  }
+
+  protected async getLocale(): Promise<string> {
+    if (!this.locale) {
+      this.locale = (await osLocale.osLocale()).replace('_', '-');
+    }
+    return this.locale;
+  }
+
+  protected async getSegmentIdentifyTraits(): Promise<unknown> {
+    const locale = await this.getLocale();
+
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const os_version = os.release();
+    const os_distribution = await this.getDistribution();
+    const os_name = this.getPlatform();
+
+    return {
+      timezone,
+      os_name,
+      os_version,
+      os_distribution,
+      locale,
+    };
+  }
+
+  protected async getContext(): Promise<unknown> {
+    const locale = await this.getLocale();
+
+    return {
+      ip: '0.0.0.0',
+      app: {
+        name: app.getName(),
+        version: app.getVersion(),
+      },
+      os: {
+        name: this.getPlatform(),
+        version: os.release(),
+      },
+      locale,
+      location: {
+        country: app.getLocaleCountryCode(),
+      },
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    };
+  }
+
+  protected getPlatform(): string {
+    const platform: string = os.platform();
+    if (platform.startsWith('win')) {
+      return 'Windows';
+    }
+    if (platform.startsWith('darwin')) {
+      return 'Mac';
+    }
+    return platform.charAt(0).toUpperCase() + platform.slice(1);
+  }
+
+  protected async getDistribution(): Promise<string | undefined> {
+    if (os.platform() === 'linux') {
+      try {
+        const platorm = (await promisify(getos)()) as LinuxOs;
+        return platorm.dist;
+      } catch {
+        return undefined;
+      }
+    }
+    return undefined;
+  }
+}

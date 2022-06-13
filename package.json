@@ -54,7 +54,9 @@
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.1.3",
     "@rollup/plugin-typescript": "^8.3.1",
+    "@types/analytics-node": "^3.1.9",
     "@types/dockerode": "^3.3.3",
+    "@types/getos": "^3.0.1",
     "@types/tar-fs": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
@@ -78,8 +80,11 @@
   },
   "dependencies": {
     "@docker/extension-api-client-types": "0.2.3",
+    "analytics-node": "^6.0.0",
     "dockerode": "^3.3.1",
     "electron-updater": "4.6.5",
+    "getos": "^3.2.1",
+    "os-locale": "^6.0.2",
     "tar-fs": "^2.1.1"
   },
   "resolutionsComments": {

@@ -23,6 +23,7 @@ import type { ProviderContainerConnectionInfo, ProviderInfo } from './api/provid
 import type { MenuItem } from './api/tray-menu-info';
 import type { CommandRegistry } from './command-registry';
 import type { ProviderRegistry } from './provider-registry';
+import type { Telemetry } from './telemetry/telemetry';
 import { Disposable } from './types/disposable';
 
 export interface TrayProviderConnectionInfo {
@@ -43,6 +44,7 @@ export class TrayMenuRegistry {
     private trayMenu: TrayMenu,
     private readonly commandRegistry: CommandRegistry,
     readonly providerRegistry: ProviderRegistry,
+    private readonly telemetryService: Telemetry,
   ) {
     // add as listener
     providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
@@ -83,6 +85,7 @@ export class TrayMenuRegistry {
     });
 
     ipcMain.on('tray:menu-provider-click', (_, param: { action: string; providerInfo: ProviderInfo }) => {
+      this.telemetryService.track('tray:menu-provider-click', { action: param.action, name: param.providerInfo.name });
       const provider = this.providers.get(param.providerInfo.internalId);
       if (provider) {
         if (param.action === 'Start') {
@@ -103,6 +106,11 @@ export class TrayMenuRegistry {
           providerContainerConnectionInfo: ProviderContainerConnectionInfo;
         },
       ) => {
+        this.telemetryService.track('tray:menu-provider-container-connection-click', {
+          action: param.action,
+          name: param.providerContainerConnectionInfo.name,
+        });
+
         const provider = this.providers.get(param.providerInfo.internalId);
         if (provider) {
           if (param.action === 'Start') {

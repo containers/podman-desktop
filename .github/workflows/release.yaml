@@ -99,6 +99,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - name: setup telemetry key for production
+        run: |
+          sed -i -r -e "s/SEGMENT_KEY = '.*'/SEGMENT_KEY = '${{ secrets.SEGMENT_WRITE_KEY }}'/" packages/main/src/plugin/telemetry/telemetry.ts
+
       - name: yarn
         run: |
           yarn --frozen-lockfile --network-timeout 180000

@@ -20,6 +20,9 @@ import { Disposable } from './types/disposable';
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { Emitter } from './events/emitter';
 import type * as Dockerode from 'dockerode';
+import type { Telemetry } from './telemetry/telemetry';
+import * as crypto from 'node:crypto';
+
 export class ImageRegistry {
   private registries: containerDesktopAPI.Registry[] = [];
   private providers: Map<string, containerDesktopAPI.RegistryProvider> = new Map();
@@ -33,7 +36,7 @@ export class ImageRegistry {
     this._onDidUnregisterRegistry.event;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any) {}
+  constructor(private apiSender: any, private telemetryService: Telemetry) {}
 
   getAuthconfigForImage(imageName: string): Dockerode.AuthConfig | undefined {
     // do we have some auth for this image
@@ -69,8 +72,16 @@ export class ImageRegistry {
     return authconfig;
   }
 
+  getRegistryHash(registry: { serverUrl: string }): string {
+    return crypto.createHash('sha512').update(registry.serverUrl).digest('hex');
+  }
+
   registerRegistry(registry: containerDesktopAPI.Registry): Disposable {
     this.registries = [...this.registries, registry];
+    this.telemetryService.track('registerRegistry', {
+      serverUrl: this.getRegistryHash(registry),
+      total: this.registries.length,
+    });
     this.apiSender.send('registry-register', registry);
     this._onDidRegisterRegistry.fire(Object.freeze(registry));
     return Disposable.create(() => {
@@ -87,6 +98,10 @@ export class ImageRegistry {
       this.registries = filtered;
       this.apiSender.send('registry-unregister', registry);
     }
+    this.telemetryService.track('unregisterRegistry', {
+      serverUrl: this.getRegistryHash(registry),
+      total: this.registries.length,
+    });
   }
 
   getRegistries(): readonly containerDesktopAPI.Registry[] {
@@ -117,6 +132,10 @@ export class ImageRegistry {
       throw new Error(`Registry ${registryCreateOptions.serverUrl} already exists`);
     }
     const registry = provider.create(registryCreateOptions);
+    this.telemetryService.track('createRegistry', {
+      serverUrlHash: this.getRegistryHash(registryCreateOptions),
+      total: this.registries.length,
+    });
     return this.registerRegistry(registry);
   }
 }

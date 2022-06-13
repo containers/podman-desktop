@@ -32,6 +32,7 @@ import type {
 import type { ContainerProviderRegistry } from './container-registry';
 import { LifecycleContextImpl } from './lifecycle-context';
 import { ProviderImpl } from './provider-impl';
+import type { Telemetry } from './telemetry/telemetry';
 import { Disposable } from './types/disposable';
 
 export type ProviderEventListener = (name: string, providerInfo: ProviderInfo) => void;
@@ -62,7 +63,7 @@ export class ProviderRegistry {
   private lifecycleListeners: ProviderLifecycleListener[];
   private containerConnectionLifecycleListeners: ContainerConnectionProviderLifecycleListener[];
 
-  constructor(private containerRegistry: ContainerProviderRegistry) {
+  constructor(private containerRegistry: ContainerProviderRegistry, private telemetryService: Telemetry) {
     this.providers = new Map();
     this.listeners = [];
     this.lifecycleListeners = [];
@@ -381,17 +382,18 @@ export class ProviderRegistry {
     if (!lifecycle || !lifecycle.delete) {
       throw new Error('The container connection does not support delete lifecycle');
     }
+    this.telemetryService.track('deleteProviderConnection', { name: providerContainerConnectionInfo.name });
     return lifecycle.delete();
   }
 
-  onDidRegisterContainerConnection(provider: ProviderImpl, containerConnection: ContainerProviderConnection) {
-    this.connectionLifecycleContexts.set(containerConnection, new LifecycleContextImpl());
+  onDidRegisterContainerConnection(provider: ProviderImpl, containerProviderConnection: ContainerProviderConnection) {
+    this.connectionLifecycleContexts.set(containerProviderConnection, new LifecycleContextImpl());
     // notify listeners
     this.containerConnectionLifecycleListeners.forEach(listener => {
       listener(
         'provider-container-connection:register',
         this.getProviderInfo(provider),
-        this.getProviderContainerConnectionInfo(containerConnection),
+        this.getProviderContainerConnectionInfo(containerProviderConnection),
       );
     });
   }

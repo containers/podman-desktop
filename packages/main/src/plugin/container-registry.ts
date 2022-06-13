@@ -25,6 +25,7 @@ import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { ProviderContainerConnectionInfo } from './api/provider-info';
 import type { ImageRegistry } from './image-registry';
 import type { PullEvent } from './api/pull-event';
+import type { Telemetry } from './telemetry/telemetry';
 
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
@@ -43,7 +44,7 @@ export interface InternalContainerProviderLifecycle {
 
 export class ContainerProviderRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any, private imageRegistry: ImageRegistry) {}
+  constructor(private apiSender: any, private imageRegistry: ImageRegistry, private telemetryService: Telemetry) {}
 
   private containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
   private internalProviders: Map<string, InternalContainerProvider> = new Map();
@@ -100,6 +101,11 @@ export class ContainerProviderRegistry {
     const providerName = containerProviderConnection.name;
     const id = `${provider.id}.${providerName}`;
     this.containerProviders.set(id, containerProviderConnection);
+    this.telemetryService.track('registerContainerProviderConnection', {
+      name: containerProviderConnection.name,
+      type: containerProviderConnection.type,
+      total: this.containerProviders.size,
+    });
 
     const internalProvider: InternalContainerProvider = {
       id,
@@ -163,6 +169,7 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedContainers = containers.flat();
+    this.telemetryService.track('listContainers', { total: flatttenedContainers.length });
     return flatttenedContainers;
   }
 
@@ -185,6 +192,8 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedImages = images.flat();
+    this.telemetryService.track('listImages', { total: flatttenedImages.length });
+
     return flatttenedImages;
   }
 
@@ -257,10 +266,12 @@ export class ContainerProviderRegistry {
   }
 
   async stopContainer(engineId: string, id: string): Promise<void> {
+    this.telemetryService.track('stopContainer');
     return this.getMatchingContainer(engineId, id).stop();
   }
 
   async deleteImage(engineId: string, id: string): Promise<void> {
+    this.telemetryService.track('deleteImage');
     // use force to delete it even it is running
     return this.getMatchingImage(engineId, id).remove();
   }
@@ -277,6 +288,7 @@ export class ContainerProviderRegistry {
   async pushImage(engineId: string, imageTag: string, callback: (name: string, data: string) => void): Promise<void> {
     const engine = this.getMatchingEngine(engineId);
     const image = await engine.getImage(imageTag);
+    this.telemetryService.track('pushImage');
 
     const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
     const pushStream = await image.push({ authconfig });
@@ -328,19 +340,23 @@ export class ContainerProviderRegistry {
   }
 
   async deleteContainer(engineId: string, id: string): Promise<void> {
+    this.telemetryService.track('deleteContainer');
     // use force to delete it even it is running
     return this.getMatchingContainer(engineId, id).remove({ force: true });
   }
 
   async startContainer(engineId: string, id: string): Promise<void> {
+    this.telemetryService.track('startContainer');
     return this.getMatchingContainer(engineId, id).start();
   }
 
   async restartContainer(engineId: string, id: string): Promise<void> {
+    this.telemetryService.track('restartContainer');
     return this.getMatchingContainer(engineId, id).restart();
   }
 
   async logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void): Promise<void> {
+    this.telemetryService.track('logsContainer');
     let firstMessage = true;
     const container = this.getMatchingContainer(engineId, id);
     const containerStream = await container.logs({
@@ -367,6 +383,7 @@ export class ContainerProviderRegistry {
     id: string,
     onData: (data: Buffer) => void,
   ): Promise<(param: string) => void> {
+    this.telemetryService.track('shellInContainer');
     const exec = await this.getMatchingContainer(engineId, id).exec({
       AttachStdin: true,
       AttachStdout: true,
@@ -401,6 +418,7 @@ export class ContainerProviderRegistry {
     if (!engine.api) {
       throw new Error('no running provider for the matching container');
     }
+    this.telemetryService.track('createAndStartContainer');
     const container = await engine.api.createContainer(options);
     return container.start();
   }
@@ -430,6 +448,7 @@ export class ContainerProviderRegistry {
     selectedProvider: ProviderContainerConnectionInfo,
     eventCollect: (eventName: 'stream' | 'error', data: string) => void,
   ): Promise<unknown> {
+    this.telemetryService.track('buildImage');
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
       containerProvider => containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath,
