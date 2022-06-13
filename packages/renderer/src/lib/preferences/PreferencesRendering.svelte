@@ -4,7 +4,6 @@ import PreferencesRenderingItem from './PreferencesRenderingItem.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let key: string;
-export let matchingRecords: IConfigurationPropertyRecordedSchema[] = [];
 
 let title;
 
