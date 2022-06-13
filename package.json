@@ -60,7 +60,7 @@
     "@typescript-eslint/parser": "^5.11.0",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
-    "electron": "^18.2.3",
+    "electron": "^19.0.4",
     "electron-builder": "23.0.9",
     "electron-builder-notarize": "^1.4.0",
     "electron-devtools-installer": "^3.2.0",
@@ -77,10 +77,10 @@
     "vitest": "0.2.8"
   },
   "dependencies": {
+    "@docker/extension-api-client-types": "0.2.3",
     "dockerode": "^3.3.1",
     "electron-updater": "4.6.5",
-    "tar-fs": "^2.1.1",
-    "@docker/extension-api-client-types": "0.2.3"
+    "tar-fs": "^2.1.1"
   },
   "resolutionsComments": {
     "ssh2": "Need to use an old version of ssh2 to avoid vite/rollup issue on loading some internal lib"
