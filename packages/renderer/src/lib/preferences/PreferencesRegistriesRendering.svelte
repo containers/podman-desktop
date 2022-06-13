@@ -3,6 +3,7 @@ import { onMount } from 'svelte';
 import type { Registry } from '@tmpwip/extension-api';
 import { registriesInfos } from '../../stores/registries';
 import PreferencesRegistriesCreateRegistryModal from './PreferencesRegistriesCreateRegistryModal.svelte';
+import PreferncesEditRegistrieModal from './PreferncesEditRegistrieModal.svelte';
 import Modal from '../dialogs/Modal.svelte';
 
 let registries: readonly Registry[] = [];
@@ -14,6 +15,19 @@ onMount(() => {
 
 function removeRegistry(registry: Registry): void {
   window.unregisterImageRegistry(registry);
+}
+
+let showEditRegistryModal = {
+  registry : {
+    serverurl: 'asdf',
+    source: '',
+    username: 'aaaa',
+    secret: '',
+  },
+  value: false
+};
+function toggleEditRegistryModal(): void {
+  showEditRegistryModal.value = !showEditRegistryModal.value;
 }
 
 let showRegistryModal = false;
@@ -36,6 +50,15 @@ function toggleRegistryModal(): void {
                 class="inline-block text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-100 focus:outline-none rounded-lg text-sm p-1.5"
                 type="button">
                 <i class="fas fa-times " aria-hidden="true"></i>
+              </button>
+              <button
+                on:click="{() => {
+                  toggleEditRegistryModal()
+                  showEditRegistryModal.registry=registry
+                  }}"
+                class="inline-block text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-100 focus:outline-none rounded-lg text-sm p-1.5"
+                type="button">
+                edit
               </button>
             </div>
             <div class="px-2">
@@ -69,4 +92,13 @@ function toggleRegistryModal(): void {
     }}">
     <PreferencesRegistriesCreateRegistryModal toggleCallback="{toggleRegistryModal}" />
   </Modal>
+{/if}
+
+{#if showEditRegistryModal.value}
+<Modal
+  on:close="{() => {
+    showRegistryEditModal = false;
+  }}">
+  <PreferncesEditRegistrieModal toggleCallback="{toggleEditRegistryModal}" registry={showEditRegistryModal.registry}/>
+</Modal>
 {/if}
