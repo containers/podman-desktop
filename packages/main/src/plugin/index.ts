@@ -48,6 +48,7 @@ import type { ContributionInfo } from './api/contribution-info';
 import { ContributionManager } from './contribution-manager';
 import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation';
 import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter';
+import { Telemetry } from './telemetry/telemetry';
 
 export class PluginSystem {
   constructor(private trayMenu: TrayMenu) {}
@@ -76,11 +77,17 @@ export class PluginSystem {
       },
     };
 
+    const configurationRegistry = new ConfigurationRegistry();
+    configurationRegistry.init();
+
+    const telemetry = new Telemetry(configurationRegistry);
+    await telemetry.init();
+
     const commandRegistry = new CommandRegistry();
-    const imageRegistry = new ImageRegistry(apiSender);
-    const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry);
-    const providerRegistry = new ProviderRegistry(containerProviderRegistry);
-    const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry);
+    const imageRegistry = new ImageRegistry(apiSender, telemetry);
+    const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
+    const providerRegistry = new ProviderRegistry(containerProviderRegistry, telemetry);
+    const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
 
     providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
       if (name === 'provider:update-status') {
@@ -88,8 +95,6 @@ export class PluginSystem {
       }
     });
 
-    const configurationRegistry = new ConfigurationRegistry();
-    configurationRegistry.init();
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
 
