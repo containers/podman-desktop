@@ -19,9 +19,9 @@ function removeRegistry(registry: Registry): void {
 
 let showEditRegistryModal = {
   registry : {
-    serverurl: 'asdf',
+    serverUrl: '',
     source: '',
-    username: 'aaaa',
+    username: '',
     secret: '',
   },
   value: false
@@ -97,7 +97,7 @@ function toggleRegistryModal(): void {
 {#if showEditRegistryModal.value}
 <Modal
   on:close="{() => {
-    showRegistryEditModal = false;
+    showEditRegistryModal.value = false;
   }}">
   <PreferncesEditRegistrieModal toggleCallback="{toggleEditRegistryModal}" registry={showEditRegistryModal.registry}/>
 </Modal>

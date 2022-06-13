@@ -4,13 +4,15 @@ import type { Registry } from '@tmpwip/extension-api';
 import { onMount } from 'svelte';
 
 export let toggleCallback: () => void;
-let providerSourceNames: string[] = [];
-let registryToCreate: Registry = {
+
+let registryToCreate : Registry = {
   source: '',
   serverUrl: '',
   username: '',
   secret: '',
-};
+}
+
+let providerSourceNames: string[] = [];
 
 onMount(async () => {
   providerSourceNames = await window.getImageRegistryProviderNames();
@@ -18,6 +20,10 @@ onMount(async () => {
     registryToCreate.source = providerSourceNames[0];
   }
 });
+
+function removeRegistry(registry: Registry): void {
+  window.unregisterImageRegistry(registry);
+}
 
 function keydownChoice(e: KeyboardEvent) {
   e.stopPropagation();

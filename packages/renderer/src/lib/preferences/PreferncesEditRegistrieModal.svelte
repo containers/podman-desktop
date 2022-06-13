@@ -6,7 +6,7 @@ import { onMount } from 'svelte';
 export let toggleCallback: () => void;
 export let registry : Registry = {
   source: '',
-  serverurl: '',
+  serverUrl: '',
   username: '',
   secret: '',
 }
@@ -193,8 +193,8 @@ async function addRegistry() {
           class="pf-c-button pf-m-primary"
           type="button"
           on:click="{() => {
-            removeRegistry(registry);
-            addRegistry();
+            removeRegistry(registry); // remove the old registry
+            addRegistry(); // add the new registry
             }}">Edit</button>
         {#if creationError}
           <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
