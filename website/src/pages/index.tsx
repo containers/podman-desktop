@@ -4,6 +4,7 @@ import Link from '@docusaurus/Link';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import TailWindThemeSelector from '../components/TailWindThemeSelector';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import {
   faBeer,
@@ -19,20 +20,25 @@ import {
   faPuzzlePiece,
   faRocket,
   faRotateRight,
+  faPaste
 } from '@fortawesome/free-solid-svg-icons';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 function DownloadClientLinks() {
   let operatingSystem = '';
+  let varIcon = null;
   const userAgent = navigator.userAgent;
 
   if (userAgent.indexOf('Windows') != -1) {
     operatingSystem = 'Windows';
+    varIcon = "faWindows";
   } else if (userAgent.indexOf('Mac') != -1) {
     operatingSystem = 'macOS';
+    varIcon = "faApple";
   } else if (userAgent.indexOf('Linux') != -1) {
     operatingSystem = 'Linux';
+    varIcon = "faLinux";
   }
 
   let mainButton;
@@ -43,7 +49,7 @@ function DownloadClientLinks() {
       <Link
         className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-violet-600 border-0 py-2 px-6 my-4 focus:outline-none hover:bg-violet-700 rounded text-lg"
         to={'/downloads/' + operatingSystem}>
-        Downloads for {operatingSystem}
+        <FontAwesomeIcon size="2x" icon={varIcon as IconProp} className="px-2" /> Download for {operatingSystem}
       </Link>
     );
     otherButton = (
@@ -82,18 +88,19 @@ function DownloadGenericLinks() {
     </div>
   );
 }
-
 function Hero() {
   // const { siteConfig } = useDocusaurusContext();
   return (
     <section className="text-gray-600 dark:text-gray-400 body-font">
-      <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
+      <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col md:flex-col lg:flex-row">
         <div className="text-center lg:w-2/3 w-full">
           <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
-            Containers and Kubernetes for application developers
+              Podman <br/>
+              <span>&#128156;</span> <br/> 
+              Containers
           </h1>
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            Leverage Podman engine.
+            Podman Desktop leverages Podman Engine for developers to work with Containers and Kubernetes.
           </p>
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
             Build, run, manage, inspect, connect to containers and more.
@@ -107,14 +114,6 @@ function Hero() {
               height="20"
               title="GitHub"></iframe>
           </div>
-          <div className="flex justify-center">
-            <img
-              className="md:w-5/6 lg:w-11/12 w-full"
-              src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
-            />
-          </div>
-        </div>
-        <div className="flex justify-center">
           {/* With client mode, provides the link to the client browser */}
           <BrowserOnly fallback={<DownloadGenericLinks></DownloadGenericLinks>}>
             {() => {
@@ -122,10 +121,17 @@ function Hero() {
             }}
           </BrowserOnly>
         </div>
+        <div className="flex justify-center">
+          <img
+            className="md:w-5/6 lg:w-11/12 w-full"
+            src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
+          />
+        </div>
       </div>
     </section>
   );
 }
+
 
 function SectionTitle(props) {
   return (
@@ -211,7 +217,7 @@ function Extensibility() {
             <FontAwesomeIcon size="3x" icon={faPlug} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
           </div>
           <p className="leading-relaxed">Docker Desktop UI extensions support.</p>
-          <p className="leading-relaxed">Implementation of host and ui API for Docker Desktop extensions</p>
+          <p className="leading-relaxed">Implementation of host and UI API for Docker Desktop extensions</p>
           <p className="leading-relaxed">Reuse existing extensions directly in Podman Desktop</p>
         
           <ThemedImage className="py-4 md:w-5/6 lg:w-11/12 w-full" alt="Reuse Docker Desktop extensions" sources={{
@@ -382,6 +388,10 @@ function EnterpriseReady() {
   );
 }
 
+const copyBrewInstructions = () =>{
+  navigator.clipboard.writeText('brew install podman-desktop');
+};
+
 function RunAnywhere() {
   return (
     <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font">
@@ -411,7 +421,7 @@ function RunAnywhere() {
               </Link>
               <div className="flex-grow">
                 <div className="flex-grow w-full">
-                  <p className="text-base text-right">exe or setup.exe</p>
+                  <p className="text-base text-center">exe or setup.exe</p>
                 </div>
               </div>
             </div>
@@ -429,9 +439,12 @@ function RunAnywhere() {
                 </div>
               </Link>
               <div className="flex-grow w-full">
-                <p className="text-base text-right">arm64, x64 or unified dmg</p>
-                <p className="text-base text-right">
+                <p className="text-base text-center">arm64, x64 or unified dmg</p>
+                <p className="text-base text-center">
                   <FontAwesomeIcon size="1x" icon={faBeer} className="ml-2" /> brew install podman-desktop
+                  <button title="Copy To Clipboard" className="mr-5"> 
+                    <FontAwesomeIcon size="1x" icon={faPaste} className="ml-3  cursor-pointer text-3xl  text-white-500" onClick={() => copyBrewInstructions()} />
+                  </button>
                 </p>
               </div>
             </div>
@@ -450,7 +463,7 @@ function RunAnywhere() {
               </Link>
 
               <div className="flex-grow">
-                <p className="text-base text-right">flatpak or zip</p>
+                <p className="text-base text-center">flatpak or zip</p>
               </div>
             </div>
           </div>
@@ -582,11 +595,11 @@ export default function Home(): JSX.Element {
       <Hero />
       <ManageEverythingFromTheTray />
       <RunAnywhere />
-      <KeepUpToDate />
-      <EnterpriseReady />
       <Extensibility />
       <MainFeatures />
       <MultipleAtSameTime />
+      <EnterpriseReady />
+      <KeepUpToDate />
 
     </Layout>
   );
