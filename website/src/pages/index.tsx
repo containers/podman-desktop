@@ -92,13 +92,6 @@ function Hero() {
   // const { siteConfig } = useDocusaurusContext();
   return (
     <section className="text-gray-600 dark:text-gray-400 body-font">
-      {/* <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
-        <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
-          Podman
-          <span>&#128156;</span> 
-          Containers
-        </h1>
-      </div> */}
       <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col md:flex-col lg:flex-row">
         <div className="text-center lg:w-2/3 w-full">
           <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
