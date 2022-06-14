@@ -3,6 +3,8 @@ import type { Registry } from '@tmpwip/extension-api';
 
 import { onMount } from 'svelte';
 
+import { checkServerValue, checkUsernameValue, checkPasswordValue, addRegistry, removeRegistry } from './common';
+
 export let toggleCallback: () => void;
 export let registry: Registry = {
   source: '',
@@ -21,10 +23,6 @@ onMount(async () => {
   }
 });
 
-function removeRegistry(registry: Registry): void {
-  window.unregisterImageRegistry(registry);
-}
-
 function keydownChoice(e: KeyboardEvent) {
   e.stopPropagation();
   if (e.key === 'Escape') {
@@ -33,46 +31,10 @@ function keydownChoice(e: KeyboardEvent) {
 }
 
 let isServerUrlInvalid = 'Enter a value';
-function checkServerValue(event: any) {
-  const userValue = event.target.value;
-  if (userValue === '' || userValue === undefined) {
-    isServerUrlInvalid = 'Please enter a value';
-  } else {
-    isServerUrlInvalid = '';
-  }
-}
-
 let isUsernameInvalid = 'Enter a value';
-function checkUsernameValue(event: any) {
-  const userValue = event.target.value;
-  if (userValue === '' || userValue === undefined) {
-    isUsernameInvalid = 'Please enter a value';
-  } else {
-    isUsernameInvalid = '';
-  }
-}
-
 let isPasswordInvalid = 'Enter a value';
-function checkPasswordValue(event: any) {
-  const userValue = event.target.value;
-  if (userValue === '' || userValue === undefined) {
-    isPasswordInvalid = 'Please enter a value';
-  } else {
-    isPasswordInvalid = '';
-  }
-}
 
 let creationError = '';
-
-async function addRegistry() {
-  creationError = '';
-  try {
-    await window.createImageRegistry(registryToCreate.source, registryToCreate);
-    toggleCallback();
-  } catch (error) {
-    creationError = error;
-  }
-}
 </script>
 
 <div class="pf-l-bullseye">
@@ -104,7 +66,7 @@ async function addRegistry() {
               class="pf-c-form-control"
               type="text"
               name="serverUrl"
-              on:input="{event => checkServerValue(event)}"
+              on:input="{event => (isServerUrlInvalid = checkServerValue(event))}"
               bind:value="{registryToCreate.serverUrl}"
               aria-invalid="{!!isServerUrlInvalid}"
               required />
@@ -127,7 +89,7 @@ async function addRegistry() {
               class="pf-c-form-control"
               type="text"
               bind:value="{registryToCreate.username}"
-              on:input="{event => checkUsernameValue(event)}"
+              on:input="{event => (isUsernameInvalid = checkUsernameValue(event))}"
               aria-invalid="{!!isUsernameInvalid}"
               name="username"
               required />
@@ -150,7 +112,7 @@ async function addRegistry() {
               class="pf-c-form-control"
               type="password"
               bind:value="{registryToCreate.secret}"
-              on:input="{event => checkPasswordValue(event)}"
+              on:input="{event => (isPasswordInvalid = checkPasswordValue(event))}"
               aria-invalid="{!!isPasswordInvalid}"
               name="password"
               required />
@@ -193,7 +155,10 @@ async function addRegistry() {
           type="button"
           on:click="{() => {
             removeRegistry(registry); // remove the old registry
-            addRegistry(); // add the new registry
+            addRegistry(registryToCreate).then(e => {
+              creationError = e;
+            }); // add the new registry
+            toggleCallback();
           }}">Edit</button>
         {#if creationError}
           <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
