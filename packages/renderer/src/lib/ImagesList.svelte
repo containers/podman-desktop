@@ -15,21 +15,49 @@ let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let images: ImageInfoUI[] = [];
+let multipleEngines = false;
 
 onMount(async () => {
   filtered.subscribe(value => {
-    images = value.map((imageInfo: ImageInfo) => {
-      return {
-        id: imageInfo.Id,
-        shortId: getShortId(imageInfo.Id),
-        humanCreationDate: getHumanDate(imageInfo.Created),
-        humanSize: getHumanSize(imageInfo.Size),
-        name: getName(imageInfo),
-        engineId: getEngineId(imageInfo),
-        engineName: getEngineName(imageInfo),
-        tag: getTag(imageInfo),
-      };
-    });
+    images = value
+      .map((imageInfo: ImageInfo) => {
+        if (!imageInfo.RepoTags) {
+          return {
+            id: imageInfo.Id,
+            shortId: getShortId(imageInfo.Id),
+            humanCreationDate: getHumanDate(imageInfo.Created),
+            humanSize: getHumanSize(imageInfo.Size),
+            name: '<none>',
+            engineId: getEngineId(imageInfo),
+            engineName: getEngineName(imageInfo),
+            tag: '',
+          };
+        } else {
+          return imageInfo.RepoTags.map(repoTag => {
+            return {
+              id: imageInfo.Id,
+              shortId: getShortId(imageInfo.Id),
+              humanCreationDate: getHumanDate(imageInfo.Created),
+              humanSize: getHumanSize(imageInfo.Size),
+              name: getName(repoTag),
+              engineId: getEngineId(imageInfo),
+              engineName: getEngineName(imageInfo),
+              tag: getTag(repoTag),
+            };
+          });
+        }
+      })
+      .flat();
+
+    // multiple engines ?
+    const engineNamesArray = images.map(image => image.engineName);
+    // remove duplicates
+    const engineNames = [...new Set(engineNamesArray)];
+    if (engineNames.length > 1) {
+      multipleEngines = true;
+    } else {
+      multipleEngines = false;
+    }
   });
 });
 
@@ -61,23 +89,12 @@ function getHumanDate(date: number): string {
   return moment(date * 1000).fromNow();
 }
 
-function getName(imageInfo: ImageInfo) {
-  // get name
-  if (!imageInfo.RepoTags) {
-    return '<none>';
-  }
-  return imageInfo.RepoTags.map(tag => {
-    return tag.split(':')[0];
-  }).join(',');
+function getName(repoTag: string) {
+  return repoTag.split(':')[0];
 }
 
-function getTag(imageInfo: ImageInfo) {
-  if (!imageInfo.RepoTags) {
-    return '<none>';
-  }
-  return imageInfo.RepoTags.map(tag => {
-    return tag.split(':')[1];
-  }).join(',');
+function getTag(repoTag: string) {
+  return repoTag.split(':')[1];
 }
 
 function getEngineId(containerInfo: ImageInfo): string {
@@ -147,15 +164,20 @@ function getEngineName(containerInfo: ImageInfo): string {
                   <Fa class="text-gray-400" icon="{faLayerGroup}" />
                 </div>
                 <div class="ml-4">
-                  <div class="flex flex-row">
+                  <div class="flex flex-row items-center">
                     <div class="text-sm text-gray-200">{image.name}</div>
-                    <div class="pl-2 text-sm text-violet-400">{image.shortId}</div>
+                  </div>
+                  <div class="flex flex-row items-center">
+                    <div class="text-xs text-violet-400">{image.shortId}</div>
+                    <div class="ml-1 text-xs font-extra-light text-gray-500">{image.tag}</div>
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-500">
-                    <div>{image.tag}</div>
-                    <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">
-                      {image.engineName}
-                    </div>
+                    <!-- Hide in case of single engine-->
+                    {#if multipleEngines}
+                      <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">
+                        {image.engineName}
+                      </div>
+                    {/if}
                   </div>
                 </div>
               </div>
