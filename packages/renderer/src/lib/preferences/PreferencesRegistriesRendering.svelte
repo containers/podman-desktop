@@ -3,7 +3,7 @@ import { onMount } from 'svelte';
 import type { Registry } from '@tmpwip/extension-api';
 import { registriesInfos } from '../../stores/registries';
 import PreferencesRegistriesCreateRegistryModal from './PreferencesRegistriesCreateRegistryModal.svelte';
-import PreferncesEditRegistrieModal from './PreferncesEditRegistrieModal.svelte';
+import PreferencesEditRegistriesModal from './PreferencesEditRegistriesModal.svelte';
 import Modal from '../dialogs/Modal.svelte';
 
 let registries: readonly Registry[] = [];
@@ -18,13 +18,13 @@ function removeRegistry(registry: Registry): void {
 }
 
 let showEditRegistryModal = {
-  registry : {
+  registry: {
     serverUrl: '',
     source: '',
     username: '',
     secret: '',
   },
-  value: false
+  value: false,
 };
 function toggleEditRegistryModal(): void {
   showEditRegistryModal.value = !showEditRegistryModal.value;
@@ -53,9 +53,9 @@ function toggleRegistryModal(): void {
               </button>
               <button
                 on:click="{() => {
-                  toggleEditRegistryModal()
-                  showEditRegistryModal.registry=registry
-                  }}"
+                  toggleEditRegistryModal();
+                  showEditRegistryModal.registry = registry;
+                }}"
                 class="inline-block text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-100 focus:outline-none rounded-lg text-sm p-1.5"
                 type="button">
                 edit
@@ -95,10 +95,12 @@ function toggleRegistryModal(): void {
 {/if}
 
 {#if showEditRegistryModal.value}
-<Modal
-  on:close="{() => {
-    showEditRegistryModal.value = false;
-  }}">
-  <PreferncesEditRegistrieModal toggleCallback="{toggleEditRegistryModal}" registry={showEditRegistryModal.registry}/>
-</Modal>
+  <Modal
+    on:close="{() => {
+      showEditRegistryModal.value = false;
+    }}">
+    <PreferencesEditRegistriesModal
+      toggleCallback="{toggleEditRegistryModal}"
+      registry="{showEditRegistryModal.registry}" />
+  </Modal>
 {/if}

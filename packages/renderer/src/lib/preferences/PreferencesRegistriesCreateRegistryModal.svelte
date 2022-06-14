@@ -5,12 +5,12 @@ import { onMount } from 'svelte';
 
 export let toggleCallback: () => void;
 
-let registryToCreate : Registry = {
+let registryToCreate: Registry = {
   source: '',
   serverUrl: '',
   username: '',
   secret: '',
-}
+};
 
 let providerSourceNames: string[] = [];
 
