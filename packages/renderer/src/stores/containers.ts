@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 
@@ -25,7 +26,7 @@ export async function fetchContainers() {
 }
 
 fetchContainers();
-export const containersInfos = writable([]);
+export const containersInfos: Writable<ContainerInfo[]> = writable([]);
 
 export const searchPattern = writable('');
 

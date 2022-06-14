@@ -21,6 +21,7 @@ import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
 import PullImage from './lib/image/PullImage.svelte';
 import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
+import ContainerDetails from './lib/ContainerDetails.svelte';
 let containersCountValue;
 
 router.mode.hash();
@@ -60,7 +61,7 @@ function toggleContributions() {
 
     <div class="overflow-x-hidden flex flex-1">
       <nav
-        class="pf-c-nav z-0 group w-12 md:w-52 hover:w-52  shadow  flex-col justify-between sm:flex transition-all duration-500 ease-in-out"
+        class="pf-c-nav z-0 group w-12 hover:w-[180px] md:w-[180px] md:min-w-[180px]  shadow  flex-col justify-between sm:flex transition-all duration-500 ease-in-out"
         aria-label="Global">
         <ul class="pf-c-nav__list">
           <li
@@ -241,8 +242,11 @@ function toggleContributions() {
       </nav>
 
       <div class="w-full h-full bg-zinc-800 flex flex-col">
-        <Route path="/containers/*">
+        <Route path="/containers">
           <ContainerList />
+        </Route>
+        <Route path="/containers/:id/*" let:meta>
+          <ContainerDetails containerID="{meta.params.id}" />
         </Route>
         <Route path="/images">
           <ImagesList />

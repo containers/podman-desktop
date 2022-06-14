@@ -180,5 +180,5 @@ function getEngineName(containerInfo: ImageInfo): string {
       </tbody>
     </table>
   </div>
+  <ImageEmptyScreen images="{$filtered}" />
 </div>
-<ImageEmptyScreen images="{$filtered}" />

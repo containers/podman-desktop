@@ -8,12 +8,10 @@ import { onMount } from 'svelte';
 import PushImage from './PushImageModal.svelte';
 import PushImageModal from './PushImageModal.svelte';
 import Modal from '../dialogs/Modal.svelte';
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 
 export let hasModalCallback: (flag: boolean) => void;
 export let image: ImageInfoUI;
-
-const buttonStyle = 'flex p-2 mx-2 border border-violet-500 hover:border-violet-600 shadow-md shadow-gray-900 ';
-const iconStyle = 'items-center align-middle h-full w-6 cursor-pointer text-2xl text-violet-500 hover:text-violet-600 ';
 
 let runContainerFromImageModal = false;
 let pushImageModal = false;
@@ -46,13 +44,10 @@ async function pushImage(imageInfo: ImageInfoUI): Promise<void> {
 </script>
 
 {#if isAuthenticatedForThisImage}
-  <button title="Push Image" class="{buttonStyle}" on:click="{() => pushImage(image)}"
-    ><Fa class="{iconStyle}" icon="{faCircleUp}" /></button>
+  <ListItemButtonIcon title="Push Image" onClick="{() => pushImage(image)}" icon="{faCircleUp}" />
 {/if}
-<button title="Run Image" class="{buttonStyle}" on:click="{() => runImage(image)}"
-  ><Fa class="{iconStyle}" icon="{faPlayCircle}" /></button>
-<button class="{buttonStyle}" title="Delete Image" on:click="{() => deleteImage(image)}">
-  <Fa class="{iconStyle}" icon="{faTrash}" /></button>
+<ListItemButtonIcon title="Run Image" onClick="{() => runImage(image)}" icon="{faPlayCircle}" />
+<ListItemButtonIcon title="Delete Image" onClick="{() => deleteImage(image)}" icon="{faTrash}" />
 
 {#if pushImageModal}
   <Modal

@@ -51,7 +51,13 @@ async function refreshTerminal() {
   const lineHeight = await window.getConfigurationValue<number>(
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
-  shellTerminal = new Terminal({ fontSize, lineHeight });
+  shellTerminal = new Terminal({
+    fontSize,
+    lineHeight,
+    theme: {
+      background: '#1a1624',
+    },
+  });
   const fitAddon = new FitAddon();
   shellTerminal.loadAddon(fitAddon);
 
@@ -71,7 +77,7 @@ onMount(async () => {
 });
 </script>
 
-<div bind:this="{terminalXtermDiv}" class:hidden="{container.state !== 'RUNNING'}"></div>
+<div class="h-full" bind:this="{terminalXtermDiv}" class:hidden="{container.state !== 'RUNNING'}"></div>
 
 <div class="h-full min-w-full flex flex-col" class:hidden="{container.state === 'RUNNING'}">
   <div class="pf-c-empty-state h-full">

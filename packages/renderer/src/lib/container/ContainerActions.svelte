@@ -7,11 +7,10 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 import { router } from 'tinro';
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 
 export let container: ContainerInfoUI;
-
-const buttonStyle = 'flex p-2 mx-2 border border-violet-500 hover:border-violet-600 shadow-md shadow-gray-900 ';
-const iconStyle = 'items-center align-middle h-full w-6 cursor-pointer text-2xl text-violet-500 hover:text-violet-600 ';
+export let backgroundColor = 'bg-zinc-800';
 
 async function startContainer(containerInfo: ContainerInfoUI) {
   await window.startContainer(containerInfo.engineId, containerInfo.id);
@@ -37,32 +36,37 @@ function openTerminalContainer(containerInfo: ContainerInfoUI): void {
 }
 </script>
 
-<button
+<ListItemButtonIcon
   title="Open Browser"
-  on:click="{() => openBrowser(container)}"
-  hidden
-  class="{buttonStyle}"
-  class:block="{container.state === 'RUNNING' && container.hasPublicPort}"
-  ><Fa class="{iconStyle}" icon="{faExternalLinkSquareAlt}" /></button>
-<button
+  onClick="{() => openBrowser(container)}"
+  hidden="{!(container.state === 'RUNNING' && container.hasPublicPort)}"
+  backgroundColor="{backgroundColor}"
+  icon="{faExternalLinkSquareAlt}" />
+<ListItemButtonIcon
   title="Open Terminal"
-  class="{buttonStyle}"
-  on:click="{() => openTerminalContainer(container)}"
-  hidden
-  class:block="{container.state === 'RUNNING'}"><Fa class="{iconStyle}" icon="{faTerminal}" /></button>
-<button
+  onClick="{() => openTerminalContainer(container)}"
+  hidden="{!(container.state === 'RUNNING')}"
+  backgroundColor="{backgroundColor}"
+  icon="{faTerminal}" />
+<ListItemButtonIcon
   title="Start Container"
-  class="{buttonStyle}"
-  on:click="{() => startContainer(container)}"
-  hidden
-  class:block="{container.state !== 'RUNNING'}"><Fa class="{iconStyle}" icon="{faPlayCircle}" /></button>
-<button
+  onClick="{() => startContainer(container)}"
+  hidden="{container.state === 'RUNNING'}"
+  backgroundColor="{backgroundColor}"
+  icon="{faPlayCircle}" />
+<ListItemButtonIcon
   title="Stop Container"
-  class="{buttonStyle}"
-  on:click="{() => stopContainer(container)}"
-  hidden
-  class:block="{container.state === 'RUNNING'}"><Fa class="{iconStyle}" icon="{faStopCircle}" /></button>
-<button title="Restart Container" class="{buttonStyle}" on:click="{() => restartContainer(container)}">
-  <Fa class="{iconStyle}" icon="{faArrowsRotate}" /></button>
-<button class="{buttonStyle}" title="Delete Container" on:click="{() => deleteContainer(container)}">
-  <Fa class="{iconStyle}" icon="{faTrash}" /></button>
+  onClick="{() => stopContainer(container)}"
+  hidden="{!(container.state === 'RUNNING')}"
+  backgroundColor="{backgroundColor}"
+  icon="{faStopCircle}" />
+<ListItemButtonIcon
+  title="Restart Container"
+  onClick="{() => restartContainer(container)}"
+  backgroundColor="{backgroundColor}"
+  icon="{faArrowsRotate}" />
+<ListItemButtonIcon
+  title="Delete Container"
+  onClick="{() => deleteContainer(container)}"
+  backgroundColor="{backgroundColor}"
+  icon="{faTrash}" />
