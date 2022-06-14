@@ -10,6 +10,8 @@ import type { PullEvent } from '../../../../main/src/plugin/api/pull-event';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
 import { providerInfos } from '../../stores/providers';
+import Modal from '../dialogs/Modal.svelte';
+import PreferencesRegistriesCreateRegistryModal from '../preferences/PreferencesRegistriesCreateRegistryModal.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 
 let logsPull;
@@ -138,6 +140,11 @@ async function gotoManageRegistries() {
   router.goto('/preferences/registries');
 }
 
+let showAddRegistryModal = false;
+async function toggleAddARegistry() {
+  showAddRegistryModal = true;
+}
+
 onMount(() => {
   if (!selectedProviderConnection) {
     selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
@@ -160,7 +167,14 @@ function validateImageName(event: any): void {
 {/if}
 
 {#if providerConnections.length > 0}
-  <div class="flex p-4">
+  <div class="flex p-4 space-x-2">
+    <button on:click="{() => toggleAddARegistry()}" class="pf-c-button pf-m-primary" type="button">
+      <span class="pf-c-button__icon pf-m-start">
+        <i class="fas fa-id-badge" aria-hidden="true"></i>
+      </span>
+      Login to a Registry
+    </button>
+
     <button on:click="{() => gotoManageRegistries()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-cog" aria-hidden="true"></i>
@@ -257,4 +271,16 @@ function validateImageName(event: any): void {
     </form>
   </div>
   <div bind:this="{pullLogsXtermDiv}"></div>
+{/if}
+
+{#if showAddRegistryModal}
+  <Modal
+    on:close="{() => {
+      showAddRegistryModal = false;
+    }}">
+    <PreferencesRegistriesCreateRegistryModal
+      toggleCallback="{() => {
+        showAddRegistryModal = false;
+      }}" />
+  </Modal>
 {/if}
