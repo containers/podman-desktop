@@ -61,7 +61,14 @@ async function refreshTerminal() {
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
 
-  logsTerminal = new Terminal({ fontSize, lineHeight, disableStdin: true });
+  logsTerminal = new Terminal({
+    fontSize,
+    lineHeight,
+    disableStdin: true,
+    theme: {
+      background: '#1a1624',
+    },
+  });
   const fitAddon = new FitAddon();
   logsTerminal.loadAddon(fitAddon);
 
@@ -69,7 +76,7 @@ async function refreshTerminal() {
   // disable cursor
   logsTerminal.write('\x1b[?25l');
 
-  logsTerminal.write(`Logs of ${container.name} will appear there if any...\n\r`);
+  logsTerminal.write(`Log output of ${container.name} will appear here...\n\r`);
 
   // call fit addon each time we resize the window
   window.addEventListener('resize', () => {
@@ -84,4 +91,4 @@ onMount(async () => {
 });
 </script>
 
-<div bind:this="{logsXtermDiv}"></div>
+<div class="h-full" bind:this="{logsXtermDiv}"></div>

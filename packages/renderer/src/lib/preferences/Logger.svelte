@@ -32,7 +32,7 @@ async function refreshTerminal() {
   // disable cursor
   logsTerminal.write('\x1b[?25l');
 
-  logsTerminal.write(`Logs will appear there if any...\n\r`);
+  logsTerminal.write(`Log output will appear here...\n\r`);
 
   resizeHandler = () => {
     fitAddon.fit();

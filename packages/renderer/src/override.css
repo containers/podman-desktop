@@ -1,15 +1,15 @@
 :root {
-  --pf-global--primary-color--100: #892ca0;
-  --pf-global--primary-color--light-100: #892ca0;
-  --pf-global--primary-color--dark-100: #892ca0;
+  --pf-global--primary-color--100: #8442f5;
+  --pf-global--primary-color--light-100: #8442f5;
+  --pf-global--primary-color--dark-100: #8442f5;
 
-  --pf-global--primary-color--200: #7e1d96ff;
-  --pf-global--primary-color--light-200: #7e1d96ff;
-  --pf-global--primary-color--dark-200: #7e1d96ff;
+  --pf-global--primary-color--200: #7c3aed;
+  --pf-global--primary-color--light-200: #7c3aed;
+  --pf-global--primary-color--dark-200: #7c3aed;
 
-  --pf-global--primary-color--300: #892ca0;
-  --pf-global--primary-color--light-300: #892ca0;
-  --pf-global--primary-color--dark-300: #892ca0;
+  --pf-global--primary-color--300: #8c4afd;
+  --pf-global--primary-color--light-300: #8c4afd;
+  --pf-global--primary-color--dark-300: #8c4afd;
 
   --pf-global--BackgroundColor--300: #4b5563;
 
@@ -17,7 +17,7 @@
 
   --pf-global--LineHeight--md: 0.9rem;
   --pf-global--FontWeight--normal: 100;
-  --pf-c-nav__link--after--BorderColor: #8772c7;
+  --pf-c-nav__link--after--BorderColor: #7c3aed;
   --pf-global--BackgroundColor: #ff0000;
 }
 
@@ -25,6 +25,12 @@
   --pf-c-nav__link--before--BorderBottomWidth: 0;
   --pf-c-nav__link--FontWeight: 600;
   --pf-c-nav__link--m-current--BackgroundColor: rgba(255, 255, 255, 0.2);
+
+
+  --pf-c-nav__link--PaddingTop: 13px;
+  --pf-c-nav__link--PaddingBottom: 13px;
+  --pf-c-nav__link--PaddingRight: 16px;
+  --pf-c-nav__link--PaddingLeft: 16px;
 
   /* gray 200*/
   --pf-c-nav__link--Color: #e2e8f0;
@@ -35,6 +41,13 @@
   --pf-c-nav__link--after--BorderColor: #8772c7;
   --pf-c-nav__link--m-current--after--BorderColor: #8772c7;
  }
+
+ .pf-c-tabs__link::after {
+  --pf-c-tabs__link--after--BorderColor: #8772c7;
+  --pf-c-tabs__link--m-current--after--BorderColor: #8772c7;
+ }
+
+
 .pf-c-button {
   --pf-c-button--FontSize: 13px;
 }
