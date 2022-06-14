@@ -17,28 +17,6 @@ let containers: ContainerInfoUI[] = [];
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
-// track if need to expand the details if someone wants details
-/*router.subscribe(route => {
-  if (route.path && route.path.startsWith('/containers/')) {
-    const containerId = route.path.split('/')[2];
-    if (!containerId) {
-      selectedContainer = undefined;
-    } else if (containerId && !selectedContainer) {
-      selectedContainer = containers.find(container => container.id === containerId);
-    }
-  }
-});*/
-/*
-$: {
-  // need to update the detail container when list is changing
-  if (selectedContainer) {
-    const containerInNewList = containers.find(c => c.id === selectedContainer.id);
-    if (containerInNewList) {
-      selectedContainer = containerInNewList;
-    }
-  }
-}*/
-
 function fromExistingImage(): void {
   openChoiceModal = false;
   window.location.href = '#/images';
