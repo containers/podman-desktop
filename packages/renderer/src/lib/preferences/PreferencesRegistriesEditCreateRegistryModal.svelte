@@ -1,21 +1,23 @@
 <script lang="ts">
 import type { Registry } from '@tmpwip/extension-api';
-
 import { onMount } from 'svelte';
 
 export let toggleCallback: () => void;
-let providerSourceNames: string[] = [];
-let registryToCreate: Registry = {
+export let mode: 'edit' | 'create';
+
+export let registry: Registry = {
   source: '',
   serverUrl: '',
   username: '',
   secret: '',
 };
 
+let providerSourceNames: string[] = [];
+
 onMount(async () => {
   providerSourceNames = await window.getImageRegistryProviderNames();
   if (providerSourceNames.length > 0) {
-    registryToCreate.source = providerSourceNames[0];
+    registry.source = providerSourceNames[0];
   }
 });
 
@@ -26,7 +28,10 @@ function keydownChoice(e: KeyboardEvent) {
   }
 }
 
-let isServerUrlInvalid = 'Enter a value';
+let isServerUrlInvalid;
+if (mode === 'create') {
+  isServerUrlInvalid = 'Enter a value';
+}
 function checkServerValue(event: any) {
   const userValue = event.target.value;
   if (userValue === '' || userValue === undefined) {
@@ -36,7 +41,11 @@ function checkServerValue(event: any) {
   }
 }
 
-let isUsernameInvalid = 'Enter a value';
+let isUsernameInvalid;
+if (mode === 'create') {
+  isUsernameInvalid = 'Enter a value';
+}
+
 function checkUsernameValue(event: any) {
   const userValue = event.target.value;
   if (userValue === '' || userValue === undefined) {
@@ -46,7 +55,10 @@ function checkUsernameValue(event: any) {
   }
 }
 
-let isPasswordInvalid = 'Enter a value';
+let isPasswordInvalid;
+if (mode === 'create') {
+  isPasswordInvalid = 'Enter a value';
+}
 function checkPasswordValue(event: any) {
   const userValue = event.target.value;
   if (userValue === '' || userValue === undefined) {
@@ -58,13 +70,22 @@ function checkPasswordValue(event: any) {
 
 let creationError = '';
 
-async function addRegistry() {
+async function createOrUpdateRegistry() {
   creationError = '';
-  try {
-    await window.createImageRegistry(registryToCreate.source, registryToCreate);
-    toggleCallback();
-  } catch (error) {
-    creationError = error;
+  if (mode === 'create') {
+    try {
+      await window.createImageRegistry(registry.source, registry);
+      toggleCallback();
+    } catch (error) {
+      creationError = error;
+    }
+  } else {
+    try {
+      await window.updateImageRegistry(registry.source, registry);
+      toggleCallback();
+    } catch (error) {
+      creationError = error;
+    }
   }
 }
 </script>
@@ -82,7 +103,7 @@ async function addRegistry() {
       <i class="fas fa-times" aria-hidden="true"></i>
     </button>
     <header class="pf-c-modal-box__header" on:keydown="{keydownChoice}">
-      <h1 class="pf-c-modal-box__title">Add a new registry</h1>
+      <h1 class="pf-c-modal-box__title">{mode === 'create' ? 'Add a new registry' : 'Edit'}</h1>
     </header>
     <div class="pf-c-modal-box__body">
       <form novalidate class="pf-c-form pf-m-horizontal-on-sm">
@@ -90,7 +111,9 @@ async function addRegistry() {
           <div class="pf-c-form__group-label">
             <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name">
               <span class="pf-c-form__label-text">Server URL:</span>
-              <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+              {#if mode === 'create'}
+                <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+              {/if}
             </label>
           </div>
           <div class="pf-c-form__group-control">
@@ -98,8 +121,9 @@ async function addRegistry() {
               class="pf-c-form-control"
               type="text"
               name="serverUrl"
+              readonly="{mode === 'edit'}"
               on:input="{event => checkServerValue(event)}"
-              bind:value="{registryToCreate.serverUrl}"
+              bind:value="{registry.serverUrl}"
               aria-invalid="{!!isServerUrlInvalid}"
               required />
             {#if isServerUrlInvalid}
@@ -120,7 +144,7 @@ async function addRegistry() {
             <input
               class="pf-c-form-control"
               type="text"
-              bind:value="{registryToCreate.username}"
+              bind:value="{registry.username}"
               on:input="{event => checkUsernameValue(event)}"
               aria-invalid="{!!isUsernameInvalid}"
               name="username"
@@ -143,7 +167,7 @@ async function addRegistry() {
             <input
               class="pf-c-form-control"
               type="password"
-              bind:value="{registryToCreate.secret}"
+              bind:value="{registry.secret}"
               on:input="{event => checkPasswordValue(event)}"
               aria-invalid="{!!isPasswordInvalid}"
               name="password"
@@ -167,7 +191,7 @@ async function addRegistry() {
               <select
                 class="border  text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
                 name="providerChoice"
-                bind:value="{registryToCreate.source}">
+                bind:value="{registry.source}">
                 {#each providerSourceNames as providerSourceName}
                   <option value="{providerSourceName}">{providerSourceName}</option>
                 {/each}
@@ -176,7 +200,7 @@ async function addRegistry() {
           </div>
         {/if}
         {#if providerSourceNames.length == 1}
-          <input type="hidden" name="source" readonly bind:value="{registryToCreate.source}" />
+          <input type="hidden" name="source" readonly bind:value="{registry.source}" />
         {/if}
       </form>
     </div>
@@ -186,7 +210,7 @@ async function addRegistry() {
           class="pf-c-button pf-m-primary"
           disabled="{!!isServerUrlInvalid || !!isUsernameInvalid || !!isPasswordInvalid}"
           type="button"
-          on:click="{() => addRegistry()}">Add registry</button>
+          on:click="{() => createOrUpdateRegistry()}">{mode === 'create' ? 'Add registry' : 'Update registry'}</button>
         {#if creationError}
           <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
             {creationError}

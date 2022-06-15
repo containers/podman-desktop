@@ -28,10 +28,13 @@ export class ImageRegistry {
   private providers: Map<string, containerDesktopAPI.RegistryProvider> = new Map();
 
   private readonly _onDidRegisterRegistry = new Emitter<containerDesktopAPI.Registry>();
+  private readonly _onDidUpdateRegistry = new Emitter<containerDesktopAPI.Registry>();
   private readonly _onDidUnregisterRegistry = new Emitter<containerDesktopAPI.Registry>();
 
   readonly onDidRegisterRegistry: containerDesktopAPI.Event<containerDesktopAPI.Registry> =
     this._onDidRegisterRegistry.event;
+  readonly onDidUpdateRegistry: containerDesktopAPI.Event<containerDesktopAPI.Registry> =
+    this._onDidUpdateRegistry.event;
   readonly onDidUnregisterRegistry: containerDesktopAPI.Event<containerDesktopAPI.Registry> =
     this._onDidUnregisterRegistry.event;
 
@@ -83,7 +86,7 @@ export class ImageRegistry {
       total: this.registries.length,
     });
     this.apiSender.send('registry-register', registry);
-    this._onDidRegisterRegistry.fire(Object.freeze(registry));
+    this._onDidRegisterRegistry.fire(Object.freeze({ ...registry }));
     return Disposable.create(() => {
       this.unregisterRegistry(registry);
     });
@@ -94,7 +97,7 @@ export class ImageRegistry {
       registryItem => registryItem.serverUrl !== registry.serverUrl || registry.source !== registryItem.source,
     );
     if (filtered.length !== this.registries.length) {
-      this._onDidUnregisterRegistry.fire(Object.freeze(registry));
+      this._onDidUnregisterRegistry.fire(Object.freeze({ ...registry }));
       this.registries = filtered;
       this.apiSender.send('registry-unregister', registry);
     }
@@ -105,7 +108,7 @@ export class ImageRegistry {
   }
 
   getRegistries(): readonly containerDesktopAPI.Registry[] {
-    return Object.freeze(this.registries);
+    return this.registries;
   }
 
   getProviderNames(): string[] {
@@ -137,5 +140,22 @@ export class ImageRegistry {
       total: this.registries.length,
     });
     return this.registerRegistry(registry);
+  }
+
+  updateRegistry(registryUrl: string, registry: containerDesktopAPI.Registry): void {
+    const matchingRegistry = this.registries.find(
+      existringRegistry => registry.serverUrl === registry.serverUrl && registry.source === existringRegistry.source,
+    );
+    if (!matchingRegistry) {
+      throw new Error(`Registry ${registryUrl} was not found`);
+    }
+    matchingRegistry.username = registry.username;
+    matchingRegistry.secret = registry.secret;
+    this.telemetryService.track('updateRegistry', {
+      serverUrl: this.getRegistryHash(matchingRegistry),
+      total: this.registries.length,
+    });
+    this.apiSender.send('registry-update', registry);
+    this._onDidUpdateRegistry.fire(Object.freeze(registry));
   }
 }

@@ -254,6 +254,10 @@ export class ExtensionLoader {
         return imageRegistry.unregisterRegistry(registry);
       },
 
+      onDidUpdateRegistry: (listener, thisArg, disposables) => {
+        return imageRegistry.onDidUpdateRegistry(listener, thisArg, disposables);
+      },
+
       onDidRegisterRegistry: (listener, thisArg, disposables) => {
         return imageRegistry.onDidRegisterRegistry(listener, thisArg, disposables);
       },

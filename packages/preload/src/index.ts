@@ -314,6 +314,13 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'updateImageRegistry',
+    async (registryUrl: string, registry: containerDesktopAPI.Registry): Promise<void> => {
+      return ipcRenderer.invoke('image-registry:updateRegistry', registryUrl, registry);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'unregisterImageRegistry',
     async (registry: containerDesktopAPI.Registry): Promise<void> => {
       return ipcRenderer.invoke('image-registry:unregisterRegistry', registry);
