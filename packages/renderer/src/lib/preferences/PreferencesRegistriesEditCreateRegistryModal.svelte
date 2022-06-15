@@ -1,11 +1,11 @@
 <script lang="ts">
 import type { Registry } from '@tmpwip/extension-api';
 import { onMount } from 'svelte';
-import { checkServerValue, checkUsernameValue, checkPasswordValue, addRegistry } from './common';
 
 export let toggleCallback: () => void;
+export let mode: 'edit' | 'create';
 
-let registryToCreate: Registry = {
+export let registry: Registry = {
   source: '',
   serverUrl: '',
   username: '',
@@ -17,7 +17,7 @@ let providerSourceNames: string[] = [];
 onMount(async () => {
   providerSourceNames = await window.getImageRegistryProviderNames();
   if (providerSourceNames.length > 0) {
-    registryToCreate.source = providerSourceNames[0];
+    registry.source = providerSourceNames[0];
   }
 });
 
@@ -28,11 +28,66 @@ function keydownChoice(e: KeyboardEvent) {
   }
 }
 
-let isServerUrlInvalid = 'Enter a value';
-let isUsernameInvalid = 'Enter a value';
-let isPasswordInvalid = 'Enter a value';
+let isServerUrlInvalid;
+if (mode === 'create') {
+  isServerUrlInvalid = 'Enter a value';
+}
+function checkServerValue(event: any) {
+  const userValue = event.target.value;
+  if (userValue === '' || userValue === undefined) {
+    isServerUrlInvalid = 'Please enter a value';
+  } else {
+    isServerUrlInvalid = '';
+  }
+}
+
+let isUsernameInvalid;
+if (mode === 'create') {
+  isUsernameInvalid = 'Enter a value';
+}
+
+function checkUsernameValue(event: any) {
+  const userValue = event.target.value;
+  if (userValue === '' || userValue === undefined) {
+    isUsernameInvalid = 'Please enter a value';
+  } else {
+    isUsernameInvalid = '';
+  }
+}
+
+let isPasswordInvalid;
+if (mode === 'create') {
+  isPasswordInvalid = 'Enter a value';
+}
+function checkPasswordValue(event: any) {
+  const userValue = event.target.value;
+  if (userValue === '' || userValue === undefined) {
+    isPasswordInvalid = 'Please enter a value';
+  } else {
+    isPasswordInvalid = '';
+  }
+}
 
 let creationError = '';
+
+async function createOrUpdateRegistry() {
+  creationError = '';
+  if (mode === 'create') {
+    try {
+      await window.createImageRegistry(registry.source, registry);
+      toggleCallback();
+    } catch (error) {
+      creationError = error;
+    }
+  } else {
+    try {
+      await window.updateImageRegistry(registry.source, registry);
+      toggleCallback();
+    } catch (error) {
+      creationError = error;
+    }
+  }
+}
 </script>
 
 <div class="pf-l-bullseye">
@@ -48,7 +103,7 @@ let creationError = '';
       <i class="fas fa-times" aria-hidden="true"></i>
     </button>
     <header class="pf-c-modal-box__header" on:keydown="{keydownChoice}">
-      <h1 class="pf-c-modal-box__title">Add a new registry</h1>
+      <h1 class="pf-c-modal-box__title">{mode === 'create' ? 'Add a new registry' : 'Edit'}</h1>
     </header>
     <div class="pf-c-modal-box__body">
       <form novalidate class="pf-c-form pf-m-horizontal-on-sm">
@@ -56,7 +111,9 @@ let creationError = '';
           <div class="pf-c-form__group-label">
             <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name">
               <span class="pf-c-form__label-text">Server URL:</span>
-              <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+              {#if mode === 'create'}
+                <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+              {/if}
             </label>
           </div>
           <div class="pf-c-form__group-control">
@@ -64,8 +121,9 @@ let creationError = '';
               class="pf-c-form-control"
               type="text"
               name="serverUrl"
-              on:input="{event => (isServerUrlInvalid = checkServerValue(event))}"
-              bind:value="{registryToCreate.serverUrl}"
+              readonly="{mode === 'edit'}"
+              on:input="{event => checkServerValue(event)}"
+              bind:value="{registry.serverUrl}"
               aria-invalid="{!!isServerUrlInvalid}"
               required />
             {#if isServerUrlInvalid}
@@ -86,8 +144,8 @@ let creationError = '';
             <input
               class="pf-c-form-control"
               type="text"
-              bind:value="{registryToCreate.username}"
-              on:input="{event => (isUsernameInvalid = checkUsernameValue(event))}"
+              bind:value="{registry.username}"
+              on:input="{event => checkUsernameValue(event)}"
               aria-invalid="{!!isUsernameInvalid}"
               name="username"
               required />
@@ -109,8 +167,8 @@ let creationError = '';
             <input
               class="pf-c-form-control"
               type="password"
-              bind:value="{registryToCreate.secret}"
-              on:input="{event => (isPasswordInvalid = checkPasswordValue(event))}"
+              bind:value="{registry.secret}"
+              on:input="{event => checkPasswordValue(event)}"
               aria-invalid="{!!isPasswordInvalid}"
               name="password"
               required />
@@ -133,7 +191,7 @@ let creationError = '';
               <select
                 class="border  text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
                 name="providerChoice"
-                bind:value="{registryToCreate.source}">
+                bind:value="{registry.source}">
                 {#each providerSourceNames as providerSourceName}
                   <option value="{providerSourceName}">{providerSourceName}</option>
                 {/each}
@@ -142,7 +200,7 @@ let creationError = '';
           </div>
         {/if}
         {#if providerSourceNames.length == 1}
-          <input type="hidden" name="source" readonly bind:value="{registryToCreate.source}" />
+          <input type="hidden" name="source" readonly bind:value="{registry.source}" />
         {/if}
       </form>
     </div>
@@ -152,10 +210,7 @@ let creationError = '';
           class="pf-c-button pf-m-primary"
           disabled="{!!isServerUrlInvalid || !!isUsernameInvalid || !!isPasswordInvalid}"
           type="button"
-          on:click="{() => {
-            addRegistry(registryToCreate);
-            toggleCallback();
-          }}">Add registry</button>
+          on:click="{() => createOrUpdateRegistry()}">{mode === 'create' ? 'Add registry' : 'Update registry'}</button>
         {#if creationError}
           <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
             {creationError}

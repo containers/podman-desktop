@@ -2,9 +2,8 @@
 import { onMount } from 'svelte';
 import type { Registry } from '@tmpwip/extension-api';
 import { registriesInfos } from '../../stores/registries';
-import PreferencesRegistriesCreateRegistryModal from './PreferencesRegistriesCreateRegistryModal.svelte';
-import PreferencesEditRegistriesModal from './PreferencesEditRegistriesModal.svelte';
 import Modal from '../dialogs/Modal.svelte';
+import PreferencesRegistriesEditCreateRegistryModal from './PreferencesRegistriesEditCreateRegistryModal.svelte';
 
 let registries: readonly Registry[] = [];
 onMount(() => {
@@ -15,6 +14,23 @@ onMount(() => {
 
 function removeRegistry(registry: Registry): void {
   window.unregisterImageRegistry(registry);
+  selectedRegistry = undefined;
+}
+
+let preferencesMode: 'edit' | 'create' = 'create';
+
+let selectedRegistry: Registry | undefined;
+
+function createRegistry(): void {
+  preferencesMode = 'create';
+  selectedRegistry = undefined;
+  showRegistryModal = true;
+}
+
+function editRegistry(registry: Registry): void {
+  preferencesMode = 'edit';
+  selectedRegistry = registry;
+  showRegistryModal = true;
 }
 
 let showEditRegistryModal = {
@@ -46,19 +62,20 @@ function toggleRegistryModal(): void {
           <div class="p-2 bg-white rounded shadow-md">
             <div class="flex justify-end flex-wrap ">
               <button
-                on:click="{() => removeRegistry(registry)}"
-                class="inline-block text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-100 focus:outline-none rounded-lg text-sm p-1.5"
-                type="button">
-                <i class="fas fa-times " aria-hidden="true"></i>
-              </button>
-              <button
                 on:click="{() => {
-                  toggleEditRegistryModal();
-                  showEditRegistryModal.registry = registry;
+                  editRegistry(registry);
                 }}"
                 class="inline-block text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-100 focus:outline-none rounded-lg text-sm p-1.5"
+                title="Edit registry"
                 type="button">
-                edit
+                <i class="fas fa-pen" aria-hidden="true"></i>
+              </button>
+              <button
+                on:click="{() => removeRegistry(registry)}"
+                title="Remove registry"
+                class="inline-block text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-100 focus:outline-none rounded-lg text-sm p-1.5"
+                type="button">
+                <i class="fas fa-times" aria-hidden="true"></i>
               </button>
             </div>
             <div class="px-2">
@@ -72,7 +89,7 @@ function toggleRegistryModal(): void {
       <div class="w-full p-4 md:w-60 md:h-60">
         <div
           on:click="{() => {
-            toggleRegistryModal();
+            createRegistry();
           }}"
           class="p-6 bg-white rounded shadow-md  hover:bg-gray-100 dark:hover:bg-gray-100 hover:cursor-pointer">
           <div class="px-2 text-center">
@@ -90,17 +107,9 @@ function toggleRegistryModal(): void {
     on:close="{() => {
       showRegistryModal = false;
     }}">
-    <PreferencesRegistriesCreateRegistryModal toggleCallback="{toggleRegistryModal}" />
-  </Modal>
-{/if}
-
-{#if showEditRegistryModal.value}
-  <Modal
-    on:close="{() => {
-      showEditRegistryModal.value = false;
-    }}">
-    <PreferencesEditRegistriesModal
-      toggleCallback="{toggleEditRegistryModal}"
-      registry="{showEditRegistryModal.registry}" />
+    <PreferencesRegistriesEditCreateRegistryModal
+      toggleCallback="{toggleRegistryModal}"
+      mode="{preferencesMode}"
+      registry="{selectedRegistry}" />
   </Modal>
 {/if}

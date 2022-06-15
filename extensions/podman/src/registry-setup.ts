@@ -134,6 +134,24 @@ export class RegistrySetup {
       }
     });
 
+    // handle update of the registry in the file
+    extensionApi.registry.onDidUpdateRegistry(async registry => {
+      // external change, update the local registries
+      if (this.localRegistries.has(registry.serverUrl)) {
+        this.localRegistries.set(registry.serverUrl, registry);
+        // update the file
+        const authFile = await this.readAuthFile();
+        if (!authFile.auths) {
+          authFile.auths = {};
+        }
+        authFile.auths[registry.serverUrl] = {
+          auth: Buffer.from(`${registry.username}:${registry.secret}`).toString('base64'),
+        };
+
+        await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));
+      }
+    });
+
     // check if the file exists
     if (!fs.existsSync(this.getAuthFileLocation())) {
       return;

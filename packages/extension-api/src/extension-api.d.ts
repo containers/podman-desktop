@@ -234,6 +234,7 @@ declare module '@tmpwip/extension-api' {
     export function unregisterRegistry(registry: Registry): void;
 
     export const onDidRegisterRegistry: Event<Registry>;
+    export const onDidUpdateRegistry: Event<Registry>;
     export const onDidUnregisterRegistry: Event<Registry>;
   }
 

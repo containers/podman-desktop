@@ -345,6 +345,13 @@ export class PluginSystem {
     );
 
     ipcMain.handle(
+      'image-registry:updateRegistry',
+      async (_listener, registryUrl: string, registry: containerDesktopAPI.Registry): Promise<void> => {
+        await imageRegistry.updateRegistry(registryUrl, registry);
+      },
+    );
+
+    ipcMain.handle(
       'configuration-registry:getConfigurationProperties',
       async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
         return configurationRegistry.getConfigurationProperties();

@@ -11,7 +11,7 @@ import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings'
 
 import { providerInfos } from '../../stores/providers';
 import Modal from '../dialogs/Modal.svelte';
-import PreferencesRegistriesCreateRegistryModal from '../preferences/PreferencesRegistriesCreateRegistryModal.svelte';
+import PreferencesRegistriesEditCreateRegistryModal from '../preferences/PreferencesRegistriesEditCreateRegistryModal.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 
 let logsPull;
@@ -278,7 +278,8 @@ function validateImageName(event: any): void {
     on:close="{() => {
       showAddRegistryModal = false;
     }}">
-    <PreferencesRegistriesCreateRegistryModal
+    <PreferencesRegistriesEditCreateRegistryModal
+      mode="create"
       toggleCallback="{() => {
         showAddRegistryModal = false;
       }}" />

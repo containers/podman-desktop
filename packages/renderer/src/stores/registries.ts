@@ -38,3 +38,7 @@ window.events?.receive('registry-register', () => {
 window.events?.receive('registry-unregister', () => {
   fetchRegistries();
 });
+
+window.events?.receive('registry-update', () => {
+  fetchRegistries();
+});
