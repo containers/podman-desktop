@@ -92,12 +92,17 @@ function Hero() {
   // const { siteConfig } = useDocusaurusContext();
   return (
     <section className="text-gray-600 dark:text-gray-400 body-font">
+      {/* <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
+        <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
+          Podman
+          <span>&#128156;</span> 
+          Containers
+        </h1>
+      </div> */}
       <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col md:flex-col lg:flex-row">
         <div className="text-center lg:w-2/3 w-full">
           <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
-              Podman <br/>
-              <span>&#128156;</span> <br/> 
-              Containers
+            Containers and Kubernetes for application developers
           </h1>
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
             Podman Desktop leverages Podman Engine for developers to work with Containers and Kubernetes.
@@ -123,7 +128,7 @@ function Hero() {
         </div>
         <div className="flex justify-center">
           <img
-            className="md:w-5/6 lg:w-11/12 w-full"
+            className="md:w-5/6 lg:w-11/12 w-full mb-4"
             src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
           />
         </div>
