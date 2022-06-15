@@ -142,7 +142,7 @@ function fromDockerfile(): void {
               </div>
             </td>
             <td class="px-6 whitespace-nowrap">
-              <div class="flex-row justify-end hidden group-hover:flex ">
+              <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100 ">
                 <ContainerActions container="{container}" />
               </div>
             </td>
