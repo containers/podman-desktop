@@ -69,6 +69,7 @@ const config = {
             position: 'left',
             label: 'Documentation',
           },
+          {to: '/core-values', label: 'Core Values', position: 'left'},
           {to: '/features', label: 'Features', position: 'left'},
           {to: '/downloads', label: 'Downloads', position: 'left'},
           {to: '/extend', label: 'Extend', position: 'left'},
