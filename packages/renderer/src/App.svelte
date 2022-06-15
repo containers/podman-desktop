@@ -247,7 +247,7 @@ function toggleContributions() {
         </ul>
       </nav>
 
-      <div class="w-full h-full bg-zinc-800 flex flex-col">
+      <div class="w-full h-full bg-zinc-800 flex flex-col overflow-y-scroll">
         <Route path="/containers">
           <ContainerList />
         </Route>
