@@ -54,20 +54,23 @@ function FastAndLight() {
   function Open() {
     return (
     <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font">
-    <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
-    <div className="lg:w-1/3 md:w-1/2 w-1/3 flex justify-center gap-10 text-purple-800">
-        <FontAwesomeIcon icon={faBoxOpen} size="8x"/>
-    </div>
-  <div className="lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 flex flex-col md:items-start md:text-left items-center text-center">
-    <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 dark:text-white">Open</h1>
-  
-  <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">While focusing on Podman as a container engine packaged by default, Podman Desktop also enables other container engines. </p>
-  <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">This gives the end-user a single tool to manage all their containers independently from the engine used.</p>
-  </div>
-  
-  </div>
-  </section>);
-  
+        <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
+        <div className="lg:w-1/3 md:w-1/2 w-1/3 flex justify-center gap-10 text-purple-800">
+            <FontAwesomeIcon icon={faBoxOpen} size="8x"/>
+        </div>
+        <div className="lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 flex flex-col md:items-start md:text-left items-center text-center">
+            <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 dark:text-white">
+                Open
+            </h1>
+            <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">
+                While focusing on Podman as a container engine packaged by default, Podman Desktop also enables other container engines. 
+            </p>
+            <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">
+                This gives the end-user a single tool to manage all their containers independently from the engine used.
+            </p>
+        </div>
+        </div>
+    </section>);
   }
   
   
@@ -104,27 +107,32 @@ function FastAndLight() {
   function ExtensibleWorkflow() {
     return (
     <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font">
-    <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
-    <div className="lg:w-1/3 md:w-1/2 w-1/3 flex justify-center gap-10 text-purple-800">
-                <FontAwesomeIcon icon={faChartLine} size="8x"/>
-            </div>
-  <div className="lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 flex flex-col md:items-start md:text-left items-center text-center">
-    <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 dark:text-white">Extensible Workflow</h1>
-  
-  <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">Podman Desktop provides extensions points to enable the community to build more features. </p>
-  <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">This allows more in-deep integrations with other tools and technologies to extend workflows and capabilities of the tool.</p>
-  <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">Thus giving the developer a single tool to manage all their containers independently from the engine used.</p>
-  </div>
-  
-  </div>
-  </section>);
-  
+        <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
+        <div className="lg:w-1/3 md:w-1/2 w-1/3 flex justify-center gap-10 text-purple-800">
+            <FontAwesomeIcon icon={faChartLine} size="8x"/>
+        </div>
+        <div className="lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 flex flex-col md:items-start md:text-left items-center text-center">
+            <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 dark:text-white">
+                Extensible Workflow
+            </h1>
+            <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">
+                Podman Desktop provides extensions points to enable the community to build more features. 
+            </p>
+            <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">
+                This allows more in-deep integrations with other tools and technologies to extend workflows and capabilities of the tool.
+            </p>
+            <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">
+                Thus giving the developer a single tool to manage all their containers independently from the engine used.
+            </p>
+        </div>
+        </div>
+    </section>);
   }
 
 export default function Home(): JSX.Element {
     const { siteConfig } = useDocusaurusContext();
     return (
-        <Layout title={siteConfig.title} description="Extensibility">
+        <Layout title={siteConfig.title} description="Core Values">
             <TailWindThemeSelector />
             <CoreValueHead />
             <FastAndLight />
