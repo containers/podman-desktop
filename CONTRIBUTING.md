@@ -156,7 +156,7 @@ commit automatically with `git commit -s`.
 ### Format and lint
 
 All code changes must pass ``yarn format:check`` and ``yarn lint:check``.
-To fix format and lint``yarn format:fix && yarn lint:fix``
+To fix format and lint ``yarn format:fix && yarn lint:fix``
 
 ## Continuous Integration
 
