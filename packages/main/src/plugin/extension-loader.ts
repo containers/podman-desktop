@@ -31,6 +31,7 @@ import type { ImageRegistry } from './image-registry';
 import type { Dialogs } from './dialog-impl';
 import type { ProgressImpl } from './progress-impl';
 import { ProgressLocation } from './progress-impl';
+import type { NotificationImpl } from './notification-impl';
 
 /**
  * Handle the loading of an extension
@@ -71,6 +72,7 @@ export class ExtensionLoader {
     private trayMenuRegistry: TrayMenuRegistry,
     private dialogs: Dialogs,
     private progress: ProgressImpl,
+    private notifications: NotificationImpl,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -272,6 +274,7 @@ export class ExtensionLoader {
 
     const dialogs = this.dialogs;
     const progress = this.progress;
+    const notifications = this.notifications;
     const windowObj: typeof containerDesktopAPI.window = {
       showInformationMessage: (message: string, ...items: string[]) => {
         return dialogs.showDialog('info', extManifest.name, message, items);
@@ -291,6 +294,10 @@ export class ExtensionLoader {
         ) => Promise<R>,
       ): Promise<R> => {
         return progress.withProgress(options, task);
+      },
+
+      showNotification: (options: containerDesktopAPI.NotificationOptions): containerDesktopAPI.Disposable => {
+        return notifications.showNotification(options);
       },
     };
 
