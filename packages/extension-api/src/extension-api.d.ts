@@ -379,6 +379,21 @@ declare module '@tmpwip/extension-api' {
     onCancellationRequested: Event<any>;
   }
 
+  export interface NotificationOptions {
+    /**
+     * A title for the notification, which will be shown at the top of the notification window when it is shown.
+     */
+    title?: string;
+    /**
+     * The body text of the notification, which will be displayed below the title.
+     */
+    body?: string;
+    /**
+     * Whether or not to emit an OS notification noise when showing the notification.
+     */
+    silent?: boolean;
+  }
+
   export namespace window {
     /**
      * Show an information message. Optionally provide an array of items which will be presented as
@@ -414,5 +429,11 @@ declare module '@tmpwip/extension-api' {
       options: ProgressOptions,
       task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Promise<R>,
     ): Promise<R>;
+
+    /**
+     * Show OS desktop notification
+     * @param options
+     */
+    export function showNotification(options: NotificationOptions): Disposable;
   }
 }

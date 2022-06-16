@@ -49,6 +49,7 @@ import { ContributionManager } from './contribution-manager';
 import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation';
 import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter';
 import { Telemetry } from './telemetry/telemetry';
+import { NotificationImpl } from './notification-impl';
 
 export class PluginSystem {
   constructor(private trayMenu: TrayMenu) {}
@@ -107,6 +108,7 @@ export class PluginSystem {
       trayMenuRegistry,
       new Dialogs(),
       new ProgressImpl(),
+      new NotificationImpl(),
     );
 
     const contributionManager = new ContributionManager(apiSender);

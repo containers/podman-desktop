@@ -182,7 +182,7 @@ class WinInstaller extends BaseInstaller {
         if (fs.existsSync(msiPath)) {
           await this.executeInstaller('msiexec', ['/i', msiPath, '/qb', '/norestart']);
           progress.report({ increment: 80 });
-          await extensionApi.window.showInformationMessage('Podman is successfully installed.', 'OK');
+          extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
           return true;
         } else {
           throw new Error(`Can't find Podman msi package! Path: ${msiPath} doesn't exists.`);

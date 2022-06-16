@@ -16,17 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as os from 'node:os';
+import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import { Notification } from 'electron';
+import { Disposable } from './types/disposable';
 
-export const isWindows = os.platform() === 'win32';
-export const isMac = os.platform() === 'darwin';
-export const isLinux = os.platform() === 'linux';
-
-/**
- * @returns true if app running in dev mode
- */
-export function isDev(): boolean {
-  const isEnvSet = 'ELECTRON_IS_DEV' in process.env;
-  const envSet = Number.parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
-  return isEnvSet ? envSet : false;
+export class NotificationImpl {
+  showNotification(options: containerDesktopAPI.NotificationOptions): Disposable {
+    const notification = new Notification(options);
+    notification.show();
+    return Disposable.create(() => {
+      notification.close();
+    });
+  }
 }
