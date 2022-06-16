@@ -173,7 +173,7 @@ function KeepUpToDate() {
           <SectionTitle name="update" />
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-light leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
-            Install and keeep up to date <span className="font-bold">Podman</span>
+            Install and keep up to date <span className="font-bold">Podman</span>
             <WorkInProgress />
           </h2>
         </div>
