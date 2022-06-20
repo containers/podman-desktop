@@ -19,11 +19,14 @@ import {
   faPlug,
   faPuzzlePiece,
   faRocket,
+  faGears,
   faRotateRight,
-  faPaste
+  faPaste,
+  faDiagramProject
 } from '@fortawesome/free-solid-svg-icons';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+
 
 function DownloadClientLinks() {
   let operatingSystem = '';
@@ -88,6 +91,7 @@ function DownloadGenericLinks() {
     </div>
   );
 }
+
 function Hero() {
   // const { siteConfig } = useDocusaurusContext();
   return (
@@ -98,7 +102,10 @@ function Hero() {
             Containers and Kubernetes for application developers
           </h1>
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            Podman Desktop leverages Podman Engine for developers to work with Containers and Kubernetes.
+            Podman Desktop enables you to easily work with containers from your local environment. It installs and configures your container engine and take care of keeping-it up-to-date. 
+          </p>
+          <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
+            You can manage your containers with a built-in UI to build, run, inspect and get a terminal into them.
           </p>
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
             Podman Desktop leverages <a href="https://podman.io/">Podman Engine</a> to provide a lightweight and deamon-less container tool. 
@@ -147,7 +154,7 @@ function WorkInProgress() {
 
 function KeepUpToDate() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font">
+    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="update" />
@@ -189,29 +196,22 @@ function Extensibility() {
         <div className="flex flex-col w-full text-center">
           <div className="mx-10">
             <FontAwesomeIcon size="3x" icon={faPlug} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
-          </div>
-          <p className="leading-relaxed">Docker Desktop UI extensions support.</p>
-          <p className="leading-relaxed">Implementation of host and UI API for Docker Desktop extensions</p>
+          </div>          
+          
+          <p className="leading-relaxed">Container engines are plugged through extension points.</p>
+          <p className="leading-relaxed">JavaScript extensions can contribute new behaviour</p>
           <p className="leading-relaxed">Reuse existing extensions directly in Podman Desktop</p>
 
+          <div className="flex flex-col items-center">
+            <div className="text-left my-4">
+              <p className="-ml-5">Current Podman Desktop plug-ins: Podman, Docker, Lima and CRC/OpenShift Local.</p>
+            </div>
+          </div>
 
           <ThemedImage className="py-4 md:w-5/6 lg:w-11/12 w-full" alt="Reuse Docker Desktop extensions" sources={{
               light: useBaseUrl('img/ddextensions/dd-support.png'),
               dark: useBaseUrl('img/ddextensions/dd-support.png'),
             }} />
-
-          <div className="flex flex-col items-center">
-            <div className="text-left my-4">
-              <p className="-ml-5">Current Podman Desktop plug-ins:</p>
-              <ul className="list-disc text-left">
-                <li>Podman</li>
-                <li>Docker</li>
-                <li>Lima</li>
-                <li>CRC/OpenShift Local</li>
-              </ul>
-            </div>
-          </div>
-
 
           <div className="flex flex-col items-center">
             <Link
@@ -238,6 +238,7 @@ function Extensibility() {
     </section>
   );
 }
+
 
 function Configure() {
   return (
@@ -303,7 +304,7 @@ function Configure() {
 
 function EnterpriseReady() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
+    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="enterprise" />
@@ -366,8 +367,6 @@ function RunAnywhere() {
     <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
-          <SectionTitle name="platform" />
-
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
             Available on Windows, Mac and Linux
           </h2>
@@ -457,25 +456,25 @@ function MainFeatures() {
           <div className="flex flex-wrap sm:-m-4 -mx-4 -mb-10 -mt-4 md:space-y-0 space-y-6">
             <div className="p-4 md:w-1/4 flex">
               <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
-                <FontAwesomeIcon size="2x" icon={faGaugeHigh} className="w-6 h-6 " />
+                <FontAwesomeIcon size="2x" icon={faGears} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Build</h2>
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
                   Build images from Containerfile or Dockerfile
                 </p>
               </div>
             </div>
             <div className="p-4 md:w-1/4 flex">
               <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
-                <FontAwesomeIcon size="2x" icon={faGaugeHigh} className="w-6 h-6 " />
+                <FontAwesomeIcon size="2x" icon={faRocket} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Run</h2>
 
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  <FontAwesomeIcon icon={faDiagramProject} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
                   Pull images from remote registries
                 </p>
                 <p className="leading-relaxed text-base list-disc">
@@ -490,7 +489,7 @@ function MainFeatures() {
             </div>
             <div className="p-4 md:w-1/4 flex">
               <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-900 mb-4 flex-shrink-0">
-                <FontAwesomeIcon size="2x" icon={faRocket} className="w-6 h-6 " />
+                <FontAwesomeIcon size="2x" icon={faGaugeHigh} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Inspect</h2>
@@ -506,7 +505,7 @@ function MainFeatures() {
             </div>
             <div className="p-4 md:w-1/4 flex">
               <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-900 mb-4 flex-shrink-0">
-                <FontAwesomeIcon size="2x" icon={faRocket} className="w-6 h-6 " />
+                <FontAwesomeIcon size="2x" icon={faDiagramProject} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Push</h2>
@@ -556,12 +555,11 @@ export default function Home(): JSX.Element {
       <TailWindThemeSelector />
       <Hero />
       <RunAnywhere />
-      <Extensibility />
       <MainFeatures />
-      {/* <MultipleAtSameTime /> */}
-      <EnterpriseReady />
+      <Configure />
+      <Extensibility />
       <KeepUpToDate />
-
+      <EnterpriseReady />
     </Layout>
   );
 }
