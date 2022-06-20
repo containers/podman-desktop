@@ -96,19 +96,15 @@ function Hero() {
   // const { siteConfig } = useDocusaurusContext();
   return (
     <section className="text-gray-600 dark:text-gray-400 body-font">
-      <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col md:flex-col lg:flex-row">
-        <div className="text-center lg:w-2/3 w-full">
-          <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
+      <div className="container w-full flex-col text-center py-16">
+       <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
             Containers and Kubernetes for application developers
-          </h1>
+        </h1>
+      </div>
+      <div className="container mx-auto flex px-5 items-center justify-center flex-col md:flex-col lg:flex-row">
+        <div className="text-center lg:w-2/3 w-full">
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            Podman Desktop enables you to easily work with containers from your local environment. It installs and configures your container engine and take care of keeping-it up-to-date. 
-          </p>
-          <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            You can manage your containers with a built-in UI to build, run, inspect and get a terminal into them.
-          </p>
-          <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            Podman Desktop leverages <a href="https://podman.io/">Podman Engine</a> to provide a lightweight and deamon-less container tool. 
+            Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop leverages <a href="https://podman.io/">Podman Engine</a> to provide a lightweight and deamon-less container tool. 
           </p>
           <div className="flex justify-center">
             <iframe
