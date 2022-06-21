@@ -4,6 +4,7 @@ import Link from '@docusaurus/Link';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import TailWindThemeSelector from '../components/TailWindThemeSelector';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import {
   faBeer,
@@ -18,21 +19,29 @@ import {
   faPlug,
   faPuzzlePiece,
   faRocket,
+  faGears,
   faRotateRight,
+  faPaste,
+  faDiagramProject
 } from '@fortawesome/free-solid-svg-icons';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
+
 function DownloadClientLinks() {
   let operatingSystem = '';
+  let varIcon = null;
   const userAgent = navigator.userAgent;
 
   if (userAgent.indexOf('Windows') != -1) {
     operatingSystem = 'Windows';
+    varIcon = "faWindows";
   } else if (userAgent.indexOf('Mac') != -1) {
     operatingSystem = 'macOS';
+    varIcon = "faApple";
   } else if (userAgent.indexOf('Linux') != -1) {
     operatingSystem = 'Linux';
+    varIcon = "faLinux";
   }
 
   let mainButton;
@@ -43,7 +52,7 @@ function DownloadClientLinks() {
       <Link
         className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-violet-600 border-0 py-2 px-6 my-4 focus:outline-none hover:bg-violet-700 rounded text-lg"
         to={'/downloads/' + operatingSystem}>
-        Downloads for {operatingSystem}
+        <FontAwesomeIcon size="2x" icon={varIcon as IconProp} className="px-2" /> Download for {operatingSystem}
       </Link>
     );
     otherButton = (
@@ -93,10 +102,7 @@ function Hero() {
             Containers and Kubernetes for application developers
           </h1>
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            Leverage Podman engine.
-          </p>
-          <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            Build, run, manage, inspect, connect to containers and more.
+            Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop leverages <a href="https://podman.io/">Podman Engine</a> to provide a lightweight and deamon-less container tool.
           </p>
           <div className="flex justify-center">
             <iframe
@@ -108,19 +114,19 @@ function Hero() {
               title="GitHub"></iframe>
           </div>
           <div className="flex justify-center">
-            <img
-              className="md:w-5/6 lg:w-11/12 w-full"
-              src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
-            />
-          </div>
-        </div>
-        <div className="flex justify-center">
           {/* With client mode, provides the link to the client browser */}
           <BrowserOnly fallback={<DownloadGenericLinks></DownloadGenericLinks>}>
             {() => {
               return <DownloadClientLinks />;
             }}
           </BrowserOnly>
+          </div>
+          <div className="flex justify-center">
+            <img
+              className="md:w-5/6 lg:w-11/12 w-full"
+              src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
+            />
+          </div>
         </div>
       </div>
     </section>
@@ -137,37 +143,13 @@ function SectionTitle(props) {
   );
 }
 
-function MultipleAtSameTime() {
-  return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font">
-      <div className="container px-5 py-24 mx-auto flex flex-wrap">
-        <div className="flex flex-col text-center w-full mb-5">
-          <SectionTitle name="engine" />
-          <h2 className="max-w-lg mb-6 font-sans text-3xl font-light leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
-            Handle different container engines at the same time
-          </h2>
-        </div>
-
-        <div className="flex flex-col w-full text-center">
-          <div className="mx-10">
-            <FontAwesomeIcon size="3x" icon={faCubes} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
-          </div>
-          <div className="flex flex-col items-center">
-            <p className="leading-relaxed">Plug-in system manage different container engines at the same time.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function WorkInProgress() {
   return <div className="text-sm font-extralight text-purple-900 dark:text-purple-300">Work in progress</div>;
 }
 
 function KeepUpToDate() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font">
+    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="update" />
@@ -202,43 +184,31 @@ function Extensibility() {
           <SectionTitle name="extensibility" />
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-light leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
-            Bring new features with Docker Desktop Extensions or Podman Desktop plug-ins.
+            Bring new features with Podman Desktop plug-ins or Docker Desktop Extensions.
           </h2>
         </div>
 
         <div className="flex flex-col w-full text-center">
           <div className="mx-10">
             <FontAwesomeIcon size="3x" icon={faPlug} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
-          </div>
-          <p className="leading-relaxed">Docker Desktop UI extensions support.</p>
-          <p className="leading-relaxed">Implementation of host and ui API for Docker Desktop extensions</p>
+          </div>          
+          
+          <p className="leading-relaxed">Container engines are plugged through extension points.</p>
+          <p className="leading-relaxed">JavaScript extensions can contribute new behaviour</p>
           <p className="leading-relaxed">Reuse existing extensions directly in Podman Desktop</p>
-        
+
+          <div className="flex flex-col items-center">
+            <div className="text-left my-4">
+              <p className="-ml-5">Current Podman Desktop plug-ins: Podman, Docker, Lima and CRC/OpenShift Local.</p>
+            </div>
+          </div>
+
           <ThemedImage className="py-4 md:w-5/6 lg:w-11/12 w-full" alt="Reuse Docker Desktop extensions" sources={{
               light: useBaseUrl('img/ddextensions/dd-support.png'),
               dark: useBaseUrl('img/ddextensions/dd-support.png'),
             }} />
 
-          <div className="mx-10 mt-10">
-            <FontAwesomeIcon size="3x" icon={faPuzzlePiece} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
-          </div>
           <div className="flex flex-col items-center">
-            <p className="leading-relaxed">Container engines are plugged through extension points.</p>
-            <p className="leading-relaxed">JavaScript extensions can contribute new behaviour</p>
-
-            <div className="text-left my-4">
-              <p className="-ml-5">Current Podman Desktop plug-ins:</p>
-              <ul className="list-disc text-left">
-                <li>Podman</li>
-                <li>Docker</li>
-                <li>Lima</li>
-                <li>CRC/OpenShift Local</li>
-              </ul>
-            </div>
-
-
-
-
             <Link
               title="Extend Podman Desktop"
               className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
@@ -264,63 +234,63 @@ function Extensibility() {
   );
 }
 
-function ManageEverythingFromTheTray() {
+function Configure() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
+    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
-          <SectionTitle name="tray" />
+          <SectionTitle name="Configure" />
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
-            Management from the tray icon
+            Multiple configuration options
           </h2>
         </div>
-        <div className="container px-5 pb-5 mx-auto">
-          <h1 className="sm:text-3xl text-2xl font-medium title-font text-center text-gray-900 dark:text-gray-100 mb-20">
-            Check status and start/stop container engines.
-          </h1>
-          <div className="flex flex-wrap sm:-m-4 -mx-4 -mb-10 -mt-4 md:space-y-0 space-y-6">
-            <div className="p-4 md:w-1/3 flex">
-              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
-                <FontAwesomeIcon size="2x" icon={faEye} className="w-6 h-6 " />
-              </div>
-              <div className="flex-grow pl-6">
-                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Status</h2>
 
-                <p className="leading-relaxed text-base">See the status of engine by looking at the icon.</p>
-                <div className="inline-block">
-                  - icon <img className="text-purple-400 inline-block" src="img/tray/tray-icon-empty.svg" /> means no
-                  container engine have been detected.
-                </div>
-                <div className="inline-block">
-                  - icon <img className="text-purple-400 inline-block" src="img/tray/tray-icon.svg" /> means container
-                  engine is ready to use.
-                </div>
-              </div>
-            </div>
-            <div className="p-4 md:w-1/3 flex">
-              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-900 mb-4 flex-shrink-0">
-                <FontAwesomeIcon size="2x" icon={faDigging} className="w-6 h-6 " />
+
+        <div className="container px-5 pb-5 mx-auto">
+          <div className="flex flex-wrap sm:-m-4 -mx-4 -mb-10 -mt-4 md:space-y-0 space-y-6">
+            <div className="p-4 md:w-1/4 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
+                <FontAwesomeIcon size="2x" icon={faCogs} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
-                <h2 className="text-gray-900 dark:text-gray-100  text-lg title-font font-medium mb-2">Progress</h2>
-                <p className="leading-relaxed text-base">
-                  Check progress of actions by animated tray icons. <br />
-                  Stay focused without notification/pop-up to discover if something is happening on the engine side
-                </p>
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Registries</h2>
+                <p className="leading-relaxed text-base">Manage OCI registries. Add/edit/delete registries.</p>
               </div>
             </div>
-            <div className="p-4 md:w-1/3 flex">
-              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-900 mb-4 flex-shrink-0">
-                <FontAwesomeIcon size="2x" icon={faListCheck} className="w-6 h-6 " />
+
+            
+            <div className="p-4 md:w-1/4 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
+                <FontAwesomeIcon size="2x" icon={faCogs} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
-                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Quick actions</h2>
-                <p className="leading-relaxed text-base">Start or stop Podman machines directly from the tray icon.</p>
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Proxy</h2>
+                <p className="leading-relaxed text-base">Configure your proxy settings (in progress..).</p>
+              </div>
+            </div>
+
+            <div className="p-4 md:w-1/4 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
+                <FontAwesomeIcon size="2x" icon={faCogs} className="w-6 h-6 " />
+              </div>
+              <div className="flex-grow pl-6">
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Resources Utilization</h2>
+                <p className="leading-relaxed text-base">Configure CPU/Memory/Disk of Podman machines (work in progress)</p>
+              </div>
+            </div>
+
+            <div className="p-4 md:w-1/4 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
+                <FontAwesomeIcon size="2x" icon={faCogs} className="w-6 h-6 " />
+              </div>
+              <div className="flex-grow pl-6">
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Container Engines</h2>
+                <p className="leading-relaxed text-base">Handle multiple container engines at the same time (Podman, Docker, Lima...).</p>
               </div>
             </div>
           </div>
-        </div>
+          </div>
       </div>
     </section>
   );
@@ -328,7 +298,7 @@ function ManageEverythingFromTheTray() {
 
 function EnterpriseReady() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
+    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="enterprise" />
@@ -382,18 +352,20 @@ function EnterpriseReady() {
   );
 }
 
+const copyBrewInstructions = () =>{
+  navigator.clipboard.writeText('brew install podman-desktop');
+};
+
 function RunAnywhere() {
   return (
     <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
-          <SectionTitle name="platform" />
-
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
-            Run anywhere
+            Available on Windows, Mac and Linux
           </h2>
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            Use the same UI across different Operating Systems
+            Use the same UI across different operating systems
           </p>
         </div>
         <div className="flex flex-wrap w-full">
@@ -411,7 +383,7 @@ function RunAnywhere() {
               </Link>
               <div className="flex-grow">
                 <div className="flex-grow w-full">
-                  <p className="text-base text-right">exe or setup.exe</p>
+                  <p className="text-base text-center">exe or setup.exe</p>
                 </div>
               </div>
             </div>
@@ -429,9 +401,12 @@ function RunAnywhere() {
                 </div>
               </Link>
               <div className="flex-grow w-full">
-                <p className="text-base text-right">arm64, x64 or unified dmg</p>
-                <p className="text-base text-right">
+                <p className="text-base text-center">arm64, x64 or unified dmg</p>
+                <p className="text-base text-center">
                   <FontAwesomeIcon size="1x" icon={faBeer} className="ml-2" /> brew install podman-desktop
+                  <button title="Copy To Clipboard" className="mr-5"> 
+                    <FontAwesomeIcon size="1x" icon={faPaste} className="ml-3  cursor-pointer text-3xl  text-white-500" onClick={() => copyBrewInstructions()} />
+                  </button>
                 </p>
               </div>
             </div>
@@ -450,7 +425,7 @@ function RunAnywhere() {
               </Link>
 
               <div className="flex-grow">
-                <p className="text-base text-right">flatpak or zip</p>
+                <p className="text-base text-center">flatpak or zip</p>
               </div>
             </div>
           </div>
@@ -462,62 +437,59 @@ function RunAnywhere() {
 
 function MainFeatures() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
+    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="features" />
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
-            Main features
+            Build, run and manage containers.
           </h2>
         </div>
         <div className="container px-5 pb-5 mx-auto">
-          <h1 className="sm:text-3xl text-2xl font-medium title-font text-center text-gray-900 dark:text-gray-100 mb-20">
-            Build, run and manage containers.
-          </h1>
           <div className="flex flex-wrap sm:-m-4 -mx-4 -mb-10 -mt-4 md:space-y-0 space-y-6">
-            <div className="p-4 md:w-1/3 flex">
+            <div className="p-4 md:w-1/4 flex">
               <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
-                <FontAwesomeIcon size="2x" icon={faGaugeHigh} className="w-6 h-6 " />
+                <FontAwesomeIcon size="2x" icon={faGears} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
-                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Fast</h2>
-
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Build</h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Start within second
-                </p>
-                <p className="leading-relaxed text-base">
-                  <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Zero-config <span className="font-extralight text-small">(if Podman is already running)</span>
+                  Build images from Containerfile or Dockerfile
                 </p>
               </div>
             </div>
-            <div className="p-4 md:w-1/3 flex">
-              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-900 mb-4 flex-shrink-0">
+            <div className="p-4 md:w-1/4 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
                 <FontAwesomeIcon size="2x" icon={faRocket} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
-                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Manage</h2>
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Run</h2>
+
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faCogs} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Create custom Podman Machines
+                  <FontAwesomeIcon icon={faDiagramProject} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  Pull images from remote registries
+                </p>
+                <p className="leading-relaxed text-base list-disc">
+                  <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  Start / Stop / Restart containers
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Build images from Containerfile/Dockerfile
+                  Start / Stop / Restart pods
                 </p>
+              </div>
+            </div>
+            <div className="p-4 md:w-1/4 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-900 mb-4 flex-shrink-0">
+                <FontAwesomeIcon size="2x" icon={faGaugeHigh} className="w-6 h-6 " />
+              </div>
+              <div className="flex-grow pl-6">
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Inspect</h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Pull/Push images
-                </p>
-                <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  start/stop/inspect containers
-                </p>
-                <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Terminal in your container from the tool
+                  Get a terminal in your container
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
@@ -525,25 +497,21 @@ function MainFeatures() {
                 </p>
               </div>
             </div>
-            <div className="p-4 md:w-1/3 flex">
+            <div className="p-4 md:w-1/4 flex">
               <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-900 mb-4 flex-shrink-0">
-                <FontAwesomeIcon size="2x" icon={faCogs} className="w-6 h-6 " />
+                <FontAwesomeIcon size="2x" icon={faDiagramProject} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
-                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Configure</h2>
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Push</h2>
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faCogs} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Configure OCI registries. Add/edit/delete registries
+                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  Push images to OCI registries
                 </p>
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faCogs} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Configure Proxy (work in progress)
+                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  Deploy & Test images on Kubernetes
                 </p>
-                <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faCogs} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Configure CPU/Memory/Disk of Podman machines (work in progress)
-                </p>
-             </div>
+              </div>
             </div>
           </div>
         </div>
@@ -551,7 +519,7 @@ function MainFeatures() {
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <Link
-            title="Download for Linux"
+            title="Discover More"
             className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
             to="/features">
             <div className="mt-3 text-purple-900 dark:text-purple-400 inline-flex items-center">
@@ -580,14 +548,12 @@ export default function Home(): JSX.Element {
     <Layout title="Leverage Podman with a Desktop App" description="Containers and Kubernetes for application developers">
       <TailWindThemeSelector />
       <Hero />
-      <ManageEverythingFromTheTray />
       <RunAnywhere />
+      <MainFeatures />
+      <Configure />
+      <Extensibility />
       <KeepUpToDate />
       <EnterpriseReady />
-      <Extensibility />
-      <MainFeatures />
-      <MultipleAtSameTime />
-
     </Layout>
   );
 }

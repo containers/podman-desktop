@@ -93,7 +93,6 @@ function FeatureManageResources() {
 }
 
 
-
 function FeatureDDExtensions() {
   return (
   <section className="text-gray-600 dark:text-gray-400 body-font">
