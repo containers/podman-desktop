@@ -237,6 +237,68 @@ function Extensibility() {
   );
 }
 
+function ManageEverythingFromTheTray() {
+  return (
+    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
+      <div className="container px-5 mx-auto flex flex-wrap">
+        <div className="flex flex-col text-center w-full mb-5">
+          <SectionTitle name="tray" />
+
+          <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
+            Management from the tray icon
+          </h2>
+        </div>
+        <div className="container px-5 pb-5 mx-auto">
+          <h1 className="sm:text-3xl text-2xl font-medium title-font text-center text-gray-900 dark:text-gray-100 mb-20">
+            Check status and start/stop container engines.
+          </h1>
+          <div className="flex flex-wrap sm:-m-4 -mx-4 -mb-10 -mt-4 md:space-y-0 space-y-6">
+            <div className="p-4 md:w-1/3 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
+                <FontAwesomeIcon size="2x" icon={faEye} className="w-6 h-6 " />
+              </div>
+              <div className="flex-grow pl-6">
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Status</h2>
+
+                <p className="leading-relaxed text-base">See the status of engine by looking at the icon.</p>
+                <div className="inline-block">
+                  - icon <img className="text-purple-400 inline-block" src="img/tray/tray-icon-empty.svg" /> means no
+                  container engine have been detected.
+                </div>
+                <div className="inline-block">
+                  - icon <img className="text-purple-400 inline-block" src="img/tray/tray-icon.svg" /> means container
+                  engine is ready to use.
+                </div>
+              </div>
+            </div>
+            <div className="p-4 md:w-1/3 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-900 mb-4 flex-shrink-0">
+                <FontAwesomeIcon size="2x" icon={faDigging} className="w-6 h-6 " />
+              </div>
+              <div className="flex-grow pl-6">
+                <h2 className="text-gray-900 dark:text-gray-100  text-lg title-font font-medium mb-2">Progress</h2>
+                <p className="leading-relaxed text-base">
+                  Check progress of actions by animated tray icons. <br />
+                  Stay focused without notification/pop-up to discover if something is happening on the engine side
+                </p>
+              </div>
+            </div>
+            <div className="p-4 md:w-1/3 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-900 mb-4 flex-shrink-0">
+                <FontAwesomeIcon size="2x" icon={faListCheck} className="w-6 h-6 " />
+              </div>
+              <div className="flex-grow pl-6">
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Quick actions</h2>
+                <p className="leading-relaxed text-base">Start or stop Podman machines directly from the tray icon.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Configure() {
   return (
     <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
@@ -348,6 +410,30 @@ function EnterpriseReady() {
                 <p className="leading-relaxed text-base">Manage OCI registries. Add/edit/delete registries.</p>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MultipleAtSameTime() {
+  return (
+    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font">
+      <div className="container px-5 py-24 mx-auto flex flex-wrap">
+        <div className="flex flex-col text-center w-full mb-5">
+          <SectionTitle name="engine" />
+          <h2 className="max-w-lg mb-6 font-sans text-3xl font-light leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
+            Handle different container engines at the same time
+          </h2>
+        </div>
+
+        <div className="flex flex-col w-full text-center">
+          <div className="mx-10">
+            <FontAwesomeIcon size="3x" icon={faCubes} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
+          </div>
+          <div className="flex flex-col items-center">
+            <p className="leading-relaxed">Plug-in system manage different container engines at the same time.</p>
           </div>
         </div>
       </div>
@@ -552,6 +638,8 @@ export default function Home(): JSX.Element {
       <TailWindThemeSelector />
       <Hero />
       <RunAnywhere />
+      <MultipleAtSameTime />
+      <ManageEverythingFromTheTray />
       <MainFeatures />
       <Configure />
       <Extensibility />
