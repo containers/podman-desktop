@@ -96,15 +96,16 @@ function Hero() {
   // const { siteConfig } = useDocusaurusContext();
   return (
     <section className="text-gray-600 dark:text-gray-400 body-font">
-      <div className="container w-full flex-col text-center py-16">
-       <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
-            Containers and Kubernetes for application developers
-        </h1>
-      </div>
-      <div className="container mx-auto flex px-5 items-center justify-center flex-col md:flex-col lg:flex-row">
+      <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
         <div className="text-center lg:w-2/3 w-full">
+          <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
+            Containers and Kubernetes for application developers
+          </h1>
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop leverages <a href="https://podman.io/">Podman Engine</a> to provide a lightweight and deamon-less container tool. 
+            Leverage Podman engine.
+          </p>
+          <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
+            Build, run, manage, inspect, connect to containers and more.
           </p>
           <div className="flex justify-center">
             <iframe
@@ -115,24 +116,25 @@ function Hero() {
               height="20"
               title="GitHub"></iframe>
           </div>
+          <div className="flex justify-center">
           {/* With client mode, provides the link to the client browser */}
           <BrowserOnly fallback={<DownloadGenericLinks></DownloadGenericLinks>}>
             {() => {
               return <DownloadClientLinks />;
             }}
           </BrowserOnly>
-        </div>
-        <div className="flex justify-center">
-          <img
-            className="md:w-5/6 lg:w-11/12 w-full mb-4"
-            src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
-          />
+          </div>
+          <div className="flex justify-center">
+            <img
+              className="md:w-5/6 lg:w-11/12 w-full"
+              src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
+            />
+          </div>
         </div>
       </div>
     </section>
   );
 }
-
 
 function SectionTitle(props) {
   return (
