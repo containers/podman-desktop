@@ -100,12 +100,3 @@ svg.lightToggleIcon_node_modules-\@docusaurus-theme-classic-lib-next-theme-Color
 li.footer__item a svg {
   display: inline;
 }
-
-/* Footer Styling*/
-[data-theme='dark'] .footer{
-  
-  background: rgb(2,0,36);
-  background: linear-gradient(28deg, rgba(2,0,36,1) 0%, rgba(171,24,118,1) 49%, rgb(111 183 250) 100%);
-  display: block;
-  
-}
