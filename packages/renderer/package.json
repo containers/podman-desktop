@@ -2,7 +2,7 @@
   "name": "renderer",
   "version": "0.0.0",
   "type": "module",
-  "license": "apache-2.0",
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
