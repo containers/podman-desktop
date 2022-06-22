@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "icon": "icon.png",
   "publisher": "benoitf",
-  "license": "apache-2.0",
+  "license": "Apache-2.0",
   "engines": {
     "podman-desktop": "^0.0.1"
   },
