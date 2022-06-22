@@ -19,6 +19,7 @@ import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelt
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import PreferencesRegistriesRendering from './PreferencesRegistriesRendering.svelte';
 import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
+import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
 
 let items: TreeViewDataItem[] = [];
 let extensions: ExtensionInfo[] = [];
@@ -43,6 +44,8 @@ function onSelectedItem(item: TreeViewDataItem) {
     router.goto(`/preferences/extension/${extensionId}`);
   } else if (item.id === 'registries') {
     router.goto('/preferences/registries');
+  } else if (item.id === 'proxies') {
+    router.goto('/preferences/proxies');
   } else {
     router.goto(`/preferences/default/${item.id}`);
   }
@@ -90,6 +93,13 @@ async function buildTreeViewData(configProperties?: IConfigurationPropertyRecord
       children: providerTreeViewDataItems,
     });
   }
+
+  // Add proxies
+  treeViewDataItems.push({
+    id: 'proxies',
+    name: 'Proxy',
+    children: [],
+  });
 
   // Add registries
   treeViewDataItems.push({
@@ -193,6 +203,9 @@ onMount(async () => {
   </Route>
   <Route path="/registries">
     <PreferencesRegistriesRendering />
+  </Route>
+  <Route path="/proxies">
+    <PreferencesProxiesRendering />
   </Route>
   <Route path="/container-connection/" let:meta />
   <Route path="/container-connection/:provider/:connection" let:meta>

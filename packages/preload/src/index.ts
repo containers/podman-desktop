@@ -216,6 +216,13 @@ function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld(
+    'updateProviderProxySettings',
+    async (providerId: string, proxySettings: containerDesktopAPI.ProviderProxySettings): Promise<void> => {
+      return ipcRenderer.invoke('provider-registry:updateProxySettings', providerId, proxySettings);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'createProviderConnection',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (internalProviderId: string, params: { [key: string]: any }): Promise<void> => {

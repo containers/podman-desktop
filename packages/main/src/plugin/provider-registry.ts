@@ -21,6 +21,7 @@ import type {
   Provider,
   ProviderLifecycle,
   ProviderOptions,
+  ProviderProxySettings,
   ProviderStatus,
 } from '@tmpwip/extension-api';
 import type {
@@ -183,6 +184,12 @@ export class ProviderRegistry {
     );
   }
 
+  // Update the proxy for the given provider
+  async updateProxySettings(providerId: string, proxy: ProviderProxySettings): Promise<void> {
+    const provider = this.getMatchingProvider(providerId);
+    provider.updateProxy(proxy);
+  }
+
   public getProviderContainerConnectionInfo(connection: ContainerProviderConnection): ProviderContainerConnectionInfo {
     const containerProviderConnection: ProviderContainerConnectionInfo = {
       name: connection.name,
@@ -233,6 +240,7 @@ export class ProviderRegistry {
       name: provider.name,
       containerConnections,
       kubernetesConnections,
+      proxySettings: provider.proxy,
       status: provider.status,
       containerProviderConnectionCreation,
     };
