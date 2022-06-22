@@ -4,25 +4,6 @@ import React from 'react';
 import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faBeer,
-  faCertificate,
-  faCloudArrowDown,
-  faCogs,
-  faCubes,
-  faDigging,
-  faEye,
-  faGaugeHigh,
-  faListCheck,
-  faPlug,
-  faPuzzlePiece,
-  faRocket,
-  faGears,
-  faRotateRight,
-  faPaste,
-  faDiagramProject
-} from '@fortawesome/free-solid-svg-icons';
 
 function FeatureManageContainers() {
   return (
@@ -90,15 +71,15 @@ function FeatureManagementFromTrayIcon() {
               Check status and start/stop container engines.
             </p>
             <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">
-              Create new machine if needed.
+              Create new machine if needed as well as start or stop Podman machines directly from the tray icon.
             </p>
             <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">
-              Start or stop Podman machines directly from the tray icon.
+              Quickly check activity status and stay updated without losing focus from other tasks.
             </p>
           </div>
-          <div className="lg:w-5/6 md:w-4/5 w-5/6 flex flex:col gap-10">
+          <div className="lg:w-5/6 md:w-4/5 w-5/6 flex flex:col gap-10 rounded-md">
             <ThemedImage
-              className="py-4"
+              className="py-4 rounded-[20px] shadow-[0_2em_2em_2em_rgba(0,0,0,0)]"
               alt="Manage Podman Machine"
               sources={{
                 light: useBaseUrl('img/features/management-from-tray-icon.png'),
