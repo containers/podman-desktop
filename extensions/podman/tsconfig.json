@@ -7,7 +7,6 @@
     "rootDir": "src",
     "outDir": "dist",
     "target": "esnext",
-    "module": "CommonJS",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "skipLibCheck": true,
