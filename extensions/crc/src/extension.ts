@@ -35,6 +35,11 @@ let crcStatus: Status;
 const crcLogProvider = new LogProvider(commander);
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  // crc is installed or not ?
+  if (!fs.existsSync('/usr/local/bin/crc')) {
+    return;
+  }
+
   // detect preset of CRC
   const preset = await readPreset();
 
