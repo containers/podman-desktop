@@ -116,7 +116,7 @@ async function createOrUpdateRegistry() {
               {/if}
             </label>
           </div>
-          <div class="pf-c-form__group-control">
+          <div class="pf-c-form__group-control pf-u-min-height">
             <input
               class="pf-c-form-control"
               type="text"
@@ -136,11 +136,11 @@ async function createOrUpdateRegistry() {
         <div class="pf-c-form__group">
           <div class="pf-c-form__group-label">
             <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name">
-              <span class="pf-c-form__label-text">username:</span>
+              <span class="pf-c-form__label-text">Username:</span>
               <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
             </label>
           </div>
-          <div class="pf-c-form__group-control">
+          <div class="pf-c-form__group-control pf-u-min-height">
             <input
               class="pf-c-form-control"
               type="text"
@@ -159,11 +159,11 @@ async function createOrUpdateRegistry() {
         <div class="pf-c-form__group">
           <div class="pf-c-form__group-label">
             <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name">
-              <span class="pf-c-form__label-text">password:</span>
+              <span class="pf-c-form__label-text">Password:</span>
               <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
             </label>
           </div>
-          <div class="pf-c-form__group-control">
+          <div class="pf-c-form__group-control pf-u-min-height">
             <input
               class="pf-c-form-control"
               type="password"
