@@ -19,6 +19,7 @@
 import { Disposable } from './types/disposable';
 import type { IDisposable } from './types/disposable';
 import type { ContainerProviderRegistry } from './container-registry';
+
 import type {
   ContainerProviderConnection,
   KubernetesProviderConnection,
@@ -28,8 +29,11 @@ import type {
   ProviderOptions,
   ProviderStatus,
   ProviderConnectionStatus,
+  ProviderProxySettings,
+  Event,
 } from '@tmpwip/extension-api';
 import type { ProviderRegistry } from './provider-registry';
+import { Emitter } from './events/emitter';
 
 export class ProviderImpl implements Provider, IDisposable {
   private containerProviderConnections: Set<ContainerProviderConnection>;
@@ -38,6 +42,12 @@ export class ProviderImpl implements Provider, IDisposable {
   // optional factory
   private _containerProviderConnectionFactory: ContainerProviderConnectionFactory | undefined = undefined;
   private _status: ProviderStatus;
+
+  private proxySettings: ProviderProxySettings | undefined;
+
+  private readonly _onDidUpdateProxy = new Emitter<ProviderProxySettings>();
+
+  readonly onDidUpdateProxy: Event<ProviderProxySettings> = this._onDidUpdateProxy.event;
 
   constructor(
     private _internalId: string,
@@ -61,6 +71,25 @@ export class ProviderImpl implements Provider, IDisposable {
         }
       });
     }, 2000);
+  }
+
+  registerProxy(proxySettings: ProviderProxySettings): Disposable {
+    this.proxySettings = proxySettings;
+    return Disposable.create(() => {
+      this.proxySettings = undefined;
+    });
+  }
+
+  updateProxy(proxy: ProviderProxySettings): void {
+    // notify
+    this._onDidUpdateProxy.fire(proxy);
+
+    // update
+    this.proxySettings = proxy;
+  }
+
+  get proxy(): ProviderProxySettings | undefined {
+    return this.proxySettings;
   }
 
   get containerProviderConnectionFactory(): ContainerProviderConnectionFactory | undefined {

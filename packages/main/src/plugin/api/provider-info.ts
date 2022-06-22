@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderConnectionStatus, ProviderStatus } from '@tmpwip/extension-api';
+import type { ProviderConnectionStatus, ProviderProxySettings, ProviderStatus } from '@tmpwip/extension-api';
 
 export type LifecycleMethod = 'start' | 'stop' | 'delete';
 
@@ -48,4 +48,6 @@ export interface ProviderInfo {
   lifecycleMethods?: LifecycleMethod[];
   // can create provider connection from ContainerProviderConnectionFactory params
   containerProviderConnectionCreation: boolean;
+
+  proxySettings?: ProviderProxySettings;
 }

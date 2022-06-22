@@ -429,6 +429,17 @@ export class PluginSystem {
     );
 
     ipcMain.handle(
+      'provider-registry:updateProxySettings',
+      async (
+        _listener: Electron.IpcMainInvokeEvent,
+        providerId: string,
+        proxySettings: containerDesktopAPI.ProviderProxySettings,
+      ): Promise<void> => {
+        return providerRegistry.updateProxySettings(providerId, proxySettings);
+      },
+    );
+
+    ipcMain.handle(
       'provider-registry:startProviderConnectionLifecycle',
       async (
         _listener: Electron.IpcMainInvokeEvent,

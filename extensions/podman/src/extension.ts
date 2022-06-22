@@ -26,6 +26,7 @@ import { RegistrySetup } from './registry-setup';
 import { isLinux, isMac, isWindows } from './util';
 import { PodmanInstall } from './podman-install';
 import { execPromise, getPodmanCli } from './podman-cli';
+import { PodmanConfiguration } from './podman-configuration';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -294,6 +295,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // register the registries
   const registrySetup = new RegistrySetup();
   await registrySetup.setup(extensionContext);
+
+  const podmanConfiguration = new PodmanConfiguration();
+  await podmanConfiguration.init(provider);
 }
 
 export function deactivate(): void {

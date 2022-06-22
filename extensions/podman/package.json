@@ -79,6 +79,7 @@
     "watch": "rollup --config rollup.config.js -w"
   },
   "dependencies": {
+    "@ltd/j-toml": "^1.30.0",
     "@tmpwip/extension-api": "^0.0.1"
   },
   "devDependencies": {
