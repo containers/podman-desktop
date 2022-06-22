@@ -75,8 +75,8 @@
     }
   },
   "scripts": {
-    "build": "tsc && npx ts-node ./scripts/download.ts && node ./scripts/build.js",
-    "watch": "tsc -w"
+    "build": "rollup --config rollup.config.js --compact --environment BUILD:production && npx ts-node ./scripts/download.ts  && node ./scripts/build.js",
+    "watch": "rollup --config rollup.config.js -w"
   },
   "dependencies": {
     "@tmpwip/extension-api": "^0.0.1"
