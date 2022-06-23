@@ -102,7 +102,7 @@ function Hero() {
             Containers and Kubernetes for application developers
           </h1>
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop leverages <a href="https://podman.io/">Podman Engine</a> to provide a lightweight and deamon-less container tool.
+            Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop leverages <a href="https://podman.io/">Podman Engine</a> to provide a lightweight and daemon-less container tool.
           </p>
           <div className="flex justify-center">
             <iframe
