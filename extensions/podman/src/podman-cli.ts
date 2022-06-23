@@ -69,7 +69,7 @@ export function execPromise(command: string, args?: string[], logger?: extension
   });
 }
 
-interface InstalledPodman {
+export interface InstalledPodman {
   version: string;
 }
 
