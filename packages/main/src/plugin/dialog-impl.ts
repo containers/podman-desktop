@@ -29,6 +29,7 @@ export class Dialogs {
       message: message,
       buttons: items,
       type: type,
+      noLink: true,
     });
     if (result) {
       return items[result.response];
