@@ -90,6 +90,10 @@ const config = {
                 label: 'Introduction',
                 to: '/docs/intro',
               },
+              {
+                label: 'Troubleshooting',
+                to: '/docs/troubleshooting',
+              }
             ],
           },
           {
@@ -107,6 +111,10 @@ const config = {
                 label: 'Chat with us',
                 href: 'https://discordapp.com/invite/TCTB38RWpf',
               },
+              {
+                label: 'Podman Desktop Planning & Roadmap',
+                href: 'https://github.com/containers/podman-desktop/projects?type=beta',
+              }
             ],
           },
         ],
