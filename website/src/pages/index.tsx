@@ -168,7 +168,13 @@ function KeepUpToDate() {
             <p className="leading-relaxed">
               Install Podman and other dependencies directly from Podman Desktop if not yet installed.
             </p>
-            <p className="leading-relaxed">Check for updates/Notify user on Windows and macOS</p>
+            <p className="leading-relaxed">Check for updates and get notified about new changes.</p>
+            <p className="leading-relaxed">
+              Available on <a href="/downloads/windows" className="text-purple-700 dark:text-purple-400" target="_blank">Windows</a>!
+            </p>
+            <p className="leading-relaxed">
+              Coming soon on MacOS.
+            </p>
           </div>
         </div>
       </div>
