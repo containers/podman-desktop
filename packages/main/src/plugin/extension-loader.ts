@@ -172,13 +172,49 @@ export class ExtensionLoader {
       .map(directory => path + '/' + directory.name + `/builtin/${directory.name}.cdix`);
   }
 
+  getBase64Image(imagePath: string): string {
+    const imageContent = fs.readFileSync(imagePath);
+
+    // convert to base64
+    const base64Content = Buffer.from(imageContent).toString('base64');
+
+    const base64Image = `data:image/png;base64,${base64Content}`;
+
+    // create base64 image content
+    return base64Image;
+  }
+
+  /**
+   * Update the image to be a base64 content
+   */
+  updateImage(
+    image: undefined | string | { light: string; dark: string },
+    rootPath: string,
+  ): undefined | string | { light: string; dark: string } {
+    // do nothing if no image
+    if (!image) {
+      return undefined;
+    }
+    if (typeof image === 'string') {
+      return this.getBase64Image(path.resolve(rootPath, image));
+    } else {
+      if (image.light) {
+        image.light = this.getBase64Image(path.resolve(rootPath, image.light));
+      }
+      if (image.dark) {
+        image.dark = this.getBase64Image(path.resolve(rootPath, image.dark));
+      }
+      return image;
+    }
+  }
+
   async loadExtension(extensionPath: string): Promise<void> {
     // load manifest
     const manifest = await this.loadManifest(extensionPath);
     this.overrideRequire();
 
     // create api object
-    const api = this.createApi(manifest);
+    const api = this.createApi(extensionPath, manifest);
 
     const extension: AnalyzedExtension = {
       id: manifest.name,
@@ -203,7 +239,7 @@ export class ExtensionLoader {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createApi(extManifest: any): typeof containerDesktopAPI {
+  createApi(extensionPath: string, extManifest: any): typeof containerDesktopAPI {
     const commandRegistry = this.commandRegistry;
     const commands: typeof containerDesktopAPI.commands = {
       registerCommand(
@@ -224,8 +260,18 @@ export class ExtensionLoader {
     //export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
 
     const containerProviderRegistry = this.providerRegistry;
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const instance = this;
     const provider: typeof containerDesktopAPI.provider = {
       createProvider(providerOptions: containerDesktopAPI.ProviderOptions): containerDesktopAPI.Provider {
+        // update path of images using the extension path
+        if (providerOptions.images) {
+          const images = providerOptions.images;
+          instance.updateImage.bind(instance);
+          images.icon = instance.updateImage(images.icon, extensionPath);
+          images.logo = instance.updateImage(images.logo, extensionPath);
+        }
         return containerProviderRegistry.createProvider(providerOptions);
       },
     };
