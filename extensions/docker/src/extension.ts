@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import * as extensionApi from '@tmpwip/extension-api';
-import * as os from 'os';
+import * as os from 'node:os';
+import * as http from 'node:http';
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   let socketPath: string;
@@ -28,7 +29,48 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     socketPath = '/var/run/docker.sock';
   }
 
-  const provider = extensionApi.provider.createProvider({ name: 'Docker', id: 'docker', status: 'ready' });
+  const url = {
+    path: '/_ping',
+    socketPath,
+  };
+
+  const pingDockerPromise = new Promise<boolean>(resolve => {
+    const req = http.get(url, res => {
+      res.on('data', () => {
+        // do nothing
+      });
+
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    });
+
+    req.once('error', err => {
+      console.debug('Error while pinging docker', err);
+      resolve(false);
+    });
+  });
+
+  // check if docker is running
+  const isDockerRunning = await pingDockerPromise;
+  if (!isDockerRunning) {
+    console.info('Docker is not running, do not register Provider');
+    return;
+  }
+
+  const provider = extensionApi.provider.createProvider({
+    name: 'Docker',
+    id: 'docker',
+    status: 'ready',
+    images: {
+      icon: './icon.png',
+      logo: './icon.png',
+    },
+  });
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: 'Docker',
