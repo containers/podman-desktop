@@ -112,6 +112,7 @@ declare module '@tmpwip/extension-api' {
   }
 
   export type ProviderStatus =
+    | 'not-installed'
     | 'installed'
     | 'configured'
     | 'ready'
@@ -123,8 +124,9 @@ declare module '@tmpwip/extension-api' {
     | 'unknown';
 
   export interface ProviderLifecycle {
+    initialize?(initContext: LifecycleContext): Promise<void>;
     start(startContext: LifecycleContext): Promise<void>;
-    stop(startContext: LifecycleContext): Promise<void>;
+    stop(stopContext: LifecycleContext): Promise<void>;
     status(): ProviderStatus;
   }
 
@@ -134,10 +136,20 @@ declare module '@tmpwip/extension-api' {
     noProxy: string;
   }
 
+  export interface ProviderDetectionCheck {
+    name: string;
+    details?: string;
+    status: boolean;
+  }
+
   export interface ProviderOptions {
     id: string;
     name: string;
     status: ProviderStatus;
+    version?: string;
+    images?: ProviderImages;
+    links?: ProviderLinks[];
+    detectionChecks?: ProviderDetectionCheck[];
   }
 
   export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
@@ -185,8 +197,30 @@ declare module '@tmpwip/extension-api' {
 
   // create programmatically a ContainerProviderConnection
   export interface ContainerProviderConnectionFactory {
+    initialize(): Promise<void>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     create(params: { [key: string]: any }): Promise<void>;
+  }
+
+  export interface ProviderInstallation {
+    // ask to install the provider
+    install(logger: Logger): Promise<void>;
+  }
+
+  export interface ProviderUpdate {
+    version: string;
+    // ask to update the provider
+    update(logger: Logger): Promise<void>;
+  }
+
+  export interface ProviderLinks {
+    title: string;
+    url: string;
+  }
+
+  export interface ProviderImages {
+    icon?: string | { light: string; dark: string };
+    logo?: string | { light: string; dark: string };
   }
 
   export interface Provider {
@@ -198,14 +232,31 @@ declare module '@tmpwip/extension-api' {
     registerLifecycle(lifecycle: ProviderLifecycle): Disposable;
     // Sets the proxy that has been defined in the provider
     registerProxy(proxySettings: ProxySettings): Disposable;
-
     // Podman Desktop has updated the settings, propagates the changes to the provider.
     onDidUpdateProxy: Event<ProxySettings>;
+
+    // register installation flow
+    registerInstallation(installation: ProviderInstallation): Disposable;
+
+    // register update flow
+    registerUpdate(update: ProviderUpdate): Disposable;
 
     dispose(): void;
     readonly name: string;
     readonly id: string;
     readonly status: ProviderStatus;
+    updateStatus(status: ProviderStatus): void;
+    onDidUpdateStatus: Event<ProviderStatus>;
+
+    // version may not be defined
+    readonly version: string | undefined;
+    updateVersion(version: string): void;
+    onDidUpdateVersion: Event<string>;
+
+    readonly images: ProviderImages;
+
+    readonly links: ProviderLinks[];
+    readonly detectionChecks: ProviderDetectionCheck[];
   }
 
   export namespace commands {

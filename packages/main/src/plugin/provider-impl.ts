@@ -31,6 +31,11 @@ import type {
   ProviderConnectionStatus,
   ProviderProxySettings,
   Event,
+  ProviderInstallation,
+  ProviderLinks,
+  ProviderImages,
+  ProviderDetectionCheck,
+  ProviderUpdate,
 } from '@tmpwip/extension-api';
 import type { ProviderRegistry } from './provider-registry';
 import { Emitter } from './events/emitter';
@@ -46,8 +51,18 @@ export class ProviderImpl implements Provider, IDisposable {
   private proxySettings: ProviderProxySettings | undefined;
 
   private readonly _onDidUpdateProxy = new Emitter<ProviderProxySettings>();
-
   readonly onDidUpdateProxy: Event<ProviderProxySettings> = this._onDidUpdateProxy.event;
+
+  private readonly _onDidUpdateStatus = new Emitter<ProviderStatus>();
+  readonly onDidUpdateStatus: Event<ProviderStatus> = this._onDidUpdateStatus.event;
+
+  private _version: string | undefined;
+  private readonly _onDidUpdateVersion = new Emitter<string>();
+  readonly onDidUpdateVersion: Event<string> = this._onDidUpdateVersion.event;
+
+  private _links: ProviderLinks[];
+  private _detectionChecks: ProviderDetectionCheck[];
+  private _images: ProviderImages;
 
   constructor(
     private _internalId: string,
@@ -59,6 +74,11 @@ export class ProviderImpl implements Provider, IDisposable {
     this.containerProviderConnections = new Set();
     this.kubernetesProviderConnections = new Set();
     this._status = providerOptions.status;
+    this._version = providerOptions.version;
+
+    this._links = providerOptions.links || [];
+    this._detectionChecks = providerOptions.detectionChecks || [];
+    this._images = providerOptions.images || {};
 
     // monitor connection statuses
     setInterval(async () => {
@@ -100,8 +120,26 @@ export class ProviderImpl implements Provider, IDisposable {
     return this.providerOptions.name;
   }
 
-  setStatus(status: ProviderStatus): void {
+  get version(): string | undefined {
+    return this._version;
+  }
+  get links(): ProviderLinks[] {
+    return this._links;
+  }
+  get detectionChecks(): ProviderDetectionCheck[] {
+    return this._detectionChecks;
+  }
+
+  get images(): ProviderImages {
+    return this._images;
+  }
+
+  updateStatus(status: ProviderStatus): void {
     this._status = status;
+  }
+
+  updateVersion(version: string): void {
+    this._version = version;
   }
 
   get status(): ProviderStatus {
@@ -158,5 +196,13 @@ export class ProviderImpl implements Provider, IDisposable {
 
   registerLifecycle(lifecycle: ProviderLifecycle): Disposable {
     return this.providerRegistry.registerLifecycle(this, lifecycle);
+  }
+
+  registerInstallation(installation: ProviderInstallation): Disposable {
+    return this.providerRegistry.registerInstallation(this, installation);
+  }
+
+  registerUpdate(update: ProviderUpdate): Disposable {
+    return this.providerRegistry.registerUpdate(this, update);
   }
 }

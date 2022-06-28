@@ -19,10 +19,13 @@
 import type {
   ContainerProviderConnection,
   Provider,
+  ProviderDetectionCheck,
+  ProviderInstallation,
   ProviderLifecycle,
   ProviderOptions,
   ProviderProxySettings,
   ProviderStatus,
+  ProviderUpdate,
 } from '@tmpwip/extension-api';
 import type {
   ProviderContainerConnectionInfo,
@@ -31,7 +34,7 @@ import type {
   LifecycleMethod,
 } from './api/provider-info';
 import type { ContainerProviderRegistry } from './container-registry';
-import { LifecycleContextImpl } from './lifecycle-context';
+import { LifecycleContextImpl, LoggerImpl } from './lifecycle-context';
 import { ProviderImpl } from './provider-impl';
 import type { Telemetry } from './telemetry/telemetry';
 import { Disposable } from './types/disposable';
@@ -59,6 +62,9 @@ export class ProviderRegistry {
 
   private providerLifecycles: Map<string, ProviderLifecycle> = new Map();
   private providerLifecycleContexts: Map<string, LifecycleContextImpl> = new Map();
+  private providerInstallations: Map<string, ProviderInstallation> = new Map();
+  private providerUpdates: Map<string, ProviderUpdate> = new Map();
+
   private connectionLifecycleContexts: Map<ContainerProviderConnection, LifecycleContextImpl> = new Map();
   private listeners: ProviderEventListener[];
   private lifecycleListeners: ProviderLifecycleListener[];
@@ -77,7 +83,7 @@ export class ProviderRegistry {
         if (provider && providerLifecycle) {
           const status = providerLifecycle.status();
           if (status !== this.providerStatuses.get(providerKey)) {
-            provider.setStatus(status);
+            provider.updateStatus(status);
             this.listeners.forEach(listener => listener('provider:update-status', this.getProviderInfo(provider)));
             this.providerStatuses.set(providerKey, status);
           }
@@ -118,6 +124,22 @@ export class ProviderRegistry {
     });
   }
 
+  registerInstallation(providerImpl: ProviderImpl, installation: ProviderInstallation): Disposable {
+    this.providerInstallations.set(providerImpl.internalId, installation);
+
+    return Disposable.create(() => {
+      this.providerInstallations.delete(providerImpl.internalId);
+    });
+  }
+
+  registerUpdate(providerImpl: ProviderImpl, update: ProviderUpdate): Disposable {
+    this.providerUpdates.set(providerImpl.internalId, update);
+
+    return Disposable.create(() => {
+      this.providerUpdates.delete(providerImpl.internalId);
+    });
+  }
+
   getProviderLifecycle(providerInternalId: string): ProviderLifecycle | undefined {
     return this.providerLifecycles.get(providerInternalId);
   }
@@ -155,6 +177,25 @@ export class ProviderRegistry {
     }
   }
 
+  async intializeProviderLifecycle(providerId: string): Promise<void> {
+    const provider = this.getMatchingProvider(providerId);
+    const providerLifecycle = this.getMatchingProviderLifecycle(providerId);
+    const context = this.getMatchingLifecycleContext(providerId);
+
+    if (!providerLifecycle.initialize) {
+      return;
+    }
+
+    this.lifecycleListeners.forEach(listener =>
+      listener('provider:before-initialize-lifecycle', this.getProviderInfo(provider), providerLifecycle),
+    );
+
+    await providerLifecycle.initialize(context);
+    this.lifecycleListeners.forEach(listener =>
+      listener('provider:after-initialize-lifecycle', this.getProviderInfo(provider), providerLifecycle),
+    );
+  }
+
   async startProviderLifecycle(providerId: string): Promise<void> {
     const provider = this.getMatchingProvider(providerId);
     const providerLifecycle = this.getMatchingProviderLifecycle(providerId);
@@ -188,6 +229,77 @@ export class ProviderRegistry {
   async updateProxySettings(providerId: string, proxy: ProviderProxySettings): Promise<void> {
     const provider = this.getMatchingProvider(providerId);
     provider.updateProxy(proxy);
+  }
+
+  async getProviderDetectionChecks(providerInternalId: string): Promise<ProviderDetectionCheck[]> {
+    const provider = this.getMatchingProvider(providerInternalId);
+    return provider.detectionChecks;
+  }
+
+  async installProvider(providerInternalId: string): Promise<void> {
+    const provider = this.getMatchingProvider(providerInternalId);
+
+    const providerInstall = this.providerInstallations.get(providerInternalId);
+    if (!providerInstall) {
+      throw new Error(`No matching installation for provider ${provider.internalId}`);
+    }
+
+    return providerInstall.install(new LoggerImpl());
+  }
+
+  async updateProvider(providerInternalId: string): Promise<void> {
+    const provider = this.getMatchingProvider(providerInternalId);
+
+    const providerUpdate = this.providerUpdates.get(providerInternalId);
+    if (!providerUpdate) {
+      throw new Error(`No matching update for provider ${provider.internalId}`);
+    }
+
+    return providerUpdate.update(new LoggerImpl());
+  }
+
+  // start anything from the provider
+  async startProvider(providerInternalId: string): Promise<void> {
+    const provider = this.getMatchingProvider(providerInternalId);
+
+    // do we have a lifecycle attached to the provider ?
+    if (this.providerLifecycles.has(providerInternalId)) {
+      return this.startProviderLifecycle(providerInternalId);
+    }
+
+    if (provider.containerConnections && provider.containerConnections.length > 0) {
+      const connection = provider.containerConnections[0];
+      const lifecycle = connection.lifecycle;
+      if (!lifecycle || !lifecycle.start) {
+        throw new Error('The container connection does not support start lifecycle');
+      }
+
+      const context = this.connectionLifecycleContexts.get(connection);
+      if (!context) {
+        throw new Error('The connection does not have context to start');
+      }
+
+      return lifecycle.start(context);
+    } else {
+      throw new Error('No container connection found for provider');
+    }
+  }
+
+  // Initialize the provider (if there is something to initialize)
+  async initializeProvider(providerInternalId: string): Promise<void> {
+    const provider = this.getMatchingProvider(providerInternalId);
+
+    // do we have a lifecycle attached to the provider ?
+    if (this.providerLifecycles.has(providerInternalId)) {
+      if (this.providerLifecycles.get(providerInternalId)?.initialize) {
+        return this.intializeProviderLifecycle(providerInternalId);
+      }
+    }
+
+    if (provider.containerProviderConnectionFactory) {
+      return provider.containerProviderConnectionFactory.initialize();
+    }
+    throw new Error('No initialize implementation found for this provider');
   }
 
   public getProviderContainerConnectionInfo(connection: ContainerProviderConnection): ProviderContainerConnectionInfo {
@@ -234,6 +346,19 @@ export class ProviderRegistry {
       containerProviderConnectionCreation = true;
     }
 
+    // handle installation
+    let installationSupport = false;
+    if (this.providerInstallations.has(provider.internalId)) {
+      installationSupport = true;
+    }
+
+    // handle update
+    let updateInfo;
+    if (this.providerUpdates.has(provider.internalId)) {
+      const updateData = this.providerUpdates.get(provider.internalId);
+      updateInfo = { version: updateData?.version };
+    }
+
     const providerInfo: ProviderInfo = {
       id: provider.id,
       internalId: provider.internalId,
@@ -243,6 +368,12 @@ export class ProviderRegistry {
       proxySettings: provider.proxy,
       status: provider.status,
       containerProviderConnectionCreation,
+      links: provider.links,
+      detectionChecks: provider.detectionChecks,
+      images: provider.images,
+      version: provider.version,
+      installationSupport,
+      updateInfo,
     };
 
     // lifecycle ?
@@ -252,10 +383,13 @@ export class ProviderRegistry {
     return providerInfo;
   }
 
+  // providers are sort in reverse alphabetical order
   getProviderInfos(): ProviderInfo[] {
-    return Array.from(this.providers.values()).map(provider => {
-      return this.getProviderInfo(provider);
-    });
+    return Array.from(this.providers.values())
+      .map(provider => {
+        return this.getProviderInfo(provider);
+      })
+      .sort((provider1, provider2) => provider2.name.localeCompare(provider1.name));
   }
 
   // helper method
