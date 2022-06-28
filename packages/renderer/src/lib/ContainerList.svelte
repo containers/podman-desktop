@@ -10,6 +10,8 @@ import ContainerActions from './container/ContainerActions.svelte';
 import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';
 import Modal from './dialogs/Modal.svelte';
 import { ContainerUtils } from './container/container-utils';
+import { providerInfos } from '../stores/providers';
+import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
 
 let openChoiceModal = false;
 
@@ -23,6 +25,11 @@ function fromExistingImage(): void {
 }
 
 let multipleEngines = false;
+
+$: providerConnections = $providerInfos
+  .map(provider => provider.containerConnections)
+  .flat()
+  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 onMount(async () => {
   const containerUtils = new ContainerUtils();
@@ -151,9 +158,12 @@ function fromDockerfile(): void {
       </tbody>
     </table>
   </div>
-  <ContainerEmptyScreen containers="{$filtered}" />
+  {#if providerConnections.length > 0}
+    <ContainerEmptyScreen containers="{$filtered}" />
+  {:else}
+    <NoContainerEngineEmptyScreen />
+  {/if}
 </div>
-
 {#if openChoiceModal}
   <Modal
     on:close="{() => {

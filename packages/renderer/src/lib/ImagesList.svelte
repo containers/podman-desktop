@@ -10,12 +10,19 @@ import ImageActions from './image/ImageActions.svelte';
 import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons';
+import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
+import { providerInfos } from '../stores/providers';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let images: ImageInfoUI[] = [];
 let multipleEngines = false;
+
+$: providerConnections = $providerInfos
+  .map(provider => provider.containerConnections)
+  .flat()
+  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 onMount(async () => {
   filtered.subscribe(value => {
@@ -202,5 +209,9 @@ function getEngineName(containerInfo: ImageInfo): string {
       </tbody>
     </table>
   </div>
-  <ImageEmptyScreen images="{$filtered}" />
+  {#if providerConnections.length > 0}
+    <ImageEmptyScreen images="{$filtered}" />
+  {:else}
+    <NoContainerEngineEmptyScreen />
+  {/if}
 </div>
