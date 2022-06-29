@@ -20,9 +20,26 @@ import { spawn } from 'node:child_process';
 import type * as extensionApi from '@tmpwip/extension-api';
 import { isMac, isWindows } from './util';
 
-export function getPodmanCli(): string {
+const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
+
+export function getInstallationPath(): string {
+  const env = process.env;
   if (isWindows) {
     return 'c:\\Program Files\\RedHat\\Podman\\podman.exe';
+  } else if (isMac) {
+    if (!env.PATH) {
+      return macosExtraPath;
+    } else {
+      return env.PATH.concat(':').concat(macosExtraPath);
+    }
+  } else {
+    return env.PATH;
+  }
+}
+
+export function getPodmanCli(): string {
+  if (isWindows) {
+    return getInstallationPath();
   }
   return 'podman';
 }
@@ -31,12 +48,7 @@ export function execPromise(command: string, args?: string[], logger?: extension
   const env = process.env;
   // In production mode, applications don't have access to the 'user' path like brew
   if (isMac) {
-    const pathToAdd = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
-    if (!env.PATH) {
-      env.PATH = pathToAdd;
-    } else {
-      env.PATH = env.PATH.concat(':').concat(pathToAdd);
-    }
+    env.PATH = getInstallationPath();
   } else if (env.FLATPAK_ID) {
     // need to execute the command on the host
     args = ['--host', command, ...args];
