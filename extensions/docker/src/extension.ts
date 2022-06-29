@@ -29,13 +29,13 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     socketPath = '/var/run/docker.sock';
   }
 
-  const url = {
+  const pingUrl = {
     path: '/_ping',
     socketPath,
   };
 
   const pingDockerPromise = new Promise<boolean>(resolve => {
-    const req = http.get(url, res => {
+    const req = http.get(pingUrl, res => {
       res.on('data', () => {
         // do nothing
       });
@@ -59,6 +59,37 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const isDockerRunning = await pingDockerPromise;
   if (!isDockerRunning) {
     console.info('Docker is not running, do not register Provider');
+    return;
+  }
+
+  const podmanPingUrl = {
+    path: '/libpod/_ping',
+    socketPath,
+  };
+  const podmanPingPromise = new Promise<boolean>(resolve => {
+    const req = http.get(podmanPingUrl, res => {
+      res.on('data', () => {
+        // do nothing
+      });
+
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    });
+
+    req.once('error', err => {
+      console.debug('Error while pinging docker', err);
+      resolve(false);
+    });
+  });
+  // check if it's Podman being disguised as Docker
+  const isPodmanDisguised = await podmanPingPromise;
+  if (isPodmanDisguised) {
+    console.info('Docker is being provided by Podman, do not register Provider');
     return;
   }
 
