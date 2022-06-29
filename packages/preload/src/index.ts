@@ -223,6 +223,41 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'getProviderDetectionChecks',
+    async (providerId: string): Promise<containerDesktopAPI.ProviderDetectionCheck[]> => {
+      return ipcRenderer.invoke('provider-registry:getProviderDetectionChecks', providerId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'installProvider',
+    async (providerId: string): Promise<containerDesktopAPI.ProviderDetectionCheck[]> => {
+      return ipcRenderer.invoke('provider-registry:installProvider', providerId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'updateProvider',
+    async (providerId: string): Promise<containerDesktopAPI.ProviderDetectionCheck[]> => {
+      return ipcRenderer.invoke('provider-registry:updateProvider', providerId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'initializeProvider',
+    async (providerId: string): Promise<containerDesktopAPI.ProviderDetectionCheck[]> => {
+      return ipcRenderer.invoke('provider-registry:initializeProvider', providerId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'startProvider',
+    async (providerId: string): Promise<containerDesktopAPI.ProviderDetectionCheck[]> => {
+      return ipcRenderer.invoke('provider-registry:startProvider', providerId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'createProviderConnection',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (internalProviderId: string, params: { [key: string]: any }): Promise<void> => {
