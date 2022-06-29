@@ -1,18 +1,10 @@
 <script lang="ts">
-import { onMount } from 'svelte';
 import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 export let extensionId: string = undefined;
 
-let extensions: ExtensionInfo[] = [];
-onMount(() => {
-  extensionInfos.subscribe(value => {
-    extensions = value;
-  });
-});
-
 let extensionInfo: ExtensionInfo;
-$: extensionInfo = extensions.find(extension => extension.id === extensionId);
+$: extensionInfo = $extensionInfos.find(extension => extension.id === extensionId);
 
 async function stopExtension() {
   await window.stopExtension(extensionInfo.id);
