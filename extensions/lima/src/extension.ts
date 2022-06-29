@@ -21,27 +21,53 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const socketPath = path.resolve(os.homedir(), '.lima/podman/sock/podman.sock');
-
-  const provider = extensionApi.provider.createProvider({ name: 'Lima', id: 'lima', status: 'unknown' });
-  extensionContext.subscriptions.push(provider);
-
+function registerProvider(
+  extensionContext: extensionApi.ExtensionContext,
+  provider: extensionApi.Provider,
+  providerSocketPath: string,
+): void {
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: 'Lima',
     type: 'podman',
     status: () => 'unknown',
     endpoint: {
-      socketPath,
+      socketPath: providerSocketPath,
     },
   };
 
+  const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
+  provider.updateStatus('started');
+  extensionContext.subscriptions.push(disposable);
+  console.log('Lima extension is active');
+}
+
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  const socketPath = path.resolve(os.homedir(), '.lima/podman-lima/sock/podman.sock');
+  const socketAlternativePath = path.resolve(os.homedir(), '.lima/podman-lima/sock/podman.sock');
+
+  let provider;
+  if (fs.existsSync(socketPath) || fs.existsSync(socketAlternativePath)) {
+    provider = extensionApi.provider.createProvider({
+      name: 'Lima',
+      id: 'lima',
+      status: 'unknown',
+      images: {
+        icon: './icon.png',
+        logo: {
+          dark: './logo-dark.png',
+          light: './logo-light.png',
+        },
+      },
+    });
+    extensionContext.subscriptions.push(provider);
+  }
+
   if (fs.existsSync(socketPath)) {
-    const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
-    extensionContext.subscriptions.push(disposable);
-    console.log('Lima extension is active');
+    registerProvider(extensionContext, provider, socketPath);
+  } else if (fs.existsSync(socketAlternativePath)) {
+    registerProvider(extensionContext, provider, socketAlternativePath);
   } else {
-    console.error(`Could not find podman socket at ${socketPath}`);
+    console.error(`Could not find podman socket at ${socketPath} nor ${socketAlternativePath}`);
   }
 }
 
