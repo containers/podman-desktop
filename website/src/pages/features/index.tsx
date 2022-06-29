@@ -1,6 +1,6 @@
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
-import React from 'react';
+import React, { useState } from 'react';
 import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -65,6 +65,7 @@ function FeatureManageImages() {
 }
 
 function FeatureManagementFromTrayIcon() {
+  const setEffect = useState(false);
   return (
     <div>
       <section className="text-gray-600 bg-zinc-200 dark:bg-zinc-800 dark:text-gray-400 body-font">
@@ -98,8 +99,8 @@ function FeatureManagementFromTrayIcon() {
       </section>
       <section>
         <details className="text-gray-500">
-          <summary className="flex w-full justify-center rounded-lg bg-purple-100 px-4 py-2 font-medium text-purple-900 hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
-            Click Here to Learn More <FontAwesomeIcon size="2x" icon={faChevronDown} className="w-6 h-6 px-3" />
+          <summary className="w-full text-center rounded-lg bg-purple-100 px-4 py-2 font-medium text-purple-900 hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
+            Click Here to Learn More
           </summary>
           <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
             <div className="container px-5 mx-auto flex flex-wrap">
