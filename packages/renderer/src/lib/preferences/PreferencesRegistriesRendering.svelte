@@ -55,48 +55,45 @@ function toggleRegistryModal(): void {
 <div class="flex flex-1 flex-col p-2">
   <h1 class="capitalize text-xl">Registries</h1>
 
-  <div class="container mx-auto">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 space-x-4">
+  <div class="container mx-auto pt-4">
+    <div class="flex flex-wrap">
       {#each registries as registry}
-        <div class="w-full p-4 md:w-60">
-          <div class="p-2 bg-white rounded shadow-md">
-            <div class="flex justify-end flex-wrap ">
-              <button
-                on:click="{() => {
-                  editRegistry(registry);
-                }}"
-                class="inline-block text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-100 focus:outline-none rounded-lg text-sm p-1.5"
-                title="Edit registry"
-                type="button">
-                <i class="fas fa-pen" aria-hidden="true"></i>
-              </button>
-              <button
-                on:click="{() => removeRegistry(registry)}"
-                title="Remove registry"
-                class="inline-block text-gray-500 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-100 focus:outline-none rounded-lg text-sm p-1.5"
-                type="button">
-                <i class="fas fa-times" aria-hidden="true"></i>
-              </button>
-            </div>
-            <div class="px-2">
-              <h2 class="text-xl font-bold font-bol text-gray-800">{registry.serverUrl}</h2>
-              <p class="text-small text-gray-600">{registry.username}</p>
-              <p class="w-full font-extralight text-right text-xs text-gray-800">{registry.source}</p>
-            </div>
+        <div class="flex flex-col mr-4 mb-4 rounded-md shadow-md bg-zinc-700 w-52 h-28 sm:w-60 justify-center">
+          <div class="text-right pr-4">
+            <button
+              on:click="{() => {
+                editRegistry(registry);
+              }}"
+              class="text-gray-100 dark:text-gray-500 hover:bg-gray-600 dark:hover:bg-gray-600 rounded-full w-6"
+              title="Edit registry"
+              type="button">
+              <i class="text-sm text-gray-100 fas fa-pen text-right" aria-hidden="true"></i>
+            </button>
+            <button
+              on:click="{() => {
+                removeRegistry(registry);
+              }}"
+              class="text-gray-100 dark:text-gray-500 hover:bg-gray-600 dark:hover:bg-gray-600 rounded-full w-6"
+              title="Remove registry"
+              type="button">
+              <i class="text-sm text-gray-100 fas fa-times text-right" aria-hidden="true"></i>
+            </button>
           </div>
+          <h2 class="text-xl font-bold font-bol text-gray-100 truncate mx-4" title="{registry.serverUrl}">
+            {registry.serverUrl}
+          </h2>
+          <p class="text-sm pl-4">{registry.username}</p>
+          <p class="text-xs font-extralight text-right pr-4">{registry.source}</p>
         </div>
       {/each}
-      <div class="w-full p-4 md:w-60 md:h-60">
-        <div
-          on:click="{() => {
-            createRegistry();
-          }}"
-          class="p-6 bg-white rounded shadow-md  hover:bg-gray-100 dark:hover:bg-gray-100 hover:cursor-pointer">
-          <div class="px-2 text-center">
-            <div class="text-3xl text-purple-800 fas fa-plus-circle" aria-hidden="true"></div>
-            <h2 class="text-xl font-bold font-bol text-purple-800">Add registry</h2>
-          </div>
-        </div>
+
+      <div
+        on:click="{() => {
+          createRegistry();
+        }}"
+        class="flex flex-col mr-4 mb-4 rounded-md shadow-md bg-zinc-700 hover:bg-gray-600 dark:hover:bg-gray-600 hover:cursor-pointer w-52 h-28 sm:w-60 justify-center text-center">
+        <i class="text-3xl text-gray-100 fas fa-plus-circle" aria-hidden="true"></i>
+        <h2 class="text-xl font-bold font-bol text-gray-100">Add registry</h2>
       </div>
     </div>
   </div>
