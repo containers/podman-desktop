@@ -96,6 +96,11 @@ interface Installer {
   requireUpdate(installedVersion: string): boolean;
   update(): Promise<boolean>;
 }
+interface UpdateCheck {
+  hasUpdate: boolean;
+  installedVersion: string;
+  bundledVersion: string;
+}
 
 export class PodmanInstall {
   private podmanInfo: PodmanInfo;
@@ -107,27 +112,7 @@ export class PodmanInstall {
     //TODO: add Mac(darwin) installer
   }
 
-  async checkAndInstallPodman(): Promise<void> {
-    // check that we have installer for current OS
-    if (!this.isAbleToInstall()) {
-      return;
-    }
-    const podmanInfoRaw = await this.getLastRunInfo();
-    this.podmanInfo = new PodmanInfoImpl(podmanInfoRaw, this.storagePath);
-
-    const installedPodman = await getPodmanInstallation();
-    if (!podmanInfoRaw) {
-      if (!installedPodman) {
-        return this.doInstallPodman();
-      } else {
-        return this.checkUpdate(installedPodman);
-      }
-    } else {
-      return this.checkUpdate(installedPodman);
-    }
-  }
-
-  private async doInstallPodman(): Promise<void> {
+  public async doInstallPodman(): Promise<void> {
     const dialogResult = await extensionApi.window.showInformationMessage(
       `Podman is not installed on this system, would you like to install Podman ${getBundledPodmanVersion()}?`,
       'Yes',
@@ -145,33 +130,44 @@ export class PodmanInstall {
     }
   }
 
-  private async checkUpdate(installedPodman: InstalledPodman | undefined): Promise<void> {
+  public async checkForUpdate(installedPodman: InstalledPodman | undefined): Promise<UpdateCheck> {
+    const podmanInfoRaw = await this.getLastRunInfo();
+    this.podmanInfo = new PodmanInfoImpl(podmanInfoRaw, this.storagePath);
+
     let installedVersion = this.podmanInfo.podmanVersion;
     if (!installedPodman) {
-      return this.doInstallPodman();
+      return { installedVersion: undefined, hasUpdate: false, bundledVersion: undefined };
     } else if (this.podmanInfo.podmanVersion !== installedPodman.version) {
       installedVersion = installedPodman.version;
     }
-
     const installer = this.getInstaller();
     const bundledVersion = getBundledPodmanVersion();
+
     if (
       installer &&
       installer.requireUpdate(installedVersion) &&
       this.podmanInfo.ignoreVersionUpdate !== bundledVersion
     ) {
+      return { installedVersion, hasUpdate: true, bundledVersion };
+    }
+    return { installedVersion, hasUpdate: false, bundledVersion };
+  }
+
+  public async performUpdate(installedPodman: InstalledPodman | undefined): Promise<void> {
+    const updateInfo = await this.checkForUpdate(installedPodman);
+    if (updateInfo.hasUpdate) {
       const answer = await extensionApi.window.showInformationMessage(
-        `You have Podman ${installedVersion}.\nDo you want to update to ${bundledVersion}?`,
+        `You have Podman ${updateInfo.installedVersion}.\nDo you want to update to ${updateInfo.bundledVersion}?`,
         'Yes',
         'No',
         'Ignore',
       );
       if (answer === 'Yes') {
-        await installer.update();
-        this.podmanInfo.podmanVersion = bundledVersion;
+        await this.getInstaller().update();
+        this.podmanInfo.podmanVersion = updateInfo.bundledVersion;
         this.podmanInfo.ignoreVersionUpdate = undefined;
       } else if (answer === 'Ignore') {
-        this.podmanInfo.ignoreVersionUpdate = bundledVersion;
+        this.podmanInfo.ignoreVersionUpdate = updateInfo.bundledVersion;
       }
     }
   }
