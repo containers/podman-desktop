@@ -251,6 +251,29 @@ export class PluginSystem {
       return providerRegistry.getProviderInfos();
     });
 
+    ipcMain.handle(
+      'provider-registry:getProviderDetectionChecks',
+      async (_, providerInternalId: string): Promise<containerDesktopAPI.ProviderDetectionCheck[]> => {
+        return providerRegistry.getProviderDetectionChecks(providerInternalId);
+      },
+    );
+
+    ipcMain.handle('provider-registry:updateProvider', async (_, providerInternalId: string): Promise<void> => {
+      return providerRegistry.updateProvider(providerInternalId);
+    });
+
+    ipcMain.handle('provider-registry:installProvider', async (_, providerInternalId: string): Promise<void> => {
+      return providerRegistry.installProvider(providerInternalId);
+    });
+
+    ipcMain.handle('provider-registry:startProvider', async (_, providerInternalId: string): Promise<void> => {
+      return providerRegistry.startProvider(providerInternalId);
+    });
+
+    ipcMain.handle('provider-registry:initializeProvider', async (_, providerInternalId: string): Promise<void> => {
+      return providerRegistry.initializeProvider(providerInternalId);
+    });
+
     ipcMain.handle('system:get-free-port', async (_, port: number): Promise<number> => {
       return getFreePort(port);
     });
