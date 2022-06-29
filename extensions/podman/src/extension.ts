@@ -25,7 +25,8 @@ import { RegistrySetup } from './registry-setup';
 
 import { isLinux, isMac, isWindows } from './util';
 import { PodmanInstall } from './podman-install';
-import { execPromise, getPodmanCli } from './podman-cli';
+import type { InstalledPodman } from './podman-cli';
+import { execPromise, getInstallationPath, getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
@@ -104,7 +105,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       } else if (isWindows) {
         socketPath = calcWinPipeName(machineName);
       }
-      registerProviderFor(provider, podmanMachinesInfo.get(machineName), socketPath);
+      await registerProviderFor(provider, podmanMachinesInfo.get(machineName), socketPath);
     }),
   );
 
@@ -116,6 +117,20 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       currentConnections.delete(machine);
     }
   });
+
+  // no machine, it's installed
+  if (machines.length === 0) {
+    provider.updateStatus('installed');
+  } else {
+    const atLeastOneMachineRunning = machines.some(machine => machine.Running);
+    // if a machine is running it's started else it is ready
+    if (atLeastOneMachineRunning) {
+      provider.updateStatus('ready');
+    } else {
+      // needs to start a machine
+      provider.updateStatus('configured');
+    }
+  }
 }
 
 function calcWinPipeName(machineName: string): string {
@@ -157,7 +172,11 @@ async function timeout(time: number): Promise<void> {
 async function monitorMachines(provider: extensionApi.Provider) {
   // call us again
   if (!stopLoop) {
-    updateMachines(provider);
+    try {
+      await updateMachines(provider);
+    } catch (error) {
+      // ignore the update of machines
+    }
     await timeout(5000);
     monitorMachines(provider);
   }
@@ -181,12 +200,14 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
       try {
         // start the machine
         await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], context.log);
+        provider.updateStatus('started');
       } catch (err) {
         console.error(err);
       }
     },
     stop: async (context): Promise<void> => {
       await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], context.log);
+      provider.updateStatus('ready');
     },
     delete: async (): Promise<void> => {
       await execPromise(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name]);
@@ -204,6 +225,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   };
 
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
+  provider.updateStatus('ready');
 
   // get configuration for this connection
   const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
@@ -217,48 +239,127 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   storedExtensionContext.subscriptions.push(disposable);
 }
 
+async function registerUpdatesIfAny(
+  provider: extensionApi.Provider,
+  installedPodman: InstalledPodman,
+  podmanInstall: PodmanInstall,
+): Promise<void> {
+  const updateInfo = await podmanInstall.checkForUpdate(installedPodman);
+  if (updateInfo.hasUpdate) {
+    provider.registerUpdate({
+      version: updateInfo.bundledVersion,
+      update: () => podmanInstall.performUpdate(installedPodman),
+    });
+  }
+}
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   storedExtensionContext = extensionContext;
   const podmanInstall = new PodmanInstall(extensionContext.storagePath);
-  await podmanInstall.checkAndInstallPodman();
 
-  const provider = extensionApi.provider.createProvider({ name: 'Podman', id: 'podman', status: 'unknown' });
+  const installedPodman = await getPodmanInstallation();
+  const version: string | undefined = installedPodman?.version;
+
+  const detectionChecks: extensionApi.ProviderDetectionCheck[] = [];
+  let status: extensionApi.ProviderStatus = 'not-installed';
+  if (version) {
+    detectionChecks.push({
+      name: `Podman ${version} found`,
+      status: true,
+    });
+    status = 'installed';
+  } else {
+    detectionChecks.push({
+      name: 'podman cli was not found in the PATH',
+      details: `Current path is ${getInstallationPath()}`,
+      status: false,
+    });
+  }
+
+  const providerOptions: extensionApi.ProviderOptions = {
+    name: 'Podman',
+    id: 'podman',
+    detectionChecks,
+    status,
+    version,
+  };
+
+  // add images
+  providerOptions.images = {
+    icon: './icon.png',
+    logo: './logo.png',
+  };
+
+  // add links
+  providerOptions.links = [
+    {
+      title: 'Visit the Podman Website',
+      url: 'https://podman.io/',
+    },
+    {
+      title: 'Read the Podman installation guide',
+      url: 'https://podman.io/getting-started/installation',
+    },
+    {
+      title: 'Joing the Podman Community',
+      url: 'https://podman.io/community/',
+    },
+  ];
+
+  const provider = extensionApi.provider.createProvider(providerOptions);
+  // provide an installation path ?
+  if (podmanInstall.isAbleToInstall()) {
+    provider.registerInstallation({ install: () => podmanInstall.doInstallPodman() });
+  }
+
+  // provide an installation path ?
+  // add update information asynchronously
+  registerUpdatesIfAny(provider, installedPodman, podmanInstall);
+
   extensionContext.subscriptions.push(provider);
 
   // allows to create machines
   if (isMac || isWindows) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const createFunction = async (params: { [key: string]: any }): Promise<void> => {
+      const parameters = [];
+      parameters.push('machine');
+      parameters.push('init');
+
+      // cpus
+      if (params['podman.factory.machine.cpus']) {
+        parameters.push('--cpus');
+        parameters.push(params['podman.factory.machine.cpus']);
+      }
+
+      // memory
+      if (params['podman.factory.machine.memory']) {
+        parameters.push('--memory');
+        parameters.push(params['podman.factory.machine.memory']);
+      }
+
+      // disk size
+      if (params['podman.factory.machine.diskSize']) {
+        parameters.push('--disk-size');
+        parameters.push(params['podman.factory.machine.diskSize']);
+      }
+
+      // name at the end
+      if (params['podman.factory.machine.name']) {
+        parameters.push(params['podman.factory.machine.name']);
+      }
+
+      // name at the end
+      if (params['podman.factory.machine.now']) {
+        parameters.push('--now');
+      }
+
+      await execPromise(getPodmanCli(), parameters);
+    };
+
     provider.setContainerProviderConnectionFactory({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      create: async (params: { [key: string]: any }): Promise<void> => {
-        const parameters = [];
-        parameters.push('machine');
-        parameters.push('init');
-
-        // cpus
-        if (params['podman.factory.machine.cpus']) {
-          parameters.push('--cpus');
-          parameters.push(params['podman.factory.machine.cpus']);
-        }
-
-        // memory
-        if (params['podman.factory.machine.memory']) {
-          parameters.push('--memory');
-          parameters.push(params['podman.factory.machine.memory']);
-        }
-
-        // disk size
-        if (params['podman.factory.machine.diskSize']) {
-          parameters.push('--disk-size');
-          parameters.push(params['podman.factory.machine.diskSize']);
-        }
-
-        // name at the end
-        if (params['podman.factory.machine.name']) {
-          parameters.push(params['podman.factory.machine.name']);
-        }
-
-        await execPromise(getPodmanCli(), parameters);
-      },
+      initialize: () => createFunction({}),
+      create: createFunction,
     });
   }
 
