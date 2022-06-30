@@ -558,7 +558,7 @@ export class ProviderRegistry {
     // notify listeners
     this.containerConnectionLifecycleListeners.forEach(listener => {
       listener(
-        'provider-container-connection::unregister',
+        'provider-container-connection:unregister',
         this.getProviderInfo(provider),
         this.getProviderContainerConnectionInfo(containerConnection),
       );
