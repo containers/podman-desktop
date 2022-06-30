@@ -68,6 +68,11 @@ export class TrayMenu {
           containerConnections: [],
           kubernetesConnections: [],
           lifecycleMethods: [],
+          detectionChecks: [],
+          version: '',
+          links: [],
+          images: {},
+          installationSupport: false,
           containerProviderConnectionCreation: false,
         });
       }
@@ -245,7 +250,14 @@ export class TrayMenu {
 
   private createProviderConnectionMenuItem(
     providerContainerConnectionInfoMenuItem: ProviderContainerConnectionInfoMenuItem,
-  ): MenuItemConstructorOptions {
+  ): MenuItemConstructorOptions | undefined {
+    if (!providerContainerConnectionInfoMenuItem.lifecycleMethods) {
+      return {
+        label: providerContainerConnectionInfoMenuItem.name,
+        icon: this.getStatusIcon(providerContainerConnectionInfoMenuItem.status),
+      };
+    }
+
     const result: MenuItemConstructorOptions = {
       label: providerContainerConnectionInfoMenuItem.name,
       icon: this.getStatusIcon(providerContainerConnectionInfoMenuItem.status),
