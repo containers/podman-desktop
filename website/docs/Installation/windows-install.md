@@ -37,5 +37,21 @@ Once the machine is created, you can click on the Start button in the Machine Se
 
 ![img3](img/machine.png)
 
+### c. Command Line
+
+Using the following two commands in the command line, you can initialize and start a Podman Machine the classic way!
+
+To initialize the machine, the command is
+
+```sh
+podman machine init
+```
+
+After which, you can start the machine with the command
+
+```sh
+podman machine start
+```
+
 **Well that's just it. You shall now be all set to use Podman Desktop on Windows!**
 
