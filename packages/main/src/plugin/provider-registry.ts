@@ -352,13 +352,6 @@ export class ProviderRegistry {
       installationSupport = true;
     }
 
-    // handle update
-    let updateInfo;
-    if (this.providerUpdates.has(provider.internalId)) {
-      const updateData = this.providerUpdates.get(provider.internalId);
-      updateInfo = { version: updateData?.version };
-    }
-
     const providerInfo: ProviderInfo = {
       id: provider.id,
       internalId: provider.internalId,
@@ -373,8 +366,13 @@ export class ProviderRegistry {
       images: provider.images,
       version: provider.version,
       installationSupport,
-      updateInfo,
     };
+
+    // handle update
+    const updateData = this.providerUpdates.get(provider.internalId);
+    if (updateData) {
+      providerInfo.updateInfo = { version: updateData.version };
+    }
 
     // lifecycle ?
     if (this.providerLifecycles.has(provider.internalId)) {

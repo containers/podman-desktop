@@ -58,7 +58,7 @@ export interface ProviderInfo {
 
   proxySettings?: ProviderProxySettings;
 
-  version: string | undefined;
+  version?: string;
 
   links: ProviderLinks[];
   detectionChecks: ProviderDetectionCheck[];
