@@ -381,6 +381,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     }
     const podmanProcess = spawn(command, args);
     await timeout(500);
+    provider.updateStatus('ready');
     const disposable = extensionApi.Disposable.create(() => {
       podmanProcess.kill();
     });
