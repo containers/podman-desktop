@@ -15,9 +15,21 @@ If you don't have Podman installed in your Windows computer, Podman Desktop will
 
 ![img1](img/homescreen.png)
 
-### 3. Initialize & Start the Podman Machine
+## 3. Initialize & Start the Podman Machine
 
-In order to initialize a new Podman Machine, go to Preferences on the menu present in the left-side of the application. Under Resources, you will find Podman. Clicking on it shall load the configuration settings for the machine. Enter the values that deem fit for your purpose and click on the "Create" button.
+### a. Default Configurations
+
+Once Podman is installed, you will see a toggle button at "Home" window that will allow you to initialize a Podman Machine with default configurations. Simply activate the toggle to proceed.
+
+![img2](img/initialize.png)
+
+After initializing a Podman Machine, you should see a toggle to Run Podman. This will start the Podman Machine upon activation.
+
+![img3](img/starting.png)
+
+### b. Custom Configurations
+
+In order to initialize a Podman Machine with custom configurations, go to "Preferences" on the menu present in the left-side of the application. Under Resources, you will find Podman. Clicking on it shall load the configuration settings for the machine. Enter the values that deem fit for your purpose and click on the "Create" button.
 
 ![img2](img/create.png)
 
@@ -25,5 +37,5 @@ Once the machine is created, you can click on the Start button in the Machine Se
 
 ![img3](img/machine.png)
 
-After which, you will be all set to use Podman Desktop on Windows!
+**Well that's just it. You shall now be all set to use Podman Desktop on Windows!**
 
