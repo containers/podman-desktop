@@ -20,21 +20,26 @@ import * as extensionApi from '@tmpwip/extension-api';
 import * as os from 'node:os';
 import * as http from 'node:http';
 
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  let socketPath: string;
-  const isWindows = os.platform() === 'win32';
-  if (isWindows) {
-    socketPath = '//./pipe/docker_engine';
-  } else {
-    socketPath = '/var/run/docker.sock';
-  }
+let stopLoop = false;
 
+let socketPath: string;
+let provider: extensionApi.Provider;
+let providerState: extensionApi.ProviderConnectionStatus = 'stopped';
+let containerProviderConnection: extensionApi.ContainerProviderConnection;
+let containerProviderConnectionDisposable: extensionApi.Disposable;
+
+async function timeout(time: number): Promise<void> {
+  return new Promise<void>(resolve => {
+    setTimeout(resolve, time);
+  });
+}
+async function isDockerDaemonAlive(socketPath: string): Promise<boolean> {
   const pingUrl = {
     path: '/_ping',
     socketPath,
   };
 
-  const pingDockerPromise = new Promise<boolean>(resolve => {
+  return new Promise<boolean>(resolve => {
     const req = http.get(pingUrl, res => {
       res.on('data', () => {
         // do nothing
@@ -49,24 +54,18 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       });
     });
 
-    req.once('error', err => {
-      console.debug('Error while pinging docker', err);
+    req.once('error', () => {
       resolve(false);
     });
   });
+}
 
-  // check if docker is running
-  const isDockerRunning = await pingDockerPromise;
-  if (!isDockerRunning) {
-    console.info('Docker is not running, do not register Provider');
-    return;
-  }
-
+async function isDisguisedPodman(socketPath: string): Promise<boolean> {
   const podmanPingUrl = {
     path: '/libpod/_ping',
     socketPath,
   };
-  const podmanPingPromise = new Promise<boolean>(resolve => {
+  return new Promise<boolean>(resolve => {
     const req = http.get(podmanPingUrl, res => {
       res.on('data', () => {
         // do nothing
@@ -82,18 +81,78 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     });
 
     req.once('error', err => {
-      console.debug('Error while pinging docker', err);
+      console.debug('Error while pinging docker as podman', err);
       resolve(false);
     });
   });
-  // check if it's Podman being disguised as Docker
-  const isPodmanDisguised = await podmanPingPromise;
-  if (isPodmanDisguised) {
-    console.info('Docker is being provided by Podman, do not register Provider');
-    return;
+}
+
+async function monitorDaemon(extensionContext: extensionApi.ExtensionContext) {
+  // call us again
+  if (!stopLoop) {
+    try {
+      await updateProvider(extensionContext);
+    } catch (error) {
+      // ignore the update of machines
+    }
+    await timeout(5000);
+    monitorDaemon(extensionContext);
+  }
+}
+
+async function updateProvider(extensionContext: extensionApi.ExtensionContext) {
+  // check if the daemon is alive
+  const isAlive = await isDockerDaemonAlive(socketPath);
+
+  // alive
+  if (isAlive) {
+    // but was stopped before, needs to update the provider state
+    if (providerState === 'stopped') {
+      // first we check that it's not podman behind
+      const isPodman = await isDisguisedPodman(socketPath);
+      if (!isPodman) {
+        // if no provider, create one
+        if (!provider) {
+          initProvider(extensionContext);
+        }
+
+        console.log('updating status to started');
+        providerState = 'started';
+        // register again the connection
+        containerProviderConnectionDisposable =
+          provider.registerContainerProviderConnection(containerProviderConnection);
+        extensionContext.subscriptions.push(containerProviderConnectionDisposable);
+
+        provider.updateStatus('started');
+      }
+    }
+  } else {
+    // no longer alive but it was running before so we need to update status
+    if (providerState === 'started') {
+      console.log('updating status to stopped');
+      // dispose the current connection
+      console.log('dispose the connection', containerProviderConnectionDisposable);
+      containerProviderConnectionDisposable?.dispose();
+      providerState = 'stopped';
+      provider.updateStatus('stopped');
+    }
+  }
+}
+
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  const isWindows = os.platform() === 'win32';
+  if (isWindows) {
+    socketPath = '//./pipe/docker_engine';
+  } else {
+    socketPath = '/var/run/docker.sock';
   }
 
-  const provider = extensionApi.provider.createProvider({
+  // monitor daemon
+  monitorDaemon(extensionContext);
+}
+
+function initProvider(extensionContext: extensionApi.ExtensionContext) {
+  provider = extensionApi.provider.createProvider({
     name: 'Docker',
     id: 'docker',
     status: 'ready',
@@ -103,20 +162,21 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   });
 
-  const containerProviderConnection: extensionApi.ContainerProviderConnection = {
+  containerProviderConnection = {
     name: 'Docker',
     type: 'docker',
-    status: () => 'started',
+    status: () => providerState,
     endpoint: {
       socketPath,
     },
   };
 
-  const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
-  extensionContext.subscriptions.push(disposable);
+  // provider is started
+  providerState = 'started';
   extensionContext.subscriptions.push(provider);
 }
 
 export function deactivate(): void {
+  stopLoop = true;
   console.log('stopping docker extension');
 }
