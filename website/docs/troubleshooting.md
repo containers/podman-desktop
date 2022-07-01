@@ -8,7 +8,7 @@ Here, find some answers to the question : I have downloaded Podman Desktop but I
 
 ## Podman
 
-### system requirements
+### System Requirements
 
 The tool connects to Podman using the socket on the host on macOS and on a named pipe on Windows. This is available only on podman 4.0.2+
 So, please check your version and update.
@@ -44,6 +44,30 @@ Website:   https://podman.io
 Documents: https://docs.podman.io
 Twitter:   @Podman_io
 ```
+
+### Fixing corrupted Podman Machine in Windows
+
+If at all you are not able to stop your Podman Machine, you will find such an error in the Logs-
+```Error: Error stopping sysd: exit status 1```
+
+It is highly unlikely that you may be stuck in such a situation but if you are, here's a quick fix for it.
+
+Assuming the name of the Podman Machine to be **"my-machine"**, run the following commands in the terminal:
+
+```sh
+wsl --list
+```
+
+This shall display a list of active distributions i.e. "my-machine" in this case.
+
+Then,
+
+```sh
+wsl --unregister my-machine
+```
+(Replacing ```my-machine``` with the name that is displayed under ```wsl --list``` for your Podman Machine)
+
+This will stop the Podman Machine for you.
 
 ## Code Ready Containers
 
