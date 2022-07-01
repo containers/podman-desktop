@@ -71,7 +71,7 @@ onMount(() => {
           <span class="ml-3 text-xl block text-gray-300">Podman Desktop</span>
         </div>
         <div class="lg:w-2/5 flex-1 lg:justify-end ml-5 lg:ml-0"></div>
-        <div class="flex">
+        <div class="flex" style="-webkit-app-region: none;">
           <a
             href="/help"
             class="p-1 rounded-full {meta.url === '/help'
