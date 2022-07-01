@@ -7,6 +7,7 @@ import ProviderNotInstalled from './ProviderNotInstalled.svelte';
 import ProviderReady from './ProviderReady.svelte';
 import ProviderInstalled from './ProviderInstalled.svelte';
 import ProviderConfigured from './ProviderConfigured.svelte';
+import ProviderStopped from './ProviderStopped.svelte';
 
 let providers: ProviderInfo[] = [];
 $: providerConnections = providers
@@ -17,9 +18,8 @@ $: providerConnections = providers
 $: providersNotInstalled = providers.filter(provider => provider.status === 'not-installed');
 $: providersInstalled = providers.filter(provider => provider.status === 'installed');
 $: providersConfigured = providers.filter(provider => provider.status === 'configured');
-$: providersReady = providers.filter(
-  provider => provider.status === 'ready' || provider.status === 'started' || provider.status === 'stopped',
-);
+$: providersReady = providers.filter(provider => provider.status === 'ready' || provider.status === 'started');
+$: providersStopped = providers.filter(provider => provider.status === 'stopped');
 
 onMount(() => {
   providerInfos.subscribe(value => {
@@ -58,6 +58,13 @@ onMount(() => {
       {#if providersNotInstalled.length > 0}
         {#each providersNotInstalled as providerNotInstalled}
           <ProviderNotInstalled provider="{providerNotInstalled}" />
+        {/each}
+      {/if}
+
+      <!-- Provider is stopped -->
+      {#if providersStopped.length > 0}
+        {#each providersStopped as providerStopped}
+          <ProviderStopped provider="{providerStopped}" />
         {/each}
       {/if}
     </div>
