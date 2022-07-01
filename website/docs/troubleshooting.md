@@ -58,7 +58,7 @@ Assuming the name of the Podman Machine to be **"my-machine"**, run the followin
 wsl --list
 ```
 
-This shall display a list of active distributions i.e. "my-machine" in this case.
+This shall display a list of active distributions i.e. `my-machine` in this case.
 
 Then,
 
