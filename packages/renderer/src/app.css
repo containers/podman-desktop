@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+ /* Disable dragging elements */
+*, *::after, *::before {
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-user-drag: none;
+	-webkit-app-region: no-drag;
+}
