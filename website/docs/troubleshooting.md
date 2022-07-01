@@ -52,7 +52,7 @@ If at all you are not able to stop your Podman Machine, you will find such an er
 
 It is highly unlikely that you may be stuck in such a situation but if you are, here's a quick fix for it.
 
-Assuming the name of the Podman Machine to be **"my-machine"**, run the following commands in the terminal:
+Assuming the name of the Podman Machine to be `my-machine`, run the following commands in the terminal:
 
 ```sh
 wsl --list
