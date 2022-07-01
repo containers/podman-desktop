@@ -65,7 +65,7 @@ Then,
 ```sh
 wsl --unregister my-machine
 ```
-(Replacing ```my-machine``` with the name that is displayed under ```wsl --list``` for your Podman Machine)
+(Replacing `my-machine` with the name that is displayed under `wsl --list` for your Podman Machine)
 
 This will stop the Podman Machine for you.
 
