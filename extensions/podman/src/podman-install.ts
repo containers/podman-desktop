@@ -215,7 +215,7 @@ abstract class BaseInstaller implements Installer {
   abstract update(): Promise<boolean>;
 
   requireUpdate(installedVersion: string): boolean {
-    return compareVersions.compare(installedVersion, getBundledPodmanVersion(), '<=');
+    return compareVersions.compare(installedVersion, getBundledPodmanVersion(), '<');
   }
 
   protected getAssetsFolder(): string {
