@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
- /* Disable dragging elements */
-*, *::after, *::before {
+ /* Disable dragging links elements */
+a {
 	-webkit-user-select: none;
 	user-select: none;
 	-webkit-user-drag: none;
