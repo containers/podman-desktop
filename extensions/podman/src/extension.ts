@@ -301,7 +301,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       url: 'https://podman.io/getting-started/installation',
     },
     {
-      title: 'Joing the Podman Community',
+      title: 'Join the Podman Community',
       url: 'https://podman.io/community/',
     },
   ];
