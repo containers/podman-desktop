@@ -39,4 +39,4 @@ body:
     id: additional-context
     attributes:
       label: Additional context
-      description: Add any other context or screenshots about the feature here.
+      description: Add any other context or screenshots here.

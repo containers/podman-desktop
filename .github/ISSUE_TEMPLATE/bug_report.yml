@@ -1,7 +1,7 @@
 name: Bug 🐞
 description: Report a bug report
 labels: [kind/bug]
- 
+
 body:
   - type: markdown
     attributes:
@@ -18,13 +18,13 @@ body:
       label: Bug description
       description: What happened?
     validations:
-      required: true 
+      required: true
 
   - type: input
     id: os
     attributes:
       label: Operating system
-      description: "Which operating system do you use? Please provide the version as well. If you are on a Mac, please precise if you are Silicon or Intel."
+      description: "Which operating system are you on? Please provide the version as well. If you are on a Mac, please specify Apple silicon or Intel."
       placeholder: "macOS Monterey 12.2.1 (Intel)"
     validations:
       required: true 
@@ -33,10 +33,13 @@ body:
     id: version
     attributes:
       label: Version
-      description: What version of our software are you running?
+      description: What version of the software are you running?
       options:
         - "0.0.1"
         - "0.0.2"
+        - "0.0.3"
+        - "0.0.4"
+        - "0.0.5"
         - "next (development version)"
     validations:
       required: true 
@@ -45,7 +48,7 @@ body:
     id: steps
     attributes:
       label: Steps to reproduce
-      description: Which steps do we need to take to reproduce this error? 
+      description: What steps do we need to take to reproduce this error? 
 
   - type: textarea
     id: logs
@@ -58,4 +61,4 @@ body:
     id: additional-context
     attributes:
       label: Additional context
-      description: Add any other context or screenshots about the enhancement here.
+      description: Add any other context or screenshots here.
