@@ -44,7 +44,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const preset = await readPreset();
 
   // create CRC provider
-  const provider = extensionApi.provider.createProvider({ name: 'CRC', id: 'crc', status: 'unknown' });
+  const provider = extensionApi.provider.createProvider({
+    name: 'CRC',
+    id: 'crc',
+    status: 'unknown',
+    images: {
+      icon: './icon.png',
+      logo: './icon.png',
+    },
+  });
   extensionContext.subscriptions.push(provider);
 
   const daemonStarted = await daemonStart();
