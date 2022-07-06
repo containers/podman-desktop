@@ -8,7 +8,9 @@ export let provider: ProviderInfo;
 let logo;
 
 onMount(() => {
-  if (typeof provider.images.logo === 'string') {
+  if (provider.images.logo === undefined) {
+    return;
+  } else if (typeof provider.images.logo === 'string') {
     logo = provider.images.logo;
   } else {
     // for now use dark theme
