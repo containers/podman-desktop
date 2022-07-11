@@ -26,7 +26,17 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import Admonition from '@theme/Admonition';
 
+function EAP() {
+  return (
+    <div>
+      <Admonition type="info" title="Join our Early Adopter Program!">
+        <p>We are seeking users who are interested in helping us improve Podman Desktop. Register your interest to join our Early Adopter Program by filling <Link to="https://forms.gle/ow73dV7Ce3YLzoXH7"><u>this form</u></Link>.</p>
+      </Admonition>
+    </div>
+  );
+}
 
 function DownloadClientLinks() {
   let operatingSystem = '';
@@ -553,6 +563,7 @@ export default function Home(): JSX.Element {
   return (
     <Layout title="Leverage Podman with a Desktop App" description="Containers and Kubernetes for application developers">
       <TailWindThemeSelector />
+      <EAP />
       <Hero />
       <RunAnywhere />
       <MainFeatures />
