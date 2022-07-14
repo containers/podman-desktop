@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as os from 'node:os';
 import got from 'got';
+import { isWindows } from './util';
 
 export interface Status {
   readonly CrcStatus: string;
@@ -35,7 +35,9 @@ export class DaemonCommander {
   constructor() {
     this.apiPath = `http://unix:${process.env.HOME}/.crc/crc-http.sock:/api`;
 
-    if (os.platform() === 'win32') this.apiPath = 'http://unix://?/pipe/crc-http:/api';
+    if (isWindows) {
+      this.apiPath = 'http://unix://?/pipe/crc-http:/api';
+    }
   }
 
   async status(): Promise<Status> {
@@ -45,9 +47,9 @@ export class DaemonCommander {
       const { body } = await got.get(url);
       return JSON.parse(body);
     } catch (error) {
-      console.log('Error getting status:', error);
+      // ignore status error, as it may happen when no cluster created
       return {
-        CrcStatus: 'Not running',
+        CrcStatus: 'No Cluster',
       };
     }
   }
