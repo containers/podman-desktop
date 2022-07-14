@@ -1,0 +1,25 @@
+name: Epic
+description: A high-level feature
+labels: [kind/epic]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Epics are normally created by the development team, to group a set of related features and plan work across multiple sprints.
+        The features this epic includes are referenced with the text of the epic. 
+
+  - type: textarea
+    id: domain
+    attributes:
+      label: Epic domain
+      description: A clear and concise description of the feature area or domain that this epic will address.
+      placeholder: Podman Desktop should support [...]
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context or screenshots here.
