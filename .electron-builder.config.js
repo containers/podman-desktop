@@ -64,7 +64,7 @@ const config = {
       // System notifications with libnotify
       '--talk-name=org.freedesktop.Notifications',
     ],
-    useWaylandFlags: 'true',
+    useWaylandFlags: 'false',
     artifactName: 'podman-desktop-${version}.${ext}',
     runtimeVersion: '21.08',
     branch: 'main',
