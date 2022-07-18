@@ -99,11 +99,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     registerOpenShiftLocalCluster(provider, extensionContext);
   }
 
-  provider.setContainerProviderConnectionFactory({
-    initialize: () => {console.error('InitCRC'); return Promise.resolve();},
-    create: () => {console.error('CreateCRC'); return Promise.resolve();},
-  });
-
   startStatusUpdateTimer();
 }
 
@@ -234,7 +229,6 @@ function convertToProviderStatus(crcStatus: string): extensionApi.ProviderStatus
       return 'unknown';
   }
 }
-
 
 async function startStatusUpdateTimer(): Promise<void> {
   statusFetchTimer = setInterval(async () => {
