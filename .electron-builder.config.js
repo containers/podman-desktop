@@ -29,7 +29,7 @@ if (process.env.VITE_APP_VERSION === undefined) {
  */
 const config = {
   productName: 'Podman Desktop',
-  appId: 'com.github.containers.desktop',
+  appId: 'io.podman_desktop.PodmanDesktop',
   directories: {
     output: 'dist',
     buildResources: 'buildResources',
