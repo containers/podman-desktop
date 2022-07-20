@@ -70,6 +70,7 @@ const config = {
     branch: 'main',
     files: [
       ['.flatpak-appdata.xml', '/share/metainfo/io.podman_desktop.PodmanDesktop.metainfo.xml'],
+      ['buildResources/icon-512x512.png', '/share/icons/hicolor/512x512/apps/io.podman_desktop.PodmanDesktop.png'],
     ],
   },
   linux: {
