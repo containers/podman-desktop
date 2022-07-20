@@ -145,7 +145,7 @@ function getEngineName(containerInfo: ImageInfo): string {
         </div>
       </div>
       <div class="flex flex-1 justify-end">
-        <div class="py-5 px-5 space-x-2">
+        <div class="py-5 px-5 space-x-2 flex flex-nowrap">
           <button on:click="{() => gotoPullImage()}" class="pf-c-button pf-m-primary" type="button">
             <span class="pf-c-button__icon pf-m-start">
               <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
