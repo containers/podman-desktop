@@ -68,6 +68,9 @@ const config = {
     artifactName: 'podman-desktop-${version}.${ext}',
     runtimeVersion: '21.08',
     branch: 'main',
+    files: [
+      ['.flatpak-appdata.xml', '/share/metainfo/io.podman_desktop.PodmanDesktop.metainfo.xml'],
+    ],
   },
   linux: {
     icon: './buildResources/icon-512x512.png',
