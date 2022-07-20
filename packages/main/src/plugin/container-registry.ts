@@ -26,7 +26,7 @@ import type { ProviderContainerConnectionInfo } from './api/provider-info';
 import type { ImageRegistry } from './image-registry';
 import type { PullEvent } from './api/pull-event';
 import type { Telemetry } from './telemetry/telemetry';
-
+import * as crypto from 'node:crypto';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 export interface InternalContainerProvider {
@@ -288,8 +288,7 @@ export class ContainerProviderRegistry {
   async pushImage(engineId: string, imageTag: string, callback: (name: string, data: string) => void): Promise<void> {
     const engine = this.getMatchingEngine(engineId);
     const image = await engine.getImage(imageTag);
-    this.telemetryService.track('pushImage');
-
+    this.telemetryService.track('pushImage', { imageName: this.getImageHash(imageTag) });
     const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
     const pushStream = await image.push({ authconfig });
     pushStream.on('end', () => {
@@ -310,6 +309,7 @@ export class ContainerProviderRegistry {
     imageName: string,
     callback: (event: PullEvent) => void,
   ): Promise<void> {
+    this.telemetryService.track('pullImage', { imageName: this.getImageHash(imageName) });
     const authconfig = this.imageRegistry.getAuthconfigForImage(imageName);
     const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
     const pullStream = await matchingEngine.pull(imageName, {
@@ -337,6 +337,10 @@ export class ContainerProviderRegistry {
     matchingEngine.modem.followProgress(pullStream, onFinished, onProgress);
 
     return promise;
+  }
+
+  getImageHash(imageName: string): string {
+    return crypto.createHash('sha512').update(imageName).digest('hex');
   }
 
   async deleteContainer(engineId: string, id: string): Promise<void> {
