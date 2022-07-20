@@ -29,7 +29,7 @@ if (process.env.VITE_APP_VERSION === undefined) {
  */
 const config = {
   productName: 'Podman Desktop',
-  appId: 'com.github.containers.desktop',
+  appId: 'io.podman_desktop.PodmanDesktop',
   directories: {
     output: 'dist',
     buildResources: 'buildResources',
@@ -68,6 +68,9 @@ const config = {
     artifactName: 'podman-desktop-${version}.${ext}',
     runtimeVersion: '21.08',
     branch: 'main',
+    files: [
+      ['.flatpak-appdata.xml', '/share/metainfo/io.podman_desktop.PodmanDesktop.metainfo.xml'],
+    ],
   },
   linux: {
     icon: './buildResources/icon-512x512.png',

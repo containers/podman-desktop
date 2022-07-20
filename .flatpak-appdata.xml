@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<component type="desktop">
+  <id>io.podman_desktop.PodmanDesktop</id>
+  <name>Podman Desktop</name>
+  <project_license>Apache-2.0</project_license>
+  <developer_name>Red Hat, Inc.</developer_name>
+  <summary>Manage Podman and other container engines from a single UI and tray.</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <url type="homepage">https://podman-desktop.io/</url>
+  <url type="bugtracker">https://github.com/containers/podman-desktop/issues</url>
+  <url type="help">https://podman-desktop.io/docs/intro</url>
+  <description>
+    <p>Containers and Kubernetes for application developers</p>
+    <p>Build, run and manage containers:</p>
+    <ul>
+      <li>Build images from Containerfile or Dockerfile.</li>
+      <li>Pull images from remote registries.</li>
+      <li>Start, Stop, Restart containers and pods.</li>
+      <li>Easily get a terminal in your container.</li>
+      <li>Inspect container logs.</li>
+      <li>Push images to OCI registries.</li>
+      <li>Deploy and test images on Kubernetes.</li>
+    </ul>
+    <p>Multiple configuration options</p>
+    <ul>
+      <li>Manage OCI registries; add, edit, or delete registries.</li>
+      <li>Configure your proxy settings (work in progress.)</li>
+      <li>Configure CPU, memory, and disk of Podman machines (work in progress.)</li>
+      <li>Handle multiple container engines at the same time (Podman, Docker, Lima...)</li>
+    </ul>
+    <p>You can also bring new features with Podman Desktop plug-ins or Docker Desktop extensions.</p>
+  </description>
+  <screenshots>
+    <screenshot>
+      <caption>Podman Desktop UI</caption>
+      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png</image>
+    </screenshot>
+  </screenshots>
+  <content_rating type="oars-1.1" />
+  <provides>
+    <id>io.podman_desktop.PodmanDesktop</id>
+  </provides>
+  <update_contact>fbenoit_at_redhat_com</update_contact>
+</component>
