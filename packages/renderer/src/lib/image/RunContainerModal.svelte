@@ -14,6 +14,8 @@ let containerPortMapping: string[];
 let exposedPorts = [];
 let dataReady = false;
 
+let imageDisplayName = '';
+
 onMount(async () => {
   exposedPorts = [];
   containerPortMapping = [];
@@ -29,6 +31,12 @@ onMount(async () => {
     }),
   );
   dataReady = true;
+
+  if (image.name && image.name.length > 20) {
+    imageDisplayName = '...' + image.name.substring(image.name.length - 20);
+  } else {
+    imageDisplayName = image.name;
+  }
 });
 
 function getPort(portDescriptor: string): Promise<number | undefined> {
@@ -113,8 +121,8 @@ async function startContainer() {
           </div>
           <!--<form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">-->
           <div class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
-            <h3 class="text-xl font-medium text-gray-900 dark:text-white">
-              Create container from image {image.name}
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white truncate">
+              Create container from image {imageDisplayName}
             </h3>
 
             <div>
