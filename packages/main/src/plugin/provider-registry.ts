@@ -243,7 +243,9 @@ export class ProviderRegistry {
     if (!providerInstall) {
       throw new Error(`No matching installation for provider ${provider.internalId}`);
     }
-
+    this.telemetryService.track('installProvider', {
+      name: provider.name,
+    });
     return providerInstall.install(new LoggerImpl());
   }
 
@@ -255,6 +257,9 @@ export class ProviderRegistry {
       throw new Error(`No matching update for provider ${provider.internalId}`);
     }
 
+    this.telemetryService.track('updateProvider', {
+      name: provider.name,
+    });
     return providerUpdate.update(new LoggerImpl());
   }
 
@@ -297,6 +302,10 @@ export class ProviderRegistry {
     }
 
     if (provider.containerProviderConnectionFactory) {
+      this.telemetryService.track('initializeProvider', {
+        name: provider.name,
+      });
+
       return provider.containerProviderConnectionFactory.initialize();
     }
     throw new Error('No initialize implementation found for this provider');
