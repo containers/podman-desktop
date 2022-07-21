@@ -4,25 +4,20 @@ import Link from '@docusaurus/Link';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import TailWindThemeSelector from '../components/TailWindThemeSelector';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import {
   faBeer,
   faCertificate,
   faCloudArrowDown,
   faCogs,
-  faCubes,
-  faDigging,
-  faEye,
   faGaugeHigh,
-  faListCheck,
   faPlug,
-  faPuzzlePiece,
   faRocket,
   faGears,
   faRotateRight,
   faPaste,
-  faDiagramProject
+  faDiagramProject,
 } from '@fortawesome/free-solid-svg-icons';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -32,7 +27,14 @@ function EAP() {
   return (
     <div>
       <Admonition type="info" title="Join our Early Adopter Program!">
-        <p>We are seeking users who are interested in helping us improve Podman Desktop. Register your interest to join our Early Adopter Program by filling <Link to="https://forms.gle/ow73dV7Ce3YLzoXH7"><u>this form</u></Link>.</p>
+        <p>
+          We are seeking users who are interested in helping us improve Podman Desktop. Register your interest to join
+          our Early Adopter Program by filling{' '}
+          <Link to="https://forms.gle/ow73dV7Ce3YLzoXH7">
+            <u>this form</u>
+          </Link>
+          .
+        </p>
       </Admonition>
     </div>
   );
@@ -45,13 +47,13 @@ function DownloadClientLinks() {
 
   if (userAgent.indexOf('Windows') != -1) {
     operatingSystem = 'Windows';
-    varIcon = "faWindows";
+    varIcon = 'faWindows';
   } else if (userAgent.indexOf('Mac') != -1) {
     operatingSystem = 'macOS';
-    varIcon = "faApple";
+    varIcon = 'faApple';
   } else if (userAgent.indexOf('Linux') != -1) {
     operatingSystem = 'Linux';
-    varIcon = "faLinux";
+    varIcon = 'faLinux';
   }
 
   let mainButton;
@@ -112,7 +114,12 @@ function Hero() {
             Containers and Kubernetes for application developers
           </h1>
           <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
-            Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop leverages <a href="https://podman.io/" className="text-purple-700 dark:text-purple-400" target="_blank">Podman Engine</a> to provide a lightweight and daemon-less container tool.
+            Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop
+            leverages{' '}
+            <a href="https://podman.io/" className="text-purple-700 dark:text-purple-400" target="_blank">
+              Podman Engine
+            </a>{' '}
+            to provide a lightweight and daemon-less container tool.
           </p>
           <div className="flex justify-center">
             <iframe
@@ -124,12 +131,12 @@ function Hero() {
               title="GitHub"></iframe>
           </div>
           <div className="flex justify-center">
-          {/* With client mode, provides the link to the client browser */}
-          <BrowserOnly fallback={<DownloadGenericLinks></DownloadGenericLinks>}>
-            {() => {
-              return <DownloadClientLinks />;
-            }}
-          </BrowserOnly>
+            {/* With client mode, provides the link to the client browser */}
+            <BrowserOnly fallback={<DownloadGenericLinks></DownloadGenericLinks>}>
+              {() => {
+                return <DownloadClientLinks />;
+              }}
+            </BrowserOnly>
           </div>
           <div className="flex justify-center">
             <img
@@ -180,11 +187,13 @@ function KeepUpToDate() {
             </p>
             <p className="leading-relaxed">Check for updates and get notified about new changes.</p>
             <p className="leading-relaxed">
-              Available on <a href="/downloads/windows" className="text-purple-700 dark:text-purple-400" target="_blank">Windows</a>!
+              Available on{' '}
+              <a href="/downloads/windows" className="text-purple-700 dark:text-purple-400" target="_blank">
+                Windows
+              </a>
+              !
             </p>
-            <p className="leading-relaxed">
-              Coming soon on MacOS.
-            </p>
+            <p className="leading-relaxed">Coming soon on MacOS.</p>
           </div>
         </div>
       </div>
@@ -207,8 +216,8 @@ function Extensibility() {
         <div className="flex flex-col w-full text-center">
           <div className="mx-10">
             <FontAwesomeIcon size="3x" icon={faPlug} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
-          </div>          
-          
+          </div>
+
           <p className="leading-relaxed">Container engines are plugged through extension points.</p>
           <p className="leading-relaxed">JavaScript extensions can contribute new behaviour</p>
           <p className="leading-relaxed">Reuse existing extensions directly in Podman Desktop</p>
@@ -219,10 +228,14 @@ function Extensibility() {
             </div>
           </div>
 
-          <ThemedImage className="py-4 md:w-5/6 lg:w-11/12 w-full" alt="Reuse Docker Desktop extensions" sources={{
+          <ThemedImage
+            className="py-4 md:w-5/6 lg:w-11/12 w-full"
+            alt="Reuse Docker Desktop extensions"
+            sources={{
               light: useBaseUrl('img/ddextensions/dd-support.png'),
               dark: useBaseUrl('img/ddextensions/dd-support.png'),
-            }} />
+            }}
+          />
 
           <div className="flex flex-col items-center">
             <Link
@@ -262,7 +275,6 @@ function Configure() {
           </h2>
         </div>
 
-
         <div className="container px-5 pb-5 mx-auto">
           <div className="flex flex-wrap sm:-m-4 -mx-4 -mb-10 -mt-4 md:space-y-0 space-y-6">
             <div className="p-4 md:w-1/4 flex">
@@ -275,7 +287,6 @@ function Configure() {
               </div>
             </div>
 
-            
             <div className="p-4 md:w-1/4 flex">
               <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
                 <FontAwesomeIcon size="2x" icon={faCogs} className="w-6 h-6 " />
@@ -291,8 +302,12 @@ function Configure() {
                 <FontAwesomeIcon size="2x" icon={faCogs} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
-                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Resources Utilization</h2>
-                <p className="leading-relaxed text-base">Configure CPU/Memory/Disk of Podman machines (work in progress)</p>
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">
+                  Resources Utilization
+                </h2>
+                <p className="leading-relaxed text-base">
+                  Configure CPU/Memory/Disk of Podman machines (work in progress)
+                </p>
               </div>
             </div>
 
@@ -301,12 +316,16 @@ function Configure() {
                 <FontAwesomeIcon size="2x" icon={faCogs} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
-                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Container Engines</h2>
-                <p className="leading-relaxed text-base">Handle multiple container engines at the same time (Podman, Docker, Lima...).</p>
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">
+                  Container Engines
+                </h2>
+                <p className="leading-relaxed text-base">
+                  Handle multiple container engines at the same time (Podman, Docker, Lima...).
+                </p>
               </div>
             </div>
           </div>
-          </div>
+        </div>
       </div>
     </section>
   );
@@ -368,7 +387,7 @@ function EnterpriseReady() {
   );
 }
 
-const copyBrewInstructions = () =>{
+const copyBrewInstructions = () => {
   navigator.clipboard.writeText('brew install podman-desktop');
 };
 
@@ -420,8 +439,13 @@ function RunAnywhere() {
                 <p className="text-base text-center">arm64, x64 or unified dmg</p>
                 <p className="text-base text-center">
                   <FontAwesomeIcon size="1x" icon={faBeer} className="ml-2" /> brew install podman-desktop
-                  <button title="Copy To Clipboard" className="mr-5"> 
-                    <FontAwesomeIcon size="1x" icon={faPaste} className="ml-3  cursor-pointer text-3xl  text-white-500" onClick={() => copyBrewInstructions()} />
+                  <button title="Copy To Clipboard" className="mr-5">
+                    <FontAwesomeIcon
+                      size="1x"
+                      icon={faPaste}
+                      className="ml-3  cursor-pointer text-3xl  text-white-500"
+                      onClick={() => copyBrewInstructions()}
+                    />
                   </button>
                 </p>
               </div>
@@ -559,9 +583,10 @@ function MainFeatures() {
 }
 
 export default function Home(): JSX.Element {
-  
   return (
-    <Layout title="Leverage Podman with a Desktop App" description="Containers and Kubernetes for application developers">
+    <Layout
+      title="Leverage Podman with a Desktop App"
+      description="Containers and Kubernetes for application developers">
       <TailWindThemeSelector />
       <EAP />
       <Hero />

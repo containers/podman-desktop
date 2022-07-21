@@ -56,10 +56,10 @@ export function MacOSDownloads(): JSX.Element {
     arm64: '',
   });
 
-  const copyBrewInstructions = () =>{
+  const copyBrewInstructions = () => {
     navigator.clipboard.writeText('brew install podman-desktop');
   };
-  
+
   useEffect(() => {
     grabfilenameforMac(setDownloadData);
   });
@@ -75,44 +75,50 @@ export function MacOSDownloads(): JSX.Element {
           <div className="h-full flex w-full flex-col align-middle items-center">
             <div className="flex flex-col align-middle items-center">
               <div className="items-center text-center">
-                <p className="text-base "><FontAwesomeIcon size="4x" icon={faBeer} className="ml-2" /></p>
                 <p className="text-base ">
-                   Using Brew ?
+                  <FontAwesomeIcon size="4x" icon={faBeer} className="ml-2" />
                 </p>
+                <p className="text-base ">Using Brew ?</p>
                 <p className="text-base dark:text-purple-300 text-purple-700">
                   <FontAwesomeIcon size="1x" icon={faTerminal} className="mr-2" />
-                  brew install podman-desktop<button title="Copy To Clipboard" className="mr-5" 
-          > <FontAwesomeIcon size="xs" icon={faPaste} className="ml-3  cursor-pointer text-3xl  text-white-500" onClick={() => copyBrewInstructions()} /></button>
+                  brew install podman-desktop
+                  <button title="Copy To Clipboard" className="mr-5">
+                    {' '}
+                    <FontAwesomeIcon
+                      size="xs"
+                      icon={faPaste}
+                      className="ml-3  cursor-pointer text-3xl  text-white-500"
+                      onClick={() => copyBrewInstructions()}
+                    />
+                  </button>
                 </p>
               </div>
-              <div className='pt-8 space-x-4'>
-              <Link
-                className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
-                to={downloadData.universal}>
-                <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-                universal
-              </Link>
-              <Link
-                className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
-                to={downloadData.x64}>
-                <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-                Intel
-              </Link>
-              <Link
-                className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
-                to={downloadData.x64}>
-                <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-                Arm
-              </Link>
-              
+              <div className="pt-8 space-x-4">
+                <Link
+                  className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
+                  to={downloadData.universal}>
+                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                  universal
+                </Link>
+                <Link
+                  className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
+                  to={downloadData.x64}>
+                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                  Intel
+                </Link>
+                <Link
+                  className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
+                  to={downloadData.x64}>
+                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                  Arm
+                </Link>
               </div>
-              <div className='font-light mt-4'>Version {downloadData.version}</div>
+              <div className="font-light mt-4">Version {downloadData.version}</div>
             </div>
           </div>
         </div>
       </div>
     </section>
-    
   );
 }
 

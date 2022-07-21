@@ -30,7 +30,6 @@ Apply style on documentation
   @apply text-purple-700;
 }
 
-
 /* You can override the default Infima variables here. */
 :root {
   --ifm-color-primary: #6d28d9;
