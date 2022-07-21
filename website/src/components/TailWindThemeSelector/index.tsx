@@ -3,41 +3,37 @@ import { useEffect } from 'react';
 import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
 
 function TailWindThemeSelector(): JSX.Element {
-
   function updadeTailwindDarkTheme() {
-  if (!document || !document.documentElement) {
-    return;
-  }
+    if (!document || !document.documentElement) {
+      return;
+    }
 
+    const html = document.documentElement;
 
-  const html = document.documentElement;
-  
-  if (html.dataset?.theme === 'dark') {
-    html.classList.add('dark');
-    setTimeout(() => {
+    if (html.dataset?.theme === 'dark') {
       html.classList.add('dark');
-    }, 100);
-      
-  } else {
-    html.classList.remove('dark');
-    setTimeout(() => {
+      setTimeout(() => {
+        html.classList.add('dark');
+      }, 100);
+    } else {
       html.classList.remove('dark');
-    }, 100);
-
+      setTimeout(() => {
+        html.classList.remove('dark');
+      }, 100);
+    }
   }
-}
   useEffect(() => {
     if (ExecutionEnvironment.canUseDOM) {
       updadeTailwindDarkTheme();
     }
-}, [ExecutionEnvironment.canUseDOM]);
+  }, [ExecutionEnvironment.canUseDOM]);
 
-// monitor the attribute managed by docusaurus
-useEffect(() => {
-  if (!ExecutionEnvironment.canUseDOM) {
-    return;
-  }
-  const mutationObserver = new MutationObserver((mutations) => {
+  // monitor the attribute managed by docusaurus
+  useEffect(() => {
+    if (!ExecutionEnvironment.canUseDOM) {
+      return;
+    }
+    const mutationObserver = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
         if (mutation.attributeName === 'data-rh' && mutation.type == 'attributes') {
           updadeTailwindDarkTheme();
@@ -45,16 +41,16 @@ useEffect(() => {
           updadeTailwindDarkTheme();
         }
       });
-  });
-  mutationObserver.observe(document.documentElement, {
+    });
+    mutationObserver.observe(document.documentElement, {
       attributes: true,
       childList: false,
       subtree: false,
-  });
-  return () => {
+    });
+    return () => {
       mutationObserver.disconnect();
-  };
-}, [ExecutionEnvironment.canUseDOM]);
+    };
+  }, [ExecutionEnvironment.canUseDOM]);
 
   return <div></div>;
 }
