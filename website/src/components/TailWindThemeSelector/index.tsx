@@ -38,10 +38,12 @@ useEffect(() => {
     return;
   }
   const mutationObserver = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-          if (mutation.attributeName === 'data-theme' && mutation.type == 'attributes') {
-                updadeTailwindDarkTheme();
-          }
+      mutations.forEach(mutation => {
+        if (mutation.attributeName === 'data-rh' && mutation.type == 'attributes') {
+          updadeTailwindDarkTheme();
+        } else if (mutation.attributeName === 'data-theme' && mutation.type == 'attributes') {
+          updadeTailwindDarkTheme();
+        }
       });
   });
   mutationObserver.observe(document.documentElement, {
