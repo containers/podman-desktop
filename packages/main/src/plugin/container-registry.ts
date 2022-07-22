@@ -28,7 +28,7 @@ import type { PullEvent } from './api/pull-event';
 import type { Telemetry } from './telemetry/telemetry';
 import * as crypto from 'node:crypto';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
-
+import { EventEmitter } from 'node:events';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -42,6 +42,13 @@ export interface InternalContainerProviderLifecycle {
   status: string;
 }
 
+interface JSONEvent {
+  type: string;
+  status: string;
+  id: string;
+  Type?: string;
+}
+
 export class ContainerProviderRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(private apiSender: any, private imageRegistry: ImageRegistry, private telemetryService: Telemetry) {}
@@ -50,46 +57,59 @@ export class ContainerProviderRegistry {
   private internalProviders: Map<string, InternalContainerProvider> = new Map();
 
   handleEvents(api: Dockerode) {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('event', (jsonEvent: JSONEvent) => {
+      console.log('event is', jsonEvent);
+      if (jsonEvent.status === 'stop') {
+        // need to notify that a container has been stopped
+        this.apiSender.send('container-stopped-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'start') {
+        // need to notify that a container has been started
+        this.apiSender.send('container-started-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'destroy') {
+        // need to notify that a container has been destroyed
+        this.apiSender.send('container-stopped-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'remove' && jsonEvent?.Type === 'container') {
+        this.apiSender.send('container-removed-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'pull' && jsonEvent?.Type === 'image') {
+        // need to notify that image are being pulled
+        this.apiSender.send('image-pull-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'tag' && jsonEvent?.Type === 'image') {
+        // need to notify that image are being tagged
+        this.apiSender.send('image-tag-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'untag' && jsonEvent?.Type === 'image') {
+        // need to notify that image are being untagged
+        this.apiSender.send('image-untag-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'remove' && jsonEvent?.Type === 'image') {
+        // need to notify that image are being pulled
+        this.apiSender.send('image-remove-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'build' && jsonEvent?.Type === 'image') {
+        // need to notify that image are being pulled
+        this.apiSender.send('image-build-event', jsonEvent.id);
+      }
+    });
+
     api.getEvents((err, stream) => {
       if (err) {
         console.log('error is', err);
       }
+      let content = '';
       stream?.on('data', data => {
-        let evt;
-        try {
-          evt = JSON.parse(data.toString());
-        } catch (err) {
-          console.error(data.toString(), err);
-          return;
+        const jsonObjects = (content + data).toString().split('\n');
+        for (let i = 0; i < jsonObjects.length - 1; ++i) {
+          try {
+            const event = JSON.parse(jsonObjects[i]);
+            eventEmitter.emit('event', event);
+          } catch (err) {
+            console.error('Unable to parse event', err);
+            console.error('current data is', data.toString());
+            console.error('previous content is', content);
+          }
+          content = '';
         }
-        console.log('event is', evt);
-        if (evt.status === 'stop') {
-          // need to notify that a container has been stopped
-          this.apiSender.send('container-stopped-event', evt.id);
-        } else if (evt.status === 'start') {
-          // need to notify that a container has been started
-          this.apiSender.send('container-started-event', evt.id);
-        } else if (evt.status === 'destroy') {
-          // need to notify that a container has been destroyed
-          this.apiSender.send('container-stopped-event', evt.id);
-        } else if (evt.status === 'remove' && evt?.Type === 'container') {
-          this.apiSender.send('container-removed-event', evt.id);
-        } else if (evt.status === 'pull' && evt?.Type === 'image') {
-          // need to notify that image are being pulled
-          this.apiSender.send('image-pull-event', evt.id);
-        } else if (evt.status === 'tag' && evt?.Type === 'image') {
-          // need to notify that image are being tagged
-          this.apiSender.send('image-tag-event', evt.id);
-        } else if (evt.status === 'untag' && evt?.Type === 'image') {
-          // need to notify that image are being untagged
-          this.apiSender.send('image-untag-event', evt.id);
-        } else if (evt.status === 'remove' && evt?.Type === 'image') {
-          // need to notify that image are being pulled
-          this.apiSender.send('image-remove-event', evt.id);
-        } else if (evt.status === 'build' && evt?.Type === 'image') {
-          // need to notify that image are being pulled
-          this.apiSender.send('image-build-event', evt.id);
-        }
+        // keep latest partial json object
+        content += jsonObjects[jsonObjects.length - 1];
       });
     });
   }
