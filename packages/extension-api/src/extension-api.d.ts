@@ -457,6 +457,76 @@ declare module '@tmpwip/extension-api' {
     silent?: boolean;
   }
 
+  /**
+   * Aligned to the left side.
+   */
+  export const StatusBarAlignLeft = 'LEFT';
+  /**
+   * Aligned to the right side.
+   */
+  export const StatusBarAlignRight = 'RIGHT';
+  /**
+   * Represents the alignment of status bar items.
+   */
+  export type StatusBarAlignment = typeof StatusBarAlignLeft | typeof StatusBarAlignRight;
+
+  /**
+   * Default priority for the status bar items.
+   */
+  export const StatusBarItemDefaultPriority = 0;
+
+  /**
+   * A status bar item is a status bar contribution that can
+   * show text and icons and run a command on click.
+   */
+  export interface StatusBarItem {
+    /**
+     * The alignment of this item.
+     */
+    readonly alignment: StatusBarAlignment;
+    /**
+     * The priority of this item. Higher value means the item should be shown more to the left
+     * or more to the right.
+     */
+    readonly priority: number;
+    /**
+     * The text to show for the entry.
+     */
+    text?: string;
+    /**
+     * The tooltip text when you hover over this entry.
+     */
+    tooltip?: string;
+    /**
+     * Icon class that is used to display the particular icon from the Font Awesome icon set.
+     * Icon class should be in format e.g. 'fa fa-toggle-on'. It is possible to provide an icons
+     * for state which can be enabled or disabled.
+     */
+    iconClass?: string | { active: string; inactive: string };
+    /**
+     * Marks an item as disabled. When property is set to true, then icon will be changed to inactive
+     * and there won't be possible to execute a command if it is provided in the following configuration.
+     */
+    enabled: boolean;
+    /**
+     * The identifier of a command to run on click.
+     */
+    command?: string;
+    /**
+     * Arguments that the command handler should be invoked with.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    commandArgs?: any[];
+    /**
+     * Shows the entry in the status bar.
+     */
+    show(): void;
+    /**
+     * Hides the entry in the status bar.
+     */
+    hide(): void;
+  }
+
   export namespace window {
     /**
      * Show an information message. Optionally provide an array of items which will be presented as
@@ -498,5 +568,14 @@ declare module '@tmpwip/extension-api' {
      * @param options
      */
     export function showNotification(options: NotificationOptions): Disposable;
+
+    /**
+     * Creates a status bar {@link StatusBarItem} item.
+     *
+     * @param alignment The alignment of the item.
+     * @param priority The priority of the item. Higher values mean more to the left or more to the right.
+     * @return A new status bar item.
+     */
+    export function createStatusBarItem(alignment?: StatusBarAlignment, priority?: number): StatusBarItem;
   }
 }

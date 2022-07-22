@@ -32,6 +32,9 @@ import type { Dialogs } from './dialog-impl';
 import type { ProgressImpl } from './progress-impl';
 import { ProgressLocation } from './progress-impl';
 import type { NotificationImpl } from './notification-impl';
+import { StatusBarItemImpl } from './statusbar/statusbar-item';
+import type { StatusBarRegistry } from './statusbar/statusbar-registry';
+import { StatusBarAlignLeft, StatusBarAlignRight, StatusBarItemDefaultPriority } from './statusbar/statusbar-item';
 
 /**
  * Handle the loading of an extension
@@ -73,6 +76,7 @@ export class ExtensionLoader {
     private dialogs: Dialogs,
     private progress: ProgressImpl,
     private notifications: NotificationImpl,
+    private statusBarRegistry: StatusBarRegistry,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -341,6 +345,27 @@ export class ExtensionLoader {
       showNotification: (options: containerDesktopAPI.NotificationOptions): containerDesktopAPI.Disposable => {
         return notifications.showNotification(options);
       },
+
+      createStatusBarItem: (
+        param1?: containerDesktopAPI.StatusBarAlignment | number,
+        param2?: number,
+      ): containerDesktopAPI.StatusBarItem => {
+        let alignment: containerDesktopAPI.StatusBarAlignment = StatusBarAlignLeft;
+        let priority = StatusBarItemDefaultPriority;
+
+        if (typeof param2 !== 'undefined') {
+          alignment = param1 as containerDesktopAPI.StatusBarAlignment;
+          priority = param2;
+        } else if (typeof param1 !== 'undefined') {
+          if (typeof param1 === 'string') {
+            alignment = param1 as containerDesktopAPI.StatusBarAlignment;
+          } else {
+            priority = param1;
+          }
+        }
+
+        return new StatusBarItemImpl(this.statusBarRegistry, alignment, priority);
+      },
     };
 
     return <typeof containerDesktopAPI>{
@@ -353,6 +378,9 @@ export class ExtensionLoader {
       tray,
       ProgressLocation,
       window: windowObj,
+      StatusBarItemDefaultPriority,
+      StatusBarAlignLeft,
+      StatusBarAlignRight,
     };
   }
 

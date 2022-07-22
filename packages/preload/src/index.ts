@@ -32,6 +32,7 @@ import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../main/s
 import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin/configuration-registry';
 import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import { Deferred } from './util/deferred';
+import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -330,6 +331,18 @@ function initExposure(): void {
       if (callback) {
         callback(eventName, data);
       }
+    },
+  );
+
+  contextBridge.exposeInMainWorld('getStatusBarEntries', async (): Promise<StatusBarEntryDescriptor[]> => {
+    return ipcRenderer.invoke('status-bar:getStatusBarEntries');
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  contextBridge.exposeInMainWorld(
+    'executeStatusBarEntryCommand',
+    async (command: string, args: any[]): Promise<void> => {
+      return ipcRenderer.invoke('status-bar:executeStatusBarEntryCommand', command, args);
     },
   );
 

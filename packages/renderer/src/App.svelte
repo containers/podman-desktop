@@ -26,6 +26,7 @@ import { providerInfos } from './stores/providers';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
+import StatusBar from './lib/statusbar/StatusBar.svelte';
 let containersCountValue;
 
 router.mode.hash();
@@ -55,6 +56,12 @@ onMount(() => {
     providers = value;
   });
 });
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+window.events?.receive('display-help', () => {
+  router.goto('/help');
+});
 </script>
 
 <svelte:window bind:innerWidth />
@@ -71,24 +78,6 @@ onMount(() => {
           <span class="ml-3 text-xl block text-gray-300">Podman Desktop</span>
         </div>
         <div class="lg:w-2/5 flex-1 lg:justify-end ml-5 lg:ml-0"></div>
-        <div class="flex" style="-webkit-app-region: none;">
-          <a
-            href="/help"
-            class="p-1 rounded-full {meta.url === '/help'
-              ? 'bg-gray-600 fill-gray-300'
-              : 'fill-gray-400'} hover:bg-gray-600 hover:fill-gray-300 cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1000 1000">
-              <g>
-                <path
-                  d="M990,500c0,270.6-219.4,490-490,490C229.4,990,10,770.6,10,500C10,229.4,229.4,10,500,10C770.6,10,990,229.4,990,500z M500,99.1C278.6,99.1,99.1,278.6,99.1,500c0,221.4,179.5,400.9,400.9,400.9c221.4,0,400.9-179.5,400.9-400.9C900.9,278.6,721.4,99.1,500,99.1z"
-                ></path>
-                <path
-                  d="M543.7,622.3H455c-0.3-12.7-0.4-20.5-0.4-23.3c0-28.8,4.7-52.4,14.3-71c9.5-18.5,28.6-39.4,57.1-62.6c28.6-23.2,45.6-38.4,51.1-45.6c8.5-11.4,12.9-23.9,12.9-37.6c0-19-7.7-35.3-22.8-48.9c-15.2-13.5-35.6-20.4-61.3-20.4c-24.9,0-45.6,7.1-62.3,21.2c-16.7,14.2-28.2,35.7-34.5,64.7l-89.8-11.1c2.5-41.5,20.2-76.8,53.1-105.8c32.8-29,75.9-43.5,129.3-43.5c56.1,0,100.7,14.7,133.9,44c33.1,29.4,49.8,63.5,49.8,102.5c0,21.6-6.1,42-18.3,61.3c-12.2,19.3-38.3,45.5-78.1,78.6c-20.7,17.2-33.5,31-38.4,41.4C545.4,576.7,543.2,595.4,543.7,622.3z M455,753.8V656h97.8v97.8H455z"
-                ></path>
-              </g>
-            </svg>
-          </a>
-        </div>
       </div>
     </header>
 
@@ -332,5 +321,6 @@ onMount(() => {
         </Route>
       </div>
     </div>
+    <StatusBar />
   </main>
 </Route>

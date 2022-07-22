@@ -50,6 +50,8 @@ import { DockerDesktopInstallation } from './docker-extension/docker-desktop-ins
 import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter';
 import { Telemetry } from './telemetry/telemetry';
 import { NotificationImpl } from './notification-impl';
+import { StatusBarRegistry } from './statusbar/statusbar-registry';
+import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry';
 
 export class PluginSystem {
   constructor(private trayMenu: TrayMenu) {}
@@ -89,11 +91,18 @@ export class PluginSystem {
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
     const providerRegistry = new ProviderRegistry(containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
+    const statusBarRegistry = new StatusBarRegistry(apiSender);
 
     providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
       if (name === 'provider:update-status') {
         apiSender.send('provider:update-status', providerInfo.name);
       }
+    });
+
+    statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
+
+    commandRegistry.registerCommand('help', () => {
+      apiSender.send('display-help', '');
     });
 
     const terminalInit = new TerminalInit(configurationRegistry);
@@ -109,6 +118,7 @@ export class PluginSystem {
       new Dialogs(),
       new ProgressImpl(),
       new NotificationImpl(),
+      statusBarRegistry,
     );
 
     const contributionManager = new ContributionManager(apiSender);
@@ -244,6 +254,22 @@ export class PluginSystem {
             );
           },
         );
+      },
+    );
+
+    ipcMain.handle('status-bar:getStatusBarEntries', async (): Promise<StatusBarEntryDescriptor[]> => {
+      return statusBarRegistry.getStatusBarEntries();
+    });
+
+    ipcMain.handle(
+      'status-bar:executeStatusBarEntryCommand',
+      async (
+        _,
+        command: string,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        args: any[],
+      ): Promise<void> => {
+        await commandRegistry.executeCommand(command, args);
       },
     );
 
