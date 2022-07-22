@@ -98,6 +98,14 @@ export class ProviderRegistry {
     this.count++;
     this.providers.set(id, providerImpl);
     this.listeners.forEach(listener => listener('provider:create', this.getProviderInfo(providerImpl)));
+    const trackOpts: { name: string; status: string; version?: string } = {
+      name: providerOptions.name,
+      status: providerOptions.status.toString(),
+    };
+    if (providerOptions.version) {
+      trackOpts.version = providerOptions.version;
+    }
+    this.telemetryService.track('createProvider', trackOpts);
     return providerImpl;
   }
 
