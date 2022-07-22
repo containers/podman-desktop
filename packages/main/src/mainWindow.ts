@@ -17,19 +17,24 @@
  ***********************************************************************/
 
 import type { BrowserWindowConstructorOptions } from 'electron';
-import { BrowserWindow, ipcMain, app, dialog } from 'electron';
+import { BrowserWindow, ipcMain, app, dialog, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
 import { join } from 'path';
 import { URL } from 'url';
 import { isLinux, isMac } from './util';
 
 async function createWindow() {
+  const INITIAL_APP_WIDTH = 1050;
+  const INITIAL_APP_MIN_WIDTH = 640;
+  const INITIAL_APP_HEIGHT = 600;
+  const INITIAL_APP_MIN_HEIGHT = 600;
+
   const browserWindowConstructorOptions: BrowserWindowConstructorOptions = {
     show: false, // Use 'ready-to-show' event to show window
-    width: 1050,
-    minWidth: 640,
-    minHeight: 600,
-    height: 600,
+    width: INITIAL_APP_WIDTH,
+    minWidth: INITIAL_APP_MIN_WIDTH,
+    minHeight: INITIAL_APP_MIN_HEIGHT,
+    height: INITIAL_APP_HEIGHT,
     webPreferences: {
       webSecurity: false,
       //nativeWindowOpen: true,
@@ -43,6 +48,18 @@ async function createWindow() {
     browserWindowConstructorOptions.frame = false;
   }
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
+  const { getCursorScreenPoint, getDisplayNearestPoint } = screen;
+  const workArea = getDisplayNearestPoint(getCursorScreenPoint()).workArea;
+
+  const x = Math.round(workArea.width / 2 - INITIAL_APP_WIDTH / 2 + workArea.x);
+  const y = Math.round(workArea.height / 2 - INITIAL_APP_HEIGHT / 2);
+
+  browserWindow.setBounds({
+    x: x,
+    y: y,
+    width: browserWindowConstructorOptions.width,
+    height: browserWindowConstructorOptions.height,
+  });
 
   setTimeout(() => {
     browserWindow.webContents.send('container-stopped-event', 'containerID');
