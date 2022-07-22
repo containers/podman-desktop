@@ -80,11 +80,13 @@
   },
   "dependencies": {
     "@docker/extension-api-client-types": "0.2.3",
+    "@types/stream-json": "^1.7.2",
     "analytics-node": "^6.0.0",
     "dockerode": "^3.3.1",
     "electron-updater": "4.6.5",
     "getos": "^3.2.1",
     "os-locale": "^6.0.2",
+    "stream-json": "^1.7.4",
     "tar-fs": "^2.1.1"
   },
   "resolutionsComments": {

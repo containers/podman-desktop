@@ -19,6 +19,7 @@
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { Disposable } from './types/disposable';
 import Dockerode from 'dockerode';
+import StreamValues from 'stream-json/streamers/StreamValues';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
@@ -94,22 +95,11 @@ export class ContainerProviderRegistry {
       if (err) {
         console.log('error is', err);
       }
-      let content = '';
-      stream?.on('data', data => {
-        const jsonObjects = (content + data).toString().split('\n');
-        for (let i = 0; i < jsonObjects.length - 1; ++i) {
-          try {
-            const event = JSON.parse(jsonObjects[i]);
-            eventEmitter.emit('event', event);
-          } catch (err) {
-            console.error('Unable to parse event', err);
-            console.error('current data is', data.toString());
-            console.error('previous content is', content);
-          }
-          content = '';
+      const pipeline = stream?.pipe(StreamValues.withParser());
+      pipeline?.on('data', data => {
+        if (data?.value !== undefined) {
+          eventEmitter.emit('event', data.value);
         }
-        // keep latest partial json object
-        content += jsonObjects[jsonObjects.length - 1];
       });
     });
   }
