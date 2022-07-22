@@ -338,9 +338,9 @@ function initExposure(): void {
     return ipcRenderer.invoke('status-bar:getStatusBarEntries');
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   contextBridge.exposeInMainWorld(
     'executeStatusBarEntryCommand',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (command: string, args: any[]): Promise<void> => {
       return ipcRenderer.invoke('status-bar:executeStatusBarEntryCommand', command, args);
     },
