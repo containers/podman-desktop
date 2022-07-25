@@ -42,11 +42,12 @@ async function createWindow() {
       preload: join(__dirname, '../../preload/dist/index.cjs'),
     },
   };
+  // On Linux keep title bar as we may not have any tray icon
+  // being displayed
   if (isMac) {
     browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
-  } else if (isLinux) {
-    browserWindowConstructorOptions.frame = false;
   }
+
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
   const { getCursorScreenPoint, getDisplayNearestPoint } = screen;
   const workArea = getDisplayNearestPoint(getCursorScreenPoint()).workArea;
