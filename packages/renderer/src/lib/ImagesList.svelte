@@ -12,12 +12,28 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
 import { providerInfos } from '../stores/providers';
+import RunContainerModal from './image/RunContainerModal.svelte';
+import PushImageModal from './image/PushImageModal.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let images: ImageInfoUI[] = [];
 let multipleEngines = false;
+
+let runContainerFromImageModal = false;
+let runContainerFromImageInfo = undefined;
+function handleRunContainerFromImageModal(imageInfo: ImageInfoUI) {
+  runContainerFromImageInfo = imageInfo;
+  runContainerFromImageModal = true;
+}
+
+let pushImageModal = false;
+let pushImageModalImageInfo = undefined;
+function handlePushImageModal(imageInfo: ImageInfoUI) {
+  pushImageModalImageInfo = imageInfo;
+  pushImageModal = true;
+}
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
@@ -68,9 +84,9 @@ onMount(async () => {
   });
 });
 
-let hasModal = false;
-function handleModal(param: boolean) {
-  hasModal = param;
+function closeModals() {
+  runContainerFromImageModal = false;
+  pushImageModal = false;
 }
 
 // extract SHA256 from image id and take the first 12 digits
@@ -201,7 +217,10 @@ function getEngineName(containerInfo: ImageInfo): string {
             </td>
             <td class="px-6 whitespace-nowrap">
               <div class="flex opacity-0 flex-row justify-end group-hover:opacity-100">
-                <ImageActions image="{image}" hasModalCallback="{handleModal}" />
+                <ImageActions
+                  image="{image}"
+                  onPushImage="{handlePushImageModal}"
+                  onRunContainerImage="{handleRunContainerFromImageModal}" />
               </div>
             </td>
           </tr>
@@ -213,5 +232,21 @@ function getEngineName(containerInfo: ImageInfo): string {
     <ImageEmptyScreen images="{$filtered}" />
   {:else}
     <NoContainerEngineEmptyScreen />
+  {/if}
+
+  {#if runContainerFromImageModal}
+    <RunContainerModal
+      image="{runContainerFromImageInfo}"
+      closeCallback="{() => {
+        closeModals();
+      }}" />
+  {/if}
+
+  {#if pushImageModal}
+    <PushImageModal
+      imageInfoToPush="{pushImageModalImageInfo}"
+      closeCallback="{() => {
+        closeModals();
+      }}" />
   {/if}
 </div>
