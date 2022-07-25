@@ -256,7 +256,16 @@ declare module '@tmpwip/extension-api' {
     readonly images: ProviderImages;
 
     readonly links: ProviderLinks[];
+
+    // detection checks for the provider
     readonly detectionChecks: ProviderDetectionCheck[];
+
+    // update the detection checks for the provider
+    // it may happen after an update or an installation
+    updateDetectionChecks(detectionChecks: ProviderDetectionCheck[]): void;
+
+    // notify that detection checks have changed
+    onDidUpdateDetectionChecks: Event<ProviderDetectionCheck[]>;
   }
 
   export namespace commands {

@@ -26,8 +26,9 @@ import { RegistrySetup } from './registry-setup';
 import { isLinux, isMac, isWindows } from './util';
 import { PodmanInstall } from './podman-install';
 import type { InstalledPodman } from './podman-cli';
-import { execPromise, getInstallationPath, getPodmanCli, getPodmanInstallation } from './podman-cli';
+import { execPromise, getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
+import { getDetectionChecks } from './detection-checks';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -182,6 +183,31 @@ async function monitorMachines(provider: extensionApi.Provider) {
   }
 }
 
+async function monitorProvider(provider: extensionApi.Provider) {
+  // call us again
+  if (!stopLoop) {
+    try {
+      const installedPodman = await getPodmanInstallation();
+      provider.updateDetectionChecks(getDetectionChecks(installedPodman));
+
+      // update version
+      if (!installedPodman) {
+        provider.updateStatus('not-installed');
+      } else if (installedPodman.version) {
+        provider.updateVersion(installedPodman.version);
+        // update provider status if someone has installed podman externally
+        if (provider.status === 'not-installed') {
+          provider.updateStatus('installed');
+        }
+      }
+    } catch (error) {
+      // ignore the update
+    }
+  }
+  await timeout(8000);
+  monitorProvider(provider);
+}
+
 function prettyMachineName(machineName: string): string {
   let name;
   if (machineName === 'podman-machine-default') {
@@ -248,7 +274,7 @@ async function registerUpdatesIfAny(
   if (updateInfo.hasUpdate) {
     provider.registerUpdate({
       version: updateInfo.bundledVersion,
-      update: () => podmanInstall.performUpdate(installedPodman),
+      update: () => podmanInstall.performUpdate(provider, installedPodman),
     });
   }
 }
@@ -263,18 +289,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const detectionChecks: extensionApi.ProviderDetectionCheck[] = [];
   let status: extensionApi.ProviderStatus = 'not-installed';
   if (version) {
-    detectionChecks.push({
-      name: `Podman ${version} found`,
-      status: true,
-    });
     status = 'installed';
-  } else {
-    detectionChecks.push({
-      name: 'podman cli was not found in the PATH',
-      details: `Current path is ${getInstallationPath()}`,
-      status: false,
-    });
   }
+  // update detection checks
+  detectionChecks.push(...getDetectionChecks(installedPodman));
 
   const providerOptions: extensionApi.ProviderOptions = {
     name: 'Podman',
@@ -309,7 +327,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const provider = extensionApi.provider.createProvider(providerOptions);
   // provide an installation path ?
   if (podmanInstall.isAbleToInstall()) {
-    provider.registerInstallation({ install: () => podmanInstall.doInstallPodman() });
+    provider.registerInstallation({ install: () => podmanInstall.doInstallPodman(provider) });
   }
 
   // provide an installation path ?
@@ -393,6 +411,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     }
     monitorMachines(provider);
   }
+
+  // monitor provider
+  // like version, checks
+  monitorProvider(provider);
 
   // register the registries
   const registrySetup = new RegistrySetup();
