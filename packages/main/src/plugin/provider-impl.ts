@@ -61,8 +61,11 @@ export class ProviderImpl implements Provider, IDisposable {
   readonly onDidUpdateVersion: Event<string> = this._onDidUpdateVersion.event;
 
   private _links: ProviderLinks[];
-  private _detectionChecks: ProviderDetectionCheck[];
   private _images: ProviderImages;
+
+  private _detectionChecks: ProviderDetectionCheck[];
+  private readonly _onDidUpdateDetectionChecks = new Emitter<ProviderDetectionCheck[]>();
+  readonly onDidUpdateDetectionChecks: Event<ProviderDetectionCheck[]> = this._onDidUpdateDetectionChecks.event;
 
   constructor(
     private _internalId: string,
@@ -140,6 +143,10 @@ export class ProviderImpl implements Provider, IDisposable {
 
   updateVersion(version: string): void {
     this._version = version;
+  }
+
+  updateDetectionChecks(detectionChecks: ProviderDetectionCheck[]): void {
+    this._detectionChecks = detectionChecks;
   }
 
   get status(): ProviderStatus {
