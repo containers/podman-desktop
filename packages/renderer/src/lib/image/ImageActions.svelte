@@ -3,29 +3,21 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faCircleUp, faPlayCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
-import RunContainerModal from './RunContainerModal.svelte';
-import { onMount } from 'svelte';
-import PushImage from './PushImageModal.svelte';
-import PushImageModal from './PushImageModal.svelte';
-import Modal from '../dialogs/Modal.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 
-export let hasModalCallback: (flag: boolean) => void;
+export let onRunContainerImage: (imageInfo: ImageInfoUI) => void;
+export let onPushImage: (imageInfo: ImageInfoUI) => void;
+
 export let image: ImageInfoUI;
 
-let runContainerFromImageModal = false;
-let pushImageModal = false;
-let modalImageInfo: ImageInfoUI;
 let errorMessage: string = undefined;
 let isAuthenticatedForThisImage: boolean = false;
 
 async function runImage(imageInfo: ImageInfoUI) {
-  modalImageInfo = imageInfo;
-  runContainerFromImageModal = true;
+  onRunContainerImage(imageInfo);
 }
 
 $: window.hasAuthconfigForImage(image.name).then(result => (isAuthenticatedForThisImage = result));
-let imageInfoToPush = undefined;
 
 async function deleteImage(imageInfo: ImageInfoUI): Promise<void> {
   try {
@@ -37,9 +29,7 @@ async function deleteImage(imageInfo: ImageInfoUI): Promise<void> {
 }
 
 async function pushImage(imageInfo: ImageInfoUI): Promise<void> {
-  imageInfoToPush = imageInfo;
-  hasModalCallback(true);
-  pushImageModal = true;
+  onPushImage(imageInfo);
 }
 </script>
 
@@ -48,31 +38,6 @@ async function pushImage(imageInfo: ImageInfoUI): Promise<void> {
 {/if}
 <ListItemButtonIcon title="Run Image" onClick="{() => runImage(image)}" icon="{faPlayCircle}" />
 <ListItemButtonIcon title="Delete Image" onClick="{() => deleteImage(image)}" icon="{faTrash}" />
-
-{#if pushImageModal}
-  <Modal
-    on:close="{() => {
-      pushImageModal = false;
-    }}">
-    <PushImageModal
-      imageInfoToPush="{imageInfoToPush}"
-      closeCallback="{() => {
-        (pushImageModal = false), hasModalCallback(false);
-      }}" />
-  </Modal>
-{/if}
-{#if runContainerFromImageModal}
-  <Modal
-    on:close="{() => {
-      runContainerFromImageModal = false;
-    }}">
-    <RunContainerModal
-      image="{modalImageInfo}"
-      closeCallback="{() => {
-        runContainerFromImageModal = false;
-      }}" />
-  </Modal>
-{/if}
 
 {#if errorMessage}
   <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0" tabindex="{0}">
