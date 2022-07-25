@@ -27,6 +27,7 @@ import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
 import { isDev, isWindows } from './util';
+import { getDetectionChecks } from './detection-checks';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -112,7 +113,7 @@ export class PodmanInstall {
     //TODO: add Mac(darwin) installer
   }
 
-  public async doInstallPodman(): Promise<void> {
+  public async doInstallPodman(provider: extensionApi.Provider): Promise<void> {
     const dialogResult = await extensionApi.window.showInformationMessage(
       `Podman is not installed on this system, would you like to install Podman ${getBundledPodmanVersion()}?`,
       'Yes',
@@ -125,6 +126,8 @@ export class PodmanInstall {
       if (newInstalledPodman) {
         this.podmanInfo.podmanVersion = newInstalledPodman.version;
       }
+      // update detections checks
+      provider.updateDetectionChecks(getDetectionChecks(newInstalledPodman));
     } else {
       return; // exiting as without podman this extension is useless
     }
@@ -153,7 +156,10 @@ export class PodmanInstall {
     return { installedVersion, hasUpdate: false, bundledVersion };
   }
 
-  public async performUpdate(installedPodman: InstalledPodman | undefined): Promise<void> {
+  public async performUpdate(
+    provider: extensionApi.Provider,
+    installedPodman: InstalledPodman | undefined,
+  ): Promise<void> {
     const updateInfo = await this.checkForUpdate(installedPodman);
     if (updateInfo.hasUpdate) {
       const answer = await extensionApi.window.showInformationMessage(
@@ -165,6 +171,8 @@ export class PodmanInstall {
       if (answer === 'Yes') {
         await this.getInstaller().update();
         this.podmanInfo.podmanVersion = updateInfo.bundledVersion;
+        provider.updateDetectionChecks(getDetectionChecks(installedPodman));
+        provider.updateVersion(updateInfo.bundledVersion);
         this.podmanInfo.ignoreVersionUpdate = undefined;
       } else if (answer === 'Ignore') {
         this.podmanInfo.ignoreVersionUpdate = updateInfo.bundledVersion;
