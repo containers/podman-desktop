@@ -6,7 +6,7 @@ sidebar_position: 5
 
 ## Installing Podman Engine
 
-In order to use Podman Desktop, you need to have the latest version of Podman Engine. Fedora-CoreOS comes with Podman Engine. All you need to do is make sure that it is the latest version available. 
+In order to use Podman Desktop, you need to have a 4.x version of Podman Engine. For example Fedora 36 comes with Podman Engine 4.x. All you need to do is make sure that the linux distribution is using a 4.x version 
 
 For other Linux Distributions, click [here](https://podman.io/getting-started/installation#installing-on-linux) for a guide to install Podman Engine for different linux Distributions.
 
