@@ -30,7 +30,7 @@ Run the following command to install the flatpak application,
 flatpak install <name_of_the_flatpak_file> 
 ```
 
-In order to start the application, you need to know the Flatpak identifier for the application. In our case, that is ```com.github.containers.desktop```
+In order to start the application, you need to know the Flatpak identifier for the application. In our case, that is `io.podman_desktop.PodmanDesktop` starting 0.0.6 and `com.github.containers.desktop` for previous versions
 
 Run the following command to start the application,
 
