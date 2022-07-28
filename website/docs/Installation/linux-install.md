@@ -44,4 +44,4 @@ You can read more about running Flatpak applications [here](https://docs.flatpak
 
 Download the zip file and extract the folder.
 
-Navigate within the folder and double-click on the ```podman-desktop``` executable file. This should start the application for you.
+Navigate within the folder and double-click on the `podman-desktop` executable file. This should start the application for you.
