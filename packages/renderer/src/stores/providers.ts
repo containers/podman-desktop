@@ -19,9 +19,19 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import type { ProviderInfo } from '../../../main/src/plugin/api/provider-info';
+const updateProviderCallbacks = [];
 export async function fetchProviders() {
   const result = await window.getProviderInfos();
   providerInfos.set(result);
+  result.forEach(providerInfo => {
+    // register only if none for this provider id
+    if (!updateProviderCallbacks.includes[providerInfo.internalId]) {
+      window.onDidUpdateProviderStatus(providerInfo.internalId, () => {
+        fetchProviders();
+      });
+      updateProviderCallbacks.push(providerInfo.internalId);
+    }
+  });
 }
 
 fetchProviders();

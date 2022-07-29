@@ -373,6 +373,34 @@ function initExposure(): void {
     return ipcInvoke('provider-registry:getProviderInfos');
   });
 
+  let onDidUpdateProviderStatusId = 0;
+  const onDidUpdateProviderStatuses = new Map<number, (providerInfo: ProviderInfo) => void>();
+
+  contextBridge.exposeInMainWorld(
+    'onDidUpdateProviderStatus',
+    async (providerInternalId: string, onDidUpdateProviderStatusCallback: (providerInfo: ProviderInfo) => void) => {
+      // generate id
+      onDidUpdateProviderStatusId++;
+
+      onDidUpdateProviderStatuses.set(onDidUpdateProviderStatusId, onDidUpdateProviderStatusCallback);
+      return ipcInvoke(
+        'provider-registry:onDidUpdateProviderStatus',
+        providerInternalId,
+        onDidUpdateProviderStatusId,
+      );
+    },
+  );
+  ipcRenderer.on(
+    'provider-registry:onDidUpdateProviderStatus-onData',
+    (_, onDidUpdateProviderStatusCallbackId: number, providerInfo: ProviderInfo) => {
+      // grab callback from the map
+      const callback = onDidUpdateProviderStatuses.get(onDidUpdateProviderStatusCallbackId);
+      if (callback) {
+        callback(providerInfo);
+      }
+    },
+  );
+
   contextBridge.exposeInMainWorld('getImageRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
     return ipcInvoke('image-registry:getRegistries');
   });

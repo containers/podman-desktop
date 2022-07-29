@@ -579,4 +579,13 @@ export class ProviderRegistry {
       );
     });
   }
+
+  onDidUpdateProviderStatus(providerId: string, callback: (providerInfo: ProviderInfo) => void) {
+    // add callback for the given providerId
+    const provider = this.getMatchingProvider(providerId);
+
+    provider.onDidUpdateStatus(() => {
+      callback(this.getProviderInfo(provider));
+    });
+  }
 }
