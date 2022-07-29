@@ -52,6 +52,7 @@ import { Telemetry } from './telemetry/telemetry';
 import { NotificationImpl } from './notification-impl';
 import { StatusBarRegistry } from './statusbar/statusbar-registry';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry';
+import type { IpcMainInvokeEvent } from 'electron/main';
 
 export class PluginSystem {
   constructor(private trayMenu: TrayMenu) {}
@@ -62,6 +63,31 @@ export class PluginSystem {
       throw new Error('Unable to find the main window');
     }
     return window.webContents;
+  }
+
+  // encode the error to be sent over IPC
+  // this is needed because on the client it will display
+  // a generic error message 'Error invoking remote method' and
+  // it's not useful for end user
+  encodeIpcError(e: unknown) {
+    let builtError;
+    if (e instanceof Error) {
+      builtError = { name: e.name, message: e.message, extra: { ...e } };
+    } else {
+      builtError = { message: e };
+    }
+    return builtError;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ipcHandle(channel: string, listener: (event: IpcMainInvokeEvent, ...args: any[]) => Promise<void> | any) {
+    ipcMain.handle(channel, async (...args) => {
+      try {
+        return { result: await Promise.resolve(listener(...args)) };
+      } catch (e) {
+        return { error: this.encodeIpcError(e) };
+      }
+    });
   }
 
   // initialize extension loader mechanism
@@ -122,57 +148,57 @@ export class PluginSystem {
     );
 
     const contributionManager = new ContributionManager(apiSender);
-    ipcMain.handle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
+    this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
     });
-    ipcMain.handle('container-provider-registry:listImages', async (): Promise<ImageInfo[]> => {
+    this.ipcHandle('container-provider-registry:listImages', async (): Promise<ImageInfo[]> => {
       return containerProviderRegistry.listImages();
     });
 
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:startContainer',
       async (_listener, engine: string, containerId: string): Promise<void> => {
         return containerProviderRegistry.startContainer(engine, containerId);
       },
     );
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:stopContainer',
       async (_listener, engine: string, containerId: string): Promise<void> => {
         return containerProviderRegistry.stopContainer(engine, containerId);
       },
     );
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:deleteContainer',
       async (_listener, engine: string, containerId: string): Promise<void> => {
         return containerProviderRegistry.deleteContainer(engine, containerId);
       },
     );
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:deleteImage',
       async (_listener, engine: string, imageId: string): Promise<void> => {
         return containerProviderRegistry.deleteImage(engine, imageId);
       },
     );
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:getImageInspect',
       async (_listener, engine: string, imageId: string): Promise<ImageInspectInfo> => {
         return containerProviderRegistry.getImageInspect(engine, imageId);
       },
     );
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:restartContainer',
       async (_listener, engine: string, containerId: string): Promise<void> => {
         return containerProviderRegistry.restartContainer(engine, containerId);
       },
     );
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:createAndStartContainer',
       async (_listener, engine: string, options: ContainerCreateOptions): Promise<void> => {
         return containerProviderRegistry.createAndStartContainer(engine, options);
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:pullImage',
       async (
         _listener,
@@ -185,7 +211,7 @@ export class PluginSystem {
         });
       },
     );
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:pushImage',
       async (_listener, engine: string, imageId: string, callbackId: number): Promise<void> => {
         return containerProviderRegistry.pushImage(engine, imageId, (name: string, data: string) => {
@@ -193,7 +219,7 @@ export class PluginSystem {
         });
       },
     );
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:logsContainer',
       async (_listener, engine: string, containerId: string, onDataId: number): Promise<void> => {
         return containerProviderRegistry.logsContainer(engine, containerId, (name: string, data: string) => {
@@ -203,7 +229,7 @@ export class PluginSystem {
     );
 
     const containerProviderRegistryShellInContainerSendCallback = new Map<number, (param: string) => void>();
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:shellInContainer',
       async (_listener, engine: string, containerId: string, onDataId: number): Promise<number> => {
         // provide the data content to the remote side
@@ -220,7 +246,7 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:shellInContainerSend',
       async (_listener, onDataId: number, content: string): Promise<void> => {
         const callback = containerProviderRegistryShellInContainerSendCallback.get(onDataId);
@@ -230,7 +256,7 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'container-provider-registry:buildImage',
       async (
         _listener,
@@ -257,11 +283,11 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle('status-bar:getStatusBarEntries', async (): Promise<StatusBarEntryDescriptor[]> => {
+    this.ipcHandle('status-bar:getStatusBarEntries', async (): Promise<StatusBarEntryDescriptor[]> => {
       return statusBarRegistry.getStatusBarEntries();
     });
 
-    ipcMain.handle(
+    this.ipcHandle(
       'status-bar:executeStatusBarEntryCommand',
       async (
         _,
@@ -273,38 +299,38 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
+    this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
       return providerRegistry.getProviderInfos();
     });
 
-    ipcMain.handle(
+    this.ipcHandle(
       'provider-registry:getProviderDetectionChecks',
       async (_, providerInternalId: string): Promise<containerDesktopAPI.ProviderDetectionCheck[]> => {
         return providerRegistry.getProviderDetectionChecks(providerInternalId);
       },
     );
 
-    ipcMain.handle('provider-registry:updateProvider', async (_, providerInternalId: string): Promise<void> => {
+    this.ipcHandle('provider-registry:updateProvider', async (_, providerInternalId: string): Promise<void> => {
       return providerRegistry.updateProvider(providerInternalId);
     });
 
-    ipcMain.handle('provider-registry:installProvider', async (_, providerInternalId: string): Promise<void> => {
+    this.ipcHandle('provider-registry:installProvider', async (_, providerInternalId: string): Promise<void> => {
       return providerRegistry.installProvider(providerInternalId);
     });
 
-    ipcMain.handle('provider-registry:startProvider', async (_, providerInternalId: string): Promise<void> => {
+    this.ipcHandle('provider-registry:startProvider', async (_, providerInternalId: string): Promise<void> => {
       return providerRegistry.startProvider(providerInternalId);
     });
 
-    ipcMain.handle('provider-registry:initializeProvider', async (_, providerInternalId: string): Promise<void> => {
+    this.ipcHandle('provider-registry:initializeProvider', async (_, providerInternalId: string): Promise<void> => {
       return providerRegistry.initializeProvider(providerInternalId);
     });
 
-    ipcMain.handle('system:get-free-port', async (_, port: number): Promise<number> => {
+    this.ipcHandle('system:get-free-port', async (_, port: number): Promise<number> => {
       return getFreePort(port);
     });
 
-    ipcMain.handle(
+    this.ipcHandle(
       'provider-registry:startReceiveLogs',
       async (
         _listener,
@@ -332,7 +358,7 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'provider-registry:stopReceiveLogs',
       async (
         _listener,
@@ -349,11 +375,11 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle('image-registry:getRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
+    this.ipcHandle('image-registry:getRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
       return imageRegistry.getRegistries();
     });
 
-    ipcMain.handle('image-registry:hasAuthconfigForImage', async (_listener, imageName: string): Promise<boolean> => {
+    this.ipcHandle('image-registry:hasAuthconfigForImage', async (_listener, imageName: string): Promise<boolean> => {
       if (imageName.indexOf(',') !== -1) {
         const allImageNames = imageName.split(',');
         let hasAuth = false;
@@ -366,25 +392,18 @@ export class PluginSystem {
       return authconfig !== undefined;
     });
 
-    ipcMain.handle('image-registry:getProviderNames', async (): Promise<string[]> => {
+    this.ipcHandle('image-registry:getProviderNames', async (): Promise<string[]> => {
       return imageRegistry.getProviderNames();
     });
 
-    ipcMain.handle(
+    this.ipcHandle(
       'image-registry:unregisterRegistry',
       async (_listener, registry: containerDesktopAPI.Registry): Promise<void> => {
         return imageRegistry.unregisterRegistry(registry);
       },
     );
 
-    ipcMain.handle(
-      'image-registry:registerRegistry',
-      async (_listener, registry: containerDesktopAPI.Registry): Promise<void> => {
-        await imageRegistry.registerRegistry(registry);
-      },
-    );
-
-    ipcMain.handle(
+    this.ipcHandle(
       'image-registry:createRegistry',
       async (
         _listener,
@@ -395,20 +414,20 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'image-registry:updateRegistry',
       async (_listener, registryUrl: string, registry: containerDesktopAPI.Registry): Promise<void> => {
         await imageRegistry.updateRegistry(registryUrl, registry);
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'configuration-registry:getConfigurationProperties',
       async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
         return configurationRegistry.getConfigurationProperties();
       },
     );
-    ipcMain.handle(
+    this.ipcHandle(
       'configuration-registry:getConfigurationValue',
       async <T>(
         _listener: Electron.IpcMainInvokeEvent,
@@ -423,7 +442,7 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'configuration-registry:updateConfigurationValue',
       async (
         _listener: Electron.IpcMainInvokeEvent,
@@ -435,49 +454,49 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle('contributions:listContributions', async (): Promise<ContributionInfo[]> => {
+    this.ipcHandle('contributions:listContributions', async (): Promise<ContributionInfo[]> => {
       return contributionManager.listContributions();
     });
 
-    ipcMain.handle('extension-loader:listExtensions', async (): Promise<ExtensionInfo[]> => {
+    this.ipcHandle('extension-loader:listExtensions', async (): Promise<ExtensionInfo[]> => {
       return extensionLoader.listExtensions();
     });
 
-    ipcMain.handle(
+    this.ipcHandle(
       'extension-loader:deactivateExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
         return extensionLoader.deactivateExtension(extensionId);
       },
     );
-    ipcMain.handle(
+    this.ipcHandle(
       'extension-loader:startExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
         return extensionLoader.startExtension(extensionId);
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'shell:openExternal',
       async (_listener: Electron.IpcMainInvokeEvent, link: string): Promise<void> => {
         shell.openExternal(link);
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'provider-registry:startProviderLifecycle',
       async (_listener: Electron.IpcMainInvokeEvent, providerId: string): Promise<void> => {
         return providerRegistry.startProviderLifecycle(providerId);
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'provider-registry:stopProviderLifecycle',
       async (_listener: Electron.IpcMainInvokeEvent, providerId: string): Promise<void> => {
         return providerRegistry.stopProviderLifecycle(providerId);
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'provider-registry:updateProxySettings',
       async (
         _listener: Electron.IpcMainInvokeEvent,
@@ -488,7 +507,7 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'provider-registry:startProviderConnectionLifecycle',
       async (
         _listener: Electron.IpcMainInvokeEvent,
@@ -499,7 +518,7 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'provider-registry:stopProviderConnectionLifecycle',
       async (
         _listener: Electron.IpcMainInvokeEvent,
@@ -510,7 +529,7 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'provider-registry:deleteProviderConnectionLifecycle',
       async (
         _listener: Electron.IpcMainInvokeEvent,
@@ -521,7 +540,7 @@ export class PluginSystem {
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'provider-registry:createProviderConnection',
       async (
         _listener: Electron.IpcMainInvokeEvent,
