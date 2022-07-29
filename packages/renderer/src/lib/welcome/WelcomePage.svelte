@@ -2,30 +2,17 @@
 import { providerInfos } from '../../stores/providers';
 import { onMount } from 'svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { each } from 'svelte/internal';
 import ProviderNotInstalled from './ProviderNotInstalled.svelte';
 import ProviderReady from './ProviderReady.svelte';
 import ProviderInstalled from './ProviderInstalled.svelte';
 import ProviderConfigured from './ProviderConfigured.svelte';
 import ProviderStopped from './ProviderStopped.svelte';
 
-let providers: ProviderInfo[] = [];
-$: providerConnections = providers
-  .map(provider => provider.containerConnections)
-  .flat()
-  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-
-$: providersNotInstalled = providers.filter(provider => provider.status === 'not-installed');
-$: providersInstalled = providers.filter(provider => provider.status === 'installed');
-$: providersConfigured = providers.filter(provider => provider.status === 'configured');
-$: providersReady = providers.filter(provider => provider.status === 'ready' || provider.status === 'started');
-$: providersStopped = providers.filter(provider => provider.status === 'stopped');
-
-onMount(() => {
-  providerInfos.subscribe(value => {
-    providers = value;
-  });
-});
+$: providersNotInstalled = $providerInfos.filter(provider => provider.status === 'not-installed');
+$: providersInstalled = $providerInfos.filter(provider => provider.status === 'installed');
+$: providersConfigured = $providerInfos.filter(provider => provider.status === 'configured');
+$: providersReady = $providerInfos.filter(provider => provider.status === 'ready' || provider.status === 'started');
+$: providersStopped = $providerInfos.filter(provider => provider.status === 'stopped');
 </script>
 
 <div class="flex flex-col min-h-full">

@@ -383,11 +383,7 @@ function initExposure(): void {
       onDidUpdateProviderStatusId++;
 
       onDidUpdateProviderStatuses.set(onDidUpdateProviderStatusId, onDidUpdateProviderStatusCallback);
-      return ipcInvoke(
-        'provider-registry:onDidUpdateProviderStatus',
-        providerInternalId,
-        onDidUpdateProviderStatusId,
-      );
+      return ipcInvoke('provider-registry:onDidUpdateProviderStatus', providerInternalId, onDidUpdateProviderStatusId);
     },
   );
   ipcRenderer.on(
