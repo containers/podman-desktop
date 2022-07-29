@@ -304,6 +304,19 @@ export class PluginSystem {
     });
 
     this.ipcHandle(
+      'provider-registry:onDidUpdateProviderStatus',
+      async (_, providerInternalId: string, onDidUpdateProviderStatusCallbackIdnumber: number): Promise<void> => {
+        return providerRegistry.onDidUpdateProviderStatus(providerInternalId, (providerInfo: ProviderInfo) => {
+          this.getWebContentsSender().send(
+            'provider-registry:onDidUpdateProviderStatus-onData',
+            onDidUpdateProviderStatusCallbackIdnumber,
+            providerInfo,
+          );
+        });
+      },
+    );
+
+    this.ipcHandle(
       'provider-registry:getProviderDetectionChecks',
       async (_, providerInternalId: string): Promise<containerDesktopAPI.ProviderDetectionCheck[]> => {
         return providerRegistry.getProviderDetectionChecks(providerInternalId);
