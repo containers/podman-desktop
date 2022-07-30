@@ -38,7 +38,7 @@ function deleteContribution(extensionName: string) {
       You may try to install some of these extensions by providing the image providing the extension.
     </p>
     <p class="text-xs italic">
-      Example: aquasec/trivy-docker-extension:0.4.3 for Trivy extension or redhatdeveloper/openshift-dd-ext:0.0.1-41 for
+      Example: aquasec/trivy-docker-extension:latest for Trivy extension or redhatdeveloper/openshift-dd-ext:latest for
       the OpenShift extension.
     </p>
 
