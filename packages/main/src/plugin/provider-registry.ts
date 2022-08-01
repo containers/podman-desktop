@@ -259,7 +259,6 @@ export class ProviderRegistry {
     const checks = providerInstall.preflightChecks();
     for (const check of checks) {
       statusCallback.startCheck({ name: check.title });
-      console.error(`Start Check: ${check.title}`);
       try {
         const checkResult = await check.execute();
 

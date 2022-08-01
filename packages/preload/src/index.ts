@@ -245,15 +245,15 @@ function initExposure(): void {
   const preflightChecksCallbacks = new Map<number, PreflightChecksCallback>();
   let checkCallbackId = 0;
   contextBridge.exposeInMainWorld(
-    'runPreflightChecks',
+    'runInstallPreflightChecks',
     async (providerId: string, callBack: PreflightChecksCallback) => {
       checkCallbackId++;
       preflightChecksCallbacks.set(checkCallbackId, callBack);
-      return await ipcRenderer.invoke('provider-registry:runPreflightChecks', providerId, checkCallbackId);
+      return await ipcRenderer.invoke('provider-registry:runInstallPreflightChecks', providerId, checkCallbackId);
     },
   );
 
-  ipcRenderer.on('provider-registry:preflightChecksUpdate', (_, callbackId, data: PreflightCheckEvent) => {
+  ipcRenderer.on('provider-registry:installPreflightChecksUpdate', (_, callbackId, data: PreflightCheckEvent) => {
     const callback = preflightChecksCallbacks.get(callbackId);
     if (callback) {
       switch (data.type) {

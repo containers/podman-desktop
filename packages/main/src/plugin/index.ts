@@ -298,17 +298,17 @@ export class PluginSystem {
     });
 
     ipcMain.handle(
-      'provider-registry:runPreflightChecks',
+      'provider-registry:runInstallPreflightChecks',
       async (_, providerInternalId: string, callbackId: number): Promise<boolean> => {
         const callback: PreflightChecksCallback = {
           startCheck: status => {
-            this.getWebContentsSender().send('provider-registry:preflightChecksUpdate', callbackId, {
+            this.getWebContentsSender().send('provider-registry:installPreflightChecksUpdate', callbackId, {
               type: 'start',
               status,
             } as PreflightCheckEvent);
           },
           endCheck: status => {
-            this.getWebContentsSender().send('provider-registry:preflightChecksUpdate', callbackId, {
+            this.getWebContentsSender().send('provider-registry:installPreflightChecksUpdate', callbackId, {
               type: 'stop',
               status,
             } as PreflightCheckEvent);

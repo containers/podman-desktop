@@ -17,7 +17,7 @@ async function performInstallation(provider: ProviderInfo) {
   let checkSuccess = false;
   let currentCheck: CheckStatus;
   try {
-    checkSuccess = await window.runPreflightChecks(provider.internalId, {
+    checkSuccess = await window.runInstallPreflightChecks(provider.internalId, {
       endCheck: status => {
         if (currentCheck) {
           currentCheck = status;
