@@ -128,7 +128,9 @@ async function pullImage() {
     pullInProgress = false;
     pullFinished = true;
   } catch (error) {
-    pullError = error;
+    const errorMessage = error.message ? error.message : error;
+    pullError = 'Could not connect to ' + selectedProviderConnection.name + ': ' + errorMessage;
+    pullInProgress = false;
   }
 }
 
