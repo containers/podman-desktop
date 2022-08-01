@@ -272,7 +272,7 @@ function initExposure(): void {
     async (providerId: string, callBack: PreflightChecksCallback) => {
       checkCallbackId++;
       preflightChecksCallbacks.set(checkCallbackId, callBack);
-      return await ipcRenderer.invoke('provider-registry:runInstallPreflightChecks', providerId, checkCallbackId);
+      return await ipcInvoke('provider-registry:runInstallPreflightChecks', providerId, checkCallbackId);
     },
   );
 
