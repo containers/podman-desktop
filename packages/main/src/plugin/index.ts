@@ -59,6 +59,7 @@ import { StatusBarRegistry } from './statusbar/statusbar-registry';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry';
 import type { IpcMainInvokeEvent } from 'electron/main';
 
+type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
   constructor(private trayMenu: TrayMenu) {}
 
@@ -95,8 +96,35 @@ export class PluginSystem {
     });
   }
 
+  // log locally and also send it to the renderer process
+  // so client can see logs in the developer console
+  redirectConsole(logType: LogType): void {
+    // keep original method
+    const originalConsoleMethod = console[logType];
+    console[logType] = (...args) => {
+      // still display as before by invoking original method
+      originalConsoleMethod(...args);
+
+      // but also send the content remotely
+      try {
+        this.getWebContentsSender().send('console:output', logType, ...args);
+      } catch (err) {
+        originalConsoleMethod(err);
+      }
+    };
+  }
+
+  // setup pipe/redirect for console.log, console.warn, console.trace, console.debug, console.error
+  redirectLogging() {
+    const logTypes: LogType[] = ['log', 'warn', 'trace', 'debug', 'error'];
+    logTypes.forEach(logType => this.redirectConsole(logType));
+  }
+
   // initialize extension loader mechanism
   async initExtensions(): Promise<void> {
+    // redirect main process logs to the extension loader
+    this.redirectLogging();
+
     const eventEmitter = new EventEmitter();
     const apiSender = {
       send: (channel: string, data: string) => {
