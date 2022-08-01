@@ -73,3 +73,19 @@ export interface ProviderInfo {
     version: string;
   };
 }
+
+export interface PreflightChecksCallback {
+  startCheck: (status: CheckStatus) => void;
+  endCheck: (status: CheckStatus) => void;
+}
+
+export interface CheckStatus {
+  name: string;
+  successful?: boolean;
+  description?: string;
+}
+
+export interface PreflightCheckEvent {
+  type: 'start' | 'stop';
+  status: CheckStatus;
+}

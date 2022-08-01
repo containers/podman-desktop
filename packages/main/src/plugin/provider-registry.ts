@@ -32,6 +32,7 @@ import type {
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
   LifecycleMethod,
+  PreflightChecksCallback,
 } from './api/provider-info';
 import type { ContainerProviderRegistry } from './container-registry';
 import { LifecycleContextImpl, LoggerImpl } from './lifecycle-context';
@@ -242,6 +243,45 @@ export class ProviderRegistry {
   async getProviderDetectionChecks(providerInternalId: string): Promise<ProviderDetectionCheck[]> {
     const provider = this.getMatchingProvider(providerInternalId);
     return provider.detectionChecks;
+  }
+
+  async runPreflightChecks(providerInternalId: string, statusCallback: PreflightChecksCallback): Promise<boolean> {
+    const provider = this.getMatchingProvider(providerInternalId);
+    const providerInstall = this.providerInstallations.get(providerInternalId);
+    if (!providerInstall) {
+      throw new Error(`No matching installation for provider ${provider.internalId}`);
+    }
+
+    if (!providerInstall.preflightChecks) {
+      return false;
+    }
+
+    const checks = providerInstall.preflightChecks();
+    for (const check of checks) {
+      statusCallback.startCheck({ name: check.title });
+      console.error(`Start Check: ${check.title}`);
+      try {
+        const checkResult = await check.execute();
+
+        statusCallback.endCheck({
+          name: check.title,
+          successful: checkResult.successful,
+          description: checkResult.description,
+        });
+
+        if (!checkResult.successful) {
+          return false;
+        }
+      } catch (err) {
+        console.error(err);
+        statusCallback.endCheck({
+          name: check.title,
+          successful: false,
+          description: err instanceof Error ? err.message : typeof err === 'object' ? err?.toString() : 'unknown error',
+        });
+      }
+    }
+    return true;
   }
 
   async installProvider(providerInternalId: string): Promise<void> {

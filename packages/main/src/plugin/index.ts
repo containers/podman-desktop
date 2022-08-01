@@ -31,7 +31,12 @@ import { ConfigurationRegistry } from './configuration-registry';
 import { TerminalInit } from './terminal-init';
 import { ImageRegistry } from './image-registry';
 import { EventEmitter } from 'node:events';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from './api/provider-info';
+import type {
+  PreflightCheckEvent,
+  PreflightChecksCallback,
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+} from './api/provider-info';
 import type { WebContents } from 'electron';
 import { ipcMain, BrowserWindow } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
@@ -291,6 +296,27 @@ export class PluginSystem {
     ipcMain.handle('provider-registry:installProvider', async (_, providerInternalId: string): Promise<void> => {
       return providerRegistry.installProvider(providerInternalId);
     });
+
+    ipcMain.handle(
+      'provider-registry:runPreflightChecks',
+      async (_, providerInternalId: string, callbackId: number): Promise<boolean> => {
+        const callback: PreflightChecksCallback = {
+          startCheck: status => {
+            this.getWebContentsSender().send('provider-registry:preflightChecksUpdate', callbackId, {
+              type: 'start',
+              status,
+            } as PreflightCheckEvent);
+          },
+          endCheck: status => {
+            this.getWebContentsSender().send('provider-registry:preflightChecksUpdate', callbackId, {
+              type: 'stop',
+              status,
+            } as PreflightCheckEvent);
+          },
+        };
+        return providerRegistry.runPreflightChecks(providerInternalId, callback);
+      },
+    );
 
     ipcMain.handle('provider-registry:startProvider', async (_, providerInternalId: string): Promise<void> => {
       return providerRegistry.startProvider(providerInternalId);
