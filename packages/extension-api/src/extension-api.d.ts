@@ -202,7 +202,18 @@ declare module '@tmpwip/extension-api' {
     create(params: { [key: string]: any }): Promise<void>;
   }
 
+  export interface CheckResult {
+    successful: boolean;
+    description?: string;
+  }
+
+  export interface InstallCheck {
+    title: string;
+    execute(): Promise<CheckResult>;
+  }
+
   export interface ProviderInstallation {
+    preflightChecks?(): InstallCheck[];
     // ask to install the provider
     install(logger: Logger): Promise<void>;
   }

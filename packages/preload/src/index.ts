@@ -28,7 +28,12 @@ import type { ContributionInfo } from '../../main/src/plugin/api/contribution-in
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../main/src/plugin/api/provider-info';
+import type {
+  PreflightCheckEvent,
+  PreflightChecksCallback,
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+} from '../../main/src/plugin/api/provider-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin/configuration-registry';
 import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import { Deferred } from './util/deferred';
@@ -259,6 +264,31 @@ function initExposure(): void {
       return ipcInvoke('provider-registry:installProvider', providerId);
     },
   );
+
+  const preflightChecksCallbacks = new Map<number, PreflightChecksCallback>();
+  let checkCallbackId = 0;
+  contextBridge.exposeInMainWorld(
+    'runInstallPreflightChecks',
+    async (providerId: string, callBack: PreflightChecksCallback) => {
+      checkCallbackId++;
+      preflightChecksCallbacks.set(checkCallbackId, callBack);
+      return await ipcInvoke('provider-registry:runInstallPreflightChecks', providerId, checkCallbackId);
+    },
+  );
+
+  ipcRenderer.on('provider-registry:installPreflightChecksUpdate', (_, callbackId, data: PreflightCheckEvent) => {
+    const callback = preflightChecksCallbacks.get(callbackId);
+    if (callback) {
+      switch (data.type) {
+        case 'start':
+          callback.startCheck(data.status);
+          break;
+        case 'stop':
+          callback.endCheck(data.status);
+          break;
+      }
+    }
+  });
 
   contextBridge.exposeInMainWorld(
     'updateProvider',
