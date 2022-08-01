@@ -80,6 +80,21 @@ function initExposure(): void {
     apiSender.send(channel, data);
   });
 
+  ipcRenderer.on('console:output', (_, target: string, ...args) => {
+    const prefix = 'main ↪️';
+    if (target === 'log') {
+      console.log(prefix, ...args);
+    } else if (target === 'warn') {
+      console.warn(prefix, ...args);
+    } else if (target === 'trace') {
+      console.trace(prefix, ...args);
+    } else if (target === 'debug') {
+      console.debug(prefix, ...args);
+    } else if (target === 'error') {
+      console.error(prefix, ...args);
+    }
+  });
+
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
     return ipcInvoke('container-provider-registry:listContainers');
   });
