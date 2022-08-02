@@ -25,6 +25,7 @@ async function initializeProvider() {
       });
     } catch (error) {
       initalizeError = error;
+      providerToggleValue = false;
       console.error('Error while initializing the provider', error);
     }
     initializeInProgress = false;
