@@ -34,7 +34,6 @@ type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus
 
 const listeners = new Set<StatusHandler>();
 const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), '.local/share/containers/podman/machine');
-const podmanMachineDirectoryWindows = path.resolve(os.homedir(), '.local/share/containers/podman/machine/wsl/wsldist');
 let storedExtensionContext;
 let stopLoop = false;
 
@@ -406,9 +405,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     extensionContext.subscriptions.push(disposable);
     initDefaultLinux(provider);
   } else if (isWindows) {
-    if (!fs.existsSync(podmanMachineDirectoryWindows)) {
-      return;
-    }
     monitorMachines(provider);
   }
 
