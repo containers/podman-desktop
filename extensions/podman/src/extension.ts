@@ -228,6 +228,8 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
         provider.updateStatus('started');
       } catch (err) {
         console.error(err);
+        // propagate the error
+        throw err;
       }
     },
     stop: async (context): Promise<void> => {
