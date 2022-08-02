@@ -4754,7 +4754,7 @@ csstype@^3.0.2:
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.11.tgz#d66700c5eacfac1940deb4e3ee5642792d85cd33"
   integrity sha512-sa6P2wJ+CAbgyy4KFssIb/JNMLxFvKF1pCYCSXS8ZMuqZnMsrxqI2E5sPyoTpxoPU/gVZMzr2zjOfg8GIZOMsw==
 
-debug@2.6.9, debug@^2.6.0, debug@^2.6.8, debug@^2.6.9:
+debug@2.6.9, debug@^2.6.0, debug@^2.6.8:
   version "2.6.9"
   resolved "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz"
   integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
@@ -5310,14 +5310,14 @@ electron-updater@4.6.5:
     lodash.isequal "^4.5.0"
     semver "^7.3.5"
 
-electron@^19.0.8:
-  version "19.0.8"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-19.0.8.tgz#c4d4ba915de554f2926261eb37d3527d2b092d4c"
-  integrity sha512-OWK3P/NbDFfBUv+wbYv1/OV4jehY5DQPT7n1maQJfN9hsnrWTMktXS/bmS05eSUAjNAzHmKPKfiKH2c1Yr7nGw==
+electron@^20.0.0:
+  version "20.0.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-20.0.0.tgz#c15a441341380effda071515d8b9c88a11e2a9c4"
+  integrity sha512-rPHTdjBKGSoLgGuJVsqDgmK9woDQxzlU18H+3cO4i+fNh29BMbFRwKKyit13lniO1hzRsEJDG5UKvFXs4vEpnA==
   dependencies:
     "@electron/get" "^1.14.1"
     "@types/node" "^16.11.26"
-    extract-zip "^1.0.3"
+    extract-zip "^2.0.1"
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -5901,16 +5901,6 @@ extend@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
-
-extract-zip@^1.0.3:
-  version "1.7.0"
-  resolved "https://registry.npmjs.org/extract-zip/-/extract-zip-1.7.0.tgz"
-  integrity sha512-xoh5G1W/PB0/27lXgMQyIhP5DSY/LhoCsOyZgb+6iMmRtCwVBo55uKaMoEYrDCKQhWvqEip5ZPKAc6eFNyf/MA==
-  dependencies:
-    concat-stream "^1.6.2"
-    debug "^2.6.9"
-    mkdirp "^0.5.4"
-    yauzl "^2.10.0"
 
 extract-zip@^2.0.1:
   version "2.0.1"
@@ -8125,7 +8115,7 @@ mkdirp-classic@^0.5.2:
   resolved "https://registry.npmjs.org/mkdirp-classic/-/mkdirp-classic-0.5.3.tgz"
   integrity sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A==
 
-mkdirp@^0.5.1, mkdirp@^0.5.4:
+mkdirp@^0.5.1:
   version "0.5.5"
   resolved "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.5.tgz"
   integrity sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==
