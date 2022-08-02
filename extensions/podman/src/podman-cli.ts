@@ -55,28 +55,43 @@ export function execPromise(command: string, args?: string[], logger?: extension
     command = 'flatpak-spawn';
   }
   return new Promise((resolve, reject) => {
-    let output = '';
-    let err = '';
+    let stdOut = '';
+    let stdErr = '';
     const process = spawn(command, args, { env });
-    process.on('error', err => {
-      reject(err);
+    process.on('error', error => {
+      let content;
+      if (stdOut && stdOut !== '') {
+        content += stdOut + '\n';
+      }
+      if (stdErr && stdErr !== '') {
+        content += stdErr + '\n';
+      }
+      reject(content + error);
     });
     process.stdout.setEncoding('utf8');
     process.stdout.on('data', data => {
-      output += data;
+      stdOut += data;
       logger?.log(data);
     });
     process.stderr.setEncoding('utf8');
     process.stderr.on('data', data => {
-      err += data;
+      stdErr += data;
       logger?.error(data);
     });
 
     process.on('close', exitCode => {
-      if (exitCode !== 0) {
-        reject(err);
+      let content;
+      if (stdOut && stdOut !== '') {
+        content += stdOut + '\n';
       }
-      resolve(output.trim());
+      if (stdErr && stdErr !== '') {
+        content += stdErr + '\n';
+      }
+
+      if (exitCode !== 0) {
+        reject(content);
+      }
+      resolve(stdOut.trim());
     });
   });
 }
