@@ -148,7 +148,7 @@ export class PluginSystem {
     const commandRegistry = new CommandRegistry();
     const imageRegistry = new ImageRegistry(apiSender, telemetry);
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
-    const providerRegistry = new ProviderRegistry(containerProviderRegistry, telemetry);
+    const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
 

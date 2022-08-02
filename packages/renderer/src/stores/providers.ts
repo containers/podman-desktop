@@ -56,7 +56,12 @@ window?.events.receive('provider-lifecycle-change', () => {
 window?.events.receive('provider-change', () => {
   fetchProviders();
 });
-
+window?.events.receive('provider-create', () => {
+  fetchProviders();
+});
+window?.events.receive('provider-delete', () => {
+  fetchProviders();
+});
 window?.events.receive('provider:update-status', () => {
   fetchProviders();
 });

@@ -71,7 +71,12 @@ export class ProviderRegistry {
   private lifecycleListeners: ProviderLifecycleListener[];
   private containerConnectionLifecycleListeners: ContainerConnectionProviderLifecycleListener[];
 
-  constructor(private containerRegistry: ContainerProviderRegistry, private telemetryService: Telemetry) {
+  constructor(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private apiSender: any,
+    private containerRegistry: ContainerProviderRegistry,
+    private telemetryService: Telemetry,
+  ) {
     this.providers = new Map();
     this.listeners = [];
     this.lifecycleListeners = [];
@@ -107,12 +112,14 @@ export class ProviderRegistry {
       trackOpts.version = providerOptions.version;
     }
     this.telemetryService.track('createProvider', trackOpts);
+    this.apiSender.send('provider-create', id);
     return providerImpl;
   }
 
   disposeProvider(providerImpl: ProviderImpl): void {
     this.providers.delete(providerImpl.internalId);
     this.listeners.forEach(listener => listener('provider:delete', this.getProviderInfo(providerImpl)));
+    this.apiSender.send('provider-delete', providerImpl.id);
   }
 
   // need to call dispose() method to unregister the lifecycle
