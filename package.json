@@ -62,7 +62,7 @@
     "@typescript-eslint/parser": "^5.30.7",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
-    "electron": "^19.0.8",
+    "electron": "^20.0.0",
     "electron-builder": "23.0.9",
     "electron-builder-notarize": "^1.4.0",
     "electron-devtools-installer": "^3.2.0",
