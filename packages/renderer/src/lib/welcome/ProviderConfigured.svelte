@@ -25,6 +25,7 @@ async function runProvider() {
       });
     } catch (error) {
       runError = error;
+      providerToggleValue = false;
       console.error('Error while starting the provider', error);
     }
     runInProgress = false;
