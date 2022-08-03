@@ -115,8 +115,6 @@ async function updateProvider(extensionContext: extensionApi.ExtensionContext) {
         if (!provider) {
           initProvider(extensionContext);
         }
-
-        console.log('updating status to started');
         providerState = 'started';
         // register again the connection
         containerProviderConnectionDisposable =
@@ -129,9 +127,7 @@ async function updateProvider(extensionContext: extensionApi.ExtensionContext) {
   } else {
     // no longer alive but it was running before so we need to update status
     if (providerState === 'started') {
-      console.log('updating status to stopped');
       // dispose the current connection
-      console.log('dispose the connection', containerProviderConnectionDisposable);
       containerProviderConnectionDisposable?.dispose();
       providerState = 'stopped';
       provider.updateStatus('stopped');
