@@ -328,7 +328,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const provider = extensionApi.provider.createProvider(providerOptions);
   // provide an installation path ?
   if (podmanInstall.isAbleToInstall()) {
-    provider.registerInstallation({ install: () => podmanInstall.doInstallPodman(provider) });
+    provider.registerInstallation({
+      install: () => podmanInstall.doInstallPodman(provider),
+      preflightChecks: () => podmanInstall.getInstallChecks(),
+    });
   }
 
   // provide an installation path ?
