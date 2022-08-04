@@ -224,7 +224,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     start: async (context): Promise<void> => {
       try {
         // start the machine
-        await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], context.log);
+        await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], { logger: context.log });
         provider.updateStatus('started');
       } catch (err) {
         console.error(err);
@@ -233,7 +233,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
       }
     },
     stop: async (context): Promise<void> => {
-      await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], context.log);
+      await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], { logger: context.log });
       provider.updateStatus('ready');
     },
     delete: async (): Promise<void> => {

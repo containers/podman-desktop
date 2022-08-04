@@ -385,7 +385,9 @@ class HyperVCheck extends BaseCheck {
     } catch (err) {
       // ignore error, this means that hyper-v not enabled
     }
-    return this.createFailureResult('Hyper-V should be enabled to be able to run Podman. See https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v');
+    return this.createFailureResult(
+      'Hyper-V should be enabled to be able to run Podman. See https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+    );
   }
 }
 
@@ -394,12 +396,16 @@ class WSL2Check extends BaseCheck {
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
-      const res = await execPromise('wsl', ['-l', '-v']);
+      // set WSL_UTF8 to force WSL2 output in UTF8, otherwise it will use utf16le
+      const res = await execPromise('wsl', ['-l', '-v'], { env: { 'WSL_UTF8': '1'}});
       if (!res.startsWith('Usage: wsl.exe [Argument]')) {
         return this.createSuccessfulResult();
       }
     } catch (err) {
-      if(typeof err === 'string' && err.indexOf('Windows Subsystem for Linux has no installed distributions.') !== -1) {
+      if (
+        typeof err === 'string' &&
+        err.indexOf('Windows Subsystem for Linux has no installed distributions.') !== -1
+      ) {
         // WSL2 installed, it just doesn't have any distro installed.
         return this.createSuccessfulResult();
       }
