@@ -59,7 +59,7 @@ export function execPromise(command: string, args?: string[], logger?: extension
     let stdErr = '';
     const process = spawn(command, args, { env });
     process.on('error', error => {
-      let content;
+      let content = '';
       if (stdOut && stdOut !== '') {
         content += stdOut + '\n';
       }
@@ -80,7 +80,7 @@ export function execPromise(command: string, args?: string[], logger?: extension
     });
 
     process.on('close', exitCode => {
-      let content;
+      let content = '';
       if (stdOut && stdOut !== '') {
         content += stdOut + '\n';
       }

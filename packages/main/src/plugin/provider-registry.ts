@@ -285,6 +285,7 @@ export class ProviderRegistry {
           successful: false,
           description: err instanceof Error ? err.message : typeof err === 'object' ? err?.toString() : 'unknown error',
         });
+        return false;
       }
     }
     return true;

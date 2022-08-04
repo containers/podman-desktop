@@ -332,7 +332,7 @@ class WinBitCheck extends BaseCheck {
     if (this.ARCH === currentArch) {
       return this.createSuccessfulResult();
     } else {
-      return this.createFailureResult('WSL2 works only on x64 OS.');
+      return this.createFailureResult('WSL2 works only on 64bit OS.');
     }
   }
 }
@@ -350,7 +350,7 @@ class WinVersionCheck extends BaseCheck {
         return { successful: true };
       } else {
         return this.createFailureResult(
-          'To be able to run WSL2 you need Windows 10 Build 18362 or later. Please update your OS.',
+          'To be able to run WSL2 you need Windows 10 Build 18362 or later. See https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
         );
       }
     } else {
@@ -368,7 +368,7 @@ class WinMemoryCheck extends BaseCheck {
     if (this.REQUIRED_MEM <= totalMem) {
       return this.createSuccessfulResult();
     } else {
-      return this.createFailureResult('You need at least 6Gb to run Podman.');
+      return this.createFailureResult('You need at least 6GB to run Podman.');
     }
   }
 }
@@ -385,7 +385,7 @@ class HyperVCheck extends BaseCheck {
     } catch (err) {
       // ignore error, this means that hyper-v not enabled
     }
-    return this.createFailureResult('Hyper-V should be enabled to be able to run Podman');
+    return this.createFailureResult('Hyper-V should be enabled to be able to run Podman. See https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v');
   }
 }
 
@@ -399,7 +399,10 @@ class WSL2Check extends BaseCheck {
         return this.createSuccessfulResult();
       }
     } catch (err) {
-      // ignore error, that means that wsl2 is not installed
+      if(typeof err === 'string' && err.indexOf('Windows Subsystem for Linux has no installed distributions.') !== -1) {
+        // WSL2 installed, it just doesn't have any distro installed.
+        return this.createSuccessfulResult();
+      }
     }
     return this.createFailureResult('WSL2 is not installed. Call "wsl --install" in terminal.');
   }
