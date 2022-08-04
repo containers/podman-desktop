@@ -402,13 +402,26 @@ class WSL2Check extends BaseCheck {
         return this.createSuccessfulResult();
       }
     } catch (err) {
-      if (
-        typeof err === 'string' &&
-        err.indexOf('Windows Subsystem for Linux has no installed distributions.') !== -1
-      ) {
-        // WSL2 installed, it just doesn't have any distro installed.
-        return this.createSuccessfulResult();
+
+      if(typeof err === 'string') {
+        // this is workaround, wsl2 some time send output in utf16le, but we thereat that as utf8,
+        // this code just eliminate every 'empty' character
+        let str = '';
+        for(let i=0; i< err.length; i++) {
+          if(err.charCodeAt(i) !== 0){
+            str += err.charAt(i);
+          }
+        }
+
+        if (
+          str.indexOf('Windows Subsystem for Linux has no installed distributions.') !== -1
+        ) {
+          // WSL2 installed, it just doesn't have any distro installed.
+          return this.createSuccessfulResult();
+        }
       }
+
+
     }
     return this.createFailureResult('WSL2 is not installed. Call "wsl --install" in terminal.');
   }
