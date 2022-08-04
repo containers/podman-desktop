@@ -325,11 +325,14 @@ abstract class BaseCheck implements extensionApi.InstallCheck {
 }
 
 class WinBitCheck extends BaseCheck {
-  title = 'Windows x64';
-  private ARCH = 'x64';
+  title = 'Windows 64bit';
+
+  private ARCH_X64 = 'x64';
+  private ARCH_ARM = 'arm64';
+
   async execute(): Promise<extensionApi.CheckResult> {
     const currentArch = process.arch;
-    if (this.ARCH === currentArch) {
+    if (this.ARCH_X64 === currentArch || this.ARCH_ARM === currentArch) {
       return this.createSuccessfulResult();
     } else {
       return this.createFailureResult('WSL2 works only on 64bit OS.');
@@ -397,31 +400,26 @@ class WSL2Check extends BaseCheck {
   async execute(): Promise<extensionApi.CheckResult> {
     try {
       // set WSL_UTF8 to force WSL2 output in UTF8, otherwise it will use utf16le
-      const res = await execPromise('wsl', ['-l', '-v'], { env: { 'WSL_UTF8': '1'}});
+      const res = await execPromise('wsl', ['-l', '-v'], { env: { WSL_UTF8: '1' } });
       if (!res.startsWith('Usage: wsl.exe [Argument]')) {
         return this.createSuccessfulResult();
       }
     } catch (err) {
-
-      if(typeof err === 'string') {
+      if (typeof err === 'string') {
         // this is workaround, wsl2 some time send output in utf16le, but we thereat that as utf8,
         // this code just eliminate every 'empty' character
         let str = '';
-        for(let i=0; i< err.length; i++) {
-          if(err.charCodeAt(i) !== 0){
+        for (let i = 0; i < err.length; i++) {
+          if (err.charCodeAt(i) !== 0) {
             str += err.charAt(i);
           }
         }
 
-        if (
-          str.indexOf('Windows Subsystem for Linux has no installed distributions.') !== -1
-        ) {
+        if (str.indexOf('Windows Subsystem for Linux has no installed distributions.') !== -1) {
           // WSL2 installed, it just doesn't have any distro installed.
           return this.createSuccessfulResult();
         }
       }
-
-
     }
     return this.createFailureResult('WSL2 is not installed. Call "wsl --install" in terminal.');
   }
