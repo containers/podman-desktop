@@ -1,0 +1,52 @@
+<script lang="ts">
+import { onMount } from 'svelte';
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
+
+import type monaco from 'monaco-editor';
+
+let divEl: HTMLDivElement = null;
+let editor: monaco.editor.IStandaloneCodeEditor;
+let Monaco;
+
+export let content = '';
+export let language = 'json';
+
+onMount(async () => {
+  // @ts-ignore
+  self.MonacoEnvironment = {
+    getWorker: function (_moduleId: any, label: string) {
+      if (label === 'json') {
+        return new jsonWorker();
+      }
+      return new editorWorker();
+    },
+  };
+
+  Monaco = await import('monaco-editor');
+
+  Monaco.editor.defineTheme('podmanDesktopTheme', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [{ background: '1a1624' }],
+    colors: {
+      'editor.background': '#1a1624',
+    },
+  });
+
+  editor = Monaco.editor.create(divEl, {
+    value: content,
+    fontSize: '10px',
+    language,
+    readOnly: true,
+    theme: 'podmanDesktopTheme',
+    automaticLayout: true,
+  });
+
+  return () => {
+    editor.dispose();
+  };
+});
+</script>
+
+<div bind:this="{divEl}" class="h-full"></div>

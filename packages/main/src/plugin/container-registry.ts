@@ -30,6 +30,7 @@ import type { Telemetry } from './telemetry/telemetry';
 import * as crypto from 'node:crypto';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 import { EventEmitter } from 'node:events';
+import type { ContainerInspectInfo } from './api/container-inspect-info';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -455,6 +456,26 @@ export class ContainerProviderRegistry {
       engineName: provider.name,
       engineId: provider.id,
       ...imageInspect,
+    };
+  }
+
+  async getContainerInspect(engineId: string, id: string): Promise<ContainerInspectInfo> {
+    this.telemetryService.track('containerInspect');
+    // need to find the container engine of the container
+    const provider = this.internalProviders.get(engineId);
+    if (!provider) {
+      throw new Error('no engine matching this container');
+    }
+    if (!provider.api) {
+      throw new Error('no running provider for the matching container');
+    }
+
+    const containerObject = provider.api.getContainer(id);
+    const containerInspect = await containerObject.inspect();
+    return {
+      engineName: provider.name,
+      engineId: provider.id,
+      ...containerInspect,
     };
   }
 

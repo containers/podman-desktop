@@ -9,6 +9,7 @@ import ContainerActions from './container/ContainerActions.svelte';
 import { onMount } from 'svelte';
 import { containersInfos } from '../stores/containers';
 import { ContainerUtils } from './container/container-utils';
+import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
 
 export let containerID: string;
 
@@ -57,17 +58,17 @@ onMount(() => {
                         <span class="pf-c-tabs__item-text">Logs</span>
                       </a>
                     </li>
-                    <!--
-                <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/containers/inspect'}">
-                  <a
-                    href="/containers/inspect"
-                    class="pf-c-tabs__link"
-                    aria-controls="open-tabs-example-tabs-list-yaml-panel"
-                    id="open-tabs-example-tabs-list-yaml-link">
-                    <span class="pf-c-tabs__item-text">Inspect</span>
-                  </a>
-                </li>
-                -->
+
+                    <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/containers/inspect'}">
+                      <a
+                        href="/containers/{container.id}/inspect"
+                        class="pf-c-tabs__link"
+                        aria-controls="open-tabs-example-tabs-list-yaml-panel"
+                        id="open-tabs-example-tabs-list-yaml-link">
+                        <span class="pf-c-tabs__item-text">Inspect</span>
+                      </a>
+                    </li>
+
                     <li
                       class="pf-c-tabs__item"
                       class:pf-m-current="{meta.url === `/containers/${container.id}/terminal`}">
@@ -106,7 +107,9 @@ onMount(() => {
         <Route path="/logs">
           <ContainerDetailsLogs container="{container}" />
         </Route>
-        <Route path="/inspect">Inspect</Route>
+        <Route path="/inspect">
+          <ContainerDetailsInspect container="{container}" />
+        </Route>
         <Route path="/details">
           <div class="flex py-4">
             <table class="divide-y divide-gray-800 h-2">
