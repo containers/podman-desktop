@@ -166,7 +166,13 @@ export class RegistrySetup {
     this.updateRegistries(extensionContext);
   }
 
-  protected readAuthFile(): Promise<ContainersAuthConfigFile> {
+  protected async readAuthFile(): Promise<ContainersAuthConfigFile> {
+    // when we have a fresh installation of podman, auth file might not have been created
+    if (!fs.existsSync(this.getAuthFileLocation())) {
+      const emptyAuthFile = { auths: {} } as ContainersAuthConfigFile;
+      await this.writeAuthFile(JSON.stringify(emptyAuthFile, undefined, 8));
+    }
+
     return new Promise((resolve, reject) => {
       fs.readFile(this.getAuthFileLocation(), 'utf8', (err, data) => {
         if (err) {
