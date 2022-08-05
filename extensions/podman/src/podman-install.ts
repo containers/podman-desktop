@@ -315,8 +315,8 @@ abstract class BaseCheck implements extensionApi.InstallCheck {
   abstract title: string;
   abstract execute(): Promise<extensionApi.CheckResult>;
 
-  protected createFailureResult(description?: string): extensionApi.CheckResult {
-    return { successful: false, description };
+  protected createFailureResult(description?: string, name?: string, url?: string): extensionApi.CheckResult {
+    return { successful: false, description, docLinks: [{ url, name }] };
   }
 
   protected createSuccessfulResult(): extensionApi.CheckResult {
@@ -335,7 +335,10 @@ class WinBitCheck extends BaseCheck {
     if (this.ARCH_X64 === currentArch || this.ARCH_ARM === currentArch) {
       return this.createSuccessfulResult();
     } else {
-      return this.createFailureResult('WSL2 works only on 64bit OS.');
+      return this.createFailureResult(
+        'WSL2 works only on 64bit OS.',
+        'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
+      );
     }
   }
 }
@@ -353,11 +356,15 @@ class WinVersionCheck extends BaseCheck {
         return { successful: true };
       } else {
         return this.createFailureResult(
-          'To be able to run WSL2 you need Windows 10 Build 18362 or later. See https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
+          'To be able to run WSL2 you need Windows 10 Build 18362 or later.',
+          'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
         );
       }
     } else {
-      return this.createFailureResult('WSL2 works only on Windows 10 and newest OS');
+      return this.createFailureResult(
+        'WSL2 works only on Windows 10 and newest OS',
+        'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
+      );
     }
   }
 }
@@ -389,7 +396,9 @@ class HyperVCheck extends BaseCheck {
       // ignore error, this means that hyper-v not enabled
     }
     return this.createFailureResult(
-      'Hyper-V should be enabled to be able to run Podman. See https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+      'Hyper-V should be enabled to be able to run Podman.',
+      'Install Hyper-V',
+      'https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
     );
   }
 }
@@ -421,6 +430,10 @@ class WSL2Check extends BaseCheck {
         }
       }
     }
-    return this.createFailureResult('WSL2 is not installed. Call "wsl --install" in terminal.');
+    return this.createFailureResult(
+      'WSL2 is not installed. Call "wsl --install" in terminal.',
+      'Install WSL',
+      'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
+    );
   }
 }

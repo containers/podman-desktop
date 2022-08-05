@@ -202,9 +202,15 @@ declare module '@tmpwip/extension-api' {
     create(params: { [key: string]: any }): Promise<void>;
   }
 
+  export interface Link {
+    name: string;
+    url: string;
+  }
+
   export interface CheckResult {
     successful: boolean;
     description?: string;
+    docLinks?: Link[];
   }
 
   export interface InstallCheck {

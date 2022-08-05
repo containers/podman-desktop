@@ -23,6 +23,7 @@ import type {
   ProviderLinks,
   ProviderProxySettings,
   ProviderStatus,
+  Link,
 } from '@tmpwip/extension-api';
 
 export type LifecycleMethod = 'start' | 'stop' | 'delete';
@@ -83,6 +84,7 @@ export interface CheckStatus {
   name: string;
   successful?: boolean;
   description?: string;
+  docLinks?: Link[];
 }
 
 export interface PreflightCheckEvent {
