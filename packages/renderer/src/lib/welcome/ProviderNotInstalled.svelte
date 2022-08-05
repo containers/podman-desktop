@@ -62,8 +62,9 @@ function openLink(e: MouseEvent, url: string): void {
           {#if preCheck.description}
             Details: <p class="text-gray-300 w-full break-all">{preCheck.description}</p>
             {#if preCheck.docLinks}
+              See:
               {#each preCheck.docLinks as link}
-                <a href="{link.url}" target="_blank" on:click="{e => openLink(e, link.url)}">{link.name}</a>
+                <a href="{link.url}" target="_blank" on:click="{e => openLink(e, link.url)}">{link.title}</a>
               {/each}
             {/if}
           {/if}

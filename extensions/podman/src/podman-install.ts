@@ -315,8 +315,8 @@ abstract class BaseCheck implements extensionApi.InstallCheck {
   abstract title: string;
   abstract execute(): Promise<extensionApi.CheckResult>;
 
-  protected createFailureResult(description?: string, name?: string, url?: string): extensionApi.CheckResult {
-    return { successful: false, description, docLinks: [{ url, name }] };
+  protected createFailureResult(description?: string, title?: string, url?: string): extensionApi.CheckResult {
+    return { successful: false, description, docLinks: [{ url, title }] };
   }
 
   protected createSuccessfulResult(): extensionApi.CheckResult {

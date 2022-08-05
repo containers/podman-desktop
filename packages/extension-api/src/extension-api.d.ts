@@ -203,14 +203,15 @@ declare module '@tmpwip/extension-api' {
   }
 
   export interface Link {
-    name: string;
+    title: string;
     url: string;
   }
+  export type CheckResultLink = Link;
 
   export interface CheckResult {
     successful: boolean;
     description?: string;
-    docLinks?: Link[];
+    docLinks?: CheckResultLink[];
   }
 
   export interface InstallCheck {
@@ -230,10 +231,7 @@ declare module '@tmpwip/extension-api' {
     update(logger: Logger): Promise<void>;
   }
 
-  export interface ProviderLinks {
-    title: string;
-    url: string;
-  }
+  export type ProviderLinks = Link;
 
   export interface ProviderImages {
     icon?: string | { light: string; dark: string };
