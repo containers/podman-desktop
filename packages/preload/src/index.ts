@@ -27,6 +27,7 @@ import type { ContainerCreateOptions, ContainerInfo } from '../../main/src/plugi
 import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
+import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type {
   PreflightCheckEvent,
@@ -237,6 +238,13 @@ function initExposure(): void {
       if (callback) {
         callback(data);
       }
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'getContainerInspect',
+    async (engine: string, containerId: string): Promise<ContainerInspectInfo> => {
+      return ipcInvoke('container-provider-registry:getContainerInspect', engine, containerId);
     },
   );
 
