@@ -11,6 +11,12 @@ export let provider: ProviderInfo;
 
 let detectionChecks: ProviderDetectionCheck[] = [];
 let preflightChecks: CheckStatus[] = [];
+
+function openLink(e: MouseEvent, url: string): void {
+  e.preventDefault();
+  e.stopPropagation();
+  window.openExternal(url);
+}
 </script>
 
 <div class="p-2 flex flex-col bg-zinc-700 rounded-lg">
@@ -55,6 +61,12 @@ let preflightChecks: CheckStatus[] = [];
           </p>
           {#if preCheck.description}
             Details: <p class="text-gray-300 w-full break-all">{preCheck.description}</p>
+            {#if preCheck.docLinks}
+              See:
+              {#each preCheck.docLinks as link}
+                <a href="{link.url}" target="_blank" on:click="{e => openLink(e, link.url)}">{link.title}</a>
+              {/each}
+            {/if}
           {/if}
         </div>
       {/each}

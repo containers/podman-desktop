@@ -25,6 +25,7 @@ import * as compareVersions from 'compare-versions';
 
 import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
+import { execPromise } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
 import { isDev, isWindows } from './util';
 import { getDetectionChecks } from './detection-checks';
@@ -93,6 +94,7 @@ export class PodmanInfoImpl implements PodmanInfo {
 }
 
 interface Installer {
+  getPreflightChecks(): extensionApi.InstallCheck[] | undefined;
   install(): Promise<boolean>;
   requireUpdate(installedVersion: string): boolean;
   update(): Promise<boolean>;
@@ -180,6 +182,14 @@ export class PodmanInstall {
     }
   }
 
+  getInstallChecks(): extensionApi.InstallCheck[] | undefined {
+    const installer = this.getInstaller();
+    if (installer) {
+      return installer.getPreflightChecks();
+    }
+    return undefined;
+  }
+
   isAbleToInstall(): boolean {
     return this.installers.has(os.platform());
   }
@@ -222,6 +232,8 @@ abstract class BaseInstaller implements Installer {
 
   abstract update(): Promise<boolean>;
 
+  abstract getPreflightChecks(): extensionApi.InstallCheck[];
+
   requireUpdate(installedVersion: string): boolean {
     return compareVersions.compare(installedVersion, getBundledPodmanVersion(), '<');
   }
@@ -238,6 +250,10 @@ abstract class BaseInstaller implements Installer {
 }
 
 class WinInstaller extends BaseInstaller {
+  getPreflightChecks(): extensionApi.InstallCheck[] {
+    return [new WinBitCheck(), new WinVersionCheck(), new WinMemoryCheck(), new HyperVCheck(), new WSL2Check()];
+  }
+
   update(): Promise<boolean> {
     return this.install();
   }
@@ -292,5 +308,132 @@ class WinInstaller extends BaseInstaller {
         resolve(output.trim());
       });
     });
+  }
+}
+
+abstract class BaseCheck implements extensionApi.InstallCheck {
+  abstract title: string;
+  abstract execute(): Promise<extensionApi.CheckResult>;
+
+  protected createFailureResult(description?: string, title?: string, url?: string): extensionApi.CheckResult {
+    return { successful: false, description, docLinks: [{ url, title }] };
+  }
+
+  protected createSuccessfulResult(): extensionApi.CheckResult {
+    return { successful: true };
+  }
+}
+
+class WinBitCheck extends BaseCheck {
+  title = 'Windows 64bit';
+
+  private ARCH_X64 = 'x64';
+  private ARCH_ARM = 'arm64';
+
+  async execute(): Promise<extensionApi.CheckResult> {
+    const currentArch = process.arch;
+    if (this.ARCH_X64 === currentArch || this.ARCH_ARM === currentArch) {
+      return this.createSuccessfulResult();
+    } else {
+      return this.createFailureResult(
+        'WSL2 works only on 64bit OS.',
+        'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
+      );
+    }
+  }
+}
+
+class WinVersionCheck extends BaseCheck {
+  title = 'Windows Version';
+
+  private MIN_BUILD = 18362;
+  async execute(): Promise<extensionApi.CheckResult> {
+    const winRelease = os.release();
+    if (winRelease.startsWith('10.0.')) {
+      const splitRelease = winRelease.split('.');
+      const winBuild = splitRelease[2];
+      if (Number.parseInt(winBuild) >= this.MIN_BUILD) {
+        return { successful: true };
+      } else {
+        return this.createFailureResult(
+          'To be able to run WSL2 you need Windows 10 Build 18362 or later.',
+          'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
+        );
+      }
+    } else {
+      return this.createFailureResult(
+        'WSL2 works only on Windows 10 and newest OS',
+        'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
+      );
+    }
+  }
+}
+
+class WinMemoryCheck extends BaseCheck {
+  title = 'RAM';
+  private REQUIRED_MEM = 6 * 1024 * 1024 * 1024; // 6Gb
+
+  async execute(): Promise<extensionApi.CheckResult> {
+    const totalMem = os.totalmem();
+    if (this.REQUIRED_MEM <= totalMem) {
+      return this.createSuccessfulResult();
+    } else {
+      return this.createFailureResult('You need at least 6GB to run Podman.');
+    }
+  }
+}
+
+class HyperVCheck extends BaseCheck {
+  title = 'Hyper-V Enabled';
+
+  async execute(): Promise<extensionApi.CheckResult> {
+    try {
+      const res = await execPromise('powershell.exe', ['(Get-Service vmcompute).DisplayName']);
+      if (res === 'Hyper-V Host Compute Service') {
+        return this.createSuccessfulResult();
+      }
+    } catch (err) {
+      // ignore error, this means that hyper-v not enabled
+    }
+    return this.createFailureResult(
+      'Hyper-V should be enabled to be able to run Podman.',
+      'Install Hyper-V',
+      'https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+    );
+  }
+}
+
+class WSL2Check extends BaseCheck {
+  title = 'WSL2 Installed';
+
+  async execute(): Promise<extensionApi.CheckResult> {
+    try {
+      // set WSL_UTF8 to force WSL2 output in UTF8, otherwise it will use utf16le
+      const res = await execPromise('wsl', ['-l', '-v'], { env: { WSL_UTF8: '1' } });
+      if (!res.startsWith('Usage: wsl.exe [Argument]')) {
+        return this.createSuccessfulResult();
+      }
+    } catch (err) {
+      if (typeof err === 'string') {
+        // this is workaround, wsl2 some time send output in utf16le, but we treat that as utf8,
+        // this code just eliminate every 'empty' character
+        let str = '';
+        for (let i = 0; i < err.length; i++) {
+          if (err.charCodeAt(i) !== 0) {
+            str += err.charAt(i);
+          }
+        }
+
+        if (str.indexOf('Windows Subsystem for Linux has no installed distributions.') !== -1) {
+          // WSL2 installed, it just doesn't have any distro installed.
+          return this.createSuccessfulResult();
+        }
+      }
+    }
+    return this.createFailureResult(
+      'WSL2 is not installed. Call "wsl --install" in terminal.',
+      'Install WSL',
+      'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
+    );
   }
 }

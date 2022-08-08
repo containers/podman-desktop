@@ -273,6 +273,7 @@ export class ProviderRegistry {
           name: check.title,
           successful: checkResult.successful,
           description: checkResult.description,
+          docLinks: checkResult.docLinks,
         });
 
         if (!checkResult.successful) {
@@ -285,6 +286,7 @@ export class ProviderRegistry {
           successful: false,
           description: err instanceof Error ? err.message : typeof err === 'object' ? err?.toString() : 'unknown error',
         });
+        return false;
       }
     }
     return true;

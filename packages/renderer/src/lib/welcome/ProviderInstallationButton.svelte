@@ -37,6 +37,8 @@ async function performInstallation(provider: ProviderInfo) {
   }
   if (checkSuccess) {
     await window.installProvider(provider.internalId);
+    // reset checks
+    onPreflightChecks([]);
   } else {
     preflightChecksFailed = true;
   }

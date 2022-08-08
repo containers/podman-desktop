@@ -44,8 +44,14 @@ export function getPodmanCli(): string {
   return 'podman';
 }
 
-export function execPromise(command: string, args?: string[], logger?: extensionApi.Logger): Promise<string> {
-  const env = process.env;
+export interface ExecOptions {
+  logger?: extensionApi.Logger;
+  env?: NodeJS.ProcessEnv | undefined;
+}
+
+export function execPromise(command: string, args?: string[], options?: ExecOptions): Promise<string> {
+  let env = Object.assign({}, process.env); // clone original env object
+
   // In production mode, applications don't have access to the 'user' path like brew
   if (isMac) {
     env.PATH = getInstallationPath();
@@ -54,12 +60,16 @@ export function execPromise(command: string, args?: string[], logger?: extension
     args = ['--host', command, ...args];
     command = 'flatpak-spawn';
   }
+
+  if (options?.env) {
+    env = Object.assign(env, options.env);
+  }
   return new Promise((resolve, reject) => {
     let stdOut = '';
     let stdErr = '';
     const process = spawn(command, args, { env });
     process.on('error', error => {
-      let content;
+      let content = '';
       if (stdOut && stdOut !== '') {
         content += stdOut + '\n';
       }
@@ -71,16 +81,16 @@ export function execPromise(command: string, args?: string[], logger?: extension
     process.stdout.setEncoding('utf8');
     process.stdout.on('data', data => {
       stdOut += data;
-      logger?.log(data);
+      options?.logger?.log(data);
     });
     process.stderr.setEncoding('utf8');
     process.stderr.on('data', data => {
       stdErr += data;
-      logger?.error(data);
+      options?.logger?.error(data);
     });
 
     process.on('close', exitCode => {
-      let content;
+      let content = '';
       if (stdOut && stdOut !== '') {
         content += stdOut + '\n';
       }

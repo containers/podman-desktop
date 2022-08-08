@@ -202,9 +202,16 @@ declare module '@tmpwip/extension-api' {
     create(params: { [key: string]: any }): Promise<void>;
   }
 
+  export interface Link {
+    title: string;
+    url: string;
+  }
+  export type CheckResultLink = Link;
+
   export interface CheckResult {
     successful: boolean;
     description?: string;
+    docLinks?: CheckResultLink[];
   }
 
   export interface InstallCheck {
@@ -224,10 +231,7 @@ declare module '@tmpwip/extension-api' {
     update(logger: Logger): Promise<void>;
   }
 
-  export interface ProviderLinks {
-    title: string;
-    url: string;
-  }
+  export type ProviderLinks = Link;
 
   export interface ProviderImages {
     icon?: string | { light: string; dark: string };
