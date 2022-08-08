@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
 import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
 export async function fetchImages() {
@@ -24,7 +25,7 @@ export async function fetchImages() {
 }
 
 fetchImages();
-export const imagesInfos = writable([]);
+export const imagesInfos: Writable<ImageInfo[]> = writable([]);
 
 export const searchPattern = writable('');
 

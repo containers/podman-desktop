@@ -27,6 +27,7 @@ import type { ContainerCreateOptions, ContainerInfo } from '../../main/src/plugi
 import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
+import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type {
@@ -252,6 +253,13 @@ function initExposure(): void {
     'getImageInspect',
     async (engine: string, imageId: string): Promise<ImageInspectInfo> => {
       return ipcInvoke('container-provider-registry:getImageInspect', engine, imageId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'getImageHistory',
+    async (engine: string, imageId: string): Promise<HistoryInfo[]> => {
+      return ipcInvoke('container-provider-registry:getImageHistory', engine, imageId);
     },
   );
 

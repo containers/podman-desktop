@@ -59,6 +59,7 @@ import { StatusBarRegistry } from './statusbar/statusbar-registry';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry';
 import type { IpcMainInvokeEvent } from 'electron/main';
 import type { ContainerInspectInfo } from './api/container-inspect-info';
+import type { HistoryInfo } from './api/history-info';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -217,6 +218,12 @@ export class PluginSystem {
       'container-provider-registry:getImageInspect',
       async (_listener, engine: string, imageId: string): Promise<ImageInspectInfo> => {
         return containerProviderRegistry.getImageInspect(engine, imageId);
+      },
+    );
+    this.ipcHandle(
+      'container-provider-registry:getImageHistory',
+      async (_listener, engine: string, imageId: string): Promise<HistoryInfo[]> => {
+        return containerProviderRegistry.getImageHistory(engine, imageId);
       },
     );
     this.ipcHandle(

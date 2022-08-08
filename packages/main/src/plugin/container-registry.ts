@@ -31,6 +31,7 @@ import * as crypto from 'node:crypto';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 import { EventEmitter } from 'node:events';
 import type { ContainerInspectInfo } from './api/container-inspect-info';
+import type { HistoryInfo } from './api/history-info';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -459,6 +460,19 @@ export class ContainerProviderRegistry {
       engineId: provider.id,
       ...imageInspect,
     };
+  }
+
+  async getImageHistory(engineId: string, id: string): Promise<HistoryInfo[]> {
+    // need to find the container engine of the container
+    const provider = this.internalProviders.get(engineId);
+    if (!provider) {
+      throw new Error('no engine matching this container');
+    }
+    if (!provider.api) {
+      throw new Error('no running provider for the matching container');
+    }
+    const imageObject = provider.api.getImage(id);
+    return imageObject.history();
   }
 
   async getContainerInspect(engineId: string, id: string): Promise<ContainerInspectInfo> {

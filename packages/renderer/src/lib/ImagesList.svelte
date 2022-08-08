@@ -2,8 +2,7 @@
 import { filtered, searchPattern } from '../stores/images';
 import { onMount } from 'svelte';
 import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
-import moment from 'moment';
-import filesize from 'filesize';
+
 import { router } from 'tinro';
 import type { ImageInfoUI } from './image/ImageInfoUI';
 import ImageActions from './image/ImageActions.svelte';
@@ -14,6 +13,7 @@ import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.s
 import { providerInfos } from '../stores/providers';
 import RunContainerModal from './image/RunContainerModal.svelte';
 import PushImageModal from './image/PushImageModal.svelte';
+import { ImageUtils } from './image/image-utils';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -41,36 +41,9 @@ $: providerConnections = $providerInfos
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 onMount(async () => {
+  const imageUtils = new ImageUtils();
   filtered.subscribe(value => {
-    images = value
-      .map((imageInfo: ImageInfo) => {
-        if (!imageInfo.RepoTags) {
-          return {
-            id: imageInfo.Id,
-            shortId: getShortId(imageInfo.Id),
-            humanCreationDate: getHumanDate(imageInfo.Created),
-            humanSize: getHumanSize(imageInfo.Size),
-            name: '<none>',
-            engineId: getEngineId(imageInfo),
-            engineName: getEngineName(imageInfo),
-            tag: '',
-          };
-        } else {
-          return imageInfo.RepoTags.map(repoTag => {
-            return {
-              id: imageInfo.Id,
-              shortId: getShortId(imageInfo.Id),
-              humanCreationDate: getHumanDate(imageInfo.Created),
-              humanSize: getHumanSize(imageInfo.Size),
-              name: getName(repoTag),
-              engineId: getEngineId(imageInfo),
-              engineName: getEngineName(imageInfo),
-              tag: getTag(repoTag),
-            };
-          });
-        }
-      })
-      .flat();
+    images = value.map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo)).flat();
 
     // multiple engines ?
     const engineNamesArray = images.map(image => image.engineName);
@@ -89,14 +62,6 @@ function closeModals() {
   pushImageModal = false;
 }
 
-// extract SHA256 from image id and take the first 12 digits
-function getShortId(id: string): string {
-  if (id.startsWith('sha256:')) {
-    id = id.substring('sha256:'.length);
-  }
-  return id.substring(0, 12);
-}
-
 function gotoBuildImage(): void {
   router.goto('/images/build');
 }
@@ -104,28 +69,9 @@ function gotoBuildImage(): void {
 function gotoPullImage(): void {
   router.goto('/images/pull');
 }
-function getHumanSize(size: number): string {
-  return filesize(size);
-}
 
-function getHumanDate(date: number): string {
-  return moment(date * 1000).fromNow();
-}
-
-function getName(repoTag: string) {
-  return repoTag.split(':')[0];
-}
-
-function getTag(repoTag: string) {
-  return repoTag.split(':')[1];
-}
-
-function getEngineId(containerInfo: ImageInfo): string {
-  return containerInfo.engineId;
-}
-
-function getEngineName(containerInfo: ImageInfo): string {
-  return containerInfo.engineName;
+function openDetailsImage(image: ImageInfoUI) {
+  router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/summary`);
 }
 </script>
 
@@ -180,8 +126,8 @@ function getEngineName(containerInfo: ImageInfo): string {
     <table class="min-w-full divide-y divide-gray-800 border-t border-t-zinc-700">
       <tbody class="bg-zinc-800 divide-y divide-zinc-700">
         {#each images as image}
-          <tr class="group h-12 hover:cursor-pointer hover:bg-zinc-700">
-            <td class="px-4 whitespace-nowrap w-10">
+          <tr class="group h-12  hover:bg-zinc-700">
+            <td class="px-4 whitespace-nowrap w-10 hover:cursor-pointer" on:click="{() => openDetailsImage(image)}">
               <div class="flex items-center">
                 <div class="flex-shrink-0 w-3 py-3">
                   <Fa class="text-gray-400" icon="{faLayerGroup}" />
