@@ -1,6 +1,13 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faCircleUp, faPlayCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCircleUp,
+  faHistory,
+  faLayerGroup,
+  faPlayCircle,
+  faRectangleAd,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -9,6 +16,7 @@ export let onRunContainerImage: (imageInfo: ImageInfoUI) => void;
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 
 export let image: ImageInfoUI;
+export let backgroundColor = 'bg-zinc-800';
 
 let errorMessage: string = undefined;
 let isAuthenticatedForThisImage: boolean = false;
@@ -19,9 +27,9 @@ async function runImage(imageInfo: ImageInfoUI) {
 
 $: window.hasAuthconfigForImage(image.name).then(result => (isAuthenticatedForThisImage = result));
 
-async function deleteImage(imageInfo: ImageInfoUI): Promise<void> {
+async function deleteImage(): Promise<void> {
   try {
-    await window.deleteImage(imageInfo.engineId, imageInfo.id);
+    await window.deleteImage(image.engineId, image.id);
     router.goto('/images/');
   } catch (error) {
     errorMessage = error;
@@ -31,16 +39,37 @@ async function deleteImage(imageInfo: ImageInfoUI): Promise<void> {
 async function pushImage(imageInfo: ImageInfoUI): Promise<void> {
   onPushImage(imageInfo);
 }
+
+async function showLayersImage(): Promise<void> {
+  router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/history`);
+}
 </script>
 
 {#if isAuthenticatedForThisImage}
-  <ListItemButtonIcon title="Push Image" onClick="{() => pushImage(image)}" icon="{faCircleUp}" />
+  <ListItemButtonIcon
+    title="Push Image"
+    onClick="{() => pushImage(image)}"
+    backgroundColor="{backgroundColor}"
+    icon="{faCircleUp}" />
 {/if}
-<ListItemButtonIcon title="Run Image" onClick="{() => runImage(image)}" icon="{faPlayCircle}" />
-<ListItemButtonIcon title="Delete Image" onClick="{() => deleteImage(image)}" icon="{faTrash}" />
+<ListItemButtonIcon
+  title="Run Image"
+  onClick="{() => runImage(image)}"
+  backgroundColor="{backgroundColor}"
+  icon="{faPlayCircle}" />
+<ListItemButtonIcon
+  title="Delete Image"
+  onClick="{() => deleteImage()}"
+  backgroundColor="{backgroundColor}"
+  icon="{faTrash}" />
+<ListItemButtonIcon
+  title="Show History"
+  onClick="{() => showLayersImage()}"
+  backgroundColor="{backgroundColor}"
+  icon="{faLayerGroup}" />
 
 {#if errorMessage}
-  <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0" tabindex="{0}">
+  <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="{0}">
     <div class="pf-c-alert pf-m-danger pf-m-inline" aria-label="Success alert">
       <div class="pf-c-alert__icon">
         <i class="fas fa-fw fa-exclamation-circle" aria-hidden="true"></i>

@@ -16,16 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface ImageInfoUI {
-  id: string;
-  shortId: string;
-  name: string;
-  engineId: string;
-  engineName: string;
-  tag: string;
-  humanCreationDate: string;
-  humanSize: string;
-  // fully qualified tag of the image (should be one of the RepoTags field encoded with base64)
-  // no tag, we encode <none>
-  base64RepoTag: string;
+export interface HistoryInfo {
+  Id: string;
+  Created: number;
+  CreatedBy: string;
+  Tags: string[];
+  Size: number;
+  Comment: string;
 }

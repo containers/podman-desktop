@@ -27,6 +27,7 @@ import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
+import ImageDetails from './lib/image/ImageDetails.svelte';
 let containersCountValue;
 
 router.mode.hash();
@@ -297,6 +298,12 @@ window.events?.receive('display-help', () => {
         </Route>
         <Route path="/images">
           <ImagesList />
+        </Route>
+        <Route path="/images/:id/:engineId/:base64RepoTag/*" let:meta>
+          <ImageDetails
+            imageID="{meta.params.id}"
+            engineId="{decodeURI(meta.params.engineId)}"
+            base64RepoTag="{meta.params.base64RepoTag}" />
         </Route>
         <Route path="/images/build">
           <BuildImageFromContainerfile />
