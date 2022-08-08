@@ -4,6 +4,7 @@ import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 
 import type monaco from 'monaco-editor';
+import { getPanelDetailColor } from '../color/color';
 
 let divEl: HTMLDivElement = null;
 let editor: monaco.editor.IStandaloneCodeEditor;
@@ -28,9 +29,9 @@ onMount(async () => {
   Monaco.editor.defineTheme('podmanDesktopTheme', {
     base: 'vs-dark',
     inherit: true,
-    rules: [{ background: '1a1624' }],
+    rules: [{ background: getPanelDetailColor() }],
     colors: {
-      'editor.background': '#1a1624',
+      'editor.background': getPanelDetailColor(),
     },
   });
 

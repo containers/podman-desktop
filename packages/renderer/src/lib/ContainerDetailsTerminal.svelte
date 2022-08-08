@@ -6,6 +6,7 @@ import { onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
+import { getPanelDetailColor } from './color/color';
 
 export let container: ContainerInfoUI;
 let terminalXtermDiv: HTMLDivElement;
@@ -55,7 +56,7 @@ async function refreshTerminal() {
     fontSize,
     lineHeight,
     theme: {
-      background: '#1a1624',
+      background: getPanelDetailColor(),
     },
   });
   const fitAddon = new FitAddon();
