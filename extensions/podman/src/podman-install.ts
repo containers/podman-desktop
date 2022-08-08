@@ -415,7 +415,7 @@ class WSL2Check extends BaseCheck {
       }
     } catch (err) {
       if (typeof err === 'string') {
-        // this is workaround, wsl2 some time send output in utf16le, but we thereat that as utf8,
+        // this is workaround, wsl2 some time send output in utf16le, but we treat that as utf8,
         // this code just eliminate every 'empty' character
         let str = '';
         for (let i = 0; i < err.length; i++) {
