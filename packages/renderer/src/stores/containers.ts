@@ -51,6 +51,10 @@ window.events?.receive('container-stopped-event', () => {
   fetchContainers();
 });
 
+window.events?.receive('container-die-event', () => {
+  fetchContainers();
+});
+
 window.events?.receive('container-started-event', () => {
   fetchContainers();
 });

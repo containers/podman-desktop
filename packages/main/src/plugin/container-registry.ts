@@ -72,6 +72,8 @@ export class ContainerProviderRegistry {
       } else if (jsonEvent.status === 'destroy') {
         // need to notify that a container has been destroyed
         this.apiSender.send('container-stopped-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'die' && jsonEvent?.Type === 'container') {
+        this.apiSender.send('container-die-event', jsonEvent.id);
       } else if (jsonEvent.status === 'remove' && jsonEvent?.Type === 'container') {
         this.apiSender.send('container-removed-event', jsonEvent.id);
       } else if (jsonEvent.status === 'pull' && jsonEvent?.Type === 'image') {
