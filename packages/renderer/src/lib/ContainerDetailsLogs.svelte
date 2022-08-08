@@ -6,6 +6,7 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../main/src/plugin/terminal-settings';
+import { getPanelDetailColor } from './color/color';
 
 export let container: ContainerInfoUI;
 
@@ -66,7 +67,7 @@ async function refreshTerminal() {
     lineHeight,
     disableStdin: true,
     theme: {
-      background: '#1a1624',
+      background: getPanelDetailColor(),
     },
   });
   const fitAddon = new FitAddon();
