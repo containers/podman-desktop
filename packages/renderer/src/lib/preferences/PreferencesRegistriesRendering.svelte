@@ -107,6 +107,6 @@ function toggleRegistryModal(): void {
     <PreferencesRegistriesEditCreateRegistryModal
       toggleCallback="{toggleRegistryModal}"
       mode="{preferencesMode}"
-      registry="{selectedRegistry}" />
+      registry="{{ ...selectedRegistry }}" />
   </Modal>
 {/if}
