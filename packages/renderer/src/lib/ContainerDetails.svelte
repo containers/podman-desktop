@@ -10,6 +10,7 @@ import { onMount } from 'svelte';
 import { containersInfos } from '../stores/containers';
 import { ContainerUtils } from './container/container-utils';
 import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
+import { getPanelDetailColor } from './color/color';
 
 export let containerID: string;
 
@@ -113,8 +114,8 @@ onMount(() => {
           <ContainerDetailsInspect container="{container}" />
         </Route>
         <Route path="/details">
-          <div class="flex py-4">
-            <table class="divide-y divide-gray-800 h-2">
+          <div class="flex py-4 h-full" style="background-color: {getPanelDetailColor()}">
+            <table class="h-2 font-thin text-xs">
               <tr>
                 <td class="px-2">Id</td>
                 <td class="px-2 font-thin text-xs">{container.shortId}</td>

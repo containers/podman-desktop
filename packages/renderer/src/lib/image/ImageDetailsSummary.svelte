@@ -8,7 +8,7 @@ export let image: ImageInfoUI;
 
 <div class="h-full" style="background-color: {getPanelDetailColor()}">
   <div class="flex py-4">
-    <table class="divide-y divide-gray-800 h-2 font-thin text-xs">
+    <table class="h-2 font-thin text-xs">
       <tr>
         <td class="px-2">Id</td>
         <td class="px-2 font-thin text-xs">{image.id}</td>
