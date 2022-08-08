@@ -59,7 +59,9 @@ onMount(() => {
                       </a>
                     </li>
 
-                    <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/containers/inspect'}">
+                    <li
+                      class="pf-c-tabs__item"
+                      class:pf-m-current="{meta.url === `/containers/${container.id}/inspect`}">
                       <a
                         href="/containers/{container.id}/inspect"
                         class="pf-c-tabs__link"
