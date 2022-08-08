@@ -33,19 +33,6 @@ function editRegistry(registry: Registry): void {
   showRegistryModal = true;
 }
 
-let showEditRegistryModal = {
-  registry: {
-    serverUrl: '',
-    source: '',
-    username: '',
-    secret: '',
-  },
-  value: false,
-};
-function toggleEditRegistryModal(): void {
-  showEditRegistryModal.value = !showEditRegistryModal.value;
-}
-
 let showRegistryModal = false;
 function toggleRegistryModal(): void {
   showRegistryModal = !showRegistryModal;
