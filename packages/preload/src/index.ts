@@ -478,8 +478,8 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'updateImageRegistry',
-    async (registryUrl: string, registry: containerDesktopAPI.Registry): Promise<void> => {
-      return ipcInvoke('image-registry:updateRegistry', registryUrl, registry);
+    async (registry: containerDesktopAPI.Registry): Promise<void> => {
+      return ipcInvoke('image-registry:updateRegistry', registry);
     },
   );
 
