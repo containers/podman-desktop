@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+const exec = require('child_process').exec;
+
 if (process.env.VITE_APP_VERSION === undefined) {
   const now = new Date();
   process.env.VITE_APP_VERSION = `${now.getUTCFullYear() - 2000}.${now.getUTCMonth() + 1}.${now.getUTCDate()}-${
@@ -44,6 +46,7 @@ const config = {
   },
   win: {
     target: ['portable', 'nsis'],
+    sign: configuration => azureCodeSign(configuration.path),
   },
   flatpak: {
     license: 'LICENSE',
@@ -105,6 +108,47 @@ const config = {
   /*extraMetadata: {
     version: process.env.VITE_APP_VERSION,
   },*/
+};
+
+const azureCodeSign = filePath => {
+  if (!process.env.AZURE_KEY_VAULT_URL) {
+    console.log('Skipping code signing, no environment variables set for that.');
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    const {
+      AZURE_KEY_VAULT_TENANT_ID,
+      AZURE_KEY_VAULT_CLIENT_ID,
+      AZURE_KEY_VAULT_SECRET,
+      AZURE_KEY_VAULT_URL,
+      AZURE_KEY_VAULT_CERTIFICATE,
+    } = process.env;
+
+    // eslint-disable-next-line no-console
+    console.log('Signing file', filePath);
+    const command = `AzureSignTool sign -kvu ${AZURE_KEY_VAULT_URL} -kvi ${AZURE_KEY_VAULT_CLIENT_ID} -kvt ${AZURE_KEY_VAULT_TENANT_ID} -kvs ${AZURE_KEY_VAULT_SECRET} -kvc ${AZURE_KEY_VAULT_CERTIFICATE} -tr http://timestamp.digicert.com -v '${filePath}'`;
+    exec(command, { shell: 'powershell.exe' }, (e, stdout, stderr) => {
+      if (e instanceof Error) {
+        console.log(e);
+        reject(e);
+        return;
+      }
+
+      if (stderr) {
+        reject(new Error(stderr));
+        return;
+      }
+
+      if (stdout.indexOf('Signing completed successfully') > -1) {
+        // eslint-disable-next-line no-console
+        console.log(stdout);
+        resolve();
+      } else {
+        reject(new Error(stdout));
+      }
+    });
+  });
 };
 
 module.exports = config;
