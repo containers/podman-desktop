@@ -497,8 +497,8 @@ export class PluginSystem {
 
     this.ipcHandle(
       'image-registry:updateRegistry',
-      async (_listener, registryUrl: string, registry: containerDesktopAPI.Registry): Promise<void> => {
-        await imageRegistry.updateRegistry(registryUrl, registry);
+      async (_listener, registry: containerDesktopAPI.Registry): Promise<void> => {
+        await imageRegistry.updateRegistry(registry);
       },
     );
 

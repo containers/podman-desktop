@@ -142,12 +142,13 @@ export class ImageRegistry {
     return this.registerRegistry(registry);
   }
 
-  updateRegistry(registryUrl: string, registry: containerDesktopAPI.Registry): void {
+  updateRegistry(registry: containerDesktopAPI.Registry): void {
     const matchingRegistry = this.registries.find(
-      existringRegistry => registry.serverUrl === registry.serverUrl && registry.source === existringRegistry.source,
+      existringRegistry =>
+        registry.serverUrl === existringRegistry.serverUrl && registry.source === existringRegistry.source,
     );
     if (!matchingRegistry) {
-      throw new Error(`Registry ${registryUrl} was not found`);
+      throw new Error(`Registry ${registry.serverUrl} was not found`);
     }
     matchingRegistry.username = registry.username;
     matchingRegistry.secret = registry.secret;
