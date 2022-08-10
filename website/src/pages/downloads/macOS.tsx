@@ -8,14 +8,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faApple } from '@fortawesome/free-brands-svg-icons';
 import { faBeer, faDownload, faPaste, faTerminal } from '@fortawesome/free-solid-svg-icons';
 
-let grabbed = false;
-
 async function grabfilenameforMac(
   setDownloadData: React.Dispatch<SetStateAction<{ version: string; x64: string; arm64: string }>>,
 ): Promise<void> {
-  if (grabbed) {
-    return;
-  }
   const result = await fetch('https://api.github.com/repos/containers/podman-desktop/releases/latest');
   const jsonContent = await result.json();
   const assets = jsonContent.assets;
@@ -45,7 +40,6 @@ async function grabfilenameforMac(
     arm64: armLink.browser_download_url,
   };
   setDownloadData(data);
-  grabbed = true;
 }
 
 export function MacOSDownloads(): JSX.Element {
@@ -62,7 +56,7 @@ export function MacOSDownloads(): JSX.Element {
 
   useEffect(() => {
     grabfilenameforMac(setDownloadData);
-  });
+  }, []);
   return (
     <section className=" dark:bg-zinc-900 bg-zinc-100 py-24 dark:text-gray-300 text-gray-700">
       <div className="w-5/6 mx-auto">
