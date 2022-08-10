@@ -28,6 +28,7 @@ import type { ImageRegistry } from './image-registry';
 import type { PullEvent } from './api/pull-event';
 import type { Telemetry } from './telemetry/telemetry';
 import * as crypto from 'node:crypto';
+import moment from 'moment';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 import { EventEmitter } from 'node:events';
 import type { ContainerInspectInfo } from './api/container-inspect-info';
@@ -171,14 +172,43 @@ export class ContainerProviderRegistry {
     const containers = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
         try {
-          if (!provider.api) {
+          const providerApi = provider.api;
+          if (!providerApi) {
             return [];
           }
-          const containers = await provider.api.listContainers({ all: true });
-          return containers.map(container => {
-            const containerInfo: ContainerInfo = { ...container, engineName: provider.name, engineId: provider.id };
-            return containerInfo;
-          });
+
+          // grab time from the provider
+          const providerInfo = await providerApi.info();
+          // Current system-time in RFC 3339 format with nano-seconds.
+          const vmTime = providerInfo.SystemTime;
+
+          // we can't trust the time from the VM, so need to compute delta
+          // between our time and the VM time
+          // https://github.com/containers/podman/issues/11541
+          const delta = moment().diff(vmTime);
+          const containers = await providerApi.listContainers({ all: true });
+          return Promise.all(
+            containers.map(async container => {
+              let StartedAt;
+              if (container.State.toUpperCase() === 'RUNNING') {
+                // grab additional field like StartedAt
+                const containerData = providerApi.getContainer(container.Id);
+                const containerInspect = await containerData.inspect();
+                // needs to adjust
+                const correctedDate = moment(containerInspect.State.StartedAt).add(delta, 'milliseconds').toISOString();
+                StartedAt = correctedDate;
+              } else {
+                StartedAt = '';
+              }
+              const containerInfo: ContainerInfo = {
+                ...container,
+                engineName: provider.name,
+                engineId: provider.id,
+                StartedAt,
+              };
+              return containerInfo;
+            }),
+          );
         } catch (error) {
           console.log('error in engine', provider.name, error);
           return [];

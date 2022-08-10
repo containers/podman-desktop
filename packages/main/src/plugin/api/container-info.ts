@@ -21,6 +21,7 @@ import type Dockerode from 'dockerode';
 export interface ContainerInfo extends Dockerode.ContainerInfo {
   engineId: string;
   engineName: string;
+  StartedAt: string;
 }
 
 export interface HostConfig {

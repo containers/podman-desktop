@@ -18,7 +18,8 @@
 
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import type { ContainerInfoUI } from './ContainerInfoUI';
-
+import moment from 'moment';
+import * as humanize from 'humanize-duration';
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {
     return containerInfo.Names[0].replace(/^\//, '');
@@ -28,8 +29,28 @@ export class ContainerUtils {
     return (containerInfo.State || '').toUpperCase();
   }
 
-  getStatus(containerInfo: ContainerInfo): string {
-    return containerInfo.State === 'running' ? containerInfo.Status : '-';
+  getUptime(containerInfo: ContainerInfo): string {
+    if (containerInfo.State?.toUpperCase() !== 'RUNNING' || !containerInfo.StartedAt) {
+      return '';
+    }
+
+    // make it human friendly
+    return `${this.humanizeUptime(containerInfo.StartedAt)} ago`;
+  }
+
+  humanizeUptime(started: string): string {
+    // get start time in ms
+    const uptimeInMs = moment().diff(started);
+    // make it human friendly
+    return humanize(uptimeInMs, { round: true, largest: 1 });
+  }
+
+  refreshUptime(containerInfoUI: ContainerInfoUI): string {
+    if (containerInfoUI.state !== 'RUNNING' || !containerInfoUI.startedAt) {
+      return '';
+    }
+    // make it human friendly
+    return `${this.humanizeUptime(containerInfoUI.startedAt)} ago`;
   }
 
   getImage(containerInfo: ContainerInfo): string {
@@ -78,7 +99,8 @@ export class ContainerUtils {
       name: this.getName(containerInfo),
       image: this.getImage(containerInfo),
       state: this.getState(containerInfo),
-      status: this.getStatus(containerInfo),
+      startedAt: containerInfo.StartedAt,
+      uptime: this.getUptime(containerInfo),
       engineId: this.getEngineId(containerInfo),
       engineName: this.getEngineName(containerInfo),
       command: containerInfo.Command,
