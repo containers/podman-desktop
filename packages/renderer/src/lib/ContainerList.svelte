@@ -1,6 +1,6 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { fetchContainers, filtered, searchPattern } from '../stores/containers';
+import { onDestroy, onMount } from 'svelte';
+import { filtered, searchPattern } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
@@ -12,9 +12,10 @@ import Modal from './dialogs/Modal.svelte';
 import { ContainerUtils } from './container/container-utils';
 import { providerInfos } from '../stores/providers';
 import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
+import moment from 'moment';
+import type { Unsubscriber } from 'svelte/store';
 
-setInterval(() => fetchContainers(), 5000);
-
+const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
 
 let containers: ContainerInfoUI[] = [];
@@ -33,9 +34,64 @@ $: providerConnections = $providerInfos
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
+let refreshTimeouts: NodeJS.Timeout[] = [];
+
+const SECOND = 1000;
+function refreshUptime() {
+  containers = containers.map(containerUiInfo => {
+    return { ...containerUiInfo, uptime: containerUtils.refreshUptime(containerUiInfo) };
+  });
+
+  // compute new interval
+  const newInterval = computeInterval();
+  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.length = 0;
+  refreshTimeouts.push(setTimeout(refreshUptime, newInterval));
+}
+
+function computeInterval(): number {
+  // no container running, no refresh
+  if (!containers.some(container => container.state === 'RUNNING')) {
+    return -1;
+  }
+
+  // limit to containers running
+  const runningContainers = containers.filter(container => container.state === 'RUNNING');
+
+  // do we have containers that have been started in less than 1 minute
+  // if so, need to update every second
+  const containersStartedInLessThan1Mn = runningContainers.filter(
+    container => moment().diff(container.startedAt, 'minutes') < 1,
+  );
+  if (containersStartedInLessThan1Mn.length > 0) {
+    return 2 * SECOND;
+  }
+
+  // every minute for containers started less than 1 hour
+  const containersStartedInLessThan1Hour = runningContainers.filter(
+    container => moment().diff(container.startedAt, 'hours') < 1,
+  );
+  if (containersStartedInLessThan1Hour.length > 0) {
+    // every minute
+    return 60 * SECOND;
+  }
+
+  // every hour for containers started less than 1 day
+  const containersStartedInLessThan1Day = runningContainers.filter(
+    container => moment().diff(container.startedAt, 'days') < 1,
+  );
+  if (containersStartedInLessThan1Day.length > 0) {
+    // every hour
+    return 60 * 60 * SECOND;
+  }
+
+  // every day
+  return 60 * 60 * 24 * SECOND;
+}
+
+let containersUnsubscribe: Unsubscriber;
 onMount(async () => {
-  const containerUtils = new ContainerUtils();
-  filtered.subscribe(value => {
+  containersUnsubscribe = filtered.subscribe(value => {
     containers = value.map((containerInfo: ContainerInfo) => {
       return containerUtils.getContainerInfoUI(containerInfo);
     });
@@ -49,7 +105,22 @@ onMount(async () => {
     } else {
       multipleEngines = false;
     }
+
+    // compute refresh interval
+    const interval = computeInterval();
+    refreshTimeouts.push(setTimeout(refreshUptime, interval));
   });
+});
+
+onDestroy(() => {
+  // kill timers
+  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.length = 0;
+
+  // unsubscribe from the store
+  if (containersUnsubscribe) {
+    containersUnsubscribe();
+  }
 });
 
 function openDetailsContainer(container: ContainerInfoUI) {
@@ -152,7 +223,7 @@ function fromDockerfile(): void {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="ml-2 text-sm text-gray-200">{container.status}</div>
+                <div class="ml-2 text-sm text-gray-400">{container.uptime}</div>
               </div>
             </td>
             <td class="px-6 whitespace-nowrap">

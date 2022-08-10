@@ -85,6 +85,7 @@
     "dockerode": "^3.3.1",
     "electron-updater": "4.6.5",
     "getos": "^3.2.1",
+    "moment": "^2.29.2",
     "os-locale": "^6.0.2",
     "stream-json": "^1.7.4",
     "tar-fs": "^2.1.1"
