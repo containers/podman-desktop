@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { filtered, searchPattern } from '../stores/containers';
+import { fetchContainers, filtered, searchPattern } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
@@ -12,6 +12,8 @@ import Modal from './dialogs/Modal.svelte';
 import { ContainerUtils } from './container/container-utils';
 import { providerInfos } from '../stores/providers';
 import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
+
+setInterval(() => fetchContainers(), 5000);
 
 let openChoiceModal = false;
 
@@ -146,6 +148,11 @@ function fromDockerfile(): void {
                     <div class="pl-2 pr-2">{container.port}</div>
                   </div>
                 </div>
+              </div>
+            </td>
+            <td class="px-6 py-2 whitespace-nowrap w-10">
+              <div class="flex items-center">
+                <div class="ml-2 text-sm text-gray-200">{container.status}</div>
               </div>
             </td>
             <td class="px-6 whitespace-nowrap">

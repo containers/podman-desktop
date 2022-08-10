@@ -24,6 +24,7 @@ export interface ContainerInfoUI {
   engineId: string;
   engineName: string;
   state: string;
+  status: string;
   port: string;
   command: string;
   hasPublicPort: boolean;

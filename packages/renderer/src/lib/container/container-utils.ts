@@ -28,6 +28,10 @@ export class ContainerUtils {
     return (containerInfo.State || '').toUpperCase();
   }
 
+  getStatus(containerInfo: ContainerInfo): string {
+    return containerInfo.State === 'running' ? containerInfo.Status : '-';
+  }
+
   getImage(containerInfo: ContainerInfo): string {
     return containerInfo.Image;
   }
@@ -74,6 +78,7 @@ export class ContainerUtils {
       name: this.getName(containerInfo),
       image: this.getImage(containerInfo),
       state: this.getState(containerInfo),
+      status: this.getStatus(containerInfo),
       engineId: this.getEngineId(containerInfo),
       engineName: this.getEngineName(containerInfo),
       command: containerInfo.Command,
