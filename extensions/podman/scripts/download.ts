@@ -45,7 +45,6 @@ async function downloadAndCheckSha(tagVersion: string, fileName: string, artifac
     process.exit(1);
   }
 
-
   const release = await octokit.request('GET /repos/{owner}/{repo}/releases/tags/{tag}', {
     owner: 'containers',
     repo: 'podman',
