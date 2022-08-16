@@ -39,31 +39,31 @@ async function checkFileSha(filePath: string, shaSum: string): Promise<boolean> 
   return sha256sum === shaSum;
 }
 
-async function downloadAndCheckSha(tagVersion: string, fileName: string): Promise<void> {
+async function downloadAndCheckSha(tagVersion: string, fileName: string, artifactName: string): Promise<void> {
   if (downloadAttempt >= MAX_DOWNLOAD_ATTEMPT) {
     console.error('Max download attempt reached, exiting...');
     process.exit(1);
   }
 
-  const podmanMsiName = `podman-${tagVersion}.msi`;
+
   const release = await octokit.request('GET /repos/{owner}/{repo}/releases/tags/{tag}', {
     owner: 'containers',
     repo: 'podman',
     tag: tagVersion,
   });
 
-  let msiRelease;
+  let artifactRelease;
   let shasums;
   for (const asset of release.data.assets) {
-    if (asset.name === podmanMsiName) {
-      msiRelease = asset;
+    if (asset.name === artifactName) {
+      artifactRelease = asset;
     }
     if (asset.name === 'shasums') {
       shasums = asset;
     }
   }
 
-  if (!msiRelease && !shasums) {
+  if (!artifactRelease && !shasums) {
     throw new Error(`Can't find assets to download and verify for ${tagVersion}`);
   }
 
@@ -78,16 +78,16 @@ async function downloadAndCheckSha(tagVersion: string, fileName: string): Promis
 
   const shaFileContent = new TextDecoder().decode(shasumAsset.data as unknown as ArrayBuffer);
   const shaArr = shaFileContent.split('\n');
-  let msiSha: string;
+  let msiSha = '';
 
   for (const shaLine of shaArr) {
-    if (shaLine.endsWith(podmanMsiName)) {
+    if (shaLine.endsWith(artifactName)) {
       msiSha = shaLine.split('  ')[0];
       break;
     }
   }
   if (!msiSha) {
-    console.error(`Can't find SHA256 sum for ${podmanMsiName} in:\n${shaFileContent}`);
+    console.error(`Can't find SHA256 sum for ${artifactName} in:\n${shaFileContent}`);
     return;
   }
 
@@ -97,10 +97,10 @@ async function downloadAndCheckSha(tagVersion: string, fileName: string): Promis
   }
   const destFile = path.resolve(destDir, fileName);
   if (!fs.existsSync(destFile)) {
-    console.log(`Downloading Podman package from ${msiRelease.browser_download_url}`);
+    console.log(`Downloading Podman package from ${artifactRelease.browser_download_url}`);
     // await downloadFile(url, destFile);
-    const msiAsset = await octokit.rest.repos.getReleaseAsset({
-      asset_id: msiRelease.id,
+    const artifactAsset = await octokit.rest.repos.getReleaseAsset({
+      asset_id: artifactRelease.id,
       owner: 'containers',
       repo: 'podman',
       headers: {
@@ -108,10 +108,10 @@ async function downloadAndCheckSha(tagVersion: string, fileName: string): Promis
       },
     });
 
-    fs.appendFileSync(destFile, Buffer.from(msiAsset.data as unknown as ArrayBuffer));
+    fs.appendFileSync(destFile, Buffer.from(artifactAsset.data as unknown as ArrayBuffer));
     console.log(`Downloaded to ${destFile}`);
   } else {
-    console.log(`Podman package ${msiRelease.browser_download_url} already downloaded.`);
+    console.log(`Podman package ${artifactRelease.browser_download_url} already downloaded.`);
   }
 
   console.log(`Verifying ${fileName}...`);
@@ -120,7 +120,7 @@ async function downloadAndCheckSha(tagVersion: string, fileName: string): Promis
     console.warn(`Checksum for downloaded ${destFile} is not match, downloading again...`);
     fs.rmSync(destFile);
     downloadAttempt++;
-    downloadAndCheckSha(tagVersion, fileName);
+    downloadAndCheckSha(tagVersion, fileName, artifactName);
   } else {
     console.log(`Checksum for ${fileName} is matched.`);
   }
@@ -133,7 +133,12 @@ if (platform === 'win32') {
   tagVersion = tools.platform.win32.version;
   // eslint-disable-next-line prefer-const
   dlName = tools.platform.win32.fileName;
-  downloadAndCheckSha(tagVersion, dlName);
+  downloadAndCheckSha(tagVersion, dlName, `podman-${tagVersion}.msi`);
 } else if (platform === 'darwin') {
-  // TODO: implement download on mac os
+  tagVersion = tools.platform.darwin.version;
+  dlName = tools.platform.darwin.arch.x64.fileName;
+  downloadAndCheckSha(tagVersion, dlName, 'podman-installer-macos-amd64.pkg');
+
+  dlName = tools.platform.darwin.arch.arm64.fileName;
+  downloadAndCheckSha(tagVersion, dlName, 'podman-installer-macos-aarch64.pkg');
 }
