@@ -35,7 +35,10 @@ if (fs.existsSync(builtinDirectory)) {
   fs.rmSync(builtinDirectory, { recursive: true, force: true });
 }
 
-zipper.sync.zip(path.resolve(__dirname, '../')).compress().save(destFile);
+const zip = zipper.sync.zip(path.resolve(__dirname, '../'));
+// delete assets from cdix file
+zip.lowLevel().remove('assets');
+zip.compress().save(destFile);
 
 // create unzipped built-in
 mkdirp(unzippedDirectory).then(() => {
