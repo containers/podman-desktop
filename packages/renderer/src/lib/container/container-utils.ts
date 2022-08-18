@@ -19,7 +19,7 @@
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 import moment from 'moment';
-import * as humanize from 'humanize-duration';
+import humanizeDuration from 'humanize-duration';
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {
     return containerInfo.Names[0].replace(/^\//, '');
@@ -42,7 +42,7 @@ export class ContainerUtils {
     // get start time in ms
     const uptimeInMs = moment().diff(started);
     // make it human friendly
-    return humanize(uptimeInMs, { round: true, largest: 1 });
+    return humanizeDuration(uptimeInMs, { round: true, largest: 1 });
   }
 
   refreshUptime(containerInfoUI: ContainerInfoUI): string {
