@@ -60,7 +60,6 @@ const config = {
     }
   },
   files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**'],
-  extraResources: [],
   portable: {
     artifactName: 'podman-desktop-${version}.${ext}',
   },
