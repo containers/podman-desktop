@@ -21,7 +21,6 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as os from 'node:os';
 import { contextBridge, ipcRenderer } from 'electron';
 import type { v1 as dockerDesktopAPI } from '@docker/extension-api-client-types';
 
@@ -29,16 +28,37 @@ import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { Dialog, OpenDialogResult } from '@docker/extension-api-client-types/dist/v1/dialog';
 import type { ExecStreamOptions, NavigationIntents, RequestConfig } from '@docker/extension-api-client-types/dist/v1';
 
+interface ErrorMessage {
+  name: string;
+  message: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  extra: any;
+}
+function decodeError(error: ErrorMessage) {
+  const e = new Error(error.message);
+  e.name = error.name;
+  Object.assign(e, error.extra);
+  return e;
+}
+
+async function ipcInvoke(channel: string, ...args: any) {
+  const { error, result } = await ipcRenderer.invoke(channel, ...args);
+  if (error) {
+    throw decodeError(error);
+  }
+  return result;
+}
+
 export class DockerExtensionPreload {
   private onDockerPluginExecWithOptionsCallbacksId = 0;
   private onDockerPluginExecWithOptionsCallbacks = new Map<number, ExecStreamOptions>();
 
   listImages(options?: any): Promise<ImageInfo[]> {
-    return ipcRenderer.invoke('container-provider-registry:listImages', options);
+    return ipcInvoke('container-provider-registry:listImages', options);
   }
 
   listContainers(options?: any): Promise<ImageInfo[]> {
-    return ipcRenderer.invoke('container-provider-registry:listContainers', options);
+    return ipcInvoke('container-provider-registry:listContainers', options);
   }
 
   async exec(
@@ -209,12 +229,18 @@ export class DockerExtensionPreload {
     const desktopUI: dockerDesktopAPI.DesktopUI = { toast, dialog, navigate };
     const host: dockerDesktopAPI.Host = {
       openExternal: (link: string) => {
-        return ipcRenderer.invoke('shell:openExternal', link);
+        return ipcInvoke('shell:openExternal', link);
       },
-      platform: os.platform(),
-      arch: os.arch(),
-      hostname: os.hostname(),
+      platform: '',
+      arch: '',
+      hostname: '',
     };
+    async function initHost() {
+      host.platform = await ipcInvoke('os:getPlatform');
+      host.arch = await ipcInvoke('os:getArch');
+      host.hostname = await ipcInvoke('os:getHostname');
+    }
+    initHost();
 
     const extensionVMService: dockerDesktopAPI.HttpService = {
       get: async (url: string): Promise<unknown> => {

@@ -19,7 +19,7 @@
 /**
  * @module preload
  */
-
+import * as os from 'node:os';
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { CommandRegistry } from './command-registry';
 import { ContainerProviderRegistry } from './container-registry';
@@ -562,6 +562,16 @@ export class PluginSystem {
         shell.openExternal(link);
       },
     );
+
+    this.ipcHandle('os:getPlatform', async (): Promise<string> => {
+      return os.platform();
+    });
+    this.ipcHandle('os:getArch', async (): Promise<string> => {
+      return os.arch();
+    });
+    this.ipcHandle('os:getHostname', async (): Promise<string> => {
+      return os.hostname();
+    });
 
     this.ipcHandle(
       'provider-registry:startProviderLifecycle',
