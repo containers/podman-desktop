@@ -20,7 +20,7 @@ import { spawn } from 'node:child_process';
 import type * as extensionApi from '@tmpwip/extension-api';
 import { isMac, isWindows } from './util';
 
-const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
+const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
 export function getInstallationPath(): string {
   const env = process.env;
