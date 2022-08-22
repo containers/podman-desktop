@@ -108,11 +108,11 @@ interface UpdateCheck {
 export class PodmanInstall {
   private podmanInfo: PodmanInfo;
 
-  private installers = new Map<string, Installer>();
+  private installers = new Map<NodeJS.Platform, Installer>();
 
   constructor(private readonly storagePath: string) {
     this.installers.set('win32', new WinInstaller());
-    //TODO: add Mac(darwin) installer
+    this.installers.set('darwin', new MacOSInstaller());
   }
 
   public async doInstallPodman(provider: extensionApi.Provider): Promise<void> {
@@ -247,6 +247,34 @@ abstract class BaseInstaller implements Installer {
       return path.resolve((process as any).resourcesPath, 'extensions', 'podman', 'builtin', 'podman.cdix', 'assets');
     }
   }
+
+  protected executeInstaller(installCmd: string, args: string[]): Promise<string> {
+    return new Promise((resolve, reject) => {
+      let output = '';
+      let err = '';
+      const process = spawn(installCmd, args, { shell: isWindows });
+      process.on('error', err => {
+        reject(err);
+      });
+      process.stdout.setEncoding('utf8');
+      process.stdout.on('data', data => {
+        output += data;
+        console.log(data);
+      });
+      process.stderr.setEncoding('utf8');
+      process.stderr.on('data', data => {
+        err += data;
+        console.error(data);
+      });
+
+      process.on('close', exitCode => {
+        if (exitCode !== 0) {
+          reject(err);
+        }
+        resolve(output.trim());
+      });
+    });
+  }
 }
 
 class WinInstaller extends BaseInstaller {
@@ -281,33 +309,46 @@ class WinInstaller extends BaseInstaller {
       }
     });
   }
+}
 
-  executeInstaller(installCmd: string, args: string[]): Promise<string> {
-    return new Promise((resolve, reject) => {
-      let output = '';
-      let err = '';
-      const process = spawn(installCmd, args, { shell: isWindows });
-      process.on('error', err => {
-        reject(err);
-      });
-      process.stdout.setEncoding('utf8');
-      process.stdout.on('data', data => {
-        output += data;
-        console.log(data);
-      });
-      process.stderr.setEncoding('utf8');
-      process.stderr.on('data', data => {
-        err += data;
-        console.error(data);
-      });
+class MacOSInstaller extends BaseInstaller {
+  install(): Promise<boolean> {
+    return extensionApi.window.withProgress({ location: extensionApi.ProgressLocation.APP_ICON }, async progress => {
+      progress.report({ increment: 5 });
+      const pkgArch = process.arch === 'arm64' ? 'aarch64' : 'amd64';
 
-      process.on('close', exitCode => {
-        if (exitCode !== 0) {
-          reject(err);
+      const pkgPath = path.resolve(
+        this.getAssetsFolder(),
+        `podman-installer-macos-${pkgArch}-v${podmanTool.version}.pkg`,
+      );
+      try {
+        if (fs.existsSync(pkgPath)) {
+          await this.executeInstaller('open', [pkgPath, '-W']);
+          progress.report({ increment: 80 });
+          // we cannot rely on exit code, as installer could be closed and it return '0' exit code
+          // so just check that podman bin file exist.
+          if (fs.existsSync('/opt/podman/bin/podman')) {
+            extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          throw new Error(`Can't find Podman package! Path: ${pkgPath} doesn't exists.`);
         }
-        resolve(output.trim());
-      });
+      } catch (err) {
+        console.error('Error during install!');
+        console.error(err);
+        await extensionApi.window.showErrorMessage('Unexpected error, during Podman installation: ' + err, 'OK');
+        return false;
+      }
     });
+  }
+  update(): Promise<boolean> {
+    return this.install();
+  }
+  getPreflightChecks(): extensionApi.InstallCheck[] {
+    return [];
   }
 }
 
