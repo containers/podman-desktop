@@ -30,8 +30,8 @@ const platform = process.platform;
 const MAX_DOWNLOAD_ATTEMPT = 3;
 let downloadAttempt = 0;
 
-const octokitOptions: OctokitOptions  = {};
-if(process.env.GITHUB_TOKEN) {
+const octokitOptions: OctokitOptions = {};
+if (process.env.GITHUB_TOKEN) {
   octokitOptions.auth = process.env.GITHUB_TOKEN;
 }
 const octokit = new Octokit(octokitOptions);
