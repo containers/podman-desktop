@@ -20,6 +20,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Octokit } from 'octokit';
+import type { OctokitOptions } from '@octokit/core/dist-types/types';
 import * as hasha from 'hasha';
 
 const tools = require('../src/podman.json');
@@ -29,7 +30,11 @@ const platform = process.platform;
 const MAX_DOWNLOAD_ATTEMPT = 3;
 let downloadAttempt = 0;
 
-const octokit = new Octokit();
+const octokitOptions: OctokitOptions  = {};
+if(process.env.GITHUB_TOKEN) {
+  octokitOptions.auth = process.env.GITHUB_TOKEN;
+}
+const octokit = new Octokit(octokitOptions);
 
 // to make this file a module
 export {};
