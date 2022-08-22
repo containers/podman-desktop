@@ -5,7 +5,7 @@ import { filtered, searchPattern } from '../stores/containers';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
 import { router } from 'tinro';
-import type { ContainerInfoUI } from './container/ContainerInfoUI';
+import { ContainerGroupInfoTypeUI, ContainerGroupInfoUI, ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
 import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';
 import Modal from './dialogs/Modal.svelte';
@@ -15,11 +15,15 @@ import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.s
 import moment from 'moment';
 import type { Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
+import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa/src/fa.svelte';
+import ContainerGroupIcon from './container/ContainerGroupIcon.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
 
-let containers: ContainerInfoUI[] = [];
+// groups of containers that will be displayed
+let containerGroups: ContainerGroupInfoUI[] = [];
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
@@ -39,8 +43,11 @@ let refreshTimeouts: NodeJS.Timeout[] = [];
 
 const SECOND = 1000;
 function refreshUptime() {
-  containers = containers.map(containerUiInfo => {
-    return { ...containerUiInfo, uptime: containerUtils.refreshUptime(containerUiInfo) };
+  containerGroups = containerGroups.map(containerGroupUiInfo => {
+    containerGroupUiInfo.containers = containerGroupUiInfo.containers.map(containerUiInfo => {
+      return { ...containerUiInfo, uptime: containerUtils.refreshUptime(containerUiInfo) };
+    });
+    return containerGroupUiInfo;
   });
 
   // compute new interval
@@ -51,13 +58,14 @@ function refreshUptime() {
 }
 
 function computeInterval(): number {
+  const allContainers = containerGroups.map(group => group.containers).flat();
   // no container running, no refresh
-  if (!containers.some(container => container.state === 'RUNNING')) {
+  if (!allContainers.some(container => container.state === 'RUNNING')) {
     return -1;
   }
 
   // limit to containers running
-  const runningContainers = containers.filter(container => container.state === 'RUNNING');
+  const runningContainers = allContainers.filter(container => container.state === 'RUNNING');
 
   // do we have containers that have been started in less than 1 minute
   // if so, need to update every second
@@ -93,12 +101,12 @@ function computeInterval(): number {
 let containersUnsubscribe: Unsubscriber;
 onMount(async () => {
   containersUnsubscribe = filtered.subscribe(value => {
-    containers = value.map((containerInfo: ContainerInfo) => {
+    const currentContainers = value.map((containerInfo: ContainerInfo) => {
       return containerUtils.getContainerInfoUI(containerInfo);
     });
 
     // multiple engines ?
-    const engineNamesArray = containers.map(container => container.engineName);
+    const engineNamesArray = currentContainers.map(container => container.engineName);
     // remove duplicates
     const engineNames = [...new Set(engineNamesArray)];
     if (engineNames.length > 1) {
@@ -106,6 +114,9 @@ onMount(async () => {
     } else {
       multipleEngines = false;
     }
+
+    // create groups
+    containerGroups = containerUtils.getContainerGroups(currentContainers);
 
     // compute refresh interval
     const interval = computeInterval();
@@ -143,6 +154,12 @@ function fromDockerfile(): void {
   openChoiceModal = false;
   router.goto('/images/build');
 }
+
+function toggleContainerGroup(containerGroup: ContainerGroupInfoUI) {
+  containerGroup.expanded = !containerGroup.expanded;
+  // update the group expanded attribute if this is the matching group
+  containerGroups = containerGroups.map(group => (group.name === containerGroup.name ? containerGroup : group));
+}
 </script>
 
 <NavPage
@@ -160,54 +177,97 @@ function fromDockerfile(): void {
     Create container
   </button>
 
-  <table
-    slot="table"
-    class="min-w-full divide-y divide-gray-800 border-t border-t-zinc-700"
-    class:hidden="{containers.length === 0}">
-    <tbody class="bg-zinc-800 divide-y divide-zinc-700">
-      {#each containers as container}
-        <tr class="group h-12 hover:bg-zinc-700">
-          <td class="px-4 whitespace-nowrap hover:cursor-pointer" on:click="{() => openDetailsContainer(container)}">
-            <div class="flex items-center">
-              <div class="flex-shrink-0 w-3 py-3">
-                <ContainerIcon state="{container.state}" />
-              </div>
-              <div class="ml-4">
-                <div class="flex flex-nowrap">
-                  <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{container.name}">
-                    {container.name}
+  <div class="min-w-full flex" slot="table">
+    <table class="mx-5 w-full" class:hidden="{containerGroups.length === 0}">
+      <!-- Display each group -->
+      {#each containerGroups as containerGroup}
+        <tbody>
+          {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE}
+            <tr class="h-10 group">
+              <td
+                class="bg-zinc-900 group-hover:bg-zinc-700 pl-2 w-5 rounded-tl-lg pr-2"
+                class:rounded-bl-lg="{!containerGroup.expanded}"
+                on:click="{() => toggleContainerGroup(containerGroup)}">
+                <Fa
+                  size="12"
+                  class="text-gray-400 cursor-pointer"
+                  icon="{containerGroup.expanded ? faChevronDown : faChevronRight}" />
+              </td>
+              <td
+                colspan="3"
+                class="bg-zinc-900 group-hover:bg-zinc-700 rounded-tr-lg {!containerGroup.expanded
+                  ? 'rounded-br-lg'
+                  : ''}">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 w-5 py-3" title="{containerGroup.type}">
+                    <ContainerGroupIcon type="{containerGroup.type}" />
                   </div>
-                  <div class="pl-2 text-sm text-violet-400 overflow-hidden text-ellipsis" title="{container.image}">
-                    {container.image}
-                  </div>
+                  {containerGroup.name}
                 </div>
-                <div class="flex flex-row text-xs font-extra-light text-gray-500">
-                  <div>{container.state}</div>
-                  <!-- Hide in case of single engines-->
-                  {#if multipleEngines}
-                    <div class="mx-2 px-2 inline-flex text-xs font-extralight rounded-sm bg-zinc-700 text-slate-400">
-                      {container.engineName}
+              </td>
+            </tr>
+          {/if}
+          <!-- Display each container of this group -->
+          {#if containerGroup.expanded}
+            {#each containerGroup.containers as container, index}
+              <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+                <td
+                  class="{containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE ? 'rounded-tl-lg' : ''} {index ===
+                  containerGroup.containers.length - 1
+                    ? 'rounded-bl-lg'
+                    : ''}">
+                </td>
+                <td class="whitespace-nowrap hover:cursor-pointer" on:click="{() => openDetailsContainer(container)}">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 w-3 py-3">
+                      <ContainerIcon state="{container.state}" />
                     </div>
-                  {/if}
-                  <div class="pl-2 pr-2">{container.port}</div>
-                </div>
-              </div>
-            </div>
-          </td>
-          <td class="px-6 py-2 whitespace-nowrap w-10">
-            <div class="flex items-center">
-              <div class="ml-2 text-sm text-gray-400">{container.uptime}</div>
-            </div>
-          </td>
-          <td class="px-6 whitespace-nowrap">
-            <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100 ">
-              <ContainerActions container="{container}" />
-            </div>
-          </td>
-        </tr>
+                    <div class="ml-4">
+                      <div class="flex flex-nowrap">
+                        <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{container.name}">
+                          {container.name}
+                        </div>
+                        <div
+                          class="pl-2 text-sm text-violet-400 overflow-hidden text-ellipsis"
+                          title="{container.image}">
+                          {container.image}
+                        </div>
+                      </div>
+                      <div class="flex flex-row text-xs font-extra-light text-gray-500">
+                        <div>{container.state}</div>
+                        <!-- Hide in case of single engines-->
+                        {#if multipleEngines}
+                          <div
+                            class="mx-2 px-2 inline-flex text-xs font-extralight rounded-sm bg-zinc-700 text-slate-400">
+                            {container.engineName}
+                          </div>
+                        {/if}
+                        <div class="pl-2 pr-2">{container.port}</div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-2 whitespace-nowrap w-10">
+                  <div class="flex items-center">
+                    <div class="ml-2 text-sm text-gray-400">{container.uptime}</div>
+                  </div>
+                </td>
+                <td
+                  class="px-6 whitespace-nowrap {containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE
+                    ? 'rounded-tr-lg'
+                    : ''} {index === containerGroup.containers.length - 1 ? 'rounded-br-lg' : ''}">
+                  <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100 ">
+                    <ContainerActions container="{container}" />
+                  </div>
+                </td>
+              </tr>
+            {/each}
+          {/if}
+        </tbody>
+        <tr><td class="leading-[8px]">&nbsp;</td></tr>
       {/each}
-    </tbody>
-  </table>
+    </table>
+  </div>
 
   <div slot="empty" class="min-h-full">
     {#if providerConnections.length > 0}
