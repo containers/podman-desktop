@@ -17,11 +17,20 @@
  ***********************************************************************/
 
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
-import type { ContainerInfoUI } from './ContainerInfoUI';
+import type { ContainerGroupInfoUI, ContainerGroupPartInfoUI, ContainerInfoUI } from './ContainerInfoUI';
+import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
 import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {
+    // part of a compose ?
+    const composeService = (containerInfo.Labels || {})['com.docker.compose.service'];
+    if (composeService) {
+      const composeContainerNumber = (containerInfo.Labels || {})['com.docker.compose.container-number'];
+      if (composeContainerNumber) {
+        return `${composeService}-${composeContainerNumber}`;
+      }
+    }
     return containerInfo.Names[0].replace(/^\//, '');
   }
 
@@ -107,6 +116,49 @@ export class ContainerUtils {
       port: this.getPort(containerInfo),
       hasPublicPort: this.hasPublicPort(containerInfo),
       openingUrl: this.getOpeningUrl(containerInfo),
+      groupInfo: this.getContainerGroup(containerInfo),
+      selected: false,
     };
+  }
+
+  getContainerGroup(containerInfo: ContainerInfo): ContainerGroupPartInfoUI {
+    // compose metatadata ?
+    const composeProject = (containerInfo.Labels || {})['com.docker.compose.project'];
+    if (composeProject) {
+      return {
+        name: composeProject,
+        type: ContainerGroupInfoTypeUI.COMPOSE,
+      };
+    }
+
+    // else, standalone
+    return {
+      name: this.getName(containerInfo),
+      type: ContainerGroupInfoTypeUI.STANDALONE,
+    };
+  }
+
+  getContainerGroups(containerInfos: ContainerInfoUI[]): ContainerGroupInfoUI[] {
+    // create a map from containers having the same group field
+    const groups = new Map<string, ContainerGroupInfoUI>();
+    containerInfos.forEach(containerInfo => {
+      const group = containerInfo.groupInfo;
+      if (group.type === ContainerGroupInfoTypeUI.STANDALONE) {
+        // standalone group, insert with id as key
+        groups.set(containerInfo.id, { ...group, containers: [containerInfo], expanded: true, selected: false });
+      } else {
+        if (!groups.has(group.name)) {
+          groups.set(group.name, {
+            selected: false,
+            expanded: true,
+            name: group.name,
+            type: group.type,
+            containers: [],
+          });
+        }
+        groups.get(group.name).containers.push(containerInfo);
+      }
+    });
+    return Array.from(groups.values());
   }
 }

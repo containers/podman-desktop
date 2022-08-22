@@ -95,56 +95,61 @@ function openDetailsImage(image: ImageInfoUI) {
     </button>
   </div>
 
-  <table slot="table" class="min-w-full divide-y divide-gray-800 border-t border-t-zinc-700">
-    <tbody class="bg-zinc-800 divide-y divide-zinc-700">
-      {#each images as image}
-        <tr class="group h-12  hover:bg-zinc-700">
-          <td class="px-4 whitespace-nowrap w-10 hover:cursor-pointer" on:click="{() => openDetailsImage(image)}">
-            <div class="flex items-center">
-              <div class="flex-shrink-0 w-3 py-3">
-                <Fa class="text-gray-400" icon="{faLayerGroup}" />
+  <div class="min-w-full flex" slot="table">
+    <table class="mx-5 w-full">
+      <tbody class="">
+        {#each images as image}
+          <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+            <td
+              class="px-4 whitespace-nowrap rounded-tl-lg rounded-bl-lg w-10 hover:cursor-pointer"
+              on:click="{() => openDetailsImage(image)}">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 w-3 py-3">
+                  <Fa class="text-gray-400" icon="{faLayerGroup}" />
+                </div>
+                <div class="ml-4">
+                  <div class="flex flex-row items-center">
+                    <div class="text-sm text-gray-200">{image.name}</div>
+                  </div>
+                  <div class="flex flex-row items-center">
+                    <div class="text-xs text-violet-400">{image.shortId}</div>
+                    <div class="ml-1 text-xs font-extra-light text-gray-500">{image.tag}</div>
+                  </div>
+                  <div class="flex flex-row text-xs font-extra-light text-gray-500">
+                    <!-- Hide in case of single engine-->
+                    {#if multipleEngines}
+                      <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
+                        {image.engineName}
+                      </div>
+                    {/if}
+                  </div>
+                </div>
               </div>
-              <div class="ml-4">
-                <div class="flex flex-row items-center">
-                  <div class="text-sm text-gray-200">{image.name}</div>
-                </div>
-                <div class="flex flex-row items-center">
-                  <div class="text-xs text-violet-400">{image.shortId}</div>
-                  <div class="ml-1 text-xs font-extra-light text-gray-500">{image.tag}</div>
-                </div>
-                <div class="flex flex-row text-xs font-extra-light text-gray-500">
-                  <!-- Hide in case of single engine-->
-                  {#if multipleEngines}
-                    <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-900 text-slate-400">
-                      {image.engineName}
-                    </div>
-                  {/if}
-                </div>
+            </td>
+            <td class="px-6 py-2 whitespace-nowrap w-10">
+              <div class="flex items-center">
+                <div class="ml-2 text-sm text-gray-200">{image.humanCreationDate}</div>
               </div>
-            </div>
-          </td>
-          <td class="px-6 py-2 whitespace-nowrap w-10">
-            <div class="flex items-center">
-              <div class="ml-2 text-sm text-gray-200">{image.humanCreationDate}</div>
-            </div>
-          </td>
-          <td class="px-6 py-2 whitespace-nowrap w-10">
-            <div class="flex">
-              <div class="w-full text-right text-sm text-gray-200">{image.humanSize}</div>
-            </div>
-          </td>
-          <td class="px-6 whitespace-nowrap">
-            <div class="flex opacity-0 flex-row justify-end group-hover:opacity-100">
-              <ImageActions
-                image="{image}"
-                onPushImage="{handlePushImageModal}"
-                onRunContainerImage="{handleRunContainerFromImageModal}" />
-            </div>
-          </td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+            </td>
+            <td class="px-6 py-2 whitespace-nowrap w-10">
+              <div class="flex">
+                <div class="w-full text-right text-sm text-gray-200">{image.humanSize}</div>
+              </div>
+            </td>
+            <td class="px-6 whitespace-nowrap rounded-tr-lg rounded-br-lg ">
+              <div class="flex opacity-0 flex-row justify-end group-hover:opacity-100">
+                <ImageActions
+                  image="{image}"
+                  onPushImage="{handlePushImageModal}"
+                  onRunContainerImage="{handleRunContainerFromImageModal}" />
+              </div>
+            </td>
+          </tr>
+          <tr><td class="leading-[8px]">&nbsp;</td></tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
   <div slot="empty" class="min-h-full">
     {#if providerConnections.length > 0}
       <ImageEmptyScreen images="{$filtered}" />
