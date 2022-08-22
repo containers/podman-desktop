@@ -123,6 +123,7 @@ jobs:
         run: |
           echo "CSC_LINK=${{secrets.CSC_LINK}}" >> $GITHUB_ENV
           echo "CSC_KEY_PASSWORD=${{secrets.CSC_KEY_PASSWORD}}" >> $GITHUB_ENV
+          echo "CSC_NAME=${{secrets.APPLE_TEAM_ID}}" >> $GITHUB_ENV
           echo "APPLE_ID=${{secrets.APPLE_ID}}" >> $GITHUB_ENV
           echo "APPLE_ID_PASSWORD=${{secrets.APPLE_ID_PASSWORD}}" >> $GITHUB_ENV
           echo "APPLE_TEAM_ID=${{secrets.APPLE_TEAM_ID}}" >> $GITHUB_ENV
