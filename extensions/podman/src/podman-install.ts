@@ -429,7 +429,11 @@ class HyperVCheck extends BaseCheck {
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
-      const res = await execPromise('powershell.exe', ['(Get-Service vmcompute).DisplayName']);
+      // set CurrentUICulture to force output in english
+      const res = await execPromise('powershell.exe', [
+        "[Threading.Thread]::CurrentThread.CurrentUICulture = 'en-US';",
+        '(Get-Service vmcompute).DisplayName',
+      ]);
       if (res === 'Hyper-V Host Compute Service') {
         return this.createSuccessfulResult();
       }
