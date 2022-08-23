@@ -25,7 +25,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 60
     env:
-      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
 
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 40
     env:
-      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
 
@@ -124,7 +124,7 @@ jobs:
     runs-on: macos-11
     timeout-minutes: 40
     env:
-      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
 
