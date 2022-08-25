@@ -6,9 +6,15 @@ export let state = '';
 </script>
 
 {#if state === 'RUNNING'}
-  <Fa class="text-green-600" icon="{faChartSimple}" />
+  <div class="bg-green-600 flex flex-col justify-center align-middle m-3 p-2 w-10 rounded">
+    <Fa class="text-gray-50" icon="{faChartSimple}" />
+  </div>
 {:else if state === 'CREATED'}
-  <Fa class="text-gray-400" icon="{faSeedling}" />
+  <div class="border-gray-400 border-2 flex flex-col justify-center align-middle m-3 p-2 w-10 rounded">
+    <Fa class="text-gray-400" icon="{faSeedling}" />
+  </div>
 {:else}
-  <Fa class="text-orange-600" icon="{faPowerOff}" />
+  <div class="border-orange-600 border-2 flex flex-col justify-center align-middle m-3 p-2 w-10 rounded">
+    <Fa class="text-orange-600" icon="{faPowerOff}" />
+  </div>
 {/if}
