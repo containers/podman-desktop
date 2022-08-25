@@ -76,6 +76,8 @@ export class ContainerProviderRegistry {
         this.apiSender.send('container-stopped-event', jsonEvent.id);
       } else if (jsonEvent.status === 'die' && jsonEvent?.Type === 'container') {
         this.apiSender.send('container-die-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'kill' && jsonEvent?.Type === 'container') {
+        this.apiSender.send('container-kill-event', jsonEvent.id);
       } else if (jsonEvent.status === 'remove' && jsonEvent?.Type === 'container') {
         this.apiSender.send('container-removed-event', jsonEvent.id);
       } else if (jsonEvent.status === 'pull' && jsonEvent?.Type === 'image') {
