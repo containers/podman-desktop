@@ -13,9 +13,14 @@ export let searchTerm = '';
           {subtitle}
         </p>
       </div>
+      <div class="flex flex-1 justify-end">
+        <div class="py-5 px-5">
+          <slot name="additional-actions">&nbsp;</slot>
+        </div>
+      </div>
     </div>
-    <div class="flex flex-row">
-      <div class="pt-2 px-5 lg:w-[35rem] w-[22rem]">
+    <div class="flex flex-row pb-4">
+      <div class="pt-2 pl-5 lg:w-[35rem] w-[22rem]">
         <div class="flex items-center bg-gray-700 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -37,10 +42,8 @@ export let searchTerm = '';
             class="w-full py-2 outline-none text-sm bg-gray-700" />
         </div>
       </div>
-      <div class="flex flex-1 justify-end">
-        <div class="py-5 px-5">
-          <slot name="additional-actions">&nbsp;</slot>
-        </div>
+      <div class="flex flex-1 pt-4 px-5">
+        <slot name="bottom-additional-actions">&nbsp;</slot>
       </div>
     </div>
 
