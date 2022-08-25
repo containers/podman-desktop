@@ -1,22 +1,30 @@
 <script lang="ts">
-import Fa from 'svelte-fa/src/fa.svelte';
-import { faChartSimple, faPowerOff, faSeedling } from '@fortawesome/free-solid-svg-icons';
-import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
+import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './ContainerInfoUI';
 
 export let type = '';
+export let containers: ContainerInfoUI[] = [];
+
+let isRunning = false;
+$: isRunning = containers.every(c => c.state === 'RUNNING') ? true : false;
+$: isExited = containers.some(c => c.state === 'EXITED') ? true : false;
 </script>
 
 {#if type === ContainerGroupInfoTypeUI.COMPOSE}
-  <svg
-    class="text-gray-300"
-    version="1.0"
-    width="14px"
-    height="14px"
-    viewBox="0 0 1280.000000 1165.000000"
-    preserveAspectRatio="xMidYMid meet">
-    <g transform="translate(0.000000,1165.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
-      <path
-        d="M6675 11644 c-314 -29 -553 -75 -790 -151 -553 -176 -1026 -470
+  <div
+    class:border-green-600="{isRunning}"
+    class:border-orange-500="{isExited}"
+    class="border-2 flex flex-col justify-center align-middle m-3 p-1 w-10 text-center items-center rounded">
+    <svg
+      class:text-green-600="{isRunning}"
+      class:text-orange-500="{isExited}"
+      version="1.0"
+      width="14px"
+      height="14px"
+      viewBox="0 0 1280.000000 1165.000000"
+      preserveAspectRatio="xMidYMid meet">
+      <g transform="translate(0.000000,1165.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+        <path
+          d="M6675 11644 c-314 -29 -553 -75 -790 -151 -553 -176 -1026 -470
 -1442 -896 -383 -392 -657 -843 -832 -1365 -117 -349 -171 -635 -190 -1005 -9
 -183 -1 -451 19 -617 30 -248 103 -574 185 -825 25 -76 44 -139 42 -140 -154
 -102 -356 -179 -564 -215 -210 -37 -369 -42 -888 -29 -506 13 -682 8 -885 -27
@@ -37,6 +45,7 @@ export let type = '';
 -162 -518 -236 -740 -208 -116 15 -157 35 -161 79 -4 39 14 75 88 178 65 90
 109 174 145 273 110 311 168 715 169 1177 0 272 -8 382 -45 610 -201 1250
 -1037 2308 -2184 2763 -278 110 -519 173 -840 217 -104 15 -558 28 -650 19z"></path>
-    </g>
-  </svg>
+      </g>
+    </svg>
+  </div>
 {/if}
