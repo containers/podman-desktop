@@ -39,6 +39,21 @@ $: providerConnections = $providerInfos
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
+// number of selected items in the list
+$: selectedItemsNumber =
+  containerGroups.reduce(
+    (previous, current) => previous + current.containers.filter(container => container.selected).length,
+    0,
+  ) + containerGroups.filter(group => group.selected).length;
+
+// do we need to unselect all checkboxes if we don't have all items being selected ?
+$: selectedAllCheckboxes =
+  containerGroups.filter(group => group.type !== ContainerGroupInfoTypeUI.STANDALONE).every(group => group.selected) &&
+  containerGroups
+    .map(group => group.containers)
+    .flat()
+    .every(container => container.selected);
+
 let refreshTimeouts: NodeJS.Timeout[] = [];
 
 const SECOND = 1000;
@@ -98,6 +113,34 @@ function computeInterval(): number {
   return 60 * 60 * 24 * SECOND;
 }
 
+function toggleCheckboxContainerGroup(value: boolean, containerGroup: ContainerGroupInfoUI) {
+  // need to apply that on all containers
+  containerGroup.containers.forEach(container => (container.selected = value));
+}
+
+// delete the items selected in the list
+let bulkDeleteInProgress = false;
+async function deleteSelectedContainers() {
+  const selectedContainers = containerGroups
+    .map(group => group.containers)
+    .flat()
+    .filter(container => container.selected);
+
+  if (selectedContainers.length > 0) {
+    bulkDeleteInProgress = true;
+    await Promise.all(
+      selectedContainers.map(async container => {
+        try {
+          await window.deleteContainer(container.engineId, container.id);
+        } catch (e) {
+          console.log('error while removing container', e);
+        }
+      }),
+    );
+    bulkDeleteInProgress = false;
+  }
+}
+
 let containersUnsubscribe: Unsubscriber;
 onMount(async () => {
   containersUnsubscribe = filtered.subscribe(value => {
@@ -116,7 +159,26 @@ onMount(async () => {
     }
 
     // create groups
-    containerGroups = containerUtils.getContainerGroups(currentContainers);
+    const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+
+    // update selected items based on current selected items
+    computedContainerGroups.forEach(group => {
+      const matchingGroup = containerGroups.find(currentGroup => currentGroup.name === group.name);
+      if (matchingGroup) {
+        group.selected = matchingGroup.selected;
+        group.containers.forEach(container => {
+          const matchingContainer = matchingGroup.containers.find(
+            currentContainer => currentContainer.id === container.id,
+          );
+          if (matchingContainer) {
+            container.selected = matchingContainer.selected;
+          }
+        });
+      }
+    });
+
+    // update the value
+    containerGroups = computedContainerGroups;
 
     // compute refresh interval
     const interval = computeInterval();
@@ -160,6 +222,15 @@ function toggleContainerGroup(containerGroup: ContainerGroupInfoUI) {
   // update the group expanded attribute if this is the matching group
   containerGroups = containerGroups.map(group => (group.name === containerGroup.name ? containerGroup : group));
 }
+
+function toggleAllContainerGroups(value: boolean) {
+  const toggleContainers = containerGroups;
+  toggleContainers
+    .filter(group => group.type !== ContainerGroupInfoTypeUI.STANDALONE)
+    .forEach(group => (group.selected = value));
+  toggleContainers.forEach(group => group.containers.forEach(container => (container.selected = value)));
+  containerGroups = toggleContainers;
+}
 </script>
 
 <NavPage
@@ -176,16 +247,60 @@ function toggleContainerGroup(containerGroup: ContainerGroupInfoUI) {
     </span>
     Create container
   </button>
+  <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
+    {#if selectedItemsNumber > 0}
+      <button
+        class="pf-c-button pf-m-primary"
+        on:click="{() => deleteSelectedContainers()}"
+        title="Delete {selectedItemsNumber} selected items"
+        type="button">
+        <span class="pf-c-button__icon pf-m-start">
+          {#if bulkDeleteInProgress}
+            <div class="mr-4">
+              <i class="pf-c-button__progress">
+                <span class="pf-c-spinner pf-m-md" role="progressbar">
+                  <span class="pf-c-spinner__clipper"></span>
+                  <span class="pf-c-spinner__lead-ball"></span>
+                  <span class="pf-c-spinner__tail-ball"></span>
+                </span>
+              </i>
+            </div>
+          {:else}
+            <i class="fas fa-trash" aria-hidden="true"></i>
+          {/if}
+        </span>
+      </button>
+      <span class="pl-2">On {selectedItemsNumber} selected items.</span>
+    {/if}
+  </div>
 
   <div class="min-w-full flex" slot="table">
     <table class="mx-5 w-full" class:hidden="{containerGroups.length === 0}">
+      <!-- title -->
+      <thead>
+        <tr class="h-7 uppercase text-xs text-gray-500">
+          <th class="whitespace-nowrap w-5"></th>
+          <th class="px-2 w-5"
+            ><input
+              type="checkbox"
+              indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
+              bind:checked="{selectedAllCheckboxes}"
+              on:click="{event => toggleAllContainerGroups(event.currentTarget.checked)}"
+              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
+          <th class="text-center font-extrabold w-10">Status</th>
+          <th>Name</th>
+          <th class="text-center">started</th>
+          <th class="text-center">actions</th>
+        </tr>
+      </thead>
+
       <!-- Display each group -->
       {#each containerGroups as containerGroup}
         <tbody>
           {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE}
             <tr class="h-10 group">
               <td
-                class="bg-zinc-900 group-hover:bg-zinc-700 pl-2 w-5 rounded-tl-lg pr-2"
+                class="bg-zinc-900 group-hover:bg-zinc-700 pl-2 w-3 rounded-tl-lg"
                 class:rounded-bl-lg="{!containerGroup.expanded}"
                 on:click="{() => toggleContainerGroup(containerGroup)}">
                 <Fa
@@ -193,16 +308,32 @@ function toggleContainerGroup(containerGroup: ContainerGroupInfoUI) {
                   class="text-gray-400 cursor-pointer"
                   icon="{containerGroup.expanded ? faChevronDown : faChevronRight}" />
               </td>
+              <td class="px-2 w-5 bg-zinc-900 group-hover:bg-zinc-700">
+                <input
+                  type="checkbox"
+                  on:click="{event => toggleCheckboxContainerGroup(event.currentTarget.checked, containerGroup)}"
+                  bind:checked="{containerGroup.selected}"
+                  class=" cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+              </td>
               <td
-                colspan="3"
+                class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12"
+                title="{containerGroup.type}">
+                <ContainerGroupIcon type="{containerGroup.type}" containers="{containerGroup.containers}" />
+              </td>
+              <td
+                colspan="4"
                 class="bg-zinc-900 group-hover:bg-zinc-700 rounded-tr-lg {!containerGroup.expanded
                   ? 'rounded-br-lg'
                   : ''}">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 w-5 py-3" title="{containerGroup.type}">
-                    <ContainerGroupIcon type="{containerGroup.type}" />
+                <div class="flex items-center text-sm text-gray-200 overflow-hidden text-ellipsis">
+                  <div class="flex flex-col flex-nowrap">
+                    <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="Compose">
+                      {containerGroup.name} (compose)
+                    </div>
+                    <div class="text-xs font-extra-light text-gray-500">
+                      {containerGroup.containers.length} containers
+                    </div>
                   </div>
-                  {containerGroup.name}
                 </div>
               </td>
             </tr>
@@ -217,12 +348,18 @@ function toggleContainerGroup(containerGroup: ContainerGroupInfoUI) {
                     ? 'rounded-bl-lg'
                     : ''}">
                 </td>
+                <td class="px-2">
+                  <input
+                    type="checkbox"
+                    bind:checked="{container.selected}"
+                    class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+                </td>
+                <td class="flex flex-row justify-center h-12">
+                  <ContainerIcon state="{container.state}" />
+                </td>
                 <td class="whitespace-nowrap hover:cursor-pointer" on:click="{() => openDetailsContainer(container)}">
                   <div class="flex items-center">
-                    <div class="flex-shrink-0 w-3 py-3">
-                      <ContainerIcon state="{container.state}" />
-                    </div>
-                    <div class="ml-4">
+                    <div class="">
                       <div class="flex flex-nowrap">
                         <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{container.name}">
                           {container.name}
