@@ -92,6 +92,9 @@ export class ContainerProviderRegistry {
       } else if (jsonEvent.status === 'remove' && jsonEvent?.Type === 'image') {
         // need to notify that image are being pulled
         this.apiSender.send('image-remove-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'delete' && jsonEvent?.Type === 'image') {
+        // need to notify that image are being pulled
+        this.apiSender.send('image-remove-event', jsonEvent.id);
       } else if (jsonEvent.status === 'build' && jsonEvent?.Type === 'image') {
         // need to notify that image are being pulled
         this.apiSender.send('image-build-event', jsonEvent.id);
@@ -322,7 +325,7 @@ export class ContainerProviderRegistry {
   async deleteImage(engineId: string, id: string): Promise<void> {
     this.telemetryService.track('deleteImage');
     // use force to delete it even it is running
-    return this.getMatchingImage(engineId, id).remove();
+    return this.getMatchingImage(engineId, id).remove({ force: true });
   }
 
   getImageName(inspectInfo: Dockerode.ImageInspectInfo) {

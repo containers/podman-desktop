@@ -57,11 +57,13 @@ async function showLayersImage(): Promise<void> {
   onClick="{() => runImage(image)}"
   backgroundColor="{backgroundColor}"
   icon="{faPlayCircle}" />
-<ListItemButtonIcon
-  title="Delete Image"
-  onClick="{() => deleteImage()}"
-  backgroundColor="{backgroundColor}"
-  icon="{faTrash}" />
+{#if !image.inUse}
+  <ListItemButtonIcon
+    title="Delete Image"
+    onClick="{() => deleteImage()}"
+    backgroundColor="{backgroundColor}"
+    icon="{faTrash}" />
+{/if}
 <ListItemButtonIcon
   title="Show History"
   onClick="{() => showLayersImage()}"

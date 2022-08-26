@@ -28,4 +28,6 @@ export interface ImageInfoUI {
   // fully qualified tag of the image (should be one of the RepoTags field encoded with base64)
   // no tag, we encode <none>
   base64RepoTag: string;
+  selected: boolean;
+  inUse: boolean;
 }
