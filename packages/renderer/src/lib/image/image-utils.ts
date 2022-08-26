@@ -21,6 +21,7 @@ import type { ImageInfoUI } from './ImageInfoUI';
 import moment from 'moment';
 import filesize from 'filesize';
 import { Buffer } from 'buffer';
+import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 
 export class ImageUtils {
   // extract SHA256 from image id and take the first 12 digits
@@ -59,7 +60,16 @@ export class ImageUtils {
     return Buffer.from(name, 'binary').toString('base64');
   }
 
-  getImagesInfoUI(imageInfo: ImageInfo): ImageInfoUI[] {
+  // is that this image is used by a container or not
+  // search if there is a container matching this image
+  getInUse(imageInfo: ImageInfo, containersInfo?: ContainerInfo[]): boolean {
+    if (!containersInfo) {
+      return false;
+    }
+    return containersInfo.some(container => container.ImageID === imageInfo.Id);
+  }
+
+  getImagesInfoUI(imageInfo: ImageInfo, containersInfo: ContainerInfo[]): ImageInfoUI[] {
     if (!imageInfo.RepoTags) {
       return [
         {
@@ -72,6 +82,8 @@ export class ImageUtils {
           engineName: this.getEngineName(imageInfo),
           tag: '',
           base64RepoTag: this.getBase64EncodedName('<none>'),
+          selected: false,
+          inUse: this.getInUse(imageInfo, containersInfo),
         },
       ];
     } else {
@@ -86,6 +98,8 @@ export class ImageUtils {
           engineName: this.getEngineName(imageInfo),
           tag: this.getTag(repoTag),
           base64RepoTag: this.getBase64EncodedName(repoTag),
+          selected: false,
+          inUse: this.getInUse(imageInfo, containersInfo),
         };
       });
     }
