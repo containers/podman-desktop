@@ -24,7 +24,7 @@ let openChoiceModal = false;
 
 // groups of containers that will be displayed
 let containerGroups: ContainerGroupInfoUI[] = [];
-let searchTerm = '';
+export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 function fromExistingImage(): void {

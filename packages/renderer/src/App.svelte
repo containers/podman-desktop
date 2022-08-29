@@ -337,7 +337,7 @@ window.events?.receive('display-help', () => {
           <WelcomePage />
         </Route>
         <Route path="/containers">
-          <ContainerList />
+          <ContainerList searchTerm="{meta.query.filter || ''}" />
         </Route>
         <Route path="/containers/:id/*" let:meta>
           <ContainerDetails containerID="{meta.params.id}" />
