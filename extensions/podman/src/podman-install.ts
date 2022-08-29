@@ -453,32 +453,36 @@ class WSL2Check extends BaseCheck {
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
-      // set WSL_UTF8 to force WSL2 output in UTF8, otherwise it will use utf16le
-      const res = await execPromise('wsl', ['-l', '-v'], { env: { WSL_UTF8: '1' } });
-      if (!res.startsWith('Usage: wsl.exe [Argument]')) {
-        return this.createSuccessfulResult();
+      const res = await execPromise('wsl', ['--status'], { env: { WSL_UTF8: '1' } });
+      const output = this.normalizeOutput(res);
+      if (output.indexOf('wsl.exe--update') > 0) {
+        return this.createFailureResult(
+          'WSL2 Linux kernel is not installed. Call "wsl --update" in terminal.',
+          'Install WLS2 Linux kernel',
+          'https://aka.ms/wsl2kernel',
+        );
       }
     } catch (err) {
-      if (typeof err === 'string') {
-        // this is workaround, wsl2 some time send output in utf16le, but we treat that as utf8,
-        // this code just eliminate every 'empty' character
-        let str = '';
-        for (let i = 0; i < err.length; i++) {
-          if (err.charCodeAt(i) !== 0) {
-            str += err.charAt(i);
-          }
-        }
+      return this.createFailureResult(
+        'WSL2 is not installed. Call "wsl --install" in terminal.',
+        'Install WSL',
+        'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
+      );
+    }
 
-        if (str.indexOf('Windows Subsystem for Linux has no installed distributions.') !== -1) {
-          // WSL2 installed, it just doesn't have any distro installed.
-          return this.createSuccessfulResult();
-        }
+    return this.createSuccessfulResult();
+  }
+
+  private normalizeOutput(out: string): string {
+    // this is workaround, wsl2 some time send output in utf16le, but we treat that as utf8,
+    // this code just eliminate every 'empty' character
+    let str = '';
+    for (let i = 0; i < out.length; i++) {
+      if (out.charCodeAt(i) !== 0) {
+        str += out.charAt(i);
       }
     }
-    return this.createFailureResult(
-      'WSL2 is not installed. Call "wsl --install" in terminal.',
-      'Install WSL',
-      'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
-    );
+
+    return str;
   }
 }
