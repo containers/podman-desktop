@@ -22,6 +22,7 @@ import Dockerode from 'dockerode';
 import StreamValues from 'stream-json/streamers/StreamValues';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
+import type { PodInfo } from './api/pod-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { ProviderContainerConnectionInfo } from './api/provider-info';
 import type { ImageRegistry } from './image-registry';
@@ -33,12 +34,15 @@ const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 import { EventEmitter } from 'node:events';
 import type { ContainerInspectInfo } from './api/container-inspect-info';
 import type { HistoryInfo } from './api/history-info';
+import type { LibPod, PodInfo as LibpodPodInfo } from './dockerode/libpod-dockerode';
+import { LibpodDockerode } from './dockerode/libpod-dockerode';
 export interface InternalContainerProvider {
   name: string;
   id: string;
   connection: containerDesktopAPI.ContainerProviderConnection;
   // api not there if status is stopped
   api?: Dockerode;
+  libpodApi?: LibPod;
 }
 
 export interface InternalContainerProviderLifecycle {
@@ -55,7 +59,10 @@ interface JSONEvent {
 
 export class ContainerProviderRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any, private imageRegistry: ImageRegistry, private telemetryService: Telemetry) {}
+  constructor(private apiSender: any, private imageRegistry: ImageRegistry, private telemetryService: Telemetry) {
+    const libPodDockerode = new LibpodDockerode();
+    libPodDockerode.enhancePrototypeWithLibPod();
+  }
 
   private containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
   private internalProviders: Map<string, InternalContainerProvider> = new Map();
@@ -65,19 +72,24 @@ export class ContainerProviderRegistry {
 
     eventEmitter.on('event', (jsonEvent: JSONEvent) => {
       console.log('event is', jsonEvent);
-      if (jsonEvent.status === 'stop') {
+      if (jsonEvent.status === 'stop' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been stopped
         this.apiSender.send('container-stopped-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'start') {
+      } else if (jsonEvent.status === 'init' && jsonEvent?.Type === 'container') {
+        // need to notify that a container has been started
+        this.apiSender.send('container-init-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'start' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been started
         this.apiSender.send('container-started-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'destroy') {
+      } else if (jsonEvent.status === 'destroy' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been destroyed
         this.apiSender.send('container-stopped-event', jsonEvent.id);
       } else if (jsonEvent.status === 'die' && jsonEvent?.Type === 'container') {
         this.apiSender.send('container-die-event', jsonEvent.id);
       } else if (jsonEvent.status === 'kill' && jsonEvent?.Type === 'container') {
         this.apiSender.send('container-kill-event', jsonEvent.id);
+      } else if (jsonEvent?.Type === 'pod') {
+        this.apiSender.send('pod-event');
       } else if (jsonEvent.status === 'remove' && jsonEvent?.Type === 'container') {
         this.apiSender.send('container-removed-event', jsonEvent.id);
       } else if (jsonEvent.status === 'pull' && jsonEvent?.Type === 'image') {
@@ -139,6 +151,9 @@ export class ContainerProviderRegistry {
 
     if (containerProviderConnection.status() === 'started') {
       internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
+      if (containerProviderConnection.type === 'podman') {
+        internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
+      }
       this.handleEvents(internalProvider.api);
     }
 
@@ -191,6 +206,12 @@ export class ContainerProviderRegistry {
           // between our time and the VM time
           // https://github.com/containers/podman/issues/11541
           const delta = moment().diff(vmTime);
+
+          let pods: LibpodPodInfo[] = [];
+          if (provider.libpodApi) {
+            pods = await provider.libpodApi.listPods();
+          }
+
           const containers = await providerApi.listContainers({ all: true });
           return Promise.all(
             containers.map(async container => {
@@ -205,8 +226,22 @@ export class ContainerProviderRegistry {
               } else {
                 StartedAt = '';
               }
+
+              // do we have a matching pod for this container ?
+              let pod;
+              const matchingPod = pods.find(pod =>
+                pod.Containers.find(containerOfPod => containerOfPod.Id === container.Id),
+              );
+              if (matchingPod) {
+                pod = {
+                  id: matchingPod.Id,
+                  name: matchingPod.Name,
+                  status: matchingPod.Status,
+                };
+              }
               const containerInfo: ContainerInfo = {
                 ...container,
+                pod,
                 engineName: provider.name,
                 engineId: provider.id,
                 StartedAt,
@@ -249,16 +284,55 @@ export class ContainerProviderRegistry {
     return flatttenedImages;
   }
 
+  async listPods(): Promise<PodInfo[]> {
+    const pods = await Promise.all(
+      Array.from(this.internalProviders.values()).map(async provider => {
+        try {
+          if (!provider.libpodApi) {
+            return [];
+          }
+          const pods = await provider.libpodApi.listPods();
+          return pods.map(pod => {
+            const podInfo: PodInfo = { ...pod, engineName: provider.name, engineId: provider.id };
+            return podInfo;
+          });
+        } catch (error) {
+          console.log('error in engine', provider.name, error);
+          return [];
+        }
+      }),
+    );
+    const flatttenedPods = pods.flat();
+    this.telemetryService.track('listPods', { total: flatttenedPods.length });
+
+    return flatttenedPods;
+  }
+
   protected getMatchingEngine(engineId: string): Dockerode {
     // need to find the container engine of the container
     const engine = this.internalProviders.get(engineId);
     if (!engine) {
-      throw new Error('no engine matching this container');
+      throw new Error('no engine matching this engine');
     }
     if (!engine.api) {
-      throw new Error('no running provider for the matching container');
+      throw new Error('no running provider for the matching engine');
     }
     return engine.api;
+  }
+
+  protected getMatchingPodmanEngine(engineId: string): LibPod {
+    // need to find the container engine of the container
+    const engine = this.internalProviders.get(engineId);
+    if (!engine) {
+      throw new Error('no engine matching this engine');
+    }
+    if (!engine.api) {
+      throw new Error('no running provider for the matching engine');
+    }
+    if (!engine.libpodApi) {
+      throw new Error('LibPod is not supported by this engine');
+    }
+    return engine.libpodApi;
   }
 
   public getFirstRunningConnection(): [ProviderContainerConnectionInfo, Dockerode] {
@@ -404,6 +478,26 @@ export class ContainerProviderRegistry {
   async startContainer(engineId: string, id: string): Promise<void> {
     this.telemetryService.track('startContainer');
     return this.getMatchingContainer(engineId, id).start();
+  }
+
+  async startPod(engineId: string, podId: string): Promise<void> {
+    this.telemetryService.track('startPod');
+    return this.getMatchingPodmanEngine(engineId).startPod(podId);
+  }
+
+  async restartPod(engineId: string, podId: string): Promise<void> {
+    this.telemetryService.track('restartPod');
+    return this.getMatchingPodmanEngine(engineId).restartPod(podId);
+  }
+
+  async stopPod(engineId: string, podId: string): Promise<void> {
+    this.telemetryService.track('stopPod');
+    return this.getMatchingPodmanEngine(engineId).stopPod(podId);
+  }
+
+  async removePod(engineId: string, podId: string): Promise<void> {
+    this.telemetryService.track('removePod');
+    return this.getMatchingPodmanEngine(engineId).removePod(podId);
   }
 
   async restartContainer(engineId: string, id: string): Promise<void> {

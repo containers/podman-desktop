@@ -26,6 +26,7 @@ import EventEmitter from 'events';
 import type { ContainerCreateOptions, ContainerInfo } from '../../main/src/plugin/api/container-info';
 import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
+import type { PodInfo } from '../../main/src/plugin/api/pod-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
@@ -108,6 +109,22 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listImages', async (): Promise<ImageInfo[]> => {
     return ipcInvoke('container-provider-registry:listImages');
+  });
+
+  contextBridge.exposeInMainWorld('listPods', async (): Promise<PodInfo[]> => {
+    return ipcInvoke('container-provider-registry:listPods');
+  });
+  contextBridge.exposeInMainWorld('startPod', async (engine: string, podId: string): Promise<void> => {
+    return ipcInvoke('container-provider-registry:startPod', engine, podId);
+  });
+  contextBridge.exposeInMainWorld('restartPod', async (engine: string, podId: string): Promise<void> => {
+    return ipcInvoke('container-provider-registry:restartPod', engine, podId);
+  });
+  contextBridge.exposeInMainWorld('stopPod', async (engine: string, podId: string): Promise<void> => {
+    return ipcInvoke('container-provider-registry:stopPod', engine, podId);
+  });
+  contextBridge.exposeInMainWorld('removePod', async (engine: string, podId: string): Promise<void> => {
+    return ipcInvoke('container-provider-registry:removePod', engine, podId);
   });
 
   contextBridge.exposeInMainWorld('startContainer', async (engine: string, containerId: string): Promise<void> => {

@@ -297,7 +297,7 @@ function toggleAllContainerGroups(value: boolean) {
       <!-- Display each group -->
       {#each containerGroups as containerGroup}
         <tbody>
-          {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE}
+          {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE || containerGroup.type === ContainerGroupInfoTypeUI.POD}
             <tr class="h-10 group">
               <td
                 class="bg-zinc-900 group-hover:bg-zinc-700 pl-2 w-3 rounded-tl-lg"
@@ -327,11 +327,11 @@ function toggleAllContainerGroups(value: boolean) {
                   : ''}">
                 <div class="flex items-center text-sm text-gray-200 overflow-hidden text-ellipsis">
                   <div class="flex flex-col flex-nowrap">
-                    <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="Compose">
-                      {containerGroup.name} (compose)
+                    <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{containerGroup.type}">
+                      {containerGroup.name} ({containerGroup.type})
                     </div>
                     <div class="text-xs font-extra-light text-gray-500">
-                      {containerGroup.containers.length} containers
+                      {containerGroup.containers.length} container{containerGroup.containers.length > 1 ? 's' : ''}
                     </div>
                   </div>
                 </div>

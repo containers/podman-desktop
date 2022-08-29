@@ -1,5 +1,6 @@
 <script lang="ts">
 import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './ContainerInfoUI';
+import PodIcon from './PodIcon.svelte';
 
 export let type = '';
 export let containers: ContainerInfoUI[] = [];
@@ -9,11 +10,11 @@ $: isRunning = containers.every(c => c.state === 'RUNNING') ? true : false;
 $: isExited = containers.some(c => c.state === 'EXITED') ? true : false;
 </script>
 
-{#if type === ContainerGroupInfoTypeUI.COMPOSE}
-  <div
-    class:border-green-600="{isRunning}"
-    class:border-orange-500="{isExited}"
-    class="border-2 flex flex-col justify-center align-middle m-3 p-1 w-10 text-center items-center rounded">
+<div
+  class:border-green-600="{isRunning}"
+  class:border-orange-500="{isExited}"
+  class="border-2 flex flex-col justify-center align-middle m-3 p-1 w-10 text-center items-center rounded">
+  {#if type === ContainerGroupInfoTypeUI.COMPOSE}
     <svg
       class:text-green-600="{isRunning}"
       class:text-orange-500="{isExited}"
@@ -47,5 +48,7 @@ $: isExited = containers.some(c => c.state === 'EXITED') ? true : false;
 -1037 2308 -2184 2763 -278 110 -519 173 -840 217 -104 15 -558 28 -650 19z"></path>
       </g>
     </svg>
-  </div>
-{/if}
+  {:else}
+    <PodIcon colorClasses="{isRunning ? 'text-green-600' : ''} isExited ? 'text-orange-500' : ''}" />
+  {/if}
+</div>

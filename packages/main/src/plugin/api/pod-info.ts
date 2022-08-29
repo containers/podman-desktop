@@ -16,28 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type Dockerode from 'dockerode';
+import type { PodInfo as LibPodPodInfo } from '../dockerode/libpod-dockerode';
 
-export interface ContainerInfo extends Dockerode.ContainerInfo {
+export interface PodInfo extends LibPodPodInfo {
   engineId: string;
   engineName: string;
-  StartedAt: string;
-  pod?: {
-    id: string;
-    name: string;
-    status: string;
-  };
-}
-
-export interface HostConfig {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  PortBindings?: any;
-}
-
-export interface ContainerCreateOptions {
-  name?: string | undefined;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  ExposedPorts?: { [port: string]: {} } | undefined;
-  HostConfig?: HostConfig | undefined;
-  Image?: string | undefined;
 }
