@@ -18,59 +18,53 @@
 
 import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
-import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
-
-export async function fetchContainers() {
-  const result = await window.listContainers();
-  containersInfos.set(result);
+import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
+export async function fetchPods() {
+  const result = await window.listPods();
+  podsInfos.set(result);
 }
 
-fetchContainers();
-export const containersInfos: Writable<ContainerInfo[]> = writable([]);
+fetchPods();
+export const podsInfos: Writable<PodInfo[]> = writable([]);
 
 export const searchPattern = writable('');
 
-function getName(containerInfo: ContainerInfo) {
-  return JSON.stringify(containerInfo).toLowerCase();
+function getJson(podInfo: PodInfo) {
+  return JSON.stringify(podInfo).toLowerCase();
 }
 
-export const filtered = derived([searchPattern, containersInfos], ([$searchPattern, $containersInfos]) =>
-  $containersInfos.filter(containerInfo => getName(containerInfo).includes($searchPattern.toLowerCase())),
+export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $imagesInfos]) =>
+  $imagesInfos.filter(imageInfo => getJson(imageInfo).includes($searchPattern.toLowerCase())),
 );
 
 // need to refresh when extension is started or stopped
 window.addEventListener('extension-started', () => {
-  fetchContainers();
+  fetchPods();
 });
-
-window.addEventListener('tray:update-provider', () => {
-  fetchContainers();
+window.addEventListener('extension-stopped', () => {
+  fetchPods();
 });
 
 window.events?.receive('container-stopped-event', () => {
-  fetchContainers();
+  fetchPods();
 });
 
 window.events?.receive('container-die-event', () => {
-  fetchContainers();
+  fetchPods();
 });
 
 window.events?.receive('container-kill-event', () => {
-  fetchContainers();
+  fetchPods();
 });
 
 window.events?.receive('container-started-event', () => {
-  fetchContainers();
-});
-
-window.events?.receive('container-removed-event', () => {
-  fetchContainers();
+  fetchPods();
 });
 
 window.events?.receive('provider-change', () => {
-  fetchContainers();
+  fetchPods();
 });
 
 window.events?.receive('pod-event', () => {
-  fetchContainers();
+  fetchPods();
 });

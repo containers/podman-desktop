@@ -131,6 +131,15 @@ export class ContainerUtils {
       };
     }
 
+    // pod ?
+    const podInfo = containerInfo.pod;
+    if (podInfo) {
+      return {
+        name: podInfo.name,
+        type: ContainerGroupInfoTypeUI.POD,
+      };
+    }
+
     // else, standalone
     return {
       name: this.getName(containerInfo),

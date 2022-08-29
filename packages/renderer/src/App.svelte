@@ -23,11 +23,13 @@ import PullImage from './lib/image/PullImage.svelte';
 import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
 import ContainerDetails from './lib/ContainerDetails.svelte';
 import { providerInfos } from './stores/providers';
+import { podsInfos } from './stores/pods';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
 import ImageDetails from './lib/image/ImageDetails.svelte';
+import PodsList from './lib/pod/PodsList.svelte';
 let containersCountValue;
 
 router.mode.hash();
@@ -202,6 +204,50 @@ window.events?.receive('display-help', () => {
             </a>
           </li>
           <li
+            class="pf-c-nav__item flex w-full justify-between {meta.url === '/pods'
+              ? 'dark:text-white pf-m-current'
+              : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
+            <a href="/pods" class="pf-c-nav__link">
+              <div class="flex items-center">
+                <svg width="18" height="18" version="1.1" viewBox="0 0 12.3 12.184" xmlns="http://www.w3.org/2000/svg">
+                  <g transform="translate(-3.8603 -3.8322)">
+                    <text
+                      x="10.017183"
+                      y="16.811775"
+                      style="fill:#ffffff;font-family:sans-serif;letter-spacing:0px;line-height:0%;stroke-width:.26458px;word-spacing:0px"
+                      xml:space="preserve"
+                      ><tspan
+                        x="10.017183"
+                        y="16.811775"
+                        text-anchor="middle"
+                        style="fill:currentColor;font-family:Arial;font-size:2.8222px;line-height:6.61458;stroke-width:.26458px;text-align:center"
+                      ></tspan
+                      ></text>
+                    <g transform="matrix(1.6985 0 0 1.6985 -6.7754 -6.3352)" style="fill:currentColor">
+                      <path
+                        d="m6.2618 7.0361 3.6208-1.05 3.6208 1.05-3.6208 1.05z"
+                        style="fill-rule:evenodd;fill:currentColor"></path>
+                      <path
+                        d="m6.2618 7.4382v3.8528l3.3736 1.8687 0.0167-4.7132z"
+                        style="fill-rule:evenodd;fill:currentColor"></path>
+                      <path
+                        d="m13.503 7.4382v3.8528l-3.3736 1.8687-0.0167-4.7132z"
+                        style="fill-rule:evenodd;fill:currentColor"></path>
+                    </g>
+                  </g>
+                </svg>
+
+                <span class="hidden md:block group-hover:block mx-2">Pods</span>
+                {#if innerWidth >= 768}
+                  {#if $podsInfos.length > 0}
+                    <span class="pf-c-badge pf-m-read hidden group-hover:flex md:flex items-center justify-center"
+                      >{$podsInfos.length}</span>
+                  {/if}
+                {/if}
+              </div>
+            </a>
+          </li>
+          <li
             class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/preferences')
               ? 'dark:text-white pf-m-current'
               : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
@@ -310,6 +356,9 @@ window.events?.receive('display-help', () => {
         </Route>
         <Route path="/images/pull">
           <PullImage />
+        </Route>
+        <Route path="/pods">
+          <PodsList />
         </Route>
         <Route path="/extensions">
           <ExtensionList />

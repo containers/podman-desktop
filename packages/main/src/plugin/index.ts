@@ -60,6 +60,7 @@ import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry';
 import type { IpcMainInvokeEvent } from 'electron/main';
 import type { ContainerInspectInfo } from './api/container-inspect-info';
 import type { HistoryInfo } from './api/history-info';
+import type { PodInfo } from './api/pod-info';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -189,7 +190,33 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listImages', async (): Promise<ImageInfo[]> => {
       return containerProviderRegistry.listImages();
     });
-
+    this.ipcHandle('container-provider-registry:listPods', async (): Promise<PodInfo[]> => {
+      return containerProviderRegistry.listPods();
+    });
+    this.ipcHandle(
+      'container-provider-registry:startPod',
+      async (_listener, engine: string, podId: string): Promise<void> => {
+        return containerProviderRegistry.startPod(engine, podId);
+      },
+    );
+    this.ipcHandle(
+      'container-provider-registry:restartPod',
+      async (_listener, engine: string, podId: string): Promise<void> => {
+        return containerProviderRegistry.restartPod(engine, podId);
+      },
+    );
+    this.ipcHandle(
+      'container-provider-registry:stopPod',
+      async (_listener, engine: string, podId: string): Promise<void> => {
+        return containerProviderRegistry.stopPod(engine, podId);
+      },
+    );
+    this.ipcHandle(
+      'container-provider-registry:removePod',
+      async (_listener, engine: string, podId: string): Promise<void> => {
+        return containerProviderRegistry.removePod(engine, podId);
+      },
+    );
     this.ipcHandle(
       'container-provider-registry:startContainer',
       async (_listener, engine: string, containerId: string): Promise<void> => {
