@@ -120,6 +120,9 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('restartPod', async (engine: string, podId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:restartPod', engine, podId);
   });
+  contextBridge.exposeInMainWorld('generatePodmanKube', async (engine: string, names: string[]): Promise<string> => {
+    return ipcInvoke('container-provider-registry:generatePodmanKube', engine, names);
+  });
   contextBridge.exposeInMainWorld('stopPod', async (engine: string, podId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:stopPod', engine, podId);
   });

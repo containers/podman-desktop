@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ContainerInfoUI } from './container/ContainerInfoUI';
+import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './container/ContainerInfoUI';
 import { Route } from 'tinro';
 import ContainerIcon from './ContainerIcon.svelte';
 import 'xterm/css/xterm.css';
@@ -11,6 +11,7 @@ import { containersInfos } from '../stores/containers';
 import { ContainerUtils } from './container/container-utils';
 import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
 import { getPanelDetailColor } from './color/color';
+import ContainerDetailsKube from './ContainerDetailsKube.svelte';
 
 export let containerID: string;
 
@@ -71,7 +72,19 @@ onMount(() => {
                         <span class="pf-c-tabs__item-text">Inspect</span>
                       </a>
                     </li>
-
+                    {#if container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE}
+                      <li
+                        class="pf-c-tabs__item"
+                        class:pf-m-current="{meta.url === `/containers/${container.id}/kube`}">
+                        <a
+                          href="/containers/{container.id}/kube"
+                          class="pf-c-tabs__link"
+                          aria-controls="open-tabs-example-tabs-list-yaml-panel"
+                          id="open-tabs-example-tabs-list-yaml-link">
+                          <span class="pf-c-tabs__item-text">Kube</span>
+                        </a>
+                      </li>
+                    {/if}
                     <li
                       class="pf-c-tabs__item"
                       class:pf-m-current="{meta.url === `/containers/${container.id}/terminal`}">
@@ -112,6 +125,9 @@ onMount(() => {
         </Route>
         <Route path="/inspect">
           <ContainerDetailsInspect container="{container}" />
+        </Route>
+        <Route path="/kube">
+          <ContainerDetailsKube container="{container}" />
         </Route>
         <Route path="/details">
           <div class="flex py-4 h-full" style="background-color: {getPanelDetailColor()}">

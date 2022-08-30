@@ -218,6 +218,12 @@ export class PluginSystem {
       },
     );
     this.ipcHandle(
+      'container-provider-registry:generatePodmanKube',
+      async (_listener, engine: string, names: string[]): Promise<string> => {
+        return containerProviderRegistry.generatePodmanKube(engine, names);
+      },
+    );
+    this.ipcHandle(
       'container-provider-registry:startContainer',
       async (_listener, engine: string, containerId: string): Promise<void> => {
         return containerProviderRegistry.startContainer(engine, containerId);
