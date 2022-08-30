@@ -452,12 +452,8 @@ class WSL2Check extends BaseCheck {
     try {
       const res = await execPromise('wsl', ['--status'], { env: { WSL_UTF8: '1' } });
       const output = this.normalizeOutput(res);
-      if (output.indexOf('wsl.exe--update') > 0) {
-        return this.createFailureResult(
-          'WSL2 Linux kernel is not installed. Call "wsl --update" in terminal.',
-          'Install WLS2 Linux kernel',
-          'https://aka.ms/wsl2kernel',
-        );
+      if (!output) {
+        throw new Error();
       }
     } catch (err) {
       return this.createFailureResult(
