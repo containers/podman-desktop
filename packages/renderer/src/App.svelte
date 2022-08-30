@@ -370,7 +370,7 @@ window.events?.receive('display-help', () => {
           <PreferencesPage />
         </Route>
         <Route path="/contribs/:name" let:meta>
-          <DockerExtension name="{meta.params.name}" />
+          <DockerExtension name="{decodeURI(meta.params.name)}" />
         </Route>
         <Route path="/help">
           <HelpPage />

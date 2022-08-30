@@ -263,6 +263,15 @@ export class DockerDesktopInstallation {
         event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Filtering image content...');
 
         await this.extractDockerDesktopFiles(tmpFolderPath, finalFolderPath, reportLog);
+
+        // check metadata. If name is missing, add the one from the image
+        const metadata = await this.contributionManager.loadMetadata(finalFolderPath);
+        if (!metadata.name) {
+          // need to add the title from the image
+          metadata.name = titleLabel;
+          await this.contributionManager.saveMetadata(finalFolderPath, metadata);
+        }
+
         event.reply('docker-desktop-plugin:install-end', logCallbackId, 'Extension Successfully installed.');
         // refresh contributions
         await this.contributionManager.init();

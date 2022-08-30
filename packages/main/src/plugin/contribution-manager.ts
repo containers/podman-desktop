@@ -95,6 +95,27 @@ export class ContributionManager {
     });
   }
 
+  async saveMetadata(rootDirectory: string, metadata: unknown): Promise<void> {
+    const manifestPath = path.join(rootDirectory, 'metadata.json');
+    if (!fs.existsSync(manifestPath)) {
+      throw new Error('Invalid path : ' + manifestPath);
+    }
+    return new Promise((resolve, reject) => {
+      fs.writeFile(
+        manifestPath,
+        JSON.stringify(metadata, undefined, 2),
+        { encoding: 'utf-8' },
+        (err: NodeJS.ErrnoException | null) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        },
+      );
+    });
+  }
+
   public getContributionStorageDir(): string {
     return path.resolve(os.homedir(), '.local/share/containers/podman-desktop/contributions');
   }
