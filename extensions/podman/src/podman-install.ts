@@ -244,7 +244,7 @@ abstract class BaseInstaller implements Installer {
       return path.resolve(__dirname, '..', 'assets');
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return path.resolve((process as any).resourcesPath, 'extensions', 'podman', 'builtin', 'podman.cdix', 'assets');
+      return path.resolve((process as any).resourcesPath, 'extensions', 'podman', 'assets');
     }
   }
 
