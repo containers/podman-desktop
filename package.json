@@ -88,7 +88,8 @@
     "moment": "^2.29.2",
     "os-locale": "^6.0.2",
     "stream-json": "^1.7.4",
-    "tar-fs": "^2.1.1"
+    "tar-fs": "^2.1.1",
+    "got": "^12.3.1"
   },
   "resolutionsComments": {
     "ssh2": "Need to use an old version of ssh2 to avoid vite/rollup issue on loading some internal lib"

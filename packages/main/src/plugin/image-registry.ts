@@ -22,6 +22,8 @@ import { Emitter } from './events/emitter';
 import type * as Dockerode from 'dockerode';
 import type { Telemetry } from './telemetry/telemetry';
 import * as crypto from 'node:crypto';
+import got from 'got';
+import { RequestError } from 'got';
 
 export class ImageRegistry {
   private registries: containerDesktopAPI.Registry[] = [];
@@ -122,7 +124,10 @@ export class ImageRegistry {
     });
   }
 
-  createRegistry(providerName: string, registryCreateOptions: containerDesktopAPI.RegistryCreateOptions): Disposable {
+  async createRegistry(
+    providerName: string,
+    registryCreateOptions: containerDesktopAPI.RegistryCreateOptions,
+  ): Promise<Disposable> {
     const provider = this.providers.get(providerName);
     if (!provider) {
       throw new Error(`Provider ${providerName} not found`);
@@ -134,6 +139,11 @@ export class ImageRegistry {
     if (exists) {
       throw new Error(`Registry ${registryCreateOptions.serverUrl} already exists`);
     }
+    await this.checkCredentials(
+      registryCreateOptions.serverUrl,
+      registryCreateOptions.username,
+      registryCreateOptions.secret,
+    );
     const registry = provider.create(registryCreateOptions);
     this.telemetryService.track('createRegistry', {
       serverUrlHash: this.getRegistryHash(registryCreateOptions),
@@ -158,5 +168,71 @@ export class ImageRegistry {
     });
     this.apiSender.send('registry-update', registry);
     this._onDidUpdateRegistry.fire(Object.freeze(registry));
+  }
+
+  async getAuthUrl(serviceUrl: string): Promise<string | undefined> {
+    let registryUrl: string;
+
+    if (serviceUrl.includes('docker.io')) {
+      registryUrl = 'https://index.docker.io/v2/';
+    } else {
+      registryUrl = `${serviceUrl}/v2/`;
+
+      if (!registryUrl.startsWith('http')) {
+        registryUrl = `https://${registryUrl}`;
+      }
+    }
+
+    let authUrl: string | undefined;
+
+    try {
+      await got.get(registryUrl);
+    } catch (requestErr) {
+      if (requestErr instanceof RequestError) {
+        const authenticate = requestErr.response?.headers['www-authenticate'];
+        const realm = authenticate?.match(/realm="(.*?)"/);
+        if (realm !== undefined && realm !== null && realm.length === 2) {
+          authUrl = realm[1];
+        }
+      }
+    }
+
+    if (authUrl === undefined) {
+      throw Error('Not a valid registry');
+    }
+
+    return authUrl;
+  }
+
+  async checkCredentials(serviceUrl: string, username: string, password: string): Promise<void> {
+    const authUrl = await this.getAuthUrl(serviceUrl);
+
+    if (authUrl !== undefined) {
+      await this.doCheckCredentials(authUrl, username, password);
+    }
+  }
+
+  async doCheckCredentials(authUrl: string, username: string, password: string): Promise<void> {
+    let rawResponse: string | undefined;
+    try {
+      const { body } = await got.get(authUrl, {
+        username: username,
+        password: password,
+      });
+      rawResponse = body;
+    } catch (requestErr) {
+      if (
+        requestErr instanceof RequestError &&
+        (requestErr.response?.statusCode === 401 || requestErr.response?.statusCode === 403)
+      ) {
+        throw Error('Wrong Username or Password');
+      } else if (requestErr instanceof Error) {
+        throw Error(requestErr.message);
+      }
+    }
+
+    if (rawResponse !== undefined && !rawResponse.includes('token')) {
+      throw Error('Unable to validate provided credentials');
+    }
   }
 }
