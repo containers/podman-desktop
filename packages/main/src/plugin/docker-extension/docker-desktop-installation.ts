@@ -185,7 +185,9 @@ export class DockerDesktopInstallation {
         // ok search the image
         const images = await providerConnection.listImages();
         // const foundMatchingImage = images.find(image => image.RepoTags?.find(tag => tag.includes('aquasec/trivy-docker-extension:0.4.3')));
-        const foundMatchingImage = images.find(image => image.RepoTags?.find(tag => tag.includes(imageName)));
+        const foundMatchingImage = images.find(image =>
+          image.RepoTags?.find(tag => tag.includes(imageName) || imageName.includes(tag)),
+        );
 
         if (!foundMatchingImage) {
           reportLog('not able to get pulled image');
