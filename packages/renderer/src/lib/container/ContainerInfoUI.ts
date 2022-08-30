@@ -37,6 +37,7 @@ export interface ContainerInfoUI {
   image: string;
   engineId: string;
   engineName: string;
+  engineType: 'podman' | 'docker';
   state: string;
   uptime: string;
   startedAt: string;

@@ -44,6 +44,7 @@ export interface LibPod {
   stopPod(podId: string): Promise<void>;
   removePod(podId: string): Promise<void>;
   restartPod(podId: string): Promise<void>;
+  generateKube(names: string[]): Promise<string>;
 }
 
 // tweak Dockerode by adding the support of libpod API
@@ -171,6 +172,40 @@ export class LibpodDockerode {
             return reject(err);
           }
           resolve(data);
+        });
+      });
+    };
+
+    // add generateKube
+    prototypeOfDockerode.generateKube = function (names: string[]) {
+      // transform array into a list of queries
+      const queries = names
+        .map(name => {
+          return `names=${name}`;
+        })
+        .join('&');
+
+      const path = `/v4.2.0/libpod/generate/kube?${queries}`;
+      console.log('querying with path', path);
+      const optsf = {
+        path,
+        method: 'GET',
+        options: {},
+        statusCodes: {
+          200: true,
+          500: 'server error',
+        },
+      };
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          if (Buffer.isBuffer(data)) {
+            resolve((data as Buffer).toString());
+          } else {
+            resolve(data);
+          }
         });
       });
     };

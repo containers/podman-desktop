@@ -112,6 +112,7 @@ export class ContainerUtils {
       uptime: this.getUptime(containerInfo),
       engineId: this.getEngineId(containerInfo),
       engineName: this.getEngineName(containerInfo),
+      engineType: containerInfo.engineType,
       command: containerInfo.Command,
       port: this.getPort(containerInfo),
       hasPublicPort: this.hasPublicPort(containerInfo),

@@ -244,6 +244,7 @@ export class ContainerProviderRegistry {
                 pod,
                 engineName: provider.name,
                 engineId: provider.id,
+                engineType: provider.connection.type,
                 StartedAt,
               };
               return containerInfo;
@@ -478,6 +479,11 @@ export class ContainerProviderRegistry {
   async startContainer(engineId: string, id: string): Promise<void> {
     this.telemetryService.track('startContainer');
     return this.getMatchingContainer(engineId, id).start();
+  }
+
+  async generatePodmanKube(engineId: string, names: string[]): Promise<string> {
+    this.telemetryService.track('generatePodmanKube');
+    return this.getMatchingPodmanEngine(engineId).generateKube(names);
   }
 
   async startPod(engineId: string, podId: string): Promise<void> {

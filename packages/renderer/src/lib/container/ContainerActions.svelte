@@ -1,11 +1,11 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faPlayCircle, faTerminal } from '@fortawesome/free-solid-svg-icons';
+import { faFileCode, faPlayCircle, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
-import type { ContainerInfoUI } from './ContainerInfoUI';
+import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './ContainerInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 
@@ -34,6 +34,10 @@ async function deleteContainer(containerInfo: ContainerInfoUI): Promise<void> {
 function openTerminalContainer(containerInfo: ContainerInfoUI): void {
   router.goto(`/containers/${container.id}/terminal`);
 }
+
+function openGenerateKube(): void {
+  router.goto(`/containers/${container.id}/kube`);
+}
 </script>
 
 <ListItemButtonIcon
@@ -48,6 +52,12 @@ function openTerminalContainer(containerInfo: ContainerInfoUI): void {
   hidden="{!(container.state === 'RUNNING')}"
   backgroundColor="{backgroundColor}"
   icon="{faTerminal}" />
+<ListItemButtonIcon
+  title="Generate Kube"
+  onClick="{() => openGenerateKube()}"
+  hidden="{!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}"
+  backgroundColor="{backgroundColor}"
+  icon="{faFileCode}" />
 <ListItemButtonIcon
   title="Start Container"
   onClick="{() => startContainer(container)}"
