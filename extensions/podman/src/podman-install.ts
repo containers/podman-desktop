@@ -431,7 +431,7 @@ class HyperVCheck extends BaseCheck {
     try {
       // set CurrentUICulture to force output in english
       const res = await execPromise('powershell.exe', ['(Get-Service vmcompute).DisplayName']);
-      if (res.indexOf('Hyper-V') > 0) {
+      if (res.indexOf('Hyper-V') >= 0) {
         return this.createSuccessfulResult();
       }
     } catch (err) {
