@@ -1,22 +1,19 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 
 export let provider: ProviderInfo;
 
 let logo;
-
-onMount(() => {
-  if (provider.images.logo === undefined) {
-    return;
-  } else if (typeof provider.images.logo === 'string') {
-    logo = provider.images.logo;
-  } else {
-    // for now use dark theme
-    logo = provider.images.logo.dark;
+$: {
+  if (provider.images.logo) {
+    if (typeof provider.images.logo === 'string') {
+      logo = provider.images.logo;
+    } else if (provider.images.logo.dark) {
+      // for now use dark theme
+      logo = provider.images.logo.dark;
+    }
   }
-});
+}
 </script>
 
 {#if logo}
