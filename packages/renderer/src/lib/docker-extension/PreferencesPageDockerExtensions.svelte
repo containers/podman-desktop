@@ -1,10 +1,14 @@
 <script lang="ts">
+import { afterUpdate } from 'svelte';
+
 import { contributions } from '../../stores/contribs';
 let ociImage: string;
 
 let installInProgress: boolean = false;
 let errorInstall: string = '';
 let logs: string[] = [];
+
+let logElement;
 
 async function installDDExtensionFromImage() {
   logs.length = 0;
@@ -24,6 +28,10 @@ async function installDDExtensionFromImage() {
   installInProgress = false;
   ociImage = '';
 }
+
+afterUpdate(() => {
+  logElement.scroll({ top: logElement.scrollHeight, behavior: 'smooth' });
+});
 
 function deleteContribution(extensionName: string) {
   window.ddExtensionDelete(extensionName);
@@ -80,13 +88,14 @@ function deleteContribution(extensionName: string) {
         </div>
       {/if}
 
-      {#if logs.length > 0}
-        <div class="bg-zinc-700 text-gray-200 m-4 ">
-          {#each logs as log}
-            <p class="font-light text-sm">{log}</p>
-          {/each}
-        </div>
-      {/if}
+      <div
+        class:opacity-0="{logs.length === 0}"
+        bind:this="{logElement}"
+        class="bg-zinc-700 text-gray-200 mt-4 h-16 overflow-y-auto">
+        {#each logs as log}
+          <p class="font-light text-sm">{log}</p>
+        {/each}
+      </div>
     </div>
   </div>
 
