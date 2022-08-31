@@ -25,7 +25,6 @@ export async function fetchRegistries() {
   registriesInfos.set(result);
 }
 
-fetchRegistries();
 export const registriesInfos: Writable<readonly Registry[]> = writable([]);
 
 export const searchPattern = writable('');
@@ -40,5 +39,8 @@ window.events?.receive('registry-unregister', () => {
 });
 
 window.events?.receive('registry-update', () => {
+  fetchRegistries();
+});
+window.addEventListener('system-ready', () => {
   fetchRegistries();
 });

@@ -25,7 +25,6 @@ export async function fetchContainers() {
   containersInfos.set(result);
 }
 
-fetchContainers();
 export const containersInfos: Writable<ContainerInfo[]> = writable([]);
 
 export const searchPattern = writable('');
@@ -44,6 +43,9 @@ window.addEventListener('extension-started', () => {
 });
 
 window.addEventListener('tray:update-provider', () => {
+  fetchContainers();
+});
+window.addEventListener('system-ready', () => {
   fetchContainers();
 });
 

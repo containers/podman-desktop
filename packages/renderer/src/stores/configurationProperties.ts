@@ -27,12 +27,14 @@ export async function fetchConfigurationProperties() {
   configurationProperties.set(properties);
 }
 
-fetchConfigurationProperties();
 export const configurationProperties = writable([]);
 
 window.addEventListener('extension-started', () => {
   fetchConfigurationProperties();
 });
 window.addEventListener('extension-stopped', () => {
+  fetchConfigurationProperties();
+});
+window.addEventListener('system-ready', () => {
   fetchConfigurationProperties();
 });
