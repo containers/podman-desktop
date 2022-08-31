@@ -64,6 +64,12 @@ import type { PodInfo } from './api/pod-info';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
+  // ready is when we've finished to initialize extension system
+  private isReady = false;
+
+  // notified when UI is dom-ready
+  private uiReady = false;
+
   constructor(private trayMenu: TrayMenu) {}
 
   getWebContentsSender(): WebContents {
@@ -125,13 +131,47 @@ export class PluginSystem {
 
   // initialize extension loader mechanism
   async initExtensions(): Promise<void> {
+    this.isReady = false;
+    this.uiReady = false;
+    this.ipcHandle('extension-system:isReady', async (): Promise<boolean> => {
+      return this.isReady;
+    });
+    const queuedEvents: { channel: string; data: string }[] = [];
+
+    const flushQueuedEvents = () => {
+      if (this.uiReady && this.isReady) {
+        // flush queued events ?
+        if (queuedEvents.length > 0) {
+          console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
+          queuedEvents.forEach(({ channel, data }) => {
+            webSender.send(channel, data);
+          });
+          queuedEvents.length = 0;
+        }
+      }
+    };
+
+    const webSender = this.getWebContentsSender();
+    webSender.on('dom-ready', () => {
+      console.log('PluginSystem: received dom-ready event from the UI');
+      this.uiReady = true;
+      flushQueuedEvents();
+    });
+
     // redirect main process logs to the extension loader
     this.redirectLogging();
 
     const eventEmitter = new EventEmitter();
     const apiSender = {
       send: (channel: string, data: string) => {
-        this.getWebContentsSender().send('api-sender', channel, data);
+        // send only if the UI is ready
+        if (this.uiReady && this.isReady) {
+          flushQueuedEvents();
+          this.getWebContentsSender().send('api-sender', channel, data);
+        } else {
+          // add to the queue
+          queuedEvents.push({ channel, data });
+        }
       },
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -688,5 +728,8 @@ export class PluginSystem {
     await contributionManager.init();
 
     await extensionLoader.start();
+    this.isReady = true;
+    console.log('PluginSystem: initialization done.');
+    apiSender.send('extension-system', `${this.isReady}`);
   }
 }

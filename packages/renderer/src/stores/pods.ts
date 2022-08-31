@@ -24,7 +24,6 @@ export async function fetchPods() {
   podsInfos.set(result);
 }
 
-fetchPods();
 export const podsInfos: Writable<PodInfo[]> = writable([]);
 
 export const searchPattern = writable('');
@@ -66,5 +65,8 @@ window.events?.receive('provider-change', () => {
 });
 
 window.events?.receive('pod-event', () => {
+  fetchPods();
+});
+window.addEventListener('system-ready', () => {
   fetchPods();
 });

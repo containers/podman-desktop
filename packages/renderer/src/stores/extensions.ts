@@ -23,7 +23,6 @@ export async function fetchExtensions() {
   extensionInfos.set(result);
 }
 
-fetchExtensions();
 export const extensionInfos = writable([]);
 
 // need to refresh when extension is started or stopped
@@ -35,5 +34,8 @@ window.addEventListener('extension-stopped', () => {
 });
 
 window?.events.receive('extension-started', () => {
+  fetchExtensions();
+});
+window.addEventListener('system-ready', () => {
   fetchExtensions();
 });

@@ -25,7 +25,6 @@ export async function fetchContributions() {
   contributions.set(result);
 }
 
-fetchContributions();
 export const contributions: Writable<readonly ContributionInfo[]> = writable([]);
 
 // need to refresh when new registry are updated/deleted
@@ -34,5 +33,8 @@ window.events?.receive('contribution-register', () => {
 });
 
 window.events?.receive('contribution-unregister', () => {
+  fetchContributions();
+});
+window.addEventListener('system-ready', () => {
   fetchContributions();
 });

@@ -34,7 +34,6 @@ export async function fetchProviders() {
   });
 }
 
-fetchProviders();
 export const providerInfos: Writable<ProviderInfo[]> = writable([]);
 
 // need to refresh when extension is started or stopped
@@ -63,5 +62,8 @@ window?.events.receive('provider-delete', () => {
   fetchProviders();
 });
 window?.events.receive('provider:update-status', () => {
+  fetchProviders();
+});
+window.addEventListener('system-ready', () => {
   fetchProviders();
 });

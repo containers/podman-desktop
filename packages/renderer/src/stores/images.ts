@@ -24,7 +24,6 @@ export async function fetchImages() {
   imagesInfos.set(result);
 }
 
-fetchImages();
 export const imagesInfos: Writable<ImageInfo[]> = writable([]);
 
 export const searchPattern = writable('');
@@ -46,6 +45,9 @@ window.addEventListener('extension-stopped', () => {
 });
 
 window.addEventListener('image-build', () => {
+  fetchImages();
+});
+window.addEventListener('system-ready', () => {
   fetchImages();
 });
 

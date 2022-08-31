@@ -62,15 +62,6 @@ async function createWindow() {
     height: browserWindowConstructorOptions.height,
   });
 
-  setTimeout(() => {
-    browserWindow.webContents.send('container-stopped-event', 'containerID');
-  }, 5000);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ipcMain.on('container-stopped-event', (event: any) => {
-    browserWindow.webContents.send('container-stopped-event', event);
-  });
-
   /**
    * If you install `show: true` then it can cause issues when trying to close the window.
    * Use `show: false` and listener events `ready-to-show` to fix these issues.

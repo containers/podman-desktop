@@ -26,9 +26,11 @@ export async function fetchRenderModel() {
   statusBarEntries.set(result);
 }
 
-fetchRenderModel();
 export const statusBarEntries: Writable<readonly StatusBarEntryDescriptor[]> = writable([]);
 
 window.events?.receive(STATUS_BAR_UPDATED_EVENT_NAME, async () => {
   await fetchRenderModel();
+});
+window.addEventListener('system-ready', () => {
+  fetchRenderModel();
 });
