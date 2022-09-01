@@ -29,6 +29,8 @@ import { execPromise } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
 import { isDev, isWindows } from './util';
 import { getDetectionChecks } from './detection-checks';
+import { BaseCheck } from './base-check';
+import { MacCPUCheck, MacMemoryCheck, MacVersionCheck } from './macos-checks';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -348,20 +350,7 @@ class MacOSInstaller extends BaseInstaller {
     return this.install();
   }
   getPreflightChecks(): extensionApi.InstallCheck[] {
-    return [];
-  }
-}
-
-abstract class BaseCheck implements extensionApi.InstallCheck {
-  abstract title: string;
-  abstract execute(): Promise<extensionApi.CheckResult>;
-
-  protected createFailureResult(description?: string, title?: string, url?: string): extensionApi.CheckResult {
-    return { successful: false, description, docLinks: [{ url, title }] };
-  }
-
-  protected createSuccessfulResult(): extensionApi.CheckResult {
-    return { successful: true };
+    return [new MacCPUCheck(), new MacMemoryCheck(), new MacVersionCheck()];
   }
 }
 
@@ -398,12 +387,14 @@ class WinVersionCheck extends BaseCheck {
       } else {
         return this.createFailureResult(
           'To be able to run WSL2 you need Windows 10 Build 18362 or later.',
+          'WSL2 Install Manual',
           'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
         );
       }
     } else {
       return this.createFailureResult(
         'WSL2 works only on Windows 10 and newest OS',
+        'WSL2 Install Manual',
         'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
       );
     }
