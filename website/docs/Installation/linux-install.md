@@ -16,7 +16,7 @@ Now that you have Podman machine up and running, you can check out the [Download
 
 ### 1. Using [flatpak](https://flatpak.org/setup/)
 
-Before you follow along, make sure Flathub is set up in your distribution. Click [here](https://flatpak.org/setup/) to learn more about setting up flatpak.
+Before you follow along, make sure flatpak is set up in your distribution. Click [here](https://flatpak.org/setup/) to learn more about setting up flatpak.
 
 Open the Terminal and go to Downloads directory. 
 
