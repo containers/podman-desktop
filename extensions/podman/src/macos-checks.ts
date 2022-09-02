@@ -27,7 +27,7 @@ export class MacCPUCheck extends BaseCheck {
   async execute(): Promise<extensionApi.CheckResult> {
     const cpus = os.cpus();
     if (cpus.length < this.MIN_CPU_NUMBER) {
-      return this.createFailureResult(`You need to have at least ${this.MIN_CPU_NUMBER} CPU cores to run podman.`);
+      return this.createFailureResult(`You need to have at least ${this.MIN_CPU_NUMBER} CPU cores to install podman.`);
     }
 
     return this.createSuccessfulResult();
@@ -43,7 +43,7 @@ export class MacMemoryCheck extends BaseCheck {
     if (this.REQUIRED_MEM <= totalMem) {
       return this.createSuccessfulResult();
     } else {
-      return this.createFailureResult('You need at least 4GB to run Podman.');
+      return this.createFailureResult('You need at least 4GB to install Podman.');
     }
   }
 }
@@ -58,6 +58,6 @@ export class MacVersionCheck extends BaseCheck {
       return this.createSuccessfulResult();
     }
 
-    return this.createFailureResult('To be able to run podman you need to update to macOS Catalina.');
+    return this.createFailureResult('To be able to install podman you need to update to macOS Catalina.');
   }
 }
