@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Podman Desktop
+Exec=run.sh %U
+Terminal=false
+Type=Application
+Icon=io.podman_desktop.PodmanDesktop
+StartupWMClass=Podman Desktop
+Categories=Utility;
+X-Flatpak=io.podman_desktop.PodmanDesktop

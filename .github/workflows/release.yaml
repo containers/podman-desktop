@@ -48,10 +48,31 @@ jobs:
       - name: tag
         run: |
           git config --local user.name ${{ github.actor }}
+
+          # Add the new version in package.json file
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" package.json
-          cat package.json
           git add package.json
-          git commit -m "chore: tag ${{ steps.TAG_UTIL.outputs.githubTag }}"
+
+          # Update the issue template with the new version and move old version below
+          nextVersionLineNumber=$(grep -n "next (development version)" .github/ISSUE_TEMPLATE/bug_report.yml | cut -d ":" -f 1 | head -n 1)
+          currentVersionItem=$(sed "$(expr ${nextVersionLineNumber} - 1)q;d" .github/ISSUE_TEMPLATE/bug_report.yml)
+          newVersionItem=$(echo "$currentVersionItem" | sed -r -e "s|\".*\"|\"${{ steps.TAG_UTIL.outputs.desktopVersion }}\"|")
+          # delete the lines before the next version line
+          sed -i "$(expr ${nextVersionLineNumber} - 1)d" .github/ISSUE_TEMPLATE/bug_report.yml
+          # insert the version being tagged
+          sed -i "$(expr ${nextVersionLineNumber} - 1)i\\${newVersionItem}" .github/ISSUE_TEMPLATE/bug_report.yml
+          sed -i "$(expr ${nextVersionLineNumber} + 1)i\\${currentVersionItem}" .github/ISSUE_TEMPLATE/bug_report.yml
+          # add the changes
+          git add .github/ISSUE_TEMPLATE/bug_report.yml
+
+          # Add the new version in the appdata.xml file
+          xmlReleasesLineNumber=$(grep -n "<releases>" .flatpak-appdata.xml | cut -d ":" -f 1 | head -n 1)
+          newFlatpakReleaseItem="    <release version=\"${{ steps.TAG_UTIL.outputs.desktopVersion }}\" date=\"$(date +%Y-%m-%d)\"/>"
+          sed -i "$(expr ${xmlReleasesLineNumber} + 1)i\\${newFlatpakReleaseItem}" .flatpak-appdata.xml
+          git add .flatpak-appdata.xml
+
+          # commit the changes
+          git commit -m "chore: 🥁 tagging ${{ steps.TAG_UTIL.outputs.githubTag }} 🥳"
           echo "Tagging with ${{ steps.TAG_UTIL.outputs.githubTag }}"
           git tag ${{ steps.TAG_UTIL.outputs.githubTag }}
           git push origin ${{ steps.TAG_UTIL.outputs.githubTag }}
@@ -65,7 +86,26 @@ jobs:
           release_name: ${{ steps.TAG_UTIL.outputs.githubTag }}
           draft: true
           prerelease: false
-
+      - name: Create the PR to bump the version in the main branch
+        run: |
+          git config --local user.name ${{ github.actor }}
+          git config --local user.email "fbenoit@redhat.com"
+          bumpedVersion=$(echo "${{ steps.TAG_UTIL.outputs.desktopVersion }}" | awk -F. -v OFS=. '{$NF += 1 ; print}')
+          bumpedBranchName="bump-to-${bumpedVersion}"
+          git checkout -b "${bumpedBranchName}"
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" package.json
+          git add package.json
+          git commit -s --amend -m "chore: bump version to ${bumpedVersion}"
+          git push origin "${bumpedBranchName}"
+          echo -e "📢 Bump version to ${bumpedVersion}\n\n${{ steps.TAG_UTIL.outputs.desktopVersion }} has been released.\n\n Time to switch to the new ${bumpedVersion} version 🥳" > /tmp/pr-title 
+          pullRequestUrl=$(gh pr create --title "chore: 📢 Bump version to ${bumpedVersion}" --body-file /tmp/pr-title --head "${bumpedBranchName}" --base "main")
+          echo "📢 Pull request created: ${pullRequestUrl}"
+          echo "➡️ Flag the PR as being ready for review"
+          gh pr ready "${pullRequestUrl}"
+          echo "🔅 Mark the PR as being ok to be merged automatically"
+          gh pr merge "${pullRequestUrl}" --auto --rebase
+        env:
+          GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}  
 
   build:
     name: Build / ${{ matrix.os }}
