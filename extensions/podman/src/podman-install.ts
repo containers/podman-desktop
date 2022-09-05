@@ -30,7 +30,7 @@ import { getPodmanInstallation } from './podman-cli';
 import { isDev, isWindows } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
-import { MacCPUCheck, MacMemoryCheck, MacVersionCheck } from './macos-checks';
+import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -97,6 +97,7 @@ export class PodmanInfoImpl implements PodmanInfo {
 
 interface Installer {
   getPreflightChecks(): extensionApi.InstallCheck[] | undefined;
+  getUpdatePreflightChecks(): extensionApi.InstallCheck[] | undefined;
   install(): Promise<boolean>;
   requireUpdate(installedVersion: string): boolean;
   update(): Promise<boolean>;
@@ -192,6 +193,15 @@ export class PodmanInstall {
     return undefined;
   }
 
+  getUpdatePreflightChecks(): extensionApi.InstallCheck[] | undefined {
+    const installer = this.getInstaller();
+    if (installer) {
+      return installer.getUpdatePreflightChecks();
+    }
+
+    return undefined;
+  }
+
   isAbleToInstall(): boolean {
     return this.installers.has(os.platform());
   }
@@ -233,6 +243,8 @@ abstract class BaseInstaller implements Installer {
   abstract install(): Promise<boolean>;
 
   abstract update(): Promise<boolean>;
+
+  abstract getUpdatePreflightChecks(): extensionApi.InstallCheck[];
 
   abstract getPreflightChecks(): extensionApi.InstallCheck[];
 
@@ -280,6 +292,10 @@ abstract class BaseInstaller implements Installer {
 }
 
 class WinInstaller extends BaseInstaller {
+  getUpdatePreflightChecks(): extensionApi.InstallCheck[] {
+    return [];
+  }
+
   getPreflightChecks(): extensionApi.InstallCheck[] {
     return [new WinBitCheck(), new WinVersionCheck(), new WinMemoryCheck(), new HyperVCheck(), new WSL2Check()];
   }
@@ -349,8 +365,13 @@ class MacOSInstaller extends BaseInstaller {
   update(): Promise<boolean> {
     return this.install();
   }
+
   getPreflightChecks(): extensionApi.InstallCheck[] {
     return [new MacCPUCheck(), new MacMemoryCheck(), new MacVersionCheck()];
+  }
+
+  getUpdatePreflightChecks(): extensionApi.InstallCheck[] {
+    return [new MacPodmanInstallCheck()];
   }
 }
 

@@ -252,18 +252,24 @@ export class ProviderRegistry {
     return provider.detectionChecks;
   }
 
-  async runPreflightChecks(providerInternalId: string, statusCallback: PreflightChecksCallback): Promise<boolean> {
-    const provider = this.getMatchingProvider(providerInternalId);
-    const providerInstall = this.providerInstallations.get(providerInternalId);
-    if (!providerInstall) {
-      throw new Error(`No matching installation for provider ${provider.internalId}`);
+  async runPreflightChecks(
+    providerInternalId: string,
+    statusCallback: PreflightChecksCallback,
+    runUpdateChecks: boolean,
+  ): Promise<boolean> {
+    const installOrUpdate = runUpdateChecks
+      ? this.providerUpdates.get(providerInternalId)
+      : this.providerInstallations.get(providerInternalId);
+
+    if (!installOrUpdate) {
+      throw new Error(`No matching installation for provider ${providerInternalId}`);
     }
 
-    if (!providerInstall.preflightChecks) {
+    if (!installOrUpdate.preflightChecks) {
       return false;
     }
 
-    const checks = providerInstall.preflightChecks();
+    const checks = installOrUpdate.preflightChecks();
     for (const check of checks) {
       statusCallback.startCheck({ name: check.title });
       try {

@@ -20,6 +20,7 @@ import { BaseCheck } from './base-check';
 import type * as extensionApi from '@tmpwip/extension-api';
 import * as os from 'node:os';
 import * as compareVersions from 'compare-versions';
+import * as fs from 'node:fs';
 
 export class MacCPUCheck extends BaseCheck {
   title = 'CPU';
@@ -59,5 +60,29 @@ export class MacVersionCheck extends BaseCheck {
     }
 
     return this.createFailureResult('To be able to install podman you need to update to macOS Catalina.');
+  }
+}
+
+export class MacPodmanInstallCheck extends BaseCheck {
+  title = 'Podman Installation';
+  async execute(): Promise<extensionApi.CheckResult> {
+    const ownPodmanInstalled = await this.checkFileExists('/opt/podman/bin/podman');
+    if (!ownPodmanInstalled) {
+      return this.createFailureResult(
+        'You have podman installed with "brew", run "brew update && brew upgrade podman" to install new version',
+        'Brew Documentation',
+        'https://docs.brew.sh/Manpage#upgrade-options-outdated_formulaoutdated_cask-',
+      );
+    }
+
+    return this.createSuccessfulResult();
+  }
+
+  private checkFileExists(filepath): Promise<boolean> {
+    return new Promise(resolve => {
+      fs.access(filepath, fs.constants.F_OK, error => {
+        resolve(!error);
+      });
+    });
   }
 }

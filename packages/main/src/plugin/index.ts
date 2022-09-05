@@ -428,7 +428,28 @@ export class PluginSystem {
             } as PreflightCheckEvent);
           },
         };
-        return providerRegistry.runPreflightChecks(providerInternalId, callback);
+        return providerRegistry.runPreflightChecks(providerInternalId, callback, false);
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:runUpdatePreflightChecks',
+      async (_, providerInternalId: string, callbackId: number): Promise<boolean> => {
+        const callback: PreflightChecksCallback = {
+          startCheck: status => {
+            this.getWebContentsSender().send('provider-registry:updatePreflightChecksUpdate', callbackId, {
+              type: 'start',
+              status,
+            } as PreflightCheckEvent);
+          },
+          endCheck: status => {
+            this.getWebContentsSender().send('provider-registry:updatePreflightChecksUpdate', callbackId, {
+              type: 'stop',
+              status,
+            } as PreflightCheckEvent);
+          },
+        };
+        return providerRegistry.runPreflightChecks(providerInternalId, callback, true);
       },
     );
 
