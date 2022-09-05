@@ -1,0 +1,58 @@
+#
+# Copyright (C) 2022 Red Hat, Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+ 
+name: Publish update to Brew
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'release version like 0.0.6'
+        required: true
+  repository_dispatch:
+    types: [ publish-to-brew ]
+
+jobs:
+
+  publish-to-brew:
+    name: Publish Podman Desktop to Brew cask
+    runs-on: macos-11
+    steps:
+      - name: Set version
+        id: VERSION
+        run: |
+          version=""
+          if [ "${{ github.event_name }}" == "repository_dispatch" ]
+          then
+            version="${{ github.event.client_payload.version }}"
+          else
+            version="${{ github.event.inputs.version }}"
+          fi
+          # strip out the prefix v if it's there
+          if [[ $version == v* ]]; then
+            version="${version:1}"
+          fi
+          echo "::set-output name=desktopVersion::$version"
+      - name: Create Pull Request to update Brew
+        run: |
+          echo "Run the tool with version ${PODMAN_DESKTOP_VERSION}"
+          brew bump-cask-pr --version="${PODMAN_DESKTOP_VERSION}" podman-desktop
+        env:
+          TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
+          PODMAN_DESKTOP_VERSION: ${{ steps.VERSION.outputs.desktopVersion }}
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_ANALYTICS: 1

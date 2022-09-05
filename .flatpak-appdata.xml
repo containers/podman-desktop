@@ -41,4 +41,13 @@
     <id>io.podman_desktop.PodmanDesktop</id>
   </provides>
   <update_contact>fbenoit_at_redhat_com</update_contact>
+  <releases>
+    <release version="0.0.6" date="2022-08-10" />
+    <release version="0.0.5" date="2022-07-01" />
+    <release version="0.0.4" date="2022-06-08" />
+    <release version="0.0.3" date="2022-05-09" />
+    <release version="0.0.2" date="2022-04-14" />
+    <release version="0.0.1" date="2022-03-17" />
+  </releases>
+
 </component>

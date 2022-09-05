@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>podman-desktop</id>
+    <version>0.0.5</version>
+    <title>Podman Desktop</title>
+    <authors>Florent Benoit</authors>
+    <owners>https://github.com/containers</owners>
+    <licenseUrl>https://github.com/containers/podman-desktop/blob/main/LICENSE</licenseUrl>
+    <projectUrl>http://www.podman-desktop.io/</projectUrl>
+    <iconUrl>https://github.com/containers/podman-desktop/raw/main/buildResources/icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+## Containers and Kubernetes for application developers
+
+### Build, run and manage containers:
+- Build images from Containerfile or Dockerfile.
+- Pull images from remote registries.
+- Start, Stop, Restart containers and pods.
+- Easily get a terminal in your container.
+- Inspect container logs.
+- Push images to OCI registries.
+- Deploy and test images on Kubernetes.
+
+### Multiple configuration options
+- Manage OCI registries; add, edit, or delete registries.
+- Configure your proxy settings (work in progress.)
+- Configure CPU, memory, and disk of Podman machines (work in progress.)
+- Handle multiple container engines at the same time (Podman, Docker, Lima...)
+
+### You can also bring new features with Podman Desktop plug-ins or Docker Desktop extensions
+    </description>
+    <summary>Manage Podman and other container engines from a single UI and tray.</summary>
+    <releaseNotes>https://github.com/containers/podman-desktop/releases/latest</releaseNotes>
+    <copyright>2022 Red Hat, Inc</copyright>
+    <tags>podman desktop podman-machine containers ui</tags>
+    <packageSourceUrl>https://github.com/containers/podman-desktop/tree/main/.chocolatey</packageSourceUrl>
+    <projectSourceUrl>https://github.com/containers/podman-desktop</projectSourceUrl>
+    <docsUrl>https://podman-desktop.io/docs/intro</docsUrl>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
