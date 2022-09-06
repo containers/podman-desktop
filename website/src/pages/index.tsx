@@ -138,12 +138,13 @@ function Hero() {
               }}
             </BrowserOnly>
           </div>
-          <div className="flex justify-center">
-            <img
-              className="md:w-5/6 lg:w-11/12 w-full"
-              src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
-            />
-          </div>
+        </div>
+        <div className="text-center w-full text-center">
+          <img
+            className="py-4 md:w-5/6 lg:w-11/12 w-full"
+            alt="Podman Desktop home page"
+            src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
+          />
         </div>
       </div>
     </section>
