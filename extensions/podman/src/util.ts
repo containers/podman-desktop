@@ -47,6 +47,13 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
     let output = '';
     let err = '';
     let env = Object.assign({}, process.env); // clone original env object
+
+    if (env.FLATPAK_ID) {
+      // need to execute the command on the host
+      args = ['--host', command, ...args];
+      command = 'flatpak-spawn';
+    }
+
     if (options?.env) {
       env = Object.assign(env, options.env);
     }

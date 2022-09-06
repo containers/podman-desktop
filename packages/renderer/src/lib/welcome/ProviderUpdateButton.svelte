@@ -36,9 +36,9 @@ async function performUpdate(provider: ProviderInfo) {
     console.error(err);
   }
   if (checkSuccess) {
-    // await window.updateProvider(provider.internalId);
+    await window.updateProvider(provider.internalId);
     // reset checks
-    // onPreflightChecks([]);
+    onPreflightChecks([]);
   } else {
     preflightChecksFailed = true;
   }
