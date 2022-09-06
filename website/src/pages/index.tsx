@@ -143,7 +143,7 @@ function Hero() {
           <img
             className="py-4 md:w-5/6 lg:w-11/12 w-full"
             alt="Podman Desktop home page"
-            src="https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png"
+            src="/img/features/homepage.png"
           />
         </div>
       </div>
