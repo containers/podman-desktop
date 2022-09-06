@@ -20,7 +20,6 @@ import { BaseCheck } from './base-check';
 import type * as extensionApi from '@tmpwip/extension-api';
 import * as os from 'node:os';
 import * as compareVersions from 'compare-versions';
-import * as fs from 'node:fs';
 import { runCliCommand } from './util';
 
 export class MacCPUCheck extends BaseCheck {
@@ -67,7 +66,9 @@ export class MacVersionCheck extends BaseCheck {
 export class MacPodmanInstallCheck extends BaseCheck {
   title = 'Podman Installation';
   async execute(): Promise<extensionApi.CheckResult> {
-    const runResult = await runCliCommand('brew', ['list', '--verbose', 'podman']);
+    const runResult = await runCliCommand('brew', ['list', '--verbose', 'podman'], {
+      env: { HOMEBREW_NO_AUTO_UPDATE: '1', HOMEBREW_NO_ANALYTICS: '1' },
+    });
 
     if (runResult.exitCode === 0) {
       return this.createFailureResult(
@@ -78,13 +79,5 @@ export class MacPodmanInstallCheck extends BaseCheck {
     }
 
     return this.createSuccessfulResult();
-  }
-
-  private checkFileExists(filepath): Promise<boolean> {
-    return new Promise(resolve => {
-      fs.access(filepath, fs.constants.F_OK, error => {
-        resolve(!error);
-      });
-    });
   }
 }

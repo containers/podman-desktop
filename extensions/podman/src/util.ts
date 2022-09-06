@@ -38,24 +38,33 @@ export interface SpawnResult {
   stdErr: string;
 }
 
-export function runCliCommand(command: string, args: string[]): Promise<SpawnResult> {
+export interface RunOptions {
+  env?: NodeJS.ProcessEnv;
+}
+
+export function runCliCommand(command: string, args: string[], options?: RunOptions): Promise<SpawnResult> {
   return new Promise((resolve, reject) => {
     let output = '';
     let err = '';
-    const process = spawn(command, args, { shell: isWindows });
-    process.on('error', err => {
+    let env = Object.assign({}, process.env); // clone original env object
+    if (options?.env) {
+      env = Object.assign(env, options.env);
+    }
+
+    const spawnProcess = spawn(command, args, { shell: isWindows, env });
+    spawnProcess.on('error', err => {
       reject(err);
     });
-    process.stdout.setEncoding('utf8');
-    process.stdout.on('data', data => {
+    spawnProcess.stdout.setEncoding('utf8');
+    spawnProcess.stdout.on('data', data => {
       output += data;
     });
-    process.stderr.setEncoding('utf8');
-    process.stderr.on('data', data => {
+    spawnProcess.stderr.setEncoding('utf8');
+    spawnProcess.stderr.on('data', data => {
       err += data;
     });
 
-    process.on('close', exitCode => {
+    spawnProcess.on('close', exitCode => {
       resolve({ exitCode, stdOut: output, stdErr: err });
     });
   });
