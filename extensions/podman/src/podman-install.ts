@@ -20,14 +20,13 @@ import { promisify } from 'node:util';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { spawn } from 'node:child_process';
 import * as compareVersions from 'compare-versions';
 
 import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
 import { execPromise } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
-import { isDev, isWindows, runCliCommand } from './util';
+import { isDev, runCliCommand } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
