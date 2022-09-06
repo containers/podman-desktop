@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import * as os from 'node:os';
+import { spawn } from 'node:child_process';
 
 export const isWindows = os.platform() === 'win32';
 export const isMac = os.platform() === 'darwin';
@@ -29,4 +30,33 @@ export function isDev(): boolean {
   const isEnvSet = 'ELECTRON_IS_DEV' in process.env;
   const envSet = Number.parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
   return isEnvSet ? envSet : false;
+}
+
+export interface SpawnResult {
+  exitCode: number;
+  stdOut: string;
+  stdErr: string;
+}
+
+export function runCliCommand(command: string, args: string[]): Promise<SpawnResult> {
+  return new Promise((resolve, reject) => {
+    let output = '';
+    let err = '';
+    const process = spawn(command, args, { shell: isWindows });
+    process.on('error', err => {
+      reject(err);
+    });
+    process.stdout.setEncoding('utf8');
+    process.stdout.on('data', data => {
+      output += data;
+    });
+    process.stderr.setEncoding('utf8');
+    process.stderr.on('data', data => {
+      err += data;
+    });
+
+    process.on('close', exitCode => {
+      resolve({ exitCode, stdOut: output, stdErr: err });
+    });
+  });
 }
