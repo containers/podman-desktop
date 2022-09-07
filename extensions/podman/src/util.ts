@@ -18,6 +18,7 @@
 
 import * as os from 'node:os';
 import { spawn } from 'node:child_process';
+import { getInstallationPath } from './podman-cli';
 
 export const isWindows = os.platform() === 'win32';
 export const isMac = os.platform() === 'darwin';
@@ -48,7 +49,10 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
     let err = '';
     let env = Object.assign({}, process.env); // clone original env object
 
-    if (env.FLATPAK_ID) {
+    // In production mode, applications don't have access to the 'user' path like brew
+    if (isMac || isWindows) {
+      env.PATH = getInstallationPath();
+    } else if (env.FLATPAK_ID) {
       // need to execute the command on the host
       args = ['--host', command, ...args];
       command = 'flatpak-spawn';
