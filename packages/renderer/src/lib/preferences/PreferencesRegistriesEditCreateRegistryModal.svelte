@@ -75,7 +75,7 @@ const setType = (node: any) => {
   class="inline-block w-full overflow-hidden text-left transition-all transform bg-[#4b5563] z-50 rounded-xl shadow-xl shadow-neutral-900"
   on:keydown="{keydownChoice}">
   <div class="flex items-center justify-between bg-black px-6 py-4 border-b-2 border-[#7c3aed]">
-    <h1 class="text-xl font-bold">{mode === 'create' ? 'Add Registry' : 'Edit Registry'}</h1>
+    <h1 class="text-xl font-bold">{mode === 'create' ? 'Login to a Registry' : 'Edit Registry'}</h1>
 
     <button class="hover:text-gray-200 px-2 py-1" on:click="{toggleCallback}">
       <i class="fas fa-times" aria-hidden="true"></i>
@@ -178,7 +178,7 @@ const setType = (node: any) => {
           type="button"
           disabled="{!$serverUrlValidity.valid || !$userNameValidity.valid || !$passwordValidity.valid}"
           on:click="{createOrUpdateRegistry}">
-          {mode === 'create' ? 'Add registry' : 'Update registry'}
+          {mode === 'create' ? 'Login to a registry' : 'Update registry'}
         </button>
       </div>
     </form>

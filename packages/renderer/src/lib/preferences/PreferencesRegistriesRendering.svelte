@@ -79,8 +79,8 @@ function toggleRegistryModal(): void {
           createRegistry();
         }}"
         class="flex flex-col mr-4 mb-4 rounded-md shadow-md bg-zinc-700 hover:bg-gray-600 dark:hover:bg-gray-600 hover:cursor-pointer w-52 h-28 sm:w-60 justify-center text-center">
-        <i class="text-3xl text-gray-100 fas fa-plus-circle" aria-hidden="true"></i>
-        <h2 class="text-xl font-bold font-bol text-gray-100">Add registry</h2>
+        <i class="text-3xl text-gray-100 fas fa-user-plus" aria-hidden="true"></i>
+        <h2 class="text-xl font-bold font-bol text-gray-100">Login to a registry</h2>
       </div>
     </div>
   </div>
