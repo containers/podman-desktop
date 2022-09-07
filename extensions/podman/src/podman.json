@@ -1,18 +1,18 @@
 {
-  "version": "4.2.0",
+  "version": "4.2.1",
   "platform": {
     "win32": {
-      "version": "v4.2.0",
-      "fileName": "podman-v4.2.0.msi"
+      "version": "v4.2.1",
+      "fileName": "podman-v4.2.1.msi"
     },
     "darwin": {
-      "version": "v4.2.0",
+      "version": "v4.2.1",
       "arch": {
         "x64": {
-          "fileName": "podman-installer-macos-amd64-v4.2.0.pkg"
+          "fileName": "podman-installer-macos-amd64-v4.2.1.pkg"
         },
         "arm64": {
-          "fileName": "podman-installer-macos-aarch64-v4.2.0.pkg"
+          "fileName": "podman-installer-macos-aarch64-v4.2.1.pkg"
         }
       }
     }
