@@ -276,6 +276,7 @@ async function registerUpdatesIfAny(
     provider.registerUpdate({
       version: updateInfo.bundledVersion,
       update: () => podmanInstall.performUpdate(provider, installedPodman),
+      preflightChecks: () => podmanInstall.getUpdatePreflightChecks(),
     });
   }
 }

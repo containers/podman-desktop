@@ -20,15 +20,16 @@ import { promisify } from 'node:util';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { spawn } from 'node:child_process';
 import * as compareVersions from 'compare-versions';
 
 import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
 import { execPromise } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
-import { isDev, isWindows } from './util';
+import { isDev, runCliCommand } from './util';
 import { getDetectionChecks } from './detection-checks';
+import { BaseCheck } from './base-check';
+import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -95,6 +96,7 @@ export class PodmanInfoImpl implements PodmanInfo {
 
 interface Installer {
   getPreflightChecks(): extensionApi.InstallCheck[] | undefined;
+  getUpdatePreflightChecks(): extensionApi.InstallCheck[] | undefined;
   install(): Promise<boolean>;
   requireUpdate(installedVersion: string): boolean;
   update(): Promise<boolean>;
@@ -190,6 +192,15 @@ export class PodmanInstall {
     return undefined;
   }
 
+  getUpdatePreflightChecks(): extensionApi.InstallCheck[] | undefined {
+    const installer = this.getInstaller();
+    if (installer) {
+      return installer.getUpdatePreflightChecks();
+    }
+
+    return undefined;
+  }
+
   isAbleToInstall(): boolean {
     return this.installers.has(os.platform());
   }
@@ -232,6 +243,8 @@ abstract class BaseInstaller implements Installer {
 
   abstract update(): Promise<boolean>;
 
+  abstract getUpdatePreflightChecks(): extensionApi.InstallCheck[];
+
   abstract getPreflightChecks(): extensionApi.InstallCheck[];
 
   requireUpdate(installedVersion: string): boolean {
@@ -247,37 +260,13 @@ abstract class BaseInstaller implements Installer {
       return path.resolve((process as any).resourcesPath, 'extensions', 'podman', 'assets');
     }
   }
-
-  protected executeInstaller(installCmd: string, args: string[]): Promise<string> {
-    return new Promise((resolve, reject) => {
-      let output = '';
-      let err = '';
-      const process = spawn(installCmd, args, { shell: isWindows });
-      process.on('error', err => {
-        reject(err);
-      });
-      process.stdout.setEncoding('utf8');
-      process.stdout.on('data', data => {
-        output += data;
-        console.log(data);
-      });
-      process.stderr.setEncoding('utf8');
-      process.stderr.on('data', data => {
-        err += data;
-        console.error(data);
-      });
-
-      process.on('close', exitCode => {
-        if (exitCode !== 0) {
-          reject(err);
-        }
-        resolve(output.trim());
-      });
-    });
-  }
 }
 
 class WinInstaller extends BaseInstaller {
+  getUpdatePreflightChecks(): extensionApi.InstallCheck[] {
+    return [];
+  }
+
   getPreflightChecks(): extensionApi.InstallCheck[] {
     return [new WinBitCheck(), new WinVersionCheck(), new WinMemoryCheck(), new HyperVCheck(), new WSL2Check()];
   }
@@ -292,7 +281,10 @@ class WinInstaller extends BaseInstaller {
       const msiPath = path.resolve(this.getAssetsFolder(), `podman-v${podmanTool.version}.msi`);
       try {
         if (fs.existsSync(msiPath)) {
-          await this.executeInstaller('msiexec', ['/i', msiPath, '/qb', '/norestart']);
+          const runResult = await runCliCommand('msiexec', ['/i', msiPath, '/qb', '/norestart']);
+          if (runResult.exitCode !== 0) {
+            throw new Error(runResult.stdErr);
+          }
           progress.report({ increment: 80 });
           extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
           return true;
@@ -323,7 +315,10 @@ class MacOSInstaller extends BaseInstaller {
       );
       try {
         if (fs.existsSync(pkgPath)) {
-          await this.executeInstaller('open', [pkgPath, '-W']);
+          const runResult = await runCliCommand('open', [pkgPath, '-W']);
+          if (runResult.exitCode !== 0) {
+            throw new Error(runResult.stdErr);
+          }
           progress.report({ increment: 80 });
           // we cannot rely on exit code, as installer could be closed and it return '0' exit code
           // so just check that podman bin file exist.
@@ -347,21 +342,13 @@ class MacOSInstaller extends BaseInstaller {
   update(): Promise<boolean> {
     return this.install();
   }
+
   getPreflightChecks(): extensionApi.InstallCheck[] {
-    return [];
-  }
-}
-
-abstract class BaseCheck implements extensionApi.InstallCheck {
-  abstract title: string;
-  abstract execute(): Promise<extensionApi.CheckResult>;
-
-  protected createFailureResult(description?: string, title?: string, url?: string): extensionApi.CheckResult {
-    return { successful: false, description, docLinks: [{ url, title }] };
+    return [new MacCPUCheck(), new MacMemoryCheck(), new MacVersionCheck()];
   }
 
-  protected createSuccessfulResult(): extensionApi.CheckResult {
-    return { successful: true };
+  getUpdatePreflightChecks(): extensionApi.InstallCheck[] {
+    return [new MacPodmanInstallCheck()];
   }
 }
 
@@ -398,12 +385,14 @@ class WinVersionCheck extends BaseCheck {
       } else {
         return this.createFailureResult(
           'To be able to run WSL2 you need Windows 10 Build 18362 or later.',
+          'WSL2 Install Manual',
           'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
         );
       }
     } else {
       return this.createFailureResult(
         'WSL2 works only on Windows 10 and newest OS',
+        'WSL2 Install Manual',
         'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
       );
     }

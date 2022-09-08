@@ -346,6 +346,29 @@ function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld(
+    'runUpdatePreflightChecks',
+    async (providerId: string, callBack: PreflightChecksCallback) => {
+      checkCallbackId++;
+      preflightChecksCallbacks.set(checkCallbackId, callBack);
+      return await ipcInvoke('provider-registry:runUpdatePreflightChecks', providerId, checkCallbackId);
+    },
+  );
+
+  ipcRenderer.on('provider-registry:updatePreflightChecksUpdate', (_, callbackId, data: PreflightCheckEvent) => {
+    const callback = preflightChecksCallbacks.get(callbackId);
+    if (callback) {
+      switch (data.type) {
+        case 'start':
+          callback.startCheck(data.status);
+          break;
+        case 'stop':
+          callback.endCheck(data.status);
+          break;
+      }
+    }
+  });
+
+  contextBridge.exposeInMainWorld(
     'updateProvider',
     async (providerId: string): Promise<containerDesktopAPI.ProviderDetectionCheck[]> => {
       return ipcInvoke('provider-registry:updateProvider', providerId);

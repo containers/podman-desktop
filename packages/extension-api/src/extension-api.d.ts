@@ -229,6 +229,8 @@ declare module '@tmpwip/extension-api' {
     version: string;
     // ask to update the provider
     update(logger: Logger): Promise<void>;
+
+    preflightChecks?(): InstallCheck[];
   }
 
   export type ProviderLinks = Link;

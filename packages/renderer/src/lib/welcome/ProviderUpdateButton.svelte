@@ -1,13 +1,47 @@
 <script lang="ts">
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 
 export let provider: ProviderInfo;
 let updateInProgress = false;
 
+export let onPreflightChecks: (status: CheckStatus[]) => void;
+
+let checksStatus: CheckStatus[] = [];
+
+let preflightChecksFailed = false;
+
 async function performUpdate(provider: ProviderInfo) {
   updateInProgress = true;
 
-  await window.updateProvider(provider.internalId);
+  checksStatus = [];
+  let checkSuccess = false;
+  let currentCheck: CheckStatus;
+  try {
+    checkSuccess = await window.runUpdatePreflightChecks(provider.internalId, {
+      endCheck: status => {
+        if (currentCheck) {
+          currentCheck = status;
+        } else {
+          return;
+        }
+        checksStatus.push(currentCheck);
+        onPreflightChecks(checksStatus);
+      },
+      startCheck: status => {
+        currentCheck = status;
+        onPreflightChecks([...checksStatus, currentCheck]);
+      },
+    });
+  } catch (err) {
+    console.error(err);
+  }
+  if (checkSuccess) {
+    await window.updateProvider(provider.internalId);
+    // reset checks
+    onPreflightChecks([]);
+  } else {
+    preflightChecksFailed = true;
+  }
 
   updateInProgress = false;
 }
@@ -15,7 +49,7 @@ async function performUpdate(provider: ProviderInfo) {
 
 {#if provider.updateInfo && provider.updateInfo.version}
   <button
-    disabled="{updateInProgress}"
+    disabled="{updateInProgress || preflightChecksFailed}"
     on:click="{() => performUpdate(provider)}"
     class="pf-c-button pf-m-primary"
     type="button">
