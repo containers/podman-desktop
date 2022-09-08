@@ -1,10 +1,13 @@
 <script lang="ts">
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import PreflightChecks from './PreflightChecks.svelte';
 import ProviderLinks from './ProviderLinks.svelte';
 import ProviderLogo from './ProviderLogo.svelte';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
 
 export let provider: ProviderInfo;
+
+let preflightChecks: CheckStatus[] = [];
 </script>
 
 <div class="p-2 flex flex-col bg-zinc-700 rounded-lg">
@@ -28,8 +31,10 @@ export let provider: ProviderInfo;
   </div>
   {#if provider.updateInfo}
     <div class="mt-10 mb-1  w-full flex  justify-around">
-      <ProviderUpdateButton provider="{provider}" />
+      <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>
   {/if}
+  <PreflightChecks preflightChecks="{preflightChecks}" />
+
   <ProviderLinks provider="{provider}" />
 </div>

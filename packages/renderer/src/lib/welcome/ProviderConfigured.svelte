@@ -1,5 +1,6 @@
 <script lang="ts">
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import PreflightChecks from './PreflightChecks.svelte';
 import ProviderLinks from './ProviderLinks.svelte';
 import ProviderLogo from './ProviderLogo.svelte';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
@@ -10,6 +11,8 @@ let providerToggleValue = false;
 let runInProgress = false;
 
 let runError: string | undefined = undefined;
+
+let preflightChecks: CheckStatus[] = [];
 
 async function runProvider() {
   runError = undefined;
@@ -88,9 +91,10 @@ async function runProvider() {
   </div>
   {#if provider.updateInfo}
     <div class="mt-10 mb-1  w-full flex  justify-around">
-      <ProviderUpdateButton provider="{provider}" />
+      <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>
   {/if}
+  <PreflightChecks preflightChecks="{preflightChecks}" />
   <div class="mt-10 mb-1  w-full flex  justify-around"></div>
   <ProviderLinks provider="{provider}" />
 </div>
