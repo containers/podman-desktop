@@ -35,7 +35,7 @@ In order to start the application, you need to know the Flatpak identifier for t
 Run the following command to start the application,
 
 ```sh
-flatpak run `io.podman_desktop.PodmanDesktop`
+flatpak run io.podman_desktop.PodmanDesktop
 ```
 
 You can read more about running Flatpak applications [here](https://docs.flatpak.org/en/latest/using-flatpak.html).
