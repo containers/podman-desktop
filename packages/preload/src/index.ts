@@ -26,6 +26,7 @@ import EventEmitter from 'events';
 import type { ContainerCreateOptions, ContainerInfo } from '../../main/src/plugin/api/container-info';
 import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
+import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';
 import type { PodInfo } from '../../main/src/plugin/api/pod-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
@@ -114,6 +115,19 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('listImages', async (): Promise<ImageInfo[]> => {
     return ipcInvoke('container-provider-registry:listImages');
   });
+
+  contextBridge.exposeInMainWorld('listVolumes', async (): Promise<VolumeListInfo[]> => {
+    return ipcInvoke('container-provider-registry:listVolumes');
+  });
+  contextBridge.exposeInMainWorld('removeVolume', async (engine: string, volumeName: string): Promise<void> => {
+    return ipcInvoke('container-provider-registry:removeVolume', engine, volumeName);
+  });
+  contextBridge.exposeInMainWorld(
+    'getVolumeInspect',
+    async (engine: string, volumeName: string): Promise<VolumeInspectInfo> => {
+      return ipcInvoke('container-provider-registry:getVolumeInspect', engine, volumeName);
+    },
+  );
 
   contextBridge.exposeInMainWorld('listPods', async (): Promise<PodInfo[]> => {
     return ipcInvoke('container-provider-registry:listPods');

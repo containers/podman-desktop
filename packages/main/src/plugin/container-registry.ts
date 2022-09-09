@@ -36,6 +36,7 @@ import type { ContainerInspectInfo } from './api/container-inspect-info';
 import type { HistoryInfo } from './api/history-info';
 import type { LibPod, PodInfo as LibpodPodInfo } from './dockerode/libpod-dockerode';
 import { LibpodDockerode } from './dockerode/libpod-dockerode';
+import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -90,6 +91,8 @@ export class ContainerProviderRegistry {
         this.apiSender.send('container-kill-event', jsonEvent.id);
       } else if (jsonEvent?.Type === 'pod') {
         this.apiSender.send('pod-event');
+      } else if (jsonEvent?.Type === 'volume') {
+        this.apiSender.send('volume-event');
       } else if (jsonEvent.status === 'remove' && jsonEvent?.Type === 'container') {
         this.apiSender.send('container-removed-event', jsonEvent.id);
       } else if (jsonEvent.status === 'pull' && jsonEvent?.Type === 'image') {
@@ -307,6 +310,89 @@ export class ContainerProviderRegistry {
     this.telemetryService.track('listPods', { total: flatttenedPods.length });
 
     return flatttenedPods;
+  }
+
+  async listVolumes(): Promise<VolumeListInfo[]> {
+    const volumes = await Promise.all(
+      Array.from(this.internalProviders.values()).map(async provider => {
+        try {
+          if (!provider.api) {
+            return [];
+          }
+
+          // grab the storage information
+          const storageDefinition = await provider.api.df();
+
+          // grab containers
+          const containers = await provider.api.listContainers({ all: true });
+
+          // any as there is a CreatedAt field missing in the type
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const volumeListInfo: any = await provider.api.listVolumes();
+          const engineName = provider.name;
+          const engineId = provider.id;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const volumeInfos = volumeListInfo.Volumes.map((volumeList: any) => {
+            const volumeInfo: VolumeInfo = { ...volumeList, engineName, engineId };
+
+            // do we have a matching volume in storage definition ?
+            const matchingVolume = (storageDefinition.Volumes || []).find(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (volumeStorage: any) => volumeStorage.Name === volumeInfo.Name,
+            );
+            if (matchingVolume) {
+              volumeInfo.UsageData = matchingVolume.UsageData;
+            }
+
+            // if refCount > 0, we need to find the container using it
+            const containersUsingThisVolume = containers
+              .filter(container => container.Mounts.find(mount => mount.Name === volumeInfo.Name))
+              .map(container => {
+                return { id: container.Id, names: container.Names };
+              });
+            volumeInfo.containersUsage = containersUsingThisVolume;
+
+            // invalid in Podman https://github.com/containers/podman/issues/15720
+            if (volumeInfo.UsageData) {
+              volumeInfo.UsageData.RefCount = volumeInfo.containersUsage.length;
+            }
+
+            return volumeInfo;
+          });
+          return { Volumes: volumeInfos, Warnings: volumeListInfo.Warnings, engineName, engineId };
+        } catch (error) {
+          console.log('error in engine', provider.name, error);
+          return [];
+        }
+      }),
+    );
+    const flatttenedVolumes: VolumeListInfo[] = volumes.flat();
+    this.telemetryService.track('listVolumes', { total: flatttenedVolumes.length });
+    return flatttenedVolumes;
+  }
+
+  async getVolumeInspect(engineId: string, volumeName: string): Promise<VolumeInspectInfo> {
+    this.telemetryService.track('volumeInspect');
+    // need to find the container engine of the container
+    const provider = this.internalProviders.get(engineId);
+    if (!provider) {
+      throw new Error('no engine matching this container');
+    }
+    if (!provider.api) {
+      throw new Error('no running provider for the matching container');
+    }
+    const volumeObject = provider.api.getVolume(volumeName);
+    const volumeInspect = await volumeObject.inspect();
+    return {
+      engineName: provider.name,
+      engineId: provider.id,
+      ...volumeInspect,
+    };
+  }
+
+  async removeVolume(engineId: string, volumeName: string): Promise<void> {
+    this.telemetryService.track('removeVolume');
+    return this.getMatchingEngine(engineId).getVolume(volumeName).remove();
   }
 
   protected getMatchingEngine(engineId: string): Dockerode {
@@ -580,6 +666,7 @@ export class ContainerProviderRegistry {
   }
 
   async getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo> {
+    this.telemetryService.track('imageInspect');
     // need to find the container engine of the container
     const provider = this.internalProviders.get(engineId);
     if (!provider) {
@@ -598,6 +685,7 @@ export class ContainerProviderRegistry {
   }
 
   async getImageHistory(engineId: string, id: string): Promise<HistoryInfo[]> {
+    this.telemetryService.track('imageHistory');
     // need to find the container engine of the container
     const provider = this.internalProviders.get(engineId);
     if (!provider) {

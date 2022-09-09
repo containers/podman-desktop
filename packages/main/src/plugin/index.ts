@@ -61,6 +61,7 @@ import type { IpcMainInvokeEvent } from 'electron/main';
 import type { ContainerInspectInfo } from './api/container-inspect-info';
 import type { HistoryInfo } from './api/history-info';
 import type { PodInfo } from './api/pod-info';
+import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -233,6 +234,22 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listPods', async (): Promise<PodInfo[]> => {
       return containerProviderRegistry.listPods();
     });
+    this.ipcHandle('container-provider-registry:listVolumes', async (): Promise<VolumeListInfo[]> => {
+      return containerProviderRegistry.listVolumes();
+    });
+    this.ipcHandle(
+      'container-provider-registry:getVolumeInspect',
+      async (_listener, engine: string, volumeName: string): Promise<VolumeInspectInfo> => {
+        return containerProviderRegistry.getVolumeInspect(engine, volumeName);
+      },
+    );
+    this.ipcHandle(
+      'container-provider-registry:removeVolume',
+      async (_listener, engine: string, volumeName: string): Promise<void> => {
+        return containerProviderRegistry.removeVolume(engine, volumeName);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:startPod',
       async (_listener, engine: string, podId: string): Promise<void> => {
