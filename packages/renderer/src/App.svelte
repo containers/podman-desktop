@@ -24,12 +24,15 @@ import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
 import ContainerDetails from './lib/ContainerDetails.svelte';
 import { providerInfos } from './stores/providers';
 import { podsInfos } from './stores/pods';
+import { volumeListInfos } from './stores/volumes';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
 import ImageDetails from './lib/image/ImageDetails.svelte';
 import PodsList from './lib/pod/PodsList.svelte';
+import VolumesList from './lib/volume/VolumesList.svelte';
+import VolumeDetails from './lib/volume/VolumeDetails.svelte';
 let containersCountValue;
 
 router.mode.hash();
@@ -248,6 +251,39 @@ window.events?.receive('display-help', () => {
             </a>
           </li>
           <li
+            class="pf-c-nav__item flex w-full justify-between {meta.url === '/volumes'
+              ? 'dark:text-white pf-m-current'
+              : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
+            <a href="/volumes" class="pf-c-nav__link">
+              <div class="flex items-center">
+                <svg width="18" height="18" version="1.1" viewBox="0 0 9.525 9.525" xmlns="http://www.w3.org/2000/svg">
+                  <g transform="translate(-5.2488 -6.9359)">
+                    <g transform="translate(-.18879 1.9844)">
+                      <path
+                        d="m5.571 8.1928c0 0.62112 2.0726 1.1246 4.6292 1.1246 2.5566 0 4.6292-0.50352 4.6292-1.1246v3.0424c0 0.62112-2.0725 1.1246-4.6292 1.1246-2.5566 0-4.6292-0.50352-4.6292-1.1246z"
+                        style="fill:currentColor"></path>
+                      <path
+                        d="m5.571 8.1928c0-0.62112 2.0726-1.1246 4.6292-1.1246 2.5566 0 4.6292 0.50352 4.6292 1.1246 0 0.62112-2.0725 1.1246-4.6292 1.1246-2.5566 0-4.6292-0.50352-4.6292-1.1246z"
+                        style="fill:currentColor"></path>
+                      <path
+                        d="m14.829 8.1928c0 0.62112-2.0725 1.1246-4.6292 1.1246-2.5566 0-4.6292-0.50352-4.6292-1.1246 0-0.62112 2.0726-1.1246 4.6292-1.1246 2.5566 0 4.6292 0.50352 4.6292 1.1246v3.0424c0 0.62112-2.0725 1.1246-4.6292 1.1246-2.5566 0-4.6292-0.50352-4.6292-1.1246v-3.0424"
+                        style="fill:none;stroke-linejoin:round;stroke-miterlimit:10;stroke-width:0.2;stroke:#222"
+                      ></path>
+                    </g>
+                  </g>
+                </svg>
+
+                <span class="hidden md:block group-hover:block mx-2">Volumes</span>
+                {#if innerWidth >= 768}
+                  {#if $volumeListInfos.length > 0}
+                    <span class="pf-c-badge pf-m-read hidden group-hover:flex md:flex items-center justify-center"
+                      >{$volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length}</span>
+                  {/if}
+                {/if}
+              </div>
+            </a>
+          </li>
+          <li
             class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/preferences')
               ? 'dark:text-white pf-m-current'
               : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
@@ -360,6 +396,13 @@ window.events?.receive('display-help', () => {
         <Route path="/pods">
           <PodsList />
         </Route>
+        <Route path="/volumes">
+          <VolumesList />
+        </Route>
+        <Route path="/volumes/:name/:engineId/*" let:meta>
+          <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
+        </Route>
+
         <Route path="/extensions">
           <ExtensionList />
         </Route>
