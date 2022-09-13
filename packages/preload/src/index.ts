@@ -31,6 +31,7 @@ import type { PodInfo } from '../../main/src/plugin/api/pod-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
+import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type {
   PreflightCheckEvent,
@@ -286,6 +287,39 @@ function initExposure(): void {
       return ipcInvoke('container-provider-registry:getContainerInspect', engine, containerId);
     },
   );
+
+  let onDataCallbacksGetContainerStatsId = 0;
+  const onDataCallbacksGetContainerStats = new Map<number, (containerStats: ContainerStatsInfo) => void>();
+  contextBridge.exposeInMainWorld(
+    'getContainerStats',
+    async (
+      engineId: string,
+      containerId: string,
+      callback: (containerStats: ContainerStatsInfo) => void,
+    ): Promise<number> => {
+      onDataCallbacksGetContainerStatsId++;
+      onDataCallbacksGetContainerStats.set(onDataCallbacksGetContainerStatsId, callback);
+      return ipcInvoke(
+        'container-provider-registry:getContainerStats',
+        engineId,
+        containerId,
+        onDataCallbacksGetContainerStatsId,
+      );
+    },
+  );
+  ipcRenderer.on(
+    'container-provider-registry:getContainerStats-onData',
+    (_, onDataCallbacksGetContainerStatsId: number, containerStats: ContainerStatsInfo) => {
+      // grab callback from the map
+      const callback = onDataCallbacksGetContainerStats.get(onDataCallbacksGetContainerStatsId);
+      if (callback) {
+        callback(containerStats);
+      }
+    },
+  );
+  contextBridge.exposeInMainWorld('stopContainerStats', async (containerStatsId: number): Promise<void> => {
+    return ipcInvoke('container-provider-registry:stopContainerStats', containerStatsId);
+  });
 
   contextBridge.exposeInMainWorld(
     'getImageInspect',

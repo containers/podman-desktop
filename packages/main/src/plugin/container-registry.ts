@@ -36,6 +36,7 @@ import type { ContainerInspectInfo } from './api/container-inspect-info';
 import type { HistoryInfo } from './api/history-info';
 import type { LibPod, PodInfo as LibpodPodInfo } from './dockerode/libpod-dockerode';
 import { LibpodDockerode } from './dockerode/libpod-dockerode';
+import type { ContainerStatsInfo } from './api/container-stats-info';
 import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
 export interface InternalContainerProvider {
   name: string;
@@ -716,6 +717,71 @@ export class ContainerProviderRegistry {
       engineId: provider.id,
       ...containerInspect,
     };
+  }
+
+  private statsConsumerId = 0;
+  private statsConsumer = new Map<number, NodeJS.ReadableStream>();
+
+  async stopContainerStats(id: number): Promise<void> {
+    const consumer = this.statsConsumer.get(id);
+    if (consumer) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (consumer as any).destroy();
+      this.statsConsumer.delete(id);
+    }
+  }
+
+  async getContainerStats(
+    engineId: string,
+    id: string,
+    callback: (stats: ContainerStatsInfo) => void,
+  ): Promise<number> {
+    this.telemetryService.track('containerStats');
+    // need to find the container engine of the container
+    const provider = this.internalProviders.get(engineId);
+    if (!provider) {
+      throw new Error('no engine matching this container');
+    }
+    if (!provider.api) {
+      throw new Error('no running provider for the matching container');
+    }
+
+    const containerObject = provider.api.getContainer(id);
+    this.statsConsumerId++;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let stream: any;
+    try {
+      stream = (await containerObject.stats({ stream: true })) as unknown as NodeJS.ReadableStream;
+      this.statsConsumer.set(this.statsConsumerId, stream);
+
+      const pipeline = stream?.pipe(StreamValues.withParser());
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pipeline?.on('error', (error: any) => {
+        console.error('Error while grabbing stats', error);
+        try {
+          stream?.destroy();
+          this.statsConsumer.delete(this.statsConsumerId);
+        } catch (error) {
+          console.error('Error while destroying stream', error);
+        }
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pipeline?.on('data', (data: any) => {
+        if (data?.value) {
+          callback({
+            engineName: provider.name,
+            engineId: provider.id,
+            ...data.value,
+          });
+        }
+      });
+    } catch (error) {
+      // try to destroy the stream
+      stream?.destroy();
+      this.statsConsumer.delete(this.statsConsumerId);
+    }
+
+    return this.statsConsumerId;
   }
 
   async buildImage(
