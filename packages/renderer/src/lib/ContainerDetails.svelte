@@ -12,6 +12,7 @@ import { ContainerUtils } from './container/container-utils';
 import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
 import { getPanelDetailColor } from './color/color';
 import ContainerDetailsKube from './ContainerDetailsKube.svelte';
+import ContainerStatistics from './container/ContainerStatistics.svelte';
 
 export let containerID: string;
 
@@ -112,9 +113,12 @@ onMount(() => {
               </div>
             </section>
           </div>
-          <div class="flex flex-row-reverse w-full  px-5 pt-5">
-            <div class="flex h-10">
+          <div class="flex flex-col w-full px-5 pt-5">
+            <div class="flex h-10 justify-end">
               <ContainerActions container="{container}" backgroundColor="bg-neutral-900" />
+            </div>
+            <div class="flex my-2 w-full justify-end ">
+              <ContainerStatistics container="{container}" />
             </div>
           </div>
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"

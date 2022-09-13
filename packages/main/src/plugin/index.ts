@@ -62,6 +62,7 @@ import type { ContainerInspectInfo } from './api/container-inspect-info';
 import type { HistoryInfo } from './api/history-info';
 import type { PodInfo } from './api/pod-info';
 import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
+import type { ContainerStatsInfo } from './api/container-stats-info';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -322,6 +323,22 @@ export class PluginSystem {
         return containerProviderRegistry.getContainerInspect(engine, containerId);
       },
     );
+    this.ipcHandle(
+      'container-provider-registry:getContainerStats',
+      async (_listener, engine: string, containerId: string, onDataId: number): Promise<number> => {
+        return containerProviderRegistry.getContainerStats(engine, containerId, (stats: ContainerStatsInfo) => {
+          this.getWebContentsSender().send('container-provider-registry:getContainerStats-onData', onDataId, stats);
+        });
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:stopContainerStats',
+      async (_listener, containerStatsId: number): Promise<void> => {
+        return containerProviderRegistry.stopContainerStats(containerStatsId);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:restartContainer',
       async (_listener, engine: string, containerId: string): Promise<void> => {
