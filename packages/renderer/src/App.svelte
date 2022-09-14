@@ -33,6 +33,7 @@ import ImageDetails from './lib/image/ImageDetails.svelte';
 import PodsList from './lib/pod/PodsList.svelte';
 import VolumesList from './lib/volume/VolumesList.svelte';
 import VolumeDetails from './lib/volume/VolumeDetails.svelte';
+import ContainerPlayKubefile from './lib/container/ContainerPlayKubefile.svelte';
 let containersCountValue;
 
 router.mode.hash();
@@ -378,6 +379,10 @@ window.events?.receive('display-help', () => {
         <Route path="/containers/:id/*" let:meta>
           <ContainerDetails containerID="{meta.params.id}" />
         </Route>
+        <Route path="/containers/play">
+          <ContainerPlayKubefile />
+        </Route>
+
         <Route path="/images">
           <ImagesList />
         </Route>

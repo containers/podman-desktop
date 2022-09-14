@@ -377,6 +377,7 @@ export class ProviderRegistry {
     const containerProviderConnection: ProviderContainerConnectionInfo = {
       name: connection.name,
       status: connection.status(),
+      type: connection.type,
       endpoint: {
         socketPath: connection.endpoint.socketPath,
       },

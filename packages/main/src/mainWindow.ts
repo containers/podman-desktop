@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { BrowserWindowConstructorOptions } from 'electron';
+import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
 import { BrowserWindow, ipcMain, app, dialog, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
 import { join } from 'path';
@@ -80,9 +80,10 @@ async function createWindow() {
   });
 
   // select a file using native widget
-  ipcMain.on('dialog:openFile', async (_, param: { dialogId: string; message: string }) => {
+  ipcMain.on('dialog:openFile', async (_, param: { dialogId: string; message: string; filter: FileFilter }) => {
     const response = await dialog.showOpenDialog(browserWindow, {
       properties: ['openFile'],
+      filters: [param.filter],
       message: param.message,
     });
     // send the response back
