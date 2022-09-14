@@ -34,7 +34,7 @@ const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 import { EventEmitter } from 'node:events';
 import type { ContainerInspectInfo } from './api/container-inspect-info';
 import type { HistoryInfo } from './api/history-info';
-import type { LibPod, PodInfo as LibpodPodInfo } from './dockerode/libpod-dockerode';
+import type { LibPod, PlayKubeInfo, PodInfo as LibpodPodInfo } from './dockerode/libpod-dockerode';
 import { LibpodDockerode } from './dockerode/libpod-dockerode';
 import type { ContainerStatsInfo } from './api/container-stats-info';
 import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
@@ -788,6 +788,21 @@ export class ContainerProviderRegistry {
     return this.statsConsumerId;
   }
 
+  async playKube(
+    kubernetesYamlFilePath: string,
+    selectedProvider: ProviderContainerConnectionInfo,
+  ): Promise<PlayKubeInfo> {
+    this.telemetryService.track('playKube');
+    // grab all connections
+    const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+      containerProvider => containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath,
+    );
+    if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
+      throw new Error('No provider with a running engine');
+    }
+    return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath);
+  }
+
   async buildImage(
     containerBuildContextDirectory: string,
     relativeContainerfilePath: string,
@@ -798,7 +813,9 @@ export class ContainerProviderRegistry {
     this.telemetryService.track('buildImage');
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-      containerProvider => containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath,
+      containerProvider =>
+        containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+        selectedProvider.status === 'started',
     );
     if (!matchingContainerProvider || !matchingContainerProvider.api) {
       throw new Error('No provider with a running engine');

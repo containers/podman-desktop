@@ -43,6 +43,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin
 import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import { Deferred } from './util/deferred';
 import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
+import type { PlayKubeInfo } from '../../main/src/plugin/dockerode/libpod-dockerode';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -142,6 +143,17 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('generatePodmanKube', async (engine: string, names: string[]): Promise<string> => {
     return ipcInvoke('container-provider-registry:generatePodmanKube', engine, names);
   });
+
+  contextBridge.exposeInMainWorld(
+    'playKube',
+    async (
+      relativeContainerfilePath: string,
+      selectedProvider: ProviderContainerConnectionInfo,
+    ): Promise<PlayKubeInfo> => {
+      return ipcInvoke('container-provider-registry:playKube', relativeContainerfilePath, selectedProvider);
+    },
+  );
+
   contextBridge.exposeInMainWorld('stopPod', async (engine: string, podId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:stopPod', engine, podId);
   });
@@ -650,28 +662,32 @@ function initExposure(): void {
 
   const dialogResponses = new Map<string, DialogResultCallback>();
 
-  contextBridge.exposeInMainWorld('openFileDialog', async (message: string) => {
-    // generate id
-    const dialogId = idDialog;
-    idDialog++;
+  contextBridge.exposeInMainWorld(
+    'openFileDialog',
+    async (message: string, filter?: { extensions: string[]; name: string }) => {
+      // generate id
+      const dialogId = idDialog;
+      idDialog++;
 
-    // create defer object
-    const defer = new Deferred<Electron.OpenDialogReturnValue>();
+      // create defer object
+      const defer = new Deferred<Electron.OpenDialogReturnValue>();
 
-    // store the dialogID
-    dialogResponses.set(`${dialogId}`, (result: Electron.OpenDialogReturnValue) => {
-      defer.resolve(result);
-    });
+      // store the dialogID
+      dialogResponses.set(`${dialogId}`, (result: Electron.OpenDialogReturnValue) => {
+        defer.resolve(result);
+      });
 
-    // ask to open file dialog
-    ipcRenderer.send('dialog:openFile', {
-      dialogId: `${dialogId}`,
-      message,
-    });
+      // ask to open file dialog
+      ipcRenderer.send('dialog:openFile', {
+        dialogId: `${dialogId}`,
+        message,
+        filter,
+      });
 
-    // wait for response
-    return defer.promise;
-  });
+      // wait for response
+      return defer.promise;
+    },
+  );
 
   contextBridge.exposeInMainWorld('openFolderDialog', async (message: string) => {
     // generate id

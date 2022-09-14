@@ -63,6 +63,7 @@ import type { HistoryInfo } from './api/history-info';
 import type { PodInfo } from './api/pod-info';
 import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
 import type { ContainerStatsInfo } from './api/container-stats-info';
+import type { PlayKubeInfo } from './dockerode/libpod-dockerode';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -279,6 +280,17 @@ export class PluginSystem {
       'container-provider-registry:generatePodmanKube',
       async (_listener, engine: string, names: string[]): Promise<string> => {
         return containerProviderRegistry.generatePodmanKube(engine, names);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:playKube',
+      async (
+        _listener,
+        yamlFilePath: string,
+        selectedProvider: ProviderContainerConnectionInfo,
+      ): Promise<PlayKubeInfo> => {
+        return containerProviderRegistry.playKube(yamlFilePath, selectedProvider);
       },
     );
     this.ipcHandle(

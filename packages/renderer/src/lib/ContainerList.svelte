@@ -18,6 +18,7 @@ import NavPage from './ui/NavPage.svelte';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import ContainerGroupIcon from './container/ContainerGroupIcon.svelte';
+import KubePlayIcon from './container/KubePlayIcon.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -37,6 +38,13 @@ let multipleEngines = false;
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
   .flat()
+  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
+
+$: providerPodmanConnections = $providerInfos
+  .map(provider => provider.containerConnections)
+  .flat()
+  // keep only podman providers as it is not supported by docker
+  .filter(providerContainerConnection => providerContainerConnection.type === 'podman')
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 // number of selected items in the list
@@ -212,6 +220,10 @@ function toggleCreateContainer(): void {
   openChoiceModal = !openChoiceModal;
 }
 
+function runContainerYaml(): void {
+  router.goto('/containers/play');
+}
+
 function fromDockerfile(): void {
   openChoiceModal = false;
   router.goto('/images/build');
@@ -237,16 +249,26 @@ function toggleAllContainerGroups(value: boolean) {
   bind:searchTerm
   title="containers"
   subtitle="Hover over a container to view action buttons; click to open up full details.">
-  <button
-    slot="additional-actions"
-    on:click="{() => toggleCreateContainer()}"
-    class="pf-c-button pf-m-primary"
-    type="button">
-    <span class="pf-c-button__icon pf-m-start">
-      <i class="fas fa-plus-circle" aria-hidden="true"></i>
-    </span>
-    Create container
-  </button>
+  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+    <button on:click="{() => toggleCreateContainer()}" class="pf-c-button pf-m-primary" type="button">
+      <span class="pf-c-button__icon pf-m-start">
+        <i class="fas fa-plus-circle" aria-hidden="true"></i>
+      </span>
+      Create container
+    </button>
+    {#if providerPodmanConnections.length > 0}
+      <button
+        on:click="{() => runContainerYaml()}"
+        class="pf-c-button pf-m-primary"
+        type="button"
+        title="Run pod/containers from kubernetes .YAML file ">
+        <div class="flex flex-row align-text-top justify-start items-center">
+          <KubePlayIcon />
+          Play YAML
+        </div>
+      </button>
+    {/if}
+  </div>
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
       <button

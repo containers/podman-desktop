@@ -35,6 +35,7 @@ export interface ProviderContainerConnectionInfo {
     socketPath: string;
   };
   lifecycleMethods?: LifecycleMethod[];
+  type: 'docker' | 'podman';
 }
 
 export interface ProviderKubernetesConnectionInfo {
