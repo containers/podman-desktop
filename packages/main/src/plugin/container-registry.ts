@@ -167,10 +167,14 @@ export class ContainerProviderRegistry {
       if (newStatus !== previousStatus) {
         if (newStatus === 'stopped') {
           internalProvider.api = undefined;
+          internalProvider.libpodApi = undefined;
           this.apiSender.send('provider-change', {});
         }
         if (newStatus === 'started') {
           internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
+          if (containerProviderConnection.type === 'podman') {
+            internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
+          }
           this.handleEvents(internalProvider.api);
           this.internalProviders.set(id, internalProvider);
           this.apiSender.send('provider-change', {});
