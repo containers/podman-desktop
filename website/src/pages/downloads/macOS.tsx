@@ -102,7 +102,7 @@ export function MacOSDownloads(): JSX.Element {
                 </Link>
                 <Link
                   className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
-                  to={downloadData.x64}>
+                  to={downloadData.arm64}>
                   <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
                   Arm
                 </Link>
