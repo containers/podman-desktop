@@ -226,11 +226,18 @@ export class ContainerProviderRegistry {
               let StartedAt;
               if (container.State.toUpperCase() === 'RUNNING') {
                 // grab additional field like StartedAt
-                const containerData = providerApi.getContainer(container.Id);
-                const containerInspect = await containerData.inspect();
-                // needs to adjust
-                const correctedDate = moment(containerInspect.State.StartedAt).add(delta, 'milliseconds').toISOString();
-                StartedAt = correctedDate;
+                try {
+                  const containerData = providerApi.getContainer(container.Id);
+                  const containerInspect = await containerData.inspect();
+                  // needs to adjust
+                  const correctedDate = moment(containerInspect.State.StartedAt)
+                    .add(delta, 'milliseconds')
+                    .toISOString();
+                  StartedAt = correctedDate;
+                } catch (error) {
+                  console.debug('Unable to get container, probably container is gone due to a short TTL', error);
+                  StartedAt = '';
+                }
               } else {
                 StartedAt = '';
               }
