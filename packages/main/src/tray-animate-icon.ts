@@ -18,6 +18,8 @@
 
 import type { Tray } from 'electron';
 import * as path from 'path';
+import { isLinux, isMac } from './util';
+import { nativeTheme } from 'electron';
 
 export type TrayIconStatus = 'initialized' | 'updating' | 'error' | 'ready';
 
@@ -30,6 +32,11 @@ export class AnimatedTray {
   constructor() {
     this.status = 'initialized';
     this.updateIcon();
+
+    // refresh icon when theme is being updated (especially for Windows as for macOS we always use template icon and on linux the menu bar is not related to the theme)
+    nativeTheme.on('updated', () => {
+      this.updateIcon();
+    });
   }
 
   protected getAssetsFolder(): string {
@@ -49,7 +56,7 @@ export class AnimatedTray {
     if (this.trayIconLoopId === 4) {
       this.trayIconLoopId = 0;
     }
-    const imagePath = path.resolve(this.getAssetsFolder(), `tray-icon-step${this.trayIconLoopId}Template.png`);
+    const imagePath = this.getIconPath(`step${this.trayIconLoopId}`);
     this.trayIconLoopId++;
     this.tray?.setImage(imagePath);
   }
@@ -57,6 +64,32 @@ export class AnimatedTray {
   public setTray(tray: Tray): void {
     this.tray = tray;
     this.updateIcon();
+  }
+
+  // provide the path to the icon depending on theme and platform
+  protected getIconPath(iconName: string): string {
+    let name;
+    if (iconName === 'default') {
+      name = '';
+    } else {
+      name = `-${iconName}`;
+    }
+    let suffix = '';
+    // on Linux, always pickup dark icon
+    if (isLinux) {
+      suffix = 'Dark';
+    } else if (isMac) {
+      // on Mac, always pickup template icon
+      suffix = 'Template';
+    } else {
+      // check based from the theme using electron nativeTheme
+      if (nativeTheme.shouldUseDarkColors) {
+        suffix = 'Dark';
+      } else {
+        suffix = 'Template';
+      }
+    }
+    return path.resolve(this.getAssetsFolder(), `tray-icon${name}${suffix}.png`);
   }
 
   protected updateIcon(): void {
@@ -71,15 +104,15 @@ export class AnimatedTray {
     }
     switch (this.status) {
       case 'initialized':
-        this.tray.setImage(path.resolve(this.getAssetsFolder(), 'tray-icon-emptyTemplate.png'));
+        this.tray.setImage(this.getIconPath('empty'));
         this.tray.setToolTip('Podman Desktop is initialized');
         break;
       case 'error':
-        this.tray.setImage(path.resolve(this.getAssetsFolder(), 'tray-icon-errorTemplate.png'));
+        this.tray.setImage(this.getIconPath('error'));
         this.tray.setToolTip('Podman Desktop has an error');
         break;
       case 'ready':
-        this.tray.setImage(path.resolve(this.getAssetsFolder(), 'tray-iconTemplate.png'));
+        this.tray.setImage(this.getIconPath('default'));
         this.tray.setToolTip('Podman Desktop is ready');
         break;
       case 'updating':
@@ -90,7 +123,7 @@ export class AnimatedTray {
   }
 
   getDefaultImage(): string {
-    return path.resolve(this.getAssetsFolder(), 'tray-icon-emptyTemplate.png');
+    return this.getIconPath('empty');
   }
 
   setStatus(status: TrayIconStatus) {
