@@ -7,11 +7,13 @@ import ProviderReady from './ProviderReady.svelte';
 import ProviderInstalled from './ProviderInstalled.svelte';
 import ProviderConfigured from './ProviderConfigured.svelte';
 import ProviderStopped from './ProviderStopped.svelte';
+import ProviderStarting from './ProviderStarting.svelte';
 
 $: providersNotInstalled = $providerInfos.filter(provider => provider.status === 'not-installed');
 $: providersInstalled = $providerInfos.filter(provider => provider.status === 'installed');
 $: providersConfigured = $providerInfos.filter(provider => provider.status === 'configured');
 $: providersReady = $providerInfos.filter(provider => provider.status === 'ready' || provider.status === 'started');
+$: providersStarting = $providerInfos.filter(provider => provider.status === 'starting');
 $: providersStopped = $providerInfos.filter(provider => provider.status === 'stopped');
 </script>
 
@@ -22,6 +24,13 @@ $: providersStopped = $providerInfos.filter(provider => provider.status === 'sto
       {#if providersReady.length > 0}
         {#each providersReady as providerReady}
           <ProviderReady provider="{providerReady}" />
+        {/each}
+      {/if}
+
+      <!-- Provider is starting -->
+      {#if providersStarting.length > 0}
+        {#each providersStarting as providerStarting}
+          <ProviderStarting provider="{providerStarting}" />
         {/each}
       {/if}
 

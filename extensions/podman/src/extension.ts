@@ -48,6 +48,7 @@ type MachineJSON = {
   Memory: string;
   DiskSize: string;
   Running: boolean;
+  Starting: boolean;
 };
 
 type MachineInfo = {
@@ -67,7 +68,14 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   // update status of existing machines
   machines.forEach(machine => {
     const running = machine?.Running === true;
-    const status = running ? 'started' : 'stopped';
+    let status: extensionApi.ProviderConnectionStatus = running ? 'started' : 'stopped';
+
+    // update the status to starting if the machine is starting but not yet running
+    const starting = machine?.Starting === true;
+    if (!running && starting) {
+      status = 'starting';
+    }
+
     const previousStatus = podmanMachinesStatuses.get(machine.Name);
     if (previousStatus !== status) {
       // notify status change
@@ -123,9 +131,13 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     provider.updateStatus('installed');
   } else {
     const atLeastOneMachineRunning = machines.some(machine => machine.Running);
+    const atLeastOneMachineStarting = machines.some(machine => machine.Starting);
     // if a machine is running it's started else it is ready
     if (atLeastOneMachineRunning) {
       provider.updateStatus('ready');
+    } else if (atLeastOneMachineStarting) {
+      // update to starting
+      provider.updateStatus('starting');
     } else {
       // needs to start a machine
       provider.updateStatus('configured');
