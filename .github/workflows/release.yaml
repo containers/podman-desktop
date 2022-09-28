@@ -90,7 +90,10 @@ jobs:
         run: |
           git config --local user.name ${{ github.actor }}
           git config --local user.email "fbenoit@redhat.com"
-          bumpedVersion=$(echo "${{ steps.TAG_UTIL.outputs.desktopVersion }}" | awk -F. -v OFS=. '{$NF += 1 ; print}')
+          CURRENT_VERSION=$(echo "${{ steps.TAG_UTIL.outputs.desktopVersion }}")
+          tmp=${CURRENT_VERSION%.*}
+          minor=${tmp#*.}
+          bumpedVersion=${CURRENT_VERSION%%.*}.$((minor + 1)).0
           bumpedBranchName="bump-to-${bumpedVersion}"
           git checkout -b "${bumpedBranchName}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" package.json
