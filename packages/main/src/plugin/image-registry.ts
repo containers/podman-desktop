@@ -25,6 +25,12 @@ import * as crypto from 'node:crypto';
 import got from 'got';
 import { RequestError } from 'got';
 
+export interface RegistryAuthInfo {
+  authUrl: string;
+  service?: string;
+  scope?: string;
+}
+
 export class ImageRegistry {
   private registries: containerDesktopAPI.Registry[] = [];
   private providers: Map<string, containerDesktopAPI.RegistryProvider> = new Map();
@@ -170,6 +176,22 @@ export class ImageRegistry {
     this._onDidUpdateRegistry.fire(Object.freeze(registry));
   }
 
+  // grab authentication data from the www-authenticate header
+  // undefined if not able to grab data
+  extractAuthData(wwwAuthenticate: string): RegistryAuthInfo | undefined {
+    // example of www-authenticate header
+    // Www-Authenticate: Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:samalba/my-app:pull,push"
+    // need to extract realm, service and scope parameters with a regexp
+    const WWW_AUTH_REGEXP = /Bearer realm="(?<realm>[^"]+)"(,service="(?<service>[^"]+)")?(,scope="(?<scope>[^"]+)")?/;
+
+    const parsed = WWW_AUTH_REGEXP.exec(wwwAuthenticate);
+    if (parsed && parsed.groups) {
+      const { realm, service, scope } = parsed.groups;
+      return { authUrl: realm, service, scope };
+    }
+    return undefined;
+  }
+
   async getAuthUrl(serviceUrl: string): Promise<string | undefined> {
     let registryUrl: string;
 
@@ -189,10 +211,19 @@ export class ImageRegistry {
       await got.get(registryUrl);
     } catch (requestErr) {
       if (requestErr instanceof RequestError) {
-        const authenticate = requestErr.response?.headers['www-authenticate'];
-        const realm = authenticate?.match(/realm="(.*?)"/);
-        if (realm !== undefined && realm !== null && realm.length === 2) {
-          authUrl = realm[1];
+        const wwwAuthenticate = requestErr.response?.headers['www-authenticate'];
+        if (wwwAuthenticate) {
+          const authInfo = this.extractAuthData(wwwAuthenticate);
+          if (authInfo) {
+            const url = new URL(authInfo.authUrl);
+            if (authInfo.service) {
+              url.searchParams.set('service', authInfo.service);
+            }
+            if (authInfo.scope) {
+              url.searchParams.set('scope', authInfo.scope);
+            }
+            authUrl = url.toString();
+          }
         }
       }
     }
@@ -214,10 +245,15 @@ export class ImageRegistry {
 
   async doCheckCredentials(authUrl: string, username: string, password: string): Promise<void> {
     let rawResponse: string | undefined;
+    // add credentials in the header
+    // encode username:password in base64
+    const token = Buffer.from(`${username}:${password}`).toString('base64');
+    const headers = {
+      Authorization: `Basic ${token}`,
+    };
     try {
       const { body } = await got.get(authUrl, {
-        username: username,
-        password: password,
+        headers,
       });
       rawResponse = body;
     } catch (requestErr) {
