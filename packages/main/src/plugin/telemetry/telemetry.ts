@@ -51,7 +51,7 @@ export class Telemetry {
 
   async init(): Promise<void> {
     const telemetryConfigurationNode: IConfigurationNode = {
-      id: 'dashboard.telemetry',
+      id: 'preferences.telemetry',
       title: 'Telemetry',
       type: 'object',
       properties: {
