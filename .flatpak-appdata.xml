@@ -42,6 +42,7 @@
   </provides>
   <update_contact>fbenoit_at_redhat_com</update_contact>
   <releases>
+    <release version="0.8.0" date="2022-09-28"/>
     <release version="0.0.7" date="2022-09-07"/>
     <release version="0.0.6" date="2022-08-10" />
     <release version="0.0.5" date="2022-07-01" />
