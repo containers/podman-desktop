@@ -169,8 +169,8 @@ jobs:
           path: ./dist/podman-desktop-*universal.dmg
 
 
-  lint-format:
-    name: linter and formatters
+  lint-format-unit:
+    name: linter, formatters and unit tests
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -198,3 +198,6 @@ jobs:
 
       - name: Run formatter
         run: yarn format:check
+
+      - name: Run unit tests
+        run: yarn test:main
