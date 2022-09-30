@@ -233,6 +233,15 @@ declare module '@tmpwip/extension-api' {
     preflightChecks?(): InstallCheck[];
   }
 
+  /**
+   * By providing this interface, when Podman Desktop is starting
+   * It'll start the provider through this interface.
+   * It can be turned off/on by the user.
+   */
+  export interface ProviderAutostart {
+    start(logger: Logger): Promise<void>;
+  }
+
   export type ProviderLinks = Link;
 
   export interface ProviderImages {
@@ -257,6 +266,9 @@ declare module '@tmpwip/extension-api' {
 
     // register update flow
     registerUpdate(update: ProviderUpdate): Disposable;
+
+    // register autostart flow
+    registerAutostart(autostart: ProviderAutostart): Disposable;
 
     dispose(): void;
     readonly name: string;

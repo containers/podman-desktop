@@ -19,6 +19,7 @@
 import type {
   ContainerProviderConnection,
   Provider,
+  ProviderAutostart,
   ProviderDetectionCheck,
   ProviderInstallation,
   ProviderLifecycle,
@@ -65,6 +66,7 @@ export class ProviderRegistry {
   private providerLifecycleContexts: Map<string, LifecycleContextImpl> = new Map();
   private providerInstallations: Map<string, ProviderInstallation> = new Map();
   private providerUpdates: Map<string, ProviderUpdate> = new Map();
+  private providerAutostarts: Map<string, ProviderAutostart> = new Map();
 
   private connectionLifecycleContexts: Map<ContainerProviderConnection, LifecycleContextImpl> = new Map();
   private listeners: ProviderEventListener[];
@@ -153,6 +155,14 @@ export class ProviderRegistry {
 
     return Disposable.create(() => {
       this.providerUpdates.delete(providerImpl.internalId);
+    });
+  }
+
+  registerAutostart(providerImpl: ProviderImpl, autostart: ProviderAutostart): Disposable {
+    this.providerAutostarts.set(providerImpl.internalId, autostart);
+
+    return Disposable.create(() => {
+      this.providerAutostarts.delete(providerImpl.internalId);
     });
   }
 
@@ -250,6 +260,13 @@ export class ProviderRegistry {
   async getProviderDetectionChecks(providerInternalId: string): Promise<ProviderDetectionCheck[]> {
     const provider = this.getMatchingProvider(providerInternalId);
     return provider.detectionChecks;
+  }
+
+  // run autostart on all providers supporting this option
+  async runAutostart(): Promise<void[]> {
+    // grab auto start providers
+    const autostartValues = Array.from(this.providerAutostarts.values());
+    return Promise.all(autostartValues.map(autoStart => autoStart.start(new LoggerImpl())));
   }
 
   async runPreflightChecks(
