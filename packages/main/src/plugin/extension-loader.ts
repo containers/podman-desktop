@@ -491,4 +491,8 @@ export class ExtensionLoader {
       await this.loadExtension(extension?.path);
     }
   }
+
+  getConfigurationRegistry(): ConfigurationRegistry {
+    return this.configurationRegistry;
+  }
 }

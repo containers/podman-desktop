@@ -23,6 +23,7 @@ import { TrayMenu } from './tray-menu';
 import { isMac } from './util';
 import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
+import { StartupInstall } from './system/startup-install';
 
 /**
  * Prevent multiple instances
@@ -90,12 +91,18 @@ if (import.meta.env.PROD) {
 
 let tray: Tray | null = null;
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   const animatedTray = new AnimatedTray();
   tray = new Tray(animatedTray.getDefaultImage());
   animatedTray.setTray(tray);
   const trayMenu = new TrayMenu(tray, animatedTray);
   // start extensions
   const pluginSystem = new PluginSystem(trayMenu);
-  pluginSystem.initExtensions();
+  const extensionLoader = await pluginSystem.initExtensions();
+
+  const configurationRegistry = extensionLoader.getConfigurationRegistry();
+
+  // configure automatic startup
+  const automaticStartup = new StartupInstall(configurationRegistry);
+  await automaticStartup.configure();
 });

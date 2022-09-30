@@ -36,6 +36,7 @@ import type {
   ProviderImages,
   ProviderDetectionCheck,
   ProviderUpdate,
+  ProviderAutostart,
 } from '@tmpwip/extension-api';
 import type { ProviderRegistry } from './provider-registry';
 import { Emitter } from './events/emitter';
@@ -218,5 +219,9 @@ export class ProviderImpl implements Provider, IDisposable {
 
   registerUpdate(update: ProviderUpdate): Disposable {
     return this.providerRegistry.registerUpdate(this, update);
+  }
+
+  registerAutostart(update: ProviderAutostart): Disposable {
+    return this.providerRegistry.registerAutostart(this, update);
   }
 }

@@ -64,6 +64,7 @@ import type { PodInfo } from './api/pod-info';
 import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
 import type { ContainerStatsInfo } from './api/container-stats-info';
 import type { PlayKubeInfo } from './dockerode/libpod-dockerode';
+import { AutostartEngine } from './autostart-engine';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -133,7 +134,7 @@ export class PluginSystem {
   }
 
   // initialize extension loader mechanism
-  async initExtensions(): Promise<void> {
+  async initExtensions(): Promise<ExtensionLoader> {
     this.isReady = false;
     this.uiReady = false;
     this.ipcHandle('extension-system:isReady', async (): Promise<boolean> => {
@@ -197,6 +198,9 @@ export class PluginSystem {
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
+
+    const autoStartConfiguration = new AutostartEngine(configurationRegistry, providerRegistry);
+    await autoStartConfiguration.init();
 
     providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
       if (name === 'provider:update-status') {
@@ -798,5 +802,9 @@ export class PluginSystem {
     this.isReady = true;
     console.log('PluginSystem: initialization done.');
     apiSender.send('extension-system', `${this.isReady}`);
+
+    autoStartConfiguration.start();
+
+    return extensionLoader;
   }
 }

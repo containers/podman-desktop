@@ -351,6 +351,35 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // add update information asynchronously
   registerUpdatesIfAny(provider, installedPodman, podmanInstall);
 
+  // register autostart if enabled
+  if (isMac || isWindows) {
+    try {
+      await updateMachines(provider);
+    } catch (error) {
+      // ignore the update of machines
+    }
+    provider.registerAutostart({
+      start: async (logger: extensionApi.Logger) => {
+        // do we have a running machine ?
+        const isRunningMachine = Array.from(podmanMachinesStatuses.values()).find(
+          connectionStatus => connectionStatus === 'started' || connectionStatus === 'starting',
+        );
+        if (isRunningMachine) {
+          console.log('Podman extension:', 'Do not start a machine as there is already one starting or started');
+          return;
+        }
+
+        // start the first machine if any
+        const machines = Array.from(podmanMachinesStatuses.entries());
+        if (machines.length > 0) {
+          const [machineName] = machines[0];
+          console.log('Podman extension:', 'Autostarting machine', machineName);
+          await execPromise(getPodmanCli(), ['machine', 'start', machineName], { logger });
+        }
+      },
+    });
+  }
+
   extensionContext.subscriptions.push(provider);
 
   // allows to create machines
