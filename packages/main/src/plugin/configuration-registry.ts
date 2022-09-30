@@ -21,6 +21,8 @@ import * as os from 'os';
 import * as fs from 'fs';
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { ConfigurationImpl } from './configuration-impl';
+import type { Event } from './events/emitter';
+import { Emitter } from './events/emitter';
 export type IConfigurationPropertySchemaType =
   | 'string'
   | 'number'
@@ -29,6 +31,13 @@ export type IConfigurationPropertySchemaType =
   | 'null'
   | 'array'
   | 'object';
+
+export interface IConfigurationChangeEvent {
+  key: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+  scope: containerDesktopAPI.ConfigurationScope;
+}
 
 export interface IConfigurationPropertyRecordedSchema extends IConfigurationPropertySchema {
   title: string;
@@ -69,7 +78,8 @@ export interface IConfigurationRegistry {
   registerConfigurations(configurations: IConfigurationNode[]): void;
   deregisterConfigurations(configurations: IConfigurationNode[]): void;
   updateConfigurations(configurations: { add: IConfigurationNode[]; remove: IConfigurationNode[] }): void;
-  // readonly onDidUpdateConfiguration: Event<{ properties: string[]}>;
+  readonly onDidUpdateConfiguration: Event<{ properties: string[] }>;
+  readonly onDidChangeConfiguration: Event<IConfigurationChangeEvent>;
   getConfigurationProperties(): Record<string, IConfigurationPropertyRecordedSchema>;
 }
 
@@ -77,6 +87,12 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   public static DEFAULT_SCOPE = 'DEFAULT';
   private readonly configurationContributors: IConfigurationNode[];
   private readonly configurationProperties: Record<string, IConfigurationPropertyRecordedSchema>;
+
+  private readonly _onDidUpdateConfiguration = new Emitter<{ properties: string[] }>();
+  readonly onDidUpdateConfiguration: Event<{ properties: string[] }> = this._onDidUpdateConfiguration.event;
+
+  private readonly _onDidChangeConfiguration = new Emitter<IConfigurationChangeEvent>();
+  readonly onDidChangeConfiguration: Event<IConfigurationChangeEvent> = this._onDidChangeConfiguration.event;
 
   // Contains the value of the current configuration
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -144,7 +160,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
       this.configurationContributors.push(configuration);
     });
     if (notify) {
-      // this.onDidUpdateConfiguration.fire({ properties });
+      this._onDidUpdateConfiguration.fire({ properties });
     }
     return properties;
   }
@@ -168,7 +184,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
       }
     }
     if (notify) {
-      // this.onDidUpdateConfiguration.fire({ properties });
+      this._onDidUpdateConfiguration.fire({ properties });
     }
     return properties;
   }
@@ -177,7 +193,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     const properties = [];
     properties.push(...this.doDeregisterConfigurations(remove, false));
     properties.push(...this.doRegisterConfigurations(add, false));
-    // this.onDidUpdateConfiguration.fire({ properties });
+    this._onDidUpdateConfiguration.fire({ properties });
   }
 
   getConfigurationProperties(): Record<string, IConfigurationPropertyRecordedSchema> {
@@ -194,6 +210,11 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     if (scope === 'DEFAULT') {
       this.saveDefault();
     }
+    if (!scope) {
+      scope = 'DEFAULT';
+    }
+    const event = { key, value, scope };
+    this._onDidChangeConfiguration.fire(event);
     return promise;
   }
 
