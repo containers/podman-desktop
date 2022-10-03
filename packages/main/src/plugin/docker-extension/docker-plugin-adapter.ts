@@ -15,6 +15,8 @@ export interface RawExecResult {
 }
 
 export class DockerPluginAdapter {
+  static MACOS_EXTRA_PATH = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
+
   constructor(private contributionManager: ContributionManager) {}
 
   filterDockerArgs(cmd: string, args: string[]): string[] {
@@ -43,7 +45,7 @@ export class DockerPluginAdapter {
           env.Path = `${contributionPath}`;
         }
       } else {
-        env.PATH = `${contributionPath}:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`;
+        env.PATH = `${contributionPath}:${env.PATH}`;
       }
     }
   }
@@ -65,6 +67,10 @@ export class DockerPluginAdapter {
         };
 
         const env = process.env;
+        if (os.platform() === 'darwin' && env.PATH) {
+          env.PATH = env.PATH.concat(':').concat(DockerPluginAdapter.MACOS_EXTRA_PATH);
+        }
+
         // In production mode, applications don't have access to the 'user' path like brew
         return new Promise(resolve => {
           // need to add launcher as command and we move command as the first arg
@@ -126,6 +132,9 @@ export class DockerPluginAdapter {
         let updatedCommand;
         let updatedArgs;
         const env = process.env;
+        if (os.platform() === 'darwin' && env.PATH) {
+          env.PATH = env.PATH.concat(':').concat(DockerPluginAdapter.MACOS_EXTRA_PATH);
+        }
         if (launcher) {
           updatedCommand = launcher;
           updatedArgs = this.filterDockerArgs(cmd, args);
