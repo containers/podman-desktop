@@ -565,6 +565,31 @@ declare module '@tmpwip/extension-api' {
     hide(): void;
   }
 
+  /**
+   * Resource identifier for a resource
+   */
+  export class Uri {
+    private constructor(scheme: string, authority: string, path: string);
+    static file(path: string): Uri;
+    readonly fsPath: string;
+    readonly authority: string;
+    readonly scheme: string;
+    toString(): string;
+  }
+
+  /**
+   * Notifies changes on files or folders.
+   */
+  export interface FileSystemWatcher extends Disposable {
+    readonly onDidCreate: Event<Uri>;
+    readonly onDidChange: Event<Uri>;
+    readonly onDidDelete: Event<Uri>;
+  }
+
+  export namespace fs {
+    export function createFileSystemWatcher(path: string): FileSystemWatcher;
+  }
+
   export namespace window {
     /**
      * Show an information message. Optionally provide an array of items which will be presented as
