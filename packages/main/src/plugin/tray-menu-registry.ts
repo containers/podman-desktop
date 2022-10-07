@@ -76,9 +76,9 @@ export class TrayMenuRegistry {
       },
     );
 
-    ipcMain.on('tray:menu-item-click', (_, menuItemId: string) => {
+    ipcMain.on('tray:menu-item-click', (_, menuItemId: string, label: string) => {
       try {
-        this.commandRegistry.executeCommand(menuItemId);
+        this.commandRegistry.executeCommand(menuItemId, label);
       } catch (err) {
         console.error(err);
       }
@@ -137,12 +137,19 @@ export class TrayMenuRegistry {
     );
   }
 
-  registerMenuItem(providerName: string, menuItem: MenuItem): Disposable {
+  registerMenuItem(menuItem: MenuItem): Disposable {
     this.menuItems.set(menuItem.id, menuItem);
-    ipcMain.emit('tray:add-menu-item', '', { providerName, menuItem });
+    ipcMain.emit('tray:add-menu-item', '', { menuItem });
     return Disposable.create(() => {
       this.menuItems.delete(menuItem.id);
-      // TODO: notify main
+    });
+  }
+
+  registerProviderMenuItem(providerName: string, menuItem: MenuItem): Disposable {
+    this.menuItems.set(menuItem.id, menuItem);
+    ipcMain.emit('tray:add-provider-menu-item', '', { providerName, menuItem });
+    return Disposable.create(() => {
+      this.menuItems.delete(menuItem.id);
     });
   }
 
