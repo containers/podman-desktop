@@ -22,8 +22,6 @@ Podman Desktop on Windows requires the following:
 **3. Install Podman from Podman Desktop, if not yet installed.**
 
 When you open Podman Desktop, your home screen would look like the one in the image below if you don't have Podman (Engine) installed.
-1. djkds
-1. sjkxs
 
 ![img1](img/windows/homescreen.png)
 
