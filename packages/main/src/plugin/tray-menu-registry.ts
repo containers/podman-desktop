@@ -141,6 +141,7 @@ export class TrayMenuRegistry {
     this.menuItems.set(menuItem.id, menuItem);
     ipcMain.emit('tray:add-menu-item', '', { menuItem });
     return Disposable.create(() => {
+      ipcMain.emit('tray:delete-menu-item', '', menuItem.id);
       this.menuItems.delete(menuItem.id);
     });
   }
