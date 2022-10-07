@@ -53,6 +53,8 @@ declare module '@tmpwip/extension-api' {
      * Should only be specified for `checkbox` or `radio` type menu items.
      */
     checked?: boolean;
+
+    submenu?: MenuItem[];
   }
 
   export class Disposable {
@@ -341,11 +343,17 @@ declare module '@tmpwip/extension-api' {
 
   export namespace tray {
     /**
-     *
+     * Creates a menu not related to a Provider
+     * @param item the item to add in the tray menu
+     */
+    export function registerMenuItem(item: MenuItem): Disposable;
+
+    /**
+     * Creates a menu in the tray for a given Provider
      * @param providerId the same as the id on Provider provided by createProvider() method, need to place menu item properly
      * @param item
      */
-    export function registerMenuItem(providerId: string, item: MenuItem): Disposable;
+    export function registerProviderMenuItem(providerId: string, item: MenuItem): Disposable;
   }
 
   export namespace configuration {
