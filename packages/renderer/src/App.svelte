@@ -41,8 +41,6 @@ router.subscribe(function (navigation) {
   }
 });
 
-let innerWidth = 0;
-
 let providers: ProviderInfo[] = [];
 $: providerConnections = providers
   .map(provider => provider.containerConnections)
@@ -62,7 +60,6 @@ window.events?.receive('display-help', () => {
 });
 </script>
 
-<svelte:window bind:innerWidth />
 <Route path="/*" breadcrumb="Home" let:meta>
   <main class="min-h-screen flex flex-col h-screen bg-zinc-900">
     <ninja-keys id="command-palette" placeholder="" openHotkey="F1" hideBreadcrumbs class="dark"></ninja-keys>
