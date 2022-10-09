@@ -24,13 +24,20 @@ Open the Terminal and go to Downloads directory.
 cd Downloads
 ```
 
+> In order to install & start the application, you need to know the Flatpak identifier for the application. In our case, that is `io.podman_desktop.PodmanDesktop` starting 0.0.6 and `com.github.containers.desktop` for previous versions
+
 Run the following command to install the flatpak application,
 
 ```sh
 flatpak install <name_of_the_flatpak_file> 
 ```
 
-In order to start the application, you need to know the Flatpak identifier for the application. In our case, that is `io.podman_desktop.PodmanDesktop` starting 0.0.6 and `com.github.containers.desktop` for previous versions
+For example:
+
+```sh
+flatpak install io.podman_desktop.PodmanDesktop
+```
+
 
 Run the following command to start the application,
 
