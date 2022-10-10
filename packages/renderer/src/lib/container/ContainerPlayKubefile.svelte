@@ -71,7 +71,10 @@ onDestroy(() => {
 });
 
 async function getKubernetesfileLocation() {
-  const result = await window.openFileDialog('Select .YAML file to play', { name: 'YAML files', extensions: ['yaml'] });
+  const result = await window.openFileDialog('Select .YAML file to play', {
+    name: 'YAML files',
+    extensions: ['yaml', 'yml'],
+  });
   if (!result.canceled && result.filePaths.length === 1) {
     kubernetesYamlFilePath = result.filePaths[0];
     hasInvalidFields = false;
