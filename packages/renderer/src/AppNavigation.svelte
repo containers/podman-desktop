@@ -76,49 +76,53 @@ export let meta;
         ? 'pf-m-current'
         : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/containers" class="pf-c-nav__link flex items-center align-middle">
-        <div class="flex items-center">
-          <svg
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            width="20"
-            xmlns="http://www.w3.org/2000/svg"
-            height="18"
-            id="screenshot-9fa89b19-44e5-11ed-99ae-9d566b6ba201"
-            viewBox="0 0 16 12"
-            style="-webkit-print-color-adjust: exact;"
-            fill="none"
-            version="1.1"
-            ><g
-              id="shape-9fa89b19-44e5-11ed-99ae-9d566b6ba201"
-              xml:space="preserve"
-              width="16"
+        <div class="flex w-full h-full">
+          <div class="flex">
+            <svg
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              width="20"
+              xmlns="http://www.w3.org/2000/svg"
+              height="18"
+              id="screenshot-9fa89b19-44e5-11ed-99ae-9d566b6ba201"
+              viewBox="0 0 16 12"
+              style="-webkit-print-color-adjust: exact;"
+              fill="none"
               version="1.1"
-              height="16"
-              rx="0"
-              ry="0"
-              style="fill: rgb(0, 0, 0);"
-              ><g id="shape-9fa89b1c-44e5-11ed-99ae-9d566b6ba201" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
-                ><g id="shape-9fa89b1d-44e5-11ed-99ae-9d566b6ba201"
-                  ><g id="fills-9fa89b1d-44e5-11ed-99ae-9d566b6ba201"
-                    ><path
-                      rx="0"
-                      ry="0"
-                      d="M1.522,0C0.687,0,0,0.686,0,1.521L0,10.471C0,11.306,0.687,12,1.522,12L14.48,12C15.315,12,16,11.306,16,10.471L16,8.509L16,4.635L16,3.462L16,1.521C16,0.686,15.315,0,14.48,0L1.522,0ZZM1.522,1.011L14.48,1.011C14.77,1.011,14.988,1.231,14.988,1.521L14.988,3.462L14.988,4.635L14.988,8.509L14.988,10.471C14.988,10.761,14.77,10.981,14.48,10.981L1.522,10.981C1.232,10.981,1.012,10.761,1.012,10.471L1.012,1.521C1.012,1.231,1.232,1.011,1.522,1.011ZZM2.997,2.001L2.997,2.997L2.997,8.995L2,8.995L2,10.001L14.007,10.001L14.007,8.995L13.003,8.995L13.003,2.997L14.029,2.997L14.029,2.001L12.007,2.001L12.007,2.997L12.007,8.995L10.004,8.995L10.004,2.997L11.032,2.997L11.032,2.001L9,2.001L9,2.997L9,8.995L7,8.995L7,2.997L8.025,2.997L8.025,2.001L6.003,2.001L6.003,2.997L6.003,8.995L4.003,8.995L4.003,2.997L5.029,2.997L5.029,2.001L2.997,2.001ZZ"
-                      style="color: rgb(0, 0, 0); stroke-linejoin: round; fill: rgb(255, 255, 255); fill-opacity: 1;"
-                    ></path
+              ><g
+                id="shape-9fa89b19-44e5-11ed-99ae-9d566b6ba201"
+                xml:space="preserve"
+                width="16"
+                version="1.1"
+                height="16"
+                rx="0"
+                ry="0"
+                style="fill: rgb(0, 0, 0);"
+                ><g id="shape-9fa89b1c-44e5-11ed-99ae-9d566b6ba201" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
+                  ><g id="shape-9fa89b1d-44e5-11ed-99ae-9d566b6ba201"
+                    ><g id="fills-9fa89b1d-44e5-11ed-99ae-9d566b6ba201"
+                      ><path
+                        rx="0"
+                        ry="0"
+                        d="M1.522,0C0.687,0,0,0.686,0,1.521L0,10.471C0,11.306,0.687,12,1.522,12L14.48,12C15.315,12,16,11.306,16,10.471L16,8.509L16,4.635L16,3.462L16,1.521C16,0.686,15.315,0,14.48,0L1.522,0ZZM1.522,1.011L14.48,1.011C14.77,1.011,14.988,1.231,14.988,1.521L14.988,3.462L14.988,4.635L14.988,8.509L14.988,10.471C14.988,10.761,14.77,10.981,14.48,10.981L1.522,10.981C1.232,10.981,1.012,10.761,1.012,10.471L1.012,1.521C1.012,1.231,1.232,1.011,1.522,1.011ZZM2.997,2.001L2.997,2.997L2.997,8.995L2,8.995L2,10.001L14.007,10.001L14.007,8.995L13.003,8.995L13.003,2.997L14.029,2.997L14.029,2.001L12.007,2.001L12.007,2.997L12.007,8.995L10.004,8.995L10.004,2.997L11.032,2.997L11.032,2.001L9,2.001L9,2.997L9,8.995L7,8.995L7,2.997L8.025,2.997L8.025,2.001L6.003,2.001L6.003,2.997L6.003,8.995L4.003,8.995L4.003,2.997L5.029,2.997L5.029,2.001L2.997,2.001ZZ"
+                        style="color: rgb(0, 0, 0); stroke-linejoin: round; fill: rgb(255, 255, 255); fill-opacity: 1;"
+                      ></path
+                      ></g
                     ></g
                   ></g
                 ></g
-              ></g
-            ></svg>
+              ></svg>
+            <span class="hidden md:block group-hover:block mx-2">Containers</span>
+          </div>
 
-          <span class="hidden md:block group-hover:block mx-2">Containers</span>
-
-          {#if containersCountValue > 0}
-            {#if innerWidth >= 768}
-              <span class="pf-c-badge pf-m-read hidden group-hover:flex md:flex items-center justify-center"
-                >{containersCountValue}</span>
-            {/if}
-          {/if}
+          <div class="flex w-full justify-end">
+            <div>
+              {#if containersCountValue > 0}
+                {#if innerWidth >= 768}
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{containersCountValue}</span>
+                {/if}
+              {/if}
+            </div>
+          </div>
         </div>
       </a>
     </li>
@@ -127,47 +131,51 @@ export let meta;
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/images" class="pf-c-nav__link">
-        <div class="flex items-center">
-          <svg
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            width="17"
-            xmlns="http://www.w3.org/2000/svg"
-            height="12"
-            id="screenshot-9fa89b10-44e5-11ed-99ae-9d566b6ba201"
-            viewBox="-0.5 -0.5 17 12"
-            style="-webkit-print-color-adjust: exact;"
-            fill="none"
-            version="1.1"
-            ><g id="shape-9fa89b10-44e5-11ed-99ae-9d566b6ba201" rx="0" ry="0"
-              ><g id="shape-9fa89b11-44e5-11ed-99ae-9d566b6ba201"
-                ><g id="fills-9fa89b11-44e5-11ed-99ae-9d566b6ba201"
-                  ><path
-                    rx="0"
-                    ry="0"
-                    d="M5.783,0C3.768,0,2.134,1.593,2.133,3.558C2.134,3.846,2.17,4.132,2.242,4.411C0.928,4.901,0,6.136,0,7.592C0,9.48,1.561,11,3.5,11L12.5,11C14.439,11,16,9.48,16,7.592C16,6.114,15.044,4.863,13.698,4.388C13.376,3.262,12.324,2.483,11.125,2.483C10.495,2.484,9.885,2.702,9.404,3.098C9.167,1.325,7.617,-0.001,5.783,0ZZ"
-                    style="opacity: 1; fill: none; stroke-linejoin: round; stroke-dasharray: none;"></path
-                  ></g
-                ><g id="strokes-9fa89b11-44e5-11ed-99ae-9d566b6ba201"
-                  ><g class="stroke-shape"
+        <div class="flex w-full h-full">
+          <div class="flex">
+            <svg
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              width="17"
+              xmlns="http://www.w3.org/2000/svg"
+              height="12"
+              id="screenshot-9fa89b10-44e5-11ed-99ae-9d566b6ba201"
+              viewBox="-0.5 -0.5 17 12"
+              style="-webkit-print-color-adjust: exact;"
+              fill="none"
+              version="1.1"
+              ><g id="shape-9fa89b10-44e5-11ed-99ae-9d566b6ba201" rx="0" ry="0"
+                ><g id="shape-9fa89b11-44e5-11ed-99ae-9d566b6ba201"
+                  ><g id="fills-9fa89b11-44e5-11ed-99ae-9d566b6ba201"
                     ><path
                       rx="0"
                       ry="0"
                       d="M5.783,0C3.768,0,2.134,1.593,2.133,3.558C2.134,3.846,2.17,4.132,2.242,4.411C0.928,4.901,0,6.136,0,7.592C0,9.48,1.561,11,3.5,11L12.5,11C14.439,11,16,9.48,16,7.592C16,6.114,15.044,4.863,13.698,4.388C13.376,3.262,12.324,2.483,11.125,2.483C10.495,2.484,9.885,2.702,9.404,3.098C9.167,1.325,7.617,-0.001,5.783,0ZZ"
-                      style="opacity: 1; fill: none; stroke-linejoin: round; stroke-dasharray: none; stroke-width: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"
-                    ></path
+                      style="opacity: 1; fill: none; stroke-linejoin: round; stroke-dasharray: none;"></path
+                    ></g
+                  ><g id="strokes-9fa89b11-44e5-11ed-99ae-9d566b6ba201"
+                    ><g class="stroke-shape"
+                      ><path
+                        rx="0"
+                        ry="0"
+                        d="M5.783,0C3.768,0,2.134,1.593,2.133,3.558C2.134,3.846,2.17,4.132,2.242,4.411C0.928,4.901,0,6.136,0,7.592C0,9.48,1.561,11,3.5,11L12.5,11C14.439,11,16,9.48,16,7.592C16,6.114,15.044,4.863,13.698,4.388C13.376,3.262,12.324,2.483,11.125,2.483C10.495,2.484,9.885,2.702,9.404,3.098C9.167,1.325,7.617,-0.001,5.783,0ZZ"
+                        style="opacity: 1; fill: none; stroke-linejoin: round; stroke-dasharray: none; stroke-width: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"
+                      ></path
+                      ></g
                     ></g
                   ></g
                 ></g
-              ></g
-            ></svg>
-
-          <span class="hidden md:block group-hover:block mx-2">Images</span>
-          {#if innerWidth >= 768}
-            {#if $imagesInfos.length > 0}
-              <span class="pf-c-badge pf-m-read hidden group-hover:flex md:flex items-center justify-center"
-                >{$imagesInfos.length}</span>
-            {/if}
-          {/if}
+              ></svg>
+            <span class="hidden md:block group-hover:block mx-2">Images</span>
+          </div>
+          <div class="flex w-full justify-end">
+            <div>
+              {#if innerWidth >= 768}
+                {#if $imagesInfos.length > 0}
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{$imagesInfos.length}</span>
+                {/if}
+              {/if}
+            </div>
+          </div>
         </div>
       </a>
     </li>
@@ -176,90 +184,94 @@ export let meta;
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/pods" class="pf-c-nav__link">
-        <div class="flex items-center">
-          <svg
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            width="17"
-            xmlns="http://www.w3.org/2000/svg"
-            height="17"
-            id="screenshot-a61951f0-4579-11ed-a6e7-c91b1ff726ce"
-            viewBox="-0.5 -0.5 17 17"
-            style="-webkit-print-color-adjust: exact;"
-            fill="none"
-            version="1.1"
-            ><g id="shape-a61951f0-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
-              ><g id="shape-a61d70a0-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
-                ><g id="shape-a61e0ce0-4579-11ed-a6e7-c91b1ff726ce"
-                  ><g id="fills-a61e0ce0-4579-11ed-a6e7-c91b1ff726ce"
-                    ><path
-                      rx="0"
-                      ry="0"
-                      d="M0,2.5L8,0L16,2.5L8,5Z"
-                      style="fill-rule: evenodd; stroke: none; stroke-miterlimit: 10; fill: rgb(177, 178, 181); fill-opacity: 0;"
-                    ></path
-                    ></g
-                  ><g id="strokes-a61e0ce0-4579-11ed-a6e7-c91b1ff726ce"
-                    ><g class="stroke-shape"
+        <div class="flex w-full h-full">
+          <div class="flex">
+            <svg
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              width="17"
+              xmlns="http://www.w3.org/2000/svg"
+              height="17"
+              id="screenshot-a61951f0-4579-11ed-a6e7-c91b1ff726ce"
+              viewBox="-0.5 -0.5 17 17"
+              style="-webkit-print-color-adjust: exact;"
+              fill="none"
+              version="1.1"
+              ><g id="shape-a61951f0-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
+                ><g id="shape-a61d70a0-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
+                  ><g id="shape-a61e0ce0-4579-11ed-a6e7-c91b1ff726ce"
+                    ><g id="fills-a61e0ce0-4579-11ed-a6e7-c91b1ff726ce"
                       ><path
                         rx="0"
                         ry="0"
                         d="M0,2.5L8,0L16,2.5L8,5Z"
-                        style="fill-rule: evenodd; stroke: rgb(255, 255, 255); stroke-miterlimit: 10; fill: none; stroke-width: 1; stroke-opacity: 1;"
+                        style="fill-rule: evenodd; stroke: none; stroke-miterlimit: 10; fill: rgb(177, 178, 181); fill-opacity: 0;"
                       ></path
                       ></g
+                    ><g id="strokes-a61e0ce0-4579-11ed-a6e7-c91b1ff726ce"
+                      ><g class="stroke-shape"
+                        ><path
+                          rx="0"
+                          ry="0"
+                          d="M0,2.5L8,0L16,2.5L8,5Z"
+                          style="fill-rule: evenodd; stroke: rgb(255, 255, 255); stroke-miterlimit: 10; fill: none; stroke-width: 1; stroke-opacity: 1;"
+                        ></path
+                        ></g
+                      ></g
                     ></g
-                  ></g
-                ><g id="shape-a61e8210-4579-11ed-a6e7-c91b1ff726ce"
-                  ><g id="fills-a61e8210-4579-11ed-a6e7-c91b1ff726ce"
-                    ><path
-                      rx="0"
-                      ry="0"
-                      d="M0,3L0,11.754L7.961,16L8,5.291Z"
-                      style="fill-rule: evenodd; stroke: none; stroke-miterlimit: 10; fill: rgb(177, 178, 181); fill-opacity: 0;"
-                    ></path
-                    ></g
-                  ><g id="strokes-a61e8210-4579-11ed-a6e7-c91b1ff726ce"
-                    ><g class="stroke-shape"
+                  ><g id="shape-a61e8210-4579-11ed-a6e7-c91b1ff726ce"
+                    ><g id="fills-a61e8210-4579-11ed-a6e7-c91b1ff726ce"
                       ><path
                         rx="0"
                         ry="0"
                         d="M0,3L0,11.754L7.961,16L8,5.291Z"
-                        style="fill-rule: evenodd; stroke: rgb(255, 255, 255); stroke-miterlimit: 10; fill: none; stroke-width: 1; stroke-opacity: 1;"
+                        style="fill-rule: evenodd; stroke: none; stroke-miterlimit: 10; fill: rgb(177, 178, 181); fill-opacity: 0;"
                       ></path
                       ></g
+                    ><g id="strokes-a61e8210-4579-11ed-a6e7-c91b1ff726ce"
+                      ><g class="stroke-shape"
+                        ><path
+                          rx="0"
+                          ry="0"
+                          d="M0,3L0,11.754L7.961,16L8,5.291Z"
+                          style="fill-rule: evenodd; stroke: rgb(255, 255, 255); stroke-miterlimit: 10; fill: none; stroke-width: 1; stroke-opacity: 1;"
+                        ></path
+                        ></g
+                      ></g
                     ></g
-                  ></g
-                ><g id="shape-a61f4560-4579-11ed-a6e7-c91b1ff726ce"
-                  ><g id="fills-a61f4560-4579-11ed-a6e7-c91b1ff726ce"
-                    ><path
-                      rx="0"
-                      ry="0"
-                      d="M16,3L16,11.754L8.039,16L8,5.291Z"
-                      style="fill-rule: evenodd; stroke: none; stroke-miterlimit: 10; fill: rgb(177, 178, 181); fill-opacity: 0;"
-                    ></path
-                    ></g
-                  ><g id="strokes-a61f4560-4579-11ed-a6e7-c91b1ff726ce"
-                    ><g class="stroke-shape"
+                  ><g id="shape-a61f4560-4579-11ed-a6e7-c91b1ff726ce"
+                    ><g id="fills-a61f4560-4579-11ed-a6e7-c91b1ff726ce"
                       ><path
                         rx="0"
                         ry="0"
                         d="M16,3L16,11.754L8.039,16L8,5.291Z"
-                        style="fill-rule: evenodd; stroke: rgb(255, 255, 255); stroke-miterlimit: 10; fill: none; stroke-width: 1; stroke-opacity: 1;"
+                        style="fill-rule: evenodd; stroke: none; stroke-miterlimit: 10; fill: rgb(177, 178, 181); fill-opacity: 0;"
                       ></path
+                      ></g
+                    ><g id="strokes-a61f4560-4579-11ed-a6e7-c91b1ff726ce"
+                      ><g class="stroke-shape"
+                        ><path
+                          rx="0"
+                          ry="0"
+                          d="M16,3L16,11.754L8.039,16L8,5.291Z"
+                          style="fill-rule: evenodd; stroke: rgb(255, 255, 255); stroke-miterlimit: 10; fill: none; stroke-width: 1; stroke-opacity: 1;"
+                        ></path
+                        ></g
                       ></g
                     ></g
                   ></g
                 ></g
-              ></g
-            ></svg>
-
-          <span class="hidden md:block group-hover:block mx-2">Pods</span>
-          {#if innerWidth >= 768}
-            {#if $podsInfos.length > 0}
-              <span class="pf-c-badge pf-m-read hidden group-hover:flex md:flex items-center justify-center"
-                >{$podsInfos.length}</span>
-            {/if}
-          {/if}
+              ></svg>
+            <span class="hidden md:block group-hover:block mx-2">Pods</span>
+          </div>
+          <div class="flex w-full justify-end">
+            <div>
+              {#if innerWidth >= 768}
+                {#if $podsInfos.length > 0}
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{$podsInfos.length}</span>
+                {/if}
+              {/if}
+            </div>
+          </div>
         </div>
       </a>
     </li>
@@ -268,49 +280,54 @@ export let meta;
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/volumes" class="pf-c-nav__link">
-        <div class="flex items-center">
-          <svg
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            width="17.5"
-            xmlns="http://www.w3.org/2000/svg"
-            height="10.5"
-            id="screenshot-f7b05040-4579-11ed-a6e7-c91b1ff726ce"
-            viewBox="-0.75 -0.75 17.5 10.5"
-            style="-webkit-print-color-adjust: exact;"
-            fill="none"
-            version="1.1"
-            ><g id="shape-f7b05040-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
-              ><g id="shape-f7b7a340-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
-                ><g id="shape-f7bb9ae0-4579-11ed-a6e7-c91b1ff726ce"
-                  ><g id="fills-f7bb9ae0-4579-11ed-a6e7-c91b1ff726ce"
-                    ><path
-                      rx="0"
-                      ry="0"
-                      d="M16,1.913L16,1.913ZC16,2.969,12.418,3.826,8,3.826C3.582,3.826,0,2.969,0,1.913L0,1.913C0,0.856,3.582,0,8,0C12.418,0,16,0.856,16,1.913ZL16,7.087C16,8.144,12.418,9,8,9C3.582,9,0,8.144,0,7.087L0,1.913"
-                      style="fill: none; fill-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 10;"></path
-                    ></g
-                  ><g id="strokes-f7bb9ae0-4579-11ed-a6e7-c91b1ff726ce"
-                    ><g class="stroke-shape"
+        <div class="flex w-full h-full">
+          <div class="flex">
+            <svg
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              width="17.5"
+              xmlns="http://www.w3.org/2000/svg"
+              height="10.5"
+              id="screenshot-f7b05040-4579-11ed-a6e7-c91b1ff726ce"
+              viewBox="-0.75 -0.75 17.5 10.5"
+              style="-webkit-print-color-adjust: exact;"
+              fill="none"
+              version="1.1"
+              ><g id="shape-f7b05040-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
+                ><g id="shape-f7b7a340-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
+                  ><g id="shape-f7bb9ae0-4579-11ed-a6e7-c91b1ff726ce"
+                    ><g id="fills-f7bb9ae0-4579-11ed-a6e7-c91b1ff726ce"
                       ><path
                         rx="0"
                         ry="0"
                         d="M16,1.913L16,1.913ZC16,2.969,12.418,3.826,8,3.826C3.582,3.826,0,2.969,0,1.913L0,1.913C0,0.856,3.582,0,8,0C12.418,0,16,0.856,16,1.913ZL16,7.087C16,8.144,12.418,9,8,9C3.582,9,0,8.144,0,7.087L0,1.913"
-                        style="fill: none; fill-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 10; stroke-width: 1.5; stroke: rgb(255, 255, 255); stroke-opacity: 1;"
-                      ></path
+                        style="fill: none; fill-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 10;"></path
+                      ></g
+                    ><g id="strokes-f7bb9ae0-4579-11ed-a6e7-c91b1ff726ce"
+                      ><g class="stroke-shape"
+                        ><path
+                          rx="0"
+                          ry="0"
+                          d="M16,1.913L16,1.913ZC16,2.969,12.418,3.826,8,3.826C3.582,3.826,0,2.969,0,1.913L0,1.913C0,0.856,3.582,0,8,0C12.418,0,16,0.856,16,1.913ZL16,7.087C16,8.144,12.418,9,8,9C3.582,9,0,8.144,0,7.087L0,1.913"
+                          style="fill: none; fill-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 10; stroke-width: 1.5; stroke: rgb(255, 255, 255); stroke-opacity: 1;"
+                        ></path
+                        ></g
                       ></g
                     ></g
                   ></g
                 ></g
-              ></g
-            ></svg>
-
-          <span class="hidden md:block group-hover:block mx-2">Volumes</span>
-          {#if innerWidth >= 768}
-            {#if $volumeListInfos.length > 0}
-              <span class="pf-c-badge pf-m-read hidden group-hover:flex md:flex items-center justify-center"
-                >{$volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length}</span>
-            {/if}
-          {/if}
+              ></svg>
+            <span class="hidden md:block group-hover:block mx-2">Volumes</span>
+          </div>
+          <div class="flex w-full justify-end">
+            <div>
+              {#if innerWidth >= 768}
+                {#if $volumeListInfos.length > 0}
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center"
+                    >{$volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length}</span>
+                {/if}
+              {/if}
+            </div>
+          </div>
         </div>
       </a>
     </li>
