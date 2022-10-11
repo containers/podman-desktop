@@ -2,17 +2,17 @@
 # yarn lockfile v1
 
 
-"7zip-bin@^5.1.1", "7zip-bin@~5.1.1":
+"7zip-bin@5.1.1", "7zip-bin@~5.1.1":
   version "5.1.1"
   resolved "https://registry.npmjs.org/7zip-bin/-/7zip-bin-5.1.1.tgz"
   integrity sha512-sAP4LldeWNz0lNzmTird3uWfFDWWTeg6V/MsmyyLR9X1idwKBWIgt/ZvinqQldJm3LecKEs1emkbquO6PCiLVQ==
 
-"7zip-min@^1.4.1":
-  version "1.4.1"
-  resolved "https://registry.npmjs.org/7zip-min/-/7zip-min-1.4.1.tgz"
-  integrity sha512-xiK95rSNr6cXB7UXVLJdrxtNrlXBqZrMhcKlq0S5Rsg6vVhh+9OSUyQIba8bSAGgHjpETlWXAYEuVfxYGEfCWA==
+"7zip-min@^1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/7zip-min/-/7zip-min-1.4.3.tgz#84dbdd59215124bcf2aa6dc1bf102b40146eccb7"
+  integrity sha512-NsFTI3mxcRO3d3aZS+A9Fpmi+js+cpP2u/jaIbVpsH896SD5TbfYahhtFrLXTFz5Ae17ZE1SmzNGa/xeuNLYlQ==
   dependencies:
-    "7zip-bin" "^5.1.1"
+    "7zip-bin" "5.1.1"
 
 "@algolia/autocomplete-core@1.7.1":
   version "1.7.1"
