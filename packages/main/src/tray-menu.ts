@@ -39,43 +39,75 @@ interface ProviderContainerConnectionInfoMenuItem extends ProviderContainerConne
 export class TrayMenu {
   private globalStatus: TrayIconStatus = 'initialized';
 
-  private readonly menuTemplate: MenuItemConstructorOptions[] = [
+  private readonly startMenuTemplate: MenuItemConstructorOptions[] = [
     { type: 'separator' },
     { label: 'Dashboard', click: this.showMainWindow.bind(this) },
+  ];
+  private readonly endMenuTemplate: MenuItemConstructorOptions[] = [
     { type: 'separator' },
     { label: 'Quit', type: 'normal', role: 'quit' },
   ];
+
   private menuProviderItems = new Map<string, ProviderMenuItem>();
+  private menuCustomItems = new Map<string, MenuItemConstructorOptions>();
   private menuContainerProviderConnectionItems = new Map<string, ProviderContainerConnectionInfoMenuItem>();
 
   constructor(private readonly tray: Tray, private readonly animatedTray: AnimatedTray) {
-    ipcMain.on('tray:add-menu-item', (_, param: { providerId: string; menuItem: MenuItemConstructorOptions }) => {
-      param.menuItem.click = () => {
-        ipcMain.emit('tray:menu-item-click', '', param.menuItem.id);
-      };
-      // grab matching provider
-      const provider = Array.from(this.menuProviderItems.values()).find(item => item.id === param.providerId);
-      if (provider) {
-        provider.childItems.push(param.menuItem);
+    ipcMain.on(
+      'tray:add-provider-menu-item',
+      (_, param: { providerId: string; menuItem: MenuItemConstructorOptions }) => {
+        param.menuItem.click = () => {
+          ipcMain.emit('tray:menu-item-click', '', param.menuItem.id);
+        };
+        // grab matching provider
+        const provider = Array.from(this.menuProviderItems.values()).find(item => item.id === param.providerId);
+        if (provider) {
+          provider.childItems.push(param.menuItem);
+          this.updateMenu();
+        } else {
+          this.menuProviderItems.set(param.providerId, {
+            id: param.providerId,
+            internalId: '',
+            childItems: [param.menuItem],
+            name: 'temp',
+            status: 'unknown',
+            containerConnections: [],
+            kubernetesConnections: [],
+            lifecycleMethods: [],
+            detectionChecks: [],
+            version: '',
+            links: [],
+            images: {},
+            installationSupport: false,
+            containerProviderConnectionCreation: false,
+          });
+        }
         this.updateMenu();
-      } else {
-        this.menuProviderItems.set(param.providerId, {
-          id: param.providerId,
-          internalId: '',
-          childItems: [param.menuItem],
-          name: 'temp',
-          status: 'unknown',
-          containerConnections: [],
-          kubernetesConnections: [],
-          lifecycleMethods: [],
-          detectionChecks: [],
-          version: '',
-          links: [],
-          images: {},
-          installationSupport: false,
-          containerProviderConnectionCreation: false,
+      },
+    );
+
+    ipcMain.on('tray:delete-menu-item', (_, id: string) => {
+      this.menuCustomItems.delete(id);
+      this.updateMenu();
+    });
+
+    ipcMain.on('tray:add-menu-item', (_, param: { menuItem: MenuItemConstructorOptions }) => {
+      param.menuItem.click = () => {
+        ipcMain.emit('tray:menu-item-click', '', param.menuItem.id, param.menuItem.label);
+      };
+
+      // add also the click on all submenu items
+      if (Array.isArray(param.menuItem.submenu)) {
+        param.menuItem.submenu.forEach(item => {
+          item.click = () => {
+            ipcMain.emit('tray:menu-item-click', '', item.id, item.label);
+          };
         });
       }
+      this.menuCustomItems.set(param.menuItem.id || 'default', param.menuItem);
+
+      // create menu first time
+      this.updateMenu();
     });
 
     // create menu first time
@@ -175,10 +207,32 @@ export class TrayMenu {
       generatedMenuTemplate.push(this.createProviderMenuItem(item));
     }
     for (const [, item] of this.menuContainerProviderConnectionItems) {
-      generatedMenuTemplate.push(this.createProviderConnectionMenuItem(item));
+      const createdItem = this.createProviderConnectionMenuItem(item);
+      if (createdItem) {
+        generatedMenuTemplate.push(createdItem);
+      }
     }
 
-    generatedMenuTemplate.push(...this.menuTemplate);
+    // add top menu
+    generatedMenuTemplate.push(...this.startMenuTemplate);
+
+    // needs to add an extra separator in case we had custom menu items
+    if (this.menuCustomItems.size > 0) {
+      generatedMenuTemplate.push({ type: 'separator' });
+    }
+
+    // add custom items
+    for (const [, item] of this.menuCustomItems) {
+      generatedMenuTemplate.push(item);
+    }
+
+    // needs to add an extra separator in case we had custom menu items
+    if (this.menuCustomItems.size > 0) {
+      generatedMenuTemplate.push({ type: 'separator' });
+    }
+
+    // add end of the menu (quit)
+    generatedMenuTemplate.push(...this.endMenuTemplate);
 
     const contextMenu = Menu.buildFromTemplate(generatedMenuTemplate);
     this.tray.setContextMenu(contextMenu);

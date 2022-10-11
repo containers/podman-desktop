@@ -35,6 +35,8 @@ import type { NotificationImpl } from './notification-impl';
 import { StatusBarItemImpl } from './statusbar/statusbar-item';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry';
 import { StatusBarAlignLeft, StatusBarAlignRight, StatusBarItemDefaultPriority } from './statusbar/statusbar-item';
+import { FilesystemMonitoring } from './filesystem-monitoring';
+import { Uri } from './types/uri';
 
 /**
  * Handle the loading of an extension
@@ -64,6 +66,7 @@ export class ExtensionLoader {
   private activatedExtensions = new Map<string, ActivatedExtension>();
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
   private extensionsStoragePath = '';
+  private fileSystemMonitoring: FilesystemMonitoring;
 
   constructor(
     private commandRegistry: CommandRegistry,
@@ -77,7 +80,9 @@ export class ExtensionLoader {
     private progress: ProgressImpl,
     private notifications: NotificationImpl,
     private statusBarRegistry: StatusBarRegistry,
-  ) {}
+  ) {
+    this.fileSystemMonitoring = new FilesystemMonitoring();
+  }
 
   async listExtensions(): Promise<ExtensionInfo[]> {
     return Array.from(this.analyzedExtensions.values()).map(extension => ({
@@ -235,7 +240,7 @@ export class ExtensionLoader {
     this.analyzedExtensions.set(extension.id, extension);
     const runtime = this.loadRuntime(extension.mainPath);
 
-    return this.activateExtension(extension, runtime);
+    await this.activateExtension(extension, runtime);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -278,8 +283,11 @@ export class ExtensionLoader {
 
     const trayMenuRegistry = this.trayMenuRegistry;
     const tray: typeof containerDesktopAPI.tray = {
-      registerMenuItem(providerId: string, item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
-        return trayMenuRegistry.registerMenuItem(providerId, item);
+      registerMenuItem(item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
+        return trayMenuRegistry.registerMenuItem(item);
+      },
+      registerProviderMenuItem(providerId: string, item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
+        return trayMenuRegistry.registerProviderMenuItem(providerId, item);
       },
     };
     const configurationRegistry = this.configurationRegistry;
@@ -368,12 +376,21 @@ export class ExtensionLoader {
       },
     };
 
+    const fileSystemMonitoring = this.fileSystemMonitoring;
+    const fs: typeof containerDesktopAPI.fs = {
+      createFileSystemWatcher(path: string): containerDesktopAPI.FileSystemWatcher {
+        return fileSystemMonitoring.createFileSystemWatcher(path);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
+      Uri: Uri,
       commands,
       registry,
       provider,
+      fs,
       configuration,
       tray,
       ProgressLocation,
