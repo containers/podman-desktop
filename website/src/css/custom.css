@@ -8,17 +8,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Apply default style for markdown
-*/
-h1 {
-  @apply text-4xl font-bold;
+/* Apply default style for markdown*/
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: revert;
+    font-weight: revert;
+  }
+  ol,
+  ul {
+    list-style: revert;
+    margin: revert;
+    padding: revert;
+  }
 }
-h2 {
-  @apply text-2xl font-bold;
-}
-h3 {
-  @apply text-xl font-bold;
-}
+
 /*
 Apply style on documentation
 */
