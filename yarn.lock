@@ -3081,10 +3081,10 @@
     "@octokit/webhooks-types" "5.6.0"
     aggregate-error "^3.1.0"
 
-"@patternfly/patternfly@^4.179.1":
-  version "4.179.1"
-  resolved "https://registry.yarnpkg.com/@patternfly/patternfly/-/patternfly-4.179.1.tgz#c9cfb65ee0fc71ee2eaa909c101a5eaf4234d85f"
-  integrity sha512-fmTrk7FLtlWC1mstp+RvFt4nsLCxgsS/vDlQaYoCH5KDaM8zu+yUimnlqZBufmG2+ZbnnIysWiSmlpv7/nmmqQ==
+"@patternfly/patternfly@^4.215.1":
+  version "4.215.1"
+  resolved "https://registry.yarnpkg.com/@patternfly/patternfly/-/patternfly-4.215.1.tgz#d63eaf997521f7e0c615acd406253680539fbe95"
+  integrity sha512-coOipHiQs92OYYO+pWfukEKOkY+VUL6ptusTxh98DvIu/tQYzJDJxEmzYXmwqxORM19oLxAJEGktPoLNKElj6A==
 
 "@polka/url@^1.0.0-next.20":
   version "1.0.0-next.21"
