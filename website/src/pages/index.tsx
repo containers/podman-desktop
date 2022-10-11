@@ -26,7 +26,7 @@ import Admonition from '@theme/Admonition';
 function EAP() {
   return (
     <div>
-      <Admonition type="info" title="We have participated in Hacktoberfest 2022!">
+      <Admonition type="info" title="We are participating in Hacktoberfest 2022!">
         <p>
           Do you love container tools and frontend technologies like Electron, Svelte and Tailwind CSS? Then come join
           Podman Desktop for Hacktoberfest 2022. You can start off with some issues by clicking{' '}
