@@ -28,12 +28,16 @@ function EAP() {
     <div>
       <Admonition type="info" title="We have participated in Hacktoberfest 2022!">
         <p>
-          Do you love container tools and frontend technologies like Electron, Svelte and Tailwind CSS? Then come join Podman Desktop for Hacktoberfest 2022. You can start off with some issues by clicking{' '}
+          Do you love container tools and frontend technologies like Electron, Svelte and Tailwind CSS? Then come join
+          Podman Desktop for Hacktoberfest 2022. You can start off with some issues by clicking{' '}
           <Link to="https://bit.ly/3rrTCEP">
             <u>here</u>
           </Link>
           , but feel free to explore the{' '}
-          <Link to="https://github.com/containers/podman-desktop"><u>repository</u></Link>.
+          <Link to="https://github.com/containers/podman-desktop">
+            <u>repository</u>
+          </Link>
+          .
         </p>
       </Admonition>
     </div>
