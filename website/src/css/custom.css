@@ -41,24 +41,24 @@ Apply style on documentation
 /* You can override the default Infima variables here. */
 :root {
   --ifm-color-primary: #6d28d9;
-  --ifm-color-primary-dark: #7c3aed;
+  --ifm-color-primary-dark: #6223c5;
   --ifm-color-primary-darker: #5c21ba;
   --ifm-color-primary-darkest: #4c1b99;
   --ifm-color-primary-light: #7c3edd;
   --ifm-color-primary-lighter: #8349df;
-  --ifm-color-primary-lightest: #996ae5;
+  --ifm-color-primary-lightest: #8b54e1;
   --ifm-code-font-size: 95%;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #a778fa;
-  --ifm-color-primary-dark: #7c3aed;
-  --ifm-color-primary-darker: #5c21ba;
-  --ifm-color-primary-darkest: #4c1b99;
-  --ifm-color-primary-light: #7c3edd;
-  --ifm-color-primary-lighter: #8349df;
-  --ifm-color-primary-lightest: #996ae5;
+  --ifm-color-primary: #e5dbf5;
+  --ifm-color-primary-dark: #cbb7eb;
+  --ifm-color-primary-darker: #bea5e6;
+  --ifm-color-primary-darkest: #966ed7;
+  --ifm-color-primary-light: #ffffff;
+  --ifm-color-primary-lighter: #ffffff;
+  --ifm-color-primary-lightest: #ffffff;
 }
 
 .docusaurus-highlight-code-line {
