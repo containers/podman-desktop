@@ -8,9 +8,9 @@ This page contains information regarding installation of Podman Desktop on Windo
 
 :::infoPrerequisite
 Podman Desktop on Windows requires the following:
-- 1) [Podman Engine](https://docs.podman.io/en/latest/index.html)
-- 2) Hyper-V should be enabled
-- 3) Windows Subsystem for Linux v2 (WSL2) should be installed
+1. [Podman Engine](https://docs.podman.io/en/latest/index.html)
+2. Hyper-V should be enabled
+3. Windows Subsystem for Linux v2 (WSL2) should be installed
 :::
 
 **1. Download the latest `.exe` file from the [Downloads](/downloads/windows) section of this website.**
