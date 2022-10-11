@@ -14,7 +14,22 @@ Now that you have Podman machine up and running, you can check out the [Download
 
 ## Installing Podman Desktop
 
-### 1. Using [flatpak](https://flatpak.org/setup/)
+### 1. Using [FlatHub](https://flathub.org/apps/details/io.podman_desktop.PodmanDesktop)
+
+With FlatHub, you can install Podman Desktop with just a single command.
+
+> Make sure to follow the [setup guide](https://flatpak.org/setup/) before installing
+
+```sh
+flatpak install --user flathub io.podman_desktop.PodmanDesktop
+```
+After installation, to open Podman Desktop:
+
+```sh
+flatpak run io.podman_desktop.PodmanDesktop
+```
+
+### 2. Using [flatpak](https://flatpak.org/setup/) application from [Downloads](/downloads/linux)
 
 Before you follow along, make sure flatpak is set up in your distribution. Click [here](https://flatpak.org/setup/) to learn more about setting up flatpak.
 
@@ -24,20 +39,13 @@ Open the Terminal and go to Downloads directory.
 cd Downloads
 ```
 
-> In order to install & start the application, you need to know the Flatpak identifier for the application. In our case, that is `io.podman_desktop.PodmanDesktop` starting 0.0.6 and `com.github.containers.desktop` for previous versions
+> In order to install & start the application, you need to know the Flatpak identifier for the application, that is `io.podman_desktop.PodmanDesktop`.
 
 Run the following command to install the flatpak application,
 
 ```sh
-flatpak install <name_of_the_flatpak_file> 
-```
-
-For example:
-
-```sh
 flatpak install io.podman_desktop.PodmanDesktop
 ```
-
 
 Run the following command to start the application,
 
@@ -47,7 +55,7 @@ flatpak run io.podman_desktop.PodmanDesktop
 
 You can read more about running Flatpak applications [here](https://docs.flatpak.org/en/latest/using-flatpak.html).
 
-### 2. Using zip file
+### 3. Using zip file
 
 Download the zip file and extract the folder.
 
