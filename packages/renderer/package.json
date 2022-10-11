@@ -20,7 +20,7 @@
     "autoprefixer": "^10.4.2",
     "filesize": "^8.0.7",
     "humanize-duration": "^3.27.2",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "monaco-editor": "^0.33.0",
     "ninja-keys": "^1.1.12",
     "postcss": "^8.4.5",
