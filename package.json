@@ -88,7 +88,7 @@
     "electron-updater": "4.6.5",
     "getos": "^3.2.1",
     "got": "^12.3.1",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "os-locale": "^6.0.2",
     "stream-json": "^1.7.4",
     "tar-fs": "^2.1.1"
