@@ -6,11 +6,10 @@ sidebar_position: 4
 
 This page contains information regarding installation of Podman Desktop on Windows.
 
-:::infoPrerequisite
-Podman Desktop on Windows requires the following:
+:::infoPodman Desktop on Windows requires the following:
 1. [Podman Engine](https://docs.podman.io/en/latest/index.html)
-2. Hyper-V should be enabled
-3. Windows Subsystem for Linux v2 (WSL2) should be installed
+2. [Hyper-V should be enabled](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
+3. [Windows Subsystem for Linux v2 (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install-manual) should be installed.
 :::
 
 **1. Download the latest `.exe` file from the [Downloads](/downloads/windows) section of this website.**
@@ -42,5 +41,7 @@ After the installation of Podman Engine, your home screen would like the one in 
 ![img4](img/windows/podman-desktop-ready.png)
 
 If the screen says `Podman is installed but not ready`, it means that installation of Podman Engine has been completed but a Podman Machine has not been initialized. 
+
+## Next Steps
 
 You can learn more about working with Podman Desktop in our [Getting Started guide](/docs/getting-started/getting-started).
