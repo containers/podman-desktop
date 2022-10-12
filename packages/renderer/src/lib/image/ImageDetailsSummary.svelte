@@ -7,19 +7,19 @@ export let image: ImageInfoUI;
 </script>
 
 <div class="h-full" style="background-color: {getPanelDetailColor()}">
-  <div class="flex py-4">
-    <table class="h-2 font-thin text-xs">
+  <div class="flex px-5 py-4 flex-col">
+    <table>
       <tr>
-        <td class="px-2">Id</td>
-        <td class="px-2 font-thin text-xs">{image.id}</td>
+        <td class="pt-2 pr-2">Id:</td>
+        <td class="pt-2 pr-2">{image.id}</td>
       </tr>
       <tr>
-        <td class="px-2">Size</td>
-        <td class="px-2 font-thin text-xs">{image.humanSize}</td>
+        <td class="pt-2 pr-2">Size:</td>
+        <td class="pt-2 pr-2">{image.humanSize}</td>
       </tr>
       <tr>
-        <td class="px-2">Created</td>
-        <td class="px-2 font-thin text-xs">{image.humanCreationDate}</td>
+        <td class="pt-2 pr-2">Created</td>
+        <td class="pt-2 pr-2">{image.humanCreationDate}</td>
       </tr>
     </table>
   </div>
