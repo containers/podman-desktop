@@ -66,7 +66,7 @@ export let meta;
                 ></g
               ></g
             ></svg>
-          <span class="hidden md:block group-hover:block mx-2">Home</span>
+          <span class="hidden md:block group-hover:block mx-2">Dashboard</span>
         </div>
       </a>
     </li>
