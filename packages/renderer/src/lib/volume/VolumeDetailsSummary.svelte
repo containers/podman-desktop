@@ -13,31 +13,31 @@ function openContainer(containerID: string) {
 </script>
 
 <div class="h-full" style="background-color: {getPanelDetailColor()}">
-  <div class="flex py-4 flex-col">
+  <div class="flex px-5 py-4 flex-col">
     <div class="w-full">
-      <table class="h-2 font-thin text-xs">
+      <table>
         <tr>
-          <td class="px-2">Name</td>
-          <td class="px-2 font-thin text-xs">{volume.name}</td>
+          <td class="pt-2 pr-2">Name:</td>
+          <td class="pt-2 pr-2">{volume.name}</td>
         </tr>
         <tr>
-          <td class="px-2">Size</td>
-          <td class="px-2 font-thin text-xs">{volume.humanSize}</td>
+          <td class="pt-2 pr-2">Size:</td>
+          <td class="pt-2 pr-2">{volume.humanSize}</td>
         </tr>
         <tr>
-          <td class="px-2">Created</td>
-          <td class="px-2 font-thin text-xs">{volume.humanCreationDate}</td>
+          <td class="pt-2 pr-2">Created:</td>
+          <td class="pt-2 pr-2">{volume.humanCreationDate}</td>
         </tr>
       </table>
     </div>
     {#if volume.containersUsage.length > 0}
-      <div class="w-full my-4 p-2">
-        <span class="font-bold text-xs">Containers using this volume:</span>
+      <div class="w-full my-12">
+        <span>Containers using this volume:</span>
         {#each volume.containersUsage as container}
-          <table class="h-2 font-thin text-xs">
+          <table>
             <tr class="cursor-pointer" on:click="{() => openContainer(container.id)}">
-              <td class="px-2 font-thin text-xs">{container.names.join('')}</td>
-              <td class="px-2 font-thin text-xs">{container.id}</td>
+              <td class="pt-2 pr-2">{container.names.join('')}</td>
+              <td class="pt-2 pr-2">{container.id}</td>
             </tr>
           </table>
         {/each}
