@@ -1,7 +1,6 @@
 import type { ElectronApplication } from 'playwright';
 import { _electron as electron } from 'playwright';
 import { afterAll, beforeAll, expect, test } from 'vitest';
-import { createHash } from 'crypto';
 import '../packages/preload/exposedInMainWorld.d.ts';
 
 let electronApp: ElectronApplication;
@@ -43,27 +42,4 @@ test('Main window web content', async () => {
   const element = await page.$('#app', { strict: true });
   expect(element, 'Cannot find root element').toBeDefined();
   expect((await element.innerHTML()).trim(), 'Window content was empty').not.equal('');
-});
-
-test('Preload versions', async () => {
-  const page = await electronApp.firstWindow();
-  const exposedVersions = await page.evaluate(() => globalThis.versions);
-  const expectedVersions = await electronApp.evaluate(() => process.versions);
-  expect(exposedVersions).toBeDefined();
-  expect(exposedVersions).to.deep.equal(expectedVersions);
-});
-
-test('Preload nodeCrypto', async () => {
-  const page = await electronApp.firstWindow();
-
-  const exposedNodeCrypto = await page.evaluate(() => globalThis.nodeCrypto);
-  expect(exposedNodeCrypto).toHaveProperty('sha256sum');
-
-  const sha256sumType = await page.evaluate(() => typeof globalThis.nodeCrypto.sha256sum);
-  expect(sha256sumType).toEqual('function');
-
-  const rawTestData = 'raw data';
-  const hash = await page.evaluate((d: string) => globalThis.nodeCrypto.sha256sum(d), rawTestData);
-  const expectedHash = createHash('sha256').update(rawTestData).digest('hex');
-  expect(hash).toEqual(expectedHash);
 });
