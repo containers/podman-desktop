@@ -44,4 +44,4 @@ If the screen says `Podman is installed but not ready`, it means that installati
 
 ## Next Steps
 
-You can learn more about working with Podman Desktop in our [Getting Started guide](/docs/getting-started/getting-started).
+You can learn more about initializing a Podman Machine and working with Podman Desktop in our [Getting Started guide](/docs/getting-started/getting-started).
