@@ -17,8 +17,14 @@
  ***********************************************************************/
 
 import type { PodInfo as LibPodPodInfo } from '../dockerode/libpod-dockerode';
+import type { PodInspectInfo as LibPodPodInspectInfo } from '../dockerode/libpod-dockerode';
 
 export interface PodInfo extends LibPodPodInfo {
+  engineId: string;
+  engineName: string;
+}
+
+export interface PodInspectInfo extends LibPodPodInspectInfo {
   engineId: string;
   engineName: string;
 }

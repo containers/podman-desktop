@@ -37,6 +37,25 @@ export interface PodInfo {
   Status: string;
 }
 
+export interface PodInspectInfo {
+  CgroupParent: string;
+  CgroupPath: string;
+  Containers: PodContainerInfo[];
+  Created: string;
+  Hostname: string;
+  Id: string;
+  InfraContainerId: string;
+  memory_limit: number;
+  memory_swap: number;
+  Name: string;
+  Namespace: string;
+  NumContainers: number;
+  security_opt: string[];
+  SharedNamespaces: string[];
+  State: string;
+  volumes_from: string[];
+}
+
 export interface PlayKubePodInfo {
   ContainerErrors: string[];
   Containers: string[];
@@ -56,6 +75,7 @@ export interface PlayKubeInfo {
 // API of libpod that we want to expose on our side
 export interface LibPod {
   listPods(): Promise<PodInfo[]>;
+  getPodInspect(podId: string): Promise<PodInspectInfo>;
   startPod(podId: string): Promise<void>;
   stopPod(podId: string): Promise<void>;
   removePod(podId: string): Promise<void>;
@@ -83,6 +103,30 @@ export class LibpodDockerode {
           500: 'server error',
         },
       };
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // add startPod
+    prototypeOfDockerode.getPodInspect = function (podId: string) {
+      const optsf = {
+        path: `/v4.2.0/libpod/pods/${podId}/json`,
+        method: 'GET',
+        statusCodes: {
+          200: true,
+          204: true,
+          404: 'no such pod',
+          500: 'server error',
+        },
+        options: {},
+      };
+
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
           if (err) {
@@ -203,7 +247,6 @@ export class LibpodDockerode {
         .join('&');
 
       const path = `/v4.2.0/libpod/generate/kube?${queries}`;
-      console.log('querying with path', path);
       const optsf = {
         path,
         method: 'GET',

@@ -30,6 +30,7 @@ import AppNavigation from './AppNavigation.svelte';
 import VolumesList from './lib/volume/VolumesList.svelte';
 import VolumeDetails from './lib/volume/VolumeDetails.svelte';
 import ContainerPlayKubefile from './lib/container/ContainerPlayKubefile.svelte';
+import PodDetails from './lib/pod/PodDetails.svelte';
 
 router.mode.hash();
 
@@ -114,6 +115,9 @@ window.events?.receive('display-help', () => {
         </Route>
         <Route path="/pods">
           <PodsList />
+        </Route>
+        <Route path="/pods/:name/:engineId/*" let:meta>
+          <PodDetails podName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
         <Route path="/volumes">
           <VolumesList />
