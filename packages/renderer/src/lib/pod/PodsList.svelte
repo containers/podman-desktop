@@ -4,7 +4,7 @@ import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
 import type { PodInfoUI } from './PodInfoUI';
-import { filtered, searchPattern, podsInfos } from '../../stores/pods';
+import { filtered, searchPattern } from '../../stores/pods';
 import { providerInfos } from '../../stores/providers';
 import NavPage from '../ui/NavPage.svelte';
 import { PodUtils } from './pod-utils';
@@ -96,6 +96,10 @@ async function deleteSelectedPods() {
 }
 
 function openDetailsPod(pod: PodInfoUI) {
+  router.goto(`/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/summary`);
+}
+
+function openContainersFromPod(pod: PodInfoUI) {
   router.goto(`/containers/?filter=${pod.shortId}`);
 }
 </script>
@@ -175,7 +179,7 @@ function openDetailsPod(pod: PodInfoUI) {
                 <PodIcon colorClasses="" />
               </div>
             </td>
-            <td class="whitespace-nowrap  w-10">
+            <td class="whitespace-nowrap w-10 hover:cursor-pointer" on:click="{() => openDetailsPod(pod)}">
               <div class="flex items-center">
                 <div class="">
                   <div class="flex flex-row items-center">
@@ -186,7 +190,7 @@ function openDetailsPod(pod: PodInfoUI) {
                     <div
                       class="ml-1 text-xs font-extra-light text-gray-500"
                       class:cursor-pointer="{pod.containers.length > 0}"
-                      on:click="{() => openDetailsPod(pod)}">
+                      on:click="{() => openContainersFromPod(pod)}">
                       {pod.containers.length} containers
                     </div>
                   </div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
+import { faFileCode, faPlayCircle } from '@fortawesome/free-solid-svg-icons';
 import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -26,8 +26,17 @@ async function removePod(podInfoUI: PodInfoUI): Promise<void> {
   await window.removePod(podInfoUI.engineId, podInfoUI.id);
   router.goto('/pods/');
 }
+
+function openGenerateKube(): void {
+  router.goto(`/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube`);
+}
 </script>
 
+<ListItemButtonIcon
+  title="Generate Kube"
+  onClick="{() => openGenerateKube()}"
+  backgroundColor="{backgroundColor}"
+  icon="{faFileCode}" />
 <ListItemButtonIcon
   title="Start Pod"
   onClick="{() => startPod(pod)}"
