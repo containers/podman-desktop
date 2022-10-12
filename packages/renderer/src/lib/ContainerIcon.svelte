@@ -10,11 +10,11 @@ export let state = '';
     <Fa class="text-gray-50" icon="{faChartSimple}" />
   </div>
 {:else if state === 'CREATED'}
-  <div class="border-gray-400 border-2 flex flex-col justify-center align-middle m-3 p-2 w-10 rounded">
+  <div class="border-gray-400 border flex flex-col justify-center align-middle m-3 p-2 w-10 rounded">
     <Fa class="text-gray-400" icon="{faSeedling}" />
   </div>
 {:else}
-  <div class="border-orange-600 border-2 flex flex-col justify-center align-middle m-3 p-2 w-10 rounded">
+  <div class="border-orange-600 border flex flex-col justify-center align-middle m-3 p-2 w-10 rounded">
     <Fa class="text-orange-600" icon="{faPowerOff}" />
   </div>
 {/if}
