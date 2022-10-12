@@ -18,7 +18,7 @@ that we follow.
 
 ## Reporting Issues
 
-Before opening an issue, heck the backlog of
+Before opening an issue, check the backlog of
 [open issues](https://github.com/containers/podman-desktop/issues)
 to see if someone else has already reported it. 
 
@@ -61,11 +61,10 @@ You can develop on either: `Windows`, `macOS` or `Linux`.
 
 Clone and fork the project.
 
-Fork the repo using GitHub site or use the [GitHub CLI](https://cli.github.com/):
+Fork the repo using GitHub site and then clone the directory:
 
 ```sh
 git clone https://github.com/<you>/podman-desktop && cd podman-desktop
-gh repo fork
 ```
 
 ### Step 2. Install dependencies
@@ -88,7 +87,7 @@ The dev environment will track all files changes and reload the application resp
 
 ### Step 4. Write and run tests
 
-Write tests! Please try to write and unit tests when submitting your PR.
+Write tests! Please try to write some unit tests when submitting your PR.
 
 Run the tests using `yarn`:
 ```sh
@@ -104,15 +103,13 @@ Check that your code is properly formatted with the linter and formatter:
 Checking:
 
 ```sh
-yarn lint:check
-yarn format:check
+yarn lint:check && yarn format:check
 ```
 
 Fix:
 
 ```sh
-yarn lint:fix
-yarn format:fix
+yarn lint:fix && yarn format:fix
 ```
 
 ### Step 6. Compile production binaries (optional)
@@ -143,7 +140,7 @@ Some tips for the PR process:
 * Any additional code changes should be in a new commit so we can see what has changed between reviews.
 * Squash your commits into logical pieces of work
 
-### Name the commit correctly!
+### Use the correct commit message semantics
 
 We follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
 
