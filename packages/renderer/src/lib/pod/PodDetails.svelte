@@ -50,9 +50,9 @@ onDestroy(() => {
               <div class="text-sm font-extralight text-gray-400">Pod Details</div>
             </div>
             <div class="text-lg flex flex-row items-center">
-              <p class="mx-2">{pod.name}</p>
+              <p class="mr-2">{pod.name}</p>
             </div>
-            <div class="mx-2 pb-4 text-small text-gray-500">{pod.id}</div>
+            <div class="mr-2 pb-4 text-small text-gray-500">{pod.id}</div>
 
             <section class="pf-c-page__main-tabs pf-m-limit-width">
               <div class="pf-c-page__main-body">

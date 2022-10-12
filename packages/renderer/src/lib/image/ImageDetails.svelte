@@ -52,7 +52,7 @@ onMount(() => {
     <div class="w-full h-full">
       <div class="flex h-full flex-col">
         <div class="flex w-full flex-row">
-          <div class="w-full  px-5 pt-5">
+          <div class="w-full px-5 pt-5">
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/images" title="Go back to images list"
                 >Images</a>
@@ -60,10 +60,10 @@ onMount(() => {
               <div class="text-sm font-extralight text-gray-400">Image Details</div>
             </div>
             <div class="text-lg flex flex-row items-center">
-              <p class="mx-2">{image.name}</p>
+              <p class="mr-2">{image.name}</p>
               <div class="text-base text-violet-400">{image.shortId}</div>
             </div>
-            <div class="mx-2 pb-4 text-small text-gray-500">{image.tag}</div>
+            <div class="mr-2 pb-4 text-small text-gray-500">{image.tag}</div>
 
             <section class="pf-c-page__main-tabs pf-m-limit-width">
               <div class="pf-c-page__main-body">
