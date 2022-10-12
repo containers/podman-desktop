@@ -12,31 +12,27 @@ function openContainer(containerID: string) {
 </script>
 
 <div class="h-full" style="background-color: {getPanelDetailColor()}">
-  <div class="flex py-4 flex-col">
+  <div class="flex px-5 py-4 flex-col">
     <div class="w-full">
-      <table class="h-2 font-thin text-xs">
+      <table>
         <tr>
-          <td class="px-2">Name</td>
-          <td class="px-2 font-thin text-xs">{pod.name}</td>
+          <td class="pt-2 pr-2">Name:</td>
+          <td class="pt-2 pr-2">{pod.name}</td>
         </tr>
         <tr>
-          <td class="px-2">Size</td>
-          <td class="px-2 font-thin text-xs">{pod.id}</td>
-        </tr>
-        <tr>
-          <td class="px-2">Created</td>
-          <td class="px-2 font-thin text-xs">{pod.humanCreationDate}</td>
+          <td class="pt-2 pr-2">Id:</td>
+          <td class="pt-2 pr-2">{pod.id}</td>
         </tr>
       </table>
     </div>
     {#if pod.containers.length > 0}
-      <div class="w-full my-4 p-2">
-        <span class="font-bold text-xs">Containers using this pod:</span>
-        <table class="h-2 font-thin text-xs">
+      <div class="w-full my-12">
+        <span>Containers using this pod:</span>
+        <table>
           {#each pod.containers as container}
             <tr class="cursor-pointer" on:click="{() => openContainer(container.Id)}">
-              <td class="px-2 font-thin text-xs">{container.Names}</td>
-              <td class="px-2 font-thin text-xs">{container.Id}</td>
+              <td class="pt-2 pr-2">{container.Names}</td>
+              <td class="pt-2 pr-2">{container.Id}</td>
             </tr>
           {/each}
         </table>
