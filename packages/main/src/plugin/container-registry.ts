@@ -22,7 +22,7 @@ import Dockerode from 'dockerode';
 import StreamValues from 'stream-json/streamers/StreamValues';
 import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
-import type { PodInfo } from './api/pod-info';
+import type { PodInfo, PodInspectInfo } from './api/pod-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { ProviderContainerConnectionInfo } from './api/provider-info';
 import type { ImageRegistry } from './image-registry';
@@ -723,6 +723,25 @@ export class ContainerProviderRegistry {
 
     const containerObject = provider.api.getContainer(id);
     const containerInspect = await containerObject.inspect();
+    return {
+      engineName: provider.name,
+      engineId: provider.id,
+      ...containerInspect,
+    };
+  }
+
+  async getPodInspect(engineId: string, id: string): Promise<PodInspectInfo> {
+    this.telemetryService.track('podInspect');
+    // need to find the container engine of the container
+    const provider = this.internalProviders.get(engineId);
+    if (!provider) {
+      throw new Error('no engine matching this container');
+    }
+    if (!provider.libpodApi) {
+      throw new Error('no running provider for the matching container');
+    }
+
+    const containerInspect = await provider.libpodApi.getPodInspect(id);
     return {
       engineName: provider.name,
       engineId: provider.id,

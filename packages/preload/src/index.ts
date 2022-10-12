@@ -27,7 +27,7 @@ import type { ContainerCreateOptions, ContainerInfo } from '../../main/src/plugi
 import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';
-import type { PodInfo } from '../../main/src/plugin/api/pod-info';
+import type { PodInfo, PodInspectInfo } from '../../main/src/plugin/api/pod-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
@@ -299,6 +299,10 @@ function initExposure(): void {
       return ipcInvoke('container-provider-registry:getContainerInspect', engine, containerId);
     },
   );
+
+  contextBridge.exposeInMainWorld('getPodInspect', async (engine: string, podId: string): Promise<PodInspectInfo> => {
+    return ipcInvoke('container-provider-registry:getPodInspect', engine, podId);
+  });
 
   let onDataCallbacksGetContainerStatsId = 0;
   const onDataCallbacksGetContainerStats = new Map<number, (containerStats: ContainerStatsInfo) => void>();
