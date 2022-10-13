@@ -23,7 +23,7 @@
     "moment": "^2.29.4",
     "monaco-editor": "^0.34.0",
     "ninja-keys": "^1.1.12",
-    "postcss": "^8.4.5",
+    "postcss": "^8.4.18",
     "postcss-load-config": "^3.1.1",
     "svelte": "^3.49.0",
     "svelte-check": "^2.9.2",
