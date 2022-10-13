@@ -60,7 +60,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 }
 </script>
 
-<div class="flex flex-1 flex-col">
+<div class="flex flex-1 flex-col bg-zinc-800 px-2 py-1">
   <h1 class="capitalize text-xl">{providerInfo?.name} Provider</h1>
 
   <!-- Manage lifecycle-->

@@ -38,7 +38,7 @@ function deleteContribution(extensionName: string) {
 }
 </script>
 
-<div class="flex flex-col h-min">
+<div class="flex flex-col h-min bg-zinc-800">
   <div class="flex flex-1 flex-col p-2 ">
     <p class="capitalize text-xl">Docker Desktop Extensions</p>
     <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
