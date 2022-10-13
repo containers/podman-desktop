@@ -189,9 +189,9 @@ function KeepUpToDate() {
           <div className="flex flex-col items-center">
             <p className="leading-relaxed text-base">
               Install Podman and other dependencies directly from Podman Desktop if not yet installed.
-              <br />
-              Check for updates and get notified about new changes.
-              <br />
+            </p>
+            <p className="leading-relaxed text-base">Check for updates and get notified about new changes.</p>
+            <p className="leading-relaxed text-base">
               Available on{' '}
               <a href="/downloads/windows" className="text-purple-700 dark:text-purple-400" target="_blank">
                 Windows
@@ -223,13 +223,11 @@ function Extensibility() {
             <FontAwesomeIcon size="3x" icon={faPlug} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
           </div>
 
-          <p className="leading-relaxed text-base">
-            Container engines are plugged through extension points.
-            <br />
-            JavaScript extensions can contribute new behaviour
-            <br />
-            Reuse existing extensions directly in Podman Desktop
-          </p>
+          <ul className="list-disc list-inside text-center">
+            <li>Container engines are plugged through extension points</li>
+            <li>JavaScript extensions can contribute new behaviour</li>
+            <li>Reuse existing extensions directly in Podman Desktop</li>
+          </ul>
 
           <div className="flex flex-col items-center">
             <div className="text-left my-4">
