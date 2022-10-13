@@ -124,6 +124,22 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
+      algolia: {
+        // The application ID provided by Algolia
+        appId: 'MR01ANKQ9S',
+
+        // Public API key: it is safe to commit it
+        apiKey: '20bda7620dbcebd6a354840b4f92ac8e',
+
+        // The index name to query
+        indexName: 'podman-desktop',
+
+        // Optional
+        contextualSearch: true,
+
+        // Optional
+        searchPagePath: 'search',
+      },
     }),
 };
 
