@@ -16,7 +16,7 @@ async function startExtension() {
 }
 </script>
 
-<div class="flex flex-1 flex-col">
+<div class="flex flex-1 flex-col bg-zinc-800 px-2">
   {#if extensionInfo}
     <div class="pl-1 py-2">
       <h1 class="capitalize text-xl">{extensionInfo.name} Extension</h1>

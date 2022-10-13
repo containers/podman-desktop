@@ -39,7 +39,7 @@ function toggleRegistryModal(): void {
 }
 </script>
 
-<div class="flex flex-1 flex-col p-2">
+<div class="flex flex-1 flex-col p-2 bg-zinc-800">
   <h1 class="capitalize text-xl">Registries</h1>
 
   <div class="container mx-auto pt-4">
