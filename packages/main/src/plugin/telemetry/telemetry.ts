@@ -56,7 +56,7 @@ export class Telemetry {
       type: 'object',
       properties: {
         ['telemetry.enabled']: {
-          description: 'Is that telemetry should be enabled ?',
+          description: 'Enable telemetry',
           type: 'boolean',
           default: true,
         },
@@ -83,7 +83,7 @@ export class Telemetry {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         .showMessageBox(findWindow()!, {
           title: 'Telemetry',
-          message: `Help Red Hat improve\n ${app.getName()} by allowing to collect anonymized usage data.`,
+          message: `Help Red Hat improve\n ${app.getName()} by allowing anonymous usage data to be collected.`,
           buttons: ['OK'],
           type: 'info',
           checkboxChecked: true,
