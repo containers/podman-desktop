@@ -53,9 +53,9 @@
 }
 
 .pf-c-button.pf-m-secondary {
-  --pf-c-button--m-secondary--Color: #333;
-  --pf-c-button--m-secondary--BackgroundColor: #a6c5bf;
-  --pf-c-button--after--BorderColor: #3c6eb4;
+  --pf-c-button--m-secondary--Color: #ddd;
+  --pf-c-button--m-secondary--BackgroundColor: rgb(156,163,175);
+  --pf-c-button--after--BorderColor: rgb(229,231,235);
 }
 
 nav .pf-c-badge.pf-m-read {
