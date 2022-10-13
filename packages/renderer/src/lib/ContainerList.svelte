@@ -443,35 +443,29 @@ function toggleAllContainerGroups(value: boolean) {
       openChoiceModal = false;
     }}">
     <div
-      class="pf-c-modal-box pf-m-sm modal z-50 "
-      tabindex="{0}"
-      autofocus
-      aria-modal="true"
-      on:keydown="{keydownChoice}"
-      aria-labelledby="modal-title-modal-basic-example-modal"
-      aria-describedby="modal-description-modal-basic-example-modal">
-      <button
-        class="pf-c-button pf-m-plain"
-        type="button"
-        aria-label="Close dialog"
-        on:click="{() => toggleCreateContainer()}">
-        <i class="fas fa-times" aria-hidden="true"></i>
-      </button>
-      <header class="pf-c-modal-box__header" on:keydown="{keydownChoice}">
-        <h1 class="pf-c-modal-box__title">Create a new container</h1>
-      </header>
-      <div class="pf-c-modal-box__body">
-        <ul class="list-disc">
-          <li>Create a container from a Containerfile description. Browse a local content description.</li>
-          <li>Or create a container from an existing image stored in the local registry.</li>
-        </ul>
+      class="inline-block w-full overflow-hidden text-left transition-all transform bg-zinc-800 z-50 h-[200px] rounded-xl shadow-xl shadow-neutral-900"
+      on:keydown="{keydownChoice}">
+      <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
+        <h1 class="text-xl font-bold">Create a new container</h1>
+
+        <button class="hover:text-gray-200 px-2 py-1" on:click="{() => toggleCreateContainer()}">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
       </div>
-      <footer class="pf-c-modal-box__footer">
-        <button class="pf-c-button pf-m-primary" type="button" on:click="{() => fromDockerfile()}"
-          >From Containerfile/Dockerfile</button>
-        <button class="pf-c-button pf-m-secondary" type="button" on:click="{() => fromExistingImage()}"
-          >From existing image</button>
-      </footer>
+      <div class="bg-zinc-800 p-5 h-full flex flex-col justify-items-center">
+        <span class="pb-3">Please make a choice:</span>
+        <ul class="list-disc ml-8 space-y-2">
+          <li>Create a container from a Containerfile.</li>
+          <li>Create a container from an existing image stored in the local registry.</li>
+        </ul>
+
+        <div class="pt-5 grid grid-cols-2 gap-10 place-content-center w-full">
+          <button class="pf-c-button pf-m-primary" type="button" on:click="{() => fromDockerfile()}"
+            >From Containerfile/Dockerfile</button>
+          <button class="pf-c-button pf-m-secondary" type="button" on:click="{() => fromExistingImage()}"
+            >From existing image</button>
+        </div>
+      </div>
     </div>
   </Modal>
 {/if}
