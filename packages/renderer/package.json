@@ -12,7 +12,7 @@
   "devDependencies": {
     "@fortawesome/free-brands-svg-icons": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
-    "@patternfly/patternfly": "^4.179.1",
+    "@patternfly/patternfly": "^4.217.1",
     "@rollup/plugin-dynamic-import-vars": "^1.4.2",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.11",
     "@tsconfig/svelte": "^2.0.1",
