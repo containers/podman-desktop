@@ -26,7 +26,7 @@
     "@tmpwip/extension-api": "^0.0.1"
   },
   "devDependencies": {
-    "7zip-min": "^1.4.1",
+    "7zip-min": "^1.4.3",
     "mkdirp": "^1.0.4",
     "zip-local": "^0.3.5"
   }

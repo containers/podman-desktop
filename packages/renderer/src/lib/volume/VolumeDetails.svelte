@@ -42,9 +42,9 @@ onMount(() => {
               <div class="text-sm font-extralight text-gray-400">Volume Details</div>
             </div>
             <div class="text-lg flex flex-row items-center">
-              <p class="mx-2">{volume.name}</p>
+              <p class="mr-2">{volume.name}</p>
             </div>
-            <div class="mx-2 pb-4 text-small text-gray-500">{volume.humanSize}</div>
+            <div class="mr-2 pb-4 text-small text-gray-500">{volume.humanSize}</div>
 
             <section class="pf-c-page__main-tabs pf-m-limit-width">
               <div class="pf-c-page__main-body">

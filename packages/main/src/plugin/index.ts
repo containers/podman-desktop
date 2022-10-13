@@ -60,7 +60,7 @@ import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry';
 import type { IpcMainInvokeEvent } from 'electron/main';
 import type { ContainerInspectInfo } from './api/container-inspect-info';
 import type { HistoryInfo } from './api/history-info';
-import type { PodInfo } from './api/pod-info';
+import type { PodInfo, PodInspectInfo } from './api/pod-info';
 import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
 import type { ContainerStatsInfo } from './api/container-stats-info';
 import type { PlayKubeInfo } from './dockerode/libpod-dockerode';
@@ -337,6 +337,12 @@ export class PluginSystem {
       'container-provider-registry:getContainerInspect',
       async (_listener, engine: string, containerId: string): Promise<ContainerInspectInfo> => {
         return containerProviderRegistry.getContainerInspect(engine, containerId);
+      },
+    );
+    this.ipcHandle(
+      'container-provider-registry:getPodInspect',
+      async (_listener, engine: string, podId: string): Promise<PodInspectInfo> => {
+        return containerProviderRegistry.getPodInspect(engine, podId);
       },
     );
     this.ipcHandle(

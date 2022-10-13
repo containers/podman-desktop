@@ -38,13 +38,13 @@
 }
 
 .pf-c-nav__link::after {
-  --pf-c-nav__link--after--BorderColor: #8772c7;
-  --pf-c-nav__link--m-current--after--BorderColor: #8772c7;
+  --pf-c-nav__link--after--BorderColor: #8b5cf6;
+  --pf-c-nav__link--m-current--after--BorderColor: #8b5cf6;
  }
 
  .pf-c-tabs__link::after {
-  --pf-c-tabs__link--after--BorderColor: #8772c7;
-  --pf-c-tabs__link--m-current--after--BorderColor: #8772c7;
+  --pf-c-tabs__link--after--BorderColor: #8b5cf6;
+  --pf-c-tabs__link--m-current--after--BorderColor: #8b5cf6;
  }
 
 
@@ -53,14 +53,14 @@
 }
 
 .pf-c-button.pf-m-secondary {
-  --pf-c-button--m-secondary--Color: #333;
-  --pf-c-button--m-secondary--BackgroundColor: #a6c5bf;
-  --pf-c-button--after--BorderColor: #3c6eb4;
+  --pf-c-button--m-secondary--Color: #ddd;
+  --pf-c-button--m-secondary--BackgroundColor: rgb(156,163,175);
+  --pf-c-button--after--BorderColor: rgb(229,231,235);
 }
 
 nav .pf-c-badge.pf-m-read {
-  --pf-c-badge--Color: #475569;
-  --pf-c-badge--BackgroundColor: #a6c5bf;
+  --pf-c-badge--Color: #fff;
+  --pf-c-badge--BackgroundColor: #8b5cf6;
 }
 
 .pf-c-tree-view {

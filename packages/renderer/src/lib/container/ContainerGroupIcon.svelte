@@ -13,7 +13,7 @@ $: isExited = containers.some(c => c.state === 'EXITED') ? true : false;
 <div
   class:border-green-600="{isRunning}"
   class:border-orange-500="{isExited}"
-  class="border-2 flex flex-col justify-center align-middle m-3 p-1 w-10 text-center items-center rounded">
+  class="border flex flex-col justify-center align-middle m-3 p-1 w-10 text-center items-center rounded">
   {#if type === ContainerGroupInfoTypeUI.COMPOSE}
     <svg
       class:text-green-600="{isRunning}"

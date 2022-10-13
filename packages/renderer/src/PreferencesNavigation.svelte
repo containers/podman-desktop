@@ -192,7 +192,7 @@ $: addHiddenClass = (provider: ProviderInfo): string => (provider.containerConne
       )} hover:text-gray-300 cursor-pointer items-center">
       <a href="/preferences/ddExtensions" id="configuration-section-docker-desktop-extensions" class="pf-c-nav__link ">
         <div class="flex items-center">
-          <span class="hidden md:block group-hover:block">Docker Desktop Extensions</span>
+          <span class="hidden md:block group-hover:block">Desktop Extensions</span>
         </div>
       </a>
     </li>
