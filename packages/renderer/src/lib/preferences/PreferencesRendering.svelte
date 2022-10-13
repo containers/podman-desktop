@@ -12,9 +12,8 @@ $: matchingRecords = properties.filter(property => property.parentId.startsWith(
 </script>
 
 <div class="flex flex-1 flex-col">
-  <h1 class="capitalize text-xl">{title}</h1>
   <table class="divide-y divide-gray-800 mt-2 min-w-full">
-    <tbody class="bg-gray-800 divide-y divide-gray-200 ">
+    <tbody class="bg-zinc-800 divide-y-8 divide-zinc-700 ">
       {#each matchingRecords as record}
         <tr>
           <td>
