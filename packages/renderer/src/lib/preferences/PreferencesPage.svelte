@@ -31,7 +31,7 @@ onMount(async () => {
 });
 </script>
 
-<NavPage searchEnabled="{false}" title="Preferences" subtitle="&nbsp;">
+<NavPage searchEnabled="{false}" title="Settings" subtitle="&nbsp;">
   <div slot="empty" class="flex h-full px-3 py-3 bg-zinc-700">
     <Route path="/">
       {#if defaultPrefPageId !== undefined}
