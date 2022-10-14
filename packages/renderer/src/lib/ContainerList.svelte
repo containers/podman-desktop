@@ -247,7 +247,7 @@ function toggleAllContainerGroups(value: boolean) {
 
 <NavPage
   bind:searchTerm
-  title="containers"
+  title="Containers"
   subtitle="Hover over a container to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     <button on:click="{() => toggleCreateContainer()}" class="pf-c-button pf-m-primary" type="button">
@@ -261,10 +261,10 @@ function toggleAllContainerGroups(value: boolean) {
         on:click="{() => runContainerYaml()}"
         class="pf-c-button pf-m-primary"
         type="button"
-        title="Run pod/containers from kubernetes .YAML file ">
+        title="Run pod/containers from kubernetes YAML file ">
         <div class="flex flex-row align-text-top justify-start items-center">
           <KubePlayIcon />
-          Play YAML
+          Run Kubernetes YAML
         </div>
       </button>
     {/if}

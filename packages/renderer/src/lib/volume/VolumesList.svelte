@@ -111,7 +111,7 @@ function openDetailsVolume(volume: VolumeInfoUI) {
 
 <NavPage
   bind:searchTerm
-  title="volumes"
+  title="Volumes"
   subtitle="Hover over a volume to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap"></div>
 

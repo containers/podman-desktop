@@ -9,7 +9,7 @@ export let searchEnabled: boolean = true;
   <div class="min-w-full">
     <div class="flex">
       <div class="pt-5 px-5">
-        <p class="text-xl capitalize">{title}</p>
+        <p class="text-xl">{title}</p>
         <p class="text-sm text-gray-400">
           {subtitle}
         </p>

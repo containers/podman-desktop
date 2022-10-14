@@ -106,7 +106,7 @@ function openContainersFromPod(pod: PodInfoUI) {
 
 <NavPage
   bind:searchTerm
-  title="pods"
+  title="Pods"
   subtitle="Hover over an pod to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap"></div>
 
