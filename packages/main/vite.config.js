@@ -50,6 +50,7 @@ const config = {
       external: [
         'electron',
         'tar-fs',
+        'ssh2',
         'analytics-node',
         'electron-devtools-installer',
         ...builtinModules.flatMap(p => [p, `node:${p}`]),

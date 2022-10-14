@@ -82,7 +82,7 @@
     "@types/stream-json": "^1.7.2",
     "analytics-node": "^6.2.0",
     "chokidar": "^3.5.3",
-    "dockerode": "^3.3.1",
+    "dockerode": "^3.3.4",
     "electron-updater": "4.6.5",
     "getos": "^3.2.1",
     "got": "^12.3.1",
@@ -90,11 +90,5 @@
     "os-locale": "^6.0.2",
     "stream-json": "^1.7.4",
     "tar-fs": "^2.1.1"
-  },
-  "resolutionsComments": {
-    "ssh2": "Need to use an old version of ssh2 to avoid vite/rollup issue on loading some internal lib"
-  },
-  "resolutions": {
-    "ssh2": "0.8.9"
   }
 }
