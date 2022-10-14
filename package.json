@@ -48,7 +48,8 @@
     "typecheck:preload": "tsc --noEmit -p packages/preload/tsconfig.json",
     "typecheck:renderer": "npm run build:preload:types",
     "typecheck": "npm run typecheck:main && npm run typecheck:preload && npm run typecheck:renderer",
-    "website:build": "cd website && yarn run docusaurus build"
+    "website:build": "cd website && yarn run docusaurus build",
+    "website:dev": "cd website && yarn run docusaurus start"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.1",
