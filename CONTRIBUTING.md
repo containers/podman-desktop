@@ -18,9 +18,11 @@ that we follow.
 
 ## Reporting Issues
 
-Before reporting an issue, check our backlog of
+Before opening an issue, check the backlog of
 [open issues](https://github.com/containers/podman-desktop/issues)
-to see if someone else has already reported it. If so, feel free to add
+to see if someone else has already reported it. 
+
+If so, feel free to add
 your scenario, or additional information, to the discussion. Or simply
 "subscribe" to it to be notified when it is updated.
 
@@ -34,97 +36,135 @@ Please don't include any private/sensitive information in your issue!
 
 ## Working On Issues
 
-Once you have decided to contribute to Podman Desktop by working on an issue, check our
-backlog of [open issues](https://github.com/containers/podman-desktop/issues) looking
-for any that do not have an `status/in-progress` label attached to it.  Often issues
-will be assigned to someone, to be worked on at a later time.  If you have the
-time to work on the issue now add yourself as an assignee, and set the
-`status/in-progress` label if you’re a member of the “Containers” GitHub organization.
-If you can not set the label, just  add a quick comment in the issue asking that
-the `status/in-progress` label be set and a member will do so for you.
+Often issues will be assigned to someone, to be worked on at a later time.  
+
+If you are a member of the [Containers](https://github.com/containers) organization, 
+self-assign the issue with the `status/in-progress` label.
+
+If you can not set the label: add a quick comment in the issue asking that
+the `status/in-progress` label to be set and a maintainer will label it.
 
 ## Contributing
 
 This section describes how to start a contribution to Podman Desktop.
 
-### Prepare your environment
+### Prerequisites: Prepare your environment
 
-Requirements: Node.js 16 and yarn
+Requirements: 
+* [Node.js 16+](https://nodejs.org/en/)
+* [yarn](https://yarnpkg.com/)
 
-It is building an electron application so it is working on both Windows, MacOS and Linux.
 
-### Fork and clone Podman Desktop
+You can develop on either: `Windows`, `macOS` or `Linux`.
 
-First you need to fork this project https://github.com/containers/podman-desktop on GitHub.
+### Step 1. Fork and clone Podman Desktop
 
-Then clone your fork locally:
-```shell
-$ git clone https://github.com/<you>/podman-desktop
-$ cd desktop
+Clone and fork the project.
+
+Fork the repo using GitHub site and then clone the directory:
+
+```sh
+git clone https://github.com/<you>/podman-desktop && cd podman-desktop
 ```
 
-### Deal with Node.js
+### Step 2. Install dependencies
 
-It is a Node.js application so please ensure Node.js 16+ and Yarn v1 are there.
+Fetch all dependencies using the command `yarn`:
 
-Fetch all dependencies using the command `yarn`
+```sh
+yarn install
+```
 
-[package.json](package.json) files contains some predefined commands.
+### Step 3. Start in watch mode
 
-### Use development mode
+Run the application in watch mode:
 
-Run the application in development with a single command: `yarn watch`
+```sh
+yarn watch
+```
 
-It will track all the changes, rebuild the modified files and reload the application.
+The dev environment will track all files changes and reload the application respectively. 
 
-### Build production binaries
+### Step 4. Write and run tests
 
-Run `yarn compile:current` and it will build a production binary for your current Operating System using electron-builder.
+Write tests! Please try to write some unit tests when submitting your PR.
 
-The ouput binary is generated in `dist/` folder
+Run the tests using `yarn`:
+```sh
+yarn test
+```
+
+### Step 5. Code formatter / linter
+
+We use `prettier` as a formatter and `eslint` for linting.
+
+Check that your code is properly formatted with the linter and formatter:
+
+Checking:
+
+```sh
+yarn lint:check && yarn format:check
+```
+
+Fix:
+
+```sh
+yarn lint:fix && yarn format:fix
+```
+
+### Step 6. Compile production binaries (optional)
+
+You may want to test the binary against your local system before pushing a PR, you can do so by running the following command:
+
+```sh
+yarn compile:current
+```
+
+This will create a binary according to your local system and output it to the `dist/` folder.
 
 ## Submitting Pull Requests
 
-### Before submitting Pull Requests
-
-Ensure that format and lint rules are compliant.
-Run `yarn format:check` or `yarn lint:check`
-It uses `prettier` as formatter and eslint for the linting rules.
-
 ### Process
 
-No Pull Request (PR) is too small! Typos, additional comments in the code,
-new test cases, bug fixes, new features, more documentation, ... it's all
-welcome!
+Whether it is a large patch or a one-line bug fix, make sure you explain in detail what's changing!
 
-While bug fixes can first be identified via an "issue", that is not required.
-It's ok to just open up a PR with the fix, but make sure you include the same
-information you would have included in an issue - like how to reproduce it.
-
-PRs for new features should include some background on what use cases the
-new code is trying to address. When possible and when it makes sense, try to break-up
-larger PRs into smaller ones - it's easier to review smaller
-code changes. But only if those smaller ones make sense as stand-alone PRs.
-
-Squash your commits into logical pieces of work that might want to be reviewed
-separate from the rest of the PRs. But, squashing down to just one commit is ok
-too since in the end the entire PR will be reviewed anyway. When in doubt,
-squash.
-
-PRs that fix issues should include a reference like `Closes #XXXX` in the
-commit message so that GitHub will automatically close the referenced issue
-when the PR is merged.
+Make sure you include the issue in your PR! For example, say: `Closes #XXX`.
 
 PRs will be approved by an [approver][owners] listed in [`CODEOWNERS`](CODEOWNERS).
 
-### Describe your Changes in Commit Messages
+Some tips for the PR process:
 
-Describe your problem. Whether your patch is a one-line bug fix or 5000 lines
-of a new feature, there must be an underlying problem that motivated you to do
-this work. Convince the reviewer that there is a problem worth fixing and that
-it makes sense for them to read past the first paragraph.
+* No PR too small! Feel free to open a PR against tests, bugs, new features, docs, etc.
+* Make sure you include as much information as possible in your PR so maintainers can understand.
+* Try to break up larger PRs into smaller ones for easier reviewing
+* Any additional code changes should be in a new commit so we can see what has changed between reviews.
+* Squash your commits into logical pieces of work
 
-Please follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+### Use the correct commit message semantics
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+
+Some examples for correct titles would be:
+
+* `fix: prevent racing of requests`
+* `chore: drop support for Node 6`
+* `docs: add quickstart guide`
+
+For Podman Desktop we use the following types:
+
+
+* `build:` Changes that affect the build system
+* `ci:` Changes to the CI (ex. GitHub actions)
+* `docs:` Documentation only changes (ex. website)
+* `feat:` A new feature
+* `fix:` A bug fix
+* `perf:` A code change that improves performance
+* `refactor:` A code change that neither fixes a bug nor adds a feature
+* `style:` Changes that affect the formatting, but not the ability of the code
+* `test:` Adding missing tests / new tests
+
+
+Title formatting: 
 
 ```
 <type>[optional scope]: <description>
@@ -133,10 +173,6 @@ Please follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0
 
 [optional footer(s)]
 ```
-
-Example of types are:  `build:, chore:, ci:, docs:, style:, refactor:, perf:, test:`
-
-For example `fix: ....` , `feat: ....`
 
 ### Sign your PRs
 
@@ -148,22 +184,17 @@ Then you just add a line to every git commit message:
 
     Signed-off-by: Joe Smith <joe.smith@email.com>
 
-Use your real name (sorry, no pseudonyms or anonymous contributions.)
+Legal name must be used (no pseudonyms or anonymous contributions)
 
 If you set your `user.name` and `user.email` git configs, you can sign your
 commit automatically with `git commit -s`.
-
-### Format and lint
-
-All code changes must pass ``yarn format:check`` and ``yarn lint:check``.
-To fix format and lint ``yarn format:fix && yarn lint:fix``
 
 ## Continuous Integration
 
 All pull requests and branch-merges automatically run:
 
-* format/lint checking
-* build check across different platforms (Windows, macOS, Linux)
+* Format and lint checking
+* Cross-platform builds (Windows, macOS, Linux)
 
 You can follow these jobs in Github Actions https://github.com/containers/podman-desktop/actions
 
