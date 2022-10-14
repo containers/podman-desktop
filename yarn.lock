@@ -11465,10 +11465,10 @@ svelte-preprocess@^4.0.0, svelte-preprocess@^4.10.7:
     sorcery "^0.10.0"
     strip-indent "^3.0.0"
 
-svelte@^3.49.0:
-  version "3.49.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.49.0.tgz#5baee3c672306de1070c3b7888fc2204e36a4029"
-  integrity sha512-+lmjic1pApJWDfPCpUUTc1m8azDqYCG1JN9YEngrx/hUyIcFJo6VZhj0A1Ai0wqoHcEIuQy+e9tk+4uDgdtsFA==
+svelte@^3.51.0:
+  version "3.51.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.51.0.tgz#a1a0afb25dc518217f353dd73ea6471c128ddf84"
+  integrity sha512-PBITYIrsNOuW+Dtds00gSY68raNZQn7i59Dg/fjgf6WwyawPKeBwle692coO7ILZqSO+UJe9899aDn9sMdeOHA==
 
 svg-parser@^2.0.2:
   version "2.0.4"
