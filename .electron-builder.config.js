@@ -37,6 +37,8 @@ const config = {
     output: 'dist',
     buildResources: 'buildResources',
   },
+  buildDependenciesFromSource: false,
+  npmRebuild: false,
   beforePack: async (context) => {
     context.packager.config.extraResources = ['packages/main/src/assets/**'];
 
