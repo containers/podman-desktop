@@ -45,11 +45,11 @@ $: {
 }
 </script>
 
-<div class="flex flex-col px-2">
+<div class="flex flex-col px-2 pt-2">
   <div class="flex">
-    <div>{recordUI.breadCrumb}</div>
-    <div class="ml-2">{recordUI.title}</div>
+    <div class="capitalize">{recordUI.breadCrumb}</div>
+    <div class="pl-2 text-violet-400">{recordUI.title}</div>
   </div>
-  <div class="mb-1">{recordUI.description}</div>
+  <div class="pt-2 text-gray-400">{recordUI.description}</div>
   <PreferencesRenderingItemFormat showUpdate="{true}" record="{recordUI.original}" />
 </div>

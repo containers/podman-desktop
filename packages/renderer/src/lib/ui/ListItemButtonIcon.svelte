@@ -12,7 +12,7 @@ export let backgroundColor: string = 'bg-zinc-800';
 <button
   title="{title}"
   on:click="{onClick}"
-  class="mx-2 text-gray-300 {backgroundColor}  hover:text-violet-600 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center"
+  class="mx-1 text-gray-300 {backgroundColor}  hover:text-violet-600 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center"
   class:hidden
-  ><Fa class="h-5 w-5 text-xl" icon="{icon}" />
+  ><Fa class="h-4 w-4 text-xl" icon="{icon}" />
 </button>

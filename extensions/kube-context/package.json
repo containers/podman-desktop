@@ -1,7 +1,7 @@
 {
-  "name": "crc",
-  "displayName": "Manages CRC",
-  "description": "Allow to start and stop CRC and use Podman",
+  "name": "kube-context",
+  "displayName": "Kube Context extension",
+  "description": "Allows to switch between kubernetes contexts",
   "version": "0.0.1",
   "icon": "icon.png",
   "publisher": "benoitf",
@@ -10,12 +10,11 @@
     "podman-desktop": "^0.0.1"
   },
   "main": "./dist/extension.js",
-  "source": "./src/extension.ts",
   "contributes": {
     "commands": [
       {
-        "command": "crc.info",
-        "title": "crc: Specific info about crc"
+        "command": "kubecontext.switch",
+        "title": "Kube Context: switch context"
       }
     ]
   },
@@ -25,10 +24,11 @@
   },
   "dependencies": {
     "@tmpwip/extension-api": "^0.0.1",
-    "got": "^12.1.0"
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "7zip-min": "^1.4.3",
+    "@types/js-yaml": "^4.0.5",
     "mkdirp": "^1.0.4",
     "zip-local": "^0.3.5"
   }

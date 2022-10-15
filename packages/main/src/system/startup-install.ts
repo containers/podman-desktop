@@ -66,7 +66,7 @@ export class StartupInstall {
       type: 'object',
       properties: {
         ['preferences.login.start']: {
-          description: 'Start Podman Desktop when you log in ?',
+          description: 'Start Podman Desktop when you log in',
           type: 'boolean',
           default: true,
         },

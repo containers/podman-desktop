@@ -30,7 +30,7 @@ export class AutostartEngine {
       type: 'object',
       properties: {
         ['preferences.engine.autostart']: {
-          description: 'Autostart Container Engine when launching Podman Desktop ?',
+          description: 'Autostart Container Engine when launching Podman Desktop',
           type: 'boolean',
           default: true,
         },

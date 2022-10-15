@@ -95,8 +95,8 @@ function update(record: IConfigurationPropertyRecordedSchema) {
 }
 </script>
 
-<div class="flex flex-row mb-2 px-4">
-  <div class="flex flex-col mx-2 flex-1 pf-c-form__group-control">
+<div class="flex flex-row mb-2 pt-2">
+  <div class="flex flex-col mx-2 w-full text-start justify-center items-start pf-c-form__group-control">
     {#if record.type === 'boolean'}
       <input
         on:input="{event => checkValue(record, event)}"

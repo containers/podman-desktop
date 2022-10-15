@@ -122,7 +122,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 }
 </script>
 
-<div class="flex flex-1 flex-col">
+<div class="flex flex-1 flex-col bg-zinc-800 px-2">
   <div class="flex flex-row align-middle my-4">
     <div class="capitalize text-xl">{connectionName} settings</div>
     {#if providerInfo?.containerProviderConnectionCreation}

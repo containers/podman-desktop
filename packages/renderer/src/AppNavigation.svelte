@@ -38,13 +38,35 @@ export let meta;
         : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/" class="pf-c-nav__link flex items-center align-middle">
         <div class="flex items-center">
-          <svg class="" width="20" viewBox="0 0 576 512"
-            ><path
-              style="fill: currentColor;"
-              d="M575.8 255.5C575.8 273.5 560.8 287.6 543.8 287.6H511.8L512.5 447.7C512.5 450.5 512.3 453.1 512 455.8V472C512 494.1 494.1 512 472 512H456C454.9 512 453.8 511.1 452.7 511.9C451.3 511.1 449.9 512 448.5 512H392C369.9 512 352 494.1 352 472V384C352 366.3 337.7 352 320 352H256C238.3 352 224 366.3 224 384V472C224 494.1 206.1 512 184 512H128.1C126.6 512 125.1 511.9 123.6 511.8C122.4 511.9 121.2 512 120 512H104C81.91 512 64 494.1 64 472V360C64 359.1 64.03 358.1 64.09 357.2V287.6H32.05C14.02 287.6 0 273.5 0 255.5C0 246.5 3.004 238.5 10.01 231.5L266.4 8.016C273.4 1.002 281.4 0 288.4 0C295.4 0 303.4 2.004 309.5 7.014L564.8 231.5C572.8 238.5 576.9 246.5 575.8 255.5L575.8 255.5z"
-            ></path
+          <svg
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+            height="18"
+            viewBox="1628 231 20 18"
+            style="-webkit-print-color-adjust: exact;"
+            fill="none"
+            version="1.1"
+            ><g id="shape-9fa89afe-44e5-11ed-99ae-9d566b6ba201"
+              ><g id="fills-9fa89afe-44e5-11ed-99ae-9d566b6ba201"
+                ><path
+                  rx="0"
+                  ry="0"
+                  d="M1646.995,239.984C1646.995,240.547,1646.526,240.988,1645.994,240.988L1644.994,240.988L1645.016,245.991C1645.016,246.078,1645.01,246.159,1645.001,246.244L1645.001,246.75C1645.001,247.441,1644.441,248,1643.751,248L1643.251,248C1643.216,248,1643.182,247.972,1643.147,247.997C1643.104,247.972,1643.06,248,1643.016,248L1641.251,248C1640.56,248,1640,247.441,1640,246.75L1640,244C1640,243.447,1639.554,243,1639,243L1637,243C1636.447,243,1636,243.447,1636,244L1636,246.75C1636,247.441,1635.441,248,1634.75,248L1633.003,248C1632.956,248,1632.91,247.997,1632.863,247.994C1632.825,247.997,1632.788,248,1632.75,248L1632.25,248C1631.56,248,1631,247.441,1631,246.75L1631,243.25C1631,243.222,1631.001,243.191,1631.003,243.163L1631.003,240.988L1630.002,240.988C1629.438,240.988,1629,240.547,1629,239.984C1629,239.703,1629.094,239.453,1629.313,239.234L1637.325,232.251C1637.544,232.031,1637.794,232,1638.013,232C1638.232,232,1638.482,232.063,1638.672,232.219L1646.651,239.234C1646.901,239.453,1647.029,239.703,1646.995,239.984ZL1646.995,239.984ZL1646.995,239.984Z"
+                ></path
+                ></g
+              ><g id="strokes-9fa89afe-44e5-11ed-99ae-9d566b6ba201"
+                ><g class="stroke-shape"
+                  ><path
+                    rx="0"
+                    ry="0"
+                    d="M1646.995,239.984C1646.995,240.547,1646.526,240.988,1645.994,240.988L1644.994,240.988L1645.016,245.991C1645.016,246.078,1645.01,246.159,1645.001,246.244L1645.001,246.75C1645.001,247.441,1644.441,248,1643.751,248L1643.251,248C1643.216,248,1643.182,247.972,1643.147,247.997C1643.104,247.972,1643.06,248,1643.016,248L1641.251,248C1640.56,248,1640,247.441,1640,246.75L1640,244C1640,243.447,1639.554,243,1639,243L1637,243C1636.447,243,1636,243.447,1636,244L1636,246.75C1636,247.441,1635.441,248,1634.75,248L1633.003,248C1632.956,248,1632.91,247.997,1632.863,247.994C1632.825,247.997,1632.788,248,1632.75,248L1632.25,248C1631.56,248,1631,247.441,1631,246.75L1631,243.25C1631,243.222,1631.001,243.191,1631.003,243.163L1631.003,240.988L1630.002,240.988C1629.438,240.988,1629,240.547,1629,239.984C1629,239.703,1629.094,239.453,1629.313,239.234L1637.325,232.251C1637.544,232.031,1637.794,232,1638.013,232C1638.232,232,1638.482,232.063,1638.672,232.219L1646.651,239.234C1646.901,239.453,1647.029,239.703,1646.995,239.984ZL1646.995,239.984ZL1646.995,239.984Z"
+                    style="fill: none; stroke-width: 2; stroke: rgb(255, 255, 255); stroke-opacity: 1;"></path
+                  ></g
+                ></g
+              ></g
             ></svg>
-          <span class="hidden md:block group-hover:block mx-2">Home</span>
+          <span class="hidden md:block group-hover:block mx-2">Dashboard</span>
         </div>
       </a>
     </li>
@@ -54,47 +76,53 @@ export let meta;
         ? 'pf-m-current'
         : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/containers" class="pf-c-nav__link flex items-center align-middle">
-        <div class="flex items-center">
-          <svg
-            class=""
-            width="20"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 12"
-            style="-webkit-print-color-adjust: exact;"
-            fill="none"
-            version="1.1">
-            <g
-              id="shape-0ce89ec0-e7f8-11ec-8809-dd3f56ff9666"
-              xml:space="preserve"
-              width="16"
+        <div class="flex w-full h-full">
+          <div class="flex">
+            <svg
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              width="20"
+              xmlns="http://www.w3.org/2000/svg"
+              height="18"
+              id="screenshot-9fa89b19-44e5-11ed-99ae-9d566b6ba201"
+              viewBox="0 0 16 12"
+              style="-webkit-print-color-adjust: exact;"
+              fill="none"
               version="1.1"
-              height="16"
-              rx="0"
-              ry="0"
-              style="fill: currentColor;"
-              ><g id="shape-0ce93b00-e7f8-11ec-8809-dd3f56ff9666" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
-                ><g id="shape-0ceb36d0-e7f8-11ec-8809-dd3f56ff9666"
-                  ><g id="fills-0ceb36d0-e7f8-11ec-8809-dd3f56ff9666"
-                    ><path
-                      rx="0"
-                      ry="0"
-                      d="M1.5218559309491866,0C0.6868867060620687,0,0,0.6864952404280302,0,1.5209892752261567L0,10.471200983324707C0,11.30569396019996,0.6868857987537922,12,1.5218559309491866,12L14.480097805928153,12C15.315067786905502,12,16,11.305694338029753,16,10.471200983324707L16,8.508948847843612L16,4.635209785448751L16,3.461763828280482L16,1.5209892752261567C16,0.6864956560407336,15.315067786905502,0,14.480097805928153,0L1.5218559309491866,0ZZM1.5218559309491866,1.0113895148408574L14.480097805928153,1.0113895148408574C14.77024323206615,1.0113895148408574,14.988033857810478,1.231011497158761,14.988034235855366,1.5209892752261567L14.988034235855366,3.461763828280482L14.988034235855366,4.635209785448751L14.988034235855366,8.508948847843612L14.988034235855366,10.471200983324707C14.988034235855366,10.76117740120526,14.770242097931032,10.980800781493144,14.480097805928153,10.980800781493144L1.5218559309491866,10.980800781493144C1.231713453562861,10.980800781493144,1.0119658019493727,10.761175889886317,1.0119658019493727,10.471200983324707L1.0119658019493727,1.5209892752261567C1.0119658019493727,1.2310112326777016,1.2317126218636076,1.0113895148408574,1.5218559309491866,1.0113895148408574ZZM2.9968254280290694,2.0013017495180065L2.9968254280290694,2.997071365848342L2.9968254280290694,8.995118666005055L2.000488424768264,8.995118666005055L2.000488424768264,10.00065102589133L14.00732599347839,10.00065102589133L14.00732599347839,8.995118666005055L13.003174798798,8.995118666005055L13.003174798798,2.997071365848342L14.02881558694935,2.997071365848342L14.02881558694935,2.0013017495180065L12.006837795537194,2.0013017495180065L12.006837795537194,2.997071365848342L12.006837795537194,8.995118666005055L10.004395482673317,8.995118666005055L10.004395482673317,2.997071365848342L11.031990385747122,2.997071365848342L11.031990385747122,2.0013017495180065L9.000244287993155,2.0013017495180065L9.000244287993155,2.997071365848342L9.000244287993155,8.995118666005055L6.999755712006845,8.995118666005055L6.999755712006845,2.997071365848342L8.025396878203082,2.997071365848342L8.025396878203082,2.0013017495180065L6.00341870874604,2.0013017495180065L6.00341870874604,2.997071365848342L6.00341870874604,8.995118666005055L4.002930510804617,8.995118666005055L4.002930510804617,2.997071365848342L5.028571298955967,2.997071365848342L5.028571298955967,2.0013017495180065L2.9968254280290694,2.0013017495180065ZZ"
-                      style="color: rgb(0, 0, 0); stroke-linejoin: round; fill: rgb(255, 255, 255); fill-opacity: 1;"
-                    ></path
+              ><g
+                id="shape-9fa89b19-44e5-11ed-99ae-9d566b6ba201"
+                xml:space="preserve"
+                width="16"
+                version="1.1"
+                height="16"
+                rx="0"
+                ry="0"
+                style="fill: rgb(0, 0, 0);"
+                ><g id="shape-9fa89b1c-44e5-11ed-99ae-9d566b6ba201" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
+                  ><g id="shape-9fa89b1d-44e5-11ed-99ae-9d566b6ba201"
+                    ><g id="fills-9fa89b1d-44e5-11ed-99ae-9d566b6ba201"
+                      ><path
+                        rx="0"
+                        ry="0"
+                        d="M1.522,0C0.687,0,0,0.686,0,1.521L0,10.471C0,11.306,0.687,12,1.522,12L14.48,12C15.315,12,16,11.306,16,10.471L16,8.509L16,4.635L16,3.462L16,1.521C16,0.686,15.315,0,14.48,0L1.522,0ZZM1.522,1.011L14.48,1.011C14.77,1.011,14.988,1.231,14.988,1.521L14.988,3.462L14.988,4.635L14.988,8.509L14.988,10.471C14.988,10.761,14.77,10.981,14.48,10.981L1.522,10.981C1.232,10.981,1.012,10.761,1.012,10.471L1.012,1.521C1.012,1.231,1.232,1.011,1.522,1.011ZZM2.997,2.001L2.997,2.997L2.997,8.995L2,8.995L2,10.001L14.007,10.001L14.007,8.995L13.003,8.995L13.003,2.997L14.029,2.997L14.029,2.001L12.007,2.001L12.007,2.997L12.007,8.995L10.004,8.995L10.004,2.997L11.032,2.997L11.032,2.001L9,2.001L9,2.997L9,8.995L7,8.995L7,2.997L8.025,2.997L8.025,2.001L6.003,2.001L6.003,2.997L6.003,8.995L4.003,8.995L4.003,2.997L5.029,2.997L5.029,2.001L2.997,2.001ZZ"
+                        style="color: rgb(0, 0, 0); stroke-linejoin: round; fill: rgb(255, 255, 255); fill-opacity: 1;"
+                      ></path
+                      ></g
                     ></g
                   ></g
                 ></g
-              ></g
-            ></svg>
+              ></svg>
+            <span class="hidden md:block group-hover:block mx-2">Containers</span>
+          </div>
 
-          <span class="hidden md:block group-hover:block mx-2">Containers</span>
-
-          {#if containersCountValue > 0}
-            {#if innerWidth >= 768}
-              <span class="pf-c-badge pf-m-read hidden group-hover:flex md:flex items-center justify-center"
-                >{containersCountValue}</span>
-            {/if}
-          {/if}
+          <div class="flex w-full justify-end">
+            <div>
+              {#if containersCountValue > 0}
+                {#if innerWidth >= 768}
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{containersCountValue}</span>
+                {/if}
+              {/if}
+            </div>
+          </div>
         </div>
       </a>
     </li>
@@ -103,46 +131,51 @@ export let meta;
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/images" class="pf-c-nav__link">
-        <div class="flex items-center">
-          <svg
-            width="18"
-            xmlns="http://www.w3.org/2000/svg"
-            height="13.000000000000455"
-            id="screenshot-e34d1510-e7fb-11ec-8809-dd3f56ff9666"
-            viewBox="-1 -1 18 13.000000000000455"
-            style="-webkit-print-color-adjust: exact;"
-            fill="none"
-            version="1.1"
-            ><g id="shape-e34d1510-e7fb-11ec-8809-dd3f56ff9666" rx="0" ry="0"
-              ><g id="shape-49a31690-e769-11ec-8809-dd3f56ff9666"
-                ><g id="fills-49a31690-e769-11ec-8809-dd3f56ff9666"
-                  ><path
-                    rx="0"
-                    ry="0"
-                    d="M5.783333338456487,0C3.7675837420570133,0.00024082716072371113,2.1335625589499614,1.5932840918758302,2.1333333387087805,3.558465444585636C2.1340397303924874,3.845714958710232,2.1704154967114846,4.131824643674463,2.241666654362234,4.410549509031171C0.9281347063156318,4.900815943180987,0,6.135935234257886,0,7.591663742218316C0,9.479885735091557,1.5609960651740948,11.000000000000455,3.4999999622045834,11.000000000000455L12.499999795905296,11.000000000000455C14.439003894510734,11.000000000000455,16,9.479885735091557,16,7.591663742218316C16,6.113553997334293,15.043556571366935,4.862597573568564,13.697916538425034,4.388233049671271C13.37622687768362,3.262100862960324,12.324067703554647,2.483070252013931,11.124999989291155,2.483216393949988C10.494968678541227,2.4838062231906406,9.885439338284868,2.7015429405801115,9.404166753826303,3.0979342674263535C9.166663776083169,1.3252418303718514,7.617086223974638,-0.0005549815805352409,5.783333338456487,0ZZ"
-                    style="opacity: 1; fill: none; stroke-linejoin: round; stroke-dasharray: none;"></path
-                  ></g
-                ><g id="strokes-49a31690-e769-11ec-8809-dd3f56ff9666"
-                  ><g class="stroke-shape"
+        <div class="flex w-full h-full">
+          <div class="flex">
+            <svg
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              width="17"
+              xmlns="http://www.w3.org/2000/svg"
+              height="12"
+              id="screenshot-9fa89b10-44e5-11ed-99ae-9d566b6ba201"
+              viewBox="-0.5 -0.5 17 12"
+              style="-webkit-print-color-adjust: exact;"
+              fill="none"
+              version="1.1"
+              ><g id="shape-9fa89b10-44e5-11ed-99ae-9d566b6ba201" rx="0" ry="0"
+                ><g id="shape-9fa89b11-44e5-11ed-99ae-9d566b6ba201"
+                  ><g id="fills-9fa89b11-44e5-11ed-99ae-9d566b6ba201"
                     ><path
                       rx="0"
                       ry="0"
-                      d="M5.783333338456487,0C3.7675837420570133,0.00024082716072371113,2.1335625589499614,1.5932840918758302,2.1333333387087805,3.558465444585636C2.1340397303924874,3.845714958710232,2.1704154967114846,4.131824643674463,2.241666654362234,4.410549509031171C0.9281347063156318,4.900815943180987,0,6.135935234257886,0,7.591663742218316C0,9.479885735091557,1.5609960651740948,11.000000000000455,3.4999999622045834,11.000000000000455L12.499999795905296,11.000000000000455C14.439003894510734,11.000000000000455,16,9.479885735091557,16,7.591663742218316C16,6.113553997334293,15.043556571366935,4.862597573568564,13.697916538425034,4.388233049671271C13.37622687768362,3.262100862960324,12.324067703554647,2.483070252013931,11.124999989291155,2.483216393949988C10.494968678541227,2.4838062231906406,9.885439338284868,2.7015429405801115,9.404166753826303,3.0979342674263535C9.166663776083169,1.3252418303718514,7.617086223974638,-0.0005549815805352409,5.783333338456487,0ZZ"
-                      style="opacity: 1; fill: none; stroke-linejoin: round; stroke-dasharray: none; stroke-width: 2; stroke: currentColor; stroke-opacity: 1;"
-                    ></path
+                      d="M5.783,0C3.768,0,2.134,1.593,2.133,3.558C2.134,3.846,2.17,4.132,2.242,4.411C0.928,4.901,0,6.136,0,7.592C0,9.48,1.561,11,3.5,11L12.5,11C14.439,11,16,9.48,16,7.592C16,6.114,15.044,4.863,13.698,4.388C13.376,3.262,12.324,2.483,11.125,2.483C10.495,2.484,9.885,2.702,9.404,3.098C9.167,1.325,7.617,-0.001,5.783,0ZZ"
+                      style="opacity: 1; fill: none; stroke-linejoin: round; stroke-dasharray: none;"></path
+                    ></g
+                  ><g id="strokes-9fa89b11-44e5-11ed-99ae-9d566b6ba201"
+                    ><g class="stroke-shape"
+                      ><path
+                        rx="0"
+                        ry="0"
+                        d="M5.783,0C3.768,0,2.134,1.593,2.133,3.558C2.134,3.846,2.17,4.132,2.242,4.411C0.928,4.901,0,6.136,0,7.592C0,9.48,1.561,11,3.5,11L12.5,11C14.439,11,16,9.48,16,7.592C16,6.114,15.044,4.863,13.698,4.388C13.376,3.262,12.324,2.483,11.125,2.483C10.495,2.484,9.885,2.702,9.404,3.098C9.167,1.325,7.617,-0.001,5.783,0ZZ"
+                        style="opacity: 1; fill: none; stroke-linejoin: round; stroke-dasharray: none; stroke-width: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"
+                      ></path
+                      ></g
                     ></g
                   ></g
                 ></g
-              ></g
-            ></svg>
-
-          <span class="hidden md:block group-hover:block mx-2">Images</span>
-          {#if innerWidth >= 768}
-            {#if $imagesInfos.length > 0}
-              <span class="pf-c-badge pf-m-read hidden group-hover:flex md:flex items-center justify-center"
-                >{$imagesInfos.length}</span>
-            {/if}
-          {/if}
+              ></svg>
+            <span class="hidden md:block group-hover:block mx-2">Images</span>
+          </div>
+          <div class="flex w-full justify-end">
+            <div>
+              {#if innerWidth >= 768}
+                {#if $imagesInfos.length > 0}
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{$imagesInfos.length}</span>
+                {/if}
+              {/if}
+            </div>
+          </div>
         </div>
       </a>
     </li>
@@ -151,41 +184,94 @@ export let meta;
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/pods" class="pf-c-nav__link">
-        <div class="flex items-center">
-          <svg width="18" height="18" version="1.1" viewBox="0 0 12.3 12.184" xmlns="http://www.w3.org/2000/svg">
-            <g transform="translate(-3.8603 -3.8322)">
-              <text
-                x="10.017183"
-                y="16.811775"
-                style="fill:#ffffff;font-family:sans-serif;letter-spacing:0px;line-height:0%;stroke-width:.26458px;word-spacing:0px"
-                xml:space="preserve"
-                ><tspan
-                  x="10.017183"
-                  y="16.811775"
-                  text-anchor="middle"
-                  style="fill:currentColor;font-family:Arial;font-size:2.8222px;line-height:6.61458;stroke-width:.26458px;text-align:center"
-                ></tspan
-                ></text>
-              <g transform="matrix(1.6985 0 0 1.6985 -6.7754 -6.3352)" style="fill:currentColor">
-                <path
-                  d="m6.2618 7.0361 3.6208-1.05 3.6208 1.05-3.6208 1.05z"
-                  style="fill-rule:evenodd;fill:currentColor"></path>
-                <path d="m6.2618 7.4382v3.8528l3.3736 1.8687 0.0167-4.7132z" style="fill-rule:evenodd;fill:currentColor"
-                ></path>
-                <path
-                  d="m13.503 7.4382v3.8528l-3.3736 1.8687-0.0167-4.7132z"
-                  style="fill-rule:evenodd;fill:currentColor"></path>
-              </g>
-            </g>
-          </svg>
-
-          <span class="hidden md:block group-hover:block mx-2">Pods</span>
-          {#if innerWidth >= 768}
-            {#if $podsInfos.length > 0}
-              <span class="pf-c-badge pf-m-read hidden group-hover:flex md:flex items-center justify-center"
-                >{$podsInfos.length}</span>
-            {/if}
-          {/if}
+        <div class="flex w-full h-full">
+          <div class="flex">
+            <svg
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              width="17"
+              xmlns="http://www.w3.org/2000/svg"
+              height="17"
+              id="screenshot-a61951f0-4579-11ed-a6e7-c91b1ff726ce"
+              viewBox="-0.5 -0.5 17 17"
+              style="-webkit-print-color-adjust: exact;"
+              fill="none"
+              version="1.1"
+              ><g id="shape-a61951f0-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
+                ><g id="shape-a61d70a0-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
+                  ><g id="shape-a61e0ce0-4579-11ed-a6e7-c91b1ff726ce"
+                    ><g id="fills-a61e0ce0-4579-11ed-a6e7-c91b1ff726ce"
+                      ><path
+                        rx="0"
+                        ry="0"
+                        d="M0,2.5L8,0L16,2.5L8,5Z"
+                        style="fill-rule: evenodd; stroke: none; stroke-miterlimit: 10; fill: rgb(177, 178, 181); fill-opacity: 0;"
+                      ></path
+                      ></g
+                    ><g id="strokes-a61e0ce0-4579-11ed-a6e7-c91b1ff726ce"
+                      ><g class="stroke-shape"
+                        ><path
+                          rx="0"
+                          ry="0"
+                          d="M0,2.5L8,0L16,2.5L8,5Z"
+                          style="fill-rule: evenodd; stroke: rgb(255, 255, 255); stroke-miterlimit: 10; fill: none; stroke-width: 1; stroke-opacity: 1;"
+                        ></path
+                        ></g
+                      ></g
+                    ></g
+                  ><g id="shape-a61e8210-4579-11ed-a6e7-c91b1ff726ce"
+                    ><g id="fills-a61e8210-4579-11ed-a6e7-c91b1ff726ce"
+                      ><path
+                        rx="0"
+                        ry="0"
+                        d="M0,3L0,11.754L7.961,16L8,5.291Z"
+                        style="fill-rule: evenodd; stroke: none; stroke-miterlimit: 10; fill: rgb(177, 178, 181); fill-opacity: 0;"
+                      ></path
+                      ></g
+                    ><g id="strokes-a61e8210-4579-11ed-a6e7-c91b1ff726ce"
+                      ><g class="stroke-shape"
+                        ><path
+                          rx="0"
+                          ry="0"
+                          d="M0,3L0,11.754L7.961,16L8,5.291Z"
+                          style="fill-rule: evenodd; stroke: rgb(255, 255, 255); stroke-miterlimit: 10; fill: none; stroke-width: 1; stroke-opacity: 1;"
+                        ></path
+                        ></g
+                      ></g
+                    ></g
+                  ><g id="shape-a61f4560-4579-11ed-a6e7-c91b1ff726ce"
+                    ><g id="fills-a61f4560-4579-11ed-a6e7-c91b1ff726ce"
+                      ><path
+                        rx="0"
+                        ry="0"
+                        d="M16,3L16,11.754L8.039,16L8,5.291Z"
+                        style="fill-rule: evenodd; stroke: none; stroke-miterlimit: 10; fill: rgb(177, 178, 181); fill-opacity: 0;"
+                      ></path
+                      ></g
+                    ><g id="strokes-a61f4560-4579-11ed-a6e7-c91b1ff726ce"
+                      ><g class="stroke-shape"
+                        ><path
+                          rx="0"
+                          ry="0"
+                          d="M16,3L16,11.754L8.039,16L8,5.291Z"
+                          style="fill-rule: evenodd; stroke: rgb(255, 255, 255); stroke-miterlimit: 10; fill: none; stroke-width: 1; stroke-opacity: 1;"
+                        ></path
+                        ></g
+                      ></g
+                    ></g
+                  ></g
+                ></g
+              ></svg>
+            <span class="hidden md:block group-hover:block mx-2">Pods</span>
+          </div>
+          <div class="flex w-full justify-end">
+            <div>
+              {#if innerWidth >= 768}
+                {#if $podsInfos.length > 0}
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{$podsInfos.length}</span>
+                {/if}
+              {/if}
+            </div>
+          </div>
         </div>
       </a>
     </li>
@@ -194,30 +280,54 @@ export let meta;
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/volumes" class="pf-c-nav__link">
-        <div class="flex items-center">
-          <svg width="18" height="18" version="1.1" viewBox="0 0 9.525 9.525" xmlns="http://www.w3.org/2000/svg">
-            <g transform="translate(-5.2488 -6.9359)">
-              <g transform="translate(-.18879 1.9844)">
-                <path
-                  d="m5.571 8.1928c0 0.62112 2.0726 1.1246 4.6292 1.1246 2.5566 0 4.6292-0.50352 4.6292-1.1246v3.0424c0 0.62112-2.0725 1.1246-4.6292 1.1246-2.5566 0-4.6292-0.50352-4.6292-1.1246z"
-                  style="fill:currentColor"></path>
-                <path
-                  d="m5.571 8.1928c0-0.62112 2.0726-1.1246 4.6292-1.1246 2.5566 0 4.6292 0.50352 4.6292 1.1246 0 0.62112-2.0725 1.1246-4.6292 1.1246-2.5566 0-4.6292-0.50352-4.6292-1.1246z"
-                  style="fill:currentColor"></path>
-                <path
-                  d="m14.829 8.1928c0 0.62112-2.0725 1.1246-4.6292 1.1246-2.5566 0-4.6292-0.50352-4.6292-1.1246 0-0.62112 2.0726-1.1246 4.6292-1.1246 2.5566 0 4.6292 0.50352 4.6292 1.1246v3.0424c0 0.62112-2.0725 1.1246-4.6292 1.1246-2.5566 0-4.6292-0.50352-4.6292-1.1246v-3.0424"
-                  style="fill:none;stroke-linejoin:round;stroke-miterlimit:10;stroke-width:0.2;stroke:#222"></path>
-              </g>
-            </g>
-          </svg>
-
-          <span class="hidden md:block group-hover:block mx-2">Volumes</span>
-          {#if innerWidth >= 768}
-            {#if $volumeListInfos.length > 0}
-              <span class="pf-c-badge pf-m-read hidden group-hover:flex md:flex items-center justify-center"
-                >{$volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length}</span>
-            {/if}
-          {/if}
+        <div class="flex w-full h-full">
+          <div class="flex">
+            <svg
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              width="17.5"
+              xmlns="http://www.w3.org/2000/svg"
+              height="10.5"
+              id="screenshot-f7b05040-4579-11ed-a6e7-c91b1ff726ce"
+              viewBox="-0.75 -0.75 17.5 10.5"
+              style="-webkit-print-color-adjust: exact;"
+              fill="none"
+              version="1.1"
+              ><g id="shape-f7b05040-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
+                ><g id="shape-f7b7a340-4579-11ed-a6e7-c91b1ff726ce" rx="0" ry="0" style="fill: rgb(0, 0, 0);"
+                  ><g id="shape-f7bb9ae0-4579-11ed-a6e7-c91b1ff726ce"
+                    ><g id="fills-f7bb9ae0-4579-11ed-a6e7-c91b1ff726ce"
+                      ><path
+                        rx="0"
+                        ry="0"
+                        d="M16,1.913L16,1.913ZC16,2.969,12.418,3.826,8,3.826C3.582,3.826,0,2.969,0,1.913L0,1.913C0,0.856,3.582,0,8,0C12.418,0,16,0.856,16,1.913ZL16,7.087C16,8.144,12.418,9,8,9C3.582,9,0,8.144,0,7.087L0,1.913"
+                        style="fill: none; fill-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 10;"></path
+                      ></g
+                    ><g id="strokes-f7bb9ae0-4579-11ed-a6e7-c91b1ff726ce"
+                      ><g class="stroke-shape"
+                        ><path
+                          rx="0"
+                          ry="0"
+                          d="M16,1.913L16,1.913ZC16,2.969,12.418,3.826,8,3.826C3.582,3.826,0,2.969,0,1.913L0,1.913C0,0.856,3.582,0,8,0C12.418,0,16,0.856,16,1.913ZL16,7.087C16,8.144,12.418,9,8,9C3.582,9,0,8.144,0,7.087L0,1.913"
+                          style="fill: none; fill-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 10; stroke-width: 1.5; stroke: rgb(255, 255, 255); stroke-opacity: 1;"
+                        ></path
+                        ></g
+                      ></g
+                    ></g
+                  ></g
+                ></g
+              ></svg>
+            <span class="hidden md:block group-hover:block mx-2">Volumes</span>
+          </div>
+          <div class="flex w-full justify-end">
+            <div>
+              {#if innerWidth >= 768}
+                {#if $volumeListInfos.length > 0}
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center"
+                    >{$volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length}</span>
+                {/if}
+              {/if}
+            </div>
+          </div>
         </div>
       </a>
     </li>

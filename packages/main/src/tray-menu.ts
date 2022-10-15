@@ -86,6 +86,11 @@ export class TrayMenu {
       },
     );
 
+    ipcMain.on('tray:delete-menu-item', (_, id: string) => {
+      this.menuCustomItems.delete(id);
+      this.updateMenu();
+    });
+
     ipcMain.on('tray:add-menu-item', (_, param: { menuItem: MenuItemConstructorOptions }) => {
       param.menuItem.click = () => {
         ipcMain.emit('tray:menu-item-click', '', param.menuItem.id, param.menuItem.label);

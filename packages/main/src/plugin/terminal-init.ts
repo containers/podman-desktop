@@ -31,7 +31,7 @@ export class TerminalInit {
       type: 'object',
       properties: {
         [TerminalSettings.SectionName + '.' + TerminalSettings.FontSize]: {
-          description: 'Font size in pixels of the terminal.',
+          description: 'Terminal font size, in pixels.',
           type: 'number',
           default: 10,
           minimum: 6,
@@ -39,7 +39,7 @@ export class TerminalInit {
         },
         [TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight]: {
           description:
-            'Line height of the terminal, this number is multiplied by the terminal font size to get the actual line-height in pixels.',
+            'Line height of the terminal. This number is multiplied by the terminal font size to get the actual terminal height in pixels.',
           type: 'number',
           default: TerminalInit.DEFAULT_LINE_HEIGHT,
           minimum: 1,

@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,12 +17,14 @@
  ***********************************************************************/
 
 /* eslint-env node */
-import {join} from 'path';
+import { join } from 'path';
+import * as path from 'path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
+import { fileURLToPath } from 'url';
 
-const PACKAGE_ROOT = __dirname;
-
+let filename = fileURLToPath(import.meta.url);
+const PACKAGE_ROOT = path.dirname(filename);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -47,7 +49,7 @@ export default defineConfig({
     sourcemap: true,
     outDir: 'dist',
     assetsDir: '.',
-    
+
     emptyOutDir: true,
     brotliSize: false,
   },
