@@ -57,9 +57,9 @@ app.on('activate', restoreOrCreateWindow);
 /**
  *  @see https://www.electronjs.org/docs/latest/api/app#appsetappusermodelidid-windows
  */
- if (isWindows) {
-     app.setAppUserModelId(app.name);
- }
+if (isWindows) {
+  app.setAppUserModelId(app.name);
+}
 
 /**
  * Create app window when background process will be ready
