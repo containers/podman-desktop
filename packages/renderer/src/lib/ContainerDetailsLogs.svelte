@@ -100,26 +100,23 @@ onMount(async () => {
 });
 </script>
 
-{#if logsReady}
-  <div
-    class="h-full min-w-full flex flex-col"
-    class:hidden="{noLogs === false}"
-    style="background-color: {getPanelDetailColor()}">
-    <div class="pf-c-empty-state h-full">
-      <div class="pf-c-empty-state__content">
-        <i class="fas fa-terminal pf-c-empty-state__icon" aria-hidden="true"></i>
+<div
+  class="flex flex-col h-full"
+  style="background-color: {getPanelDetailColor()}"
+  class:hidden="{noLogs === true}"
+  bind:this="{logsXtermDiv}">
+</div>
+<div
+  class="h-full min-w-full flex flex-col"
+  class:hidden="{logsReady && noLogs === false}"
+  style="background-color: {getPanelDetailColor()}">
+  <div class="pf-c-empty-state h-full">
+    <div class="pf-c-empty-state__content">
+      <i class="fas fa-terminal pf-c-empty-state__icon" aria-hidden="true"></i>
 
-        <h1 class="pf-c-title pf-m-lg">No Log</h1>
+      <h1 class="pf-c-title pf-m-lg">No Log</h1>
 
-        <div class="pf-c-empty-state__body">Log output of {container.name}</div>
-      </div>
+      <div class="pf-c-empty-state__body">Log output of {container.name}</div>
     </div>
   </div>
-{/if}
-<div
-  class="flex flex-col"
-  style="background-color: {getPanelDetailColor()}"
-  class:h-full="{noLogs === false}"
-  class:min-w-full="{noLogs === false}"
-  bind:this="{logsXtermDiv}">
 </div>

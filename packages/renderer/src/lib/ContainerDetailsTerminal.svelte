@@ -78,7 +78,12 @@ onMount(async () => {
 });
 </script>
 
-<div class="h-full" bind:this="{terminalXtermDiv}" class:hidden="{container.state !== 'RUNNING'}"></div>
+<div
+  class="h-full"
+  bind:this="{terminalXtermDiv}"
+  style="background-color: {getPanelDetailColor()}"
+  class:hidden="{container.state !== 'RUNNING'}">
+</div>
 
 <div
   class="h-full min-w-full flex flex-col"
