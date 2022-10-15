@@ -20,7 +20,7 @@ import { app, Tray } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
-import { isMac } from './util';
+import { isMac, isWindows } from './util';
 import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
 import { StartupInstall } from './system/startup-install';
@@ -53,6 +53,13 @@ app.on('window-all-closed', () => {
  * @see https://www.electronjs.org/docs/v14-x-y/api/app#event-activate-macos Event: 'activate'
  */
 app.on('activate', restoreOrCreateWindow);
+
+/**
+ *  @see https://www.electronjs.org/docs/latest/api/app#appsetappusermodelidid-windows
+ */
+ if (isWindows) {
+     app.setAppUserModelId(app.name);
+ }
 
 /**
  * Create app window when background process will be ready
