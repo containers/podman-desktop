@@ -33,7 +33,7 @@ export let meta;
   aria-label="Global">
   <ul class="pf-c-nav__list">
     <li
-      class="pf-c-nav__item flex w-full items-center justify-between {meta.url === '/'
+      class="pf-c-nav__item flex w-full justify-between {meta.url === '/'
         ? 'pf-m-current'
         : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/" class="pf-c-nav__link flex items-center align-middle">
@@ -58,12 +58,12 @@ export let meta;
     </li>
 
     <li
-      class="pf-c-nav__item flex w-full items-center justify-between {meta.url.startsWith('/containers')
+      class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/containers')
         ? 'pf-m-current'
         : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/containers" class="pf-c-nav__link flex items-center align-middle">
-        <div class="flex w-full h-full">
-          <div class="flex">
+        <div class="flex items-center w-full h-full">
+          <div class="flex items-center">
             <svg
               id="containers"
               xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -107,8 +107,8 @@ export let meta;
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/images" class="pf-c-nav__link">
-        <div class="flex w-full h-full">
-          <div class="flex">
+        <div class="flex items-center w-full h-full">
+          <div class="flex items-center">
             <svg
               id="images"
               width="24"
@@ -157,8 +157,8 @@ export let meta;
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/pods" class="pf-c-nav__link">
-        <div class="flex w-full h-full">
-          <div class="flex">
+        <div class="flex items-center w-full h-full">
+          <div class="flex items-center">
             <svg
               id="pods"
               width="24"
@@ -212,8 +212,8 @@ export let meta;
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
       <a href="/volumes" class="pf-c-nav__link">
-        <div class="flex w-full h-full">
-          <div class="flex"><svg
+        <div class="flex items-center w-full h-full">
+          <div class="flex items-center"><svg
             id="volumes"
             width="24"
             height="24"
