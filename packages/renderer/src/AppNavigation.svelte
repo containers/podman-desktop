@@ -247,7 +247,9 @@ export let meta;
                   class="pf-c-nav__item {meta.url.startsWith('/contribs/' + contribution.name)
                     ? 'dark:text-white pf-m-current'
                     : 'dark:text-gray-400'} ">
-                  <a href="/contribs/{contribution.name}" class="pf-c-nav__link">{contribution.name}</a>
+                  <div class="ml-2">
+                    <a href="/contribs/{contribution.name}" class="pf-c-nav__link">{contribution.name}</a>
+                  </div>
                 </li>
               {/each}
             </ul>
