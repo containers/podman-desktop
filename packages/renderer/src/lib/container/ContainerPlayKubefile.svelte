@@ -72,7 +72,7 @@ onDestroy(() => {
 });
 
 async function getKubernetesfileLocation() {
-  const result = await window.openFileDialog('Select a .yaml file to run', {
+  const result = await window.openFileDialog('Select a .yaml file to play', {
     name: 'YAML files',
     extensions: ['yaml', 'yml'],
   });
@@ -88,7 +88,7 @@ async function getKubernetesfileLocation() {
 {/if}
 
 {#if providerConnections.length > 0}
-  <NavPage title="Run Pods or Containers from a Kubernetes YAML File" searchEnabled="{false}">
+  <NavPage title="Play Pods or Containers from a Kubernetes YAML File" searchEnabled="{false}">
     <div slot="empty" class="bg-zinc-700 p-5 h-full">
       <div class="bg-zinc-800 px-6 py-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
         <div class="text-xl font-medium">Select file:</div>
@@ -101,7 +101,7 @@ async function getKubernetesfileLocation() {
             id="containerFilePath"
             bind:value="{kubernetesYamlFilePath}"
             readonly
-            placeholder="Select a .yaml file to run"
+            placeholder="Select a .yaml file to play"
             class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
             required />
         </div>
@@ -148,7 +148,7 @@ async function getKubernetesfileLocation() {
                 <KubePlayIcon />
               {/if}
 
-              Run
+              Play
             </div>
           </button>
         {/if}

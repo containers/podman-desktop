@@ -153,7 +153,7 @@ async function deleteSelectedImages() {
 
 <NavPage
   bind:searchTerm
-  title="Images"
+  title="images"
   subtitle="Hover over an image to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     <button on:click="{() => gotoPullImage()}" class="pf-c-button pf-m-primary" type="button">
