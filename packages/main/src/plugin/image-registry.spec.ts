@@ -38,6 +38,7 @@ test('Should extract auth registry with gitlab', async () => {
   );
   expect(authInfo).toBeDefined();
   expect(authInfo?.authUrl).toBe('https://gitlab.com/jwt/auth');
+  expect(authInfo?.scheme).toBe('Bearer');
   expect(authInfo?.service).toBe('container_registry');
   expect(authInfo?.scope).toBeUndefined();
 });
@@ -47,6 +48,7 @@ test('Should extract auth registry with docker', async () => {
     'Bearer realm="https://auth.docker.io/token",service="registry.docker.io"',
   );
   expect(authInfo).toBeDefined();
+  expect(authInfo?.scheme).toBe('Bearer');
   expect(authInfo?.authUrl).toBe('https://auth.docker.io/token');
   expect(authInfo?.service).toBe('registry.docker.io');
   expect(authInfo?.scope).toBeUndefined();
@@ -55,6 +57,7 @@ test('Should extract auth registry with docker', async () => {
 test('Should extract auth registry with quay', async () => {
   const authInfo = imageRegistry.extractAuthData('Bearer realm="https://quay.io/v2/auth",service="quay.io"');
   expect(authInfo).toBeDefined();
+  expect(authInfo?.scheme).toBe('Bearer');
   expect(authInfo?.authUrl).toBe('https://quay.io/v2/auth');
   expect(authInfo?.service).toBe('quay.io');
   expect(authInfo?.scope).toBeUndefined();
@@ -65,7 +68,19 @@ test('Should extract auth registry with github registry', async () => {
     'Bearer realm="https://ghcr.io/token",service="ghcr.io",scope="repository:user/image:pull"',
   );
   expect(authInfo).toBeDefined();
+  expect(authInfo?.scheme).toBe('Bearer');
   expect(authInfo?.authUrl).toBe('https://ghcr.io/token');
   expect(authInfo?.service).toBe('ghcr.io');
   expect(authInfo?.scope).toBe('repository:user/image:pull');
+});
+
+test('Should extract auth registry with Amazon ECR registry', async () => {
+  const authInfo = imageRegistry.extractAuthData(
+    'Basic realm="https://userid.dkr.ecr.region.amazonaws.com/",service="ecr.amazonaws.com"',
+  );
+  expect(authInfo).toBeDefined();
+  expect(authInfo?.authUrl).toBe('https://userid.dkr.ecr.region.amazonaws.com/');
+  expect(authInfo?.scheme).toBe('Basic');
+  expect(authInfo?.service).toBe('ecr.amazonaws.com');
+  expect(authInfo?.scope).toBeUndefined();
 });
