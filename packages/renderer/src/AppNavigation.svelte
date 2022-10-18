@@ -293,7 +293,9 @@ export let meta;
           </div>
         </a>
         {#if contributionsExpanded}
-          <section class="hidden md:block group-hover:block pf-c-nav__subnav" aria-labelledby="expandable-third-level-example-example-2">
+          <section
+            class="hidden md:block group-hover:block pf-c-nav__subnav"
+            aria-labelledby="expandable-third-level-example-example-2">
             <ul class="pf-c-nav__list">
               {#each $contributions as contribution}
                 <li
