@@ -3,69 +3,84 @@ sidebar_position: 4
 ---
 
 # Windows
-## 1. Installing Podman Desktop on Windows
 
-In order to install the latest Podman Desktop application for Windows, visit the [Downloads](/downloads/windows) section of this website to download the .exe file.
+This page contains information regarding installation of Podman Desktop on Windows.
 
-Simply download the file from the [Downloads](/downloads/windows) section and open it in your Desktop to install Podman Desktop.
+:::infoPrerequisites:
+**NOTE: Administrator access is required for both these prerequisites.**
+1. [Hyper-V should be enabled](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
+2. [Windows Subsystem for Linux v2 (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install-manual) should be installed.
+:::
 
-## 2. Installing Podman (if not already present)
+## Installing Podman Desktop on Windows
 
-If you don't have Podman installed in your Windows computer, Podman Desktop will prompt you to do so as soon as you open the application. With the latest update, Podman Desktop will be able to install and configure Podman once you click on the 'Install' button on the home page.
+### a. Using `.exe` file from [Downloads](/downloads/windows)
 
-NOTE: Podman Engine on Windows is backed by a virtualized Windows Subsystem for Linux (WSLv2) instance. If you don't have it installed already, Podman Desktop will prompt you to do so when you initialize a Podman Machine for the first time. You can read more about installing Podman on Windows [here](https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md).
+**1. Download the latest `.exe` file from the [Downloads](/downloads/windows) section of this website.**
 
-![img1](img/homescreen.png)
+**2. Locate the downloaded file and and double-click on it to open Podman Desktop. (Usually, you will find the downloaded file in the Downloads folder)**
 
-## 3. Initialize & Start the Podman Machine
+![img0](img/windows/open-podman-desktop.png)
 
-### a. Default Configurations
+### b. Using [Chocolatey](https://chocolatey.org/install) package manager for Windows
 
-Once Podman is installed, you will see a toggle button at "Home" window that will allow you to initialize a Podman Machine with default configurations. Simply activate the toggle to proceed.
+**1. Using the installation guide [here](https://chocolatey.org/install), install Chocolatey Package Manager.**
 
-![img2](img/initialize.png)
-
-If this is your first time initializing Podman Machine after installation and you do not have WSLv2 installed, Podman Desktop will prompt you to do so (as shown in image below). Click 'OK' and wait for the process to complete. 
-
-![img3](img/wsl_before_reboot_1.png)
-
-Your device will reboot during the process. You will be again prompted to proceed.
-
-![img4](img/wsl_before_reboot_2.png)
-
- After reboot, the remaining installation process will be performed. Once WSLv2 is installed, you will find that the Podman Machine is initialized.
-
-![img5](img/wsl_after_reboot.png)
-
-After initializing a Podman Machine, you should see a toggle to Run Podman. This will start the Podman Machine upon activation.
-
-![img6](img/starting.png)
-
-### b. Custom Configurations
-
-In order to initialize a Podman Machine with custom configurations, go to "Preferences" on the menu present in the left-side of the application. Under Resources, you will find Podman. Clicking on it shall load the configuration settings for the machine. Enter the values that deem fit for your purpose and click on the "Create" button.
-
-![img7](img/create.png)
-
-Once the machine is created, you can click on the Start button in the Machine Settings to start the Machine.
-
-![img8](img/machine.png)
-
-### c. Command Line
-
-Using the following two commands in the command line, you can initialize and start a Podman Machine the classic way!
-
-To initialize the machine, the command is
-
+**2. To install Podman Desktop, run the following command from the command line or from PowerShell:**
 ```sh
-podman machine init
+choco install podman-desktop
 ```
 
-After which, you can start the machine with the command
+**Read more about Podman Desktop on Chocolatey [here](https://community.chocolatey.org/packages/podman-desktop).**
 
+### c. Using [Winget](https://winget.run/pkg/RedHat/Podman-Desktop) package manager for Windows
+
+**1. Get the Winget Package manager for Windows by clicking [here](https://aka.ms/getwinget).**
+
+**2. To install Podman Desktop, run the following command from the command line or from PowerShell:**
 ```sh
-podman machine start
+winget install -e --id RedHat.Podman-Desktop
 ```
 
-**Well that's just it. You shall now be all set to use Podman Desktop on Windows!**
+### d. Using [Scoop](https://scoop.sh/#/apps?q=podman-desktop&s=0&d=1&o=true) package manager for Windows
 
+**1. Using the installation guide [here](https://github.com/ScoopInstaller/Install#readme), install Scoop Package Manager.**
+
+**2. To install Podman Desktop, run the following commands from the command line or from PowerShell:**
+```sh
+scoop bucket add extras
+```
+
+```sh
+scoop install podman-desktop
+```
+
+## Setting up Podman Desktop on Windows
+
+**1. Install Podman from Podman Desktop, if not yet installed.**
+
+When you open Podman Desktop, your home screen would look like the one in the image below if you don't have Podman (Engine) installed.
+
+![img1](img/windows/homescreen.png)
+
+**a. To install Podman, click on the `Install` button on the home screen. This will check for all the requirements for installation of Podman Engine.**
+
+![img2](img/windows/prereq-wsl2.png)
+
+**b. If you do not have WSL2 installed, follow the instructions [here](https://learn.microsoft.com/en-us/windows/wsl/install-manual) to install the same.**
+
+**c. Once all the requirements are met, Podman Desktop will ask you to allow installation of Podman (Engine). Click on `Yes` to continue.**
+
+![img3](img/windows/podman-install.png)
+
+**2. Once installation is completed, you are ready to use Podman Desktop.**
+
+After the installation of Podman Engine, your home screen would like the one in the image below.
+
+![img4](img/windows/podman-desktop-ready.png)
+
+If the screen says `Podman is installed but not ready`, it means that installation of Podman Engine has been completed but a Podman Machine has not been initialized. 
+
+## Next Steps
+
+You can learn more about initializing a Podman Machine and working with Podman Desktop in our [Getting Started guide](/docs/getting-started/getting-started).
