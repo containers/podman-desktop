@@ -84,3 +84,35 @@ test('Should extract auth registry with Amazon ECR registry', async () => {
   expect(authInfo?.service).toBe('ecr.amazonaws.com');
   expect(authInfo?.scope).toBeUndefined();
 });
+
+test('should map short name to hub server', () => {
+  const registryServer = imageRegistry.extractRegistryServerFromImage('mysql');
+  expect(registryServer).toBe('docker.io');
+});
+
+test('should map short name with tag to hub server', () => {
+  const registryServer = imageRegistry.extractRegistryServerFromImage('mysql:latest');
+  expect(registryServer).toBe('docker.io');
+});
+
+test('should map localhost with port registry', () => {
+  const registryServer = imageRegistry.extractRegistryServerFromImage('localhost:5000/myimage');
+  expect(registryServer).toBe('localhost:5000');
+});
+
+test('should map localhost registry', () => {
+  const registryServer = imageRegistry.extractRegistryServerFromImage('localhost/myimage');
+  expect(registryServer).toBe('localhost');
+});
+
+test('should map quay registry', () => {
+  const registryServer = imageRegistry.extractRegistryServerFromImage('quay.io/podman/hello');
+  expect(registryServer).toBe('quay.io');
+});
+
+test('should map ecr', () => {
+  const registryServer = imageRegistry.extractRegistryServerFromImage(
+    '12345.dkr.ecr.us-east-1.amazonaws.com/podman-desktop',
+  );
+  expect(registryServer).toBe('12345.dkr.ecr.us-east-1.amazonaws.com');
+});

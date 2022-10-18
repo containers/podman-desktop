@@ -50,18 +50,25 @@ export class ImageRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(private apiSender: any, private telemetryService: Telemetry) {}
 
-  getAuthconfigForImage(imageName: string): Dockerode.AuthConfig | undefined {
-    // do we have some auth for this image
-    // try to extract registry part from the image
-
-    // no / in the imageName
-    let registryServer: string | undefined;
-    if (imageName.indexOf('/') === -1 || imageName.split('/').length == 2) {
-      registryServer = 'docker.io';
-    } else if (imageName.split('/').length == 3) {
+  extractRegistryServerFromImage(imageName: string): string | undefined {
+    // check if image is a valid identifier for dockerhub
+    const splitParts = imageName.split('/');
+    if (
+      splitParts.length === 1 ||
+      (!splitParts[0].includes('.') && !splitParts[0].includes(':') && splitParts[0] != 'localhost')
+    ) {
+      return 'docker.io';
+    } else {
       // if image name contains two /, we assume there is a registry at the beginning
-      registryServer = imageName.split('/')[0];
+      return splitParts[0];
     }
+  }
+
+  /**
+   * Provides authentication information for the given image if any.
+   */
+  getAuthconfigForImage(imageName: string): Dockerode.AuthConfig | undefined {
+    const registryServer = this.extractRegistryServerFromImage(imageName);
     let authconfig;
     if (registryServer) {
       const matchingUrl = registryServer;
