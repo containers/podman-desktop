@@ -309,7 +309,7 @@ function toggleAllContainerGroups(value: boolean) {
               bind:checked="{selectedAllCheckboxes}"
               on:click="{event => toggleAllContainerGroups(event.currentTarget.checked)}"
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
-          <th class="text-center font-extrabold w-10">Status</th>
+          <th class="text-center font-extrabold w-10 pr-2">Status</th>
           <th>Name</th>
           <th class="text-center">started</th>
           <th class="text-center">actions</th>
