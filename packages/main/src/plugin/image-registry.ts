@@ -29,6 +29,7 @@ export interface RegistryAuthInfo {
   authUrl: string;
   service?: string;
   scope?: string;
+  scheme: string;
 }
 
 export class ImageRegistry {
@@ -182,17 +183,18 @@ export class ImageRegistry {
     // example of www-authenticate header
     // Www-Authenticate: Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:samalba/my-app:pull,push"
     // need to extract realm, service and scope parameters with a regexp
-    const WWW_AUTH_REGEXP = /Bearer realm="(?<realm>[^"]+)"(,service="(?<service>[^"]+)")?(,scope="(?<scope>[^"]+)")?/;
+    const WWW_AUTH_REGEXP =
+      /(?<scheme>Bearer|Basic) realm="(?<realm>[^"]+)"(,service="(?<service>[^"]+)")?(,scope="(?<scope>[^"]+)")?/;
 
     const parsed = WWW_AUTH_REGEXP.exec(wwwAuthenticate);
     if (parsed && parsed.groups) {
-      const { realm, service, scope } = parsed.groups;
-      return { authUrl: realm, service, scope };
+      const { realm, service, scope, scheme } = parsed.groups;
+      return { authUrl: realm, service, scope, scheme };
     }
     return undefined;
   }
 
-  async getAuthUrl(serviceUrl: string): Promise<string | undefined> {
+  async getAuthInfo(serviceUrl: string): Promise<{ authUrl: string | undefined; scheme: string }> {
     let registryUrl: string;
 
     if (serviceUrl.includes('docker.io')) {
@@ -206,7 +208,7 @@ export class ImageRegistry {
     }
 
     let authUrl: string | undefined;
-
+    let scheme = '';
     try {
       await got.get(registryUrl);
     } catch (requestErr) {
@@ -216,6 +218,11 @@ export class ImageRegistry {
           const authInfo = this.extractAuthData(wwwAuthenticate);
           if (authInfo) {
             const url = new URL(authInfo.authUrl);
+            scheme = authInfo.scheme?.toLowerCase();
+            // in case of basic auth, we use directly the registry URL
+            if (scheme === 'basic') {
+              return { authUrl: registryUrl, scheme };
+            }
             if (authInfo.service) {
               url.searchParams.set('service', authInfo.service);
             }
@@ -232,18 +239,17 @@ export class ImageRegistry {
       throw Error('Not a valid registry');
     }
 
-    return authUrl;
+    return { authUrl, scheme };
   }
 
   async checkCredentials(serviceUrl: string, username: string, password: string): Promise<void> {
-    const authUrl = await this.getAuthUrl(serviceUrl);
-
+    const { authUrl, scheme } = await this.getAuthInfo(serviceUrl);
     if (authUrl !== undefined) {
-      await this.doCheckCredentials(authUrl, username, password);
+      await this.doCheckCredentials(scheme, authUrl, username, password);
     }
   }
 
-  async doCheckCredentials(authUrl: string, username: string, password: string): Promise<void> {
+  async doCheckCredentials(scheme: string, authUrl: string, username: string, password: string): Promise<void> {
     let rawResponse: string | undefined;
     // add credentials in the header
     // encode username:password in base64
@@ -267,6 +273,10 @@ export class ImageRegistry {
       }
     }
 
+    // no error with basic scheme, it means it's a valid connection
+    if (scheme === 'basic') {
+      return;
+    }
     if (rawResponse !== undefined && !rawResponse.includes('token')) {
       throw Error('Unable to validate provided credentials');
     }
