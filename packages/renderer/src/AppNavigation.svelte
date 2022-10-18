@@ -285,7 +285,7 @@ export let meta;
                 ></svg>
             </div>
             <span class="hidden md:block group-hover:block mr-5 mx-2">Extensions</span>
-            <span class="pf-c-nav__toggle">
+            <span class="hidden md:block group-hover:block pf-c-nav__toggle">
               <span class="pf-c-nav__toggle-icon" on:click="{() => toggleContributions()}">
                 <i class="fas fa-angle-right" aria-hidden="true"></i>
               </span>
@@ -293,7 +293,7 @@ export let meta;
           </div>
         </a>
         {#if contributionsExpanded}
-          <section class="pf-c-nav__subnav" aria-labelledby="expandable-third-level-example-example-2">
+          <section class="hidden md:block group-hover:block pf-c-nav__subnav" aria-labelledby="expandable-third-level-example-example-2">
             <ul class="pf-c-nav__list">
               {#each $contributions as contribution}
                 <li
