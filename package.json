@@ -73,7 +73,7 @@
     "playwright": "1.18.1",
     "postcss-import": "^14.0.2",
     "prettier": "^2.7.1",
-    "prettier-plugin-svelte": "^2.7.0",
+    "prettier-plugin-svelte": "^2.8.0",
     "typescript": "4.8.4",
     "vite": "2.7.13",
     "vitest": "0.2.8"
