@@ -44,6 +44,7 @@ import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import { Deferred } from './util/deferred';
 import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
 import type { PlayKubeInfo } from '../../main/src/plugin/dockerode/libpod-dockerode';
+import type { V1Pod, V1ConfigMap, V1PodList, V1NamespaceList } from '@kubernetes/client-node';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -832,6 +833,43 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('getDDPreloadPath', async (): Promise<string> => {
     return ipcRenderer.invoke('docker-desktop-plugin:get-preload-script');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesListNamespaces', async (): Promise<V1NamespaceList> => {
+    return ipcInvoke('kubernetes-client:listNamespaces');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesGetCurrentContextName', async (): Promise<string | undefined> => {
+    return ipcInvoke('kubernetes-client:getCurrentContextName');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesGetCurrentNamespace', async (): Promise<string | undefined> => {
+    return ipcInvoke('kubernetes-client:getCurrentNamespace');
+  });
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesListNamespacedPod',
+    async (namespace: string, fieldSelector?: string, labelSelector?: string): Promise<V1PodList> => {
+      return ipcInvoke('kubernetes-client:listNamespacedPod', namespace, fieldSelector, labelSelector);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedPod',
+    async (name: string, namespace: string): Promise<V1Pod | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedPod', name, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedConfigMap',
+    async (name: string, namespace: string): Promise<V1ConfigMap | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedConfigMap', name, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('kubernetesCreatePod', async (namespace: string, pod: V1Pod): Promise<V1Pod> => {
+    return ipcInvoke('kubernetes-client:createPod', namespace, pod);
   });
 }
 

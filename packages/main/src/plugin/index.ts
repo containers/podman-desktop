@@ -65,6 +65,8 @@ import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
 import type { ContainerStatsInfo } from './api/container-stats-info';
 import type { PlayKubeInfo } from './dockerode/libpod-dockerode';
 import { AutostartEngine } from './autostart-engine';
+import { KubernetesClient } from './kubernetes-client';
+import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList } from '@kubernetes/client-node';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -198,6 +200,7 @@ export class PluginSystem {
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
+    const kubernetesClient = new KubernetesClient();
 
     const autoStartConfiguration = new AutostartEngine(configurationRegistry, providerRegistry);
     await autoStartConfiguration.init();
@@ -791,6 +794,43 @@ export class PluginSystem {
         return providerRegistry.createProviderConnection(internalProviderId, params);
       },
     );
+
+    this.ipcHandle('kubernetes-client:createPod', async (_listener, namespace: string, pod: V1Pod): Promise<V1Pod> => {
+      return kubernetesClient.createPod(namespace, pod);
+    });
+
+    this.ipcHandle(
+      'kubernetes-client:listNamespacedPod',
+      async (_listener, namespace: string, fieldSelector?: string, labelSelector?: string): Promise<V1PodList> => {
+        return kubernetesClient.listNamespacedPod(namespace, fieldSelector, labelSelector);
+      },
+    );
+
+    this.ipcHandle('kubernetes-client:listNamespaces', async (): Promise<V1NamespaceList> => {
+      return kubernetesClient.listNamespaces();
+    });
+
+    this.ipcHandle(
+      'kubernetes-client:readNamespacedPod',
+      async (_listener, name: string, namespace: string): Promise<V1Pod | undefined> => {
+        return kubernetesClient.readNamespacedPod(name, namespace);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:readNamespacedConfigMap',
+      async (_listener, name: string, namespace: string): Promise<V1ConfigMap | undefined> => {
+        return kubernetesClient.readNamespacedConfigMap(name, namespace);
+      },
+    );
+
+    this.ipcHandle('kubernetes-client:getCurrentContextName', async (): Promise<string | undefined> => {
+      return kubernetesClient.getCurrentContextName();
+    });
+
+    this.ipcHandle('kubernetes-client:getCurrentNamespace', async (): Promise<string | undefined> => {
+      return kubernetesClient.getCurrentNamespace();
+    });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,

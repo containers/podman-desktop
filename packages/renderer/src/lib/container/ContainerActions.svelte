@@ -1,6 +1,5 @@
 <script lang="ts">
-import Fa from 'svelte-fa/src/fa.svelte';
-import { faFileCode, faPlayCircle, faTerminal } from '@fortawesome/free-solid-svg-icons';
+import { faCubes, faFileCode, faPlayCircle, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -38,6 +37,10 @@ function openTerminalContainer(containerInfo: ContainerInfoUI): void {
 function openGenerateKube(): void {
   router.goto(`/containers/${container.id}/kube`);
 }
+
+function deployToKubernetes(): void {
+  router.goto(`/deploy-to-kube/${container.id}/${container.engineId}`);
+}
 </script>
 
 <ListItemButtonIcon
@@ -58,6 +61,12 @@ function openGenerateKube(): void {
   hidden="{!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}"
   backgroundColor="{backgroundColor}"
   icon="{faFileCode}" />
+<ListItemButtonIcon
+  title="Deploy to Kubernetes"
+  onClick="{() => deployToKubernetes()}"
+  hidden="{!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}"
+  backgroundColor="{backgroundColor}"
+  icon="{faCubes}" />
 <ListItemButtonIcon
   title="Start Container"
   onClick="{() => startContainer(container)}"
