@@ -261,10 +261,10 @@ function toggleAllContainerGroups(value: boolean) {
         on:click="{() => runContainerYaml()}"
         class="pf-c-button pf-m-primary"
         type="button"
-        title="Run pod/containers from kubernetes .YAML file ">
+        title="Play pod/containers from kubernetes YAML file ">
         <div class="flex flex-row align-text-top justify-start items-center">
           <KubePlayIcon />
-          Play YAML
+          Play Kubernetes YAML
         </div>
       </button>
     {/if}
