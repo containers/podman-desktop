@@ -111,13 +111,13 @@ function DownloadGenericLinks() {
 function Hero() {
   // const { siteConfig } = useDocusaurusContext();
   return (
-    <section className="text-gray-600 dark:text-gray-400 body-font">
+    <section className="text-gray-600 dark:text-gray-300 body-font">
       <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
         <div className="text-center lg:w-2/3 w-full">
           <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
             Containers and Kubernetes for application developers
           </h1>
-          <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
+          <p className="text-base md:text-lg">
             Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop
             leverages{' '}
             <a href="https://podman.io/" className="text-purple-700 dark:text-purple-400" target="_blank">
@@ -171,7 +171,7 @@ function WorkInProgress() {
 
 function KeepUpToDate() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font">
+    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-900 bg-zinc-100 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="update" />
@@ -187,18 +187,18 @@ function KeepUpToDate() {
             <FontAwesomeIcon size="3x" icon={faRotateRight} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
           </div>
           <div className="flex flex-col items-center">
-            <p className="leading-relaxed">
+            <p className="leading-relaxed text-base">
               Install Podman and other dependencies directly from Podman Desktop if not yet installed.
             </p>
-            <p className="leading-relaxed">Check for updates and get notified about new changes.</p>
-            <p className="leading-relaxed">
+            <p className="leading-relaxed text-base">Check for updates and get notified about new changes.</p>
+            <p className="leading-relaxed text-base">
               Available on{' '}
               <a href="/downloads/windows" className="text-purple-700 dark:text-purple-400" target="_blank">
                 Windows
               </a>
               !
             </p>
-            <p className="leading-relaxed">Coming soon on MacOS.</p>
+            <p className="leading-relaxed text-base">Coming soon on MacOS.</p>
           </div>
         </div>
       </div>
@@ -208,7 +208,7 @@ function KeepUpToDate() {
 
 function Extensibility() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font">
+    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-800 bg-zinc-200 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="extensibility" />
@@ -223,13 +223,17 @@ function Extensibility() {
             <FontAwesomeIcon size="3x" icon={faPlug} className="ml-2 mb-4 text-gray-800 dark:text-gray-200" />
           </div>
 
-          <p className="leading-relaxed">Container engines are plugged through extension points.</p>
-          <p className="leading-relaxed">JavaScript extensions can contribute new behaviour</p>
-          <p className="leading-relaxed">Reuse existing extensions directly in Podman Desktop</p>
+          <ul className="list-disc list-inside text-center">
+            <li>Container engines are plugged through extension points</li>
+            <li>JavaScript extensions can contribute new behaviour</li>
+            <li>Reuse existing extensions directly in Podman Desktop</li>
+          </ul>
 
           <div className="flex flex-col items-center">
             <div className="text-left my-4">
-              <p className="-ml-5">Current Podman Desktop plug-ins: Podman, Docker, Lima and CRC/OpenShift Local.</p>
+              <p className="-ml-5 text-base">
+                Current Podman Desktop plug-ins: Podman, Docker, Lima and CRC/OpenShift Local.
+              </p>
             </div>
           </div>
 
@@ -270,7 +274,7 @@ function Extensibility() {
 
 function Configure() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
+    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="Configure" />
@@ -338,7 +342,7 @@ function Configure() {
 
 function EnterpriseReady() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
+    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="enterprise" />
@@ -398,13 +402,13 @@ const copyBrewInstructions = () => {
 
 function RunAnywhere() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font">
+    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-900 bg-zinc-100 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
             Available on Windows, Mac and Linux
           </h2>
-          <p className="text-base text-gray-700 dark:text-gray-500 md:text-lg">
+          <p className="text-base text-gray-700 md:text-lg dark:text-gray-300">
             Use the same UI across different operating systems
           </p>
         </div>
@@ -482,7 +486,7 @@ function RunAnywhere() {
 
 function MainFeatures() {
   return (
-    <section className="text-gray-600 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
+    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="features" />
