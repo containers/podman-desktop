@@ -24,10 +24,14 @@ export enum ContainerGroupInfoTypeUI {
 }
 
 export interface ContainerGroupPartInfoUI {
-  // name of this group
+  // The name and type of each group
   name: string;
-
   type: ContainerGroupInfoTypeUI;
+
+  // Information regarding the entire group (ex. name of the pod)
+  // as well as the "engine" running the group (ex. podman or docker)
+  id?: string;
+  engineId?: string;
 }
 
 export interface ContainerInfoUI {
