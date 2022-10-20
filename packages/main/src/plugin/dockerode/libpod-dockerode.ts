@@ -72,8 +72,33 @@ export interface PlayKubeInfo {
   Volumes: { Name: string }[];
 }
 
+export interface PodCreatePortOptions {
+  host_ip: string;
+  container_port: number;
+  host_port: number;
+  protocol: string;
+  range: number;
+}
+
+export interface PodCreateOptions {
+  name: string;
+  portmappings?: PodCreatePortOptions[];
+}
+
+export interface ContainerCreateOptions {
+  command?: string[];
+  entrypoint?: string | string[];
+  env?: { [key: string]: string };
+  pod?: string;
+  hostname?: string;
+  image?: string;
+  name?: string;
+}
+
 // API of libpod that we want to expose on our side
 export interface LibPod {
+  createPod(podOptions: PodCreateOptions): Promise<{ Id: string }>;
+  createContainer(containerCreateOptions: ContainerCreateOptions): Promise<{ Id: string; Warnings: string[] }>;
   listPods(): Promise<PodInfo[]>;
   getPodInspect(podId: string): Promise<PodInspectInfo>;
   startPod(podId: string): Promise<void>;
@@ -90,6 +115,32 @@ export class LibpodDockerode {
   enhancePrototypeWithLibPod() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const prototypeOfDockerode = Dockerode.prototype as any;
+
+    // add createContainer
+    prototypeOfDockerode.createContainer = function (containerCreateOptions: ContainerCreateOptions) {
+      const optsf = {
+        path: '/v4.2.0/libpod/containers/create',
+        method: 'POST',
+        options: containerCreateOptions,
+        statusCodes: {
+          201: true,
+          204: true,
+          400: 'bad parameter in request',
+          404: 'no such container',
+          409: 'status conflict',
+          500: 'server error',
+        },
+      };
+
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
 
     // add listPods
     prototypeOfDockerode.listPods = function () {
@@ -113,7 +164,32 @@ export class LibpodDockerode {
       });
     };
 
-    // add startPod
+    // add createPod
+    prototypeOfDockerode.createPod = function (podOptions: PodCreateOptions) {
+      const optsf = {
+        path: '/v4.2.0/libpod/pods/create',
+        method: 'POST',
+        options: podOptions,
+        statusCodes: {
+          201: true,
+          204: true,
+          400: 'bad parameter in request',
+          409: 'status conflict',
+          500: 'server error',
+        },
+      };
+
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // add getPodInspect
     prototypeOfDockerode.getPodInspect = function (podId: string) {
       const optsf = {
         path: `/v4.2.0/libpod/pods/${podId}/json`,

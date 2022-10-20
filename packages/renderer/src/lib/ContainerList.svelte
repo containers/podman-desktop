@@ -19,6 +19,7 @@ import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons
 import Fa from 'svelte-fa/src/fa.svelte';
 import ContainerGroupIcon from './container/ContainerGroupIcon.svelte';
 import KubePlayIcon from './container/KubePlayIcon.svelte';
+import { podCreationHolder } from '../stores/creation-from-containers-store';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -147,6 +148,26 @@ async function deleteSelectedContainers() {
     );
     bulkDeleteInProgress = false;
   }
+}
+
+function createPodFromContainers() {
+  const selectedContainers = containerGroups
+    .map(group => group.containers)
+    .flat()
+    .filter(container => container.selected);
+
+  const podCreation = {
+    name: 'my-pod',
+    containers: selectedContainers.map(container => {
+      return { id: container.id, name: container.name, engineId: container.engineId, ports: container.ports };
+    }),
+  };
+
+  // update the store
+  podCreationHolder.set(podCreation);
+
+  // redirect to pod creation page
+  router.goto('/pod-create-from-containers');
 }
 
 let containersUnsubscribe: Unsubscriber;
@@ -291,6 +312,14 @@ function toggleAllContainerGroups(value: boolean) {
             <i class="fas fa-trash" aria-hidden="true"></i>
           {/if}
         </span>
+      </button>
+      <div class="px-1"></div>
+      <button
+        class="pf-c-button pf-m-primary"
+        on:click="{() => createPodFromContainers()}"
+        title="Create Pod with {selectedItemsNumber} selected items"
+        type="button">
+        <i class="fas fa-cubes" aria-hidden="true"></i>
       </button>
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}

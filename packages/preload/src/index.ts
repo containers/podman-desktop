@@ -43,8 +43,12 @@ import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin
 import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import { Deferred } from './util/deferred';
 import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
-import type { PlayKubeInfo } from '../../main/src/plugin/dockerode/libpod-dockerode';
-import type { V1Pod, V1ConfigMap, V1PodList, V1NamespaceList } from '@kubernetes/client-node';
+import type {
+  PlayKubeInfo,
+  PodCreateOptions,
+  ContainerCreateOptions as PodmanContainerCreateOptions,
+} from '../../main/src/plugin/dockerode/libpod-dockerode';
+import type { V1ConfigMap, V1NamespaceList, V1Pod, V1PodList } from '@kubernetes/client-node';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -135,6 +139,26 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('listPods', async (): Promise<PodInfo[]> => {
     return ipcInvoke('container-provider-registry:listPods');
   });
+
+  contextBridge.exposeInMainWorld(
+    'replicatePodmanContainer',
+    async (
+      source: { engineId: string; id: string },
+      target: { engineId: string },
+      overrideParameters: PodmanContainerCreateOptions,
+    ): Promise<{ Id: string; Warnings: string[] }> => {
+      return ipcInvoke('container-provider-registry:replicatePodmanContainer', source, target, overrideParameters);
+    },
+  );
+  contextBridge.exposeInMainWorld(
+    'createPod',
+    async (
+      selectedProvider: ProviderContainerConnectionInfo,
+      podCreateOptions: PodCreateOptions,
+    ): Promise<{ engineId: string; Id: string }> => {
+      return ipcInvoke('container-provider-registry:createPod', selectedProvider, podCreateOptions);
+    },
+  );
   contextBridge.exposeInMainWorld('startPod', async (engine: string, podId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:startPod', engine, podId);
   });
