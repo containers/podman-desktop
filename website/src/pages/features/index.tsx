@@ -124,9 +124,7 @@ function FeatureManageResources() {
             <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">
               View allocated memory, CPU and storage.
             </p>
-            <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">
-              Create new machine if needed
-            </p>
+            <p className="leading-relaxed list-item dark:text-gray-200 text-gray-800">Create new machine if needed</p>
           </div>
         </div>
       </section>
@@ -173,8 +171,8 @@ function FeatureManagePods() {
 function FeatureDDExtensions() {
   return (
     <section className="text-gray-600 bg-zinc-100 dark:bg-zinc-900 dark:text-gray-400 body-font">
-        <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
-          <div className="lg:w-5/6 md:w-4/5 w-5/6 flex flex:col gap-10">
+      <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
+        <div className="lg:w-5/6 md:w-4/5 w-5/6 flex flex:col gap-10">
           <ThemedImage
             className="py-4"
             alt="Pull image and manage registries"
@@ -185,7 +183,7 @@ function FeatureDDExtensions() {
           />
         </div>
         <div className="lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 flex flex-col md:items-start md:text-left items-center text-center">
-            <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 dark:text-white">
+          <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 dark:text-white">
             Import Docker Desktop extensions
           </h1>
           <br className="hidden lg:inline-block" />
