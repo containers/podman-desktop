@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faCubes, faFileCode, faPlayCircle } from '@fortawesome/free-solid-svg-icons';
+import { faFileCode, faPlayCircle, faRocket } from '@fortawesome/free-solid-svg-icons';
 import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -45,7 +45,7 @@ function deployToKubernetes(): void {
   title="Deploy to Kubernetes"
   onClick="{() => deployToKubernetes()}"
   backgroundColor="{backgroundColor}"
-  icon="{faCubes}" />
+  icon="{faRocket}" />
 <ListItemButtonIcon
   title="Start Pod"
   onClick="{() => startPod(pod)}"
