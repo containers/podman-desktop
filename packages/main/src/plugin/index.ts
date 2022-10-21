@@ -63,7 +63,12 @@ import type { HistoryInfo } from './api/history-info';
 import type { PodInfo, PodInspectInfo } from './api/pod-info';
 import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
 import type { ContainerStatsInfo } from './api/container-stats-info';
-import type { PlayKubeInfo } from './dockerode/libpod-dockerode';
+import type {
+  PlayKubeInfo,
+  PodCreateOptions,
+  ContainerCreateOptions as PodmanContainerCreateOptions,
+} from './dockerode/libpod-dockerode';
+
 import { AutostartEngine } from './autostart-engine';
 import { KubernetesClient } from './kubernetes-client';
 import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList } from '@kubernetes/client-node';
@@ -259,6 +264,28 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle(
+      'container-provider-registry:replicatePodmanContainer',
+      async (
+        _listener,
+        source: { engineId: string; id: string },
+        target: { engineId: string },
+        overrideParameters: PodmanContainerCreateOptions,
+      ): Promise<{ Id: string; Warnings: string[] }> => {
+        return containerProviderRegistry.replicatePodmanContainer(source, target, overrideParameters);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:createPod',
+      async (
+        _listener,
+        selectedProvider: ProviderContainerConnectionInfo,
+        createOptions: PodCreateOptions,
+      ): Promise<{ engineId: string; Id: string }> => {
+        return containerProviderRegistry.createPod(selectedProvider, createOptions);
+      },
+    );
     this.ipcHandle(
       'container-provider-registry:startPod',
       async (_listener, engine: string, podId: string): Promise<void> => {

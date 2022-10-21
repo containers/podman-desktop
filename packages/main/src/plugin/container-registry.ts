@@ -34,7 +34,13 @@ const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 import { EventEmitter } from 'node:events';
 import type { ContainerInspectInfo } from './api/container-inspect-info';
 import type { HistoryInfo } from './api/history-info';
-import type { LibPod, PlayKubeInfo, PodInfo as LibpodPodInfo } from './dockerode/libpod-dockerode';
+import type {
+  LibPod,
+  PlayKubeInfo,
+  PodCreateOptions,
+  ContainerCreateOptions as PodmanContainerCreateOptions,
+  PodInfo as LibpodPodInfo,
+} from './dockerode/libpod-dockerode';
 import { LibpodDockerode } from './dockerode/libpod-dockerode';
 import type { ContainerStatsInfo } from './api/container-stats-info';
 import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
@@ -589,9 +595,61 @@ export class ContainerProviderRegistry {
     return this.getMatchingPodmanEngine(engineId).startPod(podId);
   }
 
+  async createPod(
+    selectedProvider: ProviderContainerConnectionInfo,
+    podOptions: PodCreateOptions,
+  ): Promise<{ engineId: string; Id: string }> {
+    this.telemetryService.track('createPod');
+    // grab all connections
+    const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+      containerProvider => containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath,
+    );
+    if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
+      throw new Error('No provider with a running engine');
+    }
+    const result = await matchingContainerProvider.libpodApi.createPod(podOptions);
+    return { Id: result.Id, engineId: matchingContainerProvider.id };
+  }
+
   async restartPod(engineId: string, podId: string): Promise<void> {
     this.telemetryService.track('restartPod');
     return this.getMatchingPodmanEngine(engineId).restartPod(podId);
+  }
+
+  async replicatePodmanContainer(
+    source: { engineId: string; id: string },
+    target: { engineId: string },
+    overrideParameters: PodmanContainerCreateOptions,
+  ): Promise<{ Id: string; Warnings: string[] }> {
+    this.telemetryService.track('replicatePodmanContainer');
+
+    // will publish in the target engine
+    const libPod = this.getMatchingPodmanEngine(target.engineId);
+
+    // grab content of the current container to replicate
+    const containerToReplicate = await this.getContainerInspect(source.engineId, source.id);
+
+    // convert env from array of string to an object with key being the env name
+    const updatedEnv = containerToReplicate.Config.Env.reduce((acc: { [key: string]: string }, env) => {
+      const [key, value] = env.split('=');
+      acc[key] = value;
+      return acc;
+    }, {});
+
+    // build create container configuration
+    const originalConfiguration = {
+      command: containerToReplicate.Config.Cmd,
+      entrypoint: containerToReplicate.Config.Entrypoint,
+      env: updatedEnv,
+      image: containerToReplicate.Config.Image,
+    };
+
+    // add extra information
+    const configuration = {
+      ...originalConfiguration,
+      ...overrideParameters,
+    };
+    return libPod.createContainer(configuration);
   }
 
   async stopPod(engineId: string, podId: string): Promise<void> {
