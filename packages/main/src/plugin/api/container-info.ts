@@ -27,7 +27,7 @@ export interface ContainerInfo extends Dockerode.ContainerInfo {
     id: string;
     name: string;
     status: string;
-    engineID: string;
+    engineId: string;
   };
 }
 
