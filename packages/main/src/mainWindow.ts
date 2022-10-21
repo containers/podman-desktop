@@ -32,6 +32,7 @@ async function createWindow() {
 
   const browserWindowConstructorOptions: BrowserWindowConstructorOptions = {
     show: false, // Use 'ready-to-show' event to show window
+    autoHideMenuBar: true, // This makes Podman Desktop look more like a native app
     width: INITIAL_APP_WIDTH,
     minWidth: INITIAL_APP_MIN_WIDTH,
     minHeight: INITIAL_APP_MIN_HEIGHT,
@@ -43,8 +44,7 @@ async function createWindow() {
       preload: join(__dirname, '../../preload/dist/index.cjs'),
     },
   };
-  // On Linux keep title bar as we may not have any tray icon
-  // being displayed
+
   if (isMac) {
     // This property is not available on Linux.
     browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
