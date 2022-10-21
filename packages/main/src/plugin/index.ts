@@ -71,7 +71,8 @@ import type {
 
 import { AutostartEngine } from './autostart-engine';
 import { KubernetesClient } from './kubernetes-client';
-import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList } from '@kubernetes/client-node';
+import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '@kubernetes/client-node';
+import type { V1Route } from './api/openshift-types';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -825,6 +826,20 @@ export class PluginSystem {
     this.ipcHandle('kubernetes-client:createPod', async (_listener, namespace: string, pod: V1Pod): Promise<V1Pod> => {
       return kubernetesClient.createPod(namespace, pod);
     });
+
+    this.ipcHandle(
+      'kubernetes-client:createService',
+      async (_listener, namespace: string, service: V1Service): Promise<V1Service> => {
+        return kubernetesClient.createService(namespace, service);
+      },
+    );
+
+    this.ipcHandle(
+      'openshift-client:createRoute',
+      async (_listener, namespace: string, route: V1Route): Promise<V1Route> => {
+        return kubernetesClient.createOpenShiftRoute(namespace, route);
+      },
+    );
 
     this.ipcHandle(
       'kubernetes-client:listNamespacedPod',

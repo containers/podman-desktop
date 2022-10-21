@@ -33,6 +33,7 @@ import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
+import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type {
   PreflightCheckEvent,
   PreflightChecksCallback,
@@ -48,7 +49,7 @@ import type {
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
-import type { V1ConfigMap, V1NamespaceList, V1Pod, V1PodList } from '@kubernetes/client-node';
+import type { V1ConfigMap, V1NamespaceList, V1Pod, V1PodList, V1Service } from '@kubernetes/client-node';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -895,6 +896,20 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('kubernetesCreatePod', async (namespace: string, pod: V1Pod): Promise<V1Pod> => {
     return ipcInvoke('kubernetes-client:createPod', namespace, pod);
   });
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesCreateService',
+    async (namespace: string, service: V1Service): Promise<V1Service> => {
+      return ipcInvoke('kubernetes-client:createService', namespace, service);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'openshiftCreateRoute',
+    async (namespace: string, route: V1Route): Promise<V1Route> => {
+      return ipcInvoke('openshift-client:createRoute', namespace, route);
+    },
+  );
 }
 
 // expose methods

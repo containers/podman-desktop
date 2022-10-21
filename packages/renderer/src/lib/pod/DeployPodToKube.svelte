@@ -4,6 +4,7 @@ import MonacoEditor from '../editor/MonacoEditor.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import * as jsYaml from 'js-yaml';
 import { each } from 'svelte/internal';
+import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 
 export let resourceId: string;
 export let engineId: string;
@@ -18,12 +19,20 @@ let deployError = '';
 let updatePodInterval: NodeJS.Timeout;
 let openshiftConsoleURL: string;
 
+let deployUsingServices = true;
+let deployUsingRoutes = true;
 let createdPod = undefined;
+let bodyPod;
+
+let createdRoutes: V1Route[] = [];
 
 onMount(async () => {
   // grab kube result from the pod
   const kubeResult = await window.generatePodmanKube(engineId, [resourceId]);
   kubeDetails = kubeResult;
+
+  // parse yaml
+  bodyPod = jsYaml.load(kubeDetails) as any;
 
   // grab default context
   defaultContextName = await window.kubernetesGetCurrentContextName();
@@ -76,6 +85,10 @@ function goBackToHistory(): void {
   window.history.go(-1);
 }
 
+function openRoute(route: V1Route) {
+  window.openExternal(`http://${route.spec.host}`);
+}
+
 async function deployToKube() {
   deployStarted = true;
   deployFinished = false;
@@ -83,15 +96,91 @@ async function deployToKube() {
   createdPod = undefined;
   // reset any timeout
   clearInterval(updatePodInterval);
-  const bodyPod = jsYaml.load(kubeDetails) as any;
+
+  createdRoutes = [];
+  let servicesToCreate: any[] = [];
+  let routesToCreate: any[] = [];
+
+  // if we deploy using services, we need to get rid of .hostPort and generate kubernetes services object
+  if (deployUsingServices) {
+    // collect all ports
+    bodyPod.spec?.containers?.forEach((container: any) => {
+      container?.ports.forEach((port: any) => {
+        console.log('checking port', port);
+        if (port.hostPort) {
+          // create service
+          const service = {
+            apiVersion: 'v1',
+            kind: 'Service',
+            metadata: {
+              name: `${bodyPod.metadata.name}-${port.hostPort}`,
+              namespace: currentNamespace,
+            },
+            spec: {
+              ports: [
+                {
+                  name: port.name,
+                  port: port.hostPort,
+                  protocol: port.protocol || 'TCP',
+                  targetPort: port.containerPort,
+                },
+              ],
+              selector: {
+                app: bodyPod.metadata.name,
+              },
+            },
+          };
+          servicesToCreate.push(service);
+
+          if (openOpenshiftConsole && deployUsingRoutes) {
+            // Create OpenShift route object
+            const route = {
+              apiVersion: 'route.openshift.io/v1',
+              kind: 'Route',
+              metadata: {
+                name: `${bodyPod.metadata.name}-${port.hostPort}`,
+                namespace: currentNamespace,
+              },
+              spec: {
+                port: {
+                  targetPort: port.containerPort,
+                },
+                to: {
+                  kind: 'Service',
+                  name: `${bodyPod.metadata.name}-${port.hostPort}`,
+                },
+              },
+            };
+            routesToCreate.push(route);
+          }
+          // delete
+          console.log('deelte port.hostPort', port.hostPort);
+          delete port.hostPort;
+          console.log('after port.hostPort', port);
+        }
+      });
+    });
+  }
 
   // https://github.com/kubernetes-client/javascript/issues/487
   if (bodyPod?.metadata?.creationTimestamp) {
     bodyPod.metadata.creationTimestamp = new Date(bodyPod.metadata.creationTimestamp);
   }
 
+  console.log('bodyPod', bodyPod);
   try {
     createdPod = await window.kubernetesCreatePod(currentNamespace, bodyPod);
+
+    // create services
+    for (const service of servicesToCreate) {
+      await window.kubernetesCreateService(currentNamespace, service);
+    }
+
+    // Create routes
+    for (const route of routesToCreate) {
+      const createdRoute = await window.openshiftCreateRoute(currentNamespace, route);
+      createdRoutes = [...createdRoutes, createdRoute];
+    }
 
     // update status
     updatePodInterval = setInterval(updatePod, 2000);
@@ -110,6 +199,43 @@ async function deployToKube() {
         <p>Generated pod to deploy to Kubernetes:</p>
         <div class="h-1/3 pt-2">
           <MonacoEditor content="{kubeDetails}" language="yaml" />
+        </div>
+      {/if}
+
+      {#if bodyPod}
+        <div class="pt-2 pb-4">
+          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-300">Pod Name:</label>
+          <input
+            type="text"
+            bind:value="{bodyPod.metadata.name}"
+            name="podName"
+            id="podName"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            required />
+        </div>
+      {/if}
+
+      <div class="pt-2 m-2">
+        <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Use Kubernetes Services:</label>
+        <input
+          type="checkbox"
+          bind:checked="{deployUsingServices}"
+          name="useServices"
+          id="useServices"
+          class=""
+          required />
+        <span class="text-gray-300 text-sm ml-1"
+          >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster
+          policy may prevent to use hostPort.</span>
+      </div>
+
+      <!-- Allow to create routes for OpenShift clusters -->
+      {#if openshiftConsoleURL}
+        <div class="pt-2 m-2">
+          <label for="routes" class="block mb-1 text-sm font-medium text-gray-300">Create OpenShift routes:</label>
+          <input type="checkbox" bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" class="" required />
+          <span class="text-gray-300 text-sm ml-1"
+            >Create OpenShift routes to get access to the exposed ports of this pod.</span>
         </div>
       {/if}
 
@@ -144,7 +270,7 @@ async function deployToKube() {
       {#if !deployStarted}
         <button on:click="{() => deployToKube()}" class="w-full pf-c-button pf-m-primary" type="button">
           <span class="pf-c-button__icon pf-m-start">
-            <i class="fas fa-cubes" aria-hidden="true"></i>
+            <i class="fas fa-rocket" aria-hidden="true"></i>
           </span>
           Deploy
         </button>
@@ -201,7 +327,23 @@ async function deployToKube() {
                 {/each}
               </ul>
             {/if}
+            {#if createdRoutes && createdRoutes.length > 0}
+              <p class="pt-2">Endpoints:</p>
+              <ul class="list-disc list-inside">
+                {#each createdRoutes as createdRoute}
+                  <li class="pt-2">
+                    Port {createdRoute.spec.port.targetPort} is reachable with route
+                    <span
+                      class="cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline"
+                      on:click="{() => {
+                        openRoute(createdRoute);
+                      }}">{createdRoute.metadata.name}</span>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
           </div>
+
           <!-- add editor for the result-->
           <div class="h-[100px] pt-2">
             <MonacoEditor content="{jsYaml.dump(createdPod)}" language="yaml" />

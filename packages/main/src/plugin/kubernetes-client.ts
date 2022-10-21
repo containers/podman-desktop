@@ -16,8 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Context, V1Pod, V1ConfigMap, V1PodList, V1NamespaceList } from '@kubernetes/client-node';
+import type { Context, V1Pod, V1ConfigMap, V1PodList, V1NamespaceList, V1Service } from '@kubernetes/client-node';
+import { CustomObjectsApi } from '@kubernetes/client-node';
 import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
+import type { V1Route } from './api/openshift-types';
+
 /**
  * Handle calls to kubernetes API
  */
@@ -71,6 +74,34 @@ export class KubernetesClient {
     try {
       const createdPodData = await k8sCoreApi.createNamespacedPod(namespace, body);
       return createdPodData.body;
+    } catch (error) {
+      throw this.wrapK8sClientError(error);
+    }
+  }
+
+  async createService(namespace: string, body: V1Service): Promise<V1Service> {
+    const k8sCoreApi = this.kubeConfig.makeApiClient(CoreV1Api);
+
+    try {
+      const createdPodData = await k8sCoreApi.createNamespacedService(namespace, body);
+      return createdPodData.body;
+    } catch (error) {
+      throw this.wrapK8sClientError(error);
+    }
+  }
+
+  async createOpenShiftRoute(namespace: string, body: V1Route): Promise<V1Route> {
+    const k8sCustomObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
+
+    try {
+      const createdPodData = await k8sCustomObjectsApi.createNamespacedCustomObject(
+        'route.openshift.io',
+        'v1',
+        namespace,
+        'routes',
+        body,
+      );
+      return createdPodData.body as V1Route;
     } catch (error) {
       throw this.wrapK8sClientError(error);
     }
