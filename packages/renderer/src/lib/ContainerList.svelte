@@ -361,7 +361,6 @@ function toggleAllContainerGroups(value: boolean) {
               </td>
               <td class="px-6 whitespace-nowrap">
                 <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100">
-                  <!-- TODO: Figure out how to correctly pass in the id / engineid in a proper Typescript way. -->
                   <!-- Only show POD actions if the container group is POD, otherwise keep blank / empty (for future compose implementation) -->
                   {#if containerGroup.type === ContainerGroupInfoTypeUI.POD}
                     <PodActions
