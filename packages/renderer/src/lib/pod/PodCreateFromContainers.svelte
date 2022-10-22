@@ -65,6 +65,8 @@ async function doCreatePodFromContainers() {
   // now, for each container, recreate it with the pod
   // but before, stop the container
 
+  const containersToStart: { engineId: string; id: string }[] = [];
+
   for (const container of podCreation.containers) {
     // make sure it is stopped
     try {
@@ -80,8 +82,12 @@ async function doCreatePodFromContainers() {
       { pod: Id, name: container.name + '-podified' },
     );
 
+    containersToStart.push({ engineId, id: replicatedContainer.Id });
+  }
+
+  for (const containerToStart of containersToStart) {
     // start the new container
-    await window.startContainer(engineId, replicatedContainer.Id);
+    await window.startContainer(containerToStart.engineId, containerToStart.id);
   }
 
   // ok now, redirect to the pods
