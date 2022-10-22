@@ -101,12 +101,19 @@ async function deployToKube() {
   let servicesToCreate: any[] = [];
   let routesToCreate: any[] = [];
 
+  if (bodyPod?.spec?.volumes) {
+    delete bodyPod.spec.volumes;
+  }
+
   // if we deploy using services, we need to get rid of .hostPort and generate kubernetes services object
   if (deployUsingServices) {
     // collect all ports
     bodyPod.spec?.containers?.forEach((container: any) => {
-      container?.ports.forEach((port: any) => {
-        console.log('checking port', port);
+      if (container.volumeMounts) {
+        delete container.volumeMounts;
+      }
+
+      container?.ports?.forEach((port: any) => {
         if (port.hostPort) {
           // create service
           const service = {
@@ -154,9 +161,7 @@ async function deployToKube() {
             routesToCreate.push(route);
           }
           // delete
-          console.log('deelte port.hostPort', port.hostPort);
           delete port.hostPort;
-          console.log('after port.hostPort', port);
         }
       });
     });
@@ -167,7 +172,6 @@ async function deployToKube() {
     bodyPod.metadata.creationTimestamp = new Date(bodyPod.metadata.creationTimestamp);
   }
 
-  console.log('bodyPod', bodyPod);
   try {
     createdPod = await window.kubernetesCreatePod(currentNamespace, bodyPod);
 
