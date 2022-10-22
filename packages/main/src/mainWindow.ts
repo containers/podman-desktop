@@ -101,10 +101,8 @@ async function createWindow() {
   });
 
   browserWindow.on('close', e => {
-    e.preventDefault();
-    if (isLinux) {
-      browserWindow.minimize();
-    } else {
+    if (!isLinux) {
+      e.preventDefault();
       browserWindow.hide();
       if (isMac) {
         app.dock.hide();
