@@ -48,6 +48,8 @@ Apply style on documentation
   --ifm-color-primary-lighter: #8349df;
   --ifm-color-primary-lightest: #996ae5;
   --ifm-code-font-size: 95%;
+  --ifm-navbar-background-color: #fff;
+  --ifm-navbar-height: 85px;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -59,6 +61,7 @@ Apply style on documentation
   --ifm-color-primary-light: #7c3edd;
   --ifm-color-primary-lighter: #8349df;
   --ifm-color-primary-lightest: #996ae5;
+  --ifm-navbar-background-color: #1b1b1d;
 }
 
 .docusaurus-highlight-code-line {
@@ -110,21 +113,6 @@ li.footer__item a svg {
 
 /* mo changes 20 oct 2022 */
 
-.alert {
-  max-width: 1500px;
-  margin: 2em auto;
-}
-
-html[data-theme='dark'] .navbar {
-  background-color: #1b1b1d !important;
-}
-
-.navbar,
-.title-font,
-.text-base {
-  font-family: 'Montserrat', sans-serif !important;
-}
-
 .navbar__title {
   font-size: 2em;
   font-weight: 500;
@@ -141,12 +129,4 @@ html[data-theme='dark'] .navbar {
 
 .navbar__item {
   font-size: 1.2em;
-}
-
-.navbar {
-  height: 85px;
-}
-
-.container {
-  padding-top: 2em;
 }

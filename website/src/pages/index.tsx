@@ -25,7 +25,7 @@ import Admonition from '@theme/Admonition';
 
 function EAP() {
   return (
-    <div>
+    <div className="max-w-6xl mx-auto">
       <Admonition type="info" title="We are participating in Hacktoberfest 2022!">
         <p>
           Do you love container tools and frontend technologies like Electron, Svelte and Tailwind CSS? Then come join
@@ -119,7 +119,7 @@ function Hero() {
   // const { siteConfig } = useDocusaurusContext();
   return (
     <section className="text-gray-600 dark:text-gray-300 body-font">
-      <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
+      <div className="container mx-auto flex px-5 pb-24 pt-4 items-center justify-center flex-col">
         <div className="text-center lg:w-2/3 w-full bg-hero-pattern bg-no-repeat bg-center bg-cover">
           <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white">
             Containers and Kubernetes for application developers
