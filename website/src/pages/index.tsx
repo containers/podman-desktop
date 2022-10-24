@@ -120,25 +120,27 @@ function Hero() {
   return (
     <section className="text-gray-600 dark:text-gray-300 body-font">
       <div className="container mx-auto flex px-5 pb-24 pt-4 items-center justify-center flex-col">
-        <div className="text-center lg:w-2/3 w-full bg-hero-pattern bg-no-repeat bg-center bg-cover">
-          <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white">
-            Containers and Kubernetes for application developers
-          </h1>
-          <p className="text-base md:text-lg">
-            Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop
-            leverages{' '}
-            <a href="https://podman.io/" className="text-purple-700 dark:text-purple-400" target="_blank">
-              Podman Engine
-            </a>{' '}
-            to provide a lightweight and daemon-less container tool.
-          </p>
-          <div className="flex-none">
-            {/* With client mode, provides the link to the client browser */}
-            <BrowserOnly fallback={<DownloadGenericLinks></DownloadGenericLinks>}>
-              {() => {
-                return <DownloadClientLinks />;
-              }}
-            </BrowserOnly>
+        <div className="text-center lg:w-2/3 w-full bg-hero-pattern bg-no-repeat bg-center">
+          <div className="bg-white/30 dark:bg-transparent">
+            <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white">
+              Containers and Kubernetes for application developers
+            </h1>
+            <p className="text-base md:text-lg">
+              Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop
+              leverages{' '}
+              <a href="https://podman.io/" className="text-purple-700 dark:text-purple-400" target="_blank">
+                Podman Engine
+              </a>{' '}
+              to provide a lightweight and daemon-less container tool.
+            </p>
+            <div className="flex-none">
+              {/* With client mode, provides the link to the client browser */}
+              <BrowserOnly fallback={<DownloadGenericLinks></DownloadGenericLinks>}>
+                {() => {
+                  return <DownloadClientLinks />;
+                }}
+             </BrowserOnly>
+            </div>
           </div>
         </div>
         <div className="text-center w-full text-center">
