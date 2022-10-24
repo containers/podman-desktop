@@ -402,7 +402,7 @@ const copyBrewInstructions = () => {
 
 function RunAnywhere() {
   return (
-    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-900 bg-zinc-100 body-font">
+    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-800 bg-zinc-200 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
@@ -414,7 +414,7 @@ function RunAnywhere() {
         </div>
         <div className="flex flex-wrap w-full justify-center">
           <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-300 dark:bg-zinc-700 bg-opacity-60 p-8 flex-col">
+            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-zinc-900 bg-opacity-60 p-8 flex-col">
               <Link
                 title="Download for Windows"
                 className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
@@ -433,7 +433,7 @@ function RunAnywhere() {
             </div>
           </div>
           <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-300 dark:bg-zinc-700 bg-opacity-60 p-8 flex-col">
+            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-zinc-900 bg-opacity-60 p-8 flex-col">
               <Link
                 title="Download for macOS"
                 className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
@@ -461,7 +461,7 @@ function RunAnywhere() {
             </div>
           </div>
           <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-300 dark:bg-zinc-700 bg-opacity-60 p-8 flex-col">
+            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-zinc-900 bg-opacity-60 p-8 flex-col">
               <Link
                 title="Download for Linux"
                 className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
@@ -486,7 +486,7 @@ function RunAnywhere() {
 
 function MainFeatures() {
   return (
-    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
+    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="features" />
@@ -523,10 +523,6 @@ function MainFeatures() {
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
                   Start / Stop / Restart containers
-                </p>
-                <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Start / Stop / Restart pods
                 </p>
               </div>
             </div>
@@ -591,6 +587,88 @@ function MainFeatures() {
   );
 }
 
+function Pods() {
+  return (
+    <section className="text-gray-600 dark:text-gray-300 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
+      <div className="container px-5 mx-auto flex flex-wrap">
+        <div className="flex flex-col text-center w-full mb-5">
+          <SectionTitle name="features" />
+
+          <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
+            Work with Pods.
+          </h2>
+        </div>
+        <div className="container px-5 pb-5 mx-auto">
+          <div className="flex flex-wrap sm:-m-4 -mx-4 -mb-10 -mt-4 md:space-y-0 space-y-6">
+            <div className="p-4 md:w-1/2 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-800 mb-4 flex-shrink-0">
+                <FontAwesomeIcon size="2x" icon={faGears} className="w-6 h-6 " />
+              </div>
+              <div className="flex-grow pl-6">
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Create & Select</h2>
+                <p className="leading-relaxed text-base list-disc">
+                  <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  Create and Start Pods with Podman Desktop
+                </p>
+                <p className="leading-relaxed text-base list-disc">
+                  <FontAwesomeIcon icon={faDiagramProject} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  Select Containers to run as Pods
+                </p>
+                <p className="leading-relaxed text-base list-disc">
+                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  Start / Stop / Restart Pods
+                </p>
+              </div>
+            </div>
+            <div className="p-4 md:w-1/2 flex">
+              <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-gray-400 text-purple-900 mb-4 flex-shrink-0">
+                <FontAwesomeIcon size="2x" icon={faGaugeHigh} className="w-6 h-6 " />
+              </div>
+              <div className="flex-grow pl-6">
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Kubernetes</h2>
+                <p className="leading-relaxed text-base list-disc">
+                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  Play Kubernetes YAML locally without Kubernetes
+                </p>
+                <p className="leading-relaxed text-base list-disc">
+                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  Generate Kubernetes YAML from Pods
+                </p>
+                <p className="leading-relaxed text-base list-disc">
+                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                Leverage existing remote Kubernetes cluster
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="container px-5 mx-auto flex flex-wrap">
+        <div className="flex flex-col text-center w-full mb-5">
+          <Link
+            title="Discover More"
+            className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
+            to="/features">
+            <div className="mt-3 text-purple-900 dark:text-purple-400 inline-flex items-center">
+              Discover More
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                className="w-4 h-4 ml-2"
+                viewBox="0 0 24 24">
+                <path d="M5 12h14M12 5l7 7-7 7"></path>
+              </svg>
+            </div>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home(): JSX.Element {
   return (
     <Layout
@@ -601,6 +679,7 @@ export default function Home(): JSX.Element {
       <Hero />
       <RunAnywhere />
       <MainFeatures />
+      <Pods />
       <Configure />
       <Extensibility />
       <KeepUpToDate />
