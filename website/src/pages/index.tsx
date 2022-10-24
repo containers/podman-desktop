@@ -605,7 +605,9 @@ function Pods() {
                 <FontAwesomeIcon size="2x" icon={faGears} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
-                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Create & Select</h2>
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">
+                  Create & Select
+                </h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
                   Create and Start Pods with Podman Desktop
@@ -636,7 +638,7 @@ function Pods() {
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                Leverage existing remote Kubernetes cluster
+                  Leverage existing remote Kubernetes cluster
                 </p>
               </div>
             </div>
