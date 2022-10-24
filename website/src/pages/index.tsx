@@ -139,7 +139,7 @@ function Hero() {
                 {() => {
                   return <DownloadClientLinks />;
                 }}
-             </BrowserOnly>
+              </BrowserOnly>
             </div>
           </div>
         </div>
