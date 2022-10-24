@@ -58,61 +58,64 @@ export function MacOSDownloads(): JSX.Element {
     grabfilenameforMac(setDownloadData);
   }, []);
   return (
-    <section className=" dark:bg-zinc-900 bg-zinc-100 py-24 dark:text-gray-300 text-gray-700">
-      <div className="w-5/6 mx-auto">
-        <div className="flex rounded-lg bg-zinc-300 dark:bg-zinc-700 bg-opacity-60 p-8 flex-col md:flex-row  ">
-          <div className="flex align-middle items-center mb-3 flex-col ">
-            <FontAwesomeIcon size="8x" icon={faApple} />
-            <div className="inline-flex items-center justify-center rounded-full  flex-shrink-0"></div>
-            <h2 className=" text-lg title-font font-medium">macOS</h2>
+    <div className="basis-1/3 py-2 rounded-lg dark:text-gray-300 text-gray-700  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
+      <FontAwesomeIcon size="4x" icon={faApple} className="my-4" />
+      <h2 className="w-full text-center text-4xl title-font font-medium pb-3 border-purple-600 border-b-2">macOS</h2>
+      <div className="flex p-1 flex-col md:flex-col items-center align-top">
+        <div className="flex flex-col align-middle items-center">
+          <h3 className="mt-0">Podman Desktop for macOS</h3>
+          <div className="pt-8">
+            <Link
+              className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-md font-semibold"
+              to={downloadData.universal}>
+              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                Download Now
+            </Link>
+            <caption className="block w-full mt-1 text/50 dark:text-white/50">Universal *.dmg, version {downloadData.version}</caption>
           </div>
-          <div className="h-full flex w-full flex-col align-middle items-center">
-            <div className="flex flex-col align-middle items-center">
-              <div className="items-center text-center">
-                <p className="text-base ">
-                  <FontAwesomeIcon size="4x" icon={faBeer} className="ml-2" />
-                </p>
-                <p className="text-base ">Using Brew ?</p>
-                <p className="text-base dark:text-purple-300 text-purple-700">
-                  <FontAwesomeIcon size="1x" icon={faTerminal} className="mr-2" />
-                  brew install podman-desktop
-                  <button title="Copy To Clipboard" className="mr-5">
-                    {' '}
-                    <FontAwesomeIcon
-                      size="xs"
-                      icon={faPaste}
-                      className="ml-3  cursor-pointer text-3xl  text-white-500"
-                      onClick={() => copyBrewInstructions()}
-                    />
-                  </button>
-                </p>
+          <div className="mt-4">
+            <div>
+              Other macOS downloads:
+            </div>
+            <Link
+              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
+              to={downloadData.x64}>
+              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+              Intel
+            </Link>
+            <Link
+              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 text-md font-semibold"
+              to={downloadData.arm64}>
+              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+              Arm
+            </Link>
+          </div>
+          <div className="flex flex-col align-middle items-center">
+            <div className="items-center text-center pt-6">
+              <p className="text-lg">Using <strong>Brew</strong>? Install in one command:</p>
+              <div className="flex flex-row pt-3">
+                <p className="text-xl p-1"><FontAwesomeIcon size="sm" icon={faBeer} className="mx-1 mt-2" /></p>
+                <div className="dark:bg-zinc-900/50 bg-zinc-300/50 p-1 truncate">
+                  <p className="text-xl dark:text-purple-300 text-purple-700">
+                    <FontAwesomeIcon size="xs" icon={faTerminal} className="mx-2 mt-3" />
+                      brew install podman-desktop
+                    <button title="Copy To Clipboard" className="mr-2 p-1">
+                      {' '}
+                      <FontAwesomeIcon
+                        size="xs"
+                        icon={faPaste}
+                        className="ml-3  cursor-pointer text-xl  text-white-500"
+                        onClick={() => copyBrewInstructions()}
+                      />
+                    </button>
+                  </p>
+                </div>
               </div>
-              <div className="pt-8 space-x-4">
-                <Link
-                  className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
-                  to={downloadData.universal}>
-                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-                  universal
-                </Link>
-                <Link
-                  className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
-                  to={downloadData.x64}>
-                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-                  Intel
-                </Link>
-                <Link
-                  className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
-                  to={downloadData.arm64}>
-                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-                  Arm
-                </Link>
-              </div>
-              <div className="font-light mt-4">Version {downloadData.version}</div>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 

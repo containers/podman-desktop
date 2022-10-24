@@ -44,30 +44,24 @@ export function WindowsDownloads(): JSX.Element {
   }, []);
 
   return (
-    <section className=" dark:bg-zinc-800 bg-zinc-200 py-24 dark:text-gray-300 text-gray-700">
-      <div className="w-5/6 mx-auto">
-        <div className="flex rounded-lg bg-zinc-300 dark:bg-zinc-700 bg-opacity-60 p-8 flex-col md:flex-row  ">
-          <div className="flex align-middle items-center mb-3 flex-col ">
-            <FontAwesomeIcon size="8x" icon={faWindows} />
-            <div className="inline-flex items-center justify-center rounded-full  flex-shrink-0"></div>
-            <h2 className=" text-lg title-font font-medium">Windows</h2>
+    <div className="mr-10 basis-1/3 py-2 rounded-lg dark:text-gray-300 text-gray-700  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
+        <FontAwesomeIcon size="4x" icon={faWindows} className="my-4" />
+        <h2 className="w-full text-center text-4xl title-font font-medium pb-3 border-purple-600 border-b-2">Windows</h2>
+        <div className="flex p-1 flex-col md:flex-col items-center align-top">
+        <div className="flex flex-col align-middle items-center">
+          <h3 className="mt-0">Podman Desktop for Windows</h3>
+          <div className="pt-8 space-x-4">
+            <Link
+              className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-md font-semibold"
+              to={downloadData.binary}>
+              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+              Download Now
+            </Link>
           </div>
-          <div className="h-full flex w-full flex-col align-middle items-center">
-            <div className="flex flex-col align-middle items-center">
-              <div className="pt-8 space-x-4">
-                <Link
-                  className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
-                  to={downloadData.binary}>
-                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-                  Exe
-                </Link>
-              </div>
-              <div className="font-light mt-4">Version {downloadData.version}</div>
-            </div>
-          </div>
+          <div className="font-light mt-4">Version {downloadData.version}</div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 

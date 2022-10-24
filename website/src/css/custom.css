@@ -107,3 +107,60 @@ svg.lightToggleIcon_node_modules-\@docusaurus-theme-classic-lib-next-theme-Color
 li.footer__item a svg {
   display: inline;
 }
+
+/* mo changes 20 oct 2022 */
+
+.alert { max-width: 1500px; margin: 2em auto;}
+
+html[data-theme="dark"] .navbar {
+  background-color: #1b1b1d !important;
+}
+
+.navbar, .title-font, .text-base {
+  font-family: "Montserrat" !important;
+}
+
+.text-base {
+  font-weight: 300;
+  font-size: 1.3em !important;
+}
+
+.hero .title-font {
+  font-weight: 600;
+  font-size: 3em !important;
+  margin-bottom: .5em;
+}
+
+.navbar__title {
+  font-size: 2em;
+  font-weight: 500;
+  padding-right: 1em;
+}
+
+.navbar__logo img {
+  padding-right: 7px;
+}
+
+.navbar__logo {
+  min-height: 56px;
+}
+
+.navbar__item {
+  font-size: 1.2em;
+}
+
+.navbar {
+  height: 85px;
+}
+
+#hero > div:first-of-type > div:first-of-type,
+#all-downloads {
+  background-image: url('/static/img/gradients.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+.container {
+  padding-top: 2em;
+}

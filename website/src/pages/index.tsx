@@ -65,18 +65,25 @@ function DownloadClientLinks() {
 
   if (operatingSystem !== '') {
     mainButton = (
-      <Link
-        className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-violet-600 border-0 py-2 px-6 my-4 focus:outline-none hover:bg-violet-700 rounded text-lg"
-        to={'/downloads/' + operatingSystem}>
-        <FontAwesomeIcon size="2x" icon={varIcon as IconProp} className="px-2" /> Download for {operatingSystem}
-      </Link>
+      <div>
+        <Link
+          className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-violet-600 border-0 py-4 px-8 mt-6 mb-1 focus:outline-none hover:bg-violet-700 rounded text-lg"
+          to={'/downloads/' + operatingSystem}>
+          <FontAwesomeIcon size="2x" icon={varIcon as IconProp} className="px-2" /> Download Now
+        </Link>
+        <caption className="block mt-0 dark:text-gray-300">
+        For <strong>{operatingSystem}</strong> <em>(browser-detected)</em>
+        </caption>
+      </div>
     );
     otherButton = (
-      <Link
-        className="no-underline hover:no-underline ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 my-4  focus:outline-none hover:bg-gray-200 rounded text-lg"
-        to="/downloads">
-        Other downloads
-      </Link>
+      <div>
+        <Link
+          className="underline font-semibold hover:underline ml-4 inline-flex py-2 px-6 my-4  focus:outline-none text-lg"
+          to="/downloads">
+          Other downloads
+        </Link>
+      </div>
     );
   } else {
     mainButton = (
@@ -89,7 +96,7 @@ function DownloadClientLinks() {
   }
 
   return (
-    <div className="flex justify-center flex-col md:flex-row">
+    <div className="flex justify-center flex-col">
       {mainButton}
       {otherButton}
     </div>
@@ -111,10 +118,10 @@ function DownloadGenericLinks() {
 function Hero() {
   // const { siteConfig } = useDocusaurusContext();
   return (
-    <section className="text-gray-600 dark:text-gray-300 body-font">
+    <section id="hero" className="text-gray-600 dark:text-gray-300 body-font">
       <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
         <div className="text-center lg:w-2/3 w-full">
-          <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-4 font-medium text-gray-900 dark:text-white">
+          <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white">
             Containers and Kubernetes for application developers
           </h1>
           <p className="text-base md:text-lg">
@@ -125,16 +132,7 @@ function Hero() {
             </a>{' '}
             to provide a lightweight and daemon-less container tool.
           </p>
-          <div className="flex justify-center">
-            <iframe
-              src="https://ghbtns.com/github-btn.html?user=containers&repo=podman-desktop&type=star&count=true"
-              frameBorder="0"
-              scrolling="0"
-              width="150"
-              height="20"
-              title="GitHub"></iframe>
-          </div>
-          <div className="flex justify-center">
+          <div className="flex-none">
             {/* With client mode, provides the link to the client browser */}
             <BrowserOnly fallback={<DownloadGenericLinks></DownloadGenericLinks>}>
               {() => {
