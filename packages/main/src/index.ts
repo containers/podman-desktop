@@ -24,6 +24,7 @@ import { isMac, isWindows } from './util';
 import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
 import { StartupInstall } from './system/startup-install';
+import type { ConfigurationRegistry } from './plugin/configuration-registry';
 
 /**
  * Prevent multiple instances
@@ -97,6 +98,9 @@ if (import.meta.env.PROD) {
 }
 
 let tray: Tray | null = null;
+declare global {
+  let configurationRegistry: ConfigurationRegistry;
+}
 
 app.whenReady().then(async () => {
   const animatedTray = new AnimatedTray();
@@ -107,9 +111,9 @@ app.whenReady().then(async () => {
   const pluginSystem = new PluginSystem(trayMenu);
   const extensionLoader = await pluginSystem.initExtensions();
 
-  const configurationRegistry = extensionLoader.getConfigurationRegistry();
+  global.configurationRegistry = extensionLoader.getConfigurationRegistry();
 
   // configure automatic startup
-  const automaticStartup = new StartupInstall(configurationRegistry);
+  const automaticStartup = new StartupInstall(global.configurationRegistry);
   await automaticStartup.configure();
 });

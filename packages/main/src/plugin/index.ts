@@ -70,6 +70,7 @@ import type {
 } from './dockerode/libpod-dockerode';
 
 import { AutostartEngine } from './autostart-engine';
+import { CloseBehavior } from './close-behavior';
 import { KubernetesClient } from './kubernetes-client';
 import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
@@ -207,7 +208,8 @@ export class PluginSystem {
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
     const kubernetesClient = new KubernetesClient();
-
+    const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry, providerRegistry);
+    await closeBehaviorConfiguration.init();
     const autoStartConfiguration = new AutostartEngine(configurationRegistry, providerRegistry);
     await autoStartConfiguration.init();
 

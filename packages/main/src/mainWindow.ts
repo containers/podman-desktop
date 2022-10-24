@@ -101,12 +101,24 @@ async function createWindow() {
   });
 
   browserWindow.on('close', e => {
-    if (!isLinux) {
+    const closeBehaviorConfiguration = global.configurationRegistry?.getConfiguration('preferences');
+    let minimizeonclose = !isLinux; // default value, which we will use unless the user preference is available.
+    if (typeof closeBehaviorConfiguration !== 'undefined') {
+      minimizeonclose = closeBehaviorConfiguration.get<boolean>('MinimizeToTrayOnClose') == true;
+    } else {
+      console.log('Configuration registry was undefined when window was closed. Using default behavior.');
+    }
+    console.log('Minimize on close: ' + minimizeonclose);
+
+    if (minimizeonclose) {
       e.preventDefault();
       browserWindow.hide();
       if (isMac) {
         app.dock.hide();
       }
+    } else {
+      browserWindow.destroy();
+      app.quit();
     }
   });
 
