@@ -274,14 +274,14 @@ class WinInstaller extends BaseInstaller {
   update(): Promise<boolean> {
     return this.install();
   }
-
+  // `podman-${tagVersion}-setup.exe`
   install(): Promise<boolean> {
     return extensionApi.window.withProgress({ location: extensionApi.ProgressLocation.APP_ICON }, async progress => {
       progress.report({ increment: 5 });
-      const msiPath = path.resolve(this.getAssetsFolder(), `podman-v${podmanTool.version}.msi`);
+      const setupPath = path.resolve(this.getAssetsFolder(), `podman-${podmanTool.version}-setup.exe`);
       try {
-        if (fs.existsSync(msiPath)) {
-          const runResult = await runCliCommand('msiexec', ['/i', msiPath, '/qb', '/norestart']);
+        if (fs.existsSync(setupPath)) {
+          const runResult = await runCliCommand(setupPath, ['/install', '/norestart']);
           if (runResult.exitCode !== 0) {
             throw new Error(runResult.stdErr);
           }
@@ -289,7 +289,7 @@ class WinInstaller extends BaseInstaller {
           extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
           return true;
         } else {
-          throw new Error(`Can't find Podman msi package! Path: ${msiPath} doesn't exists.`);
+          throw new Error(`Can't find Podman setup package! Path: ${setupPath} doesn't exists.`);
         }
       } catch (err) {
         console.error('Error during install!');
