@@ -125,17 +125,6 @@ html[data-theme='dark'] .navbar {
   font-family: 'Montserrat' !important;
 }
 
-.text-base {
-  font-weight: 300;
-  font-size: 1.3em !important;
-}
-
-.hero .title-font {
-  font-weight: 600;
-  font-size: 3em !important;
-  margin-bottom: 0.5em;
-}
-
 .navbar__title {
   font-size: 2em;
   font-weight: 500;
