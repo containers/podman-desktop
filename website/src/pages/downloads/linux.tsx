@@ -50,66 +50,70 @@ export function LinuxDownloads(): JSX.Element {
   }, []);
 
   return (
-    <section className=" dark:bg-zinc-800 bg-zinc-200 py-24 dark:text-gray-300 text-gray-700">
-      <div className="w-5/6 mx-auto">
-        <div className="flex rounded-lg bg-zinc-300 dark:bg-zinc-700 bg-opacity-60 p-8 flex-col md:flex-row  ">
-          <div className="flex align-middle items-center mb-3 flex-col ">
-            <FontAwesomeIcon size="8x" icon={faLinux} />
-            <div className="inline-flex items-center justify-center rounded-full  flex-shrink-0"></div>
-            <h2 className=" text-lg title-font font-medium">Linux</h2>
+    <div className="basis-1/3 py-2 rounded-lg dark:text-gray-300 text-gray-700  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
+      <FontAwesomeIcon size="4x" icon={faLinux} className="my-4" />
+      <h2 className="w-full text-center text-4xl title-font font-medium pb-3 border-purple-600 border-b-2">Linux</h2>
+      <div className="flex p-1 flex-col md:flex-col items-center align-top">
+        <div className="flex flex-col align-middle items-center">
+          <h3 className="mt-0">Podman Desktop for Linux</h3>
+          <div className="pt-8">
+            <Link
+              className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-md font-semibold"
+              to={downloadData.flatpak}>
+              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+              Download Now
+            </Link>
+            <caption className="block w-full mt-1 text/50 dark:text-white/50">
+              Linux *.flatpak, version {downloadData.version}
+            </caption>
           </div>
-          <div className="h-full flex w-full flex-col align-middle items-center">
-            <div className="flex flex-col align-middle items-center">
-              <div className="items-center text-center">
-                <p className="flex justify-center">
-                  <svg width="50px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+          <div className="mt-4">
+            <div>Other Linux downloads:</div>
+            <Link
+              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
+              to={downloadData.binary}>
+              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+              Source *.tar.gz
+            </Link>
+          </div>
+          <div className="flex flex-col align-middle items-center">
+            <div className="items-center text-center pt-6">
+              <p className="text-lg">
+                Using{' '}
+                <a className="text-purple-500" href="https://flathub.org/apps/details/io.podman_desktop.PodmanDesktop">
+                  FlatHub
+                </a>{' '}
+                ? Install in one command:
+              </p>
+              <div className="flex flex-row pt-3 pb-7">
+                <p className="text-xl p-1 mx-1">
+                  <svg width="35px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
                     <path d="M12 2.604l-.43.283L0 10.459v6.752l6.393 4.184L12 17.725l5.607 3.671L24 17.211v-6.752L12 2.604zm0 .828l5.434 3.556-2.717 1.778L12 10.545l-2.717-1.78-2.717-1.777L12 3.432zM6.39 7.104l5.434 3.556-5.408 3.54-5.434-3.557 5.409-3.54zm11.22 0l5.431 3.554-5.434 3.557-5.433-3.555 5.435-3.556zM.925 10.867l5.379 3.52a.123.08 0 00.027.013v5.647l-5.406-3.54v-5.64zm11.213.115l5.408 3.54v5.664l-5.408-3.54v-5.664z" />
                   </svg>
                 </p>
-                <p className="text-base ">
-                  Using{' '}
-                  <a
-                    className="text-purple-500"
-                    href="https://flathub.org/apps/details/io.podman_desktop.PodmanDesktop">
-                    FlatHub
-                  </a>{' '}
-                  ? Install in one command:
-                </p>
-                <p className="text-base dark:text-purple-300 text-purple-700">
-                  <FontAwesomeIcon size="1x" icon={faTerminal} className="mr-2" />
-                  flatpak install --user flathub io.podman_desktop.PodmanDesktop
-                  <button title="Copy To Clipboard" className="mr-5">
-                    {' '}
-                    <FontAwesomeIcon
-                      size="xs"
-                      icon={faPaste}
-                      className="ml-3  cursor-pointer text-3xl  text-white-500"
-                      onClick={() => copyFlathubInstructions()}
-                    />
-                  </button>
-                </p>
+                <div className="dark:bg-zinc-900/50 bg-zinc-300/50 p-1 text-xl dark:text-purple-300 text-purple-700 flex flex-row">
+                  <div className="w-72 truncate">
+                    <FontAwesomeIcon size="xs" icon={faTerminal} className="mx-2 mt-3" />
+                    flatpak install --user flathub io.podman_desktop.PodmanDesktop
+                  </div>
+                  <div>
+                    <button title="Copy To Clipboard" className="mr-2 p-1">
+                      {' '}
+                      <FontAwesomeIcon
+                        size="xs"
+                        icon={faPaste}
+                        className="ml-3  cursor-pointer text-xl  text-white-500"
+                        onClick={() => copyFlathubInstructions()}
+                      />
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="pt-8 space-x-4">
-                <Link
-                  className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
-                  to={downloadData.flatpak}>
-                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-                  Flatpak
-                </Link>
-
-                <Link
-                  className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-sm"
-                  to={downloadData.binary}>
-                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-                  zip
-                </Link>
-              </div>
-              <div className="font-light mt-4">Version {downloadData.version}</div>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
     /*
     <section className="text-gray-400 bg-gray-900 min-h-full">
@@ -148,9 +152,16 @@ export default function Home(): JSX.Element {
   return (
     <Layout title={siteConfig.title} description="Downloads for macOS">
       <TailWindThemeSelector />
-      <main className="h-screen">
-        <LinuxDownloads />
-      </main>
+      <section className="container mx-auto flex justify-center flex-col">
+        <div className="w-full flex flex-col">
+          <h1 className="title-font sm:text-3xl text-2xl lg:text-5xl mb-10 font-medium text-gray-900 dark:text-white">
+            Linux Downloads
+          </h1>
+          <main className="h-screen">
+            <LinuxDownloads />
+          </main>
+        </div>
+      </section>
     </Layout>
   );
 }

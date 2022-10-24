@@ -4,7 +4,7 @@
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
-const title = 'Podman Desktop';
+const title = 'podman desktop';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -61,6 +61,7 @@ const config = {
         logo: {
           alt: 'Podman Desktop Logo',
           src: 'img/logo.svg',
+          height: '56',
         },
         items: [
           {
