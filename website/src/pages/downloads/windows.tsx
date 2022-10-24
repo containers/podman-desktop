@@ -74,7 +74,7 @@ export default function Home(): JSX.Element {
       <section className="container mx-auto flex justify-center flex-col">
         <div className="w-full flex flex-col">
           <h1 className="title-font sm:text-3xl text-2xl lg:text-5xl mb-10 font-medium text-gray-900 dark:text-white">
-            Linux Downloads
+            Windows Downloads
           </h1>
           <main className="h-screen">
             <WindowsDownloads />
