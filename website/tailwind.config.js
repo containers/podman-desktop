@@ -12,7 +12,7 @@ module.exports = {
       sans: ['Montserrat', ...defaultTheme.fontFamily.sans],
     },
     extend: {},
+    },
   },
-},
   plugins: [],
 };
