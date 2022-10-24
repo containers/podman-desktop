@@ -72,7 +72,7 @@ function DownloadClientLinks() {
           <FontAwesomeIcon size="2x" icon={varIcon as IconProp} className="px-2" /> Download Now
         </Link>
         <caption className="block mt-0 dark:text-gray-300">
-        For <strong>{operatingSystem}</strong> <em>(browser-detected)</em>
+          For <strong>{operatingSystem}</strong> <em>(browser-detected)</em>
         </caption>
       </div>
     );

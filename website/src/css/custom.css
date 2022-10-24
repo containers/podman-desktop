@@ -110,14 +110,19 @@ li.footer__item a svg {
 
 /* mo changes 20 oct 2022 */
 
-.alert { max-width: 1500px; margin: 2em auto;}
+.alert {
+  max-width: 1500px;
+  margin: 2em auto;
+}
 
-html[data-theme="dark"] .navbar {
+html[data-theme='dark'] .navbar {
   background-color: #1b1b1d !important;
 }
 
-.navbar, .title-font, .text-base {
-  font-family: "Montserrat" !important;
+.navbar,
+.title-font,
+.text-base {
+  font-family: 'Montserrat' !important;
 }
 
 .text-base {
@@ -128,7 +133,7 @@ html[data-theme="dark"] .navbar {
 .hero .title-font {
   font-weight: 600;
   font-size: 3em !important;
-  margin-bottom: .5em;
+  margin-bottom: 0.5em;
 }
 
 .navbar__title {

@@ -69,14 +69,14 @@ export function MacOSDownloads(): JSX.Element {
               className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-md font-semibold"
               to={downloadData.universal}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-                Download Now
+              Download Now
             </Link>
-            <caption className="block w-full mt-1 text/50 dark:text-white/50">Universal *.dmg, version {downloadData.version}</caption>
+            <caption className="block w-full mt-1 text/50 dark:text-white/50">
+              Universal *.dmg, version {downloadData.version}
+            </caption>
           </div>
           <div className="mt-4">
-            <div>
-              Other macOS downloads:
-            </div>
+            <div>Other macOS downloads:</div>
             <Link
               className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
               to={downloadData.x64}>
@@ -92,13 +92,17 @@ export function MacOSDownloads(): JSX.Element {
           </div>
           <div className="flex flex-col align-middle items-center">
             <div className="items-center text-center pt-6">
-              <p className="text-lg">Using <strong>Brew</strong>? Install in one command:</p>
+              <p className="text-lg">
+                Using <strong>Brew</strong>? Install in one command:
+              </p>
               <div className="flex flex-row pt-3">
-                <p className="text-xl p-1"><FontAwesomeIcon size="sm" icon={faBeer} className="mx-1 mt-2" /></p>
+                <p className="text-xl p-1">
+                  <FontAwesomeIcon size="sm" icon={faBeer} className="mx-1 mt-2" />
+                </p>
                 <div className="dark:bg-zinc-900/50 bg-zinc-300/50 p-1 truncate">
                   <p className="text-xl dark:text-purple-300 text-purple-700">
                     <FontAwesomeIcon size="xs" icon={faTerminal} className="mx-2 mt-3" />
-                      brew install podman-desktop
+                    brew install podman-desktop
                     <button title="Copy To Clipboard" className="mr-2 p-1">
                       {' '}
                       <FontAwesomeIcon

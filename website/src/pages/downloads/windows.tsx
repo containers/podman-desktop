@@ -45,9 +45,9 @@ export function WindowsDownloads(): JSX.Element {
 
   return (
     <div className="basis-1/3 py-2 rounded-lg dark:text-gray-300 text-gray-700  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
-        <FontAwesomeIcon size="4x" icon={faWindows} className="my-4" />
-        <h2 className="w-full text-center text-4xl title-font font-medium pb-3 border-purple-600 border-b-2">Windows</h2>
-        <div className="flex p-1 flex-col md:flex-col items-center align-top">
+      <FontAwesomeIcon size="4x" icon={faWindows} className="my-4" />
+      <h2 className="w-full text-center text-4xl title-font font-medium pb-3 border-purple-600 border-b-2">Windows</h2>
+      <div className="flex p-1 flex-col md:flex-col items-center align-top">
         <div className="flex flex-col align-middle items-center">
           <h3 className="mt-0">Podman Desktop for Windows</h3>
           <div className="pt-8 space-x-4">
