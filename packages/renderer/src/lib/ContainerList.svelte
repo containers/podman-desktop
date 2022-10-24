@@ -4,9 +4,11 @@ import { filtered, searchPattern } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
+import type { PodInfoUI } from '../pod/PodInfoUI';
 import { router } from 'tinro';
 import { ContainerGroupInfoTypeUI, ContainerGroupInfoUI, ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
+import PodActions from './pod/PodActions.svelte';
 import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';
 import Modal from './dialogs/Modal.svelte';
 import { ContainerUtils } from './container/container-utils';
@@ -349,7 +351,7 @@ function toggleAllContainerGroups(value: boolean) {
       {#each containerGroups as containerGroup}
         <tbody>
           {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE || containerGroup.type === ContainerGroupInfoTypeUI.POD}
-            <tr class="h-10 group">
+            <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
               <td
                 class="bg-zinc-900 group-hover:bg-zinc-700 pl-2 w-3 rounded-tl-lg"
                 class:rounded-bl-lg="{!containerGroup.expanded}"
@@ -359,23 +361,17 @@ function toggleAllContainerGroups(value: boolean) {
                   class="text-gray-400 cursor-pointer"
                   icon="{containerGroup.expanded ? faChevronDown : faChevronRight}" />
               </td>
-              <td class="px-2 w-5 bg-zinc-900 group-hover:bg-zinc-700">
+              <td class="px-2">
                 <input
                   type="checkbox"
                   on:click="{event => toggleCheckboxContainerGroup(event.currentTarget.checked, containerGroup)}"
                   bind:checked="{containerGroup.selected}"
                   class=" cursor-pointer invert hue-rotate-[218deg] brightness-75" />
               </td>
-              <td
-                class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12"
-                title="{containerGroup.type}">
+              <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
                 <ContainerGroupIcon type="{containerGroup.type}" containers="{containerGroup.containers}" />
               </td>
-              <td
-                colspan="4"
-                class="bg-zinc-900 group-hover:bg-zinc-700 rounded-tr-lg {!containerGroup.expanded
-                  ? 'rounded-br-lg'
-                  : ''}">
+              <td class="whitespace-nowrap hover:cursor-pointer {!containerGroup.expanded ? 'rounded-br-lg' : ''}">
                 <div class="flex items-center text-sm text-gray-200 overflow-hidden text-ellipsis">
                   <div class="flex flex-col flex-nowrap">
                     <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{containerGroup.type}">
@@ -385,6 +381,20 @@ function toggleAllContainerGroups(value: boolean) {
                       {containerGroup.containers.length} container{containerGroup.containers.length > 1 ? 's' : ''}
                     </div>
                   </div>
+                </div>
+              </td>
+              <td class="px-6 py-2 whitespace-nowrap w-10">
+                <div class="flex items-center">
+                  <div class="ml-2 text-sm text-gray-400"></div>
+                </div>
+              </td>
+              <td class="px-6 whitespace-nowrap">
+                <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100">
+                  <!-- Only show POD actions if the container group is POD, otherwise keep blank / empty (for future compose implementation) -->
+                  {#if containerGroup.type === ContainerGroupInfoTypeUI.POD}
+                    <PodActions
+                      pod="{{ id: containerGroup.id, name: containerGroup.name, engineId: containerGroup.engineId }}" />
+                  {/if}
                 </div>
               </td>
             </tr>

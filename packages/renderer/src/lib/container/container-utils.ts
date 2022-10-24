@@ -138,6 +138,8 @@ export class ContainerUtils {
       return {
         name: podInfo.name,
         type: ContainerGroupInfoTypeUI.POD,
+        id: podInfo.id,
+        engineId: containerInfo.engineId,
       };
     }
 
@@ -163,6 +165,8 @@ export class ContainerUtils {
             expanded: true,
             name: group.name,
             type: group.type,
+            id: group.id,
+            engineId: group.engineId,
             containers: [],
           });
         }
