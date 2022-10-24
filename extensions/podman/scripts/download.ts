@@ -137,7 +137,7 @@ if (platform === 'win32') {
   tagVersion = tools.platform.win32.version;
   // eslint-disable-next-line prefer-const
   dlName = tools.platform.win32.fileName;
-  downloadAndCheckSha(tagVersion, dlName, `podman-${tagVersion}.msi`);
+  downloadAndCheckSha(tagVersion, dlName, `podman-${tools.version}-setup.exe`);
 } else if (platform === 'darwin') {
   tagVersion = tools.platform.darwin.version;
   dlName = tools.platform.darwin.arch.x64.fileName;
