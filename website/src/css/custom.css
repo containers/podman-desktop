@@ -147,14 +147,6 @@ html[data-theme='dark'] .navbar {
   height: 85px;
 }
 
-#hero > div:first-of-type > div:first-of-type,
-#all-downloads {
-  background-image: url('/static/img/gradients.png');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-}
-
 .container {
   padding-top: 2em;
 }

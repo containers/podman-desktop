@@ -10,7 +10,7 @@ export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout title={siteConfig.title} description="Downloads">
-      <section id="all-downloads" className="container mx-auto flex justify-left flex-col">
+      <section className="container mx-auto flex justify-left flex-col bg-hero-pattern bg-no-repeat bg-center bg-cover">
         <div className="lg:w-2/3 w-full">
           <h1 className="flex flex-col title-font sm:text-3xl text-2xl lg:text-5xl mb-10 font-medium text-gray-900 dark:text-white">
             Downloads

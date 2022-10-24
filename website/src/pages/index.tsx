@@ -118,9 +118,9 @@ function DownloadGenericLinks() {
 function Hero() {
   // const { siteConfig } = useDocusaurusContext();
   return (
-    <section id="hero" className="text-gray-600 dark:text-gray-300 body-font">
+    <section className="text-gray-600 dark:text-gray-300 body-font">
       <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
-        <div className="text-center lg:w-2/3 w-full">
+        <div className="text-center lg:w-2/3 w-full bg-hero-pattern bg-no-repeat bg-center bg-cover">
           <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white">
             Containers and Kubernetes for application developers
           </h1>
