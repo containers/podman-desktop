@@ -50,7 +50,7 @@ export function LinuxDownloads(): JSX.Element {
   }, []);
 
   return (
-    <div className="mx-10 basis-1/3 py-2 rounded-lg dark:text-gray-300 text-gray-700  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
+    <div className="basis-1/3 py-2 rounded-lg dark:text-gray-300 text-gray-700  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
       <FontAwesomeIcon size="4x" icon={faLinux} className="my-4" />
       <h2 className="w-full text-center text-4xl title-font font-medium pb-3 border-purple-600 border-b-2">Linux</h2>
       <div className="flex p-1 flex-col md:flex-col items-center align-top">
