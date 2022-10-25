@@ -1,5 +1,7 @@
 # Podman Desktop
-A GUI dedicated for containers and kubernetes for application developers
+
+Install, configure and keep container engine (Podman) up to date. System tray to keep it running and switch Kubernetes contexts. 
+Desktop App to interact with containers and pods running in Podman. Connect and deploy Pods to Kubernetes/OpenShift environments.
 
 <p align="center">
   <img alt="Podman Desktop" src="/website/static/img/features/homepage.png">
@@ -21,13 +23,17 @@ Register your interest to join our Early Adopter Program by filling <a href="htt
 
 ## Overview
 
-Podman Desktop enables you to easily work with containers and kubernetes from your local environment. Podman Desktop leverages Podman Engine to provide a lightweight and daemon-less container tool.
+Podman Desktop enables you to easily work with containers and kubernetes from your local environment. Podman Desktop leverages Podman Engine to provide a lightweight and daemon-less container tool. 
 
 **Podman and Kubernetes/OpenShift Local**
 - Install and run anywhere: Windows, Mac and Linux
 - Keep it up-to-date
 
-**Containers and Pods**
+**System Tray**
+- Manage your Container Engines
+- Define your Kubernetes context
+
+**Containers and Pods Dashboard**
 - Build, run, manage and debug Containers and Pods
 - Run Pods with Podman or with Kubernetes
 - Deploy Pods from Podman to Kubernetes
