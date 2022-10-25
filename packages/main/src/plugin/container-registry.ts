@@ -649,7 +649,7 @@ export class ContainerProviderRegistry {
       ...originalConfiguration,
       ...overrideParameters,
     };
-    return libPod.createContainer(configuration);
+    return libPod.createPodmanContainer(configuration);
   }
 
   async stopPod(engineId: string, podId: string): Promise<void> {
