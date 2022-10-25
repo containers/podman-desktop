@@ -630,7 +630,7 @@ function Pods() {
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Kubernetes</h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Play Kubernetes YAML locally without Kubernetes
+                  Play Kubernetes YAML directly with Podman Engine
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
