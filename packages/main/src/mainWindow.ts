@@ -105,10 +105,7 @@ async function createWindow() {
     let exitonclose = isLinux; // default value, which we will use unless the user preference is available.
     if (closeBehaviorConfiguration) {
       exitonclose = closeBehaviorConfiguration.get<boolean>('ExitOnClose') == true;
-    } else {
-      console.log('Configuration registry was undefined when window was closed. Using default behavior.');
     }
-    console.log('Exit on close: ' + exitonclose);
 
     if (!exitonclose) {
       e.preventDefault();
