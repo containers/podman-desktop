@@ -1,5 +1,5 @@
 # Podman Desktop
-Manage different container engines from a single UI and tray icon
+A GUI dedicated for containers and kubernetes for application developers
 
 <p align="center">
   <img alt="Podman Desktop" src="/website/static/img/features/homepage.png">
@@ -20,15 +20,31 @@ We are seeking users who are interested in helping us improve Podman Desktop.
 Register your interest to join our Early Adopter Program by filling <a href="https://forms.gle/ow73dV7Ce3YLzoXH7" target="_blank">this form</a>.
 
 ## Overview
-This tool allows to browse, manage lifecycle of containers, inspect containers, images from different container engines.
 
-It includes a tray icon support.
- 
-It can connect to multiple engines at the same time and provides an unified interface.
+Podman Desktop enables you to easily work with containers and kubernetes from your local environment. Podman Desktop leverages Podman Engine to provide a lightweight and daemon-less container tool.
 
-Specific runtime plug-ins provides support for different container engine.
+**Podman and Kubernetes/OpenShift Local**
+- Install and run anywhere: Windows, Mac and Linux
+- Keep it up-to-date
 
-There are plug-ins to handle [Podman container engine](https://github.com/containers/podman), [crc](https://github.com/code-ready/crc), [Podman Lima machines](https://github.com/lima-vm/lima), Docker, etc.
+**Containers and Pods**
+- Build, run, manage and debug Containers and Pods
+- Run Pods with Podman or with Kubernetes
+- Deploy Pods from Podman to Kubernetes
+- Manage multiple container Engines
+
+**Enterprise Capabilities**
+- Proxy Support
+- OCI Image registries management
+
+**Bridge between Local and Remote**
+- Connect and deploy to Kubernetes/OpenShift environments
+
+**Multi Container Engine Support**
+- [Podman container engine](https://github.com/containers/podman) 
+- [crc](https://github.com/code-ready/crc)
+- [Podman Lima machines](https://github.com/lima-vm/lima)
+- Docker
 
 ## Download
 
