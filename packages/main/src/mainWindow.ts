@@ -42,9 +42,9 @@ async function createWindow() {
       preload: join(__dirname, '../../preload/dist/index.cjs'),
     },
   };
-  // On Linux keep title bar as we may not have any tray icon
-  // being displayed
+
   if (isMac) {
+    // This property is not available on Linux.
     browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
   }
 
@@ -102,15 +102,15 @@ async function createWindow() {
 
   browserWindow.on('close', e => {
     const closeBehaviorConfiguration = global.configurationRegistry?.getConfiguration('preferences');
-    let minimizeonclose = !isLinux; // default value, which we will use unless the user preference is available.
-    if (typeof closeBehaviorConfiguration !== 'undefined') {
-      minimizeonclose = closeBehaviorConfiguration.get<boolean>('MinimizeToTrayOnClose') == true;
+    let exitonclose = isLinux; // default value, which we will use unless the user preference is available.
+    if (closeBehaviorConfiguration) {
+      exitonclose = closeBehaviorConfiguration.get<boolean>('ExitOnClose') == true;
     } else {
       console.log('Configuration registry was undefined when window was closed. Using default behavior.');
     }
-    console.log('Minimize on close: ' + minimizeonclose);
+    console.log('Exit on close: ' + exitonclose);
 
-    if (minimizeonclose) {
+    if (!exitonclose) {
       e.preventDefault();
       browserWindow.hide();
       if (isMac) {

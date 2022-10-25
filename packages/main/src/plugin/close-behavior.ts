@@ -26,14 +26,14 @@ export class CloseBehavior {
   async init(): Promise<void> {
     // add configuration
     const closeBehaviorConfigurationNode: IConfigurationNode = {
-      id: 'preferences.MinimizeToTrayOnClose',
-      title: 'Minimize To Tray On Close',
+      id: 'preferences.ExitOnClose',
+      title: 'Exit On Close',
       type: 'object',
       properties: {
-        ['preferences.MinimizeToTrayOnClose']: {
-          description: 'Overrides close button behavior to hide or minimize to tray.',
+        ['preferences.ExitOnClose']: {
+          description: 'Quit the app when the close button is clicked instead of minimizing to the tray.',
           type: 'boolean',
-          default: !isLinux,
+          default: isLinux,
         },
       },
     };
