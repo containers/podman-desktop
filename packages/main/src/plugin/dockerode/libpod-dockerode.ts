@@ -98,7 +98,7 @@ export interface ContainerCreateOptions {
 // API of libpod that we want to expose on our side
 export interface LibPod {
   createPod(podOptions: PodCreateOptions): Promise<{ Id: string }>;
-  createContainer(containerCreateOptions: ContainerCreateOptions): Promise<{ Id: string; Warnings: string[] }>;
+  createPodmanContainer(containerCreateOptions: ContainerCreateOptions): Promise<{ Id: string; Warnings: string[] }>;
   listPods(): Promise<PodInfo[]>;
   getPodInspect(podId: string): Promise<PodInspectInfo>;
   startPod(podId: string): Promise<void>;
@@ -110,14 +110,15 @@ export interface LibPod {
 }
 
 // tweak Dockerode by adding the support of libpod API
+// WARNING: make sure to not override existing functions
 export class LibpodDockerode {
   // setup the libpod API
   enhancePrototypeWithLibPod() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const prototypeOfDockerode = Dockerode.prototype as any;
 
-    // add createContainer
-    prototypeOfDockerode.createContainer = function (containerCreateOptions: ContainerCreateOptions) {
+    // add createPodmanContainer
+    prototypeOfDockerode.createPodmanContainer = function (containerCreateOptions: ContainerCreateOptions) {
       const optsf = {
         path: '/v4.2.0/libpod/containers/create',
         method: 'POST',
