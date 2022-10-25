@@ -365,7 +365,7 @@ function EnterpriseReady() {
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Code signing</h2>
 
                 <p className="leading-relaxed text-base">
-                  macOS binaries are digitally signed (Windows certification is in progress).
+                  Digitally signed binaries available across all leading Operating Systems
                 </p>
               </div>
             </div>
@@ -595,7 +595,7 @@ function Pods() {
           <SectionTitle name="features" />
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
-            Work with Pods.
+            Work with Pods
           </h2>
         </div>
         <div className="container px-5 pb-5 mx-auto">
@@ -638,7 +638,7 @@ function Pods() {
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Leverage existing remote Kubernetes cluster
+                  Leverage existing remote Kubernetes clusters
                 </p>
               </div>
             </div>
