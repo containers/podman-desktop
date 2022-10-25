@@ -595,7 +595,7 @@ function Pods() {
           <SectionTitle name="features" />
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
-            Work with Pods
+            Work with Pods and Kubernetes
           </h2>
         </div>
         <div className="container px-5 pb-5 mx-auto">
@@ -610,11 +610,11 @@ function Pods() {
                 </h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Create and Start Pods with Podman Desktop
+                  Create, Start and Manage Pods with Podman Desktop
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faDiagramProject} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Select Containers to run as Pods
+                  Create Pods from existing Containers
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
@@ -638,7 +638,7 @@ function Pods() {
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Leverage existing remote Kubernetes clusters
+                  Deploy to existing Kubernetes environments
                 </p>
               </div>
             </div>
