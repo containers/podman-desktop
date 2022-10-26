@@ -65,7 +65,7 @@
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
     "electron": "^21.1.1",
-    "electron-builder": "23.0.9",
+    "electron-builder": "23.6.0",
     "electron-builder-notarize": "^1.5.0",
     "electron-devtools-installer": "^3.2.0",
     "eslint": "^8.20.0",
