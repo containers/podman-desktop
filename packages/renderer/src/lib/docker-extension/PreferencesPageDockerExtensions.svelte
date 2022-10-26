@@ -38,64 +38,62 @@ function deleteContribution(extensionName: string) {
 }
 </script>
 
-<div class="flex flex-col h-min bg-zinc-800">
-  <div class="flex flex-1 flex-col p-2 ">
-    <p class="capitalize text-xl">Docker Desktop Extensions</p>
-    <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
-    <p class="text-xs italic">
-      You may try to install some of these extensions by providing the image providing the extension.
-    </p>
-    <p class="text-xs italic">
-      Example: aquasec/trivy-docker-extension:latest for Trivy extension or redhatdeveloper/openshift-dd-ext:latest for
-      the OpenShift extension.
-    </p>
+<div class="flex flex-1 flex-col p-2 bg-zinc-800">
+  <p class="capitalize text-xl">Docker Desktop Extensions</p>
+  <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
+  <p class="text-xs italic">
+    You may try to install some of these extensions by providing the image providing the extension.
+  </p>
+  <p class="text-xs italic">
+    Example: aquasec/trivy-docker-extension:latest for Trivy extension or redhatdeveloper/openshift-dd-ext:latest for
+    the OpenShift extension.
+  </p>
 
-    <div class="container mx-auto w-full mt-4 flex-col">
-      <div class="flex flex-col mb-4">
-        <label for="ociImage" class="block mb-2 text-sm font-medium text-gray-300">Image name:</label>
-        <input
-          name="ociImage"
-          id="ociImage"
-          bind:value="{ociImage}"
-          placeholder="Name of the Image"
-          class="text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
-          required />
-      </div>
+  <div class="container mx-auto w-full mt-4 flex-col">
+    <div class="flex flex-col mb-4">
+      <label for="ociImage" class="block mb-2 text-sm font-medium text-gray-300">Image name:</label>
+      <input
+        name="ociImage"
+        id="ociImage"
+        bind:value="{ociImage}"
+        placeholder="Name of the Image"
+        class="text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+        required />
+    </div>
 
-      <button
-        on:click="{() => installDDExtensionFromImage()}"
-        disabled="{ociImage === undefined || ociImage === '' || installInProgress}"
-        class="pf-c-button pf-m-primary"
-        type="button">
-        {#if installInProgress}
-          <i class="pf-c-button__progress">
-            <span class="pf-c-spinner pf-m-md" role="progressbar">
-              <span class="pf-c-spinner__clipper"></span>
-              <span class="pf-c-spinner__lead-ball"></span>
-              <span class="pf-c-spinner__tail-ball"></span>
-            </span>
-          </i>
-        {/if}
-        <span class="pf-c-button__icon pf-m-start ">
-          <i class="fas fa-arrow-circle-down ml-6" aria-hidden="true"></i>
-        </span>
-        Install extension from the OCI image
-      </button>
-
-      {#if errorInstall !== ''}
-        <div class="bg-red-300 text-gray-900 m-4">
-          {errorInstall}
-        </div>
+    <button
+      on:click="{() => installDDExtensionFromImage()}"
+      disabled="{ociImage === undefined || ociImage === '' || installInProgress}"
+      class="pf-c-button pf-m-primary"
+      type="button">
+      {#if installInProgress}
+        <i class="pf-c-button__progress">
+          <span class="pf-c-spinner pf-m-md" role="progressbar">
+            <span class="pf-c-spinner__clipper"></span>
+            <span class="pf-c-spinner__lead-ball"></span>
+            <span class="pf-c-spinner__tail-ball"></span>
+          </span>
+        </i>
       {/if}
+      <span class="pf-c-button__icon pf-m-start ">
+        <i class="fas fa-arrow-circle-down ml-6" aria-hidden="true"></i>
+      </span>
+      Install extension from the OCI image
+    </button>
 
-      <div
-        class:opacity-0="{logs.length === 0}"
-        bind:this="{logElement}"
-        class="bg-zinc-700 text-gray-200 mt-4 h-16 overflow-y-auto">
-        {#each logs as log}
-          <p class="font-light text-sm">{log}</p>
-        {/each}
+    {#if errorInstall !== ''}
+      <div class="bg-red-300 text-gray-900 m-4">
+        {errorInstall}
       </div>
+    {/if}
+
+    <div
+      class:opacity-0="{logs.length === 0}"
+      bind:this="{logElement}"
+      class="bg-zinc-700 text-gray-200 mt-4 h-16 overflow-y-auto">
+      {#each logs as log}
+        <p class="font-light text-sm">{log}</p>
+      {/each}
     </div>
   </div>
 
