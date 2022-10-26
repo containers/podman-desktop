@@ -129,6 +129,10 @@ const config = {
       },
     ],
   },
+  publish: {
+    provider: 'github',
+    timeout: 10000,
+  }
   /*extraMetadata: {
     version: process.env.VITE_APP_VERSION,
   },*/
