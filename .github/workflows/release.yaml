@@ -181,7 +181,7 @@ jobs:
           echo "AZURE_KEY_VAULT_URL=${{secrets.AZURE_KEY_VAULT_URL}}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Run Build
-        timeout-minutes: 20
+        timeout-minutes: 40
         run: yarn compile:next
 
   release:
