@@ -21,6 +21,7 @@ import { BrowserWindow, ipcMain, app, dialog, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
 import { join } from 'path';
 import { URL } from 'url';
+import type { ConfigurationRegistry } from './plugin/configuration-registry';
 import { isLinux, isMac } from './util';
 
 async function createWindow() {
@@ -42,7 +43,8 @@ async function createWindow() {
       preload: join(__dirname, '../../preload/dist/index.cjs'),
     },
   };
-
+  // On Linux keep title bar as we may not have any tray icon
+  // being displayed
   if (isMac) {
     // This property is not available on Linux.
     browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
@@ -100,8 +102,13 @@ async function createWindow() {
     browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
   });
 
+  let configurationRegistry: ConfigurationRegistry;
+  ipcMain.on('configuration-registry', (_, data) => {
+    configurationRegistry = data;
+  });
+
   browserWindow.on('close', e => {
-    const closeBehaviorConfiguration = global.configurationRegistry?.getConfiguration('preferences');
+    const closeBehaviorConfiguration = configurationRegistry?.getConfiguration('preferences');
     let exitonclose = isLinux; // default value, which we will use unless the user preference is available.
     if (closeBehaviorConfiguration) {
       exitonclose = closeBehaviorConfiguration.get<boolean>('ExitOnClose') == true;

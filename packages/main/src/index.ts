@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { app, Tray } from 'electron';
+import { app, ipcMain, Tray } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
@@ -24,7 +24,6 @@ import { isMac, isWindows } from './util';
 import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
 import { StartupInstall } from './system/startup-install';
-import type { ConfigurationRegistry } from './plugin/configuration-registry';
 
 /**
  * Prevent multiple instances
@@ -98,9 +97,6 @@ if (import.meta.env.PROD) {
 }
 
 let tray: Tray | null = null;
-declare global {
-  let configurationRegistry: ConfigurationRegistry;
-}
 
 app.whenReady().then(async () => {
   const animatedTray = new AnimatedTray();
@@ -111,9 +107,11 @@ app.whenReady().then(async () => {
   const pluginSystem = new PluginSystem(trayMenu);
   const extensionLoader = await pluginSystem.initExtensions();
 
-  global.configurationRegistry = extensionLoader.getConfigurationRegistry();
+  const configurationRegistry = extensionLoader.getConfigurationRegistry();
+  // share configuration registry
+  ipcMain.emit('configuration-registry', '', configurationRegistry);
 
   // configure automatic startup
-  const automaticStartup = new StartupInstall(global.configurationRegistry);
+  const automaticStartup = new StartupInstall(configurationRegistry);
   await automaticStartup.configure();
 });
