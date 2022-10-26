@@ -149,7 +149,7 @@ jobs:
         run: yarn --frozen-lockfile --network-timeout 180000
 
       - name: Run Build
-        timeout-minutes: 20
+        timeout-minutes: 40
         run: yarn compile:pull-request
 
       - name: List Build
