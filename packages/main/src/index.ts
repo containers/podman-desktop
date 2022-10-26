@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { app, Tray } from 'electron';
+import { app, ipcMain, Tray } from 'electron';
 import './security-restrictions';
 import { restoreOrCreateWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
@@ -108,6 +108,8 @@ app.whenReady().then(async () => {
   const extensionLoader = await pluginSystem.initExtensions();
 
   const configurationRegistry = extensionLoader.getConfigurationRegistry();
+  // share configuration registry
+  ipcMain.emit('configuration-registry', '', configurationRegistry);
 
   // configure automatic startup
   const automaticStartup = new StartupInstall(configurationRegistry);
