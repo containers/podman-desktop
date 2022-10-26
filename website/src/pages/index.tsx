@@ -412,7 +412,7 @@ function RunAnywhere() {
             Use the same UI across different operating systems
           </p>
         </div>
-        <div className="flex flex-wrap w-full">
+        <div className="flex flex-wrap w-full justify-center">
           <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
             <div className="flex rounded-lg h-full bg-zinc-300 dark:bg-zinc-700 bg-opacity-60 p-8 flex-col">
               <Link
