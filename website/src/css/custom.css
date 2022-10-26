@@ -124,7 +124,7 @@ li.footer__item a svg {
 }
 
 .navbar__title {
-  font-size: 2em;
+  font-size: 1.2em;
   font-weight: 500;
   padding-right: 1em;
 }
@@ -138,5 +138,5 @@ li.footer__item a svg {
 }
 
 .navbar__item {
-  font-size: 1.2em;
+  font-size: 1em;
 }
