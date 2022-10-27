@@ -609,16 +609,12 @@ function Pods() {
                   Create and "Podify"
                 </h2>
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Create, start, and manage pods with Podman Desktop
-                </p>
-                <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faDiagramProject} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Create Pods from existing Containers
+                  Create Pods from existing containers
                 </p>
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faRocket} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Start / Stop / Restart Pods
+                  <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
+                  Create, start, inspect and manage pods
                 </p>
               </div>
             </div>
