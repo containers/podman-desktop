@@ -1,7 +1,7 @@
 import-module au
 
 $version = $env:VERSION
-$releases = 'https://github.com/containers/podman-desktop/releases/tag/v' + $version
+$releases = 'https://github.com/containers/podman-desktop/releases/expanded_assets/v' + $version
 
 function global:au_SearchReplace {
    @{
