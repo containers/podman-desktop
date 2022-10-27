@@ -17,13 +17,13 @@ export let provider: ProviderInfo;
         version {provider.version}
       </p>
     {/if}
-    {#if provider.containerConnections.length > 0}
+    <!-- {#if provider.containerConnections.length > 0}
       <div class="flex flex-row  text-xs text-gray-500 mt-4">
         <p>
           {provider.containerConnections.map(c => c.name).join(', ')}
         </p>
       </div>
-    {/if}
+    {/if} -->
   </div>
   <ProviderLinks provider="{provider}" />
 </div>
