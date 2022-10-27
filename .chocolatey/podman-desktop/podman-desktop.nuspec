@@ -9,7 +9,7 @@
     <owners>https://github.com/containers</owners>
     <licenseUrl>https://github.com/containers/podman-desktop/blob/main/LICENSE</licenseUrl>
     <projectUrl>http://www.podman-desktop.io/</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/containers/podman-desktop/main/buildResources/icon.png</iconUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/containers/podman-desktop@v0.9.1/buildResources/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
 ## Containers and Kubernetes for application developers
