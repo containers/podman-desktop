@@ -49,10 +49,11 @@ jobs:
           echo "::set-output name=desktopVersion::$version"
       - name: Create Pull Request to update Brew
         run: |
+          # update formulae
+          brew update
           echo "Run the tool with version ${PODMAN_DESKTOP_VERSION}"
           brew bump-cask-pr --version="${PODMAN_DESKTOP_VERSION}" podman-desktop
         env:
           HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
           PODMAN_DESKTOP_VERSION: ${{ steps.VERSION.outputs.desktopVersion }}
-          HOMEBREW_NO_AUTO_UPDATE: 1
           HOMEBREW_NO_ANALYTICS: 1
