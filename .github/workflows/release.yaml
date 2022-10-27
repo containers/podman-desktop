@@ -23,6 +23,10 @@ on:
       version:
         description: 'Version to release'
         required: true
+      branch:
+        description: 'Branch to use for the release'
+        required: true
+        default: main
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
   DEBUG: electron-builder
@@ -39,6 +43,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - name: Generate tag utilities
         id: TAG_UTIL
         run: |
@@ -86,7 +92,8 @@ jobs:
           release_name: ${{ steps.TAG_UTIL.outputs.githubTag }}
           draft: true
           prerelease: false
-      - name: Create the PR to bump the version in the main branch
+      - name: Create the PR to bump the version in the main branch (only if we're tagging from main branch)
+        if: ${{ github.event.inputs.branch == 'main' }}
         run: |
           git config --local user.name ${{ github.actor }}
           git config --local user.email "fbenoit@redhat.com"
@@ -108,7 +115,7 @@ jobs:
           echo "🔅 Mark the PR as being ok to be merged automatically"
           gh pr merge "${pullRequestUrl}" --auto --rebase
         env:
-          GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}  
+          GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
 
   build:
     name: Build / ${{ matrix.os }}
