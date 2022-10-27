@@ -610,7 +610,7 @@ function Pods() {
                 </h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
-                  Create, Start and Manage Pods with Podman Desktop
+                  Create, start, and manage pods with Podman Desktop
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faDiagramProject} className="text-purple-800 w-3 h-3 mt-1 mr-2" />
