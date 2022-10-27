@@ -74,6 +74,8 @@ async function createWindow() {
     browserWindow?.show();
     if (isMac) {
       app.dock.show();
+    } else {
+      browserWindow.webContents.executeJavaScript("document.getElementById('navbar').style.display = 'none';");
     }
 
     if (import.meta.env.DEV) {
