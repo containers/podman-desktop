@@ -365,7 +365,7 @@ function EnterpriseReady() {
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Code signing</h2>
 
                 <p className="leading-relaxed text-base">
-                  macOS binaries are digitally signed (Windows certification is in)
+                  macOS binaries are digitally signed (Windows certification is in progress).
                 </p>
               </div>
             </div>
