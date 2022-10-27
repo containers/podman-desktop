@@ -22,8 +22,7 @@ import { Emitter } from './events/emitter';
 import type * as Dockerode from 'dockerode';
 import type { Telemetry } from './telemetry/telemetry';
 import * as crypto from 'node:crypto';
-import got from 'got';
-import { RequestError } from 'got';
+import got, { RequestError } from 'got';
 
 export interface RegistryAuthInfo {
   authUrl: string;
@@ -218,9 +217,11 @@ export class ImageRegistry {
     let scheme = '';
     try {
       await got.get(registryUrl);
-    } catch (requestErr) {
-      if (requestErr instanceof RequestError) {
-        const wwwAuthenticate = requestErr.response?.headers['www-authenticate'];
+    } catch (error) {
+      console.log('got error from registry', error);
+
+      if (error instanceof RequestError) {
+        const wwwAuthenticate = error.response?.headers['www-authenticate'];
         if (wwwAuthenticate) {
           const authInfo = this.extractAuthData(wwwAuthenticate);
           if (authInfo) {
@@ -238,7 +239,11 @@ export class ImageRegistry {
             }
             authUrl = url.toString();
           }
+        } else {
+          console.log('no www-authenticate header, all headers are', error.response?.headers);
         }
+      } else {
+        console.warn('got error from registry but not using RequestError', error);
       }
     }
 
