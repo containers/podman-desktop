@@ -140,3 +140,13 @@ li.footer__item a svg {
 .navbar__item {
   font-size: 1em;
 }
+
+@media (min-width: 1200px) {
+  .navbar__title {
+    font-size: 2em;
+  }
+
+  .navbar__item {
+    font-size: 1.2em;
+  }
+}
