@@ -37,6 +37,7 @@ async function createWindow() {
     minWidth: INITIAL_APP_MIN_WIDTH,
     minHeight: INITIAL_APP_MIN_HEIGHT,
     height: INITIAL_APP_HEIGHT,
+    titleBarStyle: 'hiddenInset', // This property only exists on Mac and is ignored on other platforms.
     webPreferences: {
       webSecurity: false,
       //nativeWindowOpen: true,
@@ -44,11 +45,6 @@ async function createWindow() {
       preload: join(__dirname, '../../preload/dist/index.cjs'),
     },
   };
-
-  if (isMac) {
-    // This property is not available on Linux.
-    browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
-  }
 
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
   const { getCursorScreenPoint, getDisplayNearestPoint } = screen;
