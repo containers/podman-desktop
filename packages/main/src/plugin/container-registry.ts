@@ -904,10 +904,15 @@ export class ContainerProviderRegistry {
     if (!matchingContainerProvider || !matchingContainerProvider.api) {
       throw new Error('No provider with a running engine');
     }
+
+    // grab auth for all registries
+    const registryconfig = this.imageRegistry.getRegistryConfig();
+
     const tarStream = tar.pack(containerBuildContextDirectory);
     let streamingPromise;
     try {
       streamingPromise = await matchingContainerProvider.api.buildImage(tarStream, {
+        registryconfig,
         dockerfile: relativeContainerfilePath,
         t: imageName,
       });
