@@ -91,6 +91,21 @@ export class ImageRegistry {
     return authconfig;
   }
 
+  /**
+   * Provides authentication information from all registries.
+   */
+  getRegistryConfig(): Dockerode.RegistryConfig {
+    const registryConfig: Dockerode.RegistryConfig = {};
+    for (const registry of this.getRegistries()) {
+      const serveraddress = registry.serverUrl.toLowerCase();
+      registryConfig[serveraddress] = {
+        username: registry.username,
+        password: registry.secret,
+      };
+    }
+    return registryConfig;
+  }
+
   getRegistryHash(registry: { serverUrl: string }): string {
     return crypto.createHash('sha512').update(registry.serverUrl).digest('hex');
   }
