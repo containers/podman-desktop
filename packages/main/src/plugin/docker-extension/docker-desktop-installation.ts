@@ -176,13 +176,18 @@ export class DockerDesktopInstallation {
         //await providerConnection.pull('aquasec/trivy-docker-extension:0.4.3');
         reportLog(`Pulling image ${imageName}...`);
 
-        await this.containerRegistry.pullImage(providerConnectionInfo, imageName, (pullEvent: PullEvent) => {
-          if (pullEvent.progress || pullEvent.progressDetail) {
-            console.log(pullEvent.progress);
-          } else if (pullEvent.status) {
-            reportLog(pullEvent.status);
-          }
-        });
+        try {
+          await this.containerRegistry.pullImage(providerConnectionInfo, imageName, (pullEvent: PullEvent) => {
+            if (pullEvent.progress || pullEvent.progressDetail) {
+              console.log(pullEvent.progress);
+            } else if (pullEvent.status) {
+              reportLog(pullEvent.status);
+            }
+          });
+        } catch (error) {
+          reportLog('Error while pulling image: ' + error);
+          return;
+        }
 
         // ok search the image
         const images = await providerConnection.listImages();
