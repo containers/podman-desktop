@@ -9,7 +9,6 @@ import ImageActions from './image/ImageActions.svelte';
 import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
 import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
 import { providerInfos } from '../stores/providers';
-import RunContainerModal from './image/RunContainerModal.svelte';
 import PushImageModal from './image/PushImageModal.svelte';
 import { ImageUtils } from './image/image-utils';
 import NavPage from './ui/NavPage.svelte';
@@ -23,13 +22,6 @@ $: searchPattern.set(searchTerm);
 
 let images: ImageInfoUI[] = [];
 let multipleEngines = false;
-
-let runContainerFromImageModal = false;
-let runContainerFromImageInfo = undefined;
-function handleRunContainerFromImageModal(imageInfo: ImageInfoUI) {
-  runContainerFromImageInfo = imageInfo;
-  runContainerFromImageModal = true;
-}
 
 let pushImageModal = false;
 let pushImageModalImageInfo = undefined;
@@ -107,7 +99,6 @@ onDestroy(() => {
 });
 
 function closeModals() {
-  runContainerFromImageModal = false;
   pushImageModal = false;
 }
 
@@ -268,10 +259,7 @@ async function deleteSelectedImages() {
             </td>
             <td class="px-6 whitespace-nowrap rounded-tr-lg rounded-br-lg ">
               <div class="flex opacity-0 flex-row justify-end group-hover:opacity-100">
-                <ImageActions
-                  image="{image}"
-                  onPushImage="{handlePushImageModal}"
-                  onRunContainerImage="{handleRunContainerFromImageModal}" />
+                <ImageActions image="{image}" onPushImage="{handlePushImageModal}" />
               </div>
             </td>
           </tr>
@@ -285,14 +273,6 @@ async function deleteSelectedImages() {
       <ImageEmptyScreen images="{$filtered}" />
     {:else}
       <NoContainerEngineEmptyScreen />
-    {/if}
-
-    {#if runContainerFromImageModal}
-      <RunContainerModal
-        image="{runContainerFromImageInfo}"
-        closeCallback="{() => {
-          closeModals();
-        }}" />
     {/if}
 
     {#if pushImageModal}

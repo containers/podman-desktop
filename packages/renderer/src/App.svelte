@@ -33,6 +33,7 @@ import ContainerPlayKubefile from './lib/container/ContainerPlayKubefile.svelte'
 import PodDetails from './lib/pod/PodDetails.svelte';
 import PodCreateFromContainers from './lib/pod/PodCreateFromContainers.svelte';
 import DeployPodToKube from './lib/pod/DeployPodToKube.svelte';
+import RunImage from './lib/image/RunImage.svelte';
 
 router.mode.hash();
 
@@ -111,6 +112,9 @@ window.events?.receive('display-help', () => {
         </Route>
         <Route path="/images/build">
           <BuildImageFromContainerfile />
+        </Route>
+        <Route path="/images/run">
+          <RunImage />
         </Route>
         <Route path="/images/pull">
           <PullImage />
