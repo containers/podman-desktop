@@ -13,6 +13,10 @@ let logElement;
 async function installDDExtensionFromImage() {
   logs.length = 0;
   installInProgress = true;
+
+  // do a trim on the image name
+  ociImage = ociImage.trim();
+
   // download image
   await window.ddExtensionInstall(
     ociImage,
