@@ -249,9 +249,9 @@ export let meta;
           <div class="flex w-full justify-end">
             <div>
               {#if innerWidth >= 768}
-                {#if $volumeListInfos.length > 0}
-                  <span class="pf-c-badge pf-m-read hidden items-center justify-center"
-                    >{$volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length}</span>
+                {@const flattenedVolumes = $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat()}
+                {#if flattenedVolumes.length > 0}
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{flattenedVolumes.length}</span>
                 {/if}
               {/if}
             </div>
