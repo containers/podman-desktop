@@ -1,5 +1,10 @@
 # Website
 
+### Install the project dependencies
+```
+$ yarn install
+```
+
 ### Local Development of the website / documentation
 
 ```
