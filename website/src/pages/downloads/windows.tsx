@@ -5,8 +5,8 @@ import React, { useEffect, useState } from 'react';
 import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
 import Link from '@docusaurus/Link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faWindows } from '@fortawesome/free-brands-svg-icons';
-import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faMicrosoft, faWindows } from '@fortawesome/free-brands-svg-icons';
+import { faDownload, faPaste, faTerminal } from '@fortawesome/free-solid-svg-icons';
 
 async function grabfilenameforMac(
   setDownloadData: React.Dispatch<SetStateAction<{ version: string; binary: string; setup: string }>>,
@@ -39,6 +39,10 @@ export function WindowsDownloads(): JSX.Element {
     setup: '',
   });
 
+  const copyCliInstructions = () => {
+    navigator.clipboard.writeText('winget install -e --id RedHat.Podman-Desktop');
+  };
+
   useEffect(() => {
     grabfilenameforMac(setDownloadData);
   }, []);
@@ -50,15 +54,55 @@ export function WindowsDownloads(): JSX.Element {
       <div className="flex p-1 flex-col md:flex-col items-center align-top">
         <div className="flex flex-col align-middle items-center">
           <h3 className="mt-0">Podman Desktop for Windows</h3>
-          <div className="pt-8 space-x-4">
+          <div className="pt-8">
             <Link
               className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-md font-semibold"
               to={downloadData.binary}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               Download Now
             </Link>
+            <caption className="block w-full mt-1 text/50 dark:text-white/50">
+              Windows *.exe, version {downloadData.version}
+            </caption>
           </div>
-          <div className="font-light mt-4">Version {downloadData.version}</div>
+          <div className="mt-4">
+            <div>Package managers for Windows:</div>
+            <Link
+              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
+              to="docs/Installation/windows-install">
+              <FontAwesomeIcon size="1x" icon={faWindows} className="mr-2" />
+              Windows install guide
+            </Link>
+          </div>
+          <div className="flex flex-col align-middle items-center">
+            <div className="items-center text-center pt-6">
+              <p className="text-lg">
+                Using <strong>winget</strong>? Install in one command:
+              </p>
+              <div className="flex flex-row pt-3">
+                <p className="text-xl p-1">
+                  <FontAwesomeIcon size="sm" icon={faMicrosoft} className="mx-1 mt-2" />
+                </p>
+                <div className="dark:bg-zinc-900/50 bg-zinc-300/50 p-1 text-xl dark:text-purple-300 text-purple-700 flex flex-row">
+                  <div className="w-72 truncate">
+                    <FontAwesomeIcon size="xs" icon={faTerminal} className="mx-2 mt-3" />
+                    winget install -e --id RedHat.Podman-Desktop
+                  </div>
+                  <div>
+                    <button title="Copy To Clipboard" className="mr-2 p-1">
+                      {' '}
+                      <FontAwesomeIcon
+                        size="xs"
+                        icon={faPaste}
+                        className="ml-3  cursor-pointer text-xl  text-white-500"
+                        onClick={() => copyCliInstructions()}
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
