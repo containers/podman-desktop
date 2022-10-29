@@ -4,3 +4,4 @@ dist
 .eslintcache
 *.cdix
 .parcel-cache
+.idea
