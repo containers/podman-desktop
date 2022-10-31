@@ -8,7 +8,7 @@ import { providerInfos } from '../../stores/providers';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
-import KubePlayIcon from './KubePlayIcon.svelte';
+import KubePlayIcon from '../kube/KubePlayIcon.svelte';
 
 let runStarted = false;
 let runFinished = false;
@@ -54,9 +54,6 @@ async function playKubeFile(): Promise<void> {
     }
   }
   runStarted = false;
-}
-function goToContainerList(): void {
-  window.location.href = '#/containers';
 }
 
 onMount(() => {
@@ -162,7 +159,8 @@ async function getKubernetesfileLocation() {
           <div class="text-red-500 text-sm">{runError}</div>
         {/if}
         {#if runFinished}
-          <button on:click="{() => goToContainerList()}" class="w-full pf-c-button pf-m-primary">Done</button>
+          <!-- On click, go BACK to the previous page (if clicked on Pods page, go back to pods, same for Containers)-->
+          <button on:click="{() => history.back()}" class="w-full pf-c-button pf-m-primary">Done</button>
         {/if}
       </div>
       {#if playKubeResultRaw}

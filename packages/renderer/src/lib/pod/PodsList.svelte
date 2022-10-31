@@ -13,6 +13,7 @@ import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.
 import PodEmptyScreen from './PodEmptyScreen.svelte';
 import PodIcon from '../container/PodIcon.svelte';
 import PodActions from './PodActions.svelte';
+import KubePlayButton from '../kube/KubePlayButton.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -23,6 +24,13 @@ let multipleEngines = false;
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
   .flat()
+  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
+
+$: providerPodmanConnections = $providerInfos
+  .map(provider => provider.containerConnections)
+  .flat()
+  // keep only podman providers as it is not supported by docker
+  .filter(providerContainerConnection => providerContainerConnection.type === 'podman')
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 // number of selected items in the list
@@ -108,7 +116,11 @@ function openContainersFromPod(pod: PodInfoUI) {
   bind:searchTerm
   title="pods"
   subtitle="Hover over an pod to view action buttons; click to open up full details.">
-  <div slot="additional-actions" class="space-x-2 flex flex-nowrap"></div>
+  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+    {#if providerPodmanConnections.length > 0}
+      <KubePlayButton />
+    {/if}
+  </div>
 
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}

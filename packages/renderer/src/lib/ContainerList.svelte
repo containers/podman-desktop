@@ -20,8 +20,8 @@ import NavPage from './ui/NavPage.svelte';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import ContainerGroupIcon from './container/ContainerGroupIcon.svelte';
-import KubePlayIcon from './container/KubePlayIcon.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
+import KubePlayButton from './kube/KubePlayButton.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -280,16 +280,7 @@ function toggleAllContainerGroups(value: boolean) {
       Create container
     </button>
     {#if providerPodmanConnections.length > 0}
-      <button
-        on:click="{() => runContainerYaml()}"
-        class="pf-c-button pf-m-primary"
-        type="button"
-        title="Play pod/containers from kubernetes YAML file ">
-        <div class="flex flex-row align-text-top justify-start items-center">
-          <KubePlayIcon />
-          Play Kubernetes YAML
-        </div>
-      </button>
+      <KubePlayButton />
     {/if}
   </div>
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
