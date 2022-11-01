@@ -76,7 +76,7 @@
     "prettier-plugin-svelte": "^2.8.0",
     "typescript": "4.8.4",
     "vite": "2.7.13",
-    "vitest": "0.2.8"
+    "vitest": "0.24.4"
   },
   "dependencies": {
     "@docker/extension-api-client-types": "0.2.3",
