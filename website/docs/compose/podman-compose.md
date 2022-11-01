@@ -8,7 +8,7 @@ Podman Desktop is aimed at providing the Podman experience to the developers wit
 
 [Podman Compose](https://github.com/containers/podman-compose#readme) is a community-driven tool that allows developers to run multiple containers at the same time and facilitate communication between them. Much like Docker Compose, it requires a Compose YAML file with definitions about the containers that need to communicate.
 
-If you are new to writing Compose YAML files or [Compose Spec](https://compose-spec.io/), check [this guide](https://github.com/compose-spec/compose-spec/blob/master/spec.md) for more information. 
+If you are new to writing [Compose files](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file) or [Compose Spec](https://compose-spec.io/), check [this guide](https://github.com/compose-spec/compose-spec/blob/master/spec.md) for more information. 
 
 ## Requirements
 
@@ -42,7 +42,7 @@ Refer this official [installation guide](https://github.com/containers/podman-co
 
 ### 2. Using Podman Compose to run multiple containers
 
-For this tutorial, I will use the flask-redis project from the [awesome-compose repository](https://github.com/docker/awesome-compose). This repository consists of many sample projects for you to get started with Podman Compose. 
+For this tutorial, I will use the [flask-redis project](https://github.com/docker/awesome-compose/tree/master/flask-redis) from the [awesome-compose repository](https://github.com/docker/awesome-compose). This repository consists of many sample projects for you to get started with Podman Compose. 
 1. Open the Terminal
 2. Go inside the project directory with the command 
 ```sh
@@ -52,7 +52,7 @@ cd flask-redis
 ```sh
 podman-compose -f compose.yaml up -d
 ```
-This will spin up the containers for the project.
+The `compose.yaml` file contains definitions for multiple containers within the `flask-redis` project. If you are new to this, read more about Compose files [here](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file).
 
 ![img1](img/image2.png)
 
