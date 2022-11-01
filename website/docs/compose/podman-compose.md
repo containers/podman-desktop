@@ -36,10 +36,10 @@ podman-compose
 ``` 
 and it will return more information about the same.
 
-<!-- #### For Windows -->
-<!-- Lorem ipseum	 -->
+#### For Windows and Linux
 
- 
+Refer this official [installation guide](https://github.com/containers/podman-compose#installation) to get the latest version of Podman Compose on your Windows or Linux system. 
+
 ### 2. Using Podman Compose to run multiple containers
 
 For this tutorial, I will use the flask-redis project from the [awesome-compose repository](https://github.com/docker/awesome-compose). This repository consists of many sample projects for you to get started with Podman Compose. 
