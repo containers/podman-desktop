@@ -62,7 +62,7 @@ In order to check if the containers are running as expected, open Podman Desktop
 
 ![img2](img/image1.png)
 
-You can further configure or work with these containers within the Podman Desktop application now that they are visible. Here, I click on the ‘Open Browser’ button to check if the application is running as expected. 
+You can further configure or work with these containers within the Podman Desktop application now that they are visible. Here, clicking on the ‘Open Browser’ button allows us to check if the application is running as expected. 
 
 ![img3](img/image4.png)
 
