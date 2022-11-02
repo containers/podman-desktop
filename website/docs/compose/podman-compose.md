@@ -8,7 +8,7 @@ Podman Desktop is aimed at providing the Podman experience to the developers wit
 
 [Podman Compose](https://github.com/containers/podman-compose#readme) is a community-driven tool that allows developers to run multiple containers at the same time and facilitate communication between them. Much like Docker Compose, it requires a Compose YAML file with definitions about the containers that need to communicate.
 
-If you are new to writing [Compose files](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file) or [Compose Spec](https://compose-spec.io/), check [this guide](https://github.com/compose-spec/compose-spec/blob/master/spec.md) for more information. 
+If you are new to writing [Compose files](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file) or [Compose Spec](https://compose-spec.io/), check out [this guide](https://github.com/compose-spec/compose-spec/blob/master/spec.md) for more information. 
 
 ## Requirements
 
