@@ -29,10 +29,11 @@ import PreferencesNavigation from './PreferencesNavigation.svelte';
 import AppNavigation from './AppNavigation.svelte';
 import VolumesList from './lib/volume/VolumesList.svelte';
 import VolumeDetails from './lib/volume/VolumeDetails.svelte';
-import ContainerPlayKubefile from './lib/container/ContainerPlayKubefile.svelte';
+import KubePlayYAML from './lib/kube/KubePlayYAML.svelte';
 import PodDetails from './lib/pod/PodDetails.svelte';
 import PodCreateFromContainers from './lib/pod/PodCreateFromContainers.svelte';
 import DeployPodToKube from './lib/pod/DeployPodToKube.svelte';
+import RunImage from './lib/image/RunImage.svelte';
 
 router.mode.hash();
 
@@ -96,8 +97,9 @@ window.events?.receive('display-help', () => {
         <Route path="/containers/:id/*" let:meta>
           <ContainerDetails containerID="{meta.params.id}" />
         </Route>
-        <Route path="/containers/play">
-          <ContainerPlayKubefile />
+
+        <Route path="/kube/play">
+          <KubePlayYAML />
         </Route>
 
         <Route path="/images">
@@ -111,6 +113,9 @@ window.events?.receive('display-help', () => {
         </Route>
         <Route path="/images/build">
           <BuildImageFromContainerfile />
+        </Route>
+        <Route path="/images/run">
+          <RunImage />
         </Route>
         <Route path="/images/pull">
           <PullImage />

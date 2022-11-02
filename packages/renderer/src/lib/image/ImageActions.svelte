@@ -1,18 +1,10 @@
 <script lang="ts">
-import Fa from 'svelte-fa/src/fa.svelte';
-import {
-  faCircleUp,
-  faHistory,
-  faLayerGroup,
-  faPlayCircle,
-  faRectangleAd,
-  faTrash,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCircleUp, faLayerGroup, faPlayCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import { runImageInfo } from '../../stores/run-image-store';
 
-export let onRunContainerImage: (imageInfo: ImageInfoUI) => void;
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 
 export let image: ImageInfoUI;
@@ -22,7 +14,8 @@ let errorMessage: string = undefined;
 let isAuthenticatedForThisImage: boolean = false;
 
 async function runImage(imageInfo: ImageInfoUI) {
-  onRunContainerImage(imageInfo);
+  runImageInfo.set(imageInfo);
+  router.goto('/images/run');
 }
 
 $: window.hasAuthconfigForImage(image.name).then(result => (isAuthenticatedForThisImage = result));
