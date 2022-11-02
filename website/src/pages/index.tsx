@@ -364,9 +364,7 @@ function EnterpriseReady() {
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Code signing</h2>
 
-                <p className="leading-relaxed text-base">
-                  Signed binaries for both macOS and Windows
-                </p>
+                <p className="leading-relaxed text-base">Signed binaries for both macOS and Windows</p>
               </div>
             </div>
             <div className="p-4 md:w-1/3 flex">
