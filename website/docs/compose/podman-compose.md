@@ -13,38 +13,38 @@ If you are new to writing [Compose files](https://github.com/compose-spec/compos
 ## Requirements
 
 ### 1. Podman Desktop
-Get the latest version of Podman Desktop by clicking [here](/downloads). Refer to the [installation guide](/docs/installation/macos-install) for more instructions.
+Get the latest version of Podman Desktop by clicking [here](/downloads). Refer to the [installation guide](/docs/installation) for more information.
 ### 2. Podman Compose
 Read along for more information on how to install Podman Compose.
 
 ## Get Started
 
-In this tutorial, we will learn about working with containers on Podman Desktop generated using podman-compose. You can find more information about Podman Compose [here](https://github.com/containers/podman-compose/blob/devel/README.md). 
+In this tutorial, we will learn about working with containers on Podman Desktop generated using `podman-compose`. You can find more information about Podman Compose [here](https://github.com/containers/podman-compose/blob/devel/README.md). 
 
-### 1. Install podman-compose
-#### For MacOS
+### 1. Install Podman Compose
+#### For macOS
 
-There are many ways to install podman-compose on your MacOS system. One of the easier ways is to use Homebrew. To install podman-compose, simply run the following command
+There are many ways to install `podman-compose` on your macOS system. One of the easier ways is to use Homebrew. To install `podman-compose`, simply run the following command
 
 ```sh
 brew install podman-compose
 ```
 
-To ensure podman-compose is properly installed, run the command 
+To ensure `podman-compose` is properly installed, run the command: 
 ```sh
 podman-compose
 ``` 
-and it will return more information about the same.
+and it will return more information about its usage.
 
 #### For Windows and Linux
 
-Refer this official [installation guide](https://github.com/containers/podman-compose#installation) to get the latest version of Podman Compose on your Windows or Linux system. 
+Refer the official [installation guide](https://github.com/containers/podman-compose#installation) to get the latest version of Podman Compose on your Windows or Linux system. 
 
 ### 2. Using Podman Compose to run multiple containers
 
-For this tutorial, I will use the [flask-redis project](https://github.com/docker/awesome-compose/tree/master/flask-redis) from the [awesome-compose repository](https://github.com/docker/awesome-compose). This repository consists of many sample projects for you to get started with Podman Compose. 
-1. Open the Terminal
-2. Go inside the project directory with the command 
+For this tutorial, we will use the [flask-redis project](https://github.com/docker/awesome-compose/tree/master/flask-redis) from the [awesome-compose repository](https://github.com/docker/awesome-compose). This repository consists of many sample projects for you to get started with Podman Compose. 
+1. Open your Terminal window
+2. Change to the project directory 
 ```sh
 cd flask-redis
 ```
@@ -52,13 +52,13 @@ cd flask-redis
 ```sh
 podman-compose -f compose.yaml up -d
 ```
-The `compose.yaml` file contains definitions for multiple containers within the `flask-redis` project. If you are new to this, read more about Compose files [here](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file).
+The `compose.yaml` file contains definitions for multiple containers within the `flask-redis` project.
 
 ![img1](img/image2.png)
 
-### 3. Manage these containers with Podman Desktop
+### 3. Manage Compose with Podman Desktop
 
-In order to check if the containers are running as expected, open Podman Desktop and click on the ‘Containers’ option on the left side of the application. You will notice that the containers are bundled together under a Pod named `flask-redis (compose)` in this case. Here, the compose within the bracket indicates that it is generated from a compose YAML file. 
+In order to check if the containers are running as expected, open Podman Desktop and click on the ‘Containers’ option on the left side of the application. You will notice that the containers are bundled together under a Pod named `flask-redis (compose)` in this case. Here, the compose within the bracket indicates that it is generated from a Compose YAML file. 
 
 ![img2](img/image1.png)
 
@@ -66,7 +66,7 @@ You can further configure or work with these containers within the Podman Deskto
 
 ![img3](img/image4.png)
 
-You can do much more such as check Logs for the containers, open the Terminal or Inspect the files for more details.
+You can do much more such as checking logs, opening the terminal or inspecting the files for more details.
 
 ![img4](img/image3.png)
 
