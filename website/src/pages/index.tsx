@@ -21,28 +21,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import Admonition from '@theme/Admonition';
-
-function EAP() {
-  return (
-    <div className="max-w-6xl mx-auto">
-      <Admonition type="info" title="We are participating in Hacktoberfest 2022!">
-        <p>
-          Do you love container tools and frontend technologies like Electron, Svelte and Tailwind CSS? Then come join
-          Podman Desktop for Hacktoberfest 2022. You can start off with some issues by clicking{' '}
-          <Link to="https://bit.ly/3rrTCEP">
-            <u>here</u>
-          </Link>
-          , but feel free to explore the{' '}
-          <Link to="https://github.com/containers/podman-desktop">
-            <u>repository</u>
-          </Link>
-          .
-        </p>
-      </Admonition>
-    </div>
-  );
-}
 
 function DownloadClientLinks() {
   let operatingSystem = '';
@@ -597,7 +575,6 @@ export default function Home(): JSX.Element {
       title="Leverage Podman with a Desktop App"
       description="Containers and Kubernetes for application developers">
       <TailWindThemeSelector />
-      <EAP />
       <Hero />
       <RunAnywhere />
       <MainFeatures />
