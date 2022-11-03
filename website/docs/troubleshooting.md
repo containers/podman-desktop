@@ -4,18 +4,23 @@ sidebar_position: 4
 
 # Troubleshooting
 
-Here, find some answers to the question : I have downloaded Podman Desktop but I am unable to see any of my image or container
+This section of documentation provides way to troubleshoot problems with Podman Desktop.
 
-## Podman
+## Podman Issues
 
-### System Requirements
+### Getting Started
+
+#### Issue:
+Unable to see any image or container after downloading Podman Desktop
+
+#### Explanation: System Requirements
 
 The tool connects to Podman using the socket on the host on macOS and on a named pipe on Windows. This is available only on podman 4.0.2+
 So, please check your version and update.
 
 On Windows, the named pipe is `//./pipe/docker_engine` when Docker Desktop is not installed. It will be solved by https://github.com/containers/podman/issues/13502 / https://github.com/containers/podman/pull/13655. During that time, you may start Docker Desktop so the named pipe is the one expected.
 
-### Check connection
+#### Solution: Check connection
 
 Check at least a podman machine is running on Windows & macOS:
 
@@ -45,6 +50,39 @@ Documents: https://docs.podman.io
 Twitter:   @Podman_io
 ```
 
+### Unable to locate Podman Engine
+
+#### Issue: 
+Despite having Podman Engine installed, you may receive an error as follows -
+```Error: No such keg: /usr/local/Cellar/podman```
+or any similar error denoting that Podman Engine does not exist. 
+
+#### Explanation: 
+The Podman Installer and Homebrew use different locations to store the Podman Engine files in the file system. For example, Podman Installer installs Podman Engine in the path `/opt/podman` whereas Homebrew uses the path `/usr/local` for macOS Intel, `/opt/homebrew` for Apple Silicon and `/home/linuxbrew/.linuxbrew` for Linux.
+
+#### Solution: 
+To check where exactly is your Podman Engine installed, run the command `which podman`. This returns the path where the Podman Engine would be installed. This would help determine further action. 
+
+For example, if you’re looking to completely uninstall Podman Engine from your system for a fresh installation, running `which podman` returns the exact path where Podman still exists. This could be the path where Podman Installer stores Podman Engine i.e. `/opt/podman`. Once you know the path, simply run 
+
+`sudo rm -rf /opt/podman`
+
+Or 
+
+`sudo rm -rf path-where-podman-exists`
+
+Here, you would replace `path-where-podman-exists` with the output of `which podman`.
+
+You can now proceed for a fresh installation of Podman Desktop
+
+## Code Ready Containers
+
+- Check that podman preset is defined. (`crc config get preset`)
+- Check that `crc` binary is available in the user PATH (`/usr/local/bin/crc`)
+- Check that `crc setup --check-only` is running without errors.
+
+## Other Issues
+
 ### Fixing corrupted Podman Machine in Windows
 
 If at all you are not able to stop your Podman Machine, you will find such an error in the Logs-
@@ -69,8 +107,3 @@ wsl --unregister my-machine
 
 This will stop the Podman Machine for you.
 
-## Code Ready Containers
-
-- Check that podman preset is defined. (`crc config get preset`)
-- Check that `crc` binary is available in the user PATH (`/usr/local/bin/crc`)
-- Check that `crc setup --check-only` is running without errors.
