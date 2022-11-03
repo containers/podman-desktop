@@ -1,4 +1,4 @@
-Podman Desktop - A graphical tool for developing containers locally and on Kubernetes
+Podman Desktop - A graphical tool for developing on containers and Kubernetes
 ---
 
 <p align="center">
@@ -17,9 +17,15 @@ Podman Desktop - A graphical tool for developing containers locally and on Kuber
 
 ## Overview
 
+Podman Desktop is a graphical interface that enables application developers to seamlessly work with containers and Kubernetes.
 
-Podman Desktop is a graphical interface that enables seamless development with containers and Kubernetes. 
-Podman Desktop supports [multiple container engines](#multiple-container-engine-support), pick your favourite one and use the tool!
+Podman Desktop installs, configures and keeps Podman up to date on your local environment. It provides a system tray, to check status and interact with your container engine without losing focus from other tasks. The desktop application provides a dashboard to interact with containers, images, pods and volumes but also configures your environment with your OCI registries and network settings. Podman Desktop also provides capabilities to connect and deploy pods to Kubernetes environments.
+
+Podman Desktop also supports [multiple container engines](#multiple-container-engine-support), pick your favourite one and use the tool!
+
+## Download
+
+Check the downloads page on [podman-desktop.io/downloads](https://podman-desktop.io/downloads).
 
 #### Containers and pods dashboard
 * Build, run, manage, and debug both containers and pods
@@ -56,9 +62,6 @@ Register your interest to join our Early Adopter Program by filling <a href="htt
 
 This is totally *optional* and does not change any Podman Desktop features.
 
-## Download
-
-Check the downloads page on [podman-desktop.io/downloads](https://podman-desktop.io/downloads).
 
 ## Roadmap
 
