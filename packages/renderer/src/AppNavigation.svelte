@@ -56,7 +56,9 @@ export let meta;
                 ></g
               ></g
             ></svg>
-          <span class="hidden md:block group-hover:block mx-2">Dashboard</span>
+          <span
+            class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+            >Dashboard</span>
         </div>
       </a>
     </li>
@@ -88,7 +90,9 @@ export let meta;
                   ></path>
                 </g></g>
             </svg>
-            <span class="hidden md:block group-hover:block mx-2">Containers</span>
+            <span
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              >Containers</span>
           </div>
 
           <div class="flex w-full justify-end">
@@ -144,7 +148,9 @@ export let meta;
                   ></g
                 ></g>
             </svg>
-            <span class="hidden md:block group-hover:block mx-2">Images</span>
+            <span
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              >Images</span>
           </div>
           <div class="flex w-full justify-end">
             <div>
@@ -190,7 +196,9 @@ export let meta;
                   stroke-width="1.3004"></path
                 ></g
               ></svg>
-            <span class="hidden md:block group-hover:block mx-2">Pods</span>
+            <span
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              >Pods</span>
           </div>
           <div class="flex w-full justify-end">
             <div>
@@ -244,7 +252,9 @@ export let meta;
                   ></g
                 ></g
               ></svg>
-            <span class="hidden md:block group-hover:block mx-2">Volumes</span>
+            <span
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              >Volumes</span>
           </div>
           <div class="flex w-full justify-end">
             <div>
@@ -284,7 +294,9 @@ export let meta;
                   ></g
                 ></svg>
             </div>
-            <span class="hidden md:block group-hover:block mr-5 mx-2">Extensions</span>
+            <span
+              class="mr-5 opacity-0 -z-40  group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              >Extensions</span>
             <span class="hidden md:block group-hover:block pf-c-nav__toggle">
               <span class="pf-c-nav__toggle-icon" on:click="{() => toggleContributions()}">
                 <i class="fas fa-angle-right" aria-hidden="true"></i>
