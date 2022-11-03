@@ -74,6 +74,7 @@ import { CloseBehavior } from './close-behavior';
 import { KubernetesClient } from './kubernetes-client';
 import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
+import type { NetworkInspectInfo } from './api/network-info';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -250,6 +251,9 @@ export class PluginSystem {
     });
     this.ipcHandle('container-provider-registry:listPods', async (): Promise<PodInfo[]> => {
       return containerProviderRegistry.listPods();
+    });
+    this.ipcHandle('container-provider-registry:listNetworks', async (): Promise<NetworkInspectInfo[]> => {
+      return containerProviderRegistry.listNetworks();
     });
     this.ipcHandle('container-provider-registry:listVolumes', async (): Promise<VolumeListInfo[]> => {
       return containerProviderRegistry.listVolumes();
