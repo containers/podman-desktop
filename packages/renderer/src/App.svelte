@@ -87,7 +87,7 @@ window.events?.receive('display-help', () => {
         <AppNavigation meta="{meta}" />
       {/if}
 
-      <div class="w-full h-full bg-zinc-800 flex flex-col overflow-y-scroll">
+      <div class="z-0 w-full h-full bg-zinc-800 flex flex-col overflow-y-scroll">
         <Route path="/">
           <WelcomePage />
         </Route>
