@@ -45,7 +45,7 @@
         },
         "podman.factory.machine.name": {
           "type": "string",
-          "default": "my-machine",
+          "default": "podman-machine-default",
           "scope": "ContainerProviderConnectionFactory",
           "description": "Name of the machine"
         },
