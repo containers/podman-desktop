@@ -18,8 +18,6 @@
 
 import * as extensionApi from '@tmpwip/extension-api';
 import * as fs from 'node:fs';
-import { homedir } from 'node:os';
-import { resolve } from 'node:path';
 import * as jsYaml from 'js-yaml';
 
 interface KubeContext {
@@ -28,8 +26,8 @@ interface KubeContext {
 
 const menuItemsRegistered: extensionApi.Disposable[] = [];
 
-// path to kube config file
-const kubeConfigFile = resolve(homedir(), '.kube', 'config');
+let kubeConfigWatcher: extensionApi.FileSystemWatcher;
+let kubeconfigFile: string;
 
 async function deleteContext(): Promise<void> {
   // remove the context from the list
@@ -40,9 +38,9 @@ async function deleteContext(): Promise<void> {
   return;
 }
 
-async function updateContext(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+async function updateContext(extensionContext: extensionApi.ExtensionContext, kubeconfigFile: string): Promise<void> {
   // read the kubeconfig file using fs
-  const kubeConfigRawContent = await fs.promises.readFile(kubeConfigFile, 'utf-8');
+  const kubeConfigRawContent = await fs.promises.readFile(kubeconfigFile, 'utf-8');
 
   // parse the content using jsYaml
   const kubeConfig = jsYaml.load(kubeConfigRawContent);
@@ -80,30 +78,63 @@ async function updateContext(extensionContext: extensionApi.ExtensionContext): P
   extensionContext.subscriptions.push(subscription);
 }
 
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  console.log('starting extension kube-context');
-
+function setupWatcher(
+  extensionContext: extensionApi.ExtensionContext,
+  kubeconfigFile: string,
+): extensionApi.FileSystemWatcher {
   // monitor the kube config file for changes
-  const kubeConfigWatcher = extensionApi.fs.createFileSystemWatcher(kubeConfigFile);
+  const kubeConfigWatcher = extensionApi.fs.createFileSystemWatcher(kubeconfigFile);
 
   // update the tray everytime .kube/config file is updated
   kubeConfigWatcher.onDidChange(() => {
-    updateContext(extensionContext);
+    updateContext(extensionContext, kubeconfigFile);
   });
 
   kubeConfigWatcher.onDidCreate(() => {
-    updateContext(extensionContext);
+    updateContext(extensionContext, kubeconfigFile);
   });
 
   kubeConfigWatcher.onDidDelete(() => {
     deleteContext();
   });
 
+  return kubeConfigWatcher;
+}
+
+function getKubeconfig(): string {
+  return kubeconfigFile;
+}
+
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  console.log('starting extension kube-context');
+
+  // grab current file
+  const kubeconfigUri = await extensionApi.kubernetes.getKubeconfig();
+  kubeconfigFile = kubeconfigUri.fsPath;
+
+  // setup watcher
+  kubeConfigWatcher = setupWatcher(extensionContext, kubeconfigFile);
   extensionContext.subscriptions.push(kubeConfigWatcher);
 
+  extensionApi.kubernetes.onDidChangeKubeconfig((event: extensionApi.KubeConfigChangeEvent) => {
+    kubeconfigFile = event.newLocation.fsPath;
+
+    // dispose the old watcher
+    kubeConfigWatcher.dispose();
+
+    // setup new watcher
+    kubeConfigWatcher = setupWatcher(extensionContext, kubeconfigFile);
+    extensionContext.subscriptions.push(kubeConfigWatcher);
+  });
+
   const command = extensionApi.commands.registerCommand('kubecontext.switch', async (newContext: string) => {
+    const file = getKubeconfig();
+    if (!file) {
+      extensionApi.window.showErrorMessage('No kubeconfig file found');
+      return;
+    }
     // load the file
-    const kubeConfigRawContent = fs.readFileSync(kubeConfigFile, 'utf-8');
+    const kubeConfigRawContent = fs.readFileSync(file, 'utf-8');
 
     // parse the content using jsYaml
     const kubeConfig = jsYaml.load(kubeConfigRawContent);
@@ -113,7 +144,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
     // write again the file using promises fs
     await fs.promises.writeFile(
-      kubeConfigFile,
+      file,
       jsYaml.dump(kubeConfig, { noArrayIndent: true, quotingType: '"', lineWidth: -1 }),
       'utf-8',
     );
