@@ -3,7 +3,7 @@ export let state = '';
 </script>
 
 {#if state === 'RUNNING'}
-  <div class="flex flex-col justify-center align-middle">
+  <div class="flex justify-center">
     <svg
       id="running"
       width="24"
@@ -47,7 +47,7 @@ export let state = '';
       ></svg>
   </div>
 {:else if state === 'CREATED'}
-  <div class="flex flex-col justify-center align-middle">
+  <div class="flex justify-center">
     <svg
       id="created"
       width="24"
@@ -97,7 +97,7 @@ export let state = '';
       ></svg>
   </div>
 {:else}
-  <div class="flex flex-col justify-center align-middle">
+  <div class="flex justify-center">
     <svg
       id="stopped"
       width="24"

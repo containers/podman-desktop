@@ -4,6 +4,7 @@ import { filtered, searchPattern } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
+import EngineIcon from './EngineIcon.svelte';
 import type { PodInfoUI } from '../pod/PodInfoUI';
 import { router } from 'tinro';
 import { ContainerGroupInfoTypeUI, ContainerGroupInfoUI, ContainerInfoUI } from './container/ContainerInfoUI';
@@ -268,22 +269,30 @@ function toggleAllContainerGroups(value: boolean) {
 }
 </script>
 
+<!-- NavPage information -->
 <NavPage
   bind:searchTerm
   title="containers"
   subtitle="Hover over a container to view action buttons; click to open up full details.">
+  <!-- All additional actions (create container, kubernetes, etc.) -->
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+    <!-- Create container button -->
     <button on:click="{() => toggleCreateContainer()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-plus-circle" aria-hidden="true"></i>
       </span>
       Create container
     </button>
+
+    <!-- Create Kubernetes button -->
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
   </div>
+
+  <!-- Additional actions (deleting multiple selected items)-->
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
+    <!-- Button for deleting multiple objects-->
     {#if selectedItemsNumber > 0}
       <button
         class="pf-c-button pf-m-primary"
@@ -306,7 +315,11 @@ function toggleAllContainerGroups(value: boolean) {
           {/if}
         </span>
       </button>
+
+      <!-- Spacer -->
       <div class="px-1"></div>
+
+      <!-- Button for creating a pod with selected containers -->
       <button
         class="pf-c-button pf-m-primary"
         on:click="{() => createPodFromContainers()}"
@@ -314,35 +327,43 @@ function toggleAllContainerGroups(value: boolean) {
         type="button">
         <i class="fas fa-cubes" aria-hidden="true"></i>
       </button>
+
+      <!-- Show how many selected items-->
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>
 
-  <div class="min-w-full flex" slot="table">
-    <table class="mx-5 w-full" class:hidden="{containerGroups.length === 0}">
-      <!-- title -->
+  <!-- Start of the table -->
+
+  <div class="min-w-full flex relative" slot="table">
+    <table class="table-auto mx-5 w-full" class:hidden="{containerGroups.length === 0}">
+      <!-- TABLE HEAD -->
       <thead>
         <tr class="h-7 uppercase text-xs text-gray-500">
-          <th class="whitespace-nowrap w-5"></th>
+          <th class="whitespace-nowrap w-1"></th>
           <th class="px-2 w-5"
             ><input
               type="checkbox"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
               bind:checked="{selectedAllCheckboxes}"
               on:click="{event => toggleAllContainerGroups(event.currentTarget.checked)}"
-              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
-          <th class="text-center font-extrabold w-10 pr-2">Status</th>
-          <th>Name</th>
-          <th class="text-center">started</th>
-          <th class="text-center">actions</th>
+              class="cursor-pointer invert hue-rotate-[218deg] bg-white-100 rounded-sm" /></th>
+          <th class="px-1 w-1 text-center"></th>
+          <th class="px-2">Name</th>
+          <th class="px-2">Image</th>
+          <th class="px-2">Started</th>
+          <th class="px-2">Engine</th>
+          <th class="px-2 text-right">actions</th>
         </tr>
       </thead>
 
-      <!-- Display each group -->
+      <!-- Display each containers group -->
       {#each containerGroups as containerGroup}
         <tbody>
           {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE || containerGroup.type === ContainerGroupInfoTypeUI.POD}
-            <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+            <!-- Show group for if it is a POD or COMPOSE -->
+            <tr class="group h-10 bg-zinc-900 hover:bg-zinc-700">
+              <!-- Show the "toggle" for the grouping -->
               <td
                 class="bg-zinc-900 group-hover:bg-zinc-700 pl-2 w-3 rounded-tl-lg"
                 class:rounded-bl-lg="{!containerGroup.expanded}"
@@ -352,17 +373,23 @@ function toggleAllContainerGroups(value: boolean) {
                   class="text-gray-400 cursor-pointer"
                   icon="{containerGroup.expanded ? faChevronDown : faChevronRight}" />
               </td>
+
+              <!-- Checkbox -->
               <td class="px-2">
                 <input
                   type="checkbox"
                   on:click="{event => toggleCheckboxContainerGroup(event.currentTarget.checked, containerGroup)}"
                   bind:checked="{containerGroup.selected}"
-                  class=" cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+                  class=" cursor-pointer invert hue-rotate-[218deg] bg-white-100 rounded-sm" />
               </td>
-              <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
+
+              <!-- Container icon -->
+              <td class="flex flex-row justify-center h-10" title="{containerGroup.type}">
                 <ContainerGroupIcon type="{containerGroup.type}" containers="{containerGroup.containers}" />
               </td>
-              <td class="whitespace-nowrap hover:cursor-pointer {!containerGroup.expanded ? 'rounded-br-lg' : ''}">
+
+              <!-- Show the container name, type and number of containers -->
+              <td class="p-2 whitespace-nowrap hover:cursor-pointer {!containerGroup.expanded ? 'rounded-br-lg' : ''}">
                 <div class="flex items-center text-sm text-gray-200 overflow-hidden text-ellipsis">
                   <div class="flex flex-col flex-nowrap">
                     <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{containerGroup.type}">
@@ -374,12 +401,22 @@ function toggleAllContainerGroups(value: boolean) {
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-2 whitespace-nowrap w-10">
-                <div class="flex items-center">
-                  <div class="ml-2 text-sm text-gray-400"></div>
-                </div>
+
+              <!-- Container image name -->
+              <td class="p-2 whitespace-nowrap"> </td>
+
+              <!-- Container icon + state -->
+              <td class="p-2 whitespace-nowrap"> </td>
+
+              <!-- Name of the engine being used
+                When using a pod, it is assumed all containers are using the same engine
+                So we use the first containers engine name. -->
+              <td class="p-2">
+                <EngineIcon engine="{containerGroup.containers[0].engineName}" />
               </td>
-              <td class="px-6 whitespace-nowrap">
+
+              <!-- Show the POD actions -->
+              <td class="pl-6 text-right whitespace-nowrap">
                 <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100">
                   <!-- Only show POD actions if the container group is POD, otherwise keep blank / empty (for future compose implementation) -->
                   {#if containerGroup.type === ContainerGroupInfoTypeUI.POD}
@@ -390,59 +427,75 @@ function toggleAllContainerGroups(value: boolean) {
               </td>
             </tr>
           {/if}
+
           <!-- Display each container of this group -->
           {#if containerGroup.expanded}
             {#each containerGroup.containers as container, index}
-              <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+              <!-- Show the type if it's standalone or not -->
+              <tr class="group h-10 bg-zinc-900 hover:bg-zinc-700">
                 <td
                   class="{containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE ? 'rounded-tl-lg' : ''} {index ===
                   containerGroup.containers.length - 1
                     ? 'rounded-bl-lg'
                     : ''}">
                 </td>
+
+                <!-- Checkbox -->
                 <td class="px-2">
                   <input
                     type="checkbox"
                     bind:checked="{container.selected}"
-                    class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+                    class=" cursor-pointer invert hue-rotate-[218deg] bg-white-100 rounded-sm" />
                 </td>
-                <td class="flex flex-row justify-center h-12">
+
+                <!-- Container icon + state -->
+                <td class="px-2">
                   <ContainerIcon state="{container.state}" />
                 </td>
-                <td class="whitespace-nowrap hover:cursor-pointer" on:click="{() => openDetailsContainer(container)}">
-                  <div class="flex items-center">
-                    <div class="">
-                      <div class="flex flex-nowrap">
-                        <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{container.name}">
-                          {container.name}
-                        </div>
-                        <div
-                          class="pl-2 text-sm text-violet-400 overflow-hidden text-ellipsis"
-                          title="{container.image}">
-                          {container.image}
-                        </div>
+
+                <!-- The entire <td> is clickable -->
+                <td
+                  class="p-2 whitespace-nowrap hover:cursor-pointer"
+                  on:click="{() => openDetailsContainer(container)}">
+                  <div class="">
+                    <!-- Container name -->
+                    <div class="flex flex-row">
+                      <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{container.name}">
+                        {container.name}
                       </div>
-                      <div class="flex flex-row text-xs font-extra-light text-gray-500">
-                        <div>{container.state}</div>
-                        <!-- Hide in case of single engines-->
-                        {#if multipleEngines}
-                          <div
-                            class="mx-2 px-2 inline-flex text-xs font-extralight rounded-sm bg-zinc-700 text-slate-400">
-                            {container.engineName}
-                          </div>
+                      <div class="pl-2 text-sm text-gray-500 overflow-hidden text-ellipsis" title="{container.name}">
+                        {#if container.port}
+                          ({container.port})
                         {/if}
-                        <div class="pl-2 pr-2">{container.port}</div>
                       </div>
                     </div>
                   </div>
                 </td>
-                <td class="px-6 py-2 whitespace-nowrap w-10">
-                  <div class="flex items-center">
-                    <div class="ml-2 text-sm text-gray-400">{container.uptime}</div>
+
+                <!-- Container image name -->
+                <td class="p-2 whitespace-nowrap">
+                  <div class="flex flex-row">
+                    <div class="text-sm text-violet-400 overflow-hidden text-ellipsis" title="{container.image}">
+                      {container.image}
+                    </div>
                   </div>
                 </td>
+
+                <!-- Container icon + state -->
+                <td class="p-2 whitespace-nowrap">
+                  <div class="text-sm text-gray-200">
+                    {container.uptime}
+                  </div>
+                </td>
+
+                <!-- Name of the engine being used -->
+                <td class="p-2">
+                  <EngineIcon engine="{container.engineName}" />
+                </td>
+
+                <!-- If it's standalone, show the container actions -->
                 <td
-                  class="px-6 whitespace-nowrap {containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE
+                  class="pl-6 whitespace-nowrap text-right {containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE
                     ? 'rounded-tr-lg'
                     : ''} {index === containerGroup.containers.length - 1 ? 'rounded-br-lg' : ''}">
                   <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100 ">
@@ -453,11 +506,13 @@ function toggleAllContainerGroups(value: boolean) {
             {/each}
           {/if}
         </tbody>
+
         <tr><td class="leading-[8px]">&nbsp;</td></tr>
       {/each}
     </table>
   </div>
 
+  <!-- If empty / no containers -->
   <div slot="empty" class="min-h-full">
     {#if providerConnections.length > 0}
       <ContainerEmptyScreen slot="empty" containers="{$filtered}" />
@@ -467,6 +522,7 @@ function toggleAllContainerGroups(value: boolean) {
   </div>
 </NavPage>
 
+<!-- If there is NOTHING (no containers, etc.) display a modal with an example of how to create a container -->
 {#if openChoiceModal}
   <Modal
     on:close="{() => {
