@@ -34,12 +34,29 @@ export interface ContainerInfo extends Dockerode.ContainerInfo {
 export interface HostConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PortBindings?: any;
+  Binds?: string[];
+  AutoRemove?: boolean;
+  SecurityOpt?: string[];
+  Privileged?: boolean;
+  ReadonlyRootfs?: boolean;
+  CapAdd?: string[];
+  CapDrop?: string[];
+  UsernsMode?: string;
+  RestartPolicy?: { Name: string; MaximumRetryCount?: number };
+  Dns?: string[];
+  ExtraHosts?: string[];
+  NetworkMode?: string;
 }
 
 export interface ContainerCreateOptions {
-  name?: string | undefined;
+  name?: string;
+  Hostname?: string;
+  User?: string;
+  // Env using ["MYVAR=value", ...]
+  Env?: string[];
   // eslint-disable-next-line @typescript-eslint/ban-types
   ExposedPorts?: { [port: string]: {} } | undefined;
   HostConfig?: HostConfig | undefined;
   Image?: string | undefined;
+  Tty?: boolean;
 }
