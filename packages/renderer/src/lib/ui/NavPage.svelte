@@ -5,7 +5,7 @@ export let searchTerm = '';
 export let searchEnabled: boolean = true;
 </script>
 
-<div class="flex flex-col min-h-full">
+<div class="flex flex-col min-h-full min-w-full">
   <div class="min-w-full">
     <div class="flex">
       <div class="pt-5 px-5">
@@ -53,7 +53,7 @@ export let searchEnabled: boolean = true;
     <slot name="table" />
   </div>
 
-  <div class="flex flex-col container flex-1">
+  <div class="flex flex-col container flex-1 min-w-full">
     <slot name="empty" />
   </div>
 </div>
