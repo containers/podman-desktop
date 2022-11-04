@@ -45,8 +45,11 @@ export class Telemetry {
 
   private pendingItems: { eventName: string; properties: unknown }[] = [];
 
+  protected lastTimeEvents: Map<string, number>;
+
   constructor(private configurationRegistry: ConfigurationRegistry) {
     this.identity = new Identity();
+    this.lastTimeEvents = new Map();
   }
 
   async init(): Promise<void> {
@@ -166,8 +169,36 @@ export class Telemetry {
     this.analytics?.track({ anonymousId, event, context, properties, integrations });
   }
 
+  // return true if the event needs to be dropped
+  protected shouldDropEvent(eventName: string): boolean {
+    // if event is a list event (start with 'list'), do not send it more than one per day
+    if (eventName.startsWith('list')) {
+      // do we have an existing event with the same name?
+      const previousTime = this.lastTimeEvents.get(eventName);
+      // it was not there, so we can send it
+      if (!previousTime) {
+        this.lastTimeEvents.set(eventName, Date.now());
+        return false;
+      }
+      // it was there, so we check if it was more than 24h ago
+      const now = Date.now();
+      const diff = now - previousTime;
+      if (diff > 24 * 60 * 60 * 1000) {
+        this.lastTimeEvents.set(eventName, now);
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async track(event: string, eventProperties?: any): Promise<void> {
+    // skip event ?
+    if (this.shouldDropEvent(event)) {
+      return;
+    }
+
     if (!this.telemetryInitialized) {
       this.pendingItems.push({ eventName: event, properties: eventProperties });
     }
