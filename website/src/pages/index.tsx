@@ -121,9 +121,9 @@ function Hero() {
             </div>
           </div>
         </div>
-        <div className="text-center w-full text-center">
+        <div className="sm:pl-8 md:pl-12 lg:pl-36 text-center w-full">
           <img
-            className="py-4 md:w-5/6 lg:w-11/12 w-full"
+            className="sm:w-full md:w-full lg:w-10/12"
             alt="Podman Desktop home page"
             src="img/features/homepage.png"
           />
@@ -216,7 +216,7 @@ function Extensibility() {
           </div>
 
           <ThemedImage
-            className="py-4 md:w-5/6 lg:w-11/12 w-full"
+            className="sm:w-full md:w-full lg:w-10/12 sm:pl-8 md:pl-12 lg:pl-24 text-center"
             alt="Reuse Docker Desktop extensions"
             sources={{
               light: useBaseUrl('img/ddextensions/dd-support.png'),
