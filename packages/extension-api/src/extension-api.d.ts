@@ -649,4 +649,18 @@ declare module '@tmpwip/extension-api' {
      */
     export function createStatusBarItem(alignment?: StatusBarAlignment, priority?: number): StatusBarItem;
   }
+
+  export namespace kubernetes {
+    // Path to the configuration file
+    export function getKubeconfig(): Uri;
+    export const onDidChangeKubeconfig: Event<KubeConfigChangeEvent>;
+    export function setKubeconfig(kubeconfig: Uri): Promise<void>;
+  }
+  /**
+   * An event describing the change in kubeconfig location
+   */
+  export interface KubeConfigChangeEvent {
+    readonly oldLocation: Uri;
+    readonly newLocation: Uri;
+  }
 }

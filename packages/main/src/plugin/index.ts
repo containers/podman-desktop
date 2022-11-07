@@ -208,7 +208,8 @@ export class PluginSystem {
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
-    const kubernetesClient = new KubernetesClient();
+    const kubernetesClient = new KubernetesClient(configurationRegistry);
+    await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry, providerRegistry);
     await closeBehaviorConfiguration.init();
     const autoStartConfiguration = new AutostartEngine(configurationRegistry, providerRegistry);
@@ -240,6 +241,7 @@ export class PluginSystem {
       new ProgressImpl(),
       new NotificationImpl(),
       statusBarRegistry,
+      kubernetesClient,
     );
 
     const contributionManager = new ContributionManager(apiSender);

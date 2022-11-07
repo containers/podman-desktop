@@ -37,6 +37,7 @@ import type { StatusBarRegistry } from './statusbar/statusbar-registry';
 import { StatusBarAlignLeft, StatusBarAlignRight, StatusBarItemDefaultPriority } from './statusbar/statusbar-item';
 import { FilesystemMonitoring } from './filesystem-monitoring';
 import { Uri } from './types/uri';
+import type { KubernetesClient } from './kubernetes-client';
 
 /**
  * Handle the loading of an extension
@@ -80,6 +81,7 @@ export class ExtensionLoader {
     private progress: ProgressImpl,
     private notifications: NotificationImpl,
     private statusBarRegistry: StatusBarRegistry,
+    private kubernetesClient: KubernetesClient,
   ) {
     this.fileSystemMonitoring = new FilesystemMonitoring();
   }
@@ -383,6 +385,19 @@ export class ExtensionLoader {
       },
     };
 
+    const kubernetesClient = this.kubernetesClient;
+    const kubernetes: typeof containerDesktopAPI.kubernetes = {
+      getKubeconfig(): containerDesktopAPI.Uri {
+        return kubernetesClient.getKubeconfig();
+      },
+      async setKubeconfig(kubeconfig: containerDesktopAPI.Uri): Promise<void> {
+        return kubernetesClient.setKubeconfig(kubeconfig);
+      },
+      onDidChangeKubeconfig: (listener, thisArg, disposables) => {
+        return kubernetesClient.onDidChangeKubeconfig(listener, thisArg, disposables);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -393,6 +408,7 @@ export class ExtensionLoader {
       fs,
       configuration,
       tray,
+      kubernetes,
       ProgressLocation,
       window: windowObj,
       StatusBarItemDefaultPriority,
