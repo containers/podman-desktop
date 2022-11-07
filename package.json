@@ -81,6 +81,7 @@
   "dependencies": {
     "@docker/extension-api-client-types": "0.2.3",
     "@kubernetes/client-node": "^0.17.1",
+    "@tailwindcss/forms": "^0.5.3",
     "@types/stream-json": "^1.7.2",
     "analytics-node": "^6.2.0",
     "chokidar": "^3.5.3",
