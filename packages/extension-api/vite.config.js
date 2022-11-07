@@ -31,6 +31,6 @@ export default defineConfig({
     assetsDir: '.',
     
     emptyOutDir: true,
-    brotliSize: false,
+    reportCompressedSize: false,
   },
 });

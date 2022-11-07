@@ -29,7 +29,7 @@
     "build:preload": "cd ./packages/preload && vite build",
     "build:preload-docker-extension": "cd ./packages/preload-docker-extension && vite build",
     "build:preload:types": "dts-cb -i \"packages/preload/tsconfig.json\" -o \"packages/preload/exposedInMainWorld.d.ts\"",
-    "build:renderer": "vite -c packages/renderer/vite.config.js build",
+    "build:renderer": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vite -c packages/renderer/vite.config.js build",
     "compile": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js --dir --config.asar=false",
     "compile:next": "cross-env MODE=production npm run build && electron-builder build --publish always --config .electron-builder.config.js",
     "compile:pull-request": "cross-env MODE=production npm run build && electron-builder build --publish never --config .electron-builder.config.js",
@@ -52,10 +52,10 @@
     "website:dev": "cd website && yarn run docusaurus start"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.1.3",
-    "@rollup/plugin-typescript": "^8.3.1",
+    "@rollup/plugin-commonjs": "^23.0.2",
+    "@rollup/plugin-json": "^5.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-typescript": "^9.0.2",
     "@types/analytics-node": "^3.1.9",
     "@types/dockerode": "^3.3.3",
     "@types/getos": "^3.0.1",
@@ -75,8 +75,8 @@
     "prettier": "^2.7.1",
     "prettier-plugin-svelte": "^2.8.0",
     "typescript": "4.8.4",
-    "vite": "2.7.13",
-    "vitest": "0.2.8"
+    "vite": "3.2.3",
+    "vitest": "0.24.5"
   },
   "dependencies": {
     "@docker/extension-api-client-types": "0.2.3",

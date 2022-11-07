@@ -62,7 +62,7 @@
        },
      },
      emptyOutDir: true,
-     brotliSize: false,
+     reportCompressedSize: false,
    },
  };
  
