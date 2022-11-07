@@ -399,7 +399,7 @@ function deleteExtraHost(index: number) {
             <Route path="/basic">
               <div class="h-96 overflow-y-auto pr-4">
                 <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Container Name:</label>
+                  >Container name:</label>
                 <input
                   type="text"
                   bind:value="{containerName}"
@@ -450,7 +450,7 @@ function deleteExtraHost(index: number) {
                 <label
                   for="modalContainerName"
                   class:hidden="{exposedPorts.length === 0}"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Port Mapping:</label>
+                  class="pt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Port mapping:</label>
                 {#each exposedPorts as port, index}
                   <div class="flex flex-row justify-center items-center w-full">
                     <span class="text-sm flex-1 inline-block align-middle whitespace-nowrap text-gray-400"
@@ -501,7 +501,7 @@ function deleteExtraHost(index: number) {
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Use tty -->
                 <label for="containerTty" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Use tty:</label>
+                  >Use TTY:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-400 text-sm">
                   <input type="checkbox" bind:checked="{useTty}" class="mx-2 outline-none text-sm" />
                   Attach a pseudo terminal
@@ -522,20 +522,19 @@ function deleteExtraHost(index: number) {
                 <label
                   for="containerAutoRemove"
                   class="pt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Auto Removal of containers:</label>
+                  >Auto removal of container:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-400 text-sm">
                   <input type="checkbox" bind:checked="{autoRemove}" class="mx-2 outline-none text-sm" />
-                  Automatically remove the container when the container's process exits
+                  Automatically remove the container when the process exits
                 </div>
 
                 <!-- RestartPolicy-->
                 <label
                   for="containerRestartPolicy"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Restart Policy. Behaviour when container is exiting:</label>
+                  class="pt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Restart policy:</label>
                 <div class="p-0 flex flex-row justify-start items-center align-middle w-full text-gray-400">
                   <span class="text-sm w-28 inline-block align-middle whitespace-nowrap text-gray-400"
-                    >Policy Name:</span>
+                    >Policy name:</span>
 
                   <select
                     class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
@@ -580,7 +579,7 @@ function deleteExtraHost(index: number) {
                 <!-- Read-Only -->
                 <label
                   for="containerReadOnly"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Read Only:</label>
+                  class="pt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Read only:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-400 text-sm">
                   <input type="checkbox" bind:checked="{readOnly}" class="mx-2 outline-none text-sm" />
                   Make containers root filesystem read-only
@@ -589,7 +588,7 @@ function deleteExtraHost(index: number) {
                 <label
                   for="ContainerSecurityOptions"
                   class="pt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Security Options (security-opt):</label>
+                  >Security options (security-opt):</label>
                 <!-- Display the list of existing security options -->
                 {#each securityOpts as securityOpt, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
@@ -697,13 +696,13 @@ function deleteExtraHost(index: number) {
                   <input
                     type="text"
                     bind:value="{hostname}"
-                    placeholder="The hostname to use for the container, as a valid RFC 1123 hostname."
+                    placeholder="Must be a valid RFC 1123 hostname"
                     class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
                 </div>
 
                 <!-- DNS -->
                 <label for="ContainerDns" class="pt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Custom DNS servers to use for this container:</label>
+                  >Custom DNS server(s):</label>
 
                 {#each dnsServers as dnsServer, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
@@ -731,7 +730,7 @@ function deleteExtraHost(index: number) {
                 <label
                   for="containerExtraHosts"
                   class="pt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Add extra hosts (to /etc/hosts file):</label>
+                  >Add extra hosts (appends to /etc/hosts file):</label>
                 <!-- Display the list of existing environment variables -->
                 {#each extraHosts as extraHost, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
