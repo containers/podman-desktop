@@ -10,10 +10,7 @@ If you cannot find your issue here or in the documentation, please fill an issue
 
 ### Getting Started
 
-#### Issue:
-Unable to see any image or container after downloading Podman Desktop
-
-#### Explanation: System Requirements
+System Requirements
 
 The tool connects to Podman using the socket on the host on macOS and on a named pipe on Windows. This is available only on podman 4.0.2+
 So, please check your version and update.
