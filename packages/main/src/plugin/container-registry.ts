@@ -44,6 +44,7 @@ import type {
 import { LibpodDockerode } from './dockerode/libpod-dockerode';
 import type { ContainerStatsInfo } from './api/container-stats-info';
 import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
+import type { NetworkInspectInfo } from './api/network-info';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -328,6 +329,30 @@ export class ContainerProviderRegistry {
     this.telemetryService.track('listPods', { total: flatttenedPods.length });
 
     return flatttenedPods;
+  }
+
+  async listNetworks(): Promise<NetworkInspectInfo[]> {
+    const networks = await Promise.all(
+      Array.from(this.internalProviders.values()).map(async provider => {
+        try {
+          if (!provider.api) {
+            return [];
+          }
+          const networks = await provider.api.listNetworks();
+          return networks.map(network => {
+            const networkInfo: NetworkInspectInfo = { ...network, engineName: provider.name, engineId: provider.id };
+            return networkInfo;
+          });
+        } catch (error) {
+          console.log('error in engine when listing networks', provider.name, error);
+          return [];
+        }
+      }),
+    );
+    const flatttenedNetworks = networks.flat();
+    this.telemetryService.track('listNetworks', { total: flatttenedNetworks.length });
+
+    return flatttenedNetworks;
   }
 
   async listVolumes(): Promise<VolumeListInfo[]> {

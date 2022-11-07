@@ -56,7 +56,9 @@ export let meta;
                 ></g
               ></g
             ></svg>
-          <span class="hidden md:block group-hover:block mx-2">Dashboard</span>
+          <span
+            class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+            >Dashboard</span>
         </div>
       </a>
     </li>
@@ -88,7 +90,9 @@ export let meta;
                   ></path>
                 </g></g>
             </svg>
-            <span class="hidden md:block group-hover:block mx-2">Containers</span>
+            <span
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              >Containers</span>
           </div>
 
           <div class="flex w-full justify-end">
@@ -96,6 +100,54 @@ export let meta;
               {#if containersCountValue > 0}
                 {#if innerWidth >= 768}
                   <span class="pf-c-badge pf-m-read hidden items-center justify-center">{containersCountValue}</span>
+                {/if}
+              {/if}
+            </div>
+          </div>
+        </div>
+      </a>
+    </li>
+    <li
+      class="pf-c-nav__item flex w-full justify-between {meta.url === '/pods'
+        ? 'dark:text-white pf-m-current'
+        : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
+      <a href="/pods" class="pf-c-nav__link">
+        <div class="flex items-center w-full h-full">
+          <div class="flex items-center">
+            <svg
+              id="pods"
+              width="24"
+              height="24"
+              version="1.1"
+              viewBox="0 0 6.35 6.35"
+              xml:space="preserve"
+              xmlns="http://www.w3.org/2000/svg"
+              ><g transform="translate(13.828 -15.047)"
+                ><g fill="none"
+                  ><path rx="0" ry="0" d="m-12.77 16.726 2.1167-0.66146 2.1167 0.66146-2.1167 0.66146z"></path><path
+                    rx="0"
+                    ry="0"
+                    d="m-12.77 16.858v2.3162l2.1063 1.1234 0.01032-2.8334z"></path
+                  ><path rx="0" ry="0" d="m-8.5362 16.858v2.3162l-2.1063 1.1234-0.01032-2.8334z"></path></g
+                ><path
+                  d="m-10.69 15.912-1.2244 0.38102c-0.07756 0.02078-0.08938 0.04372-0.08938 0.13709l-7.81e-4 1.4146-1.1746 0.36557c-0.05866 0.01854-0.09608 0.07594-0.08938 0.13709l-2e-3 1.4025c-9.6e-5 0.04783 0.02628 0.09181 0.06854 0.11424l1.219 0.64982c0.04484 0.0259 0.0808 0.02977 0.13239 0l1.1982-0.63907 1.1968 0.63907c0.070707 0.04082 0.10676 0.01595 0.1344 0l1.2163-0.64982c0.042259-0.02243 0.06864-0.0664 0.068544-0.11424v-1.3823c-1.251e-4 -0.0029-3.492e-4 -0.0059-6.72e-4 -0.0088 0.012965-0.06474-0.025016-0.12882-0.088031-0.14851l-1.176-0.36621v-1.4065c0-0.0864-0.0025-0.11749-0.088704-0.14448l-1.2244-0.38102c-0.02557-0.0069-0.05523-0.0056-0.07591-4.3e-5zm0.03761 0.25608 0.79027 0.24662-0.79027 0.24864-0.79228-0.24864zm1.0947 0.45763v1.1303l-0.96028 0.41328-0.0046-1.2311zm-2.1894 0.0021 0.96566 0.31046-0.0046 1.2311-0.96028-0.41328zm-0.17002 1.4609 0.73718 0.26275-0.73718 0.22982-0.7896-0.24662zm2.5301 0 0.7896 0.24595-0.7896 0.24662-0.73785-0.2305zm-1.4354 0.45427v1.1303l-0.95961 0.51072-0.0053-1.3285zm2.5301 0v1.1303l-0.96028 0.51072-0.00537-1.3285zm-4.7194 0.0027 0.96566 0.30979-0.0053 1.3312-0.96028-0.5134zm2.5301 0 0.96499 0.30979-0.00537 1.3312-0.95961-0.5134z"
+                  color="#000000"
+                  fill="#fff"
+                  fill-rule="evenodd"
+                  stroke-linejoin="round"
+                  stroke-miterlimit="10"
+                  stroke-width="1.3004"></path
+                ></g
+              ></svg>
+            <span
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              >Pods</span>
+          </div>
+          <div class="flex w-full justify-end">
+            <div>
+              {#if innerWidth >= 768}
+                {#if $podsInfos.length > 0}
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{$podsInfos.length}</span>
                 {/if}
               {/if}
             </div>
@@ -144,59 +196,15 @@ export let meta;
                   ></g
                 ></g>
             </svg>
-            <span class="hidden md:block group-hover:block mx-2">Images</span>
+            <span
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              >Images</span>
           </div>
           <div class="flex w-full justify-end">
             <div>
               {#if innerWidth >= 768}
                 {#if $imagesInfos.length > 0}
                   <span class="pf-c-badge pf-m-read hidden items-center justify-center">{$imagesInfos.length}</span>
-                {/if}
-              {/if}
-            </div>
-          </div>
-        </div>
-      </a>
-    </li>
-    <li
-      class="pf-c-nav__item flex w-full justify-between {meta.url === '/pods'
-        ? 'dark:text-white pf-m-current'
-        : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/pods" class="pf-c-nav__link">
-        <div class="flex items-center w-full h-full">
-          <div class="flex items-center">
-            <svg
-              id="pods"
-              width="24"
-              height="24"
-              version="1.1"
-              viewBox="0 0 6.35 6.35"
-              xml:space="preserve"
-              xmlns="http://www.w3.org/2000/svg"
-              ><g transform="translate(13.828 -15.047)"
-                ><g fill="none"
-                  ><path rx="0" ry="0" d="m-12.77 16.726 2.1167-0.66146 2.1167 0.66146-2.1167 0.66146z"></path><path
-                    rx="0"
-                    ry="0"
-                    d="m-12.77 16.858v2.3162l2.1063 1.1234 0.01032-2.8334z"></path
-                  ><path rx="0" ry="0" d="m-8.5362 16.858v2.3162l-2.1063 1.1234-0.01032-2.8334z"></path></g
-                ><path
-                  d="m-10.69 15.912-1.2244 0.38102c-0.07756 0.02078-0.08938 0.04372-0.08938 0.13709l-7.81e-4 1.4146-1.1746 0.36557c-0.05866 0.01854-0.09608 0.07594-0.08938 0.13709l-2e-3 1.4025c-9.6e-5 0.04783 0.02628 0.09181 0.06854 0.11424l1.219 0.64982c0.04484 0.0259 0.0808 0.02977 0.13239 0l1.1982-0.63907 1.1968 0.63907c0.070707 0.04082 0.10676 0.01595 0.1344 0l1.2163-0.64982c0.042259-0.02243 0.06864-0.0664 0.068544-0.11424v-1.3823c-1.251e-4 -0.0029-3.492e-4 -0.0059-6.72e-4 -0.0088 0.012965-0.06474-0.025016-0.12882-0.088031-0.14851l-1.176-0.36621v-1.4065c0-0.0864-0.0025-0.11749-0.088704-0.14448l-1.2244-0.38102c-0.02557-0.0069-0.05523-0.0056-0.07591-4.3e-5zm0.03761 0.25608 0.79027 0.24662-0.79027 0.24864-0.79228-0.24864zm1.0947 0.45763v1.1303l-0.96028 0.41328-0.0046-1.2311zm-2.1894 0.0021 0.96566 0.31046-0.0046 1.2311-0.96028-0.41328zm-0.17002 1.4609 0.73718 0.26275-0.73718 0.22982-0.7896-0.24662zm2.5301 0 0.7896 0.24595-0.7896 0.24662-0.73785-0.2305zm-1.4354 0.45427v1.1303l-0.95961 0.51072-0.0053-1.3285zm2.5301 0v1.1303l-0.96028 0.51072-0.00537-1.3285zm-4.7194 0.0027 0.96566 0.30979-0.0053 1.3312-0.96028-0.5134zm2.5301 0 0.96499 0.30979-0.00537 1.3312-0.95961-0.5134z"
-                  color="#000000"
-                  fill="#fff"
-                  fill-rule="evenodd"
-                  stroke-linejoin="round"
-                  stroke-miterlimit="10"
-                  stroke-width="1.3004"></path
-                ></g
-              ></svg>
-            <span class="hidden md:block group-hover:block mx-2">Pods</span>
-          </div>
-          <div class="flex w-full justify-end">
-            <div>
-              {#if innerWidth >= 768}
-                {#if $podsInfos.length > 0}
-                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{$podsInfos.length}</span>
                 {/if}
               {/if}
             </div>
@@ -244,7 +252,9 @@ export let meta;
                   ></g
                 ></g
               ></svg>
-            <span class="hidden md:block group-hover:block mx-2">Volumes</span>
+            <span
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              >Volumes</span>
           </div>
           <div class="flex w-full justify-end">
             <div>
@@ -284,7 +294,9 @@ export let meta;
                   ></g
                 ></svg>
             </div>
-            <span class="hidden md:block group-hover:block mr-5 mx-2">Extensions</span>
+            <span
+              class="mr-5 opacity-0 -z-40  group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              >Extensions</span>
             <span class="hidden md:block group-hover:block pf-c-nav__toggle">
               <span class="pf-c-nav__toggle-icon" on:click="{() => toggleContributions()}">
                 <i class="fas fa-angle-right" aria-hidden="true"></i>

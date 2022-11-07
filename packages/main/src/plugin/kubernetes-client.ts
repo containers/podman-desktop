@@ -20,6 +20,13 @@ import type { Context, V1Pod, V1ConfigMap, V1PodList, V1NamespaceList, V1Service
 import { CustomObjectsApi } from '@kubernetes/client-node';
 import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
+import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import { Emitter } from './events/emitter';
+import { Uri } from './types/uri';
+import { homedir } from 'node:os';
+import { resolve } from 'node:path';
+import { existsSync } from 'node:fs';
+import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
 
 /**
  * Handle calls to kubernetes API
@@ -27,16 +34,62 @@ import type { V1Route } from './api/openshift-types';
 export class KubernetesClient {
   private kubeConfig;
 
+  private static readonly DEFAULT_KUBECONFIG_PATH = resolve(homedir(), '.kube', 'config');
+
+  // Custom path to the location of the kubeconfig file
+  private kubeconfigPath: string = KubernetesClient.DEFAULT_KUBECONFIG_PATH;
+
   private currrentNamespace: string | undefined;
   private currentContextName: string | undefined;
+  private readonly _onDidChangeKubeconfig = new Emitter<containerDesktopAPI.KubeConfigChangeEvent>();
+  readonly onDidChangeKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeConfigChangeEvent> =
+    this._onDidChangeKubeconfig.event;
 
-  constructor() {
+  constructor(private configurationRegistry: ConfigurationRegistry) {
     this.kubeConfig = new KubeConfig();
-    try {
-      this.refresh();
-    } catch (error) {
-      console.error('Error while loading Kube Configuration', error);
+  }
+
+  async init(): Promise<void> {
+    // default
+    const defaultKubeconfigPath = resolve(homedir(), '.kube', 'config');
+
+    // add configuration
+    const kubeconfigConfigurationNode: IConfigurationNode = {
+      id: 'preferences.Kubernetes.Kubeconfig',
+      title: 'Path to the kubeconfig file',
+      type: 'object',
+      properties: {
+        ['kubernetes.Kubeconfig']: {
+          description: 'Kubeconfig path to use for accessing clusters. (Default is usually ~/.kube/config)',
+          type: 'string',
+          default: defaultKubeconfigPath,
+        },
+      },
+    };
+
+    this.configurationRegistry.registerConfigurations([kubeconfigConfigurationNode]);
+
+    // grab the value from the configuration
+    // grab value
+    const kubernetesConfiguration = this.configurationRegistry.getConfiguration('kubernetes');
+    const userKubeconfigPath = kubernetesConfiguration.get<string>('Kubeconfig');
+    if (userKubeconfigPath) {
+      // check if path exists
+      if (existsSync(userKubeconfigPath)) {
+        this.kubeconfigPath = userKubeconfigPath;
+        this.refresh();
+      } else {
+        console.error(`Kubeconfig path ${userKubeconfigPath} provided does not exist. Skipping.`);
+      }
     }
+
+    // Update the property on change
+    this.configurationRegistry.onDidChangeConfiguration(e => {
+      if (e.key === 'kubernetes.Kubeconfig') {
+        const val = e.value as string;
+        this.setKubeconfig(Uri.file(val));
+      }
+    });
   }
 
   getContexts(): Context[] {
@@ -52,7 +105,7 @@ export class KubernetesClient {
   }
 
   refresh() {
-    this.kubeConfig.loadFromDefault();
+    this.kubeConfig.loadFromFile(this.kubeconfigPath);
 
     // get the current context
     this.currentContextName = this.kubeConfig.getCurrentContext();
@@ -183,5 +236,17 @@ export class KubernetesClient {
       return this.newError(e.response.body, e);
     }
     return e;
+  }
+
+  getKubeconfig(): containerDesktopAPI.Uri {
+    return Uri.file(this.kubeconfigPath);
+  }
+
+  async setKubeconfig(newLocation: containerDesktopAPI.Uri): Promise<void> {
+    const oldLocation = Uri.file(this.kubeconfigPath);
+    this.kubeconfigPath = newLocation.fsPath;
+    this.refresh();
+    // notify change
+    this._onDidChangeKubeconfig.fire({ oldLocation, newLocation });
   }
 }

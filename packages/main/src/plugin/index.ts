@@ -74,6 +74,7 @@ import { CloseBehavior } from './close-behavior';
 import { KubernetesClient } from './kubernetes-client';
 import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
+import type { NetworkInspectInfo } from './api/network-info';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -207,7 +208,8 @@ export class PluginSystem {
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
-    const kubernetesClient = new KubernetesClient();
+    const kubernetesClient = new KubernetesClient(configurationRegistry);
+    await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry, providerRegistry);
     await closeBehaviorConfiguration.init();
     const autoStartConfiguration = new AutostartEngine(configurationRegistry, providerRegistry);
@@ -239,6 +241,7 @@ export class PluginSystem {
       new ProgressImpl(),
       new NotificationImpl(),
       statusBarRegistry,
+      kubernetesClient,
     );
 
     const contributionManager = new ContributionManager(apiSender);
@@ -250,6 +253,9 @@ export class PluginSystem {
     });
     this.ipcHandle('container-provider-registry:listPods', async (): Promise<PodInfo[]> => {
       return containerProviderRegistry.listPods();
+    });
+    this.ipcHandle('container-provider-registry:listNetworks', async (): Promise<NetworkInspectInfo[]> => {
+      return containerProviderRegistry.listNetworks();
     });
     this.ipcHandle('container-provider-registry:listVolumes', async (): Promise<VolumeListInfo[]> => {
       return containerProviderRegistry.listVolumes();

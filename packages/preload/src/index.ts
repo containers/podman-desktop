@@ -28,6 +28,7 @@ import type { ContributionInfo } from '../../main/src/plugin/api/contribution-in
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';
 import type { PodInfo, PodInspectInfo } from '../../main/src/plugin/api/pod-info';
+import type { NetworkInspectInfo } from '../../main/src/plugin/api/network-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
@@ -139,6 +140,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listPods', async (): Promise<PodInfo[]> => {
     return ipcInvoke('container-provider-registry:listPods');
+  });
+
+  contextBridge.exposeInMainWorld('listNetworks', async (): Promise<NetworkInspectInfo[]> => {
+    return ipcInvoke('container-provider-registry:listNetworks');
   });
 
   contextBridge.exposeInMainWorld(

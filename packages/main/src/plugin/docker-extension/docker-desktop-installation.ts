@@ -185,7 +185,7 @@ export class DockerDesktopInstallation {
             }
           });
         } catch (error) {
-          reportLog('Error while pulling image: ' + error);
+          event.reply('docker-desktop-plugin:install-error', logCallbackId, 'Error while pulling image: ' + error);
           return;
         }
 

@@ -16,41 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-env node */
-import { join } from 'path';
-import * as path from 'path';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
-import { defineConfig } from 'vite';
-import { fileURLToPath } from 'url';
+import type Dockerode from 'dockerode';
 
-let filename = fileURLToPath(import.meta.url);
-const PACKAGE_ROOT = path.dirname(filename);
-
-// https://vitejs.dev/config/
-export default defineConfig({
-  mode: process.env.MODE,
-  root: PACKAGE_ROOT,
-  resolve: {
-    alias: {
-      '/@/': join(PACKAGE_ROOT, 'src') + '/',
-    },
-  },
-  plugins: [svelte()],
-  optimizeDeps: {
-    exclude: ['tinro'],
-  },
-  base: '',
-  server: {
-    fs: {
-      strict: true,
-    },
-  },
-  build: {
-    sourcemap: true,
-    outDir: 'dist',
-    assetsDir: '.',
-
-    emptyOutDir: true,
-    reportCompressedSize: false,
-  },
-});
+export interface NetworkInspectInfo extends Dockerode.NetworkInspectInfo {
+  engineId: string;
+  engineName: string;
+}
