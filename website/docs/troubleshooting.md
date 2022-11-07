@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # Troubleshooting
 
-This section of documentation provides way to troubleshoot problems with Podman Desktop.
+If you cannot find your issue here or in the documentation, please fill an issue on our [repository](https://github.com/containers/podman-desktop/issues). You can also explore the [discussions](https://github.com/containers/podman-desktop/discussions) and do a search on similar issues on the [repository](https://github.com/containers/podman-desktop/issues).
 
 ## Podman Issues
 
