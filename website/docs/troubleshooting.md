@@ -8,7 +8,7 @@ If you cannot find your issue here or in the documentation, please fill an issue
 
 ## Podman Issues
 
-### Getting Started
+### Unable to see any image or container after downloading Podman Desktop
 
 #### System Requirements
 
