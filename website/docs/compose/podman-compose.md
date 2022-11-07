@@ -15,7 +15,6 @@ If you are new to writing [Compose files](https://github.com/compose-spec/compos
 ### 1. Podman Desktop
 Get the latest version of Podman Desktop by clicking [here](/downloads). Refer to the [installation guide](/docs/installation) for more information.
 ### 2. Podman Compose
-Read along for more information on how to install Podman Compose.
 
 ## Get Started
 
