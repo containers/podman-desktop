@@ -4,7 +4,7 @@ title: Using Podman Compose with Podman Desktop
 
 ## Introduction
 
-Podman Desktop is aimed at providing the Podman experience to the developers with a Graphical User Interface. Many developers who enjoy using Podman Engine to work with containers are also avid users of Podman Compose. 
+Podman Desktop is aimed at providing an amazing graphical experience of managing your containers. Developers who have worked on containers may also be fans of the [Compose Spec](https://compose-spec.io/).
 
 [Podman Compose](https://github.com/containers/podman-compose#readme) is a community-driven tool that allows developers to run multiple containers at the same time and facilitate communication between them. Podman Compose requires a [Compose YAML](https://compose-spec.io/) file with definitions about the containers that need to communicate.
 
