@@ -150,13 +150,17 @@ function calcWinPipeName(machineName: string): string {
   return `//./pipe/${name}`;
 }
 
-// on linux, socket is started by the system service on a path like /run/user/1000/podman/podman.sock
-async function initDefaultLinux(provider: extensionApi.Provider) {
+function getLinuxSocketPath(): string {
   // grab user id of the user
   const userInfo = os.userInfo();
   const uid = userInfo.uid;
 
-  const socketPath = `/run/user/${uid}/podman/podman.sock`;
+  return `/run/user/${uid}/podman/podman.sock`;
+}
+
+// on linux, socket is started by the system service on a path like /run/user/1000/podman/podman.sock
+async function initDefaultLinux(provider: extensionApi.Provider) {
+  const socketPath = getLinuxSocketPath();
   if (!fs.existsSync(socketPath)) {
     return;
   }
@@ -444,7 +448,24 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       args = ['--host', 'podman', ...args];
     }
     const podmanProcess = spawn(command, args);
-    await timeout(500);
+
+    // check for up to 5s to see if the socket is being made available
+    const socketPath = getLinuxSocketPath();
+    let socketFound = false;
+    for (let i = 0; i < 50; i++) {
+      if (fs.existsSync(socketPath)) {
+        socketFound = true;
+        break;
+      }
+      await timeout(100);
+    }
+    if (!socketFound) {
+      console.error(
+        'Podman extension:',
+        `Could not find the socket at ${socketPath} after 5s. The command podman system service --time=0 did not work to start the podman socket.`,
+      );
+    }
+
     provider.updateStatus('ready');
     const disposable = extensionApi.Disposable.create(() => {
       podmanProcess.kill();
