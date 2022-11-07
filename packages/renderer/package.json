@@ -25,7 +25,7 @@
     "ninja-keys": "^1.1.12",
     "postcss": "^8.4.18",
     "postcss-load-config": "^3.1.1",
-    "svelte": "^3.49.0",
+    "svelte": "^3.52.0",
     "svelte-check": "^2.9.2",
     "svelte-fa": "^3.0.3",
     "svelte-preprocess": "^4.10.7",
