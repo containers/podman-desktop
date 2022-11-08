@@ -51,6 +51,7 @@ export interface ContainerInfoUI {
   openingUrl?: string;
   groupInfo: ContainerGroupPartInfoUI;
   selected: boolean;
+  created: number;
 }
 
 export interface ContainerGroupInfoUI extends ContainerGroupPartInfoUI {

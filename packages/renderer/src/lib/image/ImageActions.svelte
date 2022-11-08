@@ -15,7 +15,7 @@ let isAuthenticatedForThisImage: boolean = false;
 
 async function runImage(imageInfo: ImageInfoUI) {
   runImageInfo.set(imageInfo);
-  router.goto('/images/run');
+  router.goto('/images/run/basic');
 }
 
 $: window.hasAuthconfigForImage(image.name).then(result => (isAuthenticatedForThisImage = result));

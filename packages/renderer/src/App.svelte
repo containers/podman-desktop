@@ -114,7 +114,7 @@ window.events?.receive('display-help', () => {
         <Route path="/images/build">
           <BuildImageFromContainerfile />
         </Route>
-        <Route path="/images/run">
+        <Route path="/images/run/*">
           <RunImage />
         </Route>
         <Route path="/images/pull">

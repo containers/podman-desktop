@@ -119,6 +119,7 @@ export class ContainerUtils {
       openingUrl: this.getOpeningUrl(containerInfo),
       groupInfo: this.getContainerGroup(containerInfo),
       selected: false,
+      created: containerInfo.Created,
     };
   }
 
