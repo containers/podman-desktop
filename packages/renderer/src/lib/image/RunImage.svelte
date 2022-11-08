@@ -573,7 +573,7 @@ function deleteExtraHost(index: number) {
                   >Privileged:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-400 text-sm">
                   <input type="checkbox" bind:checked="{privileged}" class="mx-2 outline-none text-sm" />
-                  Turn off security<i class="fas fa-exclamation-triangle"></i>
+                  Turn off security<i class="pl-1 fas fa-exclamation-triangle"></i>
                 </div>
 
                 <!-- Read-Only -->
