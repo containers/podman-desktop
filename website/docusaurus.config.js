@@ -109,7 +109,11 @@ const config = {
                 href: 'https://github.com/containers/podman-desktop',
               },
               {
-                label: 'Chat with us',
+                label: 'Join #podman-desktop on the Kubernetes Slack',
+                href: 'https://communityinviter.com/apps/kubernetes/community',
+              },
+              {
+                label: 'Hang out with us on Discord',
                 href: 'https://discordapp.com/invite/TCTB38RWpf',
               },
               {
