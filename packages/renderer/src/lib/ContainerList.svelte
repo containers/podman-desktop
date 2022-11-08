@@ -334,7 +334,7 @@ function toggleAllContainerGroups(value: boolean) {
           <th class="text-center font-extrabold w-10 pr-2">Status</th>
           <th>Name</th>
           <th class="text-center">started</th>
-          <th class="text-center">actions</th>
+          <th class="text-right pr-2">actions</th>
         </tr>
       </thead>
 
@@ -379,14 +379,12 @@ function toggleAllContainerGroups(value: boolean) {
                   <div class="ml-2 text-sm text-gray-400"></div>
                 </div>
               </td>
-              <td class="px-6 whitespace-nowrap">
-                <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100">
-                  <!-- Only show POD actions if the container group is POD, otherwise keep blank / empty (for future compose implementation) -->
-                  {#if containerGroup.type === ContainerGroupInfoTypeUI.POD}
-                    <PodActions
-                      pod="{{ id: containerGroup.id, name: containerGroup.name, engineId: containerGroup.engineId }}" />
-                  {/if}
-                </div>
+              <td class="pl-6 text-right whitespace-nowrap">
+                <!-- Only show POD actions if the container group is POD, otherwise keep blank / empty (for future compose implementation) -->
+                {#if containerGroup.type === ContainerGroupInfoTypeUI.POD}
+                  <PodActions
+                    pod="{{ id: containerGroup.id, name: containerGroup.name, engineId: containerGroup.engineId }}" />
+                {/if}
               </td>
             </tr>
           {/if}
@@ -442,12 +440,10 @@ function toggleAllContainerGroups(value: boolean) {
                   </div>
                 </td>
                 <td
-                  class="px-6 whitespace-nowrap {containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE
+                  class="pl-6 text-right whitespace-nowrap {containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE
                     ? 'rounded-tr-lg'
                     : ''} {index === containerGroup.containers.length - 1 ? 'rounded-br-lg' : ''}">
-                  <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100 ">
-                    <ContainerActions container="{container}" />
-                  </div>
+                  <ContainerActions container="{container}" />
                 </td>
               </tr>
             {/each}

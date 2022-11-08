@@ -165,7 +165,7 @@ function openContainersFromPod(pod: PodInfoUI) {
           <th class="text-center font-extrabold w-10">status</th>
           <th class="text-center font-extrabold w-10">Name</th>
           <th class="text-center">Creation date</th>
-          <th class="text-center">actions</th>
+          <th class="text-right pr-2">actions</th>
         </tr>
       </thead>
       <tbody class="">
@@ -223,10 +223,8 @@ function openContainersFromPod(pod: PodInfoUI) {
               </div>
             </td>
 
-            <td class="px-6 whitespace-nowrap rounded-tr-lg rounded-br-lg ">
-              <div class="flex opacity-0 flex-row justify-end group-hover:opacity-100">
-                <PodActions pod="{pod}" />
-              </div>
+            <td class="pl-6 text-right whitespace-nowrap">
+              <PodActions pod="{pod}" />
             </td>
           </tr>
           <tr><td class="leading-[8px]">&nbsp;</td></tr>
