@@ -44,14 +44,24 @@ export class ContainerUtils {
     }
 
     // make it human friendly
-    return `${this.humanizeUptime(containerInfo.StartedAt)} ago`;
+    return `${this.humanizeUptime(containerInfo.StartedAt)}`;
   }
 
   humanizeUptime(started: string): string {
     // get start time in ms
     const uptimeInMs = moment().diff(started);
     // make it human friendly
-    return humanizeDuration(uptimeInMs, { round: true, largest: 1 });
+    return humanizeDuration(uptimeInMs, { round: true, largest: 1, language: "shortEn", spacer: "", languages: {
+      shortEn: {
+        y: () => "y",
+        mo: () => "mo",
+        w: () => "w",
+        d: () => "d",
+        h: () => "h",
+        m: () => "m",
+        s: () => "s",
+        ms: () => "ms",
+      }}});
   }
 
   refreshUptime(containerInfoUI: ContainerInfoUI): string {
@@ -59,7 +69,7 @@ export class ContainerUtils {
       return '';
     }
     // make it human friendly
-    return `${this.humanizeUptime(containerInfoUI.startedAt)} ago`;
+    return `${this.humanizeUptime(containerInfoUI.startedAt)}`;
   }
 
   getImage(containerInfo: ContainerInfo): string {

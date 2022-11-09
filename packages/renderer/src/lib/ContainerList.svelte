@@ -333,7 +333,7 @@ function toggleAllContainerGroups(value: boolean) {
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
           <th class="text-center font-extrabold w-10 pr-2">Status</th>
           <th>Name</th>
-          <th class="text-center">started</th>
+          <th class="text-center grid-cols-[min-content_1fr]">Age</th>
           <th class="text-center">actions</th>
         </tr>
       </thead>
@@ -374,7 +374,7 @@ function toggleAllContainerGroups(value: boolean) {
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-2 whitespace-nowrap w-10">
+              <td class="px-6 py-2 whitespace-nowrap w-52">
                 <div class="flex items-center">
                   <div class="ml-2 text-sm text-gray-400"></div>
                 </div>
@@ -436,7 +436,7 @@ function toggleAllContainerGroups(value: boolean) {
                     </div>
                   </div>
                 </td>
-                <td class="px-6 py-2 whitespace-nowrap w-10">
+                <td class="px-6 py-2 whitespace-nowrap w-52">
                   <div class="flex items-center">
                     <div class="ml-2 text-sm text-gray-400">{container.uptime}</div>
                   </div>
