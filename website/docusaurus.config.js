@@ -110,7 +110,7 @@ const config = {
               },
               {
                 label: 'Join #podman-desktop on the Kubernetes Slack',
-                href: 'https://communityinviter.com/apps/kubernetes/community',
+                href: 'https://slack.k8s.io/',
               },
               {
                 label: 'Hang out with us on Discord',

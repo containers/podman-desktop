@@ -41,8 +41,8 @@
       <li class="pb-2">
         <i class="fas fa-comments" aria-hidden="true"></i>
         <p
-          on:click="{() => window.openExternal('https://communityinviter.com/apps/kubernetes/community')}"
-          title="https://communityinviter.com/apps/kubernetes/community"
+          on:click="{() => window.openExternal('https://slack.k8s.io/')}"
+          title="https://slack.k8s.io/"
           class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
           Join #podman-desktop on Kubernetes Slack
         </p>

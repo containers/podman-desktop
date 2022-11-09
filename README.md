@@ -82,7 +82,7 @@ For all bug and feature requests please [file a GitHub issue](https://github.com
 
 Discussions are done using [Github Discussions](https://github.com/containers/podman-desktop/discussions/).
 
-Join #podman-desktop on the [Kubernetes Slack](https://communityinviter.com/apps/kubernetes/community).
+Join [#podman-desktop](https://app.slack.com/client/T09NY5SBT/C04A0L7LUFM) on the [Kubernetes Slack](https://slack.k8s.io/).
 
 Hangout with us on [Discord](https://discordapp.com/invite/TCTB38RWpf)
 
