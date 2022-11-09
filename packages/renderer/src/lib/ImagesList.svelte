@@ -234,7 +234,7 @@ async function deleteSelectedImages() {
                   </div>
                   <div class="flex flex-row items-center">
                     <div class="text-xs text-violet-400">{image.shortId}</div>
-                    <div class="ml-1 text-xs font-extra-light text-gray-500">{image.tag}</div>
+                    <div class="ml-1 text-xs font-extra-light text-gray-300">{image.tag}</div>
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-500">
                     <!-- Hide in case of single engine-->
