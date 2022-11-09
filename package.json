@@ -69,7 +69,7 @@
     "electron-builder-notarize": "^1.5.0",
     "electron-devtools-installer": "^3.2.0",
     "eslint": "^8.20.0",
-    "happy-dom": "2.31.1",
+    "happy-dom": "7.6.7",
     "playwright": "1.18.1",
     "postcss-import": "^14.0.2",
     "prettier": "^2.7.1",
