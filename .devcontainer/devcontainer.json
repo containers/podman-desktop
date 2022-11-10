@@ -1,0 +1,39 @@
+{
+  "name": "Podman Desktop",
+  "build": {
+    "dockerfile": "Containerfile"
+  },
+  // do not use root
+  "containerUser": "podman-desktop",
+  // Add the IDs of extensions you want installed when the container is created.
+  "extensions": ["svelte.svelte-vscode", "bradlc.vscode-tailwindcss"],
+  "features": {},
+  "runArgs": [
+    "--cap-add=sys_admin",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--device",
+    "/dev/fuse",
+    "--security-opt",
+    "label=disable",
+    "--security-opt",
+    "apparmor=unconfined"
+  ],
+  "postStartCommand": "${containerWorkspaceFolder}/.devcontainer/postStartCommand.sh",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+  "onCreateCommand": "${containerWorkspaceFolder}/.devcontainer/onCreateCommand.sh",
+  "updateContentCommand": "${containerWorkspaceFolder}/.devcontainer/updateContentCommand.sh",
+  "remoteEnv": {
+    "DISPLAY": ":0"
+  },
+  "portsAttributes": {
+    "9000": {
+      "label": "vnc",
+      "onAutoForward": "openPreview"
+    },
+    "3000": {
+      "label": "website"
+    }
+  }
+}
