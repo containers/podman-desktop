@@ -1,0 +1,13 @@
+! If you're looking for settings to configure, they won't be saved here until
+! you change something in the fluxbox configuration menu.
+
+session.menuFile:	~/.fluxbox/menu
+session.keyFile: ~/.fluxbox/keys
+! Change the default theme
+session.styleFile: /usr/share/fluxbox/styles/bora_blue
+session.configVersion:	13
+session.screen0.toolbar.widthPercent: 100
+session.screen0.strftimeFormat: %d %b, %a %02k:%M:%S
+session.screen0.toolbar.tools: prevworkspace, workspacename, nextworkspace, clock, prevwindow, nextwindow, iconbar, systemtray
+! disable toolbar
+session.screen0.toolbar.visible:	false
