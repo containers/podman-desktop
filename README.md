@@ -9,6 +9,8 @@ Podman Desktop - A graphical tool for developing on containers and Kubernetes
 
 - [**Overview**](#overview)
 - [**Download**](#download)
+- [**Features**](#download)
+- [**Join Our Early Adopter Program (Optional)**](#join-our-early-adopter-program-optional)
 - [**Roadmap**](#roadmap)
 - [**Contributing**](#contributing)
 - [**Communication**](#communication)
@@ -26,6 +28,8 @@ Podman Desktop also supports [multiple container engines](#multiple-container-en
 ## Download
 
 Check the downloads page on [podman-desktop.io/downloads](https://podman-desktop.io/downloads).
+
+## Features
 
 #### Containers and pods dashboard
 * Build, run, manage, and debug both containers and pods
@@ -61,7 +65,6 @@ We are seeking developers who are interested in improving Podman Desktop!
 Register your interest to join our Early Adopter Program by filling <a href="https://forms.gle/ow73dV7Ce3YLzoXH7" target="_blank">this form</a>.
 
 This is totally *optional* and does not change any Podman Desktop features.
-
 
 ## Roadmap
 
