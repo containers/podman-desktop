@@ -58,19 +58,72 @@ or any similar error denoting that Podman Engine does not exist.
 The Podman Installer and Homebrew use different locations to store the Podman Engine files in the file system. For example, Podman Installer installs Podman Engine in the path `/opt/podman` whereas Homebrew uses the path `/usr/local` for macOS Intel, `/opt/homebrew` for Apple Silicon and `/home/linuxbrew/.linuxbrew` for Linux.
 
 #### Solution: 
-To check where exactly is your Podman Engine installed, run the command `which podman`. This returns the path where the Podman Engine would be installed. This would help determine further action. 
+To check where exactly is your Podman Engine installed, run the command-
+```sh
+which podman
+``` 
 
-For example, if you’re looking to completely uninstall Podman Engine from your system for a fresh installation, running `which podman` returns the exact path where Podman still exists. This could be the path where Podman Installer stores Podman Engine i.e. `/opt/podman`. Once you know the path, simply run 
+This returns the path where the Podman Engine would be installed. This would help determine further action. 
 
-`sudo rm -rf /opt/podman`
+For example, if you’re looking to completely uninstall Podman Engine from your system for a fresh installation, running `which podman` returns the exact path where Podman still exists. This could be the path where Podman Installer stores Podman Engine i.e. `/opt/podman`. Once you know the path, simply run-
+
+```sh
+sudo rm -rf /opt/podman
+```
 
 Or 
 
-`sudo rm -rf path-where-podman-exists`
+```sh
+sudo rm -rf path-where-podman-exists
+```
 
 Here, you would replace `path-where-podman-exists` with the output of `which podman`.
 
 You can now proceed for a fresh installation of Podman Desktop
+
+### Unable to see information about active containers
+
+#### Issue: 
+In this scenario, the screen may be displaying "No Containers" as shown below despite active containers runnning in the background.
+![img](img/containers_error.png)
+
+#### Solution:
+There are three ways to work this out.
+
+1. To solve this issue, open the Terminal and run the following commands- 
+```sh
+podman machine stop
+```
+
+and then,
+
+```sh
+podman machine start
+```
+
+2. If this does not work for you, you may proceed with the following commands-
+```sh
+podman machine rm
+```
+
+and then,
+
+```sh
+podman machine init
+```
+
+3. If both of the abovementioned steps don't work for you, run the following commands-
+```sh
+rm -rf ~/.local/share/containers/podman
+```
+
+and then,
+
+```sh
+rm -rf ~/.config/containers/
+```
+
+After this, you can start off again by initializing a new Podman Machine and loading up the containers.
 
 ## Code Ready Containers
 
