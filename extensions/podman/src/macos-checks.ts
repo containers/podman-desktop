@@ -19,7 +19,7 @@
 import { BaseCheck } from './base-check';
 import type * as extensionApi from '@tmpwip/extension-api';
 import * as os from 'node:os';
-import { compare } from 'compare-versions';
+import * as compareVersions from 'compare-versions';
 import { runCliCommand } from './util';
 
 export class MacCPUCheck extends BaseCheck {
@@ -55,7 +55,7 @@ export class MacVersionCheck extends BaseCheck {
 
   async execute(): Promise<extensionApi.CheckResult> {
     const darwinVersion = os.release();
-    if (compare(darwinVersion, this.MINIMUM_VERSION, '>=')) {
+    if (compareVersions.compare(darwinVersion, this.MINIMUM_VERSION, '>=')) {
       return this.createSuccessfulResult();
     }
 
