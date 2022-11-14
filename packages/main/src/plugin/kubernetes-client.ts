@@ -27,6 +27,7 @@ import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
+import type { FilesystemMonitoring } from './filesystem-monitoring';
 
 /**
  * Handle calls to kubernetes API
@@ -41,11 +42,17 @@ export class KubernetesClient {
 
   private currrentNamespace: string | undefined;
   private currentContextName: string | undefined;
-  private readonly _onDidChangeKubeconfig = new Emitter<containerDesktopAPI.KubeConfigChangeEvent>();
-  readonly onDidChangeKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeConfigChangeEvent> =
-    this._onDidChangeKubeconfig.event;
 
-  constructor(private configurationRegistry: ConfigurationRegistry) {
+  private kubeConfigWatcher: containerDesktopAPI.FileSystemWatcher | undefined;
+
+  private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
+  readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
+    this._onDidUpdateKubeconfig.event;
+
+  constructor(
+    private configurationRegistry: ConfigurationRegistry,
+    private fileSystemMonitoring: FilesystemMonitoring,
+  ) {
     this.kubeConfig = new KubeConfig();
   }
 
@@ -74,6 +81,7 @@ export class KubernetesClient {
     const kubernetesConfiguration = this.configurationRegistry.getConfiguration('kubernetes');
     const userKubeconfigPath = kubernetesConfiguration.get<string>('Kubeconfig');
     if (userKubeconfigPath) {
+      this.setupWatcher(userKubeconfigPath);
       // check if path exists
       if (existsSync(userKubeconfigPath)) {
         this.kubeconfigPath = userKubeconfigPath;
@@ -87,8 +95,35 @@ export class KubernetesClient {
     this.configurationRegistry.onDidChangeConfiguration(e => {
       if (e.key === 'kubernetes.Kubeconfig') {
         const val = e.value as string;
+        this.setupWatcher(val);
         this.setKubeconfig(Uri.file(val));
       }
+    });
+  }
+
+  setupWatcher(kubeconfigFile: string): void {
+    // cancel the previous one (if any)
+    this.kubeConfigWatcher?.dispose();
+
+    // monitor the kube config file for changes
+    this.kubeConfigWatcher = this.fileSystemMonitoring.createFileSystemWatcher(kubeconfigFile);
+
+    const location = Uri.file(kubeconfigFile);
+
+    // needs to refresh
+    this.kubeConfigWatcher.onDidChange(() => {
+      this._onDidUpdateKubeconfig.fire({ type: 'UPDATE', location });
+      this.refresh();
+    });
+
+    this.kubeConfigWatcher.onDidCreate(() => {
+      this._onDidUpdateKubeconfig.fire({ type: 'CREATE', location });
+      this.refresh();
+    });
+
+    this.kubeConfigWatcher.onDidDelete(() => {
+      this._onDidUpdateKubeconfig.fire({ type: 'DELETE', location });
+      this.kubeConfig = new KubeConfig();
     });
   }
 
@@ -242,11 +277,14 @@ export class KubernetesClient {
     return Uri.file(this.kubeconfigPath);
   }
 
-  async setKubeconfig(newLocation: containerDesktopAPI.Uri): Promise<void> {
-    const oldLocation = Uri.file(this.kubeconfigPath);
-    this.kubeconfigPath = newLocation.fsPath;
+  async setKubeconfig(location: containerDesktopAPI.Uri): Promise<void> {
+    this.kubeconfigPath = location.fsPath;
     this.refresh();
     // notify change
-    this._onDidChangeKubeconfig.fire({ oldLocation, newLocation });
+    this._onDidUpdateKubeconfig.fire({ type: 'UPDATE', location });
+  }
+
+  async stop(): Promise<void> {
+    this.kubeConfigWatcher?.dispose();
   }
 }

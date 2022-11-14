@@ -25,9 +25,7 @@ interface KubeContext {
 }
 
 const menuItemsRegistered: extensionApi.Disposable[] = [];
-
-let kubeConfigWatcher: extensionApi.FileSystemWatcher;
-let kubeconfigFile: string;
+let kubeconfigFile: string | undefined;
 
 async function deleteContext(): Promise<void> {
   // remove the context from the list
@@ -78,30 +76,7 @@ async function updateContext(extensionContext: extensionApi.ExtensionContext, ku
   extensionContext.subscriptions.push(subscription);
 }
 
-function setupWatcher(
-  extensionContext: extensionApi.ExtensionContext,
-  kubeconfigFile: string,
-): extensionApi.FileSystemWatcher {
-  // monitor the kube config file for changes
-  const kubeConfigWatcher = extensionApi.fs.createFileSystemWatcher(kubeconfigFile);
-
-  // update the tray everytime .kube/config file is updated
-  kubeConfigWatcher.onDidChange(() => {
-    updateContext(extensionContext, kubeconfigFile);
-  });
-
-  kubeConfigWatcher.onDidCreate(() => {
-    updateContext(extensionContext, kubeconfigFile);
-  });
-
-  kubeConfigWatcher.onDidDelete(() => {
-    deleteContext();
-  });
-
-  return kubeConfigWatcher;
-}
-
-function getKubeconfig(): string {
+function getKubeconfig(): string | undefined {
   return kubeconfigFile;
 }
 
@@ -110,21 +85,24 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // grab current file
   const kubeconfigUri = await extensionApi.kubernetes.getKubeconfig();
+
   kubeconfigFile = kubeconfigUri.fsPath;
 
-  // setup watcher
-  kubeConfigWatcher = setupWatcher(extensionContext, kubeconfigFile);
-  extensionContext.subscriptions.push(kubeConfigWatcher);
+  // if path exists, update context
+  if (fs.existsSync(kubeconfigFile)) {
+    updateContext(extensionContext, kubeconfigFile);
+  }
 
-  extensionApi.kubernetes.onDidChangeKubeconfig((event: extensionApi.KubeConfigChangeEvent) => {
-    kubeconfigFile = event.newLocation.fsPath;
-
-    // dispose the old watcher
-    kubeConfigWatcher.dispose();
-
-    // setup new watcher
-    kubeConfigWatcher = setupWatcher(extensionContext, kubeconfigFile);
-    extensionContext.subscriptions.push(kubeConfigWatcher);
+  // update context menu on change
+  extensionApi.kubernetes.onDidUpdateKubeconfig((event: extensionApi.KubeconfigUpdateEvent) => {
+    // update the tray everytime .kube/config file is updated
+    if (event.type === 'UPDATE' || event.type === 'CREATE') {
+      kubeconfigFile = event.location.fsPath;
+      updateContext(extensionContext, kubeconfigFile);
+    } else if (event.type === 'DELETE') {
+      deleteContext();
+      kubeconfigFile = undefined;
+    }
   });
 
   const command = extensionApi.commands.registerCommand('kubecontext.switch', async (newContext: string) => {

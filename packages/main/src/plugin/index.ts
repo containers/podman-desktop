@@ -75,6 +75,7 @@ import { KubernetesClient } from './kubernetes-client';
 import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type { NetworkInspectInfo } from './api/network-info';
+import { FilesystemMonitoring } from './filesystem-monitoring';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -208,7 +209,9 @@ export class PluginSystem {
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
-    const kubernetesClient = new KubernetesClient(configurationRegistry);
+    const fileSystemMonitoring = new FilesystemMonitoring();
+
+    const kubernetesClient = new KubernetesClient(configurationRegistry, fileSystemMonitoring);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry, providerRegistry);
     await closeBehaviorConfiguration.init();
@@ -242,6 +245,7 @@ export class PluginSystem {
       new NotificationImpl(),
       statusBarRegistry,
       kubernetesClient,
+      fileSystemMonitoring,
     );
 
     const contributionManager = new ContributionManager(apiSender);
