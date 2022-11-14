@@ -76,8 +76,7 @@
   },
   "scripts": {
     "build": "rollup --config rollup.config.js --compact --environment BUILD:production && npx ts-node ./scripts/download.ts  && node ./scripts/build.js",
-    "watch": "rollup --config rollup.config.js -w",
-    "test": "vitest run -r src --passWithNoTests"
+    "watch": "rollup --config rollup.config.js -w"
   },
   "dependencies": {
     "@ltd/j-toml": "^1.30.0",
