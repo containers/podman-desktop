@@ -70,7 +70,7 @@
     "electron-devtools-installer": "^3.2.0",
     "eslint": "^8.27.0",
     "happy-dom": "2.31.1",
-    "playwright": "1.18.1",
+    "playwright": "1.27.1",
     "postcss-import": "^14.0.2",
     "prettier": "^2.7.1",
     "prettier-plugin-svelte": "^2.8.0",
