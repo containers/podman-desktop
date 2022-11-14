@@ -653,14 +653,14 @@ declare module '@tmpwip/extension-api' {
   export namespace kubernetes {
     // Path to the configuration file
     export function getKubeconfig(): Uri;
-    export const onDidChangeKubeconfig: Event<KubeConfigChangeEvent>;
+    export const onDidUpdateKubeconfig: Event<KubeconfigUpdateEvent>;
     export function setKubeconfig(kubeconfig: Uri): Promise<void>;
   }
   /**
-   * An event describing the change in kubeconfig location
+   * An event describing the update in kubeconfig location
    */
-  export interface KubeConfigChangeEvent {
-    readonly oldLocation: Uri;
-    readonly newLocation: Uri;
+  export interface KubeconfigUpdateEvent {
+    readonly type: 'CREATE' | 'UPDATE' | 'DELETE';
+    readonly location: Uri;
   }
 }

@@ -35,7 +35,7 @@ import type { NotificationImpl } from './notification-impl';
 import { StatusBarItemImpl } from './statusbar/statusbar-item';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry';
 import { StatusBarAlignLeft, StatusBarAlignRight, StatusBarItemDefaultPriority } from './statusbar/statusbar-item';
-import { FilesystemMonitoring } from './filesystem-monitoring';
+import type { FilesystemMonitoring } from './filesystem-monitoring';
 import { Uri } from './types/uri';
 import type { KubernetesClient } from './kubernetes-client';
 
@@ -67,7 +67,6 @@ export class ExtensionLoader {
   private activatedExtensions = new Map<string, ActivatedExtension>();
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
   private extensionsStoragePath = '';
-  private fileSystemMonitoring: FilesystemMonitoring;
 
   constructor(
     private commandRegistry: CommandRegistry,
@@ -82,9 +81,8 @@ export class ExtensionLoader {
     private notifications: NotificationImpl,
     private statusBarRegistry: StatusBarRegistry,
     private kubernetesClient: KubernetesClient,
-  ) {
-    this.fileSystemMonitoring = new FilesystemMonitoring();
-  }
+    private fileSystemMonitoring: FilesystemMonitoring,
+  ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
     return Array.from(this.analyzedExtensions.values()).map(extension => ({
@@ -393,8 +391,8 @@ export class ExtensionLoader {
       async setKubeconfig(kubeconfig: containerDesktopAPI.Uri): Promise<void> {
         return kubernetesClient.setKubeconfig(kubeconfig);
       },
-      onDidChangeKubeconfig: (listener, thisArg, disposables) => {
-        return kubernetesClient.onDidChangeKubeconfig(listener, thisArg, disposables);
+      onDidUpdateKubeconfig: (listener, thisArg, disposables) => {
+        return kubernetesClient.onDidUpdateKubeconfig(listener, thisArg, disposables);
       },
     };
 
