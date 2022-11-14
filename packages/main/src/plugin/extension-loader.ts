@@ -167,13 +167,18 @@ export class ExtensionLoader {
 
   async readDevelopmentFolders(path: string): Promise<string[]> {
     const entries = await fs.promises.readdir(path, { withFileTypes: true });
-    return entries.filter(entry => entry.isDirectory()).map(directory => path + '/' + directory.name);
+    // filter only directories ignoring node_modules directory
+    return entries
+      .filter(entry => entry.isDirectory())
+      .filter(directory => directory.name !== 'node_modules')
+      .map(directory => path + '/' + directory.name);
   }
 
   async readProductionFolders(path: string): Promise<string[]> {
     const entries = await fs.promises.readdir(path, { withFileTypes: true });
     return entries
       .filter(entry => entry.isDirectory())
+      .filter(directory => directory.name !== 'node_modules')
       .map(directory => path + '/' + directory.name + `/builtin/${directory.name}.cdix`);
   }
 

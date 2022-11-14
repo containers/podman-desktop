@@ -20,7 +20,7 @@ import { promisify } from 'node:util';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import * as compareVersions from 'compare-versions';
+import { compare } from 'compare-versions';
 
 import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
@@ -248,7 +248,7 @@ abstract class BaseInstaller implements Installer {
   abstract getPreflightChecks(): extensionApi.InstallCheck[];
 
   requireUpdate(installedVersion: string): boolean {
-    return compareVersions.compare(installedVersion, getBundledPodmanVersion(), '<');
+    return compare(installedVersion, getBundledPodmanVersion(), '<');
   }
 
   protected getAssetsFolder(): string {
