@@ -13,7 +13,6 @@
     "@fortawesome/free-brands-svg-icons": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
     "@patternfly/patternfly": "^4.219.2",
-    "@rollup/plugin-dynamic-import-vars": "^1.4.2",
     "@sveltejs/vite-plugin-svelte": "^1.1.0",
     "@tsconfig/svelte": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "5.40.1",
