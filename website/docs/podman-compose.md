@@ -1,5 +1,5 @@
 ---
-title: Using Podman Compose with Podman Desktop
+title: Using Compose with Podman Desktop
 ---
 
 ## Introduction
@@ -53,21 +53,21 @@ podman-compose -f compose.yaml up -d
 ```
 The `compose.yaml` file contains definitions for multiple containers within the `flask-redis` project.
 
-![img1](img/image2.png)
+![img1](img/compose_doc_image_1.png)
 
 ### 3. Manage Compose with Podman Desktop
 
 In order to check if the containers are running as expected, open Podman Desktop and click on the ‘Containers’ option on the left side of the application. You will notice that the containers are bundled together under a Pod named `flask-redis (compose)` in this case. Here, the compose within the bracket indicates that it is generated from a Compose YAML file. 
 
-![img2](img/image1.png)
+![img2](img/compose_doc_image_2.png)
 
 You can further configure or work with these containers within the Podman Desktop application now that they are visible. Here, clicking on the ‘Open Browser’ button allows us to check if the application is running as expected. 
 
-![img3](img/image4.png)
+![img3](img/compose_doc_image_3.png)
 
 You can do much more such as checking logs, opening the terminal or inspecting the files for more details.
 
-![img4](img/image3.png)
+![img4](img/compose_doc_image_4.png)
 
 ## Conclusion
 
