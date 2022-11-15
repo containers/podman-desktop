@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { writable } from 'svelte/store';
+import validator from 'validator';
 
 interface Validation {
   dirty: boolean;
@@ -70,12 +71,6 @@ export function requiredValidator() {
 
 export function urlValidator() {
   return function url(value) {
-    return (
-      (value &&
-        !!value.match(
-          /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g,
-        )) ||
-      'Please enter a valid URL'
-    );
+    return validator.isURL(value) || 'Please enter a valid URL';
   };
 }
