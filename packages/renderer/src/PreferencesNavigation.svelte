@@ -5,15 +5,15 @@ import { extensionInfos } from './stores/extensions';
 import { configurationProperties } from './stores/configurationProperties';
 import { ConfigurationRegistry } from '../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
+import { providerInfos } from './stores/providers';
 
 export let exitSettingsCallback: () => void;
 export let meta;
 
-let extensions, configProperties, providers;
+let extensions, configProperties;
 
 $: extensions = [];
 $: configProperties = new Map();
-$: providers = [];
 $: sectionExpanded = {};
 
 function toggleSection(provider: string) {
@@ -21,7 +21,6 @@ function toggleSection(provider: string) {
 }
 
 onMount(async () => {
-  await fetchProviderInfos();
   extensionInfos.subscribe(value => {
     extensions = value;
   });
@@ -43,10 +42,6 @@ onMount(async () => {
       }, new Map());
   });
 });
-
-async function fetchProviderInfos() {
-  providers = await window.getProviderInfos();
-}
 
 $: isCurrentPage = (pathParam: string): boolean => meta.url === pathParam;
 $: addExpandedClass = (section: string): string => (sectionExpanded[section] ? 'pf-m-expanded' : '');
@@ -82,7 +77,7 @@ $: addHiddenClass = (provider: ProviderInfo): string => (provider.containerConne
       </button>
       <section class="pf-c-nav__subnav {addSectionHiddenClass('resources')}">
         <ul class="pf-c-nav__list">
-          {#each providers as provider}
+          {#each $providerInfos as provider}
             <li
               class="pf-c-nav__item {addExpandableClass(provider)} {addExpandedClass(provider.name)} {addCurrentClass(
                 `/preferences/provider/${provider.internalId}`,
