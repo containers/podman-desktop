@@ -3502,10 +3502,10 @@
     "@types/node" "*"
     "@types/ssh2" "*"
 
-"@types/dockerode@^3.3.3":
-  version "3.3.3"
-  resolved "https://registry.npmjs.org/@types/dockerode/-/dockerode-3.3.3.tgz"
-  integrity sha512-DBFTE/wiZKodQhDrdkzLVT3K0X1JO/1fTxPaTQN0jiPNdTOFoPt8LYnuYEzalPgVpZbGEeuJTls7qn6jMvuydg==
+"@types/dockerode@^3.3.13":
+  version "3.3.13"
+  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-3.3.13.tgz#51914f9f798a2f2dc2f00a6b79753579629bb963"
+  integrity sha512-0q7tbf2z/4cP3hmgENF9y4TsaIpeEP2Hzx3W8ABEdNvDiflIeN8O1oKIbfdOUg2+II5U9QRMTVRHF7PkIR45OA==
   dependencies:
     "@types/docker-modem" "*"
     "@types/node" "*"
