@@ -3126,15 +3126,15 @@
     is-reference "1.2.1"
     magic-string "^0.26.4"
 
-"@rollup/plugin-dynamic-import-vars@^1.4.2":
-  version "1.4.2"
-  resolved "https://registry.npmjs.org/@rollup/plugin-dynamic-import-vars/-/plugin-dynamic-import-vars-1.4.2.tgz"
-  integrity sha512-SEaS9Pf0RyaZ/oJ1knLZT+Fu0X6DlyTfUcoE7XKkiKJjNaB+8SLoHmDVRhomo5RpWHPyd+B00G/bE5R5+Q+HEg==
+"@rollup/plugin-dynamic-import-vars@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@rollup/plugin-dynamic-import-vars/-/plugin-dynamic-import-vars-2.0.1.tgz#da2c4732aea8867e202006aaccd3b351f1d98cc3"
+  integrity sha512-//rFVnJhZqR1Bje7n9ZMlmX9M62AExcLVXmbTcq80CqFx97C6CXaghLYsPzcZ7w8JhbVdjBIRADyLNel0HHorg==
   dependencies:
-    "@rollup/pluginutils" "^4.1.2"
-    estree-walker "^2.0.1"
-    fast-glob "^3.2.7"
-    magic-string "^0.25.7"
+    "@rollup/pluginutils" "^5.0.1"
+    estree-walker "^2.0.2"
+    fast-glob "^3.2.12"
+    magic-string "^0.26.4"
 
 "@rollup/plugin-json@^5.0.1":
   version "5.0.1"
@@ -3162,14 +3162,6 @@
   dependencies:
     "@rollup/pluginutils" "^5.0.1"
     resolve "^1.22.1"
-
-"@rollup/pluginutils@^4.1.2":
-  version "4.1.2"
-  resolved "https://registry.npmjs.org/@rollup/pluginutils/-/pluginutils-4.1.2.tgz"
-  integrity sha512-ROn4qvkxP9SyPeHaf7uQC/GPFY6L/OWy9+bd9AwcjOAWQwxRscoEyAUD8qCY5o5iL4jqQwoLk2kaTKJPb/HwzQ==
-  dependencies:
-    estree-walker "^2.0.1"
-    picomatch "^2.2.2"
 
 "@rollup/pluginutils@^5.0.1":
   version "5.0.2"
@@ -6688,7 +6680,7 @@ estraverse@^5.1.0, estraverse@^5.2.0:
   resolved "https://registry.npmjs.org/estraverse/-/estraverse-5.3.0.tgz"
   integrity sha512-MMdARuVEQziNTeJD8DgMqmhwR11BRQ/cBP+pLtYdSTnf3MIO8fFeiINEbX36ZdNlfU/7A9f3gUw49B3oQsvwBA==
 
-estree-walker@^2.0.1, estree-walker@^2.0.2:
+estree-walker@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-2.0.2.tgz#52f010178c2a4c117a7757cfe942adb7d2da4cac"
   integrity sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==
@@ -9585,7 +9577,7 @@ picocolors@^1.0.0:
   resolved "https://registry.npmjs.org/picocolors/-/picocolors-1.0.0.tgz"
   integrity sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==
 
-picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.2.2, picomatch@^2.3.1:
+picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.3.1:
   version "2.3.1"
   resolved "https://registry.npmjs.org/picomatch/-/picomatch-2.3.1.tgz"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
