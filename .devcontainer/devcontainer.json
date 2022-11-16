@@ -35,5 +35,8 @@
     "3000": {
       "label": "website"
     }
+  },
+  "hostRequirements": {
+    "memory": "8gb"
   }
 }
