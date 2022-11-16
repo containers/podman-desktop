@@ -35,6 +35,9 @@
     margin: revert;
     padding: revert;
   }
+  a {
+    color: revert;
+  }
 }
 
 /*
