@@ -81,7 +81,7 @@ const config = {
           { to: '/features', label: 'Features', position: 'left' },
           { to: '/downloads', label: 'Downloads', position: 'left' },
           { to: '/extend', label: 'Extend', position: 'left' },
-          {to: '/blog', label: 'Blog', position: 'left'},
+          { to: '/blog', label: 'Blog', position: 'left' },
           {
             href: 'https://github.com/containers/podman-desktop',
             className: 'header-github-link',
