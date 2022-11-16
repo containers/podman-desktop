@@ -334,7 +334,7 @@ function toggleAllContainerGroups(value: boolean) {
           <th class="text-center font-extrabold w-10 pr-2">Status</th>
           <th>Name</th>
           <th class="text-center">started</th>
-          <th class="text-center">actions</th>
+          <th class="text-right pr-2">actions</th>
         </tr>
       </thead>
 
@@ -442,12 +442,10 @@ function toggleAllContainerGroups(value: boolean) {
                   </div>
                 </td>
                 <td
-                  class="px-6 whitespace-nowrap {containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE
+                  class="pl-6 text-right whitespace-nowrap {containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE
                     ? 'rounded-tr-lg'
                     : ''} {index === containerGroup.containers.length - 1 ? 'rounded-br-lg' : ''}">
-                  <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100 ">
-                    <ContainerActions container="{container}" />
-                  </div>
+                  <ContainerActions container="{container}" dropdownMenu="{true}" />
                 </td>
               </tr>
             {/each}
