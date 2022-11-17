@@ -9,9 +9,9 @@ hide_table_of_contents: false
 
 GitHub [announced last week](https://github.blog/changelog/2022-11-09-codespaces-for-free-and-pro-accounts/) that Codespaces is available for everyone and it includes free minutes.
 
-Let see how we can use a [Development Container](https://containers.dev/) having all the tools to build and run Podman Desktop. The development Container works locally using Visual Studio Code but in this blog post we will see how it works with a simple click on GitHub.
+Let see how we can use a [Development Container](https://containers.dev/) having all the tools to build and run Podman Desktop. The Development Container works locally using Visual Studio Code but in this blog post we will see how it works directly with a simple click from GitHub.
 
-The challenges are to run a desktop tool and running a container engine (Podman) inside a container and using not so many memory !
+The challenges are to run a desktop tool (Podman Desktop) and running a container engine (Podman) inside this Development Container without using too many memory !
 
 <!--truncate-->
 
@@ -307,4 +307,4 @@ Depending on the usecase, it's also possible to open documentation in the previe
 
 ## Conclusion
 
-The DevContainer image for Podman Desktop is recent so it'll probably evolve over time by adding new capabilities but it allows you to build/run/experiment the tool or to contribute to the website.
+The DevContainer image for Podman Desktop is recent so it'll probably evolve over time by adding new capabilities but it allows you to easily build/run/experiment and **contribute** to the tool or the website.
