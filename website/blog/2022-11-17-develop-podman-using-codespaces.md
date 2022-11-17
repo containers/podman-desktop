@@ -170,6 +170,7 @@ Some Visual Studio Code extensions are nice to use and we can add them
 Then here is the tricky part, how to run our container allowing to run again inside the container some containers with podman.
 
 We specify the arguments to make it possible. It's possible to use `--privileged` flag but I prefer to list the subset of permissions.
+Using `--privileged` we don't really know what are the privilege that are required while specifying all of them, people are aware of what is granted/denied.
 
 ```json
 "runArgs": [
