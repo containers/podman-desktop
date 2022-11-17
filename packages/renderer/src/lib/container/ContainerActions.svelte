@@ -69,6 +69,12 @@ if (dropdownMenu) {
   backgroundColor="{backgroundColor}"
   icon="{faStopCircle}" />
 
+<ListItemButtonIcon
+  title="Delete Container"
+  onClick="{() => deleteContainer(container)}"
+  backgroundColor="{backgroundColor}"
+  icon="{faTrash}" />
+
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}" backgroundColor="{backgroundColor}">
   <ListItemButtonIcon
@@ -106,9 +112,3 @@ if (dropdownMenu) {
     backgroundColor="{backgroundColor}"
     icon="{faArrowsRotate}" />
 </svelte:component>
-
-<ListItemButtonIcon
-  title="Delete Container"
-  onClick="{() => deleteContainer(container)}"
-  backgroundColor="{backgroundColor}"
-  icon="{faTrash}" />
