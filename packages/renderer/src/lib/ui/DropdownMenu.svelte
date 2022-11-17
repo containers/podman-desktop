@@ -1,6 +1,7 @@
 <script lang="ts">
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
+import DropDownMenuItems from './DropDownMenuItems.svelte';
 export let backgroundColor = 'bg-zinc-800';
 
 // Show and hide the menu using clickOutside
@@ -15,6 +16,8 @@ function handleEscape({ key }) {
     showMenu = false;
   }
 }
+
+let clientY;
 
 function toggleMenu() {
   showMenu = !showMenu;
@@ -33,7 +36,9 @@ function onWindowClick(e) {
 <div class="relative inline-block text-left">
   <!-- Button for the dropdown menu -->
   <button
-    on:click="{() => {
+    on:click="{e => {
+      // keep track of the cursor position
+      clientY = e.clientY;
       toggleMenu();
     }}"
     bind:this="{outsideWindow}"
@@ -43,9 +48,6 @@ function onWindowClick(e) {
 
   <!-- Dropdown menu for all other actions -->
   {#if showMenu}
-    <div
-      class="origin-top-right absolute right-0 z-10 m-2 rounded-md shadow-lg bg-zinc-900 ring-1 ring-black ring-opacity-5 divide-y divide-gray-600 focus:outline-none">
-      <slot />
-    </div>
+    <DropDownMenuItems clientY="{clientY}"><slot /></DropDownMenuItems>
   {/if}
 </div>
