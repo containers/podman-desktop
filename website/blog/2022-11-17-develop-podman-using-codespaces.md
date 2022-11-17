@@ -123,7 +123,7 @@ Make sure Podman will create the socket in an expected directory:
 ENV XDG_RUNTIME_DIR=/run/user/1000
 ```
 
-OK ! we have a custom Containerfile providing all the tools to build and run Podman Desktop, run Podman and run Electron.
+OK ! we have a custom Containerfile providing all the tools to build and run Podman Desktop (using VNC for the display), run Podman and run Electron.
 
 The current file is available at https://github.com/containers/podman-desktop/blob/main/.devcontainer/.parent/Containerfile
 
