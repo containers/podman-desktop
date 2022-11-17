@@ -41,20 +41,37 @@
       <li class="pb-2">
         <i class="fas fa-comments" aria-hidden="true"></i>
         <p
-          on:click="{() => window.openExternal('https://slack.k8s.io/')}"
-          title="https://slack.k8s.io/"
-          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          Join #podman-desktop on Kubernetes Slack
-        </p>
-      </li>
-
-      <li class="pb-2">
-        <i class="fas fa-comments" aria-hidden="true"></i>
-        <p
           on:click="{() => window.openExternal('https://discordapp.com/invite/TCTB38RWpf')}"
           title="https://discordapp.com/invite/TCTB38RWpf"
           class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          Hang out with us on Discord
+          General questions (bridged with IRC & Matrix): Join #general on Discord
+        </p>
+      </li>
+      <li class="pb-2">
+        <i class="fas fa-comments" aria-hidden="true"></i>
+        <p
+          on:click="{() => window.openExternal('https://libera.chat')}"
+          title="https://libera.chat"
+          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
+          General questions (bridged with Discord & Matrix): Join #podman-desktop on Libera.Chat
+        </p>
+      </li>
+      <li class="pb-2">
+        <i class="fas fa-comments" aria-hidden="true"></i>
+        <p
+          on:click="{() => window.openExternal('https://fedora.im')}"
+          title="https://fedora.im"
+          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
+          General questions (bridged with Discord & IRC): Join #podman-desktop on Matrix
+        </p>
+      </li>
+      <li class="pb-2">
+        <i class="fas fa-comments" aria-hidden="true"></i>
+        <p
+          on:click="{() => window.openExternal('https://slack.k8s.io/')}"
+          title="https://slack.k8s.io/"
+          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
+          Kubernetes questions: Join #podman-desktop on the Kubernetes Slack
         </p>
       </li>
     </ul>
