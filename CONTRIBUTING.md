@@ -53,7 +53,9 @@ This section describes how to start a contribution to Podman Desktop.
 Requirements: 
 * [Node.js 16+](https://nodejs.org/en/)
 * [yarn](https://yarnpkg.com/)
-* [flatpak-builder](https://docs.flatpak.org/en/latest/first-build.html) to build the binaries on Linux
+
+Optional Linux Requirements:
+* [flatpak-builder](https://docs.flatpak.org/en/latest/first-build.html) to build the flatpak binary on Linux
 
 
 You can develop on either: `Windows`, `macOS` or `Linux`.
