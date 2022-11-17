@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[4121],{8070:e=>{e.exports=JSON.parse('[{"label":"podman-desktop","permalink":"/docs/tags/podman-desktop","count":1},{"label":"getting-started","permalink":"/docs/tags/getting-started","count":1}]')}}]);
