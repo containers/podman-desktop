@@ -39,8 +39,15 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/containers/podman-desktop/tree/main/website',
         },
-        // disable for now the blog posts
-        blog: false,
+        blog: {
+          blogTitle: 'Podman Desktop blog!',
+          blogDescription: 'Discover articles about Podman Desktop',
+          postsPerPage: 'ALL',
+          feedOptions: {
+            type: 'all',
+            copyright: `Copyright © ${new Date().getFullYear()} Podman Desktop`,
+          },
+        },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -74,7 +81,7 @@ const config = {
           { to: '/features', label: 'Features', position: 'left' },
           { to: '/downloads', label: 'Downloads', position: 'left' },
           { to: '/extend', label: 'Extend', position: 'left' },
-          /*{to: '/blog', label: 'Blog', position: 'left'},*/
+          { to: '/blog', label: 'Blog', position: 'left' },
           {
             href: 'https://github.com/containers/podman-desktop',
             className: 'header-github-link',
@@ -100,10 +107,10 @@ const config = {
           {
             title: 'Links',
             items: [
-              /*{
+              {
                 label: 'Blog',
                 to: '/blog',
-              },*/
+              },
               {
                 label: 'GitHub',
                 href: 'https://github.com/containers/podman-desktop',
@@ -136,6 +143,7 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
+        additionalLanguages: ['docker'],
       },
       algolia: {
         // The application ID provided by Algolia
