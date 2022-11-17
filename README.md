@@ -85,9 +85,19 @@ For all bug and feature requests please [file a GitHub issue](https://github.com
 
 Discussions are done using [Github Discussions](https://github.com/containers/podman-desktop/discussions/).
 
-Join [#podman-desktop](https://app.slack.com/client/T09NY5SBT/C04A0L7LUFM) on the [Kubernetes Slack](https://slack.k8s.io/).
+### Chatting
 
-Hangout with us on [Discord](https://discordapp.com/invite/TCTB38RWpf)
+General questions & development:
+
+* [#general on Discord](https://discordapp.com/invite/TCTB38RWpf)
+* [#podman-desktop@libera.chat on IRC](https://libera.chat/)
+* [#podman-desktop@fedora.im on Matrix](https://fedora.im)
+
+Note: All channels are bridged. Chat on either: Discord, IRC or Matrix!
+
+Kubernetes questions & development:
+
+* [#podman-desktop](https://app.slack.com/client/T09NY5SBT/C04A0L7LUFM) on the [Kubernetes Slack](https://slack.k8s.io/)
 
 ## Code of Conduct
 

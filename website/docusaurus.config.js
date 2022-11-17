@@ -109,12 +109,20 @@ const config = {
                 href: 'https://github.com/containers/podman-desktop',
               },
               {
-                label: 'Join #podman-desktop on the Kubernetes Slack',
-                href: 'https://slack.k8s.io/',
+                label: 'General chat (bridged): #general on Discord',
+                href: 'https://discordapp.com/invite/TCTB38RWpf',
               },
               {
-                label: 'Hang out with us on Discord',
-                href: 'https://discordapp.com/invite/TCTB38RWpf',
+                label: 'General chat (bridged): #podman-desktop@libera.chat on IRC',
+                href: 'https://libera.chat',
+              },
+              {
+                label: 'General chat (bridged): #podman-desktop@fedora.im on Matrix',
+                href: 'https://fedora.im',
+              },
+              {
+                label: 'Kubernetes chat: Join #podman-desktop on the Kubernetes Slack',
+                href: 'https://slack.k8s.io/',
               },
               {
                 label: 'Podman Desktop Planning & Roadmap',
