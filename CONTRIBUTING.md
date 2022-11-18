@@ -59,7 +59,8 @@ Requirements:
 Optional Linux requirements:
 * [Flatpak builder, runtime, and SDK, version 22.08](https://docs.flatpak.org/en/latest/first-build.html) 
   ```sh
-  flatpak install flathub org.flatpak.Builder org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
+  flatpak remote-add --if-not-exists flathub --user https://flathub.org/repo/flathub.flatpakrepo
+  flatpak install --user flathub org.flatpak.Builder org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
   ```
 
 ### Step 1. Fork and clone Podman Desktop
