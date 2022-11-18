@@ -16,7 +16,7 @@
     "@sveltejs/vite-plugin-svelte": "^1.2.0",
     "@tsconfig/svelte": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "5.43.0",
-    "autoprefixer": "^10.4.12",
+    "autoprefixer": "^10.4.13",
     "filesize": "^8.0.7",
     "humanize-duration": "^3.27.3",
     "moment": "^2.29.4",
