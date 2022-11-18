@@ -94,7 +94,7 @@ export function LinuxDownloads(): JSX.Element {
                 <div className="dark:bg-zinc-900/50 bg-zinc-300/50 p-1 text-xl dark:text-purple-300 text-purple-700 flex flex-row">
                   <div className="w-72 truncate">
                     <FontAwesomeIcon size="xs" icon={faTerminal} className="mx-2 mt-3" />
-                    flatpak install --user flathub io.podman_desktop.PodmanDesktop
+                    flatpak install flathub io.podman_desktop.PodmanDesktop
                   </div>
                   <div>
                     <button title="Copy To Clipboard" className="mr-2 p-1">
