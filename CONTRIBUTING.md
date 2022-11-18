@@ -50,19 +50,17 @@ This section describes how to start a contribution to Podman Desktop.
 
 ### Prerequisites: Prepare your environment
 
+You can develop on either: `Windows`, `macOS` or `Linux`.
+
 Requirements: 
 * [Node.js 16+](https://nodejs.org/en/)
 * [yarn](https://yarnpkg.com/)
 
-Optional Linux Requirements:
-* [flatpak-builder](https://docs.flatpak.org/en/latest/first-build.html) 
-* Flatpak 21.08 SDK
+Optional Linux requirements:
+* [Flatpak builder, runtime, and SDK, version 22.08](https://docs.flatpak.org/en/latest/first-build.html) 
   ```sh
-  flatpak install runtime/org.freedesktop.Sdk/x86_64/21.08
+  flatpak install flathub org.flatpak.Builder org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
   ```
-
-
-You can develop on either: `Windows`, `macOS` or `Linux`.
 
 ### Step 1. Fork and clone Podman Desktop
 

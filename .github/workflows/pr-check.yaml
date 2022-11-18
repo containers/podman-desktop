@@ -100,7 +100,7 @@ jobs:
           sudo apt-get install flatpak-builder -y
           sudo apt-get install elfutils -y
           flatpak remote-add --if-not-exists flathub --user https://flathub.org/repo/flathub.flatpakrepo
-          flatpak install flathub --user -y org.freedesktop.Platform/x86_64/21.08
+          flatpak install flathub --user -y org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
 
       - name: Run Build
         timeout-minutes: 20
