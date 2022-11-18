@@ -54,6 +54,13 @@ Requirements:
 * [Node.js 16+](https://nodejs.org/en/)
 * [yarn](https://yarnpkg.com/)
 
+Optional Linux Requirements:
+* [flatpak-builder](https://docs.flatpak.org/en/latest/first-build.html) 
+* Flatpak 21.08 SDK
+  ```sh
+  flatpak install runtime/org.freedesktop.Sdk/x86_64/21.08
+  ```
+
 
 You can develop on either: `Windows`, `macOS` or `Linux`.
 
