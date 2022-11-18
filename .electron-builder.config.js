@@ -93,7 +93,7 @@ const config = {
     ],
     useWaylandFlags: 'false',
     artifactName: 'podman-desktop-${version}.${ext}',
-    runtimeVersion: '21.08',
+    runtimeVersion: '22.08',
     branch: 'main',
     files: [
       ['.flatpak-appdata.xml', '/share/metainfo/io.podman_desktop.PodmanDesktop.metainfo.xml'],
