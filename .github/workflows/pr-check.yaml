@@ -200,4 +200,4 @@ jobs:
         run: yarn format:check
 
       - name: Run unit tests
-        run: yarn test:main
+        run: yarn test

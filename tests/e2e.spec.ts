@@ -1,7 +1,6 @@
 import type { ElectronApplication } from 'playwright';
 import { _electron as electron } from 'playwright';
 import { afterAll, beforeAll, expect, test } from 'vitest';
-import '../packages/preload/exposedInMainWorld.d.ts';
 
 let electronApp: ElectronApplication;
 
