@@ -85,7 +85,7 @@ const config = {
       // Read/write home directory access
       '--filesystem=home',
       // Read podman socket
-      '--filesystem=xdg-run/podman',
+      '--filesystem=xdg-run/podman:create',
       // Allow communication with network
       '--share=network',
       // System notifications with libnotify
