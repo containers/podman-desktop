@@ -92,6 +92,7 @@ export class ExtensionLoader {
       publisher: extension.manifest.publisher,
       state: this.activatedExtensions.get(extension.id) ? 'active' : 'inactive',
       id: extension.id,
+      path: extension.path,
     }));
   }
 
