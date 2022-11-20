@@ -23,4 +23,5 @@ export interface ExtensionInfo {
   publisher: string;
   version: string;
   state: string;
+  path: string;
 }
