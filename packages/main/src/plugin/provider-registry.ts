@@ -113,6 +113,10 @@ export class ProviderRegistry {
     if (providerOptions.version) {
       trackOpts.version = providerOptions.version;
     }
+    providerImpl.onDidUpdateProxy(() => {
+      this.listeners.forEach(listener => listener('provider:update-proxy', this.getProviderInfo(providerImpl)));
+    });
+
     this.telemetryService.track('createProvider', trackOpts);
     this.apiSender.send('provider-create', id);
     return providerImpl;
@@ -255,6 +259,7 @@ export class ProviderRegistry {
   async updateProxySettings(providerId: string, proxy: ProviderProxySettings): Promise<void> {
     const provider = this.getMatchingProvider(providerId);
     provider.updateProxy(proxy);
+    this.listeners.forEach(listener => listener('provider:update-proxy', this.getProviderInfo(provider)));
   }
 
   async getProviderDetectionChecks(providerInternalId: string): Promise<ProviderDetectionCheck[]> {
