@@ -331,7 +331,7 @@ function toggleAllContainerGroups(value: boolean) {
               bind:checked="{selectedAllCheckboxes}"
               on:click="{event => toggleAllContainerGroups(event.currentTarget.checked)}"
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
-          <th class="text-center font-extrabold w-10 pr-2">Status</th>
+          <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
           <th class="text-center">started</th>
           <th class="text-right pr-2">actions</th>
@@ -362,7 +362,7 @@ function toggleAllContainerGroups(value: boolean) {
               <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
                 <ContainerGroupIcon type="{containerGroup.type}" containers="{containerGroup.containers}" />
               </td>
-              <td class="whitespace-nowrap hover:cursor-pointer {!containerGroup.expanded ? 'rounded-br-lg' : ''}">
+              <td class="whitespace-nowrap hover:cursor-pointer">
                 <div class="flex items-center text-sm text-gray-200 overflow-hidden text-ellipsis">
                   <div class="flex flex-col flex-nowrap">
                     <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{containerGroup.type}">
@@ -379,14 +379,15 @@ function toggleAllContainerGroups(value: boolean) {
                   <div class="ml-2 text-sm text-gray-400"></div>
                 </div>
               </td>
-              <td class="px-6 whitespace-nowrap">
-                <div class="flex flex-row justify-end opacity-0 group-hover:opacity-100">
-                  <!-- Only show POD actions if the container group is POD, otherwise keep blank / empty (for future compose implementation) -->
-                  {#if containerGroup.type === ContainerGroupInfoTypeUI.POD}
-                    <PodActions
-                      pod="{{ id: containerGroup.id, name: containerGroup.name, engineId: containerGroup.engineId }}" />
-                  {/if}
-                </div>
+              <td
+                class="pl-6 text-right whitespace-nowrap rounded-tr-lg"
+                class:rounded-br-lg="{!containerGroup.expanded}">
+                <!-- Only show POD actions if the container group is POD, otherwise keep blank / empty (for future compose implementation) -->
+                {#if containerGroup.type === ContainerGroupInfoTypeUI.POD}
+                  <PodActions
+                    pod="{{ id: containerGroup.id, name: containerGroup.name, engineId: containerGroup.engineId }}"
+                    dropdownMenu="{true}" />
+                {/if}
               </td>
             </tr>
           {/if}
