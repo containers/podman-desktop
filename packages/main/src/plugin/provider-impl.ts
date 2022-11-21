@@ -99,6 +99,8 @@ export class ProviderImpl implements Provider, IDisposable {
 
   registerProxy(proxySettings: ProviderProxySettings): Disposable {
     this.proxySettings = proxySettings;
+    this._onDidUpdateProxy.fire(proxySettings);
+
     return Disposable.create(() => {
       this.proxySettings = undefined;
     });
