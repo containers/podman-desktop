@@ -141,7 +141,7 @@ let pushLogsXtermDiv: HTMLDivElement;
             <h3 class="text-xl font-medium text-gray-900 dark:text-white">Pushing image</h3>
 
             <div>
-              <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
                 >Image Tag</label>
               <select
                 class="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"

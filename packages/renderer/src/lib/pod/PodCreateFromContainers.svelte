@@ -127,7 +127,7 @@ onDestroy(() => {
         <div class="">
           <label
             for="podName"
-            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-900 dark:text-gray-300"
+            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300 dark:text-gray-300"
             >Name of the pod:
             <input
               name="podName"
@@ -142,7 +142,7 @@ onDestroy(() => {
         <div class="">
           <label
             for="podName"
-            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-900 dark:text-gray-300"
+            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300 dark:text-gray-300"
             >Containers to replicate to the pod:
 
             <table>
@@ -162,7 +162,7 @@ onDestroy(() => {
         {#if providerConnections.length > 1}
           <label
             for="providerConnectionName"
-            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-900 dark:text-gray-300"
+            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300 dark:text-gray-300"
             >Container Engine
             <select
               class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"

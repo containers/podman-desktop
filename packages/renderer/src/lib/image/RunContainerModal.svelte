@@ -131,7 +131,7 @@ async function startContainer() {
               </h3>
 
               <div>
-                <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
                   >Container Name</label>
                 <input
                   type="text"
@@ -145,7 +145,7 @@ async function startContainer() {
                 <label
                   for="modalContainerName"
                   class:hidden="{exposedPorts.length === 0}"
-                  class="pt-6 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Port Mapping</label>
+                  class="pt-6 block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300">Port Mapping</label>
                 {#each exposedPorts as port, index}
                   <div class="flex flex-row justify-center items-center w-full">
                     <span class="flex-1 inline-block align-middle whitespace-nowrap">Local port for {port}:</span>
