@@ -4,7 +4,6 @@ import { filtered, searchPattern } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
-import type { PodInfoUI } from '../pod/PodInfoUI';
 import { router } from 'tinro';
 import { ContainerGroupInfoTypeUI, ContainerGroupInfoUI, ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
@@ -333,7 +332,8 @@ function toggleAllContainerGroups(value: boolean) {
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
-          <th class="text-center">started</th>
+          <th>Image</th>
+          <th class="pl-4">Age</th>
           <th class="text-right pr-2">actions</th>
         </tr>
       </thead>
@@ -379,6 +379,11 @@ function toggleAllContainerGroups(value: boolean) {
                   <div class="ml-2 text-sm text-gray-400"></div>
                 </div>
               </td>
+              <td class="whitespace-nowrap pl-4">
+                <div class="flex items-center">
+                  <div class="text-sm text-gray-400"></div>
+                </div>
+              </td>
               <td
                 class="pl-6 text-right whitespace-nowrap rounded-tr-lg"
                 class:rounded-br-lg="{!containerGroup.expanded}">
@@ -417,11 +422,6 @@ function toggleAllContainerGroups(value: boolean) {
                         <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{container.name}">
                           {container.name}
                         </div>
-                        <div
-                          class="pl-2 text-sm text-violet-400 overflow-hidden text-ellipsis"
-                          title="{container.image}">
-                          {container.image}
-                        </div>
                       </div>
                       <div class="flex flex-row text-xs font-extra-light text-gray-500">
                         <div>{container.state}</div>
@@ -437,9 +437,16 @@ function toggleAllContainerGroups(value: boolean) {
                     </div>
                   </div>
                 </td>
-                <td class="px-6 py-2 whitespace-nowrap w-10">
+                <!-- Open the container details, TODO: open image details instead? -->
+                <td class="whitespace-nowrap hover:cursor-pointer" on:click="{() => openDetailsContainer(container)}">
                   <div class="flex items-center">
-                    <div class="ml-2 text-sm text-gray-400">{container.uptime}</div>
+                    <div class="text-sm text-violet-400 overflow-hidden text-ellipsis" title="{container.image}">
+                      {container.image}
+                    </div>
+                  </div></td>
+                <td class="whitespace-nowrap pl-4">
+                  <div class="flex items-center">
+                    <div class="text-sm text-gray-400">{container.uptime}</div>
                   </div>
                 </td>
                 <td

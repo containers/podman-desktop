@@ -44,7 +44,7 @@ export class ContainerUtils {
     }
 
     // make it human friendly
-    return `${this.humanizeUptime(containerInfo.StartedAt)} ago`;
+    return this.humanizeUptime(containerInfo.StartedAt);
   }
 
   humanizeUptime(started: string): string {
@@ -59,7 +59,7 @@ export class ContainerUtils {
       return '';
     }
     // make it human friendly
-    return `${this.humanizeUptime(containerInfoUI.startedAt)} ago`;
+    return this.humanizeUptime(containerInfoUI.startedAt);
   }
 
   getImage(containerInfo: ContainerInfo): string {
