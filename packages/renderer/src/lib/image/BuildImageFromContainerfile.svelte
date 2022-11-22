@@ -173,7 +173,7 @@ async function initTerminal() {
           {#if providerConnections.length > 1}
             <label
               for="providerConnectionName"
-              class="py-6 block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              class="py-6 block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
               >Container Engine
               <select
                 class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
