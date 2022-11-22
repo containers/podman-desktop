@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import DropdownMenuItem from './DropDownMenuItem.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 
 export let title: string;
@@ -12,13 +13,12 @@ export let menu: boolean = false;
 
 <!-- If menu = true, use the menu, otherwise implement the button -->
 {#if menu}
-  <!-- Use a div + onclick so there's no "blind spots" for when clicking-->
-  <div class="p-3 hover:text-violet-600 text-gray-300 hover:cursor-pointer" role="none" on:click="{onClick}">
-    <span title="{title}" class="group flex items-center text-sm no-underline" tabindex="-1">
-      <Fa class="h-4 w-4 text-md mr-2" icon="{icon}" />
-      {title}
-    </span>
-  </div>
+  <DropdownMenuItem
+    title="{title}"
+    icon="{icon}"
+    hidden="{hidden}"
+    onClick="{onClick}"
+    backgroundColor="{backgroundColor}" />
 {:else}
   <button
     title="{title}"

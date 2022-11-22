@@ -24,6 +24,7 @@ import type { Telemetry } from './telemetry/telemetry';
 import * as crypto from 'node:crypto';
 import got from 'got';
 import { RequestError } from 'got';
+import validator from 'validator';
 
 export interface RegistryAuthInfo {
   authUrl: string;
@@ -181,13 +182,16 @@ export class ImageRegistry {
     return this.registerRegistry(registry);
   }
 
-  updateRegistry(registry: containerDesktopAPI.Registry): void {
+  async updateRegistry(registry: containerDesktopAPI.Registry): Promise<void> {
     const matchingRegistry = this.registries.find(
-      existringRegistry =>
-        registry.serverUrl === existringRegistry.serverUrl && registry.source === existringRegistry.source,
+      existingRegistry =>
+        registry.serverUrl === existingRegistry.serverUrl && registry.source === existingRegistry.source,
     );
     if (!matchingRegistry) {
       throw new Error(`Registry ${registry.serverUrl} was not found`);
+    }
+    if (matchingRegistry.username !== registry.username || matchingRegistry.secret !== registry.secret) {
+      await this.checkCredentials(matchingRegistry.serverUrl, registry.username, registry.secret);
     }
     matchingRegistry.username = registry.username;
     matchingRegistry.secret = registry.secret;
@@ -258,14 +262,29 @@ export class ImageRegistry {
     }
 
     if (authUrl === undefined) {
-      throw Error('Not a valid registry');
+      throw Error('Not a valid registry.');
     }
 
     return { authUrl, scheme };
   }
 
   async checkCredentials(serviceUrl: string, username: string, password: string): Promise<void> {
+    if (serviceUrl === undefined || !validator.isURL(serviceUrl)) {
+      throw Error(
+        'The format of the Registry Location is incorrect.\nPlease use the format "registry.location.com" and try again.',
+      );
+    }
+
+    if (!username) {
+      throw Error('Username should not be empty.');
+    }
+
+    if (!password) {
+      throw Error('Password should not be empty.');
+    }
+
     const { authUrl, scheme } = await this.getAuthInfo(serviceUrl);
+
     if (authUrl !== undefined) {
       await this.doCheckCredentials(scheme, authUrl, username, password);
     }
@@ -289,7 +308,7 @@ export class ImageRegistry {
         requestErr instanceof RequestError &&
         (requestErr.response?.statusCode === 401 || requestErr.response?.statusCode === 403)
       ) {
-        throw Error('Wrong Username or Password');
+        throw Error('Wrong Username or Password.');
       } else if (requestErr instanceof Error) {
         throw Error(requestErr.message);
       }
@@ -299,8 +318,8 @@ export class ImageRegistry {
     if (scheme === 'basic') {
       return;
     }
-    if (rawResponse !== undefined && !rawResponse.includes('token')) {
-      throw Error('Unable to validate provided credentials');
+    if (!rawResponse?.includes('token')) {
+      throw Error('Unable to validate provided credentials.');
     }
   }
 }
