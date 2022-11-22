@@ -76,6 +76,7 @@ import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '
 import type { V1Route } from './api/openshift-types';
 import type { NetworkInspectInfo } from './api/network-info';
 import { FilesystemMonitoring } from './filesystem-monitoring';
+import { Certificates } from './certificates';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -204,9 +205,12 @@ export class PluginSystem {
     await telemetry.init();
 
     const commandRegistry = new CommandRegistry();
-    const imageRegistry = new ImageRegistry(apiSender, telemetry);
+    const certificates = new Certificates();
+    await certificates.init();
+    const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates);
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
+    providerRegistry.addProviderListener(imageRegistry.getProviderListener());
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
