@@ -11,7 +11,7 @@ import PreferencesRendering from './PreferencesRendering.svelte';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
 import PreferencesProviderRendering from './PreferencesProviderRendering.svelte';
 import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
-import PreferencesRegistriesRendering from './PreferencesRegistriesRendering.svelte';
+import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
 import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
 import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
 import NavPage from '../ui/NavPage.svelte';
@@ -54,7 +54,7 @@ onMount(async () => {
       <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
     </Route>
     <Route path="/registries">
-      <PreferencesRegistriesRendering />
+      <PreferencesRegistriesEditing />
     </Route>
     <Route path="/proxies">
       <PreferencesProxiesRendering />
