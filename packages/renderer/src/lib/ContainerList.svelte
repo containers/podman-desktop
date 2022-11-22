@@ -415,11 +415,15 @@ function toggleAllContainerGroups(value: boolean) {
                 <td class="flex flex-row justify-center h-12">
                   <ContainerIcon state="{container.state}" />
                 </td>
-                <td class="whitespace-nowrap hover:cursor-pointer" on:click="{() => openDetailsContainer(container)}">
+                <td
+                  class="whitespace-nowrap hover:cursor-pointer group"
+                  on:click="{() => openDetailsContainer(container)}">
                   <div class="flex items-center">
                     <div class="">
                       <div class="flex flex-nowrap">
-                        <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{container.name}">
+                        <div
+                          class="text-sm text-gray-200 overflow-hidden text-ellipsis group-hover:text-violet-400"
+                          title="{container.name}">
                           {container.name}
                         </div>
                       </div>
@@ -438,9 +442,11 @@ function toggleAllContainerGroups(value: boolean) {
                   </div>
                 </td>
                 <!-- Open the container details, TODO: open image details instead? -->
-                <td class="whitespace-nowrap hover:cursor-pointer" on:click="{() => openDetailsContainer(container)}">
+                <td
+                  class="whitespace-nowrap hover:cursor-pointer group"
+                  on:click="{() => openDetailsContainer(container)}">
                   <div class="flex items-center">
-                    <div class="text-sm text-violet-400 overflow-hidden text-ellipsis" title="{container.image}">
+                    <div class="text-sm text-gray-400 overflow-hidden text-ellipsis" title="{container.image}">
                       {container.image}
                     </div>
                   </div></td>
