@@ -22,9 +22,13 @@ import { Emitter } from './events/emitter';
 import type * as Dockerode from 'dockerode';
 import type { Telemetry } from './telemetry/telemetry';
 import * as crypto from 'node:crypto';
-import got from 'got';
+import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
+import got, { HTTPError } from 'got';
 import { RequestError } from 'got';
 import validator from 'validator';
+import type { ProviderInfo } from './api/provider-info';
+import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
+import type { Certificates } from './certificates';
 
 export interface RegistryAuthInfo {
   authUrl: string;
@@ -48,8 +52,10 @@ export class ImageRegistry {
   readonly onDidUnregisterRegistry: containerDesktopAPI.Event<containerDesktopAPI.Registry> =
     this._onDidUnregisterRegistry.event;
 
+  private proxySettings: containerDesktopAPI.ProviderProxySettings | undefined;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any, private telemetryService: Telemetry) {}
+  constructor(private apiSender: any, private telemetryService: Telemetry, private certificates: Certificates) {}
 
   extractRegistryServerFromImage(imageName: string): string | undefined {
     // check if image is a valid identifier for dockerhub
@@ -220,6 +226,58 @@ export class ImageRegistry {
     return undefined;
   }
 
+  getOptions(): OptionsOfTextResponseBody {
+    // use proxy when performing got request
+    const proxy = this.proxySettings;
+    const httpProxyUrl = proxy && proxy.httpProxy;
+    const httpsProxyUrl = proxy && proxy.httpsProxy;
+
+    const httpsOptions: HttpsOptions = {};
+    const options: OptionsOfTextResponseBody = {
+      https: httpsOptions,
+    };
+
+    if (options.https) {
+      options.https.certificateAuthority = this.certificates.getAllCertificates();
+    }
+
+    if (httpProxyUrl) {
+      if (!options.agent) {
+        options.agent = {};
+      }
+      try {
+        options.agent.http = new HttpProxyAgent({
+          keepAlive: true,
+          keepAliveMsecs: 1000,
+          maxSockets: 256,
+          maxFreeSockets: 256,
+          scheduling: 'lifo',
+          proxy: httpProxyUrl,
+        });
+      } catch (error) {
+        throw new Error(`Failed to create https proxy agent from ${httpProxyUrl}: ${error}`);
+      }
+    }
+    if (httpsProxyUrl) {
+      if (!options.agent) {
+        options.agent = {};
+      }
+      try {
+        options.agent.https = new HttpsProxyAgent({
+          keepAlive: true,
+          keepAliveMsecs: 1000,
+          maxSockets: 256,
+          maxFreeSockets: 256,
+          scheduling: 'lifo',
+          proxy: httpsProxyUrl,
+        });
+      } catch (error) {
+        throw new Error(`Failed to create https proxy agent from ${httpsProxyUrl}: ${error}`);
+      }
+    }
+    return options;
+  }
+
   async getAuthInfo(serviceUrl: string): Promise<{ authUrl: string | undefined; scheme: string }> {
     let registryUrl: string;
 
@@ -235,10 +293,11 @@ export class ImageRegistry {
 
     let authUrl: string | undefined;
     let scheme = '';
+
     try {
-      await got.get(registryUrl);
+      await got.get(registryUrl, this.getOptions());
     } catch (requestErr) {
-      if (requestErr instanceof RequestError) {
+      if (requestErr instanceof HTTPError) {
         const wwwAuthenticate = requestErr.response?.headers['www-authenticate'];
         if (wwwAuthenticate) {
           const authInfo = this.extractAuthData(wwwAuthenticate);
@@ -257,7 +316,11 @@ export class ImageRegistry {
             }
             authUrl = url.toString();
           }
+        } else {
+          throw new Error(`Unable to find auth info for ${registryUrl}. Error: ${requestErr.message}`);
         }
+      } else {
+        throw new Error(`Unable to find auth info for ${registryUrl}. Error: ${requestErr}`);
       }
     }
 
@@ -295,13 +358,12 @@ export class ImageRegistry {
     // add credentials in the header
     // encode username:password in base64
     const token = Buffer.from(`${username}:${password}`).toString('base64');
-    const headers = {
+    const options = this.getOptions();
+    options.headers = {
       Authorization: `Basic ${token}`,
     };
     try {
-      const { body } = await got.get(authUrl, {
-        headers,
-      });
+      const { body } = await got.get(authUrl, options);
       rawResponse = body;
     } catch (requestErr) {
       if (
@@ -321,5 +383,14 @@ export class ImageRegistry {
     if (!rawResponse?.includes('token')) {
       throw Error('Unable to validate provided credentials.');
     }
+  }
+
+  getProviderListener(): (name: string, providerInfo: ProviderInfo) => void {
+    return (_name: string, providerInfo: ProviderInfo) => {
+      // is there some proxy settings ?
+      if (providerInfo.proxySettings) {
+        this.proxySettings = providerInfo.proxySettings;
+      }
+    };
   }
 }
