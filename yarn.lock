@@ -3104,10 +3104,10 @@
     "@octokit/webhooks-types" "5.6.0"
     aggregate-error "^3.1.0"
 
-"@patternfly/patternfly@^4.219.2":
-  version "4.219.2"
-  resolved "https://registry.yarnpkg.com/@patternfly/patternfly/-/patternfly-4.219.2.tgz#c26160620e827f0412fb51fb71ef625043f1b617"
-  integrity sha512-SZ+9ig6DVygwM6fpldYhRjoyr9KMJTit/ZMyWCUE7DfpTqEr69wQnOaGxfvNlH1UV6G7Z+ALZXeck3Dy1nb9Vw==
+"@patternfly/patternfly@^4.221.2":
+  version "4.221.2"
+  resolved "https://registry.yarnpkg.com/@patternfly/patternfly/-/patternfly-4.221.2.tgz#cab6bae47bb5fcf658438fccd9113875fcb45392"
+  integrity sha512-4R35CKnZJY6/sN6vzYaAwkEaYWIo2IZv4y2s39ZNh4QkK1pBTWmH6URUYOxNhc5qrU9MjFNdMCNepBciM3SugQ==
 
 "@polka/url@^1.0.0-next.20":
   version "1.0.0-next.21"
