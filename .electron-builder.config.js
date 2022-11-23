@@ -86,6 +86,8 @@ const config = {
       '--filesystem=home',
       // Read podman socket
       '--filesystem=xdg-run/podman:create',
+      // Read docker socket
+      '--filesystem=/run/docker.sock',
       // Allow communication with network
       '--share=network',
       // System notifications with libnotify
