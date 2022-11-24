@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { ContainerInfoUI } from './container/ContainerInfoUI';
 import { router } from 'tinro';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
@@ -10,15 +10,16 @@ import { getPanelDetailColor } from './color/color';
 
 export let container: ContainerInfoUI;
 
+// Log
 let logsXtermDiv: HTMLDivElement;
-
 let logsContainer;
-
 // logs has been initialized
 let logsReady = false;
 let noLogs = true;
 
-let termFit;
+// Terminal resize
+let resizeObserver: ResizeObserver;
+let termFit: FitAddon;
 
 // need to refresh logs when container is switched
 $: {
@@ -106,19 +107,21 @@ function resizeTerminal() {
 }
 
 onMount(async () => {
+  // Refresh the terminal on initial load
   refreshTerminal();
-});
 
-onMount(() => {
   // Resize the terminal each time we change the div size
-  const resizeObserver = new ResizeObserver(entries => {
+  resizeObserver = new ResizeObserver(entries => {
     resizeTerminal();
   });
 
+  // Observe the terminal div
   resizeObserver.observe(logsXtermDiv);
+});
 
-  // Cleanup the observer
-  return () => resizeObserver.unobserve(logsXtermDiv);
+onDestroy(() => {
+  // Cleanup the observer on destroy
+  resizeObserver.unobserve(logsXtermDiv);
 });
 </script>
 
