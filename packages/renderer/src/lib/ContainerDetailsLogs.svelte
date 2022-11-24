@@ -18,6 +18,8 @@ let logsContainer;
 let logsReady = false;
 let noLogs = true;
 
+let termFit;
+
 // need to refresh logs when container is switched
 $: {
   if (logsContainer?.id !== container.id || logsContainer?.state != container.state) {
@@ -29,6 +31,7 @@ $: {
 let currentRouterPath: string;
 
 let logsTerminal;
+
 function callback(name: string, data: string) {
   if (name === 'first-message') {
     noLogs = false;
@@ -80,8 +83,8 @@ async function refreshTerminal() {
     },
     convertEol: true,
   });
-  const fitAddon = new FitAddon();
-  logsTerminal.loadAddon(fitAddon);
+  termFit = new FitAddon();
+  logsTerminal.loadAddon(termFit);
 
   logsTerminal.open(logsXtermDiv);
   // disable cursor
@@ -90,13 +93,32 @@ async function refreshTerminal() {
   // call fit addon each time we resize the window
   window.addEventListener('resize', () => {
     if (currentRouterPath === `/containers/${container.id}/logs`) {
-      fitAddon.fit();
+      termFit.fit();
     }
   });
-  fitAddon.fit();
+  termFit.fit();
 }
+
+function resizeTerminal() {
+  if (logsTerminal) {
+    termFit.fit();
+  }
+}
+
 onMount(async () => {
   refreshTerminal();
+});
+
+onMount(() => {
+  // Resize the terminal each time we change the div size
+  const resizeObserver = new ResizeObserver(entries => {
+    resizeTerminal();
+  });
+
+  resizeObserver.observe(logsXtermDiv);
+
+  // Cleanup the observer
+  return () => resizeObserver.unobserve(logsXtermDiv);
 });
 </script>
 
@@ -116,6 +138,7 @@ onMount(async () => {
     </div>
   </div>
 {/if}
+
 <div
   class="flex flex-col"
   style="background-color: {getPanelDetailColor()}"
