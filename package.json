@@ -93,7 +93,7 @@
     "got": "^12.5.3",
     "moment": "^2.29.4",
     "os-locale": "^6.0.2",
-    "stream-json": "^1.7.4",
+    "stream-json": "^1.7.5",
     "tar-fs": "^2.1.1"
   },
   "resolutions": {
