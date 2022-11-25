@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { ContainerInfoUI } from './container/ContainerInfoUI';
 import { router } from 'tinro';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
@@ -10,13 +10,16 @@ import { getPanelDetailColor } from './color/color';
 
 export let container: ContainerInfoUI;
 
+// Log
 let logsXtermDiv: HTMLDivElement;
-
 let logsContainer;
-
 // logs has been initialized
 let logsReady = false;
 let noLogs = true;
+
+// Terminal resize
+let resizeObserver: ResizeObserver;
+let termFit: FitAddon;
 
 // need to refresh logs when container is switched
 $: {
@@ -29,6 +32,7 @@ $: {
 let currentRouterPath: string;
 
 let logsTerminal;
+
 function callback(name: string, data: string) {
   if (name === 'first-message') {
     noLogs = false;
@@ -80,8 +84,8 @@ async function refreshTerminal() {
     },
     convertEol: true,
   });
-  const fitAddon = new FitAddon();
-  logsTerminal.loadAddon(fitAddon);
+  termFit = new FitAddon();
+  logsTerminal.loadAddon(termFit);
 
   logsTerminal.open(logsXtermDiv);
   // disable cursor
@@ -90,13 +94,28 @@ async function refreshTerminal() {
   // call fit addon each time we resize the window
   window.addEventListener('resize', () => {
     if (currentRouterPath === `/containers/${container.id}/logs`) {
-      fitAddon.fit();
+      termFit.fit();
     }
   });
-  fitAddon.fit();
+  termFit.fit();
 }
+
 onMount(async () => {
+  // Refresh the terminal on initial load
   refreshTerminal();
+
+  // Resize the terminal each time we change the div size
+  resizeObserver = new ResizeObserver(entries => {
+    termFit?.fit();
+  });
+
+  // Observe the terminal div
+  resizeObserver.observe(logsXtermDiv);
+});
+
+onDestroy(() => {
+  // Cleanup the observer on destroy
+  resizeObserver?.unobserve(logsXtermDiv);
 });
 </script>
 
@@ -116,6 +135,7 @@ onMount(async () => {
     </div>
   </div>
 {/if}
+
 <div
   class="flex flex-col"
   style="background-color: {getPanelDetailColor()}"
