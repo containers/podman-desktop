@@ -100,19 +100,13 @@ async function refreshTerminal() {
   termFit.fit();
 }
 
-function resizeTerminal() {
-  if (logsTerminal) {
-    termFit.fit();
-  }
-}
-
 onMount(async () => {
   // Refresh the terminal on initial load
   refreshTerminal();
 
   // Resize the terminal each time we change the div size
   resizeObserver = new ResizeObserver(entries => {
-    resizeTerminal();
+    termFit?.fit();
   });
 
   // Observe the terminal div
@@ -121,7 +115,7 @@ onMount(async () => {
 
 onDestroy(() => {
   // Cleanup the observer on destroy
-  resizeObserver.unobserve(logsXtermDiv);
+  resizeObserver?.unobserve(logsXtermDiv);
 });
 </script>
 
