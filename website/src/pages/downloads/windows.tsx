@@ -62,17 +62,24 @@ export function WindowsDownloads(): JSX.Element {
               Download Now
             </Link>
             <caption className="block w-full mt-1 text/50 dark:text-white/50">
-              Windows *.exe, version {downloadData.version}
+              Windows installer, version {downloadData.version}
             </caption>
           </div>
           <div className="mt-4">
-            <div>Package managers for Windows:</div>
+            <div>Other downloads for Windows:</div>
+            <Link
+              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
+              to={downloadData.binary}>
+              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+              *.exe
+            </Link>
             <Link
               className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
               to="/docs/Installation/windows-install">
               <FontAwesomeIcon size="1x" icon={faWindows} className="mr-2" />
-              Windows install guide
+              Package Managers Guide
             </Link>
+
           </div>
           <div className="flex flex-col align-middle items-center">
             <div className="items-center text-center pt-6">
