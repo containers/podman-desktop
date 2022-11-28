@@ -642,7 +642,7 @@ function Pods() {
 export default function Home(): JSX.Element {
   return (
     <Layout
-      title="Podman Desktop"
+      title="Podman Desktop - Containers and Kubernetes"
       description="Podman Desktop - An open source graphical tool for developing on containers and Kubernetes">
       <TailWindThemeSelector />
       <Hero />
