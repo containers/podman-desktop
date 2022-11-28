@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Podman Desktop
+Exec="/opt/Podman-Desktop/podman-desktop" %U
+Terminal=false
+Type=Application
+Icon=podman-desktop
+StartupWMClass=Podman Desktop
+Categories=Utility;

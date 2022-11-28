@@ -1,0 +1,91 @@
+# For automatic rebuilds in COPR
+
+# The following tag is to get correct syntax highlighting for this file in vim text editor
+# vim: syntax=spec
+
+%global pkg_name Podman-Desktop
+%global _optpkgdir /opt/%{pkg_name}
+%global _icondir %{_datadir}/icons/hicolor/512x512/apps
+
+%if 0%{?rhel} || 0%{?fedora} <= 37
+%global debug_package %{nil}
+%endif
+
+Name: {{{ git_dir_name }}}
+Epoch: 101
+Version: {{{ git_dir_version }}}
+Release: 1%{?dist}
+Summary: Manage Pods, Containers and Container Images
+License: ASL 2.0
+URL: https://github.com/containers/podman-desktop
+VCS: {{{ git_dir_vcs }}}
+Source: {{{ git_dir_pack }}}
+BuildRequires: python3-devel
+BuildRequires: gcc-c++
+BuildRequires: git-core
+BuildRequires: make
+BuildRequires: npm
+BuildRequires: yarnpkg
+BuildRequires: libglvnd-devel
+Requires: vulkan-loader
+Requires: python3
+ExclusiveArch: x86_64
+
+# More detailed description of the package
+%description
+Podman Desktop is a graphical interface that enables application developers
+to seamlessly work with containers and Kubernetes.
+
+Podman Desktop installs, configures and keeps Podman up to date on your
+local environment. It provides a system tray, to check status and interact
+with your container engine without losing focus from other tasks.
+The desktop application provides a dashboard to interact with containers,
+images, pods and volumes but also configures your environment with your OCI
+registries and network settings. Podman Desktop also provides capabilities
+to connect and deploy pods to Kubernetes environments.
+
+Podman Desktop also supports multiple container engines, pick your favourite
+one and use the tool!
+
+%prep
+{{{ git_dir_setup_macro }}}
+
+%build
+sed -i "/target: \['flatpak'/d" .electron-builder.config.js
+
+yarn install
+yarn compile:current
+
+rm -f dist/linux-unpacked/resources/app.asar.unpacked/node_modules/ssh2/lib/protocol/crypto/build/node_gyp_bins/python3
+rm -f dist/linux-unpacked/resources/app.asar.unpacked/node_modules/cpu-features/build/node_gyp_bins/python3
+
+%install
+# install everything to /opt/%%{pkg_name}
+install -dp %{buildroot}%{_optpkgdir}
+cp -Rp dist/linux-unpacked/* %{buildroot}%{_optpkgdir}
+
+# install icon
+install -dp %{buildroot}%{_icondir}
+install -Dp -m0755 buildResources/icon-512x512.png %{buildroot}%{_icondir}/%{name}.png
+
+# install desktop file
+install -dp %{buildroot}%{_datadir}/applications
+install -Dp -m0755 .copr-rpm.%{name}.desktop %{buildroot}%{_datadir}/applications/%{name}.desktop
+
+# symlink main binary to /usr/bin
+install -dp %{buildroot}%{_bindir}
+ln -s %{_optpkgdir}/%{name} %{buildroot}%{_bindir}/%{name}
+
+%files
+%license LICENSE
+%doc CODE-OF-CONDUCT.md CONTRIBUTING.md README.md SECURITY.md
+%{_bindir}/%{name}
+%dir %{_optpkgdir}
+%{_optpkgdir}/*
+%dir %{_icondir}
+%{_icondir}/%{name}.png
+%dir %{_datadir}/applications
+%{_datadir}/applications/%{name}.desktop
+
+%changelog
+{{{ git_dir_changelog }}}
