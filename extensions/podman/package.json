@@ -82,7 +82,9 @@
   "dependencies": {
     "@ltd/j-toml": "^1.35.2",
     "@tmpwip/extension-api": "^0.0.1",
-    "compare-versions": "^5.0.1"
+    "compare-versions": "^5.0.1",
+    "has-ansi": "^5.0.1",
+    "strip-ansi": "^7.0.1"
   },
   "devDependencies": {
     "7zip-min": "^1.4.3",

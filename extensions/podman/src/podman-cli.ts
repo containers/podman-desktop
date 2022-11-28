@@ -20,6 +20,9 @@ import { spawn } from 'node:child_process';
 import type * as extensionApi from '@tmpwip/extension-api';
 import { isMac, isWindows } from './util';
 
+import hasAnsi from 'has-ansi';
+import stripAnsi from 'strip-ansi';
+
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
 export function getInstallationPath(): string {
@@ -80,13 +83,15 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
     });
     process.stdout.setEncoding('utf8');
     process.stdout.on('data', data => {
-      stdOut += data;
-      options?.logger?.log(data);
+      const cleanData = sanitizeOutput(data);
+      stdOut += cleanData;
+      options?.logger?.log(cleanData);
     });
     process.stderr.setEncoding('utf8');
     process.stderr.on('data', data => {
-      stdErr += data;
-      options?.logger?.error(data);
+      const cleanData = sanitizeOutput(data);
+      stdErr += cleanData;
+      options?.logger?.error(cleanData);
     });
 
     process.on('close', exitCode => {
@@ -104,6 +109,15 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
       resolve(stdOut.trim());
     });
   });
+}
+
+// check and remove ANSI escape characters if any
+function sanitizeOutput(text: string): string {
+  if(hasAnsi(text)){
+    return stripAnsi(text);
+  }
+
+  return text;
 }
 
 export interface InstalledPodman {
