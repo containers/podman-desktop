@@ -79,7 +79,6 @@ export function WindowsDownloads(): JSX.Element {
               <FontAwesomeIcon size="1x" icon={faWindows} className="mr-2" />
               Package Managers Guide
             </Link>
-
           </div>
           <div className="flex flex-col align-middle items-center">
             <div className="items-center text-center pt-6">
