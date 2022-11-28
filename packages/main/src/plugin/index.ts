@@ -20,6 +20,7 @@
  * @module preload
  */
 import * as os from 'node:os';
+import * as path from 'path';
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { CommandRegistry } from './command-registry';
 import { ContainerProviderRegistry } from './container-registry';
@@ -76,6 +77,7 @@ import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '
 import type { V1Route } from './api/openshift-types';
 import type { NetworkInspectInfo } from './api/network-info';
 import { FilesystemMonitoring } from './filesystem-monitoring';
+import { Certificates } from './certificates';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -84,6 +86,10 @@ export class PluginSystem {
 
   // notified when UI is dom-ready
   private uiReady = false;
+
+  // The yet to be init ExtensionLoader
+  private extensionLoader!: ExtensionLoader;
+  private validExtList!: ExtensionInfo[];
 
   constructor(private trayMenu: TrayMenu) {}
 
@@ -120,12 +126,53 @@ export class PluginSystem {
     });
   }
 
+  // Create an Error to access stack trace
+  // Match a regex for the file name and return it
+  // return nothing if file name not found
+  async getExtName() {
+    //Create an error for its stack property
+    const stack = new Error().stack;
+    //Create a map for extension path => extension name
+    const extensions: Map<string, string> = new Map();
+
+    //Check if index.ts private member extensionLoader initialized
+    //If it is grab listExtensions()
+    if (!this.extensionLoader) return;
+
+    const currentExtList = await this.extensionLoader.listExtensions();
+
+    //Only loop through if list of extensions is different than last time
+    if (this.validExtList != currentExtList) {
+      this.validExtList = currentExtList;
+      //start setting path => name
+      this.validExtList.forEach((extInfo: ExtensionInfo) => {
+        extensions.set(extInfo.path, extInfo.name);
+      });
+    }
+
+    if (extensions.size > 0 && stack) {
+      let toAppend = '';
+      extensions.forEach((name, extPath) => {
+        extPath = path.normalize(extPath);
+
+        if (stack.includes(extPath)) toAppend = name;
+      });
+
+      if (toAppend != '') return `[${toAppend}]`;
+    }
+    return;
+  }
+
   // log locally and also send it to the renderer process
   // so client can see logs in the developer console
   redirectConsole(logType: LogType): void {
     // keep original method
     const originalConsoleMethod = console[logType];
-    console[logType] = (...args) => {
+    console[logType] = async (...args) => {
+      const extName = await this.getExtName();
+
+      if (extName) args.unshift(extName);
+
       // still display as before by invoking original method
       originalConsoleMethod(...args);
 
@@ -204,9 +251,12 @@ export class PluginSystem {
     await telemetry.init();
 
     const commandRegistry = new CommandRegistry();
-    const imageRegistry = new ImageRegistry(apiSender, telemetry);
+    const certificates = new Certificates();
+    await certificates.init();
+    const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates);
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
+    providerRegistry.addProviderListener(imageRegistry.getProviderListener());
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
@@ -233,7 +283,7 @@ export class PluginSystem {
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
 
-    const extensionLoader = new ExtensionLoader(
+    this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       providerRegistry,
       configurationRegistry,
@@ -733,19 +783,19 @@ export class PluginSystem {
     });
 
     this.ipcHandle('extension-loader:listExtensions', async (): Promise<ExtensionInfo[]> => {
-      return extensionLoader.listExtensions();
+      return this.extensionLoader.listExtensions();
     });
 
     this.ipcHandle(
       'extension-loader:deactivateExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
-        return extensionLoader.deactivateExtension(extensionId);
+        return this.extensionLoader.deactivateExtension(extensionId);
       },
     );
     this.ipcHandle(
       'extension-loader:startExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
-        return extensionLoader.startExtension(extensionId);
+        return this.extensionLoader.startExtension(extensionId);
       },
     );
 
@@ -898,13 +948,11 @@ export class PluginSystem {
 
     await contributionManager.init();
 
-    await extensionLoader.start();
+    await this.extensionLoader.start();
     this.isReady = true;
     console.log('PluginSystem: initialization done.');
     apiSender.send('extension-system', `${this.isReady}`);
-
     autoStartConfiguration.start();
-
-    return extensionLoader;
+    return this.extensionLoader;
   }
 }
