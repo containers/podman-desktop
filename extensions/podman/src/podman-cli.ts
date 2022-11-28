@@ -113,7 +113,7 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
 
 // check and remove ANSI escape characters if any
 function sanitizeOutput(text: string): string {
-  if(hasAnsi(text)){
+  if (hasAnsi(text)) {
     return stripAnsi(text);
   }
 
