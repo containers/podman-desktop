@@ -62,6 +62,9 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
       env = Object.assign(env, options.env);
     }
 
+    // Escape any whitespaces in command
+    command = command.replace(/(\s+)/g, '\\$1');
+
     const spawnProcess = spawn(command, args, { shell: isWindows, env });
     spawnProcess.on('error', err => {
       reject(err);
