@@ -80,7 +80,7 @@ async function initializeProvider() {
       <div class="flex mt-2 flex-col">
         <div>Error:</div>
         <div class="my-2">
-          <p class="text-sm text-red-500">{initalizeError}</p>
+          <p class="text-sm text-red-500" style="white-space: pre;">{initalizeError}</p>
         </div>
       </div>
     {/if}
