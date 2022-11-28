@@ -104,12 +104,7 @@ function Hero() {
               Containers and Kubernetes for application developers
             </h1>
             <p className="text-base md:text-lg">
-              Podman Desktop enables you to easily work with containers from your local environment. Podman Desktop
-              leverages{' '}
-              <a href="https://podman.io/" className="text-purple-700 dark:text-purple-400" target="_blank">
-                Podman Engine
-              </a>{' '}
-              to provide a lightweight and daemon-less container tool.
+              Podman Desktop is an Open Source graphical tool enabling you to seamlessly work with containers and Kubernetes from your local environment.
             </p>
             <div className="flex-none">
               {/* With client mode, provides the link to the client browser */}
@@ -646,7 +641,7 @@ function Pods() {
 export default function Home(): JSX.Element {
   return (
     <Layout
-      title="Leverage Podman with a Desktop App"
+      title="Podman Desktop - A graphical tool for developing on containers and Kubernetes"
       description="Containers and Kubernetes for application developers">
       <TailWindThemeSelector />
       <Hero />
