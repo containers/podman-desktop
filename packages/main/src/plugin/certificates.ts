@@ -21,6 +21,7 @@ import { spawnWithPromise } from './util/spawn-promise';
 import * as https from 'node:https';
 import * as tls from 'node:tls';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 import wincaAPI from 'win-ca/api';
 
 /**
@@ -77,6 +78,11 @@ export class Certificates {
     const winCaRetrieval = new Promise<string[]>(resolve => {
       const CAs: string[] = [];
 
+      if (import.meta.env.PROD) {
+        const rootExePath = path.join(process.resourcesPath, 'win-ca', 'roots.exe');
+        wincaAPI.exe(rootExePath);
+      }
+
       wincaAPI({
         format: wincaAPI.der2.pem,
         inject: false,
@@ -89,10 +95,16 @@ export class Certificates {
       });
     });
 
-    const result = await winCaRetrieval;
-    // also do the patch on tls.createSecureContext()
-    wincaAPI.inject('+');
-    return result;
+    try {
+      const result = await winCaRetrieval;
+      // also do the patch on tls.createSecureContext()
+      wincaAPI.inject('+');
+      return result;
+    } catch (error) {
+      console.error('Error while retrieving Windows certificates', error);
+      // return default root certificates
+      return [...tls.rootCertificates];
+    }
   }
 
   // grab the certificates from the Linux certificate store
