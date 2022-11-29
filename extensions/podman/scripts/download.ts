@@ -92,7 +92,7 @@ async function downloadAndCheckSha(tagVersion: string, fileName: string, artifac
   }
   if (!msiSha) {
     console.error(`Can't find SHA256 sum for ${artifactName} in:\n${shaFileContent}`);
-    return;
+    process.exit(1);
   }
 
   const destDir = path.resolve(__dirname, '..', 'assets');
