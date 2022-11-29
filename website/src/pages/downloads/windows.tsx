@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMicrosoft, faWindows } from '@fortawesome/free-brands-svg-icons';
 import { faDownload, faPaste, faTerminal } from '@fortawesome/free-solid-svg-icons';
 
-async function grabfilenameforMac(
+async function grabfilenameforWindows(
   setDownloadData: React.Dispatch<SetStateAction<{ version: string; binary: string; setup: string }>>,
 ): Promise<void> {
   const result = await fetch('https://api.github.com/repos/containers/podman-desktop/releases/latest');
@@ -44,7 +44,7 @@ export function WindowsDownloads(): JSX.Element {
   };
 
   useEffect(() => {
-    grabfilenameforMac(setDownloadData);
+    grabfilenameforWindows(setDownloadData);
   }, []);
 
   return (
@@ -57,21 +57,27 @@ export function WindowsDownloads(): JSX.Element {
           <div className="pt-8">
             <Link
               className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-md font-semibold"
-              to={downloadData.binary}>
+              to={downloadData.setup}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               Download Now
             </Link>
             <caption className="block w-full mt-1 text/50 dark:text-white/50">
-              Windows *.exe, version {downloadData.version}
+              Windows installer, version {downloadData.version}
             </caption>
           </div>
           <div className="mt-4">
-            <div>Package managers for Windows:</div>
+            <div>Other downloads for Windows:</div>
+            <Link
+              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
+              to={downloadData.binary}>
+              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+              *.exe
+            </Link>
             <Link
               className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
               to="/docs/Installation/windows-install">
               <FontAwesomeIcon size="1x" icon={faWindows} className="mr-2" />
-              Windows install guide
+              Package Managers Guide
             </Link>
           </div>
           <div className="flex flex-col align-middle items-center">
@@ -113,7 +119,7 @@ export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
 
   return (
-    <Layout title={siteConfig.title} description="Downloads for macOS">
+    <Layout title={siteConfig.title} description="Downloads for Windows">
       <TailWindThemeSelector />
       <section className="container mx-auto flex justify-center flex-col">
         <div className="w-full flex flex-col">

@@ -58,6 +58,8 @@ const config = {
     }
 
     if(context.arch === Arch.x64 && context.electronPlatformName === 'win32'){
+      // add also the win-ca package
+      context.packager.config.extraResources.push({from: 'node_modules/win-ca/lib/roots.exe', to: 'win-ca/roots.exe'});
       context.packager.config.extraResources.push('extensions/podman/assets/**');
     }
   },
