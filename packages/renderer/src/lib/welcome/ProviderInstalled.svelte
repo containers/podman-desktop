@@ -4,6 +4,12 @@ import PreflightChecks from './PreflightChecks.svelte';
 import ProviderLinks from './ProviderLinks.svelte';
 import ProviderLogo from './ProviderLogo.svelte';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
+import { onDestroy, onMount } from 'svelte';
+import { Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
+import 'xterm/css/xterm.css';
+import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import { getPanelDetailColor } from '../color/color';
 
 export let provider: ProviderInfo;
 let providerToggleValue = false;
@@ -14,8 +20,18 @@ let initalizeError: string | undefined = undefined;
 
 let preflightChecks: CheckStatus[] = [];
 
+let noErrors = true;
+
+let logsXtermDiv: HTMLDivElement;
+let logsTerminal;
+
+// Terminal resize
+let resizeObserver: ResizeObserver;
+let termFit: FitAddon;
+
 async function initializeProvider() {
   initalizeError = undefined;
+  logsTerminal.clear();
   if (providerToggleValue) {
     initializeInProgress = true;
     try {
@@ -29,11 +45,67 @@ async function initializeProvider() {
     } catch (error) {
       initalizeError = error;
       providerToggleValue = false;
+      logsTerminal.write(error + '\r');
       console.error('Error while initializing the provider', error);
     }
     initializeInProgress = false;
   }
 }
+
+async function refreshTerminal() {
+  // missing element, return
+  if (!logsXtermDiv) {
+    console.log('missing xterm div, exiting...');
+    return;
+  }
+  // grab font size
+  const fontSize = await window.getConfigurationValue<number>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
+  );
+  const lineHeight = await window.getConfigurationValue<number>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
+  );
+
+  logsTerminal = new Terminal({
+    fontSize,
+    lineHeight,
+    disableStdin: true,
+    theme: {
+      background: getPanelDetailColor(),
+    },
+    convertEol: true,
+  });
+  termFit = new FitAddon();
+  logsTerminal.loadAddon(termFit);
+
+  logsTerminal.open(logsXtermDiv);
+  // disable cursor
+  logsTerminal.write('\x1b[?25l');
+
+  // call fit addon each time we resize the window
+  window.addEventListener('resize', () => {
+    termFit.fit();
+  });
+  termFit.fit();
+}
+
+onMount(async () => {
+  // Refresh the terminal on initial load
+  refreshTerminal();
+
+  // Resize the terminal each time we change the div size
+  resizeObserver = new ResizeObserver(entries => {
+    termFit?.fit();
+  });
+
+  // Observe the terminal div
+  resizeObserver.observe(logsXtermDiv);
+});
+
+onDestroy(() => {
+  // Cleanup the observer on destroy
+  resizeObserver?.unobserve(logsXtermDiv);
+});
 </script>
 
 <div class="p-2 flex flex-col bg-zinc-800 rounded-lg">
@@ -76,15 +148,18 @@ async function initializeProvider() {
         </div>
       </div>
     {/if}
-    {#if initalizeError}
-      <div class="flex mt-2 flex-col">
-        <div>Error:</div>
-        <div class="my-2">
-          <p class="text-sm text-red-500" style="white-space: pre;">{initalizeError}</p>
-        </div>
-      </div>
-    {/if}
+
+    <div
+      class=""
+      style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initalizeError
+        ? 'block'
+        : 'none'}"
+      class:h-full="{noErrors === false}"
+      class:min-w-full="{noErrors === false}"
+      bind:this="{logsXtermDiv}">
+    </div>
   </div>
+
   {#if provider.updateInfo}
     <div class="mt-10 mb-1  w-full flex  justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
