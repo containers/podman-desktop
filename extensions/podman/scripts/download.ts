@@ -85,8 +85,8 @@ async function downloadAndCheckSha(tagVersion: string, fileName: string, artifac
   let msiSha = '';
 
   for (const shaLine of shaArr) {
-    if (shaLine.endsWith(artifactName)) {
-      msiSha = shaLine.split('  ')[0];
+    if (shaLine.trim().endsWith(artifactName)) {
+      msiSha = shaLine.split(' ')[0];
       break;
     }
   }
