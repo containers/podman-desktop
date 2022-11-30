@@ -28,6 +28,8 @@ import type { Provider, ProviderProxySettings } from '@tmpwip/extension-api';
  * Manages access to the containers.conf configuration file used to configure Podman
  */
 export class PodmanConfiguration {
+  private proxySettings: ProviderProxySettings | undefined;
+
   async init(provider: Provider) {
     let httpProxy = undefined;
     let httpsProxy = undefined;
@@ -139,6 +141,9 @@ export class PodmanConfiguration {
         // write the file
         const content = toml.stringify(tomlConfigFile, { newline: '\n' });
         await fs.promises.writeFile(this.getContainersFileLocation(), content);
+
+        // update the values
+        this.proxySettings = proxySettings;
       }
     });
     // check if the file exists
@@ -177,6 +182,7 @@ export class PodmanConfiguration {
       httpProxy,
       noProxy,
     };
+    this.proxySettings = proxySettings;
 
     // register the proxy even if there are no values set so Podman Desktop knows that we support proxy handling.
     provider.registerProxy(proxySettings);
@@ -208,5 +214,9 @@ export class PodmanConfiguration {
         }
       });
     });
+  }
+
+  getProxySettings(): ProviderProxySettings | undefined {
+    return this.proxySettings;
   }
 }

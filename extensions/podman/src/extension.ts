@@ -384,6 +384,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     });
   }
 
+  const podmanConfiguration = new PodmanConfiguration();
+  await podmanConfiguration.init(provider);
+
   extensionContext.subscriptions.push(provider);
 
   // allows to create machines
@@ -422,7 +425,16 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         parameters.push('--now');
       }
 
-      await execPromise(getPodmanCli(), parameters);
+      // grab proxy environment variables
+      const proxyEnv = podmanConfiguration.getProxySettings();
+      const env = {};
+      if (proxyEnv?.httpProxy) {
+        env['env:http_proxy'] = proxyEnv.httpProxy;
+      }
+      if (proxyEnv?.httpsProxy) {
+        env['env:https_proxy'] = proxyEnv.httpsProxy;
+      }
+      await execPromise(getPodmanCli(), parameters, { env });
     };
 
     provider.setContainerProviderConnectionFactory({
@@ -483,9 +495,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // register the registries
   const registrySetup = new RegistrySetup();
   await registrySetup.setup(extensionContext);
-
-  const podmanConfiguration = new PodmanConfiguration();
-  await podmanConfiguration.init(provider);
 }
 
 export function deactivate(): void {
