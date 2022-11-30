@@ -20,6 +20,11 @@
     "configuration": {
       "title": "Podman",
       "properties": {
+        "podman.binary.path": {
+          "type": "string",
+          "default": "",
+          "description": "Custom path to Podman binary (Default is blank)"
+        },
         "podman.machine.cpus": {
           "type": "number",
           "format": "cpu",

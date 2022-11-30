@@ -18,7 +18,7 @@
 
 import type * as extensionApi from '@tmpwip/extension-api';
 import type { InstalledPodman } from './podman-cli';
-import { getInstallationPath } from './podman-cli';
+import { getInstallationPath, getCustomBinaryPath } from './podman-cli';
 
 export function getDetectionChecks(installedPodman?: InstalledPodman): extensionApi.ProviderDetectionCheck[] {
   const detectionChecks: extensionApi.ProviderDetectionCheck[] = [];
@@ -26,6 +26,12 @@ export function getDetectionChecks(installedPodman?: InstalledPodman): extension
     detectionChecks.push({
       name: `Podman ${installedPodman.version} found`,
       status: true,
+    });
+  } else if (getCustomBinaryPath()) {
+    detectionChecks.push({
+      name: 'podman cli binary was not found in custom path',
+      details: `Binary path set to ${getCustomBinaryPath()}`,
+      status: false,
     });
   } else {
     detectionChecks.push({

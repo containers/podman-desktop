@@ -16,8 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import { spawn } from 'node:child_process';
-
-import type * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@tmpwip/extension-api';
 import { isMac, isWindows } from './util';
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
@@ -38,10 +37,22 @@ export function getInstallationPath(): string {
 }
 
 export function getPodmanCli(): string {
+  // If we have a custom binary path regardless if we are running Windows or not
+  const customBinaryPath = getCustomBinaryPath();
+  if (customBinaryPath) {
+    return customBinaryPath;
+  }
+
   if (isWindows) {
     return 'podman.exe';
   }
   return 'podman';
+}
+
+// Get the Podman binary path from configuration podman.binary.path
+// return string or undefined
+export function getCustomBinaryPath(): string | undefined {
+  return extensionApi.configuration.getConfiguration('podman').get('binary.path');
 }
 
 export interface ExecOptions {
