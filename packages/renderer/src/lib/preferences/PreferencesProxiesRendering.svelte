@@ -51,7 +51,7 @@ function updateProvider(provider: ProviderInfo) {
               name="{provider.id}-noProxy"
               id="{provider.id}-noProxy"
               bind:value="{provider.proxySettings.noProxy}"
-              placeholder="Example: *.domain.com, 192.168.*"
+              placeholder="Example: *.domain.com, 192.168.*.*"
               class=" text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
               required />
           </div>
