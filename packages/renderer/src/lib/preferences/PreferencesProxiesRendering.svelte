@@ -26,33 +26,32 @@ function updateProvider(provider: ProviderInfo) {
           </div>
 
           <div>
-            <label for="httpProxy" class="block mt-2 mb-1 text-sm font-medium text-gray-300">Http Proxy:</label>
+            <label for="httpProxy" class="block mt-2 mb-1 text-sm font-medium text-gray-300">Web Proxy (HTTP):</label>
             <input
               name="{provider.id}-httpProxy"
               id="{provider.id}-httpProxy"
               bind:value="{provider.proxySettings.httpProxy}"
-              placeholder="Defines Http proxy to use..."
               class=" text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
               required />
           </div>
           <div>
-            <label for="httpsProxy" class="block mt-2 mb-1  text-sm font-medium text-gray-300">Https Proxy:</label>
+            <label for="httpsProxy" class="block mt-2 mb-1  text-sm font-medium text-gray-300"
+              >Secure Web Proxy (HTTPS):</label>
             <input
               name="{provider.id}-httpsProxy"
               id="{provider.id}-httpsProxy"
               bind:value="{provider.proxySettings.httpsProxy}"
-              placeholder="Defines Https proxy to use..."
               class=" text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
               required />
           </div>
           <div>
             <label for="httpProxy" class="block mt-2 mb-1 text-sm font-medium text-gray-300"
-              >No Proxy for the following hosts:</label>
+              >Bypass proxy settings for these hosts and domains:</label>
             <input
               name="{provider.id}-noProxy"
               id="{provider.id}-noProxy"
               bind:value="{provider.proxySettings.noProxy}"
-              placeholder="Defines No proxy (ignore pattern) to use..."
+              placeholder="Example: *.domain.com, 192.168.*"
               class=" text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
               required />
           </div>
