@@ -23,7 +23,7 @@
         "podman.binary.path": {
           "type": "string",
           "default": "",
-          "description": "Custom path to Podman binary (Default is blank)"
+          "description": "Custom path to Podman binary. If gvproxy and podman-mac-helper are required, update helper_binaries_dir in containers.conf. (Default is blank)"
         },
         "podman.machine.cpus": {
           "type": "number",
