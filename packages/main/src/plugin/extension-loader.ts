@@ -239,7 +239,9 @@ export class ExtensionLoader {
     if (extensionConfiguration) {
       // add information about the current extension
       extensionConfiguration.extension = extension;
-      extensionConfiguration.id = 'extensions.' + extension.id;
+      extensionConfiguration.title = `Extension: ${extensionConfiguration.title}`;
+      extensionConfiguration.id = 'preferences.' + extension.id;
+
       this.configurationRegistry.registerConfigurations([extensionConfiguration]);
     }
 

@@ -8,7 +8,7 @@ export let key: string;
 let title;
 
 $: title = key.replaceAll('.', ' ');
-$: matchingRecords = properties.filter(property => property.parentId.startsWith(key));
+$: matchingRecords = properties.filter(property => property.parentId.startsWith(key) && property.scope === 'DEFAULT');
 </script>
 
 <div class="flex flex-1 flex-col">
