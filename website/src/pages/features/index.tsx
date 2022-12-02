@@ -87,7 +87,7 @@ function FeatureManagementFromTrayIcon() {
           </div>
           <div className="lg:w-5/6 md:w-4/5 w-5/6 flex flex:col gap-10">
             <ThemedImage
-              className="rounded-lg shadow-lg"
+              className="rounded-lg shadow-lg md:mx-16 lg:mx-20"
               alt="Manage Podman Machine"
               sources={{
                 light: useBaseUrl('img/features/management-from-tray-icon.png'),
