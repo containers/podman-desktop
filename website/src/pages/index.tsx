@@ -168,8 +168,8 @@ function KeepUpToDate() {
               Available on{' '}
               <a href="/downloads/windows" className="text-purple-700 dark:text-purple-400" target="_blank">
                 Windows
-              </a>
-              {' '}and{' '} 
+              </a>{' '}
+              and{' '}
               <a href="/downloads/macos" className="text-purple-700 dark:text-purple-400" target="_blank">
                 macOS
               </a>
