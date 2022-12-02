@@ -96,6 +96,7 @@ jobs:
 
       - name: Install flatpak
         run: |
+          sudo apt-get update
           sudo apt-get install flatpak -y
           sudo apt-get install flatpak-builder -y
           sudo apt-get install elfutils -y
