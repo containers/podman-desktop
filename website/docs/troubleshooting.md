@@ -157,3 +157,35 @@ wsl --unregister my-machine
 
 This will stop the Podman Machine for you.
 
+### Podman machine on Apple Silicon
+
+#### Issue
+
+If you are using an Apple Silicon and brew, you might encounter the following error when starting podman from podman desktop
+
+```
+Error: qemu exited unexpectedly with exit code 1, stderr: qemu-system-x86_64: invalid accelerator hvf
+qemu-system-x86_64: falling back to tcg
+qemu-system-x86_64: unable to find CPU model 'host'
+```
+
+#### Explanation
+
+Podman machine is running as a x86_64 process and it could be due to a dual install of homebrew: one for x86_64 and one for arm64.
+
+#### Solution
+
+You can
+1. Uninstall podman machine on your x86_64 brew install (e.g. from a terminal running under rosetta) `brew uninstall podman-machine`
+2. or uninstall brew x86_64 as most brew receipe have now arm64 support: follow [these instructions](https://github.com/homebrew/install#uninstall-homebrew) from a terminal running under rosetta
+
+Then run a terminal in native mode (default) and install podman machine `brew install podman-machine`
+
+Finally clean the poddman machine VMs that had been previously created, a create new ones.
+
+```
+podman machine rm podman-machine-default
+podman machine init
+```
+
+You should be a happy camper from here.
