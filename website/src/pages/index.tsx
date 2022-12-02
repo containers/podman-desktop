@@ -152,7 +152,6 @@ function KeepUpToDate() {
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-light leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
             Install and keep up to date <span className="font-bold">Podman</span>
-            <WorkInProgress />
           </h2>
         </div>
 
@@ -170,9 +169,12 @@ function KeepUpToDate() {
               <a href="/downloads/windows" className="text-purple-700 dark:text-purple-400" target="_blank">
                 Windows
               </a>
+              {' '}and{' '} 
+              <a href="/downloads/macos" className="text-purple-700 dark:text-purple-400" target="_blank">
+                macOS
+              </a>
               !
             </p>
-            <p className="leading-relaxed text-base">Coming soon on MacOS.</p>
           </div>
         </div>
       </div>
