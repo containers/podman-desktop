@@ -27,6 +27,7 @@ onMount(async () => {
   configurationProperties.subscribe(value => {
     configProperties = value
       .filter(property => property.scope === ConfigurationRegistry.DEFAULT_SCOPE)
+      .filter(property => !property.hidden)
       .reduce(function (map, property) {
         let [parentLeftId] = property.parentId.split('.');
 

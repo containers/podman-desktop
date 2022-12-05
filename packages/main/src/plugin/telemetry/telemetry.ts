@@ -67,6 +67,7 @@ export class Telemetry {
           description: 'Dialog prompt for telemetry',
           type: 'boolean',
           default: false,
+          hidden: true,
         },
       },
     };

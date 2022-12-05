@@ -56,6 +56,7 @@ export interface IConfigurationPropertySchema {
   format?: string;
   scope?: ConfigurationScope;
   readonly?: boolean;
+  hidden?: boolean;
 }
 
 export type ConfigurationScope = 'DEFAULT' | 'ContainerConnection' | 'ContainerProviderConnectionFactory';
