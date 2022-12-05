@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import path from 'node:path';
 /**
  * Config for global end-to-end tests
  * placed in project root tests folder
@@ -30,13 +31,25 @@ const config = {
      */
     include: ['**/{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
 
-    exclude: ['**/builtin/**', '**/node_modules/**', '**/dist/**', '**/cypress/**', '**/.{idea,git,cache,output,temp}/**', '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress}.config.*'],
+    exclude: [
+      '**/builtin/**',
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress}.config.*',
+    ],
 
     /**
      * A default timeout of 5000ms is sometimes not enough for playwright.
      */
     testTimeout: 30_000,
     hookTimeout: 30_000,
+  },
+  resolve: {
+    alias: {
+      '@tmpwip/extension-api': path.resolve(__dirname, '__mocks__/@tmpwip/extension-api.js'),
+    },
   },
 };
 
