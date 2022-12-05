@@ -125,6 +125,31 @@ rm -rf ~/.config/containers/
 
 After this, you can start off again by initializing a new Podman Machine and loading up the containers.
 
+### Unable to set custom binary path for Podman on macOS
+
+#### Issue:
+
+When setting a custom binary path (under Preferences -> Custom binary path), Podman is unable to find `gvproxy` and `podman-mac-helper`:
+
+```sh
+Error: unable to start host networking: "could not find \"gvproxy\" in one of [/usr/local/opt/podman/libexec /opt/homebrew/bin /opt/homebrew/opt/podman/libexec /usr/local/bin /usr/local/libexec/podman /usr/local/lib/podman /usr/libexec/podman /usr/lib/podman $BINDIR/../libexec/podman].  To resolve this error, set the helper_binaries_dir key in the `[engine]` section of containers.conf to the directory containing your helper binaries."
+```
+
+#### Solution:
+
+1. Download `gvproxy` from the [gvisor-tap-vsock release page](https://github.com/containers/gvisor-tap-vsock/releases).
+2. Build the `podman-mac-helper` from the source code on the [Podman GitHub page](https://github.com/containers/podman/tree/main/cmd/podman-mac-helper).
+3. Add the `helpers_binaries_dir` entry to `~/.config/containers/conf`:
+
+```sh
+[containers]
+
+helper_binaries_dir=["/Users/user/example_directory"]
+```
+
+**NOTE**: A pre-built binary will be added to the Podman release page so you do not have to build `podman-mac-helper`. An [issue is open for this](https://github.com/containers/podman/issues/16746).
+
+
 ## Code Ready Containers
 
 - Check that podman preset is defined. (`crc config get preset`)
