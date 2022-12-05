@@ -16,18 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
+import type { IConfigurationPropertyRecordedSchema } from '../../../main/src/plugin/configuration-registry';
 
 export async function fetchConfigurationProperties() {
-  const result = await window.getConfigurationProperties();
-  const properties = [];
+  const result: Record<string, IConfigurationPropertyRecordedSchema> = await window.getConfigurationProperties();
+  const properties: IConfigurationPropertyRecordedSchema[] = [];
   for (const key in result) {
     properties.push(result[key]);
   }
   configurationProperties.set(properties);
 }
 
-export const configurationProperties = writable([]);
+export const configurationProperties: Writable<IConfigurationPropertyRecordedSchema[]> = writable([]);
 
 window.addEventListener('extension-started', () => {
   fetchConfigurationProperties();
