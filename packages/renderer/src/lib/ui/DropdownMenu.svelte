@@ -42,8 +42,8 @@ function onWindowClick(e) {
       toggleMenu();
     }}"
     bind:this="{outsideWindow}"
-    class="mx-1 px-3 py-2 hover:text-violet-600 font-medium rounded-lg text-sm inline-flex items-center text-center {backgroundColor}">
-    <Fa class="h-4 w-4 text-xl" icon="{faEllipsisVertical}" />
+    class="mr-2 text-gray-300 hover:{backgroundColor} hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center hover:border-violet-600">
+    <Fa class="h-4 w-4" icon="{faEllipsisVertical}" />
   </button>
 
   <!-- Dropdown menu for all other actions -->

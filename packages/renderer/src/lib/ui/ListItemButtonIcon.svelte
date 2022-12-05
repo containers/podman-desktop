@@ -23,8 +23,8 @@ export let menu: boolean = false;
   <button
     title="{title}"
     on:click="{onClick}"
-    class="mx-1 text-gray-300 {backgroundColor} hover:text-violet-600 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center"
-    class:hidden
-    ><Fa class="h-4 w-4 text-xl" icon="{icon}" />
+    class="m-0.5 text-gray-300 hover:{backgroundColor} hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center hover:border-violet-600"
+    class:hidden>
+    <Fa class="h-4 w-4" icon="{icon}" />
   </button>
 {/if}

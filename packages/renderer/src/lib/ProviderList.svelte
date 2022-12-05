@@ -1,8 +1,8 @@
 <script lang="ts">
 import { providerInfos } from '../stores/providers';
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
-import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faStop } from '@fortawesome/free-solid-svg-icons';
 import type { ProviderInfo } from '../../../main/src/plugin/api/provider-info';
 
 let waiting = false;
@@ -54,7 +54,7 @@ async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
                   ></path>
                 </svg>
               {:else}
-                <Fa class="h-10 w-8 cursor-pointer rounded-full text-xl text-white" icon="{faPlayCircle}" />
+                <Fa class="h-10 w-8 cursor-pointer rounded-full text-xl text-white" icon="{faPlay}" />
               {/if}
               Start
             </button>
@@ -78,7 +78,7 @@ async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
                   ></path>
                 </svg>
               {:else}
-                <Fa class="h-10 w-8 cursor-pointer rounded-full text-xl text-white" icon="{faStopCircle}" />
+                <Fa class="h-10 w-8 cursor-pointer rounded-full text-xl text-white" icon="{faStop}" />
               {/if}
               Stop
             </button>

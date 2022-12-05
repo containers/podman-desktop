@@ -1,6 +1,6 @@
 <script lang="ts">
-import { faFileCode, faPlayCircle, faRocket } from '@fortawesome/free-solid-svg-icons';
-import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
+import { faFileCode, faPlay, faRocket } from '@fortawesome/free-solid-svg-icons';
+import { faStop } from '@fortawesome/free-solid-svg-icons';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { PodInfoUI } from './PodInfoUI';
@@ -52,13 +52,13 @@ if (dropdownMenu) {
   onClick="{() => startPod(pod)}"
   hidden="{pod.status === 'RUNNING'}"
   backgroundColor="{backgroundColor}"
-  icon="{faPlayCircle}" />
+  icon="{faPlay}" />
 <ListItemButtonIcon
   title="Stop Pod"
   onClick="{() => stopPod(pod)}"
   hidden="{!(pod.status === 'RUNNING')}"
   backgroundColor="{backgroundColor}"
-  icon="{faStopCircle}" />
+  icon="{faStop}" />
 <ListItemButtonIcon
   title="Delete Pod"
   onClick="{() => removePod(pod)}"

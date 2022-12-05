@@ -1,6 +1,6 @@
 <script lang="ts">
-import { faEllipsisVertical, faFileCode, faPlayCircle, faRocket, faTerminal } from '@fortawesome/free-solid-svg-icons';
-import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisVertical, faFileCode, faPlay, faRocket, faTerminal } from '@fortawesome/free-solid-svg-icons';
+import { faStop } from '@fortawesome/free-solid-svg-icons';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
@@ -60,14 +60,14 @@ if (dropdownMenu) {
   onClick="{() => startContainer(container)}"
   hidden="{container.state === 'RUNNING'}"
   backgroundColor="{backgroundColor}"
-  icon="{faPlayCircle}" />
+  icon="{faPlay}" />
 
 <ListItemButtonIcon
   title="Stop Container"
   onClick="{() => stopContainer(container)}"
   hidden="{!(container.state === 'RUNNING')}"
   backgroundColor="{backgroundColor}"
-  icon="{faStopCircle}" />
+  icon="{faStop}" />
 
 <ListItemButtonIcon
   title="Delete Container"
