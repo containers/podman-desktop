@@ -140,7 +140,13 @@ export class KubernetesClient {
   }
 
   refresh() {
-    this.kubeConfig.loadFromFile(this.kubeconfigPath);
+    // perform it under a try/catch block as the file may not be valid for the kubernetes-javascript client library
+    try {
+      this.kubeConfig.loadFromFile(this.kubeconfigPath);
+    } catch (error) {
+      console.error(`An error happened when loading kubeconfig file at ${this.kubeconfigPath}`, error);
+      return;
+    }
 
     // get the current context
     this.currentContextName = this.kubeConfig.getCurrentContext();
