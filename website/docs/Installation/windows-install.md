@@ -14,13 +14,17 @@ This page contains information regarding installation of Podman Desktop on Windo
 
 ## Installing Podman Desktop on Windows
 
-### a. Using `.exe` file from [Downloads](/downloads/windows)
+### a. Using the Windows installer from [Downloads](/downloads/windows)
 
-**1. Download the latest `.exe` file from the [Downloads](/downloads/windows) section of this website.**
+**1. Download the Windows installer file from the [Downloads](/downloads/windows) section of this website.**
 
-**2. Locate the downloaded file and and double-click on it to open Podman Desktop. (Usually, you will find the downloaded file in the Downloads folder)**
+**2. Locate the downloaded file and and double-click on it to launch the Podman Desktop installer.**
 
-![img0](img/windows/open-podman-desktop.png)
+As an alternative, you can install Podman Desktop **silently** using a commandline, e.g. Powershell:
+
+```ps
+Start-Process -FilePath '.\podman-desktop-0.10.0-setup.exe' -ArgumentList "\S" -Wait
+```
 
 ### b. Using [Chocolatey](https://chocolatey.org/install) package manager for Windows
 
