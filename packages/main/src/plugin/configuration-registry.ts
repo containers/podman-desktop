@@ -237,6 +237,11 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     section?: string,
     scope?: containerDesktopAPI.ConfigurationScope,
   ): containerDesktopAPI.Configuration {
-    return new ConfigurationImpl(this.configurationValues, section, scope);
+    const callback = (scope: containerDesktopAPI.ConfigurationScope) => {
+      if (scope === 'DEFAULT') {
+        this.saveDefault();
+      }
+    };
+    return new ConfigurationImpl(callback, this.configurationValues, section, scope);
   }
 }

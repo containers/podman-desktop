@@ -27,6 +27,7 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
   private scope: containerDesktopAPI.ConfigurationScope;
 
   constructor(
+    private updateCallback: (scope: containerDesktopAPI.ConfigurationScope) => void,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private configurationValues: Map<string, any>,
     private globalSection?: string,
@@ -83,6 +84,8 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
       localView[localKey] = value;
       this[section] = value;
     }
+    // call only for default scope to save
+    this.updateCallback(this.scope);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
