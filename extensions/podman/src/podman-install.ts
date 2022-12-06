@@ -451,7 +451,7 @@ class WSL2Check extends BaseCheck {
           );
         } else {
           return this.createFailureResult(
-            'WSL2 is not installed or you does not have permissions to run WSL2. Contact your Administrator to setup WSL2.',
+            'WSL2 is not installed or you do not have permissions to run WSL2. Contact your Administrator to setup WSL2.',
             'More info',
             'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
           );
