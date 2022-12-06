@@ -1,10 +1,21 @@
 <script lang="ts">
-import { providerInfos } from '../../stores/providers';
+import type { ProxySettings } from '@tmpwip/extension-api';
+import { onMount } from 'svelte';
 
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+let proxySettings: ProxySettings;
+let proxyState: boolean;
 
-function updateProvider(provider: ProviderInfo) {
-  window.updateProviderProxySettings(provider.internalId, provider.proxySettings);
+onMount(async () => {
+  proxySettings = await window.getProxySettings();
+  proxyState = await window.isProxyEnabled();
+});
+
+async function updateProxySettings() {
+  await window.updateProxySettings(proxySettings);
+}
+
+async function updateProxyState() {
+  await window.setProxyState(proxyState);
 }
 </script>
 
@@ -12,59 +23,76 @@ function updateProvider(provider: ProviderInfo) {
   <h1 class="capitalize text-xl">Proxy settings</h1>
 
   <div class="container mx-auto">
-    {#each $providerInfos as provider}
-      {#if provider.proxySettings}
-        <div class="bg-zinc-700 rounded-md m-2 p-2">
-          <div class="flex flex-row items-center">
-            <div class="text-lg text-gray-100">{provider.name} Provider</div>
+    <!-- if proxy is not enabled, display a toggle -->
 
-            {#if provider.containerConnections.length > 0}
-              <div class="ml-2 text-xs text-gray-400 font-thin">
-                ({provider.containerConnections.map(connection => connection.name).join(',')})
-              </div>
-            {/if}
-          </div>
+    <label for="toggle-proxy" class="inline-flex relative items-center my-5 cursor-pointer">
+      <input
+        type="checkbox"
+        bind:checked="{proxyState}"
+        on:change="{() => updateProxyState()}"
+        id="toggle-proxy"
+        class="sr-only peer" />
+      <div
+        class="w-9 h-5 peer-focus:ring-violet-800 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-violet-600">
+      </div>
+      <span class="ml-3 text-sm font-medium text-gray-300"
+        >Proxy configuration {proxyState ? 'enabled' : 'disabled'}</span>
+    </label>
 
-          <div>
-            <label for="httpProxy" class="block mt-2 mb-1 text-sm font-medium text-gray-300">Web Proxy (HTTP):</label>
-            <input
-              name="{provider.id}-httpProxy"
-              id="{provider.id}-httpProxy"
-              bind:value="{provider.proxySettings.httpProxy}"
-              class=" text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
-              required />
-          </div>
-          <div>
-            <label for="httpsProxy" class="block mt-2 mb-1  text-sm font-medium text-gray-300"
-              >Secure Web Proxy (HTTPS):</label>
-            <input
-              name="{provider.id}-httpsProxy"
-              id="{provider.id}-httpsProxy"
-              bind:value="{provider.proxySettings.httpsProxy}"
-              class=" text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
-              required />
-          </div>
-          <div>
-            <label for="httpProxy" class="block mt-2 mb-1 text-sm font-medium text-gray-300"
-              >Bypass proxy settings for these hosts and domains:</label>
-            <input
-              name="{provider.id}-noProxy"
-              id="{provider.id}-noProxy"
-              bind:value="{provider.proxySettings.noProxy}"
-              placeholder="Example: *.domain.com, 192.168.*.*"
-              class=" text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
-              required />
-          </div>
-          <div class="my-2">
-            <button on:click="{() => updateProvider(provider)}" class="w-full pf-c-button pf-m-primary" type="button">
-              <span class="pf-c-button__icon pf-m-start">
-                <i class="fas fa-pen" aria-hidden="true"></i>
-              </span>
-              Update
-            </button>
-          </div>
+    {#if proxySettings}
+      <div>
+        <label
+          for="httpProxy"
+          class="block mb-2 text-sm font-medium {proxyState
+            ? 'text-gray-300 dark:text-gray-300'
+            : 'text-gray-500 dark:text-gray-500'}">Web Proxy (HTTP):</label>
+        <input
+          name="httpProxy"
+          id="httpProxy"
+          disabled="{!proxyState}"
+          bind:value="{proxySettings.httpProxy}"
+          class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+          required />
+      </div>
+      <div>
+        <label
+          for="httpsProxy"
+          class="pt-4 block mb-2 text-sm font-medium {proxyState
+            ? 'text-gray-300 dark:text-gray-300'
+            : 'text-gray-500 dark:text-gray-500'}">Secure Web Proxy (HTTPS):</label>
+        <input
+          name="httpsProxy"
+          id="httpsProxy"
+          disabled="{!proxyState}"
+          bind:value="{proxySettings.httpsProxy}"
+          class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+          required />
+      </div>
+      <div>
+        <label
+          for="httpProxy"
+          class="pt-4 block mb-2 text-sm font-medium {proxyState
+            ? 'text-gray-300 dark:text-gray-300'
+            : 'text-gray-500 dark:text-gray-500'}">Bypass proxy settings for these hosts and domains:</label>
+        <input
+          name="noProxy"
+          id="noProxy"
+          disabled="{!proxyState}"
+          bind:value="{proxySettings.noProxy}"
+          placeholder="Example: *.domain.com, 192.168.*.*"
+          class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+          required />
+      </div>
+      {#if proxyState}
+        <div class="my-2">
+          <button on:click="{() => updateProxySettings()}" class="w-full pf-c-button pf-m-primary" type="button">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-pen" aria-hidden="true"></i>
+            </span>
+            Update
+          </button>
         </div>
       {/if}
-    {/each}
+    {/if}
   </div>
 </div>

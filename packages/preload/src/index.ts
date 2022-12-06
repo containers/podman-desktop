@@ -395,11 +395,22 @@ function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld(
-    'updateProviderProxySettings',
-    async (providerId: string, proxySettings: containerDesktopAPI.ProviderProxySettings): Promise<void> => {
-      return ipcInvoke('provider-registry:updateProxySettings', providerId, proxySettings);
+    'updateProxySettings',
+    async (proxySettings: containerDesktopAPI.ProxySettings): Promise<void> => {
+      return ipcInvoke('proxy:updateSettings', proxySettings);
     },
   );
+
+  contextBridge.exposeInMainWorld('getProxySettings', async (): Promise<containerDesktopAPI.ProxySettings> => {
+    return ipcInvoke('proxy:getSettings');
+  });
+
+  contextBridge.exposeInMainWorld('isProxyEnabled', async (): Promise<boolean> => {
+    return ipcInvoke('proxy:isEnabled');
+  });
+  contextBridge.exposeInMainWorld('setProxyState', async (state: boolean): Promise<void> => {
+    return ipcInvoke('proxy:setState', state);
+  });
 
   contextBridge.exposeInMainWorld(
     'getProviderDetectionChecks',

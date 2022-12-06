@@ -29,7 +29,6 @@ import type {
   ProviderOptions,
   ProviderStatus,
   ProviderConnectionStatus,
-  ProviderProxySettings,
   Event,
   ProviderInstallation,
   ProviderLinks,
@@ -48,11 +47,6 @@ export class ProviderImpl implements Provider, IDisposable {
   // optional factory
   private _containerProviderConnectionFactory: ContainerProviderConnectionFactory | undefined = undefined;
   private _status: ProviderStatus;
-
-  private proxySettings: ProviderProxySettings | undefined;
-
-  private readonly _onDidUpdateProxy = new Emitter<ProviderProxySettings>();
-  readonly onDidUpdateProxy: Event<ProviderProxySettings> = this._onDidUpdateProxy.event;
 
   private readonly _onDidUpdateStatus = new Emitter<ProviderStatus>();
   readonly onDidUpdateStatus: Event<ProviderStatus> = this._onDidUpdateStatus.event;
@@ -95,27 +89,6 @@ export class ProviderImpl implements Provider, IDisposable {
         }
       });
     }, 2000);
-  }
-
-  registerProxy(proxySettings: ProviderProxySettings): Disposable {
-    this.proxySettings = proxySettings;
-    this._onDidUpdateProxy.fire(proxySettings);
-
-    return Disposable.create(() => {
-      this.proxySettings = undefined;
-    });
-  }
-
-  updateProxy(proxy: ProviderProxySettings): void {
-    // notify
-    this._onDidUpdateProxy.fire(proxy);
-
-    // update
-    this.proxySettings = proxy;
-  }
-
-  get proxy(): ProviderProxySettings | undefined {
-    return this.proxySettings;
   }
 
   get containerProviderConnectionFactory(): ContainerProviderConnectionFactory | undefined {

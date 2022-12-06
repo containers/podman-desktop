@@ -384,9 +384,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     });
   }
 
-  const podmanConfiguration = new PodmanConfiguration();
-  await podmanConfiguration.init(provider);
-
   extensionContext.subscriptions.push(provider);
 
   // allows to create machines
@@ -425,14 +422,25 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         parameters.push('--now');
       }
 
-      // grab proxy environment variables
-      const proxyEnv = podmanConfiguration.getProxySettings();
+      // Add proxy environment variables if proxy is enabled
+      const proxyEnabled = extensionApi.proxy.isEnabled();
       const env = {};
-      if (proxyEnv?.httpProxy) {
-        env['env:http_proxy'] = proxyEnv.httpProxy;
-      }
-      if (proxyEnv?.httpsProxy) {
-        env['env:https_proxy'] = proxyEnv.httpsProxy;
+      if (proxyEnabled) {
+        const proxySettings = extensionApi.proxy.getProxySettings();
+        if (proxySettings?.httpProxy) {
+          if (isWindows) {
+            env['env:http_proxy'] = proxySettings.httpProxy;
+          } else {
+            env['http_proxy'] = proxySettings.httpProxy;
+          }
+        }
+        if (proxySettings?.httpsProxy) {
+          if (isWindows) {
+            env['env:https_proxy'] = proxySettings.httpsProxy;
+          } else {
+            env['https_proxy'] = proxySettings.httpsProxy;
+          }
+        }
       }
       await execPromise(getPodmanCli(), parameters, { env });
     };
@@ -495,6 +503,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // register the registries
   const registrySetup = new RegistrySetup();
   await registrySetup.setup(extensionContext);
+
+  const podmanConfiguration = new PodmanConfiguration();
+  await podmanConfiguration.init();
 }
 
 export function deactivate(): void {

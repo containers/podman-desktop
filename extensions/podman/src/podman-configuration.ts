@@ -22,130 +22,34 @@ import * as os from 'node:os';
 import { isLinux, isMac, isWindows } from './util';
 
 import * as toml from '@ltd/j-toml';
-import type { Provider, ProviderProxySettings } from '@tmpwip/extension-api';
+import type { ProxySettings } from '@tmpwip/extension-api';
+
+import * as extensionApi from '@tmpwip/extension-api';
 
 /**
  * Manages access to the containers.conf configuration file used to configure Podman
  */
 export class PodmanConfiguration {
-  private proxySettings: ProviderProxySettings | undefined;
-
-  async init(provider: Provider) {
+  async init() {
     let httpProxy = undefined;
     let httpsProxy = undefined;
     let noProxy = undefined;
 
     // we receive an update for the current proxy settings
-    provider.onDidUpdateProxy(async (proxySettings: ProviderProxySettings) => {
-      if (!fs.existsSync(this.getContainersFileLocation())) {
-        // file does not exist, needs to create an empty one
-        const containersConfContent = {
-          containers: toml.Section({}),
-          engine: toml.Section({
-            env: [],
-          }),
-          machine: toml.Section({}),
-          network: toml.Section({}),
-          secrets: toml.Section({}),
-          configmaps: toml.Section({}),
-        };
-        if (proxySettings.httpProxy && proxySettings.httpProxy != '') {
-          containersConfContent['engine'].env.push(`http_proxy=${proxySettings.httpProxy}`);
-        }
-        if (proxySettings.httpsProxy && proxySettings.httpsProxy != '') {
-          containersConfContent['engine'].env.push(`https_proxy=${proxySettings.httpsProxy}`);
-        }
-        if (proxySettings.noProxy && proxySettings.noProxy != '') {
-          containersConfContent['engine'].env.push(`no_proxy=${proxySettings.noProxy}`);
-        }
+    extensionApi.proxy.onDidUpdateProxy(async (proxySettings: ProxySettings) => {
+      this.updateProxySettings(proxySettings);
+    });
 
-        // write the file
-        const content = toml.stringify(containersConfContent, { newline: '\n' });
-        await fs.promises.writeFile(this.getContainersFileLocation(), content);
+    // in case of proxy being enabled or disabled we need to update the containers.conf file
+    extensionApi.proxy.onDidStateChange(async (enabled: boolean) => {
+      if (enabled) {
+        const updatedProxySettings = await extensionApi.proxy.getProxySettings();
+        this.updateProxySettings(updatedProxySettings);
       } else {
-        // read the content of the file
-        const containersConfigFile = await this.readContainersConfigFile();
-        let tomlConfigFile = toml.parse(containersConfigFile);
-        if (!tomlConfigFile) {
-          tomlConfigFile = {};
-        }
-
-        if (!tomlConfigFile.engine) {
-          tomlConfigFile.engine = {};
-        }
-
-        let engineEnv: string[];
-        if (!tomlConfigFile.engine['env']) {
-          engineEnv = [];
-          tomlConfigFile.engine['env'] = engineEnv;
-        } else {
-          engineEnv = tomlConfigFile.engine['env'];
-        }
-
-        // now update values
-        const httpsProxyIndex = engineEnv.findIndex(item => item.startsWith('https_proxy='));
-        // not found ?
-        const httpsProxyEnvValue = `https_proxy=${proxySettings.httpsProxy}`;
-        if (httpsProxyIndex === -1) {
-          // add the value only if there is one
-          if (proxySettings.httpsProxy && proxySettings.httpsProxy !== '') {
-            engineEnv.push(httpsProxyEnvValue);
-          }
-        } else {
-          // empty or undefined ? needs to unset
-          if (!proxySettings.httpsProxy || proxySettings.httpsProxy === '') {
-            // delete the httpsProxyIndex in the engineEnv array
-            engineEnv.splice(httpsProxyIndex, 1);
-          } else {
-            engineEnv[httpsProxyIndex] = httpsProxyEnvValue;
-          }
-        }
-        // now update values
-        const httpProxyIndex = engineEnv.findIndex(item => item.startsWith('http_proxy='));
-        // not found ?
-        const httpProxyEnvValue = `http_proxy=${proxySettings.httpProxy}`;
-        if (httpProxyIndex === -1) {
-          // add the value only if there is one
-          if (proxySettings.httpProxy && proxySettings.httpProxy !== '') {
-            engineEnv.push(httpProxyEnvValue);
-          }
-        } else {
-          // empty or undefined ? needs to unset
-          if (!proxySettings.httpProxy || proxySettings.httpProxy === '') {
-            // delete the httpProxyIndex in the engineEnv array
-            engineEnv.splice(httpProxyIndex, 1);
-          } else {
-            engineEnv[httpProxyIndex] = httpProxyEnvValue;
-          }
-        }
-
-        // now update values
-        const noProxyIndex = engineEnv.findIndex(item => item.startsWith('no_proxy='));
-        // not found ?
-        const noProxyEnvValue = `no_proxy=${proxySettings.noProxy}`;
-        if (noProxyIndex === -1) {
-          // add the value only if there is one
-          if (proxySettings.noProxy && proxySettings.noProxy !== '') {
-            engineEnv.push(noProxyEnvValue);
-          }
-        } else {
-          // empty or undefined ? needs to unset
-          if (!proxySettings.noProxy || proxySettings.noProxy === '') {
-            // delete the noProxyIndex in the engineEnv array
-            engineEnv.splice(noProxyIndex, 1);
-          } else {
-            engineEnv[noProxyIndex] = noProxyEnvValue;
-          }
-        }
-
-        // write the file
-        const content = toml.stringify(tomlConfigFile, { newline: '\n' });
-        await fs.promises.writeFile(this.getContainersFileLocation(), content);
-
-        // update the values
-        this.proxySettings = proxySettings;
+        this.updateProxySettings(undefined);
       }
     });
+
     // check if the file exists
     if (fs.existsSync(this.getContainersFileLocation())) {
       const containersConfigFile = await this.readContainersConfigFile();
@@ -182,10 +86,123 @@ export class PodmanConfiguration {
       httpProxy,
       noProxy,
     };
-    this.proxySettings = proxySettings;
 
-    // register the proxy even if there are no values set so Podman Desktop knows that we support proxy handling.
-    provider.registerProxy(proxySettings);
+    // register the proxy if there is no proxy settings for now
+    if (
+      extensionApi.proxy.getProxySettings() === undefined &&
+      extensionApi.proxy.isEnabled() &&
+      (httpsProxy || httpProxy || noProxy)
+    ) {
+      extensionApi.proxy.setProxy(proxySettings);
+    }
+  }
+
+  async updateProxySettings(proxySettings: ProxySettings | undefined): Promise<void> {
+    if (!fs.existsSync(this.getContainersFileLocation())) {
+      // file does not exist, needs to create an empty one
+      const containersConfContent = {
+        containers: toml.Section({}),
+        engine: toml.Section({
+          env: [],
+        }),
+        machine: toml.Section({}),
+        network: toml.Section({}),
+        secrets: toml.Section({}),
+        configmaps: toml.Section({}),
+      };
+      if (proxySettings?.httpProxy && proxySettings?.httpProxy != '') {
+        containersConfContent['engine'].env.push(`http_proxy=${proxySettings.httpProxy}`);
+      }
+      if (proxySettings?.httpsProxy && proxySettings?.httpsProxy != '') {
+        containersConfContent['engine'].env.push(`https_proxy=${proxySettings.httpsProxy}`);
+      }
+      if (proxySettings?.noProxy && proxySettings?.noProxy != '') {
+        containersConfContent['engine'].env.push(`no_proxy=${proxySettings.noProxy}`);
+      }
+
+      // write the file
+      const content = toml.stringify(containersConfContent, { newline: '\n' });
+      await fs.promises.writeFile(this.getContainersFileLocation(), content);
+    } else {
+      // read the content of the file
+      const containersConfigFile = await this.readContainersConfigFile();
+      let tomlConfigFile = toml.parse(containersConfigFile);
+      if (!tomlConfigFile) {
+        tomlConfigFile = {};
+      }
+
+      if (!tomlConfigFile.engine) {
+        tomlConfigFile.engine = {};
+      }
+
+      let engineEnv: string[];
+      if (!tomlConfigFile.engine['env']) {
+        engineEnv = [];
+        tomlConfigFile.engine['env'] = engineEnv;
+      } else {
+        engineEnv = tomlConfigFile.engine['env'];
+      }
+
+      // now update values
+      const httpsProxyIndex = engineEnv.findIndex(item => item.startsWith('https_proxy='));
+      // not found ?
+      const httpsProxyEnvValue = `https_proxy=${proxySettings?.httpsProxy}`;
+      if (httpsProxyIndex === -1) {
+        // add the value only if there is one
+        if (proxySettings?.httpsProxy && proxySettings?.httpsProxy !== '') {
+          engineEnv.push(httpsProxyEnvValue);
+        }
+      } else {
+        // empty or undefined ? needs to unset
+        if (!proxySettings?.httpsProxy || proxySettings?.httpsProxy === '') {
+          // delete the httpsProxyIndex in the engineEnv array
+          engineEnv.splice(httpsProxyIndex, 1);
+        } else {
+          engineEnv[httpsProxyIndex] = httpsProxyEnvValue;
+        }
+      }
+      // now update values
+      const httpProxyIndex = engineEnv.findIndex(item => item.startsWith('http_proxy='));
+      // not found ?
+      const httpProxyEnvValue = `http_proxy=${proxySettings?.httpProxy}`;
+      if (httpProxyIndex === -1) {
+        // add the value only if there is one
+        if (proxySettings?.httpProxy && proxySettings?.httpProxy !== '') {
+          engineEnv.push(httpProxyEnvValue);
+        }
+      } else {
+        // empty or undefined ? needs to unset
+        if (!proxySettings?.httpProxy || proxySettings?.httpProxy === '') {
+          // delete the httpProxyIndex in the engineEnv array
+          engineEnv.splice(httpProxyIndex, 1);
+        } else {
+          engineEnv[httpProxyIndex] = httpProxyEnvValue;
+        }
+      }
+
+      // now update values
+      const noProxyIndex = engineEnv.findIndex(item => item.startsWith('no_proxy='));
+      // not found ?
+      const noProxyEnvValue = `no_proxy=${proxySettings?.noProxy}`;
+      if (noProxyIndex === -1) {
+        // add the value only if there is one
+        if (proxySettings?.noProxy && proxySettings?.noProxy !== '') {
+          engineEnv.push(noProxyEnvValue);
+        }
+      } else {
+        // empty or undefined ? needs to unset
+        if (!proxySettings?.noProxy || proxySettings?.noProxy === '') {
+          // delete the noProxyIndex in the engineEnv array
+          engineEnv.splice(noProxyIndex, 1);
+        } else {
+          engineEnv[noProxyIndex] = noProxyEnvValue;
+        }
+      }
+
+      // write the file
+      const content = toml.stringify(tomlConfigFile, { newline: '\n' });
+      await fs.promises.writeFile(this.getContainersFileLocation(), content);
+    }
   }
 
   protected getContainersFileLocation(): string {
@@ -214,9 +231,5 @@ export class PodmanConfiguration {
         }
       });
     });
-  }
-
-  getProxySettings(): ProviderProxySettings | undefined {
-    return this.proxySettings;
   }
 }

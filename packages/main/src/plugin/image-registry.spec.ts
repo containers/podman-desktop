@@ -17,15 +17,24 @@
  ***********************************************************************/
 
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import type { Certificates } from './certificates';
 
 import { ImageRegistry } from './image-registry';
+import type { Proxy } from './proxy';
 import type { Telemetry } from './telemetry/telemetry';
 
 let imageRegistry;
 
 beforeAll(() => {
   const telemetry: Telemetry = {} as Telemetry;
-  imageRegistry = new ImageRegistry({}, telemetry);
+  const certificates: Certificates = {} as Certificates;
+  const proxy: Proxy = {
+    onDidStateChange: vi.fn(),
+    onDidUpdateProxy: vi.fn(),
+    isEnabled: vi.fn(),
+  } as unknown as Proxy;
+
+  imageRegistry = new ImageRegistry({}, telemetry, certificates, proxy);
 });
 
 beforeEach(() => {
