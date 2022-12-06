@@ -106,7 +106,7 @@ onMount(() => {
           </div>
           <div class="flex flex-row-reverse w-full  px-5 pt-5">
             <div class="flex h-10">
-              <ImageActions image="{image}" backgroundColor="bg-neutral-900" onPushImage="{handlePushImageModal}" />
+              <ImageActions image="{image}" onPushImage="{handlePushImageModal}" />
             </div>
           </div>
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"

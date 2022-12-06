@@ -81,7 +81,7 @@ onMount(() => {
           </div>
           <div class="flex flex-row-reverse w-full  px-5 pt-5">
             <div class="flex h-10">
-              <VolumeActions volume="{volume}" backgroundColor="bg-neutral-900" />
+              <VolumeActions volume="{volume}" />
             </div>
           </div>
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"

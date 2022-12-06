@@ -1,6 +1,6 @@
 <script lang="ts">
-import { faFileCode, faPlayCircle, faRocket } from '@fortawesome/free-solid-svg-icons';
-import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
+import { faFileCode, faPlay, faRocket } from '@fortawesome/free-solid-svg-icons';
+import { faStop } from '@fortawesome/free-solid-svg-icons';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { PodInfoUI } from './PodInfoUI';
@@ -10,7 +10,6 @@ import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 
 export let pod: PodInfoUI;
-export let backgroundColor = 'bg-zinc-800';
 export let dropdownMenu: boolean = false;
 
 async function startPod(podInfoUI: PodInfoUI) {
@@ -51,38 +50,29 @@ if (dropdownMenu) {
   title="Start Pod"
   onClick="{() => startPod(pod)}"
   hidden="{pod.status === 'RUNNING'}"
-  backgroundColor="{backgroundColor}"
-  icon="{faPlayCircle}" />
+  icon="{faPlay}" />
 <ListItemButtonIcon
   title="Stop Pod"
   onClick="{() => stopPod(pod)}"
   hidden="{!(pod.status === 'RUNNING')}"
-  backgroundColor="{backgroundColor}"
-  icon="{faStopCircle}" />
-<ListItemButtonIcon
-  title="Delete Pod"
-  onClick="{() => removePod(pod)}"
-  backgroundColor="{backgroundColor}"
-  icon="{faTrash}" />
+  icon="{faStop}" />
+<ListItemButtonIcon title="Delete Pod" onClick="{() => removePod(pod)}" icon="{faTrash}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
-<svelte:component this="{actionsStyle}" backgroundColor="{backgroundColor}">
+<svelte:component this="{actionsStyle}">
   <ListItemButtonIcon
     title="Generate Kube"
     onClick="{() => openGenerateKube()}"
     menu="{dropdownMenu}"
-    backgroundColor="{backgroundColor}"
     icon="{faFileCode}" />
   <ListItemButtonIcon
     title="Deploy to Kubernetes"
     onClick="{() => deployToKubernetes()}"
     menu="{dropdownMenu}"
-    backgroundColor="{backgroundColor}"
     icon="{faRocket}" />
   <ListItemButtonIcon
     title="Restart Pod"
     onClick="{() => restartPod(pod)}"
     menu="{dropdownMenu}"
-    backgroundColor="{backgroundColor}"
     icon="{faArrowsRotate}" />
 </svelte:component>

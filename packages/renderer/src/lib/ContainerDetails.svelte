@@ -114,8 +114,8 @@ onMount(() => {
             </section>
           </div>
           <div class="flex flex-col w-full px-5 pt-5">
-            <div class="flex h-10 justify-end">
-              <ContainerActions container="{container}" backgroundColor="bg-neutral-900" />
+            <div class="flex justify-end">
+              <ContainerActions container="{container}" />
             </div>
             <div class="flex my-2 w-full justify-end ">
               <ContainerStatistics container="{container}" />
