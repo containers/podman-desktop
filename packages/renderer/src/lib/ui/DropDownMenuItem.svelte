@@ -6,7 +6,6 @@ export let title: string;
 export let icon: IconDefinition;
 export let hidden: boolean = false;
 export let onClick: () => void = () => {};
-export let backgroundColor: string = 'bg-zinc-800';
 </script>
 
 {#if !hidden}

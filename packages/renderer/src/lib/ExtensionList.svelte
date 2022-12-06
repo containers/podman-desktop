@@ -1,8 +1,8 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
-import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
-import { faStopCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faStop } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import { extensionInfos } from '../stores/extensions';
 import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
@@ -63,17 +63,13 @@ function getColorForState(extensionInfo: ExtensionInfo): string {
                   on:click="{() => startExtension(extension)}"
                   hidden
                   class:block="{extension?.state !== 'active'}"
-                  ><Fa
-                    class="cursor-pointer h-10 w-10 rounded-full text-3xl text-sky-800"
-                    icon="{faPlayCircle}" /></button>
+                  ><Fa class="cursor-pointer h-10 w-10 rounded-full text-3xl text-sky-800" icon="{faPlay}" /></button>
                 <button
                   title="Stop extension"
                   on:click="{() => stopExtension(extension)}"
                   hidden
                   class:block="{extension?.state === 'active'}"
-                  ><Fa
-                    class="cursor-pointer h-10 w-10 rounded-full text-3xl text-sky-800"
-                    icon="{faStopCircle}" /></button>
+                  ><Fa class="cursor-pointer h-10 w-10 rounded-full text-3xl text-sky-800" icon="{faStop}" /></button>
                 <!--<span><Fa class="h-10 w-10 rounded-full text-3xl text-sky-800" icon={faTrash} /></span>-->
               </div>
             </td>

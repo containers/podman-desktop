@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faCircleUp, faLayerGroup, faPlayCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -43,13 +43,13 @@ async function showLayersImage(): Promise<void> {
     title="Push Image"
     onClick="{() => pushImage(image)}"
     backgroundColor="{backgroundColor}"
-    icon="{faCircleUp}" />
+    icon="{faArrowUp}" />
 {/if}
 <ListItemButtonIcon
   title="Run Image"
   onClick="{() => runImage(image)}"
   backgroundColor="{backgroundColor}"
-  icon="{faPlayCircle}" />
+  icon="{faPlay}" />
 {#if !image.inUse}
   <ListItemButtonIcon
     title="Delete Image"
