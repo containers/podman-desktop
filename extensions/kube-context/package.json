@@ -1,7 +1,7 @@
 {
   "name": "kube-context",
-  "displayName": "Kube Context extension",
-  "description": "Allows to switch between kubernetes contexts",
+  "displayName": "Kube Context",
+  "description": "Allows the ability to switch between Kubernetes contexts",
   "version": "0.0.1",
   "icon": "icon.png",
   "publisher": "benoitf",

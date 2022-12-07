@@ -127,7 +127,7 @@ async function startContainer() {
             </div>
             <div class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
               <h3 class="text-lg font-medium text-gray-900 dark:text-white truncate">
-                Create container from image {imageDisplayName}
+                Create a container from image {imageDisplayName}
               </h3>
 
               <div>

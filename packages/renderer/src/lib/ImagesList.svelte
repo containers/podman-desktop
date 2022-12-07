@@ -151,13 +151,13 @@ async function deleteSelectedImages() {
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
       </span>
-      Pull Image
+      Pull an image
     </button>
     <button on:click="{() => gotoBuildImage()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-cube" aria-hidden="true"></i>
       </span>
-      Build Image
+      Build an image
     </button>
   </div>
 

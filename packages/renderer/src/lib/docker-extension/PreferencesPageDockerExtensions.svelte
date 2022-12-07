@@ -46,7 +46,7 @@ function deleteContribution(extensionName: string) {
   <p class="capitalize text-xl">Docker Desktop Extensions</p>
   <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
   <p class="text-xs italic">
-    You may try to install some of these extensions by providing the image providing the extension.
+    Not all are guaranteed to work but you can add their OCI Image below to try and load them.
   </p>
   <p class="text-xs italic">
     Example: aquasec/trivy-docker-extension:latest for Trivy extension or redhatdeveloper/openshift-dd-ext:latest for

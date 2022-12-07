@@ -276,7 +276,7 @@ function toggleAllContainerGroups(value: boolean) {
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-plus-circle" aria-hidden="true"></i>
       </span>
-      Create container
+      Create a container
     </button>
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
@@ -495,17 +495,17 @@ function toggleAllContainerGroups(value: boolean) {
         </button>
       </div>
       <div class="bg-zinc-800 p-5 h-full flex flex-col justify-items-center">
-        <span class="pb-3">Please make a choice:</span>
+        <span class="pb-3">Choose the following:</span>
         <ul class="list-disc ml-8 space-y-2">
-          <li>Create a container from a Containerfile.</li>
-          <li>Create a container from an existing image stored in the local registry.</li>
+          <li>Create a container from a Containerfile</li>
+          <li>Create a container from an existing image stored in the local registry</li>
         </ul>
 
         <div class="pt-5 grid grid-cols-2 gap-10 place-content-center w-full">
           <button class="pf-c-button pf-m-primary" type="button" on:click="{() => fromDockerfile()}"
-            >From Containerfile/Dockerfile</button>
+            >Containerfile or Dockerfile</button>
           <button class="pf-c-button pf-m-secondary" type="button" on:click="{() => fromExistingImage()}"
-            >From existing image</button>
+            >Existing image</button>
         </div>
       </div>
     </div>

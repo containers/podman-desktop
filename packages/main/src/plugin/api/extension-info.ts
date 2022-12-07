@@ -19,6 +19,7 @@
 export interface ExtensionInfo {
   id: string;
   name: string;
+  description: string;
   displayName: string;
   publisher: string;
   version: string;

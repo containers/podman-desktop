@@ -26,11 +26,11 @@ export class AutostartEngine {
     // add configuration
     const autoStartConfigurationNode: IConfigurationNode = {
       id: 'preferences.engine.autostart',
-      title: 'Autostart Container Engine',
+      title: 'Autostart container engine',
       type: 'object',
       properties: {
         ['preferences.engine.autostart']: {
-          description: 'Autostart Container Engine when launching Podman Desktop',
+          description: 'Autostart container engine when launching Podman Desktop',
           type: 'boolean',
           default: true,
         },
