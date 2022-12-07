@@ -48,7 +48,7 @@ function getPort(portDescriptor: string): Promise<number | undefined> {
     port = parseInt(portDescriptor);
   }
   // invalid port
-  if (port === NaN) {
+  if (isNaN(port)) {
     return Promise.resolve(undefined);
   }
   return window.getFreePort(port);
