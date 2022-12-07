@@ -1,7 +1,7 @@
 {
   "name": "crc",
-  "displayName": "Manages CRC",
-  "description": "Allow to start and stop CRC and use Podman",
+  "displayName": "CRC",
+  "description": "Allows the ability to start and stop CRC and use Podman Desktop to interact with it",
   "version": "0.0.1",
   "icon": "icon.png",
   "publisher": "benoitf",

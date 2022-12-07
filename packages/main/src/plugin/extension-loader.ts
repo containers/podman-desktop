@@ -88,6 +88,7 @@ export class ExtensionLoader {
     return Array.from(this.analyzedExtensions.values()).map(extension => ({
       name: extension.manifest.name,
       displayName: extension.manifest.displayName,
+      description: extension.manifest.description,
       version: extension.manifest.version,
       publisher: extension.manifest.publisher,
       state: this.activatedExtensions.get(extension.id) ? 'active' : 'inactive',

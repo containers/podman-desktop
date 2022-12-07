@@ -346,7 +346,7 @@ function deleteExtraHost(index: number) {
 <Route path="/*" let:meta>
   {#if dataReady}
     <NavPage
-      title="Create container from Image {imageDisplayName}"
+      title="Create a container from image {imageDisplayName}"
       searchEnabled="{false}"
       subtitle="{image.tag}@{image.shortId} ">
       <div slot="empty" class="bg-zinc-700 p-5 h-full">
@@ -405,7 +405,7 @@ function deleteExtraHost(index: number) {
                   bind:value="{containerName}"
                   name="modalContainerName"
                   id="modalContainerName"
-                  placeholder="Enter container name (leave blank to have one generated)"
+                  placeholder="Leave blank to generate a name"
                   class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
 
                 <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
@@ -473,13 +473,13 @@ function deleteExtraHost(index: number) {
                     <input
                       type="text"
                       bind:value="{environmentVariable.key}"
-                      placeholder="Enter a Name"
+                      placeholder="Name"
                       class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
 
                     <input
                       type="text"
                       bind:value="{environmentVariable.value}"
-                      placeholder="Value (or leave blank for empty)"
+                      placeholder="Value (leave blank for empty)"
                       class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
                     <button
                       class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
@@ -514,7 +514,7 @@ function deleteExtraHost(index: number) {
                   <input
                     type="text"
                     bind:value="{runUser}"
-                    placeholder="If you specify a name, user must exists in passwd file (use user id instead)"
+                    placeholder="If you specify a username, user must exist in /etc/passwd file (use user id instead)"
                     class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
                 </div>
 
@@ -554,7 +554,7 @@ function deleteExtraHost(index: number) {
                     : 'opacity-20'}">
                   <span
                     class="text-sm w-28 inline-block align-middle whitespace-nowrap text-gray-400"
-                    title="Number of times to retry before giving up.">Retries number:</span>
+                    title="Number of times to retry before giving up.">Retries:</span>
                   <input
                     type="number"
                     min="0"
@@ -595,7 +595,7 @@ function deleteExtraHost(index: number) {
                     <input
                       type="text"
                       bind:value="{securityOpt}"
-                      placeholder="Enter a security option"
+                      placeholder="Enter a security option (Ex. seccomp=/path/to/profile.json)"
                       class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
 
                     <button
@@ -627,7 +627,7 @@ function deleteExtraHost(index: number) {
                     <input
                       type="text"
                       bind:value="{capAdd}"
-                      placeholder="Enter a kernel capability"
+                      placeholder="Enter a kernel capability (Ex. SYS_ADMIN)"
                       class="ml-4 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
 
                     <button
@@ -654,7 +654,7 @@ function deleteExtraHost(index: number) {
                     <input
                       type="text"
                       bind:value="{capDrop}"
-                      placeholder="Enter a kernel capability"
+                      placeholder="Enter a kernel capability (Ex. SYS_ADMIN)"
                       class="ml-4 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
 
                     <button
@@ -709,7 +709,7 @@ function deleteExtraHost(index: number) {
                     <input
                       type="text"
                       bind:value="{dnsServer}"
-                      placeholder="Enter a server"
+                      placeholder="IP Address"
                       class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
 
                     <button
@@ -737,13 +737,13 @@ function deleteExtraHost(index: number) {
                     <input
                       type="text"
                       bind:value="{extraHost.host}"
-                      placeholder="Enter a host"
+                      placeholder="Hostname"
                       class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
 
                     <input
                       type="text"
                       bind:value="{extraHost.ip}"
-                      placeholder="Enter IP value"
+                      placeholder="IP Address"
                       class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
                     <button
                       class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"

@@ -1,7 +1,7 @@
 {
   "name": "docker",
-  "displayName": "docker extension",
-  "description": "docker extension",
+  "displayName": "Docker",
+  "description": "Docker extension for Podman Desktop",
   "version": "0.0.1",
   "icon": "icon.png",
   "publisher": "benoitf",

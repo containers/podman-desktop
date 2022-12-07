@@ -173,7 +173,7 @@ $: addHiddenClass = (provider: ProviderInfo): string => (provider.containerConne
               <a
                 href="/preferences/extension/{extension.name}"
                 id="configuration-section-extensions-catalog-{extension.name.toLowerCase()}"
-                class="pf-c-nav__link">{extension.name}</a>
+                class="pf-c-nav__link">{extension.displayName}</a>
             </li>
           {/each}
         </ul>

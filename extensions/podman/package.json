@@ -1,7 +1,7 @@
 {
   "name": "podman",
-  "displayName": "Manage podman containers and podman machines",
-  "description": "Manage podman containers and podman machines",
+  "displayName": "Podman",
+  "description": "Enable support for controlling Podman and Podman Machines",
   "version": "0.0.1",
   "icon": "icon.png",
   "publisher": "benoitf",
@@ -31,7 +31,7 @@
           "minimum": 1,
           "default": 1,
           "scope": "ContainerConnection",
-          "description": "CPUs of the machine"
+          "description": "CPU(s)"
         },
         "podman.machine.memory": {
           "type": "number",
@@ -39,27 +39,27 @@
           "minimum": 1024,
           "default": 2048,
           "scope": "ContainerConnection",
-          "description": "Memory of the machine"
+          "description": "Memory (MB)"
         },
         "podman.machine.diskSize": {
           "type": "number",
           "format": "diskSize",
           "default": 100,
           "scope": "ContainerConnection",
-          "description": "Disk Size in GB of the machine"
+          "description": "Disk size (GB)"
         },
         "podman.factory.machine.name": {
           "type": "string",
           "default": "podman-machine-default",
           "scope": "ContainerProviderConnectionFactory",
-          "description": "Name of the machine"
+          "description": "Name"
         },
         "podman.factory.machine.cpus": {
           "type": "number",
           "format": "cpu",
           "default": 1,
           "scope": "ContainerProviderConnectionFactory",
-          "description": "CPUs of the machine"
+          "description": "CPU(s)"
         },
         "podman.factory.machine.memory": {
           "type": "number",
@@ -67,14 +67,14 @@
           "minimum": 1024,
           "default": 2048,
           "scope": "ContainerProviderConnectionFactory",
-          "description": "Memory of the machine"
+          "description": "Memory (MB)"
         },
         "podman.factory.machine.diskSize": {
           "type": "number",
           "format": "diskSize",
           "default": 100,
           "scope": "ContainerProviderConnectionFactory",
-          "description": "Disk Size in GB of the machine"
+          "description": "Disk size (GB)"
         }
       }
     }

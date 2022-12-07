@@ -329,7 +329,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // add links
   providerOptions.links = [
     {
-      title: 'Visit the Podman Website',
+      title: 'Visit the Podman website',
       url: 'https://podman.io/',
     },
     {
@@ -337,7 +337,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       url: 'https://podman.io/getting-started/installation',
     },
     {
-      title: 'Join the Podman Community',
+      title: 'Join the Podman community',
       url: 'https://podman.io/community/',
     },
   ];
