@@ -10,7 +10,7 @@ import { providerInfos } from './stores/providers';
 export let exitSettingsCallback: () => void;
 export let meta;
 
-let extensions, configProperties;
+let extensions, configProperties: Map<string, { id: string; title: string }>;
 
 $: extensions = [];
 $: configProperties = new Map();
@@ -28,7 +28,7 @@ onMount(async () => {
     configProperties = value
       .filter(property => property.scope === ConfigurationRegistry.DEFAULT_SCOPE)
       .filter(property => !property.hidden)
-      .reduce(function (map, property) {
+      .reduce((map, property) => {
         let [parentLeftId] = property.parentId.split('.');
 
         if (map[parentLeftId] === undefined) {
@@ -48,7 +48,7 @@ $: isCurrentPage = (pathParam: string): boolean => meta.url === pathParam;
 $: addExpandedClass = (section: string): string => (sectionExpanded[section] ? 'pf-m-expanded' : '');
 $: addCurrentClass = (pathParam: string): string =>
   isCurrentPage(pathParam) ? 'dark:text-white pf-m-current' : 'dark:text-gray-400';
-$: isAriaExpanded = (section: string): string => (sectionExpanded[section] ? 'true' : 'false');
+$: isAriaExpanded = (section: string): boolean => (sectionExpanded[section] ? true : false);
 $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section] ? '' : 'hidden');
 $: addExpandableClass = (provider: ProviderInfo): string =>
   provider.containerConnections.length > 0 ? 'pf-m-expandable' : '';

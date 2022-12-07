@@ -1,5 +1,5 @@
 <script lang="ts">
-import { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
+import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
 
 export let entry;
 

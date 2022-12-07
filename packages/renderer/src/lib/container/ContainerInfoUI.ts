@@ -32,6 +32,11 @@ export interface ContainerGroupPartInfoUI {
   // as well as the "engine" running the group (ex. podman or docker)
   id?: string;
   engineId?: string;
+  engineName?: string;
+  shortId?: string;
+  status?: string;
+  humanCreationDate?: string;
+  created?: string;
 }
 
 export interface ContainerInfoUI {

@@ -1,8 +1,6 @@
 <script lang="ts">
-import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './ContainerInfoUI';
-import PodIcon from './PodIcon.svelte';
+import type { ContainerInfoUI } from './ContainerInfoUI';
 
-export let type = '';
 export let containers: ContainerInfoUI[] = [];
 
 let isRunning = false;

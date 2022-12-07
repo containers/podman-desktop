@@ -2,7 +2,7 @@
 import { onDestroy, onMount } from 'svelte';
 import { filtered, searchPattern } from '../stores/containers';
 
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
+import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import ContainerIcon from './ContainerIcon.svelte';
 import { router } from 'tinro';
 import { ContainerGroupInfoTypeUI, ContainerGroupInfoUI, ContainerInfoUI } from './container/ContainerInfoUI';
@@ -160,7 +160,7 @@ function createPodFromContainers() {
   const podCreation = {
     name: 'my-pod',
     containers: selectedContainers.map(container => {
-      return { id: container.id, name: container.name, engineId: container.engineId, ports: container.ports };
+      return { id: container.id, name: container.name, engineId: container.engineId, ports: container.port };
     }),
   };
 
@@ -360,7 +360,7 @@ function toggleAllContainerGroups(value: boolean) {
                   class=" cursor-pointer invert hue-rotate-[218deg] brightness-75" />
               </td>
               <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
-                <ContainerGroupIcon type="{containerGroup.type}" containers="{containerGroup.containers}" />
+                <ContainerGroupIcon containers="{containerGroup.containers}" />
               </td>
               <td class="whitespace-nowrap hover:cursor-pointer">
                 <div class="flex items-center text-sm text-gray-200 overflow-hidden text-ellipsis">
@@ -390,7 +390,18 @@ function toggleAllContainerGroups(value: boolean) {
                 <!-- Only show POD actions if the container group is POD, otherwise keep blank / empty (for future compose implementation) -->
                 {#if containerGroup.type === ContainerGroupInfoTypeUI.POD}
                   <PodActions
-                    pod="{{ id: containerGroup.id, name: containerGroup.name, engineId: containerGroup.engineId }}"
+                    pod="{{
+                      id: containerGroup.id,
+                      shortId: containerGroup.shortId,
+                      status: containerGroup.status,
+                      name: containerGroup.name,
+                      engineId: containerGroup.engineId,
+                      engineName: containerGroup.engineName,
+                      humanCreationDate: containerGroup.humanCreationDate,
+                      created: containerGroup.created,
+                      selected: false,
+                      containers: [],
+                    }}"
                     dropdownMenu="{true}" />
                 {/if}
               </td>

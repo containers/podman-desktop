@@ -46,7 +46,6 @@ export let meta;
             version="1.1"
             xml:space="preserve"
             xmlns="http://www.w3.org/2000/svg"
-            xmlns:svg="http://www.w3.org/2000/svg"
             ><defs></defs><g transform="translate(28.70309,-15.045389)"
               ><g transform="translate(15.017747,-0.13247817)"
                 ><path
@@ -79,7 +78,6 @@ export let meta;
               version="1.1"
               xml:space="preserve"
               xmlns="http://www.w3.org/2000/svg"
-              xmlns:svg="http://www.w3.org/2000/svg"
               ><defs id="defs2"></defs>
               <g id="layer1" transform="translate(21.210601,-15.062965)">
                 <g id="g12184" transform="translate(-7.3827548,0.05695021)">
@@ -170,7 +168,6 @@ export let meta;
               version="1.1"
               xml:space="preserve"
               xmlns="http://www.w3.org/2000/svg"
-              xmlns:svg="http://www.w3.org/2000/svg"
               ><defs id="defs2"></defs><g id="layer1" transform="translate(6.6169197,-15.034864)"
                 ><g
                   id="fills-79d97be3-4979-11ed-9e28-8943899c0994"
@@ -227,7 +224,6 @@ export let meta;
               version="1.1"
               xml:space="preserve"
               xmlns="http://www.w3.org/2000/svg"
-              xmlns:svg="http://www.w3.org/2000/svg"
               ><defs></defs><g transform="translate(-0.50925903,-15.109665)"
                 ><g
                   id="fills-79d97bef-4979-11ed-9e28-8943899c0994"
@@ -341,7 +337,6 @@ export let meta;
             version="1.1"
             xml:space="preserve"
             xmlns="http://www.w3.org/2000/svg"
-            xmlns:svg="http://www.w3.org/2000/svg"
             ><defs id="defs2"></defs><g id="layer1" transform="translate(-7.6660583,-15.073749)"
               ><g
                 style="fill:none;-webkit-print-color-adjust:exact"
