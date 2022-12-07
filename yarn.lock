@@ -2786,10 +2786,10 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
-"@lit/reactive-element@^1.0.0", "@lit/reactive-element@^1.1.0":
-  version "1.2.2"
-  resolved "https://registry.npmjs.org/@lit/reactive-element/-/reactive-element-1.2.2.tgz"
-  integrity sha512-HkhTTO2rT8jlf4izz7ME/+YUjqz+ZHgmnOKorA+7tkDmQDg6QzDpWSFz//1YyiL193W4bc7rlQCiYyFiZa9pkQ==
+"@lit/reactive-element@^1.3.0":
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@lit/reactive-element/-/reactive-element-1.4.2.tgz#65d659e89d1a7e2f4f2b547182aef0a224f4adb7"
+  integrity sha512-VMOxsWh/QDwrxPsgkSQnuZ+8mfNy1OTjzzUdLBvvZtpahwPTHTeVZ51RZRqO4xfKVrR+btIPA8D01IL3xeG66w==
 
 "@ltd/j-toml@^1.35.3":
   version "1.35.3"
@@ -8372,38 +8372,29 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.npmjs.org/lines-and-columns/-/lines-and-columns-1.2.4.tgz"
   integrity sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==
 
-lit-element@^3.0.0, lit-element@^3.1.0:
-  version "3.1.2"
-  resolved "https://registry.npmjs.org/lit-element/-/lit-element-3.1.2.tgz"
-  integrity sha512-5VLn5a7anAFH7oz6d7TRG3KiTZQ5GEFsAgOKB8Yc+HDyuDUGOT2cL1CYTz/U4b/xlJxO+euP14pyji+z3Z3kOg==
+lit-element@^3.2.0:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/lit-element/-/lit-element-3.2.2.tgz#d148ab6bf4c53a33f707a5168e087725499e5f2b"
+  integrity sha512-6ZgxBR9KNroqKb6+htkyBwD90XGRiqKDHVrW/Eh0EZ+l+iC+u+v+w3/BA5NGi4nizAVHGYvQBHUDuSmLjPp7NQ==
   dependencies:
-    "@lit/reactive-element" "^1.1.0"
-    lit-html "^2.1.0"
+    "@lit/reactive-element" "^1.3.0"
+    lit-html "^2.2.0"
 
-lit-html@^2.0.0, lit-html@^2.1.0:
-  version "2.1.3"
-  resolved "https://registry.npmjs.org/lit-html/-/lit-html-2.1.3.tgz"
-  integrity sha512-WgvdwiNeuoT0mYEEJI+AAV2DEtlqzVM4lyDSaeQSg5ZwhS/CkGJBO/4n66alApEuSS9WXw9+ADBp8SPvtDEKSg==
+lit-html@^2.2.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/lit-html/-/lit-html-2.4.0.tgz#b510430f39a56ec959167ed1187241a4e3ab1574"
+  integrity sha512-G6qXu4JNUpY6aaF2VMfaszhO9hlWw0hOTRFDmuMheg/nDYGB+2RztUSOyrzALAbr8Nh0Y7qjhYkReh3rPnplVg==
   dependencies:
     "@types/trusted-types" "^2.0.2"
 
-lit@2.0.2:
-  version "2.0.2"
-  resolved "https://registry.npmjs.org/lit/-/lit-2.0.2.tgz"
-  integrity sha512-hKA/1YaSB+P+DvKWuR2q1Xzy/iayhNrJ3aveD0OQ9CKn6wUjsdnF/7LavDOJsKP/K5jzW/kXsuduPgRvTFrFJw==
+lit@2.2.6, lit@^2.0.0:
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/lit/-/lit-2.2.6.tgz#4ef223e88517c000b0c01baf2e3535e61a75a5b5"
+  integrity sha512-K2vkeGABfSJSfkhqHy86ujchJs3NR9nW1bEEiV+bXDkbiQ60Tv5GUausYN2mXigZn8lC1qXuc46ArQRKYmumZw==
   dependencies:
-    "@lit/reactive-element" "^1.0.0"
-    lit-element "^3.0.0"
-    lit-html "^2.0.0"
-
-lit@^2.0.0:
-  version "2.1.3"
-  resolved "https://registry.npmjs.org/lit/-/lit-2.1.3.tgz"
-  integrity sha512-46KtKy7iDoY3wZ5VSqBlXll6J/tli5gRMPFRWi5qQ01lvIqcO+dYQwb1l1NYZjbzcHnGnCKrMb8nDv7/ZE4Y4g==
-  dependencies:
-    "@lit/reactive-element" "^1.1.0"
-    lit-element "^3.1.0"
-    lit-html "^2.1.0"
+    "@lit/reactive-element" "^1.3.0"
+    lit-element "^3.2.0"
+    lit-html "^2.2.0"
 
 loader-runner@^4.2.0:
   version "4.2.0"
@@ -8938,14 +8929,14 @@ neo-async@^2.6.2:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
-ninja-keys@^1.1.12:
-  version "1.1.12"
-  resolved "https://registry.npmjs.org/ninja-keys/-/ninja-keys-1.1.12.tgz"
-  integrity sha512-YE5Ls0xENFUxhk32pQUTix/UjbdK/n8tBHGEV2pWkckS7hljz1c+3jl/28agkBQKLx7vgM/bKI7MK//at2nmZQ==
+ninja-keys@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/ninja-keys/-/ninja-keys-1.2.2.tgz#c1e1ec1a98aee3a977ee77157ac4aa865348be88"
+  integrity sha512-ylo8jzKowi3XBHkgHRjBJaKQkl32WRLr7kRiA0ajiku11vHRDJ2xANtTScR5C7XlDwKEOYvUPesCKacUeeLAYw==
   dependencies:
     "@material/mwc-icon" "0.25.3"
     hotkeys-js "3.8.7"
-    lit "2.0.2"
+    lit "2.2.6"
 
 no-case@^3.0.4:
   version "3.0.4"
