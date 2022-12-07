@@ -46,7 +46,7 @@ jobs:
           if [[ $version == v* ]]; then
             version="${version:1}"
           fi
-          echo "::set-output name=desktopVersion::$version"
+          echo "desktopVersion=$version" >> ${GITHUB_OUTPUT}
       - name: Create Pull Request to update Brew
         run: |
           # update formulae

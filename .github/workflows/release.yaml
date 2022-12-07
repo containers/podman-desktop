@@ -49,8 +49,9 @@ jobs:
         id: TAG_UTIL
         run: |
             TAG_PATTERN=${{ github.event.inputs.version }}
-            echo "::set-output name=githubTag::v$TAG_PATTERN"
-            echo "::set-output name=desktopVersion::$TAG_PATTERN"
+            echo "githubTag=v$TAG_PATTERN" >> ${GITHUB_OUTPUT}
+            echo "desktopVersion=$TAG_PATTERN" >> ${GITHUB_OUTPUT}
+
       - name: tag
         run: |
           git config --local user.name ${{ github.actor }}
@@ -139,9 +140,15 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Get yarn cache directory path (Windows)
+        if: ${{ matrix.os=='windows-2022' }}
+        id: yarn-cache-dir-path-windows
+        run: echo "dir=$(yarn cache dir)" >> ${env:GITHUB_OUTPUT}
+
+      - name: Get yarn cache directory path (mac/Linux)
+        if: ${{ matrix.os=='ubuntu-20.04' || matrix.os=='macos-11' }}
+        id: yarn-cache-dir-path-unix
+        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
 
       - uses: actions/cache@v3
         id: yarn-cache

@@ -53,7 +53,7 @@ jobs:
           if [[ $version == v* ]]; then
             version="${version:1}"
           fi
-          echo "::set-output name=desktopVersion::$version"
+          echo "desktopVersion=$version" >> ${GITHUB_OUTPUT}
 
   winget-bump:
     name: Update Chocolatey
