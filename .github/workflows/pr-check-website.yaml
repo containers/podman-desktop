@@ -1,12 +1,12 @@
 #
 # Copyright (C) 2022 Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,10 +14,10 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
- 
-name: pr-check-website
 
-on: 
+name: Build website on pull request
+
+on:
   pull_request:
     paths:
       - 'package.json'
@@ -51,3 +51,17 @@ jobs:
 
       - name: Run website
         run: yarn website:build
+
+      - name: Store pull request details for publish-netlify
+        run: |
+          echo "${{ github.event.number }}" > PR_NUMBER
+          echo "${{ github.event.pull_request.head.sha }}" > PR_SHA
+
+      - name: Upload artifact website-content
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: website-content
+          path: |
+            website/build
+            PR_NUMBER
+            PR_SHA
