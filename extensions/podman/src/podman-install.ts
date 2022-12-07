@@ -439,14 +439,27 @@ class WSL2Check extends BaseCheck {
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
-      const res = await execPromise('wsl', ['--status'], { env: { WSL_UTF8: '1' } });
-      const output = this.normalizeOutput(res);
-      if (!output) {
-        throw new Error();
+      const isAdmin = await this.isUserAdmin();
+      const isWSL = await this.isWSLPresent();
+
+      if (!isWSL) {
+        if (isAdmin) {
+          return this.createFailureResult(
+            'WSL2 is not installed. Call "wsl --install" in terminal.',
+            'Install WSL',
+            'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
+          );
+        } else {
+          return this.createFailureResult(
+            'WSL2 is not installed or you do not have permissions to run WSL2. Contact your Administrator to setup WSL2.',
+            'More info',
+            'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
+          );
+        }
       }
     } catch (err) {
       return this.createFailureResult(
-        'WSL2 is not installed. Call "wsl --install" in terminal.',
+        'Could not detect WSL2',
         'Install WSL',
         'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
       );
@@ -466,5 +479,28 @@ class WSL2Check extends BaseCheck {
     }
 
     return str;
+  }
+  private async isUserAdmin(): Promise<boolean> {
+    const res = await execPromise('powershell.exe', [
+      '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
+    ]);
+    if (res.trim() === 'True') {
+      return true;
+    }
+
+    return false;
+  }
+
+  private async isWSLPresent(): Promise<boolean> {
+    try {
+      const res = await execPromise('wsl', ['--set-default-version', '2'], { env: { WSL_UTF8: '1' } });
+      const output = this.normalizeOutput(res);
+      if (!output) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
