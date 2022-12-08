@@ -78,6 +78,7 @@ import type { V1Route } from './api/openshift-types';
 import type { NetworkInspectInfo } from './api/network-info';
 import { FilesystemMonitoring } from './filesystem-monitoring';
 import { Certificates } from './certificates';
+import { Proxy } from './proxy';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -250,13 +251,15 @@ export class PluginSystem {
     const telemetry = new Telemetry(configurationRegistry);
     await telemetry.init();
 
+    const proxy = new Proxy(configurationRegistry);
+    await proxy.init();
+
     const commandRegistry = new CommandRegistry();
     const certificates = new Certificates();
     await certificates.init();
-    const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates);
+    const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
-    providerRegistry.addProviderListener(imageRegistry.getProviderListener());
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
@@ -296,6 +299,7 @@ export class PluginSystem {
       statusBarRegistry,
       kubernetesClient,
       fileSystemMonitoring,
+      proxy,
     );
 
     const contributionManager = new ContributionManager(apiSender);
@@ -831,15 +835,26 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
-      'provider-registry:updateProxySettings',
+      'proxy:updateSettings',
       async (
         _listener: Electron.IpcMainInvokeEvent,
-        providerId: string,
-        proxySettings: containerDesktopAPI.ProviderProxySettings,
+        proxySettings: containerDesktopAPI.ProxySettings,
       ): Promise<void> => {
-        return providerRegistry.updateProxySettings(providerId, proxySettings);
+        return proxy.setProxy(proxySettings);
       },
     );
+
+    this.ipcHandle('proxy:setState', async (_listener: Electron.IpcMainInvokeEvent, state: boolean): Promise<void> => {
+      return proxy.setState(state);
+    });
+
+    this.ipcHandle('proxy:getSettings', async (): Promise<containerDesktopAPI.ProxySettings | undefined> => {
+      return proxy.proxy;
+    });
+
+    this.ipcHandle('proxy:isEnabled', async (): Promise<boolean> => {
+      return proxy.isEnabled();
+    });
 
     this.ipcHandle(
       'provider-registry:startProviderConnectionLifecycle',

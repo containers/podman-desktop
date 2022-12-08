@@ -24,7 +24,6 @@ import type {
   ProviderInstallation,
   ProviderLifecycle,
   ProviderOptions,
-  ProviderProxySettings,
   ProviderStatus,
   ProviderUpdate,
 } from '@tmpwip/extension-api';
@@ -113,10 +112,6 @@ export class ProviderRegistry {
     if (providerOptions.version) {
       trackOpts.version = providerOptions.version;
     }
-    providerImpl.onDidUpdateProxy(() => {
-      this.listeners.forEach(listener => listener('provider:update-proxy', this.getProviderInfo(providerImpl)));
-    });
-
     this.telemetryService.track('createProvider', trackOpts);
     this.apiSender.send('provider-create', id);
     return providerImpl;
@@ -253,13 +248,6 @@ export class ProviderRegistry {
     this.lifecycleListeners.forEach(listener =>
       listener('provider:after-stop-lifecycle', this.getProviderInfo(provider), providerLifecycle),
     );
-  }
-
-  // Update the proxy for the given provider
-  async updateProxySettings(providerId: string, proxy: ProviderProxySettings): Promise<void> {
-    const provider = this.getMatchingProvider(providerId);
-    provider.updateProxy(proxy);
-    this.listeners.forEach(listener => listener('provider:update-proxy', this.getProviderInfo(provider)));
   }
 
   async getProviderDetectionChecks(providerInternalId: string): Promise<ProviderDetectionCheck[]> {

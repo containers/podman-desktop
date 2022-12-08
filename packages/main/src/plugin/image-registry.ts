@@ -26,9 +26,9 @@ import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
 import got, { HTTPError } from 'got';
 import { RequestError } from 'got';
 import validator from 'validator';
-import type { ProviderInfo } from './api/provider-info';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import type { Certificates } from './certificates';
+import type { Proxy } from './proxy';
 
 export interface RegistryAuthInfo {
   authUrl: string;
@@ -52,10 +52,26 @@ export class ImageRegistry {
   readonly onDidUnregisterRegistry: containerDesktopAPI.Event<containerDesktopAPI.Registry> =
     this._onDidUnregisterRegistry.event;
 
-  private proxySettings: containerDesktopAPI.ProviderProxySettings | undefined;
+  private proxySettings: containerDesktopAPI.ProxySettings | undefined;
+  private proxyEnabled: boolean;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any, private telemetryService: Telemetry, private certificates: Certificates) {}
+  constructor(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private apiSender: any,
+    private telemetryService: Telemetry,
+    private certificates: Certificates,
+    private proxy: Proxy,
+  ) {
+    this.proxy.onDidUpdateProxy(settings => {
+      this.proxySettings = settings;
+    });
+
+    this.proxy.onDidStateChange(state => {
+      this.proxyEnabled = state;
+    });
+
+    this.proxyEnabled = this.proxy.isEnabled();
+  }
 
   extractRegistryServerFromImage(imageName: string): string | undefined {
     // check if image is a valid identifier for dockerhub
@@ -227,11 +243,6 @@ export class ImageRegistry {
   }
 
   getOptions(): OptionsOfTextResponseBody {
-    // use proxy when performing got request
-    const proxy = this.proxySettings;
-    const httpProxyUrl = proxy && proxy.httpProxy;
-    const httpsProxyUrl = proxy && proxy.httpsProxy;
-
     const httpsOptions: HttpsOptions = {};
     const options: OptionsOfTextResponseBody = {
       https: httpsOptions,
@@ -241,38 +252,45 @@ export class ImageRegistry {
       options.https.certificateAuthority = this.certificates.getAllCertificates();
     }
 
-    if (httpProxyUrl) {
-      if (!options.agent) {
-        options.agent = {};
+    if (this.proxyEnabled) {
+      // use proxy when performing got request
+      const proxy = this.proxySettings;
+      const httpProxyUrl = proxy && proxy.httpProxy;
+      const httpsProxyUrl = proxy && proxy.httpsProxy;
+
+      if (httpProxyUrl) {
+        if (!options.agent) {
+          options.agent = {};
+        }
+        try {
+          options.agent.http = new HttpProxyAgent({
+            keepAlive: true,
+            keepAliveMsecs: 1000,
+            maxSockets: 256,
+            maxFreeSockets: 256,
+            scheduling: 'lifo',
+            proxy: httpProxyUrl,
+          });
+        } catch (error) {
+          throw new Error(`Failed to create https proxy agent from ${httpProxyUrl}: ${error}`);
+        }
       }
-      try {
-        options.agent.http = new HttpProxyAgent({
-          keepAlive: true,
-          keepAliveMsecs: 1000,
-          maxSockets: 256,
-          maxFreeSockets: 256,
-          scheduling: 'lifo',
-          proxy: httpProxyUrl,
-        });
-      } catch (error) {
-        throw new Error(`Failed to create https proxy agent from ${httpProxyUrl}: ${error}`);
-      }
-    }
-    if (httpsProxyUrl) {
-      if (!options.agent) {
-        options.agent = {};
-      }
-      try {
-        options.agent.https = new HttpsProxyAgent({
-          keepAlive: true,
-          keepAliveMsecs: 1000,
-          maxSockets: 256,
-          maxFreeSockets: 256,
-          scheduling: 'lifo',
-          proxy: httpsProxyUrl,
-        });
-      } catch (error) {
-        throw new Error(`Failed to create https proxy agent from ${httpsProxyUrl}: ${error}`);
+      if (httpsProxyUrl) {
+        if (!options.agent) {
+          options.agent = {};
+        }
+        try {
+          options.agent.https = new HttpsProxyAgent({
+            keepAlive: true,
+            keepAliveMsecs: 1000,
+            maxSockets: 256,
+            maxFreeSockets: 256,
+            scheduling: 'lifo',
+            proxy: httpsProxyUrl,
+          });
+        } catch (error) {
+          throw new Error(`Failed to create https proxy agent from ${httpsProxyUrl}: ${error}`);
+        }
       }
     }
     return options;
@@ -383,14 +401,5 @@ export class ImageRegistry {
     if (!rawResponse?.includes('token')) {
       throw Error('Unable to validate provided credentials.');
     }
-  }
-
-  getProviderListener(): (name: string, providerInfo: ProviderInfo) => void {
-    return (_name: string, providerInfo: ProviderInfo) => {
-      // is there some proxy settings ?
-      if (providerInfo.proxySettings) {
-        this.proxySettings = providerInfo.proxySettings;
-      }
-    };
   }
 }

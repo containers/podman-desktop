@@ -132,12 +132,6 @@ declare module '@tmpwip/extension-api' {
     status(): ProviderStatus;
   }
 
-  export interface ProviderProxySettings {
-    httpProxy: string;
-    httpsProxy: string;
-    noProxy: string;
-  }
-
   export interface ProviderDetectionCheck {
     name: string;
     details?: string;
@@ -258,10 +252,6 @@ declare module '@tmpwip/extension-api' {
     registerContainerProviderConnection(connection: ContainerProviderConnection): Disposable;
     registerKubernetesProviderConnection(connection: KubernetesProviderConnection): Disposable;
     registerLifecycle(lifecycle: ProviderLifecycle): Disposable;
-    // Sets the proxy that has been defined in the provider
-    registerProxy(proxySettings: ProxySettings): Disposable;
-    // Podman Desktop has updated the settings, propagates the changes to the provider.
-    onDidUpdateProxy: Event<ProxySettings>;
 
     // register installation flow
     registerInstallation(installation: ProviderInstallation): Disposable;
@@ -308,6 +298,23 @@ declare module '@tmpwip/extension-api' {
 
   export namespace provider {
     export function createProvider(provider: ProviderOptions): Provider;
+  }
+
+  export interface ProxySettings {
+    httpProxy: string | undefined;
+    httpsProxy: string | undefined;
+    noProxy: string | undefined;
+  }
+
+  export namespace proxy {
+    export function getProxySettings(): ProxySettings | undefined;
+    export function setProxy(proxySettings: ProxySettings): void;
+    // Podman Desktop has updated the settings, propagates the changes to the provider.
+    export const onDidUpdateProxy: Event<ProxySettings>;
+
+    // The state of the proxy
+    export function isEnabled(): boolean;
+    export const onDidStateChange: Event<boolean>;
   }
 
   export interface Registry extends RegistryCreateOptions {

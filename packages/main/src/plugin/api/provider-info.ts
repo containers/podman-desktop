@@ -21,7 +21,6 @@ import type {
   ProviderDetectionCheck,
   ProviderImages,
   ProviderLinks,
-  ProviderProxySettings,
   ProviderStatus,
   Link,
 } from '@tmpwip/extension-api';
@@ -57,8 +56,6 @@ export interface ProviderInfo {
   lifecycleMethods?: LifecycleMethod[];
   // can create provider connection from ContainerProviderConnectionFactory params
   containerProviderConnectionCreation: boolean;
-
-  proxySettings?: ProviderProxySettings;
 
   version?: string;
 

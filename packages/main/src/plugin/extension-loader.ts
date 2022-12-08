@@ -38,6 +38,7 @@ import { StatusBarAlignLeft, StatusBarAlignRight, StatusBarItemDefaultPriority }
 import type { FilesystemMonitoring } from './filesystem-monitoring';
 import { Uri } from './types/uri';
 import type { KubernetesClient } from './kubernetes-client';
+import type { Proxy } from './proxy';
 
 /**
  * Handle the loading of an extension
@@ -82,6 +83,7 @@ export class ExtensionLoader {
     private statusBarRegistry: StatusBarRegistry,
     private kubernetesClient: KubernetesClient,
     private fileSystemMonitoring: FilesystemMonitoring,
+    private proxy: Proxy,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -290,6 +292,25 @@ export class ExtensionLoader {
       },
     };
 
+    const proxyInstance = this.proxy;
+    const proxy: typeof containerDesktopAPI.proxy = {
+      getProxySettings(): containerDesktopAPI.ProxySettings | undefined {
+        return proxyInstance.proxy;
+      },
+      setProxy(proxySettings: containerDesktopAPI.ProxySettings): void {
+        proxyInstance.setProxy(proxySettings);
+      },
+      onDidUpdateProxy: (listener, thisArg, disposables) => {
+        return proxyInstance.onDidUpdateProxy(listener, thisArg, disposables);
+      },
+      isEnabled(): boolean {
+        return proxyInstance.isEnabled();
+      },
+      onDidStateChange: (listener, thisArg, disposables) => {
+        return proxyInstance.onDidStateChange(listener, thisArg, disposables);
+      },
+    };
+
     const trayMenuRegistry = this.trayMenuRegistry;
     const tray: typeof containerDesktopAPI.tray = {
       registerMenuItem(item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
@@ -415,6 +436,7 @@ export class ExtensionLoader {
       fs,
       configuration,
       tray,
+      proxy,
       kubernetes,
       ProgressLocation,
       window: windowObj,
