@@ -13,7 +13,7 @@ export let provider: ProviderInfo;
       {provider.name} is starting...
     </p>
     {#if provider.version}
-      <p class="text-base font-semibold text-gray-400">
+      <p class="text-base capitalize font-semibold text-gray-400">
         version {provider.version}
       </p>
     {/if}
