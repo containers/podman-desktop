@@ -42,13 +42,13 @@ export class Proxy {
       type: 'object',
       properties: {
         ['proxy.http']: {
-          description: 'Http Proxy value',
+          description: 'Proxy (HTTP)',
           type: 'string',
           default: '',
           hidden: true,
         },
         ['proxy.https']: {
-          description: 'Https Proxy value',
+          description: 'Proxy (HTTPS)',
           type: 'string',
           default: '',
           hidden: true,
