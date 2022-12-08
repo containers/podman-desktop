@@ -23,6 +23,9 @@ import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { ConfigurationImpl } from './configuration-impl';
 import type { Event } from './events/emitter';
 import { Emitter } from './events/emitter';
+
+export const CONFIGURATION_DEFAULT_SCOPE = 'DEFAULT';
+
 export type IConfigurationPropertySchemaType =
   | 'string'
   | 'number'
@@ -85,7 +88,6 @@ export interface IConfigurationRegistry {
 }
 
 export class ConfigurationRegistry implements IConfigurationRegistry {
-  public static DEFAULT_SCOPE = 'DEFAULT';
   private readonly configurationContributors: IConfigurationNode[];
   private readonly configurationProperties: Record<string, IConfigurationPropertyRecordedSchema>;
 
@@ -103,7 +105,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     this.configurationProperties = {};
     this.configurationContributors = [];
     this.configurationValues = new Map();
-    this.configurationValues.set(ConfigurationRegistry.DEFAULT_SCOPE, {});
+    this.configurationValues.set(CONFIGURATION_DEFAULT_SCOPE, {});
   }
 
   protected getSettingsFile(): string {
@@ -123,7 +125,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     }
 
     const settingsRawContent = fs.readFileSync(settingsFile, 'utf-8');
-    this.configurationValues.set(ConfigurationRegistry.DEFAULT_SCOPE, JSON.parse(settingsRawContent));
+    this.configurationValues.set(CONFIGURATION_DEFAULT_SCOPE, JSON.parse(settingsRawContent));
   }
 
   public registerConfigurations(configurations: IConfigurationNode[]): void {
@@ -149,12 +151,12 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
         if (
           configProperty.default &&
           !configProperty.scope &&
-          this.configurationValues.get(ConfigurationRegistry.DEFAULT_SCOPE)[key] === undefined
+          this.configurationValues.get(CONFIGURATION_DEFAULT_SCOPE)[key] === undefined
         ) {
-          this.configurationValues.get(ConfigurationRegistry.DEFAULT_SCOPE)[key] = configProperty.default;
+          this.configurationValues.get(CONFIGURATION_DEFAULT_SCOPE)[key] = configProperty.default;
         }
         if (!configProperty.scope) {
-          configProperty.scope = 'DEFAULT';
+          configProperty.scope = CONFIGURATION_DEFAULT_SCOPE;
         }
         this.configurationProperties[key] = configProperty;
       }
@@ -208,11 +210,11 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     // extract child key with first name after first . notation
     const childKey = key.substring(key.indexOf('.') + 1);
     const promise = await this.getConfiguration(parentKey, scope).update(childKey, value);
-    if (scope === 'DEFAULT') {
+    if (scope === CONFIGURATION_DEFAULT_SCOPE) {
       this.saveDefault();
     }
     if (!scope) {
-      scope = 'DEFAULT';
+      scope = CONFIGURATION_DEFAULT_SCOPE;
     }
     const event = { key, value, scope };
     this._onDidChangeConfiguration.fire(event);
@@ -220,7 +222,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   }
 
   public saveDefault() {
-    const cloneConfig = { ...this.configurationValues.get('DEFAULT') };
+    const cloneConfig = { ...this.configurationValues.get(CONFIGURATION_DEFAULT_SCOPE) };
     // for each key being already the default value, remove the entry
     Object.keys(cloneConfig)
       .filter(key => cloneConfig[key] === this.configurationProperties[key]?.default)
@@ -238,7 +240,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     scope?: containerDesktopAPI.ConfigurationScope,
   ): containerDesktopAPI.Configuration {
     const callback = (scope: containerDesktopAPI.ConfigurationScope) => {
-      if (scope === 'DEFAULT') {
+      if (scope === CONFIGURATION_DEFAULT_SCOPE) {
         this.saveDefault();
       }
     };

@@ -25,6 +25,7 @@ import getos from 'getos';
 import * as osLocale from 'os-locale';
 import { promisify } from 'node:util';
 import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry';
+import { CONFIGURATION_DEFAULT_SCOPE } from '../configuration-registry';
 import { findWindow } from '../../util';
 
 /**
@@ -97,14 +98,26 @@ export class Telemetry {
         })
         .then(async messageBoxReturnValue => {
           // check has been performed, we asked the user and he answered, so check is done
-          await this.configurationRegistry.updateConfigurationValue('telemetry.check', true, 'DEFAULT');
+          await this.configurationRegistry.updateConfigurationValue(
+            'telemetry.check',
+            true,
+            CONFIGURATION_DEFAULT_SCOPE,
+          );
           // if the user said yes, we enable the telemetry
           if (messageBoxReturnValue.checkboxChecked) {
-            await this.configurationRegistry.updateConfigurationValue('telemetry.enabled', true, 'DEFAULT');
+            await this.configurationRegistry.updateConfigurationValue(
+              'telemetry.enabled',
+              true,
+              CONFIGURATION_DEFAULT_SCOPE,
+            );
             this.configureTelemetry();
           } else {
             // else we disable it
-            await this.configurationRegistry.updateConfigurationValue('telemetry.enabled', false, 'DEFAULT');
+            await this.configurationRegistry.updateConfigurationValue(
+              'telemetry.enabled',
+              false,
+              CONFIGURATION_DEFAULT_SCOPE,
+            );
           }
         });
     } else {
