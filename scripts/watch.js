@@ -1,18 +1,16 @@
 #!/usr/bin/env node
 
-const {createServer, build, createLogger} = require('vite');
+const { createServer, build, createLogger } = require('vite');
 const electronPath = require('electron');
-const {spawn} = require('child_process');
-const {generateAsync} = require('dts-for-context-bridge');
+const { spawn } = require('child_process');
+const { generateAsync } = require('dts-for-context-bridge');
 const path = require('path');
 
 /** @type 'production' | 'development'' */
-const mode = process.env.MODE = process.env.MODE || 'development';
-
+const mode = (process.env.MODE = process.env.MODE || 'development');
 
 /** @type {import('vite').LogLevel} */
 const LOG_LEVEL = 'info';
-
 
 /** @type {import('vite').InlineConfig} */
 const sharedConfig = {
@@ -34,20 +32,19 @@ const stderrFilterPatterns = [
 /**
  * @param {{name: string; configFile: string; writeBundle: import('rollup').OutputPlugin['writeBundle'] }} param0
  */
-const getWatcher = ({name, configFile, writeBundle}) => {
+const getWatcher = ({ name, configFile, writeBundle }) => {
   return build({
     ...sharedConfig,
     configFile,
-    plugins: [{name, writeBundle}],
+    plugins: [{ name, writeBundle }],
   });
 };
-
 
 /**
  * Start or restart App when source files are changed
  * @param {{config: {server: import('vite').ResolvedServerOptions}}} ResolvedServerOptions
  */
-const setupMainPackageWatcher = ({config: {server}}) => {
+const setupMainPackageWatcher = ({ config: { server } }) => {
   // Create VITE_DEV_SERVER_URL environment variable to pass it to the main process.
   {
     const protocol = server.https ? 'https:' : 'http:';
@@ -74,13 +71,13 @@ const setupMainPackageWatcher = ({config: {server}}) => {
         spawnProcess = null;
       }
 
-      spawnProcess = spawn(String(electronPath), ['.'], { env: {...process.env, ELECTRON_IS_DEV: 1} });
+      spawnProcess = spawn(String(electronPath), ['.'], { env: { ...process.env, ELECTRON_IS_DEV: 1 } });
 
-      spawnProcess.stdout.on('data', d => d.toString().trim() && logger.warn(d.toString(), {timestamp: true}));
+      spawnProcess.stdout.on('data', d => d.toString().trim() && logger.warn(d.toString(), { timestamp: true }));
       spawnProcess.stderr.on('data', d => {
         const data = d.toString().trim();
         if (!data) return;
-        const mayIgnore = stderrFilterPatterns.some((r) => r.test(data));
+        const mayIgnore = stderrFilterPatterns.some(r => r.test(data));
         if (mayIgnore) return;
         logger.error(data, { timestamp: true });
       });
@@ -91,12 +88,11 @@ const setupMainPackageWatcher = ({config: {server}}) => {
   });
 };
 
-
 /**
  * Start or restart App when source files are changed
  * @param {{ws: import('vite').WebSocketServer}} WebSocketServer
  */
-const setupPreloadPackageWatcher = ({ws}) =>
+const setupPreloadPackageWatcher = ({ ws }) =>
   getWatcher({
     name: 'reload-page-on-preload-package-change',
     configFile: 'packages/preload/vite.config.js',
@@ -106,14 +102,15 @@ const setupPreloadPackageWatcher = ({ws}) =>
         input: 'packages/preload/tsconfig.json',
         output: 'packages/preload/exposedInMainWorld.d.ts',
       });
-
-      ws.send({
-        type: 'full-reload',
-      });
+      if (ws) {
+        ws.send({
+          type: 'full-reload',
+        });
+      }
     },
   });
 
-const setupPreloadDockerExtensionPackageWatcher = ({ws}) =>
+const setupPreloadDockerExtensionPackageWatcher = ({ ws }) =>
   getWatcher({
     name: 'reload-page-on-preload-docker-extension-package-change',
     configFile: 'packages/preload-docker-extension/vite.config.js',
@@ -124,37 +121,48 @@ const setupPreloadDockerExtensionPackageWatcher = ({ws}) =>
         output: 'packages/preload-docker-extension/exposedInDockerExtension.d.ts',
       });
 
-      ws.send({
-        type: 'full-reload',
-      });
+      if (ws) {
+        ws.send({
+          type: 'full-reload',
+        });
+      }
     },
   });
-
 
 /**
  * Start or restart App when source files are changed
  * @param {{ws: import('vite').WebSocketServer}} WebSocketServer
  */
- const setupExtensionApiWatcher = (name) =>{
-   let spawnProcess;
-   const folderName = path.resolve(__dirname, '../extensions/' + name);
+const setupExtensionApiWatcher = name => {
+  let spawnProcess;
+  const folderName = path.resolve(__dirname, '../extensions/' + name);
 
   console.log('dirname is', folderName);
-    spawnProcess = spawn('yarn', ['--cwd',  folderName, 'watch'], { shell: process.platform === 'win32'} );
+  spawnProcess = spawn('yarn', ['--cwd', folderName, 'watch'], { shell: process.platform === 'win32' });
 
-    spawnProcess.stdout.on('data', d => d.toString().trim() && console.warn(d.toString(), {timestamp: true}));
-    spawnProcess.stderr.on('data', d => {
-      const data = d.toString().trim();
-      if (!data) return;
-      console.error(data, { timestamp: true });
-    });
+  spawnProcess.stdout.on('data', d => d.toString().trim() && console.warn(d.toString(), { timestamp: true }));
+  spawnProcess.stderr.on('data', d => {
+    const data = d.toString().trim();
+    if (!data) return;
+    console.error(data, { timestamp: true });
+  });
 
-    // Stops the watch script when the application has been quit
-    spawnProcess.on('exit', process.exit);
-
- };
+  // Stops the watch script when the application has been quit
+  spawnProcess.on('exit', process.exit);
+};
 
 (async () => {
+  // grab arguments
+  const args = process.argv.slice(2);
+  const generateTypesOnly = args.includes('--types-only');
+  // If types-only is passed, we don't watch for changes but only do generation
+  if (generateTypesOnly) {
+    delete sharedConfig.build.watch;
+    await setupPreloadPackageWatcher({ ws: undefined });
+    await setupPreloadDockerExtensionPackageWatcher({ ws: undefined });
+    return;
+  }
+
   try {
     const viteDevServer = await createServer({
       ...sharedConfig,

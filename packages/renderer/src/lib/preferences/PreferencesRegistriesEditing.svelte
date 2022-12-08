@@ -305,7 +305,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: Registry) => {
                     <DropdownMenuItem
                       title="Login"
                       onClick="{() => markRegistryAsModified(registry)}"
-                      hidden="{registry.username && registry.secret}"
+                      hidden="{!!registry.username && !!registry.secret}"
                       icon="{faUser}" />
                     <DropdownMenuItem
                       title="Edit password"

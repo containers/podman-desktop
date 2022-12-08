@@ -25,15 +25,15 @@ beforeEach(() => {
 
 test('Should expect invalid domain', async () => {
   const result = urlValidator()('my_invalid_domain');
-  expect(result).toBe('Please enter a valid URL');
+  expect(result[1]).toBe('Please enter a valid URL');
 });
 
 test('Should expect valid domain', async () => {
   const result = urlValidator()('valid.com');
-  expect(result).toBe(true);
+  expect(result[0]).toBe(true);
 });
 
 test('Should expect valid TLD domain with more than 3 char domains', async () => {
   const result = urlValidator()('foobar.mydomain.science');
-  expect(result).toBe(true);
+  expect(result[0]).toBe(true);
 });
