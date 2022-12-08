@@ -8,7 +8,7 @@ import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 
 export let volume: VolumeInfoUI;
-export let backgroundColor = 'bg-zinc-800';
+export let detailed: boolean = false;
 
 async function removeVolume(): Promise<void> {
   await window.removeVolume(volume.engineId, volume.name);
@@ -17,9 +17,5 @@ async function removeVolume(): Promise<void> {
 </script>
 
 {#if !volume.inUse}
-  <ListItemButtonIcon
-    title="Delete Volume"
-    onClick="{() => removeVolume()}"
-    backgroundColor="{backgroundColor}"
-    icon="{faTrash}" />
+  <ListItemButtonIcon title="Delete Volume" onClick="{() => removeVolume()}" detailed="{detailed}" icon="{faTrash}" />
 {/if}

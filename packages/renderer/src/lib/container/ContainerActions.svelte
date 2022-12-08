@@ -12,6 +12,7 @@ import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 export let container: ContainerInfoUI;
 export let dropdownMenu: boolean = false;
+export let detailed: boolean = false;
 
 async function startContainer(containerInfo: ContainerInfoUI) {
   await window.startContainer(containerInfo.engineId, containerInfo.id);
@@ -58,15 +59,21 @@ if (dropdownMenu) {
   title="Start Container"
   onClick="{() => startContainer(container)}"
   hidden="{container.state === 'RUNNING'}"
+  detailed="{detailed}"
   icon="{faPlay}" />
 
 <ListItemButtonIcon
   title="Stop Container"
   onClick="{() => stopContainer(container)}"
   hidden="{!(container.state === 'RUNNING')}"
+  detailed="{detailed}"
   icon="{faStop}" />
 
-<ListItemButtonIcon title="Delete Container" onClick="{() => deleteContainer(container)}" icon="{faTrash}" />
+<ListItemButtonIcon
+  title="Delete Container"
+  onClick="{() => deleteContainer(container)}"
+  icon="{faTrash}"
+  detailed="{detailed}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
@@ -75,28 +82,33 @@ if (dropdownMenu) {
     onClick="{() => openGenerateKube()}"
     menu="{dropdownMenu}"
     hidden="{!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}"
+    detailed="{detailed}"
     icon="{faFileCode}" />
   <ListItemButtonIcon
     title="Deploy to Kubernetes"
     onClick="{() => deployToKubernetes()}"
     menu="{dropdownMenu}"
     hidden="{!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}"
+    detailed="{detailed}"
     icon="{faRocket}" />
   <ListItemButtonIcon
     title="Open Browser"
     onClick="{() => openBrowser(container)}"
     menu="{dropdownMenu}"
     hidden="{!(container.state === 'RUNNING' && container.hasPublicPort)}"
+    detailed="{detailed}"
     icon="{faExternalLinkSquareAlt}" />
   <ListItemButtonIcon
     title="Open Terminal"
     onClick="{() => openTerminalContainer(container)}"
     menu="{dropdownMenu}"
     hidden="{!(container.state === 'RUNNING')}"
+    detailed="{detailed}"
     icon="{faTerminal}" />
   <ListItemButtonIcon
     title="Restart Container"
     onClick="{() => restartContainer(container)}"
     menu="{dropdownMenu}"
+    detailed="{detailed}"
     icon="{faArrowsRotate}" />
 </svelte:component>

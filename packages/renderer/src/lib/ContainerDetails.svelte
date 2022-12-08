@@ -113,11 +113,11 @@ onMount(() => {
               </div>
             </section>
           </div>
-          <div class="flex flex-col px-5 pt-5">
-            <div class="flex justify-end bg-zinc-700 rounded-md"> 
-              <ContainerActions container="{container}" />
+          <div class="flex flex-col w-full px-5 pt-5">
+            <div class="flex justify-end">
+              <ContainerActions container="{container}" detailed="{true}" />
             </div>
-            <div class="flex my-2 w-full justify-end">
+            <div class="flex my-2 w-full justify-end ">
               <ContainerStatistics container="{container}" />
             </div>
           </div>
