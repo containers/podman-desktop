@@ -85,12 +85,12 @@ jobs:
           git push origin ${{ steps.TAG_UTIL.outputs.githubTag }}
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: ncipollo/release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.TAG_UTIL.outputs.githubTag }}
-          release_name: ${{ steps.TAG_UTIL.outputs.githubTag }}
+          tag: ${{ steps.TAG_UTIL.outputs.githubTag }}
+          name: ${{ steps.TAG_UTIL.outputs.githubTag }}
           draft: true
           prerelease: false
       - name: Create the PR to bump the version in the main branch (only if we're tagging from main branch)
