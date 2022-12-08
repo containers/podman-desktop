@@ -11,6 +11,7 @@ import FlatMenu from '../ui/FlatMenu.svelte';
 
 export let pod: PodInfoUI;
 export let dropdownMenu: boolean = false;
+export let detailed: boolean = false;
 
 async function startPod(podInfoUI: PodInfoUI) {
   await window.startPod(podInfoUI.engineId, podInfoUI.id);
@@ -50,13 +51,15 @@ if (dropdownMenu) {
   title="Start Pod"
   onClick="{() => startPod(pod)}"
   hidden="{pod.status === 'RUNNING'}"
+  detailed="{detailed}"
   icon="{faPlay}" />
 <ListItemButtonIcon
   title="Stop Pod"
   onClick="{() => stopPod(pod)}"
   hidden="{!(pod.status === 'RUNNING')}"
+  detailed="{detailed}"
   icon="{faStop}" />
-<ListItemButtonIcon title="Delete Pod" onClick="{() => removePod(pod)}" icon="{faTrash}" />
+<ListItemButtonIcon title="Delete Pod" onClick="{() => removePod(pod)}" icon="{faTrash}" detailed="{detailed}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
@@ -64,15 +67,18 @@ if (dropdownMenu) {
     title="Generate Kube"
     onClick="{() => openGenerateKube()}"
     menu="{dropdownMenu}"
+    detailed="{detailed}"
     icon="{faFileCode}" />
   <ListItemButtonIcon
     title="Deploy to Kubernetes"
     onClick="{() => deployToKubernetes()}"
     menu="{dropdownMenu}"
+    detailed="{detailed}"
     icon="{faRocket}" />
   <ListItemButtonIcon
     title="Restart Pod"
     onClick="{() => restartPod(pod)}"
     menu="{dropdownMenu}"
+    detailed="{detailed}"
     icon="{faArrowsRotate}" />
 </svelte:component>

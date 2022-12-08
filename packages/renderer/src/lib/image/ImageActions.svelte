@@ -6,9 +6,8 @@ import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { runImageInfo } from '../../stores/run-image-store';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
-
 export let image: ImageInfoUI;
-export let backgroundColor = 'bg-zinc-800';
+export let detailed: boolean = false;
 
 let errorMessage: string = undefined;
 let isAuthenticatedForThisImage: boolean = false;
@@ -39,28 +38,16 @@ async function showLayersImage(): Promise<void> {
 </script>
 
 {#if isAuthenticatedForThisImage}
-  <ListItemButtonIcon
-    title="Push Image"
-    onClick="{() => pushImage(image)}"
-    backgroundColor="{backgroundColor}"
-    icon="{faArrowUp}" />
+  <ListItemButtonIcon title="Push Image" onClick="{() => pushImage(image)}" detailed="{detailed}" icon="{faArrowUp}" />
 {/if}
-<ListItemButtonIcon
-  title="Run Image"
-  onClick="{() => runImage(image)}"
-  backgroundColor="{backgroundColor}"
-  icon="{faPlay}" />
+<ListItemButtonIcon title="Run Image" onClick="{() => runImage(image)}" detailed="{detailed}" icon="{faPlay}" />
 {#if !image.inUse}
-  <ListItemButtonIcon
-    title="Delete Image"
-    onClick="{() => deleteImage()}"
-    backgroundColor="{backgroundColor}"
-    icon="{faTrash}" />
+  <ListItemButtonIcon title="Delete Image" onClick="{() => deleteImage()}" detailed="{detailed}" icon="{faTrash}" />
 {/if}
 <ListItemButtonIcon
   title="Show History"
   onClick="{() => showLayersImage()}"
-  backgroundColor="{backgroundColor}"
+  detailed="{detailed}"
   icon="{faLayerGroup}" />
 
 {#if errorMessage}

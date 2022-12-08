@@ -205,7 +205,7 @@ async function deleteSelectedImages() {
           <th class="text-center font-extrabold w-10">Name</th>
           <th class="text-center">Creation date</th>
           <th class="px-6 whitespace-nowrap text-end">size</th>
-          <th class="text-center">actions</th>
+          <th class="text-right pr-2">Actions</th>
         </tr>
       </thead>
       <tbody class="">
@@ -257,10 +257,8 @@ async function deleteSelectedImages() {
                 <div class="w-full text-right text-sm text-gray-200">{image.humanSize}</div>
               </div>
             </td>
-            <td class="px-6 whitespace-nowrap rounded-tr-lg rounded-br-lg ">
-              <div class="flex opacity-0 flex-row justify-end group-hover:opacity-100">
-                <ImageActions image="{image}" onPushImage="{handlePushImageModal}" />
-              </div>
+            <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg pr-1">
+              <ImageActions image="{image}" onPushImage="{handlePushImageModal}" />
             </td>
           </tr>
           <tr><td class="leading-[8px]">&nbsp;</td></tr>
