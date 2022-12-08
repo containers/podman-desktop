@@ -25,52 +25,73 @@ interface Validation {
   message?: string;
 }
 
-export function createFieldValidator(...validators) {
-  const { subscribe, set } = writable({ dirty: false, valid: false, message: null } as Validation);
+export type UpdateAction = {
+  update(value: string): void;
+};
+
+export type ActivateFunction = {
+  (_node: unknown, binding: unknown): UpdateAction;
+};
+
+export function createFieldValidator(...validators): [SvelteStore<Validation>, ActivateFunction] {
+  const validation: Validation = { dirty: false, valid: false, message: null };
+  const writableObject = writable<Validation>(validation);
   const validator = buildValidator(validators);
 
-  function action(node, binding) {
-    function validate(value, dirty) {
+  function action(_node, binding): UpdateAction {
+    function validate(value: string, dirty: boolean) {
       const result = validator(value, dirty);
-      set(result);
+      writableObject.set(result);
     }
 
     validate(binding, false);
 
     return {
-      update(value) {
+      update(value: string): void {
         validate(value, value !== undefined);
       },
     };
   }
 
-  return [{ subscribe }, action];
+  const store: SvelteStore<Validation> = writableObject;
+  const tuple: [SvelteStore<Validation>, ActivateFunction] = [store, action];
+  return tuple;
 }
 
-function buildValidator(validators) {
-  return function validate(value, dirty) {
+function buildValidator(
+  validators: ((value: string) => [boolean, string])[],
+): (value: string, dirty: boolean) => Validation {
+  return function validate(value: string, dirty: boolean): Validation {
     if (!validators || validators.length === 0) {
       return { dirty, valid: true };
     }
 
-    const failing = validators.find(v => v(value) !== true);
+    const failing = validators.map(v => v(value)).find(value => value[0] !== true);
 
-    return {
-      dirty,
-      valid: !failing,
-      message: failing && failing(value),
-    } as Validation;
+    if (!failing) {
+      return { dirty, valid: true, message: '' };
+    } else {
+      return {
+        dirty,
+        valid: false,
+        message: failing[1],
+      };
+    }
   };
 }
 
-export function requiredValidator() {
-  return function required(value) {
-    return (value !== undefined && value !== '') || 'Field is required';
+export function requiredValidator(): (value: string) => [boolean, string] {
+  return function required(value: string): [boolean, string] {
+    const valid = value !== undefined && value !== '';
+    const message = valid ? '' : 'Field is required';
+    return [valid, message];
   };
 }
 
-export function urlValidator() {
-  return function url(value) {
-    return validator.isURL(value) || 'Please enter a valid URL';
+export function urlValidator(): (value: string) => [boolean, string] {
+  return function url(value: string): [boolean, string] {
+    const valid = validator.isURL(value);
+    const message = valid ? '' : 'Please enter a valid URL';
+    return [valid, message];
   };
 }
