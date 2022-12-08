@@ -3,7 +3,7 @@ import { onMount } from 'svelte';
 import { Buffer } from 'buffer';
 import { extensionInfos } from './stores/extensions';
 import { configurationProperties } from './stores/configurationProperties';
-import { ConfigurationRegistry } from '../../main/src/plugin/configuration-registry';
+import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
 import { providerInfos } from './stores/providers';
 
@@ -26,7 +26,7 @@ onMount(async () => {
   });
   configurationProperties.subscribe(value => {
     configProperties = value
-      .filter(property => property.scope === ConfigurationRegistry.DEFAULT_SCOPE)
+      .filter(property => property.scope === CONFIGURATION_DEFAULT_SCOPE)
       .filter(property => !property.hidden)
       .reduce((map, property) => {
         let [parentLeftId] = property.parentId.split('.');

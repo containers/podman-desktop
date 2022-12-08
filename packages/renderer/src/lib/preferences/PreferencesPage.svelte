@@ -3,7 +3,7 @@ import { configurationProperties } from '../../stores/configurationProperties';
 import { onMount } from 'svelte';
 import { Route } from 'tinro';
 import {
-  ConfigurationRegistry,
+  CONFIGURATION_DEFAULT_SCOPE,
   IConfigurationPropertyRecordedSchema,
 } from '../../../../main/src/plugin/configuration-registry';
 
@@ -23,7 +23,7 @@ onMount(async () => {
   configurationProperties.subscribe(value => {
     properties = value;
     [defaultPrefPageId] = value
-      .filter(property => property.scope === ConfigurationRegistry.DEFAULT_SCOPE)
+      .filter(property => property.scope === CONFIGURATION_DEFAULT_SCOPE)
       .values()
       .next()
       .value.parentId.split('.');

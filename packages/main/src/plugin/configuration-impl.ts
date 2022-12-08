@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry';
 /**
  * Local view of the configuration values for a given scope
  */
@@ -37,7 +38,7 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
       globalSection = '';
     }
     if (!paramScope) {
-      this.scope = 'DEFAULT';
+      this.scope = CONFIGURATION_DEFAULT_SCOPE;
     } else {
       this.scope = paramScope;
     }
@@ -126,7 +127,7 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
     } else if (this.isKubernetesProviderConnection(this.scope)) {
       return `kubernetes-connection:${this.scope.endpoint.apiURL}`;
     } else {
-      return 'DEFAULT';
+      return CONFIGURATION_DEFAULT_SCOPE;
     }
   }
 

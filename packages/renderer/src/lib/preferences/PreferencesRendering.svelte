@@ -1,5 +1,8 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import {
+  CONFIGURATION_DEFAULT_SCOPE,
+  IConfigurationPropertyRecordedSchema,
+} from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRenderingItem from './PreferencesRenderingItem.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
@@ -9,7 +12,7 @@ let title;
 
 $: title = key.replaceAll('.', ' ');
 $: matchingRecords = properties.filter(
-  property => property.parentId.startsWith(key) && property.scope === 'DEFAULT' && !property.hidden,
+  property => property.parentId.startsWith(key) && property.scope === CONFIGURATION_DEFAULT_SCOPE && !property.hidden,
 );
 </script>
 

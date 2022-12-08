@@ -1,6 +1,6 @@
 <script lang="ts">
 import {
-  ConfigurationRegistry,
+  CONFIGURATION_DEFAULT_SCOPE,
   IConfigurationPropertyRecordedSchema,
 } from '../../../../main/src/plugin/configuration-registry';
 
@@ -17,7 +17,7 @@ let currentRecord: IConfigurationPropertyRecordedSchema;
 let recordValue;
 let checkboxValue: boolean = false;
 $: if (currentRecord !== record) {
-  if (record.scope === ConfigurationRegistry.DEFAULT_SCOPE) {
+  if (record.scope === CONFIGURATION_DEFAULT_SCOPE) {
     window.getConfigurationValue(record.id, record.scope).then(value => {
       recordValue = value;
       if (recordValue === true) {
