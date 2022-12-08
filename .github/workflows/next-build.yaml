@@ -99,14 +99,24 @@ jobs:
         id: yarn-cache-dir-path-unix
         run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
 
-
       - uses: actions/cache@v3
-        id: yarn-cache
+        if: ${{ matrix.os=='windows-2022' }}
+        id: yarn-cache-windows
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          path: ${{ steps.yarn-cache-dir-path-windows.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+
+      - uses: actions/cache@v3
+        if: ${{ matrix.os=='ubuntu-20.04' || matrix.os=='macos-11' }}
+        id: yarn-cache-unix
+        with:
+          path: ${{ steps.yarn-cache-dir-path-unix.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
 
       - name: setup telemetry key for production
         run: |
