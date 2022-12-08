@@ -13,6 +13,7 @@ let kubeDetails: string;
 
 let defaultContextName: string;
 let currentNamespace: string;
+let allNamespaces: string[];
 let deployStarted = false;
 let deployFinished = false;
 let deployError = '';
@@ -40,9 +41,14 @@ onMount(async () => {
   // grab current namespace
   currentNamespace = await window.kubernetesGetCurrentNamespace();
 
+  // check that the variable is set to a value, otherwise set to default namespace
+  if (!currentNamespace) {
+    currentNamespace = 'default';
+  }
+
   // grab all the namespaces (will be useful to provide a drop-down to select the namespace)
   try {
-    await window.kubernetesListNamespaces();
+    allNamespaces = await window.kubernetesListNamespaces();
   } catch (error) {
     console.debug('Not able to list all namespaces, probably a permission error', error);
   }
@@ -257,27 +263,32 @@ async function deployToKube() {
         </div>
       {/if}
 
-      {#if currentNamespace}
-        <div class="pt-2 pb-4">
-          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes Namespace:</label>
-          <input
-            type="text"
-            bind:value="{currentNamespace}"
-            name="currentNamespace"
-            id="currentNamespace"
-            readonly
-            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
-            required />
+      {#if allNamespaces}
+        <div class="pt-2">
+          <label for="namespaceToUse" class="block mb-1 text-sm font-medium  text-gray-300"
+            >Kubernetes namespace:</label>
+          <select
+            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            name="providerChoice"
+            bind:value="{currentNamespace}">
+            {#each allNamespaces.items as namespace}
+              <option value="{namespace.metadata.name}">
+                {namespace.metadata.name}
+              </option>
+            {/each}
+          </select>
         </div>
       {/if}
 
       {#if !deployStarted}
-        <button on:click="{() => deployToKube()}" class="w-full pf-c-button pf-m-primary" type="button">
-          <span class="pf-c-button__icon pf-m-start">
-            <i class="fas fa-rocket" aria-hidden="true"></i>
-          </span>
-          Deploy
-        </button>
+        <div class="pt-2 m-2">
+          <button on:click="{() => deployToKube()}" class="w-full pf-c-button pf-m-primary" type="button">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-rocket" aria-hidden="true"></i>
+            </span>
+            Deploy
+          </button>
+        </div>
       {/if}
       {#if deployError}
         <div class="text-red-500 text-sm">{deployError}</div>
