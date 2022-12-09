@@ -139,7 +139,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px; width: 647px;">
       <div style="width:100%; height:100%; flexDirection: column;">
-        <Logger bind:logsTerminal onInit="{() => startReceivinLogs(showModal)}" />
+        <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => startReceivinLogs(showModal)}" />
       </div>
     </div>
   </Modal>

@@ -268,7 +268,7 @@ function toggleAllContainerGroups(value: boolean) {
 </script>
 
 <NavPage
-  bind:searchTerm
+  bind:searchTerm="{searchTerm}"
   title="containers"
   subtitle="Hover over a container to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
