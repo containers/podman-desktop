@@ -17,7 +17,7 @@
     "@tsconfig/svelte": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "5.46.0",
     "autoprefixer": "^10.4.13",
-    "filesize": "^8.0.7",
+    "filesize": "^10.0.5",
     "humanize-duration": "^3.27.3",
     "moment": "^2.29.4",
     "monaco-editor": "^0.34.1",

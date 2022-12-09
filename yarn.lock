@@ -6823,7 +6823,12 @@ filelist@^1.0.1:
   dependencies:
     minimatch "^3.0.4"
 
-filesize@^8.0.6, filesize@^8.0.7:
+filesize@^10.0.5:
+  version "10.0.5"
+  resolved "https://registry.yarnpkg.com/filesize/-/filesize-10.0.5.tgz#d77553eb00a525f4cc7983047d2197cda6fff321"
+  integrity sha512-qrzyt8gLh86nsyYiC3ibI5KyIYRCWg2yqIklYrWF4a0qNfekik4OQfn7AoPJG2hRrPMSlH6fET4VEITweZAzjA==
+
+filesize@^8.0.6:
   version "8.0.7"
   resolved "https://registry.yarnpkg.com/filesize/-/filesize-8.0.7.tgz#695e70d80f4e47012c132d57a059e80c6b580bd8"
   integrity sha512-pjmC+bkIF8XI7fWaH8KxHcZL3DPybs1roSKP4rKDvy20tAWwIObE4+JIseG2byfGKhud5ZnM4YSGKBz7Sh0ndQ==
