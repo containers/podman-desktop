@@ -27,7 +27,7 @@ let innerWidth = 0;
 export let meta;
 </script>
 
-<svelte:window bind:innerWidth />
+<svelte:window bind:innerWidth="{innerWidth}" />
 <nav
   class="pf-c-nav z-0 group w-12 hover:w-[180px] md:w-[180px] md:min-w-[180px] shadow flex-col justify-between sm:flex transition-all duration-500 ease-in-out"
   aria-label="Global">
