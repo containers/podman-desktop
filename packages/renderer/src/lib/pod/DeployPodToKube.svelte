@@ -3,8 +3,8 @@ import { onDestroy, onMount } from 'svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import * as jsYaml from 'js-yaml';
-import { each } from 'svelte/internal';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 
 export let resourceId: string;
 export let engineId: string;
@@ -13,7 +13,7 @@ let kubeDetails: string;
 
 let defaultContextName: string;
 let currentNamespace: string;
-let allNamespaces: string[];
+let allNamespaces: V1NamespaceList;
 let deployStarted = false;
 let deployFinished = false;
 let deployError = '';
