@@ -22,7 +22,7 @@ let styleClass: string = detailed ? buttonDetailedClass : buttonClass;
 {#if menu}
   <DropdownMenuItem title="{title}" icon="{icon}" hidden="{hidden}" onClick="{onClick}" />
 {:else}
-  <button title="{title}" on:click="{onClick}" class="{styleClass}" class:hidden>
+  <button title="{title}" on:click="{onClick}" class="{styleClass}" class:hidden="{hidden}">
     <Fa class="h-4 w-4" icon="{icon}" />
   </button>
 {/if}
