@@ -82,7 +82,7 @@
     "typescript": "4.9.4",
     "validator": "^13.7.0",
     "vite": "3.2.5",
-    "vitest": "^0.25.7",
+    "vitest": "^0.25.8",
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {

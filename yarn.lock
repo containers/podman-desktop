@@ -3533,10 +3533,10 @@
   dependencies:
     "@types/chai" "*"
 
-"@types/chai@*", "@types/chai@^4.3.3":
-  version "4.3.3"
-  resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.3.3.tgz#3c90752792660c4b562ad73b3fbd68bf3bc7ae07"
-  integrity sha512-hC7OMnszpxhZPduX+m+nrx+uFoLkWOMiR4oa/AZF3MuSETYTZmFfJAHqZEM8MVlvfG7BEUcgvtwoCTxBp6hm3g==
+"@types/chai@*", "@types/chai@^4.3.4":
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.3.4.tgz#e913e8175db8307d78b4e8fa690408ba6b65dee4"
+  integrity sha512-KnRanxnpfpjUTqTCXslZSEdLfXExwgNxYPdiO2WGUj8+HDjFi8R3k5RVKPeSCzLjCcshCAtVO2QBbVuAV4kTnw==
 
 "@types/connect-history-api-fallback@^1.3.5":
   version "1.3.5"
@@ -5115,14 +5115,14 @@ ccount@^1.0.0:
   resolved "https://registry.yarnpkg.com/ccount/-/ccount-1.1.0.tgz#246687debb6014735131be8abab2d93898f8d043"
   integrity sha512-vlNK021QdI7PNeiUh/lKkC/mNHHfV0m/Ad5JoI0TYtlBnJAslM/JIkm/tGC88bkLIwO6OQ5uV6ztS6kVAtCDlg==
 
-chai@^4.3.6:
-  version "4.3.6"
-  resolved "https://registry.npmjs.org/chai/-/chai-4.3.6.tgz"
-  integrity sha512-bbcp3YfHCUzMOvKqsztczerVgBKSsEijCySNlHHbX3VG1nskvqjz5Rfso1gGwD6w6oOV3eI60pKuMOV5MV7p3Q==
+chai@^4.3.7:
+  version "4.3.7"
+  resolved "https://registry.yarnpkg.com/chai/-/chai-4.3.7.tgz#ec63f6df01829088e8bf55fca839bcd464a8ec51"
+  integrity sha512-HLnAzZ2iupm25PlN0xFreAlBA5zaBSv3og0DdeGA4Ar6h6rJ3A0rolRUKJhSF2V10GZKDgWF/VmAEsNWjCRB+A==
   dependencies:
     assertion-error "^1.1.0"
     check-error "^1.0.2"
-    deep-eql "^3.0.1"
+    deep-eql "^4.1.2"
     get-func-name "^2.0.0"
     loupe "^2.3.1"
     pathval "^1.1.1"
@@ -5841,10 +5841,10 @@ decompress-response@^6.0.0:
   dependencies:
     mimic-response "^3.1.0"
 
-deep-eql@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.npmjs.org/deep-eql/-/deep-eql-3.0.1.tgz"
-  integrity sha512-+QeIQyN5ZuO+3Uk5DYh6/1eKO0m0YmJFGNmFHGACpf1ClL1nmlV/p4gNgbl2pJGxgXb4faqo6UE+M5ACEMyVcw==
+deep-eql@^4.1.2:
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/deep-eql/-/deep-eql-4.1.3.tgz#7c7775513092f7df98d8df9996dd085eb668cc6d"
+  integrity sha512-WaEtAOpRA1MQ0eohqZjpGD8zdI0Ovsm8mmFhaDN8dvDZzyoUMcYDnf5Y6iu7HTXxf8JDS23qWa4a+hKCDyOPzw==
   dependencies:
     type-detect "^4.0.0"
 
@@ -12333,17 +12333,17 @@ vitefu@^0.2.2:
   resolved "https://registry.yarnpkg.com/vitefu/-/vitefu-0.2.2.tgz#d03215f351a1fd65f6c277d546f2d30956b970f9"
   integrity sha512-8CKEIWPm4B4DUDN+h+hVJa9pyNi7rzc5MYmbxhs1wcMakueGFNWB5/DL30USm9qU3xUPnL4/rrLEAwwFiD1tag==
 
-vitest@^0.25.7:
-  version "0.25.7"
-  resolved "https://registry.yarnpkg.com/vitest/-/vitest-0.25.7.tgz#dbb384907a56265fe0ce95149803a4c839388174"
-  integrity sha512-lJ+Ue+v8kHl2JzjaKHJ9u5Yo/loU7zrWK2/Whn8OKQjtq5G7nkeWfXuq3elZaC8xKdkdIuWiiIicaNBG1F5yzg==
+vitest@^0.25.8:
+  version "0.25.8"
+  resolved "https://registry.yarnpkg.com/vitest/-/vitest-0.25.8.tgz#9b57e0b41cd6f2d2d92aa94a39b35c36f715f8cc"
+  integrity sha512-X75TApG2wZTJn299E/TIYevr4E9/nBo1sUtZzn0Ci5oK8qnpZAZyhwg0qCeMSakGIWtc6oRwcQFyFfW14aOFWg==
   dependencies:
-    "@types/chai" "^4.3.3"
+    "@types/chai" "^4.3.4"
     "@types/chai-subset" "^1.3.3"
     "@types/node" "*"
-    acorn "^8.8.0"
+    acorn "^8.8.1"
     acorn-walk "^8.2.0"
-    chai "^4.3.6"
+    chai "^4.3.7"
     debug "^4.3.4"
     local-pkg "^0.4.2"
     source-map "^0.6.1"
