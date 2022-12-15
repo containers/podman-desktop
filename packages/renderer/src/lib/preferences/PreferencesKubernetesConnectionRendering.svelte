@@ -9,7 +9,6 @@ import type { ProviderInfo, ProviderKubernetesConnectionInfo } from '../../../..
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import Logger from './Logger.svelte';
-import { writeToTerminal } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -102,19 +101,6 @@ async function deleteConnection() {
 let showModal: ProviderInfo = undefined;
 
 let logsTerminal;
-
-async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
-  const logHandler = (newContent: any[], colorPrefix: string) => {
-    writeToTerminal(logsTerminal, newContent, colorPrefix);
-  };
-  /*window.startReceiveLogs(
-    provider.internalId,
-    data => logHandler(data, '\x1b[37m'),
-    data => logHandler(data, '\x1b[33m'),
-    data => logHandler(data, '\x1b[1;31m'),
-    kubernetesConnectionInfo,
-  );*/
-}
 
 async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
   // await window.stopReceiveLogs(provider.internalId, kubernetesConnectionInfo);
@@ -240,7 +226,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px; width: 650px;">
       <div style="width:100%; height:100%;">
-        <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => startReceivinLogs(showModal)}" />
+        <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
       </div>
     </div>
   </Modal>
