@@ -55,7 +55,7 @@ onMount(() => {
                       class:pf-m-current="{meta.url ===
                         `/volumes/${encodeURI(volume.name)}/${encodeURI(volume.engineId)}/summary`}">
                       <a
-                        href="/volumes/${encodeURI(volume.name)}/${encodeURI(volume.engineId)}/summary"
+                        href="/volumes/{encodeURI(volume.name)}/{encodeURI(volume.engineId)}/summary"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-details-panel"
                         id="open-tabs-example-tabs-list-details-link">
@@ -67,7 +67,7 @@ onMount(() => {
                       class:pf-m-current="{meta.url ===
                         `/volumes/${encodeURI(volume.name)}/${encodeURI(volume.engineId)}/inspect`}">
                       <a
-                        href="/volumes/${encodeURI(volume.name)}/${encodeURI(volume.engineId)}/inspect"
+                        href="/volumes/{encodeURI(volume.name)}/{encodeURI(volume.engineId)}/inspect"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-yaml-panel"
                         id="open-tabs-example-tabs-list-yaml-link">
