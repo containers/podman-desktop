@@ -39,6 +39,7 @@ import type { FilesystemMonitoring } from './filesystem-monitoring';
 import { Uri } from './types/uri';
 import type { KubernetesClient } from './kubernetes-client';
 import type { Proxy } from './proxy';
+import type { ContainerProviderRegistry } from './container-registry';
 
 /**
  * Handle the loading of an extension
@@ -84,6 +85,7 @@ export class ExtensionLoader {
     private kubernetesClient: KubernetesClient,
     private fileSystemMonitoring: FilesystemMonitoring,
     private proxy: Proxy,
+    private containerProviderRegistry: ContainerProviderRegistry,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -275,7 +277,7 @@ export class ExtensionLoader {
 
     //export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
 
-    const containerProviderRegistry = this.providerRegistry;
+    const providerRegistry = this.providerRegistry;
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const instance = this;
@@ -288,7 +290,7 @@ export class ExtensionLoader {
           images.icon = instance.updateImage(images.icon, extensionPath);
           images.logo = instance.updateImage(images.logo, extensionPath);
         }
-        return containerProviderRegistry.createProvider(providerOptions);
+        return providerRegistry.createProvider(providerOptions);
       },
     };
 
@@ -426,6 +428,19 @@ export class ExtensionLoader {
       },
     };
 
+    const containerProviderRegistry = this.containerProviderRegistry;
+    const containerEngine: typeof containerDesktopAPI.containerEngine = {
+      listContainers(): Promise<containerDesktopAPI.ContainerInfo[]> {
+        return containerProviderRegistry.listContainers();
+      },
+      inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
+        return containerProviderRegistry.getContainerInspect(engineId, id);
+      },
+      onEvent: (listener, thisArg, disposables) => {
+        return containerProviderRegistry.onEvent(listener, thisArg, disposables);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -438,6 +453,7 @@ export class ExtensionLoader {
       tray,
       proxy,
       kubernetes,
+      containerEngine,
       ProgressLocation,
       window: windowObj,
       StatusBarItemDefaultPriority,
