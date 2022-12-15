@@ -45,6 +45,8 @@ import { LibpodDockerode } from './dockerode/libpod-dockerode';
 import type { ContainerStatsInfo } from './api/container-stats-info';
 import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
 import type { NetworkInspectInfo } from './api/network-info';
+import type { Event } from './events/emitter';
+import { Emitter } from './events/emitter';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -67,6 +69,9 @@ interface JSONEvent {
 }
 
 export class ContainerProviderRegistry {
+  private readonly _onEvent = new Emitter<JSONEvent>();
+  readonly onEvent: Event<JSONEvent> = this._onEvent.event;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(private apiSender: any, private imageRegistry: ImageRegistry, private telemetryService: Telemetry) {
     const libPodDockerode = new LibpodDockerode();
@@ -81,6 +86,7 @@ export class ContainerProviderRegistry {
 
     eventEmitter.on('event', (jsonEvent: JSONEvent) => {
       console.log('event is', jsonEvent);
+      this._onEvent.fire(jsonEvent);
       if (jsonEvent.status === 'stop' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been stopped
         this.apiSender.send('container-stopped-event', jsonEvent.id);

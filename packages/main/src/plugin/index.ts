@@ -300,6 +300,7 @@ export class PluginSystem {
       kubernetesClient,
       fileSystemMonitoring,
       proxy,
+      containerProviderRegistry,
     );
 
     const contributionManager = new ContributionManager(apiSender);
