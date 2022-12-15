@@ -9,6 +9,7 @@ import {
 
 import PreferencesRendering from './PreferencesRendering.svelte';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
+import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
 import PreferencesProviderRendering from './PreferencesProviderRendering.svelte';
 import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
 import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
@@ -22,11 +23,15 @@ let defaultPrefPageId: string;
 onMount(async () => {
   configurationProperties.subscribe(value => {
     properties = value;
-    [defaultPrefPageId] = value
+
+    const iterator = value
       .filter(property => property.scope === CONFIGURATION_DEFAULT_SCOPE)
       .values()
-      .next()
-      .value.parentId.split('.');
+      .next().value;
+
+    if (iterator) {
+      [defaultPrefPageId] = iterator.parentId.split('.')[0];
+    }
   });
 });
 </script>
@@ -64,6 +69,12 @@ onMount(async () => {
       <PreferencesContainerConnectionRendering
         providerInternalId="{meta.params.provider}"
         connection="{meta.params.connection}"
+        properties="{properties}" />
+    </Route>
+    <Route path="/kubernetes-connection/:provider/:apiUrlBase64" let:meta>
+      <PreferencesKubernetesConnectionRendering
+        providerInternalId="{meta.params.provider}"
+        apiUrlBase64="{meta.params.apiUrlBase64}"
         properties="{properties}" />
     </Route>
   </div>

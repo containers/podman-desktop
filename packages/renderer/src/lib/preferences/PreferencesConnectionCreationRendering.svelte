@@ -4,6 +4,8 @@ import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
+export let propertyScope: string;
+export let callback: (string, data) => Promise<void>;
 
 let creationInProgress = false;
 let creationSuccessful = false;
@@ -11,7 +13,7 @@ let creationSuccessful = false;
 // get only ContainerProviderConnectionFactory scope fields that are starting by the provider id
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 $: configurationKeys = properties
-  .filter(property => property.scope === 'ContainerProviderConnectionFactory')
+  .filter(property => property.scope === propertyScope)
   .filter(property => property.id.startsWith(providerInfo.id));
 
 let isValid = true;
@@ -39,7 +41,7 @@ async function handleOnSubmit(e) {
   creationInProgress = true;
   errorMessage = undefined;
   try {
-    await window.createProviderConnection(providerInfo.internalId, data);
+    await callback(providerInfo.internalId, data);
     window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
     creationSuccessful = true;
   } catch (error) {

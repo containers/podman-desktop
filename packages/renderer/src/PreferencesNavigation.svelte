@@ -51,8 +51,9 @@ $: addCurrentClass = (pathParam: string): string =>
 $: isAriaExpanded = (section: string): boolean => (sectionExpanded[section] ? true : false);
 $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section] ? '' : 'hidden');
 $: addExpandableClass = (provider: ProviderInfo): string =>
-  provider.containerConnections.length > 0 ? 'pf-m-expandable' : '';
-$: addHiddenClass = (provider: ProviderInfo): string => (provider.containerConnections.length > 0 ? '' : 'hidden');
+  provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0 ? 'pf-m-expandable' : '';
+$: addHiddenClass = (provider: ProviderInfo): string =>
+  provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0 ? '' : 'hidden';
 </script>
 
 <nav
@@ -95,6 +96,7 @@ $: addHiddenClass = (provider: ProviderInfo): string => (provider.containerConne
                   </span>
                 </span>
               </a>
+              <!-- container connections -->
               <section class="pf-c-nav__subnav {addSectionHiddenClass(provider.name)}">
                 <ul class="pf-c-nav__list">
                   {#each provider.containerConnections as connection}
@@ -112,6 +114,28 @@ $: addHiddenClass = (provider: ProviderInfo): string => (provider.containerConne
                           .toLowerCase()
                           .replaceAll(' ', '_')}"
                         class="pf-c-nav__link">{connection.name}</a>
+                    </li>
+                  {/each}
+                </ul>
+              </section>
+              <!-- kubernetes connections -->
+              <section class="pf-c-nav__subnav {addSectionHiddenClass(provider.name)}">
+                <ul class="pf-c-nav__list">
+                  {#each provider.kubernetesConnections as kubernetesConnection}
+                    <li
+                      class="pf-c-nav__item {addCurrentClass(
+                        `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
+                          kubernetesConnection.endpoint.apiURL,
+                        ).toString('base64')}`,
+                      )}">
+                      <a
+                        href="/preferences/kubernetes-connection/{provider.internalId}/{Buffer.from(
+                          kubernetesConnection.endpoint.apiURL,
+                        ).toString('base64')}"
+                        id="configuration-section-provider-{provider.name.toLowerCase()}-{kubernetesConnection.name
+                          .toLowerCase()
+                          .replaceAll(' ', '_')}"
+                        class="pf-c-nav__link">{kubernetesConnection.name}</a>
                     </li>
                   {/each}
                 </ul>

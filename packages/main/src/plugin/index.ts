@@ -891,13 +891,24 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
-      'provider-registry:createProviderConnection',
+      'provider-registry:createContainerProviderConnection',
       async (
         _listener: Electron.IpcMainInvokeEvent,
         internalProviderId: string,
         params: { [key: string]: unknown },
       ): Promise<void> => {
-        return providerRegistry.createProviderConnection(internalProviderId, params);
+        return providerRegistry.createContainerProviderConnection(internalProviderId, params);
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:createKubernetesProviderConnection',
+      async (
+        _listener: Electron.IpcMainInvokeEvent,
+        internalProviderId: string,
+        params: { [key: string]: unknown },
+      ): Promise<void> => {
+        return providerRegistry.createKubernetesProviderConnection(internalProviderId, params);
       },
     );
 

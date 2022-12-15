@@ -4,11 +4,12 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import { providerInfos } from '../../stores/providers';
 import { onMount } from 'svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import PreferencesContainerConnectionCreationRendering from './PreferencesContainerConnectionCreationRendering.svelte';
+import PreferencesContainerConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
+import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -127,7 +128,20 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
   <!-- Create connection panel-->
   {#if providerInfo?.containerProviderConnectionCreation === true}
-    <PreferencesContainerConnectionCreationRendering providerInfo="{providerInfo}" properties="{properties}" />
+    <PreferencesConnectionCreationRendering
+      providerInfo="{providerInfo}"
+      properties="{properties}"
+      propertyScope="ContainerProviderConnectionFactory"
+      callback="{window.createContainerProviderConnection}" />
+  {/if}
+
+  <!-- Create connection panel-->
+  {#if providerInfo?.kubernetesProviderConnectionCreation === true}
+    <PreferencesConnectionCreationRendering
+      providerInfo="{providerInfo}"
+      properties="{properties}"
+      propertyScope="KubernetesProviderConnectionFactory"
+      callback="{window.createKubernetesProviderConnection}" />
   {/if}
 </div>
 {#if showModal}

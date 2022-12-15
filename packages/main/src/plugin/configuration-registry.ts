@@ -62,7 +62,12 @@ export interface IConfigurationPropertySchema {
   hidden?: boolean;
 }
 
-export type ConfigurationScope = 'DEFAULT' | 'ContainerConnection' | 'ContainerProviderConnectionFactory';
+export type ConfigurationScope =
+  | 'DEFAULT'
+  | 'ContainerConnection'
+  | 'KubernetesConnection'
+  | 'ContainerProviderConnectionFactory'
+  | 'KubernetesProviderConnectionFactory';
 
 export interface IConfigurationExtensionInfo {
   id: string;

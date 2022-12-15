@@ -26,6 +26,11 @@ import type {
   ProviderOptions,
   ProviderStatus,
   ProviderUpdate,
+  UnregisterContainerConnectionEvent,
+  RegisterContainerConnectionEvent,
+  KubernetesProviderConnection,
+  UnregisterKubernetesConnectionEvent,
+  RegisterKubernetesConnectionEvent,
 } from '@tmpwip/extension-api';
 import type {
   ProviderContainerConnectionInfo,
@@ -35,6 +40,8 @@ import type {
   PreflightChecksCallback,
 } from './api/provider-info';
 import type { ContainerProviderRegistry } from './container-registry';
+import type { Event } from './events/emitter';
+import { Emitter } from './events/emitter';
 import { LifecycleContextImpl, LoggerImpl } from './lifecycle-context';
 import { ProviderImpl } from './provider-impl';
 import type { Telemetry } from './telemetry/telemetry';
@@ -71,6 +78,22 @@ export class ProviderRegistry {
   private listeners: ProviderEventListener[];
   private lifecycleListeners: ProviderLifecycleListener[];
   private containerConnectionLifecycleListeners: ContainerConnectionProviderLifecycleListener[];
+
+  private readonly _onDidUnregisterContainerConnection = new Emitter<UnregisterContainerConnectionEvent>();
+  readonly onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent> =
+    this._onDidUnregisterContainerConnection.event;
+
+  private readonly _onDidUnregisterKubernetesConnection = new Emitter<UnregisterKubernetesConnectionEvent>();
+  readonly onDidUnregisterKubernetesConnection: Event<UnregisterKubernetesConnectionEvent> =
+    this._onDidUnregisterKubernetesConnection.event;
+
+  private readonly _onDidRegisterKubernetesConnection = new Emitter<RegisterKubernetesConnectionEvent>();
+  readonly onDidRegisterKubernetesConnection: Event<RegisterKubernetesConnectionEvent> =
+    this._onDidRegisterKubernetesConnection.event;
+
+  private readonly _onDidRegisterContainerConnection = new Emitter<RegisterContainerConnectionEvent>();
+  readonly onDidRegisterContainerConnection: Event<RegisterContainerConnectionEvent> =
+    this._onDidRegisterContainerConnection.event;
 
   constructor(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -428,6 +451,12 @@ export class ProviderRegistry {
       containerProviderConnectionCreation = true;
     }
 
+    // kubernetes connection factory ?
+    let kubernetesProviderConnectionCreation = false;
+    if (provider.kubernetesProviderConnectionFactory) {
+      kubernetesProviderConnectionCreation = true;
+    }
+
     // handle installation
     let installationSupport = false;
     if (this.providerInstallations.has(provider.internalId)) {
@@ -440,9 +469,9 @@ export class ProviderRegistry {
       name: provider.name,
       containerConnections,
       kubernetesConnections,
-      proxySettings: provider.proxy,
       status: provider.status,
       containerProviderConnectionCreation,
+      kubernetesProviderConnectionCreation,
       links: provider.links,
       detectionChecks: provider.detectionChecks,
       images: provider.images,
@@ -516,7 +545,7 @@ export class ProviderRegistry {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async createProviderConnection(internalProviderId: string, params: { [key: string]: any }): Promise<void> {
+  async createContainerProviderConnection(internalProviderId: string, params: { [key: string]: any }): Promise<void> {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
 
@@ -524,6 +553,17 @@ export class ProviderRegistry {
       throw new Error('The provider does not support container connection creation');
     }
     return provider.containerProviderConnectionFactory.create(params);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async createKubernetesProviderConnection(internalProviderId: string, params: { [key: string]: any }): Promise<void> {
+    // grab the correct provider
+    const provider = this.getMatchingProvider(internalProviderId);
+
+    if (!provider.kubernetesProviderConnectionFactory) {
+      throw new Error('The provider does not support kubernetes connection creation');
+    }
+    return provider.kubernetesProviderConnectionFactory.create(params);
   }
 
   // helper method
@@ -608,7 +648,10 @@ export class ProviderRegistry {
     return lifecycle.delete();
   }
 
-  onDidRegisterContainerConnection(provider: ProviderImpl, containerProviderConnection: ContainerProviderConnection) {
+  onDidRegisterContainerConnectionCallback(
+    provider: ProviderImpl,
+    containerProviderConnection: ContainerProviderConnection,
+  ) {
     this.connectionLifecycleContexts.set(containerProviderConnection, new LifecycleContextImpl());
     // notify listeners
     this.containerConnectionLifecycleListeners.forEach(listener => {
@@ -618,6 +661,15 @@ export class ProviderRegistry {
         this.getProviderContainerConnectionInfo(containerProviderConnection),
       );
     });
+    this._onDidRegisterContainerConnection.fire({ providerId: provider.id });
+  }
+
+  onDidRegisterKubernetesConnectionCallback(
+    provider: ProviderImpl,
+    kubernetesProviderConnection: KubernetesProviderConnection,
+  ) {
+    this.apiSender.send('provider-register-kubernetes-connection', { name: kubernetesProviderConnection.name });
+    this._onDidRegisterKubernetesConnection.fire({ providerId: provider.id });
   }
 
   onDidChangeContainerProviderConnectionStatus(
@@ -634,7 +686,7 @@ export class ProviderRegistry {
     });
   }
 
-  onDidUnregisterContainerConnection(provider: ProviderImpl, containerConnection: ContainerProviderConnection) {
+  onDidUnregisterContainerConnectionCallback(provider: ProviderImpl, containerConnection: ContainerProviderConnection) {
     // notify listeners
     this.containerConnectionLifecycleListeners.forEach(listener => {
       listener(
@@ -643,6 +695,15 @@ export class ProviderRegistry {
         this.getProviderContainerConnectionInfo(containerConnection),
       );
     });
+    this._onDidUnregisterContainerConnection.fire({ providerId: provider.id });
+  }
+
+  onDidUnregisterKubernetesConnectionCallback(
+    provider: ProviderImpl,
+    kubernetesProviderConnection: KubernetesProviderConnection,
+  ) {
+    this.apiSender.send('provider-unregister-kubernetes-connection', { name: kubernetesProviderConnection.name });
+    this._onDidUnregisterKubernetesConnection.fire({ providerId: provider.id });
   }
 
   onDidUpdateProviderStatus(providerId: string, callback: (providerInfo: ProviderInfo) => void) {

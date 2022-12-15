@@ -80,6 +80,7 @@ export class TrayMenu {
             images: {},
             installationSupport: false,
             containerProviderConnectionCreation: false,
+            kubernetesProviderConnectionCreation: false,
           });
         }
         this.updateMenu();

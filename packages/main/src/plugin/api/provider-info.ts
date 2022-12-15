@@ -57,6 +57,9 @@ export interface ProviderInfo {
   // can create provider connection from ContainerProviderConnectionFactory params
   containerProviderConnectionCreation: boolean;
 
+  // can create provider connection from KubernetesProviderConnectionFactory params
+  kubernetesProviderConnectionCreation: boolean;
+
   version?: string;
 
   links: ProviderLinks[];

@@ -36,6 +36,7 @@ import type {
   ProviderDetectionCheck,
   ProviderUpdate,
   ProviderAutostart,
+  KubernetesProviderConnectionFactory,
 } from '@tmpwip/extension-api';
 import type { ProviderRegistry } from './provider-registry';
 import { Emitter } from './events/emitter';
@@ -46,6 +47,8 @@ export class ProviderImpl implements Provider, IDisposable {
   private kubernetesProviderConnections: Set<KubernetesProviderConnection>;
   // optional factory
   private _containerProviderConnectionFactory: ContainerProviderConnectionFactory | undefined = undefined;
+  private _kubernetesProviderConnectionFactory: KubernetesProviderConnectionFactory | undefined = undefined;
+
   private _status: ProviderStatus;
 
   private readonly _onDidUpdateStatus = new Emitter<ProviderStatus>();
@@ -89,6 +92,10 @@ export class ProviderImpl implements Provider, IDisposable {
         }
       });
     }, 2000);
+  }
+
+  get kubernetesProviderConnectionFactory(): KubernetesProviderConnectionFactory | undefined {
+    return this._kubernetesProviderConnectionFactory;
   }
 
   get containerProviderConnectionFactory(): ContainerProviderConnectionFactory | undefined {
@@ -165,22 +172,33 @@ export class ProviderImpl implements Provider, IDisposable {
     });
   }
 
+  setKubernetesProviderConnectionFactory(
+    kubernetesProviderConnectionFactory: KubernetesProviderConnectionFactory,
+  ): Disposable {
+    this._kubernetesProviderConnectionFactory = kubernetesProviderConnectionFactory;
+    return Disposable.create(() => {
+      this._kubernetesProviderConnectionFactory = undefined;
+    });
+  }
+
   registerKubernetesProviderConnection(kubernetesProviderConnection: KubernetesProviderConnection): Disposable {
     this.kubernetesProviderConnections.add(kubernetesProviderConnection);
+    this.providerRegistry.onDidRegisterKubernetesConnectionCallback(this, kubernetesProviderConnection);
     return Disposable.create(() => {
       this.kubernetesProviderConnections.delete(kubernetesProviderConnection);
+      this.providerRegistry.onDidUnregisterKubernetesConnectionCallback(this, kubernetesProviderConnection);
     });
   }
 
   registerContainerProviderConnection(containerProviderConnection: ContainerProviderConnection): Disposable {
     this.containerProviderConnections.add(containerProviderConnection);
     const disposable = this.containerRegistry.registerContainerConnection(this, containerProviderConnection);
-    this.providerRegistry.onDidRegisterContainerConnection(this, containerProviderConnection);
+    this.providerRegistry.onDidRegisterContainerConnectionCallback(this, containerProviderConnection);
 
     return Disposable.create(() => {
       this.containerProviderConnections.delete(containerProviderConnection);
       disposable.dispose();
-      this.providerRegistry.onDidUnregisterContainerConnection(this, containerProviderConnection);
+      this.providerRegistry.onDidUnregisterContainerConnectionCallback(this, containerProviderConnection);
     });
   }
 
