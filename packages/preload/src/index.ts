@@ -496,10 +496,18 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
-    'createProviderConnection',
+    'createContainerProviderConnection',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (internalProviderId: string, params: { [key: string]: any }): Promise<void> => {
-      return ipcInvoke('provider-registry:createProviderConnection', internalProviderId, params);
+      return ipcInvoke('provider-registry:createContainerProviderConnection', internalProviderId, params);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'createKubernetesProviderConnection',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (internalProviderId: string, params: { [key: string]: any }): Promise<void> => {
+      return ipcInvoke('provider-registry:createKubernetesProviderConnection', internalProviderId, params);
     },
   );
 

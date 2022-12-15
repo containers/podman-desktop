@@ -198,6 +198,12 @@ declare module '@tmpwip/extension-api' {
     create(params: { [key: string]: any }): Promise<void>;
   }
 
+  // create a kubernetes provider
+  export interface KubernetesProviderConnectionFactory {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    create(params: { [key: string]: any }): Promise<void>;
+  }
+
   export interface Link {
     title: string;
     url: string;
@@ -249,6 +255,10 @@ declare module '@tmpwip/extension-api' {
     setContainerProviderConnectionFactory(
       containerProviderConnectionFactory: ContainerProviderConnectionFactory,
     ): Disposable;
+    setKubernetesProviderConnectionFactory(
+      containerProviderConnectionFactory: KubernetesProviderConnectionFactory,
+    ): Disposable;
+
     registerContainerProviderConnection(connection: ContainerProviderConnection): Disposable;
     registerKubernetesProviderConnection(connection: KubernetesProviderConnection): Disposable;
     registerLifecycle(lifecycle: ProviderLifecycle): Disposable;
