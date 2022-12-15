@@ -168,7 +168,7 @@ jobs:
         run: echo the release id is ${{ needs.tag.outputs.releaseId}}
 
       - name: Publish release
-        uses: StuYarrow/publish-release@v1
+        uses: StuYarrow/publish-release@v1.1.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
