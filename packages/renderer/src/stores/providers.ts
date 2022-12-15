@@ -67,3 +67,9 @@ window?.events.receive('provider:update-status', () => {
 window.addEventListener('system-ready', () => {
   fetchProviders();
 });
+window?.events.receive('provider-register-kubernetes-connection', () => {
+  fetchProviders();
+});
+window?.events.receive('provider-unregister-kubernetes-connection', () => {
+  fetchProviders();
+});
