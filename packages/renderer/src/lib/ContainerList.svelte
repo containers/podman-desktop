@@ -196,6 +196,7 @@ onMount(async () => {
       const matchingGroup = containerGroups.find(currentGroup => currentGroup.name === group.name);
       if (matchingGroup) {
         group.selected = matchingGroup.selected;
+        group.expanded = matchingGroup.expanded;
         group.containers.forEach(container => {
           const matchingContainer = matchingGroup.containers.find(
             currentContainer => currentContainer.id === container.id,
