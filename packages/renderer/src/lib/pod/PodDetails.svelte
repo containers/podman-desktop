@@ -63,7 +63,7 @@ onDestroy(() => {
                       class:pf-m-current="{meta.url ===
                         `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/summary`}">
                       <a
-                        href="/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/summary"
+                        href="/pods/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/summary"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-details-panel"
                         id="open-tabs-example-tabs-list-details-link">
@@ -75,7 +75,7 @@ onDestroy(() => {
                       class:pf-m-current="{meta.url ===
                         `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/inspect`}">
                       <a
-                        href="/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/inspect"
+                        href="/pods/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/inspect"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-yaml-panel"
                         id="open-tabs-example-tabs-list-yaml-link">
@@ -87,7 +87,7 @@ onDestroy(() => {
                       class:pf-m-current="{meta.url ===
                         `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube`}">
                       <a
-                        href="/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube"
+                        href="/pods/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/kube"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-yaml-panel"
                         id="open-tabs-example-tabs-list-yaml-link">

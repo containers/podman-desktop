@@ -67,7 +67,7 @@ onMount(() => {
                       class:pf-m-current="{meta.url ===
                         `/images/${image.id}/${encodeURI(image.engineId)}/${image.base64RepoTag}/summary`}">
                       <a
-                        href="/images/{image.id}/${image.engineId}/{image.base64RepoTag}/summary"
+                        href="/images/{image.id}/{image.engineId}/{image.base64RepoTag}/summary"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-details-panel"
                         id="open-tabs-example-tabs-list-details-link">
@@ -79,7 +79,7 @@ onMount(() => {
                       class:pf-m-current="{meta.url ===
                         `/images/${image.id}/${encodeURI(image.engineId)}/${image.base64RepoTag}/history`}">
                       <a
-                        href="/images/{image.id}/${image.engineId}/{image.base64RepoTag}/history"
+                        href="/images/{image.id}/{image.engineId}/{image.base64RepoTag}/history"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-details-panel"
                         id="open-tabs-example-tabs-list-details-link">
@@ -92,7 +92,7 @@ onMount(() => {
                       class:pf-m-current="{meta.url ===
                         `/images/${image.id}/${encodeURI(image.engineId)}/${image.base64RepoTag}/inspect`}">
                       <a
-                        href="/images/{image.id}/${image.engineId}/{image.base64RepoTag}/inspect"
+                        href="/images/{image.id}/{image.engineId}/{image.base64RepoTag}/inspect"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-yaml-panel"
                         id="open-tabs-example-tabs-list-yaml-link">
