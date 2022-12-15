@@ -26,6 +26,7 @@ import type {
   ProviderOptions,
   ProviderStatus,
   ProviderUpdate,
+  ProviderEvent,
   UnregisterContainerConnectionEvent,
   RegisterContainerConnectionEvent,
   KubernetesProviderConnection,
@@ -78,6 +79,9 @@ export class ProviderRegistry {
   private listeners: ProviderEventListener[];
   private lifecycleListeners: ProviderLifecycleListener[];
   private containerConnectionLifecycleListeners: ContainerConnectionProviderLifecycleListener[];
+
+  private readonly _onDidUpdateProvider = new Emitter<ProviderEvent>();
+  readonly onDidUpdateProvider: Event<ProviderEvent> = this._onDidUpdateProvider.event;
 
   private readonly _onDidUnregisterContainerConnection = new Emitter<UnregisterContainerConnectionEvent>();
   readonly onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent> =
@@ -257,6 +261,11 @@ export class ProviderRegistry {
     this.lifecycleListeners.forEach(listener =>
       listener('provider:after-start-lifecycle', this.getProviderInfo(provider), providerLifecycle),
     );
+    this._onDidUpdateProvider.fire({
+      id: providerId,
+      name: provider.name,
+      status: provider.status,
+    });
   }
 
   async stopProviderLifecycle(providerId: string): Promise<void> {
@@ -271,6 +280,11 @@ export class ProviderRegistry {
     this.lifecycleListeners.forEach(listener =>
       listener('provider:after-stop-lifecycle', this.getProviderInfo(provider), providerLifecycle),
     );
+    this._onDidUpdateProvider.fire({
+      id: providerId,
+      name: provider.name,
+      status: provider.status,
+    });
   }
 
   async getProviderDetectionChecks(providerInternalId: string): Promise<ProviderDetectionCheck[]> {
@@ -712,6 +726,12 @@ export class ProviderRegistry {
 
     provider.onDidUpdateStatus(() => {
       callback(this.getProviderInfo(provider));
+    });
+
+    this._onDidUpdateProvider.fire({
+      id: providerId,
+      name: provider.name,
+      status: provider.status,
     });
   }
 }
