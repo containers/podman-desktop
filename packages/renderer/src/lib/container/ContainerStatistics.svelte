@@ -2,7 +2,7 @@
 import { onMount, onDestroy } from 'svelte';
 import type { ContainerStatsInfo } from '../../../../main/src/plugin/api/container-stats-info';
 import type { ContainerInfoUI } from './ContainerInfoUI';
-import filesize from 'filesize';
+import { ContainerUtils } from './container-utils';
 
 export let container: ContainerInfoUI;
 
@@ -12,6 +12,8 @@ const DANGER_PERCENTAGE = 90;
 const GREEN_COLOR = '#16a34a';
 const ORANGE_COLOR = '#F97316';
 const RED_COLOR = '#cb4d3e';
+
+const containerUtils = new ContainerUtils();
 
 $: cpuColor =
   cpuUsagePercentage < WARNING_PERCENTAGE
@@ -52,7 +54,7 @@ async function updateStatistics(containerStats: ContainerStatsInfo) {
   usedMemory = containerStats.memory_stats.usage - (containerStats.memory_stats.stats?.cache || 0);
   const availableMemory = containerStats.memory_stats.limit;
   memoryUsagePercentage = (usedMemory / availableMemory) * 100.0;
-  memoryUsagePercentageTitle = `${memoryUsagePercentage.toFixed(2)}% (${filesize(usedMemory)})`;
+  memoryUsagePercentageTitle = containerUtils.getMemoryUsageTitle(memoryUsagePercentage, usedMemory);
 
   const cpuDelta = containerStats.cpu_stats.cpu_usage.total_usage - containerStats.precpu_stats.cpu_usage.total_usage;
   const systemCpuDelta =

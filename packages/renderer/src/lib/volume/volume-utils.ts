@@ -20,7 +20,7 @@ import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import type { VolumeInfo } from '../../../../main/src/plugin/api/volume-info';
 import type { VolumeInfoUI } from './VolumeInfoUI';
-import filesize from 'filesize';
+import { filesize } from 'filesize';
 
 export class VolumeUtils {
   getUptime(volumeInfo: VolumeInfo): string {

@@ -40,7 +40,7 @@
     "test:main": "vitest run -r packages/main --passWithNoTests",
     "test:preload": "vitest run -r packages/preload --passWithNoTests",
     "test:extensions": "vitest run -r extensions --passWithNoTests",
-    "test:renderer": "vitest run -r packages/renderer --passWithNoTests",
+    "test:renderer": "vitest run packages/renderer --passWithNoTests",
     "test:watch": "vitest watch",
     "watch": "node scripts/watch.js",
     "generate-types": "node scripts/watch.js --types-only",

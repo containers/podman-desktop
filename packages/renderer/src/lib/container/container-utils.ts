@@ -21,6 +21,7 @@ import type { ContainerGroupInfoUI, ContainerGroupPartInfoUI, ContainerInfoUI } 
 import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
 import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
+import { filesize } from 'filesize';
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {
     // part of a compose ?
@@ -175,5 +176,9 @@ export class ContainerUtils {
       }
     });
     return Array.from(groups.values());
+  }
+
+  getMemoryUsageTitle(memoryUsagePercentage: number, usedMemory: number): string {
+    return `${memoryUsagePercentage.toFixed(2)}% (${filesize(usedMemory)})`;
   }
 }

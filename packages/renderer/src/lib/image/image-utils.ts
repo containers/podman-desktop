@@ -19,7 +19,7 @@
 import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 import type { ImageInfoUI } from './ImageInfoUI';
 import moment from 'moment';
-import filesize from 'filesize';
+import { filesize } from 'filesize';
 import { Buffer } from 'buffer';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 
