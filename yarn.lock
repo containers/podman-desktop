@@ -2171,10 +2171,10 @@
     ajv "^6.12.0"
     ajv-keywords "^3.4.1"
 
-"@docker/extension-api-client-types@0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@docker/extension-api-client-types/-/extension-api-client-types-0.2.3.tgz#4711e81a18266bf7e8b15734cd7daeb221db1312"
-  integrity sha512-KecgDPmH0Ma7UpwQGAbVQnMCFC9dLvlngWT0jP0uXObxISaPVhHnOzbb+5d+VikazV82Dj7E24ySKJOpKUYHDA==
+"@docker/extension-api-client-types@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@docker/extension-api-client-types/-/extension-api-client-types-0.3.0.tgz#553cbd1d0059e2568c7cfe9de2a6d674efd8c30b"
+  integrity sha512-mqaDffY+05SOI/I32GQrhcoPbBrE/yvR3rneTw1zYxQ8/NcYyfijQCHj00P/sRy8fNPk/RgnexVXWVgiX/EgBQ==
 
 "@docsearch/css@3.2.0":
   version "3.2.0"
