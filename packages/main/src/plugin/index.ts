@@ -896,8 +896,13 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         internalProviderId: string,
         params: { [key: string]: unknown },
+        loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.createContainerProviderConnection(internalProviderId, params);
+        return providerRegistry.createContainerProviderConnection(
+          internalProviderId,
+          params,
+          this.getLogHandlerCreateConnection(loggerId),
+        );
       },
     );
 
@@ -907,8 +912,13 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         internalProviderId: string,
         params: { [key: string]: unknown },
+        loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.createKubernetesProviderConnection(internalProviderId, params);
+        return providerRegistry.createKubernetesProviderConnection(
+          internalProviderId,
+          params,
+          this.getLogHandlerCreateConnection(loggerId),
+        );
       },
     );
 
@@ -981,5 +991,19 @@ export class PluginSystem {
     apiSender.send('extension-system', `${this.isReady}`);
     autoStartConfiguration.start();
     return this.extensionLoader;
+  }
+
+  getLogHandlerCreateConnection(loggerId: string): containerDesktopAPI.Logger {
+    return {
+      log: (...data: unknown[]) => {
+        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'log', data);
+      },
+      warn: (...data: unknown[]) => {
+        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'warn', data);
+      },
+      error: (...data: unknown[]) => {
+        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'error', data);
+      },
+    };
   }
 }

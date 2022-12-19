@@ -2,12 +2,16 @@
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
+import type { Logger as LoggerType } from '@tmpwip/extension-api';
+import Logger from './Logger.svelte';
+import { writeToTerminal } from './Util';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
 export let propertyScope: string;
-export let callback: (string, data) => Promise<void>;
+export let callback: (param: string, data, logger: LoggerType) => Promise<void>;
 
 let creationInProgress = false;
+let creationStarted = false;
 let creationSuccessful = false;
 
 // get only ContainerProviderConnectionFactory scope fields that are starting by the provider id
@@ -27,6 +31,8 @@ function handleValidComponent() {
   isValid = true;
 }
 
+let logsTerminal;
+
 async function handleOnSubmit(e) {
   errorMessage = undefined;
   const formData = new FormData(e.target);
@@ -40,8 +46,24 @@ async function handleOnSubmit(e) {
   // send the data to the right provider
   creationInProgress = true;
   errorMessage = undefined;
+  creationStarted = true;
+
+  const loggerHandler: LoggerType = {
+    log: args => {
+      writeToTerminal(logsTerminal, args, '\x1b[37m');
+    },
+    warn: args => {
+      writeToTerminal(logsTerminal, args, '\x1b[33m');
+    },
+    error: args => {
+      writeToTerminal(logsTerminal, args, '\x1b[1;31m');
+    },
+  };
+
   try {
-    await callback(providerInfo.internalId, data);
+    // clear terminal
+    logsTerminal?.clear();
+    await callback(providerInfo.internalId, data, loggerHandler);
     window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
     creationSuccessful = true;
   } catch (error) {
@@ -90,6 +112,13 @@ async function handleOnSubmit(e) {
         Create
       </button>
     </form>
+    {#if creationStarted}
+      <div id="log" class="w-full h-96 mt-4">
+        <div class="w-full h-full">
+          <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
+        </div>
+      </div>
+    {/if}
     {#if errorMessage}
       <div class="text-red-600">
         {errorMessage}

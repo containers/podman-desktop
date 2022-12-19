@@ -195,13 +195,13 @@ declare module '@tmpwip/extension-api' {
   export interface ContainerProviderConnectionFactory {
     initialize(): Promise<void>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create(params: { [key: string]: any }): Promise<void>;
+    create(params: { [key: string]: any }, logger?: Logger): Promise<void>;
   }
 
   // create a kubernetes provider
   export interface KubernetesProviderConnectionFactory {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create(params: { [key: string]: any }): Promise<void>;
+    create(params: { [key: string]: any }, logger?: Logger): Promise<void>;
   }
 
   export interface Link {
