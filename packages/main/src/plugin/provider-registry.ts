@@ -32,6 +32,7 @@ import type {
   KubernetesProviderConnection,
   UnregisterKubernetesConnectionEvent,
   RegisterKubernetesConnectionEvent,
+  Logger,
 } from '@tmpwip/extension-api';
 import type {
   ProviderContainerConnectionInfo,
@@ -558,26 +559,37 @@ export class ProviderRegistry {
     return context;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async createContainerProviderConnection(internalProviderId: string, params: { [key: string]: any }): Promise<void> {
+  async createContainerProviderConnection(
+    internalProviderId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params: { [key: string]: any },
+    logHandler: Logger,
+  ): Promise<void> {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
 
     if (!provider.containerProviderConnectionFactory) {
       throw new Error('The provider does not support container connection creation');
     }
-    return provider.containerProviderConnectionFactory.create(params);
+
+    // create a logger
+
+    return provider.containerProviderConnectionFactory.create(params, logHandler);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async createKubernetesProviderConnection(internalProviderId: string, params: { [key: string]: any }): Promise<void> {
+  async createKubernetesProviderConnection(
+    internalProviderId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params: { [key: string]: any },
+    logHandler: Logger,
+  ): Promise<void> {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
 
     if (!provider.kubernetesProviderConnectionFactory) {
       throw new Error('The provider does not support kubernetes connection creation');
     }
-    return provider.kubernetesProviderConnectionFactory.create(params);
+    return provider.kubernetesProviderConnectionFactory.create(params, logHandler);
   }
 
   // helper method

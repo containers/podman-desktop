@@ -495,19 +495,62 @@ function initExposure(): void {
     },
   );
 
+  let onDataCallbacksCreateConnectionId = 0;
+
+  const onDataCallbacksCreateConnectionLogs = new Map<number, containerDesktopAPI.Logger>();
+
   contextBridge.exposeInMainWorld(
     'createContainerProviderConnection',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (internalProviderId: string, params: { [key: string]: any }): Promise<void> => {
-      return ipcInvoke('provider-registry:createContainerProviderConnection', internalProviderId, params);
+    async (
+      internalProviderId: string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      params: { [key: string]: any },
+      logger: containerDesktopAPI.Logger,
+    ): Promise<void> => {
+      onDataCallbacksCreateConnectionId++;
+      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, logger);
+      return ipcInvoke(
+        'provider-registry:createContainerProviderConnection',
+        internalProviderId,
+        params,
+        onDataCallbacksCreateConnectionId,
+      );
     },
   );
 
   contextBridge.exposeInMainWorld(
     'createKubernetesProviderConnection',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (internalProviderId: string, params: { [key: string]: any }): Promise<void> => {
-      return ipcInvoke('provider-registry:createKubernetesProviderConnection', internalProviderId, params);
+    async (
+      internalProviderId: string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      params: { [key: string]: any },
+      logger: containerDesktopAPI.Logger,
+    ): Promise<void> => {
+      onDataCallbacksCreateConnectionId++;
+      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, logger);
+      return ipcInvoke(
+        'provider-registry:createKubernetesProviderConnection',
+        internalProviderId,
+        params,
+        onDataCallbacksCreateConnectionId,
+      );
+    },
+  );
+
+  ipcRenderer.on(
+    'provider-registry:createConnection-onData',
+    (_, onDataCallbacksCreateConnectionId: number, channel: string, data: unknown[]) => {
+      // grab callback from the map
+      const callback = onDataCallbacksCreateConnectionLogs.get(onDataCallbacksCreateConnectionId);
+      if (callback) {
+        if (channel === 'log') {
+          callback.log(data);
+        } else if (channel === 'warn') {
+          callback.warn(data);
+        } else if (channel === 'error') {
+          callback.error(data);
+        }
+      }
     },
   );
 
@@ -808,9 +851,9 @@ function initExposure(): void {
         if (channel === 'log') {
           callback.log(data);
         } else if (channel === 'warn') {
-          callback.log(data);
+          callback.warn(data);
         } else if (channel === 'error') {
-          callback.log(data);
+          callback.error(data);
         }
       }
     },
