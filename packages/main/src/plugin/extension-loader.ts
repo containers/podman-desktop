@@ -292,6 +292,15 @@ export class ExtensionLoader {
         }
         return providerRegistry.createProvider(providerOptions);
       },
+      onDidUpdateProvider: (listener, thisArg, disposables) => {
+        return providerRegistry.onDidUpdateProvider(listener, thisArg, disposables);
+      },
+      onDidUnregisterContainerConnection: (listener, thisArg, disposables) => {
+        return providerRegistry.onDidUnregisterContainerConnection(listener, thisArg, disposables);
+      },
+      onDidRegisterContainerConnection: (listener, thisArg, disposables) => {
+        return providerRegistry.onDidRegisterContainerConnection(listener, thisArg, disposables);
+      },
     };
 
     const proxyInstance = this.proxy;
