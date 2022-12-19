@@ -108,6 +108,19 @@ function update(record: IConfigurationPropertyRecordedSchema) {
         id="input-standard-{record.id}"
         aria-invalid="{invalidEntry}"
         aria-label="{record.description}" />
+    {:else if record.type === 'string' && record.enum && record.enum.length > 0}
+      <select
+        class="border  text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+        name="{record.id}"
+        id="input-standard-{record.id}"
+        on:input="{event => checkValue(record, event)}"
+        bind:value="{recordValue}"
+        aria-invalid="{invalidEntry}"
+        aria-label="{record.description}">
+        {#each record.enum as recordEnum}
+          <option value="{recordEnum}">{recordEnum}</option>
+        {/each}
+      </select>
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"
