@@ -20,10 +20,11 @@
   "scripts": {
     "build": "npm run build:main && npm run build:preload && npm run build:preload-docker-extension && npm run build:renderer && npm run build:extensions",
     "build:main": "cd ./packages/main && vite build",
-    "build:extensions": "npm run build:extensions:docker && npm run build:extensions:lima && npm run build:extensions:crc && npm run build:extensions:podman && npm run build:extensions:kubecontext",
+    "build:extensions": "npm run build:extensions:docker && npm run build:extensions:lima && npm run build:extensions:crc && npm run build:extensions:podman && npm run build:extensions:kubecontext && npm run build:extensions:kind",
     "build:extensions:crc": "cd ./extensions/crc && npm run build",
     "build:extensions:docker": "cd ./extensions/docker && npm run build",
     "build:extensions:kubecontext": "cd ./extensions/kube-context && npm run build",
+    "build:extensions:kind": "cd ./extensions/kind && npm run build",
     "build:extensions:lima": "cd ./extensions/lima && npm run build",
     "build:extensions:podman": "cd ./extensions/podman && npm run build",
     "build:extension-api": "cd ./packages/extension-api && vite build",

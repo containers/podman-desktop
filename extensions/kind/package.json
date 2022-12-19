@@ -1,0 +1,61 @@
+{
+  "name": "kind",
+  "displayName": "Kind",
+  "description": "Create a Kind cluster: Creates a Kubernetes cluster with a single node.",
+  "version": "0.0.1",
+  "icon": "icon.png",
+  "publisher": "benoitf",
+  "license": "Apache-2.0",
+  "engines": {
+    "podman-desktop": "^0.0.1"
+  },
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Kind",
+      "properties": {
+        "kind.cluster.creation.name": {
+          "type": "string",
+          "default": "podman-desktop",
+          "scope": "KubernetesProviderConnectionFactory",
+          "description": "Name"
+        },
+        "kind.cluster.creation.provider": {
+          "type": "string",
+          "default": "podman",
+          "enum": [
+            "podman",
+            "docker"
+          ],
+          "scope": "KubernetesProviderConnectionFactory",
+          "description": "Provider Type"
+        },
+        "kind.cluster.creation.http.port": {
+          "type": "number",
+          "default": 9090,
+          "scope": "KubernetesProviderConnectionFactory",
+          "description": "HTTP port"
+        },
+        "kind.cluster.creation.https.port": {
+          "type": "number",
+          "default": 9443,
+          "scope": "KubernetesProviderConnectionFactory",
+          "description": "HTTPS port"
+        }
+
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc && node ./scripts/build.js",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@tmpwip/extension-api": "^0.0.1"
+  },
+  "devDependencies": {
+    "7zip-min": "^1.4.3",
+    "mkdirp": "^1.0.4",
+    "zip-local": "^0.3.5"
+  }
+}

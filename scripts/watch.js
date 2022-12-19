@@ -175,6 +175,7 @@ const setupExtensionApiWatcher = name => {
     await setupExtensionApiWatcher('kube-context');
     await setupExtensionApiWatcher('lima');
     await setupExtensionApiWatcher('podman');
+    await setupExtensionApiWatcher('kind');
     await setupPreloadPackageWatcher(viteDevServer);
     await setupPreloadDockerExtensionPackageWatcher(viteDevServer);
     await setupMainPackageWatcher(viteDevServer);
