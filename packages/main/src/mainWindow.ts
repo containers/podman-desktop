@@ -141,6 +141,28 @@ async function createWindow() {
     showSaveLinkAs: false,
     showInspectElement: import.meta.env.DEV,
     showServices: false,
+    prepend: (_defaultActions, parameters) => {
+      // In development mode, show the "Open DevTools of Extension" menu item
+      if (import.meta.env.DEV) {
+        let extensionId = '';
+        if (parameters.linkURL && parameters.linkURL.includes('/contribs')) {
+          extensionId = parameters.linkURL.split('/contribs/')[1];
+        }
+        return [
+          {
+            label: `Open DevTools of ${decodeURI(extensionId)} Extension`,
+            // make it visible when link contains contribs and we're inside the extension
+            visible:
+              parameters.linkURL.includes('/contribs/') && parameters.pageURL.includes(`/contribs/${extensionId}`),
+            click: () => {
+              browserWindow.webContents.send('dev-tools:open-extension', extensionId.replaceAll('%20', '-'));
+            },
+          },
+        ];
+      } else {
+        return [];
+      }
+    },
   });
 
   /**
