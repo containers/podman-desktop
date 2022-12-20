@@ -977,6 +977,18 @@ function initExposure(): void {
       return ipcInvoke('openshift-client:createRoute', namespace, route);
     },
   );
+
+  contextBridge.exposeInMainWorld('getOsPlatform', async (): Promise<string> => {
+    return ipcInvoke('os:getPlatform');
+  });
+
+  contextBridge.exposeInMainWorld('getOsArch', async (): Promise<string> => {
+    return ipcInvoke('os:getArch');
+  });
+
+  contextBridge.exposeInMainWorld('getOsHostname', async (): Promise<string> => {
+    return ipcInvoke('os:getHostname');
+  });
 }
 
 // expose methods
