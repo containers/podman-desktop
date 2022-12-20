@@ -4,9 +4,14 @@ import { contributions } from '../../stores/contribs';
 
 export let name: string;
 let source;
+let arch;
+let hostname;
+let platform;
 
 let preloadPath: string;
 $: currentContrib = $contributions.find(contrib => contrib.name === name);
+
+$: webviewId = name.replaceAll(' ', '-');
 
 afterUpdate(() => {
   console.log('contribution', currentContrib);
@@ -14,6 +19,10 @@ afterUpdate(() => {
 });
 
 onMount(async () => {
+  // grab hostname, arch and platform
+  arch = await window.getOsArch();
+  hostname = await window.getOsHostname();
+  platform = await window.getOsPlatform();
   preloadPath = await window.getDDPreloadPath();
   source = currentContrib?.uiUri;
 });
@@ -21,8 +30,8 @@ onMount(async () => {
 
 {#if source && preloadPath}
   <webview
-    id="my-webview-{name}"
-    src="{source}?extensionName={currentContrib.extensionId}"
+    id="dd-webview-{webviewId}"
+    src="{source}?extensionName={currentContrib.extensionId}&arch={arch}&hostname={hostname}&platform={platform}"
     preload="{preloadPath}"
     style="height: 100%; width: 100%"></webview>
 {/if}

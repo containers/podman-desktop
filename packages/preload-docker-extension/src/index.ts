@@ -27,6 +27,7 @@ import type { v1 as dockerDesktopAPI } from '@docker/extension-api-client-types'
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { Dialog, OpenDialogResult } from '@docker/extension-api-client-types/dist/v1/dialog';
 import type { ExecStreamOptions, NavigationIntents, RequestConfig } from '@docker/extension-api-client-types/dist/v1';
+import { lines, parseJsonLines, parseJsonObject } from './exec-result-helper';
 
 interface ErrorMessage {
   name: string;
@@ -66,8 +67,16 @@ export class DockerExtensionPreload {
     launcher: string | undefined,
     cmd: string,
     args: string[],
+    execOptions?: dockerDesktopAPI.ExecOptions,
   ): Promise<dockerDesktopAPI.ExecResult> {
-    const rawResult = await ipcRenderer.invoke('docker-plugin-adapter:exec', extensionName, launcher, cmd, args);
+    const rawResult = await ipcRenderer.invoke(
+      'docker-plugin-adapter:exec',
+      extensionName,
+      launcher,
+      cmd,
+      args,
+      execOptions,
+    );
     if (rawResult.error) {
       throw new Error(rawResult.error);
     }
@@ -75,8 +84,29 @@ export class DockerExtensionPreload {
       throw new Error(`Command failed: ${rawResult.stderr}`);
     }
 
-    // FIXME: add wrapper around the result (helper functions of ExecResult)
-    return rawResult;
+    const execResult: dockerDesktopAPI.ExecResult = rawResult;
+
+    // implements lines method
+    execResult.lines = (): string[] => {
+      return lines(rawResult);
+    };
+
+    /**
+     * Parse each output line as a JSON object.
+     * @returns The list of lines where each line is a JSON object.
+     */
+    execResult.parseJsonLines = (): any[] => {
+      return parseJsonLines(rawResult);
+    };
+
+    /**
+     * Parse a well-formed JSON output.
+     * @returns The JSON object.
+     */
+    execResult.parseJsonObject = (): any => {
+      return parseJsonObject(rawResult);
+    };
+    return execResult;
   }
 
   execWithOptions(
@@ -120,14 +150,17 @@ export class DockerExtensionPreload {
     const execFunction: dockerDesktopAPI.Exec = (
       cmd: string,
       args: string[],
-      options?: { stream: dockerDesktopAPI.ExecStreamOptions },
+      options: undefined | dockerDesktopAPI.SpawnOptions | dockerDesktopAPI.ExecOptions,
     ): any => {
-      // no options, return Promise/ExecResult
-      // if we have options, then need to provide a ExecProcess
-      if (options) {
-        return this.execWithOptions(nameParam, launcher, cmd, args, options);
-      } else {
+      // no options, it is promise
+      if (!options) {
         return this.exec(nameParam, launcher, cmd, args);
+      } else if ((options as any).stream) {
+        // if we have stream options, it means we're using stream/exec
+        return this.execWithOptions(nameParam, launcher, cmd, args, options as dockerDesktopAPI.SpawnOptions);
+      } else {
+        // else we use promise as well
+        return this.exec(nameParam, launcher, cmd, args, options as dockerDesktopAPI.ExecOptions);
       }
     };
     return execFunction;
@@ -227,20 +260,19 @@ export class DockerExtensionPreload {
     };
 
     const desktopUI: dockerDesktopAPI.DesktopUI = { toast, dialog, navigate };
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const arch = urlParams.get('arch') || '';
+    const hostname = urlParams.get('hostname') || '';
+    const platform = urlParams.get('platform') || '';
     const host: dockerDesktopAPI.Host = {
       openExternal: (link: string) => {
         return ipcInvoke('shell:openExternal', link);
       },
-      platform: '',
-      arch: '',
-      hostname: '',
+      platform,
+      arch,
+      hostname,
     };
-    async function initHost() {
-      host.platform = await ipcInvoke('os:getPlatform');
-      host.arch = await ipcInvoke('os:getArch');
-      host.hostname = await ipcInvoke('os:getHostname');
-    }
-    initHost();
 
     const extensionVMService: dockerDesktopAPI.HttpService = {
       get: async (url: string): Promise<unknown> => {
@@ -304,12 +336,17 @@ export class DockerExtensionPreload {
       cli,
     };
 
-    return {
+    const result = {
       extension,
       desktopUI,
       host,
       docker,
     };
+
+    const toastError = (error: Error) => console.error(error);
+    (result as any).toastError = toastError;
+
+    return result;
   }
 }
 

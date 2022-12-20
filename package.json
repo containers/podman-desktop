@@ -35,10 +35,11 @@
     "compile:next": "cross-env MODE=production npm run build && electron-builder build --publish always --config .electron-builder.config.js",
     "compile:pull-request": "cross-env MODE=production npm run build && electron-builder build --publish never --config .electron-builder.config.js",
     "compile:current": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.js",
-    "test": "npm run test:main && npm run test:preload && npm run test:renderer && npm run test:e2e && npm run test:extensions",
+    "test": "npm run test:main && npm run test:preload && npm run test:preload-docker-extension && npm run test:renderer && npm run test:e2e && npm run test:extensions",
     "test:e2e": "npm run build && xvfb-maybe vitest run",
     "test:main": "vitest run -r packages/main --passWithNoTests",
     "test:preload": "vitest run -r packages/preload --passWithNoTests",
+    "test:preload-docker-extension": "vitest run -r packages/preload-docker-extension --passWithNoTests",
     "test:extensions": "vitest run -r extensions --passWithNoTests",
     "test:renderer": "vitest run packages/renderer --passWithNoTests",
     "test:watch": "vitest watch",
@@ -86,7 +87,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@docker/extension-api-client-types": "0.2.3",
+    "@docker/extension-api-client-types": "0.3.2",
     "@kubernetes/client-node": "^0.18.0",
     "@types/stream-json": "^1.7.2",
     "analytics-node": "^6.2.0",
