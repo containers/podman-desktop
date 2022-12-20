@@ -17,6 +17,14 @@ onMount(async () => {
   preloadPath = await window.getDDPreloadPath();
   source = currentContrib?.uiUri;
 });
+
+window.events?.receive('dev-tools:open-extension', extensionId => {
+  const extensionElement = document.getElementById(`dd-webview-${extensionId}`);
+
+  if (extensionElement) {
+    (extensionElement as any).openDevTools();
+  }
+});
 </script>
 
 {#if source && preloadPath}

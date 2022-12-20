@@ -738,6 +738,12 @@ function initExposure(): void {
     return ipcInvoke('contributions:listContributions');
   });
 
+  // Handle callback to open devtools for extensions
+  // by delegating to the renderer process
+  ipcRenderer.on('dev-tools:open-extension', (_, extensionId: string) => {
+    apiSender.send('dev-tools:open-extension', extensionId);
+  });
+
   // Handle callback on dialog file/folder by calling the callback once we get the answer
   ipcRenderer.on(
     'dialog:open-file-or-folder-response',
