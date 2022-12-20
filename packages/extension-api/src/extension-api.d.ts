@@ -132,6 +132,13 @@ declare module '@tmpwip/extension-api' {
     status(): ProviderStatus;
   }
 
+  // For displaying essential information to the user
+  // "name" of the warning / title and a "details" field for more information
+  export interface ProviderInformation {
+    name: string;
+    details?: string;
+  }
+
   export interface ProviderDetectionCheck {
     name: string;
     details?: string;
@@ -146,6 +153,9 @@ declare module '@tmpwip/extension-api' {
     images?: ProviderImages;
     links?: ProviderLinks[];
     detectionChecks?: ProviderDetectionCheck[];
+
+    // Provide way to add additional warnings to the provider
+    warning?: ProviderInformation[];
   }
 
   export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
@@ -294,6 +304,10 @@ declare module '@tmpwip/extension-api' {
     // update the detection checks for the provider
     // it may happen after an update or an installation
     updateDetectionChecks(detectionChecks: ProviderDetectionCheck[]): void;
+
+    // update warning information for the provider
+    readonly warning: ProviderInformation[];
+    updateWarning(warning: ProviderInformation[]): void;
 
     // notify that detection checks have changed
     onDidUpdateDetectionChecks: Event<ProviderDetectionCheck[]>;

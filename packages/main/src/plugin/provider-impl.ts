@@ -37,6 +37,7 @@ import type {
   ProviderUpdate,
   ProviderAutostart,
   KubernetesProviderConnectionFactory,
+  ProviderInformation,
 } from '@tmpwip/extension-api';
 import type { ProviderRegistry } from './provider-registry';
 import { Emitter } from './events/emitter';
@@ -65,6 +66,10 @@ export class ProviderImpl implements Provider, IDisposable {
   private readonly _onDidUpdateDetectionChecks = new Emitter<ProviderDetectionCheck[]>();
   readonly onDidUpdateDetectionChecks: Event<ProviderDetectionCheck[]> = this._onDidUpdateDetectionChecks.event;
 
+  private _warning: ProviderInformation[];
+  private readonly _onDidUpdateWarning = new Emitter<ProviderInformation[]>();
+  readonly onDidUpdateWarning: Event<ProviderInformation[]> = this._onDidUpdateWarning.event;
+
   constructor(
     private _internalId: string,
     private providerOptions: ProviderOptions,
@@ -80,6 +85,7 @@ export class ProviderImpl implements Provider, IDisposable {
     this._links = providerOptions.links || [];
     this._detectionChecks = providerOptions.detectionChecks || [];
     this._images = providerOptions.images || {};
+    this._warning = providerOptions.warning || [];
 
     // monitor connection statuses
     setInterval(async () => {
@@ -116,6 +122,10 @@ export class ProviderImpl implements Provider, IDisposable {
     return this._detectionChecks;
   }
 
+  get warning(): ProviderInformation[] {
+    return this._warning;
+  }
+
   get images(): ProviderImages {
     return this._images;
   }
@@ -137,6 +147,12 @@ export class ProviderImpl implements Provider, IDisposable {
   updateDetectionChecks(detectionChecks: ProviderDetectionCheck[]): void {
     this._detectionChecks = detectionChecks;
     this._onDidUpdateDetectionChecks.fire(detectionChecks);
+  }
+
+  // Update the warnings
+  updateWarning(warning: ProviderInformation[]): void {
+    this._warning = warning;
+    this._onDidUpdateWarning.fire(warning);
   }
 
   get status(): ProviderStatus {

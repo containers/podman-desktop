@@ -149,6 +149,40 @@ helper_binaries_dir=["/Users/user/example_directory"]
 
 **NOTE**: A pre-built binary will be added to the Podman release page so you do not have to build `podman-mac-helper`. An [issue is open for this](https://github.com/containers/podman/issues/16746).
 
+###  Warning about Docker compatibility mode
+
+
+#### Issue:
+
+When running the Podman provider, a warning shows regarding Docker compatibility mode on the dashboard:
+
+```sh
+⚠️ Docker Socket Compatibility: Podman is not emulating the default Docker socket path: '/var/run/docker.sock'. Docker-specific tools may not work. See troubleshooting page on podman-desktop.io for more information.
+```
+
+This may appear when either:
+* The Docker socket is not mounted correctly
+* Docker Desktop is also being ran at the same time 
+
+#### Solution:
+
+**On macOS:**
+
+1. Stop Docker Desktop (if install)
+2. Run the `podman-mac-helper` binary:
+```sh
+sudo podman-mac-helper install
+```
+3. Restart the Podman machine (the default Docker socket path will be recreated and Podman will emulate it)
+
+
+**On Linux / Windows:**
+
+1. Stop Docker Desktop (if installed)
+2. Restart the Podman machine (the default Docker socket path will be recreated and Podman will emulate it)
+
+*Note:* If Docker Desktop is started again, it will automatically re-alias the default Docker socket location and the Podman compatibilty warning will re-appear.
+
 
 ## Code Ready Containers
 

@@ -64,6 +64,9 @@ window?.events.receive('provider-delete', () => {
 window?.events.receive('provider:update-status', () => {
   fetchProviders();
 });
+window?.events.receive('provider:update-warning', () => {
+  fetchProviders();
+});
 window.addEventListener('system-ready', () => {
   fetchProviders();
 });

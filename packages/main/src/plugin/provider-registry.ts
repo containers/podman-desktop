@@ -111,17 +111,31 @@ export class ProviderRegistry {
     this.lifecycleListeners = [];
     this.containerConnectionLifecycleListeners = [];
 
+    // Every 2 seconds, we will check:
+    // * The status of the providers
+    // * Any new warnings or informations for each provider
     setInterval(async () => {
       Array.from(this.providers.keys()).forEach(providerKey => {
+        // Get the provider and its lifecycle
         const provider = this.providers.get(providerKey);
         const providerLifecycle = this.providerLifecycles.get(providerKey);
+
+        // If the provider and its lifecycle exist, we will check
         if (provider && providerLifecycle) {
+          // Get the status
           const status = providerLifecycle.status();
+
+          // If the status does not match the current one, we will send a listener event and update the status
           if (status !== this.providerStatuses.get(providerKey)) {
             provider.updateStatus(status);
             this.listeners.forEach(listener => listener('provider:update-status', this.getProviderInfo(provider)));
             this.providerStatuses.set(providerKey, status);
           }
+        }
+
+        // Let the renderer know to check for new warnings and information
+        if (provider) {
+          this.apiSender.send('provider:update-warning', provider.id);
         }
       });
     }, 2000);
@@ -491,6 +505,7 @@ export class ProviderRegistry {
       detectionChecks: provider.detectionChecks,
       images: provider.images,
       version: provider.version,
+      warning: provider.warning,
       installationSupport,
     };
 
