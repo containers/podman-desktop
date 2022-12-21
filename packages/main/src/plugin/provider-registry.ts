@@ -33,6 +33,7 @@ import type {
   UnregisterKubernetesConnectionEvent,
   RegisterKubernetesConnectionEvent,
   Logger,
+  ProviderInformation,
 } from '@tmpwip/extension-api';
 import type {
   ProviderContainerConnectionInfo,
@@ -69,6 +70,7 @@ export class ProviderRegistry {
   private count = 0;
   private providers: Map<string, ProviderImpl>;
   private providerStatuses = new Map<string, ProviderStatus>();
+  private providerWarnings = new Map<string, ProviderInformation[]>();
 
   private providerLifecycles: Map<string, ProviderLifecycle> = new Map();
   private providerLifecycleContexts: Map<string, LifecycleContextImpl> = new Map();
@@ -119,6 +121,7 @@ export class ProviderRegistry {
         // Get the provider and its lifecycle
         const provider = this.providers.get(providerKey);
         const providerLifecycle = this.providerLifecycles.get(providerKey);
+        const providerWarnings = this.providerWarnings.get(providerKey);
 
         // If the provider and its lifecycle exist, we will check
         if (provider && providerLifecycle) {
@@ -133,9 +136,14 @@ export class ProviderRegistry {
           }
         }
 
-        // Let the renderer know to check for new warnings and information
+        // Update the warnings of the provider
         if (provider) {
-          this.apiSender.send('provider:update-warnings', provider.id);
+          // If the warnings do not match the current cache, we will send an update event to the renderer
+          // and update the local warnings cache
+          if (JSON.stringify(providerWarnings) !== JSON.stringify(provider?.warnings)) {
+            this.apiSender.send('provider:update-warnings', provider.id);
+            this.providerWarnings.set(providerKey, provider.warnings);
+          }
         }
       });
     }, 2000);
