@@ -207,7 +207,7 @@ and in the `.devcontainer` folder the `onCreateCommand.sh` script is the followi
 #!/bin/sh
 yarn
 
-MODE=production yarn run build && yarn run electron-builder build --linux --dir --config .electron-builder.config.js
+MODE=production yarn run build && yarn run electron-builder build --linux --dir --config .electron-builder.config.cjs
 ```
 
 Two instructions:
