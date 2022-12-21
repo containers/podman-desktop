@@ -150,7 +150,7 @@ export class ProviderImpl implements Provider, IDisposable {
   }
 
   // Update the warnings
-  updateWarning(warnings: ProviderInformation[]): void {
+  updateWarnings(warnings: ProviderInformation[]): void {
     this._warnings = warnings;
     this._onDidUpdateWarnings.fire(warnings);
   }

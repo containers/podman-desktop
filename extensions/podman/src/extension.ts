@@ -536,8 +536,6 @@ function setupDisguisedPodmanSocketWatcher(
   // watch parent directory
   const socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
 
-  console.log('socket file:', socketFile);
-
   // only trigger if the watched file is the socket file
   const updateSocket = (uri: extensionApi.Uri) => {
     if (uri.fsPath === socketFile) {
@@ -546,17 +544,14 @@ function setupDisguisedPodmanSocketWatcher(
   };
 
   socketWatcher.onDidChange(uri => {
-    console.log('socket changed', uri);
     updateSocket(uri);
   });
 
   socketWatcher.onDidCreate(uri => {
-    console.log('socket created', uri);
     updateSocket(uri);
   });
 
   socketWatcher.onDidDelete(uri => {
-    console.log('socket deleted', uri);
     updateSocket(uri);
   });
 
