@@ -21,4 +21,4 @@
 yarn
 
 # build podman-desktop
-MODE=production yarn run build && yarn run electron-builder build --linux --dir --config .electron-builder.config.js
+MODE=production yarn run build && yarn run electron-builder build --linux --dir --config .electron-builder.config.cjs
