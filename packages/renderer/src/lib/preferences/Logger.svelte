@@ -1,3 +1,10 @@
+<style>
+:global(#logger-component .xterm) {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+</style>
+
 <script lang="ts">
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
@@ -53,4 +60,4 @@ onDestroy(() => {
 });
 </script>
 
-<div style="width:100%; height:100%;" bind:this="{logsXtermDiv}"></div>
+<div id="logger-component" style="width:100%; height:100%;" bind:this="{logsXtermDiv}"></div>
