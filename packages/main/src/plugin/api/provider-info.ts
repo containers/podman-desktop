@@ -67,7 +67,7 @@ export interface ProviderInfo {
   detectionChecks: ProviderDetectionCheck[];
 
   // warning messages regarding the provider
-  warning: ProviderInformation[];
+  warnings: ProviderInformation[];
 
   images: ProviderImages;
 

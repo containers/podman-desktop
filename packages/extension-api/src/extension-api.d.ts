@@ -155,7 +155,7 @@ declare module '@tmpwip/extension-api' {
     detectionChecks?: ProviderDetectionCheck[];
 
     // Provide way to add additional warnings to the provider
-    warning?: ProviderInformation[];
+    warnings?: ProviderInformation[];
   }
 
   export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
@@ -306,8 +306,8 @@ declare module '@tmpwip/extension-api' {
     updateDetectionChecks(detectionChecks: ProviderDetectionCheck[]): void;
 
     // update warning information for the provider
-    readonly warning: ProviderInformation[];
-    updateWarning(warning: ProviderInformation[]): void;
+    readonly warnings: ProviderInformation[];
+    updateWarnings(warnings: ProviderInformation[]): void;
 
     // notify that detection checks have changed
     onDidUpdateDetectionChecks: Event<ProviderDetectionCheck[]>;

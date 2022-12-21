@@ -66,9 +66,9 @@ export class ProviderImpl implements Provider, IDisposable {
   private readonly _onDidUpdateDetectionChecks = new Emitter<ProviderDetectionCheck[]>();
   readonly onDidUpdateDetectionChecks: Event<ProviderDetectionCheck[]> = this._onDidUpdateDetectionChecks.event;
 
-  private _warning: ProviderInformation[];
-  private readonly _onDidUpdateWarning = new Emitter<ProviderInformation[]>();
-  readonly onDidUpdateWarning: Event<ProviderInformation[]> = this._onDidUpdateWarning.event;
+  private _warnings: ProviderInformation[];
+  private readonly _onDidUpdateWarnings = new Emitter<ProviderInformation[]>();
+  readonly onDidUpdateWarnings: Event<ProviderInformation[]> = this._onDidUpdateWarnings.event;
 
   constructor(
     private _internalId: string,
@@ -85,7 +85,7 @@ export class ProviderImpl implements Provider, IDisposable {
     this._links = providerOptions.links || [];
     this._detectionChecks = providerOptions.detectionChecks || [];
     this._images = providerOptions.images || {};
-    this._warning = providerOptions.warning || [];
+    this._warnings = providerOptions.warnings || [];
 
     // monitor connection statuses
     setInterval(async () => {
@@ -122,8 +122,8 @@ export class ProviderImpl implements Provider, IDisposable {
     return this._detectionChecks;
   }
 
-  get warning(): ProviderInformation[] {
-    return this._warning;
+  get warnings(): ProviderInformation[] {
+    return this._warnings;
   }
 
   get images(): ProviderImages {
@@ -150,9 +150,9 @@ export class ProviderImpl implements Provider, IDisposable {
   }
 
   // Update the warnings
-  updateWarning(warning: ProviderInformation[]): void {
-    this._warning = warning;
-    this._onDidUpdateWarning.fire(warning);
+  updateWarning(warnings: ProviderInformation[]): void {
+    this._warnings = warnings;
+    this._onDidUpdateWarnings.fire(warnings);
   }
 
   get status(): ProviderStatus {

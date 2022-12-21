@@ -135,7 +135,7 @@ export class ProviderRegistry {
 
         // Let the renderer know to check for new warnings and information
         if (provider) {
-          this.apiSender.send('provider:update-warning', provider.id);
+          this.apiSender.send('provider:update-warnings', provider.id);
         }
       });
     }, 2000);
@@ -505,7 +505,7 @@ export class ProviderRegistry {
       detectionChecks: provider.detectionChecks,
       images: provider.images,
       version: provider.version,
-      warning: provider.warning,
+      warnings: provider.warnings,
       installationSupport,
     };
 

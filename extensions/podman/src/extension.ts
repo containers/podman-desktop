@@ -575,5 +575,5 @@ async function checkDisguisedPodmanSocket(provider: extensionApi.Provider) {
   // If isDisguisedPodmanSocket is false, we'll push an empty array up to the plugin library to clear the warning
   // as we have no other warnings to display (or implemented)
   const retrievedWarnings = isDisguisedPodmanSocket ? [] : [getDisguisedPodmanInformation()];
-  provider.updateWarning(retrievedWarnings);
+  provider.updateWarnings(retrievedWarnings);
 }

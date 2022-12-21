@@ -14,8 +14,8 @@ $: {
 
 <div class="flex flex-col items-center text-center mt-3">
   <!-- TODO: Add dismiss button / ignore warning? -->
-  {#if providerInfo?.warning?.length > 0}
-    {#each providerInfo.warning as warn}
+  {#if providerInfo?.warnings?.length > 0}
+    {#each providerInfo.warnings as warn}
       <div class="flex-row items-center mt-0.5">
         ⚠️
         <span class="ml-1 text-sm text-gray-200 font-semibold">{warn.name}:</span>

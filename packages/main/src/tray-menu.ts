@@ -78,7 +78,7 @@ export class TrayMenu {
             version: '',
             links: [],
             images: {},
-            warning: [],
+            warnings: [],
             installationSupport: false,
             containerProviderConnectionCreation: false,
             kubernetesProviderConnectionCreation: false,
