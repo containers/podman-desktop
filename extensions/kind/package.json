@@ -34,13 +34,13 @@
           "type": "number",
           "default": 9090,
           "scope": "KubernetesProviderConnectionFactory",
-          "description": "HTTP port"
+          "description": "HTTP Port"
         },
         "kind.cluster.creation.https.port": {
           "type": "number",
           "default": 9443,
           "scope": "KubernetesProviderConnectionFactory",
-          "description": "HTTPS port"
+          "description": "HTTPS Port"
         }
 
       }

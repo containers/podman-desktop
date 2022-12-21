@@ -20,7 +20,6 @@
 const zipper = require('zip-local');
 const path = require('path');
 const package = require('../package.json');
-// const mkdirp = require('mkdirp');
 const fs = require('fs');
 
 const destFile = path.resolve(__dirname, `../${package.name}.cdix`);
@@ -35,12 +34,3 @@ if (fs.existsSync(builtinDirectory)) {
 }
 
 zipper.sync.zip(path.resolve(__dirname, '../')).compress().save(destFile);
-
-//
-// create unzipped built-in
-/* Remove it to enable kind extension in the production assembly
-const unzippedDirectory = path.resolve(builtinDirectory, `${package.name}.cdix`);
-mkdirp(unzippedDirectory).then(() => {
-  zipper.sync.unzip(destFile).save(unzippedDirectory);
-});
-*/

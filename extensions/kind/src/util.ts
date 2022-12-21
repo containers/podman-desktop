@@ -102,7 +102,12 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
     spawnProcess.stderr.setEncoding('utf8');
     spawnProcess.stderr.on('data', data => {
       if (options?.logger) {
-        options.logger.error(data);
+        // log create to stdout instead of stderr
+        if (args?.[0] === 'create') {
+          options.logger.log(data);
+        } else {
+          options.logger.error(data);
+        }
       }
       stdErr += data;
     });

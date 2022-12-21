@@ -62,7 +62,7 @@ function registerProvider(extensionContext: extensionApi.ExtensionContext, provi
     }
 
     // grab https host port
-    let httpsHostPort = 9090;
+    let httpsHostPort = 9443;
     if (params['kind.cluster.creation.https.port']) {
       httpsHostPort = params['kind.cluster.creation.https.port'];
     }
