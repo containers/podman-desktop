@@ -54,6 +54,12 @@ import type { V1ConfigMap, V1NamespaceList, V1Pod, V1PodList, V1Service } from '
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
+export interface FeedbackProperties {
+  rating: number;
+  comment?: string;
+  contact?: string;
+}
+
 // initialize extension loader mechanism
 function initExposure(): void {
   const eventEmitter = new EventEmitter();
@@ -994,6 +1000,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('getOsHostname', async (): Promise<string> => {
     return ipcInvoke('os:getHostname');
+  });
+
+  contextBridge.exposeInMainWorld('sendFeedback', async (feedback: FeedbackProperties): Promise<void> => {
+    return ipcInvoke('feedback:send', feedback);
   });
 }
 

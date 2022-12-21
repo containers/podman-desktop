@@ -44,6 +44,8 @@ export class Telemetry {
 
   private telemetryInitialized = false;
 
+  private telemetryConfigured = false;
+
   private pendingItems: { eventName: string; properties: unknown }[] = [];
 
   protected lastTimeEvents: Map<string, number>;
@@ -125,13 +127,14 @@ export class Telemetry {
       const enabled = telemetryConfiguration.get<boolean>('enabled');
       if (enabled === true) {
         await this.configureTelemetry();
+        this.telemetryConfigured = true;
         this.telemetryEnabled = true;
       }
       this.telemetryInitialized = true;
     }
   }
 
-  protected async configureTelemetry(): Promise<void> {
+  protected async initTelemetry(): Promise<void> {
     const anonymousId = await this.identity.getUserId();
     const traits = await this.getSegmentIdentifyTraits();
 
@@ -139,6 +142,10 @@ export class Telemetry {
       anonymousId,
       traits,
     });
+  }
+
+  protected async configureTelemetry(): Promise<void> {
+    this.initTelemetry();
 
     this.internalTrack('startup');
     let sendShutdownAnalytics = false;
@@ -220,6 +227,13 @@ export class Telemetry {
       return;
     }
     this.internalTrack(event, eventProperties);
+  }
+
+  async sendFeedback(feedbackProperties: unknown): Promise<void> {
+    if (!this.telemetryConfigured) {
+      await this.initTelemetry();
+    }
+    this.internalTrack('feedback', feedbackProperties);
   }
 
   protected async getLocale(): Promise<string> {

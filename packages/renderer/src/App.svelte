@@ -34,6 +34,7 @@ import PodDetails from './lib/pod/PodDetails.svelte';
 import PodCreateFromContainers from './lib/pod/PodCreateFromContainers.svelte';
 import DeployPodToKube from './lib/pod/DeployPodToKube.svelte';
 import RunImage from './lib/image/RunImage.svelte';
+import SendFeedback from './lib/feedback/SendFeedback.svelte';
 
 router.mode.hash();
 
@@ -88,6 +89,7 @@ window.events?.receive('display-help', () => {
       {/if}
 
       <div class="z-0 w-full h-full bg-zinc-800 flex flex-col overflow-y-scroll">
+        <SendFeedback />
         <Route path="/">
           <WelcomePage />
         </Route>

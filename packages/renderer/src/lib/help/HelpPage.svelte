@@ -30,11 +30,23 @@
       <li class="pb-2">
         <i class="fas fa-solid fa-comment" aria-hidden="true"></i>
         <p
+          on:click="{() => {
+            window.events.send('display-feedback', undefined);
+          }}"
+          title="Share your Feedback"
+          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
+          Share your Feedback
+        </p>
+      </li>
+
+      <li class="pb-2">
+        <i class="fas fa-solid fa-comment" aria-hidden="true"></i>
+        <p
           on:click="{() =>
             window.openExternal('https://github.com/containers/podman-desktop/discussions/categories/general')}"
           title="https://github.com/containers/podman-desktop/discussions/categories/general"
           class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          Share a Feedback
+          Create a GitHub discussion
         </p>
       </li>
 

@@ -279,6 +279,21 @@ export class PluginSystem {
 
     statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
 
+    statusBarRegistry.setEntry(
+      'feedback',
+      false,
+      0,
+      undefined,
+      'Share your feedback',
+      'fa fa-comment',
+      true,
+      'feedback',
+      undefined,
+    );
+    commandRegistry.registerCommand('feedback', () => {
+      apiSender.send('display-feedback', '');
+    });
+
     commandRegistry.registerCommand('help', () => {
       apiSender.send('display-help', '');
     });
@@ -971,6 +986,10 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:getCurrentNamespace', async (): Promise<string | undefined> => {
       return kubernetesClient.getCurrentNamespace();
+    });
+
+    this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
+      return telemetry.sendFeedback(feedbackProperties);
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
