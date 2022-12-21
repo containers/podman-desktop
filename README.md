@@ -91,7 +91,7 @@ General questions & development:
 
 * [#general on Discord](https://discordapp.com/invite/TCTB38RWpf)
 * [#podman-desktop@libera.chat on IRC](https://libera.chat/)
-* [#podman-desktop@fedora.im on Matrix](https://fedora.im)
+* [#podman-desktop@fedora.im on Matrix](https://chat.fedoraproject.org/#/room/#podman-desktop:fedora.im)
 
 Note: All channels are bridged. Chat on either: Discord, IRC or Matrix!
 
