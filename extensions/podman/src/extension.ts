@@ -533,6 +533,11 @@ function setupDisguisedPodmanSocketWatcher(
   // Monitor the socket file for any changes, creation or deletion
   // and trigger a change if that happens
 
+  // Add the check to the listeners as well to make sure we check on podman status change as well
+  listeners.add(() => {
+    checkDisguisedPodmanSocket(provider);
+  });
+
   // watch parent directory
   const socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
 
