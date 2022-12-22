@@ -33,7 +33,7 @@
     "typescript": "^4.9.4",
     "vite": "^3.2.5",
     "xterm": "^5.1.0",
-    "xterm-addon-fit": "^0.6.0"
+    "xterm-addon-fit": "^0.7.0"
   },
   "dependencies": {
     "electron-context-menu": "^3.6.1",
