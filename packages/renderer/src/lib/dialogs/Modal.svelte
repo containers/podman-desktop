@@ -19,6 +19,7 @@
   transform: translate(-50%, -50%);
   padding: 1em;
   border-radius: 0.2em;
+  z-index: 50;
 }
 
 button {
