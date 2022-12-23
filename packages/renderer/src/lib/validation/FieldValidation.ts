@@ -19,6 +19,9 @@
 import { writable } from 'svelte/store';
 import validator from 'validator';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SvelteStore<T> = { subscribe: (run: (value: T) => any, invalidate?: any) => any };
+
 interface Validation {
   dirty: boolean;
   valid: boolean;

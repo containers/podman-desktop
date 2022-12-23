@@ -33,7 +33,7 @@ export class ImageUtils {
   }
 
   getHumanSize(size: number): string {
-    return filesize(size);
+    return `${filesize(size)}`;
   }
 
   getHumanDate(date: number): string {
@@ -106,7 +106,7 @@ export class ImageUtils {
   }
 
   getImageInfoUI(imageInfo: ImageInfo, base64RepoTag: string): ImageInfoUI {
-    const images = this.getImagesInfoUI(imageInfo);
+    const images = this.getImagesInfoUI(imageInfo, []);
     const matchingImages = images.filter(image => image.base64RepoTag === base64RepoTag);
     if (matchingImages.length === 1) {
       return matchingImages[0];

@@ -152,17 +152,6 @@ const setupExtensionApiWatcher = name => {
 };
 
 (async () => {
-  // grab arguments
-  const args = process.argv.slice(2);
-  const generateTypesOnly = args.includes('--types-only');
-  // If types-only is passed, we don't watch for changes but only do generation
-  if (generateTypesOnly) {
-    delete sharedConfig.build.watch;
-    await setupPreloadPackageWatcher({ ws: undefined });
-    await setupPreloadDockerExtensionPackageWatcher({ ws: undefined });
-    return;
-  }
-
   try {
     const viteDevServer = await createServer({
       ...sharedConfig,
