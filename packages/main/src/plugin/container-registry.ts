@@ -265,6 +265,7 @@ export class ContainerProviderRegistry {
                   id: matchingPod.Id,
                   name: matchingPod.Name,
                   status: matchingPod.Status,
+                  engineId: provider.id,
                 };
               }
               const containerInfo: ContainerInfo = {

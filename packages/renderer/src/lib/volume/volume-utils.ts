@@ -49,7 +49,7 @@ export class VolumeUtils {
 
   getSize(volumeInfo: VolumeInfo): string {
     if (volumeInfo.UsageData?.Size) {
-      return filesize(volumeInfo.UsageData?.Size, { roundingMethod: 'round' });
+      return `${filesize(volumeInfo.UsageData?.Size, { roundingMethod: 'round' })}`;
     }
     return '0 B';
   }

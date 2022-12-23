@@ -203,8 +203,8 @@ jobs:
       - name: Run unit tests
         run: yarn test
 
-      - name: Run generate-types (required to run svelte check)
-        run: yarn generate-types
+      - name: Run typecheck
+        run: yarn typecheck
 
       - name: Run svelte check
         run: yarn svelte:check
