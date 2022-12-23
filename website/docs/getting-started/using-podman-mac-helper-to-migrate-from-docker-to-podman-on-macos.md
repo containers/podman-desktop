@@ -12,7 +12,6 @@ Consider using `podman-mac-help` to migrate transparently to Podman on macOS.
 
 * Continue using familiar Docker commands.
 * Take advantage of the benefits of Podman on macOS.
-
 * Your tools, such as Maven or test containers, communicate with Podman without reconfiguration.
 
 The `podman-mac-helper` tool provides a compatibility layer that allows you to use most Docker commands with Podman on macOS.
@@ -23,7 +22,7 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
 * macOS
 * [Podman](../Installation/macos-install)
 * [Homebrew](https://brew.sh/)
-* Optionnally, you saved your existing Docker containers by running the command:
+* (Optional) You saved your existing Docker containers by running the command:
 
     ```
     $ docker save <your_container> > <your_container_archive>.tar
@@ -47,7 +46,7 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
     $ podman-mac-helper setup
     ```
 
-3. Optionally, import your existing containers into Podman.
+3. (Optional) Import your existing containers into Podman.
    Run the command for each container archive:
 
      ```
