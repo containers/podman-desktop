@@ -2894,10 +2894,10 @@
   resolved "https://registry.yarnpkg.com/@lit/reactive-element/-/reactive-element-1.4.2.tgz#65d659e89d1a7e2f4f2b547182aef0a224f4adb7"
   integrity sha512-VMOxsWh/QDwrxPsgkSQnuZ+8mfNy1OTjzzUdLBvvZtpahwPTHTeVZ51RZRqO4xfKVrR+btIPA8D01IL3xeG66w==
 
-"@ltd/j-toml@^1.36.0":
-  version "1.36.0"
-  resolved "https://registry.yarnpkg.com/@ltd/j-toml/-/j-toml-1.36.0.tgz#28867ec45e89052f1711bec53fdffa864d72e40f"
-  integrity sha512-FIf3Fq6rKZSfiZLVH3QrS2gJJWxCTzefQLRJPM1cnJa61//XPR8e3OVF7HI1XV3n9xdydAWyObZApbLCChsjqw==
+"@ltd/j-toml@^1.37.0":
+  version "1.37.0"
+  resolved "https://registry.yarnpkg.com/@ltd/j-toml/-/j-toml-1.37.0.tgz#36c51bdda7b87f80290cbde230a287fea3a6393d"
+  integrity sha512-VN6aOzc57LPBxnySMRX+7YHt7IsZsYiBzEoi2z2LdedztOHK/gqvM2i1OpJhrOXxPI8djCF09z1F8ZN6+EEY5Q==
 
 "@malept/cross-spawn-promise@^1.1.0":
   version "1.1.1"
