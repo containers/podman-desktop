@@ -85,7 +85,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@ltd/j-toml": "^1.36.0",
+    "@ltd/j-toml": "^1.37.0",
     "@tmpwip/extension-api": "^0.0.1",
     "compare-versions": "^5.0.3"
   },
