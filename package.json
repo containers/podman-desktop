@@ -69,7 +69,7 @@
     "@types/getos": "^3.0.1",
     "@types/tar-fs": "^2.0.1",
     "@types/validator": "^13.7.0",
-    "@typescript-eslint/eslint-plugin": "^5.47.0",
+    "@typescript-eslint/eslint-plugin": "^5.47.1",
     "@typescript-eslint/parser": "^5.47.0",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",

@@ -15,7 +15,7 @@
     "@patternfly/patternfly": "^4.222.4",
     "@sveltejs/vite-plugin-svelte": "^2.0.2",
     "@tsconfig/svelte": "^3.0.0",
-    "@typescript-eslint/eslint-plugin": "5.47.0",
+    "@typescript-eslint/eslint-plugin": "5.47.1",
     "autoprefixer": "^10.4.13",
     "filesize": "^10.0.6",
     "humanize-duration": "^3.27.3",
