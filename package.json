@@ -91,7 +91,7 @@
   "dependencies": {
     "@docker/extension-api-client-types": "0.3.2",
     "@kubernetes/client-node": "^0.18.0",
-    "@types/stream-json": "^1.7.2",
+    "@types/stream-json": "^1.7.3",
     "analytics-node": "^6.2.0",
     "chokidar": "^3.5.3",
     "dockerode": "^3.3.4",
