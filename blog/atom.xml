@@ -7,7 +7,7 @@
     <link rel="alternate" href="https://podman-desktop.io/blog"/>
     <subtitle>Podman Desktop Blog</subtitle>
     <icon>https://podman-desktop.io/img/favicon.ico</icon>
-    <rights>Copyright © 2022 Podman Desktop</rights>
+    <rights>Copyright © 2023 Podman Desktop</rights>
     <entry>
         <title type="html"><![CDATA[Release Notes - Podman Desktop 0.10]]></title>
         <id>podman-desktop-release-0.10</id>

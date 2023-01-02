@@ -8,7 +8,7 @@
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
-        <copyright>Copyright © 2022 Podman Desktop</copyright>
+        <copyright>Copyright © 2023 Podman Desktop</copyright>
         <item>
             <title><![CDATA[Release Notes - Podman Desktop 0.10]]></title>
             <link>https://podman-desktop.io/blog/podman-desktop-release-0.10</link>
