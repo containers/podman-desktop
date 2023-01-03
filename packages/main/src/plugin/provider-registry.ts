@@ -33,6 +33,7 @@ import type {
   UnregisterKubernetesConnectionEvent,
   RegisterKubernetesConnectionEvent,
   Logger,
+  ProviderInformation,
 } from '@tmpwip/extension-api';
 import type {
   ProviderContainerConnectionInfo,
@@ -69,6 +70,7 @@ export class ProviderRegistry {
   private count = 0;
   private providers: Map<string, ProviderImpl>;
   private providerStatuses = new Map<string, ProviderStatus>();
+  private providerWarnings = new Map<string, ProviderInformation[]>();
 
   private providerLifecycles: Map<string, ProviderLifecycle> = new Map();
   private providerLifecycleContexts: Map<string, LifecycleContextImpl> = new Map();
@@ -111,16 +113,36 @@ export class ProviderRegistry {
     this.lifecycleListeners = [];
     this.containerConnectionLifecycleListeners = [];
 
+    // Every 2 seconds, we will check:
+    // * The status of the providers
+    // * Any new warnings or informations for each provider
     setInterval(async () => {
       Array.from(this.providers.keys()).forEach(providerKey => {
+        // Get the provider and its lifecycle
         const provider = this.providers.get(providerKey);
         const providerLifecycle = this.providerLifecycles.get(providerKey);
+        const providerWarnings = this.providerWarnings.get(providerKey);
+
+        // If the provider and its lifecycle exist, we will check
         if (provider && providerLifecycle) {
+          // Get the status
           const status = providerLifecycle.status();
+
+          // If the status does not match the current one, we will send a listener event and update the status
           if (status !== this.providerStatuses.get(providerKey)) {
             provider.updateStatus(status);
             this.listeners.forEach(listener => listener('provider:update-status', this.getProviderInfo(provider)));
             this.providerStatuses.set(providerKey, status);
+          }
+        }
+
+        // Update the warnings of the provider
+        if (provider) {
+          // If the warnings do not match the current cache, we will send an update event to the renderer
+          // and update the local warnings cache
+          if (JSON.stringify(providerWarnings) !== JSON.stringify(provider?.warnings)) {
+            this.apiSender.send('provider:update-warnings', provider.id);
+            this.providerWarnings.set(providerKey, provider.warnings);
           }
         }
       });
@@ -491,6 +513,7 @@ export class ProviderRegistry {
       detectionChecks: provider.detectionChecks,
       images: provider.images,
       version: provider.version,
+      warnings: provider.warnings,
       installationSupport,
     };
 

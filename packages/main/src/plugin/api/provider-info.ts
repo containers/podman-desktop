@@ -23,6 +23,7 @@ import type {
   ProviderLinks,
   ProviderStatus,
   Link,
+  ProviderInformation,
 } from '@tmpwip/extension-api';
 
 export type LifecycleMethod = 'start' | 'stop' | 'delete';
@@ -64,6 +65,9 @@ export interface ProviderInfo {
 
   links: ProviderLinks[];
   detectionChecks: ProviderDetectionCheck[];
+
+  // warning messages regarding the provider
+  warnings: ProviderInformation[];
 
   images: ProviderImages;
 

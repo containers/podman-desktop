@@ -29,6 +29,7 @@ import type { InstalledPodman } from './podman-cli';
 import { execPromise, getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { getDetectionChecks } from './detection-checks';
+import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -41,6 +42,11 @@ let stopLoop = false;
 const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
 const podmanMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
+
+// Warning to check to see if the socket is a disguised Podman socket,
+// by default we assume it is until proven otherwise when we check
+let isDisguisedPodmanSocket = true;
+let disguisedPodmanSocketWatcher: extensionApi.FileSystemWatcher;
 
 type MachineJSON = {
   Name: string;
@@ -343,6 +349,13 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   ];
 
   const provider = extensionApi.provider.createProvider(providerOptions);
+
+  // Check on initial setup
+  checkDisguisedPodmanSocket(provider);
+  // update the status of the provider if the socket is changed, created or deleted
+  disguisedPodmanSocketWatcher = setupDisguisedPodmanSocketWatcher(provider, getSocketPath());
+  extensionContext.subscriptions.push(disguisedPodmanSocketWatcher);
+
   // provide an installation path ?
   if (podmanInstall.isAbleToInstall()) {
     provider.registerInstallation({
@@ -497,7 +510,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }
 
   // monitor provider
-  // like version, checks
+  // like version, checks, warnings
   monitorProvider(provider);
 
   // register the registries
@@ -511,4 +524,56 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 export function deactivate(): void {
   stopLoop = true;
   console.log('stopping podman extension');
+}
+
+function setupDisguisedPodmanSocketWatcher(
+  provider: extensionApi.Provider,
+  socketFile: string,
+): extensionApi.FileSystemWatcher {
+  // Monitor the socket file for any changes, creation or deletion
+  // and trigger a change if that happens
+
+  // Add the check to the listeners as well to make sure we check on podman status change as well
+  listeners.add(() => {
+    checkDisguisedPodmanSocket(provider);
+  });
+
+  // watch parent directory
+  const socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
+
+  // only trigger if the watched file is the socket file
+  const updateSocket = (uri: extensionApi.Uri) => {
+    if (uri.fsPath === socketFile) {
+      checkDisguisedPodmanSocket(provider);
+    }
+  };
+
+  socketWatcher.onDidChange(uri => {
+    updateSocket(uri);
+  });
+
+  socketWatcher.onDidCreate(uri => {
+    updateSocket(uri);
+  });
+
+  socketWatcher.onDidDelete(uri => {
+    updateSocket(uri);
+  });
+
+  return socketWatcher;
+}
+
+async function checkDisguisedPodmanSocket(provider: extensionApi.Provider) {
+  // Check to see if the socket is disguised or not. If it is, we'll push a warning up
+  // to the plugin library to the let the provider know that there is a warning
+  const disguisedCheck = await isDisguisedPodman();
+  if (isDisguisedPodmanSocket !== disguisedCheck) {
+    isDisguisedPodmanSocket = disguisedCheck;
+  }
+
+  // If isDisguisedPodmanSocket is true, we'll push a warning up to the plugin library with getDisguisedPodmanWarning()
+  // If isDisguisedPodmanSocket is false, we'll push an empty array up to the plugin library to clear the warning
+  // as we have no other warnings to display (or implemented)
+  const retrievedWarnings = isDisguisedPodmanSocket ? [] : [getDisguisedPodmanInformation()];
+  provider.updateWarnings(retrievedWarnings);
 }

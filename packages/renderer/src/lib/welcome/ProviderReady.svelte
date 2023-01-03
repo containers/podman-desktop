@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreflightChecks from './PreflightChecks.svelte';
+import ProviderWarnings from './ProviderWarnings.svelte';
 import ProviderLinks from './ProviderLinks.svelte';
 import ProviderLogo from './ProviderLogo.svelte';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
@@ -36,5 +37,6 @@ let preflightChecks: CheckStatus[] = [];
   {/if}
   <PreflightChecks preflightChecks="{preflightChecks}" />
 
+  <ProviderWarnings provider="{provider}" />
   <ProviderLinks provider="{provider}" />
 </div>
