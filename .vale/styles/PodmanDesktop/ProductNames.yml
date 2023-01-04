@@ -1,0 +1,9 @@
+---
+extends: substitution
+message: "Consider using: %s, rather than: %s"
+level: warning
+ignorecase: false
+# swap map tokens in the form of bad: good
+swap:
+  Podman desktop: Podman Desktop
+  podman: '`podman` or Podman'
