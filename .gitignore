@@ -5,3 +5,4 @@ dist
 *.cdix
 .parcel-cache
 .idea
+.vale/styles/RedHat
