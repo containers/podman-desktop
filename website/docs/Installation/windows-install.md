@@ -18,9 +18,9 @@ This page contains information regarding installation of Podman Desktop on Windo
 
 **1. Download the Windows installer file from the [Downloads](/downloads/windows) section of this website.**
 
-**2. Locate the downloaded file and and double-click on it to launch the Podman Desktop installer.**
+**2. Locate the downloaded file and and double-click on it to start the Podman Desktop installer.**
 
-As an alternative, you can install Podman Desktop **silently** using a commandline, e.g. Powershell:
+As an alternative, you can install Podman Desktop **silently** using a command line, such as PowerShell:
 
 ```ps
 Start-Process -FilePath '.\podman-desktop-0.10.0-setup.exe' -ArgumentList "\S" -Wait
@@ -79,7 +79,7 @@ When you open Podman Desktop, your home screen would look like the one in the im
 
 **2. Once installation is completed, you are ready to use Podman Desktop.**
 
-After the installation of Podman Engine, your home screen would like the one in the image below.
+After the installation of Podman Engine, your home screen look like the one in the image below.
 
 ![img4](img/windows/podman-desktop-ready.png)
 
