@@ -26,7 +26,7 @@ import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
 import { execPromise } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
-import { isDev, runCliCommand } from './util';
+import { getAssetsFolder, runCliCommand } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
@@ -250,16 +250,6 @@ abstract class BaseInstaller implements Installer {
   requireUpdate(installedVersion: string): boolean {
     return compare(installedVersion, getBundledPodmanVersion(), '<');
   }
-
-  protected getAssetsFolder(): string {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (isDev()) {
-      return path.resolve(__dirname, '..', 'assets');
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return path.resolve((process as any).resourcesPath, 'extensions', 'podman', 'assets');
-    }
-  }
 }
 
 class WinInstaller extends BaseInstaller {
@@ -278,7 +268,7 @@ class WinInstaller extends BaseInstaller {
   install(): Promise<boolean> {
     return extensionApi.window.withProgress({ location: extensionApi.ProgressLocation.APP_ICON }, async progress => {
       progress.report({ increment: 5 });
-      const setupPath = path.resolve(this.getAssetsFolder(), `podman-${podmanTool.version}-setup.exe`);
+      const setupPath = path.resolve(getAssetsFolder(), `podman-${podmanTool.version}-setup.exe`);
       try {
         if (fs.existsSync(setupPath)) {
           const runResult = await runCliCommand(setupPath, ['/install', '/norestart']);
@@ -309,10 +299,7 @@ class MacOSInstaller extends BaseInstaller {
       progress.report({ increment: 5 });
       const pkgArch = process.arch === 'arm64' ? 'aarch64' : 'amd64';
 
-      const pkgPath = path.resolve(
-        this.getAssetsFolder(),
-        `podman-installer-macos-${pkgArch}-v${podmanTool.version}.pkg`,
-      );
+      const pkgPath = path.resolve(getAssetsFolder(), `podman-installer-macos-${pkgArch}-v${podmanTool.version}.pkg`);
       try {
         if (fs.existsSync(pkgPath)) {
           const runResult = await runCliCommand('open', [pkgPath, '-W']);
