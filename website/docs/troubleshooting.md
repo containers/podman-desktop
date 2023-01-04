@@ -66,7 +66,7 @@ which podman
 
 This returns the path where the Podman Engine would be installed. This would help determine further action. 
 
-For example, if you’re looking to completely uninstall Podman Engine from your system for a fresh installation, running `which podman` returns the exact path where Podman still exists. This could be the path where Podman Installer stores Podman Engine i.e. `/opt/podman`. Once you know the path, simply run-
+For example, if you’re looking to completely uninstall Podman Engine from your system for a fresh installation, running `which podman` returns the exact path where Podman still exists. This could be the path where Podman Installer stores Podman Engine i.e. `/opt/podman`. Once you know the path, run:
 
 ```sh
 sudo rm -rf /opt/podman
@@ -231,13 +231,13 @@ qemu-system-x86_64: unable to find CPU model 'host'
 
 #### Explanation
 
-Podman machine is running as a x86_64 process and it could be due to a dual install of homebrew: one for x86_64 and one for arm64.
+Podman machine is running as a `x86_64` process and it could be due to a dual install of homebrew: one for `x86_64` and one for arm64.
 
 #### Solution
 
 You can
-1. Uninstall Podman machine on your x86_64 brew install (e.g. from a terminal running under rosetta) `brew uninstall podman-machine`
-2. or uninstall brew x86_64 as most brew receipe have now arm64 support: follow [these instructions](https://github.com/homebrew/install#uninstall-homebrew) from a terminal running under rosetta
+1. Uninstall Podman machine on your `x86_64` brew install (for example from a terminal running under rosetta) `brew uninstall podman-machine`
+2. or uninstall brew `x86_64` as most brew receipe have now arm64 support: follow [these instructions](https://github.com/homebrew/install#uninstall-homebrew) from a terminal running under rosetta
 
 Then run a terminal in native mode (default) and install Podman machine `brew install podman-machine`
 
