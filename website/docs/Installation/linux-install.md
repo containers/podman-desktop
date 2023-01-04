@@ -6,7 +6,7 @@ sidebar_position: 5
 
 Check out the [Downloads](/downloads/linux) section of this website to download either the [.flatpak](https://flatpak.org/setup/Fedora) file or the zip file depending on your preference.
 
-In order to use Podman Desktop, the latest version of Podman is required. Podman is a rootless, daemonless container engine. Read more about it [here](https://podman.io/whatis.html).
+To use Podman Desktop, the latest version of Podman is required. Podman is a rootless, daemonless container engine. Read more about it [here](https://podman.io/whatis.html).
 
 ## Installing Podman Desktop
 
@@ -28,7 +28,7 @@ flatpak run io.podman_desktop.PodmanDesktop
 ### 2. Using [Flatpak](https://flatpak.org/setup/) application from [Downloads](/downloads/linux)
 
 :::infoPrerequisite 
-Make sure Flatpak is set up in your distribution. Click [here](https://flatpak.org/setup/) to learn more about setting up Flatpak.
+Verify Flatpak is set up in your distribution. Click [here](https://flatpak.org/setup/) to learn more about setting up Flatpak.
 :::
 
 Open the Terminal and go to Downloads directory. 
