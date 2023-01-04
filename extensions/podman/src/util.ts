@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import * as os from 'node:os';
+import * as path from 'node:path';
 import { spawn } from 'node:child_process';
 import { getInstallationPath } from './podman-cli';
 
@@ -41,6 +42,16 @@ export interface SpawnResult {
 
 export interface RunOptions {
   env?: NodeJS.ProcessEnv;
+}
+
+export function getAssetsFolder(): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (isDev()) {
+    return path.resolve(__dirname, '..', 'assets');
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return path.resolve((process as any).resourcesPath, 'extensions', 'podman', 'assets');
+  }
 }
 
 export function runCliCommand(command: string, args: string[], options?: RunOptions): Promise<SpawnResult> {

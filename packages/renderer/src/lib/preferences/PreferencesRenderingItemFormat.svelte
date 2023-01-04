@@ -93,6 +93,13 @@ function update(record: IConfigurationPropertyRecordedSchema) {
     invalidText = error;
   }
 }
+
+async function selectFilePath() {
+  const result = await window.openFileDialog(`Select ${record.description}`);
+  if (!result.canceled && result.filePaths.length === 1) {
+    recordValue = result.filePaths[0];
+  }
+}
 </script>
 
 <div class="flex flex-row mb-2 pt-2">
@@ -108,6 +115,18 @@ function update(record: IConfigurationPropertyRecordedSchema) {
         id="input-standard-{record.id}"
         aria-invalid="{invalidEntry}"
         aria-label="{record.description}" />
+    {:else if record.type === 'string' && record.format === 'file'}
+      <input
+        name="{record.id}"
+        on:click="{() => selectFilePath()}"
+        id="rendering.FilePath.{record.id}"
+        bind:value="{recordValue}"
+        readonly
+        aria-invalid="{invalidEntry}"
+        aria-label="{record.description}"
+        placeholder="Select {record.description}..."
+        class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400 cursor-pointer"
+        required />
     {:else if record.type === 'string' && record.enum && record.enum.length > 0}
       <select
         class="border  text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
