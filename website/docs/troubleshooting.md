@@ -12,14 +12,15 @@ If you cannot find your issue here or in the documentation, please fill an issue
 
 #### System Requirements
 
-The tool connects to Podman using the socket on the host on macOS and on a named pipe on Windows. This is available only on podman 4.0.2+
+The tool connects to Podman using the socket on the host on macOS and on a named pipe on Windows.
+This is available only on Podman 4.0.2+
 So, please check your version and update.
 
 On Windows, the named pipe is `//./pipe/docker_engine` when Docker Desktop is not installed. It will be solved by https://github.com/containers/podman/issues/13502 / https://github.com/containers/podman/pull/13655. During that time, you may start Docker Desktop so the named pipe is the one expected.
 
 #### Check connection
 
-Check at least a podman machine is running on Windows & macOS:
+Check at least a Podman machine is running on Windows & macOS:
 
 ```bash
 podman machine list
@@ -186,7 +187,7 @@ sudo podman-mac-helper install
 
 ## Code Ready Containers
 
-- Check that podman preset is defined. (`crc config get preset`)
+- Check that Podman preset is defined. (`crc config get preset`)
 - Check that `crc` binary is available in the user PATH (`/usr/local/bin/crc`)
 - Check that `crc setup --check-only` is running without errors.
 
@@ -220,7 +221,7 @@ This will stop the Podman Machine for you.
 
 #### Issue
 
-If you are using an Apple Silicon and brew, you might encounter the following error when starting podman from podman desktop
+If you are using an Apple Silicon and brew, you might encounter the following error when starting Podman from Podman Desktop
 
 ```
 Error: qemu exited unexpectedly with exit code 1, stderr: qemu-system-x86_64: invalid accelerator hvf
@@ -235,10 +236,10 @@ Podman machine is running as a x86_64 process and it could be due to a dual inst
 #### Solution
 
 You can
-1. Uninstall podman machine on your x86_64 brew install (e.g. from a terminal running under rosetta) `brew uninstall podman-machine`
+1. Uninstall Podman machine on your x86_64 brew install (e.g. from a terminal running under rosetta) `brew uninstall podman-machine`
 2. or uninstall brew x86_64 as most brew receipe have now arm64 support: follow [these instructions](https://github.com/homebrew/install#uninstall-homebrew) from a terminal running under rosetta
 
-Then run a terminal in native mode (default) and install podman machine `brew install podman-machine`
+Then run a terminal in native mode (default) and install Podman machine `brew install podman-machine`
 
 Finally clean the poddman machine VMs that had been previously created, a create new ones.
 
