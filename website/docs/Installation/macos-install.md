@@ -44,7 +44,7 @@ You will be redirected to the Podman Installer. Follow the instructions on scree
 
 ![img4](img/system-pass.png)
 
-After installation is complete, close the installation program. Podman Engine has been installed and you are now ready to use Podman Desktop.
+After the installation is complete, close the installation program. Podman Engine has been installed and you are now ready to use Podman Desktop.
 
 ## Installing Podman Desktop on MacOS using [brew](https://brew.sh/).
 
