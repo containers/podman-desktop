@@ -13,9 +13,9 @@ Get started by **[Downloading](/downloads) the product** for your Operating Syst
 ### What you'll need
 
 - Podman 4.x
-  - Check there is a podman machine running
+  - Check there is a Podman machine running
 
-### Check podman CLI is working
+### Check Podman CLI is working
 
 Run the development server:
 

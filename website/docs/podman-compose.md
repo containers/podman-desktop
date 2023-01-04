@@ -71,5 +71,5 @@ You can do much more such as checking logs, opening the terminal or inspecting t
 
 ## Conclusion
 
-That is it. This is how you can use Podman Desktop for your containers generated through podman-compose. It will be really exciting to see you all developers leverage these compatibilities to build exciting applications using Podman Desktop!
+That is it. This is how you can use Podman Desktop for your containers generated through `podman-compose`. It will be really exciting to see you all developers leverage these compatibilities to build exciting applications using Podman Desktop!
 
