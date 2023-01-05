@@ -231,7 +231,7 @@ qemu-system-x86_64: unable to find CPU model 'host'
 
 #### Explanation
 
-Podman machine is running as a `x86_64` process and it could be due to a dual install of homebrew: one for `x86_64` and one for arm64.
+Podman machine is running as a `x86_64` process and it could be due to a dual install of homebrew: one for `x86_64` and one for `arm64`.
 
 #### Solution
 
