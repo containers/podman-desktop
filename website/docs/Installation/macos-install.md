@@ -19,7 +19,7 @@ Podman Desktop requires [Podman Engine](https://docs.podman.io/en/latest/index.h
 
 **1. Download the `.dmg` file from the [Downloads](/downloads/macos) section of this website.**
 
-While we recommend getting the "universal" binary file which will work irrespective of the chip architecture your Mac possesses, you also have the option to get the applicable .dmg file depending on your Mac Hardware Architecture (i.e. Intel or Apple M1).
+While we recommend getting the "universal" binary file which will work irrespective of the chip architecture your Mac possesses, you also have the option to get the applicable .dmg file depending on your Mac Hardware Architecture (that is Intel or Apple M1).
 
 **2. Locate the downloaded file and and double-click on it. (Usually, you will find the downloaded file in the Downloads folder)**
 
@@ -44,7 +44,7 @@ You will be redirected to the Podman Installer. Follow the instructions on scree
 
 ![img4](img/system-pass.png)
 
-After installation is complete, close the installer. Podman Engine has been installed and you are now ready to use Podman Desktop.
+After the installation is complete, close the installation program. Podman Engine has been installed and you are now ready to use Podman Desktop.
 
 ## Installing Podman Desktop on MacOS using [brew](https://brew.sh/).
 
