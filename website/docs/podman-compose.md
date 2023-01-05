@@ -41,7 +41,7 @@ Refer the official [installation guide](https://github.com/containers/podman-com
 
 ### 2. Using Podman Compose to run multiple containers
 
-For this tutorial, we will use the [`flask-redis` project](https://github.com/docker/awesome-compose/tree/master/flask-redis) from the [awesome-compose repository](https://github.com/docker/awesome-compose). This repository consists of many sample projects for you to get started with Podman Compose. 
+For this tutorial, we will use the [Flask Redis project](https://github.com/docker/awesome-compose/tree/master/flask-redis) from the [awesome-compose repository](https://github.com/docker/awesome-compose). This repository consists of many sample projects for you to get started with Podman Compose. 
 1. Open your Terminal window
 2. Change to the project directory 
 ```sh
