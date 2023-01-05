@@ -107,7 +107,7 @@ Consider installing a Flatpak bundle rather than Flathub when:
 
 * [Getting started](../getting-started/getting-started).
 
-## Installing Podman Desktop from an archive {#archive}
+## Installing Podman Desktop from a compressed tarball {#archive}
 
 Consider installing from an archive rather than from Flathub, or a Flatpak bundle when:
 
