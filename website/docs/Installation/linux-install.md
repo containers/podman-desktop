@@ -12,7 +12,7 @@ You can install Podman Desktop from:
 
 * [Flathub](#flathub)
 * [A Flatpak bundle](#flatpak-bundle)
-* [An archive](#archive)
+* [A compressed tarball](#archive)
 
 ## Installing Podman Desktop from Flathub {#flathub}
 
