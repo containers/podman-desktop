@@ -12,7 +12,7 @@ You can install Podman Desktop from:
 
 * [Flathub](#flathub)
 * [A Flatpak bundle](#flatpak-bundle)
-* [A ZIP archive](#zip)
+* [An archive](#archive)
 
 ## Installing Podman Desktop from Flathub {#flathub}
 
@@ -107,11 +107,12 @@ Consider installing a Flatpak bundle rather than Flathub when:
 
 * [Getting started](../getting-started/getting-started).
 
-## Installing Podman Desktop from a ZIP archive {#zip}
+## Installing Podman Desktop from an archive {#archive}
 
-Consider installing from a ZIP archive rather than from Flathub, or a Flatpak bundle when:
+Consider installing from an archive rather than from Flathub, or a Flatpak bundle when:
 
 * You cannot use Flatpak.
+* You install in a restricted environment.
 
 #### Prerequisites
 
@@ -119,7 +120,8 @@ Consider installing from a ZIP archive rather than from Flathub, or a Flatpak bu
 
 #### Procedure
 
-1. Download the ZIP archive from the [Git repository release assets](https://github.com/containers/podman-desktop/releases).
+1. Download the
+   `podman-desktop-<version>.tar.gz` archive from the [Git repository release assets](https://github.com/containers/podman-desktop/releases).
 2. Extract the content.
 3. Go to the extracted directory.
 4. Double-click on the `podman-desktop` executable file.
