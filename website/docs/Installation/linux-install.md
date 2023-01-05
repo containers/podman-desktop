@@ -79,7 +79,7 @@ Consider installing a Flatpak bundle rather than Flathub when:
 
 #### Procedure
 
-1. Download the Flatpak bundle to a `$HOME/Downloads/podman-desktop-<version>.flatpak`file from:
+1. Download the Flatpak bundle to a `$HOME/Downloads/podman-desktop-<version>.flatpak` file from:
 
     * [Downloads page](../../../downloads/linux)
 
