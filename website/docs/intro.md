@@ -8,7 +8,7 @@ Let's discover **Podman Desktop in less than 5 minutes**.
 
 ## Getting Started
 
-Get started by **[Downloading](/downloads) the product** for your Operating System.
+Get started by **[Downloading](/downloads) the product** for your operating system.
 
 ### What you'll need
 

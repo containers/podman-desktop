@@ -20,7 +20,7 @@ In this tutorial, I am working with Podman Desktop v0.0.5.
 
 ## Requirements
 
-In order to work with Podman Desktop, you firstly require the latest version of Podman Desktop. Depending on your Operating System, you can download it from [this](https://podman-desktop.io/downloads) page.
+To work with Podman Desktop, you firstly require the latest version of Podman Desktop. Depending on your operating system, you can download it from [this](https://podman-desktop.io/downloads) page.
 
 Next, you need the latest version of Podman Engine installed on your computer. When started, Podman Desktop looks for the Podman Engine in the system and will prompt you to install the same if it is not present. You can read more about how to set up the Podman Desktop and Podman Engine in the Installation guide [here](/docs/installation/macos-install).
 
@@ -40,7 +40,7 @@ Our first step will be to build an image for our application followed by running
 
 For this section of the tutorial, I have created my Containerfile using the Red Hat Universal Base Image. You can also write your own Containerfiles and build images from it using the Red Hat Universal Base Image (UBI). Read more about it in [this blog](https://developers.redhat.com/articles/2021/11/30/build-lightweight-and-secure-container-images-using-rhel-ubi). Once you have your Containerfile ready, follow the steps below to build your own image.
 
-1) In order to load the Containerfile to Podman Desktop and build the Image, we browse to the “Images” section and click on the “Build Image” button. This opens a tab within which you can select the path where your Containerfile is present.
+1) To load the Containerfile to Podman Desktop and build the Image, we browse to the “Images” section and click on the “Build Image” button. This opens a tab within which you can select the path where your Containerfile is present.
 
 ![img1.1](img/1.1.png)
 
@@ -52,7 +52,7 @@ For this section of the tutorial, I have created my Containerfile using the Red 
 
 ![img1.3](img/1.3.png)
 
-4) Click on ‘Build’ and that’s it. You will see each instruction from your Containerfile being executed in order to build the image. 
+4) Click on ‘Build’ and that’s it. You will see each instruction from your Containerfile being executed to build the image. 
 
 ![img1.4](img/1.4.png)
 
