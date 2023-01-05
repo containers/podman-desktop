@@ -65,7 +65,7 @@ Consider installing the Podman Desktop from Flathub to have:
 
 * [Getting started](../getting-started/getting-started)
 
-## Installing Podman Desktop  from a Flatpak bundle {#flatpak-bundle}
+## Installing Podman Desktop from a Flatpak bundle {#flatpak-bundle}
 
 Consider installing a Flatpak bundle rather than Flathub when:
 
