@@ -26,6 +26,15 @@ if (process.env.VITE_APP_VERSION === undefined) {
   }`;
 }
 
+let macosArches = ['x64', 'arm64', 'universal'];
+let artifactNameSuffix = '';
+if (process.env.AIRGAP_DOWNLOAD) {
+  artifactNameSuffix = '-airgap';
+  // Create only one universal build for airgap mode
+  macosArches = ['universal'];
+}
+
+
 /**
  * @type {import('electron-builder').Configuration}
  * @see https://www.electron.build/configuration/configuration
@@ -65,10 +74,10 @@ const config = {
   },
   files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**'],
   portable: {
-    artifactName: 'podman-desktop-${version}.${ext}',
+    artifactName: `podman-desktop${artifactNameSuffix}-\${version}.\${ext}`,
   },
   nsis: {
-    artifactName: 'podman-desktop-${version}-setup.${ext}',
+    artifactName: `podman-desktop${artifactNameSuffix}-\${version}-setup.\${ext}`,
   },
   win: {
     target: ['portable', 'nsis'],
@@ -110,12 +119,12 @@ const config = {
   },
   afterSign: 'electron-builder-notarize',
   mac: {
-    artifactName: 'podman-desktop-${version}-${arch}.${ext}',
+    artifactName: `podman-desktop${artifactNameSuffix}-\${version}-\${arch}.\${ext}`,
     hardenedRuntime: true,
     entitlements: './node_modules/electron-builder-notarize/entitlements.mac.inherit.plist',
     target: {
       target: 'default',
-      arch: ['x64', 'arm64', 'universal'],
+      arch: macosArches,
     },
   },
   dmg: {
@@ -141,6 +150,14 @@ const config = {
     version: process.env.VITE_APP_VERSION,
   },*/
 };
+
+// do not publish auto-update files for airgap mode
+if (process.env.AIRGAP_DOWNLOAD) {
+  config.publish = {
+    publishAutoUpdate: false,
+    provider: 'github'
+  };
+}
 
 const azureCodeSign = filePath => {
   if (!process.env.AZURE_KEY_VAULT_URL) {
