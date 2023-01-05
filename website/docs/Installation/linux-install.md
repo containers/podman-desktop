@@ -28,7 +28,7 @@ Consider installing the Podman Desktop from Flathub to have:
 
 #### Procedure
 
-1. Assert the Flathub repository is enabled, and add it if required:
+1. Verify the Flathub repository is enabled, and add it if required:
 
     ```shell
     $ flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
