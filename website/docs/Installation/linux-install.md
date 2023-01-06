@@ -31,13 +31,13 @@ Consider installing the Podman Desktop from Flathub to have:
 1. Verify the Flathub repository is enabled, and add it if required:
 
     ```shell-session
-    flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
+    $ flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
     ```
 
 2. Install Podman Desktop from Flathub:
 
     ```shell-session
-    flatpak install --user flathub io.podman_desktop.PodmanDesktop
+    $ flatpak install --user flathub io.podman_desktop.PodmanDesktop
     ```
 
 #### Verification
@@ -45,7 +45,7 @@ Consider installing the Podman Desktop from Flathub to have:
 * Open Podman Desktop from a terminal:
 
   ```shell-session
-  flatpak run io.podman_desktop.PodmanDesktop
+  $ flatpak run io.podman_desktop.PodmanDesktop
   ```
 
 #### Update
@@ -53,7 +53,7 @@ Consider installing the Podman Desktop from Flathub to have:
 * Update Podman Desktop from Flathub:
 
   ```shell-session
-  flatpak update --user io.podman_desktop.PodmanDesktop
+  $ flatpak update --user io.podman_desktop.PodmanDesktop
   ```
 
 #### Additional resources
@@ -88,7 +88,7 @@ Consider installing a Flatpak bundle rather than Flathub when:
 2. Install Podman Desktop from the downloaded Flatpak bundle:
 
     ```shell-session
-    flatpak install --user $HOME/Downloads/podman-desktop-<version>.flatpak 
+    $ flatpak install --user $HOME/Downloads/podman-desktop-<version>.flatpak 
     ```
 
 #### Verification
@@ -96,7 +96,7 @@ Consider installing a Flatpak bundle rather than Flathub when:
 * Open Podman Desktop from a terminal:
 
     ```shell-session
-    flatpak run io.podman_desktop.PodmanDesktop
+    $ flatpak run io.podman_desktop.PodmanDesktop
     ```
 
 #### Additional resources
