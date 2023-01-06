@@ -41,11 +41,21 @@ export class ImageUtils {
   }
 
   getName(repoTag: string) {
-    return repoTag.split(':')[0];
+    const indexTag = repoTag.lastIndexOf(':');
+    if (indexTag > 0) {
+      return repoTag.slice(0, indexTag);
+    } else {
+      return '';
+    }
   }
 
   getTag(repoTag: string) {
-    return repoTag.split(':')[1];
+    const indexTag = repoTag.lastIndexOf(':');
+    if (indexTag > 0) {
+      return repoTag.slice(indexTag + 1);
+    } else {
+      return '';
+    }
   }
 
   getEngineId(containerInfo: ImageInfo): string {
