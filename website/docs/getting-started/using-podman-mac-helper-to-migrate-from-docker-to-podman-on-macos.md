@@ -53,7 +53,11 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
      $ podman import <your_container_archive>.tar
      ```
 
-4. Use the `podman-mac-helper` tool to run commands.
+#### Verification
+
+1. Your tools communicating to the Docker socket, such as Maven or test containers, communicate with Podman without reconfiguration.
+
+2. Use the `podman-mac-helper` tool to run commands.
    To run a command with Podman by using the `podman-mac-helper` tool, prefix the command with `podman-mac-helper`.
 
    Example:
