@@ -2,12 +2,19 @@
 import { imagesInfos } from './stores/images';
 import { contributions } from './stores/contribs';
 import { podsInfos } from './stores/pods';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import { CommandRegistry } from './lib/CommandRegistry';
 import { containersInfos } from './stores/containers';
 import { volumeListInfos } from './stores/volumes';
+import { ImageUtils } from './lib/image/image-utils';
+import type { ImageInfo } from '../../main/src/plugin/api/image-info';
+import type { ImageInfoUI } from './lib/image/ImageInfoUI';
 
 let containersCountValue;
+let imageInfoSubscribe;
+let images: ImageInfoUI[] = [];
+
+const imageUtils = new ImageUtils();
 
 onMount(async () => {
   const commandRegistry = new CommandRegistry();
@@ -15,6 +22,15 @@ onMount(async () => {
   containersInfos.subscribe(value => {
     containersCountValue = value.length;
   });
+  imageInfoSubscribe = imagesInfos.subscribe(value => {
+    images = value.map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo, [])).flat();
+  });
+});
+
+onDestroy(() => {
+  if (imageInfoSubscribe) {
+    imageInfoSubscribe();
+  }
 });
 
 let contributionsExpanded: boolean = true;
@@ -201,7 +217,7 @@ export let meta;
             <div>
               {#if innerWidth >= 768}
                 {#if $imagesInfos.length > 0}
-                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{$imagesInfos.length}</span>
+                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{images.length}</span>
                 {/if}
               {/if}
             </div>
