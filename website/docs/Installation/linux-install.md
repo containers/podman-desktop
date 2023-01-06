@@ -12,7 +12,7 @@ You can install Podman Desktop from:
 
 * [Flathub](#flathub)
 * [A Flatpak bundle](#flatpak-bundle)
-* [A compressed tarball](#archive)
+* [A compressed tar file](#archive)
 
 ## Installing Podman Desktop from Flathub {#flathub}
 
@@ -107,7 +107,7 @@ Consider installing a Flatpak bundle rather than Flathub when:
 
 * [Getting started](../getting-started/getting-started).
 
-## Installing Podman Desktop from a compressed tarball {#archive}
+## Installing Podman Desktop from a compressed tar file {#archive}
 
 Consider installing from an archive rather than from Flathub, or a Flatpak bundle when:
 
