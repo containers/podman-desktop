@@ -29,8 +29,8 @@ $: memoryColor =
     : RED_COLOR;
 
 // percentage
-let cpuUsagePercentage: number;
-let memoryUsagePercentage: number;
+let cpuUsagePercentage: number = -1;
+let memoryUsagePercentage: number = -1;
 let usedMemory;
 
 // id to cancel the streaming
@@ -41,7 +41,9 @@ let firstIteration = true;
 
 // title to use on
 let cpuUsagePercentageTitle;
+let cpuUsageTitle;
 let memoryUsagePercentageTitle;
+let memoryUsageTitle;
 
 async function updateStatistics(containerStats: ContainerStatsInfo) {
   // we need enough data to compute the CPU usage
@@ -54,7 +56,8 @@ async function updateStatistics(containerStats: ContainerStatsInfo) {
   usedMemory = containerStats.memory_stats.usage - (containerStats.memory_stats.stats?.cache || 0);
   const availableMemory = containerStats.memory_stats.limit;
   memoryUsagePercentage = (usedMemory / availableMemory) * 100.0;
-  memoryUsagePercentageTitle = containerUtils.getMemoryUsageTitle(memoryUsagePercentage, usedMemory);
+  memoryUsagePercentageTitle = containerUtils.getMemoryPercentageUsageTitle(memoryUsagePercentage, usedMemory);
+  memoryUsageTitle = containerUtils.getMemoryUsageTitle(usedMemory);
 
   const cpuDelta = containerStats.cpu_stats.cpu_usage.total_usage - containerStats.precpu_stats.cpu_usage.total_usage;
   const systemCpuDelta =
@@ -62,7 +65,8 @@ async function updateStatistics(containerStats: ContainerStatsInfo) {
   const numberCpus =
     containerStats.cpu_stats.online_cpus || containerStats.cpu_stats.cpu_usage?.percpu_usage?.length || 1.0;
   cpuUsagePercentage = (cpuDelta / systemCpuDelta) * numberCpus * 100.0;
-  cpuUsagePercentageTitle = `${cpuUsagePercentage.toFixed(2)}%`;
+  cpuUsagePercentageTitle = `${cpuUsagePercentage.toFixed(2)}% of ${numberCpus}CPUs`;
+  cpuUsageTitle = `${cpuUsagePercentage.toFixed(2)}%`;
 }
 
 onMount(async () => {
@@ -81,23 +85,44 @@ onDestroy(async () => {
 });
 </script>
 
-{#if container.state === 'RUNNING' && memoryUsagePercentage && cpuUsagePercentage}
-  <div class="mt-2 px-1 mx-2 border border-zinc-700 w-[220px] flex flex-row">
+{#if container.state === 'RUNNING'}
+  <div class="mt-2 px-1 mx-2 border border-zinc-700 w-[240px] flex flex-row">
     <svg class="mr-1 text-zinc-400" width="70px" height="40px">
       <g class="bars">
         <text text-anchor="end" x="63" y="16" font-size="12px" fill="currentColor">MEMORY </text>
         <text text-anchor="end" x="63" y="34" font-size="12px" fill="currentColor">CPU</text>
       </g>
     </svg>
-    <svg width="150px" height="40px">
+    <svg width="100px" height="40px">
       <g class="bars">
         <rect fill="currentColor" width="100%" x="0" y="5" height="12"><title>{memoryUsagePercentageTitle}</title></rect
         >;
-        <rect fill="{memoryColor}" width="{memoryUsagePercentage}%" x="0" y="5" height="12"
-          ><title>{memoryUsagePercentageTitle}</title></rect>
+        {#if memoryUsagePercentage >= 0}
+          <rect fill="{memoryColor}" width="{memoryUsagePercentage}%" x="0" y="5" height="12"
+            ><title>{memoryUsagePercentageTitle}</title></rect>
+        {/if}
         <rect fill="currentColor" width="100%" x="0" y="23" height="12"><title>{cpuUsagePercentageTitle}</title></rect>;
-        <rect fill="{cpuColor}" width="{cpuUsagePercentage}%" x="0" y="23" height="12"
-          ><title>{cpuUsagePercentageTitle}</title></rect>
+
+        {#if cpuUsagePercentage >= 0}
+          <rect fill="{cpuColor}" width="{cpuUsagePercentage}%" x="0" y="23" height="12"
+            ><title>{cpuUsagePercentageTitle}</title></rect>
+        {/if}
+        {#if memoryUsagePercentage === -1}
+          <rect fill="#888" width="100%" x="0" y="5" height="12"></rect>;
+          <text text-anchor="end" x="90" y="14" font-size="8px" fill="#DDD">Initializing... </text>
+          <rect fill="#888" width="100%" x="0" y="23" height="12"></rect>;
+          <text text-anchor="end" x="90" y="32" font-size="8px" fill="#DDD">Initializing... </text>
+        {/if}
+      </g>
+    </svg>
+    <svg class="mr-1 text-zinc-400" width="80px" height="40px">
+      <g class="bars">
+        {#if memoryUsageTitle}
+          <text text-anchor="start" x="2" y="16" font-size="12px" fill="currentColor">{memoryUsageTitle} </text>
+        {/if}
+        {#if cpuUsageTitle}
+          <text text-anchor="start" x="2" y="34" font-size="12px" fill="currentColor">{cpuUsageTitle}</text>
+        {/if}
       </g>
     </svg>
   </div>

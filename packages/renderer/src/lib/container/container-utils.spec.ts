@@ -27,6 +27,6 @@ beforeEach(() => {
 });
 
 test('should expect valid memory usage', async () => {
-  const size = containerUtils.getMemoryUsageTitle(4, 1000000);
+  const size = containerUtils.getMemoryPercentageUsageTitle(4, 1000000);
   expect(size).toBe('4.00% (1 MB)');
 });
