@@ -24,21 +24,34 @@ let termFit: FitAddon;
 let currentRouterPath: string;
 let logsRouterPath: string = `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
 
+// An array of readable ANSI escape sequence colours against a black terminal background
+// these are the most "readable" colours against a black background
+// No colours like grey, normal blue (cyan instead) or red, since they don't appear very well.
+const ansi256Colors = [
+  `\u001b[36m`, // cyan
+  `\u001b[33m`, // yellow
+  `\u001b[32m`, // green
+  `\u001b[35m`, // magenta
+  `\u001b[34m`, // blue
+  `\u001b[36;1m`, // bright cyan
+  `\u001b[33;1m`, // bright yellow
+  `\u001b[32;1m`, // bright green
+  `\u001b[35;1m`, // bright magenta
+  `\u001b[34;1m`, // bright blue
+];
+
 // Create a map that will store the ANSI 256 colour for each container name
-// Go through each container.name and create a map of the ANSI 256 colour based on the name
+// if we run out of colours, we'll start from the beginning.
 const colourizedContainerName = new Map<string, string>();
-pod.containers.forEach(container => {
-  colourizedContainerName.set(container.Names, colourizeString(container.Names));
+pod.containers.forEach((container, index) => {
+  const colour = ansi256Colors[index % ansi256Colors.length];
+  colourizedContainerName.set(container.Names, colourizedANSIContainerName(container.Names, colour));
 });
 
-// Function that inputs a string and returns an ANSI 256 coloured string based on the string name
-// must use a colour that looks good against a black terminal background
-function colourizeString(str: string): string {
-  const hash = str.split('').reduce((acc, char) => {
-    return acc + char.charCodeAt(0);
-  }, 0);
-  const color = hash % 256;
-  return `\u001b[38;5;${color}m${str}\u001b[0m`;
+// Function that takes the container name and ANSI colour and encapsulates the name in the colour,
+// making sure that we reset the colour back to white after the name.
+function colourizedANSIContainerName(name: string, colour: string) {
+  return `${colour}${name}\u001b[0m`;
 }
 
 // Callback for logs which will output the logs to the terminal
