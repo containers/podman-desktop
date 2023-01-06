@@ -47,7 +47,7 @@
     "test:watch": "vitest watch",
     "watch": "node scripts/watch.cjs",
     "format:check": "prettier --check '{extensions,packages,tests,types}/**/*.{ts,svelte}' 'extensions/*/scripts/build.js' 'website/*.js' 'website/src/**/*.{css,tsx}'",
-    "format:fix": "prettier --write '{extensions,packages,tests,types}/**/*.{ts,svelte}' 'extensions/*/scripts/build.js' 'website/src/**/*.{css,tsx}'",
+    "format:fix": "prettier --write '{extensions,packages,tests,types}/**/*.{ts,svelte}' 'extensions/*/scripts/build.js' 'website/*.js' 'website/src/**/*.{css,tsx}'",
     "lint:check": "eslint . --ext js,ts,tsx",
     "lint:fix": "eslint . --fix --ext js,ts,tsx",
     "svelte:check": "svelte-check",
