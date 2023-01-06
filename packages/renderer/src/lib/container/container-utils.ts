@@ -178,7 +178,11 @@ export class ContainerUtils {
     return Array.from(groups.values());
   }
 
-  getMemoryUsageTitle(memoryUsagePercentage: number, usedMemory: number): string {
+  getMemoryPercentageUsageTitle(memoryUsagePercentage: number, usedMemory: number): string {
     return `${memoryUsagePercentage.toFixed(2)}% (${filesize(usedMemory)})`;
+  }
+
+  getMemoryUsageTitle(usedMemory: number): string {
+    return `${filesize(usedMemory)}`;
   }
 }
