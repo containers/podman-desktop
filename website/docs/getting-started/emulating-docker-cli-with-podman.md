@@ -32,7 +32,7 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
 2. Make the script executable:
 
     ```shell-session
-    # chmod +x /usr/bin/docker 
+    # chmod +x /usr/local/bin/docker 
     ```
 
 #### Verification
