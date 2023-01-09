@@ -60,7 +60,7 @@ jobs:
       - name: List Build
         run: ls ./dist/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3.1.2
         with:
           name: windows-exe
           path: ./dist/podman-desktop*.exe
@@ -110,12 +110,12 @@ jobs:
       - name: List Build
         run: ls -la ./dist/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3.1.2
         with:
           name: linux
           path: ./dist/podman-desktop-*.tar.gz
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3.1.2
         with:
           name: flatpak
           path: ./dist/podman-desktop-*.flatpak
@@ -156,15 +156,15 @@ jobs:
       - name: List Build
         run: ls -la ./dist/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3.1.2
         with:
           name: macos-x64-dmg
           path: ./dist/podman-desktop-*x64.dmg
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3.1.2
         with:
           name: macos-arm64-dmg
           path: ./dist/podman-desktop-*arm64.dmg
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3.1.2
         with:
           name: macos-universal-dmg
           path: ./dist/podman-desktop-*universal.dmg
