@@ -9,6 +9,7 @@ import PodActions from './PodActions.svelte';
 import PodDetailsSummary from './PodDetailsSummary.svelte';
 import PodDetailsInspect from './PodDetailsInspect.svelte';
 import PodDetailsKube from './PodDetailsKube.svelte';
+import PodDetailsLogs from './PodDetailsLogs.svelte';
 
 export let podName: string;
 export let engineId: string;
@@ -61,6 +62,18 @@ onDestroy(() => {
                     <li
                       class="pf-c-tabs__item"
                       class:pf-m-current="{meta.url ===
+                        `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`}">
+                      <a
+                        href="/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs"
+                        class="pf-c-tabs__link"
+                        aria-controls="open-tabs-example-tabs-list-details-panel"
+                        id="open-tabs-example-tabs-list-details-link">
+                        <span class="pf-c-tabs__item-text">Logs</span>
+                      </a>
+                    </li>
+                    <li
+                      class="pf-c-tabs__item"
+                      class:pf-m-current="{meta.url ===
                         `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/summary`}">
                       <a
                         href="/pods/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/summary"
@@ -107,6 +120,9 @@ onDestroy(() => {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
+        <Route path="/logs">
+          <PodDetailsLogs pod="{pod}" />
+        </Route>
         <Route path="/summary">
           <PodDetailsSummary pod="{pod}" />
         </Route>
