@@ -29,7 +29,14 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
     exec podman "$@"
     ```
 
-2. Make the script executable:
+
+2. (Optional) Create an empty `/etc/containers/nodocker` file to avoid the `Emulate Docker CLI using podman.` message when running the script.
+
+    ```
+    # touch /etc/containers/nodocker
+    ```
+
+3. Make the script executable:
 
     ```shell-session
     # chmod +x /usr/local/bin/docker 
