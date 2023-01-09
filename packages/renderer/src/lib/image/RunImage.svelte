@@ -11,11 +11,16 @@ import { router, Route } from 'tinro';
 import type { NetworkInspectInfo } from '../../../../main/src/plugin/api/network-info';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { ContainerUtils } from '../container/container-utils';
+import { containersInfos } from '../../stores/containers';
 let image: ImageInfoUI;
 
 let imageInspectInfo: ImageInspectInfo;
 
 let containerName = '';
+let containerNameError = '';
+
+let invalidFields = false;
+
 let containerPortMapping: string[];
 let exposedPorts = [];
 let createError;
@@ -341,6 +346,25 @@ function addExtraHost() {
 function deleteExtraHost(index: number) {
   extraHosts = extraHosts.filter((_, i) => i !== index);
 }
+
+// called when user change the container's name
+function checkContainerName(event: any) {
+  const containerValue = event.target.value;
+
+  // ok, now check if we already have a matching container: same name and same engine ID
+  const containerAlreadyExists = $containersInfos.find(
+    container =>
+      container.engineId === imageInspectInfo.engineId &&
+      container.Names.some(iteratingContainerName => iteratingContainerName === `/${containerValue}`),
+  );
+  if (containerAlreadyExists) {
+    containerNameError = `The name ${containerValue} already exists. Please choose another name or leave blank to generate a name.`;
+    invalidFields = true;
+  } else {
+    containerNameError = '';
+    invalidFields = false;
+  }
+}
 </script>
 
 <Route path="/*" let:meta>
@@ -402,12 +426,15 @@ function deleteExtraHost(index: number) {
                   >Container name:</label>
                 <input
                   type="text"
+                  on:input="{event => checkContainerName(event)}"
                   bind:value="{containerName}"
                   name="modalContainerName"
                   id="modalContainerName"
                   placeholder="Leave blank to generate a name"
-                  class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
-
+                  class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400 border  {containerNameError
+                    ? 'border-red-500'
+                    : 'border-zinc-900'}" />
+                <div class="h-1 text-sm text-red-500 text-xs">{containerNameError}</div>
                 <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
                   >Volumes:</label>
                 <!-- Display the list of volumes -->
@@ -816,7 +843,10 @@ function deleteExtraHost(index: number) {
           </div>
 
           <div class="pt-2 border-zinc-600 border-t-2"></div>
-          <button on:click="{() => startContainer()}" class="w-full pf-c-button pf-m-primary pt-6">
+          <button
+            on:click="{() => startContainer()}"
+            class="w-full pf-c-button pf-m-primary pt-6"
+            disabled="{invalidFields}">
             <span class="pf-c-button__icon pf-m-start">
               <i class="fas fa-play" aria-hidden="true"></i>
             </span>
