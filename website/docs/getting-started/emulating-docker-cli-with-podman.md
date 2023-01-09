@@ -41,5 +41,5 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
   Example:
 
     ```shell-session
-    $ docker run -it <your_container> bash
+    $ docker run -it docker.io/hello-world
     ```
