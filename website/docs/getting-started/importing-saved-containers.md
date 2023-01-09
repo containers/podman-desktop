@@ -12,7 +12,7 @@ Consider importing saved containers to continue using familiar containers.
 
 #### Prerequisites
 
-* [Podman](../Installation/macos-install)
+* Podman
 * You saved your existing Docker containers by running the command:
 
     ```shell-session
