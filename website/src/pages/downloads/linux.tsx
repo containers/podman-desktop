@@ -73,7 +73,7 @@ export function LinuxDownloads(): JSX.Element {
               className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
               to={downloadData.binary}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-              Source *.tar.gz
+              AMD64 binary (tar.gz)
             </Link>
           </div>
           <div className="flex flex-col align-middle items-center">

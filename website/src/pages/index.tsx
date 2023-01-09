@@ -448,7 +448,7 @@ function RunAnywhere() {
               </Link>
 
               <div className="flex-grow">
-                <p className="text-base text-center">flatpak or zip</p>
+                <p className="text-base text-center">Flatpak or AMD64 binary (tar.gz)</p>
               </div>
             </div>
           </div>
