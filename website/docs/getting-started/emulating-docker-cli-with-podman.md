@@ -20,7 +20,7 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
 
 #### Procedure
 
-1. Create a `/usr/bin/docker` script:
+1. Create a `/usr/local/bin/docker` script:
 
     ```shell
     #!/usr/bin/sh
