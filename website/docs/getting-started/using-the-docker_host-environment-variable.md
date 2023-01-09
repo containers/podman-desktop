@@ -24,9 +24,18 @@ Consider using the `DOCKER_HOST` environment variable to migrate transparently f
 
 1. Identify the location of your Podman socket:
 
-    ```shell-session
-    $ podman info --format json | jq '.host.remoteSocket.path'
-    ```
+  
+    * On Linux:
+   
+      ```shell-session
+      $ podman info --format json | jq '.host.remoteSocket.path'
+      ```
+
+    * On macOS and Windows:
+
+      ```shell-session
+      $ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
+      ```
 
 2. Set the `DOCKER_HOST` environment variable to your Podman socker location:
 
