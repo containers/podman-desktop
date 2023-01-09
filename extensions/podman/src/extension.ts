@@ -35,6 +35,8 @@ type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus
 
 const listeners = new Set<StatusHandler>();
 const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), '.local/share/containers/podman/machine');
+const podmanMachineSocketsSymlinkDirectoryMac = path.resolve(os.homedir(), '.podman');
+const macosMaxSocketPathLength = 104
 let storedExtensionContext;
 let stopLoop = false;
 
@@ -115,7 +117,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       // podman.sock link
       let socketPath;
       if (isMac) {
-        socketPath = path.resolve(podmanMachineSocketsDirectoryMac, machineName, 'podman.sock');
+        socketPath = calcMacosSocketPath(machineName);
       } else if (isWindows) {
         socketPath = calcWinPipeName(machineName);
       }
@@ -149,6 +151,15 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       provider.updateStatus('configured');
     }
   }
+}
+
+function calcMacosSocketPath(machineName: string): string {
+  // max length for the path of a socket in macos is 104 chars
+  let socketPath = path.resolve(podmanMachineSocketsDirectoryMac, machineName, 'podman.sock');
+  if (socketPath.length > macosMaxSocketPathLength) {
+    socketPath = path.resolve(podmanMachineSocketsSymlinkDirectoryMac, machineName, 'podman.sock');
+  }
+  return socketPath
 }
 
 function calcWinPipeName(machineName: string): string {
