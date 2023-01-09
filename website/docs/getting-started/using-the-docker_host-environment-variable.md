@@ -18,7 +18,6 @@ Consider using the `DOCKER_HOST` environment variable to migrate transparently f
 #### Prerequisites
 
 * Podman
-* [jq](https://stedolan.github.io/jq/)
 
 #### Procedure
 
@@ -28,7 +27,7 @@ Consider using the `DOCKER_HOST` environment variable to migrate transparently f
     * On Linux:
    
       ```shell-session
-      $ podman info --format json | jq '.host.remoteSocket.path'
+      $ podman info --format '{{.Host.RemoteSocket.Path}}'
       ```
 
     * On macOS and Windows:
