@@ -26,7 +26,7 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
     #!/usr/bin/sh
     [ -e /etc/containers/nodocker ] || \
     echo "Emulate Docker CLI using podman. Create /etc/containers/nodocker to quiet msg." >&2
-    exec /usr/bin/podman "$@"
+    exec podman "$@"
     ```
 
 2. Make the script executable:
