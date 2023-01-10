@@ -343,7 +343,10 @@ export class DockerExtensionPreload {
       docker,
     };
 
-    const toastError = (error: Error) => console.error(error);
+    const toastError = (error: Error) => {
+      console.error(error);
+      ipcRenderer.invoke('docker-desktop-adapter:desktopUIToast', 'error', error?.toString());
+    };
     (result as any).toastError = toastError;
 
     return result;

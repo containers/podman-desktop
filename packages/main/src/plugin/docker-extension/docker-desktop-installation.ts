@@ -293,5 +293,12 @@ export class DockerDesktopInstallation {
         return this.contributionManager.deleteExtension(extensionName);
       },
     );
+
+    ipcMain.handle(
+      'docker-desktop-adapter:desktopUIToast',
+      async (_event: IpcMainInvokeEvent, type: string, message: string): Promise<void> => {
+        this.apiSender.send('toast:handler', { type, message });
+      },
+    );
   }
 }
