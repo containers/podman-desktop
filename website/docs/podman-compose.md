@@ -1,4 +1,5 @@
 ---
+sidebar_position: 5
 title: Using Compose with Podman Desktop
 ---
 
