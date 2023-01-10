@@ -40,7 +40,7 @@ import type {
 } from './api/provider-info';
 import type { WebContents } from 'electron';
 import { ipcMain, BrowserWindow } from 'electron';
-import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
+import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { PullEvent } from './api/pull-event';
 import type { ExtensionInfo } from './api/extension-info';
@@ -321,6 +321,9 @@ export class PluginSystem {
     const contributionManager = new ContributionManager(apiSender);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
+    });
+    this.ipcHandle('container-provider-registry:listSimpleContainers', async (): Promise<SimpleContainerInfo[]> => {
+      return containerProviderRegistry.listSimpleContainers();
     });
     this.ipcHandle('container-provider-registry:listImages', async (): Promise<ImageInfo[]> => {
       return containerProviderRegistry.listImages();
