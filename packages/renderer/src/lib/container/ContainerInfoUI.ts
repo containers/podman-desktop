@@ -57,6 +57,8 @@ export interface ContainerInfoUI {
   groupInfo: ContainerGroupPartInfoUI;
   selected: boolean;
   created: number;
+  actionInProgress?: boolean;
+  actionError?: string;
 }
 
 export interface ContainerGroupInfoUI extends ContainerGroupPartInfoUI {
