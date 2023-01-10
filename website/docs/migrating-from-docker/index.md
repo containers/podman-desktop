@@ -7,9 +7,9 @@ tags: [migrating-from-docker]
 
 # Migration from Docker to Podman Desktop
 
-Consider using following procedures to continue using familiar workflows:
+When you have used Docker in the past, you can continue using familiar workflows with Podman Desktop:
 
-* [Import saved containers to Podman](migrating-from-docker/importing-saved-containers.md)
-* [Using the `DOCKER_HOST` environment variable](migrating-from-docker/using-the-docker_host-environment-variable)
-* [Using the podman-mac-helper tool on macOS](migrating-from-docker/using-podman-mac-helper)
-* [Emulating Docker CLI with Podman](migrating-from-docker/emulating-docker-cli-with-podman)
+* [Importing saved containers to Podman to continue using familiar containers](migrating-from-docker/importing-saved-containers.md)
+* [Using the `DOCKER_HOST` environment variable to let your tools communicate directly with the Podman socket](migrating-from-docker/using-the-docker_host-environment-variable)
+* [Using the `podman-mac-helper` tool on macOS to redirect the Docker socket to the Podman socket](migrating-from-docker/using-podman-mac-helper)
+* [Emulating Docker CLI with Podman to continue using tools depending on the Docker CLI](migrating-from-docker/emulating-docker-cli-with-podman)
