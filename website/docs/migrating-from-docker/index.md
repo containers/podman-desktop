@@ -1,4 +1,5 @@
 ---
+sidebar_position: 4
 title: Migrating from Docker
 description: Migrate transparently from Docker to Podman, and continue using familiar workflows.
 keywords: [podman desktop, podman, containers, migrating, docker]
