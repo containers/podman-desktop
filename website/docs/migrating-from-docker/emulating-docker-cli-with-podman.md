@@ -1,9 +1,9 @@
 ---
-id: emulating-docker-cli-with-podman
+sidebar_position: 4
 title: Emulating Docker CLI with Podman
 description: Emulation Docker CLI with Podman can make it easier to migrate from Docker to Podman, as it allows you to continue using familiar Docker commands while taking advantage of the benefits of Podman.
-tags: [podman-desktop, getting-started, cli,]
 keywords: [podman desktop, podman, containers]
+tags: [migrating-from-docker]
 ---
 
 # Emulating Docker CLI with Podman
