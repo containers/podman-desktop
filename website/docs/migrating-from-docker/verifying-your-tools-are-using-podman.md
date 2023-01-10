@@ -23,7 +23,7 @@ When you have configured your host to use Podman rather then Docker, consider ve
 1. The Docker socket replies successfully:
 
     ```shell-session
-    $ curl /var/run/docker.sock
+    $ curl --unix-socket /var/run/docker.sock "http:/v1.41/containers/json?all=true"
     ```
 
 2. Podman commands run successfully when redirected to the Docker socket:
