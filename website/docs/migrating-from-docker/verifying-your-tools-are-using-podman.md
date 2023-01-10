@@ -20,7 +20,7 @@ When you have configured your host to use Podman rather then Docker, consider ve
 
 #### Procedure
 
-1. The Docker socket replies successfully:
+1. The Docker socket replies successfully for listing all containers:
 
     ```shell-session
     $ curl --unix-socket /var/run/docker.sock "http:/v1.41/containers/json?all=true"
