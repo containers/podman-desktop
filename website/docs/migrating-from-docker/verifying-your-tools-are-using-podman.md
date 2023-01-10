@@ -22,12 +22,31 @@ When you have configured your host to use Podman rather then Docker, consider ve
 
 1. The Docker socket replies successfully for listing all containers:
 
-    ```shell-session
-    $ curl --unix-socket /var/run/docker.sock "http:/v1.41/containers/json?all=true"
-    ```
+
+    * On Linux and macOS
+    
+      ```shell-session
+      $ curl --unix-socket /var/run/docker.sock "http:/v1.41/containers/json?all=true"
+      ```
+
+    * On Windows
+    
+      ```shell-session
+      $ curl --unix-socket npipe:////./pipe/docker_engine "http:/v1.41/containers/json?all=true"
+      ```
+
 
 2. Podman commands run successfully when redirected to the Docker socket:
 
-    ```shell-session
-    $ CONTAINER_HOST=/var/run/docker.sock podman ps
-    ```
+    * On Linux and macOS
+    
+      ```shell-session
+      $ CONTAINER_HOST=/var/run/docker.sock podman ps
+      ```
+
+    * On Windows
+    
+      ```shell-session
+      $ CONTAINER_HOST=npipe:////./pipe/docker_engine podman ps
+      ```
+
