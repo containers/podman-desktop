@@ -1,0 +1,33 @@
+---
+sidebar_position: 5
+title: Verifying your tools are using Podman
+description: Verify that your tools are using Podman rather than Docker.
+keywords: [podman desktop, podman, containers, migrating, docker]
+tags: [migrating-from-docker]
+---
+
+# Verifying that your tools are using Podman
+
+When you have configured your host to use Podman rather then Docker, consider verifying your setup works as intended.
+
+#### Prerequisites
+
+* Docker service is stopped, or not installed.
+* [Saved containers are imported to Podman](importing-saved-containers)
+* [The `DOCKER_HOST` environment variable is set](using-the-docker_host-environment-variable)
+* [On macOS, the `podman-mac-helper` service is running](using-podman-mac-helper)
+* [Podman is emulating Docker CLI](emulating-docker-cli-with-podman)
+
+#### Procedure
+
+1. The Docker socket replies successfully:
+
+    ```shell-session
+    $ curl /var/run/docker.sock
+    ```
+
+2. Podman commands run successfully when redirected to the Docker socket:
+
+    ```shell-session
+    $ CONTAINER_HOST=/var/run/docker.sock podman ps
+    ```
