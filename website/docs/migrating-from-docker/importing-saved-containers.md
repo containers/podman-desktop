@@ -6,6 +6,9 @@ keywords: [podman desktop, podman, containers, importing]
 tags: [migrating-from-docker]
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Importing saved containers to Podman
 
 Consider importing saved containers to continue using familiar containers.
@@ -13,16 +16,25 @@ Consider importing saved containers to continue using familiar containers.
 #### Prerequisites
 
 * Podman
-* You saved your existing Docker containers by running the command:
+
+* You saved your existing containers by running the command:
+
+  <Tabs groupId="container-engines">
+    <TabItem value="podman" label="Podman">
+
+    ```shell-session
+    $ podman save <your_container> > <your_container_archive>.tar 
+    ```
+
+    </TabItem>
+    <TabItem value="docker" label="Docker">
 
     ```shell-session
     $ docker save <your_container> > <your_container_archive>.tar
     ```
-* You saved your existing Podman containers by running the command:
 
-    ```shell-session
-    $ podman save <your_container> > <your_container_archive>.tar
-    ```
+    </TabItem>
+  </Tabs>
 
 #### Procedure
 
