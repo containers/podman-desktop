@@ -2,7 +2,50 @@
 export let state = '';
 </script>
 
-{#if state === 'RUNNING'}
+{#if state === 'STARTING'}
+  <div class="flex flex-col justify-center align-middle">
+    <svg
+      width="24"
+      height="24"
+      version="1.1"
+      viewBox="0 0 6.35 6.35"
+      xml:space="preserve"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      ><g transform="translate(28.585 -26.647)"
+        ><g transform="matrix(.26458 0 0 .26458 -29.906 26.92)" fill="none"
+          ><g transform="matrix(.90909 0 0 .90909 1.5451 .99685)" stroke-width="1.1"
+            ><path
+              d="m8.0765-0.034671h17.838c1.1528 0 2.0809 1.0604 2.0809 2.3776v17.245c0 1.3172-0.92807 2.3776-2.0809 2.3776h-17.838c-1.1528 0-2.0809-1.0604-2.0809-2.3776v-17.245c0-1.3172 0.92807-2.3776 2.0809-2.3776z"
+              fill="#42544d"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path
+            ><g transform="translate(.64282 -1.0347)" rx="0" ry="0" stroke-width="1.1"
+              ><g transform="translate(1.3528)" stroke-width="1.1"
+                ><g stroke-width="1.1"
+                  ><path
+                    rx="0"
+                    ry="0"
+                    d="m13 6.5c0-0.828 0.672-1.5 1.5-1.5h1c0.828 0 1.5 0.672 1.5 1.5v11c0 0.828-0.672 1.5-1.5 1.5h-1c-0.828 0-1.5-0.672-1.5-1.5zm-5 6c0-0.828 0.672-1.5 1.5-1.5h1c0.828 0 1.5 0.672 1.5 1.5v5c0 0.828-0.672 1.5-1.5 1.5h-1c-0.828 0-1.5-0.672-1.5-1.5zm12.5-5.5c0.828 0 1.5 0.672 1.5 1.5v9c0 0.828-0.672 1.5-1.5 1.5h-1c-0.828 0-1.5-0.672-1.5-1.5v-9c0-0.828 0.672-1.5 1.5-1.5z"
+                    fill="#fff"
+                    stroke-width="1.1"></path
+                  ></g
+                ></g
+              ></g
+            ></g
+          ><g
+            transform="matrix(.75157 0 0 .75157 63.838 -3.9997)"
+            fill="#b6b6b6"
+            stroke-width="1.3305"
+            style="-webkit-print-color-adjust:exact"
+            ><g transform="translate(-3.2856 8.5688)" rx="0" ry="0" fill="#b6b6b6" stroke-width="1.3305"
+              ><g rx="0" ry="0" fill="#b6b6b6" stroke-width="1.3305"><g fill="#b6b6b6" stroke-width="1.3305"></g></g></g
+            ></g
+          ></g
+        ></g
+      ></svg>
+  </div>
+{:else if state === 'RUNNING'}
   <div class="flex flex-col justify-center align-middle">
     <svg
       id="running"
