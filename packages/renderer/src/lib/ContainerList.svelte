@@ -245,6 +245,12 @@ function keydownChoice(e: KeyboardEvent) {
   }
 }
 
+function openGroupDetails(containerGroup: ContainerGroupInfoUI): void {
+  if (containerGroup.type === ContainerGroupInfoTypeUI.POD) {
+    router.goto(`/pods/${encodeURI(containerGroup.name)}/${encodeURI(containerGroup.engineId)}/logs`);
+  }
+}
+
 function toggleCreateContainer(): void {
   openChoiceModal = !openChoiceModal;
 }
@@ -386,7 +392,10 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               <td class="whitespace-nowrap hover:cursor-pointer">
                 <div class="flex items-center text-sm text-gray-200 overflow-hidden text-ellipsis">
                   <div class="flex flex-col flex-nowrap">
-                    <div class="text-sm text-gray-200 overflow-hidden text-ellipsis" title="{containerGroup.type}">
+                    <div
+                      class="text-sm text-gray-200 overflow-hidden text-ellipsis"
+                      title="{containerGroup.type}"
+                      on:click="{() => openGroupDetails(containerGroup)}">
                       {containerGroup.name} ({containerGroup.type})
                     </div>
                     <div class="text-xs font-extra-light text-gray-500">
