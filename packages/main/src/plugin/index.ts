@@ -79,6 +79,7 @@ import type { NetworkInspectInfo } from './api/network-info';
 import { FilesystemMonitoring } from './filesystem-monitoring';
 import { Certificates } from './certificates';
 import { Proxy } from './proxy';
+import { EditorInit } from './editor-init';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -300,6 +301,10 @@ export class PluginSystem {
 
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
+
+    // init editor configuration
+    const editorInit = new EditorInit(configurationRegistry);
+    editorInit.init();
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,

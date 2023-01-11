@@ -2,6 +2,7 @@
 import { onMount } from 'svelte';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
+import { EditorSettings } from '../../../../main/src/plugin/editor-settings';
 
 import type monaco from 'monaco-editor';
 import { getPanelDetailColor } from '../color/color';
@@ -26,6 +27,11 @@ onMount(async () => {
 
   Monaco = await import('monaco-editor');
 
+  // grab font size
+  const fontSize = await window.getConfigurationValue<number>(
+    EditorSettings.SectionName + '.' + EditorSettings.FontSize,
+  );
+
   Monaco.editor.defineTheme('podmanDesktopTheme', {
     base: 'vs-dark',
     inherit: true,
@@ -37,7 +43,7 @@ onMount(async () => {
 
   editor = Monaco.editor.create(divEl, {
     value: content,
-    fontSize: '10px',
+    fontSize,
     language,
     readOnly: true,
     theme: 'podmanDesktopTheme',
