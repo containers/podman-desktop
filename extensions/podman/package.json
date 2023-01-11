@@ -75,6 +75,12 @@
           "default": 100,
           "scope": "ContainerProviderConnectionFactory",
           "description": "Disk size (GB)"
+        },
+        "podman.factory.machine.image-path": {
+          "type": "string",
+          "format": "file",
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Image Path (Optional)"
         }
       }
     }

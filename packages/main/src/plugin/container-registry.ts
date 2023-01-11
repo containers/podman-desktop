@@ -20,7 +20,7 @@ import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { Disposable } from './types/disposable';
 import Dockerode from 'dockerode';
 import StreamValues from 'stream-json/streamers/StreamValues';
-import type { ContainerCreateOptions, ContainerInfo } from './api/container-info';
+import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { PodInfo, PodInspectInfo } from './api/pod-info';
 import type { ImageInspectInfo } from './api/image-inspect-info';
@@ -207,6 +207,39 @@ export class ContainerProviderRegistry {
       this.containerProviders.delete(id);
       this.apiSender.send('provider-change', {});
     });
+  }
+
+  // do not use inspect information
+  async listSimpleContainers(): Promise<SimpleContainerInfo[]> {
+    const containers = await Promise.all(
+      Array.from(this.internalProviders.values()).map(async provider => {
+        try {
+          const providerApi = provider.api;
+          if (!providerApi) {
+            return [];
+          }
+
+          const containers = await providerApi.listContainers({ all: true });
+          return Promise.all(
+            containers.map(async container => {
+              const containerInfo: SimpleContainerInfo = {
+                ...container,
+                engineName: provider.name,
+                engineId: provider.id,
+                engineType: provider.connection.type,
+              };
+              return containerInfo;
+            }),
+          );
+        } catch (error) {
+          console.log('error in engine', provider.name, error);
+          return [];
+        }
+      }),
+    );
+    const flatttenedContainers = containers.flat();
+    this.telemetryService.track('listSimpleContainers', { total: flatttenedContainers.length });
+    return flatttenedContainers;
   }
 
   async listContainers(): Promise<ContainerInfo[]> {

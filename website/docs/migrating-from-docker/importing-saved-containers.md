@@ -1,9 +1,9 @@
 ---
-id: importing-saved-containers
+sidebar_position: 1
 title: Importing saved containers
 description: Import saved containers to migrate transparently to Podman, and continue using familiar containers.
-tags: [podman-desktop, getting-started, importing]
 keywords: [podman desktop, podman, containers, importing]
+tags: [migrating-from-docker]
 ---
 
 # Importing saved containers to Podman

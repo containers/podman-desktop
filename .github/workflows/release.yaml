@@ -119,12 +119,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
 
   build:
-    name: Build / ${{ matrix.os }}
+    name: Build / ${{ matrix.os }} ${{ matrix.airgap == 'true' && '(Air Gap)' || ''  }}
     needs: tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-20.04, macos-11]
+        include:
+          - os: "windows-2022"
+          - os: "windows-2022"
+            airgap: "true"
+          - os: "macos-11"
+          - os: "macos-11"
+            airgap: "true"
+          - os: "ubuntu-20.04"
     timeout-minutes: 60
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -206,6 +213,8 @@ jobs:
 
       - name: Run Build
         timeout-minutes: 40
+        env:
+          AIRGAP_DOWNLOAD: ${{ matrix.airgap == 'true' && '1' || ''  }}
         run: yarn compile:next
 
   release:

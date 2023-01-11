@@ -23,7 +23,7 @@ import * as fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import { RegistrySetup } from './registry-setup';
 
-import { isLinux, isMac, isWindows } from './util';
+import { getAssetsFolder, isLinux, isMac, isWindows } from './util';
 import { PodmanInstall } from './podman-install';
 import type { InstalledPodman } from './podman-cli';
 import { execPromise, getPodmanCli, getPodmanInstallation } from './podman-cli';
@@ -434,6 +434,26 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       if (params['podman.factory.machine.diskSize']) {
         parameters.push('--disk-size');
         parameters.push(params['podman.factory.machine.diskSize']);
+      }
+
+      // disk size
+      if (params['podman.factory.machine.image-path']) {
+        parameters.push('--image-path');
+        parameters.push(params['podman.factory.machine.image-path']);
+      } else if (isMac || isWindows) {
+        // check if we have an embedded asset for the image path for macOS or Windows
+        let suffix = '';
+        if (isWindows) {
+          suffix = `-${process.arch}.tar.xz`;
+        } else if (isMac) {
+          suffix = `-${process.arch}.qcow2.xz`;
+        }
+        const assetImagePath = path.resolve(getAssetsFolder(), `podman-image${suffix}`);
+        // check if the file exists and if it does, use it
+        if (fs.existsSync(assetImagePath)) {
+          parameters.push('--image-path');
+          parameters.push(assetImagePath);
+        }
       }
 
       // name at the end

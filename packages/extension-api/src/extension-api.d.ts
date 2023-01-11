@@ -720,13 +720,6 @@ declare module '@tmpwip/extension-api' {
     engineId: string;
     engineName: string;
     engineType: 'podman' | 'docker';
-    StartedAt: string;
-    pod?: {
-      id: string;
-      name: string;
-      status: string;
-      engineId: string;
-    };
     Id: string;
     Names: string[];
     Image: string;

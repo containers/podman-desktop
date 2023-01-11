@@ -1,10 +1,9 @@
 ---
-id: using-the-docker_host-environment-variable
+sidebar_position: 2
 title: Using the `DOCKER_HOST` environment variable
 description: Using the `DOCKER_HOST` environment variable can make it easier to migrate from Docker to Podman Desktop, as it allows you to continue using familiar Docker commands while taking advantage of the benefits of Podman.
-tags: [podman-desktop, getting-started]
 keywords: [podman desktop, podman, containers, docker_host, environment, variable]
-hide_table_of_contents: false
+tags: [migrating-from-docker]
 ---
 
 # Using the `DOCKER_HOST` environment variable

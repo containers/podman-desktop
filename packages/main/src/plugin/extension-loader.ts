@@ -440,7 +440,7 @@ export class ExtensionLoader {
     const containerProviderRegistry = this.containerProviderRegistry;
     const containerEngine: typeof containerDesktopAPI.containerEngine = {
       listContainers(): Promise<containerDesktopAPI.ContainerInfo[]> {
-        return containerProviderRegistry.listContainers();
+        return containerProviderRegistry.listSimpleContainers();
       },
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);

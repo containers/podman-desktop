@@ -31,6 +31,12 @@ export interface ContainerInfo extends Dockerode.ContainerInfo {
   };
 }
 
+export interface SimpleContainerInfo extends Dockerode.ContainerInfo {
+  engineId: string;
+  engineName: string;
+  engineType: 'podman' | 'docker';
+}
+
 export interface HostConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PortBindings?: any;
