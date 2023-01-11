@@ -273,17 +273,22 @@ function toggleAllContainerGroups(value: boolean) {
   containerGroups = toggleContainers;
 }
 
-function inProgressCallback(container: ContainerInfoUI, inProgress: boolean): void {
+function inProgressCallback(container: ContainerInfoUI, inProgress: boolean, state?: string): void {
   container.actionInProgress = inProgress;
   // reset error when starting task
   if (inProgress) {
     container.actionError = '';
   }
+  if (state) {
+    container.state = state;
+  }
+
   containerGroups = [...containerGroups];
 }
 
 function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   container.actionError = errorMessage;
+  container.state = 'ERROR';
   containerGroups = [...containerGroups];
 }
 </script>
@@ -518,7 +523,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     <div class="text-right w-full">
                       <ContainerActions
                         errorCallback="{error => errorCallback(container, error)}"
-                        inProgressCallback="{flag => inProgressCallback(container, flag)}"
+                        inProgressCallback="{(flag, state) => inProgressCallback(container, flag, state)}"
                         container="{container}"
                         dropdownMenu="{true}" />
                     </div>

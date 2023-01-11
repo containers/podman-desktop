@@ -13,6 +13,9 @@ import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
 import { getPanelDetailColor } from './color/color';
 import ContainerDetailsKube from './ContainerDetailsKube.svelte';
 import ContainerStatistics from './container/ContainerStatistics.svelte';
+import Tooltip from './ui/Tooltip.svelte';
+import Fa from 'svelte-fa/src/fa.svelte';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 export let containerID: string;
 
@@ -27,6 +30,18 @@ onMount(() => {
     }
   });
 });
+
+function inProgressCallback(inProgress: boolean, state: string): void {
+  container.actionInProgress = inProgress;
+  if (state && inProgress) {
+    container.state = 'STARTING';
+  }
+}
+
+function errorCallback(errorMessage: string): void {
+  container.actionError = errorMessage;
+  container.state = 'ERROR';
+}
 </script>
 
 {#if container}
@@ -115,7 +130,33 @@ onMount(() => {
           </div>
           <div class="flex flex-col w-full px-5 pt-5">
             <div class="flex justify-end">
-              <ContainerActions container="{container}" detailed="{true}" />
+              <div class="flex items-center w-5">
+                {#if container.actionInProgress}
+                  <svg
+                    class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                {:else if container.actionError}
+                  <Tooltip tip="{container.actionError}" top>
+                    <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
+                  </Tooltip>
+                {:else}
+                  <div>&nbsp;</div>
+                {/if}
+              </div>
+              <ContainerActions
+                inProgressCallback="{(flag, state) => inProgressCallback(flag, state)}"
+                errorCallback="{error => errorCallback(error)}"
+                container="{container}"
+                detailed="{true}" />
             </div>
             <div class="flex my-2 w-full justify-end ">
               <ContainerStatistics container="{container}" />

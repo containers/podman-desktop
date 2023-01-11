@@ -14,17 +14,22 @@ export let container: ContainerInfoUI;
 export let dropdownMenu: boolean = false;
 export let detailed: boolean = false;
 
-export let inProgressCallback: (inProgress: boolean) => void = () => {};
+export let inProgressCallback: (inProgress: boolean, state?: string) => void = () => {};
 export let errorCallback: (erroMessage: string) => void = () => {};
 
 async function startContainer(containerInfo: ContainerInfoUI) {
-  inProgressCallback(true);
-  await window.startContainer(containerInfo.engineId, containerInfo.id);
-  inProgressCallback(false);
+  inProgressCallback(true, 'STARTING');
+  try {
+    await window.startContainer(containerInfo.engineId, containerInfo.id);
+  } catch (error) {
+    errorCallback(error);
+  } finally {
+    inProgressCallback(false);
+  }
 }
 
 async function restartContainer(containerInfo: ContainerInfoUI) {
-  inProgressCallback(true);
+  inProgressCallback(true, 'RESTARTING');
   try {
     await window.restartContainer(containerInfo.engineId, containerInfo.id);
   } catch (error) {
