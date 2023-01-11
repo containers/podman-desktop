@@ -6,6 +6,9 @@ keywords: [podman desktop, podman, containers, docker_host, environment, variabl
 tags: [migrating-from-docker]
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Using the `DOCKER_HOST` environment variable
 
 Consider using the `DOCKER_HOST` environment variable to migrate transparently from Docker to Podman Desktop on all platforms.
@@ -20,20 +23,31 @@ Consider using the `DOCKER_HOST` environment variable to migrate transparently f
 
 #### Procedure
 
-1. Identify the location of your Podman socket:
+1. Identify the location of your Podman socket
 
-  
-    * On Linux:
-   
-      ```shell-session
-      $ podman info --format '{{.Host.RemoteSocket.Path}}'
-      ```
-
-    * On macOS and Windows:
+    <Tabs groupId="operating-systems">
+      <TabItem value="win" label="Windows">
 
       ```shell-session
       $ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
       ```
+
+      </TabItem>
+      <TabItem value="mac" label="macOS">
+
+      ```shell-session
+      $ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
+      ```
+
+      </TabItem>
+      <TabItem value="linux" label="Linux">
+
+      ```shell-session
+      $ podman info --format '{{.Host.RemoteSocket.Path}}'
+      ```
+
+      </TabItem>
+    </Tabs>
 
 2. Set the `DOCKER_HOST` environment variable to your Podman socker location:
 
