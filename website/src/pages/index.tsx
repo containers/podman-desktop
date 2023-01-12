@@ -208,7 +208,8 @@ function Extensibility() {
           <div className="flex flex-col items-center">
             <div className="text-left my-4">
               <p className="-ml-5 text-base">
-                Current Podman Desktop plugins: Podman, Docker, Lima, Kubernetes, and OpenShift Local with the Podman preset.
+                Current Podman Desktop plugins: Podman, Docker, Lima, Kubernetes, and OpenShift Local with the Podman
+                preset.
               </p>
             </div>
           </div>
