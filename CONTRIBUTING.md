@@ -227,6 +227,6 @@ If you're unsure where to add code (renderer, UI, extensions, plugins) see the b
 * `packages/renderer`: Electron code that runs in the renderer process. The renderer runs separate to the main process and is responsible for typically rendering the main pages of Podman Desktop. Typically, this is where you find the `.svelte` code that renders the main Podman Desktop UI.
 * `scripts`: Scripts Podman Desktop requires such as `yarn watch` functionality and updating Electron vendorered modules.
 * `tests`: Contains e2e tests for Podman Desktop.
-* `types`: Additional types required for Vitest.
+* `types`: Additional types required for TypeScript.
 * `website`: The documentation as well as [Podman Desktop website](https://podman-desktop.io) developed in [Docusaurus](https://docusaurus.io).
 * `node_modules`: Location for Node.JS packages / dependencies.
