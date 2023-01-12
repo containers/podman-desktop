@@ -237,7 +237,8 @@ If you're unsure where to add code (renderer, UI, extensions, plugins) see the b
 * `packages/main`: Electron process code that is responsible for creating the app's main windows, setting up system events and communicating with other processes
 * `packages/preload`: Electron code that runs before the page gets rendered. Typically has access to APIs and used to setup communication processes between the main and renderer code.
 * `packages/preload-docker-extension`: Electron preload code specific to the Docker Desktop extension.
-* `packages/renderer`: Electron code that runs in the renderer process. The renderer runs separate to the main process and is responsible for typically rendering the main pages of Podman Desktop. Typically, this is where you find the `.svelte` code that renders the main Podman Desktop UI.  * `scripts`: Scripts Podman Desktop requires such as `yarn watch` functionality and updating Electron vendorered modules.
+* `packages/renderer`: Electron code that runs in the renderer process. The renderer runs separate to the main process and is responsible for typically rendering the main pages of Podman Desktop. Typically, this is where you find the `.svelte` code that renders the main Podman Desktop UI.
+* `scripts`: Scripts Podman Desktop requires such as `yarn watch` functionality and updating Electron vendorered modules.
 * `tests`: Contains e2e tests for Podman Desktop.
 * `types`: Additional types required for TypeScript.
 * `website`: The documentation as well as [Podman Desktop website](https://podman-desktop.io) developed in [Docusaurus](https://docusaurus.io).
