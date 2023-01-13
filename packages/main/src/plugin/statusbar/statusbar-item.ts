@@ -116,6 +116,10 @@ export class StatusBarItemImpl implements StatusBarItem {
     this.registry.removeEntry(this._id);
   }
 
+  dispose(): void {
+    this.hide();
+  }
+
   show(): void {
     this.isVisible = true;
     this.update();
