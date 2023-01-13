@@ -306,7 +306,7 @@ function Configure() {
                   Container Engines
                 </h2>
                 <p className="leading-relaxed text-base">
-                  Handle multiple container engines at the same time: Podman, Docker, Lima, and Kubernetes.
+                  Handle multiple container engines at the same time: Podman, Docker, Lima.
                 </p>
               </div>
             </div>
