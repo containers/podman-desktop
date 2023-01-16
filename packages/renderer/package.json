@@ -18,7 +18,7 @@
     "@typescript-eslint/eslint-plugin": "5.48.1",
     "autoprefixer": "^10.4.13",
     "filesize": "^10.0.6",
-    "humanize-duration": "^3.27.3",
+    "humanize-duration": "^3.28.0",
     "moment": "^2.29.4",
     "monaco-editor": "^0.34.1",
     "ninja-keys": "^1.2.2",
