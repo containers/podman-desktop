@@ -156,8 +156,8 @@ function openDetailsVolume(volume: VolumeInfoUI) {
               on:click="{event => toggleAllVolumes(event.currentTarget.checked)}"
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
           <th class="text-center font-extrabold w-10">status</th>
-          <th class="text-center font-extrabold w-10">Name</th>
-          <th class="text-center">Creation date</th>
+          <th class="w-10">Name</th>
+          <th class="px-6 whitespace-nowrap">Creation date</th>
           <th class="px-6 whitespace-nowrap text-end">size</th>
           <th class="text-right pr-2">Actions</th>
         </tr>
@@ -199,7 +199,7 @@ function openDetailsVolume(volume: VolumeInfoUI) {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="ml-2 text-sm text-gray-200">{volume.humanCreationDate}</div>
+                <div class="text-sm text-gray-200">{volume.humanCreationDate}</div>
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">

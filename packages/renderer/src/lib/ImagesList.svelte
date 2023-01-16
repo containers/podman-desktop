@@ -194,16 +194,16 @@ async function deleteSelectedImages() {
       <thead>
         <tr class="h-7 uppercase text-xs text-gray-500">
           <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5"
-            ><input
+          <th class="px-2 w-5">
+            <input
               type="checkbox"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
               bind:checked="{allChecked}"
               on:click="{event => toggleAllImages(event.currentTarget.checked)}"
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
           <th class="text-center font-extrabold w-10">status</th>
-          <th class="text-center font-extrabold w-10">Name</th>
-          <th class="text-center">Creation date</th>
+          <th class="w-10">Name</th>
+          <th class="px-6 whitespace-nowrap w-10">Creation date</th>
           <th class="px-6 whitespace-nowrap text-end">size</th>
           <th class="text-right pr-2">Actions</th>
         </tr>
@@ -249,7 +249,7 @@ async function deleteSelectedImages() {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="ml-2 text-sm text-gray-200">{image.humanCreationDate}</div>
+                <div class="text-sm text-gray-200">{image.humanCreationDate}</div>
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">

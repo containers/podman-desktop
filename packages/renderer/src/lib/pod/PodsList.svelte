@@ -164,7 +164,7 @@ function openContainersFromPod(pod: PodInfoUI) {
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
-          <th class="text-center">Creation date</th>
+          <th class="whitespace-nowrap px-6">Creation date</th>
           <th class="text-right pr-2">Actions</th>
         </tr>
       </thead>
@@ -219,7 +219,7 @@ function openContainersFromPod(pod: PodInfoUI) {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="ml-2 text-sm text-gray-200">{pod.humanCreationDate}</div>
+                <div class="text-sm text-gray-200">{pod.humanCreationDate}</div>
               </div>
             </td>
 

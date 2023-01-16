@@ -363,7 +363,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               on:click="{event => toggleAllContainerGroups(event.currentTarget.checked)}"
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
-          <th>Name</th>
+          <th class="w-10">Name</th>
           <th>Image</th>
           <th class="pl-4">Age</th>
           <th class="text-right pr-2">actions</th>
