@@ -20,7 +20,7 @@
 const zipper = require('zip-local');
 const path = require('path');
 const package = require('../package.json');
-const mkdirp = require('mkdirp');
+const { mkdirp } = require('mkdirp');
 const fs = require('fs');
 
 const destFile = path.resolve(__dirname, `../${package.name}.cdix`);

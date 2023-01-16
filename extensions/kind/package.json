@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "7zip-min": "^1.4.3",
-    "mkdirp": "^1.0.4",
+    "mkdirp": "^2.0.0",
     "zip-local": "^0.3.5"
   }
 }
