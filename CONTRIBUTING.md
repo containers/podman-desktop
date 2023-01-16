@@ -15,6 +15,7 @@ that we follow.
 * [Continuous Integration](#continuous-integration)
 * [Submitting Pull Requests](#submitting-pull-requests)
 * [Communication](#communication)
+* [Code Architecture](#code-architecture)
 
 ## Reporting Issues
 
@@ -209,3 +210,39 @@ You can follow these jobs in Github Actions https://github.com/containers/podman
 For bugs/feature requests please [file issues](https://github.com/containers/podman-desktop/issues/new/choose)
 
 Discussions are possible using Github Discussions https://github.com/containers/podman-desktop/discussions/
+
+## Code Architecture
+
+### Frameworks and tooling
+
+Within Podman Desktop, we use the following frameworks and tools to build the desktop application:
+* [Electron](https://www.electronjs.org/): In order to deploy cross-platform to multiple operating systems.
+* [Svelte](https://svelte.dev/): The reactive UI/UX framework for building the interface.
+* [Tailwind CSS](https://tailwindcss.com/): A utility-first CSS framework for the UI/UX framework.
+* [Vite](https://vitejs.dev/): Dev tooling for rapid development, debugging and deployment.
+
+> **_NOTE:_**  We also use TypeScript instead of JavaScript for strongly typed programming language development.
+
+
+### Folders
+
+Below are brief descriptions on the architecture on each folder of Podman Desktop and how it's organized.
+
+If you're unsure where to add code (renderer, UI, extensions, plugins) see the below TLDR:
+
+* `__mocks__/`: Mock packages for Vitest.
+* `buildResources`: Podman Desktop logo location / build resources for electron
+* `extensions`: We separate functionality into separate "extensions" to keep Podman Desktop modular. Here you'll find extensions such as Kubernetes, CRC, Podman and Docker functionality that Podman Desktop interacts with and integrates into the API (see `packages/extension-api`). Examples include `extensions/crc`, `extensions/podman`, `extensions/docker`.
+* `packages/extension-api`: The extension API for extensions such as `extensions/podman` to interact with the Podman Desktop GUI. This API acts as a "middleware" to the main Electron functionality such as displaying notifications, progress messages, configuration changes, etc.
+* `packages/main`: Electron process code that is responsible for creating the app's main windows, setting up system events and communicating with other processes
+* `packages/preload`: Electron code that runs before the page gets rendered. Typically has access to APIs and used to setup communication processes between the main and renderer code.
+* `packages/preload-docker-extension`: Electron preload code specific to the Docker Desktop extension.
+* `packages/renderer`: Electron code that runs in the renderer process. The renderer runs separate to the main process and is responsible for typically rendering the main pages of Podman Desktop. Typically, this is where you find the `.svelte` code that renders the main Podman Desktop UI.
+* `scripts`: Scripts Podman Desktop requires such as `yarn watch` functionality and updating Electron vendorered modules.
+* `tests`: Contains e2e tests for Podman Desktop.
+* `types`: Additional types required for TypeScript.
+* `website`: The documentation as well as [Podman Desktop website](https://podman-desktop.io) developed in [Docusaurus](https://docusaurus.io).
+* `node_modules`: Location for Node.JS packages / dependencies.
+
+
+> **_NOTE:_** Each `extension` folder is a separately packaged module. If there are any issues with loading, make sure your module is packaged correctly.
