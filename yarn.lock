@@ -8848,10 +8848,10 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.npmjs.org/mkdirp/-/mkdirp-1.0.4.tgz"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mkdirp@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-2.0.0.tgz#1460f186644abf3b751e74f5ee82f47d191b586d"
-  integrity sha512-M9ecBPkCu6jZ+H19zruhjw/JB97qqVhyi1H2Lxxo2XAoIMdpHKQ8MfQiMzXk9SH/oJXIbM3oSAfLB8qSWJdCLA==
+mkdirp@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-2.1.2.tgz#51524af79237f3cd1345d3b9eec2e0458dcf520c"
+  integrity sha512-12UORspdR5q37RhJO1XasFrqNX3FbIbdtvNP2uHJJx6mhEXdNDaaCiXLiLGrqaKX1n6WvafTIIndZV2pJayNsg==
 
 mlly@^1.0.0:
   version "1.0.0"
