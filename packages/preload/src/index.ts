@@ -736,6 +736,10 @@ function initExposure(): void {
     return ipcInvoke('extension-loader:startExtension', extensionId);
   });
 
+  contextBridge.exposeInMainWorld('removeExtension', async (extensionId: string): Promise<void> => {
+    return ipcInvoke('extension-loader:removeExtension', extensionId);
+  });
+
   contextBridge.exposeInMainWorld('openExternal', async (link: string): Promise<void> => {
     return ipcInvoke('shell:openExternal', link);
   });
@@ -1004,6 +1008,57 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('sendFeedback', async (feedback: FeedbackProperties): Promise<void> => {
     return ipcInvoke('feedback:send', feedback);
+  });
+
+  let onDataCallbacksShellInContainerExtensionInstallId = 0;
+  const onDataCallbacksShellInContainerExtension = new Map<number, (data: string) => void>();
+  const onDataCallbacksShellInContainerExtensionError = new Map<number, (data: string) => void>();
+  const onDataCallbacksShellInContainerExtensionResolve = new Map<number, (value: void | PromiseLike<void>) => void>();
+
+  contextBridge.exposeInMainWorld(
+    'extensionInstallFromImage',
+    async (
+      imageName: string,
+      logCallback: (data: string) => void,
+      errorCallback: (data: string) => void,
+    ): Promise<void> => {
+      onDataCallbacksShellInContainerExtensionInstallId++;
+      onDataCallbacksShellInContainerExtension.set(onDataCallbacksShellInContainerExtensionInstallId, logCallback);
+      onDataCallbacksShellInContainerExtensionError.set(
+        onDataCallbacksShellInContainerExtensionInstallId,
+        errorCallback,
+      );
+      ipcRenderer.send(
+        'extension-installer:install-from-image',
+        imageName,
+        onDataCallbacksShellInContainerExtensionInstallId,
+      );
+
+      return new Promise(resolve => {
+        onDataCallbacksShellInContainerExtensionResolve.set(onDataCallbacksShellInContainerExtensionInstallId, resolve);
+      });
+    },
+  );
+
+  ipcRenderer.on('extension-installer:install-from-image-log', (_, callbackId: number, data: string) => {
+    const callback = onDataCallbacksShellInContainerExtension.get(callbackId);
+    if (callback) {
+      callback(data);
+    }
+  });
+
+  ipcRenderer.on('extension-installer:install-from-image-error', (_, callbackId: number, data: string) => {
+    const callback = onDataCallbacksShellInContainerExtensionError.get(callbackId);
+    if (callback) {
+      callback(data);
+    }
+  });
+
+  ipcRenderer.on('extension-installer:install-from-image-end', (_, callbackId: number) => {
+    const resolveCallback = onDataCallbacksShellInContainerExtensionResolve.get(callbackId);
+    if (resolveCallback) {
+      resolveCallback();
+    }
   });
 }
 

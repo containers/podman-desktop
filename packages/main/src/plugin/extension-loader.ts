@@ -54,6 +54,7 @@ export interface AnalyzedExtension {
   // main entry
   mainPath: string;
   api: typeof containerDesktopAPI;
+  removable: boolean;
 }
 
 export interface ActivatedExtension {
@@ -69,7 +70,8 @@ export class ExtensionLoader {
   private activatedExtensions = new Map<string, ActivatedExtension>();
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
   private extensionsStoragePath = '';
-
+  private pluginsDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins');
+  private pluginsScanDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins-scanning');
   constructor(
     private commandRegistry: CommandRegistry,
     private providerRegistry: ProviderRegistry,
@@ -98,6 +100,7 @@ export class ExtensionLoader {
       state: this.activatedExtensions.get(extension.id) ? 'active' : 'inactive',
       id: extension.id,
       path: extension.path,
+      removable: extension.removable,
     }));
   }
 
@@ -137,18 +140,29 @@ export class ExtensionLoader {
     // extract to an existing directory
     zipper.sync.unzip(filePath).save(unpackedDirectory);
 
-    await this.loadExtension(unpackedDirectory);
+    await this.loadExtension(unpackedDirectory, true);
     this.apiSender.send('extension-started', {});
+  }
+
+  async init(): Promise<void> {
+    // create pluginsDirectory if it does not exist
+    if (!fs.existsSync(this.pluginsDirectory)) {
+      fs.mkdirSync(this.pluginsDirectory, { recursive: true });
+    }
+
+    if (!fs.existsSync(this.pluginsScanDirectory)) {
+      fs.mkdirSync(this.pluginsScanDirectory, { recursive: true });
+    }
   }
 
   async start() {
     // add watcher to the $HOME/podman-desktop
-    const pluginsDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins');
-    if (fs.existsSync(pluginsDirectory)) {
+
+    if (fs.existsSync(this.pluginsScanDirectory)) {
       // add watcher
-      fs.watch(pluginsDirectory, (_, filename) => {
+      fs.watch(this.pluginsScanDirectory, (_, filename) => {
         // need to load the file
-        const packagedFile = path.resolve(pluginsDirectory, filename);
+        const packagedFile = path.resolve(this.pluginsScanDirectory, filename);
         setTimeout(() => this.loadPackagedFile(packagedFile), 1000);
       });
     }
@@ -168,7 +182,19 @@ export class ExtensionLoader {
       folders = await this.readDevelopmentFolders(path.join(__dirname, '../../../extensions'));
     }
     // ok now load all extensions from these folders
-    await Promise.all(folders.map(folder => this.loadExtension(folder)));
+    await Promise.all(folders.map(folder => this.loadExtension(folder, false)));
+
+    // also load extensions from the plugins directory
+    if (fs.existsSync(this.pluginsDirectory)) {
+      const pluginDirEntries = await fs.promises.readdir(this.pluginsDirectory, { withFileTypes: true });
+      // filter only directories ignoring node_modules directory
+      const pluginDirectories = pluginDirEntries
+        .filter(entry => entry.isDirectory())
+        .map(directory => this.pluginsDirectory + '/' + directory.name);
+
+      // ok now load all extensions from the pluginDirectory folders
+      await Promise.all(pluginDirectories.map(folder => this.loadExtension(folder, true)));
+    }
   }
 
   async readDevelopmentFolders(path: string): Promise<string[]> {
@@ -224,7 +250,7 @@ export class ExtensionLoader {
     }
   }
 
-  async loadExtension(extensionPath: string): Promise<void> {
+  async loadExtension(extensionPath: string, removable: boolean): Promise<void> {
     // load manifest
     const manifest = await this.loadManifest(extensionPath);
     this.overrideRequire();
@@ -238,6 +264,7 @@ export class ExtensionLoader {
       path: extensionPath,
       mainPath: path.resolve(extensionPath, manifest.main),
       api,
+      removable,
     };
 
     const extensionConfiguration = manifest?.contributes?.configuration;
@@ -575,11 +602,30 @@ export class ExtensionLoader {
   async startExtension(extensionId: string): Promise<void> {
     const extension = this.analyzedExtensions.get(extensionId);
     if (extension) {
-      await this.loadExtension(extension?.path);
+      await this.loadExtension(extension?.path, extension.removable);
+    }
+  }
+
+  async removeExtension(extensionId: string): Promise<void> {
+    const extension = this.analyzedExtensions.get(extensionId);
+    if (extension) {
+      await this.deactivateExtension(extensionId);
+      // delete the path
+      if (extension.removable) {
+        await fs.promises.rm(extension.path, { recursive: true, force: true });
+      } else {
+        throw new Error(`Extension ${extensionId} is not removable`);
+      }
+      this.analyzedExtensions.delete(extensionId);
+      this.apiSender.send('extension-removed', {});
     }
   }
 
   getConfigurationRegistry(): ConfigurationRegistry {
     return this.configurationRegistry;
+  }
+
+  getPluginsDirectory(): string {
+    return this.pluginsDirectory;
   }
 }

@@ -80,6 +80,7 @@ import { FilesystemMonitoring } from './filesystem-monitoring';
 import { Certificates } from './certificates';
 import { Proxy } from './proxy';
 import { EditorInit } from './editor-init';
+import { ExtensionInstaller } from './install/extension-installer';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -322,6 +323,7 @@ export class PluginSystem {
       proxy,
       containerProviderRegistry,
     );
+    await this.extensionLoader.init();
 
     const contributionManager = new ContributionManager(apiSender);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
@@ -826,6 +828,12 @@ export class PluginSystem {
         return this.extensionLoader.startExtension(extensionId);
       },
     );
+    this.ipcHandle(
+      'extension-loader:removeExtension',
+      async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
+        return this.extensionLoader.removeExtension(extensionId);
+      },
+    );
 
     this.ipcHandle(
       'shell:openExternal',
@@ -1009,6 +1017,9 @@ export class PluginSystem {
 
     const dockerExtensionAdapter = new DockerPluginAdapter(contributionManager);
     dockerExtensionAdapter.init();
+
+    const extensionInstaller = new ExtensionInstaller(apiSender, containerProviderRegistry, this.extensionLoader);
+    await extensionInstaller.init();
 
     await contributionManager.init();
 

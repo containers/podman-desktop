@@ -22,6 +22,7 @@ export interface ExtensionInfo {
   description: string;
   displayName: string;
   publisher: string;
+  removable: boolean;
   version: string;
   state: string;
   path: string;
