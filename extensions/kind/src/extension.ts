@@ -19,6 +19,7 @@
 import * as extensionApi from '@tmpwip/extension-api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import * as os from 'node:os';
 import { runCliCommand, detectKind } from './util';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
@@ -89,7 +90,7 @@ nodes:
 `;
 
     // create a temporary file
-    const tmpDirectory = await fs.promises.mkdtemp('/tmp/kind-cluster-config-');
+    const tmpDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'kind-cluster-config-'));
 
     // path to the file inside this directory
     const tmpFilePath = path.join(tmpDirectory, 'kind-cluster-config.yaml');
