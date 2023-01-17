@@ -9,7 +9,6 @@ import { Route, router } from 'tinro';
 
 import ContainerList from './lib/ContainerList.svelte';
 import { onMount } from 'svelte';
-import ExtensionList from './lib/ExtensionList.svelte';
 import ImagesList from './lib/ImagesList.svelte';
 import ProviderList from './lib/ProviderList.svelte';
 import Logo from './lib/logo/Logo.svelte';
@@ -143,10 +142,6 @@ window.events?.receive('display-help', () => {
         </Route>
         <Route path="/volumes/:name/:engineId/*" let:meta>
           <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
-        </Route>
-
-        <Route path="/extensions">
-          <ExtensionList />
         </Route>
         <Route path="/providers">
           <ProviderList />
