@@ -25,6 +25,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import type { v1 as dockerDesktopAPI } from '@docker/extension-api-client-types';
 
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
+import type { SimpleContainerInfo } from '../../main/src/plugin/api/container-info';
 import type { Dialog, OpenDialogResult } from '@docker/extension-api-client-types/dist/v1/dialog';
 import type { ExecStreamOptions, NavigationIntents, RequestConfig } from '@docker/extension-api-client-types/dist/v1';
 import { lines, parseJsonLines, parseJsonObject } from './exec-result-helper';
@@ -58,8 +59,8 @@ export class DockerExtensionPreload {
     return ipcInvoke('container-provider-registry:listImages', options);
   }
 
-  listContainers(options?: any): Promise<ImageInfo[]> {
-    return ipcInvoke('container-provider-registry:listContainers', options);
+  listContainers(options?: any): Promise<SimpleContainerInfo[]> {
+    return ipcInvoke('container-provider-registry:listSimpleContainers', options);
   }
 
   async exec(
