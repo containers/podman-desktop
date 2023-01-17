@@ -258,7 +258,7 @@ This is located in the `/extensions` folder.
 When creating a new extension, import the extension API: `import * as extensionApi from '@tmpwip/extension-api';` All functionality with Podman Desktop is communicated through this API including registering the new extension. The API is located [here](https://github.com/containers/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts).
 
 When loading an extension, Podman Desktop will:
-1. Search and load the `/src/extension.ts` file in the extension directory.
+1. Search and load the JavaScript file specified in `main` entry of the `package.json` file in the extension directory (typically `extension.js`).
 2. Run the exported `activate` function.
 
 When unloading an extension, Podman Desktop will:
