@@ -18,7 +18,8 @@
 
 import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
-import type { VolumeInfo, VolumeListInfo } from '../../../main/src/plugin/api/volume-info';
+import type { VolumeListInfo } from '../../../main/src/plugin/api/volume-info';
+import { findMatchInLeaves } from './search-util';
 export async function fetchVolumes() {
   const result = await window.listVolumes();
   volumeListInfos.set(result);
@@ -28,15 +29,13 @@ export const volumeListInfos: Writable<VolumeListInfo[]> = writable([]);
 
 export const searchPattern = writable('');
 
-function getName(volumeInfo: VolumeInfo) {
-  return JSON.stringify(volumeInfo).toLowerCase();
-}
-
 export const filtered = derived([searchPattern, volumeListInfos], ([$searchPattern, $volumeListInfos]) => {
   // returned object
   return $volumeListInfos.map(volumeInfo => {
     // list of volumes is filtered
-    const filteredVolumes = volumeInfo.Volumes.filter(volume => getName(volume).includes($searchPattern.toLowerCase()));
+    const filteredVolumes = volumeInfo.Volumes.filter(volume =>
+      findMatchInLeaves(volume, $searchPattern.toLowerCase()),
+    );
 
     const updatedVolumeInfo = {
       ...volumeInfo,

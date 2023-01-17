@@ -19,6 +19,7 @@
 import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
 import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
+import { findMatchInLeaves } from './search-util';
 export async function fetchImages() {
   const result = await window.listImages();
   imagesInfos.set(result);
@@ -28,12 +29,8 @@ export const imagesInfos: Writable<ImageInfo[]> = writable([]);
 
 export const searchPattern = writable('');
 
-function getName(imageInfo: ImageInfo) {
-  return JSON.stringify(imageInfo).toLowerCase();
-}
-
 export const filtered = derived([searchPattern, imagesInfos], ([$searchPattern, $imagesInfos]) =>
-  $imagesInfos.filter(imageInfo => getName(imageInfo).includes($searchPattern.toLowerCase())),
+  $imagesInfos.filter(imageInfo => findMatchInLeaves(imageInfo, $searchPattern.toLowerCase())),
 );
 
 // need to refresh when extension is started or stopped

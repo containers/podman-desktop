@@ -19,6 +19,7 @@
 import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
+import { findMatchInLeaves } from './search-util';
 
 export async function fetchContainers() {
   const result = await window.listContainers();
@@ -29,12 +30,8 @@ export const containersInfos: Writable<ContainerInfo[]> = writable([]);
 
 export const searchPattern = writable('');
 
-function getName(containerInfo: ContainerInfo) {
-  return JSON.stringify(containerInfo).toLowerCase();
-}
-
 export const filtered = derived([searchPattern, containersInfos], ([$searchPattern, $containersInfos]) =>
-  $containersInfos.filter(containerInfo => getName(containerInfo).includes($searchPattern.toLowerCase())),
+  $containersInfos.filter(containerInfo => findMatchInLeaves(containerInfo, $searchPattern.toLowerCase())),
 );
 
 // need to refresh when extension is started or stopped
