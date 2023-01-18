@@ -109,14 +109,16 @@ if (dropdownMenu) {
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
-  {#if (!detailed)}
-  <ListItemButtonIcon
-    title="Generate Kube"
-    onClick="{() => openGenerateKube()}"
-    menu="{dropdownMenu}"
-    hidden="{!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}"
-    detailed="{detailed}"
-    icon="{faFileCode}" />
+  {#if !detailed}
+    <ListItemButtonIcon
+      title="Generate Kube"
+      onClick="{() => openGenerateKube()}"
+      menu="{dropdownMenu}"
+      hidden="{!(
+        container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE
+      )}"
+      detailed="{detailed}"
+      icon="{faFileCode}" />
   {/if}
   <ListItemButtonIcon
     title="Deploy to Kubernetes"
@@ -132,14 +134,14 @@ if (dropdownMenu) {
     hidden="{!(container.state === 'RUNNING' && container.hasPublicPort)}"
     detailed="{detailed}"
     icon="{faExternalLinkSquareAlt}" />
-  {#if (!detailed)}
-  <ListItemButtonIcon
-    title="Open Terminal"
-    onClick="{() => openTerminalContainer(container)}"
-    menu="{dropdownMenu}"
-    hidden="{!(container.state === 'RUNNING')}"
-    detailed="{detailed}"
-    icon="{faTerminal}" />
+  {#if !detailed}
+    <ListItemButtonIcon
+      title="Open Terminal"
+      onClick="{() => openTerminalContainer(container)}"
+      menu="{dropdownMenu}"
+      hidden="{!(container.state === 'RUNNING')}"
+      detailed="{detailed}"
+      icon="{faTerminal}" />
   {/if}
   <ListItemButtonIcon
     title="Restart Container"

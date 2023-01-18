@@ -44,12 +44,12 @@ async function showLayersImage(): Promise<void> {
 {#if !image.inUse}
   <ListItemButtonIcon title="Delete Image" onClick="{() => deleteImage()}" detailed="{detailed}" icon="{faTrash}" />
 {/if}
-{#if (!detailed)}
-<ListItemButtonIcon
-  title="Show History"
-  onClick="{() => showLayersImage()}"
-  detailed="{detailed}"
-  icon="{faLayerGroup}" />
+{#if !detailed}
+  <ListItemButtonIcon
+    title="Show History"
+    onClick="{() => showLayersImage()}"
+    detailed="{detailed}"
+    icon="{faLayerGroup}" />
 {/if}
 
 {#if errorMessage}
