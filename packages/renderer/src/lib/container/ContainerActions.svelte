@@ -132,6 +132,7 @@ if (dropdownMenu) {
     hidden="{!(container.state === 'RUNNING' && container.hasPublicPort)}"
     detailed="{detailed}"
     icon="{faExternalLinkSquareAlt}" />
+  {#if (!detailed)}
   <ListItemButtonIcon
     title="Open Terminal"
     onClick="{() => openTerminalContainer(container)}"
@@ -139,6 +140,7 @@ if (dropdownMenu) {
     hidden="{!(container.state === 'RUNNING')}"
     detailed="{detailed}"
     icon="{faTerminal}" />
+  {/if}
   <ListItemButtonIcon
     title="Restart Container"
     onClick="{() => restartContainer(container)}"
