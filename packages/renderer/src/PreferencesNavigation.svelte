@@ -178,7 +178,8 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       class="pf-c-nav__item pf-m-expandable {addExpandedClass('extensionsCatalog')} {addCurrentClass(
         '/preferences/extensions',
       )} hover:text-gray-300 cursor-pointer items-center">
-      <button
+      <a
+        href="/preferences/extensions"
         class="pf-c-nav__link text-left"
         id="configuration-section-extensions-catalog"
         aria-expanded="{isAriaExpanded('extensionsCatalog')}"
@@ -189,7 +190,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
             <i class="fas fa-angle-right" aria-hidden="true"></i>
           </span>
         </span>
-      </button>
+      </a>
       <section class="pf-c-nav__subnav {addSectionHiddenClass('extensionsCatalog')}">
         <ul class="pf-c-nav__list">
           {#each extensions as extension}
