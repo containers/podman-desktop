@@ -1,7 +1,7 @@
 <script lang="ts">
-import type { Registry } from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { onMount } from 'svelte';
-import { registriesInfos } from '../../stores/registries';
+import { registriesInfos, registriesSuggestedInfos } from '../../stores/registries';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -10,7 +10,7 @@ import { faUserPen } from '@fortawesome/free-solid-svg-icons';
 
 // contains the original instances of registries when user clicks on `Edit password` menu item
 // to be able to roll back changes when `Cancel` button is clicked
-let originRegistries: Registry[] = [];
+let originRegistries: containerDesktopAPI.Registry[] = [];
 
 // login error responses
 let errorResponses: { serverUrl: string; error: string }[] = [];
@@ -27,13 +27,19 @@ let defaultProviderSourceName: string;
 // store password input fields to handle password showing trigger
 let passwordElements: { serverUrl: string; element: HTMLInputElement }[] = [];
 
+// List of suggested registries to show
+let suggestedRegistries: containerDesktopAPI.RegistrySuggestedProvider[] = [];
+
+// List of registries to keep track of hidden / unhidden inputs
+let listedSuggestedRegistries = [];
+
 // used when user tries to add new registry
 const newRegistryRequest = {
   source: '',
   serverUrl: '',
   username: '',
   secret: '',
-} as Registry;
+} as containerDesktopAPI.Registry;
 
 onMount(async () => {
   let providerSourceNames = await window.getImageRegistryProviderNames();
@@ -42,7 +48,11 @@ onMount(async () => {
   }
 });
 
-function markRegistryAsModified(registry: Registry) {
+$: {
+  suggestedRegistries;
+}
+
+function markRegistryAsModified(registry: containerDesktopAPI.Registry) {
   setPasswordForRegistryVisible(registry, false);
 
   // create a backup instance of registry with initial data to have an ability to roll back user changes
@@ -51,12 +61,12 @@ function markRegistryAsModified(registry: Registry) {
     serverUrl: registry.serverUrl,
     username: registry.username,
     secret: registry.secret,
-  } as Registry;
+  } as containerDesktopAPI.Registry;
 
   originRegistries = [...originRegistries, originRegistry];
 }
 
-function markRegistryAsClean(registry: Registry) {
+function markRegistryAsClean(registry: containerDesktopAPI.Registry) {
   let originRegistry = originRegistries.find(r => r.serverUrl === registry.serverUrl);
 
   registriesInfos.update(registries => {
@@ -82,7 +92,7 @@ function markRegistryAsClean(registry: Registry) {
   setPasswordForRegistryVisible(registry, false);
 }
 
-function setPasswordForRegistryVisible(registry: Registry, visible: boolean) {
+function setPasswordForRegistryVisible(registry: containerDesktopAPI.Registry, visible: boolean) {
   const serverUrl = registry === newRegistryRequest ? '' : registry.serverUrl;
   const index = showPasswordForServerUrls.findIndex(r => r === serverUrl);
 
@@ -115,19 +125,53 @@ function setErrorResponse(serverUrl: string, message: string | undefined) {
   }
 }
 
-function setNewRegistryFormVisible(visible: boolean) {
-  showNewRegistryForm = visible;
+function setNewSuggestedRegistryFormVisible(i: number, registry: containerDesktopAPI.RegistrySuggestedProvider) {
+  // Hide the new registry form if it's visible
+  setNewRegistryFormVisible(false);
 
-  if (!visible) {
-    clearErrorResponse(newRegistryRequest.serverUrl);
-    setPasswordForRegistryVisible(newRegistryRequest, false);
-    newRegistryRequest.serverUrl = '';
-    newRegistryRequest.username = '';
-    newRegistryRequest.secret = '';
-  }
+  // Hide all suggested registries (which also makes sure that we clear any saved credentials)
+  hideSuggestedRegistries();
+
+  // Set the value of the URL to the one we want to show
+  newRegistryRequest.serverUrl = registry.url;
+
+  // Unhide the one we want to show
+  listedSuggestedRegistries[i] = true;
 }
 
-async function loginToRegistry(registry: Registry) {
+// Separate function to hide everything and make sure that we clear any saved credentials
+function hideSuggestedRegistries() {
+  // Hide everythihng
+  listedSuggestedRegistries.forEach((_, index) => {
+    listedSuggestedRegistries[index] = false;
+  });
+
+  // Clear all usernames and passwords
+  clearSavedCredentials();
+}
+
+function setNewRegistryFormVisible(visible: boolean) {
+  // Hide any "suggested" registries which may be open
+  hideSuggestedRegistries();
+
+  // Cleared saved credentials before we show
+  if (!visible) {
+    clearSavedCredentials();
+  }
+
+  // Show the new registry form
+  showNewRegistryForm = visible;
+}
+
+function clearSavedCredentials() {
+  clearErrorResponse(newRegistryRequest.serverUrl);
+  setPasswordForRegistryVisible(newRegistryRequest, false);
+  newRegistryRequest.serverUrl = '';
+  newRegistryRequest.username = '';
+  newRegistryRequest.secret = '';
+}
+
+async function loginToRegistry(registry: containerDesktopAPI.Registry) {
   clearErrorResponse(registry.serverUrl);
   setPasswordForRegistryVisible(registry, false);
 
@@ -154,12 +198,12 @@ async function loginToRegistry(registry: Registry) {
   }
 }
 
-function removeExistingRegistry(registry: Registry) {
+function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
   window.unregisterImageRegistry(registry);
   setPasswordForRegistryVisible(registry, false);
 }
 
-const processPasswordElement = (node: HTMLInputElement, registry: Registry) => {
+const processPasswordElement = (node: HTMLInputElement, registry: containerDesktopAPI.Registry) => {
   const serverUrl = registry === newRegistryRequest ? '' : registry.serverUrl;
   passwordElements = [...passwordElements, { serverUrl: serverUrl, element: node }];
 
@@ -183,11 +227,13 @@ const processPasswordElement = (node: HTMLInputElement, registry: Registry) => {
       </div>
 
       {#each $registriesInfos as registry}
-        <!-- Registry row start -->
+        <!-- containerDesktopAPI.Registry row start -->
         <div class="flex flex-col w-full border-t border-gray-600">
           <div class="flex flex-row">
             <!-- Server URL -->
-            <div class="flex-1 pt-2 pb-2 pl-10 text-sm w-auto m-auto">{registry.serverUrl}</div>
+            <!-- Always remove 'https' being shown since we do not support http being added anyways 
+            as sometimes the user may add either quay.io or https://quay.io to the list of registries-->
+            <div class="flex-1 pt-2 pb-2 pl-10 text-sm w-auto m-auto">{registry.serverUrl.replace('https://', '')}</div>
 
             <!-- Username -->
             <div class="pt-2 pb-2 text-sm w-1/4 m-auto">
@@ -300,7 +346,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: Registry) => {
                     {/if}
                   </div>
                   <!-- Show/hide password end -->
-                  <!-- Registry menu start -->
+                  <!-- containerDesktopAPI.Registry menu start -->
                   <DropdownMenu>
                     <DropdownMenuItem
                       title="Login"
@@ -329,17 +375,130 @@ const processPasswordElement = (node: HTMLInputElement, registry: Registry) => {
             </span>
           </div>
         </div>
-        <!-- Registry row end -->
+        <!-- containerDesktopAPI.Registry row end -->
+      {/each}
+
+      {#each $registriesSuggestedInfos as registry, i (registry)}
+        <!-- Add new registry form start -->
+        <div class="flex flex-col w-full border-t border-gray-600">
+          <div class="flex flex-row">
+            <div class="flex-1 pt-2 pl-10 pr-5 text-sm w-auto m-auto">
+              <div class="flex items-center w-full h-full">
+                <div class="flex items-center">
+                  {#if registry.icon}
+                    <img
+                      alt="{registry.name}"
+                      src="{'data:image/png;base64,' + registry.icon}"
+                      width="24"
+                      height="24" />
+                  {/if}
+                  <!-- By defualt, just show the name, but if we go to add it, show the full URL including https -->
+                  <span class="ml-2 text-gray-400">
+                    {#if listedSuggestedRegistries[i]}
+                      https://{registry.url}
+                    {:else}
+                      {registry.name}
+                    {/if}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="flex pt-4 pb-2 pr-5 text-sm w-1/4">
+              {#if listedSuggestedRegistries[i]}
+                <input
+                  type="text"
+                  placeholder="Username"
+                  bind:value="{newRegistryRequest.username}"
+                  class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none" />
+              {:else}
+                <span class="text-gray-400"> Registry suggested by extension </span>
+              {/if}
+            </div>
+            <div class="pt-4 pb-2 text-sm w-2/5">
+              <div class="flex flex-row">
+                <div class="relative flex-1 mr-5">
+                  {#if listedSuggestedRegistries[i]}
+                    <div class="absolute inset-y-0 right-0 flex items-center">
+                      <input
+                        id="password-toggle-new-registry"
+                        class="hidden"
+                        type="checkbox"
+                        value="false"
+                        tabindex="-1"
+                        on:change="{() =>
+                          setPasswordForRegistryVisible(
+                            newRegistryRequest,
+                            !showPasswordForServerUrls.some(r => r === ''),
+                          )}" />
+                      <label class="px-2 py-1 text text-gray-600 cursor-pointer" for="password-toggle-new-registry">
+                        {#if showPasswordForServerUrls.some(r => r === '')}
+                          <i class="fas fa-eye-slash"></i>
+                        {:else}
+                          <i class="fas fa-eye"></i>
+                        {/if}
+                      </label>
+                    </div>
+                    <input
+                      use:processPasswordElement="{newRegistryRequest}"
+                      type="password"
+                      placeholder="Password"
+                      bind:value="{newRegistryRequest.secret}"
+                      class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none pr-10" />
+                  {/if}
+                </div>
+
+                <div class="flex text-sm">
+                  {#if listedSuggestedRegistries[i]}
+                    <button
+                      on:click="{() => loginToRegistry(newRegistryRequest)}"
+                      disabled="{!newRegistryRequest.serverUrl ||
+                        !newRegistryRequest.username ||
+                        !newRegistryRequest.secret}"
+                      class="inline pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center"
+                      type="button">
+                      Login
+                    </button>
+                  {/if}
+                </div>
+                <div class="flex text-sm">
+                  {#if listedSuggestedRegistries[i]}
+                    <button
+                      on:click="{() => hideSuggestedRegistries()}"
+                      class="transition ease-in-out delay-50 hover:cursor-pointer h-full justify-center w-16"
+                      type="button">
+                      Cancel
+                    </button>
+                  {:else}
+                    <button
+                      on:click="{() => setNewSuggestedRegistryFormVisible(i, registry)}"
+                      class="inline pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center"
+                      type="button">
+                      Add
+                    </button>
+                  {/if}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-row w-full pb-3 -mt-2 pl-10">
+            {#if listedSuggestedRegistries[i]}
+              <span class="text-sm font-bold whitespace-pre-line">
+                {errorResponses.find(o => o.serverUrl === newRegistryRequest.serverUrl)?.error || ''}
+              </span>
+            {/if}
+          </div>
+        </div>
+        <!-- Add new registry form end -->
       {/each}
 
       {#if showNewRegistryForm}
         <!-- Add new registry form start -->
         <div class="flex flex-col w-full border-t border-gray-600">
           <div class="flex flex-row">
-            <div class="flex-1 pt-2 pl-12 pr-5 text-sm w-auto m-auto">
+            <div class="flex-1 pt-2 pl-10 pr-5 text-sm w-auto m-auto">
               <input
                 type="text"
-                placeholder="e.g. quay.io, docker.io"
+                placeholder="URL (HTTPS only)"
                 bind:value="{newRegistryRequest.serverUrl}"
                 class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none" />
             </div>
@@ -403,7 +562,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: Registry) => {
               </div>
             </div>
           </div>
-          <div class="flex flex-row w-full pb-3 -mt-2 pl-12">
+          <div class="flex flex-row w-full pb-3 -mt-2 pl-10">
             <span class="text-sm font-bold whitespace-pre-line">
               {errorResponses.find(o => o.serverUrl === newRegistryRequest.serverUrl)?.error || ''}
             </span>

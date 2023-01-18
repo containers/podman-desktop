@@ -1,0 +1,35 @@
+{
+  "name": "registries",
+  "displayName": "Registries",
+  "description": "Package a list of default registries for Podman Desktop to consume such as Quay, DockerHub, GitHub, etc. All of which will be listed under the Registries section of Podman Desktop settings.",
+  "version": "0.0.1",
+  "icon": "icon.png",
+  "publisher": "cdrage",
+  "license": "Apache-2.0",
+  "engines": {
+    "podman-desktop": "^0.0.1"
+  },
+  "main": "./dist/extension.js",
+  "source": "./src/extension.ts",
+  "contributes": {
+    "commands": [
+      {
+        "command": "registries.info",
+        "title": "registries: Specific info about registries"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "rollup --bundleConfigAsCjs --config rollup.config.js --compact --environment BUILD:production  && node ./scripts/build.js",
+    "watch": "rollup --bundleConfigAsCjs --config rollup.config.js -w"
+  },
+  "dependencies": {
+    "@tmpwip/extension-api": "^0.0.1",
+    "got": "^12.5.3"
+  },
+  "devDependencies": {
+    "7zip-min": "^1.4.3",
+    "mkdirp": "^1.0.4",
+    "zip-local": "^0.3.5"
+  }
+}

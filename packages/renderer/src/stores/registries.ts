@@ -16,16 +16,32 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Registry } from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 
 export async function fetchRegistries() {
-  const result = await window.getImageRegistries();
-  registriesInfos.set(result);
+  const registries = await window.getImageRegistries();
+  registriesInfos.set(registries);
+
+  const suggestedRegistries = await window.getImageSuggestedRegistries();
+
+  // Filter out registries from suggestedRegistries that already exist in registries list
+  // we'll compare the URLs of the registries
+  const filteredSuggested = suggestedRegistries.filter(suggested => {
+    // Ignore 'https' because we don't support http anyways and user may input https into list of registries
+    const found = registries.find(registry => registry.serverUrl.replace('https://', '') === suggested.url);
+    return !found;
+  });
+
+  registriesSuggestedInfos.set(filteredSuggested);
 }
 
-export const registriesInfos: Writable<readonly Registry[]> = writable([]);
+export const registriesInfos: Writable<readonly containerDesktopAPI.Registry[]> = writable([]);
+
+export const registriesSuggestedInfos: Writable<readonly containerDesktopAPI.RegistrySuggestedProvider[]> = writable(
+  [],
+);
 
 export const searchPattern = writable('');
 
