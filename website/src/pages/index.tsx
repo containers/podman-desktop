@@ -202,13 +202,14 @@ function Extensibility() {
           <ul className="list-disc list-inside text-center">
             <li>Container engines are plugged through extension points</li>
             <li>JavaScript extensions can contribute new behaviour</li>
-            <li>Reuse existing extensions directly in Podman Desktop</li>
+            <li>Reuse existing extensions such as Trivy and OpenShift directly in Podman Desktop</li>
           </ul>
 
           <div className="flex flex-col items-center">
             <div className="text-left my-4">
               <p className="-ml-5 text-base">
-                Current Podman Desktop plug-ins: Podman, Docker, Lima and CRC/OpenShift Local.
+                Current Podman Desktop plugins: Podman, Docker, Lima, Kubernetes, and OpenShift Local with the Podman
+                preset.
               </p>
             </div>
           </div>
@@ -305,7 +306,7 @@ function Configure() {
                   Container Engines
                 </h2>
                 <p className="leading-relaxed text-base">
-                  Handle multiple container engines at the same time (Podman, Docker, Lima...).
+                  Handle multiple container engines at the same time: Podman, Docker, and Lima.
                 </p>
               </div>
             </div>
