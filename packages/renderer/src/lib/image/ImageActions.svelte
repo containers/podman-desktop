@@ -44,11 +44,13 @@ async function showLayersImage(): Promise<void> {
 {#if !image.inUse}
   <ListItemButtonIcon title="Delete Image" onClick="{() => deleteImage()}" detailed="{detailed}" icon="{faTrash}" />
 {/if}
+{#if (!detailed)}
 <ListItemButtonIcon
   title="Show History"
   onClick="{() => showLayersImage()}"
   detailed="{detailed}"
   icon="{faLayerGroup}" />
+{/if}
 
 {#if errorMessage}
   <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="{0}">

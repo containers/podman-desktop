@@ -109,6 +109,7 @@ if (dropdownMenu) {
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
+  {#if (!detailed)}
   <ListItemButtonIcon
     title="Generate Kube"
     onClick="{() => openGenerateKube()}"
@@ -116,6 +117,7 @@ if (dropdownMenu) {
     hidden="{!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}"
     detailed="{detailed}"
     icon="{faFileCode}" />
+  {/if}
   <ListItemButtonIcon
     title="Deploy to Kubernetes"
     onClick="{() => deployToKubernetes()}"
