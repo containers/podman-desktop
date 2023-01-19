@@ -3499,10 +3499,10 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/svelte/-/svelte-3.0.0.tgz#b06e059209f04c414de0069f2f0e2796d979fc6f"
   integrity sha512-pYrtLtOwku/7r1i9AMONsJMVYAtk3hzOfiGNekhtq5tYBGA7unMve8RvUclKLMT3PrihvJqUmzsRGh0RP84hKg==
 
-"@types/analytics-node@^3.1.9":
-  version "3.1.9"
-  resolved "https://registry.yarnpkg.com/@types/analytics-node/-/analytics-node-3.1.9.tgz#1b71e485658dc5501f72a35fdcf30b857a90db9c"
-  integrity sha512-C7L7/Dd/CmBST7AvgoCnf4yI9h6W5aYfCOcfUZS5GHlXDQjnXLVOUDpTdwTIZjW4lKECeil6+G+Ul6Xzwv/P0g==
+"@types/analytics-node@^3.1.10":
+  version "3.1.10"
+  resolved "https://registry.yarnpkg.com/@types/analytics-node/-/analytics-node-3.1.10.tgz#6845a605e5ce720f9cea37eaf405100fdbc5b841"
+  integrity sha512-dvn8iy2EQZDlQGgRNT9SW2Ljn9L3VgwcrpJvonufnNygZWB1XEufXNvDhUtwNUqNyHhD0hbDCCFb9j+B7vE5cA==
 
 "@types/aws-lambda@^8.10.83":
   version "8.10.97"
