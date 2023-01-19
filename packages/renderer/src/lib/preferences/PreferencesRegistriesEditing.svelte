@@ -187,7 +187,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: Registry) => {
         <div class="flex flex-col w-full border-t border-gray-600">
           <div class="flex flex-row">
             <!-- Server URL -->
-            <div class="flex-1 pt-2 pb-2 pl-12 text-sm w-auto m-auto">{registry.serverUrl}</div>
+            <div class="flex-1 pt-2 pb-2 pl-10 text-sm w-auto m-auto">{registry.serverUrl}</div>
 
             <!-- Username -->
             <div class="pt-2 pb-2 text-sm w-1/4 m-auto">
