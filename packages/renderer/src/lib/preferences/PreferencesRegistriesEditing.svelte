@@ -230,10 +230,29 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
         <!-- containerDesktopAPI.Registry row start -->
         <div class="flex flex-col w-full border-t border-gray-600">
           <div class="flex flex-row">
-            <!-- Server URL -->
-            <!-- Always remove 'https' being shown since we do not support http being added anyways 
-            as sometimes the user may add either quay.io or https://quay.io to the list of registries-->
-            <div class="flex-1 pt-2 pb-2 pl-10 text-sm w-auto m-auto">{registry.serverUrl.replace('https://', '')}</div>
+            <div class="flex-1 pt-2 pl-10 pr-5 text-sm w-auto m-auto">
+              <div class="flex items-center w-full h-full">
+                <div class="flex items-center">
+                  <!-- Only show if a "suggested" registry icon has been added -->
+                  {#if registry.icon}
+                    <img
+                      alt="{registry.name}"
+                      src="{'data:image/png;base64,' + registry.icon}"
+                      width="24"
+                      height="24" />
+                  {/if}
+                  {#if registry.name}
+                    <span class="ml-2">
+                      {registry.name}
+                    </span>
+                  {:else}
+                    <span class="ml-0">
+                      {registry.serverUrl.replace('https://', '')}
+                    </span>
+                  {/if}
+                </div>
+              </div>
+            </div>
 
             <!-- Username -->
             <div class="pt-2 pb-2 text-sm w-1/4 m-auto">

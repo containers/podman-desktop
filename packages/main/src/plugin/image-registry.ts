@@ -158,6 +158,20 @@ export class ImageRegistry {
 
     // Otherwise, lets add it to the list of suggested registries
     this.suggestedRegistries.push(registry);
+
+    // Fire an update to the UI to add the suggested registry (needed if we added an extension reactively that includes the API call)
+    this.apiSender.send('registry-update', registry);
+  }
+
+  unsuggestRegistry(registry: containerDesktopAPI.RegistrySuggestedProvider): void {
+    // Find the registry within this.suggestedRegistries[] and remove it
+    const index = this.suggestedRegistries.findIndex(reg => reg.url === registry.url && reg.name === registry.name);
+    if (index > -1) {
+      this.suggestedRegistries.splice(index, 1);
+    }
+
+    // Fire an update to the UI to remove the suggested registry
+    this.apiSender.send('registry-update', registry);
   }
 
   unregisterRegistry(registry: containerDesktopAPI.Registry): void {

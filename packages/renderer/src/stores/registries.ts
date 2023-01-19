@@ -22,18 +22,28 @@ import { writable } from 'svelte/store';
 
 export async function fetchRegistries() {
   const registries = await window.getImageRegistries();
-  registriesInfos.set(registries);
-
   const suggestedRegistries = await window.getImageSuggestedRegistries();
 
-  // Filter out registries from suggestedRegistries that already exist in registries list
-  // we'll compare the URLs of the registries
+  // Before we set the registry, let's try and find an appropriate icon and name.
+  // Go through each registry, search if it's within the "suggestedRegistry" list,
+  // this means that Podman Desktop has a suggested icon and name for this registry.
+  // If so, let's update the list.
+  registries.forEach(registry => {
+    const found = suggestedRegistries.find(suggested => suggested.url === registry.serverUrl.replace('https://', ''));
+    if (found) {
+      registry.icon = found.icon;
+      registry.name = found.name;
+    }
+  });
+  registriesInfos.set(registries);
+
+  // Filter out registries from suggestedRegistries so we do not repeat suggesting them when the user already has
+  // credentials added.
   const filteredSuggested = suggestedRegistries.filter(suggested => {
     // Ignore 'https' because we don't support http anyways and user may input https into list of registries
     const found = registries.find(registry => registry.serverUrl.replace('https://', '') === suggested.url);
     return !found;
   });
-
   registriesSuggestedInfos.set(filteredSuggested);
 }
 
@@ -57,6 +67,7 @@ window.events?.receive('registry-unregister', () => {
 window.events?.receive('registry-update', () => {
   fetchRegistries();
 });
+
 window.addEventListener('system-ready', () => {
   fetchRegistries();
 });

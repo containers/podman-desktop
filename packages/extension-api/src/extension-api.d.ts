@@ -375,6 +375,10 @@ declare module '@tmpwip/extension-api' {
 
   export interface Registry extends RegistryCreateOptions {
     source: string;
+
+    // Optional name and icon for the registry when it's being added (used for display within the UI)
+    name?: string;
+    icon?: string;
   }
 
   export interface RegistryCreateOptions {
@@ -402,6 +406,10 @@ declare module '@tmpwip/extension-api' {
 
     // suggest a registry to be included on the registry settings page
     export function suggestRegistry(registry: RegistrySuggestedProvider): void;
+
+    // unsuggest a registry to be included on the registry settings page
+    // this is useful if the registry is no longer available or we are disabling the registries extension
+    export function unsuggestRegistry(registry: RegistrySuggestedProvider): void;
 
     export const onDidRegisterRegistry: Event<Registry>;
     export const onDidUpdateRegistry: Event<Registry>;

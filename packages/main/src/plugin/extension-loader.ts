@@ -378,6 +378,10 @@ export class ExtensionLoader {
         return imageRegistry.suggestRegistry(registry);
       },
 
+      unsuggestRegistry: (registry: containerDesktopAPI.RegistrySuggestedProvider): void => {
+        return imageRegistry.unsuggestRegistry(registry);
+      },
+
       unregisterRegistry: (registry: containerDesktopAPI.Registry): void => {
         return imageRegistry.unregisterRegistry(registry);
       },

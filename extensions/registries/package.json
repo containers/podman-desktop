@@ -3,7 +3,6 @@
   "displayName": "Registries",
   "description": "Package a list of default registries for Podman Desktop to consume such as Quay, DockerHub, GitHub, etc. All of which will be listed under the Registries section of Podman Desktop settings.",
   "version": "0.0.1",
-  "icon": "icon.png",
   "publisher": "cdrage",
   "license": "Apache-2.0",
   "engines": {
@@ -30,6 +29,7 @@
   "devDependencies": {
     "7zip-min": "^1.4.3",
     "mkdirp": "^1.0.4",
+    "rollup-plugin-copy": "^3.4.0",
     "zip-local": "^0.3.5"
   }
 }
