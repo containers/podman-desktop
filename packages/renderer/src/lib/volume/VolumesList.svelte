@@ -199,12 +199,12 @@ function openDetailsVolume(volume: VolumeInfoUI) {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-200">{volume.humanCreationDate}</div>
+                <div class="text-sm text-gray-400">{volume.humanCreationDate}</div>
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex">
-                <div class="w-full text-right text-sm text-gray-200">{volume.humanSize}</div>
+                <div class="w-full text-right text-sm text-gray-400">{volume.humanSize}</div>
               </div>
             </td>
             <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg pr-1">
