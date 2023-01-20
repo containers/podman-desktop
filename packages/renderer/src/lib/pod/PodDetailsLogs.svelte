@@ -7,6 +7,7 @@ import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
 import type { PodInfoUI } from './PodInfoUI';
+import { isMultiplexedLog } from '../stream/stream-utils';
 
 export let pod: PodInfoUI;
 
@@ -88,7 +89,15 @@ async function fetchPodLogs() {
     const logsCallback = (name: string, data: string) => {
       const padding = ' '.repeat(maxNameLength - container.Names.length);
       const colouredName = colourizedContainerName.get(container.Names);
-      callback(name, `${colouredName} ${padding} | ${data.substring(8)}`);
+
+      let content;
+      if (isMultiplexedLog(data)) {
+        content = data.substring(8);
+      } else {
+        content = data;
+      }
+
+      callback(name, `${colouredName} ${padding} | ${content}`);
     };
 
     // Get the logs for the container and set logsReady as true
