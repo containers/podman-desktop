@@ -25,28 +25,19 @@ export class PodUtils {
     return (podinfo.Status || '').toUpperCase();
   }
 
-  getUptime(podinfo: PodInfo): string {
-    if (podinfo.Status.toUpperCase() !== 'RUNNING' || !podinfo.Created) {
-      return '';
-    }
-
-    // make it human friendly
-    return `${this.humanizeUptime(podinfo.Created)} ago`;
-  }
-
-  humanizeUptime(started: string): string {
+  humanizeAge(started: string): string {
     // get start time in ms
     const uptimeInMs = moment().diff(started);
     // make it human friendly
     return humanizeDuration(uptimeInMs, { round: true, largest: 1 });
   }
 
-  refreshUptime(podInfoUI: PodInfoUI): string {
+  refreshAge(podInfoUI: PodInfoUI): string {
     if (podInfoUI.status !== 'RUNNING' || !podInfoUI.created) {
       return '';
     }
     // make it human friendly
-    return `${this.humanizeUptime(podInfoUI.created)} ago`;
+    return this.humanizeAge(podInfoUI.created);
   }
 
   getEngineId(podinfo: PodInfo): string {
@@ -64,7 +55,7 @@ export class PodUtils {
       name: podinfo.Name,
       status: this.getStatus(podinfo),
       created: podinfo.Created,
-      humanCreationDate: this.getUptime(podinfo),
+      age: this.humanizeAge(podinfo.Created),
       engineId: this.getEngineId(podinfo),
       engineName: this.getEngineName(podinfo),
       containers: podinfo.Containers,

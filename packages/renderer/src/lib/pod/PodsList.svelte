@@ -14,6 +14,7 @@ import PodEmptyScreen from './PodEmptyScreen.svelte';
 import PodIcon from '../container/PodIcon.svelte';
 import PodActions from './PodActions.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
+import moment from 'moment';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -41,11 +42,11 @@ $: selectedAllCheckboxes = pods.every(pod => pod.selected);
 
 let allChecked = false;
 
+const podUtils = new PodUtils();
+
 let podsUnsubscribe: Unsubscriber;
 onMount(async () => {
   podsUnsubscribe = filtered.subscribe(value => {
-    const podUtils = new PodUtils();
-
     const computedPods = value.map((podInfo: PodInfo) => podUtils.getPodInfoUI(podInfo)).flat();
 
     // multiple engines ?
@@ -66,10 +67,18 @@ onMount(async () => {
       }
     });
     pods = computedPods;
+
+    // compute refresh interval
+    const interval = computeInterval();
+    refreshTimeouts.push(setTimeout(refreshAge, interval));
   });
 });
 
 onDestroy(() => {
+  // kill timers
+  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.length = 0;
+
   // unsubscribe from the store
   if (podsUnsubscribe) {
     podsUnsubscribe();
@@ -109,6 +118,51 @@ function openDetailsPod(pod: PodInfoUI) {
 
 function openContainersFromPod(pod: PodInfoUI) {
   router.goto(`/containers/?filter=${pod.shortId}`);
+}
+
+let refreshTimeouts: NodeJS.Timeout[] = [];
+const SECOND = 1000;
+function refreshAge() {
+  pods = pods.map(podInfo => {
+    return { ...podInfo, age: podUtils.refreshAge(podInfo) };
+  });
+
+  // compute new interval
+  const newInterval = computeInterval();
+  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.length = 0;
+  refreshTimeouts.push(setTimeout(refreshAge, newInterval));
+}
+
+function computeInterval(): number {
+  // no pods, no refresh
+  if (pods.length === 0) {
+    return -1;
+  }
+
+  // do we have pods that have been created in less than 1 minute
+  // if so, need to update every second
+  const podsCreatedInLessThan1Mn = pods.filter(pod => moment().diff(pod.created, 'minutes') < 1);
+  if (podsCreatedInLessThan1Mn.length > 0) {
+    return 2 * SECOND;
+  }
+
+  // every minute for pods created less than 1 hour
+  const podsCreatedInLessThan1Hour = pods.filter(volume => moment().diff(volume.created, 'hours') < 1);
+  if (podsCreatedInLessThan1Hour.length > 0) {
+    // every minute
+    return 60 * SECOND;
+  }
+
+  // every hour for pods created less than 1 day
+  const podsCreatedInLessThan1Day = pods.filter(volume => moment().diff(volume.created, 'days') < 1);
+  if (podsCreatedInLessThan1Day.length > 0) {
+    // every hour
+    return 60 * 60 * SECOND;
+  }
+
+  // every day
+  return 60 * 60 * 24 * SECOND;
 }
 </script>
 
@@ -164,7 +218,7 @@ function openContainersFromPod(pod: PodInfoUI) {
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
-          <th class="whitespace-nowrap px-6">Creation date</th>
+          <th class="whitespace-nowrap px-6">age</th>
           <th class="text-right pr-2">Actions</th>
         </tr>
       </thead>
@@ -219,7 +273,7 @@ function openContainersFromPod(pod: PodInfoUI) {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-200">{pod.humanCreationDate}</div>
+                <div class="text-sm text-gray-200">{pod.age}</div>
               </div>
             </td>
 
