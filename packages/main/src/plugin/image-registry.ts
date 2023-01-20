@@ -147,20 +147,24 @@ export class ImageRegistry {
     });
   }
 
-  suggestRegistry(registry: containerDesktopAPI.RegistrySuggestedProvider): void {
+  suggestRegistry(registry: containerDesktopAPI.RegistrySuggestedProvider): Disposable {
     // Do not add it to the list if it's already been suggested by name & URL (Quay, DockerHub, etc.).
     // this may have been done by another extension.
     if (this.suggestedRegistries.find(reg => reg.url === registry.url && reg.name === registry.name)) {
       // Ignore and don't register
       console.log(`Registry already registered: ${registry.url}`);
-      return;
+
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      return Disposable.create(() => {});
     }
 
-    // Otherwise, lets add it to the list of suggested registries
     this.suggestedRegistries.push(registry);
-
-    // Fire an update to the UI to add the suggested registry (needed if we added an extension reactively that includes the API call)
     this.apiSender.send('registry-update', registry);
+
+    // Create a disposable to remove the registry from the list
+    return Disposable.create(() => {
+      this.unsuggestRegistry(registry);
+    });
   }
 
   unsuggestRegistry(registry: containerDesktopAPI.RegistrySuggestedProvider): void {
