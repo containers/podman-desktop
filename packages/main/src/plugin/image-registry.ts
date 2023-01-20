@@ -152,7 +152,7 @@ export class ImageRegistry {
     // this may have been done by another extension.
     if (this.suggestedRegistries.find(reg => reg.url === registry.url && reg.name === registry.name)) {
       // Ignore and don't register
-      console.log('Registry already registered: ' + registry.url);
+      console.log(`Registry already registered: ${registry.url}`);
       return;
     }
 

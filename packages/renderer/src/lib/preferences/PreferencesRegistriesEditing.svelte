@@ -429,8 +429,6 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                   placeholder="Username"
                   bind:value="{newRegistryRequest.username}"
                   class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none" />
-              {:else}
-                <span class="text-gray-400"> Registry suggested by extension </span>
               {/if}
             </div>
             <div class="pt-4 pb-2 text-sm w-2/5">
