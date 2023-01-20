@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
+import { Menu } from 'electron';
 import { BrowserWindow, ipcMain, app, dialog, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
+const { aboutMenuItem } = require('electron-util');
 import { join } from 'path';
 import { URL } from 'url';
 import type { ConfigurationRegistry } from './plugin/configuration-registry';
@@ -164,6 +166,29 @@ async function createWindow() {
       }
     },
   });
+
+  // Add help/about menu entry
+  const menu = Menu.getApplicationMenu(); // get default menu
+  if (menu) {
+    // build a new menu based on default one but adding about entry in the help menu
+    const newmenu = Menu.buildFromTemplate(
+      menu.items.map(i => {
+        // add the About entry only in the help menu
+        if (i.role === 'help' && i.submenu) {
+          const aboutMenuSubItem = aboutMenuItem({});
+          aboutMenuSubItem.label = 'About';
+
+          // create new submenu
+          // also add a separator before the About entry
+          const newSubMenu = Menu.buildFromTemplate([...i.submenu.items, { type: 'separator' }, aboutMenuSubItem]);
+          return Object.assign({}, i, { submenu: newSubMenu });
+        }
+        return i;
+      }),
+    );
+
+    Menu.setApplicationMenu(newmenu);
+  }
 
   /**
    * URL for main window.
