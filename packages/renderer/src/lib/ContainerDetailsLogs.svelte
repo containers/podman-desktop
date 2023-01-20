@@ -8,6 +8,8 @@ import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from './color/color';
 
+import { isMultiplexedLog } from './stream/stream-utils';
+
 export let container: ContainerInfoUI;
 
 // Log
@@ -40,10 +42,12 @@ function callback(name: string, data: string) {
     logsTerminal?.clear();
   } else if (name === 'data') {
     noLogs = false;
-    const printHelp = data.charCodeAt(0);
-    // 1: STDOUT
-    // 2: STDERR
-    logsTerminal?.write(data.substring(8) + '\r');
+
+    if (isMultiplexedLog(data)) {
+      logsTerminal?.write(data.substring(8) + '\r');
+    } else {
+      logsTerminal?.write(data + '\r');
+    }
   }
 }
 
