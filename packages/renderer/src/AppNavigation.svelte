@@ -9,10 +9,10 @@ import { volumeListInfos } from './stores/volumes';
 import { ImageUtils } from './lib/image/image-utils';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { ImageInfoUI } from './lib/image/ImageInfoUI';
-import ContainerIcon from './lib/logo/ContainerIcon.svelte';
-import PodIcon from './lib/logo/PodIcon.svelte';
-import ImageIcon from './lib/logo/ImageIcon.svelte';
-import VolumeIcon from './lib/logo/VolumeIcon.svelte';
+import ContainerIcon from './lib/images/ContainerIcon.svelte';
+import PodIcon from './lib/images/PodIcon.svelte';
+import ImageIcon from './lib/images/ImageIcon.svelte';
+import VolumeIcon from './lib/images/VolumeIcon.svelte';
 
 let containersCountValue;
 let imageInfoSubscribe;
