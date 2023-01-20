@@ -11,7 +11,7 @@ import ContainerList from './lib/ContainerList.svelte';
 import { onMount } from 'svelte';
 import ImagesList from './lib/ImagesList.svelte';
 import ProviderList from './lib/ProviderList.svelte';
-import Logo from './lib/logo/Logo.svelte';
+import Logo from './lib/images/Logo.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
 import PullImage from './lib/image/PullImage.svelte';
