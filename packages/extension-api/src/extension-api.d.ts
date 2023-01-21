@@ -407,10 +407,6 @@ declare module '@tmpwip/extension-api' {
     // suggest a registry to be included on the registry settings page
     export function suggestRegistry(registry: RegistrySuggestedProvider): Disposable;
 
-    // unsuggest a registry to be included on the registry settings page
-    // this is useful if the registry is no longer available or we are disabling the registries extension
-    export function unsuggestRegistry(registry: RegistrySuggestedProvider): void;
-
     export const onDidRegisterRegistry: Event<Registry>;
     export const onDidUpdateRegistry: Event<Registry>;
     export const onDidUnregisterRegistry: Event<Registry>;

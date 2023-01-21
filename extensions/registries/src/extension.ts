@@ -40,12 +40,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 }
 
 export function deactivate(): void {
-  // For each defaultRegistries, suggest the registry to Podman Desktop
-  defaultRegistries.forEach(registry => {
-    extensionApi.registry.unsuggestRegistry(registry);
-  });
-
-  console.log('stopping registries extension and clearing suggested registries');
+  console.log('stopping registries extension');
 }
 
 // Const array of list of approved registries that contain the default URL as well as base64 encoded version of their logo
