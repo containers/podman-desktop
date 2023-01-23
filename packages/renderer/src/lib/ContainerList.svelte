@@ -432,7 +432,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       name: containerGroup.name,
                       engineId: containerGroup.engineId,
                       engineName: containerGroup.engineName,
-                      humanCreationDate: containerGroup.humanCreationDate,
+                      age: containerGroup.humanCreationDate,
                       created: containerGroup.created,
                       selected: false,
                       containers: [],

@@ -19,6 +19,7 @@
 import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 import type { ImageInfoUI } from './ImageInfoUI';
 import moment from 'moment';
+import humanizeDuration from 'humanize-duration';
 import { filesize } from 'filesize';
 import { Buffer } from 'buffer';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
@@ -36,8 +37,17 @@ export class ImageUtils {
     return `${filesize(size)}`;
   }
 
-  getHumanDate(date: number): string {
-    return moment(date * 1000).fromNow();
+  humanizeAge(created: number): string {
+    // get start time in ms (using unix timestamp for the created)
+    const age = moment().diff(moment.unix(created));
+    // make it human friendly
+    const res = humanizeDuration(age, { round: true, largest: 1 });
+    return res;
+  }
+
+  refreshAge(imageInfoUi: ImageInfoUI): string {
+    // make it human friendly
+    return this.humanizeAge(imageInfoUi.createdAt);
   }
 
   getName(repoTag: string) {
@@ -85,7 +95,8 @@ export class ImageUtils {
         {
           id: imageInfo.Id,
           shortId: this.getShortId(imageInfo.Id),
-          humanCreationDate: this.getHumanDate(imageInfo.Created),
+          createdAt: imageInfo.Created,
+          age: this.humanizeAge(imageInfo.Created),
           humanSize: this.getHumanSize(imageInfo.Size),
           name: '<none>',
           engineId: this.getEngineId(imageInfo),
@@ -101,7 +112,8 @@ export class ImageUtils {
         return {
           id: imageInfo.Id,
           shortId: this.getShortId(imageInfo.Id),
-          humanCreationDate: this.getHumanDate(imageInfo.Created),
+          createdAt: imageInfo.Created,
+          age: this.humanizeAge(imageInfo.Created),
           humanSize: this.getHumanSize(imageInfo.Size),
           name: this.getName(repoTag),
           engineId: this.getEngineId(imageInfo),

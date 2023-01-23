@@ -16,6 +16,7 @@ import ImageStatusIcon from './image/ImageStatusIcon.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { containersInfos } from '../stores/containers';
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
+import moment from 'moment';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -42,10 +43,9 @@ $: selectedItemsNumber = images.filter(image => image.selected).length;
 $: selectedAllCheckboxes = images.filter(image => !image.inUse).every(image => image.selected);
 
 let allChecked = false;
+const imageUtils = new ImageUtils();
 
 function updateImages() {
-  const imageUtils = new ImageUtils();
-
   const computedImages = storeImages
     .map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo, storeContainers))
     .flat();
@@ -70,6 +70,10 @@ function updateImages() {
   } else {
     multipleEngines = false;
   }
+
+  // compute refresh interval
+  const interval = computeInterval();
+  refreshTimeouts.push(setTimeout(refreshAge, interval));
 }
 
 let imagessUnsubscribe: Unsubscriber;
@@ -89,6 +93,10 @@ onMount(async () => {
 });
 
 onDestroy(() => {
+  // kill timers
+  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.length = 0;
+
   // unsubscribe from the store
   if (imagessUnsubscribe) {
     imagessUnsubscribe();
@@ -139,6 +147,51 @@ async function deleteSelectedImages() {
     );
     bulkDeleteInProgress = false;
   }
+}
+
+let refreshTimeouts: NodeJS.Timeout[] = [];
+const SECOND = 1000;
+function refreshAge() {
+  images = images.map(imageInfo => {
+    return { ...imageInfo, age: imageUtils.refreshAge(imageInfo) };
+  });
+
+  // compute new interval
+  const newInterval = computeInterval();
+  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.length = 0;
+  refreshTimeouts.push(setTimeout(refreshAge, newInterval));
+}
+
+function computeInterval(): number {
+  // no images, no refresh
+  if (images.length === 0) {
+    return -1;
+  }
+
+  // do we have images that have been created in less than 1 minute
+  // if so, need to update every second
+  const imagesCreatedInLessThan1Mn = images.filter(image => moment().diff(moment.unix(image.createdAt), 'minutes') < 1);
+  if (imagesCreatedInLessThan1Mn.length > 0) {
+    return 2 * SECOND;
+  }
+
+  // every minute for images created less than 1 hour
+  const imagesCreatedInLessThan1Hour = images.filter(image => moment().diff(moment.unix(image.createdAt), 'hours') < 1);
+  if (imagesCreatedInLessThan1Hour.length > 0) {
+    // every minute
+    return 60 * SECOND;
+  }
+
+  // every hour for images created less than 1 day
+  const imagesCreatedInLessThan1Day = images.filter(image => moment().diff(moment.unix(image.createdAt), 'days') < 1);
+  if (imagesCreatedInLessThan1Day.length > 0) {
+    // every hour
+    return 60 * 60 * SECOND;
+  }
+
+  // every day
+  return 60 * 60 * 24 * SECOND;
 }
 </script>
 
@@ -203,7 +256,7 @@ async function deleteSelectedImages() {
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
           <th class="text-center font-extrabold w-10">status</th>
           <th class="w-10">Name</th>
-          <th class="px-6 whitespace-nowrap w-10">Creation date</th>
+          <th class="px-6 whitespace-nowrap w-10">age</th>
           <th class="px-6 whitespace-nowrap text-end">size</th>
           <th class="text-right pr-2">Actions</th>
         </tr>
@@ -249,7 +302,7 @@ async function deleteSelectedImages() {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-400">{image.humanCreationDate}</div>
+                <div class="text-sm text-gray-400">{image.age}</div>
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">

@@ -18,8 +18,8 @@ export let image: ImageInfoUI;
         <td class="pt-2 pr-2">{image.humanSize}</td>
       </tr>
       <tr>
-        <td class="pt-2 pr-2">Created</td>
-        <td class="pt-2 pr-2">{image.humanCreationDate}</td>
+        <td class="pt-2 pr-2">Age</td>
+        <td class="pt-2 pr-2">{image.age}</td>
       </tr>
     </table>
   </div>

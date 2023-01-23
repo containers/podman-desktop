@@ -25,8 +25,8 @@ function openContainer(containerID: string) {
           <td class="pt-2 pr-2">{volume.humanSize}</td>
         </tr>
         <tr>
-          <td class="pt-2 pr-2">Created:</td>
-          <td class="pt-2 pr-2">{volume.humanCreationDate}</td>
+          <td class="pt-2 pr-2">Age:</td>
+          <td class="pt-2 pr-2">{volume.age}</td>
         </tr>
       </table>
     </div>

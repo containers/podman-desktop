@@ -23,15 +23,6 @@ import type { VolumeInfoUI } from './VolumeInfoUI';
 import { filesize } from 'filesize';
 
 export class VolumeUtils {
-  getUptime(volumeInfo: VolumeInfo): string {
-    if (!volumeInfo.CreatedAt) {
-      return '';
-    }
-
-    // make it human friendly
-    return `${this.humanizeUptime(volumeInfo.CreatedAt)} ago`;
-  }
-
   getShortName(volumeInfo: VolumeInfo): string {
     // check if the name is 64 characters long and contains only hexa characters
     if (volumeInfo.Name.length === 64 && /^[0-9a-f]+$/.test(volumeInfo.Name)) {
@@ -40,7 +31,7 @@ export class VolumeUtils {
     return volumeInfo.Name;
   }
 
-  humanizeUptime(started: string): string {
+  humanizeAge(started: string): string {
     // get start time in ms
     const uptimeInMs = moment().diff(started);
     // make it human friendly
@@ -54,12 +45,12 @@ export class VolumeUtils {
     return '0 B';
   }
 
-  refreshUptime(volumeInfoUI: VolumeInfoUI): string {
+  refreshAge(volumeInfoUI: VolumeInfoUI): string {
     if (!volumeInfoUI.created) {
       return '';
     }
     // make it human friendly
-    return `${this.humanizeUptime(volumeInfoUI.created)} ago`;
+    return this.humanizeAge(volumeInfoUI.created);
   }
 
   getDriver(volumeInfo: VolumeInfo): string {
@@ -74,7 +65,7 @@ export class VolumeUtils {
       scope: volumeInfo.Scope,
       driver: this.getDriver(volumeInfo),
       created: volumeInfo.CreatedAt,
-      humanCreationDate: this.getUptime(volumeInfo),
+      age: this.humanizeAge(volumeInfo.CreatedAt),
       humanSize: this.getSize(volumeInfo),
       engineId: volumeInfo.engineId,
       engineName: volumeInfo.engineName,
