@@ -89,7 +89,7 @@ export let meta;
       <a href="/containers" class="pf-c-nav__link flex items-center align-middle">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
-            <ContainerIcon size="{24}" />
+            <ContainerIcon size="24" />
             <span
               class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Containers</span>
@@ -114,7 +114,7 @@ export let meta;
       <a href="/pods" class="pf-c-nav__link">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
-            <PodIcon size="{24}" />
+            <PodIcon size="24" />
             <span
               class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Pods</span>
@@ -138,7 +138,7 @@ export let meta;
       <a href="/images" class="pf-c-nav__link">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
-            <ImageIcon size="{24}" />
+            <ImageIcon size="24" />
             <span
               class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Images</span>
@@ -162,7 +162,7 @@ export let meta;
       <a href="/volumes" class="pf-c-nav__link">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
-            <VolumeIcon size="{24}" />
+            <VolumeIcon size="24" />
             <span
               class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Volumes</span>
