@@ -131,7 +131,7 @@ if (dropdownMenu) {
     title="Open Browser"
     onClick="{() => openBrowser(container)}"
     menu="{dropdownMenu}"
-    hidden="{!(container.state === 'RUNNING' && container.hasPublicPort)}"
+    enabled="{container.state === 'RUNNING' && container.hasPublicPort}"
     detailed="{detailed}"
     icon="{faExternalLinkSquareAlt}" />
   {#if !detailed}

@@ -106,7 +106,11 @@ onMount(() => {
           </div>
           <div class="flex flex-col w-full px-5 pt-5">
             <div class="flex justify-end">
-              <ImageActions image="{image}" onPushImage="{handlePushImageModal}" detailed="{true}" />
+              <ImageActions
+                image="{image}"
+                onPushImage="{handlePushImageModal}"
+                detailed="{true}"
+                dropdownMenu="{false}" />
             </div>
           </div>
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"

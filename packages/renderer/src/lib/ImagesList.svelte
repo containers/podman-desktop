@@ -72,7 +72,7 @@ function updateImages() {
   }
 }
 
-let imagessUnsubscribe: Unsubscriber;
+let imagesUnsubscribe: Unsubscriber;
 let containersUnsubscribe: Unsubscriber;
 let storeContainers: ContainerInfo[] = [];
 let storeImages: ImageInfo[] = [];
@@ -82,7 +82,7 @@ onMount(async () => {
     updateImages();
   });
 
-  imagessUnsubscribe = filtered.subscribe(value => {
+  imagesUnsubscribe = filtered.subscribe(value => {
     storeImages = value;
     updateImages();
   });
@@ -90,8 +90,8 @@ onMount(async () => {
 
 onDestroy(() => {
   // unsubscribe from the store
-  if (imagessUnsubscribe) {
-    imagessUnsubscribe();
+  if (imagesUnsubscribe) {
+    imagesUnsubscribe();
   }
   if (containersUnsubscribe) {
     containersUnsubscribe();
@@ -257,8 +257,8 @@ async function deleteSelectedImages() {
                 <div class="w-full text-right text-sm text-gray-400">{image.humanSize}</div>
               </div>
             </td>
-            <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg pr-1">
-              <ImageActions image="{image}" onPushImage="{handlePushImageModal}" />
+            <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
+              <ImageActions image="{image}" onPushImage="{handlePushImageModal}" dropdownMenu="{true}" />
             </td>
           </tr>
           <tr><td class="leading-[8px]">&nbsp;</td></tr>
