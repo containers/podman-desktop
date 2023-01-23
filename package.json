@@ -89,7 +89,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@docker/extension-api-client-types": "0.3.2",
+    "@docker/extension-api-client-types": "0.3.3",
     "@kubernetes/client-node": "^0.18.1",
     "@types/stream-json": "^1.7.3",
     "analytics-node": "^6.2.0",
