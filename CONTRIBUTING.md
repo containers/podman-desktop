@@ -139,6 +139,8 @@ Make sure you include the issue in your PR! For example, say: `Closes #XXX`.
 
 PRs will be approved by an [approver][owners] listed in [`CODEOWNERS`](CODEOWNERS).
 
+We typically require one approval for code as well as documentation-related PR's. If it is a large code-related PR, proof of review / testing (a video / screenshot) is required. 
+
 Some tips for the PR process:
 
 * No PR too small! Feel free to open a PR against tests, bugs, new features, docs, etc.
