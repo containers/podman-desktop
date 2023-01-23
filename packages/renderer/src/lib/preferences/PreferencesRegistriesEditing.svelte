@@ -416,7 +416,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                     {#if listedSuggestedRegistries[i]}
                       https://{registry.url}
                     {:else}
-                      {registry.name}
+                      {registry.name} (Suggested)
                     {/if}
                   </span>
                 </div>
@@ -490,7 +490,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                       on:click="{() => setNewSuggestedRegistryFormVisible(i, registry)}"
                       class="inline pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center"
                       type="button">
-                      Add
+                      Configure
                     </button>
                   {/if}
                 </div>
