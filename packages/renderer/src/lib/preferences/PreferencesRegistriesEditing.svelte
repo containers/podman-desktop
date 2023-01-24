@@ -478,21 +478,23 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                   {/if}
                 </div>
                 <div class="flex text-sm">
-                  {#if listedSuggestedRegistries[i]}
-                    <button
-                      on:click="{() => hideSuggestedRegistries()}"
-                      class="transition ease-in-out delay-50 hover:cursor-pointer h-full justify-center w-16"
-                      type="button">
-                      Cancel
-                    </button>
-                  {:else}
-                    <button
-                      on:click="{() => setNewSuggestedRegistryFormVisible(i, registry)}"
-                      class="inline pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center"
-                      type="button">
-                      Configure
-                    </button>
-                  {/if}
+                  <div class="h-7 mt-1.5 mb-0.5 text-sm">
+                    {#if listedSuggestedRegistries[i]}
+                      <button
+                        on:click="{() => hideSuggestedRegistries()}"
+                        class="transition ease-in-out delay-50 hover:cursor-pointer h-full justify-center w-16"
+                        type="button">
+                        Cancel
+                      </button>
+                    {:else}
+                      <button
+                        on:click="{() => setNewSuggestedRegistryFormVisible(i, registry)}"
+                        class="inline pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center pb-1"
+                        type="button">
+                        Configure
+                      </button>
+                    {/if}
+                  </div>
                 </div>
               </div>
             </div>
