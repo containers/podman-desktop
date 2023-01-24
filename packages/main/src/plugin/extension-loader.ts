@@ -251,6 +251,12 @@ export class ExtensionLoader {
   }
 
   async loadExtension(extensionPath: string, removable: boolean): Promise<void> {
+    // do nothing if there is no package.json file
+    if (!fs.existsSync(path.resolve(extensionPath, 'package.json'))) {
+      console.warn(`Ignoring extension ${extensionPath} without package.json file`);
+      return;
+    }
+
     // load manifest
     const manifest = await this.loadManifest(extensionPath);
     this.overrideRequire();
