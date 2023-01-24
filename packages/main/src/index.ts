@@ -99,19 +99,32 @@ if (import.meta.env.PROD) {
 let tray: Tray | null = null;
 
 app.whenReady().then(async () => {
+  // Setup the default tray icon + menu items
   const animatedTray = new AnimatedTray();
   tray = new Tray(animatedTray.getDefaultImage());
   animatedTray.setTray(tray);
   const trayMenu = new TrayMenu(tray, animatedTray);
-  // start extensions
+
+  // Start extensions
   const pluginSystem = new PluginSystem(trayMenu);
   const extensionLoader = await pluginSystem.initExtensions();
 
+  // Get the configuration registry (saves all our settings)
   const configurationRegistry = extensionLoader.getConfigurationRegistry();
-  // share configuration registry
+
+  // If we've manually set the tray icon colour, update the tray icon. This can only be done
+  // after configurationRegistry is loaded.
+  const colour = configurationRegistry.getConfiguration('preferences').get('TrayIconColour');
+
+  // If colour is a string, set it
+  if (typeof colour === 'string') {
+    animatedTray.setColour(colour);
+  }
+
+  // Share configuration registry with renderer process
   ipcMain.emit('configuration-registry', '', configurationRegistry);
 
-  // configure automatic startup
+  // Configure automatic startup
   const automaticStartup = new StartupInstall(configurationRegistry);
   await automaticStartup.configure();
 });
