@@ -416,7 +416,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                     {#if listedSuggestedRegistries[i]}
                       https://{registry.url}
                     {:else}
-                      {registry.name} (Suggested)
+                      {registry.name}
                     {/if}
                   </span>
                 </div>
