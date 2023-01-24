@@ -16,18 +16,5 @@ You can install Podman Desktop on:
 
 #### Next steps
 
-Podman Desktop controls your container engines, such as: 
-
-* Podman
-* Docker
-* Lima
-
-On Linux, the Podman container engine runs natively.
-
-On macOS and Windows, running the Podman container engine requires running a Linux distribution on a virtual machine.
-
-Podman Desktop can assist you to install the Podman container engine on:
-
-* [Windows](./installing-podman/installing-podman-on-windows)
-* [macOS](./installing-podman/installing-podman-on-macos)
+* [Installing the Podman container engine](./installing-podman/)
 
