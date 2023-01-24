@@ -33,4 +33,6 @@ export interface PodInfoUI {
   created: string;
   selected: boolean;
   containers: PodInfoContainerUI[];
+  actionInProgress?: boolean;
+  actionError?: string;
 }

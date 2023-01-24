@@ -13,21 +13,52 @@ export let pod: PodInfoUI;
 export let dropdownMenu: boolean = false;
 export let detailed: boolean = false;
 
+export let inProgressCallback: (inProgress: boolean, state?: string) => void = () => {};
+export let errorCallback: (erroMessage: string) => void = () => {};
+
 async function startPod(podInfoUI: PodInfoUI) {
-  await window.startPod(podInfoUI.engineId, podInfoUI.id);
+  inProgressCallback(true, 'STARTING');
+  try {
+    await window.startPod(podInfoUI.engineId, podInfoUI.id);
+  } catch (error) {
+    errorCallback(error);
+  } finally {
+    inProgressCallback(false);
+  }
 }
 
 async function restartPod(podInfoUI: PodInfoUI) {
-  await window.restartPod(podInfoUI.engineId, podInfoUI.id);
+  inProgressCallback(true, 'RESTARTING');
+  try {
+    await window.restartPod(podInfoUI.engineId, podInfoUI.id);
+  } catch (error) {
+    errorCallback(error);
+  } finally {
+    inProgressCallback(false);
+  }
 }
 
 async function stopPod(podInfoUI: PodInfoUI) {
-  await window.stopPod(podInfoUI.engineId, podInfoUI.id);
+  inProgressCallback(true);
+  try {
+    await window.stopPod(podInfoUI.engineId, podInfoUI.id);
+  } catch (error) {
+    errorCallback(error);
+  } finally {
+    inProgressCallback(false);
+  }
 }
 
 async function removePod(podInfoUI: PodInfoUI): Promise<void> {
-  await window.removePod(podInfoUI.engineId, podInfoUI.id);
-  router.goto('/pods/');
+  inProgressCallback(true, 'REMOVING');
+  try {
+    await window.removePod(podInfoUI.engineId, podInfoUI.id);
+    router.goto('/pods/');
+  } catch (error) {
+    errorCallback(error);
+  } finally {
+    inProgressCallback(false);
+  }
 }
 
 function openGenerateKube(): void {
