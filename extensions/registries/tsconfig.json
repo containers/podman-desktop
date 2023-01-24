@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "lib": [
+      "ES2017",
+    ],
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "target": "esnext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "types": [
+      "node",
+    ]
+  },
+  "include": [
+    "src"
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS",
+      "lib": [
+        "ES2020",
+        "DOM"
+      ],
+      "types": [
+        "node"
+      ]
+    }
+  }
+}

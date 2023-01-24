@@ -165,6 +165,7 @@ const setupExtensionApiWatcher = name => {
     await setupExtensionApiWatcher('lima');
     await setupExtensionApiWatcher('podman');
     await setupExtensionApiWatcher('kind');
+    await setupExtensionApiWatcher('registries');
     await setupPreloadPackageWatcher(viteDevServer);
     await setupPreloadDockerExtensionPackageWatcher(viteDevServer);
     await setupMainPackageWatcher(viteDevServer);

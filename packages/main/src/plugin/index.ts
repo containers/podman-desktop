@@ -733,6 +733,13 @@ export class PluginSystem {
       return imageRegistry.getRegistries();
     });
 
+    this.ipcHandle(
+      'image-registry:getSuggestedRegistries',
+      async (): Promise<containerDesktopAPI.RegistrySuggestedProvider[]> => {
+        return imageRegistry.getSuggestedRegistries();
+      },
+    );
+
     this.ipcHandle('image-registry:hasAuthconfigForImage', async (_listener, imageName: string): Promise<boolean> => {
       if (imageName.indexOf(',') !== -1) {
         const allImageNames = imageName.split(',');

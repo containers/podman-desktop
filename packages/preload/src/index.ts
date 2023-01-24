@@ -671,6 +671,12 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('getImageRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
     return ipcInvoke('image-registry:getRegistries');
   });
+  contextBridge.exposeInMainWorld(
+    'getImageSuggestedRegistries',
+    async (): Promise<containerDesktopAPI.RegistrySuggestedProvider[]> => {
+      return ipcInvoke('image-registry:getSuggestedRegistries');
+    },
+  );
   contextBridge.exposeInMainWorld('getImageRegistryProviderNames', async (): Promise<string[]> => {
     return ipcInvoke('image-registry:getProviderNames');
   });

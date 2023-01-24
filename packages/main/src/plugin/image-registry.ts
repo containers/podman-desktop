@@ -39,6 +39,7 @@ export interface RegistryAuthInfo {
 
 export class ImageRegistry {
   private registries: containerDesktopAPI.Registry[] = [];
+  private suggestedRegistries: containerDesktopAPI.RegistrySuggestedProvider[] = [];
   private providers: Map<string, containerDesktopAPI.RegistryProvider> = new Map();
 
   private readonly _onDidRegisterRegistry = new Emitter<containerDesktopAPI.Registry>();
@@ -146,6 +147,37 @@ export class ImageRegistry {
     });
   }
 
+  suggestRegistry(registry: containerDesktopAPI.RegistrySuggestedProvider): Disposable {
+    // Do not add it to the list if it's already been suggested by name & URL (Quay, DockerHub, etc.).
+    // this may have been done by another extension.
+    if (this.suggestedRegistries.find(reg => reg.url === registry.url && reg.name === registry.name)) {
+      // Ignore and don't register
+      console.log(`Registry already registered: ${registry.url}`);
+
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      return Disposable.create(() => {});
+    }
+
+    this.suggestedRegistries.push(registry);
+    this.apiSender.send('registry-update', registry);
+
+    // Create a disposable to remove the registry from the list
+    return Disposable.create(() => {
+      this.unsuggestRegistry(registry);
+    });
+  }
+
+  unsuggestRegistry(registry: containerDesktopAPI.RegistrySuggestedProvider): void {
+    // Find the registry within this.suggestedRegistries[] and remove it
+    const index = this.suggestedRegistries.findIndex(reg => reg.url === registry.url && reg.name === registry.name);
+    if (index > -1) {
+      this.suggestedRegistries.splice(index, 1);
+    }
+
+    // Fire an update to the UI to remove the suggested registry
+    this.apiSender.send('registry-update', registry);
+  }
+
   unregisterRegistry(registry: containerDesktopAPI.Registry): void {
     const filtered = this.registries.filter(
       registryItem => registryItem.serverUrl !== registry.serverUrl || registry.source !== registryItem.source,
@@ -163,6 +195,10 @@ export class ImageRegistry {
 
   getRegistries(): readonly containerDesktopAPI.Registry[] {
     return this.registries;
+  }
+
+  getSuggestedRegistries(): containerDesktopAPI.RegistrySuggestedProvider[] {
+    return this.suggestedRegistries;
   }
 
   getProviderNames(): string[] {
