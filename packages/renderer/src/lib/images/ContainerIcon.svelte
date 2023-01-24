@@ -1,11 +1,12 @@
 <script lang="ts">
-export let size: number = 40;
-export let color: string = '#fff';
+export let size: string = '40';
 </script>
 
 <svg
   width="{size}"
   height="{size}"
+  class="{$$props.class}"
+  style="{$$props.style}"
   viewBox="0 0 6.35 6.35"
   version="1.1"
   xml:space="preserve"
@@ -14,7 +15,7 @@ export let color: string = '#fff';
   <g transform="translate(21.210601,-15.062965)">
     <g transform="translate(-7.3827548,0.05695021)">
       <path
-        style="fill:{color};fill-rule:evenodd;stroke-width:0.264583;stroke-linejoin:round;stroke-miterlimit:10;-inkscape-stroke:none"
+        style="fill:currentColor;fill-rule:evenodd;stroke-width:0.264583;stroke-linejoin:round;stroke-miterlimit:10;-inkscape-stroke:none"
         d="m -10.666282,15.93309 a 0.13230489,0.13230489 0 0 0 -0.02584,0.0052 l -2.116667,0.661458 a 0.13230489,0.13230489 0 0 0 -0.08888,0.151412 0.13230489,0.13230489 0 0 0 -0.0041,0.03256 v 2.390552 a 0.13230489,0.13230489 0 0 0 0.07028,0.116789 l 2.106332,1.123445 a 0.13230489,0.13230489 0 0 0 0.07235,0.01447 0.13230489,0.13230489 0 0 0 0.07235,-0.01447 l 2.1063312,-1.123445 a 0.13230489,0.13230489 0 0 0 0.07028,-0.116789 V 16.78372 a 0.13230489,0.13230489 0 0 0 -0.00362,-0.03152 0.13230489,0.13230489 0 0 0 -0.0894,-0.152445 l -2.1166662,-0.661458 a 0.13230489,0.13230489 0 0 0 -0.05271,-0.0052 z m 0.01344,0.269751 1.6737994,0.522965 -1.6737994,0.522966 -1.6738,-0.522966 z m -1.984375,0.762227 1.851566,0.595313 -0.0088,2.517159 -1.842781,-0.982886 z m 3.9687498,0 v 2.129586 l -1.8427818,0.982886 -0.0088,-2.517159 z"
       ></path>
     </g>

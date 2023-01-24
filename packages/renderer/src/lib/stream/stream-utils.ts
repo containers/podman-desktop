@@ -22,7 +22,6 @@ import { Buffer } from 'buffer';
 // header := [8]byte{STREAM_TYPE, 0, 0, 0, SIZE1, SIZE2, SIZE3, SIZE4}
 
 export function isMultiplexedLog(log: string): boolean {
-  console.log('display the content', log.substring(8));
   const zero1 = log.charCodeAt(1);
   const zero2 = log.charCodeAt(2);
   const zero3 = log.charCodeAt(3);

@@ -362,8 +362,23 @@ declare module '@tmpwip/extension-api' {
     export const onDidStateChange: Event<boolean>;
   }
 
+  // An interface for "Default" registries that include the name, URL as well as an icon
+  // This allows an extension to "suggest" a registry to the user that you may
+  // login via a username & password.
+  export interface RegistrySuggestedProvider {
+    name: string;
+    url: string;
+
+    // Optional base64 PNG image (for transparency / non vector icons)
+    icon?: string;
+  }
+
   export interface Registry extends RegistryCreateOptions {
     source: string;
+
+    // Optional name and icon for the registry when it's being added (used for display within the UI)
+    name?: string;
+    icon?: string;
   }
 
   export interface RegistryCreateOptions {
@@ -385,8 +400,12 @@ declare module '@tmpwip/extension-api' {
 
     // expose a registry from a source
     export function registerRegistry(registry: Registry): Disposable;
+
     // remove registry from a source
     export function unregisterRegistry(registry: Registry): void;
+
+    // suggest a registry to be included on the registry settings page
+    export function suggestRegistry(registry: RegistrySuggestedProvider): Disposable;
 
     export const onDidRegisterRegistry: Event<Registry>;
     export const onDidUpdateRegistry: Event<Registry>;
