@@ -20,7 +20,7 @@ To install Podman you can:
 
 Podman Desktop can assist you to install the Podman container engine on the Windows Subsystem for Linux, version 2 (WSL 2).
 
-WSL 2 uses Windows native virtualization: it runs as an HyperV virtual machine. 
+WSL 2 uses Windows native virtualization: it runs as a HyperV virtual machine. 
 
 
 #### Prerequisites

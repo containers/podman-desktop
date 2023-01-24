@@ -6,7 +6,7 @@ tags: [podman-desktop, installing, windows, macos, linux]
 keywords: [podman desktop, containers, podman, installing, installation, windows, macos, linux]
 ---
 
-Podman Desktop let you choose your container engine, and doesn't install Podman automatically.
+Podman Desktop lets you choose your container engine, and doesn't install Podman automatically.
 
 Consider installing Podman if you are not required to use another container engine.
 
