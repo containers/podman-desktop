@@ -224,14 +224,23 @@ export class LibpodDockerode {
           204: true,
           304: 'pod already stopped',
           404: 'no such pod',
+          409: 'unexpected error',
           500: 'server error',
         },
         options: {},
       };
 
       return new Promise((resolve, reject) => {
-        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.modem.dial(optsf, (err: any, data: unknown) => {
           if (err) {
+            if (err?.statusCode === 409 && err?.json) {
+              // check that err.json is a JSON
+              if (err.json.Errs) {
+                return reject(err.json.Errs.join(' '));
+              }
+            }
+
             return reject(err);
           }
           resolve(data);
