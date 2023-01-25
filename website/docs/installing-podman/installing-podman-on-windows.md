@@ -26,10 +26,13 @@ Main benefits are:
 
 #### Prerequisites
 
-* User with administrator privileges
+* 6 GB RAM
 * No VPN
-* Windows 11
-* WSL 2 choices don't conflict with your environment
+* User with administrator privileges
+* Windows 10 Build 18362 or greater, or Windows 11
+* Windows 64bit
+* [Hyper-V enabled](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
+* [WSL 2 installed](https://docs.microsoft.com/en-us/windows/wsl/install-manual)
 
 #### Procedure
 
