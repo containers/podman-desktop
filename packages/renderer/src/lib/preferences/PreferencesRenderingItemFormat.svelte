@@ -129,7 +129,7 @@ async function selectFilePath() {
         required />
     {:else if record.type === 'string' && record.enum && record.enum.length > 0}
       <select
-        class="border  text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+        class="border-b text-md focus:ring-blue-500 focus:border-blue-500 block w-full p-1 bg-zinc-700 border-gray-500 placeholder-gray-400 text-white"
         name="{record.id}"
         id="input-standard-{record.id}"
         on:input="{event => checkValue(record, event)}"
