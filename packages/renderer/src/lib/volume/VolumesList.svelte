@@ -273,7 +273,7 @@ function computeInterval(): number {
   <div slot="empty" class="min-h-full">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
-    {:else if $filtered.length === 0}
+    {:else if $filtered.map(volumeInfo => volumeInfo.Volumes).flat().length === 0}
       <VolumeEmptyScreen />
     {/if}
   </div>
