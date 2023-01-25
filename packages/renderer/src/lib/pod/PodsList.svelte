@@ -15,6 +15,9 @@ import PodIcon from '../container/PodIcon.svelte';
 import PodActions from './PodActions.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
 import moment from 'moment';
+import Tooltip from '../ui/Tooltip.svelte';
+import Fa from 'svelte-fa/src/fa.svelte';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -164,6 +167,25 @@ function computeInterval(): number {
   // every day
   return 60 * 60 * 24 * SECOND;
 }
+
+function inProgressCallback(pod: PodInfoUI, inProgress: boolean, state?: string): void {
+  pod.actionInProgress = inProgress;
+  // reset error when starting task
+  if (inProgress) {
+    pod.actionError = '';
+  }
+  if (state) {
+    pod.status = state;
+  }
+
+  pods = [...pods];
+}
+
+function errorCallback(pod: PodInfoUI, errorMessage: string): void {
+  pod.actionError = errorMessage;
+  pod.status = 'ERROR';
+  pods = [...pods];
+}
 </script>
 
 <NavPage
@@ -278,7 +300,37 @@ function computeInterval(): number {
             </td>
 
             <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
-              <PodActions pod="{pod}" dropdownMenu="{true}" />
+              <div class="flex w-full">
+                <div class="flex items-center w-5">
+                  {#if pod.actionInProgress}
+                    <svg
+                      class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  {:else if pod.actionError}
+                    <Tooltip tip="{pod.actionError}" top>
+                      <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
+                    </Tooltip>
+                  {:else}
+                    <div>&nbsp;</div>
+                  {/if}
+                </div>
+                <div class="text-right w-full">
+                  <PodActions
+                    pod="{pod}"
+                    errorCallback="{error => errorCallback(pod, error)}"
+                    inProgressCallback="{(flag, state) => inProgressCallback(pod, flag, state)}"
+                    dropdownMenu="{true}" />
+                </div>
+              </div>
             </td>
           </tr>
           <tr><td class="leading-[8px]">&nbsp;</td></tr>
