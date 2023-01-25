@@ -14,6 +14,10 @@ import PodEmptyScreen from './PodEmptyScreen.svelte';
 import PodIcon from '../container/PodIcon.svelte';
 import PodActions from './PodActions.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
+import moment from 'moment';
+import Tooltip from '../ui/Tooltip.svelte';
+import Fa from 'svelte-fa/src/fa.svelte';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -41,11 +45,11 @@ $: selectedAllCheckboxes = pods.every(pod => pod.selected);
 
 let allChecked = false;
 
+const podUtils = new PodUtils();
+
 let podsUnsubscribe: Unsubscriber;
 onMount(async () => {
   podsUnsubscribe = filtered.subscribe(value => {
-    const podUtils = new PodUtils();
-
     const computedPods = value.map((podInfo: PodInfo) => podUtils.getPodInfoUI(podInfo)).flat();
 
     // multiple engines ?
@@ -66,10 +70,18 @@ onMount(async () => {
       }
     });
     pods = computedPods;
+
+    // compute refresh interval
+    const interval = computeInterval();
+    refreshTimeouts.push(setTimeout(refreshAge, interval));
   });
 });
 
 onDestroy(() => {
+  // kill timers
+  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.length = 0;
+
   // unsubscribe from the store
   if (podsUnsubscribe) {
     podsUnsubscribe();
@@ -109,6 +121,70 @@ function openDetailsPod(pod: PodInfoUI) {
 
 function openContainersFromPod(pod: PodInfoUI) {
   router.goto(`/containers/?filter=${pod.shortId}`);
+}
+
+let refreshTimeouts: NodeJS.Timeout[] = [];
+const SECOND = 1000;
+function refreshAge() {
+  pods = pods.map(podInfo => {
+    return { ...podInfo, age: podUtils.refreshAge(podInfo) };
+  });
+
+  // compute new interval
+  const newInterval = computeInterval();
+  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.length = 0;
+  refreshTimeouts.push(setTimeout(refreshAge, newInterval));
+}
+
+function computeInterval(): number {
+  // no pods, no refresh
+  if (pods.length === 0) {
+    return -1;
+  }
+
+  // do we have pods that have been created in less than 1 minute
+  // if so, need to update every second
+  const podsCreatedInLessThan1Mn = pods.filter(pod => moment().diff(pod.created, 'minutes') < 1);
+  if (podsCreatedInLessThan1Mn.length > 0) {
+    return 2 * SECOND;
+  }
+
+  // every minute for pods created less than 1 hour
+  const podsCreatedInLessThan1Hour = pods.filter(volume => moment().diff(volume.created, 'hours') < 1);
+  if (podsCreatedInLessThan1Hour.length > 0) {
+    // every minute
+    return 60 * SECOND;
+  }
+
+  // every hour for pods created less than 1 day
+  const podsCreatedInLessThan1Day = pods.filter(volume => moment().diff(volume.created, 'days') < 1);
+  if (podsCreatedInLessThan1Day.length > 0) {
+    // every hour
+    return 60 * 60 * SECOND;
+  }
+
+  // every day
+  return 60 * 60 * 24 * SECOND;
+}
+
+function inProgressCallback(pod: PodInfoUI, inProgress: boolean, state?: string): void {
+  pod.actionInProgress = inProgress;
+  // reset error when starting task
+  if (inProgress) {
+    pod.actionError = '';
+  }
+  if (state) {
+    pod.status = state;
+  }
+
+  pods = [...pods];
+}
+
+function errorCallback(pod: PodInfoUI, errorMessage: string): void {
+  pod.actionError = errorMessage;
+  pod.status = 'ERROR';
+  pods = [...pods];
 }
 </script>
 
@@ -164,7 +240,7 @@ function openContainersFromPod(pod: PodInfoUI) {
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
-          <th class="whitespace-nowrap px-6">Creation date</th>
+          <th class="whitespace-nowrap px-6">age</th>
           <th class="text-right pr-2">Actions</th>
         </tr>
       </thead>
@@ -219,12 +295,42 @@ function openContainersFromPod(pod: PodInfoUI) {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-200">{pod.humanCreationDate}</div>
+                <div class="text-sm text-gray-200">{pod.age}</div>
               </div>
             </td>
 
             <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
-              <PodActions pod="{pod}" dropdownMenu="{true}" />
+              <div class="flex w-full">
+                <div class="flex items-center w-5">
+                  {#if pod.actionInProgress}
+                    <svg
+                      class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  {:else if pod.actionError}
+                    <Tooltip tip="{pod.actionError}" top>
+                      <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
+                    </Tooltip>
+                  {:else}
+                    <div>&nbsp;</div>
+                  {/if}
+                </div>
+                <div class="text-right w-full">
+                  <PodActions
+                    pod="{pod}"
+                    errorCallback="{error => errorCallback(pod, error)}"
+                    inProgressCallback="{(flag, state) => inProgressCallback(pod, flag, state)}"
+                    dropdownMenu="{true}" />
+                </div>
+              </div>
             </td>
           </tr>
           <tr><td class="leading-[8px]">&nbsp;</td></tr>
@@ -233,10 +339,10 @@ function openContainersFromPod(pod: PodInfoUI) {
     </table>
   </div>
   <div slot="empty" class="min-h-full">
-    {#if providerConnections.length > 0}
-      <PodEmptyScreen pods="{$filtered}" />
-    {:else}
+    {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
+    {:else if $filtered.length === 0}
+      <PodEmptyScreen />
     {/if}
   </div>
 </NavPage>

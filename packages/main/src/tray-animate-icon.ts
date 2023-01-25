@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import type { Tray } from 'electron';
 import * as path from 'path';
 import { isLinux, isMac } from './util';
 import { nativeTheme } from 'electron';
-
 export type TrayIconStatus = 'initialized' | 'updating' | 'error' | 'ready';
 
 export class AnimatedTray {
@@ -28,6 +27,7 @@ export class AnimatedTray {
   private trayIconLoopId = 0;
   private animatedInterval: NodeJS.Timeout | undefined = undefined;
   private tray: Tray | undefined = undefined;
+  private color = 'default'; // default, light, dark
 
   constructor() {
     this.status = 'initialized';
@@ -66,6 +66,13 @@ export class AnimatedTray {
     this.updateIcon();
   }
 
+  // set the color of the icon if we're manually overriding the theme
+  // and then update the current icon
+  public setColor(color: string): void {
+    this.color = color;
+    this.updateIcon();
+  }
+
   // provide the path to the icon depending on theme and platform
   protected getIconPath(iconName: string): string {
     let name;
@@ -89,6 +96,14 @@ export class AnimatedTray {
         suffix = 'Template';
       }
     }
+
+    // Regardless what is the theme, if the user has set the color to light, we use the light icon, same as dark, etc.
+    if (this.color === 'light') {
+      suffix = 'Template';
+    } else if (this.color === 'dark') {
+      suffix = 'Dark';
+    }
+
     return path.resolve(this.getAssetsFolder(), `tray-icon${name}${suffix}.png`);
   }
 

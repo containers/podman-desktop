@@ -62,7 +62,7 @@ export let meta;
             id="dashboard"
             width="24"
             height="24"
-            viewBox="0 0 6.1658381 6.2230703"
+            viewBox="0.856 0.885 4.454 4.454"
             version="1.1"
             xml:space="preserve"
             xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +76,7 @@ export let meta;
               ></g
             ></svg>
           <span
-            class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+            class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
             >Dashboard</span>
         </div>
       </a>
@@ -89,9 +89,9 @@ export let meta;
       <a href="/containers" class="pf-c-nav__link flex items-center align-middle">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
-            <ContainerIcon size="{24}" />
+            <ContainerIcon size="24" />
             <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Containers</span>
           </div>
 
@@ -114,9 +114,9 @@ export let meta;
       <a href="/pods" class="pf-c-nav__link">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
-            <PodIcon size="{24}" />
+            <PodIcon size="24" />
             <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Pods</span>
           </div>
           <div class="flex w-full justify-end">
@@ -138,9 +138,9 @@ export let meta;
       <a href="/images" class="pf-c-nav__link">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
-            <ImageIcon size="{24}" />
+            <ImageIcon size="24" />
             <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Images</span>
           </div>
           <div class="flex w-full justify-end">
@@ -162,9 +162,9 @@ export let meta;
       <a href="/volumes" class="pf-c-nav__link">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
-            <VolumeIcon size="{24}" />
+            <VolumeIcon size="24" />
             <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Volumes</span>
           </div>
           <div class="flex w-full justify-end">
@@ -193,7 +193,7 @@ export let meta;
                 width="24"
                 height="24"
                 version="1.1"
-                viewBox="0 0 6.35 6.35"
+                viewBox="1.158 0.784 4.408 4.408"
                 xml:space="preserve"
                 xmlns="http://www.w3.org/2000/svg"
                 ><g transform="translate(-14.802 -15.079)"
@@ -206,7 +206,7 @@ export let meta;
                 ></svg>
             </div>
             <span
-              class="mr-5 opacity-0 -z-40  group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-2 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              class="mr-5 opacity-0 -z-40  group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Extensions</span>
             <span class="hidden md:block group-hover:block pf-c-nav__toggle">
               <span class="pf-c-nav__toggle-icon" on:click="{() => toggleContributions()}">
@@ -225,7 +225,7 @@ export let meta;
                   class="pf-c-nav__item {meta.url.startsWith('/contribs/' + contribution.name)
                     ? 'dark:text-white pf-m-current'
                     : 'dark:text-gray-400'} ">
-                  <div class="ml-2">
+                  <div class="ml-3">
                     <a href="/contribs/{contribution.name}" class="pf-c-nav__link">{contribution.name}</a>
                   </div>
                 </li>
@@ -248,7 +248,7 @@ export let meta;
             id="settings"
             width="24"
             height="24"
-            viewBox="0 0 6.3499985 6.3500005"
+            viewBox="1.189 0.928 4.494 4.494"
             version="1.1"
             xml:space="preserve"
             xmlns="http://www.w3.org/2000/svg"
@@ -277,7 +277,7 @@ export let meta;
                 ></g
               ></g>
           </svg>
-          <span class="hidden md:block group-hover:block mx-2">Settings</span>
+          <span class="hidden md:block group-hover:block mx-3">Settings</span>
         </div>
       </a>
     </li>

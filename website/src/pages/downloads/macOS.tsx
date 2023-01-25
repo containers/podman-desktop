@@ -27,7 +27,11 @@ async function grabfilenameforMac(
   const intelLink = intelMacDmg[0];
 
   const universalMacDmgResults = assets.filter(
-    asset => (asset.name as string).endsWith('.dmg') && asset.name !== armLink.name && asset.name !== intelLink.name,
+    asset =>
+      (asset.name as string).endsWith('.dmg') &&
+      !asset.name.includes('airgap') &&
+      asset.name !== armLink.name &&
+      asset.name !== intelLink.name,
   );
   if (universalMacDmgResults.length !== 1) {
     throw new Error('Unable to grab unified dmg');

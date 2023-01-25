@@ -12,6 +12,7 @@ import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.
 import VolumeEmptyScreen from './VolumeEmptyScreen.svelte';
 import VolumeActions from './VolumeActions.svelte';
 import VolumeIcon from './VolumeIcon.svelte';
+import moment from 'moment';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -32,11 +33,11 @@ $: selectedAllCheckboxes = volumes.every(volume => volume.selected);
 
 let allChecked = false;
 
+const volumeUtils = new VolumeUtils();
+
 let volumesUnsubscribe: Unsubscriber;
 onMount(async () => {
   volumesUnsubscribe = filtered.subscribe(value => {
-    const volumeUtils = new VolumeUtils();
-
     // keep warnings
     const warningsPerEngine = new Map<string, string[]>();
     value.forEach(volumeListInfo => {
@@ -67,10 +68,18 @@ onMount(async () => {
       }
     });
     volumes = computedVolumes;
+
+    // compute refresh interval
+    const interval = computeInterval();
+    refreshTimeouts.push(setTimeout(refreshAge, interval));
   });
 });
 
 onDestroy(() => {
+  // kill timers
+  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.length = 0;
+
   // unsubscribe from the store
   if (volumesUnsubscribe) {
     volumesUnsubscribe();
@@ -106,6 +115,51 @@ async function deleteSelectedVolumes() {
 
 function openDetailsVolume(volume: VolumeInfoUI) {
   router.goto(`/volumes/${encodeURI(volume.name)}/${encodeURI(volume.engineId)}/summary`);
+}
+
+let refreshTimeouts: NodeJS.Timeout[] = [];
+const SECOND = 1000;
+function refreshAge() {
+  volumes = volumes.map(volumeInfo => {
+    return { ...volumeInfo, age: volumeUtils.refreshAge(volumeInfo) };
+  });
+
+  // compute new interval
+  const newInterval = computeInterval();
+  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.length = 0;
+  refreshTimeouts.push(setTimeout(refreshAge, newInterval));
+}
+
+function computeInterval(): number {
+  // no volumes, no refresh
+  if (volumes.length === 0) {
+    return -1;
+  }
+
+  // do we have volumes that have been created in less than 1 minute
+  // if so, need to update every second
+  const volumesCreatedInLessThan1Mn = volumes.filter(volume => moment().diff(volume.created, 'minutes') < 1);
+  if (volumesCreatedInLessThan1Mn.length > 0) {
+    return 2 * SECOND;
+  }
+
+  // every minute for images created less than 1 hour
+  const volumesCreatedInLessThan1Hour = volumes.filter(volume => moment().diff(volume.created, 'hours') < 1);
+  if (volumesCreatedInLessThan1Hour.length > 0) {
+    // every minute
+    return 60 * SECOND;
+  }
+
+  // every hour for images created less than 1 day
+  const volumesCreatedInLessThan1Day = volumes.filter(volume => moment().diff(volume.created, 'days') < 1);
+  if (volumesCreatedInLessThan1Day.length > 0) {
+    // every hour
+    return 60 * 60 * SECOND;
+  }
+
+  // every day
+  return 60 * 60 * 24 * SECOND;
 }
 </script>
 
@@ -157,7 +211,7 @@ function openDetailsVolume(volume: VolumeInfoUI) {
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
           <th class="text-center font-extrabold w-10">status</th>
           <th class="w-10">Name</th>
-          <th class="px-6 whitespace-nowrap">Creation date</th>
+          <th class="px-6 whitespace-nowrap">age</th>
           <th class="px-6 whitespace-nowrap text-end">size</th>
           <th class="text-right pr-2">Actions</th>
         </tr>
@@ -199,7 +253,7 @@ function openDetailsVolume(volume: VolumeInfoUI) {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-400">{volume.humanCreationDate}</div>
+                <div class="text-sm text-gray-400">{volume.age}</div>
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
@@ -217,10 +271,10 @@ function openDetailsVolume(volume: VolumeInfoUI) {
     </table>
   </div>
   <div slot="empty" class="min-h-full">
-    {#if providerConnections.length > 0}
-      <VolumeEmptyScreen volumes="{$filtered}" />
-    {:else}
+    {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
+    {:else if $filtered.map(volumeInfo => volumeInfo.Volumes).flat().length === 0}
+      <VolumeEmptyScreen />
     {/if}
   </div>
 </NavPage>

@@ -29,8 +29,10 @@ export interface PodInfoUI {
   engineId: string;
   engineName: string;
   status: string;
-  humanCreationDate: string;
+  age: string;
   created: string;
   selected: boolean;
   containers: PodInfoContainerUI[];
+  actionInProgress?: boolean;
+  actionError?: string;
 }

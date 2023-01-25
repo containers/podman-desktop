@@ -48,6 +48,7 @@ import { shell } from 'electron';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
+import { isMac } from '../util';
 import { Dialogs } from './dialog-impl';
 import { ProgressImpl } from './progress-impl';
 import type { ContributionInfo } from './api/contribution-info';
@@ -72,6 +73,7 @@ import type {
 
 import { AutostartEngine } from './autostart-engine';
 import { CloseBehavior } from './close-behavior';
+import { TrayIconColor } from './tray-icon-color';
 import { KubernetesClient } from './kubernetes-client';
 import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
@@ -270,6 +272,13 @@ export class PluginSystem {
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry, providerRegistry);
     await closeBehaviorConfiguration.init();
+
+    // Don't show the tray icon options on Mac
+    if (!isMac) {
+      const trayIconColor = new TrayIconColor(configurationRegistry, providerRegistry);
+      await trayIconColor.init();
+    }
+
     const autoStartConfiguration = new AutostartEngine(configurationRegistry, providerRegistry);
     await autoStartConfiguration.init();
 
@@ -732,6 +741,13 @@ export class PluginSystem {
     this.ipcHandle('image-registry:getRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
       return imageRegistry.getRegistries();
     });
+
+    this.ipcHandle(
+      'image-registry:getSuggestedRegistries',
+      async (): Promise<containerDesktopAPI.RegistrySuggestedProvider[]> => {
+        return imageRegistry.getSuggestedRegistries();
+      },
+    );
 
     this.ipcHandle('image-registry:hasAuthconfigForImage', async (_listener, imageName: string): Promise<boolean> => {
       if (imageName.indexOf(',') !== -1) {

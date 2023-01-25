@@ -23,7 +23,7 @@ export interface VolumeInfoUI {
   scope: string;
   driver: string;
   created: string;
-  humanCreationDate: string;
+  age: string;
   humanSize: string;
   engineId: string;
   engineName: string;
