@@ -27,7 +27,7 @@ export class AnimatedTray {
   private trayIconLoopId = 0;
   private animatedInterval: NodeJS.Timeout | undefined = undefined;
   private tray: Tray | undefined = undefined;
-  private colour = 'default'; // default, light, dark
+  private color = 'default'; // default, light, dark
 
   constructor() {
     this.status = 'initialized';
@@ -66,10 +66,10 @@ export class AnimatedTray {
     this.updateIcon();
   }
 
-  // set the colour of the icon if we're manually overriding the theme
+  // set the color of the icon if we're manually overriding the theme
   // and then update the current icon
-  public setColour(colour: string): void {
-    this.colour = colour;
+  public setColor(color: string): void {
+    this.color = color;
     this.updateIcon();
   }
 
@@ -97,10 +97,10 @@ export class AnimatedTray {
       }
     }
 
-    // Regardless what is the theme, if the user has set the colour to light, we use the light icon, same as dark, etc.
-    if (this.colour === 'light') {
+    // Regardless what is the theme, if the user has set the color to light, we use the light icon, same as dark, etc.
+    if (this.color === 'light') {
       suffix = 'Template';
-    } else if (this.colour === 'dark') {
+    } else if (this.color === 'dark') {
       suffix = 'Dark';
     }
 

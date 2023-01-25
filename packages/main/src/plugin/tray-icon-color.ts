@@ -19,18 +19,18 @@
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
 import type { ProviderRegistry } from './provider-registry';
 
-export class TrayIconColour {
+export class TrayIconColor {
   constructor(private configurationRegistry: ConfigurationRegistry, private providerRegistry: ProviderRegistry) {}
 
   async init(): Promise<void> {
     // add configuration
-    const trayIconColourConfigurationNode: IConfigurationNode = {
-      id: 'preferences.trayiconcolour',
-      title: 'Tray Icon Colour',
+    const trayIconColorConfigurationNode: IConfigurationNode = {
+      id: 'preferences.trayiconcolor',
+      title: 'Tray Icon Color',
       type: 'object',
       properties: {
-        ['preferences.TrayIconColour']: {
-          description: 'Force the tray icon colour to be light or dark. (Requires restart)',
+        ['preferences.TrayIconColor']: {
+          description: 'Force the tray icon color to be light or dark. (Requires restart)',
           type: 'string',
           enum: ['default', 'light', 'dark'],
           default: 'default',
@@ -38,6 +38,6 @@ export class TrayIconColour {
       },
     };
 
-    this.configurationRegistry.registerConfigurations([trayIconColourConfigurationNode]);
+    this.configurationRegistry.registerConfigurations([trayIconColorConfigurationNode]);
   }
 }

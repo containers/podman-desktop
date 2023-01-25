@@ -112,13 +112,13 @@ app.whenReady().then(async () => {
   // Get the configuration registry (saves all our settings)
   const configurationRegistry = extensionLoader.getConfigurationRegistry();
 
-  // If we've manually set the tray icon colour, update the tray icon. This can only be done
-  // after configurationRegistry is loaded.
-  const colour = configurationRegistry.getConfiguration('preferences').get('TrayIconColour');
-
-  // If colour is a string, set it
-  if (typeof colour === 'string') {
-    animatedTray.setColour(colour);
+  // If we've manually set the tray icon color, update the tray icon. This can only be done
+  // after configurationRegistry is loaded. Windows or Linux support only for icon color change.
+  if (!isMac) {
+    const color = configurationRegistry.getConfiguration('preferences').get('TrayIconColor');
+    if (typeof color === 'string') {
+      animatedTray.setColor(color);
+    }
   }
 
   // Share configuration registry with renderer process
