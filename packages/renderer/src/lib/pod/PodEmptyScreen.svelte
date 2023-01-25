@@ -7,4 +7,4 @@ import PodIcon from '../images/PodIcon.svelte';
   icon="{PodIcon}"
   title="No pods"
   message="Run a first pod using the following command line:"
-  commandline="podman volume create myFirstVolume" />
+  commandline="podman pod create --label myFirstPod" />
