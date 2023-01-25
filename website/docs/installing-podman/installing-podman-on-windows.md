@@ -32,7 +32,7 @@ Main benefits are:
 * Windows 10 Build 18362 or greater, or Windows 11
 * Windows 64bit
 * [Hyper-V enabled](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
-* [WSL 2 installed](https://docs.microsoft.com/en-us/windows/wsl/install-manual)
+* WSL 2 feature enabled, but no Linux virtual machine created. See [Installing WSL 2, step 1 to 5](https://docs.microsoft.com/en-us/windows/wsl/install-manual)
 
 #### Procedure
 
