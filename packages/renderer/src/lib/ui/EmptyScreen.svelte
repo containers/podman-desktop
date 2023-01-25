@@ -41,7 +41,7 @@ let copyTextDivElement: HTMLDivElement;
           {:else}
             <svelte:component
               this="{icon}"
-              size="60"
+              size="55"
               class="pf-c-empty-state__icon"
               style="display:inline-block; text-align: center" />
           {/if}
