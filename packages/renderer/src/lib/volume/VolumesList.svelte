@@ -207,7 +207,7 @@ function openDetailsVolume(volume: VolumeInfoUI) {
                 <div class="w-full text-right text-sm text-gray-400">{volume.humanSize}</div>
               </div>
             </td>
-            <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg pr-1">
+            <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
               <VolumeActions volume="{volume}" />
             </td>
           </tr>
