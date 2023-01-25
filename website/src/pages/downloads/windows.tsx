@@ -14,14 +14,19 @@ async function grabfilenameforWindows(
   const result = await fetch('https://api.github.com/repos/containers/podman-desktop/releases/latest');
   const jsonContent = await result.json();
   const assets = jsonContent.assets;
-  const windowsSetupAssets = assets.filter(asset => (asset.name as string).endsWith('-setup.exe'));
+  const windowsSetupAssets = assets.filter(
+    asset => (asset.name as string).endsWith('-setup.exe') && !asset.name.includes('airgap'),
+  );
   if (windowsSetupAssets.length !== 1) {
     throw new Error('Unable to grab setup.exe');
   }
   const windowsSetupAsset = windowsSetupAssets[0];
 
   const binaryOnlyWindowsAssets = assets.filter(
-    asset => (asset.name as string).endsWith('.exe') && asset.name !== windowsSetupAsset.name,
+    asset =>
+      (asset.name as string).endsWith('.exe') &&
+      !asset.name.includes('airgap') &&
+      asset.name !== windowsSetupAsset.name,
   );
   const binaryAsset = binaryOnlyWindowsAssets[0];
   const data = {
