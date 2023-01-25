@@ -320,10 +320,10 @@ function computeInterval(): number {
     </table>
   </div>
   <div slot="empty" class="min-h-full">
-    {#if providerConnections.length > 0}
-      <ImageEmptyScreen images="{$filtered}" />
-    {:else}
+    {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
+    {:else if $filtered.length === 0}
+      <ImageEmptyScreen />
     {/if}
 
     {#if pushImageModal}

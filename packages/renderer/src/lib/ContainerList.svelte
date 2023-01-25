@@ -548,10 +548,10 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   </div>
 
   <div slot="empty" class="min-h-full">
-    {#if providerConnections.length > 0}
-      <ContainerEmptyScreen slot="empty" containers="{$filtered}" />
-    {:else}
-      <NoContainerEngineEmptyScreen slot="empty" />
+    {#if providerConnections.length === 0}
+      <NoContainerEngineEmptyScreen />
+    {:else if $filtered.length === 0}
+      <ContainerEmptyScreen />
     {/if}
   </div>
 </NavPage>
