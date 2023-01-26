@@ -25,7 +25,7 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 * [Podman Desktop Scoop package](https://scoop.sh/#/apps?q=podman-desktop&s=0&d=1&o=true)
 
-#### Next Steps
+#### Next steps
 
-* [Installing Podman](windows-install/installing-podman-with-podman-desktop)
+* [Installing Podman](installing-podman-with-podman-desktop)
 * [Getting Started with Podman Desktop](/docs/getting-started/getting-started).

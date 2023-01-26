@@ -15,14 +15,13 @@ Consider using this installation method if you don't require another method such
 * [Installing with Scoop](installing-podman-desktop-with-scoop.md)
 * [Installing with Winget](installing-podman-desktop-with-winget.md)
 
-
 #### Procedure
 
 1. [Download the Windows installer](/downloads/windows).
 
-2. Locate the downloaded file and and double-click on it to start the Podman Desktop installer.
+2. Open the downloaded file to start the Podman Desktop installer.
 
-#### Next Steps
+#### Next steps
 
 * [Installing Podman](windows-install/installing-podman-with-podman-desktop)
 * [Getting Started with Podman Desktop](/docs/getting-started/getting-started).

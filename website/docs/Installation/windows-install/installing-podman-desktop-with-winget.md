@@ -24,7 +24,7 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 * [Podman Desktop Winget package](https://winget.run/pkg/RedHat/Podman-Desktop)
 
-#### Next Steps
+#### Next steps
 
 * [Installing Podman](installing-podman-with-podman-desktop)
 * [Getting Started with Podman Desktop](/docs/getting-started/getting-started).

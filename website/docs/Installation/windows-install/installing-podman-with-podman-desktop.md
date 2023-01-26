@@ -24,8 +24,8 @@ Main benefits are:
 * Windows 10 Build 18362 or greater, or Windows 11
 * Windows 64bit
 * [Hyper-V enabled](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
-* WSL 2 feature enabled, but no Linux virtual machine created. See [Installing WSL 2, step 1 to 5](https://learn.microsoft.com/en-us/windows/wsl/install-manual)
-* Podman is not already isntalled
+* WSL 2 feature enabled, but no Linux virtual machine created. See [Installing WSL 2, step 1 to 5](https://docs.microsoft.com/en-us/windows/wsl/install-manual)
+* Podman is not installed
 
 #### Procedure
 
@@ -35,12 +35,12 @@ Main benefits are:
 
 2. Podman Desktop checks the prerequites to install Podman Engine. When necessary, follow the instructions to install prerequisites.
 
-3. Podman displays the dialog: *Podman is not installed on this system, would you like to install Podman*. Click on `Yes` to install Podman.
+3. Podman displays the dialog: *Podman is not installed on this system, would you like to install Podman?*. Click on `Yes` to install Podman.
 
 4. Click on **Initialize Podman**.
 
 #### Additional resources
 
-* [What is WSL 2](https://learn.microsoft.com/en-us/windows/wsl/about#what-is-wsl-2).
+* [Understanding WSL 2](https://learn.microsoft.com/en-us/windows/wsl/about#what-is-wsl-2).
 * If your environment doesn't allow you to meet the prerequisites, consider [installing Podman with OpenShift Local](installing-podman-with-openshift-local)
 
