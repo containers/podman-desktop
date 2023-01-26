@@ -14,7 +14,13 @@ You can install Podman Desktop on:
 * [macOS](./installation/macos-install)
 * [Linux](./installation/linux-install)
 
-#### Next steps
+Podman Desktop doesn't install the Podman container engine automatically, to let you choose your container engine.
 
-* [Installing the Podman container engine](./installing-podman/)
+Consider installing the Podman container engine to benefit from Podman features:
 
+* Added security
+* No daemon
+* Open source
+* Rootless
+
+You can use Podman in addition to another container engine, such as Docker or Lima.
