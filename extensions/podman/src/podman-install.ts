@@ -258,7 +258,13 @@ class WinInstaller extends BaseInstaller {
   }
 
   getPreflightChecks(): extensionApi.InstallCheck[] {
-    return [new WinBitCheck(), new WinVersionCheck(), new WinMemoryCheck(), new HyperVCheck(), new WSL2Check()];
+    return [
+      new WinBitCheck(),
+      new WinVersionCheck(),
+      new WinMemoryCheck(),
+      new VirtualMachinePlatformCheck(),
+      new WSL2Check(),
+    ];
   }
 
   update(): Promise<boolean> {
@@ -400,23 +406,25 @@ class WinMemoryCheck extends BaseCheck {
   }
 }
 
-class HyperVCheck extends BaseCheck {
-  title = 'Hyper-V Enabled';
+class VirtualMachinePlatformCheck extends BaseCheck {
+  title = 'Virtual Machine Platform Enabled';
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
       // set CurrentUICulture to force output in english
-      const res = await execPromise('powershell.exe', ['(Get-Service vmcompute).DisplayName']);
-      if (res.indexOf('Hyper-V') >= 0) {
+      const res = await execPromise('powershell.exe', [
+        '(Get-WmiObject -Query "Select * from Win32_OptionalFeature where InstallState = \'1\'").Name | select-string VirtualMachinePlatform',
+      ]);
+      if (res.indexOf('VirtualMachinePlatform') >= 0) {
         return this.createSuccessfulResult();
       }
     } catch (err) {
-      // ignore error, this means that hyper-v not enabled
+      // ignore error, this means that VirtualMachinePlatform not enabled
     }
     return this.createFailureResult(
-      'Hyper-V should be enabled to be able to run Podman.',
-      'Install Hyper-V',
-      'https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v',
+      'Virtual Machine Platform should be enabled to be able to run Podman.',
+      'Enable Virtual Machine Platform',
+      'https://learn.microsoft.com/en-us/windows/wsl/install-manual#step-3---enable-virtual-machine-feature',
     );
   }
 }
