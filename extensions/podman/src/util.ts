@@ -63,6 +63,8 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
     // In production mode, applications don't have access to the 'user' path like brew
     if (isMac || isWindows) {
       env.PATH = getInstallationPath();
+      // Escape any whitespaces in command
+      command = `"${command}"`;
     } else if (env.FLATPAK_ID) {
       // need to execute the command on the host
       args = ['--host', command, ...args];
@@ -72,9 +74,6 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
     if (options?.env) {
       env = Object.assign(env, options.env);
     }
-
-    // Escape any whitespaces in command
-    command = command.replace(/(\s+)/g, '\\$1');
 
     const spawnProcess = spawn(command, args, { shell: isWindows, env });
     spawnProcess.on('error', err => {
