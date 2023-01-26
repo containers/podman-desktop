@@ -22,6 +22,7 @@ let containerNameError = '';
 let invalidFields = false;
 
 let containerPortMapping: string[];
+let localRemotePortMappings: string;
 let exposedPorts = [];
 let createError;
 let restartPolicyName = '';
@@ -89,6 +90,7 @@ onMount(async () => {
 
   exposedPorts = [];
   containerPortMapping = [];
+  localRemotePortMappings = '';
 
   imageInspectInfo = await window.getImageInspect(image.engineId, image.id);
   exposedPorts = Array.from(Object.keys(imageInspectInfo?.Config?.ExposedPorts || {}));
@@ -174,6 +176,20 @@ async function startContainer() {
     }
     ExposedPorts[port] = {};
   });
+
+  if (localRemotePortMappings !== '') {
+    getLocalRemotePairs(localRemotePortMappings).forEach((pair) => {
+      if (pair.indexOf(':') > 0) {
+        const localRemoteValues = pair.split(':')
+        if (localRemoteValues.length === 2) {
+          const remotePort = localRemoteValues[1];
+          const localPort = localRemoteValues[0];
+          PortBindings[remotePort] = [{ HostPort: localPort }];
+          ExposedPorts[remotePort] = {};
+        }
+      }      
+    })
+  }
 
   const Env = environmentVariables
     // filter variables withouts keys
@@ -281,6 +297,10 @@ async function startContainer() {
   }
   // redirect to containers
   window.location.href = '#/containers';
+}
+
+function getLocalRemotePairs(localRemotePortMappings: string): string[] {
+  return localRemotePortMappings.split(' ').filter(m => m !== '');
 }
 
 function addEnvVariable() {
@@ -476,8 +496,16 @@ function checkContainerName(event: any) {
                 <!-- add a label for each port-->
                 <label
                   for="modalContainerName"
-                  class:hidden="{exposedPorts.length === 0}"
                   class="pt-4 block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300">Port mapping:</label>
+                {#if exposedPorts.length === 0}
+                  <div class="flex flex-row justify-center items-center w-full">
+                    <input
+                      type="text"
+                      bind:value="{localRemotePortMappings}"
+                      placeholder="Enter values for port mappings in the format LOCAL:REMOTE. Separate multiple port mappings with spaces (ex. 8080:80 8888:3000) "
+                      class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
+                  </div>
+                {/if}
                 {#each exposedPorts as port, index}
                   <div class="flex flex-row justify-center items-center w-full">
                     <span class="text-sm flex-1 inline-block align-middle whitespace-nowrap text-gray-400"
