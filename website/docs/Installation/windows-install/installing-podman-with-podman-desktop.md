@@ -44,3 +44,6 @@ Main benefits are:
 * [Understanding WSL 2](https://learn.microsoft.com/en-us/windows/wsl/about#what-is-wsl-2).
 * If your environment doesn't allow you to meet the prerequisites, consider [installing Podman with OpenShift Local](installing-podman-with-openshift-local)
 
+#### Next steps
+
+* [Getting Started with Podman Desktop](/docs/getting-started/getting-started)

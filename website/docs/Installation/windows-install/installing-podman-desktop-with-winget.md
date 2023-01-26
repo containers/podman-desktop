@@ -27,4 +27,4 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 #### Next steps
 
 * [Installing Podman](installing-podman-with-podman-desktop)
-* [Getting Started with Podman Desktop](/docs/getting-started/getting-started).
+* [Getting Started with Podman Desktop](/docs/getting-started/getting-started)

@@ -46,3 +46,7 @@ Consider installing the Podman Preset in OpenShift Local rather than [installing
 #### Additional resources
 
 * [Red Hat OpenShift Local presets](https://access.redhat.com/documentation/en-us/red_hat_openshift_local/2.12/html/getting_started_guide/using_gsg#about-presets_gsg)
+
+#### Next steps
+
+* [Getting Started with Podman Desktop](/docs/getting-started/getting-started)
