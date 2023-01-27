@@ -527,16 +527,16 @@ function checkContainerName(event: any) {
                 <button
                   class="pt-3 pb-2 outline-none text-sm bg-zinc-900 rounded-sm bg-transparent placeholder-gray-400"
                   on:click="{setCustomHostContainerPorts}">
-                    {#if isContainerPortMappingActive}
-                      <span class="pf-c-button__icon pf-m-start">
-                        <i class="fas fa-minus-circle"></i>
-                      </span> Remove
-                    {:else}
-                      <span class="pf-c-button__icon pf-m-start">
-                        <i class="fas fa-plus-circle"></i>
-                      </span> Add
-                    {/if}
-                    custom port mappings</button>
+                  {#if isContainerPortMappingActive}
+                    <span class="pf-c-button__icon pf-m-start">
+                      <i class="fas fa-minus-circle"></i>
+                    </span> Remove
+                  {:else}
+                    <span class="pf-c-button__icon pf-m-start">
+                      <i class="fas fa-plus-circle"></i>
+                    </span> Add
+                  {/if}
+                  custom port mappings</button>
                 <!-- Display the list of existing hostContainerPortMappings -->
                 {#each hostContainerPortMappings as hostContainerPortMapping, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
@@ -567,7 +567,9 @@ function checkContainerName(event: any) {
                 {/each}
                 <label
                   for="modalEnvironmentVariables"
-                  class="{!isContainerPortMappingActive? 'pt-6' : 'pt-4'} block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
+                  class="{!isContainerPortMappingActive
+                    ? 'pt-6'
+                    : 'pt-4'} block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
                   >Environment variables:</label>
                 <!-- Display the list of existing environment variables -->
                 {#each environmentVariables as environmentVariable, index}
