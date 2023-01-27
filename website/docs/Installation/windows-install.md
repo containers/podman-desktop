@@ -9,7 +9,7 @@ This page contains information regarding installation of Podman Desktop on Windo
 :::infoPrerequisites:
 **NOTE: Administrator access is required for both these prerequisites.**
 1. [Hyper-V should be enabled](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
-2. [Windows Subsystem for Linux v2 (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install-manual) should be installed.
+2. [Windows Subsystem for Linux v2 (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install) should be installed.
 :::
 
 ## Installing Podman Desktop on Windows
