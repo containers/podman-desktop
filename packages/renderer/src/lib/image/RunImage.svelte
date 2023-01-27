@@ -5,7 +5,7 @@ import type { ContainerCreateOptions, HostConfig } from '../../../../main/src/pl
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
 import NavPage from '../ui/NavPage.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
-import { faFolderOpen, faMinusCircle, faPlusCircle, faAnglesDown } from '@fortawesome/free-solid-svg-icons';
+import { faFolderOpen, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { router, Route } from 'tinro';
 import type { NetworkInspectInfo } from '../../../../main/src/plugin/api/network-info';
