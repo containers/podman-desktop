@@ -432,15 +432,15 @@ class WSL2Check extends BaseCheck {
       if (!isWSL) {
         if (isAdmin) {
           return this.createFailureResult(
-            'WSL2 is not installed. Call "wsl --install" in terminal.',
+            'WSL2 is not installed. Call "wsl --install" in a terminal.',
             'Install WSL',
-            'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
+            'https://learn.microsoft.com/en-us/windows/wsl/install',
           );
         } else {
           return this.createFailureResult(
             'WSL2 is not installed or you do not have permissions to run WSL2. Contact your Administrator to setup WSL2.',
             'More info',
-            'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
+            'https://learn.microsoft.com/en-us/windows/wsl/install',
           );
         }
       }
@@ -448,7 +448,7 @@ class WSL2Check extends BaseCheck {
       return this.createFailureResult(
         'Could not detect WSL2',
         'Install WSL',
-        'https://docs.microsoft.com/en-us/windows/wsl/install-manual',
+        'https://learn.microsoft.com/en-us/windows/wsl/install',
       );
     }
 
