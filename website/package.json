@@ -33,7 +33,7 @@
     "react-player": "^2.11.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "2.2.0",
+    "@docusaurus/module-type-aliases": "2.3.0",
     "@tsconfig/docusaurus": "^1.0.6",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.21",
