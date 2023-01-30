@@ -1,7 +1,7 @@
 <script lang="ts">
 import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './container/ContainerInfoUI';
 import { Route } from 'tinro';
-import ContainerIcon from './ContainerIcon.svelte';
+import ContainerStatusIcon from './ContainerStatusIcon.svelte';
 import 'xterm/css/xterm.css';
 import ContainerDetailsTerminal from './ContainerDetailsTerminal.svelte';
 import ContainerDetailsLogs from './ContainerDetailsLogs.svelte';
@@ -59,7 +59,7 @@ function errorCallback(errorMessage: string): void {
               <div class="text-sm font-extralight text-gray-400">Container Details</div>
             </div>
             <div class="pb-4 text-lg flex flex-row items-center">
-              <ContainerIcon state="{container.state}" />
+              <ContainerStatusIcon state="{container.state}" />
               <p class="mx-2">{container.name}</p>
               <div class="text-base text-violet-400">{container.image}</div>
             </div>

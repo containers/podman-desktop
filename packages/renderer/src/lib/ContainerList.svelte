@@ -3,7 +3,7 @@ import { onDestroy, onMount } from 'svelte';
 import { filtered, searchPattern } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
-import ContainerIcon from './ContainerIcon.svelte';
+import ContainerStatusIcon from './ContainerStatusIcon.svelte';
 import { router } from 'tinro';
 import { ContainerGroupInfoTypeUI, ContainerGroupInfoUI, ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
@@ -459,7 +459,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
                 </td>
                 <td class="flex flex-row justify-center h-12">
-                  <ContainerIcon state="{container.state}" />
+                  <ContainerStatusIcon state="{container.state}" />
                 </td>
                 <td
                   class="whitespace-nowrap hover:cursor-pointer group"
