@@ -10,11 +10,17 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 On Windows, running the Podman container engine requires running a Linux distribution on a virtual machine.
 
-Podman Desktop can assist you to install the Podman container engine in a Fedora-based distribution of Linux, on the Windows Subsystem for Linux version 2 (WSL 2).
+Podman Desktop can assist you to install the Podman container engine in a Fedora distribution of Linux, on the Windows Subsystem for Linux version 2 (WSL 2).
 Main benefits are:
 
 * Ease of use
 * Windows native virtualization performance
+
+
+Consider rather [installing Podman with OpenShift Local](installing-podman-with-openshift-local) if:
+
+* You prefer working with a RHEL distribution of Linux
+* Your environment doesn't allow you to meet the prerequisites
 
 #### Prerequisites
 
@@ -51,7 +57,6 @@ Main benefits are:
 #### Additional resources
 
 * [Understanding WSL 2](https://learn.microsoft.com/en-us/windows/wsl/about#what-is-wsl-2).
-* If your environment doesn't allow you to meet the prerequisites, consider [installing Podman with OpenShift Local](installing-podman-with-openshift-local)
 
 #### Next steps
 
