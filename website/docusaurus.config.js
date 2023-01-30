@@ -104,7 +104,7 @@ const config = {
               },
               {
                 label: 'Getting started',
-                to: '/docs/getting-started',
+                to: '/docs/getting-started/getting-started',
               },
               {
                 label: 'Migrating from Docker',
