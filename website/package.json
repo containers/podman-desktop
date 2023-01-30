@@ -19,8 +19,8 @@
     "lint:fix": "eslint . --fix --ext js,ts,tsx"
   },
   "dependencies": {
-    "@docusaurus/core": "2.2.0",
-    "@docusaurus/preset-classic": "2.2.0",
+    "@docusaurus/core": "2.3.0",
+    "@docusaurus/preset-classic": "2.3.0",
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
     "@fortawesome/free-brands-svg-icons": "^6.2.1",
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
@@ -33,7 +33,7 @@
     "react-player": "^2.11.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "2.2.0",
+    "@docusaurus/module-type-aliases": "2.3.0",
     "@tsconfig/docusaurus": "^1.0.6",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.21",
