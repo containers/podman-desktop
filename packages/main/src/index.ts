@@ -85,7 +85,8 @@ app.whenReady().then(
 
     // Platforms: macOS
     // Required for macOS to start the app correctly (this is will be shown in the dock)
-    // https://www.electronjs.org/docs/latest/api/app#event-activate-macos
+    // We use 'activate' within whenReady in order to gracefully start on macOS, see this link:
+    // https://www.electronjs.org/docs/latest/tutorial/quick-start#open-a-window-if-none-are-open-macos
     app.on('activate', createNewWindow);
 
     // Setup the default tray icon + menu items
