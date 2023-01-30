@@ -44,7 +44,7 @@
     "test:preload": "vitest run -r packages/preload --passWithNoTests",
     "test:preload-docker-extension": "vitest run -r packages/preload-docker-extension --passWithNoTests",
     "test:extensions": "vitest run -r extensions --passWithNoTests",
-    "test:renderer": "vitest run packages/renderer --passWithNoTests",
+    "test:renderer": "vitest -c packages/renderer/vite.config.js run packages/renderer --passWithNoTests",
     "test:watch": "vitest watch",
     "watch": "node scripts/watch.cjs",
     "format:check": "prettier --check \"{extensions,packages,tests,types}/**/*.{ts,svelte}\" \"extensions/*/scripts/build.js\" \"website/*.js\" \"website/src/**/*.{css,tsx}\"",
