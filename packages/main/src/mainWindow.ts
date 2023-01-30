@@ -31,6 +31,9 @@ async function createWindow() {
   const INITIAL_APP_MIN_WIDTH = 640;
   const INITIAL_APP_HEIGHT = 600;
   const INITIAL_APP_MIN_HEIGHT = 600;
+  // We have a "dark" background color in order to avoid the white flash when loading the app
+  // this only occurs if the user clicks on the app icon milliseconds before the app is fully loaded.
+  const INITIAL_APP_BACKGROUND_COLOR = '#18181b';
 
   const browserWindowConstructorOptions: BrowserWindowConstructorOptions = {
     show: false, // Use 'ready-to-show' event to show window
@@ -39,6 +42,7 @@ async function createWindow() {
     minWidth: INITIAL_APP_MIN_WIDTH,
     minHeight: INITIAL_APP_MIN_HEIGHT,
     height: INITIAL_APP_HEIGHT,
+    backgroundColor: INITIAL_APP_BACKGROUND_COLOR, // Use a darker background color to match initial dark theme when loading the app
     webPreferences: {
       webSecurity: false,
       //nativeWindowOpen: true,
@@ -52,6 +56,7 @@ async function createWindow() {
     browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
   }
 
+  let configurationRegistry: ConfigurationRegistry;
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
   const { getCursorScreenPoint, getDisplayNearestPoint } = screen;
   const workArea = getDisplayNearestPoint(getCursorScreenPoint()).workArea;
@@ -73,8 +78,19 @@ async function createWindow() {
    * @see https://github.com/electron/electron/issues/25012
    */
   browserWindow.on('ready-to-show', () => {
-    browserWindow?.show();
-    if (isMac) {
+    const startMinimized = didUserSetMinimized(configurationRegistry);
+
+    // Linux support + edge cases of macOS / Windows to ensure it starts minimized rather than showing.
+    // If the user preference is set to start minimized, then minimize the window, otherwise simply show it.
+    if (startMinimized) {
+      browserWindow?.minimize();
+    } else {
+      // This is the main "show" call for the window. This is only loaded when we're ready to show
+      // after loading the plugins, etc. You can always "unminimize" or click on the tray / dock icon to view
+      // the window while loading.
+      browserWindow?.show();
+    }
+    if (isMac && !startMinimized) {
       app.dock.show();
     }
 
@@ -104,7 +120,6 @@ async function createWindow() {
     browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
   });
 
-  let configurationRegistry: ConfigurationRegistry;
   ipcMain.on('configuration-registry', (_, data) => {
     configurationRegistry = data;
   });
@@ -208,20 +223,66 @@ async function createWindow() {
 /**
  * Restore existing BrowserWindow or Create new BrowserWindow
  */
-export async function restoreOrCreateWindow() {
+export async function restoreOrCreateWindow(configurationRegistry: ConfigurationRegistry) {
+  // Find the window, and if for some reason the window has destroyed (closed during loading?),
+  // create a new one.
+  let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+  if (window === undefined) {
+    window = await createWindow();
+  }
+
+  // If the user has set the preference to start minimized, don't focus / restore the window / show
+  if (!didUserSetMinimized(configurationRegistry)) {
+    // If the window is minimized or not visible, restore it.
+    if (window.isMinimized()) {
+      window.restore();
+    }
+
+    // For historical reasons, we used to show the window if it wasn't visible. However, sometimes
+    // we didn't completely load the plugins / extensions yet / there's a white screen
+    // We use the browserWindow.on('ready-to-show') in mainWindow.ts to show the window when it's ready.
+    // more gracefully. See: https://www.electronjs.org/docs/latest/api/browser-window#showing-the-window-gracefully
+    /*
+    if (!window.isVisible()) {
+     window.show();
+    }
+    */
+
+    // Bring focus to the window on loading
+    window.focus();
+  }
+}
+
+// Create a new window if there is no existing window
+export async function createNewWindow() {
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   if (window === undefined) {
     window = await createWindow();
   }
+}
 
-  if (window.isMinimized()) {
-    window.restore();
-  }
+// Restore the window if it is minimized / not shown / there is already another instance running
+export async function restoreWindow() {
+  const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
-  if (!window.isVisible()) {
+  // Only restore the window if we were able to find it
+  if (window) {
+    if (window.isMinimized()) {
+      window.restore();
+    }
+
     window.show();
+    window.focus();
   }
+}
 
-  window.focus();
+// Checks the configuration registry and returns true if the user has set the preference to start minimized
+function didUserSetMinimized(configurationRegistry: ConfigurationRegistry): boolean {
+  const minimizeBehaviorConfiguration = configurationRegistry?.getConfiguration('preferences');
+  let startMinimized = false;
+  if (minimizeBehaviorConfiguration) {
+    startMinimized = minimizeBehaviorConfiguration.get<boolean>('StartMinimized') == true;
+  }
+  return startMinimized;
 }
