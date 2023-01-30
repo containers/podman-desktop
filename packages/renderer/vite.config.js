@@ -35,9 +35,19 @@ export default defineConfig({
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
   },
-  plugins: [svelte()],
+  plugins: [svelte({ hot: !process.env.VITEST })],
   optimizeDeps: {
     exclude: ['tinro'],
+  },
+  test: {
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    globals: true,
+    environment: 'jsdom',
+    deps: {
+      inline: [
+        'moment',
+      ],
+    },
   },
   base: '',
   server: {
