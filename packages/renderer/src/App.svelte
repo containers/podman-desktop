@@ -75,7 +75,7 @@ window.events?.receive('display-help', () => {
         <div
           class="flex order-none title-font font-medium items-center text-white align-middle justify-center mb-4 md:mb-0">
           <Logo />
-          <span class="ml-3 text-xl block text-gray-300">Podman Desktop</span>
+          <span class="select-none ml-3 text-xl block text-gray-300">Podman Desktop</span>
         </div>
         <div class="lg:w-2/5 flex-1 lg:justify-end ml-5 lg:ml-0"></div>
       </div>
