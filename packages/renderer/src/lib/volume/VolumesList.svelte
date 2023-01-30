@@ -11,7 +11,7 @@ import { VolumeUtils } from './volume-utils';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import VolumeEmptyScreen from './VolumeEmptyScreen.svelte';
 import VolumeActions from './VolumeActions.svelte';
-import VolumeIcon from './VolumeIcon.svelte';
+import VolumeStatusIcon from './VolumeStatusIcon.svelte';
 import moment from 'moment';
 
 let searchTerm = '';
@@ -232,7 +232,7 @@ function computeInterval(): number {
                 class="cursor-pointer invert hue-rotate-[218deg] brightness-75 " />
             </td>
             <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
-              <VolumeIcon inUse="{volume.inUse}" />
+              <VolumeStatusIcon inUse="{volume.inUse}" />
             </td>
             <td class="whitespace-nowrap w-10 hover:cursor-pointer" on:click="{() => openDetailsVolume(volume)}">
               <div class="flex items-center">
