@@ -99,6 +99,22 @@ const config = {
                 to: '/docs/intro',
               },
               {
+                label: 'Installing Podman Desktop',
+                to: '/docs/Installation',
+              },
+              {
+                label: 'Getting started',
+                to: '/docs/getting-started',
+              },
+              {
+                label: 'Migrating from Docker',
+                to: '/docs/migrating-from-docker',
+              },
+              {
+                label: 'Using Compose',
+                to: '/docs/podman-compose',
+              },
+              {
                 label: 'Troubleshooting',
                 to: '/docs/troubleshooting',
               },
