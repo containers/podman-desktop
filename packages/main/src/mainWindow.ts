@@ -18,7 +18,7 @@
 
 import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
 import { Menu } from 'electron';
-import { BrowserWindow, ipcMain, app, dialog, screen } from 'electron';
+import { BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
 import contextMenu from 'electron-context-menu';
 const { aboutMenuItem } = require('electron-util');
 import { join } from 'path';
@@ -31,9 +31,11 @@ async function createWindow() {
   const INITIAL_APP_MIN_WIDTH = 640;
   const INITIAL_APP_HEIGHT = 600;
   const INITIAL_APP_MIN_HEIGHT = 600;
+
   // We have a "dark" background color in order to avoid the white flash when loading the app
   // this only occurs if the user clicks on the app icon milliseconds before the app is fully loaded.
-  const INITIAL_APP_BACKGROUND_COLOR = '#18181b';
+  // We use the native theme to determine if we should use a dark background color or not.
+  const INITIAL_APP_BACKGROUND_COLOR = nativeTheme.shouldUseDarkColors ? '#18181b' : '#ffffff';
 
   const browserWindowConstructorOptions: BrowserWindowConstructorOptions = {
     show: false, // Use 'ready-to-show' event to show window
@@ -42,7 +44,7 @@ async function createWindow() {
     minWidth: INITIAL_APP_MIN_WIDTH,
     minHeight: INITIAL_APP_MIN_HEIGHT,
     height: INITIAL_APP_HEIGHT,
-    backgroundColor: INITIAL_APP_BACKGROUND_COLOR, // Use a darker background color to match initial dark theme when loading the app
+    backgroundColor: INITIAL_APP_BACKGROUND_COLOR,
     webPreferences: {
       webSecurity: false,
       //nativeWindowOpen: true,
