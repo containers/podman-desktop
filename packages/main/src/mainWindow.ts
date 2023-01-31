@@ -205,23 +205,26 @@ async function createWindow() {
   return browserWindow;
 }
 
-/**
- * Restore existing BrowserWindow or Create new BrowserWindow
- */
-export async function restoreOrCreateWindow() {
+// Create a new window if there is no existing window
+export async function createNewWindow() {
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   if (window === undefined) {
     window = await createWindow();
   }
+}
 
-  if (window.isMinimized()) {
-    window.restore();
-  }
+// Restore the window if it is minimized / not shown / there is already another instance running
+export async function restoreWindow() {
+  const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
-  if (!window.isVisible()) {
+  // Only restore the window if we were able to find it
+  if (window) {
+    if (window.isMinimized()) {
+      window.restore();
+    }
+
     window.show();
+    window.focus();
   }
-
-  window.focus();
 }
