@@ -31,6 +31,9 @@ async function createWindow() {
   const INITIAL_APP_MIN_WIDTH = 640;
   const INITIAL_APP_HEIGHT = 600;
   const INITIAL_APP_MIN_HEIGHT = 600;
+  // We have a "dark" background color in order to avoid the white flash when loading the app
+  // this only occurs if the user clicks on the app icon milliseconds before the app is fully loaded.
+  const INITIAL_APP_BACKGROUND_COLOR = '#18181b';
 
   const browserWindowConstructorOptions: BrowserWindowConstructorOptions = {
     show: false, // Use 'ready-to-show' event to show window
@@ -39,6 +42,7 @@ async function createWindow() {
     minWidth: INITIAL_APP_MIN_WIDTH,
     minHeight: INITIAL_APP_MIN_HEIGHT,
     height: INITIAL_APP_HEIGHT,
+    backgroundColor: INITIAL_APP_BACKGROUND_COLOR, // Use a darker background color to match initial dark theme when loading the app
     webPreferences: {
       webSecurity: false,
       //nativeWindowOpen: true,
