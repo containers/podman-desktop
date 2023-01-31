@@ -6,7 +6,7 @@ tags: [podman-desktop, installing, windows, winget]
 keywords: [podman desktop, containers, podman, installing, installation, windows, winget]
 ---
 
-## Installing Podman Desktop with Winget
+# Installing Podman Desktop with Winget
 
 #### Prerequisites
 
