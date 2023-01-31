@@ -6,6 +6,7 @@
             "type": "node",
             "request": "launch",
             "cwd": "${workspaceRoot}",
+            "preLaunchTask": "yarn:watch",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
@@ -27,5 +28,5 @@
             ],
             "webRoot": "${workspaceRoot}"
         }
-    ]
+    ],
 }
