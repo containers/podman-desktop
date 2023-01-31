@@ -1017,6 +1017,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'kubernetes-client:listPods',
+      async (): Promise<PodInfo[]> => {
+        return kubernetesClient.listPods();
+      },
+    );
+
+    this.ipcHandle(
       'openshift-client:createRoute',
       async (_listener, namespace: string, route: V1Route): Promise<V1Route> => {
         return kubernetesClient.createOpenShiftRoute(namespace, route);

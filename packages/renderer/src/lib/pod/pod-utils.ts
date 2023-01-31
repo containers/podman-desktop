@@ -60,6 +60,7 @@ export class PodUtils {
       engineName: this.getEngineName(podinfo),
       containers: podinfo.Containers,
       selected: false,
+      kind: podinfo.kind
     };
   }
 }

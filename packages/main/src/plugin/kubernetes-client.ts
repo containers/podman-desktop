@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Context, V1Pod, V1ConfigMap, V1PodList, V1NamespaceList, V1Service } from '@kubernetes/client-node';
-import { CustomObjectsApi } from '@kubernetes/client-node';
+import type { Context, V1Pod, V1ConfigMap, V1PodList, V1NamespaceList, V1Service, V1ContainerState } from '@kubernetes/client-node';
+import {CustomObjectsApi} from '@kubernetes/client-node';
 import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
@@ -28,6 +28,45 @@ import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
 import type { FilesystemMonitoring } from './filesystem-monitoring';
+import type {PodInfo} from './api/pod-info';
+
+function getContainerStatus(state: V1ContainerState | undefined) {
+  if (state) {
+    if (state.running) {
+      return "Running";
+    } else if (state.terminated) {
+      return "Terminated";
+    } else if (state.waiting) {
+      return "Waiting";
+    }
+  }
+  return "Unknown";
+}
+
+function toPodInfo(pod: V1Pod): PodInfo {
+  const containers = pod.status?.containerStatuses?.map(status => {
+    return {
+      Id: status.containerID || '',
+      Names: status.name,
+      Status: getContainerStatus(status.state)
+    };
+  }) || [];
+  return {
+    Cgroup: '',
+    Containers: containers,
+    Created: (pod.metadata?.creationTimestamp || '').toString(),
+    Id: pod.metadata?.uid || '',
+    InfraId: '',
+    Labels: pod.metadata?.labels || {},
+    Name: pod.metadata?.name || '',
+    Namespace: pod.metadata?.namespace || '',
+    Networks: [],
+    Status: pod.status?.phase || '',
+    engineId: '',
+    engineName: '',
+    kind: 'kubernetes',
+  };
+}
 
 /**
  * Handle calls to kubernetes API
@@ -224,7 +263,16 @@ export class KubernetesClient {
     }
   }
 
-  async readNamespacedPod(name: string, namespace: string): Promise<V1Pod | undefined> {
+  async listPods(): Promise<PodInfo[]> {
+    const ns = this.getCurrentNamespace();
+    if (ns !== undefined) {
+      const pods = await this.listNamespacedPod(this.getCurrentNamespace() as string);
+      return pods.items.map(pod => toPodInfo(pod));
+    }
+    return [];
+  }
+
+    async readNamespacedPod(name: string, namespace: string): Promise<V1Pod | undefined> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedPod(name, namespace);

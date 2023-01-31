@@ -1025,6 +1025,13 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'kubernetesListPods',
+    async (): Promise<PodInfo[]> => {
+      return ipcInvoke('kubernetes-client:listPods');
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'openshiftCreateRoute',
     async (namespace: string, route: V1Route): Promise<V1Route> => {
       return ipcInvoke('openshift-client:createRoute', namespace, route);

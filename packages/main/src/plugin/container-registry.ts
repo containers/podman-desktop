@@ -356,7 +356,7 @@ export class ContainerProviderRegistry {
           }
           const pods = await provider.libpodApi.listPods();
           return pods.map(pod => {
-            const podInfo: PodInfo = { ...pod, engineName: provider.name, engineId: provider.id };
+            const podInfo: PodInfo = { ...pod, engineName: provider.name, engineId: provider.id, kind: 'podman' };
             return podInfo;
           });
         } catch (error) {
