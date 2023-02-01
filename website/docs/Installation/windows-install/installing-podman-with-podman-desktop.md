@@ -30,9 +30,7 @@ Consider rather [installing Podman with OpenShift Local](installing-podman-with-
   * User with administrator privileges
   * Windows 64bit
   * Windows 10 Build 18362 or greater, or Windows 11
-  * On Windows Enterprise, Pro, or Education:  [Hyper-V enabled](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
   * On a virtual machine: [Nested Virtualization enabled](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization#configure-nested-virtualization)
-  * *Virtual Machine Platform* optional component enabled
 * Podman is not installed
 * No WSL 2 Linux virtual machine is running
 
