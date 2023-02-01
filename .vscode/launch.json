@@ -2,17 +2,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Main Process",
             "type": "node",
             "request": "launch",
-            "cwd": "${workspaceRoot}",
-            "preLaunchTask": "yarn:watch",
-            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
-            "windows": {
-                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
-            },
-            "program": "${workspaceRoot}/packages/main/dist/index.cjs",
-            "protocol": "inspector"
+            "name": "Debug Main Process",
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}/scripts/watch.cjs",
+            "autoAttachChildProcesses": true
         },
         {
             "name": "Debug Renderer Process",
@@ -23,10 +18,12 @@
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
             },
             "runtimeArgs": [
-                "${workspaceRoot}/packages/main/dist/index.cjs",
-                "--remote-debugging-port=9222"
+              "${workspaceRoot}/packages/main/dist/index.cjs",
+              "--enable-logging",
+              "--remote-debugging-port=9222"
             ],
-            "webRoot": "${workspaceRoot}"
+            "sourceMaps": true,
+            "webRoot": "${workspaceRoot}/packages/"
         }
     ],
 }
