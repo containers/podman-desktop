@@ -21,7 +21,7 @@ Consider installing the Podman Preset in OpenShift Local rather than [installing
 #### Prerequisites
 
 * The user is a member of the *Hyper-V Administrators* group. The user can add a virtual machine, start or stop this virtual machine, and access the resources related to this virtual machine.
-* Windows 10 or 11, Enterprise or Professional edition
+* Windows 10 version 1709 or later, Enterprise or Professional edition, or Windows 11, Enterprise or Professional edition
 
 #### Procedure
 
