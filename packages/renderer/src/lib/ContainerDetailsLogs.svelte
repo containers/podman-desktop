@@ -33,7 +33,7 @@ $: {
 
 let currentRouterPath: string;
 
-let logsTerminal;
+let logsTerminal: Terminal;
 
 function callback(name: string, data: string) {
   if (name === 'first-message') {
@@ -56,14 +56,6 @@ async function fetchContainerLogs() {
   await window.logsContainer(container.engineId, container.id, callback);
   logsReady = true;
 }
-
-router.subscribe(async route => {
-  currentRouterPath = route.path;
-  if (route.path.endsWith('/logs')) {
-    await refreshTerminal();
-    fetchContainerLogs();
-  }
-});
 
 async function refreshTerminal() {
   // missing element, return
@@ -106,8 +98,8 @@ async function refreshTerminal() {
 
 onMount(async () => {
   // Refresh the terminal on initial load
-  refreshTerminal();
-
+  await refreshTerminal();
+  fetchContainerLogs();
   // Resize the terminal each time we change the div size
   resizeObserver = new ResizeObserver(entries => {
     termFit?.fit();
