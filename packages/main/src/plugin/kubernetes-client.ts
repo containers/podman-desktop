@@ -18,7 +18,7 @@
 
 import type { Context, V1Pod, V1ConfigMap, V1PodList, V1NamespaceList, V1Service, V1ContainerState } from '@kubernetes/client-node';
 import {CustomObjectsApi} from '@kubernetes/client-node';
-import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig, Log } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { Emitter } from './events/emitter';
@@ -29,6 +29,7 @@ import { existsSync } from 'node:fs';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
 import type { FilesystemMonitoring } from './filesystem-monitoring';
 import type {PodInfo} from './api/pod-info';
+import {PassThrough} from 'node:stream';
 
 function getContainerStatus(state: V1ContainerState | undefined) {
   if (state) {
@@ -62,8 +63,8 @@ function toPodInfo(pod: V1Pod): PodInfo {
     Namespace: pod.metadata?.namespace || '',
     Networks: [],
     Status: pod.status?.phase || '',
-    engineId: '',
-    engineName: '',
+    engineId: 'kubernetes',
+    engineName: 'Kubernetes',
     kind: 'kubernetes',
   };
 }
@@ -270,6 +271,27 @@ export class KubernetesClient {
       return pods.items.map(pod => toPodInfo(pod));
     }
     return [];
+  }
+
+  async readPodLog(name: string, container: string, callback: (name: string, data: string) => void): Promise<void> {
+    console.log("Reading podlog name=" + name + " container=" + container + " callback=" + callback);
+    const ns = this.currrentNamespace;
+    if (ns) {
+      const log = new Log(this.kubeConfig);
+
+      const logStream = new PassThrough();
+
+      logStream.on('data', (chunk) => {
+        // use write rather than console.log to prevent double line feed
+        console.log("Received chunk=" + chunk);
+        callback('data', chunk.toString('utf-8'));
+      });
+
+      log.log(ns, name, container, logStream,  {follow: true});
+        //.then(req => {
+        //  req.abort();
+        //});
+    }
   }
 
     async readNamespacedPod(name: string, namespace: string): Promise<V1Pod | undefined> {

@@ -1024,6 +1024,15 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'kubernetes-client:readPodLog',
+      async (_listener, name: string, container: string, onDataId: number): Promise<void> => {
+        return kubernetesClient.readPodLog(name, container, (name: string, data: string) => {
+          this.getWebContentsSender().send('kubernetes-client:readPodLog-onData', onDataId, name, data);
+        });
+      },
+    );
+
+    this.ipcHandle(
       'openshift-client:createRoute',
       async (_listener, namespace: string, route: V1Route): Promise<V1Route> => {
         return kubernetesClient.createOpenShiftRoute(namespace, route);

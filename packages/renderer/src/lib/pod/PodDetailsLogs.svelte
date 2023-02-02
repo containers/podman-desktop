@@ -24,7 +24,7 @@ let logsTerminal: Terminal;
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
 let currentRouterPath: string;
-let logsRouterPath: string = `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
+let logsRouterPath: string = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
 
 // An array of readable ANSI escape sequence colours against a black terminal background
 // these are the most "readable" colours against a black background
@@ -102,7 +102,11 @@ async function fetchPodLogs() {
     };
 
     // Get the logs for the container
-    await window.logsContainer(pod.engineId, container.Id, logsCallback);
+    if (pod.kind === 'podman') {
+      await window.logsContainer(pod.engineId, container.Id, logsCallback);
+    } else {
+      await window.kubernetesReadPodLog(pod.name, container.Names, logsCallback);
+    }
   });
 }
 

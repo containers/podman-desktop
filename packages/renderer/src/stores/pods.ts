@@ -22,22 +22,17 @@ import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { findMatchInLeaves } from './search-util';
 export async function fetchPods() {
   const result = await window.listPods();
-  podsInfos.set(result);
   const pods = await window.kubernetesListPods();
-  kubePods.set(pods);
+  podsInfos.set(result.concat(pods));
 }
 
 export const podsInfos: Writable<PodInfo[]> = writable([]);
 
-export const kubePods: Writable<PodInfo[]> = writable([]);
-
 export const searchPattern = writable('');
 
-export const filtered = derived([searchPattern, podsInfos, kubePods],
-  ([$searchPattern, $imagesInfos, $kubePods]) => {
-    const filteredContainerPods = $imagesInfos.filter(podInfo => findMatchInLeaves(podInfo, $searchPattern.toLowerCase()));
-    const filteredKubePods = $kubePods.filter(pod => findMatchInLeaves(pod, $searchPattern.toLowerCase()));
-    return [filteredContainerPods, filteredKubePods].flat();
+export const filtered = derived([searchPattern, podsInfos],
+  ([$searchPattern, $imagesInfos]) => {
+    return $imagesInfos.filter(podInfo => findMatchInLeaves(podInfo, $searchPattern.toLowerCase()));
   }
 );
 
