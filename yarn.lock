@@ -7,10 +7,10 @@
   resolved "https://registry.npmjs.org/7zip-bin/-/7zip-bin-5.1.1.tgz"
   integrity sha512-sAP4LldeWNz0lNzmTird3uWfFDWWTeg6V/MsmyyLR9X1idwKBWIgt/ZvinqQldJm3LecKEs1emkbquO6PCiLVQ==
 
-"7zip-min@^1.4.3":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/7zip-min/-/7zip-min-1.4.3.tgz#84dbdd59215124bcf2aa6dc1bf102b40146eccb7"
-  integrity sha512-NsFTI3mxcRO3d3aZS+A9Fpmi+js+cpP2u/jaIbVpsH896SD5TbfYahhtFrLXTFz5Ae17ZE1SmzNGa/xeuNLYlQ==
+"7zip-min@^1.4.4":
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/7zip-min/-/7zip-min-1.4.4.tgz#82a50a8d3f0a2d86b4c908433c9ec35627f4138c"
+  integrity sha512-mYB1WW5tcXfZxUN4+2joKk4+6j8jp+mpO2YiMU5z1gNNFbACxI2ADasffsdNPovZSwn/E662ZIH5gRkFPMufmA==
   dependencies:
     "7zip-bin" "5.1.1"
 
