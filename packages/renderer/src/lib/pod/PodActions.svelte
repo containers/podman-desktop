@@ -52,7 +52,11 @@ async function stopPod(podInfoUI: PodInfoUI) {
 async function removePod(podInfoUI: PodInfoUI): Promise<void> {
   inProgressCallback(true, 'REMOVING');
   try {
-    await window.removePod(podInfoUI.engineId, podInfoUI.id);
+    if (pod.kind === 'podman') {
+      await window.removePod(podInfoUI.engineId, podInfoUI.id);
+    } else {
+      await window.kubernetesDeletePod(podInfoUI.name);
+    }
     router.goto('/pods/');
   } catch (error) {
     errorCallback(error);
@@ -78,6 +82,7 @@ if (dropdownMenu) {
 }
 </script>
 
+{#if pod.kind === 'podman'}
 <ListItemButtonIcon
   title="Start Pod"
   onClick="{() => startPod(pod)}"
@@ -90,6 +95,7 @@ if (dropdownMenu) {
   hidden="{!(pod.status === 'RUNNING')}"
   detailed="{detailed}"
   icon="{faStop}" />
+{/if}
 <ListItemButtonIcon title="Delete Pod" onClick="{() => removePod(pod)}" icon="{faTrash}" detailed="{detailed}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->

@@ -1053,6 +1053,13 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld(
+    'kubernetesDeletePod',
+    async (name: string): Promise<void> => {
+      return ipcInvoke('kubernetes-client:deletePod', name);
+    },
+  );
+
 
   contextBridge.exposeInMainWorld(
     'openshiftCreateRoute',

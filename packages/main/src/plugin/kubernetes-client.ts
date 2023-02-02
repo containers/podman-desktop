@@ -18,7 +18,7 @@
 
 import type { Context, V1Pod, V1ConfigMap, V1PodList, V1NamespaceList, V1Service, V1ContainerState } from '@kubernetes/client-node';
 import {CustomObjectsApi} from '@kubernetes/client-node';
-import { CoreV1Api, KubeConfig, Log } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { Emitter } from './events/emitter';
@@ -85,11 +85,14 @@ export class KubernetesClient {
 
   private kubeConfigWatcher: containerDesktopAPI.FileSystemWatcher | undefined;
 
+  private kubeWatcher: any | undefined;
+
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
     this._onDidUpdateKubeconfig.event;
 
   constructor(
+    private apiSender: any,
     private configurationRegistry: ConfigurationRegistry,
     private fileSystemMonitoring: FilesystemMonitoring,
   ) {
@@ -167,6 +170,20 @@ export class KubernetesClient {
     });
   }
 
+  setupKubeWatcher() {
+    this.kubeWatcher?.abort();
+    const ns = this.currrentNamespace;
+    if (ns) {
+      new Watch(this.kubeConfig).watch("/api/v1/namespaces/" + ns + "/pods", {},
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        (phase: string, apiObj: any, watchObj?: any) => {
+          this.apiSender.send('pod-event');
+        }, (err:any) => {
+          console.log("Kube event error " + err);
+        }).then(req => this.kubeWatcher = req);
+    }
+  }
+
   getContexts(): Context[] {
     return this.kubeConfig.contexts;
   }
@@ -194,6 +211,7 @@ export class KubernetesClient {
     if (currentContext) {
       this.currrentNamespace = currentContext.namespace;
     }
+    this.setupKubeWatcher();
   }
 
   newError(message: string, cause: Error): Error {
@@ -291,6 +309,14 @@ export class KubernetesClient {
         //.then(req => {
         //  req.abort();
         //});
+    }
+  }
+
+  async deletePod(name: string): Promise<void> {
+    const ns = this.currrentNamespace;
+    if (ns) {
+      const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
+      k8sApi.deleteNamespacedPod(name, ns);
     }
   }
 

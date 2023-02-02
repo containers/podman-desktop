@@ -270,7 +270,7 @@ export class PluginSystem {
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
 
-    const kubernetesClient = new KubernetesClient(configurationRegistry, fileSystemMonitoring);
+    const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
@@ -1029,6 +1029,13 @@ export class PluginSystem {
         return kubernetesClient.readPodLog(name, container, (name: string, data: string) => {
           this.getWebContentsSender().send('kubernetes-client:readPodLog-onData', onDataId, name, data);
         });
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:deletePod',
+      async (_listener, name: string): Promise<void> => {
+        return kubernetesClient.deletePod(name);
       },
     );
 
