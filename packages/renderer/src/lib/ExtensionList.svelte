@@ -103,7 +103,7 @@ async function removeExtension(extension: ExtensionInfo) {
 
       <div class="container mx-auto w-full flex-col">
         {#if errorInstall !== ''}
-          <div class="bg-red-300 text-gray-900 m-4">
+          <div class="bg-red-500 text-gray-900 m-4">
             {errorInstall}
           </div>
         {/if}

@@ -154,7 +154,7 @@ async function selectFilePath() {
     {/if}
 
     {#if invalidEntry}
-      <p class="pf-c-form__helper-text pf-m-error text:red" id="form-help-text-address-helper" aria-live="polite">
+      <p class="pf-c-form__helper-text pf-m-error text:red-500" id="form-help-text-address-helper" aria-live="polite">
         {invalidText}.
       </p>
     {/if}

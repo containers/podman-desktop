@@ -114,7 +114,7 @@ async function sendFeedback(): Promise<void> {
 
         <div class="pt-5 flex flex-row w-full">
           {#if smileyRating === 0}
-            <div class="text-red-600 text-xs flex flex-row w-[300px]">Please select an experience smiley</div>
+            <div class="text-red-500 text-xs flex flex-row w-[300px]">Please select an experience smiley</div>
           {/if}
 
           <div class="flex flex-row justify-end w-full">
