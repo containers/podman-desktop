@@ -86,12 +86,12 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/containers')
         ? 'pf-m-current'
         : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/containers" class="pf-c-nav__link flex items-center align-middle">
+      <a href="/containers" class="pf-c-nav__link flex items-center align-middle !pr-1">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
             <ContainerIcon size="24" />
             <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out ml-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Containers</span>
           </div>
 
@@ -111,12 +111,12 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/pods'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/pods" class="pf-c-nav__link">
+      <a href="/pods" class="pf-c-nav__link !pr-1">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
             <PodIcon size="24" />
             <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out ml-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Pods</span>
           </div>
           <div class="flex w-full justify-end">
@@ -135,12 +135,12 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/images'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/images" class="pf-c-nav__link">
+      <a href="/images" class="pf-c-nav__link !pr-1">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
             <ImageIcon size="24" />
             <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out ml-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Images</span>
           </div>
           <div class="flex w-full justify-end">
@@ -159,12 +159,12 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/volumes'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/volumes" class="pf-c-nav__link">
+      <a href="/volumes" class="pf-c-nav__link !pr-1">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
             <VolumeIcon size="24" />
             <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
+              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out ml-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
               >Volumes</span>
           </div>
           <div class="flex w-full justify-end">
