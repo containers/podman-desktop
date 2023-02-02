@@ -10,20 +10,15 @@
             "autoAttachChildProcesses": true
         },
         {
-            "name": "Debug Renderer Process",
+            // Needs to start "Debug Main Process" first
+            "name": "Attach Debugger Renderer Process",
+            "request": "attach",
             "type": "chrome",
-            "request": "launch",
-            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
-            "windows": {
-                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
-            },
-            "runtimeArgs": [
-              "${workspaceRoot}/packages/main/dist/index.cjs",
-              "--enable-logging",
-              "--remote-debugging-port=9222"
-            ],
+            "port": 9223,
             "sourceMaps": true,
-            "webRoot": "${workspaceRoot}/packages/"
-        }
+            "webRoot": "${workspaceRoot}/packages/",
+            "timeout": 30000
+          },
     ],
 }
+
