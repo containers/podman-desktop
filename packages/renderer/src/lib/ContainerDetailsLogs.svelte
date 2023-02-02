@@ -133,9 +133,16 @@ onDestroy(() => {
 {/if}
 
 <div
-  class="flex flex-col"
+  class="flex flex-col items-center justify-center"
   style="background-color: {getPanelDetailColor()}"
   class:h-full="{noLogs === false}"
   class:min-w-full="{noLogs === false}"
   bind:this="{logsXtermDiv}">
+  <i class="pf-c-button__progress z-10" class:hidden="{noLogs === false}">
+    <span class="pf-c-spinner pf-m-md" role="progressbar">
+      <span class="pf-c-spinner__clipper"></span>
+      <span class="pf-c-spinner__lead-ball"></span>
+      <span class="pf-c-spinner__tail-ball"></span>
+    </span>
+  </i>
 </div>
