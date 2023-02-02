@@ -137,12 +137,15 @@ onDestroy(() => {
   style="background-color: {getPanelDetailColor()}"
   class:h-full="{noLogs === false}"
   class:min-w-full="{noLogs === false}"
-  bind:this="{logsXtermDiv}">
-  <i class="pf-c-button__progress z-10" class:hidden="{noLogs === false}">
-    <span class="pf-c-spinner pf-m-md" role="progressbar">
-      <span class="pf-c-spinner__clipper"></span>
-      <span class="pf-c-spinner__lead-ball"></span>
-      <span class="pf-c-spinner__tail-ball"></span>
-    </span>
-  </i>
+  bind:this="{logsXtermDiv}">    
+    <div class="pf-c-button__progress z-10" class:hidden="{logsReady || !noLogs}">
+      <div class="align-top inline-block">
+        <span>Fetching logs</span>
+      </div>
+      <span class="pf-c-spinner pf-m-md" role="progressbar">
+        <span class="pf-c-spinner__clipper"></span>
+        <span class="pf-c-spinner__lead-ball"></span>
+        <span class="pf-c-spinner__tail-ball"></span>
+      </span>
+    </div>
 </div>
