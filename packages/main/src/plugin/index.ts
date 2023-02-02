@@ -74,6 +74,7 @@ import type {
 import { AutostartEngine } from './autostart-engine';
 import { CloseBehavior } from './close-behavior';
 import { TrayIconColor } from './tray-icon-color';
+import { StartMinimized } from './start-minimized';
 import { KubernetesClient } from './kubernetes-client';
 import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
@@ -281,6 +282,9 @@ export class PluginSystem {
 
     const autoStartConfiguration = new AutostartEngine(configurationRegistry, providerRegistry);
     await autoStartConfiguration.init();
+
+    const startMinimized = new StartMinimized(configurationRegistry);
+    await startMinimized.init();
 
     providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
       if (name === 'provider:update-status') {
