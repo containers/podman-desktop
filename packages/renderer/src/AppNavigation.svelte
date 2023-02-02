@@ -86,7 +86,7 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/containers')
         ? 'pf-m-current'
         : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/containers" class="pf-c-nav__link flex items-center align-middle !pr-1">
+      <a href="/containers" class="pf-c-nav__link flex items-center align-middle">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
             <ContainerIcon size="24" />
@@ -111,7 +111,7 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/pods'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/pods" class="pf-c-nav__link !pr-1">
+      <a href="/pods" class="pf-c-nav__link">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
             <PodIcon size="24" />
@@ -135,7 +135,7 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/images'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/images" class="pf-c-nav__link !pr-1">
+      <a href="/images" class="pf-c-nav__link">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
             <ImageIcon size="24" />
@@ -159,7 +159,7 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/volumes'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/volumes" class="pf-c-nav__link !pr-1">
+      <a href="/volumes" class="pf-c-nav__link">
         <div class="flex items-center w-full h-full">
           <div class="flex items-center">
             <VolumeIcon size="24" />
