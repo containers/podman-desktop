@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -885,6 +885,37 @@ function initExposure(): void {
     'stopReceiveLogs',
     async (providerId: string, containerConnectionInfo?: ProviderContainerConnectionInfo): Promise<void> => {
       return ipcInvoke('provider-registry:stopReceiveLogs', providerId, containerConnectionInfo);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'sendShowInputBoxValue',
+    async (inputBoxId: number, value: string | undefined, error: string | undefined): Promise<void> => {
+      return ipcInvoke('showInputBox:value', inputBoxId, value, error);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'sendShowQuickPickValues',
+    async (quickPickId: number, selectedIndexes: number[]): Promise<void> => {
+      return ipcInvoke('showQuickPick:values', quickPickId, selectedIndexes);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'sendShowInputBoxValidate',
+    async (
+      inputBoxId: number,
+      value: string,
+    ): Promise<string | containerDesktopAPI.InputBoxValidationMessage | undefined | null> => {
+      return ipcInvoke('showInputBox:validate', inputBoxId, value);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'sendShowQuickPickOnSelect',
+    async (inputBoxId: number, selectedIndex: number): Promise<void> => {
+      return ipcInvoke('showQuickPick:onSelect', inputBoxId, selectedIndex);
     },
   );
 
