@@ -327,7 +327,7 @@ async function deployToKube() {
                       <span class="text-gray-500">Ready</span>
                     {/if}
                     {#if containerStatus.state?.running}
-                      <span class="text-green-500">(Running)</span>
+                      <span class="text-green-400">(Running)</span>
                     {/if}
                     {#if containerStatus.state?.terminated}
                       <span class="text-red-500">(Terminated)</span>

@@ -120,7 +120,7 @@ async function handleOnSubmit(e) {
       </div>
     {/if}
     {#if errorMessage}
-      <div class="text-red-600">
+      <div class="text-red-500">
         {errorMessage}
       </div>
     {/if}
