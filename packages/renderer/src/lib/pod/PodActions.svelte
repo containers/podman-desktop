@@ -62,7 +62,7 @@ async function removePod(podInfoUI: PodInfoUI): Promise<void> {
 }
 
 function openGenerateKube(): void {
-  router.goto(`/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube`);
+  router.goto(`/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube`);
 }
 
 function deployToKubernetes(): void {
@@ -94,6 +94,7 @@ if (dropdownMenu) {
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
+  {#if pod.kind === 'podman'}
   {#if !detailed}
     <ListItemButtonIcon
       title="Generate Kube"
@@ -108,6 +109,7 @@ if (dropdownMenu) {
     menu="{dropdownMenu}"
     detailed="{detailed}"
     icon="{faRocket}" />
+  {/if}
   <ListItemButtonIcon
     title="Restart Pod"
     onClick="{() => restartPod(pod)}"
