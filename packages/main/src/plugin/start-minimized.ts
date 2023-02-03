@@ -23,14 +23,14 @@ export class StartMinimized {
 
   async init(): Promise<void> {
     const startMinimizedConfigurationNode: IConfigurationNode = {
-      id: 'preferences.login.minimized',
+      id: 'preferences.StartMinimized',
       title: 'Start Minimized',
       type: 'object',
       properties: {
-        ['preferences.login.minimized']: {
+        ['preferences.StartMinimized']: {
           description: 'On startup, start the application minimized to the tray. (Requires restart)',
           type: 'boolean',
-          default: 'false',
+          default: false,
         },
       },
     };

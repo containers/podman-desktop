@@ -58,6 +58,7 @@ async function createWindow() {
     browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
   }
 
+  let configurationRegistry: ConfigurationRegistry;
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
   const { getCursorScreenPoint, getDisplayNearestPoint } = screen;
   const workArea = getDisplayNearestPoint(getCursorScreenPoint()).workArea;
@@ -79,7 +80,18 @@ async function createWindow() {
    * @see https://github.com/electron/electron/issues/25012
    */
   browserWindow.on('ready-to-show', () => {
-    browserWindow?.show();
+    // Get configuration of the minimize behaviour from the configuration registry
+    const minimizeBehaviorConfiguration = configurationRegistry?.getConfiguration('preferences');
+    let minimizeToTray = false; // default value, which we will use unless the user preference is available.
+    if (minimizeBehaviorConfiguration) {
+      minimizeToTray = minimizeBehaviorConfiguration.get<boolean>('StartMinimized') == true;
+    }
+
+    // Do not show if the user has selected to minimize to tray
+    if (!minimizeToTray) {
+      browserWindow?.show();
+    }
+
     if (isMac) {
       app.dock.show();
     }
@@ -110,7 +122,6 @@ async function createWindow() {
     browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
   });
 
-  let configurationRegistry: ConfigurationRegistry;
   ipcMain.on('configuration-registry', (_, data) => {
     configurationRegistry = data;
   });

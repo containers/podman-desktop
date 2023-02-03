@@ -29,7 +29,7 @@ export class StartupInstall {
     if (os.platform() === 'darwin') {
       this.osStartup = new MacosStartup(configurationRegistry);
     } else if (os.platform() === 'win32') {
-      this.osStartup = new WindowsStartup();
+      this.osStartup = new WindowsStartup(configurationRegistry);
     }
   }
 
@@ -88,7 +88,6 @@ export class StartupInstall {
 
       // If the "minimize on start" option has changed, we need to update the startup configuration
       if (e.key === 'preferences.login.minimized') {
-        console.log('minimized configuration changed, updating startup configuration');
         // Only enable if we actually want to start on login
         const dashboardConfiguration = this.configurationRegistry.getConfiguration('preferences.login');
         const enabled = dashboardConfiguration.get<boolean>('start');

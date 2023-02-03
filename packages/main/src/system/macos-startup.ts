@@ -32,8 +32,8 @@ export class MacosStartup {
   private minimizedSettings = '';
 
   constructor(private configurationRegistry: ConfigurationRegistry) {
-    const dashboardConfiguration = this.configurationRegistry.getConfiguration('preferences.login');
-    const min = dashboardConfiguration.get<boolean>('minimized');
+    const dashboardConfiguration = this.configurationRegistry.getConfiguration('preferences');
+    const min = dashboardConfiguration.get<boolean>('StartMinimized');
     if (min) {
       // Uses https://developer.apple.com/documentation/bundleresources/information_property_list/lsuielement
       this.minimizedSettings = `<key>LSUIElement</key>
