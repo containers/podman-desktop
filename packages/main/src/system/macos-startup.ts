@@ -19,6 +19,7 @@
 import { app } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
+import type { ConfigurationRegistry } from '../plugin/configuration-registry';
 
 /**
  * On macOS, startup on login is done via a plist file
@@ -27,10 +28,12 @@ import path from 'node:path';
  */
 export class MacosStartup {
   private podmanDesktopBinaryPath;
-
   private plistFile;
+  private configurationRegistry: ConfigurationRegistry;
 
-  constructor() {
+  constructor(configurationRegistry: ConfigurationRegistry) {
+    this.configurationRegistry = configurationRegistry;
+
     // grab current path of the binary
     this.podmanDesktopBinaryPath = app.getPath('exe');
 
@@ -52,6 +55,14 @@ export class MacosStartup {
   }
 
   async enable() {
+    // Check the preferences for login.minimize has been enabled
+    // as this may change each time it's enabled (changed from true to false, etc.)
+    // it's also to make sure that settings weren't changed while async function was running
+    // so we check the configuration within the function
+    const preferencesConfig = this.configurationRegistry.getConfiguration('preferences');
+    const minimize = preferencesConfig.get<boolean>('login.minimize');
+    const minimizeSettings = minimize ? '<string>--minimize</string>' : '';
+
     // comes from a volume ? do nothing
     if (this.podmanDesktopBinaryPath.startsWith('/Volumes/')) {
       console.warn(`Cannot enable the start on login, running from a volume ${this.podmanDesktopBinaryPath}`);
@@ -59,7 +70,8 @@ export class MacosStartup {
     }
 
     // write the file
-    const plistContent = `<?xml version="1.0" encoding="UTF-8"?>
+    const plistContent =
+      `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -68,6 +80,9 @@ export class MacosStartup {
     <key>ProgramArguments</key>
     <array>
         <string>${this.podmanDesktopBinaryPath}</string>
+        ` +
+      minimizeSettings +
+      `
     </array>
     <key>RunAtLoad</key>
     <true/>
