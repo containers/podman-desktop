@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import path from 'node:path';
+import { configDefaults } from 'vitest/config';
 /**
  * Config for global end-to-end tests
  * placed in project root tests folder
@@ -33,11 +34,10 @@ const config = {
 
     exclude: [
       '**/builtin/**',
-      '**/node_modules/**',
-      '**/dist/**',
       '**/cypress/**',
-      '**/.{idea,git,cache,output,temp}/**',
+      '**/.{output,temp,cdix}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress}.config.*',
+      ...configDefaults.exclude,
     ],
 
     /**
@@ -45,6 +45,26 @@ const config = {
      */
     testTimeout: 30_000,
     hookTimeout: 30_000,
+    /**
+     * Vitest configuration for code coverage
+     */
+    coverage: {
+      all: true,
+      src: ['extensions', 'packages'],
+      exclude: [
+        '**/builtin/**',
+        '**/cypress/**',
+        '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+        '**/*.{svelte,tsx,cjs,js,d.ts}',
+        '**/*-info.ts',
+        '**/.{output,temp,cdix}/**',
+        '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
+        ...configDefaults.exclude,
+      ],
+      provider: 'c8',
+      reportsDirectory: './test-resources/coverage',
+      reporter: ['lcov', 'json', 'text-summary'],
+    },
   },
   resolve: {
     alias: {
