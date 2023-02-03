@@ -2,7 +2,7 @@
 import { onMount } from 'svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import type { PodInfoUI } from './PodInfoUI';
-import { stringify } from 'YAML'
+import { stringify } from 'yaml'
 export let pod: PodInfoUI;
 
 let kubeDetails: string;
