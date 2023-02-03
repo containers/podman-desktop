@@ -19,6 +19,7 @@
 import { app } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
+import type { ConfigurationRegistry } from '../plugin/configuration-registry';
 
 /**
  * On macOS, startup on login is done via a plist file
@@ -27,10 +28,18 @@ import path from 'node:path';
  */
 export class MacosStartup {
   private podmanDesktopBinaryPath;
-
   private plistFile;
+  private minimizedSettings = '';
 
-  constructor() {
+  constructor(private configurationRegistry: ConfigurationRegistry) {
+    const dashboardConfiguration = this.configurationRegistry.getConfiguration('preferences.login');
+    const min = dashboardConfiguration.get<boolean>('minimized');
+    if (min) {
+      // Uses https://developer.apple.com/documentation/bundleresources/information_property_list/lsuielement
+      this.minimizedSettings = `<key>LSUIElement</key>
+      <true/>`;
+    }
+
     // grab current path of the binary
     this.podmanDesktopBinaryPath = app.getPath('exe');
 
@@ -58,8 +67,10 @@ export class MacosStartup {
       return;
     }
 
+    console.log('enabling start on login:', this.minimizedSettings);
     // write the file
-    const plistContent = `<?xml version="1.0" encoding="UTF-8"?>
+    const plistContent =
+      `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -71,6 +82,9 @@ export class MacosStartup {
     </array>
     <key>RunAtLoad</key>
     <true/>
+    ` +
+      this.minimizedSettings +
+      `
     <key>StandardOutPath</key>
     <string>${app.getPath('home')}/Library/Logs/Podman Desktop/launchd-stdout.log</string>
     <key>StandardErrorPath</key>
@@ -84,6 +98,7 @@ export class MacosStartup {
 
     // write the file
     await fs.promises.writeFile(this.plistFile, plistContent, 'utf-8');
+
     console.info(
       `Installing Podman Desktop startup file at ${this.plistFile} using ${this.podmanDesktopBinaryPath} location.`,
     );

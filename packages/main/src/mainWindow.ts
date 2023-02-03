@@ -79,6 +79,7 @@ async function createWindow() {
    * @see https://github.com/electron/electron/issues/25012
    */
   browserWindow.on('ready-to-show', () => {
+    browserWindow?.show();
     if (isMac) {
       app.dock.show();
     }
@@ -221,12 +222,7 @@ export async function createNewWindow() {
 
 // Restore the window if it is minimized / not shown / there is already another instance running
 export async function restoreWindow() {
-  let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
-
-  // Create the window if for some reason it has been destroyed
-  if (window === undefined) {
-    window = await createWindow();
-  }
+  const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   // Only restore the window if we were able to find it
   if (window) {
@@ -237,22 +233,4 @@ export async function restoreWindow() {
     window.show();
     window.focus();
   }
-}
-
-// Show the window if it is minimized / not shown / there is already another instance running
-export async function showWindow(configurationRegistry: ConfigurationRegistry) {
-  // Only show the window if it's not set to start minimized
-  if (!didUserSetMinimized(configurationRegistry)) {
-    restoreWindow();
-  }
-}
-
-// Checks the configuration registry and returns true if the user has set the preference to start minimized
-function didUserSetMinimized(configurationRegistry: ConfigurationRegistry): boolean {
-  const minimizeBehaviorConfiguration = configurationRegistry?.getConfiguration('preferences');
-  let startMinimized = false;
-  if (minimizeBehaviorConfiguration) {
-    startMinimized = minimizeBehaviorConfiguration.get<boolean>('StartMinimized') == true;
-  }
-  return startMinimized;
 }

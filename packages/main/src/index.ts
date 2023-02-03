@@ -18,7 +18,7 @@
 
 import { app, ipcMain, Tray } from 'electron';
 import './security-restrictions';
-import { createNewWindow, showWindow, restoreWindow } from '/@/mainWindow';
+import { createNewWindow, restoreWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
 import { isMac, isWindows } from './util';
 import { AnimatedTray } from './tray-animate-icon';
@@ -113,10 +113,6 @@ app.whenReady().then(
     // Configure automatic startup
     const automaticStartup = new StartupInstall(configurationRegistry);
     await automaticStartup.configure();
-
-    // Now that everything is loaded, show the window based on our configuration as we could have set
-    // the window to be hidden on startup.
-    showWindow(configurationRegistry);
   },
   e => console.error('Failed to start app:', e),
 );
