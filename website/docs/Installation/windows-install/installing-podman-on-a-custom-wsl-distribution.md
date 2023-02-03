@@ -10,7 +10,7 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 On Windows, running the Podman container engine requires running a Linux distribution on a virtual machine.
 
-Consider installing a custom WSL distribution rather than [installing Podman with Podman Desktop](installing-podman-with-podman-desktop) when:
+Consider installing a custom WSL distribution to, replace the default created when [installing Podman with Podman Desktop](installing-podman-with-podman-desktop) when:
 
 * You prefer building your distribution of Linux.
 
@@ -22,62 +22,48 @@ Consider installing a custom WSL distribution rather than [installing Podman wit
   * User with administrator privileges
   * Windows 64bit
   * Windows 10 Build 18362 or greater, or Windows 11
-  * On Windows Enterprise, Pro, or Education:  [Hyper-V enabled](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
   * On a virtual machine: [Nested Virtualization enabled](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization#configure-nested-virtualization)
-  * *Virtual Machine Platform* optional feature enabled
-* `MYCONTAINER`: A container image for your Linux distribution with [Podman](https://podman.io/getting-started/installation#installing-on-linux), such as https://quay.io/repository/podman/stable
+* `MYCONTAINER`: A container image for your Linux distribution with [Podman](https://podman.io/getting-started/installation#installing-on-linux), such as `quay.io/podman/stable`
+* [Podman is installed and initialized](installing-podman-with-podman-desktop.md) to use the
 
 #### Procedure
 
-1. Enable the features necessary to run WSL and install the Ubuntu distribution of Linux. See [Installing Linux on Windows with WSL](https://learn.microsoft.com/en-us/windows/wsl/install):
+1. Start a session in superuser mode in the podman-machine-default WSL distribution:
 
     ```powershell
-    > wsl --install
-    ```
-2. Set the default version to WSL 2 to install a Linux distribution:
-
-    ```powershell
-    > wsl --set-default-version 2
+    > wsl --distribution podman-machine-default --user root
     ```
 
-3. Start a session in the default WSL distribution:
-
-    ```powershell
-    > wsl
-    ```
-
-4. Run the commands from the default WSL distribution to export a tar file containing your Linux distribution from a container. Set the `<MYCONTAINER>` value for your container:
+2. Run the commands from the Ubuntu WSL distribution to export a tar file containing your Linux distribution from your `<MYCONTAINER>` container:
 
      ```shell-session
-     $ sudo -i
-     # apt-get install -y buildah
-   
-     ## Instantiate the Image
-     # CONTNR=$(buildah from <MYCONTAINER>)
-   
-     ## Mount the image
-     # MNTPNT=$(buildah mount $CONTNR)
-   
-     ## Enter the mount point
-     # cd $MNTPNT
-
-     ## Create a tar file of the container filesystem, outside of the mounted filesystem
+     # podman run -ti --name my-linux <MYCONTAINER> true
+     # cd $(podman mount my-linux)
      # tar cvf /opt/my-linux.tar .
+     # exit
      ```
 
-5. Copy the `my-linux.tar` file to the `C:\WSLDistributions\` directory.
-
-6. Import your Linux distribution into WSL:
+3. Import your Linux distribution into WSL. It creates an `ext4.vdhx` file in the `MyLinux` directory.
 
     ```powershell
-    > wsl --import MyLinux C:\WSLDistributions\MyLinux C:\WSLDistributions\my-linux.tar
+    > wsl --import MyLinux MyLinux \\wsl$\podman-machine-default\opt\my-linux.tar
     ```
 
-7. Run your WSL distribution:
+4. Set your WSL distribution as default:
 
     ```powershell
-    > wsl -d MyLinux
+    > wsl --set-default MyLinux
     ```
+
+5. Run your WSL distribution:
+
+    ```powershell
+    > wsl --distribution MyLinux
+    ```
+
+6. Register your WSL distribution as a Podman machine.
+
+// TODO
 
 #### Verification steps
 
