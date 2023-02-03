@@ -101,7 +101,7 @@ const setType = (node: any) => {
           class="block disabled:opacity-75 disabled:text-gray-500 w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-400 placeholder-gray-400 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-opacity-20" />
         <div class="h-3 mt-2 text-xs">
           {#if $serverUrlValidity.dirty && !$serverUrlValidity.valid}
-            <p class="text-red-600">
+            <p class="text-red-500">
               <i class="fas fa-exclamation-circle pr-1" aria-hidden="true"></i>
               {$serverUrlValidity.message}
             </p>
@@ -120,7 +120,7 @@ const setType = (node: any) => {
           type="text"
           use:userNameValidate="{registry.username}"
           class="block w-full w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-400 placeholder-gray-400 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-opacity-20" />
-        <p class="mt-2 text-xs text-red-600 h-3">
+        <p class="mt-2 text-xs text-red-500 h-3">
           {#if $userNameValidity.dirty && !$userNameValidity.valid}
             <i class="fas fa-exclamation-circle pr-1" aria-hidden="true"></i>
             {$userNameValidity.message}
@@ -155,7 +155,7 @@ const setType = (node: any) => {
           use:setType
           use:passwordValidate="{registry.secret}"
           class="block w-full w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-400 placeholder-gray-400 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-opacity-20" />
-        <p class="mt-2 text-xs text-red-600 h-3">
+        <p class="mt-2 text-xs text-red-500 h-3">
           {#if $passwordValidity.dirty && !$passwordValidity.valid}
             <i class="fas fa-exclamation-circle pr-1" aria-hidden="true"></i>
             {$passwordValidity.message}
@@ -165,7 +165,7 @@ const setType = (node: any) => {
 
       {#if errorMessage}
         <div class="">
-          <p class="mt-2 text-xs text-red-600 h-3">
+          <p class="mt-2 text-xs text-red-500 h-3">
             <i class="fas fa-exclamation-circle pr-1" aria-hidden="true"></i>
             {errorMessage}
           </p>

@@ -86,7 +86,7 @@ function deleteContribution(extensionName: string) {
     </button>
 
     {#if errorInstall !== ''}
-      <div class="bg-red-300 text-gray-900 m-4">
+      <div class="bg-red-500 text-gray-900 m-4">
         {errorInstall}
       </div>
     {/if}

@@ -120,7 +120,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     </div>
 
     {#if providerLifecycleError}
-      <div class="text-red-600">
+      <div class="text-red-500">
         {providerLifecycleError}
       </div>
     {/if}
