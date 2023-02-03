@@ -62,7 +62,7 @@ function errorCallback(errorMessage: string): void {
             </div>
             <div class="text-lg flex flex-row items-start pt-1">
               <div class="pr-3 pt-1">
-                <StatusIcon icon={ContainerIcon} status="{container.state}" />
+                <StatusIcon icon="{ContainerIcon}" status="{container.state}" />
               </div>
               <div class="text-lg flex flex-col">
                 <div class="mr-2">{container.name}</div>
