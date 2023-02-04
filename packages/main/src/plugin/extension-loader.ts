@@ -284,9 +284,12 @@ export class ExtensionLoader {
     }
 
     this.analyzedExtensions.set(extension.id, extension);
-    const runtime = this.loadRuntime(extension.mainPath);
-
-    await this.activateExtension(extension, runtime);
+    try {
+      const runtime = this.loadRuntime(extension.mainPath);
+      await this.activateExtension(extension, runtime);
+    } catch (ex) {
+      console.log(`'${extension.id}' extension activation error: ${ex}`);
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
