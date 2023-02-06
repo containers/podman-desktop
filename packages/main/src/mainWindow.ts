@@ -80,11 +80,11 @@ async function createWindow() {
    */
   browserWindow.on('ready-to-show', () => {
     // If started with --minimize flag, don't show the window
-    if (!ifStartedMinimize()) {
+    if (!isStartedMinimize()) {
       browserWindow.show();
     }
 
-    if (isMac && !ifStartedMinimize()) {
+    if (isMac && !isStartedMinimize()) {
       app.dock.show();
     }
 
@@ -240,7 +240,7 @@ export async function restoreWindow() {
 }
 
 // Checks process args if it was started with the --minimize flag
-function ifStartedMinimize(): boolean {
+function isStartedMinimize(): boolean {
   // We convert to string only because sometimes [node] will be the first argument in a packaged
   // environment, so instead of checking each element, simply convert to string and see if --minimize was included.
   const argv = process.argv.toString();
