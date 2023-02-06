@@ -27,9 +27,9 @@ export class StartupInstall {
   constructor(private configurationRegistry: ConfigurationRegistry) {
     // macos ?
     if (os.platform() === 'darwin') {
-      this.osStartup = new MacosStartup();
+      this.osStartup = new MacosStartup(configurationRegistry);
     } else if (os.platform() === 'win32') {
-      this.osStartup = new WindowsStartup();
+      this.osStartup = new WindowsStartup(configurationRegistry);
     }
   }
 
@@ -72,8 +72,20 @@ export class StartupInstall {
         },
       },
     };
+    const startMinimizeConfigurationNode: IConfigurationNode = {
+      id: 'preferences.login.minimize',
+      title: 'Minimize on login',
+      type: 'object',
+      properties: {
+        ['preferences.login.minimize']: {
+          description: 'Minimize Podman Desktop when you log in',
+          type: 'boolean',
+          default: false,
+        },
+      },
+    };
 
-    this.configurationRegistry.registerConfigurations([loginStartConfigurationNode]);
+    this.configurationRegistry.registerConfigurations([loginStartConfigurationNode, startMinimizeConfigurationNode]);
 
     // add notification handling
 
@@ -83,6 +95,15 @@ export class StartupInstall {
           this.enableStartupOnLogin();
         } else {
           this.disableStartupOnLogin();
+        }
+      }
+      // If the "minimize on start" option has changed, we need to update the startup configuration
+      if (e.key === 'preferences.login.minimize') {
+        // Only enable if we actually want to start on login
+        const dashboardConfiguration = this.configurationRegistry.getConfiguration('preferences.login');
+        const enabled = dashboardConfiguration.get<boolean>('start');
+        if (enabled) {
+          this.enableStartupOnLogin();
         }
       }
     });
