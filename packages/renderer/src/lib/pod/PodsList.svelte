@@ -106,7 +106,11 @@ async function deleteSelectedPods() {
     await Promise.all(
       selectedPods.map(async pod => {
         try {
-          await window.removePod(pod.engineId, pod.id);
+          if (pod.kind === 'podman') {
+            await window.removePod(pod.engineId, pod.id);
+          } else {
+            await window.kubernetesDeletePod(pod.name);
+          }
         } catch (e) {
           console.log('error while removing pod', e);
         }
