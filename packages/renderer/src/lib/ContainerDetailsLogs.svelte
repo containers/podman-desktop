@@ -16,7 +16,6 @@ export let container: ContainerInfoUI;
 let logsXtermDiv: HTMLDivElement;
 let logsContainer;
 // logs has been initialized
-let logsReady = false;
 let noLogs = true;
 
 // Terminal resize
@@ -42,19 +41,18 @@ function callback(name: string, data: string) {
     logsTerminal?.clear();
   } else if (name === 'data') {
     noLogs = false;
-
     if (isMultiplexedLog(data)) {
       logsTerminal?.write(data.substring(8) + '\r');
     } else {
       logsTerminal?.write(data + '\r');
     }
   }
+  termFit?.fit();
 }
 
 async function fetchContainerLogs() {
   // grab logs of the container
   await window.logsContainer(container.engineId, container.id, callback);
-  logsReady = true;
 }
 
 async function refreshTerminal() {
@@ -84,6 +82,7 @@ async function refreshTerminal() {
   logsTerminal.loadAddon(termFit);
 
   logsTerminal.open(logsXtermDiv);
+
   // disable cursor
   logsTerminal.write('\x1b[?25l');
 
@@ -115,37 +114,26 @@ onDestroy(() => {
 });
 </script>
 
-{#if logsReady}
-  <div
-    class="h-full min-w-full flex flex-col"
-    class:hidden="{noLogs === false}"
-    style="background-color: {getPanelDetailColor()}">
-    <div class="pf-c-empty-state h-full">
-      <div class="pf-c-empty-state__content">
-        <i class="fas fa-terminal pf-c-empty-state__icon" aria-hidden="true"></i>
+<div
+  class="h-full min-w-full flex flex-col"
+  class:hidden="{noLogs === false}"
+  style="background-color: {getPanelDetailColor()}">
+  <div class="pf-c-empty-state h-full">
+    <div class="pf-c-empty-state__content">
+      <i class="fas fa-terminal pf-c-empty-state__icon" aria-hidden="true"></i>
 
-        <h1 class="pf-c-title pf-m-lg">No Log</h1>
+      <h1 class="pf-c-title pf-m-lg">No Log</h1>
 
-        <div class="pf-c-empty-state__body">Log output of {container.name}</div>
-      </div>
+      <div class="pf-c-empty-state__body">Log output of {container.name}</div>
     </div>
   </div>
-{/if}
+</div>
 
 <div
-  class="flex flex-col items-center justify-center"
-  style="background-color: {getPanelDetailColor()}"
+  class="min-w-full flex flex-col"
+  class:invisible="{noLogs === true}"
+  class:h-0="{noLogs === true}"
   class:h-full="{noLogs === false}"
-  class:min-w-full="{noLogs === false}"
+  style="background-color: {getPanelDetailColor()}"
   bind:this="{logsXtermDiv}">
-  <div class="pf-c-button__progress z-10" class:hidden="{logsReady || !noLogs}">
-    <div class="align-top inline-block">
-      <span>Fetching logs</span>
-    </div>
-    <span class="pf-c-spinner pf-m-md" role="progressbar">
-      <span class="pf-c-spinner__clipper"></span>
-      <span class="pf-c-spinner__lead-ball"></span>
-      <span class="pf-c-spinner__tail-ball"></span>
-    </span>
-  </div>
 </div>
