@@ -16,8 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Context, V1Pod, V1ConfigMap, V1PodList, V1NamespaceList, V1Service, V1ContainerState } from '@kubernetes/client-node';
-import {CustomObjectsApi} from '@kubernetes/client-node';
+import type {
+  Context,
+  V1Pod,
+  V1ConfigMap,
+  V1PodList,
+  V1NamespaceList,
+  V1Service,
+  V1ContainerState,
+} from '@kubernetes/client-node';
+import { CustomObjectsApi } from '@kubernetes/client-node';
 import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
@@ -28,30 +36,31 @@ import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
 import type { FilesystemMonitoring } from './filesystem-monitoring';
-import type {PodInfo} from './api/pod-info';
-import {PassThrough} from 'node:stream';
+import type { PodInfo } from './api/pod-info';
+import { PassThrough } from 'node:stream';
 
 function getContainerStatus(state: V1ContainerState | undefined) {
   if (state) {
     if (state.running) {
-      return "Running";
+      return 'Running';
     } else if (state.terminated) {
-      return "Terminated";
+      return 'Terminated';
     } else if (state.waiting) {
-      return "Waiting";
+      return 'Waiting';
     }
   }
-  return "Unknown";
+  return 'Unknown';
 }
 
 function toPodInfo(pod: V1Pod): PodInfo {
-  const containers = pod.status?.containerStatuses?.map(status => {
-    return {
-      Id: status.containerID || '',
-      Names: status.name,
-      Status: getContainerStatus(status.state)
-    };
-  }) || [];
+  const containers =
+    pod.status?.containerStatuses?.map(status => {
+      return {
+        Id: status.containerID || '',
+        Names: status.name,
+        Status: getContainerStatus(status.state),
+      };
+    }) || [];
   return {
     Cgroup: '',
     Containers: containers,
@@ -174,13 +183,19 @@ export class KubernetesClient {
     this.kubeWatcher?.abort();
     const ns = this.currrentNamespace;
     if (ns) {
-      new Watch(this.kubeConfig).watch("/api/v1/namespaces/" + ns + "/pods", {},
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        (phase: string, apiObj: any, watchObj?: any) => {
-          this.apiSender.send('pod-event');
-        }, (err:any) => {
-          console.log("Kube event error " + err);
-        }).then(req => this.kubeWatcher = req);
+      new Watch(this.kubeConfig)
+        .watch(
+          '/api/v1/namespaces/' + ns + '/pods',
+          {},
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          (phase: string, apiObj: any, watchObj?: any) => {
+            this.apiSender.send('pod-event');
+          },
+          (err: any) => {
+            console.log('Kube event error ' + err);
+          },
+        )
+        .then(req => (this.kubeWatcher = req));
     }
   }
 
@@ -292,23 +307,23 @@ export class KubernetesClient {
   }
 
   async readPodLog(name: string, container: string, callback: (name: string, data: string) => void): Promise<void> {
-    console.log("Reading podlog name=" + name + " container=" + container + " callback=" + callback);
+    console.log('Reading podlog name=' + name + ' container=' + container + ' callback=' + callback);
     const ns = this.currrentNamespace;
     if (ns) {
       const log = new Log(this.kubeConfig);
 
       const logStream = new PassThrough();
 
-      logStream.on('data', (chunk) => {
+      logStream.on('data', chunk => {
         // use write rather than console.log to prevent double line feed
-        console.log("Received chunk=" + chunk);
+        console.log('Received chunk=' + chunk);
         callback('data', chunk.toString('utf-8'));
       });
 
-      log.log(ns, name, container, logStream,  {follow: true});
-        //.then(req => {
-        //  req.abort();
-        //});
+      log.log(ns, name, container, logStream, { follow: true });
+      //.then(req => {
+      //  req.abort();
+      //});
     }
   }
 
@@ -320,7 +335,7 @@ export class KubernetesClient {
     }
   }
 
-    async readNamespacedPod(name: string, namespace: string): Promise<V1Pod | undefined> {
+  async readNamespacedPod(name: string, namespace: string): Promise<V1Pod | undefined> {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedPod(name, namespace);

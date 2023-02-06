@@ -1024,12 +1024,9 @@ function initExposure(): void {
     },
   );
 
-  contextBridge.exposeInMainWorld(
-    'kubernetesListPods',
-    async (): Promise<PodInfo[]> => {
-      return ipcInvoke('kubernetes-client:listPods');
-    },
-  );
+  contextBridge.exposeInMainWorld('kubernetesListPods', async (): Promise<PodInfo[]> => {
+    return ipcInvoke('kubernetes-client:listPods');
+  });
 
   let onDataCallbacksKubernetesPodLogId = 0;
   const onDataCallbacksKubernetesPodLog = new Map<number, (name: string, data: string) => void>();
@@ -1045,21 +1042,25 @@ function initExposure(): void {
     (_, onDataCallbacksKubernetesReadPodLogId: number, name: string, data: string) => {
       // grab callback from the map
       const callback = onDataCallbacksKubernetesPodLog.get(onDataCallbacksKubernetesReadPodLogId);
-      console.log('kubernetes-client:readPodLog-onData id=' + onDataCallbacksKubernetesReadPodLogId + ' name=' + name
-        + ' data=' + data + ' callback=' + callback);
+      console.log(
+        'kubernetes-client:readPodLog-onData id=' +
+          onDataCallbacksKubernetesReadPodLogId +
+          ' name=' +
+          name +
+          ' data=' +
+          data +
+          ' callback=' +
+          callback,
+      );
       if (callback) {
         callback(name, data);
       }
     },
   );
 
-  contextBridge.exposeInMainWorld(
-    'kubernetesDeletePod',
-    async (name: string): Promise<void> => {
-      return ipcInvoke('kubernetes-client:deletePod', name);
-    },
-  );
-
+  contextBridge.exposeInMainWorld('kubernetesDeletePod', async (name: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:deletePod', name);
+  });
 
   contextBridge.exposeInMainWorld(
     'openshiftCreateRoute',

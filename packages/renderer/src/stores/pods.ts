@@ -34,11 +34,9 @@ export const podsInfos: Writable<PodInfo[]> = writable([]);
 
 export const searchPattern = writable('');
 
-export const filtered = derived([searchPattern, podsInfos],
-  ([$searchPattern, $imagesInfos]) => {
-    return $imagesInfos.filter(podInfo => findMatchInLeaves(podInfo, $searchPattern.toLowerCase()));
-  }
-);
+export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $imagesInfos]) => {
+  return $imagesInfos.filter(podInfo => findMatchInLeaves(podInfo, $searchPattern.toLowerCase()));
+});
 
 // need to refresh when extension is started or stopped
 window.addEventListener('extension-started', () => {

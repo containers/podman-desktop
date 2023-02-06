@@ -2,7 +2,7 @@
 import { onMount } from 'svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import type { PodInfoUI } from './PodInfoUI';
-import { stringify } from 'yaml'
+import { stringify } from 'yaml';
 export let pod: PodInfoUI;
 
 let kubeDetails: string;
@@ -18,7 +18,6 @@ onMount(async () => {
       const kubepod = await window.kubernetesReadNamespacedPod(pod.name, ns);
       if (kubepod) {
         kubeDetails = stringify(kubepod);
-
       }
     }
   }

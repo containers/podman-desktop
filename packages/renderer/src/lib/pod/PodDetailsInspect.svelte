@@ -20,7 +20,7 @@ onMount(async () => {
     if (ns) {
       const kubepod = await window.kubernetesReadNamespacedPod(pod.name, ns);
       if (kubepod) {
-        inspectResult = kubepod
+        inspectResult = kubepod;
       } else {
         inspectResult = "Can't inspect pod " + pod.name;
       }

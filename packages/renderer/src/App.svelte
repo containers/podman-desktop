@@ -131,8 +131,10 @@ window.events?.receive('display-help', () => {
             engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
         <Route path="/pods/:kind/:name/:engineId/*" let:meta>
-          <PodDetails podName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}"
-                      kind="{decodeURI(meta.params.kind)}"/>
+          <PodDetails
+            podName="{decodeURI(meta.params.name)}"
+            engineId="{decodeURI(meta.params.engineId)}"
+            kind="{decodeURI(meta.params.kind)}" />
         </Route>
         <Route path="/pod-create-from-containers">
           <PodCreateFromContainers />

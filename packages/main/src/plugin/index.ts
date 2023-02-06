@@ -1016,12 +1016,9 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle(
-      'kubernetes-client:listPods',
-      async (): Promise<PodInfo[]> => {
-        return kubernetesClient.listPods();
-      },
-    );
+    this.ipcHandle('kubernetes-client:listPods', async (): Promise<PodInfo[]> => {
+      return kubernetesClient.listPods();
+    });
 
     this.ipcHandle(
       'kubernetes-client:readPodLog',
@@ -1032,12 +1029,9 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle(
-      'kubernetes-client:deletePod',
-      async (_listener, name: string): Promise<void> => {
-        return kubernetesClient.deletePod(name);
-      },
-    );
+    this.ipcHandle('kubernetes-client:deletePod', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deletePod(name);
+    });
 
     this.ipcHandle(
       'openshift-client:createRoute',

@@ -27,8 +27,9 @@ onMount(() => {
   const podUtils = new PodUtils();
   // loading volume info
   podUnsubscribe = podsInfos.subscribe(pods => {
-    const matchingPod = pods.find(podInPods => podInPods.Name === podName && podInPods.engineId === engineId &&
-      kind === podInPods.kind);
+    const matchingPod = pods.find(
+      podInPods => podInPods.Name === podName && podInPods.engineId === engineId && kind === podInPods.kind,
+    );
     if (matchingPod) {
       try {
         pod = podUtils.getPodInfoUI(matchingPod);

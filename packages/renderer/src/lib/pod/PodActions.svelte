@@ -83,38 +83,38 @@ if (dropdownMenu) {
 </script>
 
 {#if pod.kind === 'podman'}
-<ListItemButtonIcon
-  title="Start Pod"
-  onClick="{() => startPod(pod)}"
-  hidden="{pod.status === 'RUNNING'}"
-  detailed="{detailed}"
-  icon="{faPlay}" />
-<ListItemButtonIcon
-  title="Stop Pod"
-  onClick="{() => stopPod(pod)}"
-  hidden="{!(pod.status === 'RUNNING')}"
-  detailed="{detailed}"
-  icon="{faStop}" />
+  <ListItemButtonIcon
+    title="Start Pod"
+    onClick="{() => startPod(pod)}"
+    hidden="{pod.status === 'RUNNING'}"
+    detailed="{detailed}"
+    icon="{faPlay}" />
+  <ListItemButtonIcon
+    title="Stop Pod"
+    onClick="{() => stopPod(pod)}"
+    hidden="{!(pod.status === 'RUNNING')}"
+    detailed="{detailed}"
+    icon="{faStop}" />
 {/if}
 <ListItemButtonIcon title="Delete Pod" onClick="{() => removePod(pod)}" icon="{faTrash}" detailed="{detailed}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
   {#if pod.kind === 'podman'}
-  {#if !detailed}
+    {#if !detailed}
+      <ListItemButtonIcon
+        title="Generate Kube"
+        onClick="{() => openGenerateKube()}"
+        menu="{dropdownMenu}"
+        detailed="{detailed}"
+        icon="{faFileCode}" />
+    {/if}
     <ListItemButtonIcon
-      title="Generate Kube"
-      onClick="{() => openGenerateKube()}"
+      title="Deploy to Kubernetes"
+      onClick="{() => deployToKubernetes()}"
       menu="{dropdownMenu}"
       detailed="{detailed}"
-      icon="{faFileCode}" />
-  {/if}
-  <ListItemButtonIcon
-    title="Deploy to Kubernetes"
-    onClick="{() => deployToKubernetes()}"
-    menu="{dropdownMenu}"
-    detailed="{detailed}"
-    icon="{faRocket}" />
+      icon="{faRocket}" />
   {/if}
   <ListItemButtonIcon
     title="Restart Pod"
