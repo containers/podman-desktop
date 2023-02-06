@@ -17,7 +17,6 @@
  ***********************************************************************/
 
 import path from 'node:path';
-import { configDefaults } from 'vitest/config';
 /**
  * Config for global end-to-end tests
  * placed in project root tests folder
@@ -31,13 +30,13 @@ const config = {
      * For e2e tests have sense search only is project root tests folder
      */
     include: ['**/{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-
     exclude: [
       '**/builtin/**',
+      '**/node_modules/**',
+      '**/dist/**',
       '**/cypress/**',
-      '**/.{output,temp,cdix}/**',
+      '**/.{idea,git,cache,output,temp,cdix}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress}.config.*',
-      ...configDefaults.exclude,
     ],
 
     /**
@@ -51,15 +50,17 @@ const config = {
     coverage: {
       all: true,
       src: ['extensions', 'packages'],
+      clean: true,
       exclude: [
         '**/builtin/**',
         '**/cypress/**',
+        '**/dist/**',
+        '**/node_modules/**',
         '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
         '**/*.{svelte,tsx,cjs,js,d.ts}',
         '**/*-info.ts',
-        '**/.{output,temp,cdix}/**',
+        '**/.{cache,git,idea,output,temp,cdix}/**',
         '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
-        ...configDefaults.exclude,
       ],
       provider: 'c8',
       reportsDirectory: './test-resources/coverage',
