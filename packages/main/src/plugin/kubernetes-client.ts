@@ -307,7 +307,6 @@ export class KubernetesClient {
   }
 
   async readPodLog(name: string, container: string, callback: (name: string, data: string) => void): Promise<void> {
-    console.log('Reading podlog name=' + name + ' container=' + container + ' callback=' + callback);
     const ns = this.currrentNamespace;
     if (ns) {
       const log = new Log(this.kubeConfig);
@@ -316,14 +315,10 @@ export class KubernetesClient {
 
       logStream.on('data', chunk => {
         // use write rather than console.log to prevent double line feed
-        console.log('Received chunk=' + chunk);
         callback('data', chunk.toString('utf-8'));
       });
 
       log.log(ns, name, container, logStream, { follow: true });
-      //.then(req => {
-      //  req.abort();
-      //});
     }
   }
 

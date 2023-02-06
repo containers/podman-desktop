@@ -1042,16 +1042,6 @@ function initExposure(): void {
     (_, onDataCallbacksKubernetesReadPodLogId: number, name: string, data: string) => {
       // grab callback from the map
       const callback = onDataCallbacksKubernetesPodLog.get(onDataCallbacksKubernetesReadPodLogId);
-      console.log(
-        'kubernetes-client:readPodLog-onData id=' +
-          onDataCallbacksKubernetesReadPodLogId +
-          ' name=' +
-          name +
-          ' data=' +
-          data +
-          ' callback=' +
-          callback,
-      );
       if (callback) {
         callback(name, data);
       }
