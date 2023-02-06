@@ -116,10 +116,33 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     connectionsToCreate.map(async machineName => {
       // podman.sock link
       let socketPath;
-      if (isMac) {
-        socketPath = calcMacosSocketPath(machineName);
-      } else if (isWindows) {
-        socketPath = calcWinPipeName(machineName);
+      try {
+        if (isWindows) {
+          socketPath = await execPromise(getPodmanCli(), [
+            'machine',
+            'inspect',
+            '--format',
+            '{{.ConnectionInfo.PodmanPipe.Path}}',
+            machineName,
+          ]);
+        } else {
+          socketPath = await execPromise(getPodmanCli(), [
+            'machine',
+            'inspect',
+            '--format',
+            '{{.ConnectionInfo.PodmanSocket.Path}}',
+            machineName,
+          ]);
+        }
+      } catch (error) {
+        console.debug('Podman extension:', 'Failed to read socketPath from machine inspect');
+      }
+      if (!socketPath) {
+        if (isMac) {
+          socketPath = calcMacosSocketPath(machineName);
+        } else if (isWindows) {
+          socketPath = calcWinPipeName(machineName);
+        }
       }
       await registerProviderFor(provider, podmanMachinesInfo.get(machineName), socketPath);
     }),
