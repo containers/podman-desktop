@@ -17,7 +17,7 @@ let logsXtermDiv: HTMLDivElement;
 // Logs has been initialized
 let logsReady = false;
 let noLogs = true;
-let logsTerminal;
+let logsTerminal: Terminal;
 
 // Terminal resize
 let resizeObserver: ResizeObserver;
@@ -106,14 +106,6 @@ async function fetchPodLogs() {
   });
 }
 
-router.subscribe(async route => {
-  currentRouterPath = route.path;
-  if (route.path.endsWith('/logs')) {
-    await refreshTerminal();
-    fetchPodLogs();
-  }
-});
-
 async function refreshTerminal() {
   // missing element, return
   if (!logsXtermDiv) {
@@ -156,7 +148,8 @@ async function refreshTerminal() {
 
 onMount(async () => {
   // Refresh the terminal on initial load
-  refreshTerminal();
+  await refreshTerminal();
+  fetchPodLogs();
 
   // Resize the terminal each time we change the div size
   resizeObserver = new ResizeObserver(entries => {
