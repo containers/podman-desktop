@@ -21,6 +21,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { runCliCommand, detectKind } from './util';
+import {KindInstaller} from './kind-installer';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 
@@ -35,6 +36,8 @@ const registeredKubernetesConnections: {
   connection: extensionApi.KubernetesProviderConnection;
   disposable: extensionApi.Disposable;
 }[] = [];
+
+let kindCli: string | undefined;
 
 function registerProvider(extensionContext: extensionApi.ExtensionContext, provider: extensionApi.Provider): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,7 +102,7 @@ nodes:
     await fs.promises.writeFile(tmpFilePath, kindClusterConfig, 'utf8');
 
     // now execute the command to create the cluster
-    const result = await runCliCommand('kind', ['create', 'cluster', '--config', tmpFilePath], { env, logger });
+    const result = await runCliCommand(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger });
 
     // delete temporary directory/file
     await fs.promises.rm(tmpDirectory, { recursive: true });
@@ -109,11 +112,13 @@ nodes:
     }
   };
 
-  const disposable = provider.setKubernetesProviderConnectionFactory({
-    create: createFunction,
-  });
-  extensionContext.subscriptions.push(disposable);
-  console.log('kind extension is active');
+  if (provider.status === 'ready') {
+    const disposable = provider.setKubernetesProviderConnectionFactory({
+      create: createFunction,
+    });
+    extensionContext.subscriptions.push(disposable);
+    console.log('kind extension is active');
+  }
 }
 
 // search for clusters
@@ -185,16 +190,13 @@ async function searchKindClusters(provider: extensionApi.Provider) {
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const foundKind = await detectKind();
-  if (!foundKind) {
-    console.log('kind binary was not found in the path, not activating the extension');
-    return;
-  }
 
+  const installer = new KindInstaller(extensionContext.storagePath);
+  kindCli = await detectKind(extensionContext.storagePath, installer);
   const provider = extensionApi.provider.createProvider({
     name: 'Kind',
     id: 'kind',
-    status: 'unknown',
+    status: kindCli? 'ready': 'not-installed',
     images: {
       icon: './icon.png',
       logo: {
@@ -204,6 +206,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   });
   extensionContext.subscriptions.push(provider);
+
+  if (!kindCli) {
+    if (installer.isAvailable()) {
+      extensionContext.subscriptions.push(provider.registerInstallation({
+        install: () => installer.performInstall(provider)
+      }));
+    }
+  }
 
   registerProvider(extensionContext, provider);
 
@@ -222,6 +232,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   extensionApi.provider.onDidUnregisterContainerConnection(() => {
     searchKindClusters(provider);
   });
+  extensionApi.provider.onDidUpdateProvider(() => registerProvider(extensionContext, provider));
 }
 
 export function deactivate(): void {
