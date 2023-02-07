@@ -22,6 +22,7 @@ import * as path from 'path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'url';
+import { coverageConfig } from '../main/vite.config';
 
 let filename = fileURLToPath(import.meta.url);
 const PACKAGE_ROOT = path.dirname(filename);
@@ -48,25 +49,7 @@ export default defineConfig({
         'moment',
       ],
     },
-    coverage: {
-      all: true,
-      src: ['src'],
-      clean: true,
-      exclude: [
-        '**/builtin/**',
-        '**/cypress/**',
-        '**/dist/**',
-        '**/node_modules/**',
-        '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-        '**/*.{svelte,tsx,cjs,js,d.ts}',
-        '**/*-info.ts',
-        '**/.{cache,git,idea,output,temp,cdix}/**',
-        '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
-      ],
-      provider: 'c8',
-      reportsDirectory: '../../test-resources/coverage/renderer',
-      reporter: ['lcov', 'json', 'text-summary'],
-    },
+      ...coverageConfig('renderer'),
   },
   base: '',
   server: {

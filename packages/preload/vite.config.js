@@ -19,6 +19,7 @@
 import {chrome} from '../../.electron-vendors.cache.json';
 import {join} from 'path';
 import {builtinModules} from 'module';
+import { coverageConfig } from '../main/vite.config';
 const PACKAGE_ROOT = __dirname;
 
 /**
@@ -65,25 +66,7 @@ const config = {
     reportCompressedSize: false,
   },
   test: {
-    coverage: {
-      all: true,
-      src: ['src'],
-      clean: true,
-      exclude: [
-        '**/builtin/**',
-        '**/cypress/**',
-        '**/dist/**',
-        '**/node_modules/**',
-        '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-        '**/*.{svelte,tsx,cjs,js,d.ts}',
-        '**/*-info.ts',
-        '**/.{cache,git,idea,output,temp,cdix}/**',
-        '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
-      ],
-      provider: 'c8',
-      reportsDirectory: '../../test-resources/coverage/preload',
-      reporter: ['lcov', 'json', 'text-summary'],
-    },
+    ...coverageConfig('preload'),
   },
 };
 
