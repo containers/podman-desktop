@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Red Hat OpenShift Account Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="auth.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://unpkg.com/@patternfly/patternfly@4.96.2/patternfly.min.css"
+    />
+  </head>
+
+  <body>
+    <div class="pf-c-empty-state">
+      <div class="pf-c-empty-state__content">
+        <i class="fas fa-key pf-c-empty-state__icon" aria-hidden="true"></i>
+        <h1 class="pf-c-title pf-m-lg">
+          Welcome to <span id="service">Red Hat</span>
+        </h1>
+        <div class="pf-c-empty-state__body message">
+          You have successfully logged as
+          <span style="font-weight: 700" id="login"></span>. <br />
+          You may now close this page.
+        </div>
+        <div class="pf-c-empty-state__body error-message">
+          An error occurred while signing in:
+          <div class="error-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var search = window.location.search;
+      var login = (/[?&^]login=([^&]+)/.exec(search) || [])[1];
+      if (login) {
+        document.getElementById("login").innerHTML = decodeURIComponent(login);
+      }
+      var error = (/[?&^]error=([^&]+)/.exec(search) || [])[1];
+      if (error) {
+        document.querySelector(".error-text").innerHTML = decodeURIComponent(
+          error
+        );
+        document.querySelector("body").classList.add("error");
+      }
+    </script>
+  </body>
+</html>

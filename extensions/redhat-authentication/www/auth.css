@@ -1,0 +1,49 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+ html {
+	height: 100%;
+}
+
+body {
+	box-sizing: border-box;
+	min-height: 100%;
+	margin: 0;
+	padding: 15px 30px;
+	display: flex;
+	flex-direction: column;
+}
+
+.message-container {
+	flex-grow: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 30px;
+}
+
+.message {
+	font-weight: 300;
+	font-size: 1.4rem;
+}
+
+body.error .message {
+	display: none;
+}
+
+body.error .error-message {
+	display: block;
+}
+
+.error-message {
+	display: none;
+	font-weight: 300;
+	font-size: 1.3rem;
+}
+
+.error-text {
+	color: red;
+	font-size: 1rem;
+}
