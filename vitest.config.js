@@ -25,6 +25,8 @@ import path from 'node:path';
  */
 const config = {
   test: {
+    globals: true,
+    environment: 'jsdom',
     /**
      * By default, vitest search test files in all packages.
      * For e2e tests have sense search only is project root tests folder
@@ -45,11 +47,11 @@ const config = {
     testTimeout: 30_000,
     hookTimeout: 30_000,
     /**
-     * Vitest configuration for code coverage
+     * Vitest configuration for code coverage of the extensions folder
      */
     coverage: {
       all: true,
-      src: ['extensions', 'packages'],
+      src: ['extensions'],
       clean: true,
       exclude: [
         '**/builtin/**',
@@ -63,7 +65,7 @@ const config = {
         '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
       ],
       provider: 'c8',
-      reportsDirectory: './test-resources/coverage',
+      reportsDirectory: '../test-resources/coverage/extensions',
       reporter: ['lcov', 'json', 'text-summary'],
     },
   },
