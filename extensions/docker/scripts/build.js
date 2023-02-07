@@ -19,7 +19,7 @@
 
 const zipper = require('zip-local');
 const path = require('path');
-const package= require('../package.json');
+const package = require('../package.json');
 const { mkdirp } = require('mkdirp');
 const fs = require('fs');
 
