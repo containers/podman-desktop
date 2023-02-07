@@ -197,7 +197,7 @@ export class DockerDesktopInstallation {
         );
 
         if (!foundMatchingImage) {
-          reportLog('not able to get pulled image');
+          event.reply('docker-desktop-plugin:install-error', logCallbackId, `Not able to find image ${imageName}`);
           return;
         }
 
