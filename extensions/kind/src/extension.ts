@@ -21,7 +21,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { runCliCommand, detectKind } from './util';
-import {KindInstaller} from './kind-installer';
+import { KindInstaller } from './kind-installer';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 
@@ -190,13 +190,12 @@ async function searchKindClusters(provider: extensionApi.Provider) {
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-
   const installer = new KindInstaller(extensionContext.storagePath);
   kindCli = await detectKind(extensionContext.storagePath, installer);
   const provider = extensionApi.provider.createProvider({
     name: 'Kind',
     id: 'kind',
-    status: kindCli? 'ready': 'not-installed',
+    status: kindCli ? 'ready' : 'not-installed',
     images: {
       icon: './icon.png',
       logo: {
@@ -209,9 +208,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   if (!kindCli) {
     if (installer.isAvailable()) {
-      extensionContext.subscriptions.push(provider.registerInstallation({
-        install: () => installer.performInstall(provider)
-      }));
+      extensionContext.subscriptions.push(
+        provider.registerInstallation({
+          install: () => installer.performInstall(provider),
+        }),
+      );
     }
   }
 
