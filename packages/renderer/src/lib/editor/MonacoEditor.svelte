@@ -54,6 +54,10 @@ onMount(async () => {
     editor.dispose();
   };
 });
+
+export function setContent(content: string) {
+  editor.getModel().setValue(content);
+}
 </script>
 
 <div bind:this="{divEl}" class="h-full"></div>

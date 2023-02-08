@@ -24,6 +24,10 @@ let deployUsingServices = true;
 let deployUsingRoutes = true;
 let createdPod = undefined;
 let bodyPod;
+let originalNamePod: string;
+let namePod: string;
+
+let editor;
 
 let createdRoutes: V1Route[] = [];
 
@@ -34,6 +38,8 @@ onMount(async () => {
 
   // parse yaml
   bodyPod = jsYaml.load(kubeDetails) as any;
+  namePod = bodyPod.metadata.name;
+  originalNamePod = bodyPod.metadata.name;
 
   // grab default context
   defaultContextName = await window.kubernetesGetCurrentContextName();
@@ -200,6 +206,31 @@ async function deployToKube() {
     deployFinished = false;
   }
 }
+
+$: updateKubeResult(namePod);
+
+function updateKubeResult(namePod: string) {
+  if (bodyPod && bodyPod.metadata) {
+    bodyPod.metadata.name = namePod;
+  }
+  if (namePod === '' || namePod === originalNamePod) {
+    updateEditorContent(kubeDetails);
+    return;
+  }
+  if (namePod !== originalNamePod) {
+    const origBodyPod = jsYaml.load(kubeDetails) as any;
+    origBodyPod.metadata.name = namePod;
+    const content = jsYaml.dump(origBodyPod, { noArrayIndent: true, quotingType: '"', lineWidth: -1 });
+    updateEditorContent(content);
+    return;
+  }
+}
+
+function updateEditorContent(content: string) {
+  if (editor) {
+    editor.setContent(content);
+  }
+}
 </script>
 
 <NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
@@ -208,7 +239,7 @@ async function deployToKube() {
       {#if kubeDetails}
         <p>Generated pod to deploy to Kubernetes:</p>
         <div class="h-1/3 pt-2">
-          <MonacoEditor content="{kubeDetails}" language="yaml" />
+          <MonacoEditor bind:this="{editor}" content="{kubeDetails}" language="yaml" />
         </div>
       {/if}
 
@@ -217,7 +248,7 @@ async function deployToKube() {
           <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-300">Pod Name:</label>
           <input
             type="text"
-            bind:value="{bodyPod.metadata.name}"
+            bind:value="{namePod}"
             name="podName"
             id="podName"
             class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
@@ -282,7 +313,11 @@ async function deployToKube() {
 
       {#if !deployStarted}
         <div class="pt-2 m-2">
-          <button on:click="{() => deployToKube()}" class="w-full pf-c-button pf-m-primary" type="button">
+          <button
+            on:click="{() => deployToKube()}"
+            class="w-full pf-c-button pf-m-primary"
+            type="button"
+            disabled="{namePod === ''}">
             <span class="pf-c-button__icon pf-m-start">
               <i class="fas fa-rocket" aria-hidden="true"></i>
             </span>
