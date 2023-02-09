@@ -23,6 +23,9 @@ export interface ContributionInfo {
   type: string;
   uiUri: string;
 
+  // base64 encoded icon in format: 'data:image/svg+xml;base64,<content>'
+  icon: string;
+
   // path to be added when executing commands on the host
   hostEnvPath: string;
 
