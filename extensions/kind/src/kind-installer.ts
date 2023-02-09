@@ -16,54 +16,85 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import * as extensionApi from '@tmpwip/extension-api';
-import { downloadRelease } from '@terascope/fetch-github-release';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { Octokit } from '@octokit/rest';
 import { isWindows } from './util';
-import { Provider } from '@tmpwip/extension-api';
+import type { Provider } from '@tmpwip/extension-api';
+import type { components } from '@octokit/openapi-types';
 
 const githubOrganization = 'kubernetes-sigs';
 const githubRepo = 'kind';
 
+type GitHubRelease = components['schemas']['release'];
+
+export interface AssetInfo {
+  id: number;
+  name: string;
+}
+
+const WINDOWS_X64_PLATFORM = 'win32-x64';
+
+const LINUX_X64_PLATFORM = 'linux-x64';
+
+const LINUX_ARM64_PLATFORM = 'linux-arm64';
+
+const MACOS_X64_PLATFORM = 'darwin-x64';
+
+const MACOS_ARM64_PLATFORM = 'darwin-arm64';
+
+const WINDOWS_X64_ASSET_NAME = 'kind-windows-amd64';
+
+const LINUX_X64_ASSET_NAME = 'kind-linux-amd64';
+
+const LINUX_ARM64_ASSET_NAME = 'kind-linux-arm64';
+
+const MACOS_X64_ASSET_NAME = 'kind-darwin-amd64';
+
+const MACOS_ARM64_ASSET_NAME = 'kind-darwin-arm64';
+
 export class KindInstaller {
   private assetNames = new Map<string, string>();
 
-  private assetPromise: Promise<string>;
+  private assetPromise: Promise<AssetInfo>;
 
   constructor(private readonly storagePath: string) {
-    this.assetNames.set('win32-x64', 'kind-windows-amd64');
-    this.assetNames.set('linux-x64', 'kind-linux-amd64');
-    this.assetNames.set('linux-arm64', 'kind-linux-arm64');
-    this.assetNames.set('darwin-x64', 'kind-darwin-amd64');
-    this.assetNames.set('darwin-arm64', 'kind-darwin-arm64');
+    this.assetNames.set(WINDOWS_X64_PLATFORM, WINDOWS_X64_ASSET_NAME);
+    this.assetNames.set(LINUX_X64_PLATFORM, LINUX_X64_ASSET_NAME);
+    this.assetNames.set(LINUX_ARM64_PLATFORM, LINUX_ARM64_ASSET_NAME);
+    this.assetNames.set(MACOS_X64_PLATFORM, MACOS_X64_ASSET_NAME);
+    this.assetNames.set(MACOS_ARM64_PLATFORM, MACOS_ARM64_ASSET_NAME);
   }
 
-  findAsset(data: any, assetName: string): string {
+  findAssetInfo(data: GitHubRelease[], assetName: string): AssetInfo {
     for (const release of data) {
       for (const asset of release.assets) {
         if (asset.name === assetName) {
-          return assetName;
+          return {
+            id: asset.id,
+            name: assetName,
+          };
         }
       }
     }
     return undefined;
   }
 
-  async getAssetName(): Promise<string> {
+  async getAssetInfo(): Promise<AssetInfo> {
     if (!this.assetPromise) {
       const assetName = this.assetNames.get(os.platform().concat('-').concat(os.arch()));
       const octokit = new Octokit();
-      return octokit
-        .request(`GET /repos/${githubOrganization}/${githubRepo}/releases`)
-        .then(response => this.findAsset(response.data, assetName));
+      this.assetPromise = octokit.repos
+        .listReleases({ owner: githubOrganization, repo: githubRepo })
+        .then(response => this.findAssetInfo(response.data, assetName));
     }
     return this.assetPromise;
   }
 
   async isAvailable(): Promise<boolean> {
-    const assetName = await this.getAssetName();
-    return assetName !== undefined;
+    const assetInfo = await this.getAssetInfo();
+    return assetInfo !== undefined;
   }
 
   async performInstall(provider: Provider): Promise<void> {
@@ -74,24 +105,25 @@ export class KindInstaller {
       'No',
     );
     if (dialogResult === 'Yes') {
-      const assetName = this.assetNames.get(os.platform().concat('-').concat(os.arch()));
-      if (assetName) {
-        await downloadRelease(
-          githubOrganization,
-          githubRepo,
-          this.storagePath,
-          release => !release.draft && !release.prerelease,
-          asset => asset.name === assetName,
-        ).then(assets => {
-          assets.forEach(asset => {
-            if (isWindows) {
-              fs.renameSync(asset, asset + '.exe');
-            } else {
-              fs.chmodSync(asset, 'u+x');
-            }
-          });
-          provider.updateStatus('ready');
+      const assetInfo = await this.getAssetInfo();
+      if (assetInfo) {
+        const octokit = new Octokit();
+        const asset = await octokit.repos.getReleaseAsset({
+          owner: githubOrganization,
+          repo: githubRepo,
+          asset_id: assetInfo.id,
+          headers: {
+            accept: 'application/octet-stream',
+          },
         });
+        if (asset) {
+          const destFile = path.resolve(this.storagePath, isWindows ? assetInfo.name + '.exe' : assetInfo.name);
+          fs.appendFileSync(destFile, Buffer.from(asset.data as unknown as ArrayBuffer));
+          if (!isWindows) {
+            fs.chmodSync(destFile, 'u+x');
+          }
+          provider.updateStatus('ready');
+        }
       }
     }
   }

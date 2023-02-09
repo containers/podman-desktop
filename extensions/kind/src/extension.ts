@@ -207,7 +207,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   extensionContext.subscriptions.push(provider);
 
   if (!kindCli) {
-    if (installer.isAvailable()) {
+    if (await installer.isAvailable()) {
       extensionContext.subscriptions.push(
         provider.registerInstallation({
           install: () => installer.performInstall(provider),

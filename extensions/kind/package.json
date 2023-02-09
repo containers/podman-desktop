@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "@tmpwip/extension-api": "^0.0.1",
-    "@terascope/fetch-github-release": "^0.8.7",
     "@octokit/rest": "^19.0.7"
   },
   "devDependencies": {

@@ -68,12 +68,12 @@ export async function detectKind(pathAddition: string, installer: KindInstaller)
   if (result.exitCode === 0) {
     return 'kind';
   } else {
-    const assetName = await installer.getAssetName();
-    result = await runCliCommand(assetName, ['--version'], {
+    const assetInfo = await installer.getAssetInfo();
+    result = await runCliCommand(assetInfo.name, ['--version'], {
       env: { PATH: getKindPath().concat(path.delimiter).concat(pathAddition) },
     });
     if (result.exitCode === 0) {
-      return pathAddition.concat(path.sep).concat(isWindows ? assetName + '.exe' : assetName);
+      return pathAddition.concat(path.sep).concat(isWindows ? assetInfo.name + '.exe' : assetInfo.name);
     }
   }
   return undefined;
