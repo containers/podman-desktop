@@ -55,9 +55,7 @@ onMount(async () => {
   };
 });
 
-export function setContent(content: string) {
-  editor.getModel().setValue(content);
-}
+$: content, editor && editor.getModel().setValue(content);
 </script>
 
 <div bind:this="{divEl}" class="h-full"></div>
