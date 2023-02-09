@@ -25,6 +25,8 @@ import { KindInstaller } from './kind-installer';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 
+const KIND_INSTALL_COMMAND = 'kind.install';
+
 interface KindCluster {
   name: string;
   status: extensionApi.ProviderConnectionStatus;
@@ -112,13 +114,11 @@ nodes:
     }
   };
 
-  if (provider.status === 'ready') {
-    const disposable = provider.setKubernetesProviderConnectionFactory({
-      create: createFunction,
-    });
-    extensionContext.subscriptions.push(disposable);
-    console.log('kind extension is active');
-  }
+  const disposable = provider.setKubernetesProviderConnectionFactory({
+    create: createFunction,
+  });
+  extensionContext.subscriptions.push(disposable);
+  console.log('kind extension is active');
 }
 
 // search for clusters
@@ -189,13 +189,11 @@ async function searchKindClusters(provider: extensionApi.Provider) {
   updateClusters(provider, kindContainers);
 }
 
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const installer = new KindInstaller(extensionContext.storagePath);
-  kindCli = await detectKind(extensionContext.storagePath, installer);
+function createProvider(extensionContext: extensionApi.ExtensionContext) {
   const provider = extensionApi.provider.createProvider({
     name: 'Kind',
     id: 'kind',
-    status: kindCli ? 'ready' : 'not-installed',
+    status: 'unknown',
     images: {
       icon: './icon.png',
       logo: {
@@ -205,17 +203,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   });
   extensionContext.subscriptions.push(provider);
-
-  if (!kindCli) {
-    if (await installer.isAvailable()) {
-      extensionContext.subscriptions.push(
-        provider.registerInstallation({
-          install: () => installer.performInstall(provider),
-        }),
-      );
-    }
-  }
-
   registerProvider(extensionContext, provider);
 
   // when containers are refreshed, update
@@ -234,6 +221,32 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     searchKindClusters(provider);
   });
   extensionApi.provider.onDidUpdateProvider(() => registerProvider(extensionContext, provider));
+}
+
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  const installer = new KindInstaller(extensionContext.storagePath);
+  kindCli = await detectKind(extensionContext.storagePath, installer);
+
+  if (!kindCli) {
+    if (await installer.isAvailable()) {
+      const statusBarItem = extensionApi.window.createStatusBarItem();
+      statusBarItem.text = 'Kind';
+      statusBarItem.tooltip = 'Kind not found on your system, click to download and install it';
+      statusBarItem.command = KIND_INSTALL_COMMAND;
+      extensionContext.subscriptions.push(
+        extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () =>
+          installer.performInstall().then(async () => {
+            statusBarItem.dispose();
+            kindCli = await detectKind(extensionContext.storagePath, installer);
+            createProvider(extensionContext);
+          }),
+        ),
+      );
+      statusBarItem.show();
+    }
+  } else {
+    createProvider(extensionContext);
+  }
 }
 
 export function deactivate(): void {

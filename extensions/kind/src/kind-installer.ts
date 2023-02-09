@@ -16,12 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import * as extensionApi from '@tmpwip/extension-api';
+import { ProgressLocation } from '@tmpwip/extension-api';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Octokit } from '@octokit/rest';
 import { isWindows } from './util';
-import type { Provider } from '@tmpwip/extension-api';
 import type { components } from '@octokit/openapi-types';
 
 const githubOrganization = 'kubernetes-sigs';
@@ -97,7 +97,7 @@ export class KindInstaller {
     return assetInfo !== undefined;
   }
 
-  async performInstall(provider: Provider): Promise<void> {
+  async performInstall(): Promise<void> {
     console.log('Installing kind');
     const dialogResult = await extensionApi.window.showInformationMessage(
       `kind is not installed on this system, would you like to install Kind ?`,
@@ -105,26 +105,34 @@ export class KindInstaller {
       'No',
     );
     if (dialogResult === 'Yes') {
-      const assetInfo = await this.getAssetInfo();
-      if (assetInfo) {
-        const octokit = new Octokit();
-        const asset = await octokit.repos.getReleaseAsset({
-          owner: githubOrganization,
-          repo: githubRepo,
-          asset_id: assetInfo.id,
-          headers: {
-            accept: 'application/octet-stream',
-          },
-        });
-        if (asset) {
-          const destFile = path.resolve(this.storagePath, isWindows ? assetInfo.name + '.exe' : assetInfo.name);
-          fs.appendFileSync(destFile, Buffer.from(asset.data as unknown as ArrayBuffer));
-          if (!isWindows) {
-            fs.chmodSync(destFile, 'u+x');
+      return extensionApi.window.withProgress({ location: ProgressLocation.APP_ICON }, async progress => {
+        progress.report({ increment: 5 });
+        try {
+          const assetInfo = await this.getAssetInfo();
+          if (assetInfo) {
+            const octokit = new Octokit();
+            const asset = await octokit.repos.getReleaseAsset({
+              owner: githubOrganization,
+              repo: githubRepo,
+              asset_id: assetInfo.id,
+              headers: {
+                accept: 'application/octet-stream',
+              },
+            });
+            progress.report({ increment: 80 });
+            if (asset) {
+              const destFile = path.resolve(this.storagePath, isWindows ? assetInfo.name + '.exe' : assetInfo.name);
+              fs.appendFileSync(destFile, Buffer.from(asset.data as unknown as ArrayBuffer));
+              if (!isWindows) {
+                fs.chmodSync(destFile, 'u+x');
+              }
+              extensionApi.window.showNotification({ body: 'Kind is successfully installed.' });
+            }
           }
-          provider.updateStatus('ready');
+        } finally {
+          progress.report({ increment: -1 });
         }
-      }
+      });
     }
   }
 }
