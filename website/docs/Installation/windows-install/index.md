@@ -12,8 +12,9 @@ Consider using this installation method if you don't require another method such
 
 * [Installing silently with the Windows installer](windows-install/installing-podman-desktop-silently-with-the-windows-installer)
 * [Installing with Chocolatey](windows-install/installing-podman-desktop-with-chocolatey)
-* [Installing with Scoop](installing-podman-desktop-with-scoop.md)
-* [Installing with Winget](installing-podman-desktop-with-winget.md)
+* [Installing with Scoop](windows-install/installing-podman-desktop-with-scoop)
+* [Installing with Winget](windows-install/installing-podman-desktop-with-winget)
+* [Installing Podman Desktop and Podman in a restricted environment](windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment)
 
 #### Procedure
 
