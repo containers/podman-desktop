@@ -22,6 +22,7 @@ import * as path from 'path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'url';
+import { coverageConfig } from '../main/vite.config';
 
 let filename = fileURLToPath(import.meta.url);
 const PACKAGE_ROOT = path.dirname(filename);
@@ -48,6 +49,7 @@ export default defineConfig({
         'moment',
       ],
     },
+      ...coverageConfig('renderer'),
   },
   base: '',
   server: {
