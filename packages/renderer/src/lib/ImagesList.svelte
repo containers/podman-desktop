@@ -48,7 +48,7 @@ const imageUtils = new ImageUtils();
 
 function updateImages() {
   const computedImages = storeImages
-    .map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo, storeContainers))
+    .map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo))
     .flat();
 
   // update selected items based on current selected items

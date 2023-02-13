@@ -80,16 +80,7 @@ export class ImageUtils {
     return Buffer.from(name, 'binary').toString('base64');
   }
 
-  // is that this image is used by a container or not
-  // search if there is a container matching this image
-  getInUse(imageInfo: ImageInfo, containersInfo?: ContainerInfo[]): boolean {
-    if (!containersInfo) {
-      return false;
-    }
-    return containersInfo.some(container => container.ImageID === imageInfo.Id);
-  }
-
-  getImagesInfoUI(imageInfo: ImageInfo, containersInfo: ContainerInfo[]): ImageInfoUI[] {
+  getImagesInfoUI(imageInfo: ImageInfo): ImageInfoUI[] {
     if (!imageInfo.RepoTags) {
       return [
         {
@@ -104,7 +95,7 @@ export class ImageUtils {
           tag: '',
           base64RepoTag: this.getBase64EncodedName('<none>'),
           selected: false,
-          inUse: this.getInUse(imageInfo, containersInfo),
+          inUse: imageInfo.Containers > 0,
         },
       ];
     } else {
@@ -121,14 +112,14 @@ export class ImageUtils {
           tag: this.getTag(repoTag),
           base64RepoTag: this.getBase64EncodedName(repoTag),
           selected: false,
-          inUse: this.getInUse(imageInfo, containersInfo),
+          inUse: imageInfo.Containers > 0,
         };
       });
     }
   }
 
   getImageInfoUI(imageInfo: ImageInfo, base64RepoTag: string): ImageInfoUI {
-    const images = this.getImagesInfoUI(imageInfo, []);
+    const images = this.getImagesInfoUI(imageInfo);
     const matchingImages = images.filter(image => image.base64RepoTag === base64RepoTag);
     if (matchingImages.length === 1) {
       return matchingImages[0];
