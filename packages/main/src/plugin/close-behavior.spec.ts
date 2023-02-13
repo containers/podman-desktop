@@ -17,40 +17,44 @@
  ***********************************************************************/
 import { afterEach, beforeEach, vi, test, expect } from 'vitest';
 import { CloseBehavior } from './close-behavior';
-import type { IConfigurationNode } from './configuration-registry';
 import { ConfigurationRegistry } from './configuration-registry';
-import type { ProviderRegistry } from './provider-registry';
 import { isLinux } from '../util';
+import * as os from 'node:os';
 
-const providerRegistry = {} as ProviderRegistry;
-// ToDo: candidate for a snapshot usage, maybe even using mock for the whole init method to simulate hard coded object
-const closeBehaviorConfigurationNode: IConfigurationNode = {
-  id: 'preferences.ExitOnClose',
-  title: 'Exit On Close',
-  type: 'object',
-  properties: {
-    ['preferences.ExitOnClose']: {
-      description: 'Quit the app when the close button is clicked instead of minimizing to the tray.',
-      type: 'boolean',
-      default: isLinux,
-    },
-  },
-};
 let closeBehavior;
 let configurationRegistry;
 
 beforeEach(() => {
   configurationRegistry = new ConfigurationRegistry();
-  closeBehavior = new CloseBehavior(configurationRegistry, providerRegistry);
+  closeBehavior = new CloseBehavior(configurationRegistry);
 });
 
 afterEach(() => {
   vi.clearAllMocks();
 });
 
-test('should register specific configuration node object via configuration registry method call', () => {
+test('configuration registry properties are not set before init is called', () => {
+  expect(configurationRegistry.getConfigurationProperties()).toEqual({});
+});
+
+test('should register configuration node object on init method call', () => {
   const spy = vi.spyOn(configurationRegistry, 'registerConfigurations');
   closeBehavior.init();
   expect(spy).toBeCalled();
-  expect(spy).toHaveBeenCalledWith([closeBehaviorConfigurationNode]);
+});
+
+test.skipIf(os.platform() !== 'linux')('should set default value of configuraton registry to true on Linux', () => {
+  closeBehavior.init();
+  expect(configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose'].default).toBeTruthy();
+});
+
+test.skipIf(os.platform() !== 'darwin')('should set default value of configuraton registry to false on Mac OS', () => {
+  closeBehavior.init();
+  expect(configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose'].default).toBeFalsy();
+});
+
+test.skipIf(os.platform() !== 'win32')('should set default value of configuraton registry to false on Windows', () => {
+  console.log(`isLinux result: ${isLinux}`);
+  closeBehavior.init();
+  expect(configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose'].default).toBeFalsy();
 });
