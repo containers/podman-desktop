@@ -9,6 +9,8 @@ import { TerminalSettings } from '../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from './color/color';
 
 import { isMultiplexedLog } from './stream/stream-utils';
+import EmptyScreen from './ui/EmptyScreen.svelte';
+import NoLogIcon from './ui/NoLogIcon.svelte';
 
 export let container: ContainerInfoUI;
 
@@ -114,20 +116,12 @@ onDestroy(() => {
 });
 </script>
 
-<div
-  class="h-full min-w-full flex flex-col"
-  class:hidden="{noLogs === false}"
-  style="background-color: {getPanelDetailColor()}">
-  <div class="pf-c-empty-state h-full">
-    <div class="pf-c-empty-state__content">
-      <i class="fas fa-terminal pf-c-empty-state__icon" aria-hidden="true"></i>
-
-      <h1 class="pf-c-title pf-m-lg">No Log</h1>
-
-      <div class="pf-c-empty-state__body">Log output of {container.name}</div>
-    </div>
-  </div>
-</div>
+<EmptyScreen
+  icon="{NoLogIcon}"
+  title="No Log"
+  message="Log output of {container.name}"
+  hidden="{noLogs === false}"
+  style="background-color: {getPanelDetailColor()}" />
 
 <div
   class="min-w-full flex flex-col"
