@@ -17,7 +17,6 @@ export let pod: PodInfoUI;
 let logsXtermDiv: HTMLDivElement;
 
 // Logs has been initialized
-let logsReady = false;
 let noLogs = true;
 let logsTerminal;
 
@@ -102,9 +101,8 @@ async function fetchPodLogs() {
       callback(name, `${colouredName} ${padding} | ${content}`);
     };
 
-    // Get the logs for the container and set logsReady as true
+    // Get the logs for the container
     await window.logsContainer(pod.engineId, container.Id, logsCallback);
-    logsReady = true;
   });
 }
 

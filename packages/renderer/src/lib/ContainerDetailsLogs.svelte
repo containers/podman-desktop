@@ -49,7 +49,6 @@ function callback(name: string, data: string) {
       logsTerminal?.write(data + '\r');
     }
   }
-  termFit?.fit();
 }
 
 async function fetchContainerLogs() {
