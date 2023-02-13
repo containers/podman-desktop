@@ -47,8 +47,8 @@
     }
   },
   "scripts": {
-    "build": "rollup --bundleConfigAsCjs --config rollup.config.js --compact --environment BUILD:production && node ./scripts/build.js",
-    "watch": "rollup --bundleConfigAsCjs --config rollup.config.js -w"
+    "build": "tsc && node ./scripts/build.js",
+    "watch": "tsc -w"
   },
   "dependencies": {
     "@tmpwip/extension-api": "^0.0.1",
