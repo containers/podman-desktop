@@ -45,7 +45,6 @@
     "test:preload-docker-extension": "vitest run -r packages/preload-docker-extension --passWithNoTests --coverage",
     "test:extensions": "vitest run -r extensions --passWithNoTests --coverage",
     "test:renderer": "vitest -c packages/renderer/vite.config.js run packages/renderer --passWithNoTests --coverage",
-    "test:coverage": "npm run test:extensions && npm run test:main && npm run test:preload && npm run test:preload-docker-extension && npm run test:renderer",
     "test:watch": "vitest watch",
     "watch": "node scripts/watch.cjs",
     "format:check": "prettier --check \"{extensions,packages,tests,types}/**/*.{ts,svelte}\" \"extensions/*/scripts/build.js\" \"website/*.js\" \"website/src/**/*.{css,tsx}\"",
