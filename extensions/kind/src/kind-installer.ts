@@ -100,7 +100,7 @@ export class KindInstaller {
   async performInstall(): Promise<void> {
     console.log('Installing kind');
     const dialogResult = await extensionApi.window.showInformationMessage(
-      `kind is not installed on this system, would you like to install Kind ?`,
+      'kind is not installed on this system, would you like to install Kind ?',
       'Yes',
       'No',
     );
@@ -134,5 +134,6 @@ export class KindInstaller {
         }
       });
     }
+    return Promise.reject();
   }
 }

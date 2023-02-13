@@ -233,6 +233,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       statusBarItem.text = 'Kind';
       statusBarItem.tooltip = 'Kind not found on your system, click to download and install it';
       statusBarItem.command = KIND_INSTALL_COMMAND;
+      statusBarItem.iconClass = 'fa fa-exclamation-triangle';
       extensionContext.subscriptions.push(
         extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () =>
           installer.performInstall().then(async () => {
