@@ -272,7 +272,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                       class="ml-1 text-xs font-extra-light text-gray-500"
                       class:cursor-pointer="{pod.containers.length > 0}"
                       on:click="{() => openContainersFromPod(pod)}">
-                      {pod.containers.length} containers
+                      {pod.containers.length} container{pod.containers.length > 1 ? 's' : ''}
                     </div>
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-500">
