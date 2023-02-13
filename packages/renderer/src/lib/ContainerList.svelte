@@ -456,6 +456,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       created: containerGroup.created,
                       selected: false,
                       containers: [],
+                      kind: 'podman',
                     }}"
                     dropdownMenu="{true}" />
                 {/if}

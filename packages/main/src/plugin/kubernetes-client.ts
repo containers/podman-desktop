@@ -39,7 +39,7 @@ import type { FilesystemMonitoring } from './filesystem-monitoring';
 import type { PodInfo } from './api/pod-info';
 import { PassThrough } from 'node:stream';
 
-function getContainerStatus(state: V1ContainerState | undefined) {
+function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
     if (state.running) {
       return 'Running';
@@ -58,7 +58,7 @@ function toPodInfo(pod: V1Pod): PodInfo {
       return {
         Id: status.containerID || '',
         Names: status.name,
-        Status: getContainerStatus(status.state),
+        Status: toContainerStatus(status.state),
       };
     }) || [];
   return {
@@ -300,7 +300,7 @@ export class KubernetesClient {
   async listPods(): Promise<PodInfo[]> {
     const ns = this.getCurrentNamespace();
     if (ns !== undefined) {
-      const pods = await this.listNamespacedPod(this.getCurrentNamespace() as string);
+      const pods = await this.listNamespacedPod(ns);
       return pods.items.map(pod => toPodInfo(pod));
     }
     return [];
