@@ -70,7 +70,7 @@ import type {
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
 } from './dockerode/libpod-dockerode';
-
+import type Dockerode from 'dockerode';
 import { AutostartEngine } from './autostart-engine';
 import { CloseBehavior } from './close-behavior';
 import { TrayIconColor } from './tray-icon-color';
@@ -490,6 +490,13 @@ export class PluginSystem {
       'container-provider-registry:stopContainerStats',
       async (_listener, containerStatsId: number): Promise<void> => {
         return containerProviderRegistry.stopContainerStats(containerStatsId);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:pruneContainers',
+      async (_listener, engine: string): Promise<Dockerode.PruneContainersInfo> => {
+        return containerProviderRegistry.pruneContainers(engine);
       },
     );
 
