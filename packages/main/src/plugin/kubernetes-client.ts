@@ -192,7 +192,7 @@ export class KubernetesClient {
             this.apiSender.send('pod-event');
           },
           (err: any) => {
-            console.log('Kube event error ' + err);
+            console.error('Kube event error', err);
           },
         )
         .then(req => (this.kubeWatcher = req));
