@@ -8,6 +8,8 @@ import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings'
 import { getPanelDetailColor } from '../color/color';
 import type { PodInfoUI } from './PodInfoUI';
 import { isMultiplexedLog } from '../stream/stream-utils';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+import NoLogIcon from '../ui/NoLogIcon.svelte';
 
 export let pod: PodInfoUI;
 
@@ -15,7 +17,6 @@ export let pod: PodInfoUI;
 let logsXtermDiv: HTMLDivElement;
 
 // Logs has been initialized
-let logsReady = false;
 let noLogs = true;
 let logsTerminal: Terminal;
 
@@ -100,9 +101,8 @@ async function fetchPodLogs() {
       callback(name, `${colouredName} ${padding} | ${content}`);
     };
 
-    // Get the logs for the container and set logsReady as true
+    // Get the logs for the container
     await window.logsContainer(pod.engineId, container.Id, logsCallback);
-    logsReady = true;
   });
 }
 
@@ -166,27 +166,18 @@ onDestroy(() => {
 });
 </script>
 
-{#if logsReady}
-  <div
-    class="h-full min-w-full flex flex-col"
-    class:hidden="{noLogs === false}"
-    style="background-color: {getPanelDetailColor()}">
-    <div class="pf-c-empty-state h-full">
-      <div class="pf-c-empty-state__content">
-        <i class="fas fa-terminal pf-c-empty-state__icon" aria-hidden="true"></i>
-
-        <h1 class="pf-c-title pf-m-lg">No Log</h1>
-
-        <div class="pf-c-empty-state__body">Log output of Pod {pod.name}</div>
-      </div>
-    </div>
-  </div>
-{/if}
+<EmptyScreen
+  icon="{NoLogIcon}"
+  title="No Log"
+  message="Log output of Pod {pod.name}"
+  hidden="{noLogs === false}"
+  style="background-color: {getPanelDetailColor()}" />
 
 <div
-  class="flex flex-col"
-  style="background-color: {getPanelDetailColor()}"
+  class="min-w-full flex flex-col"
+  class:invisible="{noLogs === true}"
+  class:h-0="{noLogs === true}"
   class:h-full="{noLogs === false}"
-  class:min-w-full="{noLogs === false}"
+  style="background-color: {getPanelDetailColor()}"
   bind:this="{logsXtermDiv}">
 </div>
