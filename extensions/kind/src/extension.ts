@@ -240,7 +240,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
             statusBarItem.dispose();
             kindCli = await detectKind(extensionContext.storagePath, installer);
             createProvider(extensionContext);
-          }),
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+          }, () => {}),
         ),
       );
       statusBarItem.show();
