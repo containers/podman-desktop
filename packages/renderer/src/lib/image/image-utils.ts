@@ -22,7 +22,6 @@ import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import { filesize } from 'filesize';
 import { Buffer } from 'buffer';
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 
 export class ImageUtils {
   // extract SHA256 from image id and take the first 12 digits
@@ -68,12 +67,12 @@ export class ImageUtils {
     }
   }
 
-  getEngineId(containerInfo: ImageInfo): string {
-    return containerInfo.engineId;
+  getEngineId(imageInfo: ImageInfo): string {
+    return imageInfo.engineId;
   }
 
-  getEngineName(containerInfo: ImageInfo): string {
-    return containerInfo.engineName;
+  getEngineName(imageInfo: ImageInfo): string {
+    return imageInfo.engineName;
   }
 
   getBase64EncodedName(name: string) {
