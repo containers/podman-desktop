@@ -236,12 +236,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       statusBarItem.iconClass = 'fa fa-exclamation-triangle';
       extensionContext.subscriptions.push(
         extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () =>
-          installer.performInstall().then(async () => {
-            statusBarItem.dispose();
-            kindCli = await detectKind(extensionContext.storagePath, installer);
-            createProvider(extensionContext);
+          installer.performInstall().then(
+            async () => {
+              statusBarItem.dispose();
+              kindCli = await detectKind(extensionContext.storagePath, installer);
+              createProvider(extensionContext);
+            },
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-          }, () => {}),
+            () => {},
+          ),
         ),
       );
       statusBarItem.show();

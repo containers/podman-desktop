@@ -121,6 +121,9 @@ export class KindInstaller {
             progress.report({ increment: 80 });
             if (asset) {
               const destFile = path.resolve(this.storagePath, isWindows ? assetInfo.name + '.exe' : assetInfo.name);
+              if (!fs.existsSync(this.storagePath)) {
+                fs.mkdirSync(this.storagePath);
+              }
               fs.appendFileSync(destFile, Buffer.from(asset.data as unknown as ArrayBuffer));
               if (!isWindows) {
                 fs.chmodSync(destFile, 'u+x');
