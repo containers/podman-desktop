@@ -15,46 +15,41 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { afterEach, beforeEach, vi, test, expect } from 'vitest';
+import { beforeEach, test, expect } from 'vitest';
 import { CloseBehavior } from './close-behavior';
 import { ConfigurationRegistry } from './configuration-registry';
-import { isLinux } from '../util';
-import * as os from 'node:os';
+import type { ProviderRegistry } from './provider-registry';
+import * as util from '../util';
 
+const providerRegistry = {} as ProviderRegistry;
 let closeBehavior;
 let configurationRegistry;
 
 beforeEach(() => {
   configurationRegistry = new ConfigurationRegistry();
-  closeBehavior = new CloseBehavior(configurationRegistry);
+  closeBehavior = new CloseBehavior(configurationRegistry, providerRegistry);
 });
 
-afterEach(() => {
-  vi.clearAllMocks();
+test('should register a configuration', async () => {
+  const before = configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose'];
+  expect(before).toBeUndefined();
+  await closeBehavior.init();
+  const after = configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose'];
+  expect(after).toBeDefined();
 });
 
-test('configuration registry properties are not set before init is called', () => {
-  expect(configurationRegistry.getConfigurationProperties()).toEqual({});
-});
-
-test('should register configuration node object on init method call', () => {
-  const spy = vi.spyOn(configurationRegistry, 'registerConfigurations');
-  closeBehavior.init();
-  expect(spy).toBeCalled();
-});
-
-test.skipIf(os.platform() !== 'linux')('should set default value of configuraton registry to true on Linux', () => {
-  closeBehavior.init();
+test('should set default value of configuraton registry on Linux to true', async () => {
+  Object.defineProperty(util, 'isLinux', {
+    value: true,
+  });
+  await closeBehavior.init();
   expect(configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose'].default).toBeTruthy();
 });
 
-test.skipIf(os.platform() !== 'darwin')('should set default value of configuraton registry to false on Mac OS', () => {
-  closeBehavior.init();
-  expect(configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose'].default).toBeFalsy();
-});
-
-test.skipIf(os.platform() !== 'win32')('should set default value of configuraton registry to false on Windows', () => {
-  console.log(`isLinux result: ${isLinux}`);
-  closeBehavior.init();
+test('should set default value of configuraton registry if not Linux', async () => {
+  Object.defineProperty(util, 'isLinux', {
+    value: false,
+  });
+  await closeBehavior.init();
   expect(configurationRegistry.getConfigurationProperties()['preferences.ExitOnClose'].default).toBeFalsy();
 });
