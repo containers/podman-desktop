@@ -28,7 +28,7 @@ onMount(async () => {
     containersCountValue = value.length;
   });
   imageInfoSubscribe = imagesInfos.subscribe(value => {
-    images = value.map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo, [])).flat();
+    images = value.map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo)).flat();
   });
 });
 
