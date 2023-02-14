@@ -5,6 +5,8 @@ import type { PodInfoUI } from './PodInfoUI';
 import { PodUtils } from './pod-utils';
 import type { Unsubscriber } from 'svelte/store';
 import { podsInfos } from '../../stores/pods';
+import PodIcon from '../images/PodIcon.svelte';
+import StatusIcon from '../images/StatusIcon.svelte';
 import PodActions from './PodActions.svelte';
 import PodDetailsSummary from './PodDetailsSummary.svelte';
 import PodDetailsInspect from './PodDetailsInspect.svelte';
@@ -65,11 +67,15 @@ function errorCallback(errorMessage: string): void {
               <div class="text-xl mx-2 text-gray-400">></div>
               <div class="text-sm font-extralight text-gray-400">Pod Details</div>
             </div>
-            <div class="text-lg flex flex-row items-center">
-              <p class="mr-2">{pod.name}</p>
+            <div class="text-lg flex flex-row items-start pt-1">
+              <div class="pr-3 pt-1">
+                <StatusIcon icon="{PodIcon}" status="{pod.status}" />
+              </div>
+              <div class="text-lg flex flex-col">
+                <div class="mr-2">{pod.name}</div>
+                <div class="mr-2 pb-4 text-small text-gray-500">{pod.id}</div>
+              </div>
             </div>
-            <div class="mr-2 pb-4 text-small text-gray-500">{pod.id}</div>
-
             <section class="pf-c-page__main-tabs pf-m-limit-width">
               <div class="pf-c-page__main-body">
                 <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
