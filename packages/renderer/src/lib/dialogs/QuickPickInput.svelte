@@ -166,24 +166,38 @@ function validateQuickPick() {
   cleanup();
 }
 
-function clickQuickPickItem(item: any) {
+function clickQuickPickItem(item: any, index: number) {
   if (quickPickCanPickMany) {
+    // reset index as we clicked
+    quickPickSelectedFilteredIndex = -1;
     item.checkbox = !item.checkbox;
     quickPickItems = [...quickPickItems];
     quickPickFilteredItems = [...quickPickFilteredItems];
   } else {
+    // select the index from the cursor
+    quickPickSelectedIndex = quickPickItems.indexOf(quickPickFilteredItems[index]);
     validateQuickPick();
   }
 }
 
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
+    // In case of validating error, do not proceed
+    if (validationError) {
+      e.preventDefault();
+      return;
+    }
     window.sendShowInputBoxValue(currentId, undefined, undefined);
     cleanup();
     e.preventDefault();
     return;
   } else if (e.key === 'Enter') {
     if (mode === 'InputBox') {
+      // In case of validating error, do not proceed
+      if (validationError) {
+        e.preventDefault();
+        return;
+      }
       window.sendShowInputBoxValue(currentId, inputValue, undefined);
       cleanup();
       e.preventDefault();
@@ -273,13 +287,16 @@ function handleKeydown(e: KeyboardEvent) {
           {/if}
         {:else if mode === 'QuickPick'}
           {#each quickPickFilteredItems as item, i}
-            <div class="flex w-full flex-row  {i === quickPickSelectedFilteredIndex ? 'bg-violet-500' : ''} ">
+            <div
+              class="flex w-full flex-row {i === quickPickSelectedFilteredIndex
+                ? 'bg-violet-500'
+                : 'hover:bg-zinc-800'} ">
               {#if quickPickCanPickMany}
                 <input type="checkbox" class="mx-1 outline-none" bind:checked="{item.checkbox}" />
               {/if}
               <button
-                on:click="{() => clickQuickPickItem(item)}"
-                class="text-gray-300 text-left relative my-1 w-full {i === quickPickSelectedFilteredIndex
+                on:click="{() => clickQuickPickItem(item, i)}"
+                class="text-gray-300 text-left relative my-1 w-full  {i === quickPickSelectedFilteredIndex
                   ? 'bg-violet-500'
                   : ''} px-1">{item.value}</button>
             </div>
