@@ -6,3 +6,5 @@ dist
 .parcel-cache
 .idea
 .vale/styles/RedHat
+**/test-resources
+**/coverage

@@ -1,12 +1,32 @@
 ---
-layout: default
-title: Installation Guide for Podman Desktop
+sidebar_position: 2
+title: Installing Podman Desktop
+description: You can install Podman Desktop on Windows, macOS, and Linux.
+tags: [podman-desktop, installing, windows, macos, linux]
+keywords: [podman desktop, containers, podman, installing, installation, windows, macos, linux]
 ---
 
-Welcome to the Installation Guide for Podman Desktop!
+# Installing Podman Desktop
 
-Podman Desktop is available across Windows, MacOS and Linux. This section of documentation intends to help you install the latest version of Podman Desktop on your operating system. The links to installation guide for different platforms are listed below.
+You can install Podman Desktop on:
 
-1. [MacOS](/docs/installation/macos-install)
-2. [Windows](/docs/installation/windows-install)
-3. [Linux](/docs/installation/linux-install)
+* [Windows](./installation/windows-install)
+* [macOS](./installation/macos-install)
+* [Linux](./installation/linux-install)
+
+Podman Desktop requires you to install at least one container engine.
+
+Podman Desktop does not install any container engine automatically.
+
+Podman Desktop can control various container engines, such as:
+
+* Docker
+* Lima
+* Podman
+
+Consider installing the Podman container engine for:
+
+* Added security
+* No daemon
+* Open source
+* Rootless

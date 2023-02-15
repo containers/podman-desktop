@@ -200,6 +200,12 @@ async function deployToKube() {
     deployFinished = false;
   }
 }
+
+$: bodyPod && updateKubeResult();
+
+function updateKubeResult() {
+  kubeDetails = jsYaml.dump(bodyPod, { noArrayIndent: true, quotingType: '"', lineWidth: -1 });
+}
 </script>
 
 <NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
@@ -282,7 +288,11 @@ async function deployToKube() {
 
       {#if !deployStarted}
         <div class="pt-2 m-2">
-          <button on:click="{() => deployToKube()}" class="w-full pf-c-button pf-m-primary" type="button">
+          <button
+            on:click="{() => deployToKube()}"
+            class="w-full pf-c-button pf-m-primary"
+            type="button"
+            disabled="{bodyPod?.metadata?.name === ''}">
             <span class="pf-c-button__icon pf-m-start">
               <i class="fas fa-rocket" aria-hidden="true"></i>
             </span>
@@ -327,7 +337,7 @@ async function deployToKube() {
                       <span class="text-gray-500">Ready</span>
                     {/if}
                     {#if containerStatus.state?.running}
-                      <span class="text-green-500">(Running)</span>
+                      <span class="text-green-400">(Running)</span>
                     {/if}
                     {#if containerStatus.state?.terminated}
                       <span class="text-red-500">(Terminated)</span>

@@ -39,6 +39,8 @@ const ALLOWED_ORIGINS_AND_PERMISSIONS = new Map<
     | 'pointerLock'
     | 'fullscreen'
     | 'openExternal'
+    | 'window-management'
+    | 'window-placement'
     | 'unknown'
   >
 >(

@@ -1,5 +1,4 @@
 <script lang="ts">
-import 'ninja-keys';
 import './app.css';
 import '@patternfly/patternfly/patternfly.css';
 import '@patternfly/patternfly/patternfly-addons.css';
@@ -67,15 +66,13 @@ window.events?.receive('display-help', () => {
 
 <Route path="/*" breadcrumb="Home" let:meta>
   <main class="min-h-screen flex flex-col h-screen bg-zinc-900">
-    <ninja-keys id="command-palette" placeholder="" openHotkey="F1" hideBreadcrumbs class="dark"></ninja-keys>
-
     <header id="navbar" class="text-gray-400 bg-zinc-900 body-font" style="-webkit-app-region: drag;">
       <div class="flex mx-auto flex-row p-2 items-center">
         <div class="flex lg:w-2/5 flex-1 items-center text-base ml-auto"></div>
         <div
           class="flex order-none title-font font-medium items-center text-white align-middle justify-center mb-4 md:mb-0">
           <Logo />
-          <span class="ml-3 text-xl block text-gray-300">Podman Desktop</span>
+          <span class="select-none ml-3 text-xl block text-gray-300">Podman Desktop</span>
         </div>
         <div class="lg:w-2/5 flex-1 lg:justify-end ml-5 lg:ml-0"></div>
       </div>

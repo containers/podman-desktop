@@ -18,7 +18,7 @@
 
 import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
 import { Menu } from 'electron';
-import { BrowserWindow, ipcMain, app, dialog, screen } from 'electron';
+import { BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
 import contextMenu from 'electron-context-menu';
 const { aboutMenuItem } = require('electron-util');
 import { join } from 'path';
@@ -32,6 +32,11 @@ async function createWindow() {
   const INITIAL_APP_HEIGHT = 600;
   const INITIAL_APP_MIN_HEIGHT = 600;
 
+  // We have a "dark" background color in order to avoid the white flash when loading the app
+  // this only occurs if the user clicks on the app icon milliseconds before the app is fully loaded.
+  // We use the native theme to determine if we should use a dark background color or not.
+  const INITIAL_APP_BACKGROUND_COLOR = nativeTheme.shouldUseDarkColors ? '#18181b' : '#ffffff';
+
   const browserWindowConstructorOptions: BrowserWindowConstructorOptions = {
     show: false, // Use 'ready-to-show' event to show window
     autoHideMenuBar: true, // This makes Podman Desktop look more like a native app
@@ -39,6 +44,7 @@ async function createWindow() {
     minWidth: INITIAL_APP_MIN_WIDTH,
     minHeight: INITIAL_APP_MIN_HEIGHT,
     height: INITIAL_APP_HEIGHT,
+    backgroundColor: INITIAL_APP_BACKGROUND_COLOR,
     webPreferences: {
       webSecurity: false,
       //nativeWindowOpen: true,
@@ -73,8 +79,12 @@ async function createWindow() {
    * @see https://github.com/electron/electron/issues/25012
    */
   browserWindow.on('ready-to-show', () => {
-    browserWindow?.show();
-    if (isMac) {
+    // If started with --minimize flag, don't show the window
+    if (!isStartedMinimize()) {
+      browserWindow.show();
+    }
+
+    if (isMac && !isStartedMinimize()) {
       app.dock.show();
     }
 
@@ -205,23 +215,34 @@ async function createWindow() {
   return browserWindow;
 }
 
-/**
- * Restore existing BrowserWindow or Create new BrowserWindow
- */
-export async function restoreOrCreateWindow() {
+// Create a new window if there is no existing window
+export async function createNewWindow() {
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   if (window === undefined) {
     window = await createWindow();
   }
+}
 
-  if (window.isMinimized()) {
-    window.restore();
-  }
+// Restore the window if it is minimized / not shown / there is already another instance running
+export async function restoreWindow() {
+  const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
-  if (!window.isVisible()) {
+  // Only restore the window if we were able to find it
+  if (window) {
+    if (window.isMinimized()) {
+      window.restore();
+    }
+
     window.show();
+    window.focus();
   }
+}
 
-  window.focus();
+// Checks process args if it was started with the --minimize flag
+function isStartedMinimize(): boolean {
+  // We convert to string only because sometimes [node] will be the first argument in a packaged
+  // environment, so instead of checking each element, simply convert to string and see if --minimize was included.
+  const argv = process.argv.toString();
+  return argv.includes('--minimize');
 }

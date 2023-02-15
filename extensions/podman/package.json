@@ -96,7 +96,7 @@
     "compare-versions": "^5.0.3"
   },
   "devDependencies": {
-    "7zip-min": "^1.4.3",
+    "7zip-min": "^1.4.4",
     "hasha": "^5.2.2",
     "mkdirp": "^2.1.3",
     "octokit": "^2.0.14",

@@ -22,6 +22,7 @@ import * as path from 'path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'url';
+import { coverageConfig } from '../main/vite.config';
 
 let filename = fileURLToPath(import.meta.url);
 const PACKAGE_ROOT = path.dirname(filename);
@@ -35,9 +36,20 @@ export default defineConfig({
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
   },
-  plugins: [svelte()],
+  plugins: [svelte({ hot: !process.env.VITEST })],
   optimizeDeps: {
     exclude: ['tinro'],
+  },
+  test: {
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    globals: true,
+    environment: 'jsdom',
+    deps: {
+      inline: [
+        'moment',
+      ],
+    },
+      ...coverageConfig('renderer'),
   },
   base: '',
   server: {

@@ -12,7 +12,8 @@ import { providerInfos } from '../stores/providers';
 import PushImageModal from './image/PushImageModal.svelte';
 import { ImageUtils } from './image/image-utils';
 import NavPage from './ui/NavPage.svelte';
-import ImageStatusIcon from './image/ImageStatusIcon.svelte';
+import ImageIcon from './images/ImageIcon.svelte';
+import StatusIcon from './images/StatusIcon.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { containersInfos } from '../stores/containers';
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
@@ -76,7 +77,7 @@ function updateImages() {
   refreshTimeouts.push(setTimeout(refreshAge, interval));
 }
 
-let imagessUnsubscribe: Unsubscriber;
+let imagesUnsubscribe: Unsubscriber;
 let containersUnsubscribe: Unsubscriber;
 let storeContainers: ContainerInfo[] = [];
 let storeImages: ImageInfo[] = [];
@@ -86,7 +87,7 @@ onMount(async () => {
     updateImages();
   });
 
-  imagessUnsubscribe = filtered.subscribe(value => {
+  imagesUnsubscribe = filtered.subscribe(value => {
     storeImages = value;
     updateImages();
   });
@@ -98,8 +99,8 @@ onDestroy(() => {
   refreshTimeouts.length = 0;
 
   // unsubscribe from the store
-  if (imagessUnsubscribe) {
-    imagessUnsubscribe();
+  if (imagesUnsubscribe) {
+    imagesUnsubscribe();
   }
   if (containersUnsubscribe) {
     containersUnsubscribe();
@@ -254,7 +255,7 @@ function computeInterval(): number {
               bind:checked="{allChecked}"
               on:click="{event => toggleAllImages(event.currentTarget.checked)}"
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
-          <th class="text-center font-extrabold w-10">status</th>
+          <th class="text-center font-extrabold w-10 px-2">status</th>
           <th class="w-10">Name</th>
           <th class="px-6 whitespace-nowrap w-10">age</th>
           <th class="px-6 whitespace-nowrap text-end">size</th>
@@ -276,8 +277,10 @@ function computeInterval(): number {
                 title="{image.inUse ? 'Image is used by a container' : ''}"
                 class=" invert hue-rotate-[218deg] brightness-75 " />
             </td>
-            <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
-              <ImageStatusIcon inUse="{image.inUse}" />
+            <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center content-center h-12">
+              <div class="grid place-content-center ml-3 mr-4">
+                <StatusIcon icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
+              </div>
             </td>
             <td class="whitespace-nowrap  w-10 hover:cursor-pointer" on:click="{() => openDetailsImage(image)}">
               <div class="flex items-center">
@@ -310,8 +313,8 @@ function computeInterval(): number {
                 <div class="w-full text-right text-sm text-gray-400">{image.humanSize}</div>
               </div>
             </td>
-            <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg pr-1">
-              <ImageActions image="{image}" onPushImage="{handlePushImageModal}" />
+            <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
+              <ImageActions image="{image}" onPushImage="{handlePushImageModal}" dropdownMenu="{true}" />
             </td>
           </tr>
           <tr><td class="leading-[8px]">&nbsp;</td></tr>
