@@ -22,6 +22,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { runCliCommand, detectKind } from './util';
 import { KindInstaller } from './kind-installer';
+import { window } from '@tmpwip/extension-api';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 
@@ -237,13 +238,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       extensionContext.subscriptions.push(
         extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () =>
           installer.performInstall().then(
-            async () => {
-              statusBarItem.dispose();
-              kindCli = await detectKind(extensionContext.storagePath, installer);
-              createProvider(extensionContext);
+            async status => {
+              if (status) {
+                statusBarItem.dispose();
+                kindCli = await detectKind(extensionContext.storagePath, installer);
+                createProvider(extensionContext);
+              }
             },
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            () => {},
+            err => window.showErrorMessage('Kind installation failed ' + err),
           ),
         ),
       );

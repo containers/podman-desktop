@@ -97,7 +97,7 @@ export class KindInstaller {
     return assetInfo !== undefined;
   }
 
-  async performInstall(): Promise<void> {
+  async performInstall(): Promise<boolean> {
     const dialogResult = await extensionApi.window.showInformationMessage(
       'kind is not installed on this system, would you like to install Kind ?',
       'Yes',
@@ -129,6 +129,7 @@ export class KindInstaller {
                 fs.chmodSync(destFile, 'u+x');
               }
               extensionApi.window.showNotification({ body: 'Kind is successfully installed.' });
+              return true;
             }
           }
         } finally {
@@ -136,6 +137,6 @@ export class KindInstaller {
         }
       });
     }
-    return Promise.reject();
+    return false;
   }
 }
