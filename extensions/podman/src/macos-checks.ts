@@ -66,6 +66,14 @@ export class MacVersionCheck extends BaseCheck {
 export class MacPodmanInstallCheck extends BaseCheck {
   title = 'Podman Installation';
   async execute(): Promise<extensionApi.CheckResult> {
+    // we need to check if brew is installed to avoid unexpected error
+    const brewResult = await runCliCommand('which', ['brew']);
+    if (brewResult.exitCode !== 0) {
+      // brew is not installed so do not check if podman has been installed with brew
+      return this.createSuccessfulResult();
+    }
+
+    // brew is installed, check if podman has been installed with brew
     const runResult = await runCliCommand('brew', ['list', '--verbose', 'podman'], {
       env: { HOMEBREW_NO_AUTO_UPDATE: '1', HOMEBREW_NO_ANALYTICS: '1' },
     });
