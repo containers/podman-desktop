@@ -10,20 +10,14 @@ import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
+import { InitializationMode, InitializationSteps, InitializeAndStartMode, InitializeOnlyMode } from './ProviderInitUtils';
 import { Steps } from 'svelte-steps';
-import GearIcon from '../images/WrenchIcon.svelte';
-import StartIcon from '../images/StartIcon.svelte';
-import type { InitializationMode } from './ProviderInitUtils';
 
 export let provider: ProviderInfo;
 export let updateInitializationMode: (string, InitializationMode) => void;
 
-let providerToggleValue = false;
-let steps = [
-        { icon: GearIcon },
-        { icon: StartIcon }
-    ];
 
+let initializationButtonVisible = true;
 let initializeInProgress = false;
 
 let initalizeError: string | undefined = undefined;
@@ -38,32 +32,28 @@ let logsTerminal;
 // Terminal resize
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
-const initializeStartOption = 'Initialize and Start Podman';
-const initializeOption = 'Initialize Podman';
-let podmanInstallationMenuVisible = false;
-let podmanOptionInstallationSelected = initializeStartOption;
+let installationOptionsMenuVisible = false;
+let installationOptionSelected = InitializeAndStartMode;
 
 async function initializeProvider() {
   initalizeError = undefined;
   logsTerminal.clear();
-  if (providerToggleValue) {
-    initializeInProgress = true;
-    try {
-      await window.initializeProvider(provider.internalId);
-      // wait that status is updated
-      await new Promise<void>(resolve => {
-        window.events.receive('provider-change', () => {
-          resolve();
-        });
+  initializeInProgress = true;
+  try {
+    await window.initializeProvider(provider.internalId);
+    // wait that status is updated
+    await new Promise<void>(resolve => {
+      window.events.receive('provider-change', () => {
+        resolve();
       });
-    } catch (error) {
-      initalizeError = error;
-      providerToggleValue = false;
-      logsTerminal.write(error + '\r');
-      console.error('Error while initializing the provider', error);
-    }
-    initializeInProgress = false;
+    });
+  } catch (error) {
+    initalizeError = error;
+    initializationButtonVisible = true;
+    logsTerminal.write(error + '\r');
+    console.error('Error while initializing the provider', error);
   }
+  initializeInProgress = false;  
 }
 
 async function refreshTerminal() {
@@ -122,13 +112,13 @@ onDestroy(() => {
 });
 
 function updateOptionsMenu(visible: boolean) {
-  podmanInstallationMenuVisible = visible;
+  installationOptionsMenuVisible = visible;
 }
 
-function onPodmanInstallationClick() {
+function onInstallationClick() {
   initializeInProgress = true
-  updateInitializationMode(provider.internalId, podmanOptionInstallationSelected);
-  providerToggleValue = true;
+  initializationButtonVisible = false;
+  updateInitializationMode(provider.internalId, installationOptionSelected);
   initializeProvider();
 }
 </script>
@@ -147,70 +137,44 @@ function onPodmanInstallationClick() {
       To start working with containers, {provider.name} needs to be initialized.
     </p>
     
-  {#if provider.name.toLowerCase() !== "podman"}
-    <label for="toggle-{provider.internalId}" class="inline-flex relative items-center my-5 cursor-pointer">
-      <input
-        type="checkbox"
-        disabled="{initializeInProgress}"
-        bind:checked="{providerToggleValue}"
-        on:change="{() => initializeProvider()}"
-        id="toggle-{provider.internalId}"
-        class="sr-only peer" />
-      <div
-        class="w-9 h-5 peer-focus:ring-violet-800 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-violet-600">
-      </div>
-      <span class="ml-3 text-sm font-medium text-gray-300">Initialize {provider.name}</span>
-    </label>
-    {#if initializeInProgress}
-      <div class="flex mt-2 flex-col">
-        <div>Initializing...Please Wait...</div>
-        <div class="my-2">
-          <i class="pf-c-button__progress">
-            <span class="pf-c-spinner pf-m-md" role="progressbar">
-              <span class="pf-c-spinner__clipper"></span>
-              <span class="pf-c-spinner__lead-ball"></span>
-              <span class="pf-c-spinner__tail-ball"></span>
-            </span>
-          </i>
-        </div>
-      </div>
-    {/if}
-  {:else}
-    <div class="m-5" class:hidden={initializeInProgress}>
+    <div class="m-5" class:hidden={!initializationButtonVisible}>
       <div class="bg-[#e5e7eb]">
         <button 
           class="float-left bg-[var(--pf-global--primary-color--300)] hover:bg-[var(--pf-global--primary-color--200)] pt-2 pr-3 pl-3 pb-2 text-[13px] mr-px  w-[180px]"
-          on:click="{onPodmanInstallationClick}">
-          {podmanOptionInstallationSelected}
+          on:click="{onInstallationClick}">
+          {installationOptionSelected}
         </button>
-        <button class="inline-block bg-[var(--pf-global--primary-color--300)] hover:bg-[var(--pf-global--primary-color--200)] text-[13px] pt-2 pr-3 pl-3 pb-2 w-[32px]" on:click="{() => updateOptionsMenu(!podmanInstallationMenuVisible)}">
+        <button class="inline-block bg-[var(--pf-global--primary-color--300)] hover:bg-[var(--pf-global--primary-color--200)] text-[13px] pt-2 pr-3 pl-3 pb-2 w-[32px]" on:click="{() => updateOptionsMenu(!installationOptionsMenuVisible)}">
           <i class="fas fa-caret-down"></i>
         </button>              
       </div>
-      <div class="-z-1 min-w-[130px] m-auto bg-primary text-[13px]" class:hidden="{!podmanInstallationMenuVisible}">
+      <div class="-z-1 min-w-[130px] m-auto bg-primary text-[13px]" class:hidden="{!installationOptionsMenuVisible}">
         <ul class="w-full outline-none bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400">
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <li 
-            class="p-2 {podmanOptionInstallationSelected === initializeOption ? 'bg-[#ffffff33]' : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer" 
+            class="p-2 {installationOptionSelected === InitializeOnlyMode ? 'bg-[#ffffff33]' : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer" 
             on:click="{() => {
-              podmanOptionInstallationSelected = initializeOption;
-              podmanInstallationMenuVisible = false;
+              installationOptionSelected = InitializeOnlyMode;
+              installationOptionsMenuVisible = false;
             }}">
-           {initializeOption}
+            {InitializeOnlyMode} {provider.name}
           </li>
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <li class="p-2 {podmanOptionInstallationSelected === initializeStartOption ? 'bg-[#ffffff33]' : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
+          <li class="p-2 {installationOptionSelected === InitializeAndStartMode ? 'bg-[#ffffff33]' : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
             on:click="{() => { 
-              podmanOptionInstallationSelected = initializeStartOption;
-              podmanInstallationMenuVisible = false;
+              installationOptionSelected = InitializeAndStartMode;
+              installationOptionsMenuVisible = false;
             }}">
-            {initializeStartOption}
+            {InitializeAndStartMode} {provider.name}
           </li>
         </ul>
       </div>
     </div>
+
     <div class="mt-5" class:hidden={!initializeInProgress}>
-      <Steps {steps} primary="var(--pf-global--primary-color--300)" size="1.7rem" line="1px" current={0} clickable={false} />
+      {#if installationOptionSelected === InitializeAndStartMode}
+      <Steps steps={InitializationSteps} primary="var(--pf-global--primary-color--300)" size="1.7rem" line="1px" current={0} clickable={false} />
+      {/if}
       <div class="flex  flex-col text-gray-400">
         <div>Initializing</div>
         <div class="my-2 pr-5">
@@ -223,12 +187,7 @@ function onPodmanInstallationClick() {
           </i>
         </div>
       </div>
-    </div>    
-  {/if}
-  
- 
-  
-    
+    </div>
 
     <div
       class=""

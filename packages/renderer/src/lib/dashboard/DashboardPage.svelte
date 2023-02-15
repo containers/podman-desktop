@@ -47,7 +47,7 @@ function updateInitializationMode(id: string, mode: InitializationMode) {
           display a box to indicate how to make the provider ready -->
         {#if providersInstalled.length > 0}
           {#each providersInstalled as providerInstalled}
-            <ProviderInstalled provider="{providerInstalled}" doStoreChosenMode="{updateInitializationMode}" />
+            <ProviderInstalled provider="{providerInstalled}" updateInitializationMode="{updateInitializationMode}" />
           {/each}
         {/if}
 
