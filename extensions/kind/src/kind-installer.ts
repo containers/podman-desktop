@@ -126,7 +126,8 @@ export class KindInstaller {
               }
               fs.appendFileSync(destFile, Buffer.from(asset.data as unknown as ArrayBuffer));
               if (!isWindows) {
-                fs.chmodSync(destFile, 'u+x');
+                const stat = fs.statSync(destFile);
+                fs.chmodSync(destFile, stat.mode | fs.constants.S_IXUSR);
               }
               extensionApi.window.showNotification({ body: 'Kind is successfully installed.' });
               return true;
