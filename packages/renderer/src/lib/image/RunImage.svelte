@@ -506,7 +506,7 @@ function checkContainerName(event: any) {
                 {/each}
 
                 <button
-                  class="pt-3 pb-2 outline-none text-sm bg-zinc-900 rounded-sm bg-transparent placeholder-gray-400"
+                  class="pt-3 pb-2 outline-none text-sm rounded-sm bg-transparent placeholder-gray-400"
                   on:click="{addHostContainerPorts}">
                   <span class="pf-c-button__icon pf-m-start">
                     <i class="fas fa-plus-circle"></i>
