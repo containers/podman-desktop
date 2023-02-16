@@ -68,12 +68,12 @@ export class ImageUtils {
     }
   }
 
-  getEngineId(containerInfo: ImageInfo): string {
-    return containerInfo.engineId;
+  getEngineId(imageInfo: ImageInfo): string {
+    return imageInfo.engineId;
   }
 
-  getEngineName(containerInfo: ImageInfo): string {
-    return containerInfo.engineName;
+  getEngineName(imageInfo: ImageInfo): string {
+    return imageInfo.engineName;
   }
 
   getBase64EncodedName(name: string) {
@@ -104,7 +104,7 @@ export class ImageUtils {
           tag: '',
           base64RepoTag: this.getBase64EncodedName('<none>'),
           selected: false,
-          inUse: this.getInUse(imageInfo, containersInfo),
+          inUse: imageInfo.Containers > 0 || this.getInUse(imageInfo, containersInfo),
         },
       ];
     } else {
@@ -121,7 +121,7 @@ export class ImageUtils {
           tag: this.getTag(repoTag),
           base64RepoTag: this.getBase64EncodedName(repoTag),
           selected: false,
-          inUse: this.getInUse(imageInfo, containersInfo),
+          inUse: imageInfo.Containers > 0 || this.getInUse(imageInfo, containersInfo),
         };
       });
     }
