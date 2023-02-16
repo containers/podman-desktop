@@ -71,9 +71,9 @@ export class ContainerUtils {
     const ports = containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort);
 
     if (ports && ports.length > 1) {
-      return `PORTS: ${ports.join(', ')}`;
+      return ports.join(', ');
     } else if (ports && ports.length === 1) {
-      return `PORT: ${ports[0]}`;
+      return `${ports[0]}`;
     } else {
       return '';
     }
