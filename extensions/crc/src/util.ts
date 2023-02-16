@@ -18,6 +18,12 @@
 
 import * as os from 'node:os';
 
-export const isWindows = os.platform() === 'win32';
-export const isMac = os.platform() === 'darwin';
-export const isLinux = os.platform() === 'linux';
+export function isWindows(): boolean {
+  return os.platform() === 'win32';
+}
+export function isMac(): boolean {
+  return os.platform() === 'darwin';
+}
+export function isLinux(): boolean {
+  return os.platform() === 'linux';
+}

@@ -46,11 +46,11 @@ export class Certificates {
   }
 
   async retrieveCertificates(): Promise<string[]> {
-    if (isMac) {
+    if (isMac()) {
       return this.retrieveMacOSCertificates();
-    } else if (isWindows) {
+    } else if (isWindows()) {
       return this.retrieveWindowsCertificates();
-    } else if (isLinux) {
+    } else if (isLinux()) {
       return this.retrieveLinuxCertificates();
     }
 

@@ -208,11 +208,11 @@ export class PodmanConfiguration {
   protected getContainersFileLocation(): string {
     let podmanConfigContainersPath;
 
-    if (isMac) {
+    if (isMac()) {
       podmanConfigContainersPath = path.resolve(os.homedir(), '.config', 'containers');
-    } else if (isWindows) {
+    } else if (isWindows()) {
       podmanConfigContainersPath = path.resolve(os.homedir(), 'AppData', 'Roaming', 'containers');
-    } else if (isLinux) {
+    } else if (isLinux()) {
       const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'];
       podmanConfigContainersPath = path.resolve(xdgRuntimeDirectory, 'containers');
     }
