@@ -56,7 +56,7 @@ if (dropdownMenu) {
   onClick="{() => deleteImage()}"
   detailed="{detailed}"
   icon="{faTrash}"
-  enabled="{image.inUse}" />
+  enabled="{!image.inUse}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
