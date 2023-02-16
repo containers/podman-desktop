@@ -36,14 +36,14 @@ async function runProvider() {
     runError = error;
     console.error('Error while starting the provider', error);
   }
-  runInProgress = false;  
+  runInProgress = false;
 }
 
 onMount(() => {
   if (runAtStart) {
     runProvider();
   }
-})
+});
 </script>
 
 <div class="p-2 flex flex-col bg-zinc-800 rounded-lg">
@@ -63,33 +63,39 @@ onMount(() => {
       {/if} needs to be started.
     </p>
 
-    {#if (!runAtStart && !runInProgress)}      
-    <div class="mt-5">
-      <button on:click="{() => runProvider()}" class="pf-c-button pf-m-primary" type="button">
-        Run {provider.name}
-      </button>
-    </div>
+    {#if !runAtStart && !runInProgress}
+      <div class="mt-5">
+        <button on:click="{() => runProvider()}" class="pf-c-button pf-m-primary" type="button">
+          Run {provider.name}
+        </button>
+      </div>
     {/if}
     {#if runAtStart || runInProgress}
-    <div class="mt-5">
-      {#if initializationMode === InitializeAndStartMode}
-      <Steps steps={InitializationSteps} primary="var(--pf-global--primary-color--300)" size="1.7rem" line="1px" current={1} clickable={false} />
-      {/if}
-      <div class="flex  flex-col text-gray-400">
-        <div>Starting</div>
-        <div class="my-2 pr-5">
-          <i class="pf-c-button__progress">
-            <span class="pf-c-spinner pf-m-md" role="progressbar">
-              <span class="pf-c-spinner__clipper"></span>
-              <span class="pf-c-spinner__lead-ball"></span>
-              <span class="pf-c-spinner__tail-ball"></span>
-            </span>
-          </i>
+      <div class="mt-5">
+        {#if initializationMode === InitializeAndStartMode}
+          <Steps
+            steps="{InitializationSteps}"
+            primary="var(--pf-global--primary-color--300)"
+            size="1.7rem"
+            line="1px"
+            current="{1}"
+            clickable="{false}" />
+        {/if}
+        <div class="flex  flex-col text-gray-400">
+          <div>Starting</div>
+          <div class="my-2 pr-5">
+            <i class="pf-c-button__progress">
+              <span class="pf-c-spinner pf-m-md" role="progressbar">
+                <span class="pf-c-spinner__clipper"></span>
+                <span class="pf-c-spinner__lead-ball"></span>
+                <span class="pf-c-spinner__tail-ball"></span>
+              </span>
+            </i>
+          </div>
         </div>
       </div>
-    </div>
     {/if}
-    
+
     {#if runError}
       <ErrorMessage class="flex flex-col mt-2 my-2 text-sm" error="{runError}" />
     {/if}

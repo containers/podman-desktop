@@ -55,7 +55,9 @@ function updateInitializationMode(id: string, mode: InitializationMode) {
           display a box to indicate how to make the provider ready -->
         {#if providersConfigured.length > 0}
           {#each providersConfigured as providerConfigured}
-            <ProviderConfigured provider="{providerConfigured}" initializationMode="{providerInitMode.get(providerConfigured.internalId)}" />
+            <ProviderConfigured
+              provider="{providerConfigured}"
+              initializationMode="{providerInitMode.get(providerConfigured.internalId)}" />
           {/each}
         {/if}
 

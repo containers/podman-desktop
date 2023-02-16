@@ -18,12 +18,9 @@
 import GearIcon from '../images/WrenchIcon.svelte';
 import StartIcon from '../images/StartIcon.svelte';
 
-export const InitializeOnlyMode = "Initialize";
-export const InitializeAndStartMode = "Initialize and Start";
+export const InitializeOnlyMode = 'Initialize';
+export const InitializeAndStartMode = 'Initialize and Start';
 
 export type InitializationMode = typeof InitializeOnlyMode | typeof InitializeAndStartMode;
 
-export const InitializationSteps = [
-    { icon: GearIcon },
-    { icon: StartIcon }
-];
+export const InitializationSteps = [{ icon: GearIcon }, { icon: StartIcon }];
