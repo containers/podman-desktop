@@ -20,14 +20,14 @@ import * as extensionApi from '@tmpwip/extension-api';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
-import * as childProcess from 'node:child_process';
 import type { Status } from './daemon-commander';
 import { DaemonCommander } from './daemon-commander';
 import { LogProvider } from './log-provider';
-import { isMac, isWindows } from './util';
+import { isWindows } from './util';
+import { daemonStart, daemonStop, getCrcVersion } from './crc-cli';
+import { getCrcDetectionChecks } from './detection-checks';
 
 const commander = new DaemonCommander();
-let daemonProcess: childProcess.ChildProcess;
 let statusFetchTimer: NodeJS.Timer;
 
 let crcStatus: Status;
@@ -37,17 +37,43 @@ const crcLogProvider = new LogProvider(commander);
 const defaultStatus = { CrcStatus: 'Unknown', Preset: 'Unknown' };
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  // crc is installed or not ?
-  if (!fs.existsSync(crcBinary())) {
-    console.warn('Can not find CRC binary!');
-    return;
+  const crcVersion = await getCrcVersion();
+
+  const detectionChecks: extensionApi.ProviderDetectionCheck[] = [];
+  let status: extensionApi.ProviderStatus = 'not-installed';
+  let preset = 'unknown';
+  if (crcVersion) {
+    status = 'installed';
+
+    const daemonStarted = await daemonStart();
+    if (!daemonStarted) {
+      //TODO handle this
+      return;
+    }
+
+    try {
+      // initial status
+      crcStatus = await commander.status();
+    } catch (err) {
+      console.error('error in CRC extension', err);
+      crcStatus = defaultStatus;
+    }
+
+    // detect preset of CRC
+    preset = readPreset(crcStatus);
+
+    startStatusUpdateTimer();
   }
+
+  detectionChecks.push(...getCrcDetectionChecks(crcVersion));
 
   // create CRC provider
   const provider = extensionApi.provider.createProvider({
     name: 'CRC',
     id: 'crc',
-    status: 'unknown',
+    version: crcVersion?.version,
+    status: status,
+    detectionChecks: detectionChecks,
     images: {
       icon: './icon.png',
       logo: './icon.png',
@@ -59,17 +85,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   if (!daemonStarted) {
     return;
   }
-
-  try {
-    // initial status
-    crcStatus = await commander.status();
-  } catch (err) {
-    console.error('error in CRC extension', err);
-    crcStatus = defaultStatus;
-  }
-
-  // detect preset of CRC
-  const preset = readPreset(crcStatus);
 
   const providerLifecycle: extensionApi.ProviderLifecycle = {
     status: () => convertToProviderStatus(crcStatus?.CrcStatus),
@@ -101,47 +116,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     // OpenShift
     registerOpenShiftLocalCluster(provider, extensionContext);
   }
-
-  startStatusUpdateTimer();
-}
-
-function crcBinary(): string {
-  if (isWindows()) {
-    // This returns `crc` as located in c:\Program Files\OpenShift Local\
-    return path.join('C:\\Program Files\\Red Hat OpenShift Local\\crc.exe');
-  }
-
-  if (isMac()) {
-    // This returns `crc` as located in /usr/local/bin/crc
-    return '/usr/local/bin/crc';
-  }
-
-  // No path provided
-  return 'crc';
-}
-
-async function daemonStart(): Promise<boolean> {
-  // launching the daemon
-  daemonProcess = childProcess.spawn(crcBinary(), ['daemon', '--watchdog'], {
-    detached: true,
-    windowsHide: true,
-  });
-
-  daemonProcess.on('error', err => {
-    const msg = `Backend failure, Backend failed to start: ${err}`;
-    // TODO: show error on UI!
-    console.error('Backend failure', msg);
-  });
-
-  daemonProcess.stdout.on('date', () => {
-    // noop
-  });
-
-  daemonProcess.stderr.on('data', () => {
-    // noop
-  });
-
-  return true;
 }
 
 function registerPodmanConnection(provider: extensionApi.Provider, extensionContext: extensionApi.ExtensionContext) {
@@ -174,9 +148,9 @@ function registerPodmanConnection(provider: extensionApi.Provider, extensionCont
 
 export function deactivate(): void {
   console.log('stopping crc extension');
-  if (daemonProcess) {
-    daemonProcess.kill();
-  }
+
+  daemonStop();
+
   if (statusFetchTimer) {
     clearInterval(statusFetchTimer);
   }
@@ -229,7 +203,7 @@ function convertToProviderStatus(crcStatus: string): extensionApi.ProviderStatus
     case 'No Cluster':
       return 'configured';
     default:
-      return 'unknown';
+      return 'not-installed';
   }
 }
 
