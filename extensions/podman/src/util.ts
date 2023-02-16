@@ -21,9 +21,15 @@ import * as path from 'node:path';
 import { spawn } from 'node:child_process';
 import { getInstallationPath } from './podman-cli';
 
-export const isWindows = os.platform() === 'win32';
-export const isMac = os.platform() === 'darwin';
-export const isLinux = os.platform() === 'linux';
+export function isWindows(): boolean {
+  return os.platform() === 'win32';
+}
+export function isMac(): boolean {
+  return os.platform() === 'darwin';
+}
+export function isLinux(): boolean {
+  return os.platform() === 'linux';
+}
 
 /**
  * @returns true if app running in dev mode
@@ -61,9 +67,9 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
     let env = Object.assign({}, process.env); // clone original env object
 
     // In production mode, applications don't have access to the 'user' path like brew
-    if (isMac || isWindows) {
+    if (isMac() || isWindows()) {
       env.PATH = getInstallationPath();
-      if (isWindows) {
+      if (isWindows()) {
         // Escape any whitespaces in command
         command = `"${command}"`;
       }
@@ -77,7 +83,7 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
       env = Object.assign(env, options.env);
     }
 
-    const spawnProcess = spawn(command, args, { shell: isWindows, env });
+    const spawnProcess = spawn(command, args, { shell: isWindows(), env });
     spawnProcess.on('error', err => {
       reject(err);
     });
