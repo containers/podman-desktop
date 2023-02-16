@@ -272,7 +272,7 @@ export class PluginSystem {
 
     const kubernetesClient = new KubernetesClient(configurationRegistry, fileSystemMonitoring);
     await kubernetesClient.init();
-    const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry, providerRegistry);
+    const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
 
     // Don't show the tray icon options on Mac

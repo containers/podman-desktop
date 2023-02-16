@@ -18,16 +18,14 @@
 import { beforeEach, test, expect } from 'vitest';
 import { CloseBehavior } from './close-behavior';
 import { ConfigurationRegistry } from './configuration-registry';
-import type { ProviderRegistry } from './provider-registry';
 import * as util from '../util';
 
-const providerRegistry = {} as ProviderRegistry;
 let closeBehavior;
 let configurationRegistry;
 
 beforeEach(() => {
   configurationRegistry = new ConfigurationRegistry();
-  closeBehavior = new CloseBehavior(configurationRegistry, providerRegistry);
+  closeBehavior = new CloseBehavior(configurationRegistry);
 });
 
 test('should register a configuration', async () => {
