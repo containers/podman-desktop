@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ import { Uri } from './types/uri';
 import type { KubernetesClient } from './kubernetes-client';
 import type { Proxy } from './proxy';
 import type { ContainerProviderRegistry } from './container-registry';
+import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
+import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry';
 
 /**
  * Handle the loading of an extension
@@ -88,6 +90,7 @@ export class ExtensionLoader {
     private fileSystemMonitoring: FilesystemMonitoring,
     private proxy: Proxy,
     private containerProviderRegistry: ContainerProviderRegistry,
+    private inputQuickPickRegistry: InputQuickPickRegistry,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -407,6 +410,7 @@ export class ExtensionLoader {
     const dialogs = this.dialogs;
     const progress = this.progress;
     const notifications = this.notifications;
+    const inputQuickPickRegistry = this.inputQuickPickRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
       showInformationMessage: (message: string, ...items: string[]) => {
         return dialogs.showDialog('info', extManifest.name, message, items);
@@ -416,6 +420,20 @@ export class ExtensionLoader {
       },
       showErrorMessage: (message: string, ...items: string[]) => {
         return dialogs.showDialog('error', extManifest.name, message, items);
+      },
+
+      showInputBox: (options?: containerDesktopAPI.InputBoxOptions, token?: containerDesktopAPI.CancellationToken) => {
+        return inputQuickPickRegistry.showInputBox(options, token);
+      },
+
+      showQuickPick(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items: readonly any[] | Promise<readonly any[]>,
+        options?: containerDesktopAPI.QuickPickOptions,
+        token?: containerDesktopAPI.CancellationToken,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ): Promise<any> {
+        return inputQuickPickRegistry.showQuickPick(items, options, token);
       },
 
       withProgress: <R>(
@@ -505,6 +523,8 @@ export class ExtensionLoader {
       StatusBarItemDefaultPriority,
       StatusBarAlignLeft,
       StatusBarAlignRight,
+      InputBoxValidationSeverity,
+      QuickPickItemKind,
     };
   }
 
