@@ -79,6 +79,14 @@ export class ContainerUtils {
     }
   }
 
+  getDisplayPort(containerInfo: ContainerInfo): string {
+    const ports = this.getPort(containerInfo);
+    if (ports === '') {
+      return '';
+    }
+    return `PORT${ports.indexOf(',') > 0 ? 'S' : ''} ${ports}`;
+  }
+
   hasPublicPort(containerInfo: ContainerInfo): boolean {
     const publicPorts = containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort);
 
@@ -116,6 +124,7 @@ export class ContainerUtils {
       engineType: containerInfo.engineType,
       command: containerInfo.Command,
       port: this.getPort(containerInfo),
+      displayPort: this.getDisplayPort(containerInfo),
       hasPublicPort: this.hasPublicPort(containerInfo),
       openingUrl: this.getOpeningUrl(containerInfo),
       groupInfo: this.getContainerGroup(containerInfo),
