@@ -183,17 +183,13 @@ export class KubernetesClient {
     this.kubeWatcher?.abort();
     const ns = this.currrentNamespace;
     if (ns) {
-      new Watch(this.kubeConfig)
+      const watch = new Watch(this.kubeConfig);
+      watch
         .watch(
           '/api/v1/namespaces/' + ns + '/pods',
           {},
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          (phase: string, apiObj: any, watchObj?: any) => {
-            this.apiSender.send('pod-event');
-          },
-          (err: any) => {
-            console.error('Kube event error', err);
-          },
+          () => this.apiSender.send('pod-event'),
+          (err: any) => console.error('Kube event error', err),
         )
         .then(req => (this.kubeWatcher = req));
     }
