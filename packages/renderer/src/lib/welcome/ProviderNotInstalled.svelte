@@ -34,7 +34,14 @@ let preflightChecks: CheckStatus[] = [];
         <div class="flex flex-col">
           <p class="mb-4 items-center list-inside">{detectionCheck.status ? '✅' : '❌'} {detectionCheck.name}</p>
           {#if detectionCheck.details}
-            Details: <p class="text-gray-300 w-full break-all">{detectionCheck.details}</p>
+            <p class="text-gray-300 w-full break-all">Details:</p>
+            <ul class="list-none">
+              {#each detectionCheck.details.split(';') as detail}
+                {#if detail.trim() !== ''}
+                  <li>{detail.trim()}</li>
+                {/if}
+              {/each}
+            </ul>
           {/if}
         </div>
       {/each}
