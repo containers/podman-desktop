@@ -25,9 +25,31 @@ const macosExtraPath = '/usr/local/bin:/opt/local/bin';
 
 let daemonProcess: ChildProcess;
 
+export function getInstallationPath(): string {
+  const env = process.env;
+  if (isWindows()) {
+    return `c:\\Program Files\\RedHat\\Red Hat OpenShift Local;${env.PATH}`;
+  } else if (isMac()) {
+    if (!env.PATH) {
+      return macosExtraPath;
+    } else {
+      return env.PATH.concat(':').concat(macosExtraPath);
+    }
+  } else {
+    return env.PATH;
+  }
+}
+
+export function getCrcCli(): string {
+  if (isWindows()) {
+    return 'crc.exe';
+  }
+  return 'crc';
+}
+
 export interface ExecOptions {
   logger?: Logger;
-  env?: NodeJS.ProcessEnv | undefined;
+  env: NodeJS.ProcessEnv | undefined;
 }
 
 export function execPromise(command: string, args?: string[], options?: ExecOptions): Promise<string> {
@@ -48,7 +70,21 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
   return new Promise((resolve, reject) => {
     let stdOut = '';
     let stdErr = '';
+
     const process = spawn(command, args, { env });
+    process.stdout.setEncoding('utf8');
+    process.stderr.setEncoding('utf8');
+
+    process.stdout.on('data', data => {
+      stdOut += data;
+      options?.logger?.log(data);
+    });
+
+    process.stderr.on('data', data => {
+      stdErr += data;
+      options?.logger?.error(data);
+    });
+
     process.on('error', error => {
       let content = '';
       if (stdOut && stdOut !== '') {
@@ -58,16 +94,6 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
         content += stdErr + '\n';
       }
       reject(content + error);
-    });
-    process.stdout.setEncoding('utf8');
-    process.stdout.on('data', data => {
-      stdOut += data;
-      options?.logger?.log(data);
-    });
-    process.stderr.setEncoding('utf8');
-    process.stderr.on('data', data => {
-      stdErr += data;
-      options?.logger?.error(data);
     });
 
     process.on('close', exitCode => {
@@ -87,13 +113,6 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
   });
 }
 
-export function getCrcCli(): string {
-  if (isWindows) {
-    return 'crc.exe';
-  }
-  return 'crc';
-}
-
 export interface CrcVersion {
   version: string;
   openshiftVersion: string;
@@ -111,21 +130,6 @@ export async function getCrcVersion(): Promise<CrcVersion | undefined> {
   }
 
   return undefined;
-}
-
-export function getInstallationPath(): string {
-  const env = process.env;
-  if (isWindows()) {
-    return `c:\\Program Files\\RedHat\\Red Hat OpenShift Local;${env.PATH}`;
-  } else if (isMac()) {
-    if (!env.PATH) {
-      return macosExtraPath;
-    } else {
-      return env.PATH.concat(':').concat(macosExtraPath);
-    }
-  } else {
-    return env.PATH;
-  }
 }
 
 export async function daemonStart(): Promise<boolean> {
@@ -151,17 +155,8 @@ export async function daemonStart(): Promise<boolean> {
   });
 
   daemonProcess.on('error', err => {
-    const msg = `Backend failure, Backend failed to start: ${err}`;
-    // TODO: show error on UI!
-    console.error('Backend failure', msg);
-  });
-
-  daemonProcess.stdout.on('date', () => {
-    // noop
-  });
-
-  daemonProcess.stderr.on('data', () => {
-    // noop
+    const msg = `CRC daemon failure, daemon failed to start: ${err}`;
+    console.error('CRC failure', msg);
   });
 
   return true;
