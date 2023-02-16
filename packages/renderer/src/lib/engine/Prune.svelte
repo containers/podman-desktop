@@ -32,16 +32,20 @@ async function prune(type: string) {
           console.error(error);
         }
       });
-
+      break;
+    case 'pods':
+      engines.forEach(async engine => {
+        try {
+          window.prunePods(engine.id);
+        } catch (error) {
+          console.error(error);
+        }
+      });
       break;
     default:
       console.error('Prune type not found');
       break;
     /*
-          case 'pods':
-              // Prune pods from podman and docker engines
-              await window.prunePods();
-              break;
           case 'images':
               // Prune images from podman and docker engines
               await window.pruneImages();
