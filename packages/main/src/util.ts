@@ -19,14 +19,17 @@
 import { BrowserWindow } from 'electron';
 import * as os from 'os';
 
+const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
-  return os.platform() === 'win32';
+  return windows;
 }
+const mac = os.platform() === 'darwin';
 export function isMac(): boolean {
-  return os.platform() === 'darwin';
+  return mac;
 }
+const linux = os.platform() === 'linux';
 export function isLinux(): boolean {
-  return os.platform() === 'linux';
+  return linux;
 }
 
 export function findWindow(): Electron.BrowserWindow | undefined {
