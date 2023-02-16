@@ -504,7 +504,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                             {container.engineName}
                           </div>
                         {/if}
-                        <div class="pl-2 pr-2">{container.port}</div>
+                        <div class="pl-2 pr-2">PORT{container.port.indexOf(',') > 0 ? 'S ' : ' ' + container.port}</div>
                       </div>
                     </div>
                   </div>
