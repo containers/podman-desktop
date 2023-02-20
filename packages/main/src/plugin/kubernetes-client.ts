@@ -295,7 +295,7 @@ export class KubernetesClient {
 
   async listPods(): Promise<PodInfo[]> {
     const ns = this.getCurrentNamespace();
-    if (ns !== undefined) {
+    if (ns) {
       const pods = await this.listNamespacedPod(ns);
       return pods.items.map(pod => toPodInfo(pod));
     }
