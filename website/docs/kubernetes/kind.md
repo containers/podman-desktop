@@ -10,17 +10,23 @@ tags: [migrating-to-kubernetes, kind]
 
 Kind is a command line tool that can create Kubernetes clusters on your favorite container engine.
 
-It has experimental support for Podman. However, Kind has specific requirements that needs configuration tuning.
+It has experimental support for Podman.
+However, Kind has specific requirements that need configuration tuning.
 
 ## Windows and WSL
 
-Due to incompatibilities between WSL and systemd, Kind does not work with the rootless mode. So if you want to use Kind
-with your Podman machine, you need to configure rootful mode.
+Due to incompatibilities between WSL and systemd, Kind does not work with the rootless mode.
+Therefore, to use Kind with your Podman machine, configure rootful mode.
 
-### Existing Podman machine
+### Configuring an existing Podman machine to run Kind
 
-When you create a Podman machine, two system connections will be created. One of them is the rootless one and the other
-is the rootful. As kind will use the default Podman connection, you need to make sure it is the rootful.
+When you create a Podman machine, Podman creates two system connections:
+
+* `rootless`
+* `rootful` 
+
+Kind use the default Podman connection.
+Therefore you must set the default connection to `rootful`.
 
 Run the following command:
 
@@ -41,14 +47,18 @@ The rootful connection is suffixed by `-root`. If it is not the default one, you
 podman system connection default podman-machine-default-root
 ```
 
-### New Podman machine
+### Creating a Podman machine ready to run Kind
 
-If you don't have already an existing Podman machine or you want to create a new one for Kind and Kubernetes, you need
-to create it with the `-rootful` flag:
+#### Prerequisites
 
-```shell
-podman machine init --rootful my-machine-name
-```
+* No existing Podman machine 
+
+#### Procedure
+
+* Create a rootful Podman machine:
+
+  ```shell
+  podman machine init --rootful my-machine-name
 
 If this is the only Podman machine, it will be created and the default machine connection will be the rooful one so
 there is no extra configuration required.
