@@ -65,14 +65,26 @@ there is no extra configuration required.
 
 If there are several Podman machine, proceed as in [Existing Podman machine](#exiting-podman-machine)
 
-### Troubleshooting
+### Restarting a Podman machine running Kind on Windows
 
-On Windows/WSL, stopping the Podman machine while one or several Kind clusters are running is not recommended as the
-stop command will emit an error message and the following Podman machine start seems to fail.
+On Windows/WSL, avoid stopping the Podman machine while one or several Kind clusters are running. 
+The stop command emits an error message, and the following Podman machine start seems to fail.
 
-So it is recommended to stop all existing Kind clusters before the Podman machine is stopped. If you forgot to stop them
-before you stop the Podman machine, there is still a workaround. The first start of the Podman machine will be reported
-as successful but you won't be able to connect to it. Stop the Podman machine and restart it and you should be good.
+
+#### Procedure
+
+1. Stop all existing Kind clusters.
+2. Stop the Podman machine.
+3. Start the Podman machine.
+
+#### Workaround
+
+1. Keep existing Kind clusters running.
+2. Stop the Podman machine.
+3. Start the Podman machine.
+4. The Podman machine start reports success, but you can not connect to the Podman machine.
+4. Stop the Podman machine.
+5. Start the Podman machine.
 
 #### Additional resources
 
