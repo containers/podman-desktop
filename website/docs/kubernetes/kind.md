@@ -13,39 +13,27 @@ Kind is a command line tool that can create Kubernetes clusters on your favorite
 It has experimental support for Podman.
 However, Kind has specific requirements that need configuration tuning.
 
-## Windows and WSL
+## Running Kind on Windows Subsystem for Linux (WSL)
 
-Due to incompatibilities between WSL and systemd, Kind does not work with the rootless mode.
-Therefore, to use Kind with your Podman machine, configure rootful mode.
+Due to incompatibilities between WSL and systemd, Kind does not work with the `rootless` mode.
+Therefore, to use Kind with your Podman machine, configure `rootful` mode.
 
 ### Configuring an existing Podman machine to run Kind
 
 When you create a Podman machine, Podman creates two system connections:
 
 * `rootless`
-* `rootful` 
+* `rootful`
 
 Kind use the default Podman connection.
-Therefore you must set the default connection to `rootful`.
+Therefore, you must set the default connection to `rootful`.
 
-Run the following command:
+#### Procedure
 
-```shell
-podman system connection ls
-```
+1. List the Podman system connections:
 
-You should see a similar output:
-```
-Name                         URI                                                          Identity                                   Default
-podman-machine-default       ssh://user@localhost:54133/run/user/1000/podman/podman.sock  C:\Users\Jeff\.ssh\podman-machine-default  true
-podman-machine-default-root  ssh://root@localhost:54133/run/podman/podman.sock            C:\Users\Jeff\.ssh\podman-machine-default  false
-```
-
-The rootful connection is suffixed by `-root`. If it is not the default one, you must issue the following command:
-
-```shell
-podman system connection default podman-machine-default-root
-```
+  ```shell
+  > podman system connection ls
 
 ### Creating a Podman machine ready to run Kind
 
@@ -82,9 +70,9 @@ The stop command emits an error message, and the following Podman machine start 
 1. Keep existing Kind clusters running.
 2. Stop the Podman machine.
 3. Start the Podman machine.
-4. The Podman machine start reports success, but you can not connect to the Podman machine.
-4. Stop the Podman machine.
-5. Start the Podman machine.
+4. The Podman machine start reports success, but you cannot connect to the Podman machine.
+5. Stop the Podman machine.
+6. Start the Podman machine.
 
 #### Additional resources
 
