@@ -36,7 +36,7 @@ async function prune(type: string) {
     case 'volumes':
       engines.forEach(async engine => {
         try {
-          window.pruneVolumes(engine.id);
+          await window.pruneVolumes(engine.id);
         } catch (error) {
           console.error(error);
         }
