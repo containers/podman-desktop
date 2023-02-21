@@ -34,7 +34,6 @@ Therefore, you must set the default connection to `rootful`.
 
   ```shell
   > podman system connection ls
-  
 You should see a similar output:
   ```shell
   Name                         URI                                                          Identity                                   Default
