@@ -17,7 +17,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/svelte": "^3.2.2",
     "@tsconfig/svelte": "^3.0.0",
-    "@typescript-eslint/eslint-plugin": "5.52.0",
+    "@typescript-eslint/eslint-plugin": "5.53.0",
     "autoprefixer": "^10.4.13",
     "filesize": "^10.0.6",
     "humanize-duration": "^3.28.0",
