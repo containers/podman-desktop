@@ -181,7 +181,7 @@ function computeInterval(): number {
   title="volumes"
   subtitle="Hover over a volume to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
-    {#if $filtered.map(volumeInfo => volumeInfo.Volumes).flat().length > 0}
+    {#if $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length > 0}
       <Prune type="volumes" engines="{enginesList}" />
     {/if}
   </div>
