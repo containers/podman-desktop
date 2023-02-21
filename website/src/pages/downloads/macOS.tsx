@@ -26,7 +26,7 @@ async function grabfilenameforMac(
   }
   const intelLink = intelMacDmg[0];
 
-  /* Find macOS universal installer for restricted environments */
+  /* Find macOS universal DMG for restricted environments */
   const universalMacAirgapDmgAssets = assets.filter(
     asset =>
       (asset.name as string).endsWith('universal.dmg') &&
