@@ -1,7 +1,9 @@
 <script lang="ts">
 import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './container/ContainerInfoUI';
 import { Route } from 'tinro';
-import ContainerStatusIcon from './ContainerStatusIcon.svelte';
+import ContainerIcon from './images/ContainerIcon.svelte';
+import StatusIcon from './images/StatusIcon.svelte';
+
 import 'xterm/css/xterm.css';
 import ContainerDetailsTerminal from './ContainerDetailsTerminal.svelte';
 import ContainerDetailsLogs from './ContainerDetailsLogs.svelte';
@@ -58,10 +60,14 @@ function errorCallback(errorMessage: string): void {
               <div class="text-xl mx-2 text-gray-400">></div>
               <div class="text-sm font-extralight text-gray-400">Container Details</div>
             </div>
-            <div class="pb-4 text-lg flex flex-row items-center">
-              <ContainerStatusIcon state="{container.state}" />
-              <p class="mx-2">{container.name}</p>
-              <div class="text-base text-violet-400">{container.image}</div>
+            <div class="text-lg flex flex-row items-start pt-1">
+              <div class="pr-3 pt-1">
+                <StatusIcon icon="{ContainerIcon}" status="{container.state}" />
+              </div>
+              <div class="text-lg flex flex-col">
+                <div class="mr-2">{container.name}</div>
+                <div class="mr-2 pb-4 text-small text-gray-500">{container.image}</div>
+              </div>
             </div>
             <section class="pf-c-page__main-tabs pf-m-limit-width">
               <div class="pf-c-page__main-body">

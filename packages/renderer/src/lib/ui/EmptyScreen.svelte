@@ -8,6 +8,7 @@ export let title: string = 'No title';
 export let message: string = 'Message';
 export let commandline: string = '';
 export let hidden: boolean = false;
+export let style: string = '';
 
 let fontAwesomeIcon = false;
 let processed = false;
@@ -27,7 +28,7 @@ function copyRunInstructionToClipboard() {
 let copyTextDivElement: HTMLDivElement;
 </script>
 
-<div class="h-full min-w-full flex flex-col" class:hidden="{hidden}">
+<div class="h-full min-w-full flex flex-col" class:hidden="{hidden}" style="{style}">
   <div class="pf-c-empty-state h-full">
     <div class="pf-c-empty-state__content">
       <p class="pf-c-empty-state__body">

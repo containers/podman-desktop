@@ -11,7 +11,8 @@ import { VolumeUtils } from './volume-utils';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import VolumeEmptyScreen from './VolumeEmptyScreen.svelte';
 import VolumeActions from './VolumeActions.svelte';
-import VolumeStatusIcon from './VolumeStatusIcon.svelte';
+import VolumeIcon from '../images/VolumeIcon.svelte';
+import StatusIcon from '../images/StatusIcon.svelte';
 import moment from 'moment';
 
 let searchTerm = '';
@@ -209,7 +210,7 @@ function computeInterval(): number {
               bind:checked="{allChecked}"
               on:click="{event => toggleAllVolumes(event.currentTarget.checked)}"
               class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
-          <th class="text-center font-extrabold w-10">status</th>
+          <th class="text-center font-extrabold w-10 px-2">status</th>
           <th class="w-10">Name</th>
           <th class="px-6 whitespace-nowrap">age</th>
           <th class="px-6 whitespace-nowrap text-end">size</th>
@@ -232,7 +233,9 @@ function computeInterval(): number {
                 class="cursor-pointer invert hue-rotate-[218deg] brightness-75 " />
             </td>
             <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
-              <VolumeStatusIcon inUse="{volume.inUse}" />
+              <div class="grid place-content-center ml-3 mr-4">
+                <StatusIcon icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
+              </div>
             </td>
             <td class="whitespace-nowrap w-10 hover:cursor-pointer" on:click="{() => openDetailsVolume(volume)}">
               <div class="flex items-center">

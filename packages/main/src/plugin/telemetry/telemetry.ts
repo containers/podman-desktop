@@ -145,7 +145,7 @@ export class Telemetry {
   }
 
   protected async configureTelemetry(): Promise<void> {
-    this.initTelemetry();
+    await this.initTelemetry();
 
     this.internalTrack('startup');
     let sendShutdownAnalytics = false;

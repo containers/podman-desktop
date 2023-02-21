@@ -20,7 +20,8 @@ const buttonClass: string =
 const buttonDisabledClass: string =
   'm-0.5 text-gray-700 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 
-let styleClass: string = detailed
+$: handleClick = enabled ? onClick : () => {};
+$: styleClass = detailed
   ? enabled
     ? buttonDetailedClass
     : buttonDetailedDisabledClass
@@ -30,20 +31,12 @@ let styleClass: string = detailed
 </script>
 
 <!-- If menu = true, use the menu, otherwise implement the button -->
-{#if menu && enabled}
+{#if menu}
   <!-- enabled menu -->
-  <DropdownMenuItem title="{title}" icon="{icon}" hidden="{hidden}" onClick="{onClick}" />
-{:else if menu}
-  <!-- disabled menu -->
-  <DropdownMenuItem title="{title}" icon="{icon}" hidden="{hidden}" />
-{:else if enabled}
-  <!-- enabled button -->
-  <button title="{title}" on:click="{onClick}" class="{styleClass}" class:hidden="{hidden}">
-    <Fa class="h-4 w-4" icon="{icon}" />
-  </button>
+  <DropdownMenuItem title="{title}" icon="{icon}" hidden="{hidden}" onClick="{handleClick}" />
 {:else}
-  <!-- disabled button -->
-  <button title="{title}" class="{styleClass}" class:hidden="{hidden}">
+  <!-- enabled button -->
+  <button title="{title}" on:click="{handleClick}" class="{styleClass}" class:hidden="{hidden}">
     <Fa class="h-4 w-4" icon="{icon}" />
   </button>
 {/if}

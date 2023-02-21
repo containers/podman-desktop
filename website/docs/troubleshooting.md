@@ -171,9 +171,16 @@ This may appear when either:
 
 1. Stop Docker Desktop (if install)
 2. Run the `podman-mac-helper` binary:
-```sh
-sudo podman-mac-helper install
-```
+
+    ```sh
+    sudo podman-mac-helper install
+    ```
+    for additional options please run the command:
+
+    ```sh
+    sudo podman-mac-helper install --help
+    ```
+
 3. Restart the Podman machine (the default Docker socket path will be recreated and Podman will emulate it)
 
 

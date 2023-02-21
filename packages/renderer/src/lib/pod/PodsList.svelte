@@ -11,7 +11,8 @@ import { PodUtils } from './pod-utils';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import PodEmptyScreen from './PodEmptyScreen.svelte';
-import PodIcon from '../container/PodIcon.svelte';
+import StatusIcon from '../images/StatusIcon.svelte';
+import PodIcon from '../images/PodIcon.svelte';
 import PodActions from './PodActions.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
 import moment from 'moment';
@@ -255,16 +256,8 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                 class="cursor-pointer invert hue-rotate-[218deg] brightness-75 " />
             </td>
             <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
-              <div
-                class="border-2 flex flex-col justify-center align-middle m-3 p-1 w-10 text-center items-center rounded "
-                class:border-green-600="{pod.status === 'RUNNING'}"
-                class:border-orange-500="{pod.status === 'EXITED' || pod.status === 'DEGRADED'}"
-                class:border-gray-400="{pod.status === 'CREATED'}"
-                class:text-green-400="{pod.status === 'RUNNING'}"
-                class:text-orange-500="{pod.status === 'EXITED' || pod.status === 'DEGRADED'}"
-                class:text-gray-400="{pod.status === 'CREATED'}"
-                title="{pod.status}">
-                <PodIcon colorClasses="" />
+              <div class="grid place-content-center ml-3 mr-4">
+                <StatusIcon icon="{PodIcon}" status="{pod.status}" />
               </div>
             </td>
             <td class="whitespace-nowrap w-10 hover:cursor-pointer" on:click="{() => openDetailsPod(pod)}">
@@ -279,7 +272,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                       class="ml-1 text-xs font-extra-light text-gray-500"
                       class:cursor-pointer="{pod.containers.length > 0}"
                       on:click="{() => openContainersFromPod(pod)}">
-                      {pod.containers.length} containers
+                      {pod.containers.length} container{pod.containers.length > 1 ? 's' : ''}
                     </div>
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-500">

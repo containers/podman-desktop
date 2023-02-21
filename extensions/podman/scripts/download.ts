@@ -301,7 +301,7 @@ if (platform === 'win32') {
   downloadAndCheckSha(tagVersion, dlName, 'podman-installer-macos-amd64.pkg');
 
   dlName = tools.platform.darwin.arch.arm64.fileName;
-  downloadAndCheckSha(tagVersion, dlName, 'podman-installer-macos-aarch64.pkg');
+  downloadAndCheckSha(tagVersion, dlName, 'podman-installer-macos-arm64.pkg');
 
   // download the current testing image if AIRGAP_DOWNLOAD env variable is set
   if (process.env.AIRGAP_DOWNLOAD) {

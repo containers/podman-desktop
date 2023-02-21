@@ -3,6 +3,8 @@ import type { ImageInfoUI } from './ImageInfoUI';
 import { Route } from 'tinro';
 import { onMount } from 'svelte';
 import { imagesInfos } from '../../stores/images';
+import ImageIcon from '../images/ImageIcon.svelte';
+import StatusIcon from '../images/StatusIcon.svelte';
 import ImageActions from './ImageActions.svelte';
 import { ImageUtils } from './image-utils';
 import ImageDetailsInspect from './ImageDetailsInspect.svelte';
@@ -52,11 +54,18 @@ onMount(() => {
               <div class="text-xl mx-2 text-gray-400">></div>
               <div class="text-sm font-extralight text-gray-400">Image Details</div>
             </div>
-            <div class="text-lg flex flex-row items-center">
-              <p class="mr-2">{image.name}</p>
-              <div class="text-base text-violet-400">{image.shortId}</div>
+            <div class="flex flex-row items-start pt-1">
+              <div class="pr-3 pt-1">
+                <StatusIcon icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
+              </div>
+              <div class="text-lg flex flex-col">
+                <div class="flex flex-row">
+                  <div class="mr-2">{image.name}</div>
+                  <div class="text-base text-violet-400">{image.shortId}</div>
+                </div>
+                <div class="mr-2 pb-4 text-small text-gray-500">{image.tag}</div>
+              </div>
             </div>
-            <div class="mr-2 pb-4 text-small text-gray-500">{image.tag}</div>
 
             <section class="pf-c-page__main-tabs pf-m-limit-width">
               <div class="pf-c-page__main-body">

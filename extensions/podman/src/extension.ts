@@ -116,10 +116,33 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     connectionsToCreate.map(async machineName => {
       // podman.sock link
       let socketPath;
-      if (isMac) {
-        socketPath = calcMacosSocketPath(machineName);
-      } else if (isWindows) {
-        socketPath = calcWinPipeName(machineName);
+      try {
+        if (isWindows()) {
+          socketPath = await execPromise(getPodmanCli(), [
+            'machine',
+            'inspect',
+            '--format',
+            '{{.ConnectionInfo.PodmanPipe.Path}}',
+            machineName,
+          ]);
+        } else {
+          socketPath = await execPromise(getPodmanCli(), [
+            'machine',
+            'inspect',
+            '--format',
+            '{{.ConnectionInfo.PodmanSocket.Path}}',
+            machineName,
+          ]);
+        }
+      } catch (error) {
+        console.debug('Podman extension:', 'Failed to read socketPath from machine inspect');
+      }
+      if (!socketPath) {
+        if (isMac()) {
+          socketPath = calcMacosSocketPath(machineName);
+        } else if (isWindows()) {
+          socketPath = calcWinPipeName(machineName);
+        }
       }
       await registerProviderFor(provider, podmanMachinesInfo.get(machineName), socketPath);
     }),
@@ -380,7 +403,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   registerUpdatesIfAny(provider, installedPodman, podmanInstall);
 
   // register autostart if enabled
-  if (isMac || isWindows) {
+  if (isMac() || isWindows()) {
     try {
       await updateMachines(provider);
     } catch (error) {
@@ -411,7 +434,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   extensionContext.subscriptions.push(provider);
 
   // allows to create machines
-  if (isMac || isWindows) {
+  if (isMac() || isWindows()) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const createFunction = async (params: { [key: string]: any }, logger: extensionApi.Logger): Promise<void> => {
       const parameters = [];
@@ -440,12 +463,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       if (params['podman.factory.machine.image-path']) {
         parameters.push('--image-path');
         parameters.push(params['podman.factory.machine.image-path']);
-      } else if (isMac || isWindows) {
+      } else if (isMac() || isWindows()) {
         // check if we have an embedded asset for the image path for macOS or Windows
         let suffix = '';
-        if (isWindows) {
+        if (isWindows()) {
           suffix = `-${process.arch}.tar.xz`;
-        } else if (isMac) {
+        } else if (isMac()) {
           suffix = `-${process.arch}.qcow2.xz`;
         }
         const assetImagePath = path.resolve(getAssetsFolder(), `podman-image${suffix}`);
@@ -472,14 +495,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       if (proxyEnabled) {
         const proxySettings = extensionApi.proxy.getProxySettings();
         if (proxySettings?.httpProxy) {
-          if (isWindows) {
+          if (isWindows()) {
             env['env:http_proxy'] = proxySettings.httpProxy;
           } else {
             env['http_proxy'] = proxySettings.httpProxy;
           }
         }
         if (proxySettings?.httpsProxy) {
-          if (isWindows) {
+          if (isWindows()) {
             env['env:https_proxy'] = proxySettings.httpsProxy;
           } else {
             env['https_proxy'] = proxySettings.httpsProxy;
@@ -496,12 +519,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }
 
   // no podman for now, skip
-  if (isMac) {
+  if (isMac()) {
     if (!fs.existsSync(podmanMachineSocketsDirectoryMac)) {
       return;
     }
     monitorMachines(provider);
-  } else if (isLinux) {
+  } else if (isLinux()) {
     // on Linux, need to run the system service for unlimited time
     let command = 'podman';
     let args = ['system', 'service', '--time=0'];
@@ -536,7 +559,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     });
     extensionContext.subscriptions.push(disposable);
     initDefaultLinux(provider);
-  } else if (isWindows) {
+  } else if (isWindows()) {
     monitorMachines(provider);
   }
 

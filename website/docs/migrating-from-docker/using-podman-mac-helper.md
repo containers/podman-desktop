@@ -29,16 +29,23 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
 1. Install the `podman-mac-helper` tool.
    Run the command:
 
-    ```
-    $ brew install podman-mac-helper
+    ```sh
+    brew install podman-mac-helper
     ```
 
 2. Set up the `podman-mac-helper` service for each user.
    Run the command:
 
+    ```sh
+    sudo podman-mac-helper install
     ```
-    $ podman-mac-helper setup
+
+    For additional install options please run the command:
+
+    ```sh
+    sudo podman-mac-helper install --help
     ```
+
 
 #### Verification
 

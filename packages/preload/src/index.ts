@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -888,6 +888,37 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld(
+    'sendShowInputBoxValue',
+    async (inputBoxId: number, value: string | undefined, error: string | undefined): Promise<void> => {
+      return ipcInvoke('showInputBox:value', inputBoxId, value, error);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'sendShowQuickPickValues',
+    async (quickPickId: number, selectedIndexes: number[]): Promise<void> => {
+      return ipcInvoke('showQuickPick:values', quickPickId, selectedIndexes);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'sendShowInputBoxValidate',
+    async (
+      inputBoxId: number,
+      value: string,
+    ): Promise<string | containerDesktopAPI.InputBoxValidationMessage | undefined | null> => {
+      return ipcInvoke('showInputBox:validate', inputBoxId, value);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'sendShowQuickPickOnSelect',
+    async (inputBoxId: number, selectedIndex: number): Promise<void> => {
+      return ipcInvoke('showQuickPick:onSelect', inputBoxId, selectedIndex);
+    },
+  );
+
   let onDataCallbacksShellInContainerDDExtensionInstallId = 0;
   const onDataCallbacksShellInContainerDDExtension = new Map<number, (data: string) => void>();
   const onDataCallbacksShellInContainerDDExtensionError = new Map<number, (data: string) => void>();
@@ -999,6 +1030,10 @@ function initExposure(): void {
       return ipcInvoke('openshift-client:createRoute', namespace, route);
     },
   );
+
+  contextBridge.exposeInMainWorld('pruneContainers', async (engine: string): Promise<string> => {
+    return ipcInvoke('container-provider-registry:pruneContainers', engine);
+  });
 
   contextBridge.exposeInMainWorld('getOsPlatform', async (): Promise<string> => {
     return ipcInvoke('os:getPlatform');

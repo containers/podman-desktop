@@ -258,6 +258,9 @@ export class DockerExtensionPreload {
       viewDevEnvironments: async (): Promise<void> => {
         console.error('navigationIntents.viewDevEnvironments not implemented');
       },
+      viewContainerTerminal: async (id: string): Promise<void> => {
+        console.error('navigationIntents.viewContainerTerminal not implemented', id);
+      },
     };
 
     const desktopUI: dockerDesktopAPI.DesktopUI = { toast, dialog, navigate };
@@ -329,6 +332,7 @@ export class DockerExtensionPreload {
     const extension: dockerDesktopAPI.Extension = {
       vm: extensionVM,
       host: extensionHost,
+      image: '',
     };
 
     const docker: dockerDesktopAPI.Docker = {

@@ -3,7 +3,9 @@ import { onDestroy, onMount } from 'svelte';
 import { filtered, searchPattern } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
-import ContainerStatusIcon from './ContainerStatusIcon.svelte';
+import ContainerIcon from './images/ContainerIcon.svelte';
+import ContainerGroupIcon from './container/ContainerGroupIcon.svelte';
+import StatusIcon from './images/StatusIcon.svelte';
 import { router } from 'tinro';
 import { ContainerGroupInfoTypeUI, ContainerGroupInfoUI, ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
@@ -18,13 +20,15 @@ import type { Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
 import { faChevronDown, faChevronRight, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
-import ContainerGroupIcon from './container/ContainerGroupIcon.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
 import KubePlayButton from './kube/KubePlayButton.svelte';
+import Prune from './engine/Prune.svelte';
 import Tooltip from './ui/Tooltip.svelte';
+import type { EngineInfoUI } from './engine/EngineInfoUI';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
+let enginesList: EngineInfoUI[];
 
 // groups of containers that will be displayed
 let containerGroups: ContainerGroupInfoUI[] = [];
@@ -183,15 +187,28 @@ onMount(async () => {
       return containerUtils.getContainerInfoUI(containerInfo);
     });
 
-    // multiple engines ?
-    const engineNamesArray = currentContainers.map(container => container.engineName);
-    // remove duplicates
-    const engineNames = [...new Set(engineNamesArray)];
-    if (engineNames.length > 1) {
+    // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
+    const engines = currentContainers.map(container => {
+      return {
+        name: container.engineName,
+        id: container.engineId,
+        type: container.engineType,
+      };
+    });
+
+    // Remove duplicates from engines by name
+    const uniqueEngines = engines.filter(
+      (engine, index, self) => index === self.findIndex(t => t.name === engine.name),
+    );
+
+    if (uniqueEngines.length > 1) {
       multipleEngines = true;
     } else {
       multipleEngines = false;
     }
+
+    // Set the engines to the global variable for the Prune functionality button
+    enginesList = uniqueEngines;
 
     // create groups
     const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
@@ -304,6 +321,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   title="containers"
   subtitle="Hover over a container to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+    <Prune type="containers" engines="{enginesList}" />
     <button on:click="{() => toggleCreateContainer()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-plus-circle" aria-hidden="true"></i>
@@ -392,7 +410,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                   class=" cursor-pointer invert hue-rotate-[218deg] brightness-75" />
               </td>
               <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
-                <ContainerGroupIcon containers="{containerGroup.containers}" />
+                <div class="grid place-content-center ml-3 mr-4">
+                  <ContainerGroupIcon containers="{containerGroup.containers}" />
+                </div>
               </td>
               <td class="whitespace-nowrap hover:cursor-pointer">
                 <div class="flex items-center text-sm text-gray-200 overflow-hidden text-ellipsis">
@@ -459,7 +479,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
                 </td>
                 <td class="flex flex-row justify-center h-12">
-                  <ContainerStatusIcon state="{container.state}" />
+                  <div class="grid place-content-center ml-3 mr-4">
+                    <StatusIcon icon="{ContainerIcon}" status="{container.state}" />
+                  </div>
                 </td>
                 <td
                   class="whitespace-nowrap hover:cursor-pointer group"
@@ -482,7 +504,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                             {container.engineName}
                           </div>
                         {/if}
-                        <div class="pl-2 pr-2">{container.port}</div>
+                        <div class="pl-2 pr-2">{container.displayPort}</div>
                       </div>
                     </div>
                   </div>

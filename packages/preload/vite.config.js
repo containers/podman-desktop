@@ -19,6 +19,7 @@
 import {chrome} from '../../.electron-vendors.cache.json';
 import {join} from 'path';
 import {builtinModules} from 'module';
+import { coverageConfig } from '../main/vite.config';
 const PACKAGE_ROOT = __dirname;
 
 /**
@@ -63,6 +64,9 @@ const config = {
     },
     emptyOutDir: true,
     reportCompressedSize: false,
+  },
+  test: {
+    ...coverageConfig('preload'),
   },
 };
 

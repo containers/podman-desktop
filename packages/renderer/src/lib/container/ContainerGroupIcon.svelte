@@ -1,5 +1,7 @@
 <script lang="ts">
 import type { ContainerInfoUI } from './ContainerInfoUI';
+import PodIcon from '../images/PodIcon.svelte';
+import StatusIcon from '../images/StatusIcon.svelte';
 
 export let containers: ContainerInfoUI[] = [];
 
@@ -7,65 +9,4 @@ let isRunning = false;
 $: isRunning = containers.every(c => c.state === 'RUNNING') ? true : false;
 </script>
 
-<div class="flex flex-col justify-center align-middle text-center items-center">
-  {#if isRunning}
-    <svg
-      id="pod-running"
-      width="24"
-      height="24"
-      version="1.1"
-      viewBox="0 0 6.35 6.35"
-      xml:space="preserve"
-      xmlns="http://www.w3.org/2000/svg"
-      ><g transform="translate(-8.5897 -26.68)"
-        ><g transform="matrix(.24053 0 0 .24053 7.6767 27.218)" fill="none" stroke-width="1.1"
-          ><path
-            d="m8.0765-0.034671h17.838c1.1528 0 2.0809 1.0604 2.0809 2.3776v17.245c0 1.3172-0.92807 2.3776-2.0809 2.3776h-17.838c-1.1528 0-2.0809-1.0604-2.0809-2.3776v-17.245c0-1.3172 0.92807-2.3776 2.0809-2.3776z"
-            fill="#64ad6c"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path
-          ></g
-        ><g
-          transform="matrix(1.1468 0 0 1.1468 -1.727 -4.377)"
-          fill="#fff"
-          fill-rule="evenodd"
-          stroke-linejoin="round"
-          stroke-miterlimit="10"
-          stroke-width="1.1339"
-          ><path d="m11.908 30.128 0.81111 0.26039-0.0045 1.1189-0.80659-0.43154z" color="#000000"></path><path
-            d="m9.7816 30.128 0.81167 0.26039-0.0045 1.1189-0.80715-0.43154z"
-            color="#000000"></path
-          ><path d="m13.749 30.125v0.95006l-0.80715 0.42928-0.0045-1.1167z" color="#000000"></path><path
-            d="m11.622 30.125v0.95006l-0.80659 0.42928-0.0045-1.1167z"
-            color="#000000"></path
-          ><path d="m12.828 29.743 0.66368 0.20673-0.66368 0.2073-0.62019-0.19374z" color="#000000"></path><path
-            d="m10.702 29.743 0.61963 0.22085-0.61963 0.19318-0.66369-0.2073z"
-            color="#000000"></path
-          ><path d="m10.845 28.516 0.81167 0.26096-0.0039 1.0348-0.80715-0.34738z" color="#000000"></path><path
-            d="m12.685 28.514v0.95006l-0.80715 0.34738-0.0039-1.0348z"
-            color="#000000"></path
-          ><path d="m11.765 28.129 0.66425 0.20729-0.66425 0.20899-0.66594-0.20899z" color="#000000"></path></g
-        ></g
-      ></svg>
-  {:else}
-    <svg
-      id="pod-stopped"
-      width="24"
-      height="24"
-      version="1.1"
-      viewBox="0 0 6.35 6.35"
-      xml:space="preserve"
-      xmlns="http://www.w3.org/2000/svg"
-      ><g transform="translate(6.0087 -26.707)"
-        ><path
-          d="m-2.8712 27.573-1.2244 0.38102c-0.07756 0.02078-0.08938 0.04372-0.08938 0.13709l-7.81e-4 1.4146-1.1746 0.36557c-0.05866 0.01854-0.09608 0.07594-0.08938 0.13709l-2e-3 1.4025c-9.6e-5 0.04783 0.02628 0.09181 0.06854 0.11424l1.219 0.64982c0.04484 0.0259 0.0808 0.02977 0.13239 0l1.1982-0.63907 1.1968 0.63907c0.070707 0.04082 0.10676 0.01595 0.1344 0l1.2163-0.64982c0.042259-0.02243 0.06864-0.0664 0.068544-0.11424v-1.3823c-1.251e-4 -0.0029-3.492e-4 -0.0059-6.72e-4 -0.0088 0.012965-0.06474-0.025016-0.12882-0.088031-0.14851l-1.176-0.36621v-1.4065c0-0.0864-0.0025-0.11749-0.088704-0.14448l-1.2244-0.38102c-0.02557-0.0069-0.05523-0.0056-0.07591-4.3e-5zm0.03761 0.25608 0.79027 0.24662-0.79027 0.24864-0.79228-0.24864zm1.0947 0.45763v1.1303l-0.96028 0.41328-0.0046-1.2311zm-2.1894 0.0021 0.96566 0.31046-0.0046 1.2311-0.96028-0.41328zm-0.17002 1.4609 0.73718 0.26275-0.73718 0.22982-0.7896-0.24662zm2.5301 0 0.7896 0.24595-0.7896 0.24662-0.73785-0.2305zm-1.4354 0.45427v1.1303l-0.95961 0.51072-0.0053-1.3285zm2.5301 0v1.1303l-0.96028 0.51072-0.00537-1.3285zm-4.7194 0.0027 0.96566 0.30979-0.0053 1.3312-0.96028-0.5134zm2.5301 0 0.96499 0.30979-0.00537 1.3312-0.95961-0.5134z"
-          color="#000000"
-          fill="#b6b6b6"
-          fill-rule="evenodd"
-          stroke-linejoin="round"
-          stroke-miterlimit="10"
-          stroke-width="1.3004"></path
-        ></g
-      ></svg>
-  {/if}
-</div>
+<StatusIcon icon="{PodIcon}" status="{isRunning ? 'RUNNING' : 'STOPPED'}" />

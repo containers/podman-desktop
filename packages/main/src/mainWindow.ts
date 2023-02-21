@@ -53,7 +53,7 @@ async function createWindow() {
     },
   };
 
-  if (isMac) {
+  if (isMac()) {
     // This property is not available on Linux.
     browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
   }
@@ -79,8 +79,12 @@ async function createWindow() {
    * @see https://github.com/electron/electron/issues/25012
    */
   browserWindow.on('ready-to-show', () => {
-    browserWindow?.show();
-    if (isMac) {
+    // If started with --minimize flag, don't show the window
+    if (!isStartedMinimize()) {
+      browserWindow.show();
+    }
+
+    if (isMac() && !isStartedMinimize()) {
       app.dock.show();
     }
 
@@ -117,7 +121,7 @@ async function createWindow() {
 
   browserWindow.on('close', e => {
     const closeBehaviorConfiguration = configurationRegistry?.getConfiguration('preferences');
-    let exitonclose = isLinux; // default value, which we will use unless the user preference is available.
+    let exitonclose = isLinux(); // default value, which we will use unless the user preference is available.
     if (closeBehaviorConfiguration) {
       exitonclose = closeBehaviorConfiguration.get<boolean>('ExitOnClose') == true;
     }
@@ -125,7 +129,7 @@ async function createWindow() {
     if (!exitonclose) {
       e.preventDefault();
       browserWindow.hide();
-      if (isMac) {
+      if (isMac()) {
         app.dock.hide();
       }
     } else {
@@ -233,4 +237,12 @@ export async function restoreWindow() {
     window.show();
     window.focus();
   }
+}
+
+// Checks process args if it was started with the --minimize flag
+function isStartedMinimize(): boolean {
+  // We convert to string only because sometimes [node] will be the first argument in a packaged
+  // environment, so instead of checking each element, simply convert to string and see if --minimize was included.
+  const argv = process.argv.toString();
+  return argv.includes('--minimize');
 }

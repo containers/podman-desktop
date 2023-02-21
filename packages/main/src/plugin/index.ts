@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ import type {
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
 } from './dockerode/libpod-dockerode';
-
+import type Dockerode from 'dockerode';
 import { AutostartEngine } from './autostart-engine';
 import { CloseBehavior } from './close-behavior';
 import { TrayIconColor } from './tray-icon-color';
@@ -83,6 +83,7 @@ import { Certificates } from './certificates';
 import { Proxy } from './proxy';
 import { EditorInit } from './editor-init';
 import { ExtensionInstaller } from './install/extension-installer';
+import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -266,15 +267,16 @@ export class PluginSystem {
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
+    const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
 
     const kubernetesClient = new KubernetesClient(configurationRegistry, fileSystemMonitoring);
     await kubernetesClient.init();
-    const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry, providerRegistry);
+    const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
 
     // Don't show the tray icon options on Mac
-    if (!isMac) {
+    if (!isMac()) {
       const trayIconColor = new TrayIconColor(configurationRegistry, providerRegistry);
       await trayIconColor.init();
     }
@@ -331,6 +333,7 @@ export class PluginSystem {
       fileSystemMonitoring,
       proxy,
       containerProviderRegistry,
+      inputQuickPickRegistry,
     );
     await this.extensionLoader.init();
 
@@ -490,6 +493,13 @@ export class PluginSystem {
       'container-provider-registry:stopContainerStats',
       async (_listener, containerStatsId: number): Promise<void> => {
         return containerProviderRegistry.stopContainerStats(containerStatsId);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:pruneContainers',
+      async (_listener, engine: string): Promise<Dockerode.PruneContainersInfo> => {
+        return containerProviderRegistry.pruneContainers(engine);
       },
     );
 
@@ -737,6 +747,32 @@ export class PluginSystem {
         context.log.removeLogHandler();
       },
     );
+
+    this.ipcHandle(
+      'showInputBox:value',
+      async (_listener, id: number, value: string | undefined, error?: string): Promise<void> => {
+        return inputQuickPickRegistry.onInputBoxValueEntered(id, value, error);
+      },
+    );
+
+    this.ipcHandle('showQuickPick:values', async (_listener, id: number, indexes: number[]): Promise<void> => {
+      return inputQuickPickRegistry.onQuickPickValuesSelected(id, indexes);
+    });
+
+    this.ipcHandle(
+      'showInputBox:validate',
+      async (
+        _listener,
+        id: number,
+        value: string,
+      ): Promise<string | containerDesktopAPI.InputBoxValidationMessage | undefined | null> => {
+        return inputQuickPickRegistry.validate(id, value);
+      },
+    );
+
+    this.ipcHandle('showQuickPick:onSelect', async (_listener, id: number, selectedId: number): Promise<void> => {
+      return inputQuickPickRegistry.onDidSelectQuickPickItem(id, selectedId);
+    });
 
     this.ipcHandle('image-registry:getRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
       return imageRegistry.getRegistries();
