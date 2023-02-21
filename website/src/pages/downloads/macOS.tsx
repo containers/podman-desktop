@@ -30,7 +30,7 @@ async function grabfilenameforMac(
   const universalMacAirgapDmgAssets = assets.filter(
     asset =>
       (asset.name as string).endsWith('universal.dmg') &&
-      asset.name.includes('airgap')
+      asset.name.includes('airgap'),
   );
   if (universalMacAirgapDmgAssets.length !== 1) {
     throw new Error('Unable to find macOS DMG for restricted environments');
