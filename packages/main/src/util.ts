@@ -19,9 +19,18 @@
 import { BrowserWindow } from 'electron';
 import * as os from 'os';
 
-export const isWindows = os.platform() === 'win32';
-export const isMac = os.platform() === 'darwin';
-export const isLinux = os.platform() === 'linux';
+const windows = os.platform() === 'win32';
+export function isWindows(): boolean {
+  return windows;
+}
+const mac = os.platform() === 'darwin';
+export function isMac(): boolean {
+  return mac;
+}
+const linux = os.platform() === 'linux';
+export function isLinux(): boolean {
+  return linux;
+}
 
 export function findWindow(): Electron.BrowserWindow | undefined {
   return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
