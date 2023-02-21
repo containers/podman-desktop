@@ -392,7 +392,7 @@ export class TrayMenu {
       window.restore();
     }
     window?.show();
-    if (isMac) {
+    if (isMac()) {
       app.dock.show();
     }
     window?.focus();
