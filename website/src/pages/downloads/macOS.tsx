@@ -33,7 +33,7 @@ async function grabfilenameforMac(
       asset.name.includes('airgap')
   );
   if (universalMacAirgapDmgAssets.length !== 1) {
-    throw new Error('Unable to find macOS universal installer for restricted environments');
+    throw new Error('Unable to find macOS DMG for restricted environments');
   }
   const universalMacAirgapDmgAsset = universalMacAirgapDmgAssets[0];
 
@@ -109,7 +109,7 @@ export function MacOSDownloads(): JSX.Element {
               className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 text-md font-semibold"
               to={downloadData.airgapsetup}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-              macOS universal installer for restricted environments
+              universal DMG for restricted environments
             </Link>
           </div>
           <div className="flex flex-col align-middle items-center">
