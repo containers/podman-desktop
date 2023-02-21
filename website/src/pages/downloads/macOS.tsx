@@ -26,14 +26,14 @@ async function grabfilenameforMac(
   }
   const intelLink = intelMacDmg[0];
 
-  /* Find macOS universal DMG for restricted environments */
+  /* Find macOS universal Disk Image for restricted environments */
   const universalMacAirgapDmgAssets = assets.filter(
     asset =>
       (asset.name as string).endsWith('universal.dmg') &&
       asset.name.includes('airgap'),
   );
   if (universalMacAirgapDmgAssets.length !== 1) {
-    throw new Error('Unable to find macOS DMG for restricted environments');
+    throw new Error('Unable to find Apple Disk Image for restricted environments');
   }
   const universalMacAirgapDmgAsset = universalMacAirgapDmgAssets[0];
 
@@ -109,7 +109,7 @@ export function MacOSDownloads(): JSX.Element {
               className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 text-md font-semibold"
               to={downloadData.airgapsetup}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-              universal DMG for restricted environments
+              Disk Image for restricted environments
             </Link>
           </div>
           <div className="flex flex-col align-middle items-center">
