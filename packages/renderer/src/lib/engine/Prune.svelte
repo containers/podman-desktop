@@ -27,7 +27,7 @@ async function prune(type: string) {
     case 'containers':
       engines.forEach(async engine => {
         try {
-          window.pruneContainers(engine.id);
+          await window.pruneContainers(engine.id);
         } catch (error) {
           console.error(error);
         }
