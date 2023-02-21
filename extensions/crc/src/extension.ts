@@ -34,15 +34,14 @@ let crcStatus: Status;
 
 const crcLogProvider = new LogProvider(commander);
 
+const defaultStatus = { CrcStatus: 'Unknown', Preset: 'Unknown' };
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // crc is installed or not ?
   if (!fs.existsSync(crcBinary())) {
     console.warn('Can not find CRC binary!');
     return;
   }
-
-  // detect preset of CRC
-  const preset = await readPreset();
 
   // create CRC provider
   const provider = extensionApi.provider.createProvider({
@@ -66,7 +65,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     crcStatus = await commander.status();
   } catch (err) {
     console.error('error in CRC extension', err);
+    crcStatus = defaultStatus;
   }
+
+  // detect preset of CRC
+  const preset = readPreset(crcStatus);
 
   const providerLifecycle: extensionApi.ProviderLifecycle = {
     status: () => convertToProviderStatus(crcStatus?.CrcStatus),
@@ -103,12 +106,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 }
 
 function crcBinary(): string {
-  if (isWindows) {
+  if (isWindows()) {
     // This returns `crc` as located in c:\Program Files\OpenShift Local\
     return path.join('C:\\Program Files\\Red Hat OpenShift Local\\crc.exe');
   }
 
-  if (isMac) {
+  if (isMac()) {
     // This returns `crc` as located in /usr/local/bin/crc
     return '/usr/local/bin/crc';
   }
@@ -144,7 +147,7 @@ async function daemonStart(): Promise<boolean> {
 function registerPodmanConnection(provider: extensionApi.Provider, extensionContext: extensionApi.ExtensionContext) {
   let socketPath;
 
-  if (isWindows) {
+  if (isWindows()) {
     socketPath = '//./pipe/crc-podman';
   } else {
     socketPath = path.resolve(os.homedir(), '.crc/machines/crc/docker.sock');
@@ -232,39 +235,24 @@ function convertToProviderStatus(crcStatus: string): extensionApi.ProviderStatus
 
 async function startStatusUpdateTimer(): Promise<void> {
   statusFetchTimer = setInterval(async () => {
-    crcStatus = await commander.status();
-  }, 2000);
+    try {
+      crcStatus = await commander.status();
+    } catch (e) {
+      console.error('CRC Status tick: ' + e);
+      crcStatus = defaultStatus;
+    }
+  }, 1000);
 }
 
-// async function crcBinary(): Promise<string> {
-//   return which('crc');
-// }
-
-function execPromise(command, args?: string[]): Promise<string> {
-  const env = process.env;
-  // In production mode, applications don't have access to the 'user' path like brew
-  return new Promise((resolve, reject) => {
-    let output = '';
-    const process = childProcess.spawn(command, args, { env });
-    process.stdout.setEncoding('utf8');
-    process.stdout.on('data', data => {
-      output += data;
-    });
-
-    process.on('close', () => resolve(output.trim()));
-    process.on('error', err => reject(err));
-  });
-}
-
-async function readPreset(): Promise<'Podman' | 'OpenShift' | 'unknown'> {
+function readPreset(crcStatus: Status): 'Podman' | 'OpenShift' | 'unknown' {
   try {
-    const stdout = await execPromise('crc', ['config', 'get', 'preset']);
-    if (stdout.includes('podman')) {
-      return 'Podman';
-    } else if (stdout.includes('openshift')) {
-      return 'OpenShift';
-    } else {
-      return 'unknown';
+    switch (crcStatus.Preset) {
+      case 'podman':
+        return 'Podman';
+      case 'openshift':
+        return 'OpenShift';
+      default:
+        return 'unknown';
     }
   } catch (err) {
     console.log('error while getting preset', err);
