@@ -32,7 +32,7 @@ export class CloseBehavior {
         ['preferences.ExitOnClose']: {
           description: 'Quit the app when the close button is clicked instead of minimizing to the tray.',
           type: 'boolean',
-          default: isLinux,
+          default: isLinux(),
         },
       },
     };

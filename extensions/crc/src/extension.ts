@@ -106,12 +106,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 }
 
 function crcBinary(): string {
-  if (isWindows) {
+  if (isWindows()) {
     // This returns `crc` as located in c:\Program Files\OpenShift Local\
     return path.join('C:\\Program Files\\Red Hat OpenShift Local\\crc.exe');
   }
 
-  if (isMac) {
+  if (isMac()) {
     // This returns `crc` as located in /usr/local/bin/crc
     return '/usr/local/bin/crc';
   }
@@ -147,7 +147,7 @@ async function daemonStart(): Promise<boolean> {
 function registerPodmanConnection(provider: extensionApi.Provider, extensionContext: extensionApi.ExtensionContext) {
   let socketPath;
 
-  if (isWindows) {
+  if (isWindows()) {
     socketPath = '//./pipe/crc-podman';
   } else {
     socketPath = path.resolve(os.homedir(), '.crc/machines/crc/docker.sock');

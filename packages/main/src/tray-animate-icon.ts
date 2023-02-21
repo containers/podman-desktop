@@ -83,9 +83,9 @@ export class AnimatedTray {
     }
     let suffix = '';
     // on Linux, always pickup dark icon
-    if (isLinux) {
+    if (isLinux()) {
       suffix = 'Dark';
-    } else if (isMac) {
+    } else if (isMac()) {
       // on Mac, always pickup template icon
       suffix = 'Template';
     } else {

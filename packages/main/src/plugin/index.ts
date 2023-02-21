@@ -276,7 +276,7 @@ export class PluginSystem {
     await closeBehaviorConfiguration.init();
 
     // Don't show the tray icon options on Mac
-    if (!isMac) {
+    if (!isMac()) {
       const trayIconColor = new TrayIconColor(configurationRegistry, providerRegistry);
       await trayIconColor.init();
     }

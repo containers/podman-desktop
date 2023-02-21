@@ -44,7 +44,7 @@ app.disableHardwareAcceleration();
  * Shout down background process if all windows was closed
  */
 app.on('window-all-closed', () => {
-  if (!isMac) {
+  if (!isMac()) {
     app.quit();
   }
 });
@@ -52,7 +52,7 @@ app.on('window-all-closed', () => {
 /**
  *  @see https://www.electronjs.org/docs/latest/api/app#appsetappusermodelidid-windows
  */
-if (isWindows) {
+if (isWindows()) {
   app.setAppUserModelId(app.name);
 }
 
@@ -100,7 +100,7 @@ app.whenReady().then(
 
     // If we've manually set the tray icon color, update the tray icon. This can only be done
     // after configurationRegistry is loaded. Windows or Linux support only for icon color change.
-    if (!isMac) {
+    if (!isMac()) {
       const color = configurationRegistry.getConfiguration('preferences').get('TrayIconColor');
       if (typeof color === 'string') {
         animatedTray.setColor(color);
