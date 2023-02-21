@@ -18,7 +18,7 @@ import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
 import ContainerDetails from './lib/ContainerDetails.svelte';
 import { providerInfos } from './stores/providers';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
-import WelcomePage from './lib/welcome/WelcomePage.svelte';
+import WelcomePage from './lib/dashboard/DashboardPage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
 import ImageDetails from './lib/image/ImageDetails.svelte';
