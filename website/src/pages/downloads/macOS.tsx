@@ -28,9 +28,7 @@ async function grabfilenameforMac(
 
   /* Find macOS universal Disk Image for restricted environments */
   const universalMacAirgapDmgAssets = assets.filter(
-    asset =>
-      (asset.name as string).endsWith('universal.dmg') &&
-      asset.name.includes('airgap'),
+    asset => (asset.name as string).endsWith('universal.dmg') && asset.name.includes('airgap'),
   );
   if (universalMacAirgapDmgAssets.length !== 1) {
     throw new Error('Unable to find Apple Disk Image for restricted environments');
