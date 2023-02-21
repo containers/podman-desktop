@@ -4,7 +4,7 @@ import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
 import type { PodInfoUI } from './PodInfoUI';
-import { filtered, searchPattern } from '../../stores/pods';
+import { filtered, searchPattern, podsInfos } from '../../stores/pods';
 import { providerInfos } from '../../stores/providers';
 import NavPage from '../ui/NavPage.svelte';
 import { PodUtils } from './pod-utils';
@@ -213,7 +213,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
   title="pods"
   subtitle="Hover over an pod to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
-    {#if $filtered.length > 0}
+    {#if $podsInfos.length > 0}
       <Prune type="pods" engines="{enginesList}" />
     {/if}
     {#if providerPodmanConnections.length > 0}
