@@ -38,18 +38,6 @@ async function grabfilenameforMac(
   }
   const universalMacAirgapDmgAsset = universalMacAirgapDmgAssets[0];
 
-  /* Find macOS universal archive for restricted environments */
-  const universalMacAirgapZipAssets = assets.filter(
-    asset =>
-      (asset.name as string).endsWith('universal.zip') &&
-      asset.name.includes('airgap') &&
-      asset.name !== windowsSetupAsset.name,
-  );
-  if (universalMacAirgapZipAssets.length !== 1) {
-    throw new Error('Unable to find macOS universal archive for restricted environments');
-  }
-  const universalMacAirgapZipAsset = universalMacAirgapZipAssets[0];
-
   const universalMacDmgResults = assets.filter(
     asset =>
       (asset.name as string).endsWith('.dmg') &&
@@ -67,7 +55,6 @@ async function grabfilenameforMac(
     x64: intelLink.browser_download_url,
     arm64: armLink.browser_download_url,
     airgapsetup: universalMacAirgapDmgAsset.browser_download_url,
-    airgaparchive: universalMacAirgapZipAsset.browser_download_url,
   };
   setDownloadData(data);
 }
@@ -124,12 +111,6 @@ export function MacOSDownloads(): JSX.Element {
               to={downloadData.airgapsetup}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               macOS universal installer for restricted environments
-            </Link>
-            <Link
-              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 text-md font-semibold"
-              to={downloadData.airgaparchive}>
-              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-              macOS universal archive for restricted environments
             </Link>
           </div>
           <div className="flex flex-col align-middle items-center">
