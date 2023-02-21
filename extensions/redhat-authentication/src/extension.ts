@@ -19,50 +19,82 @@
 import * as extensionApi from '@tmpwip/extension-api';
 import { getAuthConfig } from './configuration';
 import { shell } from 'electron';
+import { RedHatAuthenticationService } from './authentication-service';
 
 const menuItemsRegistered: extensionApi.Disposable[] = [];
 
-const SignUpMenuItem: extensionApi.MenuItem = {
+const SignUpMenuItem = (enabled = true) => ({
   id: 'redhat.authentication.signup',
   label: 'Sign Up',
-};
+  enabled
+});
 
-const SignInMenuItem: extensionApi.MenuItem = {
+const SignInMenuItem = (enabled = true) => ({
   id: 'redhat.authentication.signin',
   label: 'Sign In',
-};
+  enabled
+});
 
-const SignOutMenuItem: extensionApi.MenuItem = {
-  id: 'redhat.authentication.signup',
+const SignOutMenuItem = (enabled = false) =>({
+  id: 'redhat.authentication.signout',
   label: 'Sign Out',
-  enabled: false,
-};
+  enabled
+});
 
 const Separator: extensionApi.MenuItem = {
   type: 'separator',
   id: 'redhat.authentication.separator',
 };
 
-async function initMenu(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const item: extensionApi.MenuItem = {
-    id: 'redhat.authentication',
-    label: 'Red Hat',
-    submenu: [SignInMenuItem, SignOutMenuItem, Separator, SignUpMenuItem],
-  };
+const AuthMenuItem: extensionApi.MenuItem = {
+  id: 'redhat.authentication',
+  label: 'Red Hat',
+};
 
-  const subscription = extensionApi.tray.registerMenuItem(item);
-  menuItemsRegistered.push(subscription);
+async function initMenu(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  AuthMenuItem.
+    submenu = [SignInMenuItem(), SignOutMenuItem(), Separator, SignUpMenuItem()];
+
+  const subscription = extensionApi.tray.registerMenuItem(AuthMenuItem);
   extensionContext.subscriptions.push(subscription);
 }
+
+let loginService:RedHatAuthenticationService;
+
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   console.log('starting extension redhat-authentication');
   const config = await getAuthConfig();
 
   await initMenu(extensionContext);
-  const command = extensionApi.commands.registerCommand('redhat.authentication.signin', async () => {});
 
-  extensionContext.subscriptions.push(command);
+  const SignInCommand = extensionApi.commands.registerCommand('redhat.authentication.signin', async () => {
+    if (!loginService) {
+      loginService = await RedHatAuthenticationService.build(config);
+    }
+    const session = await loginService.createSession('openid');
+
+    AuthMenuItem.label = `Red Hat (${session.account.label})`;
+    AuthMenuItem.
+      submenu = [SignInMenuItem(false), SignOutMenuItem(true), Separator, SignUpMenuItem()];
+    const subscription = extensionApi.tray.registerMenuItem(AuthMenuItem);
+    extensionContext.subscriptions.push(subscription);
+  });
+
+  const SignOutCommand = extensionApi.commands.registerCommand('redhat.authentication.signout', async () => {
+    loginService = undefined;
+    AuthMenuItem.label = `Red Hat`;
+    AuthMenuItem.
+      submenu = [SignInMenuItem(true), SignOutMenuItem(false), Separator, SignUpMenuItem()];
+    const subscription = extensionApi.tray.registerMenuItem(AuthMenuItem);
+    extensionContext.subscriptions.push(subscription);
+  });
+
+  const SignUpCommand = extensionApi.commands.registerCommand('redhat.authentication.signup', async () => {
+    shell.openExternal('https://developers.redhat.com/articles/faqs-no-cost-red-hat-enterprise-linux#general');
+  });
+
+  extensionContext.subscriptions.push(SignInCommand, SignOutCommand, SignUpCommand);
 }
 
 export function deactivate(): void {

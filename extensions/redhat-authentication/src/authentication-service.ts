@@ -69,6 +69,10 @@ export interface RedHatAuthenticationSession {
   readonly id: string;
   readonly accessToken: string;
   readonly scopes: ReadonlyArray<string>;
+  account?: {
+    label: string;
+    id: string;
+  };
 }
 
 export class RedHatAuthenticationService {
@@ -247,7 +251,7 @@ export class RedHatAuthenticationService {
       id: token.sessionId,
       accessToken: resolvedTokens.accessToken,
       idToken: resolvedTokens.idToken,
-      // account: token.account,
+      account: token.account,
       scopes: token.scope.split(' '),
     };
   }
