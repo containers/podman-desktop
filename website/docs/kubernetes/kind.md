@@ -6,7 +6,7 @@ keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
 tags: [migrating-to-kubernetes, kind]
 ---
 
-# Kind
+# Running Kubernetes on your workstation with Kind
 
 Kind is a command line tool that can create Kubernetes clusters on your favorite container engine.
 

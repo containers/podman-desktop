@@ -6,7 +6,7 @@ keywords: [podman desktop, podman, containers, migrating, kubernetes]
 tags: [migrating-to-kubernetes]
 ---
 
-# 
+# Migrating containers to Kubernetes
 
 Podman Desktop and Podman have many features allowing easy migration from containers to Kubernetes:
 
