@@ -24,9 +24,9 @@ const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/pod
 
 export function getInstallationPath(): string {
   const env = process.env;
-  if (isWindows) {
+  if (isWindows()) {
     return `c:\\Program Files\\RedHat\\Podman;${env.PATH}`;
-  } else if (isMac) {
+  } else if (isMac()) {
     if (!env.PATH) {
       return macosExtraPath;
     } else {
@@ -44,7 +44,7 @@ export function getPodmanCli(): string {
     return customBinaryPath;
   }
 
-  if (isWindows) {
+  if (isWindows()) {
     return 'podman.exe';
   }
   return 'podman';
@@ -65,7 +65,7 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
   let env = Object.assign({}, process.env); // clone original env object
 
   // In production mode, applications don't have access to the 'user' path like brew
-  if (isMac || isWindows) {
+  if (isMac() || isWindows()) {
     env.PATH = getInstallationPath();
   } else if (env.FLATPAK_ID) {
     // need to execute the command on the host

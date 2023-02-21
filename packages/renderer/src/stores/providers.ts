@@ -25,7 +25,7 @@ export async function fetchProviders() {
   providerInfos.set(result);
   result.forEach(providerInfo => {
     // register only if none for this provider id
-    if (!updateProviderCallbacks.includes[providerInfo.internalId]) {
+    if (!updateProviderCallbacks.includes(providerInfo.internalId)) {
       window.onDidUpdateProviderStatus(providerInfo.internalId, () => {
         fetchProviders();
       });

@@ -34,6 +34,7 @@ import DeployPodToKube from './lib/pod/DeployPodToKube.svelte';
 import RunImage from './lib/image/RunImage.svelte';
 import SendFeedback from './lib/feedback/SendFeedback.svelte';
 import ToastHandler from './lib/toast/ToastHandler.svelte';
+import QuickPickInput from './lib/dialogs/QuickPickInput.svelte';
 
 router.mode.hash();
 
@@ -88,6 +89,7 @@ window.events?.receive('display-help', () => {
       <div class="z-0 w-full h-full bg-zinc-800 flex flex-col overflow-y-scroll">
         <SendFeedback />
         <ToastHandler />
+        <QuickPickInput />
         <Route path="/">
           <WelcomePage />
         </Route>

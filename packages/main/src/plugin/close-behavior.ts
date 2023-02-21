@@ -18,10 +18,9 @@
 
 import { isLinux } from '../util';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
-import type { ProviderRegistry } from './provider-registry';
 
 export class CloseBehavior {
-  constructor(private configurationRegistry: ConfigurationRegistry, private providerRegistry: ProviderRegistry) {}
+  constructor(private configurationRegistry: ConfigurationRegistry) {}
 
   async init(): Promise<void> {
     // add configuration
@@ -33,7 +32,7 @@ export class CloseBehavior {
         ['preferences.ExitOnClose']: {
           description: 'Quit the app when the close button is clicked instead of minimizing to the tray.',
           type: 'boolean',
-          default: isLinux,
+          default: isLinux(),
         },
       },
     };

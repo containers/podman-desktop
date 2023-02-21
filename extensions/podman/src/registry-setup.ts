@@ -38,9 +38,9 @@ export class RegistrySetup {
   protected getAuthFileLocation(): string {
     let podmanConfigContainersPath;
 
-    if (isMac || isWindows) {
+    if (isMac() || isWindows()) {
       podmanConfigContainersPath = path.resolve(os.homedir(), '.config/containers');
-    } else if (isLinux) {
+    } else if (isLinux()) {
       const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'];
       podmanConfigContainersPath = path.resolve(xdgRuntimeDirectory, 'containers');
     }
