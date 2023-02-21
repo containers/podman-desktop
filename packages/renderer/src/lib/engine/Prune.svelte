@@ -36,7 +36,7 @@ async function prune(type: string) {
     case 'pods':
       engines.forEach(async engine => {
         try {
-          window.prunePods(engine.id);
+          await window.prunePods(engine.id);
         } catch (error) {
           console.error(error);
         }
