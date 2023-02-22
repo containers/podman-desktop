@@ -49,7 +49,7 @@ export default defineConfig({
         'moment',
       ],
     },
-      ...coverageConfig('renderer'),
+      ...coverageConfig(PACKAGE_ROOT, 'renderer'),
   },
   base: '',
   server: {

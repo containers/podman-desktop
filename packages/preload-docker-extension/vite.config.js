@@ -66,7 +66,7 @@ import {coverageConfig} from '../main/vite.config';
      reportCompressedSize: false,
    },
    test: {
-    ...coverageConfig('preload-docker-extension'),
+    ...coverageConfig(PACKAGE_ROOT, 'preload-docker-extension'),
   },
  };
  

@@ -66,7 +66,7 @@ const config = {
     reportCompressedSize: false,
   },
   test: {
-    ...coverageConfig('preload'),
+    ...coverageConfig(PACKAGE_ROOT, 'preload'),
   },
 };
 

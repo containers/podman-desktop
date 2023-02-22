@@ -1,12 +1,12 @@
 /**********************************************************************
  * Copyright (C) 2022 Red Hat, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,17 +16,45 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import {node} from '../../.electron-vendors.cache.json';
-import {join} from 'path';
-import {builtinModules} from 'module';
+import path from 'node:path';
 
 const PACKAGE_ROOT = __dirname;
+/**
+ * Config for global end-to-end tests
+ * placed in project root tests folder
+ * @type {import('vite').UserConfig}
+ * @see https://vitest.dev/config/
+ */
+const config = {
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    /**
+     * By default, vitest search test files in all packages.
+     * For e2e tests have sense search only is project root tests folder
+     */
+    include: ['**/{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    exclude: [
+      '**/builtin/**',
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp,cdix}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress}.config.*',
+    ],
 
-export function coverageConfig(packageRoot, packageName) {
-  const obj = { coverage: {
+    /**
+     * A default timeout of 5000ms is sometimes not enough for playwright.
+     */
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
+    /**
+     * Vitest configuration for code coverage of the extensions folder
+     */
+    coverage: {
       all: true,
+      src: [PACKAGE_ROOT],
       clean: true,
-      src: [packageRoot],
       exclude: [
         '**/builtin/**',
         '**/cypress/**',
@@ -39,55 +67,15 @@ export function coverageConfig(packageRoot, packageName) {
         '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
       ],
       provider: 'c8',
-      reportsDirectory: `../../test-resources/coverage/${packageName}`,
+      reportsDirectory: '../test-resources/coverage/extensions',
+      perFile: true,
       reporter: ['lcov', 'text-summary'],
     },
-  };
-  return obj;
-}
-/**
- * @type {import('vite').UserConfig}
- * @see https://vitejs.dev/config/
- */
-const config = {
-  mode: process.env.MODE,
-  root: PACKAGE_ROOT,
-  envDir: process.cwd(),
+  },
   resolve: {
     alias: {
-      '/@/': join(PACKAGE_ROOT, 'src') + '/',
+      '@podman-desktop/api': path.resolve(__dirname, '../__mocks__/@podman-desktop/api.js'),
     },
-  },
-  build: {
-    sourcemap: 'inline',
-    target: `node${node}`,
-    outDir: 'dist',
-    assetsDir: '.',
-    minify: process.env.MODE === 'production' ? 'esbuild' : false,
-    lib: {
-      entry: 'src/index.ts',
-      formats: ['cjs'],
-    },
-    rollupOptions: {
-      external: [
-        'electron',
-        'chokidar',
-        '@kubernetes/client-node',
-        'tar-fs',
-        'ssh2',
-        'analytics-node',
-        'electron-devtools-installer',
-        ...builtinModules.flatMap(p => [p, `node:${p}`]),
-      ],
-      output: {
-        entryFileNames: '[name].cjs',
-      },
-    },
-    emptyOutDir: true,
-    reportCompressedSize: false,
-  },
-  test: {
-    ...coverageConfig(PACKAGE_ROOT, 'main'),
   },
 };
 

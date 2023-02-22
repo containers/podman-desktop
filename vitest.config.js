@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import path from 'node:path';
+
 /**
  * Config for global end-to-end tests
  * placed in project root tests folder
@@ -46,28 +47,6 @@ const config = {
      */
     testTimeout: 30_000,
     hookTimeout: 30_000,
-    /**
-     * Vitest configuration for code coverage of the extensions folder
-     */
-    coverage: {
-      all: true,
-      src: ['extensions'],
-      clean: true,
-      exclude: [
-        '**/builtin/**',
-        '**/cypress/**',
-        '**/dist/**',
-        '**/node_modules/**',
-        '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-        '**/*.{svelte,tsx,cjs,js,d.ts}',
-        '**/*-info.ts',
-        '**/.{cache,git,idea,output,temp,cdix}/**',
-        '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
-      ],
-      provider: 'c8',
-      reportsDirectory: '../test-resources/coverage/extensions',
-      reporter: ['lcov', 'json', 'text-summary'],
-    },
   },
   resolve: {
     alias: {
