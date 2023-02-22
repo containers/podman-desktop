@@ -20,5 +20,4 @@
 export interface EngineInfoUI {
   id: string;
   name: string;
-  type: 'podman' | 'docker';
 }
