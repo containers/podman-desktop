@@ -20,6 +20,11 @@
     "configuration": {
       "title": "Podman",
       "properties": {
+        "podman.socket.check": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check if Podman is successfully emulating the Docker socket (Requires restart)"
+        },
         "podman.binary.path": {
           "type": "string",
           "default": "",

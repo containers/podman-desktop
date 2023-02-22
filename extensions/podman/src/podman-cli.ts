@@ -56,6 +56,12 @@ export function getCustomBinaryPath(): string | undefined {
   return configuration.getConfiguration('podman').get('binary.path');
 }
 
+// Get the boolean value from configuration podman.socket.check
+// return boolean or undefined
+export function getSocketCheck(): boolean | undefined {
+  return configuration.getConfiguration('podman').get('socket.check');
+}
+
 export interface ExecOptions {
   logger?: Logger;
   env?: NodeJS.ProcessEnv | undefined;

@@ -26,7 +26,7 @@ import { RegistrySetup } from './registry-setup';
 import { getAssetsFolder, isLinux, isMac, isWindows } from './util';
 import { PodmanInstall } from './podman-install';
 import type { InstalledPodman } from './podman-cli';
-import { execPromise, getPodmanCli, getPodmanInstallation } from './podman-cli';
+import { execPromise, getPodmanCli, getPodmanInstallation, getSocketCheck } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { getDetectionChecks } from './detection-checks';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
@@ -384,11 +384,17 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   const provider = extensionApi.provider.createProvider(providerOptions);
 
-  // Check on initial setup
-  checkDisguisedPodmanSocket(provider);
-  // update the status of the provider if the socket is changed, created or deleted
-  disguisedPodmanSocketWatcher = setupDisguisedPodmanSocketWatcher(provider, getSocketPath());
-  extensionContext.subscriptions.push(disguisedPodmanSocketWatcher);
+  // We will check to see that that user has selected 'true'
+  // for the configuration of podman.socket.check
+  // If they have, we will check to see if the socket exists
+  if (getSocketCheck()) {
+    // Check on initial setup
+    checkDisguisedPodmanSocket(provider);
+
+    // Update the status of the provider if the socket is changed, created or deleted
+    disguisedPodmanSocketWatcher = setupDisguisedPodmanSocketWatcher(provider, getSocketPath());
+    extensionContext.subscriptions.push(disguisedPodmanSocketWatcher);
+  }
 
   // provide an installation path ?
   if (podmanInstall.isAbleToInstall()) {
