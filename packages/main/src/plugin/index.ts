@@ -84,6 +84,8 @@ import { Proxy } from './proxy';
 import { EditorInit } from './editor-init';
 import { ExtensionInstaller } from './install/extension-installer';
 import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
+import type { Menu } from '/@/plugin/menu-registry';
+import { MenuRegistry } from '/@/plugin/menu-registry';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -260,6 +262,7 @@ export class PluginSystem {
     await proxy.init();
 
     const commandRegistry = new CommandRegistry();
+    const menuRegistry = new MenuRegistry();
     const certificates = new Certificates();
     await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
@@ -320,6 +323,7 @@ export class PluginSystem {
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
+      menuRegistry,
       providerRegistry,
       configurationRegistry,
       imageRegistry,
@@ -619,6 +623,10 @@ export class PluginSystem {
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
       return providerRegistry.getProviderInfos();
+    });
+
+    this.ipcHandle('menu-registry:getContextMenus', async (_, context: string): Promise<Menu[]> => {
+      return menuRegistry.getContextMenus(context);
     });
 
     this.ipcHandle(
