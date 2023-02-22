@@ -156,29 +156,31 @@ function onInstallationClick() {
       </div>
       <div class="-z-1 min-w-[130px] m-auto bg-primary text-[13px]" class:hidden="{!installationOptionsMenuVisible}">
         <ul class="w-full outline-none bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400">
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <li
-            class="p-2 {installationOptionSelected === InitializeOnlyMode
-              ? 'bg-[#ffffff33]'
-              : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
-            on:click="{() => {
-              installationOptionSelected = InitializeOnlyMode;
-              installationOptionsMenuVisible = false;
-            }}">
-            {InitializeOnlyMode}
-            {provider.name}
+          <li>
+            <button
+              class="w-full p-2 {installationOptionSelected === InitializeOnlyMode
+                ? 'bg-[#ffffff33]'
+                : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
+              on:click="{() => {
+                installationOptionSelected = InitializeOnlyMode;
+                installationOptionsMenuVisible = false;
+              }}">
+              {InitializeOnlyMode}
+              {provider.name}
+            </button>
           </li>
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <li
-            class="p-2 {installationOptionSelected === InitializeAndStartMode
-              ? 'bg-[#ffffff33]'
-              : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
-            on:click="{() => {
-              installationOptionSelected = InitializeAndStartMode;
-              installationOptionsMenuVisible = false;
-            }}">
-            {InitializeAndStartMode}
-            {provider.name}
+          <li>
+            <button
+              class="w-full p-2 {installationOptionSelected === InitializeAndStartMode
+                ? 'bg-[#ffffff33]'
+                : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
+              on:click="{() => {
+                installationOptionSelected = InitializeAndStartMode;
+                installationOptionsMenuVisible = false;
+              }}">
+              {InitializeAndStartMode}
+              {provider.name}
+            </button>
           </li>
         </ul>
       </div>
