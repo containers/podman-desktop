@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import { filtered, searchPattern } from '../stores/containers';
+import { filtered, searchPattern, containersInfos } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import ContainerIcon from './images/ContainerIcon.svelte';
@@ -321,7 +321,10 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   title="containers"
   subtitle="Hover over a container to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
-    <Prune type="containers" engines="{enginesList}" />
+    <!-- Only show if there are containers-->
+    {#if $containersInfos.length > 0}
+      <Prune type="containers" engines="{enginesList}" />
+    {/if}
     <button on:click="{() => toggleCreateContainer()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-plus-circle" aria-hidden="true"></i>
