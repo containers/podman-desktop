@@ -592,8 +592,13 @@ function setupDisguisedPodmanSocketWatcher(
     checkDisguisedPodmanSocket(provider);
   });
 
-  // watch parent directory
-  const socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
+  let socketWatcher: extensionApi.FileSystemWatcher;
+  if (isLinux) {
+    socketWatcher = extensionApi.fs.createFileSystemWatcher(socketFile);
+  } else {
+    // watch parent directory
+    socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
+  }
 
   // only trigger if the watched file is the socket file
   const updateSocket = (uri: extensionApi.Uri) => {
