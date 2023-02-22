@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: errata-ai/vale-action@715c322f56159d8efe0f2efbae10aba6f4e16d93
+      - uses: errata-ai/vale-action@715c322f56159d8efe0f2efbae10aba6f4e16d93 # reviewdog branch, commit from Jan 14, 2023
         env:
           # Required, set by GitHub actions automatically:
           # https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret
