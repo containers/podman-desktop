@@ -106,7 +106,11 @@ async function deleteSelectedPods() {
     await Promise.all(
       selectedPods.map(async pod => {
         try {
-          await window.removePod(pod.engineId, pod.id);
+          if (pod.kind === 'podman') {
+            await window.removePod(pod.engineId, pod.id);
+          } else {
+            await window.kubernetesDeletePod(pod.name);
+          }
         } catch (e) {
           console.log('error while removing pod', e);
         }
@@ -117,7 +121,7 @@ async function deleteSelectedPods() {
 }
 
 function openDetailsPod(pod: PodInfoUI) {
-  router.goto(`/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`);
+  router.goto(`/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`);
 }
 
 function openContainersFromPod(pod: PodInfoUI) {

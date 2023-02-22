@@ -1024,6 +1024,34 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('kubernetesListPods', async (): Promise<PodInfo[]> => {
+    return ipcInvoke('kubernetes-client:listPods');
+  });
+
+  let onDataCallbacksKubernetesPodLogId = 0;
+  const onDataCallbacksKubernetesPodLog = new Map<number, (name: string, data: string) => void>();
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadPodLog',
+    async (name: string, container: string, callback: (name: string, data: string) => void): Promise<void> => {
+      onDataCallbacksKubernetesPodLog.set(onDataCallbacksKubernetesPodLogId, callback);
+      return ipcInvoke('kubernetes-client:readPodLog', name, container, onDataCallbacksKubernetesPodLogId++);
+    },
+  );
+  ipcRenderer.on(
+    'kubernetes-client:readPodLog-onData',
+    (_, onDataCallbacksKubernetesReadPodLogId: number, name: string, data: string) => {
+      // grab callback from the map
+      const callback = onDataCallbacksKubernetesPodLog.get(onDataCallbacksKubernetesReadPodLogId);
+      if (callback) {
+        callback(name, data);
+      }
+    },
+  );
+
+  contextBridge.exposeInMainWorld('kubernetesDeletePod', async (name: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:deletePod', name);
+  });
+
   contextBridge.exposeInMainWorld(
     'openshiftCreateRoute',
     async (namespace: string, route: V1Route): Promise<V1Route> => {

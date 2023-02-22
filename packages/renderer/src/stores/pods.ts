@@ -21,17 +21,22 @@ import { writable, derived } from 'svelte/store';
 import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { findMatchInLeaves } from './search-util';
 export async function fetchPods() {
-  const result = await window.listPods();
-  podsInfos.set(result);
+  let result = await window.listPods();
+  try {
+    const pods = await window.kubernetesListPods();
+    result = result.concat(pods);
+  } finally {
+    podsInfos.set(result);
+  }
 }
 
 export const podsInfos: Writable<PodInfo[]> = writable([]);
 
 export const searchPattern = writable('');
 
-export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $imagesInfos]) =>
-  $imagesInfos.filter(podInfo => findMatchInLeaves(podInfo, $searchPattern.toLowerCase())),
-);
+export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $imagesInfos]) => {
+  return $imagesInfos.filter(podInfo => findMatchInLeaves(podInfo, $searchPattern.toLowerCase()));
+});
 
 // need to refresh when extension is started or stopped
 window.addEventListener('extension-started', () => {

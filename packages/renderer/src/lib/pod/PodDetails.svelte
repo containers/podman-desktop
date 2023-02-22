@@ -18,6 +18,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 
 export let podName: string;
 export let engineId: string;
+export let kind: string;
 
 let pod: PodInfoUI;
 let podUnsubscribe: Unsubscriber;
@@ -26,7 +27,9 @@ onMount(() => {
   const podUtils = new PodUtils();
   // loading volume info
   podUnsubscribe = podsInfos.subscribe(pods => {
-    const matchingPod = pods.find(podInPods => podInPods.Name === podName && podInPods.engineId === engineId);
+    const matchingPod = pods.find(
+      podInPods => podInPods.Name === podName && podInPods.engineId === engineId && kind === podInPods.kind,
+    );
     if (matchingPod) {
       try {
         pod = podUtils.getPodInfoUI(matchingPod);
@@ -83,9 +86,9 @@ function errorCallback(errorMessage: string): void {
                     <li
                       class="pf-c-tabs__item"
                       class:pf-m-current="{meta.url ===
-                        `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`}">
+                        `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`}">
                       <a
-                        href="/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs"
+                        href="/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-details-panel"
                         id="open-tabs-example-tabs-list-details-link">
@@ -95,9 +98,9 @@ function errorCallback(errorMessage: string): void {
                     <li
                       class="pf-c-tabs__item"
                       class:pf-m-current="{meta.url ===
-                        `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/summary`}">
+                        `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/summary`}">
                       <a
-                        href="/pods/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/summary"
+                        href="/pods/${encodeURI(pod.kind)}/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/summary"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-details-panel"
                         id="open-tabs-example-tabs-list-details-link">
@@ -107,9 +110,9 @@ function errorCallback(errorMessage: string): void {
                     <li
                       class="pf-c-tabs__item"
                       class:pf-m-current="{meta.url ===
-                        `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/inspect`}">
+                        `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/inspect`}">
                       <a
-                        href="/pods/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/inspect"
+                        href="/pods/${encodeURI(pod.kind)}/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/inspect"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-yaml-panel"
                         id="open-tabs-example-tabs-list-yaml-link">
@@ -119,9 +122,9 @@ function errorCallback(errorMessage: string): void {
                     <li
                       class="pf-c-tabs__item"
                       class:pf-m-current="{meta.url ===
-                        `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube`}">
+                        `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube`}">
                       <a
-                        href="/pods/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/kube"
+                        href="/pods/${encodeURI(pod.kind)}/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/kube"
                         class="pf-c-tabs__link"
                         aria-controls="open-tabs-example-tabs-list-yaml-panel"
                         id="open-tabs-example-tabs-list-yaml-link">
