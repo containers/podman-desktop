@@ -55,9 +55,17 @@ async function prune(type: string) {
       console.error('Prune type not found');
       break;
     /*
+          case 'pods':
+              // Prune pods from podman and docker engines
+              await window.prunePods();
+              break;
           case 'images':
               // Prune images from podman and docker engines
               await window.pruneImages();
+              break;
+          case 'volumes':
+              // Prune volumes from podman and docker engines
+              await window.pruneVolumes();
               break;
               */
   }

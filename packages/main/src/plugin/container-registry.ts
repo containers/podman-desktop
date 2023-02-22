@@ -347,6 +347,27 @@ export class ContainerProviderRegistry {
     return flatttenedImages;
   }
 
+  async pruneImages(engineId: string): Promise<void> {
+    this.telemetryService.track('pruneImages');
+    // We have to use two different API calls for pruning images, because the Podman API does not respect the 'dangling' filter
+    // and instead uses 'all' and 'external'. See: https://github.com/containers/podman/issues/11576
+    // so for Dockerode we'll have to call pruneImages with the 'dangling' filter, and for Podman we'll have to call pruneImages
+
+    // PODMAN:
+    // Have to use podman API directly for pruning images
+    const provider = this.internalProviders.get(engineId);
+    if (provider?.libpodApi) {
+      return this.getMatchingPodmanEngine(engineId).pruneAllImages(true);
+    }
+
+    // DOCKER:
+    // Return Promise<void> for this call, because Dockerode does not return anything
+    this.getMatchingEngine(engineId).pruneImages({ filters: { dangling: { false: true } } });
+
+    // Return an empty promise since we do not check the above docker result / don't use the image information (yet).
+    return Promise.resolve();
+  }
+
   async listPods(): Promise<PodInfo[]> {
     const pods = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {

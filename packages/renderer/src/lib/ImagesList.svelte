@@ -1,5 +1,5 @@
 <script lang="ts">
-import { filtered, searchPattern } from '../stores/images';
+import { filtered, searchPattern, imagesInfos } from '../stores/images';
 import { onDestroy, onMount } from 'svelte';
 import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
 
@@ -18,12 +18,15 @@ import type { Unsubscriber } from 'svelte/store';
 import { containersInfos } from '../stores/containers';
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import moment from 'moment';
+import Prune from './engine/Prune.svelte';
+import type { EngineInfoUI } from './engine/EngineInfoUI';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let images: ImageInfoUI[] = [];
 let multipleEngines = false;
+let enginesList: EngineInfoUI[];
 
 let pushImageModal = false;
 let pushImageModalImageInfo = undefined;
@@ -62,15 +65,25 @@ function updateImages() {
   });
   images = computedImages;
 
-  // multiple engines ?
-  const engineNamesArray = images.map(image => image.engineName);
-  // remove duplicates
-  const engineNames = [...new Set(engineNamesArray)];
-  if (engineNames.length > 1) {
+  // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
+  const engines = images.map(container => {
+    return {
+      name: container.engineName,
+      id: container.engineId,
+    };
+  });
+
+  // Remove duplicates from engines by name
+  const uniqueEngines = engines.filter((engine, index, self) => index === self.findIndex(t => t.name === engine.name));
+
+  if (uniqueEngines.length > 1) {
     multipleEngines = true;
   } else {
     multipleEngines = false;
   }
+
+  // Set the engines to the global variable for the Prune functionality button
+  enginesList = uniqueEngines;
 
   // compute refresh interval
   const interval = computeInterval();
@@ -201,6 +214,9 @@ function computeInterval(): number {
   title="images"
   subtitle="Hover over an image to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+    {#if $imagesInfos.length > 0}
+      <Prune type="images" engines="{enginesList}" />
+    {/if}
     <button on:click="{() => gotoPullImage()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
