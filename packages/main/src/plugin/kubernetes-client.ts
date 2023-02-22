@@ -16,9 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Context, V1Pod, V1ConfigMap, V1PodList, V1NamespaceList, V1Service } from '@kubernetes/client-node';
+import type {
+  Context,
+  V1Pod,
+  V1ConfigMap,
+  V1PodList,
+  V1NamespaceList,
+  V1Service,
+  V1ContainerState,
+} from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
-import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { Emitter } from './events/emitter';
@@ -28,6 +36,47 @@ import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
 import type { FilesystemMonitoring } from './filesystem-monitoring';
+import type { PodInfo } from './api/pod-info';
+import { PassThrough } from 'node:stream';
+
+function toContainerStatus(state: V1ContainerState | undefined): string {
+  if (state) {
+    if (state.running) {
+      return 'Running';
+    } else if (state.terminated) {
+      return 'Terminated';
+    } else if (state.waiting) {
+      return 'Waiting';
+    }
+  }
+  return 'Unknown';
+}
+
+function toPodInfo(pod: V1Pod): PodInfo {
+  const containers =
+    pod.status?.containerStatuses?.map(status => {
+      return {
+        Id: status.containerID || '',
+        Names: status.name,
+        Status: toContainerStatus(status.state),
+      };
+    }) || [];
+  return {
+    Cgroup: '',
+    Containers: containers,
+    Created: (pod.metadata?.creationTimestamp || '').toString(),
+    Id: pod.metadata?.uid || '',
+    InfraId: '',
+    Labels: pod.metadata?.labels || {},
+    Name: pod.metadata?.name || '',
+    Namespace: pod.metadata?.namespace || '',
+    Networks: [],
+    Status: pod.status?.phase || '',
+    engineId: 'kubernetes',
+    engineName: 'Kubernetes',
+    kind: 'kubernetes',
+  };
+}
 
 /**
  * Handle calls to kubernetes API
@@ -45,11 +94,14 @@ export class KubernetesClient {
 
   private kubeConfigWatcher: containerDesktopAPI.FileSystemWatcher | undefined;
 
+  private kubeWatcher: any | undefined;
+
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
     this._onDidUpdateKubeconfig.event;
 
   constructor(
+    private apiSender: any,
     private configurationRegistry: ConfigurationRegistry,
     private fileSystemMonitoring: FilesystemMonitoring,
   ) {
@@ -127,6 +179,22 @@ export class KubernetesClient {
     });
   }
 
+  setupKubeWatcher() {
+    this.kubeWatcher?.abort();
+    const ns = this.currrentNamespace;
+    if (ns) {
+      const watch = new Watch(this.kubeConfig);
+      watch
+        .watch(
+          '/api/v1/namespaces/' + ns + '/pods',
+          {},
+          () => this.apiSender.send('pod-event'),
+          (err: any) => console.error('Kube event error', err),
+        )
+        .then(req => (this.kubeWatcher = req));
+    }
+  }
+
   getContexts(): Context[] {
     return this.kubeConfig.contexts;
   }
@@ -154,6 +222,7 @@ export class KubernetesClient {
     if (currentContext) {
       this.currrentNamespace = currentContext.namespace;
     }
+    this.setupKubeWatcher();
   }
 
   newError(message: string, cause: Error): Error {
@@ -221,6 +290,39 @@ export class KubernetesClient {
       }
     } catch (error) {
       throw this.wrapK8sClientError(error);
+    }
+  }
+
+  async listPods(): Promise<PodInfo[]> {
+    const ns = this.getCurrentNamespace();
+    if (ns) {
+      const pods = await this.listNamespacedPod(ns);
+      return pods.items.map(pod => toPodInfo(pod));
+    }
+    return [];
+  }
+
+  async readPodLog(name: string, container: string, callback: (name: string, data: string) => void): Promise<void> {
+    const ns = this.currrentNamespace;
+    if (ns) {
+      const log = new Log(this.kubeConfig);
+
+      const logStream = new PassThrough();
+
+      logStream.on('data', chunk => {
+        // use write rather than console.log to prevent double line feed
+        callback('data', chunk.toString('utf-8'));
+      });
+
+      log.log(ns, name, container, logStream, { follow: true });
+    }
+  }
+
+  async deletePod(name: string): Promise<void> {
+    const ns = this.currrentNamespace;
+    if (ns) {
+      const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
+      k8sApi.deleteNamespacedPod(name, ns);
     }
   }
 

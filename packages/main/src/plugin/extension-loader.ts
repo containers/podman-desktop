@@ -71,6 +71,8 @@ export class ExtensionLoader {
 
   private activatedExtensions = new Map<string, ActivatedExtension>();
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
+  private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
+  private reloadInProgressExtensions = new Map<string, boolean>();
   private extensionsStoragePath = '';
   private pluginsDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins');
   private pluginsScanDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins-scanning');
@@ -253,6 +255,28 @@ export class ExtensionLoader {
     }
   }
 
+  protected async reloadExtension(extension: AnalyzedExtension, removable: boolean): Promise<void> {
+    const inProgress = this.reloadInProgressExtensions.get(extension.id);
+    if (inProgress) {
+      return;
+    }
+
+    console.log(`Extension ${extension.path} has been updated, reloading it`);
+    this.reloadInProgressExtensions.set(extension.id, true);
+
+    // unload the extension
+    await this.deactivateExtension(extension.id);
+
+    // reload the extension
+    try {
+      await this.loadExtension(extension.path, removable);
+    } catch (error) {
+      console.error('error while reloading extension', error);
+    } finally {
+      this.reloadInProgressExtensions.set(extension.id, false);
+    }
+  }
+
   async loadExtension(extensionPath: string, removable: boolean): Promise<void> {
     // do nothing if there is no package.json file
     if (!fs.existsSync(path.resolve(extensionPath, 'package.json'))) {
@@ -287,7 +311,21 @@ export class ExtensionLoader {
     }
 
     this.analyzedExtensions.set(extension.id, extension);
-    const runtime = this.loadRuntime(extension.mainPath);
+
+    // in development mode, watch if the extension is updated and reload it
+    if (import.meta.env.DEV) {
+      if (!this.watcherExtensions.has(extension.id)) {
+        const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extensionPath);
+        extensionWatcher.onDidChange(async () => {
+          // wait 1 second before trying to reload the extension
+          // this is to avoid reloading the extension while it is still being updated
+          setTimeout(() => this.reloadExtension(extension, removable), 1000);
+        });
+        this.watcherExtensions.set(extension.id, extensionWatcher);
+      }
+    }
+
+    const runtime = this.loadRuntime(extension);
 
     await this.activateExtension(extension, runtime);
   }
@@ -528,7 +566,7 @@ export class ExtensionLoader {
     };
   }
 
-  loadRuntime(extensionPathFolder: string): NodeRequire {
+  loadRuntime(extension: AnalyzedExtension): NodeRequire {
     // cleaning the cache for all files of that plug-in.
     Object.keys(require.cache).forEach(function (key): void {
       const mod: NodeJS.Module | undefined = require.cache[key];
@@ -543,7 +581,7 @@ export class ExtensionLoader {
       while (i--) {
         const childMod: NodeJS.Module | undefined = mod?.children[i];
         // ensure the child module is not null, is in the plug-in folder, and is not a native module (see above)
-        if (childMod && childMod.id.startsWith(extensionPathFolder) && !childMod.id.endsWith('.node')) {
+        if (childMod && childMod.id.startsWith(extension.path) && !childMod.id.endsWith('.node')) {
           // cleanup exports - note that some modules (e.g. ansi-styles) define their
           // exports in an immutable manner, so overwriting the exports throws an error
           delete childMod.exports;
@@ -554,7 +592,7 @@ export class ExtensionLoader {
         }
       }
 
-      if (key.startsWith(extensionPathFolder)) {
+      if (key.startsWith(extension.path)) {
         // delete entry
         delete require.cache[key];
         const ix = mod?.parent?.children.indexOf(mod) || 0;
@@ -563,7 +601,7 @@ export class ExtensionLoader {
         }
       }
     });
-    return require(extensionPathFolder);
+    return require(extension.mainPath);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -615,8 +653,8 @@ export class ExtensionLoader {
       }
 
       // dispose subscriptions
-      extension.extensionContext.subscriptions.forEach(subscription => {
-        subscription.dispose();
+      extension.extensionContext.subscriptions.forEach(async subscription => {
+        await subscription.dispose();
       });
 
       this.activatedExtensions.delete(extensionId);

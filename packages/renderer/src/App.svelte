@@ -18,7 +18,7 @@ import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
 import ContainerDetails from './lib/ContainerDetails.svelte';
 import { providerInfos } from './stores/providers';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
-import WelcomePage from './lib/welcome/WelcomePage.svelte';
+import DashboardPage from './lib/dashboard/DashboardPage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
 import ImageDetails from './lib/image/ImageDetails.svelte';
@@ -91,7 +91,7 @@ window.events?.receive('display-help', () => {
         <ToastHandler />
         <QuickPickInput />
         <Route path="/">
-          <WelcomePage />
+          <DashboardPage />
         </Route>
         <Route path="/containers">
           <ContainerList searchTerm="{meta.query.filter || ''}" />
@@ -130,8 +130,11 @@ window.events?.receive('display-help', () => {
             resourceId="{decodeURI(meta.params.resourceId)}"
             engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
-        <Route path="/pods/:name/:engineId/*" let:meta>
-          <PodDetails podName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
+        <Route path="/pods/:kind/:name/:engineId/*" let:meta>
+          <PodDetails
+            podName="{decodeURI(meta.params.name)}"
+            engineId="{decodeURI(meta.params.engineId)}"
+            kind="{decodeURI(meta.params.kind)}" />
         </Route>
         <Route path="/pod-create-from-containers">
           <PodCreateFromContainers />

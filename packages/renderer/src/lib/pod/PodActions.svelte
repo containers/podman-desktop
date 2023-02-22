@@ -52,7 +52,11 @@ async function stopPod(podInfoUI: PodInfoUI) {
 async function removePod(podInfoUI: PodInfoUI): Promise<void> {
   inProgressCallback(true, 'REMOVING');
   try {
-    await window.removePod(podInfoUI.engineId, podInfoUI.id);
+    if (pod.kind === 'podman') {
+      await window.removePod(podInfoUI.engineId, podInfoUI.id);
+    } else {
+      await window.kubernetesDeletePod(podInfoUI.name);
+    }
     router.goto('/pods/');
   } catch (error) {
     errorCallback(error);
@@ -62,7 +66,7 @@ async function removePod(podInfoUI: PodInfoUI): Promise<void> {
 }
 
 function openGenerateKube(): void {
-  router.goto(`/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube`);
+  router.goto(`/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube`);
 }
 
 function deployToKubernetes(): void {
@@ -78,36 +82,40 @@ if (dropdownMenu) {
 }
 </script>
 
-<ListItemButtonIcon
-  title="Start Pod"
-  onClick="{() => startPod(pod)}"
-  hidden="{pod.status === 'RUNNING'}"
-  detailed="{detailed}"
-  icon="{faPlay}" />
-<ListItemButtonIcon
-  title="Stop Pod"
-  onClick="{() => stopPod(pod)}"
-  hidden="{!(pod.status === 'RUNNING')}"
-  detailed="{detailed}"
-  icon="{faStop}" />
+{#if pod.kind === 'podman'}
+  <ListItemButtonIcon
+    title="Start Pod"
+    onClick="{() => startPod(pod)}"
+    hidden="{pod.status === 'RUNNING'}"
+    detailed="{detailed}"
+    icon="{faPlay}" />
+  <ListItemButtonIcon
+    title="Stop Pod"
+    onClick="{() => stopPod(pod)}"
+    hidden="{!(pod.status === 'RUNNING')}"
+    detailed="{detailed}"
+    icon="{faStop}" />
+{/if}
 <ListItemButtonIcon title="Delete Pod" onClick="{() => removePod(pod)}" icon="{faTrash}" detailed="{detailed}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
-  {#if !detailed}
+  {#if pod.kind === 'podman'}
+    {#if !detailed}
+      <ListItemButtonIcon
+        title="Generate Kube"
+        onClick="{() => openGenerateKube()}"
+        menu="{dropdownMenu}"
+        detailed="{detailed}"
+        icon="{faFileCode}" />
+    {/if}
     <ListItemButtonIcon
-      title="Generate Kube"
-      onClick="{() => openGenerateKube()}"
+      title="Deploy to Kubernetes"
+      onClick="{() => deployToKubernetes()}"
       menu="{dropdownMenu}"
       detailed="{detailed}"
-      icon="{faFileCode}" />
+      icon="{faRocket}" />
   {/if}
-  <ListItemButtonIcon
-    title="Deploy to Kubernetes"
-    onClick="{() => deployToKubernetes()}"
-    menu="{dropdownMenu}"
-    detailed="{detailed}"
-    icon="{faRocket}" />
   <ListItemButtonIcon
     title="Restart Pod"
     onClick="{() => restartPod(pod)}"

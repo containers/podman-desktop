@@ -264,7 +264,7 @@ function keydownChoice(e: KeyboardEvent) {
 
 function openGroupDetails(containerGroup: ContainerGroupInfoUI): void {
   if (containerGroup.type === ContainerGroupInfoTypeUI.POD) {
-    router.goto(`/pods/${encodeURI(containerGroup.name)}/${encodeURI(containerGroup.engineId)}/logs`);
+    router.goto(`/pods/podman/${encodeURI(containerGroup.name)}/${encodeURI(containerGroup.engineId)}/logs`);
   }
 }
 
@@ -456,6 +456,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       created: containerGroup.created,
                       selected: false,
                       containers: [],
+                      kind: 'podman',
                     }}"
                     dropdownMenu="{true}" />
                 {/if}

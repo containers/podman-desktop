@@ -22,6 +22,7 @@ import type { PodInspectInfo as LibPodPodInspectInfo } from '../dockerode/libpod
 export interface PodInfo extends LibPodPodInfo {
   engineId: string;
   engineName: string;
+  kind: 'kubernetes' | 'podman';
 }
 
 export interface PodInspectInfo extends LibPodPodInspectInfo {
