@@ -192,7 +192,6 @@ onMount(async () => {
       return {
         name: container.engineName,
         id: container.engineId,
-        type: container.engineType,
       };
     });
 
