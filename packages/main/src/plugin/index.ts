@@ -625,8 +625,8 @@ export class PluginSystem {
       return providerRegistry.getProviderInfos();
     });
 
-    this.ipcHandle('menu-registry:getContextMenus', async (_, context: string): Promise<Menu[]> => {
-      return menuRegistry.getContextMenus(context);
+    this.ipcHandle('menu-registry:getContributedMenus', async (_, context: string): Promise<Menu[]> => {
+      return menuRegistry.getContributedMenus(context);
     });
 
     this.ipcHandle(

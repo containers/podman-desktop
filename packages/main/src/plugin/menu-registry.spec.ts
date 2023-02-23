@@ -53,14 +53,14 @@ beforeEach(() => {
 });
 
 test('Should return empty array for unknown context', async () => {
-  const menus = menuRegistry.getContextMenus('unknownContext');
+  const menus = menuRegistry.getContributedMenus('unknownContext');
   expect(menus).toBeDefined();
   expectTypeOf(menus).toBeArray();
   expect(menus.length).toBe(0);
 });
 
 test('Image context should have a single entry', async () => {
-  const menus = menuRegistry.getContextMenus('dashboard/image');
+  const menus = menuRegistry.getContributedMenus('dashboard/image');
   expect(menus).toBeDefined();
   expectTypeOf(menus).toBeArray();
   expect(menus.length).toBe(1);

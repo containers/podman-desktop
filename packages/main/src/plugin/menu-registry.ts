@@ -37,12 +37,10 @@ export class MenuRegistry {
       this.menus.set(context, []);
     }
     const contextMenus = this.menus.get(context);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    contextMenus.push(menu);
+    contextMenus?.push(menu);
   }
 
-  getContextMenus(context: string): Menu[] {
+  getContributedMenus(context: string): Menu[] {
     return this.menus.get(context) || [];
   }
 }

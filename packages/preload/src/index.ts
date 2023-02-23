@@ -645,8 +645,8 @@ function initExposure(): void {
     return ipcInvoke('provider-registry:getProviderInfos');
   });
 
-  contextBridge.exposeInMainWorld('getContextMenus', async (context: string): Promise<Menu[]> => {
-    return ipcInvoke('menu-registry:getContextMenus', context);
+  contextBridge.exposeInMainWorld('getContributedMenus', async (context: string): Promise<Menu[]> => {
+    return ipcInvoke('menu-registry:getContributedMenus', context);
   });
 
   let onDidUpdateProviderStatusId = 0;
