@@ -69,7 +69,7 @@ test('Image context should have a single entry', async () => {
 });
 
 test('Container context should have two entries', async () => {
-  const menus = menuRegistry.getContextMenus('dashboard/container');
+  const menus = menuRegistry.getContributedMenus('dashboard/container');
   expect(menus).toBeDefined();
   expectTypeOf(menus).toBeArray();
   expect(menus.length).toBe(2);
