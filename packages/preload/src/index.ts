@@ -653,6 +653,10 @@ function initExposure(): void {
     return ipcInvoke('menu-registry:getContributedMenus', context);
   });
 
+  contextBridge.exposeInMainWorld('executeCommand', async (command: string, ...args: unknown[]): Promise<void> => {
+    return ipcInvoke('command-registry:executeCommand', command, ...args);
+  });
+
   let onDidUpdateProviderStatusId = 0;
   const onDidUpdateProviderStatuses = new Map<number, (providerInfo: ProviderInfo) => void>();
 

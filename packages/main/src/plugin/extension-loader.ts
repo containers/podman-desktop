@@ -554,6 +554,9 @@ export class ExtensionLoader {
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);
       },
+      saveImage(engineId: string, id: string, filename: string) {
+        return containerProviderRegistry.saveImage(engineId, id, filename);
+      },
       onEvent: (listener, thisArg, disposables) => {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
       },

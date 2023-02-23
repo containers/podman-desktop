@@ -644,6 +644,10 @@ export class PluginSystem {
       return menuRegistry.getContributedMenus(context);
     });
 
+    this.ipcHandle('command-registry:executeCommand', async (_, command: string, ...args: unknown[]): Promise<void> => {
+      return commandRegistry.executeCommand(command, ...args);
+    });
+
     this.ipcHandle(
       'provider-registry:onDidUpdateProviderStatus',
       async (_, providerInternalId: string, onDidUpdateProviderStatusCallbackIdnumber: number): Promise<void> => {

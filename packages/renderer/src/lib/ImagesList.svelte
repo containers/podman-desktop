@@ -20,6 +20,8 @@ import type { ContainerInfo } from '../../../main/src/plugin/api/container-info'
 import moment from 'moment';
 import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
+import type { Menu } from '../../../main/src/plugin/menu-registry';
+import { MenuContext } from '../../../main/src/plugin/menu-registry';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -94,6 +96,8 @@ let imagesUnsubscribe: Unsubscriber;
 let containersUnsubscribe: Unsubscriber;
 let storeContainers: ContainerInfo[] = [];
 let storeImages: ImageInfo[] = [];
+let contributedMenus: Menu[];
+
 onMount(async () => {
   containersUnsubscribe = containersInfos.subscribe(value => {
     storeContainers = value;
@@ -104,6 +108,8 @@ onMount(async () => {
     storeImages = value;
     updateImages();
   });
+
+  contributedMenus = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
 });
 
 onDestroy(() => {
@@ -327,7 +333,11 @@ function computeInterval(): number {
               </div>
             </td>
             <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
-              <ImageActions image="{image}" onPushImage="{handlePushImageModal}" dropdownMenu="{true}" />
+              <ImageActions
+                image="{image}"
+                onPushImage="{handlePushImageModal}"
+                dropdownMenu="{true}"
+                contributions="{contributedMenus}" />
             </td>
           </tr>
           <tr><td class="leading-[8px]">&nbsp;</td></tr>

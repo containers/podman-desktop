@@ -6,11 +6,13 @@ import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import { runImageInfo } from '../../stores/run-image-store';
+import type { Menu } from '../../../../main/src/plugin/menu-registry';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 export let image: ImageInfoUI;
 export let dropdownMenu: boolean = false;
 export let detailed: boolean = false;
+export let contributions: Menu[] = [];
 
 let errorMessage: string = undefined;
 let isAuthenticatedForThisImage: boolean = false;
@@ -37,6 +39,14 @@ async function pushImage(imageInfo: ImageInfoUI): Promise<void> {
 
 async function showLayersImage(): Promise<void> {
   router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/history`);
+}
+
+async function executeContribution(menu: Menu): Promise<void> {
+  try {
+    await window.executeCommand(menu.command, image);
+  } catch (err) {
+    errorMessage = err;
+  }
 }
 
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
@@ -77,6 +87,10 @@ if (dropdownMenu) {
       detailed="{detailed}"
       icon="{faLayerGroup}" />
   {/if}
+
+  {#each contributions as menu}
+    <ListItemButtonIcon title="{menu.title}" onClick="{() => executeContribution(menu)}" menu="{dropdownMenu}" />
+  {/each}
 
   {#if errorMessage}
     <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="{0}">

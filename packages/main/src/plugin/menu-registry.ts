@@ -22,6 +22,10 @@ export interface Menu {
   title: string;
 }
 
+export enum MenuContext {
+  DASHBOARD_IMAGE = 'dashboard/image',
+}
+
 export class MenuRegistry {
   private menus = new Map<string, Menu[]>();
 
