@@ -100,6 +100,7 @@ export interface LibPod {
   createPod(podOptions: PodCreateOptions): Promise<{ Id: string }>;
   createPodmanContainer(containerCreateOptions: ContainerCreateOptions): Promise<{ Id: string; Warnings: string[] }>;
   listPods(): Promise<PodInfo[]>;
+  prunePods(): Promise<void>;
   getPodInspect(podId: string): Promise<PodInspectInfo>;
   startPod(podId: string): Promise<void>;
   stopPod(podId: string): Promise<void>;
@@ -313,6 +314,27 @@ export class LibpodDockerode {
         options: {},
       };
 
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // add prunePods
+    prototypeOfDockerode.prunePods = function () {
+      const optsf = {
+        path: '/v4.2.0/libpod/pods/prune',
+        method: 'POST',
+        statusCodes: {
+          200: true,
+          500: 'server error',
+        },
+        options: {},
+      };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
           if (err) {

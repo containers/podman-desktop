@@ -727,6 +727,11 @@ export class ContainerProviderRegistry {
     return this.getMatchingPodmanEngine(engineId).removePod(podId);
   }
 
+  async prunePods(engineId: string): Promise<void> {
+    this.telemetryService.track('prunePods');
+    return this.getMatchingPodmanEngine(engineId).prunePods();
+  }
+
   async pruneContainers(engineId: string): Promise<Dockerode.PruneContainersInfo> {
     this.telemetryService.track('pruneContainers');
     return this.getMatchingEngine(engineId).pruneContainers();

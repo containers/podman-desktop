@@ -4,7 +4,7 @@ import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
 import type { PodInfoUI } from './PodInfoUI';
-import { filtered, searchPattern } from '../../stores/pods';
+import { filtered, searchPattern, podsInfos } from '../../stores/pods';
 import { providerInfos } from '../../stores/providers';
 import NavPage from '../ui/NavPage.svelte';
 import { PodUtils } from './pod-utils';
@@ -19,12 +19,15 @@ import moment from 'moment';
 import Tooltip from '../ui/Tooltip.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import Prune from '../engine/Prune.svelte';
+import type { EngineInfoUI } from '../engine/EngineInfoUI';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let pods: PodInfoUI[] = [];
 let multipleEngines = false;
+let enginesList: EngineInfoUI[];
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
@@ -53,15 +56,27 @@ onMount(async () => {
   podsUnsubscribe = filtered.subscribe(value => {
     const computedPods = value.map((podInfo: PodInfo) => podUtils.getPodInfoUI(podInfo)).flat();
 
-    // multiple engines ?
-    const engineNamesArray = computedPods.map(container => container.engineName);
-    // remove duplicates
-    const engineNames = [...new Set(engineNamesArray)];
-    if (engineNames.length > 1) {
+    // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
+    const engines = computedPods.map(container => {
+      return {
+        name: container.engineName,
+        id: container.engineId,
+      };
+    });
+
+    // Remove duplicates from engines by name
+    const uniqueEngines = engines.filter(
+      (engine, index, self) => index === self.findIndex(t => t.name === engine.name),
+    );
+
+    if (uniqueEngines.length > 1) {
       multipleEngines = true;
     } else {
       multipleEngines = false;
     }
+
+    // Set the engines to the global variable for the Prune functionality button
+    enginesList = uniqueEngines;
 
     // update selected items based on current selected items
     computedPods.forEach(pod => {
@@ -198,6 +213,9 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
   title="pods"
   subtitle="Hover over an pod to view action buttons; click to open up full details.">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+    {#if $podsInfos.length > 0}
+      <Prune type="pods" engines="{enginesList}" />
+    {/if}
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
