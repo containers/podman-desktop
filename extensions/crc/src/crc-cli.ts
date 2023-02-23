@@ -28,7 +28,7 @@ let daemonProcess: ChildProcess;
 export function getInstallationPath(): string {
   const env = process.env;
   if (isWindows()) {
-    return `c:\\Program Files\\RedHat\\Red Hat OpenShift Local;${env.PATH}`;
+    return `c:\\Program Files\\Red Hat OpenShift Local;${env.PATH}`;
   } else if (isMac()) {
     if (!env.PATH) {
       return macosExtraPath;
