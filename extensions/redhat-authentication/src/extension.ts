@@ -91,7 +91,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   });
 
   const SignUpCommand = extensionApi.commands.registerCommand('redhat.authentication.signup', async () => {
-    shell.openExternal('https://developers.redhat.com/articles/faqs-no-cost-red-hat-enterprise-linux#general');
+    extensionApi.window.showModalWindow('https://developers.redhat.com/articles/faqs-no-cost-red-hat-enterprise-linux#general');
   });
 
   extensionContext.subscriptions.push(SignInCommand, SignOutCommand, SignUpCommand);

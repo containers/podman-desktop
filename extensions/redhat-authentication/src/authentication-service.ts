@@ -26,7 +26,7 @@ import { createServer, startServer } from './authentication-server';
 import { AuthConfig } from './configuration';
 import { Keychain } from './keychain';
 import Logger from './logger';
-import { shell } from 'electron';
+import * as extensionApi from '@tmpwip/extension-api';
 
 interface IToken {
   accessToken?: string; // When unable to refresh due to network problems, the access token becomes undefined
@@ -304,7 +304,7 @@ export class RedHatAuthenticationService {
       try {
         const serverBase = this.config.serverConfig.externalUrl;
         const port = await startServer(this.config.serverConfig, server);
-        shell.openExternal(`${serverBase}:${port}/signin?nonce=${encodeURIComponent(nonce)}`);
+        extensionApi.window.showModalWindow(`${serverBase}:${port}/signin?nonce=${encodeURIComponent(nonce)}`);
 
         const redirectReq = await redirectPromise;
         if ('err' in redirectReq) {
@@ -336,7 +336,7 @@ export class RedHatAuthenticationService {
           redirect_uri: redirect_uri,
           nonce: nonce,
         });
-
+        console.log(authUrl);
         redirectReq.res.writeHead(302, { Location: authUrl });
         redirectReq.res.end();
 
@@ -419,7 +419,7 @@ export class RedHatAuthenticationService {
                 scope,
               );
               if (!didSucceedOnRetry) {
-                this.pollForReconnect(token.sessionId, token.refreshToken, token.scope);
+                this.pollForReconnect(token.sessionId,  token.refreshToken, token.scope);
               }
             } else {
               await this.removeSession(token.sessionId);
