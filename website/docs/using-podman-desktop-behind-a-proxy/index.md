@@ -8,7 +8,7 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 # Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA)
 
-You can use Podman Desktop behind a proxy requiring custom Certificate Autorities (CA), such as self-signed certificates.
+You can use Podman Desktop behind a proxy requiring custom Certificate Authorities (CA), such as self-signed certificates.
 
 #### Prerequisites
 
