@@ -355,6 +355,7 @@ export class ContainerProviderRegistry {
 
     // PODMAN:
     // Have to use podman API directly for pruning images
+    // TODO: Remove this once the Podman API respects the 'dangling' filter: https://github.com/containers/podman/issues/17614
     const provider = this.internalProviders.get(engineId);
     if (provider?.libpodApi) {
       return this.getMatchingPodmanEngine(engineId).pruneAllImages(true);
@@ -362,10 +363,7 @@ export class ContainerProviderRegistry {
 
     // DOCKER:
     // Return Promise<void> for this call, because Dockerode does not return anything
-    this.getMatchingEngine(engineId).pruneImages({ filters: { dangling: { false: true } } });
-
-    // Return an empty promise since we do not check the above docker result / don't use the image information (yet).
-    return Promise.resolve();
+    await this.getMatchingEngine(engineId).pruneImages({ filters: { dangling: { false: true } } });
   }
 
   async listPods(): Promise<PodInfo[]> {
