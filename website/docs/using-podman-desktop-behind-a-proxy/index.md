@@ -12,12 +12,12 @@ You can use Podman Desktop behind a proxy requiring custom Certificate Authoriti
 
 #### Prerequisites
 
-* `<your-custom-ca.pem>`: Your proxy Certificate Authorities (CA), in PEM format.
+* `<your-custom-ca.pem>`: Your proxy Certificate Authorities (CA), in Privacy-Enhanced Mail (PEM) format.
 * `<your.proxy.tld>`: Your proxy URL.
 
 #### Procedure
 
-1. (On Windows and macOS) Open a shell session on the Podman machine:
+1. (On Windows and macOS) Open a shell prompt on the Podman machine:
 
     ```commandline
     $ podman machine ssh
