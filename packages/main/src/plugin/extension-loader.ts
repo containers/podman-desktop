@@ -75,8 +75,14 @@ export class ExtensionLoader {
   private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
   private reloadInProgressExtensions = new Map<string, boolean>();
   private extensionsStoragePath = '';
+
+  // Plugins directory location
   private pluginsDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins');
   private pluginsScanDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins-scanning');
+
+  // Extensions directory location
+  private extensionsStorageDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/extensions-storage');
+
   constructor(
     private commandRegistry: CommandRegistry,
     private menuRegistry: MenuRegistry,
@@ -174,9 +180,9 @@ export class ExtensionLoader {
       });
     }
 
-    this.extensionsStoragePath = path.resolve(os.homedir(), '.podman-desktop');
-    if (!fs.existsSync(this.extensionsStoragePath)) {
-      fs.mkdirSync(this.extensionsStoragePath);
+    // Create the extensions storage directory if it does not exist
+    if (!fs.existsSync(this.extensionsStorageDirectory)) {
+      fs.mkdirSync(this.extensionsStorageDirectory);
     }
 
     let folders;
