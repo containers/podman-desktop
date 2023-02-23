@@ -3,9 +3,9 @@ Release process for Podman Desktop
 
 ## Pre-Requisites
 
-- Make sure everything that needs to be in the release is there.
+- Make sure everything that needs to be in the release is there
 - Notify main contributors
-- Check PR for Release Notes is almost complete
+- Check that the PR for Release Notes is almost completed by PM
 
 
 ## Cut a new release using the release workflow
@@ -13,9 +13,9 @@ Release process for Podman Desktop
 1. Go to https://github.com/containers/podman-desktop/actions/workflows/release.yaml
 1. Click on the top right drop-down menu `Run workflow`
 1. Enter the name of the release. Example: `0.12.0` (do not use the v prefix like v0.12.0)
-1. specify the branch to use for the release. It's main for all major releases. For a bugfix release
+1. Specify the branch to use for the release. It's main for all major releases. For a bugfix release
 1. Click on the `Run workflow` button
-1. edit the version the milestone going to https://github.com/containers/podman-desktop/milestones and select the date and then it `Close milestone`
+1. Edit the version the milestone going to https://github.com/containers/podman-desktop/milestones and select the date and then it `Close milestone`
 1. Create a new milestone for the upcoming release for example `0.13.0` and click on `Create milestone`
 1. Follow release process from https://github.com/containers/podman-desktop/actions/workflows/release.yaml
 1. Approve PR for the upcoming version. Title looks like `chore: 📢 Bump version to 0.13.0`
@@ -24,7 +24,7 @@ Release process for Podman Desktop
 
 Follow-up:
 
-## package manager workflow
+## Package manager workflow
 
 Pre-requisites:
 - Ensure the release is OK (green workflow, artifacts are there https://github.com/containers/podman-desktop/releases)
@@ -34,14 +34,14 @@ Pre-requisites:
 We can publish to brew. It creates a PR to brew cask repository https://github.com/Homebrew/homebrew-cask/
 1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-to-brew.yaml
 1. Click on the top right drop-down `Run workflow`
-1. select the release version like `0.12.0` and click `Run workflow`
+1. Select the release version like `0.12.0` and click `Run workflow`
 
 #### Winget
 
 We can publish to Winget. It creates a PR to winget repository https://github.com/microsoft/winget-pkgs/
 1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-to-brew.yaml
 1. Click on the top right drop-down `Run workflow`
-1. select the release version like `0.12.0` and click `Run workflow`
+1. Select the release version like `0.12.0` and click `Run workflow`
 
 
 #### Chocolatey
@@ -49,7 +49,7 @@ We can publish to Winget. It creates a PR to winget repository https://github.co
 We can publish to Chocolatey. It creates a new submission at https://community.chocolatey.org/packages/podman-desktop/#versionhistory
 1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-to-winget.yaml
 1. Click on the top right drop-down `Run workflow`
-1. select the release version like `0.12.0` and click `Run workflow`
+1. Select the release version like `0.12.0` and click `Run workflow`
 1. Approve the PR with title `chore: Update Chocolatey package to 0.12.0`
 
 
@@ -64,9 +64,9 @@ We can publish to Chocolatey. It creates a new submission at https://community.c
    ```sh
    podman run --rm -it -v $(pwd)/podman-desktop-0.12.0:/podman quay.io/podman-desktop/flatpak-node-generator yarn /podman/yarn.lock -o /podman/generated-sources.json
    ```
-1. copy the file `$(pwd)/podman-desktop-0.12.0/generated-sources.json` to `generated-sources.json`
-1. commit the files `generated-sources.json` and `io.podman_desktop.PodmanDesktop.yml` and create a PR to the repository with a title like `feat: bump to v0.11.0`
-1. If PR is successful, merge the PR
+1. Copy the file `$(pwd)/podman-desktop-0.12.0/generated-sources.json` to `generated-sources.json`
+1. Commit the files `generated-sources.json` and `io.podman_desktop.PodmanDesktop.yml` and create a PR to the repository with a title like `feat: bump to v0.11.0`
+1. If the PR is successful, merge the PR
 
 
 ### Announcement
@@ -78,7 +78,7 @@ We can publish to Chocolatey. It creates a new submission at https://community.c
 #### Github discussions
 
 1. Create a new announcement at https://github.com/containers/podman-desktop/discussions
-1. title : Podman Desktop v0.12.0
+1. Title : Podman Desktop v0.12.0
 1. Creates from from https://github.com/containers/podman-desktop/discussions/1277
 
 #### Create a Pod on Reddit
