@@ -42,6 +42,7 @@ import type { Proxy } from './proxy';
 import type { ContainerProviderRegistry } from './container-registry';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
 import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry';
+import type { MenuRegistry } from '/@/plugin/menu-registry';
 
 /**
  * Handle the loading of an extension
@@ -78,6 +79,7 @@ export class ExtensionLoader {
   private pluginsScanDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins-scanning');
   constructor(
     private commandRegistry: CommandRegistry,
+    private menuRegistry: MenuRegistry,
     private providerRegistry: ProviderRegistry,
     private configurationRegistry: ConfigurationRegistry,
     private imageRegistry: ImageRegistry,
@@ -308,6 +310,11 @@ export class ExtensionLoader {
       extensionConfiguration.id = 'preferences.' + extension.id;
 
       this.configurationRegistry.registerConfigurations([extensionConfiguration]);
+    }
+
+    const menus = manifest?.contributes?.menus;
+    if (menus) {
+      this.menuRegistry.registerMenus(menus);
     }
 
     this.analyzedExtensions.set(extension.id, extension);

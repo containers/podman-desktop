@@ -737,6 +737,11 @@ export class ContainerProviderRegistry {
     return this.getMatchingEngine(engineId).pruneContainers();
   }
 
+  async pruneVolumes(engineId: string): Promise<Dockerode.PruneVolumesInfo> {
+    this.telemetryService.track('pruneVolumes');
+    return this.getMatchingEngine(engineId).pruneVolumes();
+  }
+
   async restartContainer(engineId: string, id: string): Promise<void> {
     this.telemetryService.track('restartContainer');
     return this.getMatchingContainer(engineId, id).restart();
