@@ -51,6 +51,7 @@ import type {
   ContainerCreateOptions as PodmanContainerCreateOptions,
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
 import type { V1ConfigMap, V1NamespaceList, V1Pod, V1PodList, V1Service } from '@kubernetes/client-node';
+import type { Menu } from '../../main/src/plugin/menu-registry';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -642,6 +643,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('getProviderInfos', async (): Promise<ProviderInfo[]> => {
     return ipcInvoke('provider-registry:getProviderInfos');
+  });
+
+  contextBridge.exposeInMainWorld('getContributedMenus', async (context: string): Promise<Menu[]> => {
+    return ipcInvoke('menu-registry:getContributedMenus', context);
   });
 
   let onDidUpdateProviderStatusId = 0;
