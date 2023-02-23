@@ -361,6 +361,13 @@ export class PluginSystem {
       return containerProviderRegistry.listVolumes();
     });
     this.ipcHandle(
+      'container-provider-registry:pruneVolumes',
+      async (_listener, engine: string): Promise<Dockerode.PruneVolumesInfo> => {
+        return containerProviderRegistry.pruneVolumes(engine);
+      },
+    );
+
+    this.ipcHandle(
       'container-provider-registry:getVolumeInspect',
       async (_listener, engine: string, volumeName: string): Promise<VolumeInspectInfo> => {
         return containerProviderRegistry.getVolumeInspect(engine, volumeName);
