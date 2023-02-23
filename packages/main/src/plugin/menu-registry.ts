@@ -24,10 +24,9 @@ export interface Menu {
 export class MenuRegistry {
   private menus = new Map<string, Menu[]>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  registerMenus(menus: any): void {
+  registerMenus(menus: { [key: string]: Menu[] }): void {
     for (const name in menus) {
-      const contextMenus = menus[name] as Menu[];
+      const contextMenus = menus[name];
       contextMenus.forEach(menu => this.registerMenu(name, menu));
     }
   }
