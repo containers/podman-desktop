@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { BrowserWindow } from "electron";
+
 declare module '@tmpwip/extension-api' {
   /**
    * Represents a reference to a command. Provides a title which
@@ -725,6 +727,8 @@ declare module '@tmpwip/extension-api' {
      * @return A new status bar item.
      */
     export function createStatusBarItem(alignment?: StatusBarAlignment, priority?: number): StatusBarItem;
+
+    export function showModalWindow(url: string): Promise<BrowserWindow>;
   }
 
   export namespace kubernetes {

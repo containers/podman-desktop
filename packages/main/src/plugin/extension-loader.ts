@@ -40,6 +40,7 @@ import { Uri } from './types/uri';
 import type { KubernetesClient } from './kubernetes-client';
 import type { Proxy } from './proxy';
 import type { ContainerProviderRegistry } from './container-registry';
+import { BrowserWindow, webContents } from 'electron';
 
 /**
  * Handle the loading of an extension
@@ -452,6 +453,27 @@ export class ExtensionLoader {
 
         return new StatusBarItemImpl(this.statusBarRegistry, alignment, priority);
       },
+
+      showModalWindow: (url: string) : Promise<BrowserWindow> => {
+        return new Promise((resolve, reject) => {
+          const mainWindow = BrowserWindow.getAllWindows().find(window => !window.getParentWindow());
+          const child = new BrowserWindow({
+            parent : mainWindow,
+            modal: true,
+            show: false,
+            titleBarStyle: 'hidden',
+            titleBarOverlay: true,
+          });
+          child.loadURL(url);
+          child.once('ready-to-show', () => {
+            child.show();
+            child.on('blur', () => {
+              child.close();
+            })
+            resolve(child);
+          });
+        });
+      }
     };
 
     const fileSystemMonitoring = this.fileSystemMonitoring;

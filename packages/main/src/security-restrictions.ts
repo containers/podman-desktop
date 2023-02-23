@@ -41,12 +41,14 @@ const ALLOWED_ORIGINS_AND_PERMISSIONS = new Map<
     | 'openExternal'
     | 'window-placement'
     | 'unknown'
+    | 'https://sso.redhat.com'
   >
 >(
   import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL
     ? [[new URL(import.meta.env.VITE_DEV_SERVER_URL).origin, new Set(['clipboard-sanitized-write'])]]
     : [],
 );
+ALLOWED_ORIGINS_AND_PERMISSIONS.set('https://sso.redhat.com',new Set(['unknown']));
 
 /**
  * List of origins that you allow open IN BROWSER.
