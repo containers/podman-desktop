@@ -32,11 +32,12 @@ export class MenuRegistry {
   }
 
   registerMenu(context: string, menu: Menu): void {
-    if (!this.menus.has(context)) {
-      this.menus.set(context, []);
+    let contextMenus = this.menus.get(context);
+    if (!contextMenus) {
+      contextMenus = [];
+      this.menus.set(context, contextMenus);
     }
-    const contextMenus = this.menus.get(context);
-    contextMenus?.push(menu);
+    contextMenus.push(menu);
   }
 
   getContributedMenus(context: string): Menu[] {
