@@ -3748,10 +3748,10 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-"@zerodevx/svelte-toast@^0.8.2":
-  version "0.8.2"
-  resolved "https://registry.yarnpkg.com/@zerodevx/svelte-toast/-/svelte-toast-0.8.2.tgz#9052203e8f9c4cdd2558c6de31c15435a226ab96"
-  integrity sha512-EDtZ/Hw37T/UWCQ5drhMss0J9vItYUSDivQ3+mET5My6No7YNiNQklj2bkE61UAzut2TjHJfOJNBZsj78ODFtw==
+"@zerodevx/svelte-toast@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@zerodevx/svelte-toast/-/svelte-toast-0.9.0.tgz#9d451606187c2f603c662b170feb830b5d596530"
+  integrity sha512-oHPwb5rTyqSz7tE2shS6CJapq1n5vkD46QKiloOh/VFlB20CB6IV0ZF2i4VfqH5+FW+Udf7SvjttkpIZf0wRKg==
 
 abab@^2.0.6:
   version "2.0.6"
