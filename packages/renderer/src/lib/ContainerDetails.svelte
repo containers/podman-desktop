@@ -11,6 +11,7 @@ import ContainerActions from './container/ContainerActions.svelte';
 import { onMount } from 'svelte';
 import { containersInfos } from '../stores/containers';
 import { ContainerUtils } from './container/container-utils';
+import ContainerDetailsSummary from './ContainerDetailsSummary.svelte';
 import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
 import { getPanelDetailColor } from './color/color';
 import ContainerDetailsKube from './ContainerDetailsKube.svelte';
@@ -73,6 +74,17 @@ function errorCallback(errorMessage: string): void {
               <div class="pf-c-page__main-body">
                 <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
                   <ul class="pf-c-tabs__list">
+                    <li
+                      class="pf-c-tabs__item"
+                      class:pf-m-current="{meta.url === `/containers/${container.id}/summary`}">
+                      <a
+                        href="/containers/{container.id}/summary"
+                        class="pf-c-tabs__link"
+                        aria-controls="open-tabs-example-tabs-list-details-panel"
+                        id="open-tabs-example-tabs-list-details-link">
+                        <span class="pf-c-tabs__item-text">Summary</span>
+                      </a>
+                    </li>
                     <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/containers/${container.id}/logs`}">
                       <a
                         href="/containers/{container.id}/logs"
@@ -118,17 +130,6 @@ function errorCallback(errorMessage: string): void {
                         <span class="pf-c-tabs__item-text">Terminal</span>
                       </a>
                     </li>
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url === `/containers/${container.id}/details`}">
-                      <a
-                        href="/containers/{container.id}/details"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-details-panel"
-                        id="open-tabs-example-tabs-list-details-link">
-                        <span class="pf-c-tabs__item-text">Details</span>
-                      </a>
-                    </li>
                   </ul>
                 </div>
               </div>
@@ -171,6 +172,9 @@ function errorCallback(errorMessage: string): void {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
+        <Route path="/summary">
+          <ContainerDetailsSummary container="{container}" />
+        </Route>
         <Route path="/logs">
           <ContainerDetailsLogs container="{container}" />
         </Route>
@@ -179,29 +183,6 @@ function errorCallback(errorMessage: string): void {
         </Route>
         <Route path="/kube">
           <ContainerDetailsKube container="{container}" />
-        </Route>
-        <Route path="/details">
-          <div class="flex py-4 h-full" style="background-color: {getPanelDetailColor()}">
-            <table class="h-2 font-thin text-xs">
-              <tr>
-                <td class="px-2">Id</td>
-                <td class="px-2 font-thin text-xs">{container.shortId}</td>
-              </tr>
-              <tr>
-                <td class="px-2">Command</td>
-                <td class="px-2 font-thin text-xs">{container.command}</td>
-              </tr>
-              <tr>
-                <td class="px-2">State</td>
-                <td class="px-2 font-thin text-xs">{container.state}</td>
-              </tr>
-              <tr>
-                <td class="px-2">Ports</td>
-                <td class="px-2 font-thin text-xs" class:hidden="{container.hasPublicPort}">N/A</td>
-                <td class="px-2 font-thin text-xs" class:hidden="{!container.hasPublicPort}">{container.port}</td>
-              </tr>
-            </table>
-          </div>
         </Route>
         <Route path="/terminal">
           <ContainerDetailsTerminal container="{container}" />

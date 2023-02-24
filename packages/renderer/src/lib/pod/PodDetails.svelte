@@ -86,18 +86,6 @@ function errorCallback(errorMessage: string): void {
                     <li
                       class="pf-c-tabs__item"
                       class:pf-m-current="{meta.url ===
-                        `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`}">
-                      <a
-                        href="/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-details-panel"
-                        id="open-tabs-example-tabs-list-details-link">
-                        <span class="pf-c-tabs__item-text">Logs</span>
-                      </a>
-                    </li>
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url ===
                         `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/summary`}">
                       <a
                         href="/pods/${encodeURI(pod.kind)}/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/summary"
@@ -105,6 +93,18 @@ function errorCallback(errorMessage: string): void {
                         aria-controls="open-tabs-example-tabs-list-details-panel"
                         id="open-tabs-example-tabs-list-details-link">
                         <span class="pf-c-tabs__item-text">Summary</span>
+                      </a>
+                    </li>
+                    <li
+                      class="pf-c-tabs__item"
+                      class:pf-m-current="{meta.url ===
+                        `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`}">
+                      <a
+                        href="/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs"
+                        class="pf-c-tabs__link"
+                        aria-controls="open-tabs-example-tabs-list-details-panel"
+                        id="open-tabs-example-tabs-list-details-link">
+                        <span class="pf-c-tabs__item-text">Logs</span>
                       </a>
                     </li>
                     <li
@@ -170,11 +170,11 @@ function errorCallback(errorMessage: string): void {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/logs">
-          <PodDetailsLogs pod="{pod}" />
-        </Route>
         <Route path="/summary">
           <PodDetailsSummary pod="{pod}" />
+        </Route>
+        <Route path="/logs">
+          <PodDetailsLogs pod="{pod}" />
         </Route>
         <Route path="/inspect">
           <PodDetailsInspect pod="{pod}" />
