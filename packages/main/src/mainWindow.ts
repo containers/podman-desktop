@@ -79,13 +79,13 @@ async function createWindow() {
    * @see https://github.com/electron/electron/issues/25012
    */
   browserWindow.on('ready-to-show', () => {
-    // If started with --minimize flag, don't show the window
-    if (!isStartedMinimize()) {
+    // If started with --minimize flag, don't show the window and hide the dock icon on macOS
+    if (isStartedMinimize()) {
+      if (isMac()) {
+        app.dock.hide();
+      }
+    } else {
       browserWindow.show();
-    }
-
-    if (isMac() && !isStartedMinimize()) {
-      app.dock.show();
     }
 
     if (import.meta.env.DEV) {
