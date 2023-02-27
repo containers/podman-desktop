@@ -12,6 +12,7 @@ import type { NetworkInspectInfo } from '../../../../main/src/plugin/api/network
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { ContainerUtils } from '../container/container-utils';
 import { containersInfos } from '../../stores/containers';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 let image: ImageInfoUI;
 
 let imageInspectInfo: ImageInspectInfo;
@@ -893,7 +894,7 @@ function checkContainerName(event: any) {
               <i class="fas fa-play" aria-hidden="true"></i>
             </span>
             Start Container</button>
-          <div class="py-2 text-red-500 text-sm {createError ? 'opacity-100' : 'opacity-0'}">{createError}</div>
+          <div class="py-2 text-sm"><ErrorMessage error="{createError}" /></div>
         </div>
       </div>
     </NavPage>
