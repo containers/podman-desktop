@@ -15,6 +15,7 @@ import PodDetailsLogs from './PodDetailsLogs.svelte';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import Tooltip from '../ui/Tooltip.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
+import DetailsTab from '../ui/DetailsTab.svelte';
 
 export let podName: string;
 export let engineId: string;
@@ -60,7 +61,7 @@ function errorCallback(errorMessage: string): void {
 </script>
 
 {#if pod}
-  <Route path="/*" let:meta>
+  <Route path="/*">
     <div class="w-full h-full">
       <div class="flex h-full flex-col">
         <div class="flex w-full flex-row">
@@ -83,54 +84,10 @@ function errorCallback(errorMessage: string): void {
               <div class="pf-c-page__main-body">
                 <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
                   <ul class="pf-c-tabs__list">
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url ===
-                        `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/summary`}">
-                      <a
-                        href="/pods/${encodeURI(pod.kind)}/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/summary"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-details-panel"
-                        id="open-tabs-example-tabs-list-details-link">
-                        <span class="pf-c-tabs__item-text">Summary</span>
-                      </a>
-                    </li>
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url ===
-                        `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`}">
-                      <a
-                        href="/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-details-panel"
-                        id="open-tabs-example-tabs-list-details-link">
-                        <span class="pf-c-tabs__item-text">Logs</span>
-                      </a>
-                    </li>
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url ===
-                        `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/inspect`}">
-                      <a
-                        href="/pods/${encodeURI(pod.kind)}/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/inspect"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-yaml-panel"
-                        id="open-tabs-example-tabs-list-yaml-link">
-                        <span class="pf-c-tabs__item-text">Inspect</span>
-                      </a>
-                    </li>
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url ===
-                        `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube`}">
-                      <a
-                        href="/pods/${encodeURI(pod.kind)}/{encodeURI(pod.name)}/{encodeURI(pod.engineId)}/kube"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-yaml-panel"
-                        id="open-tabs-example-tabs-list-yaml-link">
-                        <span class="pf-c-tabs__item-text">Kube</span>
-                      </a>
-                    </li>
+                    <DetailsTab title="Summary" url="summary" />
+                    <DetailsTab title="Logs" url="logs" />
+                    <DetailsTab title="Inspect" url="inspect" />
+                    <DetailsTab title="Kube" url="kube" />
                   </ul>
                 </div>
               </div>

@@ -13,12 +13,12 @@ import { containersInfos } from '../stores/containers';
 import { ContainerUtils } from './container/container-utils';
 import ContainerDetailsSummary from './ContainerDetailsSummary.svelte';
 import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
-import { getPanelDetailColor } from './color/color';
 import ContainerDetailsKube from './ContainerDetailsKube.svelte';
 import ContainerStatistics from './container/ContainerStatistics.svelte';
 import Tooltip from './ui/Tooltip.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import DetailsTab from './ui/DetailsTab.svelte';
 
 export let containerID: string;
 
@@ -48,7 +48,7 @@ function errorCallback(errorMessage: string): void {
 </script>
 
 {#if container}
-  <Route path="/*" let:meta>
+  <Route path="/*">
     <div class="w-full h-full">
       <div class="flex h-full flex-col">
         <div class="flex w-full flex-row">
@@ -74,62 +74,14 @@ function errorCallback(errorMessage: string): void {
               <div class="pf-c-page__main-body">
                 <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
                   <ul class="pf-c-tabs__list">
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url === `/containers/${container.id}/summary`}">
-                      <a
-                        href="/containers/{container.id}/summary"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-details-panel"
-                        id="open-tabs-example-tabs-list-details-link">
-                        <span class="pf-c-tabs__item-text">Summary</span>
-                      </a>
-                    </li>
-                    <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/containers/${container.id}/logs`}">
-                      <a
-                        href="/containers/{container.id}/logs"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-details-panel"
-                        id="open-tabs-example-tabs-list-details-link">
-                        <span class="pf-c-tabs__item-text">Logs</span>
-                      </a>
-                    </li>
+                    <DetailsTab title="Summary" url="summary" />
+                    <DetailsTab title="Logs" url="logs" />
+                    <DetailsTab title="Inspect" url="inspect" />
 
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url === `/containers/${container.id}/inspect`}">
-                      <a
-                        href="/containers/{container.id}/inspect"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-yaml-panel"
-                        id="open-tabs-example-tabs-list-yaml-link">
-                        <span class="pf-c-tabs__item-text">Inspect</span>
-                      </a>
-                    </li>
                     {#if container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE}
-                      <li
-                        class="pf-c-tabs__item"
-                        class:pf-m-current="{meta.url === `/containers/${container.id}/kube`}">
-                        <a
-                          href="/containers/{container.id}/kube"
-                          class="pf-c-tabs__link"
-                          aria-controls="open-tabs-example-tabs-list-yaml-panel"
-                          id="open-tabs-example-tabs-list-yaml-link">
-                          <span class="pf-c-tabs__item-text">Kube</span>
-                        </a>
-                      </li>
+                      <DetailsTab title="Kube" url="kube" />
                     {/if}
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url === `/containers/${container.id}/terminal`}">
-                      <a
-                        href="/containers/{container.id}/terminal"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-environment-panel"
-                        id="open-tabs-example-tabs-list-environment-link">
-                        <span class="pf-c-tabs__item-text">Terminal</span>
-                      </a>
-                    </li>
+                    <DetailsTab title="Terminal" url="terminal" />
                   </ul>
                 </div>
               </div>
