@@ -74,7 +74,6 @@ export class ExtensionLoader {
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
   private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
   private reloadInProgressExtensions = new Map<string, boolean>();
-  private extensionsStoragePath = '';
 
   // Plugins directory location
   private pluginsDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins');
@@ -637,7 +636,7 @@ export class ExtensionLoader {
 
     const extensionContext: containerDesktopAPI.ExtensionContext = {
       subscriptions,
-      storagePath: path.resolve(this.extensionsStoragePath, extension.id),
+      storagePath: path.resolve(this.extensionsStorageDirectory, extension.id),
     };
     let deactivateFunction = undefined;
     if (typeof extensionMain['deactivate'] === 'function') {
