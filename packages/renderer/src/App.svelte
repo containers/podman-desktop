@@ -18,6 +18,8 @@ import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
 import ContainerDetails from './lib/ContainerDetails.svelte';
 import { providerInfos } from './stores/providers';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
+import WelcomePage from './lib/welcome/WelcomePage.svelte';
+import { WelcomeUtils } from './lib/welcome/welcome-utils';
 import DashboardPage from './lib/dashboard/DashboardPage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
@@ -58,6 +60,15 @@ onMount(() => {
   });
 });
 
+onMount(async () => {
+  const welcomeUtils = new WelcomeUtils();
+  const ver = welcomeUtils.getVersion();
+  if (ver === undefined) {
+    welcomeUtils.updateVersion("initial");
+    router.goto('/welcome');
+  }
+});
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 window.events?.receive('display-help', () => {
@@ -79,86 +90,92 @@ window.events?.receive('display-help', () => {
       </div>
     </header>
 
-    <div class="overflow-x-hidden flex flex-1">
-      {#if meta.url.startsWith('/preferences')}
-        <PreferencesNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
-      {:else}
-        <AppNavigation meta="{meta}" />
-      {/if}
+    <Route path="/welcome">
+      <WelcomePage />
+    </Route>
 
-      <div class="z-0 w-full h-full bg-zinc-800 flex flex-col overflow-y-scroll">
-        <SendFeedback />
-        <ToastHandler />
-        <QuickPickInput />
-        <Route path="/">
-          <DashboardPage />
-        </Route>
-        <Route path="/containers">
-          <ContainerList searchTerm="{meta.query.filter || ''}" />
-        </Route>
-        <Route path="/containers/:id/*" let:meta>
-          <ContainerDetails containerID="{meta.params.id}" />
-        </Route>
+    {#if !meta.url.startsWith('/welcome')}
+      <div class="overflow-x-hidden flex flex-1">
+        {#if meta.url.startsWith('/preferences')}
+          <PreferencesNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
+        {:else}
+          <AppNavigation meta="{meta}" />
+        {/if}
 
-        <Route path="/kube/play">
-          <KubePlayYAML />
-        </Route>
+        <div class="z-0 w-full h-full bg-zinc-800 flex flex-col overflow-y-scroll">
+          <SendFeedback />
+          <ToastHandler />
+          <QuickPickInput />
+          <Route path="/">
+            <DashboardPage />
+          </Route>
+          <Route path="/containers">
+            <ContainerList searchTerm="{meta.query.filter || ''}" />
+          </Route>
+          <Route path="/containers/:id/*" let:meta>
+            <ContainerDetails containerID="{meta.params.id}" />
+          </Route>
 
-        <Route path="/images">
-          <ImagesList />
-        </Route>
-        <Route path="/images/:id/:engineId/:base64RepoTag/*" let:meta>
-          <ImageDetails
-            imageID="{meta.params.id}"
-            engineId="{decodeURI(meta.params.engineId)}"
-            base64RepoTag="{meta.params.base64RepoTag}" />
-        </Route>
-        <Route path="/images/build">
-          <BuildImageFromContainerfile />
-        </Route>
-        <Route path="/images/run/*">
-          <RunImage />
-        </Route>
-        <Route path="/images/pull">
-          <PullImage />
-        </Route>
-        <Route path="/pods">
-          <PodsList />
-        </Route>
-        <Route path="/deploy-to-kube/:resourceId/:engineId/*" let:meta>
-          <DeployPodToKube
-            resourceId="{decodeURI(meta.params.resourceId)}"
-            engineId="{decodeURI(meta.params.engineId)}" />
-        </Route>
-        <Route path="/pods/:kind/:name/:engineId/*" let:meta>
-          <PodDetails
-            podName="{decodeURI(meta.params.name)}"
-            engineId="{decodeURI(meta.params.engineId)}"
-            kind="{decodeURI(meta.params.kind)}" />
-        </Route>
-        <Route path="/pod-create-from-containers">
-          <PodCreateFromContainers />
-        </Route>
-        <Route path="/volumes">
-          <VolumesList />
-        </Route>
-        <Route path="/volumes/:name/:engineId/*" let:meta>
-          <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
-        </Route>
-        <Route path="/providers">
-          <ProviderList />
-        </Route>
-        <Route path="/preferences/*">
-          <PreferencesPage />
-        </Route>
-        <Route path="/contribs/:name" let:meta>
-          <DockerExtension name="{decodeURI(meta.params.name)}" />
-        </Route>
-        <Route path="/help">
-          <HelpPage />
-        </Route>
+          <Route path="/kube/play">
+            <KubePlayYAML />
+          </Route>
+
+          <Route path="/images">
+            <ImagesList />
+          </Route>
+          <Route path="/images/:id/:engineId/:base64RepoTag/*" let:meta>
+            <ImageDetails
+              imageID="{meta.params.id}"
+              engineId="{decodeURI(meta.params.engineId)}"
+              base64RepoTag="{meta.params.base64RepoTag}" />
+          </Route>
+          <Route path="/images/build">
+            <BuildImageFromContainerfile />
+          </Route>
+          <Route path="/images/run/*">
+            <RunImage />
+          </Route>
+          <Route path="/images/pull">
+            <PullImage />
+          </Route>
+          <Route path="/pods">
+            <PodsList />
+          </Route>
+          <Route path="/deploy-to-kube/:resourceId/:engineId/*" let:meta>
+            <DeployPodToKube
+              resourceId="{decodeURI(meta.params.resourceId)}"
+              engineId="{decodeURI(meta.params.engineId)}" />
+          </Route>
+          <Route path="/pods/:kind/:name/:engineId/*" let:meta>
+            <PodDetails
+              podName="{decodeURI(meta.params.name)}"
+              engineId="{decodeURI(meta.params.engineId)}"
+              kind="{decodeURI(meta.params.kind)}" />
+          </Route>
+          <Route path="/pod-create-from-containers">
+            <PodCreateFromContainers />
+          </Route>
+          <Route path="/volumes">
+            <VolumesList />
+          </Route>
+          <Route path="/volumes/:name/:engineId/*" let:meta>
+            <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
+          </Route>
+          <Route path="/providers">
+            <ProviderList />
+          </Route>
+          <Route path="/preferences/*">
+            <PreferencesPage />
+          </Route>
+          <Route path="/contribs/:name" let:meta>
+            <DockerExtension name="{decodeURI(meta.params.name)}" />
+          </Route>
+          <Route path="/help">
+            <HelpPage />
+          </Route>
+        </div>
       </div>
-    </div>
-    <StatusBar />
+      <StatusBar />
+    {/if}
   </main>
 </Route>
