@@ -6,6 +6,7 @@ import { faStop } from '@fortawesome/free-solid-svg-icons';
 import { afterUpdate, onMount } from 'svelte';
 import { extensionInfos } from '../stores/extensions';
 import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
+import ErrorMessage from './ui/ErrorMessage.svelte';
 
 let ociImage: string;
 
@@ -101,21 +102,17 @@ async function removeExtension(extension: ExtensionInfo) {
         </button>
       </div>
 
-      <div class="container mx-auto w-full flex-col">
-        {#if errorInstall !== ''}
-          <div class="bg-red-500 text-gray-900 m-4">
-            {errorInstall}
-          </div>
-        {/if}
-
+      <div class="container w-full flex-col">
         <div
           class:opacity-0="{logs.length === 0}"
           bind:this="{logElement}"
-          class="bg-zinc-700 text-gray-200 mt-4 h-16 overflow-y-auto">
+          class="bg-zinc-700 text-gray-200 mt-4 mb-3 p-1 h-16 overflow-y-auto">
           {#each logs as log}
             <p class="font-light text-sm">{log}</p>
           {/each}
         </div>
+
+        <ErrorMessage error="{errorInstall}" />
       </div>
     </div>
   </div>

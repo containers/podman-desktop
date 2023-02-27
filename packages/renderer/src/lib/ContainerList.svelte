@@ -18,12 +18,12 @@ import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.s
 import moment from 'moment';
 import type { Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
-import { faChevronDown, faChevronRight, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
+import ErrorMessage from './ui/ErrorMessage.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
 import KubePlayButton from './kube/KubePlayButton.svelte';
 import Prune from './engine/Prune.svelte';
-import Tooltip from './ui/Tooltip.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
 
 const containerUtils = new ContainerUtils();
@@ -547,9 +547,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                           ></path>
                         </svg>
                       {:else if container.actionError}
-                        <Tooltip tip="{container.actionError}" top>
-                          <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
-                        </Tooltip>
+                        <ErrorMessage error="{container.actionError}" icon />
                       {:else}
                         <div>&nbsp;</div>
                       {/if}
