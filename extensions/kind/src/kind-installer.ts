@@ -120,12 +120,12 @@ export class KindInstaller {
             });
             progress.report({ increment: 80 });
             if (asset) {
-              const destFile = path.resolve(this.storagePath, isWindows ? assetInfo.name + '.exe' : assetInfo.name);
+              const destFile = path.resolve(this.storagePath, isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
               if (!fs.existsSync(this.storagePath)) {
                 fs.mkdirSync(this.storagePath);
               }
               fs.appendFileSync(destFile, Buffer.from(asset.data as unknown as ArrayBuffer));
-              if (!isWindows) {
+              if (!isWindows()) {
                 const stat = fs.statSync(destFile);
                 fs.chmodSync(destFile, stat.mode | fs.constants.S_IXUSR);
               }
