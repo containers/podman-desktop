@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 import * as os from 'node:os';
+import * as path from 'node:path';
 import { spawn } from 'node:child_process';
 import type * as extensionApi from '@tmpwip/extension-api';
+import type { KindInstaller } from './kind-installer';
 
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
@@ -61,12 +63,20 @@ export function getKindPath(): string {
 }
 
 // search if kind is available in the path
-export async function detectKind(): Promise<boolean> {
-  const result = await runCliCommand('kind', ['--version'], { env: { PATH: getKindPath() } });
+export async function detectKind(pathAddition: string, installer: KindInstaller): Promise<string> {
+  let result = await runCliCommand('kind', ['--version'], { env: { PATH: getKindPath() } });
   if (result.exitCode === 0) {
-    return true;
+    return 'kind';
+  } else {
+    const assetInfo = await installer.getAssetInfo();
+    result = await runCliCommand(assetInfo.name, ['--version'], {
+      env: { PATH: getKindPath().concat(path.delimiter).concat(pathAddition) },
+    });
+    if (result.exitCode === 0) {
+      return pathAddition.concat(path.sep).concat(isWindows ? assetInfo.name + '.exe' : assetInfo.name);
+    }
   }
-  return false;
+  return undefined;
 }
 
 export function runCliCommand(command: string, args: string[], options?: RunOptions): Promise<SpawnResult> {

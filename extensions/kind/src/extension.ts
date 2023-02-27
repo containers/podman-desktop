@@ -21,8 +21,12 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { runCliCommand, detectKind } from './util';
+import { KindInstaller } from './kind-installer';
+import { window } from '@tmpwip/extension-api';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
+
+const KIND_INSTALL_COMMAND = 'kind.install';
 
 interface KindCluster {
   name: string;
@@ -35,6 +39,8 @@ const registeredKubernetesConnections: {
   connection: extensionApi.KubernetesProviderConnection;
   disposable: extensionApi.Disposable;
 }[] = [];
+
+let kindCli: string | undefined;
 
 function registerProvider(extensionContext: extensionApi.ExtensionContext, provider: extensionApi.Provider): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,7 +105,7 @@ nodes:
     await fs.promises.writeFile(tmpFilePath, kindClusterConfig, 'utf8');
 
     // now execute the command to create the cluster
-    const result = await runCliCommand('kind', ['create', 'cluster', '--config', tmpFilePath], { env, logger });
+    const result = await runCliCommand(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger });
 
     // delete temporary directory/file
     await fs.promises.rm(tmpDirectory, { recursive: true });
@@ -184,13 +190,7 @@ async function searchKindClusters(provider: extensionApi.Provider) {
   updateClusters(provider, kindContainers);
 }
 
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const foundKind = await detectKind();
-  if (!foundKind) {
-    console.log('kind binary was not found in the path, not activating the extension');
-    return;
-  }
-
+function createProvider(extensionContext: extensionApi.ExtensionContext) {
   const provider = extensionApi.provider.createProvider({
     name: 'Kind',
     id: 'kind',
@@ -204,7 +204,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   });
   extensionContext.subscriptions.push(provider);
-
   registerProvider(extensionContext, provider);
 
   // when containers are refreshed, update
@@ -222,6 +221,39 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   extensionApi.provider.onDidUnregisterContainerConnection(() => {
     searchKindClusters(provider);
   });
+  extensionApi.provider.onDidUpdateProvider(() => registerProvider(extensionContext, provider));
+}
+
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  const installer = new KindInstaller(extensionContext.storagePath);
+  kindCli = await detectKind(extensionContext.storagePath, installer);
+
+  if (!kindCli) {
+    if (await installer.isAvailable()) {
+      const statusBarItem = extensionApi.window.createStatusBarItem();
+      statusBarItem.text = 'Kind';
+      statusBarItem.tooltip = 'Kind not found on your system, click to download and install it';
+      statusBarItem.command = KIND_INSTALL_COMMAND;
+      statusBarItem.iconClass = 'fa fa-exclamation-triangle';
+      extensionContext.subscriptions.push(
+        extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () =>
+          installer.performInstall().then(
+            async status => {
+              if (status) {
+                statusBarItem.dispose();
+                kindCli = await detectKind(extensionContext.storagePath, installer);
+                createProvider(extensionContext);
+              }
+            },
+            err => window.showErrorMessage('Kind installation failed ' + err),
+          ),
+        ),
+      );
+      statusBarItem.show();
+    }
+  } else {
+    createProvider(extensionContext);
+  }
 }
 
 export function deactivate(): void {

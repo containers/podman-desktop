@@ -336,7 +336,7 @@ export class ProviderRegistry {
     }
 
     if (!installOrUpdate.preflightChecks) {
-      return false;
+      return true;
     }
 
     const checks = installOrUpdate.preflightChecks();
