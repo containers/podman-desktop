@@ -96,7 +96,7 @@ export class ContributionManager {
     }
     return fs.promises
       .readFile(iconPath, 'utf-8')
-      .then(data => 'data:image/svg+xml;base64,' + new Buffer(data).toString('base64'));
+      .then(data => 'data:image/svg+xml;base64,' + Buffer.from(data).toString('base64'));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
