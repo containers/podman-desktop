@@ -22,13 +22,14 @@ import { isMac, isWindows } from './util';
 import type { Logger } from '@tmpwip/extension-api';
 
 const macosExtraPath = '/usr/local/bin:/opt/local/bin';
+const crcWindowsInstallPath = 'c:\\Program Files\\Red Hat OpenShift Local';
 
 let daemonProcess: ChildProcess;
 
 export function getInstallationPath(): string {
   const env = process.env;
   if (isWindows()) {
-    return `c:\\Program Files\\Red Hat OpenShift Local;${env.PATH}`;
+    return `${crcWindowsInstallPath};${env.PATH}`;
   } else if (isMac()) {
     if (!env.PATH) {
       return macosExtraPath;
@@ -126,7 +127,7 @@ export async function getCrcVersion(): Promise<CrcVersion | undefined> {
       return JSON.parse(versionOut);
     }
   } catch (err) {
-    // no podman binary or we cant parse output
+    // no crc binary or we cant parse output
   }
 
   return undefined;
