@@ -23,7 +23,7 @@
     "humanize-duration": "^3.28.0",
     "jsdom": "^21.1.0",
     "moment": "^2.29.4",
-    "monaco-editor": "^0.35.0",
+    "monaco-editor": "^0.36.0",
     "postcss": "^8.4.21",
     "postcss-load-config": "^4.0.1",
     "svelte": "^3.55.1",
