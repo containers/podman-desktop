@@ -51,15 +51,18 @@ async function prune(type: string) {
         }
       });
       break;
+    case 'images':
+      engines.forEach(async engine => {
+        try {
+          await window.pruneImages(engine.id);
+        } catch (error) {
+          console.error(error);
+        }
+      });
+      break;
     default:
       console.error('Prune type not found');
       break;
-    /*
-          case 'images':
-              // Prune images from podman and docker engines
-              await window.pruneImages();
-              break;
-              */
   }
 
   // Close the modal once the prune is completed

@@ -34,6 +34,7 @@ import type {
   RegisterKubernetesConnectionEvent,
   Logger,
   ProviderInformation,
+  ProviderContainerConnection,
 } from '@tmpwip/extension-api';
 import type {
   ProviderContainerConnectionInfo,
@@ -710,7 +711,7 @@ export class ProviderRegistry {
         this.getProviderContainerConnectionInfo(containerProviderConnection),
       );
     });
-    this._onDidRegisterContainerConnection.fire({ providerId: provider.id });
+    this._onDidRegisterContainerConnection.fire({ providerId: provider.id, connection: containerProviderConnection });
   }
 
   onDidRegisterKubernetesConnectionCallback(
@@ -768,5 +769,18 @@ export class ProviderRegistry {
       name: provider.name,
       status: provider.status,
     });
+  }
+
+  getContainerConnections(): ProviderContainerConnection[] {
+    const connections: ProviderContainerConnection[] = [];
+    this.providers.forEach(provider => {
+      provider.containerConnections.forEach(connection => {
+        connections.push({
+          providerId: provider.id,
+          connection,
+        });
+      });
+    });
+    return connections;
   }
 }

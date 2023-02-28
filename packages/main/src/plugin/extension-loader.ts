@@ -387,6 +387,9 @@ export class ExtensionLoader {
       onDidRegisterContainerConnection: (listener, thisArg, disposables) => {
         return providerRegistry.onDidRegisterContainerConnection(listener, thisArg, disposables);
       },
+      getContainerConnections: () => {
+        return providerRegistry.getContainerConnections();
+      },
     };
 
     const proxyInstance = this.proxy;

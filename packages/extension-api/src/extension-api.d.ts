@@ -337,12 +337,19 @@ declare module '@tmpwip/extension-api' {
   }
   export interface RegisterContainerConnectionEvent {
     providerId: string;
+    connection: ContainerProviderConnection;
   }
+  export interface ProviderContainerConnection {
+    providerId: string;
+    connection: ContainerProviderConnection;
+  }
+
   export namespace provider {
     export function createProvider(provider: ProviderOptions): Provider;
     export const onDidUpdateProvider: Event<ProviderEvent>;
     export const onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent>;
-    export const onDidRegisterContainerConnection: Event<UnregisterContainerConnectionEvent>;
+    export const onDidRegisterContainerConnection: Event<RegisterContainerConnectionEvent>;
+    export function getContainerConnections(): ProviderContainerConnection[];
   }
 
   export interface ProxySettings {

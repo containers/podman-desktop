@@ -1,4 +1,5 @@
 <script lang="ts">
+import type { QuickPickItem } from '@tmpwip/extension-api';
 import { onDestroy, onMount, tick } from 'svelte';
 
 interface InputBoxOptions {
@@ -13,7 +14,7 @@ interface InputBoxOptions {
 
 interface QuickPickOptions {
   placeHolder?: string;
-  items: any[];
+  items: QuickPickItem[] | string[];
   prompt: string;
   id: number;
   canPickMany: boolean;
@@ -74,7 +75,14 @@ const showQuickPickCallback = async (options?: QuickPickOptions) => {
     prompt = options.prompt;
   }
   mode = 'QuickPick';
-  quickPickItems = options.items.map(item => ({ value: item, checkbox: false }));
+  quickPickItems = options.items.map(item => {
+    if (typeof item === 'string') {
+      return { value: item, checkbox: false };
+    } else {
+      // if type is QuickPickItem use label field for the display
+      return { value: item.label, checkbox: false };
+    }
+  });
   quickPickFilteredItems = quickPickItems;
 
   if (options.canPickMany) {
