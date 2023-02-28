@@ -68,88 +68,14 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
   <ul class="pf-c-nav__list h-full overflow-auto">
     <!-- Resources configuration start -->
     <li
-      class="pf-c-nav__item pf-m-expandable {addExpandedClass(
-        'resources',
-      )} dark:text-gray-400 hover:text-gray-300 cursor-pointer items-center">
-      <button
-        class="pf-c-nav__link"
-        id="configuration-section-resources"
-        aria-expanded="{isAriaExpanded('resources')}"
-        on:click="{() => toggleSection('resources')}">
-        Resources
-        <span class="pf-c-nav__toggle">
-          <span class="pf-c-nav__toggle-icon">
-            <i class="fas fa-angle-right" aria-hidden="true"></i>
-          </span>
-        </span>
-      </button>
-      <section class="pf-c-nav__subnav {addSectionHiddenClass('resources')}">
-        <ul class="pf-c-nav__list">
-          {#each $providerInfos as provider}
-            <li
-              class="pf-c-nav__item {addExpandableClass(provider)} {addExpandedClass(provider.name)} {addCurrentClass(
-                `/preferences/provider/${provider.internalId}`,
-              )}">
-              <a
-                class="pf-c-nav__link"
-                id="configuration-section-provider-{provider.name.toLowerCase()}"
-                aria-expanded="{isAriaExpanded(provider.name)}"
-                href="/preferences/provider/{provider.internalId}">
-                {provider.name}
-                <span class="pf-c-nav__toggle {addHiddenClass(provider)}">
-                  <span class="pf-c-nav__toggle-icon" on:click="{() => toggleSection(provider.name)}">
-                    <i class="fas fa-angle-right" aria-hidden="true"></i>
-                  </span>
-                </span>
-              </a>
-              <!-- container connections -->
-              <section class="pf-c-nav__subnav {addSectionHiddenClass(provider.name)}">
-                <ul class="pf-c-nav__list">
-                  {#each provider.containerConnections as connection}
-                    <li
-                      class="pf-c-nav__item {addCurrentClass(
-                        `/preferences/container-connection/${provider.internalId}/${Buffer.from(
-                          connection.endpoint.socketPath,
-                        ).toString('base64')}`,
-                      )}">
-                      <a
-                        href="/preferences/container-connection/{provider.internalId}/{Buffer.from(
-                          connection.endpoint.socketPath,
-                        ).toString('base64')}"
-                        id="configuration-section-provider-{provider.name.toLowerCase()}-{connection.name
-                          .toLowerCase()
-                          .replaceAll(' ', '_')}"
-                        class="pf-c-nav__link">{connection.name}</a>
-                    </li>
-                  {/each}
-                </ul>
-              </section>
-              <!-- kubernetes connections -->
-              <section class="pf-c-nav__subnav {addSectionHiddenClass(provider.name)}">
-                <ul class="pf-c-nav__list">
-                  {#each provider.kubernetesConnections as kubernetesConnection}
-                    <li
-                      class="pf-c-nav__item {addCurrentClass(
-                        `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
-                          kubernetesConnection.endpoint.apiURL,
-                        ).toString('base64')}`,
-                      )}">
-                      <a
-                        href="/preferences/kubernetes-connection/{provider.internalId}/{Buffer.from(
-                          kubernetesConnection.endpoint.apiURL,
-                        ).toString('base64')}"
-                        id="configuration-section-provider-{provider.name.toLowerCase()}-{kubernetesConnection.name
-                          .toLowerCase()
-                          .replaceAll(' ', '_')}"
-                        class="pf-c-nav__link">{kubernetesConnection.name}</a>
-                    </li>
-                  {/each}
-                </ul>
-              </section>
-            </li>
-          {/each}
-        </ul>
-      </section>
+      class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
+        '/preferences/resources',
+      )} hover:text-gray-300 cursor-pointer items-center">
+      <a href="/preferences/resources" id="configuration-section-resources" class="pf-c-nav__link ">
+        <div class="flex items-center">
+          <span class="hidden md:block group-hover:block">Resources</span>
+        </div>
+      </a>
     </li>
     <!-- Resources configuration end -->
 
