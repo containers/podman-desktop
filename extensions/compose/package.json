@@ -1,0 +1,34 @@
+{
+  "name": "compose",
+  "displayName": "Compose",
+  "description": "Install Compose binary to work with Podman Engine.",
+  "version": "0.0.1",
+  "publisher": "benoitf",
+  "license": "Apache-2.0",
+  "engines": {
+    "podman-desktop": "^0.0.1"
+  },
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "compose.install",
+        "title": "Install Compose"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "rollup --bundleConfigAsCjs --config rollup.config.js --compact --environment BUILD:production  && node ./scripts/build.js",
+    "watch": "rollup --bundleConfigAsCjs --config rollup.config.js -w"
+  },
+  "dependencies": {
+    "@octokit/rest": "^19.0.7",
+    "@tmpwip/extension-api": "^0.0.1",
+    "shell-path": "^3.0.0"
+  },
+  "devDependencies": {
+    "7zip-min": "^1.4.3",
+    "mkdirp": "^2.1.3",
+    "zip-local": "^0.3.5"
+  }
+}

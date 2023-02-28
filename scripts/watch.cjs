@@ -159,6 +159,7 @@ const setupExtensionApiWatcher = name => {
     });
 
     await viteDevServer.listen();
+    await setupExtensionApiWatcher('compose');
     await setupExtensionApiWatcher('docker');
     await setupExtensionApiWatcher('kube-context');
     await setupExtensionApiWatcher('lima');
