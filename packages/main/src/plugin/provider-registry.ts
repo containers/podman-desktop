@@ -711,7 +711,7 @@ export class ProviderRegistry {
         this.getProviderContainerConnectionInfo(containerProviderConnection),
       );
     });
-    this._onDidRegisterContainerConnection.fire({ providerId: provider.id });
+    this._onDidRegisterContainerConnection.fire({ providerId: provider.id, connection: containerProviderConnection });
   }
 
   onDidRegisterKubernetesConnectionCallback(
