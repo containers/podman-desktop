@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faArrowUp, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faLayerGroup, faPlay, faTrash, fas } from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -89,7 +89,11 @@ if (dropdownMenu) {
   {/if}
 
   {#each contributions as menu}
-    <ListItemButtonIcon title="{menu.title}" onClick="{() => executeContribution(menu)}" menu="{dropdownMenu}" />
+    <ListItemButtonIcon
+      title="{menu.title}"
+      onClick="{() => executeContribution(menu)}"
+      menu="{dropdownMenu}"
+      icon="{fas[menu.icon]}" />
   {/each}
 
   {#if errorMessage}
