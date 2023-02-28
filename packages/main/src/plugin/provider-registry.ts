@@ -461,6 +461,7 @@ export class ProviderRegistry {
       endpoint: {
         socketPath: connection.endpoint.socketPath,
       },
+      machineInfo: connection.machineInfo,
     };
     if (connection.lifecycle) {
       const lifecycleMethods: LifecycleMethod[] = [];
