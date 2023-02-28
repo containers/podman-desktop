@@ -8,7 +8,7 @@ on:
 jobs:
 
   get-all-releases-count:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/github-script@v6
