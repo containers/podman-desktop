@@ -76,7 +76,7 @@ export async function detectKind(pathAddition: string, installer: KindInstaller)
       if (result.exitCode === 0) {
         return pathAddition.concat(path.sep).concat(isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
       }
-    }    
+    }
   }
   return undefined;
 }
