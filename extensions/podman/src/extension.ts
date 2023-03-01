@@ -256,14 +256,14 @@ async function monitorPodmanSocket(socketPath: string) {
         podmanProviderStatus = 'stopped';
       } else {
         podmanProviderStatus = 'started';
-      }      
+      }
     } catch (error) {
       // ignore the update of machines
     }
     await timeout(5000);
     monitorPodmanSocket(socketPath);
   }
-} 
+}
 
 async function timeout(time: number): Promise<void> {
   return new Promise<void>(resolve => {
