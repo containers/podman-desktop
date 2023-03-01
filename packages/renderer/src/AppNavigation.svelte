@@ -217,7 +217,7 @@ export let meta;
               <li class="pf-c-nav__item">
                 <a href="/contribs/{contribution.name}" class="pf-c-nav__link">
                   <div class="flex items-center w-full sm:-ml-1.5 md:-ml-1.5 mr-2">
-                    <img src="{contribution.icon}" width="24" height="24" class="mr-4" alt="{contribution.name} icon"/>
+                    <img src="{contribution.icon}" width="24" height="24" class="mr-4" alt="{contribution.name} icon" />
                     <span
                       class="w-full text-ellipsis whitespace-nowrap overflow-hidden opacity-0 -z-40 md:z-0 md:opacity-100 group-hover:z-0 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
                       title="{contribution.name}">{contribution.name}</span>
