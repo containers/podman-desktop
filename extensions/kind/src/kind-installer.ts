@@ -87,7 +87,11 @@ export class KindInstaller {
       const octokit = new Octokit();
       this.assetPromise = octokit.repos
         .listReleases({ owner: githubOrganization, repo: githubRepo })
-        .then(response => this.findAssetInfo(response.data, assetName));
+        .then(response => this.findAssetInfo(response.data, assetName))
+        .catch(error => {
+          console.error(error);
+          return undefined;
+        });
     }
     return this.assetPromise;
   }
