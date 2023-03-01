@@ -15,12 +15,16 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import GearIcon from '../images/WrenchIcon.svelte';
-import StartIcon from '../images/StartIcon.svelte';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faWrench } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa/src/fa.svelte';
 
 export const InitializeOnlyMode = 'Initialize';
 export const InitializeAndStartMode = 'Initialize and start';
 
 export type InitializationMode = typeof InitializeOnlyMode | typeof InitializeAndStartMode;
 
-export const InitializationSteps = [{ icon: GearIcon }, { icon: StartIcon }];
+export const InitializationSteps = [
+  { icon: Fa, iconProps: { icon: faWrench } },
+  { icon: Fa, iconProps: { icon: faPlay } },
+];
