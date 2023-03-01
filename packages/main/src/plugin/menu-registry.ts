@@ -20,7 +20,6 @@ import type { CommandRegistry } from './command-registry';
 export interface Menu {
   command: string;
   title: string;
-  icon?: string;
 }
 
 export enum MenuContext {
@@ -44,9 +43,6 @@ export class MenuRegistry {
     if (!contextMenus) {
       contextMenus = [];
       this.menus.set(context, contextMenus);
-    }
-    if (!menu.icon) {
-      menu.icon = 'faExclamation';
     }
     contextMenus.push(menu);
   }
