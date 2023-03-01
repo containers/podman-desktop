@@ -89,7 +89,11 @@ if (dropdownMenu) {
   {/if}
 
   {#each contributions as menu}
-    <ListItemButtonIcon title="{menu.title}" onClick="{() => executeContribution(menu)}" menu="{dropdownMenu}" />
+    <ListItemButtonIcon
+      title="{menu.title}"
+      onClick="{() => executeContribution(menu)}"
+      menu="{dropdownMenu}"
+      icon="{faArrowUp}" />
   {/each}
 
   {#if errorMessage}
