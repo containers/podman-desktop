@@ -451,7 +451,7 @@ function checkContainerName(event: any) {
                   class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400 border  {containerNameError
                     ? 'border-red-500'
                     : 'border-zinc-900'}" />
-                <div class="h-1 text-sm text-red-500 text-xs">{containerNameError}</div>
+                <ErrorMessage class="h-1 text-sm" error="{containerNameError}" />
                 <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
                   >Volumes:</label>
                 <!-- Display the list of volumes -->
@@ -894,7 +894,7 @@ function checkContainerName(event: any) {
               <i class="fas fa-play" aria-hidden="true"></i>
             </span>
             Start Container</button>
-          <div class="py-2 text-sm"><ErrorMessage error="{createError}" /></div>
+          <ErrorMessage class="py-2 text-sm" error="{createError}" />
         </div>
       </div>
     </NavPage>

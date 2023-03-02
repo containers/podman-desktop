@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 import PreflightChecks from './PreflightChecks.svelte';
 import ProviderLinks from './ProviderLinks.svelte';
 import ProviderLogo from './ProviderLogo.svelte';
@@ -81,12 +82,7 @@ async function runProvider() {
       </div>
     {/if}
     {#if runError}
-      <div class="flex mt-2 flex-col">
-        <div>Error:</div>
-        <div class="my-2">
-          <p class="text-sm text-red-500">{runError}</p>
-        </div>
-      </div>
+      <ErrorMessage class="flex flex-col mt-2 my-2 text-sm" error="{runError}" />
     {/if}
   </div>
   {#if provider.updateInfo}

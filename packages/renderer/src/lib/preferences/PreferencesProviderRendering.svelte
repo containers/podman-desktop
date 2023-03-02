@@ -10,6 +10,7 @@ import Modal from '../dialogs/Modal.svelte';
 import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
 import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -120,9 +121,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     </div>
 
     {#if providerLifecycleError}
-      <div class="text-red-500">
-        {providerLifecycleError}
-      </div>
+      <ErrorMessage error="{providerLifecycleError}" />
     {/if}
   {/if}
 

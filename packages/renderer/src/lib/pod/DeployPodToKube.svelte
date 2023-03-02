@@ -5,6 +5,7 @@ import NavPage from '../ui/NavPage.svelte';
 import * as jsYaml from 'js-yaml';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let resourceId: string;
 export let engineId: string;
@@ -300,9 +301,7 @@ function updateKubeResult() {
           </button>
         </div>
       {/if}
-      {#if deployError}
-        <div class="text-red-500 text-sm">{deployError}</div>
-      {/if}
+      <ErrorMessage class="text-sm" error="{deployError}" />
 
       {#if createdPod}
         <div class="h-1/3 bg-zinc-900 p-5 my-4">
