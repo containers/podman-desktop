@@ -6,8 +6,8 @@ import { faCircle } from '@fortawesome/free-solid-svg-icons';
 </script>
 
 <div
-  class="flex flex-col flex-auto min-w-full bg-zinc-700 bg-no-repeat bg-top overflow-y-scroll"
-  style="background-image: url({bgImage})">
+  class="flex flex-col flex-auto min-w-full bg-zinc-700 overflow-y-scroll"
+  style="background-image: url({bgImage}); background-position: 50% -175%; background-repeat: no-repeat; background-size: 100% 75%">
   <!-- Header -->
   <div class="flex flex-row flex-none backdrop-blur p-6">
     <div class="flex flex-auto text-lg font-bold">Get started with Podman Desktop</div>
@@ -24,28 +24,39 @@ import { faCircle } from '@fortawesome/free-solid-svg-icons';
           <div class="flex flex-col px-4 py-2">
             <div class="flex flex-row place-items-center p-1">
               <div><Fa size="10" class="text-violet-600" icon="{faCircle}" /></div>
-              <div class="px-2">Podman</div>
+              <div class="px-2">
+                <a class="text-white hover:text-violet-600 hover:no-underline" href="https://podman.io">Podman</a>
+              </div>
             </div>
             <div class="flex flex-row place-items-center p-1">
               <div><Fa size="10" class="text-violet-600" icon="{faCircle}" /></div>
-              <div class="px-2">Lima</div>
+              <div class="px-2">
+                <a class="text-white hover:text-violet-600 hover:no-underline" href="https://github.com/lima-vm/lima"
+                  >Lima</a>
+              </div>
             </div>
           </div>
 
           <div class="flex flex-col px-4 py-2">
             <div class="flex flex-row place-items-center p-1">
               <div><Fa size="10" class="text-violet-600" icon="{faCircle}" /></div>
-              <div class="px-2">Docker</div>
+              <div class="px-2">
+                <a class="text-white hover:text-violet-600 hover:no-underline" href="https://www.docker.com">Docker</a>
+              </div>
             </div>
             <div class="flex flex-row place-items-center p-1">
               <div><Fa size="10" class="text-violet-600" icon="{faCircle}" /></div>
-              <div class="px-2">OpenShift Local Podman preset</div>
+              <div class="px-2">
+                <a
+                  class="text-white hover:text-violet-600 hover:no-underline"
+                  href="https://developers.redhat.com/products/openshift-local">OpenShift Local Podman preset</a>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="flex justify-center p-2 text-sm">Configure these and more under Settings > Extensions.</div>
+    <div class="flex justify-center p-2 text-sm">Configure these and more under Settings.</div>
   </div>
 
   <!-- Footer - button bar -->

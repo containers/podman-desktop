@@ -64,7 +64,7 @@ onMount(async () => {
   const welcomeUtils = new WelcomeUtils();
   const ver = welcomeUtils.getVersion();
   if (ver === undefined) {
-    welcomeUtils.updateVersion("initial");
+    welcomeUtils.updateVersion('initial');
     router.goto('/welcome');
   }
 });
@@ -94,87 +94,87 @@ window.events?.receive('display-help', () => {
       <WelcomePage />
     </Route>
 
-    {#if !meta.url.startsWith('/welcome')}
-      <div class="overflow-x-hidden flex flex-1">
-        {#if meta.url.startsWith('/preferences')}
-          <PreferencesNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
-        {:else}
-          <AppNavigation meta="{meta}" />
-        {/if}
+    <div class="overflow-x-hidden flex flex-1">
+      {#if meta.url.startsWith('/preferences')}
+        <PreferencesNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
+      {:else}
+        <AppNavigation meta="{meta}" />
+      {/if}
 
-        <div class="z-0 w-full h-full bg-zinc-800 flex flex-col overflow-y-scroll">
-          <SendFeedback />
-          <ToastHandler />
-          <QuickPickInput />
-          <Route path="/">
-            <DashboardPage />
-          </Route>
-          <Route path="/containers">
-            <ContainerList searchTerm="{meta.query.filter || ''}" />
-          </Route>
-          <Route path="/containers/:id/*" let:meta>
-            <ContainerDetails containerID="{meta.params.id}" />
-          </Route>
+      <div class="z-0 w-full h-full bg-zinc-800 flex flex-col overflow-y-scroll">
+        <SendFeedback />
+        <ToastHandler />
+        <QuickPickInput />
+        <Route path="/">
+          <DashboardPage />
+        </Route>
+        <Route path="/containers">
+          <ContainerList searchTerm="{meta.query.filter || ''}" />
+        </Route>
+        <Route path="/containers/:id/*" let:meta>
+          <ContainerDetails containerID="{meta.params.id}" />
+        </Route>
 
-          <Route path="/kube/play">
-            <KubePlayYAML />
-          </Route>
+        <Route path="/kube/play">
+          <KubePlayYAML />
+        </Route>
 
-          <Route path="/images">
-            <ImagesList />
-          </Route>
-          <Route path="/images/:id/:engineId/:base64RepoTag/*" let:meta>
-            <ImageDetails
-              imageID="{meta.params.id}"
-              engineId="{decodeURI(meta.params.engineId)}"
-              base64RepoTag="{meta.params.base64RepoTag}" />
-          </Route>
-          <Route path="/images/build">
-            <BuildImageFromContainerfile />
-          </Route>
-          <Route path="/images/run/*">
-            <RunImage />
-          </Route>
-          <Route path="/images/pull">
-            <PullImage />
-          </Route>
-          <Route path="/pods">
-            <PodsList />
-          </Route>
-          <Route path="/deploy-to-kube/:resourceId/:engineId/*" let:meta>
-            <DeployPodToKube
-              resourceId="{decodeURI(meta.params.resourceId)}"
-              engineId="{decodeURI(meta.params.engineId)}" />
-          </Route>
-          <Route path="/pods/:kind/:name/:engineId/*" let:meta>
-            <PodDetails
-              podName="{decodeURI(meta.params.name)}"
-              engineId="{decodeURI(meta.params.engineId)}"
-              kind="{decodeURI(meta.params.kind)}" />
-          </Route>
-          <Route path="/pod-create-from-containers">
-            <PodCreateFromContainers />
-          </Route>
-          <Route path="/volumes">
-            <VolumesList />
-          </Route>
-          <Route path="/volumes/:name/:engineId/*" let:meta>
-            <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
-          </Route>
-          <Route path="/providers">
-            <ProviderList />
-          </Route>
-          <Route path="/preferences/*">
-            <PreferencesPage />
-          </Route>
-          <Route path="/contribs/:name" let:meta>
-            <DockerExtension name="{decodeURI(meta.params.name)}" />
-          </Route>
-          <Route path="/help">
-            <HelpPage />
-          </Route>
-        </div>
+        <Route path="/images">
+          <ImagesList />
+        </Route>
+        <Route path="/images/:id/:engineId/:base64RepoTag/*" let:meta>
+          <ImageDetails
+            imageID="{meta.params.id}"
+            engineId="{decodeURI(meta.params.engineId)}"
+            base64RepoTag="{meta.params.base64RepoTag}" />
+        </Route>
+        <Route path="/images/build">
+          <BuildImageFromContainerfile />
+        </Route>
+        <Route path="/images/run/*">
+          <RunImage />
+        </Route>
+        <Route path="/images/pull">
+          <PullImage />
+        </Route>
+        <Route path="/pods">
+          <PodsList />
+        </Route>
+        <Route path="/deploy-to-kube/:resourceId/:engineId/*" let:meta>
+          <DeployPodToKube
+            resourceId="{decodeURI(meta.params.resourceId)}"
+            engineId="{decodeURI(meta.params.engineId)}" />
+        </Route>
+        <Route path="/pods/:kind/:name/:engineId/*" let:meta>
+          <PodDetails
+            podName="{decodeURI(meta.params.name)}"
+            engineId="{decodeURI(meta.params.engineId)}"
+            kind="{decodeURI(meta.params.kind)}" />
+        </Route>
+        <Route path="/pod-create-from-containers">
+          <PodCreateFromContainers />
+        </Route>
+        <Route path="/volumes">
+          <VolumesList />
+        </Route>
+        <Route path="/volumes/:name/:engineId/*" let:meta>
+          <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
+        </Route>
+        <Route path="/providers">
+          <ProviderList />
+        </Route>
+        <Route path="/preferences/*">
+          <PreferencesPage />
+        </Route>
+        <Route path="/contribs/:name" let:meta>
+          <DockerExtension name="{decodeURI(meta.params.name)}" />
+        </Route>
+        <Route path="/help">
+          <HelpPage />
+        </Route>
       </div>
+    </div>
+    {#if !meta.url.startsWith('/welcome')}
       <StatusBar />
     {/if}
   </main>
