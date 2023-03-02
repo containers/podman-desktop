@@ -5,6 +5,7 @@ import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.sve
 import type { Logger as LoggerType } from '@tmpwip/extension-api';
 import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
 export let propertyScope: string;
@@ -120,9 +121,7 @@ async function handleOnSubmit(e) {
       </div>
     {/if}
     {#if errorMessage}
-      <div class="text-red-500">
-        {errorMessage}
-      </div>
+      <ErrorMessage error="{errorMessage}" />
     {/if}
   {/if}
 </div>

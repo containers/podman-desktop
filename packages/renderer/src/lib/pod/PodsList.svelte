@@ -21,6 +21,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import Prune from '../engine/Prune.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -331,9 +332,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                       ></path>
                     </svg>
                   {:else if pod.actionError}
-                    <Tooltip tip="{pod.actionError}" top>
-                      <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
-                    </Tooltip>
+                    <ErrorMessage error="{pod.actionError}" icon />
                   {:else}
                     <div>&nbsp;</div>
                   {/if}

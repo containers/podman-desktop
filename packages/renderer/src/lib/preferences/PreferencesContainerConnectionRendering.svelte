@@ -10,6 +10,7 @@ import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -208,9 +209,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     </div>
 
     {#if lifecycleError}
-      <div class="text-red-500">
-        {lifecycleError}
-      </div>
+      <ErrorMessage error="{lifecycleError}" />
     {/if}
   {/if}
 

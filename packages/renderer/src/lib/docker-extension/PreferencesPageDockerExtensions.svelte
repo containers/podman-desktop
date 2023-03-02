@@ -2,6 +2,7 @@
 import { afterUpdate } from 'svelte';
 
 import { contributions } from '../../stores/contribs';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 let ociImage: string;
 
 let installInProgress: boolean = false;
@@ -85,20 +86,16 @@ function deleteContribution(extensionName: string) {
       Install extension from the OCI image
     </button>
 
-    {#if errorInstall !== ''}
-      <div class="bg-red-500 text-gray-900 m-4">
-        {errorInstall}
-      </div>
-    {/if}
-
     <div
       class:opacity-0="{logs.length === 0}"
       bind:this="{logElement}"
-      class="bg-zinc-700 text-gray-200 mt-4 h-16 overflow-y-auto">
+      class="bg-zinc-700 text-gray-200 mt-2 h-16 p-1 overflow-y-auto">
       {#each logs as log}
         <p class="font-light text-sm">{log}</p>
       {/each}
     </div>
+
+    <ErrorMessage class="p-1 text-sm" error="{errorInstall}" />
   </div>
 
   {#if $contributions.length > 0}

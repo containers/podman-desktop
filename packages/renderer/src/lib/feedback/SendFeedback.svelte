@@ -3,6 +3,7 @@ import { faFrown, faGrinStars, faMeh, faSmile } from '@fortawesome/free-solid-sv
 import Fa from 'svelte-fa/src/fa.svelte';
 import Modal from '../dialogs/Modal.svelte';
 import type { FeedbackProperties } from '../../../../preload/src/index';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 let displayModal = false;
 
 // feedback of the user
@@ -114,7 +115,7 @@ async function sendFeedback(): Promise<void> {
 
         <div class="pt-5 flex flex-row w-full">
           {#if smileyRating === 0}
-            <div class="text-red-500 text-xs flex flex-row w-[300px]">Please select an experience smiley</div>
+            <ErrorMessage class="flex flex-row w-[350px] text-xs" error="Please select an experience smiley" />
           {/if}
 
           <div class="flex flex-row justify-end w-full">

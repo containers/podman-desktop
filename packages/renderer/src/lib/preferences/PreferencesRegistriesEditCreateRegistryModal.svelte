@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { Registry } from '@tmpwip/extension-api';
 import { onMount } from 'svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { createFieldValidator, requiredValidator, urlValidator } from '../validation/FieldValidation';
 
 export let toggleCallback: () => void;
@@ -101,10 +102,7 @@ const setType = (node: any) => {
           class="block disabled:opacity-75 disabled:text-gray-500 w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-400 placeholder-gray-400 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-opacity-20" />
         <div class="h-3 mt-2 text-xs">
           {#if $serverUrlValidity.dirty && !$serverUrlValidity.valid}
-            <p class="text-red-500">
-              <i class="fas fa-exclamation-circle pr-1" aria-hidden="true"></i>
-              {$serverUrlValidity.message}
-            </p>
+            <ErrorMessage error="{$serverUrlValidity.message}" icon />
           {/if}
         </div>
       </div>
@@ -122,8 +120,7 @@ const setType = (node: any) => {
           class="block w-full w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-400 placeholder-gray-400 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-opacity-20" />
         <p class="mt-2 text-xs text-red-500 h-3">
           {#if $userNameValidity.dirty && !$userNameValidity.valid}
-            <i class="fas fa-exclamation-circle pr-1" aria-hidden="true"></i>
-            {$userNameValidity.message}
+            <ErrorMessage error="{$userNameValidity.message}" icon />
           {/if}
         </p>
       </div>
@@ -157,19 +154,13 @@ const setType = (node: any) => {
           class="block w-full w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-400 placeholder-gray-400 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-opacity-20" />
         <p class="mt-2 text-xs text-red-500 h-3">
           {#if $passwordValidity.dirty && !$passwordValidity.valid}
-            <i class="fas fa-exclamation-circle pr-1" aria-hidden="true"></i>
-            {$passwordValidity.message}
+            <ErrorMessage error="{$passwordValidity.message}" icon />
           {/if}
         </p>
       </div>
 
       {#if errorMessage}
-        <div class="">
-          <p class="mt-2 text-xs text-red-500 h-3">
-            <i class="fas fa-exclamation-circle pr-1" aria-hidden="true"></i>
-            {errorMessage}
-          </p>
-        </div>
+        <ErrorMessage class="mt-2 text-xs h-3" error="{errorMessage}" icon />
       {/if}
 
       <div class="text-center mt-6 mb-2">
