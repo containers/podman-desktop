@@ -54,7 +54,7 @@
 
 .pf-c-button.pf-m-secondary {
   --pf-c-button--m-secondary--Color: #ddd;
-  --pf-c-button--m-secondary--BackgroundColor: rgb(156,163,175);
+  --pf-c-button--m-secondary--BackgroundColor: transparent;
   --pf-c-button--after--BorderColor: rgb(229,231,235);
 }
 
