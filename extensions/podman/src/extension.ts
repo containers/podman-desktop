@@ -19,6 +19,7 @@
 import * as extensionApi from '@tmpwip/extension-api';
 import * as path from 'node:path';
 import * as os from 'node:os';
+import * as http from 'node:http';
 import * as fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import { RegistrySetup } from './registry-setup';
@@ -42,6 +43,7 @@ let stopLoop = false;
 
 // current status of machines
 const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
+let podmanProviderStatus: extensionApi.ProviderConnectionStatus = 'started';
 const podmanMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
 
@@ -208,15 +210,59 @@ async function initDefaultLinux(provider: extensionApi.Provider) {
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: 'Podman',
     type: 'podman',
-    status: () => 'started',
+    status: () => podmanProviderStatus,
     endpoint: {
       socketPath,
     },
   };
 
+  monitorPodmanSocket(socketPath);
+
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
   currentConnections.set('podman', disposable);
   storedExtensionContext.subscriptions.push(disposable);
+}
+
+async function isPodmanSocketAlive(socketPath: string): Promise<boolean> {
+  const pingUrl = {
+    path: '/_ping',
+    socketPath,
+  };
+  return new Promise<boolean>(resolve => {
+    const req = http.get(pingUrl, res => {
+      res.on('data', () => {
+        // do nothing
+      });
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    });
+    req.once('error', () => {
+      resolve(false);
+    });
+  });
+}
+
+async function monitorPodmanSocket(socketPath: string) {
+  // call us again
+  if (!stopLoop) {
+    try {
+      const alive = await isPodmanSocketAlive(socketPath);
+      if (!alive) {
+        podmanProviderStatus = 'stopped';
+      } else {
+        podmanProviderStatus = 'started';
+      }
+    } catch (error) {
+      // ignore the update of machines
+    }
+    await timeout(5000);
+    monitorPodmanSocket(socketPath);
+  }
 }
 
 async function timeout(time: number): Promise<void> {
