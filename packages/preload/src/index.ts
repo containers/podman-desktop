@@ -595,7 +595,8 @@ function initExposure(): void {
   );
 
   let onDataCallbacksBuildImageId = 0;
-  const onDataCallbacksBuildImage = new Map<number, (eventName: string, data: string) => void>();
+  const onDataCallbacksBuildImage = new Map<number, (key: symbol, eventName: string, data: string) => void>();
+  const onDataCallbacksBuildImageKeys = new Map<number, symbol>();
 
   contextBridge.exposeInMainWorld(
     'buildImage',
@@ -604,10 +605,12 @@ function initExposure(): void {
       relativeContainerfilePath: string,
       imageName: string,
       selectedProvider: ProviderContainerConnectionInfo,
-      eventCollect: (eventName: string, data: string) => void,
+      key: symbol,
+      eventCollect: (key: symbol, eventName: string, data: string) => void,
     ): Promise<unknown> => {
       onDataCallbacksBuildImageId++;
       onDataCallbacksBuildImage.set(onDataCallbacksBuildImageId, eventCollect);
+      onDataCallbacksBuildImageKeys.set(onDataCallbacksBuildImageId, key);
       return ipcInvoke(
         'container-provider-registry:buildImage',
         containerBuildContextDirectory,
@@ -623,8 +626,9 @@ function initExposure(): void {
     (_, onDataCallbacksBuildImageId: number, eventName: string, data: string) => {
       // grab callback from the map
       const callback = onDataCallbacksBuildImage.get(onDataCallbacksBuildImageId);
-      if (callback) {
-        callback(eventName, data);
+      const key = onDataCallbacksBuildImageKeys.get(onDataCallbacksBuildImageId);
+      if (key && callback) {
+        callback(key, eventName, data);
       }
     },
   );

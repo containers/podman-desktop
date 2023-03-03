@@ -991,7 +991,7 @@ export class ContainerProviderRegistry {
     relativeContainerfilePath: string,
     imageName: string,
     selectedProvider: ProviderContainerConnectionInfo,
-    eventCollect: (eventName: 'stream' | 'error', data: string) => void,
+    eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
   ): Promise<unknown> {
     this.telemetryService.track('buildImage');
     // grab all connections
@@ -1030,8 +1030,10 @@ export class ContainerProviderRegistry {
     // eslint-disable-next-line @typescript-eslint/ban-types
     function onFinished(err: Error | null, output: {}) {
       if (err) {
+        eventCollect('finish', '' + err);
         return reject(err);
       }
+      eventCollect('finish', '');
       resolve(output);
     }
 
