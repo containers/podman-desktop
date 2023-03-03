@@ -390,7 +390,6 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     endpoint: {
       socketPath,
     },
-    machineInfo: machineInfo
   };
 
   monitorPodmanSocket(socketPath, machineInfo.name);

@@ -42,6 +42,12 @@ export interface IConfigurationChangeEvent {
   scope: containerDesktopAPI.ConfigurationScope;
 }
 
+export interface IProviderContainerConfigurationPropertyRecordedSchema extends IConfigurationPropertyRecordedSchema {
+  value?: any;
+  container: string;
+  providerId: string;
+}
+
 export interface IConfigurationPropertyRecordedSchema extends IConfigurationPropertySchema {
   title: string;
   parentId: string;
