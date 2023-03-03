@@ -194,7 +194,9 @@ async function searchKindClusters(provider: extensionApi.Provider) {
   updateClusters(provider, kindContainers);
 }
 
-async function moveImage(image: ImageInfoUI) {
+type ImageInfo = { engineId: string; id: string; name: string };
+
+async function moveImage(image: ImageInfo) {
   const clusters = kindClusters.filter(cluster => cluster.status === 'started');
   let selectedCluster: string;
 

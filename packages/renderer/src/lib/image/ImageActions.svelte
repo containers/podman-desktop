@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faArrowUp, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faEllipsisVertical, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -14,6 +14,7 @@ export let dropdownMenu: boolean = false;
 export let detailed: boolean = false;
 export let contributions: Menu[] = [];
 
+let errorTitle: string = undefined;
 let errorMessage: string = undefined;
 let isAuthenticatedForThisImage: boolean = false;
 
@@ -29,6 +30,7 @@ async function deleteImage(): Promise<void> {
     await window.deleteImage(image.engineId, image.id);
     router.goto('/images/');
   } catch (error) {
+    errorTitle = 'Error while deleting image';
     errorMessage = error;
   }
 }
@@ -45,6 +47,7 @@ async function executeContribution(menu: Menu): Promise<void> {
   try {
     await window.executeCommand(menu.command, image);
   } catch (err) {
+    errorTitle = `Error while executing ${menu.title}`;
     errorMessage = err;
   }
 }
@@ -93,7 +96,7 @@ if (dropdownMenu) {
       title="{menu.title}"
       onClick="{() => executeContribution(menu)}"
       menu="{dropdownMenu}"
-      icon="{faArrowUp}" />
+      icon="{faEllipsisVertical}" />
   {/each}
 
   {#if errorMessage}
@@ -104,7 +107,7 @@ if (dropdownMenu) {
         </div>
         <p class="pf-c-alert__title">
           <span class="pf-screen-reader">Error:</span>
-          Error while deleting image
+          {errorTitle}
         </p>
         <div class="pf-c-alert__action">
           <button
