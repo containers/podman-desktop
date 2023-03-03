@@ -183,19 +183,12 @@ declare module '@podman-desktop/api' {
     socketPath: string;
   }
 
-  export interface MachineInfo {
-    cpus: number;
-    memory: number;
-    diskSize: number;
-  }
-
   export interface ContainerProviderConnection {
     name: string;
     type: 'docker' | 'podman';
     endpoint: ContainerProviderConnectionEndpoint;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
-    machineInfo?: MachineInfo;
   }
 
   export interface KubernetesProviderConnectionEndpoint {

@@ -24,7 +24,6 @@ import type {
   ProviderStatus,
   Link,
   ProviderInformation,
-  MachineInfo,
 } from '@podman-desktop/api';
 
 export type LifecycleMethod = 'start' | 'stop' | 'delete';
@@ -37,7 +36,6 @@ export interface ProviderContainerConnectionInfo {
   };
   lifecycleMethods?: LifecycleMethod[];
   type: 'docker' | 'podman';
-  machineInfo?: MachineInfo;
 }
 
 export interface ProviderKubernetesConnectionInfo {

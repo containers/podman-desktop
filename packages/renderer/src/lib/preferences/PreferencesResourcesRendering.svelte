@@ -4,16 +4,28 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { providerInfos } from '../../stores/providers';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { onMount } from 'svelte';
+import type { IConfigurationPropertyRecordedSchema, IProviderContainerConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import { configurationProperties } from '../../stores/configurationProperties';
+import type { ContainerProviderConnection } from '@tmpwip/extension-api';
 
 interface containerStatus {
     status: string;
     inProgress: boolean;
 }
 
+export let properties: IConfigurationPropertyRecordedSchema[] = [];
+let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, containerStatus>();
 
+let configurationKeys: IConfigurationPropertyRecordedSchema[];
+
 onMount(() => {
-    providerInfos.subscribe(providers => {
+    configurationProperties.subscribe(value => {
+        properties = value;
+    });
+
+    providerInfos.subscribe(p => {
+        providers = p;
         providers.forEach(provider => {
             provider.containerConnections.forEach(container => {
                 // update the map only if the container state is different from last time
@@ -30,6 +42,37 @@ onMount(() => {
         containerConnectionStatus = containerConnectionStatus;
     });
 })
+
+$: configurationKeys = properties
+    .filter(property => property.scope === 'ContainerConnection')
+    .sort((a, b) => a.id.localeCompare(b.id)); 
+
+let tmpProviderContainerConfiguration: IProviderContainerConfigurationPropertyRecordedSchema[] = [];
+$: Promise.all(providers.map(async provider => {
+        const providerContainer = await Promise.all(provider.containerConnections.map(async container => {
+            const containerConfigurations = await Promise.all(
+                configurationKeys.map(async configurationKey => {
+                    return {
+                        ...configurationKey,
+                        value: await window.getConfigurationValue(configurationKey.id, container as unknown as ContainerProviderConnection),
+                        container: container.name,
+                        providerId: provider.internalId,
+                    };     
+                })
+            )
+            return containerConfigurations;       
+        }));
+        return providerContainer.flat();
+    })).then(value => tmpProviderContainerConfiguration = value.flat());
+
+$: providerContainerConfiguration = tmpProviderContainerConfiguration
+    .filter(configurationKey => configurationKey.value !== undefined)
+    .reduce((map, value) => {
+        const innerProviderContainerConfigurations = map.get(value.providerId) || []; 
+        innerProviderContainerConfigurations.push(value);
+        map.set(value.providerId, innerProviderContainerConfigurations);
+        return map;
+    }, new Map<string, IProviderContainerConfigurationPropertyRecordedSchema[]>());
 
 async function startContainerProvider(provider: ProviderInfo, containerConnectionInfo: ProviderContainerConnectionInfo): Promise<void> {
     if (containerConnectionInfo.status === 'stopped') {
@@ -121,24 +164,36 @@ function setContainerStatusIsChanging(provider: ProviderInfo, containerConnectio
                         <span class="my-auto text-gray-500 ml-1 font-bold text-[9px]">{container.status.toUpperCase()}</span>
                         {/if}
                     </div>
-                    {#if container.machineInfo}
+                    
+                    {#if providerContainerConfiguration.has(provider.internalId)}
                     <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-500' : ''}">
-                        <div class="mr-4">
-                            <div class="text-[9px]">vCPUs</div>
-                            <div class="text-xs">{container.machineInfo.cpus}</div>
-                        </div>
-                        <div class="mr-4">
-                            <div class="text-[9px]">MEMORY</div>
-                            <div class="text-xs">{container.machineInfo.memory.toFixed(1)}MB</div>
-                        </div>
-                        <div class="mr-4">
-                            <div class="text-[9px]">DISK LIMIT</div>
-                            <div class="text-xs">{container.machineInfo.diskSize.toFixed(2)}GB</div>
-                        </div>
+                        {#each providerContainerConfiguration.get(provider.internalId).filter(conf => conf.container === container.name) as connectionSetting}
+                            {#if connectionSetting.format === 'cpu'}
+                            <div class="mr-4">
+                                <div class="text-[9px]">{connectionSetting.description}</div>
+                                <div class="text-xs">{connectionSetting.value}</div>
+                            </div>
+                            {:else if connectionSetting.format === 'memory'}
+                            <div class="mr-4">
+                                <div class="text-[9px]">{connectionSetting.description}</div>
+                                <div class="text-xs">{connectionSetting.value.toFixed(1)} MB</div>
+                            </div>
+                            {:else if connectionSetting.format === 'diskSize'}
+                            <div class="mr-4">
+                                <div class="text-[9px]">{connectionSetting.description}</div>
+                                <div class="text-xs">{connectionSetting.value.toFixed(2)} GB</div>
+                            </div>
+                            {:else}
+                            {connectionSetting.description}: {connectionSetting.value}
+                            {/if}
+                        {/each}
                     </div>
                     {/if}
+                    {#if container.lifecycleMethods && container.lifecycleMethods.length > 0}
                     <div class="mt-2 relative">
+                        <!-- TODO: see action available like machine infos -->
                         <div class="flex bg-zinc-900 w-fit rounded-lg m-auto">
+                            {#if container.lifecycleMethods.includes('start')}
                             <button 
                                 class="{
                                     container.status !== 'stopped' 
@@ -148,6 +203,8 @@ function setContainerStatusIsChanging(provider: ProviderInfo, containerConnectio
                                 on:click="{() => startContainerProvider(provider, container)}">
                                 <Fa class="ml-5 mr-2.5 my-2" icon="{faPlay}" />
                             </button>
+                            {/if}
+                            {#if container.lifecycleMethods.includes('start') && container.lifecycleMethods.includes('stop')}
                             <button 
                                 class="{
                                 container.status !== 'started'
@@ -156,6 +213,8 @@ function setContainerStatusIsChanging(provider: ProviderInfo, containerConnectio
                                 on:click="{() => restartContainerProvider(provider, container)}">
                                 <Fa class="mx-2.5 my-2" icon="{faRotateRight}" />
                             </button>
+                            {/if}
+                            {#if container.lifecycleMethods.includes('stop')}
                             <button 
                                 class="{
                                 container.status !== 'started' 
@@ -163,7 +222,9 @@ function setContainerStatusIsChanging(provider: ProviderInfo, containerConnectio
                                         && containerConnectionStatus.get(`${provider.name}-${container.name}`).inProgress)  ? 'text-gray-700 cursor-not-allowed' : ''}"
                                 on:click="{() => stopContainerProvider(provider, container)}">
                                 <Fa class="mx-2.5 my-2" icon="{faStop}" />
-                            </button>                            
+                            </button>
+                            {/if}
+                            {#if container.lifecycleMethods.includes('delete')}                          
                             <button 
                                 class="{(container.status !== 'stopped' && container.status !== 'unknown') 
                                 || (containerConnectionStatus.get(`${provider.name}-${container.name}`) 
@@ -171,11 +232,13 @@ function setContainerStatusIsChanging(provider: ProviderInfo, containerConnectio
                                 on:click="{() => deleteContainerProvider(provider, container)}">
                                 <Fa class="mx-2.5 my-2" icon="{faTrash}" />
                             </button>
+                            {/if}
                             <button>
                                 <Fa class="ml-2.5 mr-5 my-2" icon="{faEllipsisVertical}" />
                             </button>
                         </div>
                     </div>
+                    {/if}
                     <div class="mt-1.5 text-gray-500 text-[9px]">
                         <div>{provider.name} v{provider.version}</div>
                     </div>

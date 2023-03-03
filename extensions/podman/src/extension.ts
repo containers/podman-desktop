@@ -46,6 +46,7 @@ const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionSt
 let podmanProviderStatus: extensionApi.ProviderConnectionStatus = 'started';
 const podmanMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
+const containerProviderConnections = new Map<string, extensionApi.ContainerProviderConnection>();
 
 // Warning to check to see if the socket is a disguised Podman socket,
 // by default we assume it is until proven otherwise when we check
@@ -100,6 +101,11 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
       podmanMachinesStatuses.set(machine.Name, status);
+    }
+
+    if (containerProviderConnections.has(machine.Name)) {
+      const containerProviderConnection = containerProviderConnections.get(machine.Name);
+      updateContainerConfiguration(containerProviderConnection, podmanMachinesInfo.get(machine.Name));
     }
   });
 
@@ -178,6 +184,16 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       provider.updateStatus('configured');
     }
   }
+}
+
+function updateContainerConfiguration(containerProviderConnection: extensionApi.ContainerProviderConnection, machineInfo: MachineInfo) {
+   // get configuration for this connection
+   const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
+
+   // Set values for the machine
+   containerConfiguration.update('machine.cpus', machineInfo.cpus);
+   containerConfiguration.update('machine.memory', machineInfo.memory);
+   containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
 }
 
 function calcMacosSocketPath(machineName: string): string {
@@ -338,6 +354,7 @@ function prettyMachineName(machineName: string): string {
   }
   return name;
 }
+
 async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (context): Promise<void> => {
@@ -368,10 +385,10 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     endpoint: {
       socketPath,
     },
-    machineInfo: machineInfo
   };
 
   monitorPodmanSocket(socketPath, machineInfo.name);
+  containerProviderConnections.set(machineInfo.name, containerProviderConnection);
 
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
   provider.updateStatus('ready');
