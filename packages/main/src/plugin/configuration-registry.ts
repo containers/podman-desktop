@@ -24,6 +24,7 @@ import { ConfigurationImpl } from './configuration-impl';
 import type { Event } from './events/emitter';
 import { Emitter } from './events/emitter';
 import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants';
+import { desktopAppHomeDir } from '../util';
 
 export type IConfigurationPropertySchemaType =
   | 'string'
@@ -114,7 +115,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   }
 
   protected getSettingsFile(): string {
-    const configurationDirectory = path.resolve(os.homedir(), '.local/share/containers/podman-desktop/configuration');
+    const configurationDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'configuration');
     // create directory if it does not exist
     return path.resolve(configurationDirectory, 'settings.json');
   }

@@ -20,6 +20,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
 import type { ContributionInfo } from './api/contribution-info';
+import { desktopAppHomeDir } from '../util';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -138,7 +139,7 @@ export class ContributionManager {
   }
 
   public getContributionStorageDir(): string {
-    return path.resolve(os.homedir(), '.local/share/containers/podman-desktop/contributions');
+    return path.resolve(os.homedir(), desktopAppHomeDir(), 'contributions');
   }
 
   getExtensionPath(extensionId: string): string | undefined {

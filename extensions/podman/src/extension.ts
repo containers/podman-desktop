@@ -24,7 +24,7 @@ import * as fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import { RegistrySetup } from './registry-setup';
 
-import { getAssetsFolder, isLinux, isMac, isWindows } from './util';
+import { getAssetsFolder, isLinux, isMac, isWindows, appHomeDir } from './util';
 import { PodmanInstall } from './podman-install';
 import type { InstalledPodman } from './podman-cli';
 import { execPromise, getPodmanCli, getPodmanInstallation } from './podman-cli';
@@ -35,7 +35,7 @@ import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
 const listeners = new Set<StatusHandler>();
-const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), '.local/share/containers/podman/machine');
+const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), appHomeDir(), 'machine');
 const podmanMachineSocketsSymlinkDirectoryMac = path.resolve(os.homedir(), '.podman');
 const MACOS_MAX_SOCKET_PATH_LENGTH = 104;
 let storedExtensionContext;

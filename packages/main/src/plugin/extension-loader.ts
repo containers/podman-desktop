@@ -43,6 +43,7 @@ import type { ContainerProviderRegistry } from './container-registry';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
 import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry';
 import type { MenuRegistry } from '/@/plugin/menu-registry';
+import { desktopAppHomeDir } from '../util';
 
 /**
  * Handle the loading of an extension
@@ -76,11 +77,11 @@ export class ExtensionLoader {
   private reloadInProgressExtensions = new Map<string, boolean>();
 
   // Plugins directory location
-  private pluginsDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins');
-  private pluginsScanDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins-scanning');
+  private pluginsDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'plugins');
+  private pluginsScanDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'plugins-scanning');
 
   // Extensions directory location
-  private extensionsStorageDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/extensions-storage');
+  private extensionsStorageDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'extensions-storage');
 
   constructor(
     private commandRegistry: CommandRegistry,
