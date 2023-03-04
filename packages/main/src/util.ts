@@ -31,6 +31,10 @@ const linux = os.platform() === 'linux';
 export function isLinux(): boolean {
   return linux;
 }
+const xdgDataDirectory = '.local/share/containers';
+export function desktopAppHomeDir(): string {
+  return xdgDataDirectory + '/podman-desktop';
+}
 
 export function findWindow(): Electron.BrowserWindow | undefined {
   return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
