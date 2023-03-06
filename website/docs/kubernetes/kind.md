@@ -35,7 +35,7 @@ Therefore, you must set the default connection to `rootful`.
   ```shell
   > podman system connection ls
   ```
-You should see output similar to the following:
+The output is similar to the following:
   ```shell
   Name                         URI                                                          Identity                                   Default
   podman-machine-default       ssh://user@localhost:54133/run/user/1000/podman/podman.sock  C:\Users\Jeff\.ssh\podman-machine-default  true
