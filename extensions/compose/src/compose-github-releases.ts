@@ -21,7 +21,7 @@ import type { QuickPickItem } from '@tmpwip/extension-api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-export interface ComposeGithubReleaseArtifact extends QuickPickItem {
+export interface ComposeGithubReleaseArtifactMetadata extends QuickPickItem {
   tag: string;
   id: number;
 }
@@ -35,7 +35,7 @@ export class ComposeGitHubReleases {
 
   // Provides last 5 majors releases from GitHub using the GitHub API
   // return name, tag and id of the release
-  async grabLatestsReleases(): Promise<ComposeGithubReleaseArtifact[]> {
+  async grabLatestsReleasesMetadata(): Promise<ComposeGithubReleaseArtifactMetadata[]> {
     // Grab last 5 majors releases from GitHub using the GitHub API
 
     const lastReleases = await this.octokit.repos.listReleases({

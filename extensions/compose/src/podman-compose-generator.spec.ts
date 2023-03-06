@@ -25,7 +25,7 @@ import * as extensionApi from '@tmpwip/extension-api';
 
 // expose methods publicly for testing
 class TestPodmanGenerator extends PodmanComposeGenerator {
-  public publicGenerateContent(): string {
+  public async publicGenerateContent(): Promise<string> {
     return this.generateContent();
   }
 }

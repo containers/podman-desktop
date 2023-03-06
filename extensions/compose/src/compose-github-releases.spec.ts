@@ -56,7 +56,7 @@ test('expect grab 5 releases', async () => {
     return { data: resultREST };
   });
 
-  const result = await composeGitHubReleases.grabLatestsReleases();
+  const result = await composeGitHubReleases.grabLatestsReleasesMetadata();
   expect(result).toBeDefined();
   expect(result.length).toBe(5);
 });

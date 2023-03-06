@@ -24,6 +24,7 @@
   "dependencies": {
     "@octokit/rest": "^19.0.7",
     "@tmpwip/extension-api": "^0.0.1",
+    "mustache": "^4.2.0",
     "shell-path": "^3.0.0"
   },
   "devDependencies": {

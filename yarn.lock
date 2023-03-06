@@ -7,7 +7,7 @@
   resolved "https://registry.npmjs.org/7zip-bin/-/7zip-bin-5.1.1.tgz"
   integrity sha512-sAP4LldeWNz0lNzmTird3uWfFDWWTeg6V/MsmyyLR9X1idwKBWIgt/ZvinqQldJm3LecKEs1emkbquO6PCiLVQ==
 
-"7zip-min@^1.4.4":
+"7zip-min@^1.4.3", "7zip-min@^1.4.4":
   version "1.4.4"
   resolved "https://registry.yarnpkg.com/7zip-min/-/7zip-min-1.4.4.tgz#82a50a8d3f0a2d86b4c908433c9ec35627f4138c"
   integrity sha512-mYB1WW5tcXfZxUN4+2joKk4+6j8jp+mpO2YiMU5z1gNNFbACxI2ADasffsdNPovZSwn/E662ZIH5gRkFPMufmA==
@@ -5521,6 +5521,11 @@ default-gateway@^6.0.3:
   dependencies:
     execa "^5.0.0"
 
+default-shell@^2.0.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/default-shell/-/default-shell-2.2.0.tgz#31481c19747bfe59319b486591643eaf115a1864"
+  integrity sha512-sPpMZcVhRQ0nEMDtuMJ+RtCxt7iHPAMBU+I4tAlo5dU1sjRpNax0crj6nR3qKpvVnckaQ9U38enXcwW9nZJeCw==
+
 defer-to-connect@^1.0.1:
   version "1.1.3"
   resolved "https://registry.npmjs.org/defer-to-connect/-/defer-to-connect-1.1.3.tgz"
@@ -6355,7 +6360,7 @@ events@^3.2.0:
   resolved "https://registry.yarnpkg.com/events/-/events-3.3.0.tgz#31a95ad0a924e2d2c419a813aeb2c4e878ea7400"
   integrity sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==
 
-execa@^5.0.0:
+execa@^5.0.0, execa@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/execa/-/execa-5.1.1.tgz#f80ad9cbf4298f7bd1d4c9555c21e93741c411dd"
   integrity sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==
@@ -8926,7 +8931,7 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.npmjs.org/mkdirp/-/mkdirp-1.0.4.tgz"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mkdirp@^2.1.5:
+mkdirp@^2.1.3, mkdirp@^2.1.5:
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-2.1.5.tgz#78d7eaf15e069ba7b6b47d76dd94cfadf7a4062f"
   integrity sha512-jbjfql+shJtAPrFoKxHOXip4xS+kul9W3OzfzzrqueWK2QMGon2bFH2opl6W9EagBThjEz+iysyi/swOoVfB/w==
@@ -8998,6 +9003,11 @@ multicast-dns@^7.2.5:
   dependencies:
     dns-packet "^5.2.2"
     thunky "^1.0.2"
+
+mustache@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/mustache/-/mustache-4.2.0.tgz#e5892324d60a12ec9c2a73359edca52972bf6f64"
+  integrity sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==
 
 nan@^2.15.0, nan@^2.16.0:
   version "2.17.0"
@@ -11058,6 +11068,22 @@ shebang-regex@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/shebang-regex/-/shebang-regex-3.0.0.tgz"
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
+
+shell-env@^4.0.0:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/shell-env/-/shell-env-4.0.1.tgz#883302d9426095d398a39b102a851adb306b8cb8"
+  integrity sha512-w3oeZ9qg/P6Lu6qqwavvMnB/bwfsz67gPB3WXmLd/n6zuh7TWQZtGa3iMEdmua0kj8rivkwl+vUjgLWlqZOMPw==
+  dependencies:
+    default-shell "^2.0.0"
+    execa "^5.1.1"
+    strip-ansi "^7.0.1"
+
+shell-path@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/shell-path/-/shell-path-3.0.0.tgz#5c95bc68aade43c06082a0655cb5c97586e4feb0"
+  integrity sha512-HNIZ+W/3P0JuVTV03xjGqYKt3e3h0/Z4AH8TQWeth1LBtCusSjICgkdNdb3VZr6mI7ijE2AiFFpgkVMNKsALeQ==
+  dependencies:
+    shell-env "^4.0.0"
 
 shell-quote@^1.7.3:
   version "1.7.3"

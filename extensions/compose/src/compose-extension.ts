@@ -127,11 +127,11 @@ export class ComposeExtension {
   }
 
   async installDockerCompose(): Promise<void> {
-    // grab latest assets
-    const lastReleases = await this.composeGitHubReleases.grabLatestsReleases();
+    // grab latest assets metadata
+    const lastReleasesMetadata = await this.composeGitHubReleases.grabLatestsReleasesMetadata();
 
     // display a choice to the user with quickpick
-    const selectedRelease = await extensionApi.window.showQuickPick(lastReleases, {
+    const selectedRelease = await extensionApi.window.showQuickPick(lastReleasesMetadata, {
       placeHolder: 'Select docker compose version to install',
     });
 
@@ -145,8 +145,15 @@ export class ComposeExtension {
       // create the folder
       await promises.mkdir(storageBinFolder, { recursive: true });
     }
+
+    // append file extension
+    let fileExtension = '';
+    if (this.os.isWindows()) {
+      fileExtension = '.exe';
+    }
+
     // path
-    const dockerComposeDownloadLocation = path.resolve(storageBinFolder, 'docker-compose');
+    const dockerComposeDownloadLocation = path.resolve(storageBinFolder, `docker-compose${fileExtension}`);
 
     // download the asset
     await this.composeGitHubReleases.downloadReleaseAsset(assetId, dockerComposeDownloadLocation);
@@ -169,8 +176,14 @@ export class ComposeExtension {
     const storageData = await this.extensionContext.storagePath;
     const storageBinFolder = path.resolve(storageData, 'bin');
 
+    // append file extension
+    let fileExtension = '';
+    if (this.os.isWindows()) {
+      fileExtension = '.bat';
+    }
+
     // create the script file
-    const podmanComposeScript = path.resolve(storageBinFolder, 'podman-compose');
+    const podmanComposeScript = path.resolve(storageBinFolder, `podman-compose${fileExtension}`);
 
     await this.podmanComposeGenerator.generate(podmanComposeScript);
 

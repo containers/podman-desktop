@@ -47,7 +47,7 @@ const detectMock = {
 };
 
 const composeGitHubReleasesMock = {
-  grabLatestsReleases: vi.fn(),
+  grabLatestsReleasesMetadata: vi.fn(),
   getReleaseAssetId: vi.fn(),
   downloadReleaseAsset: vi.fn(),
 };
@@ -213,8 +213,14 @@ test('Check that we have registered commands', async () => {
   expect(spyInstallCompose).toHaveBeenCalled();
 });
 
-describe.each([{ existDir: false }, { existDir: true }])('Check install docker compose command', ({ existDir }) => {
+describe.each([
+  { existDir: false, os: 'Windows' },
+  { existDir: true, os: 'Linux' },
+])('Check install docker compose command', ({ existDir, os }) => {
   test(`Check install docker compose command dir exists ${existDir}`, async () => {
+    let dockerComposeFileExtension = '';
+    let podmanComposeFileExtension = '';
+
     // mock the fs module
     vi.mock('node:fs');
 
@@ -228,9 +234,20 @@ describe.each([{ existDir: false }, { existDir: true }])('Check install docker c
     const mkdirSpy = vi.spyOn(promises, 'mkdir');
     mkdirSpy.mockImplementation(() => Promise.resolve(''));
 
+    if (os === 'Windows') {
+      osMock.isWindows.mockReturnValue(true);
+      dockerComposeFileExtension = '.exe';
+      podmanComposeFileExtension = '.bat';
+    } else if (os === 'Linux') {
+      osMock.isLinux.mockReturnValue(true);
+    }
+    // fake chmod
+    const chmodMock = vi.spyOn(promises, 'chmod');
+    chmodMock.mockImplementation(() => Promise.resolve());
+
     const items = [{ label: 'latest' }];
     const fakeAssetId = 123;
-    composeGitHubReleasesMock.grabLatestsReleases.mockResolvedValue(items);
+    composeGitHubReleasesMock.grabLatestsReleasesMetadata.mockResolvedValue(items);
     composeGitHubReleasesMock.getReleaseAssetId.mockResolvedValue(fakeAssetId);
     composeGitHubReleasesMock.downloadReleaseAsset.mockResolvedValue(undefined);
 
@@ -242,11 +259,11 @@ describe.each([{ existDir: false }, { existDir: true }])('Check install docker c
 
     expect(showQuickPickMock).toHaveBeenCalledWith(items, { placeHolder: 'Select docker compose version to install' });
     // should have fetched latest releases
-    expect(composeGitHubReleasesMock.grabLatestsReleases).toHaveBeenCalled();
+    expect(composeGitHubReleasesMock.grabLatestsReleasesMetadata).toHaveBeenCalled();
     // should have downloaded the release asset
     expect(composeGitHubReleasesMock.downloadReleaseAsset).toHaveBeenCalledWith(
       fakeAssetId,
-      resolve(extensionContext.storagePath, 'bin/docker-compose'),
+      resolve(extensionContext.storagePath, `bin/docker-compose${dockerComposeFileExtension}`),
     );
 
     // should have called run checks
@@ -256,6 +273,11 @@ describe.each([{ existDir: false }, { existDir: true }])('Check install docker c
     if (!existDir) {
       expect(mkdirSpy).toHaveBeenCalledWith(resolve(extensionContext.storagePath, 'bin'), { recursive: true });
     }
+
+    // should have call the podman generator
+    expect(podmanComposeGeneratorMock.generate).toHaveBeenCalledWith(
+      `/fake/path/bin/podman-compose${podmanComposeFileExtension}`,
+    );
   });
 });
 
