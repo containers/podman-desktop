@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@tmpwip/extension-api": "^0.0.1",
-    "got": "^12.5.3"
+    "got": "^12.6.0"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
