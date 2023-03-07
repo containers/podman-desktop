@@ -23,7 +23,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@tmpwip/extension-api": "^0.0.1"
+    "@podman-desktop/api": "^0.0.1"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",

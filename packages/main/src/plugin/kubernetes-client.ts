@@ -28,7 +28,7 @@ import type {
 import { CustomObjectsApi } from '@kubernetes/client-node';
 import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
 import { Uri } from './types/uri';
 import { homedir } from 'node:os';

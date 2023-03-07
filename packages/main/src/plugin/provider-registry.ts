@@ -35,7 +35,7 @@ import type {
   Logger,
   ProviderInformation,
   ProviderContainerConnection,
-} from '@tmpwip/extension-api';
+} from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,

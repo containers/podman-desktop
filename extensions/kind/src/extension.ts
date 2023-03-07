@@ -16,13 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { runCliCommand, detectKind } from './util';
 import { KindInstaller } from './kind-installer';
-import { window } from '@tmpwip/extension-api';
+import { window } from '@podman-desktop/api';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 

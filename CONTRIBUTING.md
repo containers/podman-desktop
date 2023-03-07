@@ -272,7 +272,7 @@ This is located in the `/extensions` folder.
 
 #### Creating a new extension
 
-When creating a new extension, import the extension API: `import * as extensionApi from '@tmpwip/extension-api';` All functionality with Podman Desktop is communicated through this API including registering the new extension. The API is located [here](https://github.com/containers/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts).
+When creating a new extension, import the extension API: `import * as extensionApi from '@podman-desktop/api';` All functionality with Podman Desktop is communicated through this API including registering the new extension. The API is located [here](https://github.com/containers/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts).
 
 When loading an extension, Podman Desktop will:
 1. Search and load the JavaScript file specified in `main` entry of the `package.json` file in the extension directory (typically `extension.js`).
@@ -287,7 +287,7 @@ When unloading an extension, Podman Desktop will:
 This is an example `extensions/foobar/src/extensions.ts` file with the basic `activate ` and `deactivate` functionality:
 
 ```ts
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 
 
 // Activate the extension asynchronously

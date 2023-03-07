@@ -22,9 +22,9 @@ import * as os from 'node:os';
 import { isLinux, isMac, isWindows } from './util';
 
 import * as toml from '@ltd/j-toml';
-import type { ProxySettings } from '@tmpwip/extension-api';
+import type { ProxySettings } from '@podman-desktop/api';
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 
 /**
  * Manages access to the containers.conf configuration file used to configure Podman

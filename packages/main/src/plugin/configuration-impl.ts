@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry';
 /**
  * Local view of the configuration values for a given scope

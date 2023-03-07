@@ -21,7 +21,7 @@ import type {
   InputBoxOptions,
   InputBoxValidationMessage,
   QuickPickOptions,
-} from '@tmpwip/extension-api';
+} from '@podman-desktop/api';
 import { Deferred } from '../util/deferred';
 
 export class InputQuickPickRegistry {

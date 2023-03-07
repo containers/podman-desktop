@@ -1,5 +1,5 @@
 {
-  "name": "@tmpwip/extension-api",
+  "name": "@podman-desktop/api",
   "version": "0.0.1",
   "description": "Prototype API",
   "publishConfig": {

@@ -71,7 +71,7 @@ const config = {
   },
   resolve: {
     alias: {
-      '@tmpwip/extension-api': path.resolve(__dirname, '__mocks__/@tmpwip/extension-api.js'),
+      '@podman-desktop/api': path.resolve(__dirname, '__mocks__/@podman-desktop/api.js'),
     },
   },
 };

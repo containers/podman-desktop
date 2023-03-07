@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
@@ -127,7 +127,7 @@ export class ExtensionLoader {
       // if we try to resolve theia module, return the filename entry to use cache.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       module._load = function (request: string, parent: any): any {
-        if (request !== '@tmpwip/extension-api') {
+        if (request !== '@podman-desktop/api') {
           // eslint-disable-next-line prefer-rest-params
           return internalLoad.apply(this, arguments);
         }

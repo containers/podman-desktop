@@ -19,7 +19,7 @@
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { spawn } from 'node:child_process';
-import type * as extensionApi from '@tmpwip/extension-api';
+import type * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
 
 const windows = os.platform() === 'win32';

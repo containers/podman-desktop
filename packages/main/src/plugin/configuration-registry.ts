@@ -19,7 +19,7 @@
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { ConfigurationImpl } from './configuration-impl';
 import type { Event } from './events/emitter';
 import { Emitter } from './events/emitter';

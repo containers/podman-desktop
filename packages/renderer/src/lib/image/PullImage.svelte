@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Registry } from '@tmpwip/extension-api';
+import type { Registry } from '@podman-desktop/api';
 
 import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
