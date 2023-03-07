@@ -198,6 +198,15 @@ Legal name must be used (no pseudonyms or anonymous contributions)
 If you set your `user.name` and `user.email` git configs, you can sign your
 commit automatically with `git commit -s`.
 
+
+### Review process
+
+1. Submit your PR
+2. Reviewers are assigned by GitHub to two Podman Desktop developers
+3. PR's require 1 LGTM / Approval (2 if it's a large code change)
+
+> **_NOTE:_** If your PR hasn't been merged in an appropriate amount of time, ping the two developers assigned to the issue with `@`
+
 ## Continuous Integration
 
 All pull requests and branch-merges automatically run:
