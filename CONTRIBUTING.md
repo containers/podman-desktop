@@ -234,6 +234,12 @@ Within Podman Desktop, we use the following frameworks and tools to build the de
 
 > **_NOTE:_**  We also use TypeScript instead of JavaScript for strongly typed programming language development.
 
+### Testing
+
+Within Podman Desktop, we use the following for testing:
+* [Vitest](https://vitest.dev/): Unit tests - Written as `spec.ts` files.
+* [Testing Library](https://testing-library.com/): Component tests - Utilities and best practices for writing component tests.
+* [Playwright](https://playwright.dev/): Integration tests.
 
 ### Folders
 
