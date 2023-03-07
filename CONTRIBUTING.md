@@ -229,7 +229,7 @@ Within Podman Desktop, we use the following frameworks and tools to build the de
 
 Within Podman Desktop, we use the following for testing:
 * [Vitest](https://vitest.dev/): Unit tests - Written as `spec.ts` files.
-* [Testing Library](https://vitest.dev/): Component tests - Utilities and best practices for writing component tests.
+* [Testing Library](https://testing-library.com/): Component tests - Utilities and best practices for writing component tests.
 * [Playwright](https://playwright.dev/): Integration tests.
 
 ### Folders
