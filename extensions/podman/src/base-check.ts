@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type * as extensionApi from '@tmpwip/extension-api';
+import type * as extensionApi from '@podman-desktop/api';
 
 export abstract class BaseCheck implements extensionApi.InstallCheck {
   abstract title: string;

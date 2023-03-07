@@ -18,11 +18,11 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 import { KindInstaller } from './kind-installer';
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 
 let installer: KindInstaller;
 
-vi.mock('@tmpwip/extension-api', async () => {
+vi.mock('@podman-desktop/api', async () => {
   return {
     window: {
       showInformationMessage: vi.fn().mockReturnValue(Promise.resolve('Yes')),

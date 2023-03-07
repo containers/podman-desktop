@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { QuickPickItem } from '@tmpwip/extension-api';
+import type { QuickPickItem } from '@podman-desktop/api';
 import { onDestroy, onMount, tick } from 'svelte';
 
 interface InputBoxOptions {

@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ProviderDetectionCheck } from '@tmpwip/extension-api';
+import type { ProviderDetectionCheck } from '@podman-desktop/api';
 
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 

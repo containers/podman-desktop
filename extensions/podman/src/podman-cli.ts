@@ -17,8 +17,8 @@
  ***********************************************************************/
 import { spawn } from 'node:child_process';
 import { isMac, isWindows } from './util';
-import type { Logger } from '@tmpwip/extension-api';
-import { configuration } from '@tmpwip/extension-api';
+import type { Logger } from '@podman-desktop/api';
+import { configuration } from '@podman-desktop/api';
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 

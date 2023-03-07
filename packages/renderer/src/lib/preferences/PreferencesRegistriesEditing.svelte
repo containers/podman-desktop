@@ -1,5 +1,5 @@
 <script lang="ts">
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { onMount } from 'svelte';
 import { registriesInfos, registriesSuggestedInfos } from '../../stores/registries';
 import DropdownMenu from '../ui/DropdownMenu.svelte';

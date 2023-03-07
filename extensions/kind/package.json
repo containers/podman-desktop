@@ -51,7 +51,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@tmpwip/extension-api": "^0.0.1",
+    "@podman-desktop/api": "^0.0.1",
     "@octokit/rest": "^19.0.7"
   },
   "devDependencies": {

@@ -24,7 +24,7 @@ import type {
   ProviderStatus,
   Link,
   ProviderInformation,
-} from '@tmpwip/extension-api';
+} from '@podman-desktop/api';
 
 export type LifecycleMethod = 'start' | 'stop' | 'delete';
 

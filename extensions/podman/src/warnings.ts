@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as extensionApi from '@tmpwip/extension-api';
+import type * as extensionApi from '@podman-desktop/api';
 import * as os from 'node:os';
 import * as http from 'node:http';
 

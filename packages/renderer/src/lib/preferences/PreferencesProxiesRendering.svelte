@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ProxySettings } from '@tmpwip/extension-api';
+import type { ProxySettings } from '@podman-desktop/api';
 import { onMount } from 'svelte';
 
 let proxySettings: ProxySettings;

@@ -24,7 +24,7 @@
     "watch": "rollup --bundleConfigAsCjs --config rollup.config.js -w"
   },
   "dependencies": {
-    "@tmpwip/extension-api": "^0.0.1",
+    "@podman-desktop/api": "^0.0.1",
     "got": "^12.6.0"
   },
   "devDependencies": {

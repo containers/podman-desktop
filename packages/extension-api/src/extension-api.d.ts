@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-declare module '@tmpwip/extension-api' {
+declare module '@podman-desktop/api' {
   /**
    * Represents a reference to a command. Provides a title which
    * will be used to represent a command in the UI and, optionally,

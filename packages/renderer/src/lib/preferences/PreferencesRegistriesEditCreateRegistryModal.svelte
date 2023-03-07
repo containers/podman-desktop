@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Registry } from '@tmpwip/extension-api';
+import type { Registry } from '@podman-desktop/api';
 import { onMount } from 'svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { createFieldValidator, requiredValidator, urlValidator } from '../validation/FieldValidation';

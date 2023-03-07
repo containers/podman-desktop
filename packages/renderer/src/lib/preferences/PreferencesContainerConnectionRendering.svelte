@@ -2,7 +2,7 @@
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
 import { Buffer } from 'buffer';
-import type { ContainerProviderConnection } from '@tmpwip/extension-api';
+import type { ContainerProviderConnection } from '@podman-desktop/api';
 import { providerInfos } from '../../stores/providers';
 import { beforeUpdate, onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';

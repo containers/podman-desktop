@@ -12,7 +12,7 @@ export default {
     sourcemap: true,
   },
   external: [
-    '@tmpwip/extension-api',
+    '@podman-desktop/api',
     'node:stream',
     'node:http',
     'node:url',
