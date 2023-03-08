@@ -2,11 +2,8 @@
 import { configurationProperties } from '../../stores/configurationProperties';
 import { onMount } from 'svelte';
 import { Route } from 'tinro';
-import {
-  CONFIGURATION_DEFAULT_SCOPE,
-  IConfigurationPropertyRecordedSchema,
-} from '../../../../main/src/plugin/configuration-registry';
-
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import PreferencesRendering from './PreferencesRendering.svelte';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
 import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';

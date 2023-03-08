@@ -1,8 +1,6 @@
 <script lang="ts">
-import {
-  CONFIGURATION_DEFAULT_SCOPE,
-  IConfigurationPropertyRecordedSchema,
-} from '../../../../main/src/plugin/configuration-registry';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 let invalidEntry = false;

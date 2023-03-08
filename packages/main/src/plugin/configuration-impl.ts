@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry';
+import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants';
+
 /**
  * Local view of the configuration values for a given scope
  */

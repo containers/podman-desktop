@@ -23,8 +23,7 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import { ConfigurationImpl } from './configuration-impl';
 import type { Event } from './events/emitter';
 import { Emitter } from './events/emitter';
-
-export const CONFIGURATION_DEFAULT_SCOPE = 'DEFAULT';
+import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants';
 
 export type IConfigurationPropertySchemaType =
   | 'string'
