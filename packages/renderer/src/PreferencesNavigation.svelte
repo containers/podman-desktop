@@ -57,7 +57,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
 </script>
 
 <nav
-  class="pf-c-nav z-0 group w-52 shadow flex-col justify-between flex transition-all duration-500 ease-in-out"
+  class="pf-c-nav z-0 group w-14 hover:w-[250px] md:w-[250px] hover:sm:w-[250px] md:min-w-[200px] shadow flex-col justify-between sm:flex transition-all duration-500 ease-in-out overflow-hidden hover:overflow-y-auto"
   aria-label="Global">
   <ul class="pf-c-nav__list h-full overflow-auto">
     <!-- Resources configuration start -->
@@ -194,7 +194,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       <section class="pf-c-nav__subnav {addSectionHiddenClass('extensionsCatalog')}">
         <ul class="pf-c-nav__list">
           {#each extensions as extension}
-            <li class="pf-c-nav__item {addCurrentClass(`/preferences/extension/${extension.name}`)} ">
+            <li class="pf-c-nav__item {addCurrentClass(`/preferences/extension/${extension.name}`)}">
               <a
                 href="/preferences/extension/{extension.name}"
                 id="configuration-section-extensions-catalog-{extension.name.toLowerCase()}"
@@ -258,9 +258,9 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
 
   <ul class="pf-c-nav__list">
     <li
-      class="pf-c-nav__item pf-c-nav__link flex w-full justify-between dark:text-gray-400 hover:text-gray-300 cursor-pointer items-center"
+      class="pf-c-nav__item pf-c-nav__link flex w-full justify-between dark:text-gray-400 hover:text-gray-300 cursor-pointer items-center md:h-[50px] md:min-h-[50px]"
       on:click="{exitSettingsCallback}">
-      <div class="flex items-center">
+      <div class="flex items-center" style="margin-top:4px">
         <i class="fa fa-angle-left"></i>
         <span class="hidden md:block group-hover:block mx-2">Exit settings</span>
       </div>
