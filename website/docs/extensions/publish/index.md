@@ -53,7 +53,7 @@ Considers building an `OCI` image to publish to quay.io, Docker Hub or other `OC
 1. Build the image, ensuring that image is multi-arch (at least amd64 and arm64) to work on all supported Podman Desktop platforms.
 
   ```shell
-  podman build -t foo2 --arch amd64,arm64 --manifest quay.io/fbenoit/my-first-extension .
+  podman build --arch amd64,arm64 --manifest quay.io/fbenoit/my-first-extension .
   ```
 
 
