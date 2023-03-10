@@ -186,14 +186,17 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   }
 }
 
-function updateContainerConfiguration(containerProviderConnection: extensionApi.ContainerProviderConnection, machineInfo: MachineInfo) {
-   // get configuration for this connection
-   const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
+function updateContainerConfiguration(
+  containerProviderConnection: extensionApi.ContainerProviderConnection,
+  machineInfo: MachineInfo,
+) {
+  // get configuration for this connection
+  const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
 
-   // Set values for the machine
-   containerConfiguration.update('machine.cpus', machineInfo.cpus);
-   containerConfiguration.update('machine.memory', machineInfo.memory);
-   containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
+  // Set values for the machine
+  containerConfiguration.update('machine.cpus', machineInfo.cpus);
+  containerConfiguration.update('machine.memory', machineInfo.memory);
+  containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
 }
 
 function calcMacosSocketPath(machineName: string): string {
