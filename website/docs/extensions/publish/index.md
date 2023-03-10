@@ -10,7 +10,7 @@ keywords: [podman desktop, extension, publishing]
 
 * [Writing Extension](../extensions/write)
 
-Consider publishing and distributing because extension builds successfully.
+Consider publishing and distributing when extension builds successfully.
 
 Extension consists of a `zipped` file of all JavaScript files, dependencies, and metadata.
 

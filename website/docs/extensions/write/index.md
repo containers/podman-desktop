@@ -14,7 +14,7 @@ Extensions are self-contained, all runtime dependencies are inside the final bin
 
 #### Scaffold the project
 
-1. setup a Node.js project with `TypeScript`. Use for example `npm init` command.
+1. Setup a Node.js project with `TypeScript`. Use for example `npm init` command.
 
 1. Bring the development dependency to Podman Desktop API. It allows to import the API and register the contributions.
 
@@ -42,9 +42,9 @@ Extensions are self-contained, all runtime dependencies are inside the final bin
   }
   ```
 
-  In engine section, it describes the version of Podman Desktop that runs this extension.
+  In the `engines` section, describe the version of Podman Desktop that runs this extension.
 
-1. Includes the main entry point of the extension
+1. Include the main entry point of the extension
 
   ```json
     "main": "./dist/extension.js",
@@ -65,10 +65,11 @@ Extensions are self-contained, all runtime dependencies are inside the final bin
 
 #### Writing the codebase of the extension
 
-package.json describes the metadata of the extension. Extension activates by launching the `activate` function of the main file.
+The `package.json` file describes the metadata of the extension.
+Extension activates by launching the `activate` function of the main file.
 
 ##### Entry point
-Entrypoint of the extension (`main` entry in `package.json` file) needs to expose two functions.
+The extension entry point (`main` entry in `package.json` file) might expose two functions:
 
 One is for activation (`activate`), one for deactivation (`deactivate`). This one is optional.
 

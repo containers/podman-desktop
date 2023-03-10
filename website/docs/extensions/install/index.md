@@ -22,7 +22,7 @@ Consider installing Podman Desktop extensions to enrich the default capabilities
 
 1. Click on extensions in the navigation bar tree.
 
-1. Provides the name of the `OCI` image containing the extension in the `name of the image`field.
+1. Provides the name of the `OCI` image containing the extension in the `name of the image` field.
 
 1. Press the `install from OCI image` button.
 If Podman Desktop satisfies the minimum required version of the extension, extension activates.
