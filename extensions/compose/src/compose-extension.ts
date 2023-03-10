@@ -62,7 +62,7 @@ export class ComposeExtension {
       // create a status bar item
       statusBarChangesToApply.iconClass = ComposeExtension.ICON_WARNING;
       this.currentInformation =
-        'This extension does not work with Python Podman Compose. It will collide with the CLI named podman-desktop You need to uninstall Python Podman Compose before using Docker Compose v2.';
+        'This extension does not work with Python Podman Compose. It will collide with the CLI named podman-desktop. You need to uninstall Python Podman Compose before using Docker Compose v2.';
       statusBarChangesToApply.tooltip = this.currentInformation;
     } else {
       // check for docker-compose
