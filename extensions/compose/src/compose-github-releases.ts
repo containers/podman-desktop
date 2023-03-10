@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Octokit } from '@octokit/rest';
-import type { QuickPickItem } from '@tmpwip/extension-api';
+import type { QuickPickItem } from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 

@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { OS } from './os';
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import { promises } from 'node:fs';
 import mustache from 'mustache';
 

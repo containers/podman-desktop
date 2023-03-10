@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+
     "lib": [
         "ES2017",
         "webworker"
@@ -12,8 +15,10 @@
         "node",
     ]
 },
+
 "include": [
     "src",
+    "types/*.d.ts",
     "../../types/**/*.d.ts"
 ]
 }

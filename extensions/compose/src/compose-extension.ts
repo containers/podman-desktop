@@ -17,7 +17,7 @@
  ***********************************************************************/
 import * as path from 'node:path';
 import { existsSync, promises } from 'node:fs';
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import type { Detect } from './detect';
 import type { ComposeGitHubReleases } from './compose-github-releases';
 import type { OS } from './os';

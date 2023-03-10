@@ -19,7 +19,7 @@
 import * as os from 'node:os';
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
-import type * as extensionApi from '@tmpwip/extension-api';
+import type * as extensionApi from '@podman-desktop/api';
 export const isWindows = os.platform() === 'win32';
 export const isMac = os.platform() === 'darwin';
 export const isLinux = os.platform() === 'linux';

@@ -21,7 +21,7 @@ import { promises } from 'node:fs';
 
 import { afterEach, expect, beforeEach, test, vi, vitest } from 'vitest';
 import { PodmanComposeGenerator } from './podman-compose-generator';
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 
 // expose methods publicly for testing
 class TestPodmanGenerator extends PodmanComposeGenerator {
@@ -30,7 +30,7 @@ class TestPodmanGenerator extends PodmanComposeGenerator {
   }
 }
 
-vi.mock('@tmpwip/extension-api', () => {
+vi.mock('@podman-desktop/api', () => {
   return {
     window: {
       showErrorMessage: vi.fn(),

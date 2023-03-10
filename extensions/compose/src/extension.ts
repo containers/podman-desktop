@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { Octokit } from '@octokit/rest';
-import type * as extensionApi from '@tmpwip/extension-api';
+import type * as extensionApi from '@podman-desktop/api';
 import { CliRun } from './cli-run';
 import { Detect } from './detect';
 import { ComposeExtension } from './compose-extension';

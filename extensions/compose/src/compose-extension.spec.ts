@@ -24,7 +24,7 @@ import { afterEach, beforeEach, test, expect, vi, describe } from 'vitest';
 import { ComposeExtension } from './compose-extension';
 import type { Detect } from './detect';
 import type { ComposeGitHubReleases } from './compose-github-releases';
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import { promises } from 'node:fs';
 import type { PodmanComposeGenerator } from './podman-compose-generator';
 
@@ -63,7 +63,7 @@ const statusBarItemMock = {
   show: vi.fn(),
 };
 
-vi.mock('@tmpwip/extension-api', () => {
+vi.mock('@podman-desktop/api', () => {
   return {
     StatusBarAlignLeft: 1,
     commands: {
