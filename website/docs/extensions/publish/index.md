@@ -19,19 +19,21 @@ Extension assembly consists of a .cdix file or an `OCI` image.
 Publishing to an `OCI` registry is the recommended way for the publication.
 
 
-### Creating the `OCI` image and publish image
+### Creating and publishing the `OCI` image
 
-Considers building an `OCI` image to publish to quay.io, Docker Hub or other `OCI` registries
+Considers building an `OCI` image to publish to quay.io, Docker Hub or other `OCI` registries.
 
-#### Containerfile example
+#### Procedure
 
-1. Use a scratch image because it only requires the content of the assembly, no runtime.
+1. Create a `Containerfile` file, and start editing it.
+
+1. Use a scratch image because the extension only requires the content of the assembly, but no runtime:
 
   ```Dockerfile
   FROM scratch
   ```
 
-1. Apply mandatory Podman Desktop metadata on the `OCI` image
+1. Apply mandatory Podman Desktop metadata on the `OCI` image:
 
   ```Dockerfile
   LABEL org.opencontainers.image.title="My first extension" \
@@ -42,7 +44,7 @@ Considers building an `OCI` image to publish to quay.io, Docker Hub or other `OC
   
   Using `io.podman-desktop.api.version=">= 0.12.0"` this extension will run only on Podman Desktop v0.12.0 or a more recent one.
 
-1. Copy the extension assembly to the image (including the metadata, icon, and production binary) to `/extension` folder inside the image.
+1. Copy the extension assembly, including the metadata, icon, and production binary, to the `/extension` folder inside the image:
 
   ```
   COPY package.json /extension/
@@ -57,19 +59,16 @@ Considers building an `OCI` image to publish to quay.io, Docker Hub or other `OC
   ```
 
 
-#### Publish the image to an `OCI` registry
 
-In the earlier step, manifest is `quay.io/fbenoit/my-first-extension`.
-
-Push the image and manifest to quay.io
+1. Push the image and manifest to the OCI image registry:
 
 ```shell
   podman push quay.io/fbenoit/my-first-extension
 ```
 
-Ensuring that this repository is public. It means anyone can fetch the image.
+  Ensuring that this repository is public. It means anyone can fetch the image.
 
-Install this extension by using the name of the `OCI` image from the earlier step, for example `quay.io/fbenoit/my-first-extension` 
+1. Remember the name of the `OCI` image, for example `quay.io/fbenoit/my-first-extension`. You will need it to install the extension.
 
 #### Next steps
 

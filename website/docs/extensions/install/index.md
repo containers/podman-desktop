@@ -18,13 +18,13 @@ Consider installing Podman Desktop extensions to enrich the default capabilities
 
 ### Install extension
 
-1. Go to the settings page on the bottom left of Podman Desktop UI
+1. Go to the **Settings** page on the bottom left of Podman Desktop UI.
 
-1. Click on extensions in the navigation bar tree.
+1. Click on **Extensions** in the navigation bar tree.
 
-1. Provides the name of the `OCI` image containing the extension in the `name of the image` field.
+1. In the **Name of the Image** field, provide the name of the `OCI` image containing the extension.
 
-1. Press the `install from OCI image` button.
+1. Click the **Install extension from the OCI image** button.
 If Podman Desktop satisfies the minimum required version of the extension, extension activates.
 
-1. Depending on the extension, items can appear in the status bar, tray menu, or other contributions.
+* Depending on the extension, items can appear in the status bar, tray menu, or other contributions.

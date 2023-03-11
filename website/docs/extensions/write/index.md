@@ -63,6 +63,7 @@ Extensions are self-contained, all runtime dependencies are inside the final bin
     },
   ```
 
+1. Add an `icon.png` file to the project.
 #### Writing the codebase of the extension
 
 The `package.json` file describes the metadata of the extension.
@@ -71,15 +72,19 @@ Extension activates by launching the `activate` function of the main file.
 ##### Entry point
 The extension entry point (`main` entry in `package.json` file) might expose two functions:
 
-One is for activation (`activate`), one for deactivation (`deactivate`). This one is optional.
+1. (Mandatory) `activate`: activation function.
 
-Signature of the function can be synchronous
+1. (Optional) `deactivate`: deactivation function.
+
+The signature of the function can be either:
+
+* Synchronous
 
 ```typescript
 export function activate(): void
 ```
 
-or asynchronous
+* Asynchronous
 
 ```typescript
 export async function activate(): Promise<void>
