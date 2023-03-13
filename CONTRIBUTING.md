@@ -161,12 +161,12 @@ Some examples for correct titles would be:
 
 For Podman Desktop we use the following types:
 
-
+* `fix:` A bug fix
+* `chore:` Very small change / insignificant impact
+* `docs:` Documentation only changes (ex. website)
 * `build:` Changes that affect the build system
 * `ci:` Changes to the CI (ex. GitHub actions)
-* `docs:` Documentation only changes (ex. website)
 * `feat:` A new feature
-* `fix:` A bug fix
 * `perf:` A code change that improves performance
 * `refactor:` A code change that neither fixes a bug nor adds a feature
 * `style:` Changes that affect the formatting, but not the ability of the code
