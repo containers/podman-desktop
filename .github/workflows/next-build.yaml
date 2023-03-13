@@ -64,6 +64,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag: ${{ steps.TAG_UTIL.outputs.githubTag }}
+          desktopVersion: ${{ steps.TAG_UTIL.outputs.desktopVersion }}
           name: ${{ steps.TAG_UTIL.outputs.githubTag }}
           draft: true
           prerelease: true
@@ -175,7 +176,7 @@ jobs:
           id: ${{ needs.tag.outputs.releaseId}}
 
   publish:
-    needs: [release]
+    needs: [tag, release]
     name: Publish
     runs-on: ubuntu-20.04
     steps:
@@ -188,5 +189,6 @@ jobs:
 
       - name: Publish API to npmjs
         run: |
-          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" packages/extension-api/package.json
-          cd packages/extension-api && yarn publish --tag next --no-git-tag-version --new-version "${{ steps.TAG_UTIL.outputs.desktopVersion }}" --access public
+          echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/extension-api/package.json
+          cd packages/extension-api && yarn publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
