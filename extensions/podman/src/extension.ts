@@ -98,7 +98,9 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       diskSize: parseInt(machine.DiskSize) / 1073741824,
     });
 
-    podmanMachinesStatuses.set(machine.Name, status);
+    if (!podmanMachinesStatuses.has(machine.Name)) {
+      podmanMachinesStatuses.set(machine.Name, status);
+    }    
   });
 
   // remove machine no longer there
@@ -247,21 +249,36 @@ async function isPodmanSocketAlive(socketPath: string): Promise<boolean> {
   });
 }
 
-async function monitorPodmanSocket(socketPath: string) {
+async function monitorPodmanSocket(socketPath: string, machineName?: string) {
   // call us again
-  if (!stopLoop) {
+  if (!stopMonitoringPodmanSocket(machineName)) {
     try {
       const alive = await isPodmanSocketAlive(socketPath);
       if (!alive) {
-        podmanProviderStatus = 'stopped';
+        updateProviderStatus('stopped', machineName);
       } else {
-        podmanProviderStatus = 'started';
+        updateProviderStatus('started', machineName);
       }
     } catch (error) {
       // ignore the update of machines
     }
     await timeout(5000);
-    monitorPodmanSocket(socketPath);
+    monitorPodmanSocket(socketPath, machineName);
+  }
+}
+
+function stopMonitoringPodmanSocket(machineName?: string) {
+  if (machineName) {
+    return stopLoop || !podmanMachinesStatuses.has(machineName);
+  }
+  return stopLoop; 
+}
+
+function updateProviderStatus(status: extensionApi.ProviderConnectionStatus, machineName?: string) {
+  if (machineName) {
+    podmanMachinesStatuses.set(machineName, status);
+  } else {
+    podmanProviderStatus = status;
   }
 }
 
@@ -352,6 +369,8 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
       socketPath,
     },
   };
+
+  monitorPodmanSocket(socketPath, machineInfo.name);
 
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
   provider.updateStatus('ready');
