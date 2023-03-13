@@ -100,7 +100,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
       podmanMachinesStatuses.set(machine.Name, status);
-    }    
+    }
   });
 
   // remove machine no longer there
@@ -271,7 +271,7 @@ function stopMonitoringPodmanSocket(machineName?: string) {
   if (machineName) {
     return stopLoop || !podmanMachinesStatuses.has(machineName);
   }
-  return stopLoop; 
+  return stopLoop;
 }
 
 function updateProviderStatus(status: extensionApi.ProviderConnectionStatus, machineName?: string) {
