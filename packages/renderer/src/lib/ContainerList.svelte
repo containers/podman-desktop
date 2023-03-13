@@ -315,10 +315,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
 }
 </script>
 
-<NavPage
-  bind:searchTerm="{searchTerm}"
-  title="containers"
-  subtitle="Hover over a container to view action buttons; click to open up full details.">
+<NavPage bind:searchTerm="{searchTerm}" title="containers">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     <!-- Only show if there are containers-->
     {#if $containersInfos.length > 0}

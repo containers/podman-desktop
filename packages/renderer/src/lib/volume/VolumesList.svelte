@@ -176,10 +176,7 @@ function computeInterval(): number {
 }
 </script>
 
-<NavPage
-  bind:searchTerm="{searchTerm}"
-  title="volumes"
-  subtitle="Hover over a volume to view action buttons; click to open up full details.">
+<NavPage bind:searchTerm="{searchTerm}" title="volumes">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     {#if $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length > 0}
       <Prune type="volumes" engines="{enginesList}" />

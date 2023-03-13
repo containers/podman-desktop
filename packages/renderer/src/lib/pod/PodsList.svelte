@@ -209,10 +209,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
 }
 </script>
 
-<NavPage
-  bind:searchTerm="{searchTerm}"
-  title="pods"
-  subtitle="Hover over a pod to view action buttons; click to open up full details.">
+<NavPage bind:searchTerm="{searchTerm}" title="pods">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     {#if $podsInfos.length > 0}
       <Prune type="pods" engines="{enginesList}" />

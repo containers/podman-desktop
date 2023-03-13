@@ -18,7 +18,7 @@ $: providersStarting = $providerInfos.filter(provider => provider.status === 'st
 $: providersStopped = $providerInfos.filter(provider => provider.status === 'stopped');
 </script>
 
-<NavPage searchEnabled="{false}" title="Dashboard" subtitle="&nbsp;">
+<NavPage searchEnabled="{false}" title="Dashboard">
   <div slot="empty" class="flex flex-col min-h-full bg-zinc-700">
     <div class="min-w-full flex-1">
       <div class="pt-5 px-5 space-y-5">
