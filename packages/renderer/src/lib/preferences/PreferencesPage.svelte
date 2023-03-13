@@ -12,7 +12,6 @@ import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelt
 import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
 import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
 import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
-import NavPage from '../ui/NavPage.svelte';
 import ExtensionList from '../ExtensionList.svelte';
 
 let properties: IConfigurationPropertyRecordedSchema[];
@@ -34,50 +33,47 @@ onMount(async () => {
 });
 </script>
 
-<NavPage searchEnabled="{false}" title="Settings">
-  <div slot="empty" class="flex h-full px-3 py-3 bg-zinc-700">
-    <Route path="/">
-      {#if defaultPrefPageId !== undefined}
-        <PreferencesRendering key="{defaultPrefPageId}" properties="{properties}" />
-      {:else}
-        empty
-      {/if}
-    </Route>
-    <Route path="/default/:key" let:meta>
-      <PreferencesRendering key="{meta.params.key}" properties="{properties}" />
-    </Route>
-    <Route path="/ddExtensions" let:meta>
-      <PreferencesPageDockerExtensions />
-    </Route>
-    <Route path="/extensions" let:meta />
-    <Route path="/extension/:extensionId" let:meta>
-      <PreferencesExtensionRendering extensionId="{meta.params.extensionId}" />
-    </Route>
-    <Route path="/provider/:providerInternalId" let:meta>
-      <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
-    </Route>
-    <Route path="/registries">
-      <PreferencesRegistriesEditing />
-    </Route>
-    <Route path="/proxies">
-      <PreferencesProxiesRendering />
-    </Route>
-    <Route path="/extensions">
-      <ExtensionList />
-    </Route>
-
-    <Route path="/container-connection/" let:meta />
-    <Route path="/container-connection/:provider/:connection" let:meta>
-      <PreferencesContainerConnectionRendering
-        providerInternalId="{meta.params.provider}"
-        connection="{meta.params.connection}"
-        properties="{properties}" />
-    </Route>
-    <Route path="/kubernetes-connection/:provider/:apiUrlBase64" let:meta>
-      <PreferencesKubernetesConnectionRendering
-        providerInternalId="{meta.params.provider}"
-        apiUrlBase64="{meta.params.apiUrlBase64}"
-        properties="{properties}" />
-    </Route>
-  </div>
-</NavPage>
+<div class="flex h-full px-3 py-3 bg-zinc-900">
+  <Route path="/">
+    {#if defaultPrefPageId !== undefined}
+      <PreferencesRendering key="{defaultPrefPageId}" properties="{properties}" />
+    {:else}
+      empty
+    {/if}
+  </Route>
+  <Route path="/default/:key" let:meta>
+    <PreferencesRendering key="{meta.params.key}" properties="{properties}" />
+  </Route>
+  <Route path="/ddExtensions" let:meta>
+    <PreferencesPageDockerExtensions />
+  </Route>
+  <Route path="/extensions" let:meta />
+  <Route path="/extension/:extensionId" let:meta>
+    <PreferencesExtensionRendering extensionId="{meta.params.extensionId}" />
+  </Route>
+  <Route path="/provider/:providerInternalId" let:meta>
+    <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
+  </Route>
+  <Route path="/registries">
+    <PreferencesRegistriesEditing />
+  </Route>
+  <Route path="/proxies">
+    <PreferencesProxiesRendering />
+  </Route>
+  <Route path="/extensions">
+    <ExtensionList />
+  </Route>
+  <Route path="/container-connection/" let:meta />
+  <Route path="/container-connection/:provider/:connection" let:meta>
+    <PreferencesContainerConnectionRendering
+      providerInternalId="{meta.params.provider}"
+      connection="{meta.params.connection}"
+      properties="{properties}" />
+  </Route>
+  <Route path="/kubernetes-connection/:provider/:apiUrlBase64" let:meta>
+    <PreferencesKubernetesConnectionRendering
+      providerInternalId="{meta.params.provider}"
+      apiUrlBase64="{meta.params.apiUrlBase64}"
+      properties="{properties}" />
+  </Route>
+</div>
