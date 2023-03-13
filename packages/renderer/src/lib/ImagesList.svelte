@@ -209,10 +209,7 @@ function computeInterval(): number {
 }
 </script>
 
-<NavPage
-  bind:searchTerm="{searchTerm}"
-  title="images"
-  subtitle="Hover over an image to view action buttons; click to open up full details.">
+<NavPage bind:searchTerm="{searchTerm}" title="images">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     {#if $imagesInfos.length > 0}
       <Prune type="images" engines="{enginesList}" />

@@ -121,7 +121,7 @@ onDestroy(() => {
 });
 </script>
 
-<NavPage title="Copy containers to a pod" searchEnabled="{false}" subtitle="Create a pod from containers">
+<NavPage title="Copy containers to a pod" searchEnabled="{false}">
   <div class="w-full h-full" slot="empty">
     <div class="m-5 p-5 h-full bg-zinc-900 rounded-sm text-gray-400">
       {#if podCreation}

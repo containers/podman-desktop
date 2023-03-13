@@ -386,10 +386,7 @@ function checkContainerName(event: any) {
 
 <Route path="/*" let:meta>
   {#if dataReady}
-    <NavPage
-      title="Create a container from image {imageDisplayName}"
-      searchEnabled="{false}"
-      subtitle="{image.tag}@{image.shortId} ">
+    <NavPage title="Create a container from image {imageDisplayName}" searchEnabled="{false}">
       <div slot="empty" class="bg-zinc-700 p-5 h-full">
         <div class="bg-zinc-800 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
           <section class="pf-c-page__main-tabs pf-m-limit-width">
