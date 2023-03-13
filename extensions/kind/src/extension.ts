@@ -194,9 +194,12 @@ async function searchKindClusters(provider: extensionApi.Provider) {
   updateClusters(provider, kindContainers);
 }
 
-type ImageInfo = { engineId: string; id: string; name: string };
+type ImageInfo = { engineId: string; id?: string; name?: string };
 
 async function moveImage(image: ImageInfo) {
+  if (!image.id) {
+    throw new Error('Image selection not supported yet');
+  }
   const clusters = kindClusters.filter(cluster => cluster.status === 'started');
   let selectedCluster: string;
 
