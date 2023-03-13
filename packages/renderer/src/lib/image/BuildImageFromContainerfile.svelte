@@ -1,5 +1,6 @@
 <script lang="ts">
-import { onMount, tick } from 'svelte';
+import { onMount, tick, onDestroy } from 'svelte';
+import { get } from 'svelte/store';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
@@ -8,6 +9,15 @@ import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings'
 import { providerInfos } from '../../stores/providers';
 import NavPage from '../ui/NavPage.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
+import {
+  BuildImageCallback,
+  clearBuildTask,
+  disconnectUI,
+  eventCollect,
+  reconnectUI,
+  startBuild,
+} from './build-image-task';
+import { buildImagesInfo } from '/@/stores/build-images';
 
 let buildStarted = false;
 let buildFinished = false;
@@ -17,64 +27,92 @@ let containerBuildContextDirectory = undefined;
 let hasInvalidFields = true;
 
 let logsXtermDiv: HTMLDivElement;
+let logsTerminal: Terminal;
 
+let buildImageKey: symbol | undefined = undefined;
 let providers: ProviderInfo[] = [];
-$: providerConnections = providers
-  .map(provider => provider.containerConnections)
-  .flat()
-  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-$: selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
+let providerConnections: ProviderContainerConnectionInfo[] = [];
 let selectedProvider: ProviderContainerConnectionInfo = undefined;
-$: selectedProvider = !selectedProvider && selectedProviderConnection ? selectedProviderConnection : selectedProvider;
+let selectedProviderConnection: ProviderContainerConnectionInfo = undefined;
 
-$: initTerminal();
-
-function eventCollect(eventName: 'stream' | 'error', data: string): void {
-  if (eventName === 'stream') {
-    logsTerminal.write(data + '\r');
-  } else if (eventName === 'error') {
-    logsTerminal.write('Error:' + data + '\r');
-  }
+function getTerminalCallback(): BuildImageCallback {
+  return {
+    onStream: function (data: string): void {
+      logsTerminal.write(`${data}\r`);
+    },
+    onError: function (error: string): void {
+      logsTerminal.write(`Error:${error}\r`);
+    },
+    onEnd: function (): void {
+      buildFinished = true;
+      window.dispatchEvent(new CustomEvent('image-build', { detail: { name: containerImageName } }));
+    },
+  };
 }
 
 async function buildContainerImage(): Promise<void> {
   buildStarted = true;
   buildFinished = false;
-  await tick();
-  initTerminal();
-  await tick();
 
   if (containerFilePath) {
     // extract the relative path from the containerFilePath and containerBuildContextDirectory
     const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
 
+    buildImageKey = startBuild(getTerminalCallback());
+    // store the key
+    buildImagesInfo.set({ buildImageKey: buildImageKey });
     try {
       await window.buildImage(
         containerBuildContextDirectory,
         relativeContainerfilePath,
         containerImageName,
         selectedProvider,
+        buildImageKey,
         eventCollect,
       );
     } catch (error) {
       logsTerminal.write('Error:' + error + '\r');
-      console.error('error building image', error);
     }
-    buildFinished = true;
-    window.dispatchEvent(new CustomEvent('image-build', { detail: { name: containerImageName } }));
   }
 }
-function goToImagesList(): void {
+
+function cleanupBuild(): void {
+  // clear
+  if (buildImageKey) {
+    clearBuildTask(buildImageKey);
+    buildImageKey = undefined;
+  }
+
+  // redirect to the imlage list
   window.location.href = '#/images';
 }
 
-onMount(() => {
-  providerInfos.subscribe(value => {
-    providers = value;
-  });
+onMount(async () => {
+  providers = get(providerInfos);
+  providerConnections = providers
+    .map(provider => provider.containerConnections)
+    .flat()
+    .filter(providerContainerConnection => providerContainerConnection.status === 'started');
+
+  const selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
+  selectedProvider = !selectedProvider && selectedProviderConnection ? selectedProviderConnection : selectedProvider;
+
+  await initTerminal();
+
+  // check if we have an existing buil info
+  const value = get(buildImagesInfo);
+  if (value) {
+    buildImageKey = value.buildImageKey;
+    buildStarted = true;
+    reconnectUI(buildImageKey, getTerminalCallback());
+  }
 });
 
-let logsTerminal;
+onDestroy(() => {
+  if (buildImageKey) {
+    disconnectUI(buildImageKey);
+  }
+});
 
 async function getContainerfileLocation() {
   const result = await window.openFileDialog('Select Containerfile to build');
@@ -97,6 +135,7 @@ async function getContainerBuildContextDirectory() {
 }
 
 async function initTerminal() {
+  await tick();
   // missing element, return
   if (!logsXtermDiv) {
     return;
@@ -185,7 +224,7 @@ async function initTerminal() {
               </select>
             </label>
           {/if}
-          {#if providerConnections.length == 1}
+          {#if providerConnections.length == 1 && selectedProviderConnection}
             <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
           {/if}
         </div>
@@ -204,7 +243,7 @@ async function initTerminal() {
         {/if}
 
         {#if buildFinished}
-          <button on:click="{() => goToImagesList()}" class="w-full pf-c-button pf-m-primary">Done</button>
+          <button on:click="{() => cleanupBuild()}" class="w-full pf-c-button pf-m-primary">Done</button>
         {/if}
 
         <div bind:this="{logsXtermDiv}"></div>

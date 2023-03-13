@@ -991,7 +991,7 @@ export class ContainerProviderRegistry {
     relativeContainerfilePath: string,
     imageName: string,
     selectedProvider: ProviderContainerConnectionInfo,
-    eventCollect: (eventName: 'stream' | 'error', data: string) => void,
+    eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
   ): Promise<unknown> {
     this.telemetryService.track('buildImage');
     // grab all connections
@@ -1006,7 +1006,10 @@ export class ContainerProviderRegistry {
 
     // grab auth for all registries
     const registryconfig = this.imageRegistry.getRegistryConfig();
-
+    eventCollect(
+      'stream',
+      `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
+    );
     const tarStream = tar.pack(containerBuildContextDirectory);
     let streamingPromise;
     try {
@@ -1015,10 +1018,13 @@ export class ContainerProviderRegistry {
         dockerfile: relativeContainerfilePath,
         t: imageName,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.log('error in buildImage', error);
+      const errorMessage = error instanceof Error ? error.message : '' + error;
+      eventCollect('error', errorMessage);
       throw error;
     }
+    eventCollect('stream', `Building ${imageName}...\r\n`);
     // eslint-disable-next-line @typescript-eslint/ban-types
     let resolve: (output: {}) => void;
     let reject: (err: Error) => void;
@@ -1030,8 +1036,10 @@ export class ContainerProviderRegistry {
     // eslint-disable-next-line @typescript-eslint/ban-types
     function onFinished(err: Error | null, output: {}) {
       if (err) {
+        eventCollect('finish', err.message);
         return reject(err);
       }
+      eventCollect('finish', '');
       resolve(output);
     }
 
