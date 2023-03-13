@@ -2917,10 +2917,10 @@
     mkdirp "^1.0.4"
     path-browserify "^1.0.1"
 
-"@tsconfig/docusaurus@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@tsconfig/docusaurus/-/docusaurus-1.0.6.tgz#7305a7fa590decc0d5968500234e95fd68788978"
-  integrity sha512-1QxDaP54hpzM6bq9E+yFEo4F9WbWHhsDe4vktZXF/iDlc9FqGr9qlg+3X/nuKQXx8QxHV7ue8NXFazzajsxFBA==
+"@tsconfig/docusaurus@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@tsconfig/docusaurus/-/docusaurus-1.0.7.tgz#a3ee3c8109b3fec091e3d61a61834e563aeee3c3"
+  integrity sha512-ffTXxGIP/IRMCjuzHd6M4/HdIrw1bMfC7Bv8hMkTadnePkpe0lG0oDSdbRpSDZb2rQMAgpbWiR10BvxvNYwYrg==
 
 "@tsconfig/node10@^1.0.7":
   version "1.0.8"
