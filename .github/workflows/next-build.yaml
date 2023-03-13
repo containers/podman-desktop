@@ -64,7 +64,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag: ${{ steps.TAG_UTIL.outputs.githubTag }}
-          desktopVersion: ${{ steps.TAG_UTIL.outputs.desktopVersion }}
           name: ${{ steps.TAG_UTIL.outputs.githubTag }}
           draft: true
           prerelease: true
