@@ -116,6 +116,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   machinesToRemove.forEach(machine => {
     podmanMachinesStatuses.delete(machine);
     podmanMachinesInfo.delete(machine);
+    containerProviderConnections.delete(machine);
   });
 
   // create connections for new machines

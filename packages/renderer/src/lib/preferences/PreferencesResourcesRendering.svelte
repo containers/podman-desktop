@@ -11,21 +11,24 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { providerInfos } from '../../stores/providers';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { onMount } from 'svelte';
-import type {
-  IConfigurationPropertyRecordedSchema,
-  IProviderContainerConfigurationPropertyRecordedSchema,
-} from '../../../../main/src/plugin/configuration-registry';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '../../stores/configurationProperties';
 import type { ContainerProviderConnection } from '@tmpwip/extension-api';
 
-interface containerStatus {
+interface IContainerStatus {
   status: string;
   inProgress: boolean;
 }
 
+interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
+  value?: any;
+  container: string;
+  providerId: string;
+}
+
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
-$: containerConnectionStatus = new Map<string, containerStatus>();
+$: containerConnectionStatus = new Map<string, IContainerStatus>();
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 $: containerConnectionDivWidth = 0;
@@ -40,12 +43,13 @@ onMount(() => {
     providers = providerInfosValue;
     providers.forEach(provider => {
       provider.containerConnections.forEach(container => {
+        const containerConnectionName = getContainerConnectionName(provider, container);
         // update the map only if the container state is different from last time
         if (
-          containerConnectionStatus.has(`${provider.name}-${container.name}`) &&
-          containerConnectionStatus.get(`${provider.name}-${container.name}`).status !== container.status
+          containerConnectionStatus.has(containerConnectionName) &&
+          containerConnectionStatus.get(containerConnectionName).status !== container.status
         ) {
-          containerConnectionStatus.set(`${provider.name}-${container.name}`, {
+          containerConnectionStatus.set(containerConnectionName, {
             inProgress: false,
             status: container.status,
           });
@@ -60,7 +64,7 @@ $: configurationKeys = properties
   .filter(property => property.scope === 'ContainerConnection')
   .sort((a, b) => a.id.localeCompare(b.id));
 
-let tmpProviderContainerConfiguration: IProviderContainerConfigurationPropertyRecordedSchema[] = [];
+let tmpProviderContainerConfiguration: IProviderContainerConfigurationPropertyRecorded[] = [];
 $: Promise.all(
   providers.map(async provider => {
     const providerContainer = await Promise.all(
@@ -92,7 +96,7 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration
     innerProviderContainerConfigurations.push(value);
     map.set(value.providerId, innerProviderContainerConfigurations);
     return map;
-  }, new Map<string, IProviderContainerConfigurationPropertyRecordedSchema[]>());
+  }, new Map<string, IProviderContainerConfigurationPropertyRecorded[]>());
 
 async function startContainerProvider(
   provider: ProviderInfo,
@@ -136,11 +140,28 @@ function setContainerStatusIsChanging(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
 ): void {
-  containerConnectionStatus.set(`${provider.name}-${containerConnectionInfo.name}`, {
+  containerConnectionStatus.set(getContainerConnectionName(provider, containerConnectionInfo), {
     inProgress: true,
     status: containerConnectionInfo.status,
   });
   containerConnectionStatus = containerConnectionStatus;
+}
+
+function getContainerConnectionName(
+  provider: ProviderInfo,
+  containerConnectionInfo: ProviderContainerConnectionInfo,
+): string {
+  return `${provider.name}-${containerConnectionInfo.name}`;
+}
+
+function isContainerConnectionStatusInProgress(
+  provider: ProviderInfo,
+  containerConnectionInfo: ProviderContainerConnectionInfo,
+): boolean {
+  return (
+    containerConnectionStatus.get(`${provider.name}-${containerConnectionInfo.name}`) &&
+    containerConnectionStatus.get(`${provider.name}-${containerConnectionInfo.name}`).inProgress
+  );
 }
 </script>
 
@@ -243,8 +264,7 @@ function setContainerStatusIsChanging(
                     {#if container.lifecycleMethods.includes('start')}
                       <button
                         class="{container.status !== 'stopped' ||
-                        (containerConnectionStatus.get(`${provider.name}-${container.name}`) &&
-                          containerConnectionStatus.get(`${provider.name}-${container.name}`).inProgress)
+                        isContainerConnectionStatusInProgress(provider, container)
                           ? 'text-gray-700 cursor-not-allowed'
                           : ''}"
                         on:click="{() => startContainerProvider(provider, container)}">
@@ -254,8 +274,7 @@ function setContainerStatusIsChanging(
                     {#if container.lifecycleMethods.includes('start') && container.lifecycleMethods.includes('stop')}
                       <button
                         class="{container.status !== 'started' ||
-                        (containerConnectionStatus.get(`${provider.name}-${container.name}`) &&
-                          containerConnectionStatus.get(`${provider.name}-${container.name}`).inProgress)
+                        isContainerConnectionStatusInProgress(provider, container)
                           ? 'text-gray-700 cursor-not-allowed'
                           : ''}"
                         on:click="{() => restartContainerProvider(provider, container)}">
@@ -265,8 +284,7 @@ function setContainerStatusIsChanging(
                     {#if container.lifecycleMethods.includes('stop')}
                       <button
                         class="{container.status !== 'started' ||
-                        (containerConnectionStatus.get(`${provider.name}-${container.name}`) &&
-                          containerConnectionStatus.get(`${provider.name}-${container.name}`).inProgress)
+                        isContainerConnectionStatusInProgress(provider, container)
                           ? 'text-gray-700 cursor-not-allowed'
                           : ''}"
                         on:click="{() => stopContainerProvider(provider, container)}">
@@ -276,8 +294,7 @@ function setContainerStatusIsChanging(
                     {#if container.lifecycleMethods.includes('delete')}
                       <button
                         class="{(container.status !== 'stopped' && container.status !== 'unknown') ||
-                        (containerConnectionStatus.get(`${provider.name}-${container.name}`) &&
-                          containerConnectionStatus.get(`${provider.name}-${container.name}`).inProgress)
+                        isContainerConnectionStatusInProgress(provider, container)
                           ? 'text-gray-700 cursor-not-allowed'
                           : ''}"
                         on:click="{() => deleteContainerProvider(provider, container)}">
