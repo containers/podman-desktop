@@ -10,10 +10,18 @@ import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
+import {
+  InitializationMode,
+  InitializationSteps,
+  InitializeAndStartMode,
+  InitializeOnlyMode,
+} from './ProviderInitUtils';
+import { Steps } from 'svelte-steps';
 
 export let provider: ProviderInfo;
-let providerToggleValue = false;
+export let updateInitializationMode: (string, InitializationMode) => void;
 
+let initializationButtonVisible = true;
 let initializeInProgress = false;
 
 let initalizeError: string | undefined = undefined;
@@ -28,28 +36,28 @@ let logsTerminal;
 // Terminal resize
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
+let installationOptionsMenuVisible = false;
+let installationOptionSelected = InitializeAndStartMode;
 
 async function initializeProvider() {
   initalizeError = undefined;
   logsTerminal.clear();
-  if (providerToggleValue) {
-    initializeInProgress = true;
-    try {
-      await window.initializeProvider(provider.internalId);
-      // wait that status is updated
-      await new Promise<void>(resolve => {
-        window.events.receive('provider-change', () => {
-          resolve();
-        });
+  initializeInProgress = true;
+  try {
+    await window.initializeProvider(provider.internalId);
+    // wait that status is updated
+    await new Promise<void>(resolve => {
+      window.events.receive('provider-change', () => {
+        resolve();
       });
-    } catch (error) {
-      initalizeError = error;
-      providerToggleValue = false;
-      logsTerminal.write(error + '\r');
-      console.error('Error while initializing the provider', error);
-    }
-    initializeInProgress = false;
+    });
+  } catch (error) {
+    initalizeError = error;
+    initializationButtonVisible = true;
+    logsTerminal.write(error + '\r');
+    console.error('Error while initializing the provider', error);
   }
+  initializeInProgress = false;
 }
 
 async function refreshTerminal() {
@@ -106,6 +114,17 @@ onDestroy(() => {
   // Cleanup the observer on destroy
   resizeObserver?.unobserve(logsXtermDiv);
 });
+
+function updateOptionsMenu(visible: boolean) {
+  installationOptionsMenuVisible = visible;
+}
+
+function onInstallationClick() {
+  initializeInProgress = true;
+  initializationButtonVisible = false;
+  updateInitializationMode(provider.internalId, installationOptionSelected);
+  initializeProvider();
+}
 </script>
 
 <div class="p-2 flex flex-col bg-zinc-800 rounded-lg">
@@ -121,23 +140,65 @@ onDestroy(() => {
     <p class="text-base text-gray-400">
       To start working with containers, {provider.name} needs to be initialized.
     </p>
-    <label for="toggle-{provider.internalId}" class="inline-flex relative items-center my-5 cursor-pointer">
-      <input
-        type="checkbox"
-        disabled="{initializeInProgress}"
-        bind:checked="{providerToggleValue}"
-        on:change="{() => initializeProvider()}"
-        id="toggle-{provider.internalId}"
-        class="sr-only peer" />
-      <div
-        class="w-9 h-5 peer-focus:ring-violet-800 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-violet-600">
+
+    <div class="m-5" class:hidden="{!initializationButtonVisible}">
+      <div class="bg-[#e5e7eb]">
+        <button
+          class="float-left bg-[var(--pf-global--primary-color--300)] hover:bg-[var(--pf-global--primary-color--200)] pt-2 pr-3 pl-3 pb-2 text-[13px] mr-px  w-[180px]"
+          on:click="{onInstallationClick}">
+          {installationOptionSelected}
+        </button>
+        <button
+          class="inline-block bg-[var(--pf-global--primary-color--300)] hover:bg-[var(--pf-global--primary-color--200)] text-[13px] pt-2 pr-3 pl-3 pb-2 w-[32px]"
+          on:click="{() => updateOptionsMenu(!installationOptionsMenuVisible)}">
+          <i class="fas fa-caret-down"></i>
+        </button>
       </div>
-      <span class="ml-3 text-sm font-medium text-gray-300">Initialize {provider.name}</span>
-    </label>
-    {#if initializeInProgress}
-      <div class="flex mt-2 flex-col">
-        <div>Initializing...Please Wait...</div>
-        <div class="my-2">
+      <div class="-z-1 min-w-[130px] m-auto bg-primary text-[13px]" class:hidden="{!installationOptionsMenuVisible}">
+        <ul class="w-full outline-none bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400">
+          <li>
+            <button
+              class="w-full p-2 {installationOptionSelected === InitializeOnlyMode
+                ? 'bg-[#ffffff33]'
+                : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
+              on:click="{() => {
+                installationOptionSelected = InitializeOnlyMode;
+                installationOptionsMenuVisible = false;
+              }}">
+              {InitializeOnlyMode}
+              {provider.name}
+            </button>
+          </li>
+          <li>
+            <button
+              class="w-full p-2 {installationOptionSelected === InitializeAndStartMode
+                ? 'bg-[#ffffff33]'
+                : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
+              on:click="{() => {
+                installationOptionSelected = InitializeAndStartMode;
+                installationOptionsMenuVisible = false;
+              }}">
+              {InitializeAndStartMode}
+              {provider.name}
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-5" class:hidden="{!initializeInProgress}">
+      {#if installationOptionSelected === InitializeAndStartMode}
+        <Steps
+          steps="{InitializationSteps}"
+          primary="var(--pf-global--primary-color--300)"
+          size="1.7rem"
+          line="1px"
+          current="{0}"
+          clickable="{false}" />
+      {/if}
+      <div class="flex  flex-col text-gray-400">
+        <div>Initializing</div>
+        <div class="my-2 pr-5">
           <i class="pf-c-button__progress">
             <span class="pf-c-spinner pf-m-md" role="progressbar">
               <span class="pf-c-spinner__clipper"></span>
@@ -147,7 +208,7 @@ onDestroy(() => {
           </i>
         </div>
       </div>
-    {/if}
+    </div>
 
     <div
       class=""
