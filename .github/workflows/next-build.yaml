@@ -51,9 +51,8 @@ jobs:
         run: |
           git config --local user.name ${{ github.actor }}
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" package.json
-          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" packages/extension-api/package.json
           cat package.json
-          git add package.json packages/extension-api/package.json
+          git add package.json
           git commit -m "chore: tag ${{ steps.TAG_UTIL.outputs.githubTag }}"
           echo "Tagging with ${{ steps.TAG_UTIL.outputs.githubTag }}"
           git tag ${{ steps.TAG_UTIL.outputs.githubTag }}
@@ -179,4 +178,6 @@ jobs:
         run: printf "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
 
       - name: Publish API to npmjs
-        run: cd packages/extension-api && yarn publish --tag next --no-git-tag-version --new-version "${{ steps.TAG_UTIL.outputs.desktopVersion }}" --access public   
+        run: |
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" packages/extension-api/package.json
+          cd packages/extension-api && yarn publish --tag next --no-git-tag-version --new-version "${{ steps.TAG_UTIL.outputs.desktopVersion }}" --access public
