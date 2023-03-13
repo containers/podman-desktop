@@ -10,10 +10,11 @@ import {
 import Fa from 'svelte-fa/src/fa.svelte';
 import { providerInfos } from '../../stores/providers';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '../../stores/configurationProperties';
 import type { ContainerProviderConnection } from '@tmpwip/extension-api';
+import type { Unsubscriber } from 'svelte/store';
 
 interface IContainerStatus {
   status: string;
@@ -34,12 +35,14 @@ let configurationKeys: IConfigurationPropertyRecordedSchema[];
 $: containerConnectionDivWidth = 0;
 $: containerConnectionDivHeight = 0;
 
+let providersUnsubscribe: Unsubscriber;
+let configurationPropertiesUnsubscribe: Unsubscriber;
 onMount(() => {
-  configurationProperties.subscribe(value => {
+  configurationPropertiesUnsubscribe = configurationProperties.subscribe(value => {
     properties = value;
   });
 
-  providerInfos.subscribe(providerInfosValue => {
+  providersUnsubscribe = providerInfos.subscribe(providerInfosValue => {
     providers = providerInfosValue;
     providers.forEach(provider => {
       provider.containerConnections.forEach(container => {
@@ -58,6 +61,15 @@ onMount(() => {
     });
     containerConnectionStatus = containerConnectionStatus;
   });
+});
+
+onDestroy(() => {
+  if (providersUnsubscribe) {
+    providersUnsubscribe();
+  }
+  if (configurationPropertiesUnsubscribe) {
+    configurationPropertiesUnsubscribe();
+  }
 });
 
 $: configurationKeys = properties
