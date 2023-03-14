@@ -3665,11 +3665,6 @@
     loupe "^2.3.6"
     pretty-format "^27.5.1"
 
-"@vscode/sudo-prompt@^9.3.1":
-  version "9.3.1"
-  resolved "https://registry.yarnpkg.com/@vscode/sudo-prompt/-/sudo-prompt-9.3.1.tgz#c562334bc6647733649fd42afc96c0eea8de3b65"
-  integrity sha512-9ORTwwS74VaTn38tNbQhsA5U44zkJfcb0BdTSyyG6frP4e8KMtHuTXYmwefe5dpL8XB1aGSIVTaLjD3BbWb5iA==
-
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.11.1.tgz#2bfd767eae1a6996f432ff7e8d7fc75679c0b6a7"
@@ -11533,6 +11528,11 @@ stylehacks@^5.1.0:
     browserslist "^4.16.6"
     postcss-selector-parser "^6.0.4"
 
+sudo-prompt@^9.2.1:
+  version "9.2.1"
+  resolved "https://registry.yarnpkg.com/sudo-prompt/-/sudo-prompt-9.2.1.tgz#77efb84309c9ca489527a4e749f287e6bdd52afd"
+  integrity sha512-Mu7R0g4ig9TUuGSxJavny5Rv0egCEtpZRNMrZaYS1vxkiIxGiGUwoezU3LazIQ+KE04hTrTfNPgxU5gzi7F5Pw==
+
 sumchecker@^3.0.1:
   version "3.0.1"
   resolved "https://registry.npmjs.org/sumchecker/-/sumchecker-3.0.1.tgz"
@@ -11887,10 +11887,10 @@ trim-trailing-lines@^1.0.0:
   resolved "https://registry.yarnpkg.com/trim-trailing-lines/-/trim-trailing-lines-1.1.4.tgz#bd4abbec7cc880462f10b2c8b5ce1d8d1ec7c2c0"
   integrity sha512-rjUWSqnfTNrjbB9NQWfPMH/xRK1deHeGsHoVfpxJ++XeYXE0d6B1En37AHfw3jtfTU7dzMzZL2jjpe8Qb5gLIQ==
 
-trim@0.0.1, trim@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/trim/-/trim-0.0.3.tgz#05243a47a3a4113e6b49367880a9cca59697a20b"
-  integrity sha512-h82ywcYhHK7veeelXrCScdH7HkWfbIT1D/CgYO+nmDarz3SGNssVBMws6jU16Ga60AJCRAvPV6w6RLuNerQqjg==
+trim@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/trim/-/trim-0.0.1.tgz#5858547f6b290757ee95cccc666fb50084c460dd"
+  integrity sha512-YzQV+TZg4AxpKxaTHK3c3D+kRDCGVEE7LemdlQZoQXn0iennk10RsIoY6ikzAqJTc9Xjl9C1/waHom/J86ziAQ==
 
 trough@^1.0.0:
   version "1.0.5"

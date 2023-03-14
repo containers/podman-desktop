@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
-import * as sudo from '@vscode/sudo-prompt';
+import * as sudo from 'sudo-prompt';
 
 // Create an abstract class for compatibility mode (macOS only)
 // TODO: Windows, Linux
@@ -93,7 +93,7 @@ async function runSudoMacHelperCommand(command: string): Promise<void> {
       if (error) {
         reject(error);
       } else {
-        resolve(undefined);
+        resolve();
       }
     });
   });

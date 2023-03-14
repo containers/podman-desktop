@@ -481,8 +481,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       if (!isDisguisedPodmanSocket) {
         const result = await extensionApi.window.showInformationMessage(
           `Do you want to automatically enable socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
-          'Close',
           'Enable',
+          'Close',
         );
 
         if (result === 'Enable') {
@@ -491,8 +491,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       } else {
         const result = await extensionApi.window.showInformationMessage(
           `Do you want to automatically disable socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
-          'Close',
           'Disable',
+          'Close',
         );
 
         if (result === 'Disable') {
