@@ -93,6 +93,7 @@
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
     "@podman-desktop/api": "^0.0.1",
+    "@vscode/sudo-prompt": "^9.3.1",
     "compare-versions": "^5.0.3"
   },
   "devDependencies": {
