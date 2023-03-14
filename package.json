@@ -68,7 +68,7 @@
     "@types/dockerode": "^3.3.14",
     "@types/getos": "^3.0.1",
     "@types/tar-fs": "^2.0.1",
-    "@types/validator": "^13.7.13",
+    "@types/validator": "^13.7.14",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.54.1",
     "@vitest/coverage-c8": "0.29.2",
