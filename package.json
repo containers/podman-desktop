@@ -70,7 +70,7 @@
     "@types/tar-fs": "^2.0.1",
     "@types/validator": "^13.7.13",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
-    "@typescript-eslint/parser": "^5.54.1",
+    "@typescript-eslint/parser": "^5.55.0",
     "@vitest/coverage-c8": "0.29.2",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
