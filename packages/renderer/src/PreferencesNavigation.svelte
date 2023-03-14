@@ -58,7 +58,13 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
 
 <nav
   class="pf-c-nav z-0 group w-52 shadow flex-col justify-between flex transition-all duration-500 ease-in-out"
+  style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))"
   aria-label="Global">
+  <div class="flex items-center">
+    <div class="pt-5 px-5 mb-10">
+      <p class="text-xl first-letter:uppercase">Settings</p>
+    </div>
+  </div>
   <ul class="pf-c-nav__list h-full overflow-auto">
     <!-- Resources configuration start -->
     <li
