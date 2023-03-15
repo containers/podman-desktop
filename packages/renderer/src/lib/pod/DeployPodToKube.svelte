@@ -146,7 +146,7 @@ async function deployToKube() {
           };
           servicesToCreate.push(service);
 
-          if (openOpenshiftConsole && deployUsingRoutes) {
+          if (openshiftConsoleURL && deployUsingRoutes) {
             // Create OpenShift route object
             const route = {
               apiVersion: 'route.openshift.io/v1',
