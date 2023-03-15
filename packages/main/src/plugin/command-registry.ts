@@ -56,4 +56,8 @@ export class CommandRegistry {
     // should try to execute on client side
     throw new Error('Unknown command: ' + commandId);
   }
+
+  hasCommand(commandId: string): boolean {
+    return this.commands.has(commandId);
+  }
 }

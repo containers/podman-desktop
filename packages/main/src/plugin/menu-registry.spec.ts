@@ -18,11 +18,14 @@
 
 import { beforeAll, beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
 import { MenuRegistry } from './menu-registry';
+import { CommandRegistry } from './command-registry';
 
 let menuRegistry;
+let commandRegistry;
 
 beforeAll(() => {
-  menuRegistry = new MenuRegistry();
+  commandRegistry = new CommandRegistry();
+  menuRegistry = new MenuRegistry(commandRegistry);
   const manifest = {
     contributes: {
       menus: {
@@ -42,10 +45,22 @@ beforeAll(() => {
             title: 'Container 2',
           },
         ],
+        'dashboard/unregistered': [
+          {
+            command: 'unregistered.command1',
+            title: 'Unregistered 1',
+          },
+        ],
       },
     },
   };
   menuRegistry.registerMenus(manifest.contributes.menus);
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  commandRegistry.registerCommand('image.command1', () => {});
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  commandRegistry.registerCommand('container.command1', () => {});
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  commandRegistry.registerCommand('container.command2', () => {});
 });
 
 beforeEach(() => {
@@ -77,4 +92,11 @@ test('Container context should have two entries', async () => {
   expect(menus[0].title).toBe('Container 1');
   expect(menus[1].command).toBe('container.command2');
   expect(menus[1].title).toBe('Container 2');
+});
+
+test('Menus with unregistered commands should not be returned', async () => {
+  const menus = menuRegistry.getContributedMenus('dashboard/unregistered');
+  expect(menus).toBeDefined();
+  expectTypeOf(menus).toBeArray();
+  expect(menus.length).toBe(0);
 });
