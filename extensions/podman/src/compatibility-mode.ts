@@ -33,7 +33,7 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
   details = `The podman-mac-helper binary will be ran in order to enable or disable compatibility mode. 
     This requires administrative privileges.`;
 
-  private findPodmanHelper(): string {
+  findPodmanHelper(): string {
     const homebrewPath = '/opt/homebrew/bin/podman-mac-helper';
     const podmanPath = '/opt/podman/bin/podman-mac-helper';
 
@@ -46,7 +46,7 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     }
   }
 
-  private async runCommand(command: string, description: string): Promise<void> {
+  async runCommand(command: string, description: string): Promise<void> {
     // Find the podman-mac-helper binary
     const podmanHelperBinary = this.findPodmanHelper();
     if (podmanHelperBinary === '') {
