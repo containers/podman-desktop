@@ -22,7 +22,7 @@ import type { Detect } from './detect';
 import type { ComposeGitHubReleases } from './compose-github-releases';
 import type { OS } from './os';
 import { platform, arch } from 'node:os';
-import type { PodmanComposeGenerator } from './podman-compose-generator';
+import type { ComposeWrapperGenerator } from './compose-wrapper-generator';
 
 export class ComposeExtension {
   public static readonly COMPOSE_INSTALL_COMMAND = 'compose.install';
@@ -41,7 +41,7 @@ export class ComposeExtension {
     private readonly detect: Detect,
     private readonly composeGitHubReleases: ComposeGitHubReleases,
     private readonly os: OS,
-    private podmanComposeGenerator: PodmanComposeGenerator,
+    private podmanComposeGenerator: ComposeWrapperGenerator,
   ) {}
 
   async runChecks(firstCheck: boolean): Promise<void> {
@@ -54,41 +54,49 @@ export class ComposeExtension {
       command: ComposeExtension.COMPOSE_CHECKS_COMMAND,
     };
 
-    // detect if podman-compose is installed
-    const podmanComposeInstalled = await this.detect.checkForPythonPodmanCompose();
+    // check for docker-compose
+    const dockerComposeInstalled = await this.detect.checkForDockerCompose();
+    if (dockerComposeInstalled) {
+      // check if we have compatibility mode or docker setup
+      const compatibilityModeSetup = await this.detect.checkDefaultSocketIsAlive();
+      if (compatibilityModeSetup) {
+        // it's installed so we're good
+        statusBarChangesToApply.iconClass = ComposeExtension.ICON_CHECK;
+        statusBarChangesToApply.tooltip = 'Compose is installed and DOCKER_HOST is reachable';
+      } else {
+        // need to write the wrapper for docker-compose and use the name 'compose'
+        // add wrapper script
+        await this.addComposeWrapper();
 
-    // in that case, report an issue in status bar
-    if (podmanComposeInstalled) {
-      // create a status bar item
-      statusBarChangesToApply.iconClass = ComposeExtension.ICON_WARNING;
-      this.currentInformation =
-        'This extension does not work with Python Podman Compose. It will collide with the CLI named podman-desktop. You need to uninstall Python Podman Compose before using Docker Compose v2.';
-      statusBarChangesToApply.tooltip = this.currentInformation;
-    } else {
-      // check for docker-compose
-      const dockerComposeInstalled = await this.detect.checkForDockerCompose();
-      if (dockerComposeInstalled) {
-        // check if podman-compose alias is in the PATH
+        // check if the extension bin folder is in the PATH
         const extensionBinFolderInPath = await this.detect.checkStoragePath();
-        if (extensionBinFolderInPath) {
-          // it's installed so we're good
-          statusBarChangesToApply.iconClass = ComposeExtension.ICON_CHECK;
-          statusBarChangesToApply.tooltip = 'Docker Compose is installed';
-        } else {
+        if (!extensionBinFolderInPath) {
           // not there, ask the user to setup the PATH
           statusBarChangesToApply.iconClass = ComposeExtension.ICON_WARNING;
-          statusBarChangesToApply.tooltip = 'Path problem for Podman Compose';
-          this.currentInformation = `Please add the Podman Compose bin folder to your PATH environment variable. Value is ${path.resolve(
+          statusBarChangesToApply.tooltip = `${this.detect.getSocketPath()} is not enabled. Need to use wrapper script`;
+          this.currentInformation = `Please add the compose wrapper bin folder to your PATH environment variable. Value is ${path.resolve(
             this.extensionContext.storagePath,
             'bin',
+          )}. The script ${path.resolve(
+            this.extensionContext.storagePath,
+            'bin',
+            'compose',
+          )} will setup for you the DOCKER_HOST environment variable.`;
+        } else {
+          // it's installed so we're good
+          statusBarChangesToApply.iconClass = ComposeExtension.ICON_CHECK;
+          statusBarChangesToApply.tooltip = `Compose is installed and usable with ${path.resolve(
+            this.extensionContext.storagePath,
+            'bin',
+            'compose',
           )}`;
         }
-      } else {
-        // not installed, propose to install it
-        statusBarChangesToApply.iconClass = ComposeExtension.ICON_DOWNLOAD;
-        statusBarChangesToApply.tooltip = 'Install Docker Compose';
-        statusBarChangesToApply.command = ComposeExtension.COMPOSE_INSTALL_COMMAND;
       }
+    } else {
+      // not installed, propose to install it
+      statusBarChangesToApply.iconClass = ComposeExtension.ICON_DOWNLOAD;
+      statusBarChangesToApply.tooltip = 'Install Compose';
+      statusBarChangesToApply.command = ComposeExtension.COMPOSE_INSTALL_COMMAND;
     }
     // apply status bar changes
     this.statusBarItem.iconClass = statusBarChangesToApply.iconClass;
@@ -163,18 +171,20 @@ export class ComposeExtension {
 
     extensionApi.window.showInformationMessage(`Docker Compose ${selectedRelease.label} installed`);
 
-    // add wrapper script
-    this.addPodmanCompose();
-
     // update checks
     this.runChecks(false);
   }
 
   // add script that is redirecting to docker-compose and configuring the socket using DOCKER_HOST
-  async addPodmanCompose(): Promise<void> {
+  async addComposeWrapper(): Promise<void> {
     // get storage data
     const storageData = await this.extensionContext.storagePath;
     const storageBinFolder = path.resolve(storageData, 'bin');
+
+    if (!existsSync(storageBinFolder)) {
+      // create the folder
+      await promises.mkdir(storageBinFolder, { recursive: true });
+    }
 
     // append file extension
     let fileExtension = '';
@@ -183,12 +193,12 @@ export class ComposeExtension {
     }
 
     // create the script file
-    const podmanComposeScript = path.resolve(storageBinFolder, `podman-compose${fileExtension}`);
+    const composeWrapperScript = path.resolve(storageBinFolder, `compose${fileExtension}`);
 
-    await this.podmanComposeGenerator.generate(podmanComposeScript);
+    await this.podmanComposeGenerator.generate(composeWrapperScript);
 
     // make it executable
-    await this.makeExecutable(podmanComposeScript);
+    await this.makeExecutable(composeWrapperScript);
   }
 
   showCurrentInformation(): void {

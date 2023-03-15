@@ -23,18 +23,18 @@ import { Detect } from './detect';
 import { ComposeExtension } from './compose-extension';
 import { ComposeGitHubReleases } from './compose-github-releases';
 import { OS } from './os';
-import { PodmanComposeGenerator } from './podman-compose-generator';
+import { ComposeWrapperGenerator } from './compose-wrapper-generator';
 import * as path from 'path';
 let composeExtension: ComposeExtension | undefined;
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   const octokit = new Octokit();
-  const cliRun = new CliRun(extensionContext);
   const os = new OS();
-  const podmanComposeGenerator = new PodmanComposeGenerator(os, path.resolve(extensionContext.storagePath, 'bin'));
+  const cliRun = new CliRun(extensionContext, os);
+  const podmanComposeGenerator = new ComposeWrapperGenerator(os, path.resolve(extensionContext.storagePath, 'bin'));
   const composeExtension = new ComposeExtension(
     extensionContext,
-    new Detect(cliRun, extensionContext.storagePath),
+    new Detect(cliRun, os, extensionContext.storagePath),
     new ComposeGitHubReleases(octokit),
     os,
     podmanComposeGenerator,

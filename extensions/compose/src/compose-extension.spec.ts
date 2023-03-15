@@ -26,7 +26,7 @@ import type { Detect } from './detect';
 import type { ComposeGitHubReleases } from './compose-github-releases';
 import * as extensionApi from '@podman-desktop/api';
 import { promises } from 'node:fs';
-import type { PodmanComposeGenerator } from './podman-compose-generator';
+import type { ComposeWrapperGenerator } from './compose-wrapper-generator';
 
 const extensionContext: extensionApi.ExtensionContext = {
   storagePath: '/fake/path',
@@ -41,9 +41,10 @@ const osMock = {
 };
 
 const detectMock = {
-  checkForPythonPodmanCompose: vi.fn(),
   checkForDockerCompose: vi.fn(),
   checkStoragePath: vi.fn(),
+  checkDefaultSocketIsAlive: vi.fn(),
+  getSocketPath: vi.fn(),
 };
 
 const composeGitHubReleasesMock = {
@@ -52,9 +53,9 @@ const composeGitHubReleasesMock = {
   downloadReleaseAsset: vi.fn(),
 };
 
-const podmanComposeGeneratorMock = {
+const composeWrapperGeneratorMock = {
   generate: vi.fn(),
-} as unknown as PodmanComposeGenerator;
+} as unknown as ComposeWrapperGenerator;
 
 const statusBarItemMock = {
   tooltip: '',
@@ -100,7 +101,7 @@ beforeEach(() => {
     detectMock as unknown as Detect,
     composeGitHubReleasesMock as unknown as ComposeGitHubReleases,
     osMock,
-    podmanComposeGeneratorMock,
+    composeWrapperGeneratorMock,
   );
 
   const createStatusBarItem = vi.spyOn(extensionApi.window, 'createStatusBarItem');
@@ -112,28 +113,14 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-test('should report error if podman-compose is installed', async () => {
-  detectMock.checkForPythonPodmanCompose.mockResolvedValueOnce(true);
-
-  // activate the extension
-  await composeExtension.activate();
-
-  // now, check that if podman-compose is installed, we report the error as expected
-  expect(statusBarItemMock.tooltip).toContain('This extension does not work with Python Podman Compose');
-  expect(statusBarItemMock.iconClass).toBe(ComposeExtension.ICON_WARNING);
-  expect(statusBarItemMock.command).toBe('compose.checks');
-  expect(statusBarItemMock.show).toHaveBeenCalled();
-});
-
 test('should prompt the user to download docker-desktop if podman-compose is not installed and docker-compose is not installed', async () => {
-  detectMock.checkForPythonPodmanCompose.mockResolvedValueOnce(false);
   detectMock.checkForDockerCompose.mockResolvedValueOnce(false);
 
   // activate the extension
   await composeExtension.activate();
 
   // now, check that if podman-compose is installed, we report the error as expected
-  expect(statusBarItemMock.tooltip).toContain('Install Docker Compose');
+  expect(statusBarItemMock.tooltip).toContain('Install Compose');
   expect(statusBarItemMock.iconClass).toBe(ComposeExtension.ICON_DOWNLOAD);
 
   // command should be the install command
@@ -142,16 +129,16 @@ test('should prompt the user to download docker-desktop if podman-compose is not
   expect(statusBarItemMock.show).toHaveBeenCalled();
 });
 
-test('should report to the user that docker-compose is installed if podman-compose is not installed and docker-compose is installed', async () => {
-  detectMock.checkForPythonPodmanCompose.mockResolvedValueOnce(false);
+test('should report to the user that docker-compose is installed if docker-compose is installed with compatibily mode', async () => {
   detectMock.checkForDockerCompose.mockResolvedValueOnce(true);
+  detectMock.checkDefaultSocketIsAlive.mockResolvedValueOnce(true);
   detectMock.checkStoragePath.mockResolvedValueOnce(true);
 
   // activate the extension
   await composeExtension.activate();
 
   // now, check that if podman-compose is installed, we report the error as expected
-  expect(statusBarItemMock.tooltip).toContain('Docker Compose is installed');
+  expect(statusBarItemMock.tooltip).toContain('Compose is installed');
   expect(statusBarItemMock.iconClass).toBe(ComposeExtension.ICON_CHECK);
 
   // command should be the checks command
@@ -160,21 +147,50 @@ test('should report to the user that docker-compose is installed if podman-compo
   expect(statusBarItemMock.show).toHaveBeenCalled();
 });
 
-test('should report to the user that path is not setup if podman-compose is not in the PATH', async () => {
-  detectMock.checkForPythonPodmanCompose.mockResolvedValueOnce(false);
+test('should report error to the user that docker-compose is installed if docker-compose is installed without compatibily mode', async () => {
   detectMock.checkForDockerCompose.mockResolvedValueOnce(true);
-  detectMock.checkStoragePath.mockResolvedValueOnce(false);
+  detectMock.checkDefaultSocketIsAlive.mockResolvedValueOnce(false);
+  detectMock.checkStoragePath.mockResolvedValueOnce(true);
+
+  const spyOnaddComposeWrapper = vi.spyOn(composeExtension, 'addComposeWrapper').mockImplementation(async () => {
+    // do nothing
+  });
 
   // activate the extension
   await composeExtension.activate();
 
-  expect(statusBarItemMock.tooltip).toContain('Path problem for Podman Compose');
+  // now, check that if compose is installed, we report the error as expected
+  expect(statusBarItemMock.tooltip).toContain('Compose is installed and usable with ');
+  expect(statusBarItemMock.iconClass).toBe(ComposeExtension.ICON_CHECK);
+
+  // command should be the checks command
+  expect(statusBarItemMock.command).toBe('compose.checks');
+
+  expect(statusBarItemMock.show).toHaveBeenCalled();
+  expect(spyOnaddComposeWrapper).toHaveBeenCalled();
+});
+
+test('should report to the user that path is not setup if compose is not in the PATH', async () => {
+  detectMock.getSocketPath.mockReturnValueOnce('/fake/path');
+  detectMock.checkForDockerCompose.mockResolvedValueOnce(true);
+  detectMock.checkDefaultSocketIsAlive.mockResolvedValueOnce(false);
+  detectMock.checkStoragePath.mockResolvedValueOnce(false);
+
+  const spyOnaddComposeWrapper = vi.spyOn(composeExtension, 'addComposeWrapper').mockImplementation(async () => {
+    // do nothing
+  });
+
+  // activate the extension
+  await composeExtension.activate();
+
+  expect(statusBarItemMock.tooltip).toContain('/fake/path is not enabled. Need to us');
   expect(statusBarItemMock.iconClass).toBe(ComposeExtension.ICON_WARNING);
 
   // command should be the checks command
   expect(statusBarItemMock.command).toBe('compose.checks');
 
   expect(statusBarItemMock.show).toHaveBeenCalled();
+  expect(spyOnaddComposeWrapper).toHaveBeenCalled();
 });
 
 test('Check that we have registered commands', async () => {
@@ -219,7 +235,6 @@ describe.each([
 ])('Check install docker compose command', ({ existDir, os }) => {
   test(`Check install docker compose command dir exists ${existDir}`, async () => {
     let dockerComposeFileExtension = '';
-    let podmanComposeFileExtension = '';
 
     // mock the fs module
     vi.mock('node:fs');
@@ -237,7 +252,6 @@ describe.each([
     if (os === 'Windows') {
       osMock.isWindows.mockReturnValue(true);
       dockerComposeFileExtension = '.exe';
-      podmanComposeFileExtension = '.bat';
     } else if (os === 'Linux') {
       osMock.isLinux.mockReturnValue(true);
     }
@@ -273,10 +287,46 @@ describe.each([
     if (!existDir) {
       expect(mkdirSpy).toHaveBeenCalledWith(resolve(extensionContext.storagePath, 'bin'), { recursive: true });
     }
+  });
+});
+
+describe.each([
+  { existDir: false, os: 'Windows' },
+  { existDir: true, os: 'Linux' },
+])('Check install compose wrapper command', ({ existDir, os }) => {
+  test(`Check install compose wrapper command dir exists ${existDir}`, async () => {
+    let composeWrapperFileExtension = '';
+
+    // mock the fs module
+    vi.mock('node:fs');
+
+    // mock the existSync and mkdir methods
+    const existSyncSpy = vi.spyOn(fs, 'existsSync');
+    existSyncSpy.mockImplementation(() => existDir);
+
+    const mkdirSpy = vi.spyOn(promises, 'mkdir');
+    mkdirSpy.mockImplementation(() => Promise.resolve(''));
+
+    if (os === 'Windows') {
+      osMock.isWindows.mockReturnValue(true);
+      composeWrapperFileExtension = '.bat';
+    } else if (os === 'Linux') {
+      osMock.isLinux.mockReturnValue(true);
+    }
+    // fake chmod
+    const chmodMock = vi.spyOn(promises, 'chmod');
+    chmodMock.mockImplementation(() => Promise.resolve());
+
+    await composeExtension.addComposeWrapper();
+
+    // should have created the directory if non-existent
+    if (!existDir) {
+      expect(mkdirSpy).toHaveBeenCalledWith(resolve(extensionContext.storagePath, 'bin'), { recursive: true });
+    }
 
     // should have call the podman generator
-    expect(podmanComposeGeneratorMock.generate).toHaveBeenCalledWith(
-      `/fake/path/bin/podman-compose${podmanComposeFileExtension}`,
+    expect(composeWrapperGeneratorMock.generate).toHaveBeenCalledWith(
+      `/fake/path/bin/compose${composeWrapperFileExtension}`,
     );
   });
 });

@@ -25,7 +25,7 @@ import shMustacheTemplate from './templates/podman-compose.sh.mustache?raw';
 import batMustacheTemplate from './templates/podman-compose.bat.mustache?raw';
 
 // Generate the script to run docker-compose by setting up all environment variables
-export class PodmanComposeGenerator {
+export class ComposeWrapperGenerator {
   constructor(private os: OS, private binFolder: string) {}
 
   protected async generateContent(): Promise<string> {

@@ -16,13 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as os from 'node:os';
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
 import type * as extensionApi from '@podman-desktop/api';
-export const isWindows = os.platform() === 'win32';
-export const isMac = os.platform() === 'darwin';
-export const isLinux = os.platform() === 'linux';
+import type { OS } from './os';
 
 export interface SpawnResult {
   exitCode: number;
@@ -39,7 +36,7 @@ export interface RunOptions {
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
 
 export class CliRun {
-  constructor(private readonly extensionContext: extensionApi.ExtensionContext) {}
+  constructor(private readonly extensionContext: extensionApi.ExtensionContext, private os: OS) {}
 
   getPath(): string {
     const env = process.env;
@@ -47,13 +44,13 @@ export class CliRun {
     // extension storage bin path (where to store binaries)
     const extensionBinPath = resolve(this.extensionContext.storagePath, 'bin');
 
-    if (isMac) {
+    if (this.os.isMac()) {
       if (!env.PATH) {
         return macosExtraPath.concat(':').concat(extensionBinPath);
       } else {
         return env.PATH.concat(':').concat(macosExtraPath).concat(':').concat(extensionBinPath);
       }
-    } else if (isWindows) {
+    } else if (this.os.isWindows()) {
       return env.PATH.concat(';').concat(extensionBinPath);
     } else {
       return env.PATH.concat(':').concat(extensionBinPath);
@@ -68,9 +65,9 @@ export class CliRun {
       let env = Object.assign({}, process.env); // clone original env object
 
       // In production mode, applications don't have access to the 'user' path like brew
-      if (isMac || isWindows) {
+      if (this.os.isMac() || this.os.isWindows()) {
         env.PATH = this.getPath();
-        if (isWindows) {
+        if (this.os.isWindows()) {
           // Escape any whitespaces in command
           command = `"${command}"`;
         }
@@ -84,7 +81,7 @@ export class CliRun {
         env = Object.assign(env, options.env);
       }
 
-      const spawnProcess = spawn(command, args, { shell: isWindows, env });
+      const spawnProcess = spawn(command, args, { shell: this.os.isWindows(), env });
       // do not reject as we want to store exit code in the result
       spawnProcess.on('error', error => {
         if (options?.logger) {

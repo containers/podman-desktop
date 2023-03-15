@@ -20,11 +20,11 @@ import type { Mock } from 'vitest';
 import { promises } from 'node:fs';
 
 import { afterEach, expect, beforeEach, test, vi, vitest } from 'vitest';
-import { PodmanComposeGenerator } from './podman-compose-generator';
+import { ComposeWrapperGenerator } from './compose-wrapper-generator';
 import * as extensionApi from '@podman-desktop/api';
 
 // expose methods publicly for testing
-class TestPodmanGenerator extends PodmanComposeGenerator {
+class TestComposeWrapperGenerator extends ComposeWrapperGenerator {
   public async publicGenerateContent(): Promise<string> {
     return this.generateContent();
   }
@@ -64,9 +64,9 @@ const dummyConnection2 = {
   },
 };
 
-let podmanComposeGenerator: TestPodmanGenerator;
+let composeWrapperGenerator: TestComposeWrapperGenerator;
 beforeEach(() => {
-  podmanComposeGenerator = new TestPodmanGenerator(osMock, '/fake-dir');
+  composeWrapperGenerator = new TestComposeWrapperGenerator(osMock, '/fake-dir');
   vi.mock('node:fs');
   vitest.spyOn(promises, 'writeFile').mockImplementation(() => Promise.resolve());
   (extensionApi.provider.getContainerConnections as Mock).mockReturnValue([dummyConnection1, dummyConnection2]);
@@ -81,13 +81,13 @@ test('no connections', async () => {
   vi.mock('node:fs');
   (extensionApi.provider.getContainerConnections as Mock).mockReturnValue([]);
   osMock.isLinux.mockReturnValue(true);
-  podmanComposeGenerator.generate('/destFile');
+  composeWrapperGenerator.generate('/destFile');
   expect(extensionApi.window.showErrorMessage).toHaveBeenCalledWith('No connection to container engine is started');
 });
 
 test('generate', async () => {
   osMock.isLinux.mockReturnValue(true);
-  await podmanComposeGenerator.generate('/destFile');
+  await composeWrapperGenerator.generate('/destFile');
   // no error
   expect(extensionApi.window.showErrorMessage).not.toHaveBeenCalled();
 
@@ -97,7 +97,7 @@ test('generate', async () => {
 
 test('generateContent on linux', async () => {
   osMock.isLinux.mockReturnValue(true);
-  const content = await podmanComposeGenerator.publicGenerateContent();
+  const content = await composeWrapperGenerator.publicGenerateContent();
   // no error
   expect(extensionApi.window.showErrorMessage).not.toHaveBeenCalled();
 
@@ -111,7 +111,7 @@ test('generateContent on linux', async () => {
 
 test('generateContent on mac', async () => {
   osMock.isMac.mockReturnValue(true);
-  const content = await podmanComposeGenerator.publicGenerateContent();
+  const content = await composeWrapperGenerator.publicGenerateContent();
   // no error
   expect(extensionApi.window.showErrorMessage).not.toHaveBeenCalled();
 
@@ -125,7 +125,7 @@ test('generateContent on mac', async () => {
 
 test('generateContent on windows', async () => {
   osMock.isWindows.mockReturnValue(true);
-  const content = await podmanComposeGenerator.publicGenerateContent();
+  const content = await composeWrapperGenerator.publicGenerateContent();
   // no error
   expect(extensionApi.window.showErrorMessage).not.toHaveBeenCalled();
 

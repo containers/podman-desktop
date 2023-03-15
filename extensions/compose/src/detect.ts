@@ -19,29 +19,20 @@
 import type { CliRun } from './cli-run';
 import { shellPath } from 'shell-path';
 import { resolve } from 'path';
+import * as http from 'node:http';
+import type { OS } from './os';
 
 export class Detect {
-  constructor(private cliRun: CliRun, private storagePath: string) {}
+  static readonly WINDOWS_SOCKET_PATH = '//./pipe/docker_engine';
+  static readonly UNIX_SOCKET_PATH = '/var/run/docker.sock';
+
+  constructor(private cliRun: CliRun, private os: OS, private storagePath: string) {}
 
   // search if docker-compose is available in the path (+ include storage/bin folder)
   async checkForDockerCompose(): Promise<boolean> {
     const result = await this.cliRun.runCommand('docker-compose', ['--version']);
     if (result.exitCode === 0) {
       return true;
-    }
-    return false;
-  }
-
-  // search if the python podman-compose is available in the path
-  async checkForPythonPodmanCompose(): Promise<boolean> {
-    const result = await this.cliRun.runCommand('podman-compose', ['--version']);
-    if (result.exitCode === 0) {
-      // check if it contains 'podman-composer'
-      if (result.stdOut.includes('podman-composer')) {
-        return true;
-      } else {
-        return false;
-      }
     }
     return false;
   }
@@ -58,5 +49,45 @@ export class Detect {
     }
 
     return false;
+  }
+
+  // Async function that checks to see if the current Docker socket is a disguised Podman socket
+  async checkDefaultSocketIsAlive(): Promise<boolean> {
+    const socketPath = this.getSocketPath();
+
+    const podmanPingUrl = {
+      path: '/_ping',
+      socketPath,
+    };
+
+    return new Promise<boolean>(resolve => {
+      const req = http.get(podmanPingUrl, res => {
+        res.on('data', () => {
+          // do nothing
+        });
+
+        res.on('end', () => {
+          if (res.statusCode === 200) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        });
+      });
+      req.once('error', err => {
+        console.debug('Error while pinging docker', err);
+        resolve(false);
+      });
+    });
+  }
+
+  // Function that checks whether you are running windows, mac or linux and returns back
+  // the correct Docker socket location
+  getSocketPath(): string {
+    let socketPath: string = Detect.UNIX_SOCKET_PATH;
+    if (this.os.isWindows()) {
+      socketPath = Detect.WINDOWS_SOCKET_PATH;
+    }
+    return socketPath;
   }
 }
