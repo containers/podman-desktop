@@ -296,6 +296,21 @@ export class PluginSystem {
     statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
 
     statusBarRegistry.setEntry(
+      'tasks',
+      false,
+      0,
+      undefined,
+      'tasks',
+      'fa fa-bell',
+      true,
+      'show-task-manager',
+      undefined,
+    );
+    commandRegistry.registerCommand('show-task-manager', () => {
+      apiSender.send('toggle-task-manager', '');
+    });
+
+    statusBarRegistry.setEntry(
       'feedback',
       false,
       0,
