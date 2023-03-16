@@ -13,8 +13,9 @@ import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../
 import { onDestroy, onMount } from 'svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '../../stores/configurationProperties';
-import type { ContainerProviderConnection } from '@tmpwip/extension-api';
+import type { ContainerProviderConnection } from '@podman-desktop/api';
 import type { Unsubscriber } from 'svelte/store';
+import Tooltip from '../ui/Tooltip.svelte';
 
 interface IContainerStatus {
   status: string;
@@ -204,10 +205,12 @@ function isContainerConnectionStatusInProgress(
               <span class="my-auto text-gray-300 ml-3">{provider.name}</span>
             </div>
             <div class="text-center mt-10">
-              <!-- create new podman machine button -->
-              <button class="pf-c-button pf-m-primary " title="Create new Podman machine" type="button">
-                Create new ...
-              </button>
+              {#if provider.containerProviderConnectionCreation}
+                <!-- create new podman machine button -->
+                <button class="pf-c-button pf-m-primary " title="Create new Podman machine" type="button">
+                  Create new ...
+                </button>
+              {/if}
             </div>
           </div>
         </div>
@@ -274,53 +277,61 @@ function isContainerConnectionStatusInProgress(
                   <!-- TODO: see action available like machine infos -->
                   <div class="flex bg-zinc-900 w-fit rounded-lg m-auto">
                     {#if container.lifecycleMethods.includes('start')}
-                      <button
-                        class="{container.status !== 'stopped' ||
-                        isContainerConnectionStatusInProgress(provider, container)
-                          ? 'text-gray-700 cursor-not-allowed'
-                          : ''}"
-                        on:click="{() => startContainerProvider(provider, container)}">
-                        <Fa class="ml-5 mr-2.5 my-2" icon="{faPlay}" />
-                      </button>
+                      <Tooltip tip="Start" bottom>
+                        <button
+                          class="{container.status !== 'stopped' ||
+                          isContainerConnectionStatusInProgress(provider, container)
+                            ? 'text-gray-700 cursor-not-allowed'
+                            : 'hover:text-gray-400'}"
+                          on:click="{() => startContainerProvider(provider, container)}">
+                          <Fa class="ml-5 mr-2.5 my-2" icon="{faPlay}" />
+                        </button>
+                      </Tooltip>
                     {/if}
                     {#if container.lifecycleMethods.includes('start') && container.lifecycleMethods.includes('stop')}
-                      <button
-                        class="{container.status !== 'started' ||
-                        isContainerConnectionStatusInProgress(provider, container)
-                          ? 'text-gray-700 cursor-not-allowed'
-                          : ''}"
-                        on:click="{() => restartContainerProvider(provider, container)}">
-                        <Fa class="mx-2.5 my-2" icon="{faRotateRight}" />
-                      </button>
+                      <Tooltip tip="Restart" bottom>
+                        <button
+                          class="{container.status !== 'started' ||
+                          isContainerConnectionStatusInProgress(provider, container)
+                            ? 'text-gray-700 cursor-not-allowed'
+                            : 'hover:text-gray-400'}"
+                          on:click="{() => restartContainerProvider(provider, container)}">
+                          <Fa class="mx-2.5 my-2" icon="{faRotateRight}" />
+                        </button>
+                      </Tooltip>
                     {/if}
                     {#if container.lifecycleMethods.includes('stop')}
-                      <button
-                        class="{container.status !== 'started' ||
-                        isContainerConnectionStatusInProgress(provider, container)
-                          ? 'text-gray-700 cursor-not-allowed'
-                          : ''}"
-                        on:click="{() => stopContainerProvider(provider, container)}">
-                        <Fa class="mx-2.5 my-2" icon="{faStop}" />
-                      </button>
+                      <Tooltip tip="Stop" bottom>
+                        <button
+                          class="{container.status !== 'started' ||
+                          isContainerConnectionStatusInProgress(provider, container)
+                            ? 'text-gray-700 cursor-not-allowed'
+                            : 'hover:text-gray-400'}"
+                          on:click="{() => stopContainerProvider(provider, container)}">
+                          <Fa class="mx-2.5 my-2" icon="{faStop}" />
+                        </button>
+                      </Tooltip>
                     {/if}
                     {#if container.lifecycleMethods.includes('delete')}
-                      <button
-                        class="{(container.status !== 'stopped' && container.status !== 'unknown') ||
-                        isContainerConnectionStatusInProgress(provider, container)
-                          ? 'text-gray-700 cursor-not-allowed'
-                          : ''}"
-                        on:click="{() => deleteContainerProvider(provider, container)}">
-                        <Fa class="mx-2.5 my-2" icon="{faTrash}" />
-                      </button>
+                      <Tooltip tip="Delete" bottom>
+                        <button
+                          class="{(container.status !== 'stopped' && container.status !== 'unknown') ||
+                          isContainerConnectionStatusInProgress(provider, container)
+                            ? 'text-gray-700 cursor-not-allowed'
+                            : 'hover:text-gray-400'}"
+                          on:click="{() => deleteContainerProvider(provider, container)}">
+                          <Fa class="mx-2.5 my-2" icon="{faTrash}" />
+                        </button>
+                      </Tooltip>
                     {/if}
-                    <button>
+                    <button class="hover:text-gray-400">
                       <Fa class="ml-2.5 mr-5 my-2" icon="{faEllipsisVertical}" />
                     </button>
                   </div>
                 </div>
               {/if}
               <div class="mt-1.5 text-gray-500 text-[9px]">
-                <div>{provider.name} v{provider.version}</div>
+                <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
               </div>
             </div>
           {/each}
