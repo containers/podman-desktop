@@ -23,6 +23,7 @@ import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelt
 import { providerInfos } from '../../stores/providers';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 
+<<<<<<< HEAD
 const providerInfo: ProviderInfo = {
   id: 'podman',
   name: 'podman',
@@ -126,3 +127,94 @@ test('Expect to be start, delete actions disabled and stop, restart enabled when
   expect(deleteButton).toBeInTheDocument();
   expect(deleteButton.classList.contains('cursor-not-allowed'));
 });
+=======
+let providerInfo: ProviderInfo = 
+  {
+    id: "podman",
+    name: "podman",
+    images: {
+        icon: "img"
+    },
+    status: "started",
+    warnings: undefined,
+    containerProviderConnectionCreation: true,
+    detectionChecks: undefined,
+    containerConnections: [{
+      name: "machine",
+      status: 'started',
+      endpoint: {
+        socketPath: "socket"
+      },
+      lifecycleMethods: [
+        "start",
+        "stop",
+        "delete"
+      ],
+      type: 'podman',
+    }],
+    installationSupport: undefined,
+    internalId: "0",
+    kubernetesConnections: [],
+    kubernetesProviderConnectionCreation: true,
+    links: undefined,
+  };
+
+beforeEach(() => {
+    (window.events as unknown) = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      receive: vi.fn(),
+    };
+})
+
+test('Expect to see elements regarding podman provider', async () => {
+  providerInfos.set([
+    providerInfo
+  ]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.getByRole('button', { name: 'Create new ...' });
+  expect(button).toBeInTheDocument();
+  expect(button.title).toBe("Create new podman machine")
+});
+
+test('Expect to be start, delete actions enabled and stop, restart disabled when container stopped', async () => {
+  providerInfo.containerConnections[0].status = "stopped";
+  providerInfos.set([
+    providerInfo
+  ]);
+  render(PreferencesResourcesRendering, {});
+  const buttons = screen.getAllByRole('button');
+  const startButton = buttons.filter(b => b.attributes.getNamedItem("name")?.value == "Start")[0];
+  expect(startButton).toBeInTheDocument();
+  expect(!startButton.classList.contains("cursor-not-allowed"));
+  const stopButton = buttons.filter(b => b.attributes.getNamedItem("name")?.value == "Stop")[0];
+  expect(stopButton).toBeInTheDocument();
+  expect(stopButton.classList.contains("cursor-not-allowed"));
+  const restartButton = buttons.filter(b => b.attributes.getNamedItem("name")?.value == "Restart")[0];
+  expect(restartButton).toBeInTheDocument();
+  expect(restartButton.classList.contains("cursor-not-allowed"));
+  const deleteButton = buttons.filter(b => b.attributes.getNamedItem("name")?.value == "Delete")[0];
+  expect(deleteButton).toBeInTheDocument();
+  expect(!deleteButton.classList.contains("cursor-not-allowed"));
+});
+
+test('Expect to be start, delete actions disabled and stop, restart enabled when container running', async () => {
+  providerInfo.containerConnections[0].status = "started";
+  providerInfos.set([
+    providerInfo
+  ]);
+  render(PreferencesResourcesRendering, {});
+  const buttons = screen.getAllByRole('button');
+  const startButton = buttons.filter(b => b.attributes.getNamedItem("name")?.value == "Start")[0];
+  expect(startButton).toBeInTheDocument();
+  expect(startButton.classList.contains("cursor-not-allowed"));
+  const stopButton = buttons.filter(b => b.attributes.getNamedItem("name")?.value == "Stop")[0];
+  expect(stopButton).toBeInTheDocument();
+  expect(!stopButton.classList.contains("cursor-not-allowed"));
+  const restartButton = buttons.filter(b => b.attributes.getNamedItem("name")?.value == "Restart")[0];
+  expect(restartButton).toBeInTheDocument();
+  expect(!restartButton.classList.contains("cursor-not-allowed"));
+  const deleteButton = buttons.filter(b => b.attributes.getNamedItem("name")?.value == "Delete")[0];
+  expect(deleteButton).toBeInTheDocument();
+  expect(deleteButton.classList.contains("cursor-not-allowed"));
+});
+>>>>>>> 6abb4210 (add tests)
