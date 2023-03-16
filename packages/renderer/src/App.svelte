@@ -18,6 +18,7 @@ import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
 import ContainerDetails from './lib/ContainerDetails.svelte';
 import { providerInfos } from './stores/providers';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
+import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import DashboardPage from './lib/dashboard/DashboardPage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
@@ -79,6 +80,8 @@ window.events?.receive('display-help', () => {
         <div class="lg:w-2/5 flex-1 lg:justify-end ml-5 lg:ml-0"></div>
       </div>
     </header>
+
+    <WelcomePage />
 
     <div class="overflow-x-hidden flex flex-1">
       {#if meta.url.startsWith('/preferences')}
