@@ -23,7 +23,6 @@ import * as os from 'node:os';
 import { runCliCommand, detectKind } from './util';
 import { KindInstaller } from './kind-installer';
 import { window } from '@podman-desktop/api';
-import type { ImageInfoUI } from 'renderer/src/lib/image/ImageInfoUI';
 import { tmpName } from 'tmp-promise';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
