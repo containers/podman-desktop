@@ -231,3 +231,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           id: ${{ needs.tag.outputs.releaseId}}
+
+  publish:
+    needs: [tag, release]
+    name: Publish
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Set-up npmjs auth token
+        run: printf "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
+
+      - name: Publish API to npmjs
+        run: |
+          echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/extension-api/package.json
+          cd packages/extension-api && yarn publish --tag latest --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
