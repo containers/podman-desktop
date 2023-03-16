@@ -15,6 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import type { CommandRegistry } from './command-registry';
 
 export interface Menu {
   command: string;
@@ -23,6 +24,8 @@ export interface Menu {
 
 export class MenuRegistry {
   private menus = new Map<string, Menu[]>();
+
+  constructor(private commandRegisty: CommandRegistry) {}
 
   registerMenus(menus: { [key: string]: Menu[] }): void {
     for (const name in menus) {
@@ -41,6 +44,6 @@ export class MenuRegistry {
   }
 
   getContributedMenus(context: string): Menu[] {
-    return this.menus.get(context) || [];
+    return this.menus.get(context)?.filter(menu => this.commandRegisty.hasCommand(menu.command)) || [];
   }
 }

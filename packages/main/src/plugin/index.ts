@@ -262,7 +262,7 @@ export class PluginSystem {
     await proxy.init();
 
     const commandRegistry = new CommandRegistry();
-    const menuRegistry = new MenuRegistry();
+    const menuRegistry = new MenuRegistry(commandRegistry);
     const certificates = new Certificates();
     await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
