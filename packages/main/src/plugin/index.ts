@@ -82,6 +82,7 @@ import { FilesystemMonitoring } from './filesystem-monitoring';
 import { Certificates } from './certificates';
 import { Proxy } from './proxy';
 import { EditorInit } from './editor-init';
+import { WelcomeInit } from './welcome/welcome-init';
 import { ExtensionInstaller } from './install/extension-installer';
 import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
 import type { Menu } from '/@/plugin/menu-registry';
@@ -320,6 +321,10 @@ export class PluginSystem {
     // init editor configuration
     const editorInit = new EditorInit(configurationRegistry);
     editorInit.init();
+
+    // init welcome configuration
+    const welcomeInit = new WelcomeInit(configurationRegistry);
+    welcomeInit.init();
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
