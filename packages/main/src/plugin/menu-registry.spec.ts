@@ -23,6 +23,7 @@ import { CommandRegistry } from './command-registry';
 let menuRegistry;
 let commandRegistry;
 
+/* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
   commandRegistry = new CommandRegistry();
   menuRegistry = new MenuRegistry(commandRegistry);
@@ -55,11 +56,8 @@ beforeAll(() => {
     },
   };
   menuRegistry.registerMenus(manifest.contributes.menus);
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   commandRegistry.registerCommand('image.command1', () => {});
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   commandRegistry.registerCommand('container.command1', () => {});
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   commandRegistry.registerCommand('container.command2', () => {});
 });
 
