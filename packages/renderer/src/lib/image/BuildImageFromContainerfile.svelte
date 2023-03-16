@@ -58,7 +58,7 @@ async function buildContainerImage(): Promise<void> {
     // extract the relative path from the containerFilePath and containerBuildContextDirectory
     const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
 
-    buildImageKey = startBuild(getTerminalCallback());
+    buildImageKey = startBuild(containerImageName, getTerminalCallback());
     // store the key
     buildImagesInfo.set({ buildImageKey: buildImageKey });
     try {

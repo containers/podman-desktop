@@ -16,7 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { router } from 'tinro';
 import { buildImagesInfo } from '/@/stores/build-images';
+import type { Task } from '/@/stores/tasks';
+import { createTask, removeTask } from '/@/stores/tasks';
 
 export interface BuildImageCallback {
   // callback on stream
@@ -53,11 +56,23 @@ export interface BuildHold {
 const buildCallbacks = new Map<symbol, BuildImageCallback>();
 const buildOnHolds = new Map<symbol, BuildHold>();
 const buildReplays = new Map<symbol, BuildReplay>();
+const allTasks = new Map<symbol, Task>();
 
 // new build is occuring, needs to compute a new key and prepare replay data
-export function startBuild(buildImageCallback: BuildImageCallback): symbol {
+export function startBuild(imageName: string, buildImageCallback: BuildImageCallback): symbol {
   const key = getKey();
   buildCallbacks.set(key, buildImageCallback);
+
+  // start a task
+  const task = createTask(imageName);
+
+  // go to the images build
+  task.gotoTask = () => {
+    router.goto('/images/build');
+  };
+
+  // store the task
+  allTasks.set(key, task);
 
   // create a new replay value
   buildReplays.set(key, { stream: '', error: '', end: false });
@@ -71,6 +86,14 @@ export function clearBuildTask(key: symbol): void {
   buildReplays.delete(key);
   // remove current build
   buildImagesInfo.set(undefined);
+
+  // remove the task
+  const task = allTasks.get(key);
+  if (task) {
+    removeTask(task.id);
+  }
+
+  allTasks.delete(key);
 }
 
 // client is leaving the page, disconnect the UI
@@ -134,6 +157,18 @@ function getKey(): symbol {
 
 // anonymous function to collect events
 export function eventCollect(key: symbol, eventName: 'finish' | 'stream' | 'error', data: string): void {
+  const task = allTasks.get(key);
+  if (task) {
+    if (eventName === 'error') {
+      task.status = 'failure';
+    } else if (eventName === 'finish') {
+      if (task.status !== 'failure') {
+        task.status = 'success';
+      }
+      task.state = 'completed';
+    }
+  }
+
   // keep values for replay
   const replay = buildReplays.get(key);
   if (replay) {

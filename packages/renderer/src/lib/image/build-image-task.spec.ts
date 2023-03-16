@@ -32,7 +32,7 @@ test('check start build', async () => {
     onEnd: vi.fn(),
   };
 
-  const key = startBuild(dummyCallback);
+  const key = startBuild('foo', dummyCallback);
   expect(key).toBeDefined();
 });
 
@@ -49,7 +49,7 @@ test('check reconnect', async () => {
     onEnd: vi.fn(),
   };
 
-  const firstKey = startBuild(dummyCallback);
+  const firstKey = startBuild('foo', dummyCallback);
 
   // stream some stuff
   eventCollect(firstKey, 'stream', 'hello');
