@@ -46,7 +46,7 @@ export class ComposeGitHubReleases {
 
     return lastReleases.data.map(release => {
       return {
-        label: release.name,
+        label: release.name || release.tag_name,
         tag: release.tag_name,
         id: release.id,
       };

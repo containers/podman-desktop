@@ -34,7 +34,7 @@ export class ComposeExtension {
 
   private statusBarItem: extensionApi.StatusBarItem | undefined;
 
-  protected currentInformation: string;
+  protected currentInformation: string | undefined;
 
   constructor(
     private readonly extensionContext: extensionApi.ExtensionContext,
@@ -64,32 +64,43 @@ export class ComposeExtension {
         statusBarChangesToApply.iconClass = ComposeExtension.ICON_CHECK;
         statusBarChangesToApply.tooltip = 'Compose is installed and DOCKER_HOST is reachable';
       } else {
-        // need to write the wrapper for docker-compose and use the name 'compose'
-        // add wrapper script
-        await this.addComposeWrapper();
-
-        // check if the extension bin folder is in the PATH
-        const extensionBinFolderInPath = await this.detect.checkStoragePath();
-        if (!extensionBinFolderInPath) {
-          // not there, ask the user to setup the PATH
+        // grab the current connection to container engine
+        const connections = extensionApi.provider.getContainerConnections();
+        const startedConnections = connections.filter(
+          providerConnection => providerConnection.connection.status() === 'started',
+        );
+        if (startedConnections.length === 0) {
           statusBarChangesToApply.iconClass = ComposeExtension.ICON_WARNING;
-          statusBarChangesToApply.tooltip = `${this.detect.getSocketPath()} is not enabled. Need to use wrapper script`;
-          this.currentInformation = `Please add the compose wrapper bin folder to your PATH environment variable. Value is ${path.resolve(
-            this.extensionContext.storagePath,
-            'bin',
-          )}. The script ${path.resolve(
-            this.extensionContext.storagePath,
-            'bin',
-            'compose',
-          )} will setup for you the DOCKER_HOST environment variable.`;
+          statusBarChangesToApply.tooltip =
+            'No running container engine. Unable to write a compose wrapper script that will set DOCKER_HOST in that case. Please start a container engine first.';
         } else {
-          // it's installed so we're good
-          statusBarChangesToApply.iconClass = ComposeExtension.ICON_CHECK;
-          statusBarChangesToApply.tooltip = `Compose is installed and usable with ${path.resolve(
-            this.extensionContext.storagePath,
-            'bin',
-            'compose',
-          )}`;
+          // need to write the wrapper for docker-compose and use the name 'compose'
+          // add wrapper script
+          await this.addComposeWrapper(startedConnections[0]);
+
+          // check if the extension bin folder is in the PATH
+          const extensionBinFolderInPath = await this.detect.checkStoragePath();
+          if (!extensionBinFolderInPath) {
+            // not there, ask the user to setup the PATH
+            statusBarChangesToApply.iconClass = ComposeExtension.ICON_WARNING;
+            statusBarChangesToApply.tooltip = `${this.detect.getSocketPath()} is not enabled. Need to use wrapper script`;
+            this.currentInformation = `Please add the compose wrapper bin folder to your PATH environment variable. Value is ${path.resolve(
+              this.extensionContext.storagePath,
+              'bin',
+            )}. The script ${path.resolve(
+              this.extensionContext.storagePath,
+              'bin',
+              'compose',
+            )} will setup for you the DOCKER_HOST environment variable.`;
+          } else {
+            // it's installed so we're good
+            statusBarChangesToApply.iconClass = ComposeExtension.ICON_CHECK;
+            statusBarChangesToApply.tooltip = `Compose is installed and usable with ${path.resolve(
+              this.extensionContext.storagePath,
+              'bin',
+              'compose',
+            )}`;
+          }
         }
       }
     } else {
@@ -99,9 +110,11 @@ export class ComposeExtension {
       statusBarChangesToApply.command = ComposeExtension.COMPOSE_INSTALL_COMMAND;
     }
     // apply status bar changes
-    this.statusBarItem.iconClass = statusBarChangesToApply.iconClass;
-    this.statusBarItem.tooltip = statusBarChangesToApply.tooltip;
-    this.statusBarItem.command = statusBarChangesToApply.command;
+    if (this.statusBarItem) {
+      this.statusBarItem.iconClass = statusBarChangesToApply.iconClass;
+      this.statusBarItem.tooltip = statusBarChangesToApply.tooltip;
+      this.statusBarItem.command = statusBarChangesToApply.command;
+    }
 
     this.notifyOnChecks(firstCheck);
   }
@@ -139,9 +152,13 @@ export class ComposeExtension {
     const lastReleasesMetadata = await this.composeGitHubReleases.grabLatestsReleasesMetadata();
 
     // display a choice to the user with quickpick
-    const selectedRelease = await extensionApi.window.showQuickPick(lastReleasesMetadata, {
+    let selectedRelease = await extensionApi.window.showQuickPick(lastReleasesMetadata, {
       placeHolder: 'Select docker compose version to install',
     });
+    if (!selectedRelease) {
+      // user cancelled
+      selectedRelease = lastReleasesMetadata[0];
+    }
 
     // get asset id
     const assetId = await this.composeGitHubReleases.getReleaseAssetId(selectedRelease.id, platform(), arch());
@@ -176,7 +193,7 @@ export class ComposeExtension {
   }
 
   // add script that is redirecting to docker-compose and configuring the socket using DOCKER_HOST
-  async addComposeWrapper(): Promise<void> {
+  async addComposeWrapper(connection: extensionApi.ProviderContainerConnection): Promise<void> {
     // get storage data
     const storageData = await this.extensionContext.storagePath;
     const storageBinFolder = path.resolve(storageData, 'bin');
@@ -195,14 +212,16 @@ export class ComposeExtension {
     // create the script file
     const composeWrapperScript = path.resolve(storageBinFolder, `compose${fileExtension}`);
 
-    await this.podmanComposeGenerator.generate(composeWrapperScript);
+    await this.podmanComposeGenerator.generate(connection, composeWrapperScript);
 
     // make it executable
     await this.makeExecutable(composeWrapperScript);
   }
 
   showCurrentInformation(): void {
-    extensionApi.window.showInformationMessage(this.currentInformation);
+    if (this.currentInformation) {
+      extensionApi.window.showInformationMessage(this.currentInformation);
+    }
   }
 
   async makeExecutable(filePath: string): Promise<void> {

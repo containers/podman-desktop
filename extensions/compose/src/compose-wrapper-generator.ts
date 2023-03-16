@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { OS } from './os';
-import * as extensionApi from '@podman-desktop/api';
+import type * as extensionApi from '@podman-desktop/api';
 import { promises } from 'node:fs';
 import mustache from 'mustache';
 
@@ -28,18 +28,9 @@ import batMustacheTemplate from './templates/podman-compose.bat.mustache?raw';
 export class ComposeWrapperGenerator {
   constructor(private os: OS, private binFolder: string) {}
 
-  protected async generateContent(): Promise<string> {
-    // grab the current connection to container engine
-    const connections = extensionApi.provider.getContainerConnections();
-    const startedConnections = connections.filter(
-      providerConnection => providerConnection.connection.status() === 'started',
-    );
-    if (startedConnections.length === 0) {
-      extensionApi.window.showErrorMessage('No connection to container engine is started');
-      return;
-    }
+  protected async generateContent(connection: extensionApi.ProviderContainerConnection): Promise<string> {
     // take first one
-    const socketPath = startedConnections[0].connection.endpoint.socketPath;
+    const socketPath = connection.connection.endpoint.socketPath;
 
     let template;
     if (this.os.isMac() || this.os.isLinux()) {
@@ -52,10 +43,11 @@ export class ComposeWrapperGenerator {
     return mustache.render(template, { socketPath, binFolder: this.binFolder });
   }
 
-  async generate(path: string): Promise<void> {
+  async generate(connection: extensionApi.ProviderContainerConnection, path: string): Promise<void> {
     // generate content
-    const content = await this.generateContent();
-
-    await promises.writeFile(path, content);
+    const content = await this.generateContent(connection);
+    if (content.length > 0) {
+      await promises.writeFile(path, content);
+    }
   }
 }

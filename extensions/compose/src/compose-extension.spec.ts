@@ -20,6 +20,7 @@
 
 import * as fs from 'node:fs';
 import { resolve } from 'node:path';
+import type { Mock } from 'vitest';
 import { afterEach, beforeEach, test, expect, vi, describe } from 'vitest';
 import { ComposeExtension } from './compose-extension';
 import type { Detect } from './detect';
@@ -64,6 +65,24 @@ const statusBarItemMock = {
   show: vi.fn(),
 };
 
+const dummyConnection1 = {
+  connection: {
+    status: () => 'stopped',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+  },
+} as extensionApi.ProviderContainerConnection;
+
+const dummyConnection2 = {
+  connection: {
+    status: () => 'started',
+    endpoint: {
+      socketPath: '/endpoint2.sock',
+    },
+  },
+} as extensionApi.ProviderContainerConnection;
+
 vi.mock('@podman-desktop/api', () => {
   return {
     StatusBarAlignLeft: 1,
@@ -75,6 +94,9 @@ vi.mock('@podman-desktop/api', () => {
           },
         };
       }),
+    },
+    provider: {
+      getContainerConnections: vi.fn(),
     },
     window: {
       showQuickPick: vi.fn(),
@@ -90,7 +112,7 @@ class TestComposeExtension extends ComposeExtension {
     return super.notifyOnChecks(firstCheck);
   }
 
-  setCurrentInformation(value: string) {
+  setCurrentInformation(value: string | undefined) {
     this.currentInformation = value;
   }
 }
@@ -106,6 +128,8 @@ beforeEach(() => {
 
   const createStatusBarItem = vi.spyOn(extensionApi.window, 'createStatusBarItem');
   createStatusBarItem.mockImplementation(() => statusBarItemMock as unknown as extensionApi.StatusBarItem);
+
+  (extensionApi.provider.getContainerConnections as Mock).mockReturnValue([dummyConnection1, dummyConnection2]);
 });
 
 afterEach(() => {
@@ -193,6 +217,34 @@ test('should report to the user that path is not setup if compose is not in the 
   expect(spyOnaddComposeWrapper).toHaveBeenCalled();
 });
 
+test('should report to the user that no container engine is running without compatibility mode', async () => {
+  detectMock.getSocketPath.mockReturnValueOnce('/fake/path');
+  detectMock.checkForDockerCompose.mockResolvedValueOnce(true);
+  detectMock.checkDefaultSocketIsAlive.mockResolvedValueOnce(false);
+  detectMock.checkStoragePath.mockResolvedValueOnce(false);
+
+  const spyOnaddComposeWrapper = vi.spyOn(composeExtension, 'addComposeWrapper').mockImplementation(async () => {
+    // do nothing
+  });
+
+  // no container connection
+  (extensionApi.provider.getContainerConnections as Mock).mockReset();
+  (extensionApi.provider.getContainerConnections as Mock).mockReturnValue([]);
+
+  // activate the extension
+  await composeExtension.activate();
+
+  expect(statusBarItemMock.tooltip).toContain('No running container engine');
+  expect(statusBarItemMock.iconClass).toBe(ComposeExtension.ICON_WARNING);
+
+  // command should be the checks command
+  expect(statusBarItemMock.command).toBe('compose.checks');
+
+  expect(statusBarItemMock.show).toHaveBeenCalled();
+  // no compose wrapper should be added
+  expect(spyOnaddComposeWrapper).not.toHaveBeenCalled();
+});
+
 test('Check that we have registered commands', async () => {
   const registerCommandMock = vi.spyOn(extensionApi.commands, 'registerCommand');
   const commands = new Map<string, (...args: any[]) => any>();
@@ -215,7 +267,7 @@ test('Check that we have registered commands', async () => {
   });
   expect(checkCommand).toBeDefined();
   // call the callback
-  checkCommand();
+  checkCommand?.();
   expect(spyRunCheck).toHaveBeenCalled();
 
   const installCommand = commands.get(ComposeExtension.COMPOSE_INSTALL_COMMAND);
@@ -225,7 +277,7 @@ test('Check that we have registered commands', async () => {
   });
   expect(installCommand).toBeDefined();
   // call the callback
-  installCommand();
+  installCommand?.();
   expect(spyInstallCompose).toHaveBeenCalled();
 });
 
@@ -240,7 +292,6 @@ describe.each([
     vi.mock('node:fs');
 
     const showQuickPickMock = vi.spyOn(extensionApi.window, 'showQuickPick');
-    showQuickPickMock.mockResolvedValue({ label: 'latest', id: 'LATEST' } as any);
 
     // mock the existSync and mkdir methods
     const existSyncSpy = vi.spyOn(fs, 'existsSync');
@@ -252,8 +303,12 @@ describe.each([
     if (os === 'Windows') {
       osMock.isWindows.mockReturnValue(true);
       dockerComposeFileExtension = '.exe';
+      // mock one item
+      showQuickPickMock.mockResolvedValue({ label: 'latest', id: 'LATEST' } as any);
     } else if (os === 'Linux') {
       osMock.isLinux.mockReturnValue(true);
+      // mock no choice from user
+      showQuickPickMock.mockResolvedValue(undefined);
     }
     // fake chmod
     const chmodMock = vi.spyOn(promises, 'chmod');
@@ -317,7 +372,7 @@ describe.each([
     const chmodMock = vi.spyOn(promises, 'chmod');
     chmodMock.mockImplementation(() => Promise.resolve());
 
-    await composeExtension.addComposeWrapper();
+    await composeExtension.addComposeWrapper(dummyConnection2);
 
     // should have created the directory if non-existent
     if (!existDir) {
@@ -326,6 +381,7 @@ describe.each([
 
     // should have call the podman generator
     expect(composeWrapperGeneratorMock.generate).toHaveBeenCalledWith(
+      dummyConnection2,
       `/fake/path/bin/compose${composeWrapperFileExtension}`,
     );
   });

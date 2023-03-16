@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Mock } from 'vitest';
 import { promises } from 'node:fs';
 
 import { afterEach, expect, beforeEach, test, vi, vitest } from 'vitest';
@@ -25,18 +24,24 @@ import * as extensionApi from '@podman-desktop/api';
 
 // expose methods publicly for testing
 class TestComposeWrapperGenerator extends ComposeWrapperGenerator {
-  public async publicGenerateContent(): Promise<string> {
-    return this.generateContent();
+  public async generateContent(connection: extensionApi.ProviderContainerConnection): Promise<string> {
+    return super.generateContent(connection);
   }
 }
+
+const dummyConnection = {
+  connection: {
+    status: () => 'started',
+    endpoint: {
+      socketPath: '/endpoint.sock',
+    },
+  },
+} as extensionApi.ProviderContainerConnection;
 
 vi.mock('@podman-desktop/api', () => {
   return {
     window: {
       showErrorMessage: vi.fn(),
-    },
-    provider: {
-      getContainerConnections: vi.fn(),
     },
   };
 });
@@ -47,29 +52,11 @@ const osMock = {
   isMac: vi.fn(),
 };
 
-const dummyConnection1 = {
-  connection: {
-    status: () => 'stopped',
-    endpoint: {
-      socketPath: '/endpoint1.sock',
-    },
-  },
-};
-const dummyConnection2 = {
-  connection: {
-    status: () => 'started',
-    endpoint: {
-      socketPath: '/endpoint2.sock',
-    },
-  },
-};
-
 let composeWrapperGenerator: TestComposeWrapperGenerator;
 beforeEach(() => {
   composeWrapperGenerator = new TestComposeWrapperGenerator(osMock, '/fake-dir');
   vi.mock('node:fs');
   vitest.spyOn(promises, 'writeFile').mockImplementation(() => Promise.resolve());
-  (extensionApi.provider.getContainerConnections as Mock).mockReturnValue([dummyConnection1, dummyConnection2]);
 });
 
 afterEach(() => {
@@ -77,19 +64,14 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-test('no connections', async () => {
-  vi.mock('node:fs');
-  (extensionApi.provider.getContainerConnections as Mock).mockReturnValue([]);
-  osMock.isLinux.mockReturnValue(true);
-  composeWrapperGenerator.generate('/destFile');
-  expect(extensionApi.window.showErrorMessage).toHaveBeenCalledWith('No connection to container engine is started');
-});
-
 test('generate', async () => {
   osMock.isLinux.mockReturnValue(true);
-  await composeWrapperGenerator.generate('/destFile');
+  const generateContent = vi.spyOn(composeWrapperGenerator, 'generateContent');
+  await composeWrapperGenerator.generate(dummyConnection, '/destFile');
+
   // no error
   expect(extensionApi.window.showErrorMessage).not.toHaveBeenCalled();
+  expect(generateContent).toHaveBeenCalled();
 
   // check file is written
   expect(promises.writeFile).toHaveBeenCalled();
@@ -97,7 +79,7 @@ test('generate', async () => {
 
 test('generateContent on linux', async () => {
   osMock.isLinux.mockReturnValue(true);
-  const content = await composeWrapperGenerator.publicGenerateContent();
+  const content = await composeWrapperGenerator.generateContent(dummyConnection);
   // no error
   expect(extensionApi.window.showErrorMessage).not.toHaveBeenCalled();
 
@@ -106,12 +88,12 @@ test('generateContent on linux', async () => {
   expect(content).toContain('#!/bin/sh');
 
   // contains the right endpoint
-  expect(content).toContain('unix:///endpoint2.sock');
+  expect(content).toContain('unix:///endpoint.sock');
 });
 
 test('generateContent on mac', async () => {
   osMock.isMac.mockReturnValue(true);
-  const content = await composeWrapperGenerator.publicGenerateContent();
+  const content = await composeWrapperGenerator.generateContent(dummyConnection);
   // no error
   expect(extensionApi.window.showErrorMessage).not.toHaveBeenCalled();
 
@@ -120,12 +102,12 @@ test('generateContent on mac', async () => {
   expect(content).toContain('#!/bin/sh');
 
   // contains the right endpoint
-  expect(content).toContain('unix:///endpoint2.sock');
+  expect(content).toContain('unix:///endpoint.sock');
 });
 
 test('generateContent on windows', async () => {
   osMock.isWindows.mockReturnValue(true);
-  const content = await composeWrapperGenerator.publicGenerateContent();
+  const content = await composeWrapperGenerator.generateContent(dummyConnection);
   // no error
   expect(extensionApi.window.showErrorMessage).not.toHaveBeenCalled();
 
@@ -134,5 +116,5 @@ test('generateContent on windows', async () => {
   expect(content).toContain('@echo off');
 
   // contains the right endpoint
-  expect(content).toContain('npipe:///endpoint2.sock');
+  expect(content).toContain('npipe:///endpoint.sock');
 });

@@ -28,6 +28,11 @@ import * as path from 'path';
 let composeExtension: ComposeExtension | undefined;
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  // do not hold the activation promise
+  setTimeout(() => postActivate(extensionContext), 0);
+}
+
+async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   const octokit = new Octokit();
   const os = new OS();
   const cliRun = new CliRun(extensionContext, os);
