@@ -1,17 +1,20 @@
 <script lang="ts">
-import { faArrowUp, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faEllipsisVertical, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import { runImageInfo } from '../../stores/run-image-store';
+import type { Menu } from '../../../../main/src/plugin/menu-registry';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 export let image: ImageInfoUI;
 export let dropdownMenu: boolean = false;
 export let detailed: boolean = false;
+export let contributions: Menu[] = [];
 
+let errorTitle: string = undefined;
 let errorMessage: string = undefined;
 let isAuthenticatedForThisImage: boolean = false;
 
@@ -27,6 +30,7 @@ async function deleteImage(): Promise<void> {
     await window.deleteImage(image.engineId, image.id);
     router.goto('/images/');
   } catch (error) {
+    errorTitle = 'Error while deleting image';
     errorMessage = error;
   }
 }
@@ -37,6 +41,15 @@ async function pushImage(imageInfo: ImageInfoUI): Promise<void> {
 
 async function showLayersImage(): Promise<void> {
   router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/history`);
+}
+
+async function executeContribution(menu: Menu): Promise<void> {
+  try {
+    await window.executeCommand(menu.command, image);
+  } catch (err) {
+    errorTitle = `Error while executing ${menu.title}`;
+    errorMessage = err;
+  }
 }
 
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
@@ -78,6 +91,14 @@ if (dropdownMenu) {
       icon="{faLayerGroup}" />
   {/if}
 
+  {#each contributions as menu}
+    <ListItemButtonIcon
+      title="{menu.title}"
+      onClick="{() => executeContribution(menu)}"
+      menu="{dropdownMenu}"
+      icon="{faEllipsisVertical}" />
+  {/each}
+
   {#if errorMessage}
     <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="{0}">
       <div class="pf-c-alert pf-m-danger pf-m-inline" aria-label="Success alert">
@@ -86,7 +107,7 @@ if (dropdownMenu) {
         </div>
         <p class="pf-c-alert__title">
           <span class="pf-screen-reader">Error:</span>
-          Error while deleting image
+          {errorTitle}
         </p>
         <div class="pf-c-alert__action">
           <button

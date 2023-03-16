@@ -47,6 +47,8 @@ import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume
 import type { NetworkInspectInfo } from './api/network-info';
 import type { Event } from './events/emitter';
 import { Emitter } from './events/emitter';
+import fs from 'node:fs';
+import { pipeline } from 'node:stream/promises';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -885,6 +887,24 @@ export class ContainerProviderRegistry {
       engineId: provider.id,
       ...containerInspect,
     };
+  }
+
+  async saveImage(engineId: string, id: string, filename: string): Promise<void> {
+    this.telemetryService.track('imageSave');
+    // need to find the container engine of the container
+    const provider = this.internalProviders.get(engineId);
+    if (!provider) {
+      throw new Error('no engine matching this container');
+    }
+    if (!provider.api) {
+      throw new Error('no running provider for the matching container');
+    }
+
+    const imageObject = provider.api.getImage(id);
+    if (imageObject) {
+      const imageStream = await imageObject.get();
+      return pipeline(imageStream, fs.createWriteStream(filename));
+    }
   }
 
   async getPodInspect(engineId: string, id: string): Promise<PodInspectInfo> {
