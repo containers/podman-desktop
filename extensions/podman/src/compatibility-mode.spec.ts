@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Mock } from 'vitest';
 import { expect, test, vi } from 'vitest';
 import { getSocketCompatibility, DarwinSocketCompatibility } from './compatibility-mode';
 import * as extensionApi from '@podman-desktop/api';
@@ -35,14 +34,6 @@ vi.mock('runSudoMacHelperCommand', () => {
   return vi.fn();
 });
 
-const mockDarwinSocketCompatibility: DarwinSocketCompatibility = {
-  findPodmanHelper: vi.fn(),
-  details: '',
-  enable: vi.fn(),
-  disable: vi.fn(),
-  runCommand: vi.fn(),
-};
-
 test('darwin: compatibility mode binary not found failure', async () => {
   // Mock platform to be darwin
   Object.defineProperty(process, 'platform', {
@@ -52,22 +43,37 @@ test('darwin: compatibility mode binary not found failure', async () => {
   const compatibility = getSocketCompatibility();
   expect(compatibility).toBeInstanceOf(DarwinSocketCompatibility);
 
-  const enable = await compatibility.enable();
-  expect(enable).toBeUndefined();
+  await compatibility.enable();
 
   // Expect the binary to have not been found
   expect(extensionApi.window.showErrorMessage).toHaveBeenCalledWith('podman-mac-helper binary not found.', 'OK');
 });
 
-test('darwin: compatibility mode binary found, run command success', async () => {
+test('darwin: DarwinSocketCompatibility class, test runSudoMacHelperCommand ran within runCommand', async () => {
   // Mock platform to be darwin
   Object.defineProperty(process, 'platform', {
     value: 'darwin',
   });
 
-  (mockDarwinSocketCompatibility.findPodmanHelper as Mock).mockResolvedValue('/opt/podman/bin/podman-mac-helper');
-  const enabled = await getSocketCompatibility().enable();
-  expect(enabled).toBeUndefined();
+  const socketCompatClass = new DarwinSocketCompatibility();
+
+  // Mock that the binary is found
+  const spyFindPodmanHelper = vi.spyOn(socketCompatClass, 'findPodmanHelper');
+  spyFindPodmanHelper.mockImplementation(() => {
+    return Promise.resolve('/opt/podman/bin/podman-mac-helper');
+  });
+
+  // Mock that sudo ran successfully (since we cannot test sudo-prompt in vitest / has to be integration tests)
+  const spyMacHelperCommand = vi.spyOn(socketCompatClass, 'runSudoMacHelperCommand');
+  spyMacHelperCommand.mockImplementation(() => {
+    return Promise.resolve();
+  });
+
+  // Run the command
+  socketCompatClass.runCommand('enable', 'enabled');
+
+  // Expect that mac helper command was ran
+  expect(spyMacHelperCommand).toHaveBeenCalled();
 });
 
 // Linux tests

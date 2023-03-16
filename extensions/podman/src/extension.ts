@@ -466,7 +466,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     // Create a status bar item to show the status of compatibility mode as well as
     // create a command so when you can disable / enable compatibility mode
     const statusBarItem = extensionApi.window.createStatusBarItem();
-    statusBarItem.text = 'Docker Socket Compatibility';
+    statusBarItem.text = 'Docker Compatibility';
     statusBarItem.command = 'podman.socketCompatibilityMode';
     statusBarItem.tooltip = 'Enable or disable Docker socket compatibility mode for Podman';
     statusBarItem.iconClass = 'fa fa-plug';

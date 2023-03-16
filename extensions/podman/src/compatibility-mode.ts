@@ -45,6 +45,31 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
       return '';
     }
   }
+  // Run sudo command for podman mac helper
+  async runSudoMacHelperCommand(command: string): Promise<void> {
+    const sudoOptions = {
+      name: 'Podman Desktop Compatibility Mode',
+    };
+    return new Promise((resolve, reject) => {
+      sudo.exec(command, sudoOptions, (error, stdout, stderr) => {
+        console.log('sudo command output: ', stdout, stderr);
+
+        // podman-mac-helper does not error out on failure for some reason, so we need to check the output for
+        // 'Error:' to determine if the command failed despite the exit code being 0
+        // Issue: https://github.com/containers/podman/issues/17785
+        // we'll most likely need to keep this check for old releases of podman-mac-helper.
+        if (stderr?.includes('Error:')) {
+          reject(stderr);
+        }
+
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
 
   async runCommand(command: string, description: string): Promise<void> {
     // Find the podman-mac-helper binary
@@ -56,7 +81,7 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
 
     const fullCommand = `${podmanHelperBinary} ${command}`;
     try {
-      await runSudoMacHelperCommand(fullCommand);
+      await this.runSudoMacHelperCommand(fullCommand);
       extensionApi.window.showInformationMessage(`Docker socket compatibility mode for Podman has been ${description}.
       Restart your Podman machine to apply the changes.`);
     } catch (error) {
@@ -84,30 +109,4 @@ export function getSocketCompatibility(): SocketCompatibility {
     default:
       throw new Error(`Unsupported platform ${process.platform}`);
   }
-}
-
-// Run sudo command for podman mac helper
-async function runSudoMacHelperCommand(command: string): Promise<void> {
-  const sudoOptions = {
-    name: 'Podman Desktop Compatibility Mode',
-  };
-  return new Promise((resolve, reject) => {
-    sudo.exec(command, sudoOptions, (error, stdout, stderr) => {
-      console.log('sudo command output: ', stdout, stderr);
-
-      // podman-mac-helper does not error out on failure for some reason, so we need to check the output for
-      // 'Error:' to determine if the command failed despite the exit code being 0
-      // Issue: https://github.com/containers/podman/issues/17785
-      // we'll most likely need to keep this check for old releases of podman-mac-helper.
-      if (stderr?.includes('Error:')) {
-        reject(stderr);
-      }
-
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
 }
