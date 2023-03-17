@@ -35,8 +35,6 @@ let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IContainerStatus>();
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
-$: containerConnectionDivWidth = 0;
-$: containerConnectionDivHeight = 0;
 
 let providersUnsubscribe: Unsubscriber;
 let configurationPropertiesUnsubscribe: Unsubscriber;
@@ -178,24 +176,6 @@ function isContainerConnectionStatusInProgress(
     containerConnectionStatus.get(`${provider.name}-${containerConnectionInfo.name}`).inProgress
   );
 }
-
-function calculateBorder(index: number, containerConnectionDivWidth: number): string {
-  if (index === 0) {
-    return '';
-  }
-  const columns = Math.floor(containerConnectionDivWidth / 240);
-
-  const targetColumn = Math.floor(index % columns);
-  const targetRow = Math.floor(index / columns);
-  let borderClass = '';
-  if (targetRow > 0) {
-    borderClass = 'border-t border-t-[#4b5563] ';
-  }
-  if (targetColumn > 0) {
-    borderClass += 'border-l border-l-[#4b5563] ';
-  }
-  return borderClass;
-}
 </script>
 
 <div class="flex flex-1 flex-col p-2 bg-zinc-900">
@@ -241,12 +221,9 @@ function calculateBorder(index: number, containerConnectionDivWidth: number): st
           </div>
         </div>
         <!-- podman machines columns -->
-        <div
-          bind:offsetHeight="{containerConnectionDivHeight}"
-          bind:offsetWidth="{containerConnectionDivWidth}"
-          class="grow flex flex-wrap divide-gray-600">
-          {#each provider.containerConnections as container, containerIndex}
-            <div class="px-5 py-2 w-[240px] {calculateBorder(containerIndex, containerConnectionDivWidth)}">
+        <div class="grow flex flex-wrap divide-gray-600">
+          {#each provider.containerConnections as container}
+            <div class="px-5 py-2 w-[240px]">
               <div class="float-right text-gray-700 cursor-not-allowed">
                 <Fa icon="{faArrowUpRightFromSquare}" />
               </div>
