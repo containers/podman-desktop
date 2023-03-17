@@ -18,8 +18,8 @@
 
 import * as extensionApi from '@podman-desktop/api';
 import * as sudo from 'sudo-prompt';
-import * as fs from 'fs';
-import * as os from 'os';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 
 // Create an abstract class for compatibility mode (macOS only)
 // TODO: Windows, Linux
