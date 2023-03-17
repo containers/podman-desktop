@@ -19,10 +19,12 @@
 import * as extensionApi from '@podman-desktop/api';
 import * as sudo from 'sudo-prompt';
 import * as fs from 'fs';
+import * as os from 'os';
 
 // Create an abstract class for compatibility mode (macOS only)
 // TODO: Windows, Linux
 abstract class SocketCompatibility {
+  abstract isEnabled(): boolean;
   abstract enable(): Promise<void>;
   abstract disable(): Promise<void>;
   abstract details: string;
@@ -30,9 +32,10 @@ abstract class SocketCompatibility {
 
 export class DarwinSocketCompatibility extends SocketCompatibility {
   // Shows the details of the compatibility mode on what we do.
-  details = `The podman-mac-helper binary will be ran in order to enable or disable compatibility mode. 
-    This requires administrative privileges.`;
+  details = 'The podman-mac-helper binary will be ran. This requires administrative privileges.';
 
+  // Find the podman-mac-helper binary which should only be located in either
+  // brew or podman's install location
   findPodmanHelper(): string {
     const homebrewPath = '/opt/homebrew/bin/podman-mac-helper';
     const podmanPath = '/opt/podman/bin/podman-mac-helper';
@@ -45,6 +48,14 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
       return '';
     }
   }
+
+  // Check to see if com.github.containers.podman.helper-<username>.plist exists
+  isEnabled(): boolean {
+    const username = os.userInfo().username;
+    const filename = `/Library/LaunchDaemons/com.github.containers.podman.helper-${username}.plist`;
+    return fs.existsSync(filename);
+  }
+
   // Run sudo command for podman mac helper
   async runSudoMacHelperCommand(command: string): Promise<void> {
     const sudoOptions = {
@@ -52,8 +63,6 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     };
     return new Promise((resolve, reject) => {
       sudo.exec(command, sudoOptions, (error, stdout, stderr) => {
-        console.log('sudo command output: ', stdout, stderr);
-
         // podman-mac-helper does not error out on failure for some reason, so we need to check the output for
         // 'Error:' to determine if the command failed despite the exit code being 0
         // Issue: https://github.com/containers/podman/issues/17785

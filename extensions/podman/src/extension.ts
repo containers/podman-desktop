@@ -474,15 +474,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     extensionContext.subscriptions.push(statusBarItem);
 
     // Create a modal dialog to ask the user if they want to enable or disable compatibility mode
-    extensionApi.commands.registerCommand('podman.socketCompatibilityMode', async () => {
+    const command = extensionApi.commands.registerCommand('podman.socketCompatibilityMode', async () => {
       // Manually check to see if the socket is disguised (this will be called when pressing the status bar item)
       const isDisguisedPodmanSocket = await isDisguisedPodman();
 
-      if (!isDisguisedPodmanSocket) {
+      if (!isDisguisedPodmanSocket && !socketCompatibilityMode.isEnabled()) {
         const result = await extensionApi.window.showInformationMessage(
-          `Do you want to automatically enable socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
+          `Do you want to automatically enable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
           'Enable',
-          'Close',
+          'Cancel',
         );
 
         if (result === 'Enable') {
@@ -490,9 +490,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         }
       } else {
         const result = await extensionApi.window.showInformationMessage(
-          `Do you want to automatically disable socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
+          `Do you want to automatically disable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
           'Disable',
-          'Close',
+          'Cancel',
         );
 
         if (result === 'Disable') {
@@ -500,6 +500,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         }
       }
     });
+
+    // Push the results of the command so we can unload it later
+    extensionContext.subscriptions.push(command);
   }
 
   // provide an installation path ?
