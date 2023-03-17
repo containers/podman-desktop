@@ -28,6 +28,14 @@ abstract class SocketCompatibility {
   abstract enable(): Promise<void>;
   abstract disable(): Promise<void>;
   abstract details: string;
+
+  // This will show the "opposite" of what the current state is
+  // "Enable" if it's currently disabled, "Disable" if it's currently enabled
+  // for tooltip text
+  tooltipText(): string {
+    const text = 'macOS Docker socket compatibility for Podman.';
+    return this.isEnabled() ? `Disable ${text}` : `Enable ${text}`;
+  }
 }
 
 export class DarwinSocketCompatibility extends SocketCompatibility {

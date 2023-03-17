@@ -468,7 +468,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     const statusBarItem = extensionApi.window.createStatusBarItem();
     statusBarItem.text = 'Docker Compatibility';
     statusBarItem.command = 'podman.socketCompatibilityMode';
-    statusBarItem.tooltip = 'Enable or disable Docker socket compatibility mode for Podman';
+
+    // Use tooltip text from class
+    statusBarItem.tooltip = socketCompatibilityMode.tooltipText();
+
     statusBarItem.iconClass = 'fa fa-plug';
     statusBarItem.show();
     extensionContext.subscriptions.push(statusBarItem);
@@ -486,7 +489,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         );
 
         if (result === 'Enable') {
-          socketCompatibilityMode.enable();
+          await socketCompatibilityMode.enable();
         }
       } else {
         const result = await extensionApi.window.showInformationMessage(
@@ -496,9 +499,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         );
 
         if (result === 'Disable') {
-          socketCompatibilityMode.disable();
+          await socketCompatibilityMode.disable();
         }
       }
+      // Use tooltip text from class
+      statusBarItem.tooltip = socketCompatibilityMode.tooltipText();
     });
 
     // Push the results of the command so we can unload it later
