@@ -69,7 +69,7 @@ test('Expect to see elements regarding podman provider', async () => {
 test('Expect to be start, delete actions enabled and stop, restart disabled when container stopped', async () => {
   providerInfo.containerConnections[0].status = 'stopped';
   providerInfos.set([providerInfo]);
-  render(PreferencesResourcesRendering, {});
+  render(PreferencesResourcesRendering, {});  
   const buttons = screen.getAllByRole('button');
   const startButton = buttons.filter(b => b.attributes.getNamedItem('name')?.value == 'Start')[0];
   expect(startButton).toBeInTheDocument();

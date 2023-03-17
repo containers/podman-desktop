@@ -16,6 +16,8 @@ import { configurationProperties } from '../../stores/configurationProperties';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
 import type { Unsubscriber } from 'svelte/store';
 import Tooltip from '../ui/Tooltip.svelte';
+import { filesize } from 'filesize';
+import { router } from 'tinro';
 
 interface IContainerStatus {
   status: string;
@@ -207,7 +209,11 @@ function isContainerConnectionStatusInProgress(
             <div class="text-center mt-10">
               {#if provider.containerProviderConnectionCreation}
                 <!-- create new podman machine button -->
-                <button class="pf-c-button pf-m-primary" title="Create new {provider.name} machine" type="button">
+                <button
+                  class="pf-c-button pf-m-primary"
+                  title="Create new {provider.name} machine"
+                  type="button"
+                  on:click="{() => router.goto(`/preferences/provider/${provider.internalId}`)}">
                   Create new ...
                 </button>
               {/if}
@@ -224,7 +230,7 @@ function isContainerConnectionStatusInProgress(
                         divide-gray-600">
           {#each provider.containerConnections as container}
             <div class="px-5 py-2 min-w-[240px]">
-              <div class="float-right">
+              <div class="float-right text-gray-700 cursor-not-allowed">
                 <Fa icon="{faArrowUpRightFromSquare}" />
               </div>
               <div class="{container.status !== 'started' ? 'text-gray-500' : ''} text-sm">
@@ -256,15 +262,10 @@ function isContainerConnectionStatusInProgress(
                         <div class="text-[9px]">{connectionSetting.description}</div>
                         <div class="text-xs">{connectionSetting.value}</div>
                       </div>
-                    {:else if connectionSetting.format === 'memory'}
+                    {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
                       <div class="mr-4">
                         <div class="text-[9px]">{connectionSetting.description}</div>
-                        <div class="text-xs">{connectionSetting.value.toFixed(1)} MB</div>
-                      </div>
-                    {:else if connectionSetting.format === 'diskSize'}
-                      <div class="mr-4">
-                        <div class="text-[9px]">{connectionSetting.description}</div>
-                        <div class="text-xs">{connectionSetting.value.toFixed(2)} GB</div>
+                        <div class="text-xs">{filesize(connectionSetting.value)}</div>
                       </div>
                     {:else}
                       {connectionSetting.description}: {connectionSetting.value}
@@ -292,7 +293,7 @@ function isContainerConnectionStatusInProgress(
                     {#if container.lifecycleMethods.includes('start') && container.lifecycleMethods.includes('stop')}
                       <Tooltip tip="Restart" bottom>
                         <button
-                        name="Restart"
+                          name="Restart"
                           class="{container.status !== 'started' ||
                           isContainerConnectionStatusInProgress(provider, container)
                             ? 'text-gray-700 cursor-not-allowed'
@@ -305,7 +306,7 @@ function isContainerConnectionStatusInProgress(
                     {#if container.lifecycleMethods.includes('stop')}
                       <Tooltip tip="Stop" bottom>
                         <button
-                        name="Stop"
+                          name="Stop"
                           class="{container.status !== 'started' ||
                           isContainerConnectionStatusInProgress(provider, container)
                             ? 'text-gray-700 cursor-not-allowed'
@@ -318,19 +319,16 @@ function isContainerConnectionStatusInProgress(
                     {#if container.lifecycleMethods.includes('delete')}
                       <Tooltip tip="Delete" bottom>
                         <button
-                        name="Delete"
+                          name="Delete"
                           class="{(container.status !== 'stopped' && container.status !== 'unknown') ||
                           isContainerConnectionStatusInProgress(provider, container)
                             ? 'text-gray-700 cursor-not-allowed'
                             : 'hover:text-gray-400'}"
                           on:click="{() => deleteContainerProvider(provider, container)}">
-                          <Fa class="mx-2.5 my-2" icon="{faTrash}" />
+                          <Fa class="mx-2.5 mr-5 my-2" icon="{faTrash}" />
                         </button>
                       </Tooltip>
                     {/if}
-                    <button class="hover:text-gray-400">
-                      <Fa class="ml-2.5 mr-5 my-2" icon="{faEllipsisVertical}" />
-                    </button>
                   </div>
                 </div>
               {/if}

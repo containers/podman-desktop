@@ -94,9 +94,9 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     }
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
-      memory: parseInt(machine.Memory) / 1048576,
+      memory: parseInt(machine.Memory),
       cpus: machine.CPUs,
-      diskSize: parseInt(machine.DiskSize) / 1073741824,
+      diskSize: parseInt(machine.DiskSize),
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {

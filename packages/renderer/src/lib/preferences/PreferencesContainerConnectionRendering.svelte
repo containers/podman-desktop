@@ -11,6 +11,7 @@ import Modal from '../dialogs/Modal.svelte';
 import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import { filesize } from 'filesize';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -220,15 +221,10 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
         <div class="text-sm italic  text-gray-400">{connectionSetting.description}</div>
         <div class="pl-3">{connectionSetting.value}</div>
       </div>
-    {:else if connectionSetting.format === 'memory'}
+    {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
       <div class="pl-1 py-2">
         <div class="text-sm italic  text-gray-400">{connectionSetting.description}</div>
-        <div class="pl-3">{connectionSetting.value} MB</div>
-      </div>
-    {:else if connectionSetting.format === 'diskSize'}
-      <div class="pl-1 py-2">
-        <div class="text-sm italic  text-gray-400">{connectionSetting.description}</div>
-        <div class="pl-3">{connectionSetting.value} GB</div>
+        <div class="pl-3">{filesize(connectionSetting.value)}</div>
       </div>
     {:else}
       {connectionSetting.description}: {connectionSetting.value}
