@@ -61,26 +61,24 @@ beforeEach(() => {
 test('Expect to see elements regarding podman provider', async () => {
   providerInfos.set([providerInfo]);
   render(PreferencesResourcesRendering, {});
-  const button = screen.getByRole('button', { name: 'Create new ...' });
+  const button = screen.getByRole('button', { name: 'Create new podman machine' });
   expect(button).toBeInTheDocument();
-  expect(button.title).toBe('Create new podman machine');
 });
 
 test('Expect to be start, delete actions enabled and stop, restart disabled when container stopped', async () => {
   providerInfo.containerConnections[0].status = 'stopped';
   providerInfos.set([providerInfo]);
-  render(PreferencesResourcesRendering, {});  
-  const buttons = screen.getAllByRole('button');
-  const startButton = buttons.filter(b => b.attributes.getNamedItem('name')?.value == 'Start')[0];
+  render(PreferencesResourcesRendering, {});
+  const startButton = screen.getByRole('button', { name: 'Start' });
   expect(startButton).toBeInTheDocument();
   expect(!startButton.classList.contains('cursor-not-allowed'));
-  const stopButton = buttons.filter(b => b.attributes.getNamedItem('name')?.value == 'Stop')[0];
+  const stopButton = screen.getByRole('button', { name: 'Stop' });
   expect(stopButton).toBeInTheDocument();
   expect(stopButton.classList.contains('cursor-not-allowed'));
-  const restartButton = buttons.filter(b => b.attributes.getNamedItem('name')?.value == 'Restart')[0];
+  const restartButton = screen.getByRole('button', { name: 'Restart' });
   expect(restartButton).toBeInTheDocument();
   expect(restartButton.classList.contains('cursor-not-allowed'));
-  const deleteButton = buttons.filter(b => b.attributes.getNamedItem('name')?.value == 'Delete')[0];
+  const deleteButton = screen.getByRole('button', { name: 'Delete' });
   expect(deleteButton).toBeInTheDocument();
   expect(!deleteButton.classList.contains('cursor-not-allowed'));
 });
@@ -89,17 +87,16 @@ test('Expect to be start, delete actions disabled and stop, restart enabled when
   providerInfo.containerConnections[0].status = 'started';
   providerInfos.set([providerInfo]);
   render(PreferencesResourcesRendering, {});
-  const buttons = screen.getAllByRole('button');
-  const startButton = buttons.filter(b => b.attributes.getNamedItem('name')?.value == 'Start')[0];
+  const startButton = screen.getByRole('button', { name: 'Start' });
   expect(startButton).toBeInTheDocument();
   expect(startButton.classList.contains('cursor-not-allowed'));
-  const stopButton = buttons.filter(b => b.attributes.getNamedItem('name')?.value == 'Stop')[0];
+  const stopButton = screen.getByRole('button', { name: 'Stop' });
   expect(stopButton).toBeInTheDocument();
   expect(!stopButton.classList.contains('cursor-not-allowed'));
-  const restartButton = buttons.filter(b => b.attributes.getNamedItem('name')?.value == 'Restart')[0];
+  const restartButton = screen.getByRole('button', { name: 'Restart' });
   expect(restartButton).toBeInTheDocument();
   expect(!restartButton.classList.contains('cursor-not-allowed'));
-  const deleteButton = buttons.filter(b => b.attributes.getNamedItem('name')?.value == 'Delete')[0];
+  const deleteButton = screen.getByRole('button', { name: 'Delete' });
   expect(deleteButton).toBeInTheDocument();
   expect(deleteButton.classList.contains('cursor-not-allowed'));
 });

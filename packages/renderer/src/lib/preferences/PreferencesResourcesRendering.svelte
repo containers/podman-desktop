@@ -209,13 +209,15 @@ function isContainerConnectionStatusInProgress(
             <div class="text-center mt-10">
               {#if provider.containerProviderConnectionCreation}
                 <!-- create new podman machine button -->
-                <button
-                  class="pf-c-button pf-m-primary"
-                  title="Create new {provider.name} machine"
-                  type="button"
-                  on:click="{() => router.goto(`/preferences/provider/${provider.internalId}`)}">
-                  Create new ...
-                </button>
+                <Tooltip tip="Create new {provider.name} machine" bottom>
+                  <button
+                    class="pf-c-button pf-m-primary"
+                    aria-label="Create new {provider.name} machine"
+                    type="button"
+                    on:click="{() => router.goto(`/preferences/provider/${provider.internalId}`)}">
+                    Create new ...
+                  </button>
+                </Tooltip>
               {/if}
             </div>
           </div>
@@ -280,7 +282,7 @@ function isContainerConnectionStatusInProgress(
                     {#if container.lifecycleMethods.includes('start')}
                       <Tooltip tip="Start" bottom>
                         <button
-                          name="Start"
+                          aria-label="Start"
                           class="{container.status !== 'stopped' ||
                           isContainerConnectionStatusInProgress(provider, container)
                             ? 'text-gray-700 cursor-not-allowed'
@@ -293,7 +295,7 @@ function isContainerConnectionStatusInProgress(
                     {#if container.lifecycleMethods.includes('start') && container.lifecycleMethods.includes('stop')}
                       <Tooltip tip="Restart" bottom>
                         <button
-                          name="Restart"
+                          aria-label="Restart"
                           class="{container.status !== 'started' ||
                           isContainerConnectionStatusInProgress(provider, container)
                             ? 'text-gray-700 cursor-not-allowed'
@@ -306,7 +308,7 @@ function isContainerConnectionStatusInProgress(
                     {#if container.lifecycleMethods.includes('stop')}
                       <Tooltip tip="Stop" bottom>
                         <button
-                          name="Stop"
+                          aria-label="Stop"
                           class="{container.status !== 'started' ||
                           isContainerConnectionStatusInProgress(provider, container)
                             ? 'text-gray-700 cursor-not-allowed'
@@ -319,7 +321,7 @@ function isContainerConnectionStatusInProgress(
                     {#if container.lifecycleMethods.includes('delete')}
                       <Tooltip tip="Delete" bottom>
                         <button
-                          name="Delete"
+                          aria-label="Delete"
                           class="{(container.status !== 'stopped' && container.status !== 'unknown') ||
                           isContainerConnectionStatusInProgress(provider, container)
                             ? 'text-gray-700 cursor-not-allowed'
