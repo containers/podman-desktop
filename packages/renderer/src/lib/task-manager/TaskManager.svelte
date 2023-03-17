@@ -70,9 +70,11 @@ window.events?.receive('toggle-task-manager', () => {
           <TaskIcon size="15" />
           <div class="text-xs uppercase ml-2">tasks</div>
           <div class="flex-1"></div>
+          <!--
           <div title="Toggle Do Not Disturb Mode" class="cursor-pointer hover:bg-zinc-800 p-1">
             <BellSlashIcon size="15" />
           </div>
+          -->
           <button on:click="{() => hide()}" title="Hide (Escape)" class="cursor-pointer hover:bg-zinc-800 p-1 ml-1">
             <Fa icon="{faChevronDown}" size="15" />
           </button>
