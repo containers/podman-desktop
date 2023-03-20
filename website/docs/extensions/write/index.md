@@ -1,96 +1,137 @@
 ---
 sidebar_position: 1
-title: Writing
+title: Writing 
 description: Writing my first extension
 tags: [podman-desktop, extension, writing]
 keywords: [podman desktop, extension, writing]
 ---
 
-# Writing your first extension
+# Writing a Podman Desktop extension
 
-Podman Desktop extensions rely on `JavaScript` or `TypeScript`.
+Podman Desktop extensions rely on JavaScript or TypeScript.
 
-Extensions are self-contained, all runtime dependencies are inside the final binary.
+Extensions are self-contained.
+All runtime dependencies are inside the final binary.
 
-#### Scaffold the project
+## Initializing the Node.js project
 
-1. Setup a Node.js project with `TypeScript`. Use for example `npm init` command.
+Write the extension metadata in a `package.json` file.
 
-1. Bring the development dependency to Podman Desktop API. It allows to import the API and register the contributions.
+#### Procedure
 
-  Note that it is a dependency that brings only the definition of the API. It will not fetch any Podman Desktop internals.
+1. Create and edit a `package.json` file.
 
-  ```json
+   ```json
+   {
+   }
+   ```
+1. Add TypeScript and Podman Desktop API to the development dependencies:
+
+   ```json lines
     "devDependencies": {
       "@podman-desktop/api": "latest",
-    }
-  ```
+       "typescript": "latest"
+    },
+   ```
 
-1. Setup the required metadata for the extension
+1. Add the required metadata:
 
-  ```json
-  {
-    "name": "my-extension",
-    "displayName": "My Hello World extension",
-    "description": "How to write my first extension",
-    "version": "0.0.1",
-    "icon": "icon.png",
-    "publisher": "benoitf",
-    "engines": {
-      "podman-desktop": "latest"
-    }
-  }
-  ```
+   ```json lines
+     "name": "my-extension",
+     "displayName": "My Hello World extension",
+     "description": "How to write my first extension",
+     "version": "0.0.1",
+     "icon": "icon.png",
+     "publisher": "benoitf",
+   ```
 
-  In the `engines` section, describe the version of Podman Desktop that runs this extension.
+1. Add the Podman Desktop version that might run this extension:
 
-1. Include the main entry point of the extension
+   ```json lines
+     "engines": {
+       "podman-desktop": "latest"
+     },
+   ```
 
-  ```json
-    "main": "./dist/extension.js",
-  ```
+1. Add the main entry point:
 
-1. Add Hello World command contribution
+   ```json lines
+    "main": "./dist/extension.js"
+   ```
 
-  ```json
-    "contributes": {
-      "commands": [
+1. Add a Hello World command contribution
+
+   ```json lines
+     "contributes": {
+       "commands": [
         {
           "command": "my.first.command",
           "title": "My First Extension: Hello World"
         }
       ]
-    },
-  ```
+     }
+   ```
 
 1. Add an `icon.png` file to the project.
-#### Writing the codebase of the extension
 
-The `package.json` file describes the metadata of the extension.
+#### Verification
+
+* Complete `package.json` example:
+
+   ```json
+   {
+     "devDependencies": {
+       "@podman-desktop/api": "latest",
+       "typescript": "latest"
+     },
+     "name": "my-extension",
+     "displayName": "My Hello World extension",
+     "description": "How to write my first extension",
+     "version": "0.0.1",
+     "icon": "icon.png",
+     "publisher": "benoitf",
+     "engines": {
+     "podman-desktop": "latest"
+     },
+     "main": "./dist/extension.js",
+     "contributes": {
+       "commands": [
+         {
+           "command": "my.first.command",
+           "title": "My First Extension: Hello World"
+         }
+       ]
+     }
+   }
+   ```
+
+## Writing the extension code
+
 Extension activates by launching the `activate` function of the main file.
 
-##### Entry point
+### Entry point
+
 The extension entry point (`main` entry in `package.json` file) might expose two functions:
 
 1. (Mandatory) `activate`: activation function.
 
 1. (Optional) `deactivate`: deactivation function.
 
-The signature of the function can be either:
+The signature of the function can be:
 
 * Synchronous
 
-```typescript
-export function activate(): void
-```
+   ```typescript
+   export function activate(): void
+   ```
 
 * Asynchronous
 
-```typescript
-export async function activate(): Promise<void>
-```
+   ```typescript
+   export async function activate(): Promise<void>
+   ```
 
-Activate function receive an optional extension context, allowing to register disposable resources
+The `activate` function receives an optional extension context, allowing it to register disposable resources
 
 ```typescript
 import * as podmanDesktopAPI from '@podman-desktop/api';
@@ -98,7 +139,7 @@ export async function activate(extensionContext: podmanDesktopAPI.ExtensionConte
 }
 ```
 
-##### Register the command and the callback
+### Register the command and the callback
 
 ```typescript
 import * as podmanDesktopAPI from '@podman-desktop/api';
@@ -130,7 +171,7 @@ export async function activate(extensionContext: podmanDesktopAPI.ExtensionConte
 }
 ```
 
-At this stage, extension compiles and produces the output in `dist` folder for example.
+At this stage, the extension compiles and produces the output in `dist` folder for example.
 
 ** Note: **
 Note: Using `Rollup`, `Webpack` or any other packer is helping to shrink the size of the artifact.
