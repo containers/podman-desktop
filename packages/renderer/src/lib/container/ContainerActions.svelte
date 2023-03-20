@@ -1,5 +1,12 @@
 <script lang="ts">
-import { faEllipsisVertical, faFileCode, faPlay, faRocket, faTerminal } from '@fortawesome/free-solid-svg-icons';
+import {
+  faAlignLeft,
+  faEllipsisVertical,
+  faFileCode,
+  faPlay,
+  faRocket,
+  faTerminal,
+} from '@fortawesome/free-solid-svg-icons';
 import { faStop } from '@fortawesome/free-solid-svg-icons';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -54,6 +61,10 @@ function openBrowser(containerInfo: ContainerInfoUI): void {
   window.openExternal(containerInfo.openingUrl);
 }
 
+function openLogs(containerInfo: ContainerInfoUI): void {
+  router.goto(`/containers/${container.id}/logs`);
+}
+
 async function deleteContainer(containerInfo: ContainerInfoUI): Promise<void> {
   inProgressCallback(true);
   try {
@@ -65,6 +76,7 @@ async function deleteContainer(containerInfo: ContainerInfoUI): Promise<void> {
     inProgressCallback(false);
   }
 }
+
 function openTerminalContainer(containerInfo: ContainerInfoUI): void {
   router.goto(`/containers/${container.id}/terminal`);
 }
@@ -111,6 +123,12 @@ if (dropdownMenu) {
 <svelte:component this="{actionsStyle}">
   {#if !detailed}
     <ListItemButtonIcon
+      title="Open Logs"
+      onClick="{() => openLogs(container)}"
+      menu="{dropdownMenu}"
+      detailed="{false}"
+      icon="{faAlignLeft}" />
+    <ListItemButtonIcon
       title="Generate Kube"
       onClick="{() => openGenerateKube()}"
       menu="{dropdownMenu}"
@@ -141,7 +159,7 @@ if (dropdownMenu) {
       onClick="{() => openTerminalContainer(container)}"
       menu="{dropdownMenu}"
       hidden="{!(container.state === 'RUNNING')}"
-      detailed="{detailed}"
+      detailed="{false}"
       icon="{faTerminal}" />
   {/if}
   <ListItemButtonIcon
