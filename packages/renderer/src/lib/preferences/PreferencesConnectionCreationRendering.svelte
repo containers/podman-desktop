@@ -6,10 +6,26 @@ import type { Logger as LoggerType } from '@podman-desktop/api';
 import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import {
+  clearCreateTask,
+  CreateConnectionCallback,
+  disconnectUI,
+  eventCollect,
+  reconnectUI,
+  startCreate,
+} from './preferences-connection-rendering-task';
+import { get } from 'svelte/store';
+import { createConnectionsInfo } from '/@/stores/create-connections';
+import { onDestroy, onMount, tick } from 'svelte';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
 export let propertyScope: string;
-export let callback: (param: string, data, logger: LoggerType) => Promise<void>;
+export let callback: (
+  param: string,
+  data,
+  handlerKey: Symbol,
+  collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+) => Promise<void>;
 
 let creationInProgress = false;
 let creationStarted = false;
@@ -32,7 +48,92 @@ function handleValidComponent() {
   isValid = true;
 }
 
+$: if (logsTerminal) {
+  // reconnect the logger handler
+  if (loggerHandlerKey) {
+    try {
+      reconnectUI(loggerHandlerKey, getLoggerHandler());
+    } catch (error) {
+      console.error('error while reconnecting', error);
+    }
+  }
+}
+
+onMount(async () => {
+  // check if we have an existing create action
+  const value = get(createConnectionsInfo);
+
+  if (value) {
+    loggerHandlerKey = value.createKey;
+    providerInfo = value.providerInfo;
+    properties = value.properties;
+    propertyScope = value.propertyScope;
+
+    // set the flag as before
+    creationInProgress = value.creationInProgress;
+    creationStarted = value.creationStarted;
+    errorMessage = value.errorMessage;
+    creationSuccessful = value.creationSuccessful;
+  }
+});
+onDestroy(() => {
+  if (loggerHandlerKey) {
+    disconnectUI(loggerHandlerKey);
+  }
+});
+
 let logsTerminal;
+let loggerHandlerKey: symbol | undefined = undefined;
+
+function getLoggerHandler(): CreateConnectionCallback {
+  return {
+    log: args => {
+      writeToTerminal(logsTerminal, args, '\x1b[37m');
+    },
+    warn: args => {
+      writeToTerminal(logsTerminal, args, '\x1b[33m');
+    },
+    error: args => {
+      writeToTerminal(logsTerminal, args, '\x1b[1;31m');
+    },
+    onEnd: () => {
+      ended();
+    },
+  };
+}
+
+async function ended() {
+  creationInProgress = false;
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  creationSuccessful = true;
+  updateStore();
+}
+
+async function cleanup() {
+  // clear
+  if (loggerHandlerKey) {
+    clearCreateTask(loggerHandlerKey);
+    loggerHandlerKey = undefined;
+  }
+
+  creationSuccessful = false;
+  updateStore();
+  logsTerminal?.clear();
+}
+
+// store the key
+function updateStore() {
+  createConnectionsInfo.set({
+    createKey: loggerHandlerKey,
+    providerInfo,
+    properties,
+    propertyScope,
+    creationInProgress,
+    creationSuccessful,
+    creationStarted,
+    errorMessage,
+  });
+}
 
 async function handleOnSubmit(e) {
   errorMessage = undefined;
@@ -49,29 +150,20 @@ async function handleOnSubmit(e) {
   errorMessage = undefined;
   creationStarted = true;
 
-  const loggerHandler: LoggerType = {
-    log: args => {
-      writeToTerminal(logsTerminal, args, '\x1b[37m');
-    },
-    warn: args => {
-      writeToTerminal(logsTerminal, args, '\x1b[33m');
-    },
-    error: args => {
-      writeToTerminal(logsTerminal, args, '\x1b[1;31m');
-    },
-  };
-
   try {
     // clear terminal
     logsTerminal?.clear();
-    await callback(providerInfo.internalId, data, loggerHandler);
-    window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
-    creationSuccessful = true;
+    loggerHandlerKey = startCreate(
+      `Creating a ${providerInfo.name} provider`,
+      providerInfo.internalId,
+      getLoggerHandler(),
+    );
+    updateStore();
+    await callback(providerInfo.internalId, data, loggerHandlerKey, eventCollect);
   } catch (error) {
     //display error
     errorMessage = error;
   }
-  creationInProgress = false;
 }
 </script>
 
@@ -82,20 +174,30 @@ async function handleOnSubmit(e) {
         <i class="fas fa-cubes pf-c-empty-state__icon" aria-hidden="true"></i>
         <h1 class="pf-c-title pf-m-lg">Creation</h1>
         <div class="pf-c-empty-state__body">Successful operation</div>
+        <button
+          on:click="{() => {
+            cleanup();
+          }}"
+          class="pf-c-button pf-m-primary"
+          type="button">
+          Go back to creation
+        </button>
       </div>
     </div>
   {:else}
     <h1 class="capitalize text-xl">Creation</h1>
     <form novalidate class="pf-c-form" on:submit|preventDefault="{handleOnSubmit}">
-      {#each configurationKeys as configurationKey}
-        <div>
-          <div class="italic">{configurationKey.description}:</div>
-          <PreferencesRenderingItemFormat
-            invalidRecord="{handleInvalidComponent}"
-            validRecord="{handleValidComponent}"
-            record="{configurationKey}" />
-        </div>
-      {/each}
+      {#if !creationInProgress}
+        {#each configurationKeys as configurationKey}
+          <div>
+            <div class="italic">{configurationKey.description}:</div>
+            <PreferencesRenderingItemFormat
+              invalidRecord="{handleInvalidComponent}"
+              validRecord="{handleValidComponent}"
+              record="{configurationKey}" />
+          </div>
+        {/each}
+      {/if}
       <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
         <span class="pf-c-button__icon pf-m-start">
           {#if creationInProgress === true}
@@ -113,15 +215,14 @@ async function handleOnSubmit(e) {
         Create
       </button>
     </form>
-    {#if creationStarted}
-      <div id="log" class="w-full h-96 mt-4">
-        <div class="w-full h-full">
-          <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
-        </div>
-      </div>
-    {/if}
-    {#if errorMessage}
-      <ErrorMessage error="{errorMessage}" />
-    {/if}
+  {/if}
+  <div id="log" class="w-full h-96 mt-4">
+    <div class="w-full h-full">
+      <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
+    </div>
+  </div>
+
+  {#if errorMessage}
+    <ErrorMessage error="{errorMessage}" />
   {/if}
 </div>

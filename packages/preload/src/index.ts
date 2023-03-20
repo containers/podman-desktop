@@ -61,6 +61,15 @@ export interface FeedbackProperties {
   contact?: string;
 }
 
+export interface KeyLogger {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  log(key: symbol, ...data: any[]): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error(key: symbol, ...data: any[]): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  warn(key: symbol, ...data: any[]): void;
+}
+
 // initialize extension loader mechanism
 function initExposure(): void {
   const eventEmitter = new EventEmitter();
@@ -504,7 +513,11 @@ function initExposure(): void {
 
   let onDataCallbacksCreateConnectionId = 0;
 
-  const onDataCallbacksCreateConnectionLogs = new Map<number, containerDesktopAPI.Logger>();
+  const onDataCallbacksCreateConnectionLogs = new Map<
+    number,
+    (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void
+  >();
+  const onDataCallbacksCreateConnectionKeys = new Map<number, symbol>();
 
   contextBridge.exposeInMainWorld(
     'createContainerProviderConnection',
@@ -512,10 +525,12 @@ function initExposure(): void {
       internalProviderId: string,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       params: { [key: string]: any },
-      logger: containerDesktopAPI.Logger,
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
     ): Promise<void> => {
       onDataCallbacksCreateConnectionId++;
-      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, logger);
+      onDataCallbacksCreateConnectionKeys.set(onDataCallbacksCreateConnectionId, key);
+      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, keyLogger);
       return ipcInvoke(
         'provider-registry:createContainerProviderConnection',
         internalProviderId,
@@ -531,10 +546,12 @@ function initExposure(): void {
       internalProviderId: string,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       params: { [key: string]: any },
-      logger: containerDesktopAPI.Logger,
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
     ): Promise<void> => {
       onDataCallbacksCreateConnectionId++;
-      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, logger);
+      onDataCallbacksCreateConnectionKeys.set(onDataCallbacksCreateConnectionId, key);
+      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, keyLogger);
       return ipcInvoke(
         'provider-registry:createKubernetesProviderConnection',
         internalProviderId,
@@ -549,13 +566,16 @@ function initExposure(): void {
     (_, onDataCallbacksCreateConnectionId: number, channel: string, data: unknown[]) => {
       // grab callback from the map
       const callback = onDataCallbacksCreateConnectionLogs.get(onDataCallbacksCreateConnectionId);
-      if (callback) {
+      const key = onDataCallbacksCreateConnectionKeys.get(onDataCallbacksCreateConnectionId);
+      if (callback && key) {
         if (channel === 'log') {
-          callback.log(data);
+          callback(key, 'log', data);
         } else if (channel === 'warn') {
-          callback.warn(data);
+          callback(key, 'warn', data);
         } else if (channel === 'error') {
-          callback.error(data);
+          callback(key, 'error', data);
+        } else if (channel === 'finish') {
+          callback(key, 'finish', data);
         }
       }
     },
