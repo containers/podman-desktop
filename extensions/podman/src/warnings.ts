@@ -44,7 +44,7 @@ export function getDisguisedPodmanInformation(): extensionApi.ProviderInformatio
       details = detailsExplanation.concat(
         defaultSocketPath,
         detailsNotWorking,
-        ' See troubleshooting page on podman-desktop.io for more information.',
+        " Press 'Docker Compatibility' button to enable.",
       );
       break;
     default:
