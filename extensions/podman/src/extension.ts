@@ -31,6 +31,7 @@ import { execPromise, getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { getDetectionChecks } from './detection-checks';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
+import { getSocketCompatibility } from './compatibility-mode';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -451,9 +452,63 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Check on initial setup
   checkDisguisedPodmanSocket(provider);
-  // update the status of the provider if the socket is changed, created or deleted
+
+  // Update the status of the provider if the socket is changed, created or deleted
   disguisedPodmanSocketWatcher = setupDisguisedPodmanSocketWatcher(provider, getSocketPath());
   extensionContext.subscriptions.push(disguisedPodmanSocketWatcher);
+
+  // Compatibility mode status bar item
+  // only available for macOS (for now).
+  if (isMac()) {
+    // Get the socketCompatibilityClass for the current OS.
+    const socketCompatibilityMode = getSocketCompatibility();
+
+    // Create a status bar item to show the status of compatibility mode as well as
+    // create a command so when you can disable / enable compatibility mode
+    const statusBarItem = extensionApi.window.createStatusBarItem();
+    statusBarItem.text = 'Docker Compatibility';
+    statusBarItem.command = 'podman.socketCompatibilityMode';
+
+    // Use tooltip text from class
+    statusBarItem.tooltip = socketCompatibilityMode.tooltipText();
+
+    statusBarItem.iconClass = 'fa fa-plug';
+    statusBarItem.show();
+    extensionContext.subscriptions.push(statusBarItem);
+
+    // Create a modal dialog to ask the user if they want to enable or disable compatibility mode
+    const command = extensionApi.commands.registerCommand('podman.socketCompatibilityMode', async () => {
+      // Manually check to see if the socket is disguised (this will be called when pressing the status bar item)
+      const isDisguisedPodmanSocket = await isDisguisedPodman();
+
+      if (!isDisguisedPodmanSocket && !socketCompatibilityMode.isEnabled()) {
+        const result = await extensionApi.window.showInformationMessage(
+          `Do you want to automatically enable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
+          'Enable',
+          'Cancel',
+        );
+
+        if (result === 'Enable') {
+          await socketCompatibilityMode.enable();
+        }
+      } else {
+        const result = await extensionApi.window.showInformationMessage(
+          `Do you want to automatically disable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
+          'Disable',
+          'Cancel',
+        );
+
+        if (result === 'Disable') {
+          await socketCompatibilityMode.disable();
+        }
+      }
+      // Use tooltip text from class
+      statusBarItem.tooltip = socketCompatibilityMode.tooltipText();
+    });
+
+    // Push the results of the command so we can unload it later
+    extensionContext.subscriptions.push(command);
+  }
 
   // provide an installation path ?
   if (podmanInstall.isAbleToInstall()) {
