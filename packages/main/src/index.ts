@@ -25,6 +25,35 @@ import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
 import { StartupInstall } from './system/startup-install';
 
+export const UPDATER_PROVIDER = 'github';
+export const UPDATER_OWNER = 'containers';
+export const UPDATER_REPO = 'podman-desktop';
+export const UPDATER_UPDATE_AVAILABLE_ICON = 'fa fa-exclamation-triangle';
+
+// Check for updates when initially ready as well as set a 6 hour interval for any checks
+if (import.meta.env.PROD) {
+  import('electron-updater').then(({ autoUpdater }) => {
+    autoUpdater.setFeedURL({
+      provider: UPDATER_PROVIDER,
+      owner: UPDATER_OWNER,
+      repo: UPDATER_REPO,
+    });
+    app
+      .whenReady()
+      .then(() => {
+        // Check for updates on startup
+        autoUpdater.checkForUpdatesAndNotify();
+
+        // Create an interval to check for updates every 12 hours / notify the user
+        setInterval(() => {
+          autoUpdater.checkForUpdatesAndNotify();
+          // check every 12 hours
+        }, 1000 * 60 * 60 * 12);
+      })
+      .catch(e => console.error('Failed to start auto-updater:', e));
+  });
+}
+
 /**
  * Prevent multiple instances
  */
@@ -54,17 +83,6 @@ app.on('window-all-closed', () => {
  */
 if (isWindows()) {
   app.setAppUserModelId(app.name);
-}
-
-/**
- * Check new app version in production mode only
- */
-if (import.meta.env.PROD) {
-  app
-    .whenReady()
-    .then(() => import('electron-updater'))
-    .then(({ autoUpdater }) => autoUpdater.checkForUpdatesAndNotify())
-    .catch(e => console.error('Failed check updates:', e));
 }
 
 let tray: Tray | null = null;

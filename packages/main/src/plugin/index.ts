@@ -22,6 +22,7 @@
 import * as os from 'node:os';
 import * as path from 'path';
 import type * as containerDesktopAPI from '@podman-desktop/api';
+import { UPDATER_PROVIDER, UPDATER_OWNER, UPDATER_REPO, UPDATER_UPDATE_AVAILABLE_ICON } from '..';
 import { CommandRegistry } from './command-registry';
 import { ContainerProviderRegistry } from './container-registry';
 import { ExtensionLoader } from './extension-loader';
@@ -39,7 +40,8 @@ import type {
   ProviderInfo,
 } from './api/provider-info';
 import type { WebContents } from 'electron';
-import { ipcMain, BrowserWindow } from 'electron';
+import { app } from 'electron';
+import { ipcMain, BrowserWindow, dialog } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { PullEvent } from './api/pull-event';
@@ -48,7 +50,7 @@ import { shell } from 'electron';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
-import { isMac } from '../util';
+import { isLinux, isMac } from '../util';
 import { Dialogs } from './dialog-impl';
 import { ProgressImpl } from './progress-impl';
 import type { ContributionInfo } from './api/contribution-info';
@@ -327,6 +329,101 @@ export class PluginSystem {
       'feedback',
       undefined,
     );
+
+    // Get the current version of our application
+    const currentVersion = `v${app.getVersion()}`;
+
+    // Add version entry to the status bar
+    statusBarRegistry.setEntry(
+      'version',
+      false,
+      0,
+      currentVersion,
+      `Using version ${currentVersion}`,
+      undefined,
+      true,
+      'version',
+      undefined,
+    );
+
+    // Show a "No update available" only for macOS and Windows users and on production builds
+    let detailMessage: string;
+    if (!isLinux() && import.meta.env.PROD) {
+      detailMessage = 'No update available';
+    }
+
+    // Register command 'version' that will display the current version and say that no update is available.
+    // Only show the "no update available" command for macOS and Windows users, not linux users.
+    commandRegistry.registerCommand('version', () => {
+      dialog.showMessageBox({
+        type: 'info',
+        title: 'Version',
+        message: `Using version ${currentVersion}`,
+        detail: detailMessage,
+      });
+    });
+
+    if (import.meta.env.PROD) {
+      // Only import on production builds
+      import('electron-updater').then(({ autoUpdater }) => {
+        // Setting the feed URL is now required as we are now using
+        // autoUpdater.on('update-available', () => {
+        // in other parts of the code
+        autoUpdater.setFeedURL({
+          provider: UPDATER_PROVIDER,
+          owner: UPDATER_OWNER,
+          repo: UPDATER_REPO,
+        });
+
+        // autoUpdater.checkForUpdatesAndNotify() is called from main/src/index.ts
+        autoUpdater.on('update-available', () => {
+          // Update the 'version' entry in the status bar to show that an update is available
+          // this uses setEntry to update the existing entry
+          statusBarRegistry.setEntry(
+            'version',
+            false,
+            0,
+            currentVersion,
+            'Update available',
+            UPDATER_UPDATE_AVAILABLE_ICON,
+            true,
+            'update',
+            undefined,
+          );
+        });
+
+        // Update will create the standard "autoUpdater" dialog / update process that Electron provides
+        commandRegistry.registerCommand('update', () => {
+          autoUpdater.checkForUpdates().then(update => {
+            // Get the version of the update
+            const updateVersion = update?.updateInfo.version ? `v${update?.updateInfo.version}` : '';
+
+            dialog
+              .showMessageBox({
+                type: 'info',
+                title: 'Update Available',
+                message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${currentVersion}?`,
+                buttons: ['Update', 'Later'],
+              })
+              .then(result => {
+                if (result.response === 0) {
+                  // Download update and try / catch it and create a dialog if it fails
+                  autoUpdater.downloadUpdate().catch(error => {
+                    console.error('Update error: ', error);
+                    dialog.showMessageBox({
+                      type: 'error',
+                      title: 'Update Failed',
+                      message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,
+                      buttons: ['OK'],
+                    });
+                  });
+                }
+              });
+          });
+        });
+      });
+    }
+
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
     });
