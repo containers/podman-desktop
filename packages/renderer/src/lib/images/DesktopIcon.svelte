@@ -1,3 +1,7 @@
+<script lang="ts">
+import logoImage from './logo.png';
+</script>
+
 <svg
   xmlns:xlink="http://www.w3.org/1999/xlink"
   fill="none"
@@ -19,12 +23,7 @@
         data-loading="true"
         id="fill-0-rumext-id-3108">
         <g>
-          <image
-            href="https://design.penpot.app/assets/by-file-media-id/4b8a77a1-3fb4-8143-8002-18717fe76078"
-            preserveAspectRatio="none"
-            width="103.99999999999955"
-            height="104">
-          </image>
+          <image href="{logoImage}" preserveAspectRatio="none" width="103.99999999999955" height="104"> </image>
         </g>
       </pattern>
     </defs>

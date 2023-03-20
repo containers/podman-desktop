@@ -5,15 +5,14 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import { WelcomeUtils } from './welcome-utils';
+import { router } from 'tinro';
 
-let showWelcome;
-
-$: showWelcome = false;
+export let showWelcome = false;
 
 onMount(async () => {
   const welcomeUtils = new WelcomeUtils();
   const ver = await welcomeUtils.getVersion();
-  if (ver === undefined) {
+  if (!ver) {
     welcomeUtils.updateVersion('initial');
     showWelcome = true;
   }
@@ -22,17 +21,19 @@ onMount(async () => {
 
 {#if showWelcome}
   <div
-    class="flex flex-col flex-auto fixed top-10 left-0 right-0 bottom-0 bg-zinc-700 overflow-y-auto z-50"
-    style="background-image: url({bgImage}); background-position: 50% -175%; background-repeat: no-repeat; background-size: 100% 75%">
+    class="flex flex-col flex-auto fixed top-10 left-0 right-0 bottom-0 bg-zinc-700 bg-no-repeat z-50"
+    style="background-image: url({bgImage}); background-position: 50% -175%; background-size: 100% 75%">
     <!-- Header -->
     <div class="flex flex-row flex-none backdrop-blur p-6">
       <div class="flex flex-auto text-lg font-bold">Get started with Podman Desktop</div>
     </div>
 
     <!-- Body -->
-    <div class="flex flex-col justify-center content-center flex-auto backdrop-blur p-2">
+    <div class="flex flex-col justify-center content-center flex-auto backdrop-blur p-2 overflow-y-auto">
       <div class="flex justify-center p-2"><DesktopIcon /></div>
-      <div class="flex justify-center text-lg font-bold p-4">🎉 &nbsp;Welcome to Podman Desktop!</div>
+      <div class="flex justify-center text-lg font-bold p-4">
+        <span class="mr-2">🎉</span>Welcome to Podman Desktop!
+      </div>
       <div class="flex flex-row justify-center p-4">
         <div class="bg-zinc-800 rounded-lg p-5 text-sm">
           <div class="font-bold">Podman Desktop supports many container engines, including:</div>
@@ -58,12 +59,12 @@ onMount(async () => {
         </div>
       </div>
       <div class="flex justify-center p-2 text-sm">
-        Configure these and more under <a
+        Configure these and more under <button
           class="text-violet-400 pl-1"
-          href="/preferences"
           on:click="{() => {
             showWelcome = false;
-          }}">Settings</a
+            router.goto('/preferences');
+          }}">Settings</button
         >.
       </div>
     </div>
