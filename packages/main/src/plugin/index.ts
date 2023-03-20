@@ -88,6 +88,12 @@ import type { Menu } from '/@/plugin/menu-registry';
 import { MenuRegistry } from '/@/plugin/menu-registry';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
+
+export interface LoggerWithEnd extends containerDesktopAPI.Logger {
+  // when task is finished, this function is called
+  onEnd: () => void;
+}
+
 export class PluginSystem {
   // ready is when we've finished to initialize extension system
   private isReady = false;
@@ -1023,11 +1029,9 @@ export class PluginSystem {
         params: { [key: string]: unknown },
         loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.createContainerProviderConnection(
-          internalProviderId,
-          params,
-          this.getLogHandlerCreateConnection(loggerId),
-        );
+        const logger = this.getLogHandlerCreateConnection(loggerId);
+        await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger);
+        logger.onEnd();
       },
     );
 
@@ -1039,11 +1043,10 @@ export class PluginSystem {
         params: { [key: string]: unknown },
         loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.createKubernetesProviderConnection(
-          internalProviderId,
-          params,
-          this.getLogHandlerCreateConnection(loggerId),
-        );
+        const logger = this.getLogHandlerCreateConnection(loggerId);
+
+        await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger);
+        logger.onEnd();
       },
     );
 
@@ -1142,7 +1145,7 @@ export class PluginSystem {
     return this.extensionLoader;
   }
 
-  getLogHandlerCreateConnection(loggerId: string): containerDesktopAPI.Logger {
+  getLogHandlerCreateConnection(loggerId: string): LoggerWithEnd {
     return {
       log: (...data: unknown[]) => {
         this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'log', data);
@@ -1152,6 +1155,9 @@ export class PluginSystem {
       },
       error: (...data: unknown[]) => {
         this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'error', data);
+      },
+      onEnd: () => {
+        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'finish');
       },
     };
   }
