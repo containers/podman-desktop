@@ -5,6 +5,7 @@
     "module": "esnext",
     "resolveJsonModule": true,
     "preserveValueImports": false,
+    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
       "/@/*": [
