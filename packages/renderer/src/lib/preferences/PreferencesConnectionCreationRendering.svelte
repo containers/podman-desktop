@@ -30,11 +30,44 @@ let creationInProgress = false;
 let creationStarted = false;
 let creationSuccessful = false;
 
+let osMemory, osCpu, osFreeDisk;
 // get only ContainerProviderConnectionFactory scope fields that are starting by the provider id
-let configurationKeys: IConfigurationPropertyRecordedSchema[];
-$: configurationKeys = properties
+let configurationKeys: IConfigurationPropertyRecordedSchema[] = [];
+
+onMount(async () => {
+  osMemory = await window.getOsMemory();
+  osCpu = await window.getOsCpu();
+  osFreeDisk = await window.getOsFreeDiskSize();
+  configurationKeys = properties
   .filter(property => property.scope === propertyScope)
-  .filter(property => property.id.startsWith(providerInfo.id));
+  .filter(property => property.id.startsWith(providerInfo.id))
+  .map(property => {
+    switch (property.maximum) {
+      case 'HOST_TOTAL_DISKSIZE': {
+        if (osFreeDisk) {
+          property.maximum = osFreeDisk;  
+        }            
+        break;
+      }
+      case 'HOST_TOTAL_MEMORY': {
+        if (osMemory) {
+          property.maximum = osMemory;
+        }        
+        break;
+      }
+      case 'HOST_TOTAL_CPU': {
+        if (osCpu) {
+          property.maximum = osCpu;
+        }        
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+    return property;
+  });
+});
 
 let isValid = true;
 let errorMessage = undefined;
@@ -184,12 +217,23 @@ async function handleOnSubmit(e) {
       </div>
     </div>
   {:else}
-    <h1 class="capitalize text-xl">Creation</h1>
-    <form novalidate class="pf-c-form" on:submit|preventDefault="{handleOnSubmit}">
+  <div class="my-2">
+    {#if providerInfo.images.icon}
+      {#if typeof providerInfo.images.icon === 'string'}
+        <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
+        <!-- TODO check theme used for image, now use dark by default -->
+      {:else}
+        <img src="{providerInfo.images.icon.dark}" alt="{providerInfo.name}" class="max-h-10" />
+      {/if}
+    {/if}
+  </div>
+  <h1 class="font-semibold">Create a {providerInfo.name} Machine</h1>
+  <div class="p-3 mt-4">
+    <form novalidate class="pf-c-form p-2" on:submit|preventDefault="{handleOnSubmit}">
       {#if !creationInProgress}
-        {#each configurationKeys as configurationKey}
-          <div>
-            <div class="italic">{configurationKey.description}:</div>
+      {#each configurationKeys as configurationKey}
+        <div>
+          <div class="text-xs">{configurationKey.description}:</div>
             <PreferencesRenderingItemFormat
               invalidRecord="{handleInvalidComponent}"
               validRecord="{handleValidComponent}"
@@ -197,31 +241,34 @@ async function handleOnSubmit(e) {
           </div>
         {/each}
       {/if}
-      <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
-        <span class="pf-c-button__icon pf-m-start">
-          {#if creationInProgress === true}
-            <i class="pf-c-button__progress">
-              <span class="pf-c-spinner pf-m-md" role="progressbar">
-                <span class="pf-c-spinner__clipper"></span>
-                <span class="pf-c-spinner__lead-ball"></span>
-                <span class="pf-c-spinner__tail-ball"></span>
-              </span>
-            </i>
-          {:else}
-            <i class="fas fa-plus-circle" aria-hidden="true"></i>
-          {/if}
-        </span>
-        Create
-      </button>
-    </form>
-  {/if}
-  <div id="log" class="w-full h-96 mt-4">
-    <div class="w-full h-full">
-      <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
+        <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
+          <span class="pf-c-button__icon pf-m-start">
+            {#if creationInProgress === true}
+              <i class="pf-c-button__progress">
+                <span class="pf-c-spinner pf-m-md" role="progressbar">
+                  <span class="pf-c-spinner__clipper"></span>
+                  <span class="pf-c-spinner__lead-ball"></span>
+                  <span class="pf-c-spinner__tail-ball"></span>
+                </span>
+              </i>
+            {:else}
+              <i class="fas fa-plus-circle" aria-hidden="true"></i>
+            {/if}
+          </span>
+          Create
+        </button>
+      </form>
     </div>
-  </div>
-
-  {#if errorMessage}
-    <ErrorMessage error="{errorMessage}" />
+    
+    {#if creationStarted}
+      <div id="log" class="w-full h-96 mt-4">
+        <div class="w-full h-full">
+          <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
+        </div>
+      </div>
+    {/if}
+    {#if errorMessage}
+      <ErrorMessage error="{errorMessage}" />
+    {/if}
   {/if}
 </div>

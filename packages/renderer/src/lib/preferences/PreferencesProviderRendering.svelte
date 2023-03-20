@@ -64,9 +64,8 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 </script>
 
 <Route path="/*" breadcrumb="{providerInfo?.name}" let:meta>
-  <div class="flex flex-1 flex-col bg-zinc-800 px-2 py-1">
+  <div class="flex flex-1 flex-col bg-zinc-900 px-2 py-1">
     <h1 class="capitalize text-xl">{providerInfo?.name} Provider</h1>
-
     <!-- Manage lifecycle-->
     {#if providerInfo?.lifecycleMethods}
       <div class="pl-1 py-2">

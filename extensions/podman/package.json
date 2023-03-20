@@ -59,6 +59,7 @@
           "type": "number",
           "format": "cpu",
           "default": 1,
+          "maximum": "HOST_TOTAL_CPU",
           "scope": "ContainerProviderConnectionFactory",
           "description": "CPU(s)"
         },
@@ -67,6 +68,7 @@
           "format": "memory",
           "minimum": 1024,
           "default": 2048,
+          "maximum": "HOST_TOTAL_MEMORY",
           "scope": "ContainerProviderConnectionFactory",
           "description": "Memory (MB)"
         },
@@ -74,6 +76,7 @@
           "type": "number",
           "format": "diskSize",
           "default": 100,
+          "maximum": "HOST_TOTAL_DISKSIZE",
           "scope": "ContainerProviderConnectionFactory",
           "description": "Disk size (GB)"
         },

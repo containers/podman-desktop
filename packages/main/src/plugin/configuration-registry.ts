@@ -55,7 +55,7 @@ export interface IConfigurationPropertySchema {
   default?: any;
   description?: string;
   minimum?: number;
-  maximum?: number;
+  maximum?: number | string;
   format?: string;
   scope?: ConfigurationScope;
   readonly?: boolean;

@@ -246,6 +246,14 @@ function canIncrement(value: number | string, maximumValue?: number) {
           <option value="{recordEnum}">{recordEnum}</option>
         {/each}
       </select>
+    {:else if record.type === 'number' && typeof record.maximum === 'number'}
+      <input 
+        id="input-slider-{record.id}" 
+        type="range" 
+        value="{record.default}"
+        min="{record.minimum}"
+        max="{record.maximum}" 
+        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg  cursor-pointer range-sm ">
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"

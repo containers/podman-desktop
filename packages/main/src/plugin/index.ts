@@ -95,6 +95,7 @@ import { clipboard } from 'electron';
 import type { ApiSenderType } from './api';
 import type { AuthenticationProviderInfo } from './authentication';
 import { AuthenticationImpl } from './authentication';
+import checkDiskSpace from 'check-disk-space';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -1168,6 +1169,17 @@ export class PluginSystem {
     });
     this.ipcHandle('os:getHostname', async (): Promise<string> => {
       return os.hostname();
+    });
+    this.ipcHandle('os:getHostFreeDiskSize', async (): Promise<number> => {
+      const i = (await checkDiskSpace(os.homedir()));
+      const t = i.free;
+      return t;
+    });
+    this.ipcHandle('os:getHostMemory', async (): Promise<number> => {
+      return os.totalmem();
+    });
+    this.ipcHandle('os:getHostCpu', async (): Promise<number> => {
+      return os.cpus().length;
     });
 
     this.ipcHandle(
