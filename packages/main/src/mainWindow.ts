@@ -29,7 +29,7 @@ import { isLinux, isMac } from './util';
 async function createWindow() {
   const INITIAL_APP_WIDTH = 1050;
   const INITIAL_APP_MIN_WIDTH = 640;
-  const INITIAL_APP_HEIGHT = 600;
+  const INITIAL_APP_HEIGHT = 700;
   const INITIAL_APP_MIN_HEIGHT = 600;
 
   // We have a "dark" background color in order to avoid the white flash when loading the app
