@@ -1,6 +1,6 @@
 ---
 title: 5 things to know about Podman Desktop for a Docker user
-description: Important thinks to know when switching from Docker Desktop to Podman Desktop
+description: Important things to know when switching from Docker Desktop to Podman Desktop
 slug: 5-things-to-know-for-a-docker-user
 authors: [benoitf]
 tags: [podman-desktop, docker, migrating]
@@ -11,7 +11,7 @@ The 5 things to know being a Docker user by using Podman Desktop:
 
 - **Use a single UI**: Podman Desktop works with several container engines, including Docker.
 - The **compatibility mode**: How to ensure tools are working with Podman instead of Docker.
-- **Compose** Support. How to work with Compose files and Podman.
+- **Compose** support. How to work with Compose files and Podman.
 - **Kubernetes**. How to use Kubernetes with Podman.
 - **rootless** mode or containers without root privileges.
 
@@ -33,7 +33,7 @@ When migrating from Docker to Podman, you can use Podman Desktop to interact wit
 
 ## Docker compatibility mode
 
-Using Podman with Podman Desktop or with the CLI is straightforward. But some tools expect to find `docker` CLI or `docker.sock` socket. In this case, you have to use the compatibility mode of Podman.
+Using Podman with Podman Desktop or with the Podman CLI is straightforward. But some tools expect to find `docker` CLI or `docker.sock` socket. In this case, you have to use the compatibility mode of Podman.
 
 ### Socket file compatibility
 
