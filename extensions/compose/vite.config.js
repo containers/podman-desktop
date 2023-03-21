@@ -21,26 +21,6 @@ import {builtinModules} from 'module';
 
 const PACKAGE_ROOT = __dirname;
 
-export function coverageConfig(packageRoot) {
-  const obj = { coverage: {
-      all: true,
-      clean: true,
-      exclude: [
-        '**/dist/**',
-        '**/node_modules/**',
-        '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-        '**/*.{svelte,tsx,cjs,js,d.ts}',
-        '**/*-info.ts',
-        '**/.{cache,git,idea,output,temp,cdix}/**',
-        '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
-      ],
-      provider: 'c8',
-      reportsDirectory: `../../test-resources/coverage/${packageRoot}`,
-      reporter: ['lcov', 'json', 'text-summary'],
-    },
-  };
-  return obj;
-}
 /**
  * @type {import('vite').UserConfig}
  * @see https://vitejs.dev/config/
@@ -75,9 +55,6 @@ const config = {
     },
     emptyOutDir: true,
     reportCompressedSize: false,
-  },
-  test: {
-    ...coverageConfig('main'),
   },
 };
 

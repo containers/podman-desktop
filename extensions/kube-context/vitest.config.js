@@ -15,38 +15,22 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-/* eslint-env node */
-import {join} from 'path';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
-import { defineConfig } from 'vite';
+
+import path from 'node:path';
+import { coverageConfig } from '../../vitest-shared-extensions.config';
 
 const PACKAGE_ROOT = __dirname;
+const PACKAGE_NAME = 'extensions/kube-context';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  mode: process.env.MODE,
-  root: PACKAGE_ROOT,
+const config = {
+  test: {
+      ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
+  },
   resolve: {
     alias: {
-      '/@/': join(PACKAGE_ROOT, 'src') + '/',
+      '@podman-desktop/api': path.resolve(PACKAGE_ROOT, '../../', '__mocks__/@podman-desktop/api.js'),
     },
   },
-  plugins: [svelte()],
-  optimizeDeps: {
-    exclude: ['tinro'],
-  },
-  base: '',
-  server: {
-    fs: {
-      strict: true,
-    },
-  },
-  build: {
-    sourcemap: true,
-    outDir: 'dist',
-    assetsDir: '.',
-    
-    emptyOutDir: true,
-    reportCompressedSize: false,
-  },
-});
+};
+
+export default config;

@@ -15,38 +15,29 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-/* eslint-env node */
-import {join} from 'path';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
-import { defineConfig } from 'vite';
 
-const PACKAGE_ROOT = __dirname;
+import path from 'node:path';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  mode: process.env.MODE,
-  root: PACKAGE_ROOT,
-  resolve: {
-    alias: {
-      '/@/': join(PACKAGE_ROOT, 'src') + '/',
+export function coverageConfig(packageRoot, packageName) {
+  const obj = { coverage: {
+      all: true,
+      clean: true,
+      src: [packageRoot],
+      exclude: [
+        '**/builtin/**',
+        '**/cypress/**',
+        '**/dist/**',
+        '**/node_modules/**',
+        '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+        '**/*.{tsx,cjs,js,d.ts}',
+        '**/*-info.ts',
+        '**/.{cache,git,idea,output,temp,cdix}/**',
+        '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
+      ],
+      provider: 'c8',
+      reportsDirectory: path.join(packageRoot, '../../', `test-resources/coverage/${packageName}`),
+      reporter: ['lcov', 'text'],
     },
-  },
-  plugins: [svelte()],
-  optimizeDeps: {
-    exclude: ['tinro'],
-  },
-  base: '',
-  server: {
-    fs: {
-      strict: true,
-    },
-  },
-  build: {
-    sourcemap: true,
-    outDir: 'dist',
-    assetsDir: '.',
-    
-    emptyOutDir: true,
-    reportCompressedSize: false,
-  },
-});
+  };
+  return obj;
+}
