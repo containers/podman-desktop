@@ -35,6 +35,7 @@ interface KindCluster {
   name: string;
   status: extensionApi.ProviderConnectionStatus;
   apiPort: number;
+  engineType: 'podman' | 'docker';
 }
 
 let kindClusters: KindCluster[] = [];
@@ -146,6 +147,7 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
       name: clusterName,
       status,
       apiPort: listeningPort?.PublicPort || 0,
+      engineType: container.engineType,
     };
   });
 
@@ -200,15 +202,17 @@ async function moveImage(image: ImageInfo) {
     throw new Error('Image selection not supported yet');
   }
   const clusters = kindClusters.filter(cluster => cluster.status === 'started');
-  let selectedCluster: string;
+  let selectedCluster: { label: string; engineType: string };
 
   if (clusters.length == 0) {
     throw new Error('No Kind clusters to push to');
   } else if (clusters.length == 1) {
-    selectedCluster = clusters[0].name;
+    selectedCluster = { label: clusters[0].name, engineType: clusters[0].engineType };
   } else {
     selectedCluster = await extensionApi.window.showQuickPick(
-      clusters.map(cluster => cluster.name),
+      clusters.map(cluster => {
+        return { label: cluster.name, engineType: cluster.engineType };
+      }),
       { placeHolder: 'Select a Kind cluster to push to' },
     );
   }
@@ -216,10 +220,26 @@ async function moveImage(image: ImageInfo) {
     const filename = await tmpName();
     try {
       await extensionApi.containerEngine.saveImage(image.engineId, image.id, filename);
-      await runCliCommand('load', ['image-archive', '-n', selectedCluster, filename]);
-      extensionApi.window.showNotification({ body: `Image ${image.name} pushed to Kind cluster ${selectedCluster}` });
+      const env = process.env;
+      if (selectedCluster.engineType === 'podman') {
+        env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
+      } else {
+        env['KIND_EXPERIMENTAL_PROVIDER'] = 'docker';
+      }
+      const result = await runCliCommand(kindCli, ['load', 'image-archive', '-n', selectedCluster.label, filename], {
+        env: env,
+      });
+      if (result.exitCode === 0) {
+        extensionApi.window.showNotification({
+          body: `Image ${image.name} pushed to Kind cluster ${selectedCluster.label}`,
+        });
+      } else {
+        throw new Error(
+          `Error while pushing image ${image.name} to Kind cluster ${selectedCluster.label}: ${result.error}`,
+        );
+      }
     } catch (err) {
-      throw new Error(`Error while pushing image ${image.name} to Kind cluster ${selectedCluster}: ${err}`);
+      throw new Error(`Error while pushing image ${image.name} to Kind cluster ${selectedCluster.label}: ${err}`);
     } finally {
       fs.promises.rm(filename);
     }
