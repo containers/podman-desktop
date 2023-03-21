@@ -39,14 +39,14 @@
           "minimum": 1024,
           "default": 2048,
           "scope": "ContainerConnection",
-          "description": "Memory (MB)"
+          "description": "Memory"
         },
         "podman.machine.diskSize": {
           "type": "number",
           "format": "diskSize",
           "default": 100,
           "scope": "ContainerConnection",
-          "description": "Disk size (GB)"
+          "description": "Disk size"
         },
         "podman.factory.machine.name": {
           "type": "string",

@@ -13,6 +13,7 @@ import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte'
 import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
 import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
 import ExtensionList from '../ExtensionList.svelte';
+import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 
 let properties: IConfigurationPropertyRecordedSchema[];
 let defaultPrefPageId: string;
@@ -53,6 +54,9 @@ onMount(async () => {
   </Route>
   <Route path="/provider/:providerInternalId" let:meta>
     <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
+  </Route>
+  <Route path="/resources">
+    <PreferencesResourcesRendering />
   </Route>
   <Route path="/registries">
     <PreferencesRegistriesEditing />

@@ -48,31 +48,31 @@ window.addEventListener('provider-lifecycle-change', () => {
   fetchProviders();
 });
 
-window?.events.receive('provider-lifecycle-change', () => {
+window?.events?.receive('provider-lifecycle-change', () => {
   fetchProviders();
 });
 
-window?.events.receive('provider-change', () => {
+window?.events?.receive('provider-change', () => {
   fetchProviders();
 });
-window?.events.receive('provider-create', () => {
+window?.events?.receive('provider-create', () => {
   fetchProviders();
 });
-window?.events.receive('provider-delete', () => {
+window?.events?.receive('provider-delete', () => {
   fetchProviders();
 });
-window?.events.receive('provider:update-status', () => {
+window?.events?.receive('provider:update-status', () => {
   fetchProviders();
 });
-window?.events.receive('provider:update-warnings', () => {
+window?.events?.receive('provider:update-warnings', () => {
   fetchProviders();
 });
 window.addEventListener('system-ready', () => {
   fetchProviders();
 });
-window?.events.receive('provider-register-kubernetes-connection', () => {
+window?.events?.receive('provider-register-kubernetes-connection', () => {
   fetchProviders();
 });
-window?.events.receive('provider-unregister-kubernetes-connection', () => {
+window?.events?.receive('provider-unregister-kubernetes-connection', () => {
   fetchProviders();
 });
