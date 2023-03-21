@@ -1094,5 +1094,6 @@ declare module '@tmpwip/extension-api' {
     export function registerAuthenticationProvider(provider: AuthenticationProvider): Disposable;
     export function getSession(providerId: string, scopes: string[], options: AuthenticationGetSessionOptions & {createIfNone: true}): Promise<AuthSession | undefined>;
     export function deleteSession(contributorId: string, id: string): Promise<void>;
+    export function getAuthContributorsInfo(): readonly containerDesktopAPI.AuthContributorInfo[];
   }
 }
