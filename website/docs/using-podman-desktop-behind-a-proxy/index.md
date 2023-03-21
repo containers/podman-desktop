@@ -55,7 +55,7 @@ You can use Podman Desktop behind a proxy requiring custom Certificate Authoriti
 
 6. Add the custom Certificate Authorities (CA) for your proxy:
 
-    ```commandline
+    ```shell-session
     # cp <your-custom-ca.pem> /etc/pki/ca-trust/source/anchors/
     # update-ca-trust
    ```
