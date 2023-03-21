@@ -1,117 +1,19 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 title: Writing 
-description: Writing my first extension
+description: Writing a Podman Desktop extension
 tags: [podman-desktop, extension, writing]
 keywords: [podman desktop, extension, writing]
 ---
 
-# Writing a Podman Desktop extension
-
-Podman Desktop extensions rely on JavaScript or TypeScript.
-
-Extensions are self-contained.
-All runtime dependencies are inside the final binary.
-
-## Initializing the Node.js project
-
-Write the extension metadata.
-
-#### Procedure
-
-1. Create and edit a `package.json` file.
-
-   ```json
-   {
-   }
-   ```
-
-1. Add TypeScript and Podman Desktop API to the development dependencies:
-
-   ```json lines
-    "devDependencies": {
-      "@podman-desktop/api": "latest",
-      "typescript": "latest"
-    },
-   ```
-
-1. Add the required metadata:
-
-   ```json lines
-     "name": "my-extension",
-     "displayName": "My Hello World extension",
-     "description": "How to write my first extension",
-     "version": "0.0.1",
-     "icon": "icon.png",
-     "publisher": "benoitf",
-   ```
-
-1. Add the Podman Desktop version that might run this extension:
-
-   ```json lines
-     "engines": {
-       "podman-desktop": "latest"
-     },
-   ```
-
-1. Add the main entry point:
-
-   ```json lines
-    "main": "./dist/extension.js"
-   ```
-
-1. Add a Hello World command contribution
-
-   ```json lines
-     "contributes": {
-       "commands": [
-        {
-          "command": "my.first.command",
-          "title": "My First Extension: Hello World"
-        }
-      ]
-     }
-   ```
-
-1. Add an `icon.png` file to the project.
-
-#### Verification
-
-* Full `package.json` example:
-
-   ```json
-   {
-     "devDependencies": {
-       "@podman-desktop/api": "latest",
-       "typescript": "latest"
-     },
-     "name": "my-extension",
-     "displayName": "My Hello World extension",
-     "description": "How to write my first extension",
-     "version": "0.0.1",
-     "icon": "icon.png",
-     "publisher": "benoitf",
-     "engines": {
-       "podman-desktop": "latest"
-     },
-     "main": "./dist/extension.js",
-     "contributes": {
-       "commands": [
-         {
-  
-  
-  
-           "command": "my.first.command",
-           "title": "My First Extension: Hello World"
-         }
-       ]
-     }
-   }
-   ```
-
-## Writing the extension entry point
+# Writing a Podman Desktop extension entry point
 
 Write the extension features.
+
+#### Prerequisites
+
+* JavaScript or TypeScript
+* [Podman Desktop extension metadata](metadata)
 
 #### Procedure
 
@@ -197,6 +99,8 @@ Write the extension features.
 #### Verification
 
 * The extension compiles and produces the output in the `dist` folder.
+
+* All runtime dependencies are inside the final binary.
 
 #### Additional resources
 
