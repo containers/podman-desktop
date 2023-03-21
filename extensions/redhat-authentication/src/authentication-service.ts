@@ -27,6 +27,7 @@ import { AuthConfig } from './configuration';
 import { Keychain } from './keychain';
 import Logger from './logger';
 import * as extensionApi from '@tmpwip/extension-api';
+import { BrowserWindow } from 'electron';
 
 interface IToken {
   accessToken?: string; // When unable to refresh due to network problems, the access token becomes undefined
@@ -304,8 +305,11 @@ export class RedHatAuthenticationService {
       try {
         const serverBase = this.config.serverConfig.externalUrl;
         const port = await startServer(this.config.serverConfig, server);
-        extensionApi.window.showModalWindow(`${serverBase}:${port}/signin?nonce=${encodeURIComponent(nonce)}`);
-
+        // extensionApi.window.showModalWindow(`${serverBase}:${port}/signin?nonce=${encodeURIComponent(nonce)}`);
+        console.log(BrowserWindow.getAllWindows().length);
+        const mainWindow = BrowserWindow.getAllWindows().find(window => window.getParentWindow() === null)
+        const baseUrl = new URL(mainWindow.webContents.getURL());
+        mainWindow.loadURL(`${baseUrl.origin}/#/images`);
         const redirectReq = await redirectPromise;
         if ('err' in redirectReq) {
           const { err, res } = redirectReq;

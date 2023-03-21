@@ -61,18 +61,36 @@ async function initMenu(extensionContext: extensionApi.ExtensionContext): Promis
 
 let loginService:RedHatAuthenticationService;
 
+async function getAutenticatonService() {
+  if (!loginService) {
+    const config = await getAuthConfig();
+    loginService = await RedHatAuthenticationService.build(config);
+  } 
+  return loginService;
+}
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   console.log('starting extension redhat-authentication');
-  const config = await getAuthConfig();
-
+  
   await initMenu(extensionContext);
 
+  extensionApi.authentication.registerContributor({
+    createSession: function (): Promise<extensionApi.AuthSession> {
+      throw new Error('Function not implemented.');
+    },
+    getSession: function (): Promise<extensionApi.AuthSession> {
+      throw new Error('Function not implemented.');
+    },
+    deleteSession: function (id: string): Promise<void> {
+      throw new Error('Function not implemented.');
+    },
+    id: 'redhat.autentication-provider',
+    displayName: 'Red Hat',
+  });
+
   const SignInCommand = extensionApi.commands.registerCommand('redhat.authentication.signin', async () => {
-    if (!loginService) {
-      loginService = await RedHatAuthenticationService.build(config);
-    }
-    const session = await loginService.createSession('openid');
+    const service = await getAutenticatonService();
+    const session = await service.createSession('openid');
 
     AuthMenuItem.label = `Red Hat (${session.account.label})`;
     AuthMenuItem.

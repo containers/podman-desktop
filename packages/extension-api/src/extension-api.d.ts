@@ -1049,4 +1049,50 @@ declare module '@tmpwip/extension-api' {
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
     export const onEvent: Event<ContainerJSONEvent>;
   }
+
+  export interface AccountInfo {
+    id: string;
+    label: string;
+  }
+
+  export interface AuthenticationSession {
+    idToken: string | undefined;
+    readonly id: string;
+    readonly accessToken: string;
+    readonly scopes: ReadonlyArray<string>;
+    accountInfo?: AccountInfo;
+  }
+
+  export interface AuthenicationSessionChangeEvent {
+    provider: AuthenticationProviderInfo;
+  }
+
+  export interface AuthenticationProviderSessionChangeEvent {
+    added: containerDesktopAPI.AuthenticationSession[];
+    changed: containerDesktopAPI.AuthenticationSession[];
+    removed: containerDesktopAPI.AuthenticationSession[];
+  }
+
+  export interface AuthenticationProviderInfo {
+    readonly id: string;
+    readonly displayName: string;
+  }
+
+  export interface AuthenticationGetSessionOptions {
+    createIfNone?: boolean;
+  }
+
+  export interface AuthenticationPropvider extends AuthContributorInfo {
+    onDidChangeSessions: containerDesktopAPI.Event<>
+    createSession(scopes: string[]): Promise<AuthenticationSession>;
+    getSessions(scopes?: string[]): Promise<AuthenticationSession[]>;
+    removeSession(id: string): Promise<void>;
+  }
+
+  export namespace authentication {
+    export const onDidChangeSessions: containerDesktopAPI.Event<containerDesktopAPI.AuthenticationProviderInfo>;
+    export function registerAuthenticationProvider(provider: AuthenticationProvider): Disposable;
+    export function getSession(providerId: string, scopes: string[], options: AuthenticationGetSessionOptions & {createIfNone: true}): Promise<AuthSession | undefined>;
+    export function deleteSession(contributorId: string, id: string): Promise<void>;
+  }
 }

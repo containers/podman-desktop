@@ -17,6 +17,7 @@ import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPage
 import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import ExtensionList from '../ExtensionList.svelte';
+import PreferencesAuthContributorRendering from './PreferencesAuthContributorRendering.svelte';
 
 let properties: IConfigurationPropertyRecordedSchema[];
 let defaultPrefPageId: string;
@@ -61,6 +62,9 @@ onMount(async () => {
     </Route>
     <Route path="/registries">
       <PreferencesRegistriesEditing />
+    </Route>
+    <Route path="/authentication-contributors">
+      <PreferencesAuthContributorRendering />
     </Route>
     <Route path="/proxies">
       <PreferencesProxiesRendering />

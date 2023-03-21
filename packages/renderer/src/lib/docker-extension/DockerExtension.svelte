@@ -39,7 +39,7 @@ window.events?.receive('dev-tools:open-extension', extensionId => {
 {#if source && preloadPath}
   <webview
     id="dd-webview-{webviewId}"
-    src="{source}?extensionName={currentContrib.extensionId}&arch={arch}&hostname={hostname}&platform={platform}"
+    src="https://developers.redhat.com/"
     preload="{preloadPath}"
     style="height: 100%; width: 100%"></webview>
 {/if}

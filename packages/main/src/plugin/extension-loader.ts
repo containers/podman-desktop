@@ -41,6 +41,7 @@ import type { KubernetesClient } from './kubernetes-client';
 import type { Proxy } from './proxy';
 import type { ContainerProviderRegistry } from './container-registry';
 import { BrowserWindow, webContents } from 'electron';
+import { AuthenticationImpl } from './authentication';
 
 /**
  * Handle the loading of an extension
@@ -89,6 +90,7 @@ export class ExtensionLoader {
     private fileSystemMonitoring: FilesystemMonitoring,
     private proxy: Proxy,
     private containerProviderRegistry: ContainerProviderRegistry,
+    private authentication: AuthenticationImpl
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -509,6 +511,7 @@ export class ExtensionLoader {
       },
     };
 
+    const authentication = this.authentication;
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -527,6 +530,7 @@ export class ExtensionLoader {
       StatusBarItemDefaultPriority,
       StatusBarAlignLeft,
       StatusBarAlignRight,
+      authentication,
     };
   }
 

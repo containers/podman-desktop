@@ -83,6 +83,7 @@ import { Certificates } from './certificates';
 import { Proxy } from './proxy';
 import { EditorInit } from './editor-init';
 import { ExtensionInstaller } from './install/extension-installer';
+import { AuthenticationImpl } from './authentication';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 export class PluginSystem {
@@ -316,6 +317,10 @@ export class PluginSystem {
     const editorInit = new EditorInit(configurationRegistry);
     editorInit.init();
 
+    // TODO: add auth contributors/providers registry
+
+    const authenticationRegistry = new AuthenticationImpl(apiSender);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       providerRegistry,
@@ -331,6 +336,7 @@ export class PluginSystem {
       fileSystemMonitoring,
       proxy,
       containerProviderRegistry,
+      authenticationRegistry
     );
     await this.extensionLoader.init();
 
@@ -790,6 +796,10 @@ export class PluginSystem {
         await imageRegistry.updateRegistry(registry);
       },
     );
+
+    this.ipcHandle('authentication-provider-registry:getAuthenticationProviders', async (): Promise<readonly containerDesktopAPI.AuthContributorInfo[]> => {
+      return authenticationRegistry.getAuthContributorsInfo();
+    });
 
     this.ipcHandle(
       'configuration-registry:getConfigurationProperties',

@@ -706,6 +706,10 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('getAuthenticationProviders', async (): Promise<readonly containerDesktopAPI.AuthContributor[]> => {
+    return ipcInvoke('authentication-provider-registry:getAuthenticationProviders');
+  });
+
   contextBridge.exposeInMainWorld(
     'getConfigurationProperties',
     async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
