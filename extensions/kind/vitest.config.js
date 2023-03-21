@@ -17,36 +17,14 @@
  ***********************************************************************/
 
 import path from 'node:path';
+import { coverageConfig } from '../config/vitest.config';
 
 const PACKAGE_ROOT = __dirname;
-
-export function coverageConfig(packageRoot, packageName) {
-  const obj = { coverage: {
-      all: true,
-      clean: true,
-      src: [packageRoot],
-      exclude: [
-        '**/builtin/**',
-        '**/cypress/**',
-        '**/dist/**',
-        '**/node_modules/**',
-        '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-        '**/*.{tsx,cjs,js,d.ts}',
-        '**/*-info.ts',
-        '**/.{cache,git,idea,output,temp,cdix}/**',
-        '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
-      ],
-      provider: 'c8',
-      reportsDirectory: path.join(packageRoot, '../../', `test-resources/coverage/${packageName}`),
-      reporter: ['lcov', 'text'],
-    },
-  };
-  return obj;
-}
+const PACKAGE_NAME = 'extensions/kind';
 
 const config = {
   test: {
-      ...coverageConfig(PACKAGE_ROOT, 'extensions/kind'),
+      ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
   resolve: {
     alias: {

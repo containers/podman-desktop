@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import path from 'node:path';
-import { coverageConfig } from '../kind/vitest.config';
+import { coverageConfig } from '../config/vitest.config';
 
 const PACKAGE_ROOT = __dirname;
 const PACKAGE_NAME = 'extensions/registries';
