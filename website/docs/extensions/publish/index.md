@@ -51,7 +51,7 @@ See [Writing a Podman Desktop extension](write).
    COPY dist /extension/dist
    ```
 
-1. Build the image for the `amd64` and `arm64` platforms, to work on all supported Podman Desktop platforms:
+1. Build a multi-arch image that works on all supported Podman Desktop platforms:
 
    ```shell-session
    $ podman build --arch amd64,arm64 --manifest quay.io/fbenoit/my-first-extension .
