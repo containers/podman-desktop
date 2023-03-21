@@ -40,7 +40,7 @@ export function coverageConfig(packageRoot, packageName) {
       ],
       provider: 'c8',
       reportsDirectory: `../../test-resources/coverage/${packageName}`,
-      reporter: ['lcov', 'text-summary'],
+      reporter: ['lcov', 'text'],
     },
   };
   return obj;
