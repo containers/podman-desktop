@@ -41,7 +41,7 @@ See [Writing a Podman Desktop extension](write).
          io.podman-desktop.api.version=">= 0.12.0"
    ```
 
-   Using `io.podman-desktop.api.version=">= 0.12.0"` this extension might run only on Podman Desktop v0.12.0 or more recent.
+   `io.podman-desktop.api.version=">= 0.12.0"` sets the minimal Podman Desktop version that the extension requires to run.
 
 1. Copy the extension assembly, including the metadata, icon, and production binary, to the `/extension` folder inside the image:
 
