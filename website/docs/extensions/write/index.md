@@ -15,7 +15,7 @@ All runtime dependencies are inside the final binary.
 
 ## Initializing the Node.js project
 
-Write the extension metadata in a `package.json` file.
+Write the extension metadata.
 
 #### Procedure
 
@@ -25,12 +25,13 @@ Write the extension metadata in a `package.json` file.
    {
    }
    ```
+
 1. Add TypeScript and Podman Desktop API to the development dependencies:
 
    ```json lines
     "devDependencies": {
       "@podman-desktop/api": "latest",
-       "typescript": "latest"
+      "typescript": "latest"
     },
    ```
 
@@ -76,7 +77,7 @@ Write the extension metadata in a `package.json` file.
 
 #### Verification
 
-* Complete `package.json` example:
+* Full `package.json` example:
 
    ```json
    {
@@ -91,12 +92,15 @@ Write the extension metadata in a `package.json` file.
      "icon": "icon.png",
      "publisher": "benoitf",
      "engines": {
-     "podman-desktop": "latest"
+       "podman-desktop": "latest"
      },
      "main": "./dist/extension.js",
      "contributes": {
        "commands": [
          {
+  
+  
+  
            "command": "my.first.command",
            "title": "My First Extension: Hello World"
          }
@@ -105,77 +109,99 @@ Write the extension metadata in a `package.json` file.
    }
    ```
 
-## Writing the extension code
+## Writing the extension entry point
 
-Extension activates by launching the `activate` function of the main file.
+Write the extension features.
 
-### Entry point
+#### Procedure
 
-The extension entry point (`main` entry in `package.json` file) might expose two functions:
+1. Create and edit a `dist/extension.js` file.
 
-1. (Mandatory) `activate`: activation function.
-
-1. (Optional) `deactivate`: deactivation function.
-
-The signature of the function can be:
-
-* Synchronous
+1. Import the Podman Desktop API
 
    ```typescript
-   export function activate(): void
+   import * as podmanDesktopAPI from '@podman-desktop/api';
    ```
 
-* Asynchronous
+1. Expose the `activate` function to call on activation.
+
+   The signature of the function can be:
+
+   * Synchronous
+
+     ```typescript
+     export function activate(): void
+     ```
+
+   * Asynchronous
+
+     ```typescript
+     export async function activate(): Promise<void>
+     ```
+
+1. (Optional) Add an extension context to the `activate` function enabling the extension to register disposable resources:
 
    ```typescript
-   export async function activate(): Promise<void>
+   export async function activate(extensionContext: podmanDesktopAPI.ExtensionContext): Promise<void> {
+   }
    ```
 
-The `activate` function receives an optional extension context, allowing it to register disposable resources
+1. Register the command and the callback
 
-```typescript
-import * as podmanDesktopAPI from '@podman-desktop/api';
-export async function activate(extensionContext: podmanDesktopAPI.ExtensionContext): Promise<void> {
-}
-```
+   ```typescript
+   import * as podmanDesktopAPI from '@podman-desktop/api';
+   export async function activate(extensionContext: podmanDesktopAPI.ExtensionContext): Promise<void> {
 
-### Register the command and the callback
-
-```typescript
-import * as podmanDesktopAPI from '@podman-desktop/api';
-export async function activate(extensionContext: podmanDesktopAPI.ExtensionContext): Promise<void> {
-
-  // register the command referenced in package.json file
-  const myFirstCommand = extensionApi.commands.registerCommand('my.first.command', async () => {
+     // register the command referenced in package.json file
+     const myFirstCommand = extensionApi.commands.registerCommand('my.first.command', async () => {
     
-    // display a choice to the user for selecting some values
-    const result = await extensionApi.window.showQuickPick(['un', 'deux', 'trois'], {
-      canPickMany: true, // user can select more than one choice
-    });
+       // display a choice to the user for selecting some values
+       const result = await extensionApi.window.showQuickPick(['un', 'deux', 'trois'], {
+         canPickMany: true, // user can select more than one choice
+       });
 
-    // display an information message with the user choice
-    await extensionApi.window.showInformationMessage(`The choice was: ${result}`);
-  });
+       // display an information message with the user choice
+       await extensionApi.window.showInformationMessage(`The choice was: ${result}`);
+     });
 
-    // create an item in the status bar to run our command
-    // it will stick on the left of the status bar
-  const item = extensionApi.window.createStatusBarItem(extensionApi.StatusBarAlignLeft, 100);
-  item.text = 'My first command';
-  item.command = 'my.first.command';
-  item.show();
+       // create an item in the status bar to run our command
+       // it will stick on the left of the status bar
+     const item = extensionApi.window.createStatusBarItem(extensionApi.StatusBarAlignLeft, 100);
+     item.text = 'My first command';
+     item.command = 'my.first.command';
+     item.show();
 
-  // register disposable resources to it's removed when we deactivte the extension
-  extensionContext.subscriptions.push(myFirstCommand);
-  extensionContext.subscriptions.push(item);
+     // register disposable resources to it's removed when we deactivte the extension
+     extensionContext.subscriptions.push(myFirstCommand);
+     extensionContext.subscriptions.push(item);
 
-}
-```
+   }
+   ```
 
-At this stage, the extension compiles and produces the output in `dist` folder for example.
+1. (Optional) Expose the `deactivate` function to call on deactivation.
 
-** Note: **
-Note: Using `Rollup`, `Webpack` or any other packer is helping to shrink the size of the artifact.
+   The signature of the function can be:
+
+   * Synchronous
+
+     ```typescript
+     export function deactivate(): void
+     ```
+
+   * Asynchronous
+
+     ```typescript
+     export async function deactivate(): Promise<void>
+     ```
+
+#### Verification
+
+* The extension compiles and produces the output in the `dist` folder.
+
+#### Additional resources
+
+* Consider a packer such as [Rollup](https://rollupjs.org) or [Webpack](https://webpack.js.org) to shrink the size of the artifact.
 
 #### Next steps
 
-* [Publish extension](../extensions/publish)
+* [Publishing a Podman Desktop extension](publish)

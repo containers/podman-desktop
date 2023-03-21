@@ -13,7 +13,7 @@ To enable users to install your extension, consider publishing your extension to
 #### Prerequisites
 
 * The extension builds successfully.
-See [Writing a Podman Desktop extension](../extensions/write).
+See [Writing a Podman Desktop extension](write).
 
 Extension consists of a `zipped` file of all JavaScript files, dependencies, and metadata.
 
@@ -71,4 +71,4 @@ Considers building an `OCI` image to publish to quay.io, Docker Hub or other `OC
 
 #### Next steps
 
-* [Installing a Podman Desktop extension](../extensions/install)
+* [Installing a Podman Desktop extension](install)

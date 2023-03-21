@@ -12,19 +12,15 @@ Consider installing Podman Desktop extensions to enrich the default capabilities
 
 #### Prerequisites
 
-* The extension Open Container Initiative (OCI) image name.
+* The extension Open Container Initiative (OCI) image name, such as: `quay.io/fbenoit/my-first-extension`.
 
-   For example: `quay.io/fbenoit/my-first-extension`.
-
-   See [Publishing a Podman Desktop extension](../extensions/publish).
+   See [Publishing a Podman Desktop extension](publish).
 
 #### Procedure
 
-1. Go to the **Settings** page on the bottom left of Podman Desktop UI.
+1. Go to the **Settings > Extensions**.
 
-1. Click on **Extensions** in the navigation bar tree.
-
-1. In the **Name of the Image** field, write the name of the OCI image containing the extension.
+1. In the **Name of the Image** field, write the extension OCI image name.
 
 1. Click the **Install extension from the OCI image** button.
 
