@@ -16,7 +16,6 @@ Podman Desktop extensions contribute to:
 
 #### Next steps
 
-* [Initializing a Podman Desktop extension](extensions/metadata)
 * [Writing a Podman Desktop extension entry point](extensions/write)
 * [Publishing a Podman Desktop extension](extensions/publish)
 * [Installing a Podman Desktop extension](extensions/install)
