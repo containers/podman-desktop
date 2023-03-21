@@ -49,7 +49,9 @@ For example if you use [`TestContainers`](https://www.testcontainers.org/) in yo
 
 If you have scripts relying on `docker` CLI, you can use the compatibility mode to ensure that the tool is working with Podman instead of Docker.
 
-[Create a script](https://podman-desktop.io/docs/migrating-from-docker/emulating-docker-cli-with-podman) called `docker` that will call the `podman` CLI
+If you have the `docker` CLI installed on your computer, you can use the socket file compatibility of docker to ensure that the tool is working with Podman engine instead of Docker.
+
+If you do not have the `docker` CLI installed on your computer, you can [Create a script](https://podman-desktop.io/docs/migrating-from-docker/emulating-docker-cli-with-podman) called `docker` that will call the `podman` CLI
 
 **_NOTE:_** creating a shell prompt alias, for example `alias docker=podman`, will not work inside scripts that you call.
 
