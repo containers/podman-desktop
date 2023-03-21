@@ -4,7 +4,6 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import { providerInfos } from '../../stores/providers';
 import { onMount } from 'svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import PreferencesContainerConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import Logger from './Logger.svelte';
@@ -12,6 +11,8 @@ import { writeToTerminal } from './Util';
 import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa/src/fa.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -64,13 +65,68 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 </script>
 
 <Route path="/*" breadcrumb="{providerInfo?.name}" let:meta>
-  <div class="flex flex-1 flex-col bg-zinc-900 px-2 py-1">
-    <h1 class="capitalize text-xl">{providerInfo?.name} Provider</h1>
+  <div class="flex flex-1 flex-col bg-zinc-900 px-6 py-1">
+    <div>
+      <button
+      aria-label="Close"
+      class="'hover:text-gray-400 float-right text-lg"
+      on:click="{() => router.goto("/preferences/resources")}">
+      <Fa icon="{faXmark}" />
+      </button>
+    </div>  
+    <h1 class="capitalize text-sm">Resources > {providerInfo?.name}</h1>
     <!-- Manage lifecycle-->
     {#if providerInfo?.lifecycleMethods}
-      <div class="pl-1 py-2">
-        <div class="text-sm italic text-gray-400">Status</div>
-        <div class="pl-3">{providerInfo.status}</div>
+    <div class="pl-1 py-2">
+      <div class="text-sm italic text-gray-400">Status</div>
+      <div class="pl-3">{providerInfo.status}</div>  
+    </div>
+
+    <div class="py-2 flex flex:row">
+      <!-- start is enabled only in stopped mode-->
+      {#if providerInfo?.lifecycleMethods.includes('start')}
+        <div class="px-2 text-sm italic text-gray-400">
+          <button
+            disabled="{providerInfo.status !== 'stopped'}"
+            on:click="{() => startProvider()}"
+            class="pf-c-button pf-m-primary"
+            type="button">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-play" aria-hidden="true"></i>
+            </span>
+            Start
+          </button>
+        </div>
+      {/if}
+
+      <!-- stop is enabled only in started mode-->
+      {#if providerInfo.lifecycleMethods.includes('stop')}
+        <div class="px-2 text-sm italic text-gray-400">
+          <button
+            disabled="{providerInfo.status !== 'started'}"
+            on:click="{() => stopProvider()}"
+            class="pf-c-button pf-m-primary"
+            type="button">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-stop" aria-hidden="true"></i>
+            </span>
+            Stop
+          </button>
+        </div>
+      {/if}
+      <div class="px-2 text-sm italic text-gray-400">
+        <button
+          type="button"
+          on:click="{() => {
+            showModal = providerInfo;
+            // startReceivinLogs(providerInfo);
+          }}"
+          class="pf-c-button pf-m-secondary">
+          <span class="pf-c-button__icon pf-m-start">
+            <i class="fas fa-history" aria-hidden="true"></i>
+          </span>
+          Show Logs
+        </button>
       </div>
 
       <div class="py-2 flex flex:row">
@@ -124,6 +180,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
       {#if providerLifecycleError}
         <ErrorMessage error="{providerLifecycleError}" />
       {/if}
+    </div>
     {/if}
 
     <!-- Create connection panel-->

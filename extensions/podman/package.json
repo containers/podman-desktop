@@ -37,15 +37,15 @@
         "podman.machine.memory": {
           "type": "number",
           "format": "memory",
-          "minimum": 1024,
-          "default": 2048,
+          "minimum": 1024000000,
+          "default": 2048000000,
           "scope": "ContainerConnection",
           "description": "Memory"
         },
         "podman.machine.diskSize": {
           "type": "number",
           "format": "diskSize",
-          "default": 100,
+          "default": 100000000000,
           "scope": "ContainerConnection",
           "description": "Disk size"
         },
@@ -59,6 +59,7 @@
           "type": "number",
           "format": "cpu",
           "default": 1,
+          "minimum": 1,
           "maximum": "HOST_TOTAL_CPU",
           "scope": "ContainerProviderConnectionFactory",
           "description": "CPU(s)"
@@ -66,19 +67,20 @@
         "podman.factory.machine.memory": {
           "type": "number",
           "format": "memory",
-          "minimum": 1024,
-          "default": 2048,
+          "minimum": 1024000000,
+          "default": 2048000000,
           "maximum": "HOST_TOTAL_MEMORY",
           "scope": "ContainerProviderConnectionFactory",
-          "description": "Memory (MB)"
+          "description": "Memory"
         },
         "podman.factory.machine.diskSize": {
           "type": "number",
           "format": "diskSize",
-          "default": 100,
+          "default": 100000000000,
+          "minimum": 10000000000,
           "maximum": "HOST_TOTAL_DISKSIZE",
           "scope": "ContainerProviderConnectionFactory",
-          "description": "Disk size (GB)"
+          "description": "Disk size"
         },
         "podman.factory.machine.image-path": {
           "type": "string",

@@ -16,6 +16,8 @@ import {
 import { get } from 'svelte/store';
 import { createConnectionsInfo } from '/@/stores/create-connections';
 import { onDestroy, onMount, tick } from 'svelte';
+import { filesize } from 'filesize';
+import { router } from 'tinro';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
 export let propertyScope: string;
@@ -26,13 +28,29 @@ export let callback: (
   collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
 ) => Promise<void>;
 
+$: configurationValues = new Map<string, string>(); 
 let creationInProgress = false;
 let creationStarted = false;
 let creationSuccessful = false;
+let pageIsLoading = true;
 
 let osMemory, osCpu, osFreeDisk;
 // get only ContainerProviderConnectionFactory scope fields that are starting by the provider id
 let configurationKeys: IConfigurationPropertyRecordedSchema[] = [];
+
+let isValid = true;
+let errorMessage = undefined;
+
+$: if (logsTerminal) {
+  // reconnect the logger handler
+  if (loggerHandlerKey) {
+    try {
+      reconnectUI(loggerHandlerKey, getLoggerHandler());
+    } catch (error) {
+      console.error('error while reconnecting', error);
+    }
+  }
+}
 
 onMount(async () => {
   osMemory = await window.getOsMemory();
@@ -67,31 +85,8 @@ onMount(async () => {
     }
     return property;
   });
-});
+  pageIsLoading = false;
 
-let isValid = true;
-let errorMessage = undefined;
-
-function handleInvalidComponent(_error: string) {
-  isValid = false;
-}
-
-function handleValidComponent() {
-  isValid = true;
-}
-
-$: if (logsTerminal) {
-  // reconnect the logger handler
-  if (loggerHandlerKey) {
-    try {
-      reconnectUI(loggerHandlerKey, getLoggerHandler());
-    } catch (error) {
-      console.error('error while reconnecting', error);
-    }
-  }
-}
-
-onMount(async () => {
   // check if we have an existing create action
   const value = get(createConnectionsInfo);
 
@@ -108,11 +103,35 @@ onMount(async () => {
     creationSuccessful = value.creationSuccessful;
   }
 });
+
 onDestroy(() => {
   if (loggerHandlerKey) {
     disconnectUI(loggerHandlerKey);
   }
 });
+
+function handleInvalidComponent(_error: string) {
+  isValid = false;
+}
+
+function handleValidComponent() {
+  isValid = true;
+}
+
+function setConfigurationValue(id: string, value: string) {
+  configurationValues.set(id, value);
+  configurationValues = configurationValues;
+}
+
+function getDisplayConfigurationValue(configurationKey: IConfigurationPropertyRecordedSchema, value?: any) {
+  if (configurationKey.format === 'memory' || configurationKey.format === 'diskSize') {
+    return value ? filesize(value) : filesize(configurationKey.default);
+  } else if (configurationKey.format === 'cpu') {
+    return value ? value : configurationKey.default;
+  } else {
+    return '';
+  }
+}
 
 let logsTerminal;
 let loggerHandlerKey: symbol | undefined = undefined;
@@ -226,39 +245,63 @@ async function handleOnSubmit(e) {
         <img src="{providerInfo.images.icon.dark}" alt="{providerInfo.name}" class="max-h-10" />
       {/if}
     {/if}
-  </div>
-  <h1 class="font-semibold">Create a {providerInfo.name} Machine</h1>
-  <div class="p-3 mt-4">
-    <form novalidate class="pf-c-form p-2" on:submit|preventDefault="{handleOnSubmit}">
-      {#if !creationInProgress}
-      {#each configurationKeys as configurationKey}
-        <div>
-          <div class="text-xs">{configurationKey.description}:</div>
-            <PreferencesRenderingItemFormat
-              invalidRecord="{handleInvalidComponent}"
-              validRecord="{handleValidComponent}"
-              record="{configurationKey}" />
-          </div>
-        {/each}
-      {/if}
-        <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
-          <span class="pf-c-button__icon pf-m-start">
-            {#if creationInProgress === true}
-              <i class="pf-c-button__progress">
-                <span class="pf-c-spinner pf-m-md" role="progressbar">
-                  <span class="pf-c-spinner__clipper"></span>
-                  <span class="pf-c-spinner__lead-ball"></span>
-                  <span class="pf-c-spinner__tail-ball"></span>
-                </span>
-              </i>
-            {:else}
-              <i class="fas fa-plus-circle" aria-hidden="true"></i>
-            {/if}
-          </span>
-          Create
-        </button>
-      </form>
     </div>
+    <h1 class="font-semibold">Create a {providerInfo.name} Machine</h1>
+    {#if pageIsLoading}
+    <div class="text-center mt-16">
+        <div role="status">
+            <svg aria-hidden="true" class="inline w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-gray-700" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+            </svg>
+        </div>
+    </div>
+    {:else}
+      <div class="p-3 mt-4 w-4/5">
+        <form novalidate class="pf-c-form p-2" on:submit|preventDefault="{handleOnSubmit}">
+          {#each configurationKeys as configurationKey}
+            <div class="mb-3">
+              <div class="font-semibold text-xs mb-2">{configurationKey.description}:
+              {#if configurationValues.has(configurationKey.id)}
+                {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
+              {:else}
+                {getDisplayConfigurationValue(configurationKey)}
+              {/if}
+              </div>        
+              <PreferencesRenderingItemFormat
+                invalidRecord="{handleInvalidComponent}"
+                validRecord="{handleValidComponent}"
+                record="{configurationKey}"
+                setRecordValue="{setConfigurationValue}" />
+            </div>
+          {/each}
+          <div class="w-full">
+            <div class="float-right">
+              <button class="pf-c-button underline hover:text-gray-400"
+                on:click="{() => router.goto("/preferences/resources")}">
+                Cancel
+              </button>
+              <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">     
+                <div class="mr-24">        
+                  {#if creationInProgress === true}                  
+                    <i class="pf-c-button__progress">
+                      <span class="pf-c-spinner pf-m-md" role="progressbar">
+                        <span class="pf-c-spinner__clipper"></span>
+                        <span class="pf-c-spinner__lead-ball"></span>
+                        <span class="pf-c-spinner__tail-ball"></span>
+                      </span>
+                    </i>                  
+                  {/if}   
+                </div>             
+                Create  
+              </button>
+            </div>          
+          </div>
+          
+        </form>
+      </div>
+    {/if}
+    
     
     {#if creationStarted}
       <div id="log" class="w-full h-96 mt-4">

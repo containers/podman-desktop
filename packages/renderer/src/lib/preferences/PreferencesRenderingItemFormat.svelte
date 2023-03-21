@@ -11,6 +11,7 @@ export let validRecord = () => {};
 export let updateResetButtonVisibility = (recordValue: any) => {};
 export let resetToDefault = false;
 
+export let setRecordValue = (id: string, value: string) => {};
 export let record: IConfigurationPropertyRecordedSchema;
 
 let currentRecord: IConfigurationPropertyRecordedSchema;
@@ -153,11 +154,11 @@ function canDecrement(value: number | string, minimumValue?: number) {
   return !minimumValue || value > minimumValue;
 }
 
-function canIncrement(value: number | string, maximumValue?: number) {
+function canIncrement(value: number | string, maximumValue?: number | string) {
   if (typeof value === 'string') {
     value = Number(value);
   }
-  return !maximumValue || value < maximumValue;
+  return !maximumValue || (typeof maximumValue === 'number' && value < maximumValue);
 }
 </script>
 
@@ -249,15 +250,16 @@ function canIncrement(value: number | string, maximumValue?: number) {
     {:else if record.type === 'number' && typeof record.maximum === 'number'}
       <input 
         id="input-slider-{record.id}" 
-        type="range" 
-        value="{record.default}"
+        type="range"        
         min="{record.minimum}"
-        max="{record.maximum}" 
-        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg  cursor-pointer range-sm ">
+        max="{record.maximum}"
+        value="{record.default}"
+        on:input="{event => setRecordValue(record.id, event.target.value)}"
+        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs " />
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"
-        class="pf-c-form-control"
+        class="pf-c-form-control outline-0"
         name="{record.id}"
         type="text"
         bind:value="{recordValue}"
