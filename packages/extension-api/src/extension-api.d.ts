@@ -1051,7 +1051,6 @@ declare module '@tmpwip/extension-api' {
   }
 
   export interface AccountInfo {
-    id: string;
     label: string;
   }
 
@@ -1068,9 +1067,9 @@ declare module '@tmpwip/extension-api' {
   }
 
   export interface AuthenticationProviderSessionChangeEvent {
-    added: containerDesktopAPI.AuthenticationSession[];
-    changed: containerDesktopAPI.AuthenticationSession[];
-    removed: containerDesktopAPI.AuthenticationSession[];
+    added: AuthenticationSession[];
+    changed: AuthenticationSession[];
+    removed: AuthenticationSession[];
   }
 
   export interface AuthenticationProviderInfo {
@@ -1082,18 +1081,18 @@ declare module '@tmpwip/extension-api' {
     createIfNone?: boolean;
   }
 
-  export interface AuthenticationPropvider extends AuthContributorInfo {
-    onDidChangeSessions: containerDesktopAPI.Event<>
+  export interface AuthenticationProvider extends AuthenticationProviderInfo {
+    onDidChangeSessions: Event<>
     createSession(scopes: string[]): Promise<AuthenticationSession>;
     getSessions(scopes?: string[]): Promise<AuthenticationSession[]>;
     removeSession(id: string): Promise<void>;
   }
 
   export namespace authentication {
-    export const onDidChangeSessions: containerDesktopAPI.Event<containerDesktopAPI.AuthenticationProviderInfo>;
+    export const onDidChangeSessions: Event<AuthenticationProviderInfo>;
     export function registerAuthenticationProvider(provider: AuthenticationProvider): Disposable;
     export function getSession(providerId: string, scopes: string[], options: AuthenticationGetSessionOptions & {createIfNone: true}): Promise<AuthSession | undefined>;
     export function deleteSession(contributorId: string, id: string): Promise<void>;
-    export function getAuthContributorsInfo(): readonly containerDesktopAPI.AuthContributorInfo[];
+    export function getAuthContributorsInfo(): readonly AuthContributorInfo[];
   }
 }
