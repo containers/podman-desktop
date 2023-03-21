@@ -72,7 +72,7 @@
     "@types/validator": "^13.7.14",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
-    "@vitest/coverage-c8": "0.29.3",
+    "@vitest/coverage-c8": "0.29.7",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
     "electron": "^23.1.4",
