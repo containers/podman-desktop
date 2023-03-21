@@ -19,32 +19,10 @@
 import {node} from '../../.electron-vendors.cache.json';
 import {join} from 'path';
 import {builtinModules} from 'module';
+import { coverageConfig } from '../../vitest-shared-extensions.config';
 
 const PACKAGE_ROOT = __dirname;
-
-export function coverageConfig(packageRoot, packageName) {
-  const obj = { coverage: {
-      all: true,
-      clean: true,
-      src: [packageRoot],
-      exclude: [
-        '**/builtin/**',
-        '**/cypress/**',
-        '**/dist/**',
-        '**/node_modules/**',
-        '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-        '**/*.{tsx,cjs,js,d.ts}',
-        '**/*-info.ts',
-        '**/.{cache,git,idea,output,temp,cdix}/**',
-        '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
-      ],
-      provider: 'c8',
-      reportsDirectory: `../../test-resources/coverage/${packageName}`,
-      reporter: ['lcov', 'text'],
-    },
-  };
-  return obj;
-}
+const PACKAGE_NAME = 'main';
 /**
  * @type {import('vite').UserConfig}
  * @see https://vitejs.dev/config/
@@ -87,7 +65,7 @@ const config = {
     reportCompressedSize: false,
   },
   test: {
-    ...coverageConfig(PACKAGE_ROOT, 'main'),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
 };
 

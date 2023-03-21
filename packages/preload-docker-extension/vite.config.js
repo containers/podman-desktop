@@ -19,8 +19,10 @@
  import {chrome} from '../../.electron-vendors.cache.json';
  import {join} from 'path';
  import {builtinModules} from 'module';
-import {coverageConfig} from '../main/vite.config';
+ import { coverageConfig } from '../../vitest-shared-extensions.config';
+
  const PACKAGE_ROOT = __dirname;
+ const PACKAGE_NAME = 'preload-docker-extension';
  
  /**
   * @type {import('vite').UserConfig}
@@ -66,7 +68,7 @@ import {coverageConfig} from '../main/vite.config';
      reportCompressedSize: false,
    },
    test: {
-    ...coverageConfig(PACKAGE_ROOT, 'preload-docker-extension'),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
  };
  

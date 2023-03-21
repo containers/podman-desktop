@@ -20,15 +20,15 @@ import path from 'node:path';
 import { coverageConfig } from '../../vitest-shared-extensions.config';
 
 const PACKAGE_ROOT = __dirname;
-const PACKAGE_NAME = 'extensions/podman';
+const PACKAGE_NAME = 'extensions/compose';
 
 const config = {
   test: {
-      ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
   resolve: {
     alias: {
-      '@podman-desktop/api': path.resolve(PACKAGE_ROOT, '../../', '__mocks__/@podman-desktop/api.js'),
+      '@podman-desktop/api': path.resolve('../../', '__mocks__/@podman-desktop/api.js'),
     },
   },
 };

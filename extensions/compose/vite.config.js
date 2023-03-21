@@ -18,10 +18,8 @@
 
 import {join} from 'path';
 import {builtinModules} from 'module';
-import { coverageConfig } from '../config/vitest.config';
 
 const PACKAGE_ROOT = __dirname;
-const PACKAGE_NAME = 'extensions/compose';
 
 /**
  * @type {import('vite').UserConfig}
@@ -57,9 +55,6 @@ const config = {
     },
     emptyOutDir: true,
     reportCompressedSize: false,
-  },
-  test: {
-    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
 };
 

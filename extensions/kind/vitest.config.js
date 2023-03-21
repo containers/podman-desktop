@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import path from 'node:path';
-import { coverageConfig } from '../config/vitest.config';
+import { coverageConfig } from '../../vitest-shared-extensions.config';
 
 const PACKAGE_ROOT = __dirname;
 const PACKAGE_NAME = 'extensions/kind';
