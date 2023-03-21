@@ -159,7 +159,7 @@ Write the extension features.
      const myFirstCommand = extensionApi.commands.registerCommand('my.first.command', async () => {
     
        // display a choice to the user for selecting some values
-       const result = await extensionApi.window.showQuickPick(['one', 'two', 'three'], {
+       const result = await extensionApi.window.showQuickPick(['un', 'deux', 'trois'], {
          canPickMany: true, // user can select more than one choice
        });
 
