@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[4059],{4947:e=>{e.exports=JSON.parse('{"label":"writing","permalink":"/docs/tags/writing","allTagsPath":"/docs/tags","count":1,"items":[{"id":"extensions/write/index","title":"Writing","description":"Writing a Podman Desktop extension","permalink":"/docs/extensions/write/"}]}')}}]);
