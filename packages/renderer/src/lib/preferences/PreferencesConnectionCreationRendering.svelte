@@ -18,6 +18,7 @@ import { createConnectionsInfo } from '/@/stores/create-connections';
 import { onDestroy, onMount, tick } from 'svelte';
 import { filesize } from 'filesize';
 import { router } from 'tinro';
+import LinearProgress from '../ui/LinearProgress.svelte';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
 export let propertyScope: string;
@@ -228,10 +229,11 @@ async function handleOnSubmit(e) {
         <button
           on:click="{() => {
             cleanup();
+            router.goto("/preferences/resources");
           }}"
           class="pf-c-button pf-m-primary"
           type="button">
-          Go back to creation
+          Go back to resources
         </button>
       </div>
     </div>
@@ -256,7 +258,7 @@ async function handleOnSubmit(e) {
             </svg>
         </div>
     </div>
-    {:else}
+    {:else if !creationInProgress}
       <div class="p-3 mt-4 w-4/5">
         <form novalidate class="pf-c-form p-2" on:submit|preventDefault="{handleOnSubmit}">
           {#each configurationKeys as configurationKey}
@@ -296,17 +298,19 @@ async function handleOnSubmit(e) {
                 Create  
               </button>
             </div>          
-          </div>
-          
+          </div>          
         </form>
       </div>
     {/if}
     
     
-    {#if creationStarted}
-      <div id="log" class="w-full h-96 mt-4">
-        <div class="w-full h-full">
-          <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
+    {#if creationInProgress}    
+      <div class="w-full mt-4">
+        <LinearProgress />
+        <div id="log" class=" h-96 ">
+          <div class="w-full h-full">
+            <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
+          </div>
         </div>
       </div>
     {/if}

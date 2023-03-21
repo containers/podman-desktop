@@ -1171,9 +1171,7 @@ export class PluginSystem {
       return os.hostname();
     });
     this.ipcHandle('os:getHostFreeDiskSize', async (): Promise<number> => {
-      const i = (await checkDiskSpace(os.homedir()));
-      const t = i.free;
-      return t;
+      return (await checkDiskSpace(os.homedir())).free;
     });
     this.ipcHandle('os:getHostMemory', async (): Promise<number> => {
       return os.totalmem();
