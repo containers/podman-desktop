@@ -20,14 +20,78 @@ import * as extensionApi from '@podman-desktop/api';
 import * as sudo from 'sudo-prompt';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
+import { isDisguisedPodman } from './warnings';
+import { LifecycleContextImpl } from './lifecycle-context';
 
 // Create an abstract class for compatibility mode (macOS only)
-// TODO: Windows, Linux
+// TODO: Linux
 abstract class SocketCompatibility {
-  abstract isEnabled(): boolean;
+  abstract isEnabled(): Promise<boolean>;
   abstract enable(): Promise<void>;
   abstract disable(): Promise<void>;
   abstract details: string;
+  abstract tooltipText(): string;
+
+  // Get all the current providers
+  // Filter through providers and check if Docker is running.
+  async isDockerRunning(): Promise<boolean> {
+    const providers = extensionApi.provider.getContainerConnections();
+
+    const dockerProviders = providers.filter(provider => {
+      return provider.connection.type === 'docker' && provider.connection.status() === 'started';
+    });
+
+    return dockerProviders.length > 0;
+  }
+
+  async restartPodmanMachineWithConfirmation(): Promise<void> {
+    // Ask the user for confirmation if they want to restart the podman machine
+    const confirmation = await extensionApi.window.showInformationMessage(
+      'Restarting Podman is required for compatibility mode to function. Containers will be restarted. Are you sure you want to continue?',
+      'Continue',
+      'Cancel',
+    );
+    if (confirmation === 'Continue') {
+      // Create a logging interface for lifecycle so we can use the start() and stop() functionalities
+      const lifecycleContext = new LifecycleContextImpl();
+
+      // Get all the containers
+      // Filter through podmanMachine and find the podman machine provider
+      // Go through podmanMachines and find the one that's 'started'
+      const providers = extensionApi.provider.getContainerConnections();
+      const podmanMachines = providers.filter(provider => {
+        return provider.connection.type === 'podman';
+      });
+      const startedPodmanMachine = podmanMachines.find(machine => {
+        return machine.connection.status() === 'started';
+      });
+
+      // If we find a started podman machine, then stop and start it
+      // if no started podman machine is found, then find a stopped podman machine and start it
+      // if neither is found, error out.
+      if (startedPodmanMachine) {
+        // Must wait for the stop to finish before starting the machine aynchronously
+        await startedPodmanMachine.connection.lifecycle.stop(lifecycleContext);
+        startedPodmanMachine.connection.lifecycle.start(lifecycleContext);
+      } else {
+        const stoppedPodmanMachine = podmanMachines.find(machine => {
+          return machine.connection.status() === 'stopped';
+        });
+
+        if (stoppedPodmanMachine) {
+          stoppedPodmanMachine.connection.lifecycle.start(lifecycleContext);
+        } else {
+          extensionApi.window.showErrorMessage('Cannot find a Podman machine to restart.', 'OK');
+          return;
+        }
+      }
+    }
+  }
+}
+
+export class DarwinSocketCompatibility extends SocketCompatibility {
+  // Shows the details of the compatibility mode on what we do.
+  details = 'The podman-mac-helper binary will be ran. This requires administrative privileges.';
 
   // This will show the "opposite" of what the current state is
   // "Enable" if it's currently disabled, "Disable" if it's currently enabled
@@ -58,7 +122,7 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
   }
 
   // Check to see if com.github.containers.podman.helper-<username>.plist exists
-  isEnabled(): boolean {
+  async isEnabled(): Promise<boolean> {
     const username = os.userInfo().username;
     const filename = `/Library/LaunchDaemons/com.github.containers.podman.helper-${username}.plist`;
     return fs.existsSync(filename);
@@ -118,11 +182,75 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
   }
 }
 
-// TODO: Windows, Linux
+export class WindowsSocketCompatibility extends SocketCompatibility {
+  // Shows the details of the compatibility mode on what we do.
+  details = '';
+
+  tooltipText(): string {
+    const text = 'Windows Docker socket compatibility for Podman.';
+    return this.isEnabled() ? `Disable ${text}` : `Enable ${text}`;
+  }
+
+  // Returns if it's enabled or not, the only way to check this is
+  // to see if isDisguised works or not.
+  async isEnabled(): Promise<boolean> {
+    const isDisguisedPodmanSocket = await isDisguisedPodman();
+    return isDisguisedPodmanSocket;
+  }
+
+  // Enabling requires:
+  // Stopping Docker
+  // Restarting Podman machine
+  async enable(): Promise<void> {
+    // Check to see if Docker provider is still running
+    // Create a recursive loop to check if Docker is still running and ask the user to stop it, (cancel will exit)
+    const dockerUp = await this.isDockerRunning();
+    if (dockerUp) {
+      const result = await extensionApi.window.showInformationMessage(
+        'Docker is running. Please stop Docker before enabling the compatibility mode.',
+        'Continue',
+        'Cancel',
+      );
+      if (result === 'Continue') {
+        this.enable();
+      }
+      return;
+    }
+
+    // Restart the podman machine
+    await this.restartPodmanMachineWithConfirmation();
+  }
+
+  // Disabling requires:
+  // Starting Docker (overrides the compatibility socket)
+  // Restarting Podman machine (to use not use the compatibility socket)
+  async disable(): Promise<void> {
+    // Check to see if Docker is stopped
+    // Create a recursive loop to check if Docker is still running and ask the user to stop it, (cancel will exit)
+    const dockerDown = !(await this.isDockerRunning());
+    if (dockerDown) {
+      const result = await extensionApi.window.showInformationMessage(
+        'Start Docker before continuing. To disable Podman compatibility mode, Docker must be started to override the emulated socket.',
+        'Continue',
+        'Cancel',
+      );
+      if (result === 'Continue') {
+        this.disable();
+      }
+      return;
+    }
+
+    // Restart the podman machine
+    await this.restartPodmanMachineWithConfirmation();
+  }
+}
+
 export function getSocketCompatibility(): SocketCompatibility {
   switch (process.platform) {
     case 'darwin':
       return new DarwinSocketCompatibility();
+    case 'win32':
+      return new WindowsSocketCompatibility();
     default:
       throw new Error(`Unsupported platform ${process.platform}`);
   }

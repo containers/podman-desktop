@@ -17,12 +17,13 @@
  ***********************************************************************/
 
 import { expect, test, vi } from 'vitest';
-import { getSocketCompatibility, DarwinSocketCompatibility } from './compatibility-mode';
+import { getSocketCompatibility, DarwinSocketCompatibility, WindowsSocketCompatibility } from './compatibility-mode';
 import * as extensionApi from '@podman-desktop/api';
 
 vi.mock('@podman-desktop/api', () => {
   return {
     window: {
+      showInformationMessage: vi.fn(),
       showErrorMessage: vi.fn(),
     },
   };
@@ -89,12 +90,68 @@ test('linux: compatibility mode fail', async () => {
 
 // Windows tests
 
-test('windows: compatibility mode fail', async () => {
+test('windows: compatibility mode pass', async () => {
   // Mock platform to be darwin
   Object.defineProperty(process, 'platform', {
     value: 'win32',
   });
 
   // Expect getSocketCompatibility to return error since Linux is not supported yet
-  expect(() => getSocketCompatibility()).toThrowError();
+  expect(() => getSocketCompatibility()).toBeTruthy();
+});
+
+test('windows: fail when docker is detected when enabling', async () => {
+  // Test Windows functionality
+  const socketCompatClass = new WindowsSocketCompatibility();
+
+  // Mock that isDockerRunning returns true
+  const spyIsDockerRunning = vi.spyOn(socketCompatClass, 'isDockerRunning');
+  spyIsDockerRunning.mockImplementation(() => {
+    return Promise.resolve(true);
+  });
+
+  await socketCompatClass.enable();
+  expect(extensionApi.window.showErrorMessage).toHaveBeenCalled();
+});
+
+test('windows: fail when disabling functionality, prompt for docker to be running', async () => {
+  const socketCompatClass = new WindowsSocketCompatibility();
+  const spyIsDockerRunning = vi.spyOn(socketCompatClass, 'isDockerRunning');
+  spyIsDockerRunning.mockImplementation(() => {
+    return Promise.resolve(false);
+  });
+
+  // 'Errors' because it will prompt that docker is not running.
+  await socketCompatClass.disable();
+  expect(extensionApi.window.showErrorMessage).toHaveBeenCalled();
+});
+
+test('windows: test that restart is called when enabling and docker is not runnning', async () => {
+  const socketCompatClass = new WindowsSocketCompatibility();
+  const spyIsDockerRunning = vi.spyOn(socketCompatClass, 'isDockerRunning');
+  spyIsDockerRunning.mockImplementation(() => {
+    return Promise.resolve(false);
+  });
+
+  const spyRestart = vi.spyOn(socketCompatClass, 'restartPodmanMachineWithConfirmation');
+  spyRestart.mockImplementation(() => {
+    return Promise.resolve();
+  });
+
+  await socketCompatClass.enable();
+  expect(spyRestart).toHaveBeenCalled();
+});
+
+test('windows: test that restart is called when disabling and docker is running', async () => {
+  const socketCompatClass = new WindowsSocketCompatibility();
+  const spyIsDockerRunning = vi.spyOn(socketCompatClass, 'isDockerRunning');
+  spyIsDockerRunning.mockImplementation(() => {
+    return Promise.resolve(true);
+  });
+  const spyRestart = vi.spyOn(socketCompatClass, 'restartPodmanMachineWithConfirmation');
+  spyRestart.mockImplementation(() => {
+    return Promise.resolve();
+  });
+  await socketCompatClass.disable();
+  expect(spyRestart).toHaveBeenCalled();
 });

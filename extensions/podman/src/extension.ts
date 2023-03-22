@@ -485,7 +485,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Compatibility mode status bar item
   // only available for macOS (for now).
-  if (isMac()) {
+  if (isMac() || isWindows()) {
     // Get the socketCompatibilityClass for the current OS.
     const socketCompatibilityMode = getSocketCompatibility();
 
@@ -506,10 +506,16 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     const command = extensionApi.commands.registerCommand('podman.socketCompatibilityMode', async () => {
       // Manually check to see if the socket is disguised (this will be called when pressing the status bar item)
       const isDisguisedPodmanSocket = await isDisguisedPodman();
+      const isEnabledSocketCompatibilityMode = await socketCompatibilityMode.isEnabled();
 
-      if (!isDisguisedPodmanSocket && !socketCompatibilityMode.isEnabled()) {
+      let details = '';
+      if (socketCompatibilityMode.details != '') {
+        details = `\n\n${socketCompatibilityMode.details}`;
+      }
+
+      if (!isDisguisedPodmanSocket && !isEnabledSocketCompatibilityMode) {
         const result = await extensionApi.window.showInformationMessage(
-          `Do you want to automatically enable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
+          `Do you want to automatically enable Docker socket compatibility mode for Podman?${details}`,
           'Enable',
           'Cancel',
         );
@@ -519,7 +525,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         }
       } else {
         const result = await extensionApi.window.showInformationMessage(
-          `Do you want to automatically disable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
+          `Do you want to automatically disable Docker socket compatibility mode for Podman?${details}`,
           'Disable',
           'Cancel',
         );

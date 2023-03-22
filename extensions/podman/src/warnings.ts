@@ -35,7 +35,12 @@ export function getDisguisedPodmanInformation(): extensionApi.ProviderInformatio
   // Set the details message based on the OS
   switch (os.platform()) {
     case 'win32':
-      details = detailsExplanation.concat(windowsSocketPath, detailsNotWorking);
+      details = detailsExplanation.concat(
+        windowsSocketPath,
+        detailsNotWorking,
+        // eslint-disable-next-line quotes
+        ` Press 'Docker Compatibility' button to enable.`,
+      );
       break;
     case 'darwin':
       // Due to how `podman-mac-helper` does not (by default) map the emulator to /var/run/docker.sock, we need to explain
