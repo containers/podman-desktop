@@ -40,12 +40,13 @@ test('darwin: compatibility mode binary not found failure', async () => {
     value: 'darwin',
   });
 
-  const compatibility = getSocketCompatibility();
-  expect(compatibility).toBeInstanceOf(DarwinSocketCompatibility);
+  // Mock that the binary is not found
+  const socketCompatClass = new DarwinSocketCompatibility();
+  const spyFindPodmanHelper = vi.spyOn(socketCompatClass, 'findPodmanHelper');
+  spyFindPodmanHelper.mockReturnValue('');
 
-  await compatibility.enable();
-
-  // Expect the binary to have not been found
+  // Expect the error to show when it's not found / enable isn't ran.
+  await socketCompatClass.enable();
   expect(extensionApi.window.showErrorMessage).toHaveBeenCalledWith('podman-mac-helper binary not found.', 'OK');
 });
 
@@ -59,9 +60,7 @@ test('darwin: DarwinSocketCompatibility class, test runSudoMacHelperCommand ran 
 
   // Mock that the binary is found
   const spyFindPodmanHelper = vi.spyOn(socketCompatClass, 'findPodmanHelper');
-  spyFindPodmanHelper.mockImplementation(() => {
-    return Promise.resolve('/opt/podman/bin/podman-mac-helper');
-  });
+  spyFindPodmanHelper.mockReturnValue('/opt/podman/bin/podman-mac-helper');
 
   // Mock that sudo ran successfully (since we cannot test sudo-prompt in vitest / has to be integration tests)
   const spyMacHelperCommand = vi.spyOn(socketCompatClass, 'runSudoMacHelperCommand');
