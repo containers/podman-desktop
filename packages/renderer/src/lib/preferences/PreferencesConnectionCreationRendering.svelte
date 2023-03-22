@@ -34,6 +34,7 @@ let creationInProgress = false;
 let creationStarted = false;
 let creationSuccessful = false;
 let pageIsLoading = true;
+let showLogs = false;
 
 let osMemory, osCpu, osFreeDisk;
 // get only ContainerProviderConnectionFactory scope fields that are starting by the provider id
@@ -54,6 +55,7 @@ $: if (logsTerminal) {
 }
 
 onMount(async () => {
+  showLogs = false;
   osMemory = await window.getOsMemory();
   osCpu = await window.getOsCpu();
   osFreeDisk = await window.getOsFreeDiskSize();
@@ -258,8 +260,31 @@ async function handleOnSubmit(e) {
             </svg>
         </div>
     </div>
-    {:else if !creationInProgress}
-      <div class="p-3 mt-4 w-4/5">
+    {:else}
+      {#if creationInProgress}    
+        <div class="w-4/5 mt-2">
+          <div class="mt-2 mb-8">
+            <LinearProgress />
+            <div class="mt-2 float-right">
+              <button class="text-xs mr-3 hover:underline" on:click="{() => showLogs = !showLogs}">Show Logs <i class="fas {showLogs ? "fa-angle-up" : "fa-angle-down"}" aria-hidden="true"></i></button>
+              <button class="text-xs hover:underline">Cancel</button>
+            </div>
+          </div>
+          
+          <div id="log" class="h-80 {showLogs ? "" : "hidden"}">
+            <div class="w-full h-full">
+              <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
+            </div>
+          </div>
+        </div>
+      {/if}
+      {#if errorMessage}
+      <div class="w-4/5 mt-2">
+        <ErrorMessage error="{errorMessage}" />
+      </div>        
+      {/if}
+
+      <div class="p-3 mt-4 w-4/5 {creationInProgress ? "opacity-40 pointer-events-none": ""}">
         <form novalidate class="pf-c-form p-2" on:submit|preventDefault="{handleOnSubmit}">
           {#each configurationKeys as configurationKey}
             <div class="mb-3">
@@ -301,21 +326,6 @@ async function handleOnSubmit(e) {
           </div>          
         </form>
       </div>
-    {/if}
-    
-    
-    {#if creationInProgress}    
-      <div class="w-full mt-4">
-        <LinearProgress />
-        <div id="log" class=" h-96 ">
-          <div class="w-full h-full">
-            <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
-          </div>
-        </div>
-      </div>
-    {/if}
-    {#if errorMessage}
-      <ErrorMessage error="{errorMessage}" />
     {/if}
   {/if}
 </div>
