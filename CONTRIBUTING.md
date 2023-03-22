@@ -394,3 +394,63 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   extensionContext.foobar.hello("world");
 }
 ```
+
+
+#### Testing the update mechanism (macOS or Windows only)
+You may want to test the "update" mechanism of Podman Desktop, here are the following steps based on the [`electron-builder` guide](https://www.electron.build/tutorials/test-update-on-s3-locally).
+
+##### Testing the "update" notification
+
+In order to test that you actually get the notification, we'll build a version of your current development environment that's LOWER than the currently highest Podman Desktop version.
+
+The **update button** functionality will **NOT WORK**. This is because `yarn compile` is built without pointing to the update server.
+
+1. Modify [`package.json`](/package.json) to a version number that is LOWER than the latest Podman Desktop version
+2. Run `yarn compile`
+3. Run the compiled image from the `/dist` folder, you'll now get a notification to update.
+
+#### Testing the "update" functionality
+
+We will create a local Minio S3 Server that will act as our "update server". From your local machine / compiled build, you will test the download / update functionality.
+
+For this, you need an EXTERNAL server with a publically accessible IP and port. You can either setup a public AWS S3 Storage or use Minio on a VPS.
+
+Push the initial higher-versioned package:
+
+1. Modify [`package.json`](/package.json) to a version number that is HIGHER (ex. `0.0.2`).
+2. Create a Minio server for pushing S3 objects:
+```sh
+podman run -d \
+   -p 9000:9000 \
+   -p 9090:9090 \
+   -e "MINIO_ROOT_USER=minio" \
+   -e "MINIO_ROOT_PASSWORD=minio123" \
+--name minio quay.io/minio/minio server /data --console-address ":9090"
+```
+3. Login to [EXTERNAL_IP:9090](http://EXTERNAL_IP:9090) with credentials minio/minio123
+4. Create the access credentials and add it to your terminal:
+
+```sh
+export AWS_ACCESS_KEY_ID=ID
+export AWS_SECRET_ACCESS_KEY=SECRET
+```
+
+Or else you will encounter a: `NoCredentialProviders: no valid providers in chain. Deprecated.` issue.
+5. Create a bucket named `test-update`.
+6. Set the bucket to [PUBLIC](https://github.com/electron-userland/electron-builder/issues/2233#issuecomment-341882952) (under privacy in the bucket) so our application can access / download updates / read from it.
+7. Run the following command
+```sh
+cross-env MODE=production npm run build && electron-builder build --publish always --config .electron-builder.config.cjs --config.publish.provider=s3 --config.publish.endpoint=http://MYIPADDRESS:9000 --config.publish.bucket=test-update
+```
+8. After pushing, download the *.yml that is in the bucket. It may be named `latest-mac.yml` or `latest-windows.yml`. Download, rename it (Minio can't rename through the browser) to `latest.yml` and reupload it. This is what Electorn checks whenever there is an update available.
+
+Push the lower-versioned package we will test on:
+
+1. Modify [`package.json`](/package.json) to a version number that is LOWER (ex. `0.0.1`). This will create compiled version that will check (and update) itself on prompt
+2. Run the following command to compile a dev version with the correct app update yaml and have it publish to the server:
+```sh
+cross-env MODE=production npm run build && electron-builder build --publish always --config .electron-builder.config.cjs --config.publish.provider=s3 --config.publish.endpoint=http://MYIPADDRESS:9000 --config.publish.bucket=test-update
+```
+3. Delete the `latest-mac.yml` or `latest-windows.yml` in the browser. This is automatically pushed, but we want Electron to check and see that `0.0.2` is available, not `0.0.1`.
+3. Download the `0.0.1` .dmg / exe from the Minio server (Object Browser) and install it locally
+4. Run the application (on macOS this must be run from the Applications folder), and it'll show that an update is available. The update functionality will work / automatically download and override your local application with the new update.
