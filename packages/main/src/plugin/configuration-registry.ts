@@ -103,6 +103,10 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   private readonly _onDidChangeConfiguration = new Emitter<IConfigurationChangeEvent>();
   readonly onDidChangeConfiguration: Event<IConfigurationChangeEvent> = this._onDidChangeConfiguration.event;
 
+  private readonly _onDidChangeConfigurationAPI = new Emitter<containerDesktopAPI.ConfigurationChangeEvent>();
+  readonly onDidChangeConfigurationAPI: Event<containerDesktopAPI.ConfigurationChangeEvent> =
+    this._onDidChangeConfigurationAPI.event;
+
   // Contains the value of the current configuration
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private configurationValues: Map<string, any>;
@@ -224,6 +228,14 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     }
     const event = { key, value, scope };
     this._onDidChangeConfiguration.fire(event);
+
+    const affectsConfiguration = function (affectedSection: string, affectedScope?: ConfigurationScope): boolean {
+      if (affectedScope && affectedScope !== scope) {
+        return false;
+      }
+      return key.startsWith(affectedSection);
+    };
+    this._onDidChangeConfigurationAPI.fire({ affectsConfiguration });
     return promise;
   }
 

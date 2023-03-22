@@ -440,7 +440,7 @@ declare module '@podman-desktop/api' {
     /**
      * An event that is emitted when the {@link Configuration configuration} changed.
      */
-    // export const onDidChangeConfiguration: Event<ConfigurationChangeEvent>;
+    export const onDidChangeConfiguration: Event<ConfigurationChangeEvent>;
   }
 
   /**
