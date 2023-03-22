@@ -430,6 +430,9 @@ export class ExtensionLoader {
       ): containerDesktopAPI.Configuration {
         return configurationRegistry.getConfiguration(section, scope);
       },
+      onDidChangeConfiguration: (listener, thisArg, disposables) => {
+        return configurationRegistry.onDidChangeConfigurationAPI(listener, thisArg, disposables);
+      },
     };
 
     const imageRegistry = this.imageRegistry;
