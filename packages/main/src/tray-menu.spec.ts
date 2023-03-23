@@ -79,3 +79,33 @@ test('Tray delete provider item', () => {
     ),
   ).to.be.empty;
 });
+
+test('Tray update provider not delete provider items', () => {
+  const onSpy = vi.spyOn(ipcMain, 'on');
+  const menuBuild = vi.spyOn(Menu, 'buildFromTemplate');
+
+  trayMenu = new TrayMenu(tray, animatedTray);
+
+  trayMenu.addProviderItems({
+    id: 'testId',
+    name: 'TestProv',
+    internalId: 'internalId',
+  } as ProviderInfo);
+
+  onSpy.mock.calls[0][1](undefined as unknown as Electron.IpcMainEvent, {
+    providerId: 'testId',
+    menuItem: { id: 'itemId', label: 'SomeLabel' },
+  });
+
+  trayMenu.addProviderItems({
+    id: 'testId',
+    name: 'TestProv',
+    internalId: 'internalId',
+  } as ProviderInfo);
+
+  expect(
+    (menuBuild.mock.lastCall?.[0][0].submenu as Array<MenuItemConstructorOptions>)?.filter(
+      it => it.label === 'SomeLabel',
+    ),
+  ).to.be.not.empty;
+});
