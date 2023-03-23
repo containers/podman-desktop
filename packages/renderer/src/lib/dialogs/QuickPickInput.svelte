@@ -1,26 +1,6 @@
 <script lang="ts">
-import type { QuickPickItem } from '@podman-desktop/api';
 import { onDestroy, onMount, tick } from 'svelte';
-
-interface InputBoxOptions {
-  placeHolder?: string;
-  value?: string;
-  valueSelection?: [number, number];
-  // if true, the input box will be validated on each keystroke
-  validate: boolean;
-  prompt: string;
-  id: number;
-}
-
-interface QuickPickOptions {
-  placeHolder?: string;
-  items: QuickPickItem[] | string[];
-  prompt: string;
-  id: number;
-  canPickMany: boolean;
-  // if true, needs to send the current element when item is selected
-  onSelectCallback: boolean;
-}
+import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 
 const DEFAULT_PROMPT = "Press 'Enter' to confirm your input or 'Escape' to cancel";
 let inputValue = '';
