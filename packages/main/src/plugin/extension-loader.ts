@@ -213,10 +213,16 @@ export class ExtensionLoader {
   async readDevelopmentFolders(path: string): Promise<string[]> {
     const entries = await fs.promises.readdir(path, { withFileTypes: true });
     // filter only directories ignoring node_modules directory
-    return entries
+    const pathes = entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
       .map(directory => path + '/' + directory.name);
+    for (let index = 0; index < process.argv.length; index++) {
+      if (process.argv[index] === '--extension' && index < process.argv.length - 1) {
+        pathes.push(process.argv[++index]);
+      }
+    }
+    return pathes;
   }
 
   async readProductionFolders(path: string): Promise<string[]> {
