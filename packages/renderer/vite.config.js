@@ -45,6 +45,10 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     globals: true,
     environment: 'jsdom',
+    alias: [
+      // https://github.com/vitest-dev/vitest/issues/2834
+      { find: /^svelte$/, replacement: 'svelte/internal' },
+    ],
     deps: {
       inline: [
         'moment',
