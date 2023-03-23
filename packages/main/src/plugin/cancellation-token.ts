@@ -18,15 +18,76 @@
 
 import type * as extensionApi from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
+import { IDisposable } from './types/disposable';
+
+const shortcutEvent: extensionApi.Event<any> = Object.freeze(function (callback, context?): IDisposable {
+	const handle = setTimeout(callback.bind(context), 0);
+	return { dispose() { clearTimeout(handle); } };
+});
 
 export class CancellationTokenImpl implements extensionApi.CancellationToken {
-  isCancellationRequested: boolean;
+  	private _isCancellationRequested: boolean;
+	private emitter: Emitter<any> | null = null;
 
-  private readonly cancellationEmitter = new Emitter();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onCancellationRequested: extensionApi.Event<any> = this.cancellationEmitter.event;
+	constructor() {
+		this._isCancellationRequested = false;
+	}
 
-  constructor() {
-    this.isCancellationRequested = false;
-  }
+	public cancel() {
+		if (!this._isCancellationRequested) {
+			this._isCancellationRequested = true;
+			if (this.emitter) {
+				this.emitter.fire(undefined);
+				this.dispose();
+			}
+		}
+	}
+
+	get isCancellationRequested(): boolean {
+		return this._isCancellationRequested;
+	}
+
+	get onCancellationRequested(): extensionApi.Event<any> {
+		if (this._isCancellationRequested) {
+			return shortcutEvent;
+		}
+		if (!this.emitter) {
+			this.emitter = new Emitter<any>();
+		}
+		return this.emitter.event;
+	}
+
+	public dispose(): void {
+		if (this.emitter) {
+			this.emitter.dispose();
+			this.emitter = null;
+		}
+	}
+}
+
+export class CancellationTokenSource {
+  	private _token?: extensionApi.CancellationToken = undefined;
+
+	get token(): extensionApi.CancellationToken {
+		if (!this._token) {
+			// be lazy and create the token only when actually needed
+			this._token = new CancellationTokenImpl();
+		}
+		return this._token;
+	}
+
+	cancel(): void {
+		if (this._token instanceof CancellationTokenImpl) {
+			this._token.cancel();
+		}
+	}
+
+	dispose(cancel: boolean = false): void {
+		if (cancel) {
+			this.cancel();
+		}
+		if (this._token instanceof CancellationTokenImpl) {
+			this._token.dispose();
+		}
+	}
 }

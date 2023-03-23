@@ -228,7 +228,7 @@ declare module '@podman-desktop/api' {
   export interface ContainerProviderConnectionFactory {
     initialize(): Promise<void>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create(params: { [key: string]: any }, logger?: Logger): Promise<void>;
+    create(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
   }
 
   // create a kubernetes provider
@@ -587,6 +587,23 @@ declare module '@podman-desktop/api' {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onCancellationRequested: Event<any>;
+  }
+
+  export interface CancellationTokenSource {
+      /**
+       * The cancellation token of this source.
+       */
+      token: CancellationToken;
+
+      /**
+       * Signal cancellation on the token.
+       */
+      cancel(): void;
+
+      /**
+       * Dispose object and free resources.
+       */
+      dispose(): void;
   }
 
   /**

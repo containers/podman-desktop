@@ -578,7 +578,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // allows to create machines
   if (isMac() || isWindows()) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const createFunction = async (params: { [key: string]: any }, logger: extensionApi.Logger): Promise<void> => {
+    const createFunction = async (params: { [key: string]: any }, logger: extensionApi.Logger, token?: extensionApi.CancellationToken): Promise<void> => {
       const parameters = [];
       parameters.push('machine');
       parameters.push('init');
@@ -651,7 +651,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           }
         }
       }
-      await execPromise(getPodmanCli(), parameters, { logger, env });
+      await execPromise(getPodmanCli(), parameters, { logger, env }, token);
     };
 
     provider.setContainerProviderConnectionFactory({
