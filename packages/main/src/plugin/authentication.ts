@@ -20,36 +20,40 @@ import type * as containerDesktopAPI from '@tmpwip/extension-api';
 import { Emitter } from './events/emitter';
 
 type Authentication = typeof containerDesktopAPI.authentication;
-
+type AuthenticationProvider = containerDesktopAPI.AuthenticationProvider;
+type AuthenticationProviderInfo = containerDesktopAPI.AuthenticationProviderInfo;
 export class AuthenticationImpl implements Authentication {
 
-    private _authContributors: Map<string, containerDesktopAPI.AuthContributor> = new Map<string, containerDesktopAPI.AuthContributor>;
+    private _authContributors: Map<string, containerDesktopAPI.AuthenticationProvider> = new Map<string, containerDesktopAPI.AuthenticationProvider>;
 
     constructor(private apiSender: any) {
     }
 
-    public getAuthContributorsInfo(): readonly containerDesktopAPI.AuthContributorInfo[] {
+    public getAuthContributorsInfo(): readonly AuthenticationProviderInfo[] {
       return Array.from(this._authContributors.values())
         .map(provider  => ({id: provider.id, displayName: provider.displayName}));
     }
 
-    registerContributor(contributor: containerDesktopAPI.AuthContributor): void {
-      this._authContributors.set(contributor.id, contributor);
-      this._onDidRegisterContributor.fire({id: contributor.id, displayName: contributor.displayName});
+    registerAuthenticationProvider(provider: AuthenticationProvider): containerDesktopAPI.Disposable {
+      this._authContributors.set(provider.id, provider);
       this.apiSender.send('authentication-provider-register');
+      provider.onDidChangeSessions(() => {
+        console.log('getting event form authentication provider');
+      });
+      return { dispose: () =>{} };
     }
 
-    async getSession(contributorId: string): Promise<containerDesktopAPI.AuthSession | undefined> {
+    async getSession(contributorId: string): Promise<containerDesktopAPI.AuthenticationSession | undefined> {
       const contrib = this._authContributors.get(contributorId);
-      return contrib?.getSession();
+      return contrib ? (await contrib.getSessions())[1] : undefined;
     }
 
-    async deleteSession(contributorId: string, sessionId: string): Promise<void>{
+    async removeSession(contributorId: string, sessionId: string): Promise<void>{
       const contrib = this._authContributors.get(contributorId);
-      return contrib?.deleteSession(sessionId);
+      return contrib?.removeSession(sessionId);
     }
 
-    private readonly _onDidRegisterContributor = new Emitter<containerDesktopAPI.AuthContributorInfo>();
-    readonly onDidRegisterContributor: containerDesktopAPI.Event<containerDesktopAPI.AuthContributorInfo> =
-      this._onDidRegisterContributor.event;
+    private readonly _onDidChangeSessions = new Emitter<AuthenticationProviderInfo>();
+    readonly onDidChangeSessions: containerDesktopAPI.Event<AuthenticationProviderInfo> =
+      this._onDidChangeSessions.event;
 }

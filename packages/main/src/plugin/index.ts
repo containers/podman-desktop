@@ -797,7 +797,7 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('authentication-provider-registry:getAuthenticationProviders', async (): Promise<readonly containerDesktopAPI.AuthContributorInfo[]> => {
+    this.ipcHandle('authentication-provider-registry:getAuthenticationProviders', async (): Promise<readonly containerDesktopAPI.AuthenticationProviderInfo[]> => {
       return authenticationRegistry.getAuthContributorsInfo();
     });
 

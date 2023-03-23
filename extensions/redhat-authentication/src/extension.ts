@@ -18,9 +18,7 @@
 
 import * as extensionApi from '@tmpwip/extension-api';
 import { getAuthConfig } from './configuration';
-import { shell } from 'electron';
 import { RedHatAuthenticationService } from './authentication-service';
-
 const menuItemsRegistered: extensionApi.Disposable[] = [];
 
 const SignUpMenuItem = (enabled = true) => ({
@@ -69,24 +67,31 @@ async function getAutenticatonService() {
   return loginService;
 }
 
+const _onDidChangeSessions = new extensionApi.Emitter<extensionApi.AuthenticationProviderSessionChangeEvent>();
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   console.log('starting extension redhat-authentication');
   
   await initMenu(extensionContext);
-
-  extensionApi.authentication.registerContributor({
-    createSession: function (): Promise<extensionApi.AuthSession> {
+  
+  extensionApi.authentication.registerAuthenticationProvider({
+    onDidChangeSessions: _onDidChangeSessions.event,
+    createSession: function (): Promise<extensionApi.AuthenticationSession> {
       throw new Error('Function not implemented.');
     },
-    getSession: function (): Promise<extensionApi.AuthSession> {
+    getSessions: function (): Promise<extensionApi.AuthenticationSession[]> {
       throw new Error('Function not implemented.');
     },
-    deleteSession: function (id: string): Promise<void> {
+    removeSession: function (id: string): Promise<void> {
       throw new Error('Function not implemented.');
     },
     id: 'redhat.autentication-provider',
     displayName: 'Red Hat',
   });
+
+  setInterval(()=>{
+    _onDidChangeSessions.fire({})
+  }, 100);
 
   const SignInCommand = extensionApi.commands.registerCommand('redhat.authentication.signin', async () => {
     const service = await getAutenticatonService();

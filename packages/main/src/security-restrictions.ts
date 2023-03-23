@@ -41,7 +41,6 @@ const ALLOWED_ORIGINS_AND_PERMISSIONS = new Map<
     | 'openExternal'
     | 'window-placement'
     | 'unknown'
-    | 'https://sso.redhat.com'
   >
 >(
   import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL
@@ -49,7 +48,7 @@ const ALLOWED_ORIGINS_AND_PERMISSIONS = new Map<
     : [],
 );
 ALLOWED_ORIGINS_AND_PERMISSIONS.set('https://sso.redhat.com',new Set(['unknown']));
-
+ALLOWED_ORIGINS_AND_PERMISSIONS.set('https://accounts.google.com',new Set(['unknown']));
 /**
  * List of origins that you allow open IN BROWSER.
  * Navigation to origins below is possible only if the link opens in a new window
@@ -60,7 +59,7 @@ ALLOWED_ORIGINS_AND_PERMISSIONS.set('https://sso.redhat.com',new Set(['unknown']
  *   href="https://github.com/"
  * >
  */
-const ALLOWED_EXTERNAL_ORIGINS = new Set<`https://${string}`>(['https://github.com']);
+const ALLOWED_EXTERNAL_ORIGINS = new Set<`https://${string}`>(['https://github.com', 'https://accounts.google.com']);
 
 app.on('web-contents-created', (_, contents) => {
   /**

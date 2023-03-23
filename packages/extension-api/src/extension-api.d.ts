@@ -59,6 +59,11 @@ declare module '@tmpwip/extension-api' {
     submenu?: MenuItem[];
   }
 
+  export class Emitter<T = any> {
+    event: Event<t>;
+    fire: (event: T) => void;
+  }
+
   export class Disposable {
     constructor(func: () => void);
     /**
@@ -1067,9 +1072,9 @@ declare module '@tmpwip/extension-api' {
   }
 
   export interface AuthenticationProviderSessionChangeEvent {
-    added: AuthenticationSession[];
-    changed: AuthenticationSession[];
-    removed: AuthenticationSession[];
+    added?: AuthenticationSession[];
+    changed?: AuthenticationSession[];
+    removed?: AuthenticationSession[];
   }
 
   export interface AuthenticationProviderInfo {
@@ -1082,7 +1087,7 @@ declare module '@tmpwip/extension-api' {
   }
 
   export interface AuthenticationProvider extends AuthenticationProviderInfo {
-    onDidChangeSessions: Event<>
+    onDidChangeSessions: Event<AuthenticationProviderSessionChangeEvent>
     createSession(scopes: string[]): Promise<AuthenticationSession>;
     getSessions(scopes?: string[]): Promise<AuthenticationSession[]>;
     removeSession(id: string): Promise<void>;
@@ -1092,6 +1097,6 @@ declare module '@tmpwip/extension-api' {
     export const onDidChangeSessions: Event<AuthenticationProviderInfo>;
     export function registerAuthenticationProvider(provider: AuthenticationProvider): Disposable;
     export function getSession(providerId: string, scopes: string[], options: AuthenticationGetSessionOptions & {createIfNone: true}): Promise<AuthSession | undefined>;
-    export function deleteSession(contributorId: string, id: string): Promise<void>;
+    export function removeSession(contributorId: string, id: string): Promise<void>;
   }
 }

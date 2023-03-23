@@ -42,6 +42,7 @@ import type { Proxy } from './proxy';
 import type { ContainerProviderRegistry } from './container-registry';
 import { BrowserWindow, webContents } from 'electron';
 import { AuthenticationImpl } from './authentication';
+import { Emitter } from './events/emitter';
 
 /**
  * Handle the loading of an extension
@@ -515,6 +516,7 @@ export class ExtensionLoader {
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
+      Emitter: Emitter,
       Uri: Uri,
       commands,
       registry,
@@ -530,7 +532,7 @@ export class ExtensionLoader {
       StatusBarItemDefaultPriority,
       StatusBarAlignLeft,
       StatusBarAlignRight,
-      authentication,
+      authentication
     };
   }
 
