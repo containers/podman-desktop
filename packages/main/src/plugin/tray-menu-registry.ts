@@ -146,10 +146,11 @@ export class TrayMenuRegistry {
     });
   }
 
-  registerProviderMenuItem(providerName: string, menuItem: MenuItem): Disposable {
+  registerProviderMenuItem(providerId: string, menuItem: MenuItem): Disposable {
     this.menuItems.set(menuItem.id, menuItem);
-    ipcMain.emit('tray:add-provider-menu-item', '', { providerName, menuItem });
+    ipcMain.emit('tray:add-provider-menu-item', '', { providerId, menuItem });
     return Disposable.create(() => {
+      this.trayMenu.deleteProviderItem(providerId, menuItem.id);
       this.menuItems.delete(menuItem.id);
     });
   }

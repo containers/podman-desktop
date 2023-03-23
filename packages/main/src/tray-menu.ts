@@ -116,6 +116,16 @@ export class TrayMenu {
     this.updateMenu();
   }
 
+  public deleteProviderItem(providerId: string, itemId: string): void {
+    const provider = Array.from(this.menuProviderItems.values()).find(item => item.id === providerId);
+    if (provider) {
+      provider.childItems = provider.childItems.filter(it => it.id !== itemId);
+      this.updateMenu();
+    } else {
+      console.error(`Cannot find provider ${providerId}`);
+    }
+  }
+
   // Handle provider container connection
   handleConnection(
     action: string,
