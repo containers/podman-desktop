@@ -16,8 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import '@testing-library/jest-dom';
-import { beforeAll, test, expect } from 'vitest';
+import { beforeAll, test, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import WelcomePage from './WelcomePage.svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -28,8 +30,10 @@ let path: string;
 
 // fake the window.events object
 beforeAll(() => {
+  (window as any).getConfigurationValue = vi.fn();
+  (window as any).updateConfigurationValue = vi.fn();
+
   (window.events as unknown) = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     receive: (_channel: string, func: any) => {
       func();
     },
@@ -45,21 +49,21 @@ afterAll(() => {
 });
 
 test('Expect the close button is on the page', async () => {
-  render(WelcomePage, { showWelcome: true });
+  await render(WelcomePage, { showWelcome: true });
   const button = screen.getByRole('button', { name: 'Go to Podman Desktop' });
   expect(button).toBeInTheDocument();
   expect(button).toBeEnabled();
 });
 
 test('Expect the settings button is on the page', async () => {
-  render(WelcomePage, { showWelcome: true });
+  await render(WelcomePage, { showWelcome: true });
   const button = screen.getByRole('button', { name: 'Settings' });
   expect(button).toBeInTheDocument();
   expect(button).toBeEnabled();
 });
 
 test('Expect that the close button closes the window', async () => {
-  render(WelcomePage, { showWelcome: true });
+  await render(WelcomePage, { showWelcome: true });
   const button = screen.getByRole('button', { name: 'Go to Podman Desktop' });
   await fireEvent.click(button);
 
@@ -68,7 +72,8 @@ test('Expect that the close button closes the window', async () => {
 });
 
 test('Expect that the settings button closes the window and opens the settings', async () => {
-  render(WelcomePage, { showWelcome: true });
+  await render(WelcomePage, { showWelcome: true });
+
   const button = screen.getByRole('button', { name: 'Settings' });
   await fireEvent.click(button);
 
