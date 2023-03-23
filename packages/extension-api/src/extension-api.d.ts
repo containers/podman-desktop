@@ -108,8 +108,7 @@ declare module '@podman-desktop/api' {
    * Use this class to send events inside extension or provide API to the other
    * extensions.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  export class Emitter<T = any> {
+  export class EventEmitter<T> {
     /**
      * For the public to allow to subscribe to events from this Emitter
      */
@@ -118,8 +117,7 @@ declare module '@podman-desktop/api' {
      * To fire an event to the subscribers
      * @param event The event to send to the registered listeners
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    fire(event: Event<T>): any;
+    fire(data: T): void;
     /**
      * Dispose by removing registered listeners
      */

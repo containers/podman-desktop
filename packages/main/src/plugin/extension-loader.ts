@@ -567,7 +567,7 @@ export class ExtensionLoader {
       // Types
       Disposable: Disposable,
       Uri: Uri,
-      Emitter: Emitter,
+      EventEmitter: Emitter,
       commands,
       registry,
       provider,
