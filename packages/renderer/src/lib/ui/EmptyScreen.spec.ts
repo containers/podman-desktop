@@ -16,19 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-
 import '@testing-library/jest-dom';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { test, expect, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import EmptyScreen from './EmptyScreen.svelte';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 test('Expect copy in clipboard', async () => {
-  render(EmptyScreen, {commandline: 'podman run hello:world'});
+  console.log('start test');
+  const mock = vi.fn().mockImplementation(() => {});
+  (window as any).clipboardWriteText = mock;
+  render(EmptyScreen, { commandline: 'podman run hello:world' });
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
   expect(button).toBeEnabled();
-  button.click();
-  const div = screen.getByTestId('copyTextDivElement');
-  expect(div).toBeInTheDocument();
+  await fireEvent.click(button);
+  expect(mock).toBeCalledTimes(1);
 });
-
