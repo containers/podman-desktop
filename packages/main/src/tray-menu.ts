@@ -190,8 +190,7 @@ export class TrayMenu {
     };
 
     const oldProvider = this.menuProviderItems.get(providerMenuItem.internalId);
-    if (oldProvider && oldProvider.name === 'temp') {
-      this.menuProviderItems.delete(provider.internalId);
+    if (oldProvider) {
       providerMenuItem.childItems.push(...oldProvider.childItems);
     }
     this.menuProviderItems.set(provider.internalId, providerMenuItem);
