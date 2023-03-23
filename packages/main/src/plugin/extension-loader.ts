@@ -44,6 +44,7 @@ import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-r
 import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry';
 import type { MenuRegistry } from '/@/plugin/menu-registry';
 import { desktopAppHomeDir } from '../util';
+import { Emitter } from './events/emitter';
 
 /**
  * Handle the loading of an extension
@@ -566,6 +567,7 @@ export class ExtensionLoader {
       // Types
       Disposable: Disposable,
       Uri: Uri,
+      Emitter: Emitter,
       commands,
       registry,
       provider,
