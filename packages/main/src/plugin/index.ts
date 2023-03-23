@@ -92,6 +92,7 @@ import { MenuRegistry } from '/@/plugin/menu-registry';
 import { CancellationTokenRegistry } from './cancellation-token-registry';
 import type { UpdateCheckResult } from 'electron-updater';
 import { autoUpdater } from 'electron-updater';
+import { clipboard } from 'electron';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -846,6 +847,10 @@ export class PluginSystem {
 
     this.ipcHandle('command-registry:executeCommand', async (_, command: string, ...args: unknown[]): Promise<void> => {
       return commandRegistry.executeCommand(command, ...args);
+    });
+
+    this.ipcHandle('clipboard:writeText', async (_, text: string, type?: 'selection' | 'clipboard'): Promise<void> => {
+      return clipboard.writeText(text, type);
     });
 
     this.ipcHandle(
