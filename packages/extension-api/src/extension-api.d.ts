@@ -101,6 +101,29 @@ declare module '@podman-desktop/api' {
     (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]): Disposable;
   }
 
+  /**
+   * A class to create and manage an {@link Event} for clients to subscribe to.
+   * The emitter can only send one kind of event.
+   *
+   * Use this class to send events inside extension or provide API to the other
+   * extensions.
+   */
+  export class EventEmitter<T> {
+    /**
+     * For the public to allow to subscribe to events from this Emitter
+     */
+    event: Event<T>;
+    /**
+     * To fire an event to the subscribers
+     * @param event The event to send to the registered listeners
+     */
+    fire(data: T): void;
+    /**
+     * Dispose by removing registered listeners
+     */
+    dispose(): void;
+  }
+
   export interface ExtensionContext {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly subscriptions: { dispose(): any }[];
