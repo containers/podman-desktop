@@ -21,7 +21,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom';
-import { beforeAll, test, expect, vi } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
@@ -35,9 +35,24 @@ const providerInfo: ProviderInfo = {
 } as unknown as ProviderInfo;
 const propertyScope = 'FOO';
 
+beforeAll(() => {
+  (window as any).getConfigurationValue = vi.fn();
+  (window as any).updateConfigurationValue = vi.fn();
+
+  Object.defineProperty(window, 'matchMedia', {
+    value: () => {
+      return {
+        matches: false,
+        addListener: () => {},
+        removeListener: () => {},
+      };
+    },
+  });
+});
+
 test('Expect that the create button is available', async () => {
   const callback = vi.fn();
-  render(PreferencesConnectionCreationRendering, { properties, providerInfo, propertyScope, callback });
+  await render(PreferencesConnectionCreationRendering, { properties, providerInfo, propertyScope, callback });
   const createButton = screen.getByRole('button', { name: 'Create' });
   expect(createButton).toBeInTheDocument();
   expect(createButton).toBeEnabled();
@@ -57,7 +72,7 @@ test('Expect create connection successfully', async () => {
     providedKeyLogger = keyLogger;
   });
 
-  render(PreferencesConnectionCreationRendering, { properties, providerInfo, propertyScope, callback });
+  await render(PreferencesConnectionCreationRendering, { properties, providerInfo, propertyScope, callback });
   const createButton = screen.getByRole('button', { name: 'Create' });
   expect(createButton).toBeInTheDocument();
   // click on the button
