@@ -175,7 +175,11 @@ function handleKeydown(e: KeyboardEvent) {
       e.preventDefault();
       return;
     }
-    window.sendShowInputBoxValue(currentId, undefined, undefined);
+    if (mode === 'QuickPick') {
+      window.sendShowQuickPickValues(currentId, []);
+    } else if (mode === 'InputBox') {
+      window.sendShowInputBoxValue(currentId, undefined, undefined);
+    }
     cleanup();
     e.preventDefault();
     return;
