@@ -22,7 +22,7 @@
 import * as os from 'node:os';
 import * as path from 'path';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { UPDATER_PROVIDER, UPDATER_OWNER, UPDATER_REPO, UPDATER_UPDATE_AVAILABLE_ICON } from '..';
+import { UPDATER_UPDATE_AVAILABLE_ICON } from '..';
 import { CommandRegistry } from './command-registry';
 import { ContainerProviderRegistry } from './container-registry';
 import { ExtensionLoader } from './extension-loader';
@@ -367,15 +367,6 @@ export class PluginSystem {
     if (import.meta.env.PROD) {
       // Only import on production builds
       import('electron-updater').then(({ autoUpdater }) => {
-        // Setting the feed URL is now required as we are now using
-        // autoUpdater.on('update-available', () => {
-        // in other parts of the code
-        autoUpdater.setFeedURL({
-          provider: UPDATER_PROVIDER,
-          owner: UPDATER_OWNER,
-          repo: UPDATER_REPO,
-        });
-
         // autoUpdater.checkForUpdatesAndNotify() is called from main/src/index.ts
         autoUpdater.on('update-available', () => {
           // Update the 'version' entry in the status bar to show that an update is available
