@@ -43,27 +43,33 @@ function deleteContribution(extensionName: string) {
 }
 </script>
 
-<div class="flex flex-1 flex-col p-2 bg-zinc-800">
-  <p class="capitalize text-xl">Docker Desktop Extensions</p>
-  <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
-  <p class="text-xs italic">
-    Not all are guaranteed to work but you can add their OCI Image below to try and load them.
-  </p>
-  <p class="text-xs italic">
-    Example: aquasec/trivy-docker-extension:latest for Trivy extension or redhatdeveloper/openshift-dd-ext:latest for
-    the OpenShift extension.
-  </p>
+<div class="flex flex-1 flex-col p-2 bg-zinc-900">
+  <div>
+    <p class="capitalize text-xl">Docker Desktop Extensions</p>
+    <p class="text-sm text-gray-400"><br /></p>
+  </div>
 
-  <div class="container mx-auto w-full mt-4 flex-col">
-    <div class="flex flex-col mb-4">
-      <label for="ociImage" class="block mb-2 text-sm font-medium text-gray-300">Image name:</label>
-      <input
-        name="ociImage"
-        id="ociImage"
-        bind:value="{ociImage}"
-        placeholder="Name of the Image"
-        class="text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
-        required />
+  <div class="bg-zinc-800 mt-5 rounded-md p-3">
+    <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
+    <p class="text-xs italic">
+      Not all are guaranteed to work but you can add their OCI Image below to try and load them.
+    </p>
+    <p class="text-xs italic">
+      Example: aquasec/trivy-docker-extension:latest for Trivy extension or redhatdeveloper/openshift-dd-ext:latest for
+      the OpenShift extension.
+    </p>
+
+    <div class="container mx-auto w-full mt-4 flex-col">
+      <div class="flex flex-col mb-4">
+        <label for="ociImage" class="block mb-2 text-sm font-medium text-gray-300">Image name:</label>
+        <input
+          name="ociImage"
+          id="ociImage"
+          bind:value="{ociImage}"
+          placeholder="Name of the Image"
+          class="text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+          required />
+      </div>
     </div>
 
     <button

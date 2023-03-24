@@ -65,10 +65,13 @@ async function removeExtension(extension: ExtensionInfo) {
 }
 </script>
 
-<div class="flex flex-1 flex-col p-2 bg-zinc-800">
-  <h1 class="capitalize text-xl">Extensions List</h1>
+<div class="flex flex-1 flex-col p-2 bg-zinc-900">
+  <div>
+    <p class="capitalize text-xl">Extensions</p>
+    <p class="text-sm text-gray-400"><br /></p>
+  </div>
 
-  <div class="bg-zinc-800 border border-zinc-700 p-4 mt-2">
+  <div class="bg-zinc-800 mt-5 rounded-md p-3">
     <h1 class="text-lg mb-2">Install a new extension from OCI Image</h1>
 
     <div class="flex flex-col w-full">
