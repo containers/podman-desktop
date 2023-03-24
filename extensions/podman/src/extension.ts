@@ -515,7 +515,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
       if (!isDisguisedPodmanSocket && !isEnabledSocketCompatibilityMode) {
         const result = await extensionApi.window.showInformationMessage(
-          `Do you want to automatically enable Docker socket compatibility mode for Podman?${details}`,
+          `Do you want to enable Docker socket compatibility mode for Podman?${details}`,
           'Enable',
           'Cancel',
         );
@@ -525,7 +525,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         }
       } else {
         const result = await extensionApi.window.showInformationMessage(
-          `Do you want to automatically disable Docker socket compatibility mode for Podman?${details}`,
+          `Do you want to disable Docker socket compatibility mode for Podman?${details}`,
           'Disable',
           'Cancel',
         );

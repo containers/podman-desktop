@@ -226,10 +226,10 @@ export class WindowsSocketCompatibility extends SocketCompatibility {
     if (dockerUp) {
       const result = await extensionApi.window.showInformationMessage(
         'Docker is running. Please stop Docker before enabling the compatibility mode.',
-        'Continue',
+        'Try again',
         'Cancel',
       );
-      if (result === 'Continue') {
+      if (result === 'Try again') {
         this.enable();
       }
       return;
@@ -249,10 +249,10 @@ export class WindowsSocketCompatibility extends SocketCompatibility {
     if (dockerDown) {
       const result = await extensionApi.window.showInformationMessage(
         'Start Docker before continuing. To disable Podman compatibility mode, Docker must be started to override the emulated socket.',
-        'Continue',
+        'Try again',
         'Cancel',
       );
-      if (result === 'Continue') {
+      if (result === 'Try again') {
         this.disable();
       }
       return;
