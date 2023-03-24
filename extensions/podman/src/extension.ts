@@ -465,6 +465,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       url: 'https://podman.io/getting-started/installation',
     },
     {
+      title: 'Read the Podman/Docker compatibility guide',
+      url: 'https://podman-desktop.io/docs/troubleshooting#warning-about-docker-compatibility-mode',
+    },
+    {
       title: 'Join the Podman community',
       url: 'https://podman.io/community/',
     },
