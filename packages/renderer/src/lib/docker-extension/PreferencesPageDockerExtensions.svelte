@@ -3,6 +3,8 @@ import { afterUpdate } from 'svelte';
 
 import { contributions } from '../../stores/contribs';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import SettingsPage from '../preferences/SettingsPage.svelte';
+
 let ociImage: string;
 
 let installInProgress: boolean = false;
@@ -43,12 +45,7 @@ function deleteContribution(extensionName: string) {
 }
 </script>
 
-<div class="flex flex-1 flex-col p-2 bg-zinc-900">
-  <div>
-    <p class="capitalize text-xl">Docker Desktop Extensions</p>
-    <p class="text-sm text-gray-400"><br /></p>
-  </div>
-
+<SettingsPage title="Docker Desktop Extensions">
   <div class="bg-zinc-800 mt-5 rounded-md p-3">
     <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
     <p class="text-xs italic">
@@ -128,4 +125,4 @@ function deleteContribution(extensionName: string) {
       </div>
     </div>
   {/if}
-</div>
+</SettingsPage>

@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { ProxySettings } from '@podman-desktop/api';
 import { onMount } from 'svelte';
+import SettingsPage from './SettingsPage.svelte';
 
 let proxySettings: ProxySettings;
 let proxyState: boolean;
@@ -19,12 +20,7 @@ async function updateProxyState() {
 }
 </script>
 
-<div class="flex flex-1 flex-col p-2 bg-zinc-900">
-  <div>
-    <p class="capitalize text-xl">Proxy settings</p>
-    <p class="text-sm text-gray-400"><br /></p>
-  </div>
-
+<SettingsPage title="Proxy Settings">
   <div class="container mx-auto bg-zinc-800 mt-5 rounded-md p-3">
     <!-- if proxy is not enabled, display a toggle -->
 
@@ -98,4 +94,4 @@ async function updateProxyState() {
       {/if}
     {/if}
   </div>
-</div>
+</SettingsPage>

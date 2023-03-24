@@ -3,6 +3,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 
 import PreferencesRenderingItem from './PreferencesRenderingItem.svelte';
+import SettingsPage from './SettingsPage.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let key: string;
@@ -15,9 +16,9 @@ $: matchingRecords = properties.filter(
 );
 </script>
 
-<div class="flex flex-1 flex-col">
-  <table class="divide-y divide-gray-800 mt-2 min-w-full">
-    <tbody class="bg-zinc-800 divide-y-8 divide-zinc-700">
+<SettingsPage title="Preferences">
+  <table class="divide-y divide-zinc-800 min-w-full mt-5 rounded-md p-3">
+    <tbody class="bg-zinc-800 divide-y-8 divide-zinc-900">
       {#each matchingRecords as record}
         <tr>
           <td>
@@ -27,4 +28,4 @@ $: matchingRecords = properties.filter(
       {/each}
     </tbody>
   </table>
-</div>
+</SettingsPage>
