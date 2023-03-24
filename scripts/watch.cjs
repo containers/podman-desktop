@@ -40,11 +40,13 @@ const getWatcher = ({ name, configFile, writeBundle }) => {
   });
 };
 
+const EXTENSION_OPTION = '--extension-folder';
+
 /**
  * Start or restart App when source files are changed
  * @param {{config: {server: import('vite').ResolvedServerOptions}}} ResolvedServerOptions
  */
-const setupMainPackageWatcher = ({ config: { server } }) => {
+const setupMainPackageWatcher = ({ config: { server, extensions } }) => {
   // Create VITE_DEV_SERVER_URL environment variable to pass it to the main process.
   {
     const protocol = server.https ? 'https:' : 'http:';
@@ -71,7 +73,12 @@ const setupMainPackageWatcher = ({ config: { server } }) => {
         spawnProcess = null;
       }
 
-      spawnProcess = spawn(String(electronPath), [ '--remote-debugging-port=9223', '.'], { env: { ...process.env, ELECTRON_IS_DEV: 1 } });
+      const extensionArgs = [];
+      extensions.forEach(extension => {
+        extensionArgs.push(EXTENSION_OPTION);
+        extensionArgs.push(extension);
+      })
+      spawnProcess = spawn(String(electronPath), [ '--remote-debugging-port=9223', '.', ...extensionArgs], { env: { ...process.env, ELECTRON_IS_DEV: 1 } });
 
       spawnProcess.stdout.on('data', d => d.toString().trim() && logger.warn(d.toString(), { timestamp: true }));
       spawnProcess.stderr.on('data', d => {
@@ -135,7 +142,7 @@ const setupPreloadDockerExtensionPackageWatcher = ({ ws }) =>
  */
 const setupExtensionApiWatcher = name => {
   let spawnProcess;
-  const folderName = path.resolve(__dirname, '../extensions/' + name);
+  const folderName = path.resolve(name);
 
   console.log('dirname is', folderName);
   spawnProcess = spawn('yarn', ['--cwd', folderName, 'watch'], { shell: process.platform === 'win32' });
@@ -151,21 +158,35 @@ const setupExtensionApiWatcher = name => {
   spawnProcess.on('exit', process.exit);
 };
 
+const setupBuiltinExtensionApiWatcher = name => {
+  setupExtensionApiWatcher(path.resolve(__dirname, '../extensions/' + name));
+}
+
 (async () => {
   try {
+    const extensions = []
+    for(let index=0; index < process.argv.length;index++) {
+      if (process.argv[index] === EXTENSION_OPTION && index < process.argv.length - 1) {
+        extensions.push(path.resolve(process.argv[++index]));
+      }
+    }
     const viteDevServer = await createServer({
       ...sharedConfig,
       configFile: 'packages/renderer/vite.config.js',
+      extensions: extensions
     });
 
     await viteDevServer.listen();
-    await setupExtensionApiWatcher('compose');
-    await setupExtensionApiWatcher('docker');
-    await setupExtensionApiWatcher('kube-context');
-    await setupExtensionApiWatcher('lima');
-    await setupExtensionApiWatcher('podman');
-    await setupExtensionApiWatcher('kind');
-    await setupExtensionApiWatcher('registries');
+    await setupBuiltinExtensionApiWatcher('compose');
+    await setupBuiltinExtensionApiWatcher('docker');
+    await setupBuiltinExtensionApiWatcher('kube-context');
+    await setupBuiltinExtensionApiWatcher('lima');
+    await setupBuiltinExtensionApiWatcher('podman');
+    await setupBuiltinExtensionApiWatcher('kind');
+    await setupBuiltinExtensionApiWatcher('registries');
+    for (const extension of extensions) {
+      await setupExtensionApiWatcher(extension);
+    }
     await setupPreloadPackageWatcher(viteDevServer);
     await setupPreloadDockerExtensionPackageWatcher(viteDevServer);
     await setupMainPackageWatcher(viteDevServer);
