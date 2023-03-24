@@ -90,7 +90,7 @@
     "playwright": "1.32.0",
     "postcss-import": "^15.1.0",
     "prettier": "^2.8.7",
-    "prettier-plugin-svelte": "^2.9.0",
+    "prettier-plugin-svelte": "^2.10.0",
     "svelte-steps": "2.4.1",
     "typescript": "5.0.2",
     "validator": "^13.9.0",
