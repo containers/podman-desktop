@@ -50,7 +50,7 @@ function errorCallback(errorMessage: string): void {
     <div class="w-full h-full">
       <div class="flex h-full flex-col">
         <div class="flex w-full flex-row">
-          <div class="w-full  px-5 pt-5">
+          <div class="w-full px-5 pt-5">
             <div class="flex flew-row items-center">
               <a
                 class="text-violet-400 text-base hover:no-underline"
@@ -113,7 +113,7 @@ function errorCallback(errorMessage: string): void {
                 container="{container}"
                 detailed="{true}" />
             </div>
-            <div class="flex my-2 w-full justify-end ">
+            <div class="flex my-2 w-full justify-end">
               <ContainerStatistics container="{container}" />
             </div>
           </div>

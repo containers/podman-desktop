@@ -258,7 +258,7 @@ function updateKubeResult() {
 
       {#if defaultContextName}
         <div class="pt-2">
-          <label for="contextToUse" class="block mb-1 text-sm font-medium  text-gray-300">Kubernetes Context:</label>
+          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes Context:</label>
           <input
             type="text"
             bind:value="{defaultContextName}"
@@ -272,8 +272,7 @@ function updateKubeResult() {
 
       {#if allNamespaces}
         <div class="pt-2">
-          <label for="namespaceToUse" class="block mb-1 text-sm font-medium  text-gray-300"
-            >Kubernetes namespace:</label>
+          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes namespace:</label>
           <select
             class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
             name="namespaceChoice"

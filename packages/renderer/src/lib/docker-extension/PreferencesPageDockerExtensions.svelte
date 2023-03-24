@@ -80,7 +80,7 @@ function deleteContribution(extensionName: string) {
           </span>
         </i>
       {/if}
-      <span class="pf-c-button__icon pf-m-start ">
+      <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-arrow-circle-down ml-6" aria-hidden="true"></i>
       </span>
       Install extension from the OCI image
@@ -104,7 +104,7 @@ function deleteContribution(extensionName: string) {
       <div class="grid gap-4 grid-cols-4 py-4">
         {#each $contributions as contribution, index}
           <div class="flex flex-col bg-purple-700 h-[100px]">
-            <div class="flex justify-end flex-wrap ">
+            <div class="flex justify-end flex-wrap">
               <button
                 class="inline-block text-gray-100 dark:text-gray-100 hover:text-gray-400 dark:hover:text-gray-400 focus:outline-none rounded-lg text-sm p-1.5"
                 type="button">

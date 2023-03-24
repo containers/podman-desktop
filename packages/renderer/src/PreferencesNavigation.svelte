@@ -71,7 +71,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/resources',
       )} hover:text-gray-300 cursor-pointer items-center">
-      <a href="/preferences/resources" id="configuration-section-resources" class="pf-c-nav__link ">
+      <a href="/preferences/resources" id="configuration-section-resources" class="pf-c-nav__link">
         <div class="flex items-center">
           <span class="hidden md:block group-hover:block">Resources</span>
         </div>
@@ -84,7 +84,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/proxies',
       )} hover:text-gray-300 cursor-pointer items-center">
-      <a href="/preferences/proxies" id="configuration-section-proxy" class="pf-c-nav__link ">
+      <a href="/preferences/proxies" id="configuration-section-proxy" class="pf-c-nav__link">
         <div class="flex items-center">
           <span class="hidden md:block group-hover:block">Proxy</span>
         </div>
@@ -140,10 +140,10 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
 
     <!-- Docker desktop extensions configuration start -->
     <li
-      class="pf-c-nav__item flex w-full justify-between  {addCurrentClass(
+      class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/ddExtensions',
       )} hover:text-gray-300 cursor-pointer items-center">
-      <a href="/preferences/ddExtensions" id="configuration-section-docker-desktop-extensions" class="pf-c-nav__link ">
+      <a href="/preferences/ddExtensions" id="configuration-section-docker-desktop-extensions" class="pf-c-nav__link">
         <div class="flex items-center">
           <span class="hidden md:block group-hover:block">Desktop Extensions</span>
         </div>

@@ -23,7 +23,7 @@ let preflightChecks: CheckStatus[] = [];
       </p>
     {/if}
     {#if provider.containerConnections.length > 0}
-      <div class="flex flex-row  text-xs text-gray-500 mt-4">
+      <div class="flex flex-row text-xs text-gray-500 mt-4">
         <p>
           {provider.containerConnections.map(c => c.name).join(', ')}
         </p>
@@ -31,7 +31,7 @@ let preflightChecks: CheckStatus[] = [];
     {/if}
   </div>
   {#if provider.updateInfo}
-    <div class="mt-10 mb-1  w-full flex  justify-around">
+    <div class="mt-10 mb-1 w-full flex justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>
   {/if}

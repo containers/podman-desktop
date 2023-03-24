@@ -53,7 +53,7 @@ async function performInstallation(provider: ProviderInfo) {
     on:click="{() => performInstallation(provider)}"
     class="pf-c-button pf-m-primary"
     type="button">
-    <span class="pf-c-button__icon pf-m-start ">
+    <span class="pf-c-button__icon pf-m-start">
       {#if installInProgress}
         <div class="mr-20">
           <i class="pf-c-button__progress">

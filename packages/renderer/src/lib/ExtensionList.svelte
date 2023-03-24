@@ -95,7 +95,7 @@ async function removeExtension(extension: ExtensionInfo) {
               </span>
             </i>
           {/if}
-          <span class="pf-c-button__icon pf-m-start ">
+          <span class="pf-c-button__icon pf-m-start">
             <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
           </span>
           Install extension from the OCI image

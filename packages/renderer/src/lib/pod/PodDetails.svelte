@@ -66,7 +66,7 @@ function errorCallback(errorMessage: string): void {
     <div class="w-full h-full">
       <div class="flex h-full flex-col">
         <div class="flex w-full flex-row">
-          <div class="w-full  px-5 pt-5">
+          <div class="w-full px-5 pt-5">
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/pods" title="Go back to pods list">Pods</a>
               <div class="text-xl mx-2 text-gray-400">></div>

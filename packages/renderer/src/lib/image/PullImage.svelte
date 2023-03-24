@@ -187,7 +187,7 @@ function validateImageName(event: any): void {
   <hr />
 
   <div class="px-6 pt-2 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
-    <h3 class="text-xl font-medium  :text-white">Pull Image From a Registry</h3>
+    <h3 class="text-xl font-medium :text-white">Pull Image From a Registry</h3>
 
     <form novalidate class="pf-c-form pf-m-horizontal-on-sm">
       <div class="pf-c-form__group">

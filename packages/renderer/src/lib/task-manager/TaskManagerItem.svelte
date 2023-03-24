@@ -71,7 +71,7 @@ function gotoTask(taskUI: TaskUI) {
         {#if taskUI.progress >= 0}
           <div class="w-32">
             <div class="w-full h-4 mb-4 rounded-full bg-gray-600">
-              <div class="h-4 bg-purple-500 rounded-full " style="width: {taskUI.progress}%"></div>
+              <div class="h-4 bg-purple-500 rounded-full" style="width: {taskUI.progress}%"></div>
             </div>
           </div>
           <div class="ml-2 text-xs">{taskUI.progress}%</div>

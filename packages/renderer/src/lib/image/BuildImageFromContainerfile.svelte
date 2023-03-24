@@ -200,7 +200,7 @@ async function initTerminal() {
         </div>
 
         <div hidden="{buildStarted}">
-          <label for="containerImageName" class="block mb-2 text-sm font-medium  text-gray-300">Image Name</label>
+          <label for="containerImageName" class="block mb-2 text-sm font-medium text-gray-300">Image Name</label>
           <input
             type="text"
             bind:value="{containerImageName}"
