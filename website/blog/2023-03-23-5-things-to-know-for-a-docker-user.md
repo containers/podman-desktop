@@ -11,9 +11,9 @@ The 5 things to know being a Docker user by using Podman Desktop:
 
 - **Use a single UI**: Podman Desktop works with several container engines, including Docker.
 - The **compatibility mode**: How to ensure tools are working with Podman instead of Docker.
-- **Compose** support. How to work with Compose files and Podman.
-- **Kubernetes**. How to use Kubernetes with Podman.
-- **rootless** mode or containers without root privileges.
+- **Compose** support: How to work with Compose files and Podman.
+- **Kubernetes** support: How to use Kubernetes with Podman.
+- **Security**: Use `rootless` mode or containers without root privileges.
 
 
 ![5-things-to-know-for-a-docker-user-hero](img/5-things-to-know-for-a-docker-user/5-things-to-know-for-a-docker-user-hero.png)
@@ -39,9 +39,9 @@ Using Podman with Podman Desktop or with the Podman CLI is straightforward. But 
 
 The socket compatibility mode is a feature of Podman that allows to bind the Podman socket under the Docker socket path.
 
-On Windows it is always enabled by default. On macOS, by using the `.pkg installer` it is active by default but not by using the `brew` installation because it requires some admin permissions.
+On Windows the socket compatibility mode is always enabled by default. On macOS, by using the `.pkg installer` it is active by default. But when installing with `brew`, it will not be there because it requires some admin permissions. 
 
-You can enable it by [invoking a CLI tool](https://podman-desktop.io/docs/migrating-from-docker/using-podman-mac-helper)
+That is not an issue as you can enable it by [invoking a CLI tool](https://podman-desktop.io/docs/migrating-from-docker/using-podman-mac-helper) which will setup the compatibility mode.
 
 For example if you use [`TestContainers`](https://www.testcontainers.org/) in your Java project, you can use the compatibility mode to ensure that the tool will use Podman instead of Docker.
 
@@ -69,7 +69,7 @@ Based on the compatibility mode (see [section about Docker compatibility mode](#
 - Enabled: you can use the `compose` binary to run your applications.
 - Disabled: you need to [export the environment variable DOCKER_HOST](https://podman-desktop.io/docs/migrating-from-docker/using-the-docker_host-environment-variable) before running compose.
 
-You can now use the `compose` binary to run your applications.
+You can now use the `compose` binary to run your applications and it will use Podman engine.
 
 Podman Desktop has a `compose` extension that can fetch `compose` binary if not already available on the filesystem.
 
