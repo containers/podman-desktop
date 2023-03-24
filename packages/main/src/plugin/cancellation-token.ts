@@ -18,8 +18,9 @@
 
 import type * as extensionApi from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
-import { IDisposable } from './types/disposable';
+import type { IDisposable } from './types/disposable';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const shortcutEvent: extensionApi.Event<any> = Object.freeze(function (callback, context?): IDisposable {
   const handle = setTimeout(callback.bind(context), 0);
   return {
@@ -31,6 +32,7 @@ const shortcutEvent: extensionApi.Event<any> = Object.freeze(function (callback,
 
 export class CancellationTokenImpl implements extensionApi.CancellationToken {
   private _isCancellationRequested: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private emitter: Emitter<any> | null = null;
 
   constructor() {
@@ -51,11 +53,13 @@ export class CancellationTokenImpl implements extensionApi.CancellationToken {
     return this._isCancellationRequested;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get onCancellationRequested(): extensionApi.Event<any> {
     if (this._isCancellationRequested) {
       return shortcutEvent;
     }
     if (!this.emitter) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this.emitter = new Emitter<any>();
     }
     return this.emitter.event;
@@ -86,7 +90,7 @@ export class CancellationTokenSource {
     }
   }
 
-  dispose(cancel: boolean = false): void {
+  dispose(cancel = false): void {
     if (cancel) {
       this.cancel();
     }

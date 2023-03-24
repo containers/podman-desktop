@@ -590,20 +590,20 @@ declare module '@podman-desktop/api' {
   }
 
   export interface CancellationTokenSource {
-      /**
-       * The cancellation token of this source.
-       */
-      token: CancellationToken;
+    /**
+     * The cancellation token of this source.
+     */
+    token: CancellationToken;
 
-      /**
-       * Signal cancellation on the token.
-       */
-      cancel(): void;
+    /**
+     * Signal cancellation on the token.
+     */
+    cancel(): void;
 
-      /**
-       * Dispose object and free resources.
-       */
-      dispose(): void;
+    /**
+     * Dispose object and free resources.
+     */
+    dispose(): void;
   }
 
   /**

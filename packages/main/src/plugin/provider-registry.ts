@@ -36,7 +36,6 @@ import type {
   ProviderInformation,
   ProviderContainerConnection,
   CancellationToken,
-  CancellationTokenSource,
 } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,

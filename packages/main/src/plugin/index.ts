@@ -89,7 +89,6 @@ import { ExtensionInstaller } from './install/extension-installer';
 import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
 import type { Menu } from '/@/plugin/menu-registry';
 import { MenuRegistry } from '/@/plugin/menu-registry';
-import { CancellationTokenImpl, CancellationTokenSource } from './cancellation-token';
 import { CancellationTokenRegistry } from './cancellation-token-registry';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';

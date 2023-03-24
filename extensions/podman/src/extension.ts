@@ -577,8 +577,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // allows to create machines
   if (isMac() || isWindows()) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const createFunction = async (params: { [key: string]: any }, logger: extensionApi.Logger, token?: extensionApi.CancellationToken): Promise<void> => {
+    const createFunction = async (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      params: { [key: string]: any },
+      logger: extensionApi.Logger,
+      token?: extensionApi.CancellationToken,
+    ): Promise<void> => {
       const parameters = [];
       parameters.push('machine');
       parameters.push('init');
