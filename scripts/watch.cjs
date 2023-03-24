@@ -40,7 +40,7 @@ const getWatcher = ({ name, configFile, writeBundle }) => {
   });
 };
 
-const EXTENSION_OPTION = '--extension';
+const EXTENSION_OPTION = '--extension-folder';
 
 /**
  * Start or restart App when source files are changed
@@ -158,6 +158,10 @@ const setupExtensionApiWatcher = name => {
   spawnProcess.on('exit', process.exit);
 };
 
+const setupBuiltinExtensionApiWatcher = name => {
+  setupExtensionApiWatcher(path.resolve(__dirname, '../extensions/' + name));
+}
+
 (async () => {
   try {
     const extensions = []
@@ -173,13 +177,13 @@ const setupExtensionApiWatcher = name => {
     });
 
     await viteDevServer.listen();
-    await setupExtensionApiWatcher(path.resolve(__dirname, '../extensions/compose'));
-    await setupExtensionApiWatcher(path.resolve(__dirname, '../extensions/docker'));
-    await setupExtensionApiWatcher(path.resolve(__dirname, '../extensions/kube-context'));
-    await setupExtensionApiWatcher(path.resolve(__dirname, '../extensions/lima'));
-    await setupExtensionApiWatcher(path.resolve(__dirname, '../extensions/podman'));
-    await setupExtensionApiWatcher(path.resolve(__dirname, '../extensions/kind'));
-    await setupExtensionApiWatcher(path.resolve(__dirname, '../extensions/registries'));
+    await setupBuiltinExtensionApiWatcher('compose');
+    await setupBuiltinExtensionApiWatcher('docker');
+    await setupBuiltinExtensionApiWatcher('kube-context');
+    await setupBuiltinExtensionApiWatcher('lima');
+    await setupBuiltinExtensionApiWatcher('podman');
+    await setupBuiltinExtensionApiWatcher('kind');
+    await setupBuiltinExtensionApiWatcher('registries');
     for (const extension of extensions) {
       await setupExtensionApiWatcher(extension);
     }

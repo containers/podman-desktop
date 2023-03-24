@@ -68,6 +68,8 @@ export interface ActivatedExtension {
   extensionContext: containerDesktopAPI.ExtensionContext;
 }
 
+const EXTENSION_OPTION = '--extension-folder';
+
 export class ExtensionLoader {
   private overrideRequireDone = false;
 
@@ -194,8 +196,10 @@ export class ExtensionLoader {
       // in development mode, use the extensions locally
       folders = await this.readDevelopmentFolders(path.join(__dirname, '../../../extensions'));
     }
+    const externalExtensions = await this.readExternalFolders();
     // ok now load all extensions from these folders
     await Promise.all(folders.map(folder => this.loadExtension(folder, false)));
+    await Promise.all(externalExtensions.map(folder => this.loadExtension(folder, false)));
 
     // also load extensions from the plugins directory
     if (fs.existsSync(this.pluginsDirectory)) {
@@ -213,12 +217,16 @@ export class ExtensionLoader {
   async readDevelopmentFolders(path: string): Promise<string[]> {
     const entries = await fs.promises.readdir(path, { withFileTypes: true });
     // filter only directories ignoring node_modules directory
-    const pathes = entries
+    return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
       .map(directory => path + '/' + directory.name);
+  }
+
+  async readExternalFolders(): Promise<string[]> {
+    const pathes = [];
     for (let index = 0; index < process.argv.length; index++) {
-      if (process.argv[index] === '--extension' && index < process.argv.length - 1) {
+      if (process.argv[index] === EXTENSION_OPTION && index < process.argv.length - 1) {
         pathes.push(process.argv[++index]);
       }
     }
