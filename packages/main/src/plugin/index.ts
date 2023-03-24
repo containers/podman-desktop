@@ -90,9 +90,7 @@ import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-regist
 import type { Menu } from '/@/plugin/menu-registry';
 import { MenuRegistry } from '/@/plugin/menu-registry';
 import { CancellationTokenRegistry } from './cancellation-token-registry';
-import type { UpdateCheckResult } from 'electron-updater';
-import { autoUpdater } from 'electron-updater';
-import { clipboard } from 'electron';
+import { AuthenticationImpl } from './authentication';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -522,6 +520,8 @@ export class PluginSystem {
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
 
+    const authenticationRegistry = new AuthenticationImpl(apiSender);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -539,6 +539,7 @@ export class PluginSystem {
       proxy,
       containerProviderRegistry,
       inputQuickPickRegistry,
+      authenticationRegistry,
     );
     await this.extensionLoader.init();
 
@@ -1058,6 +1059,18 @@ export class PluginSystem {
         await imageRegistry.updateRegistry(registry);
       },
     );
+
+    this.ipcHandle('authentication-provider-registry:getAuthenticationProvidersInfo', async (): Promise<readonly containerDesktopAPI.AuthenticationProviderInfo[]> => {
+      return authenticationRegistry.getAuthenticationProvidersInfo();
+    });
+
+    this.ipcHandle('authentication-provider-registry:requestAuthenticationProviderSignIn', async (_listener, providerId: string): Promise<void> => {
+      return authenticationRegistry.signIn(providerId);
+    });
+
+    this.ipcHandle('authentication-provider-registry:requestAuthenticationProviderSignOut', async (_listener, providerId: string): Promise<void> => {
+      return authenticationRegistry.signOut(providerId);
+    });
 
     this.ipcHandle(
       'configuration-registry:getConfigurationProperties',

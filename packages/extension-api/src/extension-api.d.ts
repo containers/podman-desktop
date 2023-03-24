@@ -1385,4 +1385,51 @@ declare module '@podman-desktop/api' {
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
     export const onEvent: Event<ContainerJSONEvent>;
   }
+
+  export interface AccountInfo {
+    id?: string;
+    label: string;
+  }
+
+  export interface AuthenticationSession {
+    idToken: string | undefined;
+    readonly id: string;
+    readonly accessToken: string;
+    readonly scopes: ReadonlyArray<string>;
+    readonly account: AccountInfo;
+  }
+
+  export interface AuthenicationSessionChangeEvent {
+    provider: AuthenticationProviderInfo;
+  }
+
+  export interface AuthenticationProviderSessionChangeEvent {
+    added?: AuthenticationSession[];
+    changed?: AuthenticationSession[];
+    removed?: AuthenticationSession[];
+  }
+
+  export interface AuthenticationProviderInfo {
+    readonly id: string;
+    readonly displayName: string;
+    readonly accounts: AccountInfo[];
+  }
+
+  export interface AuthenticationGetSessionOptions {
+    createIfNone?: boolean;
+  }
+
+  export interface AuthenticationProvider {
+    onDidChangeSessions: Event<AuthenticationProviderSessionChangeEvent>
+    createSession(scopes: string[]): Promise<AuthenticationSession>;
+    getSessions(scopes?: string[]): Promise<AuthenticationSession[]>;
+    removeSession(id: string): Promise<void>;
+  }
+
+  export namespace authentication {
+    export const onDidChangeSessions: Event<AuthenticationProviderInfo>;
+    export function registerAuthenticationProvider(id: string, displayName: string, provider: AuthenticationProvider): Disposable;
+    export function getSession(providerId: string, scopes: string[], options: AuthenticationGetSessionOptions & {createIfNone: true}): Promise<AuthenticationSession | undefined>;
+    export function removeSession(providerId: string, id: string): Promise<void>;
+  }
 }

@@ -46,6 +46,7 @@ import type { MenuRegistry } from '/@/plugin/menu-registry';
 import { desktopAppHomeDir } from '../util';
 import { Emitter } from './events/emitter';
 import { CancellationTokenSource } from './cancellation-token';
+import { AuthenticationImpl } from './authentication';
 
 /**
  * Handle the loading of an extension
@@ -105,6 +106,7 @@ export class ExtensionLoader {
     private proxy: Proxy,
     private containerProviderRegistry: ContainerProviderRegistry,
     private inputQuickPickRegistry: InputQuickPickRegistry,
+    private authentication: AuthenticationImpl,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -580,7 +582,8 @@ export class ExtensionLoader {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
       },
     };
-
+    
+    const authentication = this.authentication;
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -603,6 +606,7 @@ export class ExtensionLoader {
       StatusBarAlignRight,
       InputBoxValidationSeverity,
       QuickPickItemKind,
+      authentication,
     };
   }
 

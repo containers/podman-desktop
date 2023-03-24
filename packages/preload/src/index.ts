@@ -748,6 +748,21 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('getAuthenticationProvidersInfo',
+    async (): Promise<readonly containerDesktopAPI.AuthenticationProviderInfo[]> => {
+    return ipcInvoke('authentication-provider-registry:getAuthenticationProvidersInfo');
+  });
+
+  contextBridge.exposeInMainWorld('requestAuthenticationProviderSignIn',
+    async (providerId: string): Promise<void> => {
+    return ipcInvoke('authentication-provider-registry:requestAuthenticationProviderSignIn', providerId);
+  });
+
+  contextBridge.exposeInMainWorld('requestAuthenticationProviderSignOut',
+    async (providerId: string): Promise<void> => {
+    return ipcInvoke('authentication-provider-registry:requestAuthenticationProviderSignOut', providerId);
+  });
+
   contextBridge.exposeInMainWorld(
     'getConfigurationProperties',
     async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
