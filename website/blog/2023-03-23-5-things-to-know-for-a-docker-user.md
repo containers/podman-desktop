@@ -41,7 +41,7 @@ The socket compatibility mode is a feature of Podman that allows to bind the Pod
 
 On Windows the socket compatibility mode is always enabled by default. On macOS, by using the `.pkg installer` it is active by default. But when installing with `brew`, it will not be there because it requires some admin permissions. 
 
-That is not an issue as you can enable it by [invoking a CLI tool](https://podman-desktop.io/docs/migrating-from-docker/using-podman-mac-helper) which will setup the compatibility mode.
+That is not an issue because you can enable it by [invoking a CLI tool](https://podman-desktop.io/docs/migrating-from-docker/using-podman-mac-helper) that will setup the compatibility mode.
 
 For example if you use [`TestContainers`](https://www.testcontainers.org/) in your Java project, you can use the compatibility mode to ensure that the tool will use Podman instead of Docker.
 
