@@ -192,17 +192,17 @@ function isContainerConnectionStatusInProgress(
       <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-600 flex">
         <div>
           <!-- left col - podman icon/name + "create new" button -->
-          <div class="min-w-[150px]">
+          <div class="min-w-[150px] max-w-[200px]">
             <div class="flex">
               {#if provider.images.icon}
                 {#if typeof provider.images.icon === 'string'}
-                  <img src="{provider.images.icon}" alt="{provider.name}" class="max-h-10" />
+                  <img src="{provider.images.icon}" alt="{provider.name}" class="max-w-[40px] h-full" />
                   <!-- TODO check theme used for image, now use dark by default -->
                 {:else}
-                  <img src="{provider.images.icon.dark}" alt="{provider.name}" class="max-h-10" />
+                  <img src="{provider.images.icon.dark}" alt="{provider.name}" class="max-w-[40px]" />
                 {/if}
               {/if}
-              <span class="my-auto text-gray-300 ml-3">{provider.name}</span>
+              <span class="my-auto text-gray-300 ml-3 break-words">{provider.name}</span>
             </div>
             <div class="text-center mt-10">
               {#if provider.containerProviderConnectionCreation}
@@ -221,7 +221,7 @@ function isContainerConnectionStatusInProgress(
           </div>
         </div>
         <!-- podman machines columns -->
-        <div class="grow flex flex-wrap divide-gray-600">
+        <div class="grow flex flex-wrap divide-gray-600 ml-2">
           {#each provider.containerConnections as container}
             <div class="px-5 py-2 w-[240px]">
               <div class="float-right text-gray-700 cursor-not-allowed">
