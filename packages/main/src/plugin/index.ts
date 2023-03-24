@@ -90,6 +90,8 @@ import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-regist
 import type { Menu } from '/@/plugin/menu-registry';
 import { MenuRegistry } from '/@/plugin/menu-registry';
 import { CancellationTokenRegistry } from './cancellation-token-registry';
+import type { UpdateCheckResult } from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -337,17 +339,20 @@ export class PluginSystem {
     const currentVersion = `v${app.getVersion()}`;
 
     // Add version entry to the status bar
-    statusBarRegistry.setEntry(
-      'version',
-      false,
-      0,
-      currentVersion,
-      `Using version ${currentVersion}`,
-      undefined,
-      true,
-      'version',
-      undefined,
-    );
+    const defaultVersionEntry = () => {
+      statusBarRegistry.setEntry(
+        'version',
+        false,
+        0,
+        currentVersion,
+        `Using version ${currentVersion}`,
+        undefined,
+        true,
+        'version',
+        undefined,
+      );
+    };
+    defaultVersionEntry();
 
     // Show a "No update available" only for macOS and Windows users and on production builds
     let detailMessage: string;
@@ -366,55 +371,134 @@ export class PluginSystem {
       });
     });
 
-    if (import.meta.env.PROD) {
-      // Only import on production builds
-      import('electron-updater').then(({ autoUpdater }) => {
-        // autoUpdater.checkForUpdatesAndNotify() is called from main/src/index.ts
-        autoUpdater.on('update-available', () => {
-          // Update the 'version' entry in the status bar to show that an update is available
-          // this uses setEntry to update the existing entry
-          statusBarRegistry.setEntry(
-            'version',
-            false,
-            0,
-            currentVersion,
-            'Update available',
-            UPDATER_UPDATE_AVAILABLE_ICON,
-            true,
-            'update',
-            undefined,
-          );
+    // Only check on production builds for Windows and macOS users
+    if (import.meta.env.PROD && !isLinux()) {
+      // disable auto download
+      autoUpdater.autoDownload = false;
+
+      let updateInProgress = false;
+      let updateAlreadyDownloaded = false;
+
+      // setup the event listeners
+      autoUpdater.on('update-available', () => {
+        updateInProgress = false;
+        updateAlreadyDownloaded = false;
+
+        // Update the 'version' entry in the status bar to show that an update is available
+        // this uses setEntry to update the existing entry
+        statusBarRegistry.setEntry(
+          'version',
+          false,
+          0,
+          currentVersion,
+          'Update available',
+          UPDATER_UPDATE_AVAILABLE_ICON,
+          true,
+          'update',
+          undefined,
+        );
+      });
+
+      autoUpdater.on('update-not-available', () => {
+        updateInProgress = false;
+        updateAlreadyDownloaded = false;
+
+        // Update the 'version' entry in the status bar to show that no update is available
+        defaultVersionEntry();
+      });
+
+      autoUpdater.on('update-downloaded', async () => {
+        updateAlreadyDownloaded = true;
+        updateInProgress = false;
+        const result = await dialog.showMessageBox({
+          title: 'Update Downloaded',
+          message: 'Update downloaded, Do you want to restart Podman Desktop ?',
+          cancelId: 1,
+          type: 'info',
+          buttons: ['Restart', 'Cancel'],
         });
+        if (result.response === 0) {
+          setImmediate(() => autoUpdater.quitAndInstall());
+        }
+      });
 
-        // Update will create the standard "autoUpdater" dialog / update process that Electron provides
-        commandRegistry.registerCommand('update', () => {
-          autoUpdater.checkForUpdates().then(update => {
-            // Get the version of the update
-            const updateVersion = update?.updateInfo.version ? `v${update?.updateInfo.version}` : '';
+      autoUpdater.on('error', error => {
+        console.error('unable to check for updates', error);
+        updateInProgress = false;
+        dialog.showErrorBox('Error: ', error == null ? 'unknown' : (error.stack || error).toString());
+      });
 
-            dialog
-              .showMessageBox({
-                type: 'info',
-                title: 'Update Available',
-                message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${currentVersion}?`,
-                buttons: ['Update', 'Later'],
-              })
-              .then(result => {
-                if (result.response === 0) {
-                  // Download update and try / catch it and create a dialog if it fails
-                  autoUpdater.downloadUpdate().catch(error => {
-                    console.error('Update error: ', error);
-                    dialog.showMessageBox({
-                      type: 'error',
-                      title: 'Update Failed',
-                      message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,
-                      buttons: ['OK'],
-                    });
-                  });
-                }
-              });
+      // check for updates now
+      let updateCheckResult: UpdateCheckResult | null;
+
+      try {
+        updateCheckResult = await autoUpdater.checkForUpdates();
+      } catch (error) {
+        console.error('unable to check for updates', error);
+      }
+
+      // Create an interval to check for updates every 12 hours
+      setInterval(async () => {
+        try {
+          updateCheckResult = await autoUpdater.checkForUpdates();
+        } catch (error) {
+          console.log('unable to check for updates', error);
+        }
+      }, 1000 * 60 * 60 * 12);
+
+      // Update will create the standard "autoUpdater" dialog / update process that Electron provides
+      commandRegistry.registerCommand('update', async () => {
+        if (updateAlreadyDownloaded) {
+          const result = await dialog.showMessageBox({
+            type: 'info',
+            title: 'Update',
+            message: 'There is already an update downloaded. Please Restart Podman Desktop.',
+            cancelId: 1,
+            buttons: ['Restart', 'Cancel'],
           });
+          if (result.response === 0) {
+            setImmediate(() => autoUpdater.quitAndInstall());
+          }
+          return;
+        }
+
+        if (updateInProgress) {
+          await dialog.showMessageBox({
+            type: 'info',
+            title: 'Update',
+            message: 'There is already an update in progress. Please wait until it is downloaded',
+            buttons: ['OK'],
+          });
+          return;
+        }
+
+        // Get the version of the update
+        const updateVersion = updateCheckResult?.updateInfo.version ? `v${updateCheckResult?.updateInfo.version}` : '';
+
+        const result = await dialog.showMessageBox({
+          type: 'info',
+          title: 'Update Available',
+          message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${currentVersion}?`,
+          buttons: ['Update', 'Cancel'],
+          cancelId: 1,
         });
+        if (result.response === 0) {
+          updateInProgress = true;
+          updateAlreadyDownloaded = false;
+
+          // Download update and try / catch it and create a dialog if it fails
+          try {
+            await autoUpdater.downloadUpdate();
+          } catch (error) {
+            console.error('Update error: ', error);
+            dialog.showMessageBox({
+              type: 'error',
+              title: 'Update Failed',
+              message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,
+              buttons: ['OK'],
+            });
+          }
+        }
       });
     }
 

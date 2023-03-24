@@ -27,25 +27,6 @@ import { StartupInstall } from './system/startup-install';
 
 export const UPDATER_UPDATE_AVAILABLE_ICON = 'fa fa-exclamation-triangle';
 
-// Check for updates when initially ready as well as set a 6 hour interval for any checks
-if (import.meta.env.PROD) {
-  import('electron-updater').then(({ autoUpdater }) => {
-    app
-      .whenReady()
-      .then(() => {
-        // Check for updates on startup
-        autoUpdater.checkForUpdatesAndNotify();
-
-        // Create an interval to check for updates every 12 hours / notify the user
-        setInterval(() => {
-          autoUpdater.checkForUpdatesAndNotify();
-          // check every 12 hours
-        }, 1000 * 60 * 60 * 12);
-      })
-      .catch(e => console.error('Failed to start auto-updater:', e));
-  });
-}
-
 /**
  * Prevent multiple instances
  */
