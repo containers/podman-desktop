@@ -17,7 +17,7 @@ $: matchingRecords = properties.filter(
 
 <div class="flex flex-1 flex-col">
   <table class="divide-y divide-gray-800 mt-2 min-w-full">
-    <tbody class="bg-zinc-800 divide-y-8 divide-zinc-700 ">
+    <tbody class="bg-zinc-800 divide-y-8 divide-zinc-700">
       {#each matchingRecords as record}
         <tr>
           <td>

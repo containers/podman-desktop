@@ -22,7 +22,7 @@ export let searchEnabled: boolean = true;
           <div class="flex items-center bg-zinc-900 text-gray-400 rounded-sm">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="w-5 h-5 ml-2 mr-2 "
+              class="w-5 h-5 ml-2 mr-2"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor">

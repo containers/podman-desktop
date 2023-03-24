@@ -36,7 +36,7 @@ async function toggleDetectionChecks(provider: ProviderInfo) {
     disabled="{viewInProgress}"
     type="button"
     title="Why {provider.name} is not found.">
-    <span class="pf-c-button__icon pf-m-start ">
+    <span class="pf-c-button__icon pf-m-start">
       {#if viewInProgress}
         <div class="mr-44">
           <i class="pf-c-button__progress">

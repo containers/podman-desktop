@@ -81,7 +81,7 @@ onMount(() => {
             current="{1}"
             clickable="{false}" />
         {/if}
-        <div class="flex  flex-col text-gray-400">
+        <div class="flex flex-col text-gray-400">
           <div>Starting</div>
           <div class="my-2 pr-5">
             <i class="pf-c-button__progress">
@@ -101,11 +101,11 @@ onMount(() => {
     {/if}
   </div>
   {#if provider.updateInfo}
-    <div class="mt-10 mb-1  w-full flex  justify-around">
+    <div class="mt-10 mb-1 w-full flex justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>
   {/if}
   <PreflightChecks preflightChecks="{preflightChecks}" />
-  <div class="mt-10 mb-1  w-full flex  justify-around"></div>
+  <div class="mt-10 mb-1 w-full flex justify-around"></div>
   <ProviderLinks provider="{provider}" />
 </div>

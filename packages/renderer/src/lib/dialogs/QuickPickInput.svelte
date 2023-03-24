@@ -251,9 +251,7 @@ function handleKeydown(e: KeyboardEvent) {
   <div class="absolute m-auto left-0 right-0 z-50">
     <div class=" flex justify-center items-center mt-1">
       <div
-        class="bg-zinc-900  w-[700px] {mode === 'InputBox'
-          ? 'h-16'
-          : ''} shadow-sm p-2 rounded shadow-zinc-700  text-sm">
+        class="bg-zinc-900 w-[700px] {mode === 'InputBox' ? 'h-16' : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
         <div class="w-full flex flex-row">
           <input
             bind:this="{inputElement}"
@@ -273,7 +271,7 @@ function handleKeydown(e: KeyboardEvent) {
 
         {#if mode === 'InputBox'}
           {#if validationError}
-            <div class="text-gray-300 border border-red-700 relative  w-full bg-red-700 px-1">{validationError}</div>
+            <div class="text-gray-300 border border-red-700 relative w-full bg-red-700 px-1">{validationError}</div>
           {:else}
             <div class="relative text-gray-300 pt-2 px-1 h-6 overflow-y-auto">{prompt}</div>
           {/if}
@@ -288,7 +286,7 @@ function handleKeydown(e: KeyboardEvent) {
               {/if}
               <button
                 on:click="{() => clickQuickPickItem(item, i)}"
-                class="text-gray-300 text-left relative my-1 w-full  {i === quickPickSelectedFilteredIndex
+                class="text-gray-300 text-left relative my-1 w-full {i === quickPickSelectedFilteredIndex
                   ? 'bg-violet-500'
                   : ''} px-1">{item.value}</button>
             </div>

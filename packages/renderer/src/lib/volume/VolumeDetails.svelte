@@ -37,7 +37,7 @@ onMount(() => {
     <div class="w-full h-full">
       <div class="flex h-full flex-col">
         <div class="flex w-full flex-row">
-          <div class="w-full  px-5 pt-5">
+          <div class="w-full px-5 pt-5">
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/volumes" title="Go back to volumes list"
                 >Volumes</a>

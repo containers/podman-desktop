@@ -39,7 +39,7 @@ async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
               on:click="{() => startProviderLifecycle(provider)}"
               hidden
               class:inline-flex="{provider.status === 'stopped'}"
-              class="text-white bg-violet-700 hover:bg-violet-800 disabled:hover:bg-gray-600 disabled:bg-gray-500 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-xs px-3 py-1.5 text-center items-center mr-2 ">
+              class="text-white bg-violet-700 hover:bg-violet-800 disabled:hover:bg-gray-600 disabled:bg-gray-500 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-xs px-3 py-1.5 text-center items-center mr-2">
               {#if waiting === true}
                 <svg
                   class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"

@@ -294,14 +294,14 @@ function computeInterval(): number {
                 class:cursor-not-allowed="{image.inUse}"
                 class:opacity-10="{image.inUse}"
                 title="{image.inUse ? 'Image is used by a container' : ''}"
-                class=" invert hue-rotate-[218deg] brightness-75 " />
+                class=" invert hue-rotate-[218deg] brightness-75" />
             </td>
             <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center content-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
                 <StatusIcon icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
               </div>
             </td>
-            <td class="whitespace-nowrap  w-10 hover:cursor-pointer" on:click="{() => openDetailsImage(image)}">
+            <td class="whitespace-nowrap w-10 hover:cursor-pointer" on:click="{() => openDetailsImage(image)}">
               <div class="flex items-center">
                 <div class="">
                   <div class="flex flex-row items-center">

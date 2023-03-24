@@ -445,7 +445,7 @@ function checkContainerName(event: any) {
                   name="modalContainerName"
                   id="modalContainerName"
                   placeholder="Leave blank to generate a name"
-                  class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400 border  {containerNameError
+                  class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400 border {containerNameError
                     ? 'border-red-500'
                     : 'border-zinc-900'}" />
                 <ErrorMessage class="h-1 text-sm" error="{containerNameError}" />

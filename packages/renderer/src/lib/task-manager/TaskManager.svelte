@@ -53,13 +53,13 @@ window.events?.receive('toggle-task-manager', () => {
 <svelte:window on:keyup="{handleEscape}" />
 
 {#if showTaskManager}
-  <div title="Tasks manager" class="fixed bottom-9 right-4 bg-zinc-900 h-96 w-80 z-40 ">
+  <div title="Tasks manager" class="fixed bottom-9 right-4 bg-zinc-900 h-96 w-80 z-40">
     <!-- Draw the arrow below the box-->
     <div
       class="absolute bottom-0 z-50 right-[17px] transform -translate-x-1/2 translate-y-1/2 rotate-45 w-4 h-4 {$tasksInfo.length >
       0
         ? 'bg-zinc-900'
-        : 'bg-zinc-800'} border-r border-b border-zinc-600 ">
+        : 'bg-zinc-800'} border-r border-b border-zinc-600">
     </div>
 
     <div title="" class="flex flex-col h-full w-full border border-zinc-600">

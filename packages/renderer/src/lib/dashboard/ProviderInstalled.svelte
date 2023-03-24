@@ -144,7 +144,7 @@ function onInstallationClick() {
     <div class="m-5" class:hidden="{!initializationButtonVisible}">
       <div class="bg-[#e5e7eb]">
         <button
-          class="float-left bg-[var(--pf-global--primary-color--300)] hover:bg-[var(--pf-global--primary-color--200)] pt-2 pr-3 pl-3 pb-2 text-[13px] mr-px  w-[180px]"
+          class="float-left bg-[var(--pf-global--primary-color--300)] hover:bg-[var(--pf-global--primary-color--200)] pt-2 pr-3 pl-3 pb-2 text-[13px] mr-px w-[180px]"
           on:click="{onInstallationClick}">
           {installationOptionSelected}
         </button>
@@ -196,7 +196,7 @@ function onInstallationClick() {
           current="{0}"
           clickable="{false}" />
       {/if}
-      <div class="flex  flex-col text-gray-400">
+      <div class="flex flex-col text-gray-400">
         <div>Initializing</div>
         <div class="my-2 pr-5">
           <i class="pf-c-button__progress">
@@ -222,12 +222,12 @@ function onInstallationClick() {
   </div>
 
   {#if provider.updateInfo}
-    <div class="mt-10 mb-1  w-full flex  justify-around">
+    <div class="mt-10 mb-1 w-full flex justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>
   {/if}
   <PreflightChecks preflightChecks="{preflightChecks}" />
 
-  <div class="mt-10 mb-1  w-full flex  justify-around"></div>
+  <div class="mt-10 mb-1 w-full flex justify-around"></div>
   <ProviderLinks provider="{provider}" />
 </div>

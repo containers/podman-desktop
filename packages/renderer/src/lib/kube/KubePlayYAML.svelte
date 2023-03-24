@@ -111,7 +111,7 @@ async function getKubernetesfileLocation() {
               class="py-6 block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
               >Container Engine
               <select
-                class="border  text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+                class="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
                 name="providerChoice"
                 bind:value="{selectedProvider}">
                 {#each providerConnections as providerConnection}

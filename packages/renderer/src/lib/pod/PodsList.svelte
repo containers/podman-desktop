@@ -273,7 +273,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
               <input
                 type="checkbox"
                 bind:checked="{pod.selected}"
-                class="cursor-pointer invert hue-rotate-[218deg] brightness-75 " />
+                class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
             </td>
             <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
