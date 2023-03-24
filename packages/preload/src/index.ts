@@ -527,6 +527,7 @@ function initExposure(): void {
       params: { [key: string]: any },
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+      tokenId?: number,
     ): Promise<void> => {
       onDataCallbacksCreateConnectionId++;
       onDataCallbacksCreateConnectionKeys.set(onDataCallbacksCreateConnectionId, key);
@@ -536,6 +537,7 @@ function initExposure(): void {
         internalProviderId,
         params,
         onDataCallbacksCreateConnectionId,
+        tokenId,
       );
     },
   );
@@ -1118,6 +1120,14 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('getOsHostname', async (): Promise<string> => {
     return ipcInvoke('os:getHostname');
+  });
+
+  contextBridge.exposeInMainWorld('getCancellableTokenSource', async (): Promise<number> => {
+    return ipcInvoke('cancellableTokenSource:create');
+  });
+
+  contextBridge.exposeInMainWorld('cancelToken', async (id: number): Promise<void> => {
+    return ipcInvoke('cancellableToken:cancel', id);
   });
 
   contextBridge.exposeInMainWorld('sendFeedback', async (feedback: FeedbackProperties): Promise<void> => {

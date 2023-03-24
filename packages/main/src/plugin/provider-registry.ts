@@ -35,6 +35,7 @@ import type {
   Logger,
   ProviderInformation,
   ProviderContainerConnection,
+  CancellationToken,
 } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
@@ -588,6 +589,7 @@ export class ProviderRegistry {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params: { [key: string]: any },
     logHandler: Logger,
+    token?: CancellationToken,
   ): Promise<void> {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
@@ -597,8 +599,7 @@ export class ProviderRegistry {
     }
 
     // create a logger
-
-    return provider.containerProviderConnectionFactory.create(params, logHandler);
+    return provider.containerProviderConnectionFactory.create(params, logHandler, token);
   }
 
   async createKubernetesProviderConnection(

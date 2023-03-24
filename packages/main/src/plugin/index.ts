@@ -89,6 +89,7 @@ import { ExtensionInstaller } from './install/extension-installer';
 import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
 import type { Menu } from '/@/plugin/menu-registry';
 import { MenuRegistry } from '/@/plugin/menu-registry';
+import { CancellationTokenRegistry } from './cancellation-token-registry';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -276,6 +277,7 @@ export class PluginSystem {
     await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
+    const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
@@ -1121,9 +1123,15 @@ export class PluginSystem {
         internalProviderId: string,
         params: { [key: string]: unknown },
         loggerId: string,
+        tokenId?: number,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection(loggerId);
-        await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger);
+        let token;
+        if (tokenId) {
+          const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+          token = tokenSource?.token;
+        }
+        await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
         logger.onEnd();
       },
     );
@@ -1213,6 +1221,17 @@ export class PluginSystem {
 
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);
+    });
+
+    this.ipcHandle('cancellableTokenSource:create', async (): Promise<number> => {
+      return cancellationTokenRegistry.createCancellationTokenSource();
+    });
+
+    this.ipcHandle('cancellableToken:cancel', async (_listener, id: number): Promise<void> => {
+      const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(id);
+      if (!tokenSource?.token.isCancellationRequested) {
+        tokenSource?.dispose(true);
+      }
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(

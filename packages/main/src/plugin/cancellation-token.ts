@@ -18,15 +18,84 @@
 
 import type * as extensionApi from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
+import type { IDisposable } from './types/disposable';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const shortcutEvent: extensionApi.Event<any> = Object.freeze(function (callback, context?): IDisposable {
+  const handle = setTimeout(callback.bind(context), 0);
+  return {
+    dispose() {
+      clearTimeout(handle);
+    },
+  };
+});
 
 export class CancellationTokenImpl implements extensionApi.CancellationToken {
-  isCancellationRequested: boolean;
-
-  private readonly cancellationEmitter = new Emitter();
+  private _isCancellationRequested: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onCancellationRequested: extensionApi.Event<any> = this.cancellationEmitter.event;
+  private emitter: Emitter<any> | null = null;
 
   constructor() {
-    this.isCancellationRequested = false;
+    this._isCancellationRequested = false;
+  }
+
+  public cancel() {
+    if (!this._isCancellationRequested) {
+      this._isCancellationRequested = true;
+      if (this.emitter) {
+        this.emitter.fire(undefined);
+        this.dispose();
+      }
+    }
+  }
+
+  get isCancellationRequested(): boolean {
+    return this._isCancellationRequested;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get onCancellationRequested(): extensionApi.Event<any> {
+    if (this._isCancellationRequested) {
+      return shortcutEvent;
+    }
+    if (!this.emitter) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.emitter = new Emitter<any>();
+    }
+    return this.emitter.event;
+  }
+
+  public dispose(): void {
+    if (this.emitter) {
+      this.emitter.dispose();
+      this.emitter = null;
+    }
+  }
+}
+
+export class CancellationTokenSource {
+  private _token?: CancellationTokenImpl = undefined;
+
+  get token(): extensionApi.CancellationToken {
+    if (!this._token) {
+      // be lazy and create the token only when actually needed
+      this._token = new CancellationTokenImpl();
+    }
+    return this._token;
+  }
+
+  cancel(): void {
+    if (this._token) {
+      this._token?.cancel();
+    }
+  }
+
+  dispose(cancel = false): void {
+    if (cancel) {
+      this.cancel();
+    }
+    if (this._token) {
+      this._token.dispose();
+    }
   }
 }

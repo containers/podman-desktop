@@ -45,6 +45,7 @@ import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick
 import type { MenuRegistry } from '/@/plugin/menu-registry';
 import { desktopAppHomeDir } from '../util';
 import { Emitter } from './events/emitter';
+import { CancellationTokenSource } from './cancellation-token';
 
 /**
  * Handle the loading of an extension
@@ -571,6 +572,7 @@ export class ExtensionLoader {
       Disposable: Disposable,
       Uri: Uri,
       EventEmitter: Emitter,
+      CancellationTokenSource: CancellationTokenSource,
       commands,
       registry,
       provider,

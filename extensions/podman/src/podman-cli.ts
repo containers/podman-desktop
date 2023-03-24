@@ -17,7 +17,7 @@
  ***********************************************************************/
 import { spawn } from 'node:child_process';
 import { isMac, isWindows } from './util';
-import type { Logger } from '@podman-desktop/api';
+import type { CancellationToken, Logger } from '@podman-desktop/api';
 import { configuration } from '@podman-desktop/api';
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
@@ -61,7 +61,12 @@ export interface ExecOptions {
   env?: NodeJS.ProcessEnv | undefined;
 }
 
-export function execPromise(command: string, args?: string[], options?: ExecOptions): Promise<string> {
+export function execPromise(
+  command: string,
+  args?: string[],
+  options?: ExecOptions,
+  token?: CancellationToken,
+): Promise<string> {
   let env = Object.assign({}, process.env); // clone original env object
 
   // In production mode, applications don't have access to the 'user' path like brew
@@ -80,6 +85,12 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
     let stdOut = '';
     let stdErr = '';
     const process = spawn(command, args, { env });
+    // if the token is cancelled, kill the process and reject the promise
+    token?.onCancellationRequested(() => {
+      process.kill();
+      // reject the promise
+      reject('Execution cancelled');
+    });
     process.on('error', error => {
       let content = '';
       if (stdOut && stdOut !== '') {
