@@ -62,6 +62,7 @@ abstract class SocketCompatibility {
       const podmanMachines = providers.filter(provider => {
         return provider.connection.type === 'podman';
       });
+
       const startedPodmanMachine = podmanMachines.find(machine => {
         return machine.connection.status() === 'started';
       });
@@ -74,15 +75,32 @@ abstract class SocketCompatibility {
         await startedPodmanMachine.connection.lifecycle.stop(lifecycleContext);
         startedPodmanMachine.connection.lifecycle.start(lifecycleContext);
       } else {
-        const stoppedPodmanMachine = podmanMachines.find(machine => {
+        // Find all the stopped podman machines
+        const stoppedPodmanMachine = podmanMachines.filter(machine => {
           return machine.connection.status() === 'stopped';
         });
 
-        if (stoppedPodmanMachine) {
-          stoppedPodmanMachine.connection.lifecycle.start(lifecycleContext);
+        // If one is found, start it
+        // if multiple ones are found, ask the user to select one using showQuickPick
+        if (stoppedPodmanMachine.length === 1) {
+          stoppedPodmanMachine[0].connection.lifecycle.start(lifecycleContext);
+        } else if (stoppedPodmanMachine.length > 1) {
+          const selection = await extensionApi.window.showQuickPick(
+            stoppedPodmanMachine.map(machine => machine.connection.name),
+            {
+              placeHolder: 'Multiple stopped Podman machines detected, select one to start',
+            },
+          );
+
+          // Find the podman machine that matches the selection and start it.
+          if (selection) {
+            const selectedMachine = stoppedPodmanMachine.find(machine => {
+              return machine.connection.name === selection;
+            });
+            selectedMachine?.connection.lifecycle.start(lifecycleContext);
+          }
         } else {
-          extensionApi.window.showErrorMessage('Cannot find a Podman machine to restart.', 'OK');
-          return;
+          extensionApi.window.showErrorMessage('No Podman machines are available to restart. Check the resource page.');
         }
       }
     }
