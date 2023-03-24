@@ -21,7 +21,7 @@ onMount(() => {
 });
 
 function copyRunInstructionToClipboard() {
-  const text = copyTextDivElement?.innerText;
+  const text = copyTextDivElement?.textContent;
   window.clipboardWriteText(text);
 }
 

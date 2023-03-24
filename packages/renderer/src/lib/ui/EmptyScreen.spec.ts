@@ -25,7 +25,6 @@ import EmptyScreen from './EmptyScreen.svelte';
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 test('Expect copy in clipboard', async () => {
-  console.log('start test');
   const mock = vi.fn().mockImplementation(() => {});
   (window as any).clipboardWriteText = mock;
   render(EmptyScreen, { commandline: 'podman run hello:world' });
