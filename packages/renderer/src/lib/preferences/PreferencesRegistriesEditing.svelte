@@ -7,6 +7,7 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { faUserPen } from '@fortawesome/free-solid-svg-icons';
+import SettingsPage from './SettingsPage.svelte';
 
 // contains the original instances of registries when user clicks on `Edit password` menu item
 // to be able to roll back changes when `Cancel` button is clicked
@@ -215,12 +216,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 };
 </script>
 
-<div class="flex flex-1 flex-col p-2 bg-zinc-900">
-  <div>
-    <p class="capitalize text-xl">Registries</p>
-    <p class="text-sm text-gray-400"><br /></p>
-  </div>
-
+<SettingsPage title="Registries">
   <div class="container mx-auto bg-zinc-800 mt-5 rounded-md p-3">
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-gray-600">
@@ -612,4 +608,4 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
     </button>
   </div>
   <!-- Add new registry button end -->
-</div>
+</SettingsPage>

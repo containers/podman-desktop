@@ -45,7 +45,7 @@ $: {
 }
 </script>
 
-<div class="flex flex-col px-3 pt-3">
+<div class="flex flex-col px-2 pt-2">
   <div class="flex">
     <div class="capitalize">{recordUI.breadCrumb}</div>
     <div class="pl-2 text-violet-400">{recordUI.title}</div>
