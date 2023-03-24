@@ -255,7 +255,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
             </div>
 
             <!-- Username -->
-            <div class="pt-2 pb-2 text-sm w-1/4 m-auto">
+            <div class="pt-4 pb-2 text-sm w-1/4 m-auto">
               {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
                 <div class="text-left h-7 pr-5 mt-1.5 mb-0.5 text-sm w-full">
                   <input
@@ -272,7 +272,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
             </div>
 
             <!-- Password -->
-            <div class="pt-2 pb-2 text-sm w-full w-2/5">
+            <div class="pt-4 pb-2 text-sm w-2/5">
               <div class="flex flex-row">
                 {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
                   <div class="flex text-left h-7 pr-5 mt-1.5 mb-0.5 text-sm w-full">
