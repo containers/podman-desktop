@@ -27,14 +27,17 @@ export let callback: (
   data,
   handlerKey: Symbol,
   collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+  tokenId?: number,
 ) => Promise<void>;
 
 $: configurationValues = new Map<string, string>(); 
 let creationInProgress = false;
 let creationStarted = false;
 let creationSuccessful = false;
+let creationCancelled = false;
 let pageIsLoading = true;
 let showLogs = false;
+let tokenId: number;
 
 let osMemory, osCpu, osFreeDisk;
 // get only ContainerProviderConnectionFactory scope fields that are starting by the provider id
@@ -55,7 +58,7 @@ $: if (logsTerminal) {
 }
 
 onMount(async () => {
-  showLogs = false;
+  cleanup();
   osMemory = await window.getOsMemory();
   osCpu = await window.getOsCpu();
   osFreeDisk = await window.getOsFreeDiskSize();
@@ -158,6 +161,13 @@ function getLoggerHandler(): ConnectionCallback {
 
 async function ended() {
   creationInProgress = false;
+  tokenId = undefined;
+  if (creationCancelled) {
+    // the creation has been cancelled
+    updateStore();
+    return
+  }
+  
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   creationSuccessful = true;
   updateStore();
@@ -170,6 +180,11 @@ async function cleanup() {
     loggerHandlerKey = undefined;
   }
 
+
+  errorMessage = undefined;
+  showLogs = false;
+  creationInProgress = false;
+  creationCancelled = false;
   creationSuccessful = false;
   updateStore();
   logsTerminal?.clear();
@@ -201,10 +216,10 @@ async function handleOnSubmit(e) {
 
   // send the data to the right provider
   creationInProgress = true;
-  errorMessage = undefined;
   creationStarted = true;
 
   try {
+    tokenId = await window.getCancellableTokenSource();
     // clear terminal
     logsTerminal?.clear();
     loggerHandlerKey = startTask(
@@ -213,11 +228,24 @@ async function handleOnSubmit(e) {
       getLoggerHandler(),
     );
     updateStore();
-    await callback(providerInfo.internalId, data, loggerHandlerKey, eventCollect);
+    await callback(providerInfo.internalId, data, loggerHandlerKey, eventCollect, tokenId);
   } catch (error) {
     //display error
+    tokenId = undefined;
     errorMessage = error;
   }
+}
+
+async function cancel() {
+  if (tokenId) {
+    await window.cancelToken(tokenId);
+    creationCancelled = true;
+    tokenId = undefined;
+  }  
+}
+
+async function close() {
+  cleanup();
 }
 </script>
 
@@ -267,10 +295,10 @@ async function handleOnSubmit(e) {
             <LinearProgress />
             <div class="mt-2 float-right">
               <button class="text-xs mr-3 hover:underline" on:click="{() => showLogs = !showLogs}">Show Logs <i class="fas {showLogs ? "fa-angle-up" : "fa-angle-down"}" aria-hidden="true"></i></button>
-              <button class="text-xs hover:underline">Cancel</button>
+              <button class="text-xs {errorMessage ? "mr-3" : ""} hover:underline {tokenId ? "" : "hidden"}" disabled="{!tokenId}" on:click="{cancel}">Cancel</button>
+              <button class="text-xs hover:underline {errorMessage ? "" : "hidden"}" on:click="{close}">Close</button>
             </div>
           </div>
-          
           <div id="log" class="h-80 {showLogs ? "" : "hidden"}">
             <div class="w-full h-full">
               <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
