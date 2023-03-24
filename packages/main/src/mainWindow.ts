@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
+import { autoUpdater } from 'electron';
 import { Menu } from 'electron';
 import { BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
 import contextMenu from 'electron-context-menu';
@@ -119,7 +120,20 @@ async function createWindow() {
     configurationRegistry = data;
   });
 
+  // receive the message because an update is in progress and we need to quit the app
+  let quitAfterUpdate = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  autoUpdater.on('before-quit-for-update', () => {
+    quitAfterUpdate = true;
+  });
+
   browserWindow.on('close', e => {
+    if (quitAfterUpdate) {
+      browserWindow.destroy();
+      app.quit();
+      return;
+    }
+
     const closeBehaviorConfiguration = configurationRegistry?.getConfiguration('preferences');
     let exitonclose = isLinux(); // default value, which we will use unless the user preference is available.
     if (closeBehaviorConfiguration) {
