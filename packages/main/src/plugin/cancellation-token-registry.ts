@@ -17,37 +17,32 @@
  ***********************************************************************/
 
 import { CancellationTokenSource } from './cancellation-token';
-  
-  export class CancellationTokenRegistry {
-    private callbackId = 0;
-  
-    private callbacksCancellableToken = new Map<
-      number,
-      CancellationTokenSource
-    >();
-    
-    createCancellationTokenSource(): number {
-        // keep track of this request
-        this.callbackId++;
 
-        const token = new CancellationTokenSource();
-  
-        // store the callback that will resolve the promise
-        this.callbacksCancellableToken.set(this.callbackId, token);
-  
-        return this.callbackId;
-    }
+export class CancellationTokenRegistry {
+  private callbackId = 0;
 
-    getCancellationTokenSource(id: number): CancellationTokenSource | undefined {
-        if (this.hasCancellationTokenSource(id)) {
-            return this.callbacksCancellableToken.get(id);
-        }
-        return undefined;
-    }
+  private callbacksCancellableToken = new Map<number, CancellationTokenSource>();
 
-    hasCancellationTokenSource(id: number): boolean {
-        return this.callbacksCancellableToken.has(id);
+  createCancellationTokenSource(): number {
+    // keep track of this request
+    this.callbackId++;
+
+    const token = new CancellationTokenSource();
+
+    // store the callback that will resolve the promise
+    this.callbacksCancellableToken.set(this.callbackId, token);
+
+    return this.callbackId;
+  }
+
+  getCancellationTokenSource(id: number): CancellationTokenSource | undefined {
+    if (this.hasCancellationTokenSource(id)) {
+      return this.callbacksCancellableToken.get(id);
     }
-  
- }
-  
+    return undefined;
+  }
+
+  hasCancellationTokenSource(id: number): boolean {
+    return this.callbacksCancellableToken.has(id);
+  }
+}

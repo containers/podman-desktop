@@ -590,7 +590,7 @@ export class ProviderRegistry {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params: { [key: string]: any },
     logHandler: Logger,
-    token?: CancellationToken
+    token?: CancellationToken,
   ): Promise<void> {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);

@@ -61,7 +61,12 @@ export interface ExecOptions {
   env?: NodeJS.ProcessEnv | undefined;
 }
 
-export function execPromise(command: string, args?: string[], options?: ExecOptions, token?: CancellationToken): Promise<string> {
+export function execPromise(
+  command: string,
+  args?: string[],
+  options?: ExecOptions,
+  token?: CancellationToken,
+): Promise<string> {
   let env = Object.assign({}, process.env); // clone original env object
 
   // In production mode, applications don't have access to the 'user' path like brew

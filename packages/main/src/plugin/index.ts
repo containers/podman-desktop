@@ -1124,14 +1124,14 @@ export class PluginSystem {
         internalProviderId: string,
         params: { [key: string]: unknown },
         loggerId: string,
-        tokenId?: number
+        tokenId?: number,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection(loggerId);
         let token;
         if (tokenId) {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
           token = tokenSource?.token;
-        }        
+        }
         await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
         logger.onEnd();
       },
@@ -1232,7 +1232,7 @@ export class PluginSystem {
       const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(id);
       if (!tokenSource?.token.isCancellationRequested) {
         tokenSource?.dispose(true);
-      }      
+      }
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
