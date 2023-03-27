@@ -19,7 +19,6 @@ import Tooltip from '../ui/Tooltip.svelte';
 import { filesize } from 'filesize';
 import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
-import PowerIcon from '../ui/PowerIcon.svelte';
 
 interface IContainerStatus {
   status: string;
@@ -33,7 +32,6 @@ interface IProviderContainerConfigurationPropertyRecorded extends IConfiguration
 }
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
-let loggerHandlerKey: symbol | undefined = undefined;
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IContainerStatus>();
 
