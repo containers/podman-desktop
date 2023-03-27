@@ -289,26 +289,6 @@ function getContainerConnectionName(
 ): string {
   return `${provider.name}-${containerConnectionInfo.name}`;
 }
-
-function isContainerConnectionActionInProgress(
-  containerConnectionStatus: Map<string, IContainerStatus>,
-  provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
-  action?: string,
-): boolean {
-  const containerConnectionItemStatus = containerConnectionStatus.get(
-    `${provider.name}-${containerConnectionInfo.name}`,
-  );
-  if (action) {
-    return (
-      containerConnectionItemStatus &&
-      containerConnectionItemStatus.inProgress &&
-      containerConnectionItemStatus.action === action
-    );
-  } else {
-    return containerConnectionItemStatus && containerConnectionItemStatus.inProgress;
-  }
-}
 </script>
 
 <SettingsPage title="Resources">
@@ -394,6 +374,12 @@ function isContainerConnectionActionInProgress(
                   {/each}
                 </div>
               {/if}
+              {#if containerConnectionStatus.has(
+                `${provider.name}-${container.name}`,
+              )}
+              {@const state = containerConnectionStatus.get(
+                `${provider.name}-${container.name}`,
+              )}
               {#if container.lifecycleMethods && container.lifecycleMethods.length > 0}
                 <div class="mt-2 relative">
                   <!-- TODO: see action available like machine infos -->
@@ -402,31 +388,18 @@ function isContainerConnectionActionInProgress(
                       <Tooltip tip="Start" bottom>
                         <button
                           aria-label="Start"
-                          class="ml-5 mr-2.5 my-2 {isContainerConnectionActionInProgress(
-                            containerConnectionStatus,
-                            provider,
-                            container,
-                          ) || container.status !== 'stopped'
+                          class="ml-5 mr-2.5 my-2 {state.inProgress || state.status !== 'stopped'
                             ? 'text-gray-700 cursor-not-allowed'
                             : 'hover:text-gray-400'}"
                           on:click="{() => startContainerProvider(provider, container)}"
-                          disabled="{isContainerConnectionActionInProgress(
-                            containerConnectionStatus,
-                            provider,
-                            container,
-                          ) || container.status !== 'stopped'}">
+                          disabled="{state.inProgress || state.status !== 'stopped'}">
                           <LoadingIcon
                             icon="{faPlay}"
                             loadingWidthClass="w-6"
                             loadingHeightClass="h-6"
                             positionTopClass="top-1"
                             positionLeftClass="left-[0.77rem]"
-                            loading="{isContainerConnectionActionInProgress(
-                              containerConnectionStatus,
-                              provider,
-                              container,
-                              'start',
-                            )}" />
+                            loading="{state.inProgress && state.action === 'start'}" />
                         </button>
                       </Tooltip>
                     {/if}
@@ -434,25 +407,18 @@ function isContainerConnectionActionInProgress(
                       <Tooltip tip="Restart" bottom>
                         <button
                           aria-label="Restart"
-                          class="mx-2.5 my-2 {container.status !== 'started' ||
-                          isContainerConnectionActionInProgress(containerConnectionStatus, provider, container)
+                          class="mx-2.5 my-2 {state.inProgress || state.status !== 'started'
                             ? 'text-gray-700 cursor-not-allowed'
                             : 'hover:text-gray-400'}"
                           on:click="{() => restartContainerProvider(provider, container)}"
-                          disabled="{container.status !== 'started' ||
-                            isContainerConnectionActionInProgress(containerConnectionStatus, provider, container)}">
+                          disabled="{state.inProgress || state.status !== 'started'}">
                           <LoadingIcon
                             icon="{faRotateRight}"
                             loadingWidthClass="w-6"
                             loadingHeightClass="h-6"
                             positionTopClass="top-1"
                             positionLeftClass="left-1.5"
-                            loading="{isContainerConnectionActionInProgress(
-                              containerConnectionStatus,
-                              provider,
-                              container,
-                              'restart',
-                            )}" />
+                            loading="{state.inProgress && state.action === 'restart'}" />
                         </button>
                       </Tooltip>
                     {/if}
@@ -460,31 +426,18 @@ function isContainerConnectionActionInProgress(
                       <Tooltip tip="Stop" bottom>
                         <button
                           aria-label="Stop"
-                          class="mx-2.5 my-2 {isContainerConnectionActionInProgress(
-                            containerConnectionStatus,
-                            provider,
-                            container,
-                          ) || container.status !== 'started'
+                          class="mx-2.5 my-2 {state.inProgress || state.status !== 'started'
                             ? 'text-gray-700 cursor-not-allowed'
                             : 'hover:text-gray-400'}"
                           on:click="{() => stopContainerProvider(provider, container)}"
-                          disabled="{isContainerConnectionActionInProgress(
-                            containerConnectionStatus,
-                            provider,
-                            container,
-                          ) || container.status !== 'started'}">
+                          disabled="{state.inProgress || state.status !== 'started'}">
                           <LoadingIcon
                             icon="{faStop}"
                             loadingWidthClass="w-6"
                             loadingHeightClass="h-6"
                             positionTopClass="top-1"
-                            positionLeftClass="left-[0.25rem]"
-                            loading="{isContainerConnectionActionInProgress(
-                              containerConnectionStatus,
-                              provider,
-                              container,
-                              'stop',
-                            )}" />
+                            positionLeftClass="left-[0.22rem]"
+                            loading="{state.inProgress && state.action === 'stop'}" />
                         </button>
                       </Tooltip>
                     {/if}
@@ -492,36 +445,31 @@ function isContainerConnectionActionInProgress(
                       <Tooltip tip="Delete" bottom>
                         <button
                           aria-label="Delete"
-                          class="mx-2.5 mr-5 mb-2 text-sm {(container.status !== 'stopped' &&
-                            container.status !== 'unknown') ||
-                          isContainerConnectionActionInProgress(containerConnectionStatus, provider, container)
+                          class="mx-2.5 mr-5 mb-2 text-sm {state.inProgress || (state.status !== 'stopped' &&
+                            container.status !== 'unknown')
                             ? 'text-gray-700 cursor-not-allowed mt-2'
                             : 'hover:text-gray-400 mt-[0.55rem]'}"
                           on:click="{() => deleteContainerProvider(provider, container)}"
-                          disabled="{(container.status !== 'stopped' && container.status !== 'unknown') ||
-                            isContainerConnectionActionInProgress(containerConnectionStatus, provider, container)}">
+                          disabled="{state.inProgress || (state.status !== 'stopped' && state.status !== 'unknown')}">
                           <LoadingIcon
                             icon="{faTrash}"
                             loadingWidthClass="w-6"
                             loadingHeightClass="h-6"
                             positionTopClass="top-1"
                             positionLeftClass="left-1"
-                            loading="{isContainerConnectionActionInProgress(
-                              containerConnectionStatus,
-                              provider,
-                              container,
-                              'delete',
-                            )}" />
+                            loading="{state.inProgress && state.action === 'delete'}" />
                         </button>
                       </Tooltip>
                     {/if}
                   </div>
                 </div>
               {/if}
+              {/if}
               <div class="mt-1.5 text-gray-500 text-[9px]">
                 <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
               </div>
             </div>
+            
           {/each}
           {#each provider.kubernetesConnections as kubeConnection}
             <div class="px-5 py-2 w-[240px]">
