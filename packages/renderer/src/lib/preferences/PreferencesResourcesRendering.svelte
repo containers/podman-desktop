@@ -289,6 +289,18 @@ function getContainerConnectionName(
 ): string {
   return `${provider.name}-${containerConnectionInfo.name}`;
 }
+
+function getStyleByState(state: IContainerStatus, action: string) {
+  if (
+    (action === 'start' && (state.inProgress || state.status !== 'stopped')) ||
+    ((action === 'stop' || action === 'restart') && (state.inProgress || state.status !== 'started')) ||
+    (action === 'delete' && (state.inProgress || (state.status !== 'stopped' && state.status !== 'unknown')))
+  ) {
+    return 'text-gray-700 cursor-not-allowed';
+  } else {
+    return 'hover:text-gray-400';
+  }
+}
 </script>
 
 <SettingsPage title="Resources">
@@ -374,102 +386,88 @@ function getContainerConnectionName(
                   {/each}
                 </div>
               {/if}
-              {#if containerConnectionStatus.has(
-                `${provider.name}-${container.name}`,
-              )}
-              {@const state = containerConnectionStatus.get(
-                `${provider.name}-${container.name}`,
-              )}
-              {#if container.lifecycleMethods && container.lifecycleMethods.length > 0}
-                <div class="mt-2 relative">
-                  <!-- TODO: see action available like machine infos -->
-                  <div class="flex bg-zinc-900 w-fit rounded-lg m-auto">
-                    {#if container.lifecycleMethods.includes('start')}
-                      <Tooltip tip="Start" bottom>
-                        <button
-                          aria-label="Start"
-                          class="ml-5 mr-2.5 my-2 {state.inProgress || state.status !== 'stopped'
-                            ? 'text-gray-700 cursor-not-allowed'
-                            : 'hover:text-gray-400'}"
-                          on:click="{() => startContainerProvider(provider, container)}"
-                          disabled="{state.inProgress || state.status !== 'stopped'}">
-                          <LoadingIcon
-                            icon="{faPlay}"
-                            loadingWidthClass="w-6"
-                            loadingHeightClass="h-6"
-                            positionTopClass="top-1"
-                            positionLeftClass="left-[0.77rem]"
-                            loading="{state.inProgress && state.action === 'start'}" />
-                        </button>
-                      </Tooltip>
-                    {/if}
-                    {#if container.lifecycleMethods.includes('start') && container.lifecycleMethods.includes('stop')}
-                      <Tooltip tip="Restart" bottom>
-                        <button
-                          aria-label="Restart"
-                          class="mx-2.5 my-2 {state.inProgress || state.status !== 'started'
-                            ? 'text-gray-700 cursor-not-allowed'
-                            : 'hover:text-gray-400'}"
-                          on:click="{() => restartContainerProvider(provider, container)}"
-                          disabled="{state.inProgress || state.status !== 'started'}">
-                          <LoadingIcon
-                            icon="{faRotateRight}"
-                            loadingWidthClass="w-6"
-                            loadingHeightClass="h-6"
-                            positionTopClass="top-1"
-                            positionLeftClass="left-1.5"
-                            loading="{state.inProgress && state.action === 'restart'}" />
-                        </button>
-                      </Tooltip>
-                    {/if}
-                    {#if container.lifecycleMethods.includes('stop')}
-                      <Tooltip tip="Stop" bottom>
-                        <button
-                          aria-label="Stop"
-                          class="mx-2.5 my-2 {state.inProgress || state.status !== 'started'
-                            ? 'text-gray-700 cursor-not-allowed'
-                            : 'hover:text-gray-400'}"
-                          on:click="{() => stopContainerProvider(provider, container)}"
-                          disabled="{state.inProgress || state.status !== 'started'}">
-                          <LoadingIcon
-                            icon="{faStop}"
-                            loadingWidthClass="w-6"
-                            loadingHeightClass="h-6"
-                            positionTopClass="top-1"
-                            positionLeftClass="left-[0.22rem]"
-                            loading="{state.inProgress && state.action === 'stop'}" />
-                        </button>
-                      </Tooltip>
-                    {/if}
-                    {#if container.lifecycleMethods.includes('delete')}
-                      <Tooltip tip="Delete" bottom>
-                        <button
-                          aria-label="Delete"
-                          class="mx-2.5 mr-5 mb-2 text-sm {state.inProgress || (state.status !== 'stopped' &&
-                            container.status !== 'unknown')
-                            ? 'text-gray-700 cursor-not-allowed mt-2'
-                            : 'hover:text-gray-400 mt-[0.55rem]'}"
-                          on:click="{() => deleteContainerProvider(provider, container)}"
-                          disabled="{state.inProgress || (state.status !== 'stopped' && state.status !== 'unknown')}">
-                          <LoadingIcon
-                            icon="{faTrash}"
-                            loadingWidthClass="w-6"
-                            loadingHeightClass="h-6"
-                            positionTopClass="top-1"
-                            positionLeftClass="left-1"
-                            loading="{state.inProgress && state.action === 'delete'}" />
-                        </button>
-                      </Tooltip>
-                    {/if}
+              {#if containerConnectionStatus.has(getContainerConnectionName(provider, container))}
+                {@const state = containerConnectionStatus.get(getContainerConnectionName(provider, container))}
+                {#if container.lifecycleMethods && container.lifecycleMethods.length > 0}
+                  <div class="mt-2 relative">
+                    <!-- TODO: see action available like machine infos -->
+                    <div class="flex bg-zinc-900 w-fit rounded-lg m-auto">
+                      {#if container.lifecycleMethods.includes('start')}
+                        <Tooltip tip="Start" bottom>
+                          <button
+                            aria-label="Start"
+                            class="ml-5 mr-2.5 my-2 {getStyleByState(state, 'start')}"
+                            on:click="{() => startContainerProvider(provider, container)}"
+                            disabled="{state.inProgress || state.status !== 'stopped'}">
+                            <LoadingIcon
+                              icon="{faPlay}"
+                              loadingWidthClass="w-6"
+                              loadingHeightClass="h-6"
+                              positionTopClass="top-1"
+                              positionLeftClass="left-[0.77rem]"
+                              loading="{state.inProgress && state.action === 'start'}" />
+                          </button>
+                        </Tooltip>
+                      {/if}
+                      {#if container.lifecycleMethods.includes('start') && container.lifecycleMethods.includes('stop')}
+                        <Tooltip tip="Restart" bottom>
+                          <button
+                            aria-label="Restart"
+                            class="mx-2.5 my-2 {getStyleByState(state, 'stop')}"
+                            on:click="{() => restartContainerProvider(provider, container)}"
+                            disabled="{state.inProgress || state.status !== 'started'}">
+                            <LoadingIcon
+                              icon="{faRotateRight}"
+                              loadingWidthClass="w-6"
+                              loadingHeightClass="h-6"
+                              positionTopClass="top-1"
+                              positionLeftClass="left-1.5"
+                              loading="{state.inProgress && state.action === 'restart'}" />
+                          </button>
+                        </Tooltip>
+                      {/if}
+                      {#if container.lifecycleMethods.includes('stop')}
+                        <Tooltip tip="Stop" bottom>
+                          <button
+                            aria-label="Stop"
+                            class="mx-2.5 my-2 {getStyleByState(state, 'restart')}"
+                            on:click="{() => stopContainerProvider(provider, container)}"
+                            disabled="{state.inProgress || state.status !== 'started'}">
+                            <LoadingIcon
+                              icon="{faStop}"
+                              loadingWidthClass="w-6"
+                              loadingHeightClass="h-6"
+                              positionTopClass="top-1"
+                              positionLeftClass="left-[0.22rem]"
+                              loading="{state.inProgress && state.action === 'stop'}" />
+                          </button>
+                        </Tooltip>
+                      {/if}
+                      {#if container.lifecycleMethods.includes('delete')}
+                        <Tooltip tip="Delete" bottom>
+                          <button
+                            aria-label="Delete"
+                            class="mx-2.5 mr-5 mb-2 text-sm mt-2 {getStyleByState(state, 'delete')}"
+                            on:click="{() => deleteContainerProvider(provider, container)}"
+                            disabled="{state.inProgress || (state.status !== 'stopped' && state.status !== 'unknown')}">
+                            <LoadingIcon
+                              icon="{faTrash}"
+                              loadingWidthClass="w-6"
+                              loadingHeightClass="h-6"
+                              positionTopClass="top-1"
+                              positionLeftClass="left-1"
+                              loading="{state.inProgress && state.action === 'delete'}" />
+                          </button>
+                        </Tooltip>
+                      {/if}
+                    </div>
                   </div>
-                </div>
-              {/if}
+                {/if}
               {/if}
               <div class="mt-1.5 text-gray-500 text-[9px]">
                 <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
               </div>
             </div>
-            
           {/each}
           {#each provider.kubernetesConnections as kubeConnection}
             <div class="px-5 py-2 w-[240px]">
