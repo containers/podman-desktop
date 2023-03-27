@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom';
 import { beforeAll, test, expect, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
+import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import QuickPickInput from './QuickPickInput.svelte';
 import type { QuickPickOptions } from './quickpick-input';
@@ -66,5 +66,68 @@ describe('QuickPickInput', () => {
 
     // and not for showInputBox
     expect(sendShowInputBoxValueMock).not.toBeCalled();
+  });
+
+  test('Expect that title is displayed', async () => {
+    const idRequest = 123;
+
+    const quickPickOptions: QuickPickOptions = {
+      items: ['item1', 'item2'],
+      title: 'My custom title',
+      canPickMany: false,
+      placeHolder: 'placeHolder',
+      prompt: '',
+      id: idRequest,
+      onSelectCallback: false,
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: QuickPickOptions) => void) => {
+      if (message === 'showQuickPick:add') {
+        callback(quickPickOptions);
+      }
+    });
+
+    render(QuickPickInput, {});
+
+    const title = await screen.findByText('My custom title');
+    expect(title).toBeInTheDocument();
+  });
+
+  test('Expect that description and detail is displayed', async () => {
+    const idRequest = 123;
+
+    const quickPickOptions: QuickPickOptions = {
+      items: [
+        { label: 'item1', description: 'my description1', detail: 'my detail1' },
+        { label: 'item2', description: 'my description2', detail: 'my detail2' },
+      ],
+      canPickMany: false,
+      placeHolder: 'placeHolder',
+      prompt: '',
+      id: idRequest,
+      onSelectCallback: false,
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: QuickPickOptions) => void) => {
+      if (message === 'showQuickPick:add') {
+        callback(quickPickOptions);
+      }
+    });
+
+    render(QuickPickInput, {});
+
+    const item1 = await screen.findByText('item1');
+    expect(item1).toBeInTheDocument();
+    const itemDescription1 = await screen.findByText('my description1');
+    expect(itemDescription1).toBeInTheDocument();
+    const itemDetail1 = await screen.findByText('my detail1');
+    expect(itemDetail1).toBeInTheDocument();
+
+    const item2 = await screen.findByText('item2');
+    expect(item2).toBeInTheDocument();
+    const itemDescription2 = await screen.findByText('my description2');
+    expect(itemDescription2).toBeInTheDocument();
+    const itemDetail2 = await screen.findByText('my detail2');
+    expect(itemDetail2).toBeInTheDocument();
   });
 });

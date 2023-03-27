@@ -7,6 +7,7 @@ let inputValue = '';
 let placeHolder = '';
 let prompt = '';
 let currentId = 0;
+let title = '';
 
 let validationEnabled = false;
 let validationError = '';
@@ -16,8 +17,8 @@ let onSelectCallbackEnabled = false;
 let display = false;
 let mode: 'InputBox' | 'QuickPick';
 
-let quickPickItems: { value: any; checkbox: boolean }[] = [];
-let quickPickFilteredItems: { value: any; checkbox: boolean }[] = quickPickItems;
+let quickPickItems: { value: any; description: string; detail: string; checkbox: boolean }[] = [];
+let quickPickFilteredItems: { value: any; description: string; detail: string; checkbox: boolean }[] = quickPickItems;
 let quickPickSelectedIndex = 0;
 let quickPickSelectedFilteredIndex = 0;
 let quickPickCanPickMany = false;
@@ -28,6 +29,7 @@ const showInputCallback = async (options?: InputBoxOptions) => {
   mode = 'InputBox';
   inputValue = options.value;
   placeHolder = options.placeHolder;
+  title = options.title;
   currentId = options.id;
   if (options.prompt) {
     prompt = `${options.prompt} (${DEFAULT_PROMPT})`;
@@ -48,19 +50,19 @@ const showInputCallback = async (options?: InputBoxOptions) => {
 };
 
 const showQuickPickCallback = async (options?: QuickPickOptions) => {
-  mode = 'InputBox';
+  mode = 'QuickPick';
   placeHolder = options.placeHolder;
+  title = options.title;
   currentId = options.id;
   if (options.prompt) {
     prompt = options.prompt;
   }
-  mode = 'QuickPick';
   quickPickItems = options.items.map(item => {
     if (typeof item === 'string') {
-      return { value: item, checkbox: false };
+      return { value: item, description: '', detail: '', checkbox: false };
     } else {
       // if type is QuickPickItem use label field for the display
-      return { value: item.label, checkbox: false };
+      return { value: item.label, description: item.description, detail: item.detail, checkbox: false };
     }
   });
   quickPickFilteredItems = quickPickItems;
@@ -252,6 +254,13 @@ function handleKeydown(e: KeyboardEvent) {
     <div class=" flex justify-center items-center mt-1">
       <div
         class="bg-zinc-900 w-[700px] {mode === 'InputBox' ? 'h-16' : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
+        {#if title}
+          <div
+            aria-label="title"
+            class="w-full bg-zinc-800 rounded-sm text-center max-w-[700px] truncate cursor-default">
+            {title}
+          </div>
+        {/if}
         <div class="w-full flex flex-row">
           <input
             bind:this="{inputElement}"
@@ -288,7 +297,21 @@ function handleKeydown(e: KeyboardEvent) {
                 on:click="{() => clickQuickPickItem(item, i)}"
                 class="text-gray-300 text-left relative my-1 w-full {i === quickPickSelectedFilteredIndex
                   ? 'bg-violet-500'
-                  : ''} px-1">{item.value}</button>
+                  : ''} px-1">
+                <div class="flex flex-col w-full">
+                  <!-- first row is Value + optional description-->
+                  <div class="flex flex-row w-full max-w-[700px] truncate">
+                    <div class="font-bold">{item.value}</div>
+                    {#if item.description}
+                      <div class="text-gray-300 text-xs ml-2">{item.description}</div>
+                    {/if}
+                  </div>
+                  <!-- second row is optional detail -->
+                  {#if item.detail}
+                    <div class="w-full max-w-[700px] truncate text-gray-300 text-xs">{item.detail}</div>
+                  {/if}
+                </div>
+              </button>
             </div>
           {/each}
         {/if}
