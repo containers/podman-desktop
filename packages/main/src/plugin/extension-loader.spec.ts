@@ -36,6 +36,7 @@ import type { Proxy } from './proxy';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry';
 import type { TrayMenuRegistry } from './tray-menu-registry';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -112,8 +113,11 @@ beforeEach(() => {
 });
 
 test('Should watch for files and load them at startup', async () => {
+  const fakeDirectory = '/fake/path/scanning';
+  const rootedFakeDirectory = path.resolve(fakeDirectory);
+
   // fake scanning property
-  extensionLoader.setPluginsScanDirectory('/fake/path/scanning');
+  extensionLoader.setPluginsScanDirectory(fakeDirectory);
 
   vi.mock('node:fs');
   // mock fs.watch
@@ -153,15 +157,18 @@ test('Should watch for files and load them at startup', async () => {
   await extensionLoader.setupScanningDirectory();
 
   // expect to load only one file (other are invalid files/folder)
-  expect(loadPackagedFileMock).toBeCalledWith('/fake/path/scanning/foo.cdix');
+  expect(loadPackagedFileMock).toBeCalledWith(path.resolve(rootedFakeDirectory, 'foo.cdix'));
 
   // expect watcher is setup
-  expect(fsWatchMock).toBeCalledWith('/fake/path/scanning', expect.anything());
+  expect(fsWatchMock).toBeCalledWith(fakeDirectory, expect.anything());
 });
 
 test('Should load file from watching scanning folder', async () => {
+  const fakeDirectory = '/fake/path/scanning';
+  const rootedFakeDirectory = path.resolve(fakeDirectory);
+
   // fake scanning property
-  extensionLoader.setPluginsScanDirectory('/fake/path/scanning');
+  extensionLoader.setPluginsScanDirectory(fakeDirectory);
 
   let watchFilename: fs.PathLike | undefined = undefined;
   let watchListener: fs.WatchListener<string> = {} as unknown as fs.WatchListener<string>;
@@ -198,11 +205,11 @@ test('Should load file from watching scanning folder', async () => {
   expect(loadPackagedFileMock).not.toBeCalled();
 
   // expect watcher is setup
-  expect(fsWatchMock).toBeCalledWith('/fake/path/scanning', expect.anything());
+  expect(fsWatchMock).toBeCalledWith(fakeDirectory, expect.anything());
   expect(watchFilename).toBeDefined();
   expect(watchListener).toBeDefined();
 
-  expect(watchFilename).toBe('/fake/path/scanning');
+  expect(watchFilename).toBe(fakeDirectory);
 
   // call the watcher callback
   if (watchListener) {
@@ -213,5 +220,5 @@ test('Should load file from watching scanning folder', async () => {
   await new Promise(resolve => setTimeout(resolve, 100));
 
   // expect to load only one file (other are invalid files/folder)
-  expect(loadPackagedFileMock).toBeCalledWith('/fake/path/scanning/watch.cdix');
+  expect(loadPackagedFileMock).toBeCalledWith(path.resolve(rootedFakeDirectory, 'watch.cdix'));
 });
