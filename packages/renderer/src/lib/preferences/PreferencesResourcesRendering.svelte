@@ -19,6 +19,7 @@ import Tooltip from '../ui/Tooltip.svelte';
 import { filesize } from 'filesize';
 import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
+import PowerIcon from '../ui/PowerIcon.svelte';
 
 interface IContainerStatus {
   status: string;
@@ -32,6 +33,7 @@ interface IProviderContainerConfigurationPropertyRecorded extends IConfiguration
 }
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
+let loggerHandlerKey: symbol | undefined = undefined;
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IContainerStatus>();
 
@@ -328,6 +330,32 @@ function isContainerConnectionStatusInProgress(
                 <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
               </div>
             </div>
+          {/each}
+          {#each provider.kubernetesConnections as kubeConnection}
+          <div class="px-5 py-2 w-[240px]">
+            <div class="text-gray-400 text-xs">
+              Providing Container
+            </div>
+            <div class="flex mt-1">
+              {#if kubeConnection.status === 'started'}
+                <PowerIcon size="19" backgroundColor="#64ad6c" />
+              {:else}
+              <PowerIcon size="19" backgroundColor="#dc0c19" />               
+              {/if}
+              <span class="my-auto ml-2 text-sm">{kubeConnection.name}</span>
+            </div>
+            {#if kubeConnection.status === 'started'}
+            <div class="mt-2">
+              <div class="text-gray-400 text-xs">
+                Kubernetes endpoint API URL
+              </div>
+              <div class="mt-1">
+                <span class="my-auto text-xs">{kubeConnection.endpoint.apiURL}</span>
+              </div>
+            </div>
+            {/if}
+          </div>
+          
           {/each}
         </div>
       </div>
