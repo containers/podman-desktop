@@ -31,6 +31,12 @@ interface IProviderContainerConfigurationPropertyRecorded extends IConfiguration
   providerId: string;
 }
 
+interface IContainerRestart {
+  provider: string;
+  container: string;
+  loggerHandlerKey: symbol;
+}
+
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IContainerStatus>();
@@ -39,6 +45,7 @@ let isStatusUpdated = false;
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 let loggerHandlerKey: symbol | undefined;
+let containersRestarting: IContainerRestart[] = [];
 
 let providersUnsubscribe: Unsubscriber;
 let configurationPropertiesUnsubscribe: Unsubscriber;
@@ -58,11 +65,21 @@ onMount(() => {
           containerConnectionStatus.get(containerConnectionName).status !== container.status
         ) {
           isStatusUpdated = true;
-          containerConnectionStatus.set(containerConnectionName, {
-            inProgress: false,
-            action: undefined,
-            status: container.status,
-          });
+          const restartContainer = isContainerRestarting(provider.internalId, container.name)
+          if (restartContainer) {
+            containerConnectionStatus.set(containerConnectionName, {
+              inProgress: true,
+              action: 'restart',
+              status: container.status,
+            });
+            startContainerProvider(provider, container, restartContainer.loggerHandlerKey);
+          } else {
+            containerConnectionStatus.set(containerConnectionName, {
+              inProgress: false,
+              action: undefined,
+              status: container.status,
+            });
+          }          
         }
       });
     });
@@ -72,6 +89,14 @@ onMount(() => {
     }
   });
 });
+
+function isContainerRestarting(provider: string, container: string): IContainerRestart {
+  const containerToRestart = containersRestarting.filter(c => c.provider === provider && c.container === container)[0];
+  if (containerToRestart) {
+    containersRestarting = containersRestarting.filter(c => c.provider !== provider && c.container !== container);
+  }
+  return containerToRestart;
+}
 
 onDestroy(() => {
   if (providersUnsubscribe) {
@@ -137,7 +162,7 @@ function getLoggerHandler(
 async function startContainerProvider(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
-  loggerHandlerKey?: symbol,
+  loggerHandlerKey?: symbol
 ): Promise<void> {
   try {
     if (containerConnectionInfo.status === 'stopped') {
@@ -147,8 +172,8 @@ async function startContainerProvider(
           `Start ${provider.name} ${containerConnectionInfo.name}`,
           `/preferences/resources`,
           getLoggerHandler(provider, containerConnectionInfo),
-        );
-      }
+        );  
+      }          
       await window.startProviderConnectionLifecycle(
         provider.internalId,
         containerConnectionInfo,
@@ -164,18 +189,15 @@ async function startContainerProvider(
 async function stopContainerProvider(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
-  loggerHandlerKey?: symbol,
 ): Promise<void> {
   try {
-    if (containerConnectionInfo.status === 'started') {
-      if (!loggerHandlerKey) {
-        setContainerStatusIsChanging(provider, 'stop', containerConnectionInfo);
-        loggerHandlerKey = startTask(
-          `Stop ${provider.name} ${containerConnectionInfo.name}`,
-          `/preferences/resources`,
-          getLoggerHandler(provider, containerConnectionInfo),
-        );
-      }
+    if (containerConnectionInfo.status === 'started') {      
+      setContainerStatusIsChanging(provider, 'stop', containerConnectionInfo);
+      const loggerHandlerKey = startTask(
+        `Stop ${provider.name} ${containerConnectionInfo.name}`,
+        `/preferences/resources`,
+        getLoggerHandler(provider, containerConnectionInfo),
+      );      
       await window.stopProviderConnectionLifecycle(
         provider.internalId,
         containerConnectionInfo,
@@ -199,8 +221,12 @@ async function restartContainerProvider(
       `/preferences/resources`,
       getLoggerHandler(provider, containerConnectionInfo),
     );
-    await stopContainerProvider(provider, containerConnectionInfo, loggerHandlerKey);
-    await startContainerProvider(provider, containerConnectionInfo, loggerHandlerKey);
+    await window.stopProviderConnectionLifecycle(
+      provider.internalId, 
+      containerConnectionInfo, 
+      loggerHandlerKey,
+      eventCollect,
+    );
   }
 }
 
