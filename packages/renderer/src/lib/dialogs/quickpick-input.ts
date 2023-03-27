@@ -26,6 +26,7 @@ export interface QuickPickOptions {
   canPickMany: boolean;
   // if true, needs to send the current element when item is selected
   onSelectCallback: boolean;
+  title?: string;
 }
 
 export interface InputBoxOptions {
@@ -36,4 +37,5 @@ export interface InputBoxOptions {
   validate: boolean;
   prompt: string;
   id: number;
+  title?: string;
 }
