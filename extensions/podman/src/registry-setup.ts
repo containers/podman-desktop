@@ -174,11 +174,19 @@ export class RegistrySetup {
     }
 
     return new Promise((resolve, reject) => {
-      fs.readFile(this.getAuthFileLocation(), 'utf8', (err, data) => {
+      fs.readFile(this.getAuthFileLocation(), 'utf-8', (err, data) => {
         if (err) {
           reject(err);
         } else {
-          resolve(JSON.parse(data));
+          let authFile: ContainersAuthConfigFile;
+          try {
+            authFile = JSON.parse(data);
+          } catch (error) {
+            console.error('Error parsing auth file', error);
+            // return empty auth file
+            resolve({});
+          }
+          resolve(authFile);
         }
       });
     });
