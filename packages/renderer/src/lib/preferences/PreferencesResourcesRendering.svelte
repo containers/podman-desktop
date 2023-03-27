@@ -18,6 +18,7 @@ import type { Unsubscriber } from 'svelte/store';
 import Tooltip from '../ui/Tooltip.svelte';
 import { filesize } from 'filesize';
 import { router } from 'tinro';
+import SettingsPage from './SettingsPage.svelte';
 
 interface IContainerStatus {
   status: string;
@@ -178,15 +179,12 @@ function isContainerConnectionStatusInProgress(
 }
 </script>
 
-<div class="flex flex-1 flex-col p-2 bg-zinc-900">
-  <div>
-    <p class="capitalize text-xl">Resources</p>
-    <p class="text-sm text-gray-400">
-      Additional provider information is available under <a
-        href="/preferences/extensions"
-        class="text-gray-400 underline underline-offset-2">Extensions</a>
-    </p>
-  </div>
+<SettingsPage title="Resources">
+  <span slot="subtitle">
+    Additional provider information is available under <a
+      href="/preferences/extensions"
+      class="text-gray-400 underline underline-offset-2">Extensions</a>
+  </span>
   <div>
     {#each $providerInfos as provider}
       <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-600 flex">
@@ -335,4 +333,4 @@ function isContainerConnectionStatusInProgress(
       </div>
     {/each}
   </div>
-</div>
+</SettingsPage>
