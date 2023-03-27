@@ -80,9 +80,11 @@ export class ExtensionLoader {
   private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
   private reloadInProgressExtensions = new Map<string, boolean>();
 
+  protected watchTimeout = 1000;
+
   // Plugins directory location
   private pluginsDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'plugins');
-  private pluginsScanDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'plugins-scanning');
+  protected pluginsScanDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'plugins-scanning');
 
   // Extensions directory location
   private extensionsStorageDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'extensions-storage');
@@ -172,17 +174,31 @@ export class ExtensionLoader {
     }
   }
 
-  async start() {
-    // add watcher to the $HOME/podman-desktop
-
+  protected async setupScanningDirectory(): Promise<void> {
     if (fs.existsSync(this.pluginsScanDirectory)) {
       // add watcher
       fs.watch(this.pluginsScanDirectory, (_, filename) => {
         // need to load the file
         const packagedFile = path.resolve(this.pluginsScanDirectory, filename);
-        setTimeout(() => this.loadPackagedFile(packagedFile), 1000);
+        setTimeout(() => this.loadPackagedFile(packagedFile), this.watchTimeout);
       });
+
+      // scan all files in the directory
+      const entries = await fs.promises.readdir(this.pluginsScanDirectory, { withFileTypes: true });
+      // filter only files
+      const files = entries
+        .filter(entry => entry.isFile())
+        .filter(entry => entry.name.endsWith('.cdix'))
+        .map(file => path.join(this.pluginsScanDirectory, file.name));
+
+      // load all files
+      await Promise.all(files.map(file => this.loadPackagedFile(file)));
     }
+  }
+
+  async start() {
+    // Scan the plugins-scanning directory
+    await this.setupScanningDirectory();
 
     // Create the extensions storage directory if it does not exist
     if (!fs.existsSync(this.extensionsStorageDirectory)) {
