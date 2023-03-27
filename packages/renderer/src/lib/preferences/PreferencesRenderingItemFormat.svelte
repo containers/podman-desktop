@@ -248,14 +248,14 @@ function canIncrement(value: number | string, maximumValue?: number | string) {
         {/each}
       </select>
     {:else if record.type === 'number' && typeof record.maximum === 'number'}
-      <input 
-        id="input-slider-{record.id}" 
-        type="range"        
+      <input
+        id="input-slider-{record.id}"
+        type="range"
         min="{record.minimum}"
         max="{record.maximum}"
         value="{record.default}"
         on:input="{event => setRecordValue(record.id, event.target.value)}"
-        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs " />
+        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs" />
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"

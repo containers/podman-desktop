@@ -31,7 +31,7 @@ export let callback: (
   tokenId?: number,
 ) => Promise<void>;
 
-$: configurationValues = new Map<string, string>(); 
+$: configurationValues = new Map<string, string>();
 let creationInProgress = false;
 let creationStarted = false;
 let creationSuccessful = false;
@@ -64,34 +64,34 @@ onMount(async () => {
   osCpu = await window.getOsCpu();
   osFreeDisk = await window.getOsFreeDiskSize();
   configurationKeys = properties
-  .filter(property => property.scope === propertyScope)
-  .filter(property => property.id.startsWith(providerInfo.id))
-  .map(property => {
-    switch (property.maximum) {
-      case 'HOST_TOTAL_DISKSIZE': {
-        if (osFreeDisk) {
-          property.maximum = osFreeDisk;  
-        }            
-        break;
+    .filter(property => property.scope === propertyScope)
+    .filter(property => property.id.startsWith(providerInfo.id))
+    .map(property => {
+      switch (property.maximum) {
+        case 'HOST_TOTAL_DISKSIZE': {
+          if (osFreeDisk) {
+            property.maximum = osFreeDisk;
+          }
+          break;
+        }
+        case 'HOST_TOTAL_MEMORY': {
+          if (osMemory) {
+            property.maximum = osMemory;
+          }
+          break;
+        }
+        case 'HOST_TOTAL_CPU': {
+          if (osCpu) {
+            property.maximum = osCpu;
+          }
+          break;
+        }
+        default: {
+          break;
+        }
       }
-      case 'HOST_TOTAL_MEMORY': {
-        if (osMemory) {
-          property.maximum = osMemory;
-        }        
-        break;
-      }
-      case 'HOST_TOTAL_CPU': {
-        if (osCpu) {
-          property.maximum = osCpu;
-        }        
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-    return property;
-  });
+      return property;
+    });
   pageIsLoading = false;
 
   // check if we have an existing create action
@@ -166,9 +166,9 @@ async function ended() {
   if (creationCancelled) {
     // the creation has been cancelled
     updateStore();
-    return
+    return;
   }
-  
+
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   creationSuccessful = true;
   updateStore();
@@ -180,7 +180,6 @@ async function cleanup() {
     clearCreateTask(loggerHandlerKey);
     loggerHandlerKey = undefined;
   }
-
 
   errorMessage = undefined;
   showLogs = false;
@@ -242,7 +241,7 @@ async function cancel() {
     await window.cancelToken(tokenId);
     creationCancelled = true;
     tokenId = undefined;
-  }  
+  }
 }
 
 async function close() {
@@ -260,7 +259,7 @@ async function close() {
         <button
           on:click="{() => {
             cleanup();
-            router.goto("/preferences/resources");
+            router.goto('/preferences/resources');
           }}"
           class="pf-c-button pf-m-primary"
           type="button">
@@ -269,35 +268,42 @@ async function close() {
       </div>
     </div>
   {:else}
-  <div class="my-2">
-    {#if providerInfo.images.icon}
-      {#if typeof providerInfo.images.icon === 'string'}
-        <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
-        <!-- TODO check theme used for image, now use dark by default -->
-      {:else}
-        <img src="{providerInfo.images.icon.dark}" alt="{providerInfo.name}" class="max-h-10" />
+    <div class="my-2">
+      {#if providerInfo.images.icon}
+        {#if typeof providerInfo.images.icon === 'string'}
+          <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
+          <!-- TODO check theme used for image, now use dark by default -->
+        {:else}
+          <img src="{providerInfo.images.icon.dark}" alt="{providerInfo.name}" class="max-h-10" />
+        {/if}
       {/if}
-    {/if}
     </div>
-    <h1 class="font-semibold">{creationInProgress ? "Creating" : "Create a"} {providerInfo.name} Machine {creationInProgress ? "..." : ""}</h1>
+    <h1 class="font-semibold">
+      {creationInProgress ? 'Creating' : 'Create a'}
+      {providerInfo.name} Machine {creationInProgress ? '...' : ''}
+    </h1>
     {#if pageIsLoading}
-    <div class="text-center mt-16">
+      <div class="text-center mt-16">
         <div role="status">
-            <Spinner />
+          <Spinner />
         </div>
-    </div>
+      </div>
     {:else}
-      {#if creationInProgress}    
+      {#if creationInProgress}
         <div class="w-4/5 mt-2">
           <div class="mt-2 mb-8">
             <LinearProgress />
             <div class="mt-2 float-right">
-              <button class="text-xs mr-3 hover:underline" on:click="{() => showLogs = !showLogs}">Show Logs <i class="fas {showLogs ? "fa-angle-up" : "fa-angle-down"}" aria-hidden="true"></i></button>
-              <button class="text-xs {errorMessage ? "mr-3" : ""} hover:underline {tokenId ? "" : "hidden"}" disabled="{!tokenId}" on:click="{cancel}">Cancel</button>
-              <button class="text-xs hover:underline {errorMessage ? "" : "hidden"}" on:click="{close}">Close</button>
+              <button class="text-xs mr-3 hover:underline" on:click="{() => (showLogs = !showLogs)}"
+                >Show Logs <i class="fas {showLogs ? 'fa-angle-up' : 'fa-angle-down'}" aria-hidden="true"></i></button>
+              <button
+                class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
+                disabled="{!tokenId}"
+                on:click="{cancel}">Cancel</button>
+              <button class="text-xs hover:underline {errorMessage ? '' : 'hidden'}" on:click="{close}">Close</button>
             </div>
           </div>
-          <div id="log" class="h-80 {showLogs ? "" : "hidden"}">
+          <div id="log" class="h-80 {showLogs ? '' : 'hidden'}">
             <div class="w-full h-full">
               <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
             </div>
@@ -305,22 +311,23 @@ async function close() {
         </div>
       {/if}
       {#if errorMessage}
-      <div class="w-4/5 mt-2">
-        <ErrorMessage error="{errorMessage}" />
-      </div>        
+        <div class="w-4/5 mt-2">
+          <ErrorMessage error="{errorMessage}" />
+        </div>
       {/if}
 
-      <div class="p-3 mt-4 w-4/5 {creationInProgress ? "opacity-40 pointer-events-none": ""}">
+      <div class="p-3 mt-4 w-4/5 {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
         <form novalidate class="pf-c-form p-2" on:submit|preventDefault="{handleOnSubmit}">
           {#each configurationKeys as configurationKey}
             <div class="mb-3">
-              <div class="font-semibold text-xs mb-2">{configurationKey.description}:
-              {#if configurationValues.has(configurationKey.id)}
-                {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
-              {:else}
-                {getDisplayConfigurationValue(configurationKey)}
-              {/if}
-              </div>        
+              <div class="font-semibold text-xs mb-2">
+                {configurationKey.description}:
+                {#if configurationValues.has(configurationKey.id)}
+                  {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
+                {:else}
+                  {getDisplayConfigurationValue(configurationKey)}
+                {/if}
+              </div>
               <PreferencesRenderingItemFormat
                 invalidRecord="{handleInvalidComponent}"
                 validRecord="{handleValidComponent}"
@@ -330,26 +337,27 @@ async function close() {
           {/each}
           <div class="w-full">
             <div class="float-right">
-              <button class="pf-c-button underline hover:text-gray-400"
-                on:click="{() => router.goto("/preferences/resources")}">
+              <button
+                class="pf-c-button underline hover:text-gray-400"
+                on:click="{() => router.goto('/preferences/resources')}">
                 Cancel
               </button>
-              <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">     
-                <div class="mr-24">        
-                  {#if creationInProgress === true}                  
+              <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
+                <div class="mr-24">
+                  {#if creationInProgress === true}
                     <i class="pf-c-button__progress">
                       <span class="pf-c-spinner pf-m-md" role="progressbar">
                         <span class="pf-c-spinner__clipper"></span>
                         <span class="pf-c-spinner__lead-ball"></span>
                         <span class="pf-c-spinner__tail-ball"></span>
                       </span>
-                    </i>                  
-                  {/if}   
-                </div>             
-                Create  
+                    </i>
+                  {/if}
+                </div>
+                Create
               </button>
-            </div>          
-          </div>          
+            </div>
+          </div>
         </form>
       </div>
     {/if}
