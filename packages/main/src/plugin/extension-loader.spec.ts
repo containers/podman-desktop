@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, beforeEach, test, vi } from 'vitest';
+import { beforeAll, beforeEach, test, expect, vi } from 'vitest';
 import type { CommandRegistry } from './command-registry';
 import type { ConfigurationRegistry } from './configuration-registry';
 import type { ContainerProviderRegistry } from './container-registry';
