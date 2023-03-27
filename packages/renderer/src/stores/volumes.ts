@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,36 +46,40 @@ export const filtered = derived([searchPattern, volumeListInfos], ([$searchPatte
 });
 
 // need to refresh when extension is started or stopped
-window.addEventListener('extension-started', () => {
-  fetchVolumes();
+window.addEventListener('extension-started', async () => {
+  await fetchVolumes();
 });
-window.addEventListener('extension-stopped', () => {
-  fetchVolumes();
-});
-
-window?.events.receive('provider-change', () => {
-  fetchVolumes();
-});
-window.addEventListener('system-ready', () => {
-  fetchVolumes();
+window.addEventListener('extension-stopped', async () => {
+  await fetchVolumes();
 });
 
-window.events?.receive('container-stopped-event', () => {
-  fetchVolumes();
+window?.events.receive('provider-change', async () => {
+  await fetchVolumes();
+});
+window.addEventListener('system-ready', async () => {
+  await fetchVolumes();
 });
 
-window.events?.receive('container-die-event', () => {
-  fetchVolumes();
+window.events?.receive('container-stopped-event', async () => {
+  await fetchVolumes();
 });
 
-window.events?.receive('container-kill-event', () => {
-  fetchVolumes();
+window.events?.receive('container-die-event', async () => {
+  await fetchVolumes();
 });
 
-window.events?.receive('container-started-event', () => {
-  fetchVolumes();
+window.events?.receive('container-kill-event', async () => {
+  await fetchVolumes();
 });
 
-window.events?.receive('volume-event', () => {
-  fetchVolumes();
+window.events?.receive('container-started-event', async () => {
+  await fetchVolumes();
+});
+
+window.events?.receive('container-removed-event', async () => {
+  await fetchVolumes();
+});
+
+window.events?.receive('volume-event', async () => {
+  await fetchVolumes();
 });
