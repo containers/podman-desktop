@@ -328,7 +328,7 @@ function isContainerConnectionStatusInProgress(
               </div>
               {#if kubeConnection.status === 'started'}
                 <div class="mt-2">
-                  <div class="text-gray-400 text-xs">Kubernetes endpoint API URL</div>
+                  <div class="text-gray-400 text-xs">Kubernetes endpoint</div>
                   <div class="mt-1">
                     <span class="my-auto text-xs">{kubeConnection.endpoint.apiURL}</span>
                   </div>
