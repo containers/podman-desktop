@@ -37,6 +37,7 @@ export class TaskManager {
       status: task.status,
       hasGotoTask: false,
       age: `${humanizeDuration(new Date().getTime() - task.started, { round: true, largest: 1 })} ago`,
+      error: task.error,
     };
 
     if (task.status === 'in-progress') {

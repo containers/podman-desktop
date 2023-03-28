@@ -13,6 +13,7 @@ const dispatch = createEventDispatcher();
 let taskUI: TaskUI;
 $: taskUI = taskManager.toTaskUi(task);
 
+let showError = false;
 let icon;
 let iconColor;
 onMount(() => {
@@ -62,6 +63,9 @@ function gotoTask(taskUI: TaskUI) {
         {/if}
       </div>
     </div>
+    {#if taskUI.error}
+      <div class:hidden="{!showError}" class="text-xs my-2 break-words">{taskUI.error}</div>
+    {/if}
     <!-- age -->
     <div class="text-gray-400 text-xs">{taskUI.age}</div>
 
@@ -86,8 +90,15 @@ function gotoTask(taskUI: TaskUI) {
 
     <!-- if failed task, display the error-->
     {#if taskUI.status === 'failure'}
-      <div class="flex flex-col w-full items-end text-purple-300 text-xs">
-        <div>View Error ></div>
+      <div class="flex flex-col w-full items-end">
+        <button on:click="{() => showError = !showError}" class="text-purple-300 text-xs">
+          View Error 
+          {#if showError} 
+            <i class="fas fa-chevron-up" />
+          {:else}
+            <i class="fas fa-chevron-down" />
+          {/if}
+        </button>
       </div>
     {/if}
   </div>

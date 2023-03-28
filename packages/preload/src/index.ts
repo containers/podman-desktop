@@ -511,13 +511,13 @@ function initExposure(): void {
     },
   );
 
-  let onDataCallbacksCreateConnectionId = 0;
+  let onDataCallbacksTaskConnectionId = 0;
 
-  const onDataCallbacksCreateConnectionLogs = new Map<
+  const onDataCallbacksTaskConnectionLogs = new Map<
     number,
     (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void
   >();
-  const onDataCallbacksCreateConnectionKeys = new Map<number, symbol>();
+  const onDataCallbacksTaskConnectionKeys = new Map<number, symbol>();
 
   contextBridge.exposeInMainWorld(
     'createContainerProviderConnection',
@@ -529,14 +529,14 @@ function initExposure(): void {
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
       tokenId?: number,
     ): Promise<void> => {
-      onDataCallbacksCreateConnectionId++;
-      onDataCallbacksCreateConnectionKeys.set(onDataCallbacksCreateConnectionId, key);
-      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, keyLogger);
+      onDataCallbacksTaskConnectionId++;
+      onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
+      onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
       return ipcInvoke(
         'provider-registry:createContainerProviderConnection',
         internalProviderId,
         params,
-        onDataCallbacksCreateConnectionId,
+        onDataCallbacksTaskConnectionId,
         tokenId,
       );
     },
@@ -551,24 +551,24 @@ function initExposure(): void {
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
     ): Promise<void> => {
-      onDataCallbacksCreateConnectionId++;
-      onDataCallbacksCreateConnectionKeys.set(onDataCallbacksCreateConnectionId, key);
-      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, keyLogger);
+      onDataCallbacksTaskConnectionId++;
+      onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
+      onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
       return ipcInvoke(
         'provider-registry:createKubernetesProviderConnection',
         internalProviderId,
         params,
-        onDataCallbacksCreateConnectionId,
+        onDataCallbacksTaskConnectionId,
       );
     },
   );
 
   ipcRenderer.on(
-    'provider-registry:createConnection-onData',
-    (_, onDataCallbacksCreateConnectionId: number, channel: string, data: unknown[]) => {
+    'provider-registry:taskConnection-onData',
+    (_, onDataCallbacksTaskConnectionId: number, channel: string, data: unknown[]) => {
       // grab callback from the map
-      const callback = onDataCallbacksCreateConnectionLogs.get(onDataCallbacksCreateConnectionId);
-      const key = onDataCallbacksCreateConnectionKeys.get(onDataCallbacksCreateConnectionId);
+      const callback = onDataCallbacksTaskConnectionLogs.get(onDataCallbacksTaskConnectionId);
+      const key = onDataCallbacksTaskConnectionKeys.get(onDataCallbacksTaskConnectionId);
       if (callback && key) {
         if (channel === 'log') {
           callback(key, 'log', data);
@@ -585,33 +585,45 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'startProviderConnectionLifecycle',
-    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<void> => {
+    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo, key: symbol, keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void): Promise<void> => {
+      onDataCallbacksTaskConnectionId++;
+      onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
+      onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
       return ipcInvoke(
         'provider-registry:startProviderConnectionLifecycle',
         providerId,
         providerContainerConnectionInfo,
+        onDataCallbacksTaskConnectionId
       );
     },
   );
 
   contextBridge.exposeInMainWorld(
     'stopProviderConnectionLifecycle',
-    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<void> => {
+    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo, key: symbol, keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void): Promise<void> => {
+      onDataCallbacksTaskConnectionId++;
+      onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
+      onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
       return ipcInvoke(
         'provider-registry:stopProviderConnectionLifecycle',
         providerId,
         providerContainerConnectionInfo,
+        onDataCallbacksTaskConnectionId
       );
     },
   );
 
   contextBridge.exposeInMainWorld(
     'deleteProviderConnectionLifecycle',
-    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<void> => {
+    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo, key: symbol, keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void): Promise<void> => {
+      onDataCallbacksTaskConnectionId++;
+      onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
+      onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
       return ipcInvoke(
         'provider-registry:deleteProviderConnectionLifecycle',
         providerId,
         providerContainerConnectionInfo,
+        onDataCallbacksTaskConnectionId
       );
     },
   );

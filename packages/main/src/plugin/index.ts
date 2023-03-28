@@ -1184,8 +1184,11 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        loggerId: string
       ): Promise<void> => {
-        return providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        logger.onEnd();
       },
     );
 
@@ -1195,8 +1198,11 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        loggerId: string
       ): Promise<void> => {
-        return providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        logger.onEnd();
       },
     );
 
@@ -1206,8 +1212,11 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        loggerId: string
       ): Promise<void> => {
-        return providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        logger.onEnd();
       },
     );
 
@@ -1220,7 +1229,7 @@ export class PluginSystem {
         loggerId: string,
         tokenId?: number,
       ): Promise<void> => {
-        const logger = this.getLogHandlerCreateConnection(loggerId);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
         let token;
         if (tokenId) {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
@@ -1239,7 +1248,7 @@ export class PluginSystem {
         params: { [key: string]: unknown },
         loggerId: string,
       ): Promise<void> => {
-        const logger = this.getLogHandlerCreateConnection(loggerId);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
 
         await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger);
         logger.onEnd();
@@ -1352,19 +1361,19 @@ export class PluginSystem {
     return this.extensionLoader;
   }
 
-  getLogHandlerCreateConnection(loggerId: string): LoggerWithEnd {
+  getLogHandlerCreateConnection(channel: string, loggerId: string): LoggerWithEnd {
     return {
       log: (...data: unknown[]) => {
-        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'log', data);
+        this.getWebContentsSender().send(channel, loggerId, 'log', data);
       },
       warn: (...data: unknown[]) => {
-        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'warn', data);
+        this.getWebContentsSender().send(channel, loggerId, 'warn', data);
       },
       error: (...data: unknown[]) => {
-        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'error', data);
+        this.getWebContentsSender().send(channel, loggerId, 'error', data);
       },
       onEnd: () => {
-        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'finish');
+        this.getWebContentsSender().send(channel, loggerId, 'finish');
       },
     };
   }

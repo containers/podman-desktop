@@ -20,10 +20,14 @@ import { filesize } from 'filesize';
 import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
+import { ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
+import { createConnectionsInfo } from '/@/stores/create-connections';
 
 interface IContainerStatus {
   status: string;
   inProgress: boolean;
+  failedAction?: string;
+  error?: string;
 }
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
@@ -37,6 +41,7 @@ let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IContainerStatus>();
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
+let loggerHandlerKey: symbol | undefined;
 
 let providersUnsubscribe: Unsubscriber;
 let configurationPropertiesUnsubscribe: Unsubscriber;
@@ -113,23 +118,64 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration
     return map;
   }, new Map<string, IProviderContainerConfigurationPropertyRecorded[]>());
 
+function getLoggerHandler(provider: ProviderInfo, containerConnectionInfo: ProviderContainerConnectionInfo): ConnectionCallback {
+  return {
+    log: () => {},
+    warn: () => {},
+    error: args => {
+      setContainerStatusUpdateFailed(provider, containerConnectionInfo, 'start', args);
+    },
+    onEnd: () => {},
+  };
+}
+
+// store the key
+function updateStore(providerInfo: ProviderInfo, propertyScope: string, inProgress: boolean, successful: boolean, started: boolean, error: string) {
+  createConnectionsInfo.set({
+    createKey: loggerHandlerKey,
+    providerInfo,
+    properties,
+    propertyScope,
+    creationInProgress: inProgress,
+    creationSuccessful: successful,
+    creationStarted: started,
+    errorMessage: error,
+  });
+}
+
 async function startContainerProvider(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
+  loggerHandlerKey?: symbol
 ): Promise<void> {
   if (containerConnectionInfo.status === 'stopped') {
     setContainerStatusIsChanging(provider, containerConnectionInfo);
-    await window.startProviderConnectionLifecycle(provider.internalId, containerConnectionInfo);
-  }
+    if (!loggerHandlerKey) {
+      loggerHandlerKey = startTask(
+        `Start ${provider.name} ${containerConnectionInfo.name}`,
+        `/preferences/resources`,
+        getLoggerHandler(provider, containerConnectionInfo),
+      );
+    }    
+    await window.startProviderConnectionLifecycle(provider.internalId, containerConnectionInfo, loggerHandlerKey, eventCollect);
+  }  
 }
 
 async function stopContainerProvider(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
+  loggerHandlerKey?: symbol
 ): Promise<void> {
   if (containerConnectionInfo.status === 'started') {
     setContainerStatusIsChanging(provider, containerConnectionInfo);
-    await window.stopProviderConnectionLifecycle(provider.internalId, containerConnectionInfo);
+    if (!loggerHandlerKey) {
+      loggerHandlerKey = startTask(
+        `Stop ${provider.name} ${containerConnectionInfo.name}`,
+        `/preferences/resources`,
+        getLoggerHandler(provider, containerConnectionInfo),
+      );
+    }    
+    await window.stopProviderConnectionLifecycle(provider.internalId, containerConnectionInfo, loggerHandlerKey, eventCollect);
   }
 }
 
@@ -137,8 +183,13 @@ async function restartContainerProvider(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
 ): Promise<void> {
-  await stopContainerProvider(provider, containerConnectionInfo);
-  await startContainerProvider(provider, containerConnectionInfo);
+  const loggerHandlerKey = startTask(
+    `Restart ${provider.name} ${containerConnectionInfo.name}`,
+    `/preferences/resources`,
+    getLoggerHandler(provider, containerConnectionInfo),
+  );
+  await stopContainerProvider(provider, containerConnectionInfo, loggerHandlerKey);
+  await startContainerProvider(provider, containerConnectionInfo, loggerHandlerKey);
 }
 
 async function deleteContainerProvider(
@@ -147,7 +198,12 @@ async function deleteContainerProvider(
 ): Promise<void> {
   if (containerConnectionInfo.status === 'stopped' || containerConnectionInfo.status === 'unknown') {
     setContainerStatusIsChanging(provider, containerConnectionInfo);
-    await window.deleteProviderConnectionLifecycle(provider.internalId, containerConnectionInfo);
+    const loggerHandlerKey = startTask(
+      `Delete ${provider.name} ${containerConnectionInfo.name}`,
+      `/preferences/resources`,
+      getLoggerHandler(provider, containerConnectionInfo),
+    );
+    await window.deleteProviderConnectionLifecycle(provider.internalId, containerConnectionInfo, loggerHandlerKey, eventCollect);
   }
 }
 
@@ -158,6 +214,22 @@ function setContainerStatusIsChanging(
   containerConnectionStatus.set(getContainerConnectionName(provider, containerConnectionInfo), {
     inProgress: true,
     status: containerConnectionInfo.status,
+  });
+  containerConnectionStatus = containerConnectionStatus;
+}
+
+function setContainerStatusUpdateFailed(
+  provider: ProviderInfo,
+  containerConnectionInfo: ProviderContainerConnectionInfo,
+  failedAction: string,
+  error: string
+): void {
+  const containerConnectionName = getContainerConnectionName(provider, containerConnectionInfo);
+  const currentStatus = containerConnectionStatus.get(containerConnectionName);
+  containerConnectionStatus.set(containerConnectionName, {
+    ...currentStatus,
+    failedAction,
+    error,
   });
   containerConnectionStatus = containerConnectionStatus;
 }
@@ -231,6 +303,12 @@ function isContainerConnectionStatusInProgress(
               </div>
               <div class="flex">
                 <ConnectionStatus status="{container.status}" />
+                {#if containerConnectionStatus.has(getContainerConnectionName(provider, container))}
+                  {@const status = containerConnectionStatus.get(getContainerConnectionName(provider, container))}
+                  {#if status.error}
+                    <button class="ml-3 text-[9px] text-red-500 underline" on:click="{() => window.events?.send('toggle-task-manager', '')}">{status.failedAction} failed</button>
+                  {/if}
+                {/if}
               </div>
 
               {#if providerContainerConfiguration.has(provider.internalId)}

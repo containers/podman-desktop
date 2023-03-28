@@ -638,6 +638,7 @@ export class ProviderRegistry {
   async startProviderConnection(
     internalProviderId: string,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    logHandler: Logger
   ): Promise<void> {
     // grab the correct provider
     const connection = this.getMatchingContainerConnectionFromProvider(
@@ -655,12 +656,13 @@ export class ProviderRegistry {
       throw new Error('The connection does not have context to start');
     }
 
-    return lifecycle.start(context);
+    return lifecycle.start(context, logHandler);
   }
 
   async stopProviderConnection(
     internalProviderId: string,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    logHandler: Logger
   ): Promise<void> {
     // grab the correct provider
     const connection = this.getMatchingContainerConnectionFromProvider(
@@ -678,12 +680,13 @@ export class ProviderRegistry {
       throw new Error('The connection does not have context to start');
     }
 
-    return lifecycle.stop(context);
+    return lifecycle.stop(context, logHandler);
   }
 
   async deleteProviderConnection(
     internalProviderId: string,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    logHandler: Logger
   ): Promise<void> {
     // grab the correct provider
     const connection = this.getMatchingContainerConnectionFromProvider(
@@ -696,7 +699,7 @@ export class ProviderRegistry {
       throw new Error('The container connection does not support delete lifecycle');
     }
     this.telemetryService.track('deleteProviderConnection', { name: providerContainerConnectionInfo.name });
-    return lifecycle.delete();
+    return lifecycle.delete(logHandler);
   }
 
   onDidRegisterContainerConnectionCallback(

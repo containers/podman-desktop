@@ -17,7 +17,7 @@
  ***********************************************************************/
 import { spawn } from 'node:child_process';
 import { isMac, isWindows } from './util';
-import type { CancellationToken, Logger } from '@podman-desktop/api';
+import { CancellationToken, Logger, window } from '@podman-desktop/api';
 import { configuration } from '@podman-desktop/api';
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
@@ -99,6 +99,8 @@ export function execPromise(
       if (stdErr && stdErr !== '') {
         content += stdErr + '\n';
       }
+      options?.logger?.error(content);
+      showNotification(content);
       reject(content + error);
     });
     process.stdout.setEncoding('utf8');
@@ -110,6 +112,7 @@ export function execPromise(
     process.stderr.on('data', data => {
       stdErr += data;
       options?.logger?.error(data);
+      showNotification(data);
     });
 
     process.on('close', exitCode => {
@@ -126,6 +129,14 @@ export function execPromise(
       }
       resolve(stdOut.trim());
     });
+  });
+}
+
+function showNotification(body: string) {
+  window.showNotification({
+    silent: false,
+    title: "Podman machine",
+    body
   });
 }
 

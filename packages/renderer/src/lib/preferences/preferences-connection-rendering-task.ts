@@ -20,15 +20,15 @@ import { createConnectionsInfo } from '/@/stores/create-connections';
 import { router } from 'tinro';
 
 import type { Logger as LoggerType } from '@podman-desktop/api';
-import type { Task } from '/@/stores/tasks';
+import { Task } from '/@/stores/tasks';
 import { createTask, removeTask } from '/@/stores/tasks';
 
-export interface CreateConnectionCallback extends LoggerType {
+export interface ConnectionCallback extends LoggerType {
   // when build is finished, this function is called
   onEnd: () => void;
 }
 
-export interface CreateReplay {
+export interface TaskReplay {
   // log replay
   log: string[][];
 
@@ -42,7 +42,7 @@ export interface CreateReplay {
   end: boolean;
 }
 
-export interface CreateHold {
+export interface TaskHold {
   // log replay
   log: string[][];
 
@@ -57,41 +57,40 @@ export interface CreateHold {
 }
 
 // map by build id
-const createLogCallbacks = new Map<symbol, CreateConnectionCallback>();
-const createLogOnHolds = new Map<symbol, CreateHold>();
-const createLogReplays = new Map<symbol, CreateReplay>();
+const taskLogCallbacks = new Map<symbol, ConnectionCallback>();
+const taskLogOnHolds = new Map<symbol, TaskHold>();
+const taskLogReplays = new Map<symbol, TaskReplay>();
 const allTasks = new Map<symbol, Task>();
 
-// new create is occuring, needs to compute a new key and prepare replay data
-export function startCreate(
+export function startTask(
   name: string,
-  providerInternalId: string,
-  createCallback: CreateConnectionCallback,
+  goToUrl: string,
+  createCallback: ConnectionCallback
 ): symbol {
   const key = getKey();
-  createLogCallbacks.set(key, createCallback);
+  taskLogCallbacks.set(key, createCallback);
 
   // start a task
   const task = createTask(name);
 
   // go to the images build
   task.gotoTask = () => {
-    router.goto(`/preferences/provider/${providerInternalId}`);
+    router.goto(goToUrl);
   };
 
   // store the task
   allTasks.set(key, task);
 
   // create a new replay value
-  createLogReplays.set(key, { log: [], warn: [], error: [], end: false });
+  taskLogReplays.set(key, { log: [], warn: [], error: [], end: false });
   return key;
 }
 
 // clear all data related to the given build
 export function clearCreateTask(key: symbol): void {
-  createLogCallbacks.delete(key);
-  createLogOnHolds.delete(key);
-  createLogReplays.delete(key);
+  taskLogCallbacks.delete(key);
+  taskLogOnHolds.delete(key);
+  taskLogReplays.delete(key);
   // remove current create
   createConnectionsInfo.set(undefined);
 
@@ -107,58 +106,58 @@ export function clearCreateTask(key: symbol): void {
 // need to store the events
 export function disconnectUI(key: symbol): void {
   // provide on hold events
-  const holdingEvents: CreateHold = { log: [], warn: [], error: [], end: false };
-  createLogOnHolds.set(key, holdingEvents);
+  const holdingEvents: TaskHold = { log: [], warn: [], error: [], end: false };
+  taskLogOnHolds.set(key, holdingEvents);
 
   // remove the current callback
-  createLogCallbacks.delete(key);
+  taskLogCallbacks.delete(key);
 }
 
 // reconnecting the UI, needs to replay events / hold events as well
-export function reconnectUI(key: symbol, createCallback: CreateConnectionCallback): void {
+export function reconnectUI(key: symbol, connectionCallback: ConnectionCallback): void {
   // add the new callback
-  createLogCallbacks.set(key, createCallback);
+  taskLogCallbacks.set(key, connectionCallback);
 
   // replay previous lines
-  const replay = createLogReplays.get(key);
+  const replay = taskLogReplays.get(key);
   if (replay) {
     if (replay.log.length > 0) {
-      createCallback.log(replay.log);
+      connectionCallback.log(replay.log);
     }
     if (replay.warn.length > 0) {
-      createCallback.warn(replay.warn);
+      connectionCallback.warn(replay.warn);
     }
     if (replay.error.length > 0) {
-      createCallback.error(replay.error);
+      connectionCallback.error(replay.error);
     }
   }
 
   // on hold events should be replayed
   // replay the holding results
   let ended = false;
-  const hold = createLogOnHolds.get(key);
+  const hold = taskLogOnHolds.get(key);
   if (hold) {
     if (hold.log.length > 0) {
-      createCallback.log(hold.log);
+      connectionCallback.log(hold.log);
     }
     if (hold.error.length > 0) {
-      createCallback.error(hold.error);
+      connectionCallback.error(hold.error);
     }
     if (hold.warn.length > 0) {
-      createCallback.warn(hold.warn);
+      connectionCallback.warn(hold.warn);
     }
     if (hold.end) {
       ended = true;
-      createCallback.onEnd();
+      connectionCallback.onEnd();
     }
   }
   // ok remove the intermediate events
-  createLogOnHolds.delete(key);
+  taskLogOnHolds.delete(key);
 
   // check if it was ended in the replay
   if (!ended) {
     if (replay && replay.end) {
-      createCallback.onEnd();
+      connectionCallback.onEnd();
     }
   }
 }
@@ -173,6 +172,7 @@ export function eventCollect(key: symbol, eventName: 'log' | 'warn' | 'error' | 
   if (task) {
     if (eventName === 'error') {
       task.status = 'failure';
+      task.error = args.join("\n");
     } else if (eventName === 'finish') {
       if (task.status !== 'failure') {
         task.status = 'success';
@@ -182,7 +182,7 @@ export function eventCollect(key: symbol, eventName: 'log' | 'warn' | 'error' | 
   }
 
   // keep values for replay
-  const replay = createLogReplays.get(key);
+  const replay = taskLogReplays.get(key);
   if (replay) {
     if (eventName === 'log') {
       replay.log.push(args);
@@ -194,11 +194,11 @@ export function eventCollect(key: symbol, eventName: 'log' | 'warn' | 'error' | 
       replay.end = true;
     }
   }
-  const callback = createLogCallbacks.get(key);
+  const callback = taskLogCallbacks.get(key);
 
   if (!callback) {
     // need to store the result for later as no UI is connected
-    const hold = createLogOnHolds.get(key);
+    const hold = taskLogOnHolds.get(key);
     if (hold) {
       if (eventName === 'log') {
         hold.log.push(args);

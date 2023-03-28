@@ -18,19 +18,19 @@
 
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { CreateConnectionCallback } from './preferences-connection-rendering-task';
+import { ConnectionCallback, startTask } from './preferences-connection-rendering-task';
 import { disconnectUI, eventCollect, reconnectUI } from './preferences-connection-rendering-task';
-import { startCreate, clearCreateTask } from './preferences-connection-rendering-task';
+import { clearCreateTask } from './preferences-connection-rendering-task';
 import { tasksInfo } from '/@/stores/tasks';
 
-const dummyCallback: CreateConnectionCallback = {
+const dummyCallback: ConnectionCallback = {
   log: vi.fn(),
   error: vi.fn(),
   warn: vi.fn(),
   onEnd: vi.fn(),
 };
 
-const newCallback: CreateConnectionCallback = {
+const newCallback: ConnectionCallback = {
   log: vi.fn(),
   error: vi.fn(),
   warn: vi.fn(),
@@ -43,7 +43,7 @@ beforeEach(() => {
 
 test('check start build', async () => {
   const id = '1';
-  const key = startCreate('foo', id, dummyCallback);
+  const key = startTask('foo', id, dummyCallback);
   expect(key).toBeDefined();
   const allTasks = get(tasksInfo);
   const matchingTask = allTasks.find(task => task.id === id);
@@ -55,7 +55,7 @@ test('check start build', async () => {
 });
 
 test('check reconnect', async () => {
-  const firstKey = startCreate('bar', '2', dummyCallback);
+  const firstKey = startTask('bar', '2', dummyCallback);
 
   // stream some stuff
   eventCollect(firstKey, 'log', ['hello']);
@@ -75,7 +75,7 @@ test('check reconnect', async () => {
 });
 
 test('check events', async () => {
-  const firstKey = startCreate('baz', '3', dummyCallback);
+  const firstKey = startTask('baz', 'url', dummyCallback);
 
   // stream some stuff
   eventCollect(firstKey, 'log', ['hello']);
