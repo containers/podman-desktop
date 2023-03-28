@@ -4,6 +4,7 @@ import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configu
 
 import PreferencesRenderingItem from './PreferencesRenderingItem.svelte';
 import SettingsPage from './SettingsPage.svelte';
+import Route from '../../Route.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let key: string;
@@ -16,16 +17,18 @@ $: matchingRecords = properties.filter(
 );
 </script>
 
-<SettingsPage title="Preferences">
-  <table class="divide-y divide-zinc-800 min-w-full mt-5 rounded-md p-3">
-    <tbody class="bg-zinc-800 divide-y-8 divide-zinc-900">
-      {#each matchingRecords as record}
-        <tr>
-          <td>
-            <PreferencesRenderingItem record="{record}" />
-          </td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
-</SettingsPage>
+<Route path="/" breadcrumb="{key}" let:meta>
+  <SettingsPage title="Preferences">
+    <table class="divide-y divide-zinc-800 min-w-full mt-5 rounded-md p-3">
+      <tbody class="bg-zinc-800 divide-y-8 divide-zinc-900">
+        {#each matchingRecords as record}
+          <tr>
+            <td>
+              <PreferencesRenderingItem record="{record}" />
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </SettingsPage>
+</Route>

@@ -57,7 +57,7 @@ import type { ContributionInfo } from './api/contribution-info';
 import { ContributionManager } from './contribution-manager';
 import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation';
 import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter';
-import { Telemetry } from './telemetry/telemetry';
+import { PAGE_EVENT_TYPE, Telemetry } from './telemetry/telemetry';
 import { NotificationImpl } from './notification-impl';
 import { StatusBarRegistry } from './statusbar/statusbar-registry';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry';
@@ -1321,6 +1321,15 @@ export class PluginSystem {
       if (!tokenSource?.token.isCancellationRequested) {
         tokenSource?.dispose(true);
       }
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.ipcHandle('telemetry:track', async (_listener, event: string, eventProperties?: any): Promise<void> => {
+      return telemetry.track(event, eventProperties);
+    });
+
+    this.ipcHandle('telemetry:page', async (_listener, name: string): Promise<void> => {
+      return telemetry.track(PAGE_EVENT_TYPE, { name: name });
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
