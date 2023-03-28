@@ -114,7 +114,6 @@ beforeEach(() => {
 
 test('Should watch for files and load them at startup', async () => {
   const fakeDirectory = '/fake/path/scanning';
-  const rootedFakeDirectory = path.resolve(fakeDirectory);
 
   // fake scanning property
   extensionLoader.setPluginsScanDirectory(fakeDirectory);
