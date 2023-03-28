@@ -19,6 +19,7 @@ import Tooltip from '../ui/Tooltip.svelte';
 import { filesize } from 'filesize';
 import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
+import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 
 interface IContainerStatus {
   status: string;
@@ -229,19 +230,7 @@ function isContainerConnectionStatusInProgress(
                 {container.name}
               </div>
               <div class="flex">
-                {#if container.status === 'started'}
-                  <div class="my-auto w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span class="my-auto text-green-500 ml-1 font-bold text-[9px]">RUNNING</span>
-                {:else if container.status === 'starting'}
-                  <div class="my-auto w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span class="my-auto text-green-500 ml-1 font-bold text-[9px]">STARTING</span>
-                {:else if container.status === 'stopped'}
-                  <div class="my-auto w-3 h-3 bg-gray-500 rounded-full"></div>
-                  <span class="my-auto text-gray-500 ml-1 font-bold text-[9px]">OFF</span>
-                {:else}
-                  <div class="my-auto w-3 h-3 bg-gray-500 rounded-full"></div>
-                  <span class="my-auto text-gray-500 ml-1 font-bold text-[9px]">{container.status.toUpperCase()}</span>
-                {/if}
+                <ConnectionStatus status="{container.status}" />
               </div>
 
               {#if providerContainerConfiguration.has(provider.internalId)}
@@ -335,13 +324,7 @@ function isContainerConnectionStatusInProgress(
                 {kubeConnection.name}
               </div>
               <div class="flex mt-1">
-                {#if kubeConnection.status === 'started'}
-                  <div class="my-auto w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span class="my-auto text-green-500 ml-1 font-bold text-[9px]">RUNNING</span>
-                {:else}
-                  <div class="my-auto w-3 h-3 bg-gray-500 rounded-full"></div>
-                  <span class="my-auto text-gray-500 ml-1 font-bold text-[9px]">OFF</span>
-                {/if}
+                <ConnectionStatus status="{kubeConnection.status}" />
               </div>
               {#if kubeConnection.status === 'started'}
                 <div class="mt-2">
