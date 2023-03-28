@@ -38,6 +38,9 @@ const propertyScope = 'FOO';
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
   (window as any).updateConfigurationValue = vi.fn();
+  (window as any).getOsMemory = vi.fn();
+  (window as any).getOsCpu = vi.fn();
+  (window as any).getOsFreeDiskSize = vi.fn();
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
