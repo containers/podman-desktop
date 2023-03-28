@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[1676],{3832:e=>{e.exports=JSON.parse('{"label":"kind","permalink":"/docs/tags/kind","allTagsPath":"/docs/tags","count":1,"items":[{"id":"kubernetes/kind","title":"Kind support","description":"Kind is one way to get Kubernetes running on your workstation.","permalink":"/docs/kubernetes/kind"}]}')}}]);
