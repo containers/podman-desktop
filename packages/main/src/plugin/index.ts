@@ -424,8 +424,14 @@ export class PluginSystem {
       });
 
       autoUpdater.on('error', error => {
-        console.error('unable to check for updates', error);
         updateInProgress = false;
+        // local build not pushed to GitHub so prevent any 'update'
+        if (error?.message?.includes('No published versions on GitHub')) {
+          console.log('Cannot check for updates, no published versions on GitHub');
+          defaultVersionEntry();
+          return;
+        }
+        console.error('unable to check for updates', error);
         dialog.showErrorBox('Error: ', error == null ? 'unknown' : (error.stack || error).toString());
       });
 
