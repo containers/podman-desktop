@@ -19,6 +19,7 @@ import Tooltip from '../ui/Tooltip.svelte';
 import { filesize } from 'filesize';
 import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
+import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 
 interface IContainerStatus {
   status: string;
@@ -203,7 +204,7 @@ function isContainerConnectionStatusInProgress(
               <span class="my-auto text-gray-300 ml-3 break-words">{provider.name}</span>
             </div>
             <div class="text-center mt-10">
-              {#if provider.containerProviderConnectionCreation}
+              {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
                 <!-- create new podman machine button -->
                 <Tooltip tip="Create new {provider.name} machine" bottom>
                   <button
@@ -229,19 +230,7 @@ function isContainerConnectionStatusInProgress(
                 {container.name}
               </div>
               <div class="flex">
-                {#if container.status === 'started'}
-                  <div class="my-auto w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span class="my-auto text-green-500 ml-1 font-bold text-[9px]">RUNNING</span>
-                {:else if container.status === 'starting'}
-                  <div class="my-auto w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span class="my-auto text-green-500 ml-1 font-bold text-[9px]">STARTING</span>
-                {:else if container.status === 'stopped'}
-                  <div class="my-auto w-3 h-3 bg-gray-500 rounded-full"></div>
-                  <span class="my-auto text-gray-500 ml-1 font-bold text-[9px]">OFF</span>
-                {:else}
-                  <div class="my-auto w-3 h-3 bg-gray-500 rounded-full"></div>
-                  <span class="my-auto text-gray-500 ml-1 font-bold text-[9px]">{container.status.toUpperCase()}</span>
-                {/if}
+                <ConnectionStatus status="{container.status}" />
               </div>
 
               {#if providerContainerConfiguration.has(provider.internalId)}
@@ -327,6 +316,24 @@ function isContainerConnectionStatusInProgress(
               <div class="mt-1.5 text-gray-500 text-[9px]">
                 <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
               </div>
+            </div>
+          {/each}
+          {#each provider.kubernetesConnections as kubeConnection}
+            <div class="px-5 py-2 w-[240px]">
+              <div class="text-sm">
+                {kubeConnection.name}
+              </div>
+              <div class="flex mt-1">
+                <ConnectionStatus status="{kubeConnection.status}" />
+              </div>
+              {#if kubeConnection.status === 'started'}
+                <div class="mt-2">
+                  <div class="text-gray-400 text-xs">Kubernetes endpoint</div>
+                  <div class="mt-1">
+                    <span class="my-auto text-xs">{kubeConnection.endpoint.apiURL}</span>
+                  </div>
+                </div>
+              {/if}
             </div>
           {/each}
         </div>
