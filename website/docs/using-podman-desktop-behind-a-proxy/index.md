@@ -57,3 +57,6 @@ You can use Podman Desktop behind a proxy requiring custom Certificate Authoriti
     # cp <your-custom-ca.pem> /etc/pki/ca-trust/source/anchors/
     # update-ca-trust
    ```
+
+1. The configuration changes do not apply to running or stopped containers. 
+   Go to **Containers** and delete all containers that require the proxy settings.
