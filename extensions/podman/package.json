@@ -88,7 +88,7 @@
   "scripts": {
     "build": "rollup --bundleConfigAsCjs --config rollup.config.js --compact --environment BUILD:production && npx ts-node ./scripts/download.ts  && node ./scripts/build.js",
     "watch": "rollup --bundleConfigAsCjs --config rollup.config.js -w",
-    "test": "vitest run --passWithNoTests"
+    "test": "npm run build && vitest run -r src --coverage --passWithNoTests"
   },
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",

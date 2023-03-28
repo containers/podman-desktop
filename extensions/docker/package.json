@@ -20,6 +20,7 @@
   },
   "scripts": {
     "build": "tsc && node ./scripts/build.js",
+    "test": "npm run build && vitest run -r src --coverage --passWithNoTests",
     "watch": "tsc -w"
   },
   "dependencies": {

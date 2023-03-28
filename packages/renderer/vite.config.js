@@ -26,7 +26,7 @@ import { coverageConfig } from '../../vitest-shared-extensions.config';
 
 let filename = fileURLToPath(import.meta.url);
 const PACKAGE_ROOT = path.dirname(filename);
-const PACKAGE_NAME = 'main';
+const PACKAGE_NAME = 'renderer';
 
 // https://vitejs.dev/config/
 export default defineConfig({
