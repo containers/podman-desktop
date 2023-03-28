@@ -55,8 +55,10 @@
     }
   },
   "scripts": {
-    "build": "vite build && node ./scripts/build.js",
-    "watch": "vite build --watch"
+    "build": "tsc && node ./scripts/build.js",    
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch --coverage",
+    "watch": "tsc -w"
   },
   "dependencies": {
     "@podman-desktop/api": "^0.0.1",

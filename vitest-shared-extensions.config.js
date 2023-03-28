@@ -18,6 +18,12 @@
 
 import path from 'node:path';
 
+/**
+ * Default project code coverage configuration for vitest
+ * @param {*} packageRoot root of the project where coverage is being calculated
+ * @param {*} packageName package name to appear in test-resources/coverage in project root folder
+ * @returns object for code coverage configuration
+ */
 export function coverageConfig(packageRoot, packageName) {
   const obj = { coverage: {
       all: true,
@@ -40,4 +46,16 @@ export function coverageConfig(packageRoot, packageName) {
     },
   };
   return obj;
+}
+
+export function testConfig() {
+  return {
+    exclude: [
+      '**/builtin/**',
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.{idea,git,cache,output,temp,cdix}/**',
+      '**/{.electron-builder,babel,changelog,docusaurus,jest,postcss,prettier,rollup,svelte,tailwind,vite,vitest*,webpack}.config.*',
+    ],
+  };
 }

@@ -17,13 +17,14 @@
  ***********************************************************************/
 
 import path from 'node:path';
-import { coverageConfig } from '../../vitest-shared-extensions.config';
+import { coverageConfig, testConfig } from '../../vitest-shared-extensions.config';
 
 const PACKAGE_ROOT = __dirname;
 const PACKAGE_NAME = 'extensions/lima';
 
 const config = {
   test: {
+      ...testConfig(),
       ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
   resolve: {

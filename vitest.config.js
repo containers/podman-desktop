@@ -37,9 +37,8 @@ const config = {
       '**/builtin/**',
       '**/node_modules/**',
       '**/dist/**',
-      '**/cypress/**',
       '**/.{idea,git,cache,output,temp,cdix}/**',
-      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress}.config.*',
+      '**/{.electron-builder,babel,changelog,docusaurus,jest,postcss,prettier,rollup,svelte,tailwind,vite,vitest*,webpack}.config.*',
     ],
 
     /**

@@ -12,8 +12,8 @@
   "source": "./src/extension.ts",
   "scripts": {
     "build": "rollup --bundleConfigAsCjs --config rollup.config.js --compact --environment BUILD:production  && node ./scripts/build.js",
-    "test": "vitest run -r src --coverage --passWithNoTests",
-    "test:watch": "vitest watch -r src --coverage --passWithNoTests",
+    "test": "vitest run --coverage --passWithNoTests",
+    "test:watch": "vitest watch --coverage --passWithNoTests",
     "watch": "rollup --bundleConfigAsCjs --config rollup.config.js -w"
   },
   "dependencies": {
