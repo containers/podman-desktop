@@ -1,7 +1,7 @@
 <script lang="ts">
 import { configurationProperties } from '../../stores/configurationProperties';
 import { onMount } from 'svelte';
-import { Route } from 'tinro';
+import Route from '../../Route.svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import PreferencesRendering from './PreferencesRendering.svelte';
@@ -28,53 +28,52 @@ onMount(async () => {
       .next().value;
 
     if (iterator) {
-      [defaultPrefPageId] = iterator.parentId.split('.')[0];
+      defaultPrefPageId = iterator.parentId.split('.')[0];
     }
   });
 });
 </script>
 
 <div class="flex h-full px-3 py-3 bg-zinc-900">
-  <Route path="/">
+  <Route path="/*" breadcrumb="Preferences">
     {#if defaultPrefPageId !== undefined}
       <PreferencesRendering key="{defaultPrefPageId}" properties="{properties}" />
     {:else}
       empty
     {/if}
   </Route>
-  <Route path="/default/:key" let:meta>
+  <Route path="/default/:key/*" breadcrumb="Preferences" let:meta>
     <PreferencesRendering key="{meta.params.key}" properties="{properties}" />
   </Route>
-  <Route path="/ddExtensions" let:meta>
+  <Route path="/ddExtensions" breadcrumb="Docker Desktop Extensions" let:meta>
     <PreferencesPageDockerExtensions />
   </Route>
-  <Route path="/extensions" let:meta />
-  <Route path="/extension/:extensionId" let:meta>
+  <Route path="/extension/:extensionId/*" breadcrumb="Extensions" let:meta>
     <PreferencesExtensionRendering extensionId="{meta.params.extensionId}" />
   </Route>
-  <Route path="/provider/:providerInternalId" let:meta>
+  <Route path="/provider/:providerInternalId/*" breadcrumb="Resources" let:meta>
     <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
   </Route>
-  <Route path="/resources">
+  <Route path="/resources" breadcrumb="Resources">
     <PreferencesResourcesRendering />
   </Route>
-  <Route path="/registries">
+  <Route path="/registries" breadcrumb="Registries">
     <PreferencesRegistriesEditing />
   </Route>
-  <Route path="/proxies">
+  <Route path="/proxies" breadcrumb="Proxy">
     <PreferencesProxiesRendering />
   </Route>
-  <Route path="/extensions">
+  <Route path="/extensions" breadcrumb="Extensions">
     <ExtensionList />
   </Route>
-  <Route path="/container-connection/" let:meta />
-  <Route path="/container-connection/:provider/:connection" let:meta>
+
+  <Route path="/container-connection/:provider/:connection/*" breadcrumb="Container Engine" let:meta>
     <PreferencesContainerConnectionRendering
       providerInternalId="{meta.params.provider}"
       connection="{meta.params.connection}"
       properties="{properties}" />
   </Route>
-  <Route path="/kubernetes-connection/:provider/:apiUrlBase64" let:meta>
+  <Route path="/kubernetes-connection/:provider/:apiUrlBase64/*" breadcrumb="Kubernetes Engine" let:meta>
     <PreferencesKubernetesConnectionRendering
       providerInternalId="{meta.params.provider}"
       apiUrlBase64="{meta.params.apiUrlBase64}"

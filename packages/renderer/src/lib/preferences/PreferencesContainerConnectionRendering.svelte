@@ -11,6 +11,7 @@ import Modal from '../dialogs/Modal.svelte';
 import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Route from '../../Route.svelte';
 import { filesize } from 'filesize';
 import { ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
 
@@ -165,124 +166,126 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 }
 </script>
 
-<div class="flex flex-1 flex-col bg-zinc-800 px-2">
-  <div class="flex flex-row align-middle my-4">
-    <div class="capitalize text-xl">{connectionName} settings</div>
-    {#if providerInfo?.containerProviderConnectionCreation}
-      <div class="flex-1 ml-10">
-        <button
-          on:click="{() => createNewConnection(providerInfo.internalId)}"
-          class="pf-c-button pf-m-secondary"
-          type="button">
-          <span class="pf-c-button__icon pf-m-start">
-            <i class="fas fa-plus-circle" aria-hidden="true"></i>
-          </span>
-          Create New
-        </button>
-      </div>
-    {/if}
-  </div>
-  <p class="capitalize text-sm">provider: {providerInfo?.name}</p>
-
-  <!-- Display lifecycle -->
-  {#if containerConnectionInfo?.lifecycleMethods && containerConnectionInfo.lifecycleMethods.length > 0}
-    <div class="py-2 flex flex:row">
-      <!-- start is enabled only in stopped mode-->
-      {#if containerConnectionInfo.lifecycleMethods.includes('start')}
-        <div class="px-2 text-sm italic text-gray-400">
+<Route path="/*" breadcrumb="{connectionName} Settings" let:meta>
+  <div class="flex flex-1 flex-col bg-zinc-800 px-2">
+    <div class="flex flex-row align-middle my-4">
+      <div class="capitalize text-xl">{connectionName} settings</div>
+      {#if providerInfo?.containerProviderConnectionCreation}
+        <div class="flex-1 ml-10">
           <button
-            disabled="{containerConnectionInfo.status !== 'stopped'}"
-            on:click="{() => startConnection()}"
-            class="pf-c-button pf-m-primary"
-            type="button">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-play" aria-hidden="true"></i>
-            </span>
-            Start
-          </button>
-        </div>
-      {/if}
-
-      <!-- stop is enabled only in started mode-->
-      {#if containerConnectionInfo.lifecycleMethods.includes('stop')}
-        <div class="px-2 text-sm italic text-gray-400">
-          <button
-            disabled="{containerConnectionInfo.status !== 'started'}"
-            on:click="{() => stopConnection()}"
-            class="pf-c-button pf-m-primary"
-            type="button">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-stop" aria-hidden="true"></i>
-            </span>
-            Stop
-          </button>
-        </div>
-      {/if}
-
-      <!-- delete is disabled if it is running-->
-      {#if containerConnectionInfo.lifecycleMethods.includes('delete')}
-        <div class="px-2 text-sm italic text-gray-400">
-          <button
-            disabled="{containerConnectionInfo.status !== 'stopped'}"
-            on:click="{() => deleteConnection()}"
+            on:click="{() => createNewConnection(providerInfo.internalId)}"
             class="pf-c-button pf-m-secondary"
             type="button">
             <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-trash" aria-hidden="true"></i>
+              <i class="fas fa-plus-circle" aria-hidden="true"></i>
             </span>
-            Delete
+            Create New
           </button>
         </div>
       {/if}
-      <div class="px-2 text-sm italic text-gray-400">
-        <button
-          type="button"
-          disabled="{containerConnectionInfo.status !== 'started'}"
-          on:click="{() => {
-            showModal = providerInfo;
-          }}"
-          class="pf-c-button pf-m-secondary">
-          <span class="pf-c-button__icon pf-m-start">
-            <i class="fas fa-history" aria-hidden="true"></i>
-          </span>
-          Show Logs
-        </button>
-      </div>
     </div>
+    <p class="capitalize text-sm">provider: {providerInfo?.name}</p>
 
-    {#if lifecycleError}
-      <ErrorMessage error="{lifecycleError}" />
+    <!-- Display lifecycle -->
+    {#if containerConnectionInfo?.lifecycleMethods && containerConnectionInfo.lifecycleMethods.length > 0}
+      <div class="py-2 flex flex:row">
+        <!-- start is enabled only in stopped mode-->
+        {#if containerConnectionInfo.lifecycleMethods.includes('start')}
+          <div class="px-2 text-sm italic text-gray-400">
+            <button
+              disabled="{containerConnectionInfo.status !== 'stopped'}"
+              on:click="{() => startConnection()}"
+              class="pf-c-button pf-m-primary"
+              type="button">
+              <span class="pf-c-button__icon pf-m-start">
+                <i class="fas fa-play" aria-hidden="true"></i>
+              </span>
+              Start
+            </button>
+          </div>
+        {/if}
+
+        <!-- stop is enabled only in started mode-->
+        {#if containerConnectionInfo.lifecycleMethods.includes('stop')}
+          <div class="px-2 text-sm italic text-gray-400">
+            <button
+              disabled="{containerConnectionInfo.status !== 'started'}"
+              on:click="{() => stopConnection()}"
+              class="pf-c-button pf-m-primary"
+              type="button">
+              <span class="pf-c-button__icon pf-m-start">
+                <i class="fas fa-stop" aria-hidden="true"></i>
+              </span>
+              Stop
+            </button>
+          </div>
+        {/if}
+
+        <!-- delete is disabled if it is running-->
+        {#if containerConnectionInfo.lifecycleMethods.includes('delete')}
+          <div class="px-2 text-sm italic text-gray-400">
+            <button
+              disabled="{containerConnectionInfo.status !== 'stopped'}"
+              on:click="{() => deleteConnection()}"
+              class="pf-c-button pf-m-secondary"
+              type="button">
+              <span class="pf-c-button__icon pf-m-start">
+                <i class="fas fa-trash" aria-hidden="true"></i>
+              </span>
+              Delete
+            </button>
+          </div>
+        {/if}
+        <div class="px-2 text-sm italic text-gray-400">
+          <button
+            type="button"
+            disabled="{containerConnectionInfo.status !== 'started'}"
+            on:click="{() => {
+              showModal = providerInfo;
+            }}"
+            class="pf-c-button pf-m-secondary">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-history" aria-hidden="true"></i>
+            </span>
+            Show Logs
+          </button>
+        </div>
+      </div>
+
+      {#if lifecycleError}
+        <ErrorMessage error="{lifecycleError}" />
+      {/if}
     {/if}
-  {/if}
 
-  {#each connectionSettings as connectionSetting}
-    <!--key is {connectionSetting.id} and value {connectionSetting.value}  <br />-->
-    {#if connectionSetting.format === 'cpu'}
+    {#each connectionSettings as connectionSetting}
+      <!--key is {connectionSetting.id} and value {connectionSetting.value}  <br />-->
+      {#if connectionSetting.format === 'cpu'}
+        <div class="pl-1 py-2">
+          <div class="text-sm italic text-gray-400">{connectionSetting.description}</div>
+          <div class="pl-3">{connectionSetting.value}</div>
+        </div>
+      {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
+        <div class="pl-1 py-2">
+          <div class="text-sm italic text-gray-400">{connectionSetting.description}</div>
+          <div class="pl-3">{filesize(connectionSetting.value)}</div>
+        </div>
+      {:else}
+        {connectionSetting.description}: {connectionSetting.value}
+      {/if}
+    {/each}
+
+    {#if containerConnectionInfo}
       <div class="pl-1 py-2">
-        <div class="text-sm italic text-gray-400">{connectionSetting.description}</div>
-        <div class="pl-3">{connectionSetting.value}</div>
+        <div class="text-sm italic text-gray-400">Status</div>
+        <div class="pl-3">{containerConnectionInfo.status}</div>
       </div>
-    {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
       <div class="pl-1 py-2">
-        <div class="text-sm italic text-gray-400">{connectionSetting.description}</div>
-        <div class="pl-3">{filesize(connectionSetting.value)}</div>
+        <div class="text-sm italic text-gray-400">Socket</div>
+        <div class="pl-3">{containerConnectionInfo.endpoint.socketPath}</div>
       </div>
-    {:else}
-      {connectionSetting.description}: {connectionSetting.value}
     {/if}
-  {/each}
-
-  {#if containerConnectionInfo}
-    <div class="pl-1 py-2">
-      <div class="text-sm italic text-gray-400">Status</div>
-      <div class="pl-3">{containerConnectionInfo.status}</div>
-    </div>
-    <div class="pl-1 py-2">
-      <div class="text-sm italic text-gray-400">Socket</div>
-      <div class="pl-3">{containerConnectionInfo.endpoint.socketPath}</div>
-    </div>
-  {/if}
-</div>
+  </div>
+</Route>
 {#if showModal}
   <Modal
     on:close="{() => {

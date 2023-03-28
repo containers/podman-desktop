@@ -11,6 +11,7 @@ import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
 import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Route from '../../Route.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -62,87 +63,89 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 }
 </script>
 
-<div class="flex flex-1 flex-col bg-zinc-800 px-2 py-1">
-  <h1 class="capitalize text-xl">{providerInfo?.name} Provider</h1>
+<Route path="/*" breadcrumb="{providerInfo?.name}" let:meta>
+  <div class="flex flex-1 flex-col bg-zinc-800 px-2 py-1">
+    <h1 class="capitalize text-xl">{providerInfo?.name} Provider</h1>
 
-  <!-- Manage lifecycle-->
-  {#if providerInfo?.lifecycleMethods}
-    <div class="pl-1 py-2">
-      <div class="text-sm italic text-gray-400">Status</div>
-      <div class="pl-3">{providerInfo.status}</div>
-    </div>
-
-    <div class="py-2 flex flex:row">
-      <!-- start is enabled only in stopped mode-->
-      {#if providerInfo?.lifecycleMethods.includes('start')}
-        <div class="px-2 text-sm italic text-gray-400">
-          <button
-            disabled="{providerInfo.status !== 'stopped'}"
-            on:click="{() => startProvider()}"
-            class="pf-c-button pf-m-primary"
-            type="button">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-play" aria-hidden="true"></i>
-            </span>
-            Start
-          </button>
-        </div>
-      {/if}
-
-      <!-- stop is enabled only in started mode-->
-      {#if providerInfo.lifecycleMethods.includes('stop')}
-        <div class="px-2 text-sm italic text-gray-400">
-          <button
-            disabled="{providerInfo.status !== 'started'}"
-            on:click="{() => stopProvider()}"
-            class="pf-c-button pf-m-primary"
-            type="button">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-stop" aria-hidden="true"></i>
-            </span>
-            Stop
-          </button>
-        </div>
-      {/if}
-      <div class="px-2 text-sm italic text-gray-400">
-        <button
-          type="button"
-          on:click="{() => {
-            showModal = providerInfo;
-            // startReceivinLogs(providerInfo);
-          }}"
-          class="pf-c-button pf-m-secondary">
-          <span class="pf-c-button__icon pf-m-start">
-            <i class="fas fa-history" aria-hidden="true"></i>
-          </span>
-          Show Logs
-        </button>
+    <!-- Manage lifecycle-->
+    {#if providerInfo?.lifecycleMethods}
+      <div class="pl-1 py-2">
+        <div class="text-sm italic text-gray-400">Status</div>
+        <div class="pl-3">{providerInfo.status}</div>
       </div>
-    </div>
 
-    {#if providerLifecycleError}
-      <ErrorMessage error="{providerLifecycleError}" />
+      <div class="py-2 flex flex:row">
+        <!-- start is enabled only in stopped mode-->
+        {#if providerInfo?.lifecycleMethods.includes('start')}
+          <div class="px-2 text-sm italic text-gray-400">
+            <button
+              disabled="{providerInfo.status !== 'stopped'}"
+              on:click="{() => startProvider()}"
+              class="pf-c-button pf-m-primary"
+              type="button">
+              <span class="pf-c-button__icon pf-m-start">
+                <i class="fas fa-play" aria-hidden="true"></i>
+              </span>
+              Start
+            </button>
+          </div>
+        {/if}
+
+        <!-- stop is enabled only in started mode-->
+        {#if providerInfo.lifecycleMethods.includes('stop')}
+          <div class="px-2 text-sm italic text-gray-400">
+            <button
+              disabled="{providerInfo.status !== 'started'}"
+              on:click="{() => stopProvider()}"
+              class="pf-c-button pf-m-primary"
+              type="button">
+              <span class="pf-c-button__icon pf-m-start">
+                <i class="fas fa-stop" aria-hidden="true"></i>
+              </span>
+              Stop
+            </button>
+          </div>
+        {/if}
+        <div class="px-2 text-sm italic text-gray-400">
+          <button
+            type="button"
+            on:click="{() => {
+              showModal = providerInfo;
+              // startReceivinLogs(providerInfo);
+            }}"
+            class="pf-c-button pf-m-secondary">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-history" aria-hidden="true"></i>
+            </span>
+            Show Logs
+          </button>
+        </div>
+      </div>
+
+      {#if providerLifecycleError}
+        <ErrorMessage error="{providerLifecycleError}" />
+      {/if}
     {/if}
-  {/if}
 
-  <!-- Create connection panel-->
-  {#if providerInfo?.containerProviderConnectionCreation === true}
-    <PreferencesConnectionCreationRendering
-      providerInfo="{providerInfo}"
-      properties="{properties}"
-      propertyScope="ContainerProviderConnectionFactory"
-      callback="{window.createContainerProviderConnection}" />
-  {/if}
+    <!-- Create connection panel-->
+    {#if providerInfo?.containerProviderConnectionCreation === true}
+      <PreferencesConnectionCreationRendering
+        providerInfo="{providerInfo}"
+        properties="{properties}"
+        propertyScope="ContainerProviderConnectionFactory"
+        callback="{window.createContainerProviderConnection}" />
+    {/if}
 
-  <!-- Create connection panel-->
-  {#if providerInfo?.kubernetesProviderConnectionCreation === true}
-    <PreferencesConnectionCreationRendering
-      providerInfo="{providerInfo}"
-      properties="{properties}"
-      propertyScope="KubernetesProviderConnectionFactory"
-      callback="{window.createKubernetesProviderConnection}" />
-  {/if}
-</div>
+    <!-- Create connection panel-->
+    {#if providerInfo?.kubernetesProviderConnectionCreation === true}
+      <PreferencesConnectionCreationRendering
+        providerInfo="{providerInfo}"
+        properties="{properties}"
+        propertyScope="KubernetesProviderConnectionFactory"
+        callback="{window.createKubernetesProviderConnection}" />
+    {/if}
+  </div>
+</Route>
 {#if showModal}
   <Modal
     on:close="{() => {

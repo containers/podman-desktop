@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Route } from 'tinro';
+import Route from '../../Route.svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { PodInfoUI } from './PodInfoUI';
 import { PodUtils } from './pod-utils';
@@ -126,16 +126,16 @@ function errorCallback(errorMessage: string): void {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/summary">
+        <Route path="/summary" breadcrumb="Summary">
           <PodDetailsSummary pod="{pod}" />
         </Route>
-        <Route path="/logs">
+        <Route path="/logs" breadcrumb="Logs">
           <PodDetailsLogs pod="{pod}" />
         </Route>
-        <Route path="/inspect">
+        <Route path="/inspect" breadcrumb="Inspect">
           <PodDetailsInspect pod="{pod}" />
         </Route>
-        <Route path="/kube">
+        <Route path="/kube" breadcrumb="Kube">
           <PodDetailsKube pod="{pod}" />
         </Route>
       </div>

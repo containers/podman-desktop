@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { ImageInfoUI } from './ImageInfoUI';
-import { Route } from 'tinro';
+import Route from '../../Route.svelte';
 import { onMount } from 'svelte';
 import { imagesInfos } from '../../stores/images';
 import ImageIcon from '../images/ImageIcon.svelte';
@@ -92,13 +92,13 @@ onMount(() => {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/history">
+        <Route path="/history" breadcrumb="History">
           <ImageDetailsHistory image="{image}" />
         </Route>
-        <Route path="/inspect">
+        <Route path="/inspect" breadcrumb="Inspect">
           <ImageDetailsInspect image="{image}" />
         </Route>
-        <Route path="/summary">
+        <Route path="/summary" breadcrumb="Summary">
           <ImageDetailsSummary image="{image}" />
         </Route>
       </div>

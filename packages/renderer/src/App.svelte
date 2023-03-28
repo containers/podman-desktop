@@ -4,8 +4,9 @@ import '@patternfly/patternfly/patternfly.css';
 import '@patternfly/patternfly/patternfly-addons.css';
 import '@patternfly/patternfly/patternfly-theme-dark.css';
 import './override.css';
-import { Route, router } from 'tinro';
+import { router } from 'tinro';
 
+import Route from './Route.svelte';
 import ContainerList from './lib/ContainerList.svelte';
 import { onMount } from 'svelte';
 import ImagesList from './lib/ImagesList.svelte';
@@ -95,71 +96,74 @@ window.events?.receive('display-help', () => {
         <SendFeedback />
         <ToastHandler />
         <QuickPickInput />
-        <Route path="/">
+        <Route path="/" breadcrumb="Dashboard Page">
           <DashboardPage />
         </Route>
-        <Route path="/containers">
+        <Route path="/containers" breadcrumb="Containers">
           <ContainerList searchTerm="{meta.query.filter || ''}" />
         </Route>
-        <Route path="/containers/:id/*" let:meta>
+        <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta>
           <ContainerDetails containerID="{meta.params.id}" />
         </Route>
 
-        <Route path="/kube/play">
+        <Route path="/kube/play" breadcrumb="Play Pods or Containers from a Kubernetes YAML File">
           <KubePlayYAML />
         </Route>
 
-        <Route path="/images">
+        <Route path="/images" breadcrumb="Images">
           <ImagesList />
         </Route>
-        <Route path="/images/:id/:engineId/:base64RepoTag/*" let:meta>
+        <Route path="/images/:id/:engineId/:base64RepoTag/*" breadcrumb="Image Details" let:meta>
           <ImageDetails
             imageID="{meta.params.id}"
             engineId="{decodeURI(meta.params.engineId)}"
             base64RepoTag="{meta.params.base64RepoTag}" />
         </Route>
-        <Route path="/images/build">
+        <Route path="/images/build" breadcrumb="Build Image from Containerfile">
           <BuildImageFromContainerfile />
         </Route>
-        <Route path="/images/run/*">
+        <Route path="/images/run/*" breadcrumb="Create a container from image">
           <RunImage />
         </Route>
-        <Route path="/images/pull">
+        <Route path="/images/pull" breadcrumb="Pull Image From a Registry">
           <PullImage />
         </Route>
-        <Route path="/pods">
+        <Route path="/pods" breadcrumb="Pods">
           <PodsList />
         </Route>
-        <Route path="/deploy-to-kube/:resourceId/:engineId/*" let:meta>
+        <Route
+          path="/deploy-to-kube/:resourceId/:engineId/*"
+          breadcrumb="Generated pod to deploy to Kubernetes"
+          let:meta>
           <DeployPodToKube
             resourceId="{decodeURI(meta.params.resourceId)}"
             engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
-        <Route path="/pods/:kind/:name/:engineId/*" let:meta>
+        <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta>
           <PodDetails
             podName="{decodeURI(meta.params.name)}"
             engineId="{decodeURI(meta.params.engineId)}"
             kind="{decodeURI(meta.params.kind)}" />
         </Route>
-        <Route path="/pod-create-from-containers">
+        <Route path="/pod-create-from-containers" breadcrumb="Create a pod from containers">
           <PodCreateFromContainers />
         </Route>
-        <Route path="/volumes">
+        <Route path="/volumes" breadcrumb="Volumes">
           <VolumesList />
         </Route>
-        <Route path="/volumes/:name/:engineId/*" let:meta>
+        <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta>
           <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
-        <Route path="/providers">
+        <Route path="/providers" breadcrumb="Providers">
           <ProviderList />
         </Route>
-        <Route path="/preferences/*">
+        <Route path="/preferences/*" breadcrumb="Settings">
           <PreferencesPage />
         </Route>
-        <Route path="/contribs/:name" let:meta>
+        <Route path="/contribs/:name/*" breadcrumb="Extension" let:meta>
           <DockerExtension name="{decodeURI(meta.params.name)}" />
         </Route>
-        <Route path="/help">
+        <Route path="/help" breadcrumb="Help">
           <HelpPage />
         </Route>
       </div>

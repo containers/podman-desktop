@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { VolumeInfoUI } from './VolumeInfoUI';
-import { Route } from 'tinro';
+import Route from '../../Route.svelte';
 import { onMount } from 'svelte';
 import { volumeListInfos } from '../../stores/volumes';
 import VolumeIcon from '../images/VolumeIcon.svelte';
@@ -73,10 +73,10 @@ onMount(() => {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/summary">
+        <Route path="/summary" breadcrumb="Summary">
           <VolumeDetailsSummary volume="{volume}" />
         </Route>
-        <Route path="/inspect">
+        <Route path="/inspect" breadcrumb="Inspect">
           <VolumeDetailsInspect volume="{volume}" />
         </Route>
       </div>

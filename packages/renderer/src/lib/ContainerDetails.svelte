@@ -1,6 +1,6 @@
 <script lang="ts">
 import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './container/ContainerInfoUI';
-import { Route } from 'tinro';
+import Route from '../Route.svelte';
 import ContainerIcon from './images/ContainerIcon.svelte';
 import StatusIcon from './images/StatusIcon.svelte';
 
@@ -120,19 +120,19 @@ function errorCallback(errorMessage: string): void {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/summary">
+        <Route path="/summary" breadcrumb="Summary">
           <ContainerDetailsSummary container="{container}" />
         </Route>
-        <Route path="/logs">
+        <Route path="/logs" breadcrumb="Logs">
           <ContainerDetailsLogs container="{container}" />
         </Route>
-        <Route path="/inspect">
+        <Route path="/inspect" breadcrumb="Inspect">
           <ContainerDetailsInspect container="{container}" />
         </Route>
-        <Route path="/kube">
+        <Route path="/kube" breadcrumb="Kube">
           <ContainerDetailsKube container="{container}" />
         </Route>
-        <Route path="/terminal">
+        <Route path="/terminal" breadcrumb="Terminal">
           <ContainerDetailsTerminal container="{container}" />
         </Route>
       </div>

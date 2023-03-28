@@ -1168,6 +1168,15 @@ function initExposure(): void {
     return ipcInvoke('feedback:send', feedback);
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  contextBridge.exposeInMainWorld('telemetryTrack', async (event: string, eventProperties?: any): Promise<void> => {
+    return ipcInvoke('telemetry:track', event, eventProperties);
+  });
+
+  contextBridge.exposeInMainWorld('telemetryPage', async (name: string): Promise<void> => {
+    return ipcInvoke('telemetry:page', name);
+  });
+
   let onDataCallbacksShellInContainerExtensionInstallId = 0;
   const onDataCallbacksShellInContainerExtension = new Map<number, (data: string) => void>();
   const onDataCallbacksShellInContainerExtensionError = new Map<number, (data: string) => void>();

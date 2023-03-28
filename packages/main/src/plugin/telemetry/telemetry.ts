@@ -28,6 +28,20 @@ import type { ConfigurationRegistry, IConfigurationNode } from '../configuration
 import { CONFIGURATION_DEFAULT_SCOPE } from '../configuration-registry-constants';
 import { findWindow } from '../../util';
 
+export const TRACK_EVENT_TYPE = 'track';
+export const PAGE_EVENT_TYPE = 'page';
+export const STARTUP_EVENT_TYPE = 'startup';
+export const SHUTDOWN_EVENT_TYPE = 'shutdown';
+export const FEEDBACK_EVENT_TYPE = 'feedback';
+
+export type EventType =
+  | typeof TRACK_EVENT_TYPE
+  | typeof PAGE_EVENT_TYPE
+  | typeof STARTUP_EVENT_TYPE
+  | typeof SHUTDOWN_EVENT_TYPE
+  | typeof FEEDBACK_EVENT_TYPE
+  | string;
+
 /**
  * Handle the telemetry reporting.
  */
@@ -147,13 +161,13 @@ export class Telemetry {
   protected async configureTelemetry(): Promise<void> {
     await this.initTelemetry();
 
-    this.internalTrack('startup');
+    this.internalTrack(STARTUP_EVENT_TYPE);
     let sendShutdownAnalytics = false;
 
     app.on('before-quit', async e => {
       if (!sendShutdownAnalytics) {
         e.preventDefault();
-        await this.internalTrack('shutdown');
+        await this.internalTrack(SHUTDOWN_EVENT_TYPE);
         await this.analytics?.flush();
         sendShutdownAnalytics = true;
         app.quit();
@@ -169,7 +183,7 @@ export class Telemetry {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected async internalTrack(event: string, eventProperties?: any): Promise<void> {
+  protected async internalTrack(event: EventType, eventProperties?: any): Promise<void> {
     const anonymousId = await this.identity.getUserId();
 
     const context = await this.getContext();
@@ -177,17 +191,23 @@ export class Telemetry {
       eventProperties = {};
     }
 
-    const properties = {
-      app_name: app.getName(),
-      app_version: app.getVersion(),
-      ...eventProperties,
-    };
-
     const integrations = {
       All: true,
     };
 
-    this.analytics?.track({ anonymousId, event, context, properties, integrations });
+    if (event === PAGE_EVENT_TYPE) {
+      const name = eventProperties?.name;
+
+      this.analytics?.page({ anonymousId, name, context, integrations });
+    } else {
+      const properties = {
+        app_name: app.getName(),
+        app_version: app.getVersion(),
+        ...eventProperties,
+      };
+
+      this.analytics?.track({ anonymousId, event, context, properties, integrations });
+    }
   }
 
   // return true if the event needs to be dropped
@@ -214,7 +234,7 @@ export class Telemetry {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async track(event: string, eventProperties?: any): Promise<void> {
+  async track(event: EventType, eventProperties?: any): Promise<void> {
     // skip event ?
     if (this.shouldDropEvent(event)) {
       return;

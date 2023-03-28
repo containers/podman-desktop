@@ -1,6 +1,7 @@
 <script lang="ts">
 import { afterUpdate, onMount } from 'svelte';
 import { contributions } from '../../stores/contribs';
+import Route from '../../Route.svelte';
 
 export let name: string;
 let source;
@@ -37,9 +38,11 @@ window.events?.receive('dev-tools:open-extension', extensionId => {
 </script>
 
 {#if source && preloadPath}
-  <webview
-    id="dd-webview-{webviewId}"
-    src="{source}?extensionName={currentContrib.extensionId}&arch={arch}&hostname={hostname}&platform={platform}"
-    preload="{preloadPath}"
-    style="height: 100%; width: 100%"></webview>
+  <Route path="/*" breadcrumb="{name}" let:meta>
+    <webview
+      id="dd-webview-{webviewId}"
+      src="{source}?extensionName={currentContrib.extensionId}&arch={arch}&hostname={hostname}&platform={platform}"
+      preload="{preloadPath}"
+      style="height: 100%; width: 100%"></webview>
+  </Route>
 {/if}
