@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as extensionApi from '@tmpwip/extension-api';
+import type * as extensionApi from '@podman-desktop/api';
 import * as os from 'node:os';
 import * as http from 'node:http';
 
@@ -44,7 +44,8 @@ export function getDisguisedPodmanInformation(): extensionApi.ProviderInformatio
       details = detailsExplanation.concat(
         defaultSocketPath,
         detailsNotWorking,
-        ' See troubleshooting page on podman-desktop.io for more information.',
+        // eslint-disable-next-line quotes
+        ` Press 'Docker Compatibility' button to enable.`,
       );
       break;
     default:

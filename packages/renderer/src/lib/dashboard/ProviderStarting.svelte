@@ -18,7 +18,7 @@ export let provider: ProviderInfo;
       </p>
     {/if}
     {#if provider.containerConnections.length > 0}
-      <div class="flex flex-row  text-xs text-gray-500 mt-4">
+      <div class="flex flex-row text-xs text-gray-500 mt-4">
         <p>
           {provider.containerConnections.map(c => c.name).join(', ')}
         </p>

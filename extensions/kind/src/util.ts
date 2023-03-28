@@ -19,7 +19,7 @@
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { spawn } from 'node:child_process';
-import type * as extensionApi from '@tmpwip/extension-api';
+import type * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
 
 const windows = os.platform() === 'win32';
@@ -91,8 +91,10 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
     // In production mode, applications don't have access to the 'user' path like brew
     if (isMac() || isWindows()) {
       env.PATH = getKindPath();
-      // Escape any whitespaces in command
-      command = `"${command}"`;
+      if (isWindows()) {
+        // Escape any whitespaces in command
+        command = `"${command}"`;
+      }
     } else if (env.FLATPAK_ID) {
       // need to execute the command on the host
       args = ['--host', command, ...args];

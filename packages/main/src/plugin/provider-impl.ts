@@ -38,7 +38,7 @@ import type {
   ProviderAutostart,
   KubernetesProviderConnectionFactory,
   ProviderInformation,
-} from '@tmpwip/extension-api';
+} from '@podman-desktop/api';
 import type { ProviderRegistry } from './provider-registry';
 import { Emitter } from './events/emitter';
 

@@ -16,6 +16,7 @@ import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import Tooltip from '../ui/Tooltip.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import DetailsTab from '../ui/DetailsTab.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let podName: string;
 export let engineId: string;
@@ -65,7 +66,7 @@ function errorCallback(errorMessage: string): void {
     <div class="w-full h-full">
       <div class="flex h-full flex-col">
         <div class="flex w-full flex-row">
-          <div class="w-full  px-5 pt-5">
+          <div class="w-full px-5 pt-5">
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/pods" title="Go back to pods list">Pods</a>
               <div class="text-xl mx-2 text-gray-400">></div>
@@ -110,9 +111,7 @@ function errorCallback(errorMessage: string): void {
                     ></path>
                   </svg>
                 {:else if pod.actionError}
-                  <Tooltip tip="{pod.actionError}" top>
-                    <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
-                  </Tooltip>
+                  <ErrorMessage error="{pod.actionError}" icon />
                 {:else}
                   <div>&nbsp;</div>
                 {/if}

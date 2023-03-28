@@ -1,7 +1,7 @@
 {
-  "name": "@tmpwip/extension-api",
+  "name": "@podman-desktop/api",
   "version": "0.0.1",
-  "description": "Prototype API",
+  "description": "API for Podman Desktop extensions",
   "publishConfig": {
     "access": "public"
   },

@@ -1,8 +1,7 @@
 <script lang="ts">
-import {
-  CONFIGURATION_DEFAULT_SCOPE,
-  IConfigurationPropertyRecordedSchema,
-} from '../../../../main/src/plugin/configuration-registry';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 let invalidEntry = false;
 let invalidText = undefined;
@@ -154,9 +153,7 @@ async function selectFilePath() {
     {/if}
 
     {#if invalidEntry}
-      <p class="pf-c-form__helper-text pf-m-error text:red-500" id="form-help-text-address-helper" aria-live="polite">
-        {invalidText}.
-      </p>
+      <ErrorMessage error="{invalidText}." />
     {/if}
   </div>
   {#if showUpdate}

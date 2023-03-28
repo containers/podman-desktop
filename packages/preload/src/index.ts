@@ -20,7 +20,7 @@
  * @module preload
  */
 
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { contextBridge, ipcRenderer } from 'electron';
 import EventEmitter from 'events';
 import type { ContainerCreateOptions, ContainerInfo } from '../../main/src/plugin/api/container-info';
@@ -59,6 +59,15 @@ export interface FeedbackProperties {
   rating: number;
   comment?: string;
   contact?: string;
+}
+
+export interface KeyLogger {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  log(key: symbol, ...data: any[]): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error(key: symbol, ...data: any[]): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  warn(key: symbol, ...data: any[]): void;
 }
 
 // initialize extension loader mechanism
@@ -504,7 +513,11 @@ function initExposure(): void {
 
   let onDataCallbacksCreateConnectionId = 0;
 
-  const onDataCallbacksCreateConnectionLogs = new Map<number, containerDesktopAPI.Logger>();
+  const onDataCallbacksCreateConnectionLogs = new Map<
+    number,
+    (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void
+  >();
+  const onDataCallbacksCreateConnectionKeys = new Map<number, symbol>();
 
   contextBridge.exposeInMainWorld(
     'createContainerProviderConnection',
@@ -512,15 +525,19 @@ function initExposure(): void {
       internalProviderId: string,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       params: { [key: string]: any },
-      logger: containerDesktopAPI.Logger,
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+      tokenId?: number,
     ): Promise<void> => {
       onDataCallbacksCreateConnectionId++;
-      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, logger);
+      onDataCallbacksCreateConnectionKeys.set(onDataCallbacksCreateConnectionId, key);
+      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, keyLogger);
       return ipcInvoke(
         'provider-registry:createContainerProviderConnection',
         internalProviderId,
         params,
         onDataCallbacksCreateConnectionId,
+        tokenId,
       );
     },
   );
@@ -531,10 +548,12 @@ function initExposure(): void {
       internalProviderId: string,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       params: { [key: string]: any },
-      logger: containerDesktopAPI.Logger,
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
     ): Promise<void> => {
       onDataCallbacksCreateConnectionId++;
-      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, logger);
+      onDataCallbacksCreateConnectionKeys.set(onDataCallbacksCreateConnectionId, key);
+      onDataCallbacksCreateConnectionLogs.set(onDataCallbacksCreateConnectionId, keyLogger);
       return ipcInvoke(
         'provider-registry:createKubernetesProviderConnection',
         internalProviderId,
@@ -549,13 +568,16 @@ function initExposure(): void {
     (_, onDataCallbacksCreateConnectionId: number, channel: string, data: unknown[]) => {
       // grab callback from the map
       const callback = onDataCallbacksCreateConnectionLogs.get(onDataCallbacksCreateConnectionId);
-      if (callback) {
+      const key = onDataCallbacksCreateConnectionKeys.get(onDataCallbacksCreateConnectionId);
+      if (callback && key) {
         if (channel === 'log') {
-          callback.log(data);
+          callback(key, 'log', data);
         } else if (channel === 'warn') {
-          callback.warn(data);
+          callback(key, 'warn', data);
         } else if (channel === 'error') {
-          callback.error(data);
+          callback(key, 'error', data);
+        } else if (channel === 'finish') {
+          callback(key, 'finish', data);
         }
       }
     },
@@ -595,7 +617,8 @@ function initExposure(): void {
   );
 
   let onDataCallbacksBuildImageId = 0;
-  const onDataCallbacksBuildImage = new Map<number, (eventName: string, data: string) => void>();
+  const onDataCallbacksBuildImage = new Map<number, (key: symbol, eventName: string, data: string) => void>();
+  const onDataCallbacksBuildImageKeys = new Map<number, symbol>();
 
   contextBridge.exposeInMainWorld(
     'buildImage',
@@ -604,10 +627,12 @@ function initExposure(): void {
       relativeContainerfilePath: string,
       imageName: string,
       selectedProvider: ProviderContainerConnectionInfo,
-      eventCollect: (eventName: string, data: string) => void,
+      key: symbol,
+      eventCollect: (key: symbol, eventName: string, data: string) => void,
     ): Promise<unknown> => {
       onDataCallbacksBuildImageId++;
       onDataCallbacksBuildImage.set(onDataCallbacksBuildImageId, eventCollect);
+      onDataCallbacksBuildImageKeys.set(onDataCallbacksBuildImageId, key);
       return ipcInvoke(
         'container-provider-registry:buildImage',
         containerBuildContextDirectory,
@@ -623,8 +648,9 @@ function initExposure(): void {
     (_, onDataCallbacksBuildImageId: number, eventName: string, data: string) => {
       // grab callback from the map
       const callback = onDataCallbacksBuildImage.get(onDataCallbacksBuildImageId);
-      if (callback) {
-        callback(eventName, data);
+      const key = onDataCallbacksBuildImageKeys.get(onDataCallbacksBuildImageId);
+      if (key && callback) {
+        callback(key, eventName, data);
       }
     },
   );
@@ -648,6 +674,17 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('getContributedMenus', async (context: string): Promise<Menu[]> => {
     return ipcInvoke('menu-registry:getContributedMenus', context);
   });
+
+  contextBridge.exposeInMainWorld('executeCommand', async (command: string, ...args: unknown[]): Promise<void> => {
+    return ipcInvoke('command-registry:executeCommand', command, ...args);
+  });
+
+  contextBridge.exposeInMainWorld(
+    'clipboardWriteText',
+    async (text: string, type?: 'selection' | 'clipboard'): Promise<void> => {
+      return ipcInvoke('clipboard:writeText', text, type);
+    },
+  );
 
   let onDidUpdateProviderStatusId = 0;
   const onDidUpdateProviderStatuses = new Map<number, (providerInfo: ProviderInfo) => void>();
@@ -1090,6 +1127,14 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('getOsHostname', async (): Promise<string> => {
     return ipcInvoke('os:getHostname');
+  });
+
+  contextBridge.exposeInMainWorld('getCancellableTokenSource', async (): Promise<number> => {
+    return ipcInvoke('cancellableTokenSource:create');
+  });
+
+  contextBridge.exposeInMainWorld('cancelToken', async (id: number): Promise<void> => {
+    return ipcInvoke('cancellableToken:cancel', id);
   });
 
   contextBridge.exposeInMainWorld('sendFeedback', async (feedback: FeedbackProperties): Promise<void> => {

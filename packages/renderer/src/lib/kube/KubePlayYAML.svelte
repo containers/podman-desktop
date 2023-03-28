@@ -9,6 +9,7 @@ import MonacoEditor from '../editor/MonacoEditor.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import KubePlayIcon from '../kube/KubePlayIcon.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 let runStarted = false;
 let runFinished = false;
@@ -110,7 +111,7 @@ async function getKubernetesfileLocation() {
               class="py-6 block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
               >Container Engine
               <select
-                class="border  text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+                class="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
                 name="providerChoice"
                 bind:value="{selectedProvider}">
                 {#each providerConnections as providerConnection}
@@ -155,9 +156,7 @@ async function getKubernetesfileLocation() {
             complete...
           </div>
         {/if}
-        {#if runError}
-          <div class="text-red-500 text-sm">{runError}</div>
-        {/if}
+        <div class="text-sm"><ErrorMessage error="{runError}" /></div>
         {#if runFinished}
           <!-- On click, go BACK to the previous page (if clicked on Pods page, go back to pods, same for Containers)-->
           <button on:click="{() => history.back()}" class="w-full pf-c-button pf-m-primary">Done</button>

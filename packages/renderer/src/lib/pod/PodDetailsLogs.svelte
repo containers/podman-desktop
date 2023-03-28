@@ -1,5 +1,4 @@
 <script lang="ts">
-import { router } from 'tinro';
 import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
@@ -15,10 +14,19 @@ export let pod: PodInfoUI;
 
 // Log
 let logsXtermDiv: HTMLDivElement;
-
+let refPod;
 // Logs has been initialized
 let noLogs = true;
 let logsTerminal: Terminal;
+
+// need to refresh logs when pod is switched or state changes
+$: {
+  if (refPod && (refPod.id !== pod.id || (refPod.status != pod.status && pod.status !== 'EXITED'))) {
+    logsTerminal?.clear();
+    fetchPodLogs();
+  }
+  refPod = pod;
+}
 
 // Terminal resize
 let resizeObserver: ResizeObserver;

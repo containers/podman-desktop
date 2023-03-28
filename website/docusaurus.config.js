@@ -118,7 +118,7 @@ const config = {
               },
               {
                 label: 'Using Compose',
-                to: '/docs/podman-compose',
+                to: '/docs/compose/podman-compose',
               },
               {
                 label: 'Troubleshooting',

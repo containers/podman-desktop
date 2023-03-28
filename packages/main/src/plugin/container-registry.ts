@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Disposable } from './types/disposable';
 import Dockerode from 'dockerode';
 import StreamValues from 'stream-json/streamers/StreamValues';
@@ -47,6 +47,8 @@ import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume
 import type { NetworkInspectInfo } from './api/network-info';
 import type { Event } from './events/emitter';
 import { Emitter } from './events/emitter';
+import fs from 'node:fs';
+import { pipeline } from 'node:stream/promises';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -887,6 +889,24 @@ export class ContainerProviderRegistry {
     };
   }
 
+  async saveImage(engineId: string, id: string, filename: string): Promise<void> {
+    this.telemetryService.track('imageSave');
+    // need to find the container engine of the container
+    const provider = this.internalProviders.get(engineId);
+    if (!provider) {
+      throw new Error('no engine matching this container');
+    }
+    if (!provider.api) {
+      throw new Error('no running provider for the matching container');
+    }
+
+    const imageObject = provider.api.getImage(id);
+    if (imageObject) {
+      const imageStream = await imageObject.get();
+      return pipeline(imageStream, fs.createWriteStream(filename));
+    }
+  }
+
   async getPodInspect(engineId: string, id: string): Promise<PodInspectInfo> {
     this.telemetryService.track('podInspect');
     // need to find the container engine of the container
@@ -991,7 +1011,7 @@ export class ContainerProviderRegistry {
     relativeContainerfilePath: string,
     imageName: string,
     selectedProvider: ProviderContainerConnectionInfo,
-    eventCollect: (eventName: 'stream' | 'error', data: string) => void,
+    eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
   ): Promise<unknown> {
     this.telemetryService.track('buildImage');
     // grab all connections
@@ -1006,7 +1026,10 @@ export class ContainerProviderRegistry {
 
     // grab auth for all registries
     const registryconfig = this.imageRegistry.getRegistryConfig();
-
+    eventCollect(
+      'stream',
+      `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
+    );
     const tarStream = tar.pack(containerBuildContextDirectory);
     let streamingPromise;
     try {
@@ -1015,10 +1038,13 @@ export class ContainerProviderRegistry {
         dockerfile: relativeContainerfilePath,
         t: imageName,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.log('error in buildImage', error);
+      const errorMessage = error instanceof Error ? error.message : '' + error;
+      eventCollect('error', errorMessage);
       throw error;
     }
+    eventCollect('stream', `Building ${imageName}...\r\n`);
     // eslint-disable-next-line @typescript-eslint/ban-types
     let resolve: (output: {}) => void;
     let reject: (err: Error) => void;
@@ -1030,8 +1056,10 @@ export class ContainerProviderRegistry {
     // eslint-disable-next-line @typescript-eslint/ban-types
     function onFinished(err: Error | null, output: {}) {
       if (err) {
+        eventCollect('finish', err.message);
         return reject(err);
       }
+      eventCollect('finish', '');
       resolve(output);
     }
 

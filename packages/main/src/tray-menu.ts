@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderStatus } from '@tmpwip/extension-api';
+import type { ProviderStatus } from '@podman-desktop/api';
 import { app, ipcMain, Menu, nativeImage } from 'electron';
 import type { MenuItemConstructorOptions, Tray, NativeImage } from 'electron';
 import statusStarted from './assets/status-started.png';
@@ -116,6 +116,16 @@ export class TrayMenu {
     this.updateMenu();
   }
 
+  public deleteProviderItem(providerId: string, itemId: string): void {
+    const provider = Array.from(this.menuProviderItems.values()).find(item => item.id === providerId);
+    if (provider) {
+      provider.childItems = provider.childItems.filter(it => it.id !== itemId);
+      this.updateMenu();
+    } else {
+      console.error(`Cannot find provider ${providerId}`);
+    }
+  }
+
   // Handle provider container connection
   handleConnection(
     action: string,
@@ -180,8 +190,7 @@ export class TrayMenu {
     };
 
     const oldProvider = this.menuProviderItems.get(providerMenuItem.internalId);
-    if (oldProvider && oldProvider.name === 'temp') {
-      this.menuProviderItems.delete(provider.internalId);
+    if (oldProvider) {
       providerMenuItem.childItems.push(...oldProvider.childItems);
     }
     this.menuProviderItems.set(provider.internalId, providerMenuItem);

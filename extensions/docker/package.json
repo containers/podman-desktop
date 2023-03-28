@@ -20,14 +20,16 @@
   },
   "scripts": {
     "build": "tsc && node ./scripts/build.js",
+    "test": "vitest run --coverage --passWithNoTests",
+    "test:watch": "vitest watch --coverage --passWithNoTests",
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@tmpwip/extension-api": "^0.0.1"
+    "@podman-desktop/api": "^0.0.1"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
-    "mkdirp": "^2.1.3",
+    "mkdirp": "^2.1.6",
     "zip-local": "^0.3.5"
   }
 }

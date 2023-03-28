@@ -5,6 +5,7 @@ import NavPage from '../ui/NavPage.svelte';
 import * as jsYaml from 'js-yaml';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let resourceId: string;
 export let engineId: string;
@@ -145,7 +146,7 @@ async function deployToKube() {
           };
           servicesToCreate.push(service);
 
-          if (openOpenshiftConsole && deployUsingRoutes) {
+          if (openshiftConsoleURL && deployUsingRoutes) {
             // Create OpenShift route object
             const route = {
               apiVersion: 'route.openshift.io/v1',
@@ -257,7 +258,7 @@ function updateKubeResult() {
 
       {#if defaultContextName}
         <div class="pt-2">
-          <label for="contextToUse" class="block mb-1 text-sm font-medium  text-gray-300">Kubernetes Context:</label>
+          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes Context:</label>
           <input
             type="text"
             bind:value="{defaultContextName}"
@@ -271,8 +272,7 @@ function updateKubeResult() {
 
       {#if allNamespaces}
         <div class="pt-2">
-          <label for="namespaceToUse" class="block mb-1 text-sm font-medium  text-gray-300"
-            >Kubernetes namespace:</label>
+          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes namespace:</label>
           <select
             class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
             name="namespaceChoice"
@@ -300,9 +300,7 @@ function updateKubeResult() {
           </button>
         </div>
       {/if}
-      {#if deployError}
-        <div class="text-red-500 text-sm">{deployError}</div>
-      {/if}
+      <ErrorMessage class="text-sm" error="{deployError}" />
 
       {#if createdPod}
         <div class="h-1/3 bg-zinc-900 p-5 my-4">

@@ -21,8 +21,8 @@ onMount(() => {
 });
 
 function copyRunInstructionToClipboard() {
-  const text = copyTextDivElement?.innerText;
-  navigator.clipboard.writeText(text);
+  const text = copyTextDivElement?.textContent;
+  window.clipboardWriteText(text);
 }
 
 let copyTextDivElement: HTMLDivElement;
@@ -52,7 +52,7 @@ let copyTextDivElement: HTMLDivElement;
       <div class="pf-c-empty-state__body">{message}</div>
       {#if commandline.length > 0}
         <div class="flex flex-row bg-gray-800 w-full items-center p-2 mt-2">
-          <div bind:this="{copyTextDivElement}">{commandline}</div>
+          <div bind:this="{copyTextDivElement}" data-testid="copyTextDivElement">{commandline}</div>
           <button title="Copy To Clipboard" class="ml-5 mr-5" on:click="{() => copyRunInstructionToClipboard()}"
             ><Fa class="h-5 w-5 cursor-pointer rounded-full text-3xl text-sky-800" icon="{faPaste}" /></button>
         </div>

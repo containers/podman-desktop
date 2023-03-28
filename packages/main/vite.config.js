@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,31 +19,10 @@
 import {node} from '../../.electron-vendors.cache.json';
 import {join} from 'path';
 import {builtinModules} from 'module';
+import { coverageConfig } from '../../vitest-shared-extensions.config';
 
 const PACKAGE_ROOT = __dirname;
-
-export function coverageConfig(packageRoot) {
-  const obj = { coverage: {
-      all: true,
-      clean: true,
-      exclude: [
-        '**/builtin/**',
-        '**/cypress/**',
-        '**/dist/**',
-        '**/node_modules/**',
-        '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-        '**/*.{svelte,tsx,cjs,js,d.ts}',
-        '**/*-info.ts',
-        '**/.{cache,git,idea,output,temp,cdix}/**',
-        '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
-      ],
-      provider: 'c8',
-      reportsDirectory: `../../test-resources/coverage/${packageRoot}`,
-      reporter: ['lcov', 'json', 'text-summary'],
-    },
-  };
-  return obj;
-}
+const PACKAGE_NAME = 'main';
 /**
  * @type {import('vite').UserConfig}
  * @see https://vitejs.dev/config/
@@ -86,7 +65,7 @@ const config = {
     reportCompressedSize: false,
   },
   test: {
-    ...coverageConfig('main'),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
 };
 

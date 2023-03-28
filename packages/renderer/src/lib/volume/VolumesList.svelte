@@ -176,10 +176,7 @@ function computeInterval(): number {
 }
 </script>
 
-<NavPage
-  bind:searchTerm="{searchTerm}"
-  title="volumes"
-  subtitle="Hover over a volume to view action buttons; click to open up full details.">
+<NavPage bind:searchTerm="{searchTerm}" title="volumes">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     {#if $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length > 0}
       <Prune type="volumes" engines="{enginesList}" />
@@ -246,7 +243,7 @@ function computeInterval(): number {
                 class:cursor-not-allowed="{volume.inUse}"
                 class:opacity-10="{volume.inUse}"
                 title="{volume.inUse ? 'Volume is used by a container' : ''}"
-                class="cursor-pointer invert hue-rotate-[218deg] brightness-75 " />
+                class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
             </td>
             <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">

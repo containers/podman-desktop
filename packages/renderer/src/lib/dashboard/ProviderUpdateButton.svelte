@@ -53,7 +53,7 @@ async function performUpdate(provider: ProviderInfo) {
     on:click="{() => performUpdate(provider)}"
     class="pf-c-button pf-m-primary"
     type="button">
-    <span class="pf-c-button__icon pf-m-start ">
+    <span class="pf-c-button__icon pf-m-start">
       {#if updateInProgress}
         <div class="mr-20">
           <i class="pf-c-button__progress">

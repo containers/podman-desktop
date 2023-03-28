@@ -18,6 +18,7 @@ import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
 import ContainerDetails from './lib/ContainerDetails.svelte';
 import { providerInfos } from './stores/providers';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
+import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import DashboardPage from './lib/dashboard/DashboardPage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
@@ -35,6 +36,7 @@ import RunImage from './lib/image/RunImage.svelte';
 import SendFeedback from './lib/feedback/SendFeedback.svelte';
 import ToastHandler from './lib/toast/ToastHandler.svelte';
 import QuickPickInput from './lib/dialogs/QuickPickInput.svelte';
+import TaskManager from './lib/task-manager/TaskManager.svelte';
 
 router.mode.hash();
 
@@ -79,6 +81,8 @@ window.events?.receive('display-help', () => {
       </div>
     </header>
 
+    <WelcomePage />
+
     <div class="overflow-x-hidden flex flex-1">
       {#if meta.url.startsWith('/preferences')}
         <PreferencesNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
@@ -87,6 +91,7 @@ window.events?.receive('display-help', () => {
       {/if}
 
       <div class="z-0 w-full h-full bg-zinc-800 flex flex-col overflow-y-scroll">
+        <TaskManager />
         <SendFeedback />
         <ToastHandler />
         <QuickPickInput />

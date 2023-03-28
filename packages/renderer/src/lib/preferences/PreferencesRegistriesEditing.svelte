@@ -1,5 +1,5 @@
 <script lang="ts">
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { onMount } from 'svelte';
 import { registriesInfos, registriesSuggestedInfos } from '../../stores/registries';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
@@ -7,6 +7,7 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { faUserPen } from '@fortawesome/free-solid-svg-icons';
+import SettingsPage from './SettingsPage.svelte';
 
 // contains the original instances of registries when user clicks on `Edit password` menu item
 // to be able to roll back changes when `Cancel` button is clicked
@@ -215,13 +216,12 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 };
 </script>
 
-<div class="flex w-full flex-col p-2 bg-zinc-800">
-  <h1 class="capitalize text-lg font-bold py-8 px-8">Registries</h1>
-  <div class="container mx-auto">
+<SettingsPage title="Registries">
+  <div class="container mx-auto bg-zinc-800 mt-5 rounded-md p-3">
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-gray-600">
       <div class="flex w-full">
-        <div class="flex-1 text-left py-4 pl-10 text-sm font-bold w-auto">Registry Location</div>
+        <div class="flex-1 text-left py-4 pl-5 text-sm font-bold w-auto">Registry Location</div>
         <div class="text-left py-4 text-sm font-bold w-1/4">Username</div>
         <div class="text-left py-4 text-sm font-bold w-2/5">Password</div>
       </div>
@@ -230,7 +230,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
         <!-- containerDesktopAPI.Registry row start -->
         <div class="flex flex-col w-full border-t border-gray-600">
           <div class="flex flex-row">
-            <div class="flex-1 pt-2 pl-10 pr-5 text-sm w-auto m-auto">
+            <div class="flex-1 pt-2 pl-5 pr-5 text-sm w-auto m-auto">
               <div class="flex items-center w-full h-full">
                 <div class="flex items-center">
                   <!-- Only show if a "suggested" registry icon has been added -->
@@ -255,7 +255,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
             </div>
 
             <!-- Username -->
-            <div class="pt-2 pb-2 text-sm w-1/4 m-auto">
+            <div class="pt-4 pb-2 text-sm w-1/4 m-auto">
               {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
                 <div class="text-left h-7 pr-5 mt-1.5 mb-0.5 text-sm w-full">
                   <input
@@ -272,7 +272,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
             </div>
 
             <!-- Password -->
-            <div class="pt-2 pb-2 text-sm w-full w-2/5">
+            <div class="pt-4 pb-2 text-sm w-2/5">
               <div class="flex flex-row">
                 {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
                   <div class="flex text-left h-7 pr-5 mt-1.5 mb-0.5 text-sm w-full">
@@ -401,7 +401,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
         <!-- Add new registry form start -->
         <div class="flex flex-col w-full border-t border-gray-600">
           <div class="flex flex-row">
-            <div class="flex-1 pt-2 pl-10 pr-5 text-sm w-auto m-auto">
+            <div class="flex-1 pt-2 pl-5 pr-5 text-sm w-auto m-auto">
               <div class="flex items-center w-full h-full">
                 <div class="flex items-center">
                   {#if registry.icon}
@@ -478,7 +478,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                   {/if}
                 </div>
                 <div class="flex text-sm">
-                  <div class="h-7 mt-1.5 mb-0.5 text-sm">
+                  <div class="h-7 mt-1.5 mb-0.5 pr-5 text-sm">
                     {#if listedSuggestedRegistries[i]}
                       <button
                         on:click="{() => hideSuggestedRegistries()}"
@@ -608,4 +608,4 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
     </button>
   </div>
   <!-- Add new registry button end -->
-</div>
+</SettingsPage>

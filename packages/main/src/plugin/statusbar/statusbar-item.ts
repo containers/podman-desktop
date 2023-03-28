@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { StatusBarAlignment, StatusBarItem } from '@tmpwip/extension-api';
+import type { StatusBarAlignment, StatusBarItem } from '@podman-desktop/api';
 import crypto from 'node:crypto';
 import type { StatusBarRegistry } from './statusbar-registry';
 

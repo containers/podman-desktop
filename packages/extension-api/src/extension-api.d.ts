@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-declare module '@tmpwip/extension-api' {
+declare module '@podman-desktop/api' {
   /**
    * Represents a reference to a command. Provides a title which
    * will be used to represent a command in the UI and, optionally,
@@ -99,6 +99,29 @@ declare module '@tmpwip/extension-api' {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]): Disposable;
+  }
+
+  /**
+   * A class to create and manage an {@link Event} for clients to subscribe to.
+   * The emitter can only send one kind of event.
+   *
+   * Use this class to send events inside extension or provide API to the other
+   * extensions.
+   */
+  export class EventEmitter<T> {
+    /**
+     * For the public to allow to subscribe to events from this Emitter
+     */
+    event: Event<T>;
+    /**
+     * To fire an event to the subscribers
+     * @param event The event to send to the registered listeners
+     */
+    fire(data: T): void;
+    /**
+     * Dispose by removing registered listeners
+     */
+    dispose(): void;
   }
 
   export interface ExtensionContext {
@@ -205,7 +228,7 @@ declare module '@tmpwip/extension-api' {
   export interface ContainerProviderConnectionFactory {
     initialize(): Promise<void>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create(params: { [key: string]: any }, logger?: Logger): Promise<void>;
+    create(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
   }
 
   // create a kubernetes provider
@@ -440,7 +463,7 @@ declare module '@tmpwip/extension-api' {
     /**
      * An event that is emitted when the {@link Configuration configuration} changed.
      */
-    // export const onDidChangeConfiguration: Event<ConfigurationChangeEvent>;
+    export const onDidChangeConfiguration: Event<ConfigurationChangeEvent>;
   }
 
   /**
@@ -564,6 +587,23 @@ declare module '@tmpwip/extension-api' {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onCancellationRequested: Event<any>;
+  }
+
+  export interface CancellationTokenSource {
+    /**
+     * The cancellation token of this source.
+     */
+    token: CancellationToken;
+
+    /**
+     * Signal cancellation on the token.
+     */
+    cancel(): void;
+
+    /**
+     * Dispose object and free resources.
+     */
+    dispose(): void;
   }
 
   /**
@@ -1342,6 +1382,7 @@ declare module '@tmpwip/extension-api' {
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
+    export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
     export const onEvent: Event<ContainerJSONEvent>;
   }
 }

@@ -7,6 +7,7 @@ import { afterUpdate, onMount } from 'svelte';
 import { extensionInfos } from '../stores/extensions';
 import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
 import ErrorMessage from './ui/ErrorMessage.svelte';
+import SettingsPage from './preferences/SettingsPage.svelte';
 
 let ociImage: string;
 
@@ -65,10 +66,8 @@ async function removeExtension(extension: ExtensionInfo) {
 }
 </script>
 
-<div class="flex flex-1 flex-col p-2 bg-zinc-800">
-  <h1 class="capitalize text-xl">Extensions List</h1>
-
-  <div class="bg-zinc-800 border border-zinc-700 p-4 mt-2">
+<SettingsPage title="Extensions">
+  <div class="bg-zinc-800 mt-5 rounded-md p-3">
     <h1 class="text-lg mb-2">Install a new extension from OCI Image</h1>
 
     <div class="flex flex-col w-full">
@@ -95,7 +94,7 @@ async function removeExtension(extension: ExtensionInfo) {
               </span>
             </i>
           {/if}
-          <span class="pf-c-button__icon pf-m-start ">
+          <span class="pf-c-button__icon pf-m-start">
             <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
           </span>
           Install extension from the OCI image
@@ -183,4 +182,4 @@ async function removeExtension(extension: ExtensionInfo) {
       </tbody>
     </table>
   </div>
-</div>
+</SettingsPage>

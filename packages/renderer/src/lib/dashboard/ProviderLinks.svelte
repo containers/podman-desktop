@@ -9,7 +9,7 @@ export let provider: ProviderInfo;
     {#each provider.links as link}
       <p
         on:click="{() => window.openExternal(link.url)}"
-        class="text-sm  text-center cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
+        class="text-sm text-center cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
         {link.title}
       </p>
     {/each}

@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { Disposable } from './types/disposable';
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
 import type * as Dockerode from 'dockerode';
 import type { Telemetry } from './telemetry/telemetry';

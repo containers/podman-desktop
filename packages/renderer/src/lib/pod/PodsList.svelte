@@ -21,6 +21,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import Prune from '../engine/Prune.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -208,10 +209,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
 }
 </script>
 
-<NavPage
-  bind:searchTerm="{searchTerm}"
-  title="pods"
-  subtitle="Hover over an pod to view action buttons; click to open up full details.">
+<NavPage bind:searchTerm="{searchTerm}" title="pods">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     {#if $podsInfos.length > 0}
       <Prune type="pods" engines="{enginesList}" />
@@ -275,7 +273,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
               <input
                 type="checkbox"
                 bind:checked="{pod.selected}"
-                class="cursor-pointer invert hue-rotate-[218deg] brightness-75 " />
+                class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
             </td>
             <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
@@ -331,9 +329,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                       ></path>
                     </svg>
                   {:else if pod.actionError}
-                    <Tooltip tip="{pod.actionError}" top>
-                      <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
-                    </Tooltip>
+                    <ErrorMessage error="{pod.actionError}" icon />
                   {:else}
                     <div>&nbsp;</div>
                   {/if}

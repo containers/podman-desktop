@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { BaseCheck } from './base-check';
-import type * as extensionApi from '@tmpwip/extension-api';
+import type * as extensionApi from '@podman-desktop/api';
 import * as os from 'node:os';
 import { compare } from 'compare-versions';
 import { runCliCommand } from './util';

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProxySettings, Event } from '@tmpwip/extension-api';
+import type { ProxySettings, Event } from '@podman-desktop/api';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
 import { Emitter } from './events/emitter';
 

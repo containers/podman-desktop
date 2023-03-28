@@ -21,7 +21,7 @@ import type {
   InputBoxOptions,
   InputBoxValidationMessage,
   QuickPickOptions,
-} from '@tmpwip/extension-api';
+} from '@podman-desktop/api';
 import { Deferred } from '../util/deferred';
 
 export class InputQuickPickRegistry {
@@ -64,6 +64,7 @@ export class InputQuickPickRegistry {
       id: this.callbackId,
       value: options?.value,
       placeHolder: options?.placeHolder,
+      title: options?.title,
       valueSelection: options?.valueSelection,
       prompt: options?.prompt,
       validate,
@@ -188,6 +189,7 @@ export class InputQuickPickRegistry {
       id: this.callbackId,
       placeHolder: options?.placeHolder,
       canPickMany: options?.canPickMany,
+      title: options?.title,
       items: items,
       // need to callback to the frontend when selecting an item
       onSelectCallback,

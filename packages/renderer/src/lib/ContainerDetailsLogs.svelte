@@ -1,6 +1,5 @@
 <script lang="ts">
 import type { ContainerInfoUI } from './container/ContainerInfoUI';
-import { router } from 'tinro';
 import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
@@ -16,7 +15,7 @@ export let container: ContainerInfoUI;
 
 // Log
 let logsXtermDiv: HTMLDivElement;
-let logsContainer;
+let refContainer;
 // logs has been initialized
 let noLogs = true;
 
@@ -24,12 +23,16 @@ let noLogs = true;
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
 
-// need to refresh logs when container is switched
+// need to refresh logs when container is switched or state changes
 $: {
-  if (logsContainer?.id !== container.id || logsContainer?.state != container.state) {
+  if (
+    refContainer &&
+    (refContainer.id !== container.id || (refContainer.state != container.state && container.state !== 'EXITED'))
+  ) {
     logsTerminal?.clear();
+    fetchContainerLogs();
   }
-  logsContainer = container;
+  refContainer = container;
 }
 
 let currentRouterPath: string;

@@ -16,17 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { runCliCommand, detectKind } from './util';
 import { KindInstaller } from './kind-installer';
-import { window } from '@tmpwip/extension-api';
+import { window } from '@podman-desktop/api';
+import { tmpName } from 'tmp-promise';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 
 const KIND_INSTALL_COMMAND = 'kind.install';
+
+const KIND_MOVE_IMAGE_COMMAND = 'kind.image.move';
 
 interface KindCluster {
   name: string;
@@ -190,6 +193,39 @@ async function searchKindClusters(provider: extensionApi.Provider) {
   updateClusters(provider, kindContainers);
 }
 
+type ImageInfo = { engineId: string; id?: string; name?: string };
+
+async function moveImage(image: ImageInfo) {
+  if (!image.id) {
+    throw new Error('Image selection not supported yet');
+  }
+  const clusters = kindClusters.filter(cluster => cluster.status === 'started');
+  let selectedCluster: string;
+
+  if (clusters.length == 0) {
+    throw new Error('No Kind clusters to push to');
+  } else if (clusters.length == 1) {
+    selectedCluster = clusters[0].name;
+  } else {
+    selectedCluster = await extensionApi.window.showQuickPick(
+      clusters.map(cluster => cluster.name),
+      { placeHolder: 'Select a Kind cluster to push to' },
+    );
+  }
+  if (selectedCluster) {
+    const filename = await tmpName();
+    try {
+      await extensionApi.containerEngine.saveImage(image.engineId, image.id, filename);
+      await runCliCommand('load', ['image-archive', '-n', selectedCluster, filename]);
+      extensionApi.window.showNotification({ body: `Image ${image.name} pushed to Kind cluster ${selectedCluster}` });
+    } catch (err) {
+      throw new Error(`Error while pushing image ${image.name} to Kind cluster ${selectedCluster}: ${err}`);
+    } finally {
+      fs.promises.rm(filename);
+    }
+  }
+}
+
 function createProvider(extensionContext: extensionApi.ExtensionContext) {
   const provider = extensionApi.provider.createProvider({
     name: 'Kind',
@@ -205,6 +241,9 @@ function createProvider(extensionContext: extensionApi.ExtensionContext) {
   });
   extensionContext.subscriptions.push(provider);
   registerProvider(extensionContext, provider);
+  extensionContext.subscriptions.push(
+    extensionApi.commands.registerCommand(KIND_MOVE_IMAGE_COMMAND, image => moveImage(image)),
+  );
 
   // when containers are refreshed, update
   extensionApi.containerEngine.onEvent(async event => {
