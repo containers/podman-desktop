@@ -157,7 +157,7 @@ test('Should watch for files and load them at startup', async () => {
   await extensionLoader.setupScanningDirectory();
 
   // expect to load only one file (other are invalid files/folder)
-  expect(loadPackagedFileMock).toBeCalledWith(path.join(rootedFakeDirectory, 'foo.cdix'));
+  expect(loadPackagedFileMock).toBeCalledWith(path.join(fakeDirectory, 'foo.cdix'));
 
   // expect watcher is setup
   expect(fsWatchMock).toBeCalledWith(fakeDirectory, expect.anything());
