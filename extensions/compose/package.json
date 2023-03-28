@@ -19,7 +19,8 @@
   },
   "scripts": {
     "build": "vite build && node ./scripts/build.js",
-    "test": "npm run build && vitest run -r src --coverage",
+    "test": "vitest run -r src --coverage",
+    "test:watch": "vitest watch -r src --coverage",
     "watch": "vite build --watch"
   },
   "dependencies": {
