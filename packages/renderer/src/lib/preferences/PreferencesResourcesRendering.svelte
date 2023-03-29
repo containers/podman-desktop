@@ -132,48 +132,29 @@ function getLoggerHandler(
   };
 }
 
-// store the key
-function updateStore(
-  providerInfo: ProviderInfo,
-  propertyScope: string,
-  inProgress: boolean,
-  successful: boolean,
-  started: boolean,
-  error: string,
-) {
-  createConnectionsInfo.set({
-    createKey: loggerHandlerKey,
-    providerInfo,
-    properties,
-    propertyScope,
-    creationInProgress: inProgress,
-    creationSuccessful: successful,
-    creationStarted: started,
-    errorMessage: error,
-  });
-}
-
 async function startContainerProvider(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
   loggerHandlerKey?: symbol,
 ): Promise<void> {
-  if (containerConnectionInfo.status === 'stopped') {
-    setContainerStatusIsChanging(provider, containerConnectionInfo);
-    if (!loggerHandlerKey) {
-      loggerHandlerKey = startTask(
-        `Start ${provider.name} ${containerConnectionInfo.name}`,
-        `/preferences/resources`,
-        getLoggerHandler(provider, containerConnectionInfo),
+  try {
+    if (containerConnectionInfo.status === 'stopped') {
+      setContainerStatusIsChanging(provider, containerConnectionInfo);
+      if (!loggerHandlerKey) {
+        loggerHandlerKey = startTask(
+          `Start ${provider.name} ${containerConnectionInfo.name}`,
+          `/preferences/resources`,
+          getLoggerHandler(provider, containerConnectionInfo),
+        );
+      }
+      await window.startProviderConnectionLifecycle(
+        provider.internalId,
+        containerConnectionInfo,
+        loggerHandlerKey,
+        eventCollect,
       );
     }
-    await window.startProviderConnectionLifecycle(
-      provider.internalId,
-      containerConnectionInfo,
-      loggerHandlerKey,
-      eventCollect,
-    );
-  }
+  } catch (e) {}
 }
 
 async function stopContainerProvider(
@@ -181,22 +162,24 @@ async function stopContainerProvider(
   containerConnectionInfo: ProviderContainerConnectionInfo,
   loggerHandlerKey?: symbol,
 ): Promise<void> {
-  if (containerConnectionInfo.status === 'started') {
-    setContainerStatusIsChanging(provider, containerConnectionInfo);
-    if (!loggerHandlerKey) {
-      loggerHandlerKey = startTask(
-        `Stop ${provider.name} ${containerConnectionInfo.name}`,
-        `/preferences/resources`,
-        getLoggerHandler(provider, containerConnectionInfo),
+  try {
+    if (containerConnectionInfo.status === 'started') {
+      setContainerStatusIsChanging(provider, containerConnectionInfo);
+      if (!loggerHandlerKey) {
+        loggerHandlerKey = startTask(
+          `Stop ${provider.name} ${containerConnectionInfo.name}`,
+          `/preferences/resources`,
+          getLoggerHandler(provider, containerConnectionInfo),
+        );
+      }
+      await window.stopProviderConnectionLifecycle(
+        provider.internalId,
+        containerConnectionInfo,
+        loggerHandlerKey,
+        eventCollect,
       );
     }
-    await window.stopProviderConnectionLifecycle(
-      provider.internalId,
-      containerConnectionInfo,
-      loggerHandlerKey,
-      eventCollect,
-    );
-  }
+  } catch (e) {}
 }
 
 async function restartContainerProvider(
@@ -216,20 +199,22 @@ async function deleteContainerProvider(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
 ): Promise<void> {
-  if (containerConnectionInfo.status === 'stopped' || containerConnectionInfo.status === 'unknown') {
-    setContainerStatusIsChanging(provider, containerConnectionInfo);
-    const loggerHandlerKey = startTask(
-      `Delete ${provider.name} ${containerConnectionInfo.name}`,
-      `/preferences/resources`,
-      getLoggerHandler(provider, containerConnectionInfo),
-    );
-    await window.deleteProviderConnectionLifecycle(
-      provider.internalId,
-      containerConnectionInfo,
-      loggerHandlerKey,
-      eventCollect,
-    );
-  }
+  try {
+    if (containerConnectionInfo.status === 'stopped' || containerConnectionInfo.status === 'unknown') {
+      setContainerStatusIsChanging(provider, containerConnectionInfo);
+      const loggerHandlerKey = startTask(
+        `Delete ${provider.name} ${containerConnectionInfo.name}`,
+        `/preferences/resources`,
+        getLoggerHandler(provider, containerConnectionInfo),
+      );
+      await window.deleteProviderConnectionLifecycle(
+        provider.internalId,
+        containerConnectionInfo,
+        loggerHandlerKey,
+        eventCollect,
+      );
+    }
+  } catch (e) {}
 }
 
 function setContainerStatusIsChanging(

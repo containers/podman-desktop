@@ -638,7 +638,7 @@ export class ProviderRegistry {
   async startProviderConnection(
     internalProviderId: string,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-    logHandler: Logger,
+    logHandler?: Logger,
   ): Promise<void> {
     // grab the correct provider
     const connection = this.getMatchingContainerConnectionFromProvider(
@@ -662,7 +662,7 @@ export class ProviderRegistry {
   async stopProviderConnection(
     internalProviderId: string,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-    logHandler: Logger,
+    logHandler?: Logger,
   ): Promise<void> {
     // grab the correct provider
     const connection = this.getMatchingContainerConnectionFromProvider(
@@ -686,7 +686,7 @@ export class ProviderRegistry {
   async deleteProviderConnection(
     internalProviderId: string,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-    logHandler: Logger,
+    logHandler?: Logger,
   ): Promise<void> {
     // grab the correct provider
     const connection = this.getMatchingContainerConnectionFromProvider(
