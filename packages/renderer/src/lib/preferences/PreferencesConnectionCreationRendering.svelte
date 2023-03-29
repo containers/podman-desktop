@@ -2,17 +2,16 @@
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
-import type { Logger as LoggerType } from '@podman-desktop/api';
 import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
   clearCreateTask,
-  CreateConnectionCallback,
+  ConnectionCallback,
   disconnectUI,
   eventCollect,
   reconnectUI,
-  startCreate,
+  startTask,
 } from './preferences-connection-rendering-task';
 import { get } from 'svelte/store';
 import { createConnectionsInfo } from '/@/stores/create-connections';
@@ -85,7 +84,7 @@ onDestroy(() => {
 let logsTerminal;
 let loggerHandlerKey: symbol | undefined = undefined;
 
-function getLoggerHandler(): CreateConnectionCallback {
+function getLoggerHandler(): ConnectionCallback {
   return {
     log: args => {
       writeToTerminal(logsTerminal, args, '\x1b[37m');
@@ -153,9 +152,9 @@ async function handleOnSubmit(e) {
   try {
     // clear terminal
     logsTerminal?.clear();
-    loggerHandlerKey = startCreate(
+    loggerHandlerKey = startTask(
       `Creating a ${providerInfo.name} provider`,
-      providerInfo.internalId,
+      `/preferences/provider/${providerInfo.internalId}`,
       getLoggerHandler(),
     );
     updateStore();

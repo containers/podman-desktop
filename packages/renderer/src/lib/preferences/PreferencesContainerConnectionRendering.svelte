@@ -12,6 +12,7 @@ import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { filesize } from 'filesize';
+import { ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -82,10 +83,30 @@ let lifecycleError = '';
 router.subscribe(async route => {
   lifecycleError = '';
 });
+
+function getLoggerHandler(): ConnectionCallback {
+  return {
+    log: () => {},
+    warn: () => {},
+    error: () => {},
+    onEnd: () => {},
+  };
+}
+
 async function startConnection() {
   lifecycleError = undefined;
   try {
-    await window.startProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo);
+    const loggerHandlerKey = startTask(
+      `Start ${providerInfo.name} ${containerConnectionInfo.name}`,
+      `/preferences/resources`,
+      getLoggerHandler(),
+    );
+    await window.startProviderConnectionLifecycle(
+      providerInfo.internalId,
+      containerConnectionInfo,
+      loggerHandlerKey,
+      eventCollect,
+    );
   } catch (err) {
     lifecycleError = err;
   }
@@ -93,12 +114,32 @@ async function startConnection() {
 
 async function stopConnection() {
   lifecycleError = undefined;
-  await window.stopProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo);
+  const loggerHandlerKey = startTask(
+    `Stop ${providerInfo.name} ${containerConnectionInfo.name}`,
+    `/preferences/resources`,
+    getLoggerHandler(),
+  );
+  await window.stopProviderConnectionLifecycle(
+    providerInfo.internalId,
+    containerConnectionInfo,
+    loggerHandlerKey,
+    eventCollect,
+  );
 }
 
 async function deleteConnection() {
   lifecycleError = undefined;
-  await window.deleteProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo);
+  const loggerHandlerKey = startTask(
+    `Delete ${providerInfo.name} ${containerConnectionInfo.name}`,
+    `/preferences/resources`,
+    getLoggerHandler(),
+  );
+  await window.deleteProviderConnectionLifecycle(
+    providerInfo.internalId,
+    containerConnectionInfo,
+    loggerHandlerKey,
+    eventCollect,
+  );
   router.goto('/preferences/providers');
 }
 

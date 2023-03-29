@@ -362,10 +362,10 @@ function prettyMachineName(machineName: string): string {
 
 async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
-    start: async (context): Promise<void> => {
+    start: async (context, logger): Promise<void> => {
       try {
         // start the machine
-        await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], { logger: context.log });
+        await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], { logger });
         provider.updateStatus('started');
       } catch (err) {
         console.error(err);
@@ -373,12 +373,12 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
         throw err;
       }
     },
-    stop: async (context): Promise<void> => {
-      await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], { logger: context.log });
+    stop: async (context, logger): Promise<void> => {
+      await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], { logger });
       provider.updateStatus('ready');
     },
-    delete: async (): Promise<void> => {
-      await execPromise(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name]);
+    delete: async (logger): Promise<void> => {
+      await execPromise(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name], { logger });
     },
   };
 

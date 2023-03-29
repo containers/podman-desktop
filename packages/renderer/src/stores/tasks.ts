@@ -19,14 +19,18 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 
+type TaskState = 'running' | 'completed';
+type TaskStatus = 'in-progress' | 'success' | 'failure';
+
 export interface Task {
   id: string;
   name: string;
   started: number;
-  state: 'running' | 'completed';
-  status: 'in-progress' | 'success' | 'failure';
+  state: TaskState;
+  status: TaskStatus;
   progress?: number;
   gotoTask?: () => void;
+  error?: string;
 }
 
 /**
