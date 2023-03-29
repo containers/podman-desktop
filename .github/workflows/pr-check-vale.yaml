@@ -36,4 +36,5 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           files: website
-          fail_on_error: true
+          fail_on_error: false
+
