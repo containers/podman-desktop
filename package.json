@@ -95,7 +95,7 @@
     "typescript": "5.0.2",
     "validator": "^13.9.0",
     "vite": "^4.2.1",
-    "vitest": "^0.29.7",
+    "vitest": "^0.29.8",
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
