@@ -16,6 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export interface IContainerStatus {
+  status: string;
+  action?: string;
+  inProgress: boolean;
+  error?: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function writeToTerminal(xterm: any, data: string[], colorPrefix: string): void {
   if (Array.isArray(data)) {
