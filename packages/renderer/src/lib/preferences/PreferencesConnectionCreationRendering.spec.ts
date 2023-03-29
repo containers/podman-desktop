@@ -28,6 +28,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { get } from 'svelte/store';
 import { createConnectionsInfo } from '/@/stores/create-connections';
+import { createEventDispatcher, onMount } from 'svelte';
 
 const properties: IConfigurationPropertyRecordedSchema[] = [];
 const providerInfo: ProviderInfo = {
@@ -54,12 +55,27 @@ beforeAll(() => {
 });
 
 test('Expect that the create button is available', async () => {
+  const dispatch = createEventDispatcher();
+  const svelte = await import('svelte');
+  svelte.onMount = vi.fn().mockImplementation(async () => { 
+    svelte.onMount;
+    dispatch('pageLoaded');
+  });
   const callback = vi.fn();
-  await render(PreferencesConnectionCreationRendering, { properties, providerInfo, propertyScope, callback });
+  const {component} = await render(PreferencesConnectionCreationRendering, { properties, providerInfo, propertyScope, callback });
+  await waitOnMount(component);
   const createButton = screen.getByRole('button', { name: 'Create' });
   expect(createButton).toBeInTheDocument();
   expect(createButton).toBeEnabled();
 });
+
+function waitOnMount(component: PreferencesConnectionCreationRendering): Promise<any> {
+  return new Promise(resolve => {
+    component.$on('pageLoaded', function() {
+      resolve(component);
+    });
+  })  
+}
 
 test('Expect create connection successfully', async () => {
   let providedKeyLogger;

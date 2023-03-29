@@ -15,11 +15,13 @@ import {
 } from './preferences-connection-rendering-task';
 import { get } from 'svelte/store';
 import { createConnectionsInfo } from '/@/stores/create-connections';
-import { onDestroy, onMount, tick } from 'svelte';
+import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
 import { filesize } from 'filesize';
 import { router } from 'tinro';
 import LinearProgress from '../ui/LinearProgress.svelte';
 import Spinner from '../ui/Spinner.svelte';
+
+const dispatch = createEventDispatcher();
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
 export let propertyScope: string;
@@ -93,6 +95,8 @@ onMount(async () => {
       return property;
     });
   pageIsLoading = false;
+
+  
 
   // check if we have an existing create action
   const value = get(createConnectionsInfo);
