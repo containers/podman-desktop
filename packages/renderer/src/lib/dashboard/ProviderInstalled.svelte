@@ -108,6 +108,11 @@ onMount(async () => {
 
   // Observe the terminal div
   resizeObserver.observe(logsXtermDiv);
+
+  // no initialize support, hide the button
+  if (!provider.containerProviderConnectionInitialization && !provider.kubernetesProviderConnectionInitialization) {
+    initializationButtonVisible = false;
+  }
 });
 
 onDestroy(() => {

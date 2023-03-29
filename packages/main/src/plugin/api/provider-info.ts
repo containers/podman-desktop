@@ -57,9 +57,13 @@ export interface ProviderInfo {
   lifecycleMethods?: LifecycleMethod[];
   // can create provider connection from ContainerProviderConnectionFactory params
   containerProviderConnectionCreation: boolean;
+  // can initialize provider connection from ContainerProviderConnectionFactory params
+  containerProviderConnectionInitialization: boolean;
 
   // can create provider connection from KubernetesProviderConnectionFactory params
   kubernetesProviderConnectionCreation: boolean;
+  // can initialize provider connection from KubernetesProviderConnectionFactory params
+  kubernetesProviderConnectionInitialization: boolean;
 
   version?: string;
 
