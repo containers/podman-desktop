@@ -17,7 +17,8 @@
  ***********************************************************************/
 import { spawn } from 'node:child_process';
 import { isMac, isWindows } from './util';
-import { CancellationToken, Logger, window } from '@podman-desktop/api';
+import type { CancellationToken, Logger } from '@podman-desktop/api';
+import { window } from '@podman-desktop/api';
 import { configuration } from '@podman-desktop/api';
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
@@ -135,8 +136,8 @@ export function execPromise(
 function showNotification(body: string) {
   window.showNotification({
     silent: false,
-    title: "Podman machine",
-    body
+    title: 'Podman machine',
+    body,
   });
 }
 

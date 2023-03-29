@@ -86,14 +86,10 @@ router.subscribe(async route => {
 
 function getLoggerHandler(): ConnectionCallback {
   return {
-    log: () => {      
-    },
-    warn: () => {      
-    },
-    error: () => {
-    },
-    onEnd: () => {
-    },
+    log: () => {},
+    warn: () => {},
+    error: () => {},
+    onEnd: () => {},
   };
 }
 
@@ -105,7 +101,12 @@ async function startConnection() {
       `/preferences/resources`,
       getLoggerHandler(),
     );
-    await window.startProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo, loggerHandlerKey, eventCollect);
+    await window.startProviderConnectionLifecycle(
+      providerInfo.internalId,
+      containerConnectionInfo,
+      loggerHandlerKey,
+      eventCollect,
+    );
   } catch (err) {
     lifecycleError = err;
   }
@@ -118,7 +119,12 @@ async function stopConnection() {
     `/preferences/resources`,
     getLoggerHandler(),
   );
-  await window.stopProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo, loggerHandlerKey, eventCollect);
+  await window.stopProviderConnectionLifecycle(
+    providerInfo.internalId,
+    containerConnectionInfo,
+    loggerHandlerKey,
+    eventCollect,
+  );
 }
 
 async function deleteConnection() {
@@ -128,7 +134,12 @@ async function deleteConnection() {
     `/preferences/resources`,
     getLoggerHandler(),
   );
-  await window.deleteProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo, loggerHandlerKey, eventCollect);
+  await window.deleteProviderConnectionLifecycle(
+    providerInfo.internalId,
+    containerConnectionInfo,
+    loggerHandlerKey,
+    eventCollect,
+  );
   router.goto('/preferences/providers');
 }
 

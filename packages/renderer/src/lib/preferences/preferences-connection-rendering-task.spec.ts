@@ -18,7 +18,8 @@
 
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { ConnectionCallback, startTask } from './preferences-connection-rendering-task';
+import type { ConnectionCallback } from './preferences-connection-rendering-task';
+import { startTask } from './preferences-connection-rendering-task';
 import { disconnectUI, eventCollect, reconnectUI } from './preferences-connection-rendering-task';
 import { clearCreateTask } from './preferences-connection-rendering-task';
 import { tasksInfo } from '/@/stores/tasks';

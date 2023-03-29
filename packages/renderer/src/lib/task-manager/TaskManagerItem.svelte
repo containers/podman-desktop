@@ -91,12 +91,12 @@ function gotoTask(taskUI: TaskUI) {
     <!-- if failed task, display the error-->
     {#if taskUI.status === 'failure'}
       <div class="flex flex-col w-full items-end">
-        <button on:click="{() => showError = !showError}" class="text-purple-300 text-xs">
-          View Error 
-          {#if showError} 
-            <i class="fas fa-chevron-up" />
+        <button on:click="{() => (showError = !showError)}" class="text-purple-300 text-xs">
+          View Error
+          {#if showError}
+            <i class="fas fa-chevron-up"></i>
           {:else}
-            <i class="fas fa-chevron-down" />
+            <i class="fas fa-chevron-down"></i>
           {/if}
         </button>
       </div>

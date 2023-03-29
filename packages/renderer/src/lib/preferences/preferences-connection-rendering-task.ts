@@ -20,7 +20,7 @@ import { createConnectionsInfo } from '/@/stores/create-connections';
 import { router } from 'tinro';
 
 import type { Logger as LoggerType } from '@podman-desktop/api';
-import { Task } from '/@/stores/tasks';
+import type { Task } from '/@/stores/tasks';
 import { createTask, removeTask } from '/@/stores/tasks';
 
 export interface ConnectionCallback extends LoggerType {
@@ -62,11 +62,7 @@ const taskLogOnHolds = new Map<symbol, TaskHold>();
 const taskLogReplays = new Map<symbol, TaskReplay>();
 const allTasks = new Map<symbol, Task>();
 
-export function startTask(
-  name: string,
-  goToUrl: string,
-  createCallback: ConnectionCallback
-): symbol {
+export function startTask(name: string, goToUrl: string, createCallback: ConnectionCallback): symbol {
   const key = getKey();
   taskLogCallbacks.set(key, createCallback);
 
@@ -172,7 +168,7 @@ export function eventCollect(key: symbol, eventName: 'log' | 'warn' | 'error' | 
   if (task) {
     if (eventName === 'error') {
       task.status = 'failure';
-      task.error = args.join("\n");
+      task.error = args.join('\n');
     } else if (eventName === 'finish') {
       if (task.status !== 'failure') {
         task.status = 'success';

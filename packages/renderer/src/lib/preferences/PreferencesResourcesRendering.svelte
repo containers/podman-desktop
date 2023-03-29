@@ -118,7 +118,10 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration
     return map;
   }, new Map<string, IProviderContainerConfigurationPropertyRecorded[]>());
 
-function getLoggerHandler(provider: ProviderInfo, containerConnectionInfo: ProviderContainerConnectionInfo): ConnectionCallback {
+function getLoggerHandler(
+  provider: ProviderInfo,
+  containerConnectionInfo: ProviderContainerConnectionInfo,
+): ConnectionCallback {
   return {
     log: () => {},
     warn: () => {},
@@ -130,7 +133,14 @@ function getLoggerHandler(provider: ProviderInfo, containerConnectionInfo: Provi
 }
 
 // store the key
-function updateStore(providerInfo: ProviderInfo, propertyScope: string, inProgress: boolean, successful: boolean, started: boolean, error: string) {
+function updateStore(
+  providerInfo: ProviderInfo,
+  propertyScope: string,
+  inProgress: boolean,
+  successful: boolean,
+  started: boolean,
+  error: string,
+) {
   createConnectionsInfo.set({
     createKey: loggerHandlerKey,
     providerInfo,
@@ -146,7 +156,7 @@ function updateStore(providerInfo: ProviderInfo, propertyScope: string, inProgre
 async function startContainerProvider(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
-  loggerHandlerKey?: symbol
+  loggerHandlerKey?: symbol,
 ): Promise<void> {
   if (containerConnectionInfo.status === 'stopped') {
     setContainerStatusIsChanging(provider, containerConnectionInfo);
@@ -156,15 +166,20 @@ async function startContainerProvider(
         `/preferences/resources`,
         getLoggerHandler(provider, containerConnectionInfo),
       );
-    }    
-    await window.startProviderConnectionLifecycle(provider.internalId, containerConnectionInfo, loggerHandlerKey, eventCollect);
-  }  
+    }
+    await window.startProviderConnectionLifecycle(
+      provider.internalId,
+      containerConnectionInfo,
+      loggerHandlerKey,
+      eventCollect,
+    );
+  }
 }
 
 async function stopContainerProvider(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
-  loggerHandlerKey?: symbol
+  loggerHandlerKey?: symbol,
 ): Promise<void> {
   if (containerConnectionInfo.status === 'started') {
     setContainerStatusIsChanging(provider, containerConnectionInfo);
@@ -174,8 +189,13 @@ async function stopContainerProvider(
         `/preferences/resources`,
         getLoggerHandler(provider, containerConnectionInfo),
       );
-    }    
-    await window.stopProviderConnectionLifecycle(provider.internalId, containerConnectionInfo, loggerHandlerKey, eventCollect);
+    }
+    await window.stopProviderConnectionLifecycle(
+      provider.internalId,
+      containerConnectionInfo,
+      loggerHandlerKey,
+      eventCollect,
+    );
   }
 }
 
@@ -203,7 +223,12 @@ async function deleteContainerProvider(
       `/preferences/resources`,
       getLoggerHandler(provider, containerConnectionInfo),
     );
-    await window.deleteProviderConnectionLifecycle(provider.internalId, containerConnectionInfo, loggerHandlerKey, eventCollect);
+    await window.deleteProviderConnectionLifecycle(
+      provider.internalId,
+      containerConnectionInfo,
+      loggerHandlerKey,
+      eventCollect,
+    );
   }
 }
 
@@ -222,7 +247,7 @@ function setContainerStatusUpdateFailed(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
   failedAction: string,
-  error: string
+  error: string,
 ): void {
   const containerConnectionName = getContainerConnectionName(provider, containerConnectionInfo);
   const currentStatus = containerConnectionStatus.get(containerConnectionName);
@@ -306,7 +331,10 @@ function isContainerConnectionStatusInProgress(
                 {#if containerConnectionStatus.has(getContainerConnectionName(provider, container))}
                   {@const status = containerConnectionStatus.get(getContainerConnectionName(provider, container))}
                   {#if status.error}
-                    <button class="ml-3 text-[9px] text-red-500 underline" on:click="{() => window.events?.send('toggle-task-manager', '')}">{status.failedAction} failed</button>
+                    <button
+                      class="ml-3 text-[9px] text-red-500 underline"
+                      on:click="{() => window.events?.send('toggle-task-manager', '')}"
+                      >{status.failedAction} failed</button>
                   {/if}
                 {/if}
               </div>

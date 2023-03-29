@@ -585,7 +585,12 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'startProviderConnectionLifecycle',
-    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo, key: symbol, keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void): Promise<void> => {
+    async (
+      providerId: string,
+      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+    ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
       onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
@@ -593,14 +598,19 @@ function initExposure(): void {
         'provider-registry:startProviderConnectionLifecycle',
         providerId,
         providerContainerConnectionInfo,
-        onDataCallbacksTaskConnectionId
+        onDataCallbacksTaskConnectionId,
       );
     },
   );
 
   contextBridge.exposeInMainWorld(
     'stopProviderConnectionLifecycle',
-    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo, key: symbol, keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void): Promise<void> => {
+    async (
+      providerId: string,
+      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+    ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
       onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
@@ -608,14 +618,19 @@ function initExposure(): void {
         'provider-registry:stopProviderConnectionLifecycle',
         providerId,
         providerContainerConnectionInfo,
-        onDataCallbacksTaskConnectionId
+        onDataCallbacksTaskConnectionId,
       );
     },
   );
 
   contextBridge.exposeInMainWorld(
     'deleteProviderConnectionLifecycle',
-    async (providerId: string, providerContainerConnectionInfo: ProviderContainerConnectionInfo, key: symbol, keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void): Promise<void> => {
+    async (
+      providerId: string,
+      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+    ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
       onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
@@ -623,7 +638,7 @@ function initExposure(): void {
         'provider-registry:deleteProviderConnectionLifecycle',
         providerId,
         providerContainerConnectionInfo,
-        onDataCallbacksTaskConnectionId
+        onDataCallbacksTaskConnectionId,
       );
     },
   );

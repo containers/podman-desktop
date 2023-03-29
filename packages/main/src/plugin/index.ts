@@ -1184,7 +1184,7 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-        loggerId: string
+        loggerId: string,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
         providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo, logger);
@@ -1198,7 +1198,7 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-        loggerId: string
+        loggerId: string,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
         providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo, logger);
@@ -1212,7 +1212,7 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
-        loggerId: string
+        loggerId: string,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
         providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo, logger);
