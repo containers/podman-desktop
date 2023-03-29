@@ -1,31 +1,13 @@
 <script lang="ts">
 import { onDestroy, onMount, tick } from 'svelte';
-
-interface InputBoxOptions {
-  placeHolder?: string;
-  value?: string;
-  valueSelection?: [number, number];
-  // if true, the input box will be validated on each keystroke
-  validate: boolean;
-  prompt: string;
-  id: number;
-}
-
-interface QuickPickOptions {
-  placeHolder?: string;
-  items: any[];
-  prompt: string;
-  id: number;
-  canPickMany: boolean;
-  // if true, needs to send the current element when item is selected
-  onSelectCallback: boolean;
-}
+import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 
 const DEFAULT_PROMPT = "Press 'Enter' to confirm your input or 'Escape' to cancel";
 let inputValue = '';
 let placeHolder = '';
 let prompt = '';
 let currentId = 0;
+let title = '';
 
 let validationEnabled = false;
 let validationError = '';
@@ -35,8 +17,8 @@ let onSelectCallbackEnabled = false;
 let display = false;
 let mode: 'InputBox' | 'QuickPick';
 
-let quickPickItems: { value: any; checkbox: boolean }[] = [];
-let quickPickFilteredItems: { value: any; checkbox: boolean }[] = quickPickItems;
+let quickPickItems: { value: any; description: string; detail: string; checkbox: boolean }[] = [];
+let quickPickFilteredItems: { value: any; description: string; detail: string; checkbox: boolean }[] = quickPickItems;
 let quickPickSelectedIndex = 0;
 let quickPickSelectedFilteredIndex = 0;
 let quickPickCanPickMany = false;
@@ -47,6 +29,7 @@ const showInputCallback = async (options?: InputBoxOptions) => {
   mode = 'InputBox';
   inputValue = options.value;
   placeHolder = options.placeHolder;
+  title = options.title;
   currentId = options.id;
   if (options.prompt) {
     prompt = `${options.prompt} (${DEFAULT_PROMPT})`;
@@ -67,14 +50,21 @@ const showInputCallback = async (options?: InputBoxOptions) => {
 };
 
 const showQuickPickCallback = async (options?: QuickPickOptions) => {
-  mode = 'InputBox';
+  mode = 'QuickPick';
   placeHolder = options.placeHolder;
+  title = options.title;
   currentId = options.id;
   if (options.prompt) {
     prompt = options.prompt;
   }
-  mode = 'QuickPick';
-  quickPickItems = options.items.map(item => ({ value: item, checkbox: false }));
+  quickPickItems = options.items.map(item => {
+    if (typeof item === 'string') {
+      return { value: item, description: '', detail: '', checkbox: false };
+    } else {
+      // if type is QuickPickItem use label field for the display
+      return { value: item.label, description: item.description, detail: item.detail, checkbox: false };
+    }
+  });
   quickPickFilteredItems = quickPickItems;
 
   if (options.canPickMany) {
@@ -187,7 +177,11 @@ function handleKeydown(e: KeyboardEvent) {
       e.preventDefault();
       return;
     }
-    window.sendShowInputBoxValue(currentId, undefined, undefined);
+    if (mode === 'QuickPick') {
+      window.sendShowQuickPickValues(currentId, []);
+    } else if (mode === 'InputBox') {
+      window.sendShowInputBoxValue(currentId, undefined, undefined);
+    }
     cleanup();
     e.preventDefault();
     return;
@@ -259,9 +253,14 @@ function handleKeydown(e: KeyboardEvent) {
   <div class="absolute m-auto left-0 right-0 z-50">
     <div class=" flex justify-center items-center mt-1">
       <div
-        class="bg-zinc-900  w-[700px] {mode === 'InputBox'
-          ? 'h-16'
-          : ''} shadow-sm p-2 rounded shadow-zinc-700  text-sm">
+        class="bg-zinc-900 w-[700px] {mode === 'InputBox' ? 'h-16' : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
+        {#if title}
+          <div
+            aria-label="title"
+            class="w-full bg-zinc-800 rounded-sm text-center max-w-[700px] truncate cursor-default">
+            {title}
+          </div>
+        {/if}
         <div class="w-full flex flex-row">
           <input
             bind:this="{inputElement}"
@@ -281,7 +280,7 @@ function handleKeydown(e: KeyboardEvent) {
 
         {#if mode === 'InputBox'}
           {#if validationError}
-            <div class="text-gray-300 border border-red-700 relative  w-full bg-red-700 px-1">{validationError}</div>
+            <div class="text-gray-300 border border-red-700 relative w-full bg-red-700 px-1">{validationError}</div>
           {:else}
             <div class="relative text-gray-300 pt-2 px-1 h-6 overflow-y-auto">{prompt}</div>
           {/if}
@@ -296,9 +295,23 @@ function handleKeydown(e: KeyboardEvent) {
               {/if}
               <button
                 on:click="{() => clickQuickPickItem(item, i)}"
-                class="text-gray-300 text-left relative my-1 w-full  {i === quickPickSelectedFilteredIndex
+                class="text-gray-300 text-left relative my-1 w-full {i === quickPickSelectedFilteredIndex
                   ? 'bg-violet-500'
-                  : ''} px-1">{item.value}</button>
+                  : ''} px-1">
+                <div class="flex flex-col w-full">
+                  <!-- first row is Value + optional description-->
+                  <div class="flex flex-row w-full max-w-[700px] truncate">
+                    <div class="font-bold">{item.value}</div>
+                    {#if item.description}
+                      <div class="text-gray-300 text-xs ml-2">{item.description}</div>
+                    {/if}
+                  </div>
+                  <!-- second row is optional detail -->
+                  {#if item.detail}
+                    <div class="w-full max-w-[700px] truncate text-gray-300 text-xs">{item.detail}</div>
+                  {/if}
+                </div>
+              </button>
             </div>
           {/each}
         {/if}

@@ -13,13 +13,16 @@ import VolumeEmptyScreen from './VolumeEmptyScreen.svelte';
 import VolumeActions from './VolumeActions.svelte';
 import VolumeIcon from '../images/VolumeIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
+import Prune from '../engine/Prune.svelte';
 import moment from 'moment';
+import type { EngineInfoUI } from '../engine/EngineInfoUI';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let volumes: VolumeInfoUI[] = [];
 let multipleEngines = false;
+let enginesList: EngineInfoUI[];
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
@@ -49,15 +52,24 @@ onMount(async () => {
       .flat()
       .map(volume => volumeUtils.toVolumeInfoUI(volume));
 
-    // multiple engines ?
-    const engineNamesArray = computedVolumes.map(container => container.engineName);
-    // remove duplicates
-    const engineNames = [...new Set(engineNamesArray)];
-    if (engineNames.length > 1) {
+    // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
+    const engines = computedVolumes.map(container => {
+      return {
+        name: container.engineName,
+        id: container.engineId,
+      };
+    });
+    // Remove duplicates from engines by name
+    const uniqueEngines = engines.filter(
+      (engine, index, self) => index === self.findIndex(t => t.name === engine.name),
+    );
+    if (uniqueEngines.length > 1) {
       multipleEngines = true;
     } else {
       multipleEngines = false;
     }
+    // Set the engines to the global variable for the Prune functionality button
+    enginesList = uniqueEngines;
 
     // update selected items based on current selected items
     computedVolumes.forEach(volume => {
@@ -164,11 +176,12 @@ function computeInterval(): number {
 }
 </script>
 
-<NavPage
-  bind:searchTerm="{searchTerm}"
-  title="volumes"
-  subtitle="Hover over a volume to view action buttons; click to open up full details.">
-  <div slot="additional-actions" class="space-x-2 flex flex-nowrap"></div>
+<NavPage bind:searchTerm="{searchTerm}" title="volumes">
+  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+    {#if $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length > 0}
+      <Prune type="volumes" engines="{enginesList}" />
+    {/if}
+  </div>
 
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
@@ -230,7 +243,7 @@ function computeInterval(): number {
                 class:cursor-not-allowed="{volume.inUse}"
                 class:opacity-10="{volume.inUse}"
                 title="{volume.inUse ? 'Volume is used by a container' : ''}"
-                class="cursor-pointer invert hue-rotate-[218deg] brightness-75 " />
+                class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
             </td>
             <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">

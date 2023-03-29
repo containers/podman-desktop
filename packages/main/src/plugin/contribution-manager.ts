@@ -20,6 +20,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
 import type { ContributionInfo } from './api/contribution-info';
+import { desktopAppHomeDir } from '../util';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -96,7 +97,7 @@ export class ContributionManager {
     }
     return fs.promises
       .readFile(iconPath, 'utf-8')
-      .then(data => 'data:image/svg+xml;base64,' + new Buffer(data).toString('base64'));
+      .then(data => 'data:image/svg+xml;base64,' + Buffer.from(data).toString('base64'));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -138,7 +139,7 @@ export class ContributionManager {
   }
 
   public getContributionStorageDir(): string {
-    return path.resolve(os.homedir(), '.local/share/containers/podman-desktop/contributions');
+    return path.resolve(os.homedir(), desktopAppHomeDir(), 'contributions');
   }
 
   getExtensionPath(extensionId: string): string | undefined {

@@ -70,12 +70,18 @@ export class DockerExtensionPreload {
     args: string[],
     execOptions?: dockerDesktopAPI.ExecOptions,
   ): Promise<dockerDesktopAPI.ExecResult> {
+    let command = cmd;
+    let _args = args;
+    if (process.env.FLATPAK_ID) {
+      _args = ['--host', cmd, ...args];
+      command = 'flatpak-spawn';
+    }
     const rawResult = await ipcRenderer.invoke(
       'docker-plugin-adapter:exec',
       extensionName,
       launcher,
-      cmd,
-      args,
+      command,
+      _args,
       execOptions,
     );
     if (rawResult.error) {

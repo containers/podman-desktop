@@ -25,6 +25,8 @@ import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
 import { StartupInstall } from './system/startup-install';
 
+export const UPDATER_UPDATE_AVAILABLE_ICON = 'fa fa-exclamation-triangle';
+
 /**
  * Prevent multiple instances
  */
@@ -54,17 +56,6 @@ app.on('window-all-closed', () => {
  */
 if (isWindows()) {
   app.setAppUserModelId(app.name);
-}
-
-/**
- * Check new app version in production mode only
- */
-if (import.meta.env.PROD) {
-  app
-    .whenReady()
-    .then(() => import('electron-updater'))
-    .then(({ autoUpdater }) => autoUpdater.checkForUpdatesAndNotify())
-    .catch(e => console.error('Failed check updates:', e));
 }
 
 let tray: Tray | null = null;

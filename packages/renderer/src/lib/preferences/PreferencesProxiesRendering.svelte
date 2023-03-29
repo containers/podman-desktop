@@ -1,6 +1,7 @@
 <script lang="ts">
-import type { ProxySettings } from '@tmpwip/extension-api';
+import type { ProxySettings } from '@podman-desktop/api';
 import { onMount } from 'svelte';
+import SettingsPage from './SettingsPage.svelte';
 
 let proxySettings: ProxySettings;
 let proxyState: boolean;
@@ -19,13 +20,11 @@ async function updateProxyState() {
 }
 </script>
 
-<div class="flex flex-1 flex-col p-2 bg-zinc-800">
-  <h1 class="capitalize text-xl">Proxy settings</h1>
-
-  <div class="container mx-auto">
+<SettingsPage title="Proxy Settings">
+  <div class="container mx-auto bg-zinc-800 mt-5 rounded-md p-3">
     <!-- if proxy is not enabled, display a toggle -->
 
-    <label for="toggle-proxy" class="inline-flex relative items-center my-5 cursor-pointer">
+    <label for="toggle-proxy" class="inline-flex relative items-center mt-2 mb-5 cursor-pointer">
       <input
         type="checkbox"
         bind:checked="{proxyState}"
@@ -51,7 +50,7 @@ async function updateProxyState() {
           id="httpProxy"
           disabled="{!proxyState}"
           bind:value="{proxySettings.httpProxy}"
-          class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+          class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
           required />
       </div>
       <div>
@@ -65,7 +64,7 @@ async function updateProxyState() {
           id="httpsProxy"
           disabled="{!proxyState}"
           bind:value="{proxySettings.httpsProxy}"
-          class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+          class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
           required />
       </div>
       <div>
@@ -80,7 +79,7 @@ async function updateProxyState() {
           disabled="{!proxyState}"
           bind:value="{proxySettings.noProxy}"
           placeholder="Example: *.domain.com, 192.168.*.*"
-          class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+          class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
           required />
       </div>
       {#if proxyState}
@@ -95,4 +94,4 @@ async function updateProxyState() {
       {/if}
     {/if}
   </div>
-</div>
+</SettingsPage>

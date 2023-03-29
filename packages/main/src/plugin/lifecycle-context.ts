@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { LifecycleContext, Logger } from '@tmpwip/extension-api';
+import type { LifecycleContext, Logger } from '@podman-desktop/api';
 
 export class LifecycleContextImpl implements LifecycleContext {
   log: LoggerImpl;

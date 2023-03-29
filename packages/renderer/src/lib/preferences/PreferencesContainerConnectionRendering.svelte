@@ -2,7 +2,7 @@
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
 import { Buffer } from 'buffer';
-import type { ContainerProviderConnection } from '@tmpwip/extension-api';
+import type { ContainerProviderConnection } from '@podman-desktop/api';
 import { providerInfos } from '../../stores/providers';
 import { beforeUpdate, onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
@@ -10,6 +10,9 @@ import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import Logger from './Logger.svelte';
 import { writeToTerminal } from './Util';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import { filesize } from 'filesize';
+import { ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -80,10 +83,30 @@ let lifecycleError = '';
 router.subscribe(async route => {
   lifecycleError = '';
 });
+
+function getLoggerHandler(): ConnectionCallback {
+  return {
+    log: () => {},
+    warn: () => {},
+    error: () => {},
+    onEnd: () => {},
+  };
+}
+
 async function startConnection() {
   lifecycleError = undefined;
   try {
-    await window.startProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo);
+    const loggerHandlerKey = startTask(
+      `Start ${providerInfo.name} ${containerConnectionInfo.name}`,
+      `/preferences/resources`,
+      getLoggerHandler(),
+    );
+    await window.startProviderConnectionLifecycle(
+      providerInfo.internalId,
+      containerConnectionInfo,
+      loggerHandlerKey,
+      eventCollect,
+    );
   } catch (err) {
     lifecycleError = err;
   }
@@ -91,12 +114,32 @@ async function startConnection() {
 
 async function stopConnection() {
   lifecycleError = undefined;
-  await window.stopProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo);
+  const loggerHandlerKey = startTask(
+    `Stop ${providerInfo.name} ${containerConnectionInfo.name}`,
+    `/preferences/resources`,
+    getLoggerHandler(),
+  );
+  await window.stopProviderConnectionLifecycle(
+    providerInfo.internalId,
+    containerConnectionInfo,
+    loggerHandlerKey,
+    eventCollect,
+  );
 }
 
 async function deleteConnection() {
   lifecycleError = undefined;
-  await window.deleteProviderConnectionLifecycle(providerInfo.internalId, containerConnectionInfo);
+  const loggerHandlerKey = startTask(
+    `Delete ${providerInfo.name} ${containerConnectionInfo.name}`,
+    `/preferences/resources`,
+    getLoggerHandler(),
+  );
+  await window.deleteProviderConnectionLifecycle(
+    providerInfo.internalId,
+    containerConnectionInfo,
+    loggerHandlerKey,
+    eventCollect,
+  );
   router.goto('/preferences/providers');
 }
 
@@ -143,10 +186,10 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
   <!-- Display lifecycle -->
   {#if containerConnectionInfo?.lifecycleMethods && containerConnectionInfo.lifecycleMethods.length > 0}
-    <div class="py-2 flex flex:row ">
+    <div class="py-2 flex flex:row">
       <!-- start is enabled only in stopped mode-->
       {#if containerConnectionInfo.lifecycleMethods.includes('start')}
-        <div class="px-2 text-sm italic  text-gray-400">
+        <div class="px-2 text-sm italic text-gray-400">
           <button
             disabled="{containerConnectionInfo.status !== 'stopped'}"
             on:click="{() => startConnection()}"
@@ -162,7 +205,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
       <!-- stop is enabled only in started mode-->
       {#if containerConnectionInfo.lifecycleMethods.includes('stop')}
-        <div class="px-2 text-sm italic  text-gray-400">
+        <div class="px-2 text-sm italic text-gray-400">
           <button
             disabled="{containerConnectionInfo.status !== 'started'}"
             on:click="{() => stopConnection()}"
@@ -178,7 +221,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
       <!-- delete is disabled if it is running-->
       {#if containerConnectionInfo.lifecycleMethods.includes('delete')}
-        <div class="px-2 text-sm italic  text-gray-400">
+        <div class="px-2 text-sm italic text-gray-400">
           <button
             disabled="{containerConnectionInfo.status !== 'stopped'}"
             on:click="{() => deleteConnection()}"
@@ -191,7 +234,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
           </button>
         </div>
       {/if}
-      <div class="px-2 text-sm italic  text-gray-400">
+      <div class="px-2 text-sm italic text-gray-400">
         <button
           type="button"
           disabled="{containerConnectionInfo.status !== 'started'}"
@@ -208,9 +251,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     </div>
 
     {#if lifecycleError}
-      <div class="text-red-500">
-        {lifecycleError}
-      </div>
+      <ErrorMessage error="{lifecycleError}" />
     {/if}
   {/if}
 
@@ -218,18 +259,13 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <!--key is {connectionSetting.id} and value {connectionSetting.value}  <br />-->
     {#if connectionSetting.format === 'cpu'}
       <div class="pl-1 py-2">
-        <div class="text-sm italic  text-gray-400">{connectionSetting.description}</div>
+        <div class="text-sm italic text-gray-400">{connectionSetting.description}</div>
         <div class="pl-3">{connectionSetting.value}</div>
       </div>
-    {:else if connectionSetting.format === 'memory'}
+    {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
       <div class="pl-1 py-2">
-        <div class="text-sm italic  text-gray-400">{connectionSetting.description}</div>
-        <div class="pl-3">{connectionSetting.value} MB</div>
-      </div>
-    {:else if connectionSetting.format === 'diskSize'}
-      <div class="pl-1 py-2">
-        <div class="text-sm italic  text-gray-400">{connectionSetting.description}</div>
-        <div class="pl-3">{connectionSetting.value} GB</div>
+        <div class="text-sm italic text-gray-400">{connectionSetting.description}</div>
+        <div class="pl-3">{filesize(connectionSetting.value)}</div>
       </div>
     {:else}
       {connectionSetting.description}: {connectionSetting.value}
@@ -238,11 +274,11 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
   {#if containerConnectionInfo}
     <div class="pl-1 py-2">
-      <div class="text-sm italic  text-gray-400">Status</div>
+      <div class="text-sm italic text-gray-400">Status</div>
       <div class="pl-3">{containerConnectionInfo.status}</div>
     </div>
     <div class="pl-1 py-2">
-      <div class="text-sm italic  text-gray-400">Socket</div>
+      <div class="text-sm italic text-gray-400">Socket</div>
       <div class="pl-3">{containerConnectionInfo.endpoint.socketPath}</div>
     </div>
   {/if}

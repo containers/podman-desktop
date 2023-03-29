@@ -6,6 +6,7 @@ import { PodCreation, podCreationHolder } from '../../stores/creation-from-conta
 import NavPage from '../ui/NavPage.svelte';
 import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
@@ -120,7 +121,7 @@ onDestroy(() => {
 });
 </script>
 
-<NavPage title="Copy containers to a pod" searchEnabled="{false}" subtitle="Create a pod from containers">
+<NavPage title="Copy containers to a pod" searchEnabled="{false}">
   <div class="w-full h-full" slot="empty">
     <div class="m-5 p-5 h-full bg-zinc-900 rounded-sm text-gray-400">
       {#if podCreation}
@@ -205,7 +206,7 @@ onDestroy(() => {
       </button>
 
       {#if createError}
-        <div class="pt-4 text-red-500 text-sm">{createError}</div>
+        <ErrorMessage class="pt-2 text-sm" error="{createError}" />
       {/if}
     </div>
   </div>

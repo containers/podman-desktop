@@ -21,19 +21,11 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
 
 * macOS
 * [Podman](../Installation/macos-install)
-* [Homebrew](https://brew.sh/)
 * Docker service is [paused](https://docs.docker.com/desktop/use-desktop/pause/) and [*Start Docker Desktop when you log in* is disabled](https://docs.docker.com/desktop/settings/mac/), or Docker is [uninstalled](https://docs.docker.com/desktop/uninstall/).
 
 #### Procedure
 
-1. Install the `podman-mac-helper` tool.
-   Run the command:
-
-    ```sh
-    brew install podman-mac-helper
-    ```
-
-2. Set up the `podman-mac-helper` service for each user.
+* Set up the `podman-mac-helper` service for each user.
    Run the command:
 
     ```sh

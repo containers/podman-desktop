@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import { filtered, searchPattern } from '../stores/containers';
+import { filtered, searchPattern, containersInfos } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import ContainerIcon from './images/ContainerIcon.svelte';
@@ -18,12 +18,12 @@ import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.s
 import moment from 'moment';
 import type { Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
-import { faChevronDown, faChevronRight, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
+import ErrorMessage from './ui/ErrorMessage.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
 import KubePlayButton from './kube/KubePlayButton.svelte';
 import Prune from './engine/Prune.svelte';
-import Tooltip from './ui/Tooltip.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
 
 const containerUtils = new ContainerUtils();
@@ -192,7 +192,6 @@ onMount(async () => {
       return {
         name: container.engineName,
         id: container.engineId,
-        type: container.engineType,
       };
     });
 
@@ -316,12 +315,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
 }
 </script>
 
-<NavPage
-  bind:searchTerm="{searchTerm}"
-  title="containers"
-  subtitle="Hover over a container to view action buttons; click to open up full details.">
+<NavPage bind:searchTerm="{searchTerm}" title="containers">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
-    <Prune type="containers" engines="{enginesList}" />
+    <!-- Only show if there are containers-->
+    {#if $containersInfos.length > 0}
+      <Prune type="containers" engines="{enginesList}" />
+    {/if}
     <button on:click="{() => toggleCreateContainer()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-plus-circle" aria-hidden="true"></i>
@@ -545,9 +544,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                           ></path>
                         </svg>
                       {:else if container.actionError}
-                        <Tooltip tip="{container.actionError}" top>
-                          <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
-                        </Tooltip>
+                        <ErrorMessage error="{container.actionError}" icon />
                       {:else}
                         <div>&nbsp;</div>
                       {/if}

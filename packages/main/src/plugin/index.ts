@@ -21,7 +21,8 @@
  */
 import * as os from 'node:os';
 import * as path from 'path';
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
+import { UPDATER_UPDATE_AVAILABLE_ICON } from '..';
 import { CommandRegistry } from './command-registry';
 import { ContainerProviderRegistry } from './container-registry';
 import { ExtensionLoader } from './extension-loader';
@@ -39,7 +40,8 @@ import type {
   ProviderInfo,
 } from './api/provider-info';
 import type { WebContents } from 'electron';
-import { ipcMain, BrowserWindow } from 'electron';
+import { app } from 'electron';
+import { ipcMain, BrowserWindow, dialog } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { PullEvent } from './api/pull-event';
@@ -48,7 +50,7 @@ import { shell } from 'electron';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
-import { isMac } from '../util';
+import { isLinux, isMac } from '../util';
 import { Dialogs } from './dialog-impl';
 import { ProgressImpl } from './progress-impl';
 import type { ContributionInfo } from './api/contribution-info';
@@ -82,10 +84,23 @@ import { FilesystemMonitoring } from './filesystem-monitoring';
 import { Certificates } from './certificates';
 import { Proxy } from './proxy';
 import { EditorInit } from './editor-init';
+import { WelcomeInit } from './welcome/welcome-init';
 import { ExtensionInstaller } from './install/extension-installer';
 import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
+import type { Menu } from '/@/plugin/menu-registry';
+import { MenuRegistry } from '/@/plugin/menu-registry';
+import { CancellationTokenRegistry } from './cancellation-token-registry';
+import type { UpdateCheckResult } from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
+import { clipboard } from 'electron';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
+
+export interface LoggerWithEnd extends containerDesktopAPI.Logger {
+  // when task is finished, this function is called
+  onEnd: () => void;
+}
+
 export class PluginSystem {
   // ready is when we've finished to initialize extension system
   private isReady = false;
@@ -260,10 +275,12 @@ export class PluginSystem {
     await proxy.init();
 
     const commandRegistry = new CommandRegistry();
+    const menuRegistry = new MenuRegistry(commandRegistry);
     const certificates = new Certificates();
     await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
+    const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
@@ -293,6 +310,21 @@ export class PluginSystem {
     statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
 
     statusBarRegistry.setEntry(
+      'tasks',
+      false,
+      0,
+      undefined,
+      'tasks',
+      'fa fa-bell',
+      true,
+      'show-task-manager',
+      undefined,
+    );
+    commandRegistry.registerCommand('show-task-manager', () => {
+      apiSender.send('toggle-task-manager', '');
+    });
+
+    statusBarRegistry.setEntry(
       'feedback',
       false,
       0,
@@ -303,6 +335,180 @@ export class PluginSystem {
       'feedback',
       undefined,
     );
+
+    // Get the current version of our application
+    const currentVersion = `v${app.getVersion()}`;
+
+    // Add version entry to the status bar
+    const defaultVersionEntry = () => {
+      statusBarRegistry.setEntry(
+        'version',
+        false,
+        0,
+        currentVersion,
+        `Using version ${currentVersion}`,
+        undefined,
+        true,
+        'version',
+        undefined,
+      );
+    };
+    defaultVersionEntry();
+
+    // Show a "No update available" only for macOS and Windows users and on production builds
+    let detailMessage: string;
+    if (!isLinux() && import.meta.env.PROD) {
+      detailMessage = 'No update available';
+    }
+
+    // Register command 'version' that will display the current version and say that no update is available.
+    // Only show the "no update available" command for macOS and Windows users, not linux users.
+    commandRegistry.registerCommand('version', () => {
+      dialog.showMessageBox({
+        type: 'info',
+        title: 'Version',
+        message: `Using version ${currentVersion}`,
+        detail: detailMessage,
+      });
+    });
+
+    // Only check on production builds for Windows and macOS users
+    if (import.meta.env.PROD && !isLinux()) {
+      // disable auto download
+      autoUpdater.autoDownload = false;
+
+      let updateInProgress = false;
+      let updateAlreadyDownloaded = false;
+
+      // setup the event listeners
+      autoUpdater.on('update-available', () => {
+        updateInProgress = false;
+        updateAlreadyDownloaded = false;
+
+        // Update the 'version' entry in the status bar to show that an update is available
+        // this uses setEntry to update the existing entry
+        statusBarRegistry.setEntry(
+          'version',
+          false,
+          0,
+          currentVersion,
+          'Update available',
+          UPDATER_UPDATE_AVAILABLE_ICON,
+          true,
+          'update',
+          undefined,
+        );
+      });
+
+      autoUpdater.on('update-not-available', () => {
+        updateInProgress = false;
+        updateAlreadyDownloaded = false;
+
+        // Update the 'version' entry in the status bar to show that no update is available
+        defaultVersionEntry();
+      });
+
+      autoUpdater.on('update-downloaded', async () => {
+        updateAlreadyDownloaded = true;
+        updateInProgress = false;
+        const result = await dialog.showMessageBox({
+          title: 'Update Downloaded',
+          message: 'Update downloaded, Do you want to restart Podman Desktop ?',
+          cancelId: 1,
+          type: 'info',
+          buttons: ['Restart', 'Cancel'],
+        });
+        if (result.response === 0) {
+          setImmediate(() => autoUpdater.quitAndInstall());
+        }
+      });
+
+      autoUpdater.on('error', error => {
+        updateInProgress = false;
+        // local build not pushed to GitHub so prevent any 'update'
+        if (error?.message?.includes('No published versions on GitHub')) {
+          console.log('Cannot check for updates, no published versions on GitHub');
+          defaultVersionEntry();
+          return;
+        }
+        console.error('unable to check for updates', error);
+        dialog.showErrorBox('Error: ', error == null ? 'unknown' : (error.stack || error).toString());
+      });
+
+      // check for updates now
+      let updateCheckResult: UpdateCheckResult | null;
+
+      try {
+        updateCheckResult = await autoUpdater.checkForUpdates();
+      } catch (error) {
+        console.error('unable to check for updates', error);
+      }
+
+      // Create an interval to check for updates every 12 hours
+      setInterval(async () => {
+        try {
+          updateCheckResult = await autoUpdater.checkForUpdates();
+        } catch (error) {
+          console.log('unable to check for updates', error);
+        }
+      }, 1000 * 60 * 60 * 12);
+
+      // Update will create the standard "autoUpdater" dialog / update process that Electron provides
+      commandRegistry.registerCommand('update', async () => {
+        if (updateAlreadyDownloaded) {
+          const result = await dialog.showMessageBox({
+            type: 'info',
+            title: 'Update',
+            message: 'There is already an update downloaded. Please Restart Podman Desktop.',
+            cancelId: 1,
+            buttons: ['Restart', 'Cancel'],
+          });
+          if (result.response === 0) {
+            setImmediate(() => autoUpdater.quitAndInstall());
+          }
+          return;
+        }
+
+        if (updateInProgress) {
+          await dialog.showMessageBox({
+            type: 'info',
+            title: 'Update',
+            message: 'There is already an update in progress. Please wait until it is downloaded',
+            buttons: ['OK'],
+          });
+          return;
+        }
+
+        // Get the version of the update
+        const updateVersion = updateCheckResult?.updateInfo.version ? `v${updateCheckResult?.updateInfo.version}` : '';
+
+        const result = await dialog.showMessageBox({
+          type: 'info',
+          title: 'Update Available',
+          message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${currentVersion}?`,
+          buttons: ['Update', 'Cancel'],
+          cancelId: 1,
+        });
+        if (result.response === 0) {
+          updateInProgress = true;
+          updateAlreadyDownloaded = false;
+
+          // Download update and try / catch it and create a dialog if it fails
+          try {
+            await autoUpdater.downloadUpdate();
+          } catch (error) {
+            console.error('Update error: ', error);
+            dialog.showMessageBox({
+              type: 'error',
+              title: 'Update Failed',
+              message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,
+              buttons: ['OK'],
+            });
+          }
+        }
+      });
+    }
+
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
     });
@@ -318,8 +524,13 @@ export class PluginSystem {
     const editorInit = new EditorInit(configurationRegistry);
     editorInit.init();
 
+    // init welcome configuration
+    const welcomeInit = new WelcomeInit(configurationRegistry);
+    welcomeInit.init();
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
+      menuRegistry,
       providerRegistry,
       configurationRegistry,
       imageRegistry,
@@ -356,6 +567,13 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listVolumes', async (): Promise<VolumeListInfo[]> => {
       return containerProviderRegistry.listVolumes();
     });
+    this.ipcHandle(
+      'container-provider-registry:pruneVolumes',
+      async (_listener, engine: string): Promise<Dockerode.PruneVolumesInfo> => {
+        return containerProviderRegistry.pruneVolumes(engine);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:getVolumeInspect',
       async (_listener, engine: string, volumeName: string): Promise<VolumeInspectInfo> => {
@@ -503,6 +721,14 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle('container-provider-registry:prunePods', async (_listener, engine: string): Promise<void> => {
+      return containerProviderRegistry.prunePods(engine);
+    });
+
+    this.ipcHandle('container-provider-registry:pruneImages', async (_listener, engine: string): Promise<void> => {
+      return containerProviderRegistry.pruneImages(engine);
+    });
+
     this.ipcHandle(
       'container-provider-registry:restartContainer',
       async (_listener, engine: string, containerId: string): Promise<void> => {
@@ -619,6 +845,18 @@ export class PluginSystem {
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
       return providerRegistry.getProviderInfos();
+    });
+
+    this.ipcHandle('menu-registry:getContributedMenus', async (_, context: string): Promise<Menu[]> => {
+      return menuRegistry.getContributedMenus(context);
+    });
+
+    this.ipcHandle('command-registry:executeCommand', async (_, command: string, ...args: unknown[]): Promise<void> => {
+      return commandRegistry.executeCommand(command, ...args);
+    });
+
+    this.ipcHandle('clipboard:writeText', async (_, text: string, type?: 'selection' | 'clipboard'): Promise<void> => {
+      return clipboard.writeText(text, type);
     });
 
     this.ipcHandle(
@@ -946,8 +1184,11 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        await providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        logger.onEnd();
       },
     );
 
@@ -957,8 +1198,11 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        await providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        logger.onEnd();
       },
     );
 
@@ -968,8 +1212,11 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        await providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        logger.onEnd();
       },
     );
 
@@ -980,12 +1227,16 @@ export class PluginSystem {
         internalProviderId: string,
         params: { [key: string]: unknown },
         loggerId: string,
+        tokenId?: number,
       ): Promise<void> => {
-        return providerRegistry.createContainerProviderConnection(
-          internalProviderId,
-          params,
-          this.getLogHandlerCreateConnection(loggerId),
-        );
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        let token;
+        if (tokenId) {
+          const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+          token = tokenSource?.token;
+        }
+        await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
+        logger.onEnd();
       },
     );
 
@@ -997,11 +1248,10 @@ export class PluginSystem {
         params: { [key: string]: unknown },
         loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.createKubernetesProviderConnection(
-          internalProviderId,
-          params,
-          this.getLogHandlerCreateConnection(loggerId),
-        );
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+
+        await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger);
+        logger.onEnd();
       },
     );
 
@@ -1077,6 +1327,17 @@ export class PluginSystem {
       return telemetry.sendFeedback(feedbackProperties);
     });
 
+    this.ipcHandle('cancellableTokenSource:create', async (): Promise<number> => {
+      return cancellationTokenRegistry.createCancellationTokenSource();
+    });
+
+    this.ipcHandle('cancellableToken:cancel', async (_listener, id: number): Promise<void> => {
+      const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(id);
+      if (!tokenSource?.token.isCancellationRequested) {
+        tokenSource?.dispose(true);
+      }
+    });
+
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,
@@ -1100,16 +1361,19 @@ export class PluginSystem {
     return this.extensionLoader;
   }
 
-  getLogHandlerCreateConnection(loggerId: string): containerDesktopAPI.Logger {
+  getLogHandlerCreateConnection(channel: string, loggerId: string): LoggerWithEnd {
     return {
       log: (...data: unknown[]) => {
-        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'log', data);
+        this.getWebContentsSender().send(channel, loggerId, 'log', data);
       },
       warn: (...data: unknown[]) => {
-        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'warn', data);
+        this.getWebContentsSender().send(channel, loggerId, 'warn', data);
       },
       error: (...data: unknown[]) => {
-        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'error', data);
+        this.getWebContentsSender().send(channel, loggerId, 'error', data);
+      },
+      onEnd: () => {
+        this.getWebContentsSender().send(channel, loggerId, 'finish');
       },
     };
   }

@@ -9,6 +9,9 @@ import ProviderConfigured from './ProviderConfigured.svelte';
 import ProviderStopped from './ProviderStopped.svelte';
 import ProviderStarting from './ProviderStarting.svelte';
 import NavPage from '../ui/NavPage.svelte';
+import type { InitializationMode } from './ProviderInitUtils';
+
+const providerInitMode = new Map<string, InitializationMode>();
 
 $: providersNotInstalled = $providerInfos.filter(provider => provider.status === 'not-installed');
 $: providersInstalled = $providerInfos.filter(provider => provider.status === 'installed');
@@ -16,9 +19,13 @@ $: providersConfigured = $providerInfos.filter(provider => provider.status === '
 $: providersReady = $providerInfos.filter(provider => provider.status === 'ready' || provider.status === 'started');
 $: providersStarting = $providerInfos.filter(provider => provider.status === 'starting');
 $: providersStopped = $providerInfos.filter(provider => provider.status === 'stopped');
+
+function updateInitializationMode(id: string, mode: InitializationMode) {
+  providerInitMode.set(id, mode);
+}
 </script>
 
-<NavPage searchEnabled="{false}" title="Dashboard" subtitle="&nbsp;">
+<NavPage searchEnabled="{false}" title="Dashboard">
   <div slot="empty" class="flex flex-col min-h-full bg-zinc-700">
     <div class="min-w-full flex-1">
       <div class="pt-5 px-5 space-y-5">
@@ -40,7 +47,7 @@ $: providersStopped = $providerInfos.filter(provider => provider.status === 'sto
           display a box to indicate how to make the provider ready -->
         {#if providersInstalled.length > 0}
           {#each providersInstalled as providerInstalled}
-            <ProviderInstalled provider="{providerInstalled}" />
+            <ProviderInstalled provider="{providerInstalled}" updateInitializationMode="{updateInitializationMode}" />
           {/each}
         {/if}
 
@@ -48,7 +55,9 @@ $: providersStopped = $providerInfos.filter(provider => provider.status === 'sto
           display a box to indicate how to make the provider ready -->
         {#if providersConfigured.length > 0}
           {#each providersConfigured as providerConfigured}
-            <ProviderConfigured provider="{providerConfigured}" />
+            <ProviderConfigured
+              provider="{providerConfigured}"
+              initializationMode="{providerInitMode.get(providerConfigured.internalId)}" />
           {/each}
         {/if}
 

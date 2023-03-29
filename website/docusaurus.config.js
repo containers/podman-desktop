@@ -63,6 +63,12 @@ const config = {
         disableSwitch: false,
         respectPrefersColorScheme: false,
       },
+      docs: {
+        sidebar: {
+          autoCollapseCategories: true,
+          hideable: true,
+        },
+      },
       navbar: {
         title,
         logo: {
@@ -72,8 +78,8 @@ const config = {
         },
         items: [
           {
-            type: 'doc',
-            docId: 'intro',
+            type: 'docSidebar',
+            sidebarId: 'mySidebar',
             position: 'left',
             label: 'Documentation',
           },
@@ -112,7 +118,7 @@ const config = {
               },
               {
                 label: 'Using Compose',
-                to: '/docs/podman-compose',
+                to: '/docs/compose/podman-compose',
               },
               {
                 label: 'Troubleshooting',

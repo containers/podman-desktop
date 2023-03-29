@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "lib": [
+        "ES2017",
+        "webworker"
+    ],
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "skipLibCheck": true,
+    "types": [
+        "node",
+    ]
+},
+
+"include": [
+    "src",
+    "types/*.d.ts",
+    "../../types/**/*.d.ts"
+]
+}

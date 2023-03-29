@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
@@ -174,11 +174,19 @@ export class RegistrySetup {
     }
 
     return new Promise((resolve, reject) => {
-      fs.readFile(this.getAuthFileLocation(), 'utf8', (err, data) => {
+      fs.readFile(this.getAuthFileLocation(), 'utf-8', (err, data) => {
         if (err) {
           reject(err);
         } else {
-          resolve(JSON.parse(data));
+          let authFile: ContainersAuthConfigFile;
+          try {
+            authFile = JSON.parse(data);
+          } catch (error) {
+            console.error('Error parsing auth file', error);
+            // return empty auth file
+            resolve({});
+          }
+          resolve(authFile);
         }
       });
     });

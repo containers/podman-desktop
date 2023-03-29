@@ -12,6 +12,7 @@ import type { NetworkInspectInfo } from '../../../../main/src/plugin/api/network
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { ContainerUtils } from '../container/container-utils';
 import { containersInfos } from '../../stores/containers';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 let image: ImageInfoUI;
 
 let imageInspectInfo: ImageInspectInfo;
@@ -385,10 +386,7 @@ function checkContainerName(event: any) {
 
 <Route path="/*" let:meta>
   {#if dataReady}
-    <NavPage
-      title="Create a container from image {imageDisplayName}"
-      searchEnabled="{false}"
-      subtitle="{image.tag}@{image.shortId} ">
+    <NavPage title="Create a container from image {imageDisplayName}:{image.tag}" searchEnabled="{false}">
       <div slot="empty" class="bg-zinc-700 p-5 h-full">
         <div class="bg-zinc-800 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
           <section class="pf-c-page__main-tabs pf-m-limit-width">
@@ -447,10 +445,10 @@ function checkContainerName(event: any) {
                   name="modalContainerName"
                   id="modalContainerName"
                   placeholder="Leave blank to generate a name"
-                  class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400 border  {containerNameError
+                  class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400 border {containerNameError
                     ? 'border-red-500'
                     : 'border-zinc-900'}" />
-                <div class="h-1 text-sm text-red-500 text-xs">{containerNameError}</div>
+                <ErrorMessage class="h-1 text-sm" error="{containerNameError}" />
                 <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
                   >Volumes:</label>
                 <!-- Display the list of volumes -->
@@ -893,7 +891,7 @@ function checkContainerName(event: any) {
               <i class="fas fa-play" aria-hidden="true"></i>
             </span>
             Start Container</button>
-          <div class="py-2 text-red-500 text-sm {createError ? 'opacity-100' : 'opacity-0'}">{createError}</div>
+          <ErrorMessage class="py-2 text-sm" error="{createError}" />
         </div>
       </div>
     </NavPage>

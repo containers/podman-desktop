@@ -25,7 +25,7 @@ import getos from 'getos';
 import * as osLocale from 'os-locale';
 import { promisify } from 'node:util';
 import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry';
-import { CONFIGURATION_DEFAULT_SCOPE } from '../configuration-registry';
+import { CONFIGURATION_DEFAULT_SCOPE } from '../configuration-registry-constants';
 import { findWindow } from '../../util';
 
 /**

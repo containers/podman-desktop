@@ -16,18 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { runCliCommand, detectKind } from './util';
+import { KindInstaller } from './kind-installer';
+import { window } from '@podman-desktop/api';
+import { tmpName } from 'tmp-promise';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
+
+const KIND_INSTALL_COMMAND = 'kind.install';
+
+const KIND_MOVE_IMAGE_COMMAND = 'kind.image.move';
 
 interface KindCluster {
   name: string;
   status: extensionApi.ProviderConnectionStatus;
   apiPort: number;
+  engineType: 'podman' | 'docker';
 }
 
 let kindClusters: KindCluster[] = [];
@@ -35,6 +43,8 @@ const registeredKubernetesConnections: {
   connection: extensionApi.KubernetesProviderConnection;
   disposable: extensionApi.Disposable;
 }[] = [];
+
+let kindCli: string | undefined;
 
 function registerProvider(extensionContext: extensionApi.ExtensionContext, provider: extensionApi.Provider): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,7 +109,7 @@ nodes:
     await fs.promises.writeFile(tmpFilePath, kindClusterConfig, 'utf8');
 
     // now execute the command to create the cluster
-    const result = await runCliCommand('kind', ['create', 'cluster', '--config', tmpFilePath], { env, logger });
+    const result = await runCliCommand(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger });
 
     // delete temporary directory/file
     await fs.promises.rm(tmpDirectory, { recursive: true });
@@ -137,6 +147,7 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
       name: clusterName,
       status,
       apiPort: listeningPort?.PublicPort || 0,
+      engineType: container.engineType,
     };
   });
 
@@ -184,13 +195,58 @@ async function searchKindClusters(provider: extensionApi.Provider) {
   updateClusters(provider, kindContainers);
 }
 
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const foundKind = await detectKind();
-  if (!foundKind) {
-    console.log('kind binary was not found in the path, not activating the extension');
-    return;
-  }
+type ImageInfo = { engineId: string; id?: string; name?: string };
 
+async function moveImage(image: ImageInfo) {
+  if (!image.id) {
+    throw new Error('Image selection not supported yet');
+  }
+  const clusters = kindClusters.filter(cluster => cluster.status === 'started');
+  let selectedCluster: { label: string; engineType: string };
+
+  if (clusters.length == 0) {
+    throw new Error('No Kind clusters to push to');
+  } else if (clusters.length == 1) {
+    selectedCluster = { label: clusters[0].name, engineType: clusters[0].engineType };
+  } else {
+    selectedCluster = await extensionApi.window.showQuickPick(
+      clusters.map(cluster => {
+        return { label: cluster.name, engineType: cluster.engineType };
+      }),
+      { placeHolder: 'Select a Kind cluster to push to' },
+    );
+  }
+  if (selectedCluster) {
+    const filename = await tmpName();
+    try {
+      await extensionApi.containerEngine.saveImage(image.engineId, image.id, filename);
+      const env = process.env;
+      if (selectedCluster.engineType === 'podman') {
+        env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
+      } else {
+        env['KIND_EXPERIMENTAL_PROVIDER'] = 'docker';
+      }
+      const result = await runCliCommand(kindCli, ['load', 'image-archive', '-n', selectedCluster.label, filename], {
+        env: env,
+      });
+      if (result.exitCode === 0) {
+        extensionApi.window.showNotification({
+          body: `Image ${image.name} pushed to Kind cluster ${selectedCluster.label}`,
+        });
+      } else {
+        throw new Error(
+          `Error while pushing image ${image.name} to Kind cluster ${selectedCluster.label}: ${result.error}`,
+        );
+      }
+    } catch (err) {
+      throw new Error(`Error while pushing image ${image.name} to Kind cluster ${selectedCluster.label}: ${err}`);
+    } finally {
+      fs.promises.rm(filename);
+    }
+  }
+}
+
+function createProvider(extensionContext: extensionApi.ExtensionContext) {
   const provider = extensionApi.provider.createProvider({
     name: 'Kind',
     id: 'kind',
@@ -204,8 +260,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   });
   extensionContext.subscriptions.push(provider);
-
   registerProvider(extensionContext, provider);
+  extensionContext.subscriptions.push(
+    extensionApi.commands.registerCommand(KIND_MOVE_IMAGE_COMMAND, image => moveImage(image)),
+  );
 
   // when containers are refreshed, update
   extensionApi.containerEngine.onEvent(async event => {
@@ -222,6 +280,39 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   extensionApi.provider.onDidUnregisterContainerConnection(() => {
     searchKindClusters(provider);
   });
+  extensionApi.provider.onDidUpdateProvider(() => registerProvider(extensionContext, provider));
+}
+
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  const installer = new KindInstaller(extensionContext.storagePath);
+  kindCli = await detectKind(extensionContext.storagePath, installer);
+
+  if (!kindCli) {
+    if (await installer.isAvailable()) {
+      const statusBarItem = extensionApi.window.createStatusBarItem();
+      statusBarItem.text = 'Kind';
+      statusBarItem.tooltip = 'Kind not found on your system, click to download and install it';
+      statusBarItem.command = KIND_INSTALL_COMMAND;
+      statusBarItem.iconClass = 'fa fa-exclamation-triangle';
+      extensionContext.subscriptions.push(
+        extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () =>
+          installer.performInstall().then(
+            async status => {
+              if (status) {
+                statusBarItem.dispose();
+                kindCli = await detectKind(extensionContext.storagePath, installer);
+                createProvider(extensionContext);
+              }
+            },
+            err => window.showErrorMessage('Kind installation failed ' + err),
+          ),
+        ),
+      );
+      statusBarItem.show();
+    }
+  } else {
+    createProvider(extensionContext);
+  }
 }
 
 export function deactivate(): void {

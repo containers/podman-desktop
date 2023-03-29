@@ -44,18 +44,30 @@
         }
 
       }
+    },
+    "menus": {
+      "dashboard/image": [
+        {
+          "command": "kind.image.move",
+          "title": "Push image to Kind cluster"
+        }
+      ]
     }
   },
   "scripts": {
-    "build": "tsc && node ./scripts/build.js",
+    "build": "tsc && node ./scripts/build.js",    
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch --coverage",
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@tmpwip/extension-api": "^0.0.1"
+    "@podman-desktop/api": "^0.0.1",
+    "@octokit/rest": "^19.0.7"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
-    "mkdirp": "^2.1.3",
+    "mkdirp": "^2.1.6",
+    "vite": "^4.2.1",
     "zip-local": "^0.3.5"
   }
 }

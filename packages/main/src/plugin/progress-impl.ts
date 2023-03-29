@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type * as extensionApi from '@tmpwip/extension-api';
+import type * as extensionApi from '@podman-desktop/api';
 import { findWindow } from '../util';
 import { CancellationTokenImpl } from './cancellation-token';
 

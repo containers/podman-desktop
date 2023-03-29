@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderConnectionStatus, ProviderStatus } from '@tmpwip/extension-api';
+import type { ProviderConnectionStatus, ProviderStatus } from '@podman-desktop/api';
 import { ipcMain, dialog } from 'electron';
 import type { TrayMenu } from '../tray-menu';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from './api/provider-info';
@@ -146,10 +146,11 @@ export class TrayMenuRegistry {
     });
   }
 
-  registerProviderMenuItem(providerName: string, menuItem: MenuItem): Disposable {
+  registerProviderMenuItem(providerId: string, menuItem: MenuItem): Disposable {
     this.menuItems.set(menuItem.id, menuItem);
-    ipcMain.emit('tray:add-provider-menu-item', '', { providerName, menuItem });
+    ipcMain.emit('tray:add-provider-menu-item', '', { providerId, menuItem });
     return Disposable.create(() => {
+      this.trayMenu.deleteProviderItem(providerId, menuItem.id);
       this.menuItems.delete(menuItem.id);
     });
   }

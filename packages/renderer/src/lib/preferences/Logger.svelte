@@ -49,7 +49,7 @@ async function refreshTerminal() {
   fitAddon.fit();
 }
 onMount(async () => {
-  refreshTerminal();
+  await refreshTerminal();
   if (onInit) {
     onInit();
   }

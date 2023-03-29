@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ProviderDetectionCheck } from '@tmpwip/extension-api';
+import type { ProviderDetectionCheck } from '@podman-desktop/api';
 
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 
@@ -36,7 +36,7 @@ async function toggleDetectionChecks(provider: ProviderInfo) {
     disabled="{viewInProgress}"
     type="button"
     title="Why {provider.name} is not found.">
-    <span class="pf-c-button__icon pf-m-start ">
+    <span class="pf-c-button__icon pf-m-start">
       {#if viewInProgress}
         <div class="mr-44">
           <i class="pf-c-button__progress">

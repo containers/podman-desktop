@@ -28,7 +28,7 @@ import type {
 import { CustomObjectsApi } from '@kubernetes/client-node';
 import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
 import { Uri } from './types/uri';
 import { homedir } from 'node:os';
@@ -94,6 +94,7 @@ export class KubernetesClient {
 
   private kubeConfigWatcher: containerDesktopAPI.FileSystemWatcher | undefined;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private kubeWatcher: any | undefined;
 
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
@@ -101,6 +102,7 @@ export class KubernetesClient {
     this._onDidUpdateKubeconfig.event;
 
   constructor(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private apiSender: any,
     private configurationRegistry: ConfigurationRegistry,
     private fileSystemMonitoring: FilesystemMonitoring,
@@ -189,7 +191,7 @@ export class KubernetesClient {
           '/api/v1/namespaces/' + ns + '/pods',
           {},
           () => this.apiSender.send('pod-event'),
-          (err: any) => console.error('Kube event error', err),
+          (err: unknown) => console.error('Kube event error', err),
         )
         .then(req => (this.kubeWatcher = req));
     }

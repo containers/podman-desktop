@@ -1,5 +1,5 @@
 <script lang="ts">
-import { filtered, searchPattern } from '../stores/images';
+import { filtered, searchPattern, imagesInfos } from '../stores/images';
 import { onDestroy, onMount } from 'svelte';
 import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
 
@@ -18,12 +18,17 @@ import type { Unsubscriber } from 'svelte/store';
 import { containersInfos } from '../stores/containers';
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import moment from 'moment';
+import Prune from './engine/Prune.svelte';
+import type { EngineInfoUI } from './engine/EngineInfoUI';
+import type { Menu } from '../../../main/src/plugin/menu-registry';
+import { MenuContext } from '../../../main/src/plugin/menu-registry';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let images: ImageInfoUI[] = [];
 let multipleEngines = false;
+let enginesList: EngineInfoUI[];
 
 let pushImageModal = false;
 let pushImageModalImageInfo = undefined;
@@ -62,15 +67,25 @@ function updateImages() {
   });
   images = computedImages;
 
-  // multiple engines ?
-  const engineNamesArray = images.map(image => image.engineName);
-  // remove duplicates
-  const engineNames = [...new Set(engineNamesArray)];
-  if (engineNames.length > 1) {
+  // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
+  const engines = images.map(container => {
+    return {
+      name: container.engineName,
+      id: container.engineId,
+    };
+  });
+
+  // Remove duplicates from engines by name
+  const uniqueEngines = engines.filter((engine, index, self) => index === self.findIndex(t => t.name === engine.name));
+
+  if (uniqueEngines.length > 1) {
     multipleEngines = true;
   } else {
     multipleEngines = false;
   }
+
+  // Set the engines to the global variable for the Prune functionality button
+  enginesList = uniqueEngines;
 
   // compute refresh interval
   const interval = computeInterval();
@@ -81,6 +96,8 @@ let imagesUnsubscribe: Unsubscriber;
 let containersUnsubscribe: Unsubscriber;
 let storeContainers: ContainerInfo[] = [];
 let storeImages: ImageInfo[] = [];
+let contributedMenus: Menu[];
+
 onMount(async () => {
   containersUnsubscribe = containersInfos.subscribe(value => {
     storeContainers = value;
@@ -91,6 +108,8 @@ onMount(async () => {
     storeImages = value;
     updateImages();
   });
+
+  contributedMenus = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
 });
 
 onDestroy(() => {
@@ -196,11 +215,11 @@ function computeInterval(): number {
 }
 </script>
 
-<NavPage
-  bind:searchTerm="{searchTerm}"
-  title="images"
-  subtitle="Hover over an image to view action buttons; click to open up full details.">
+<NavPage bind:searchTerm="{searchTerm}" title="images">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+    {#if $imagesInfos.length > 0}
+      <Prune type="images" engines="{enginesList}" />
+    {/if}
     <button on:click="{() => gotoPullImage()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
@@ -275,14 +294,14 @@ function computeInterval(): number {
                 class:cursor-not-allowed="{image.inUse}"
                 class:opacity-10="{image.inUse}"
                 title="{image.inUse ? 'Image is used by a container' : ''}"
-                class=" invert hue-rotate-[218deg] brightness-75 " />
+                class=" invert hue-rotate-[218deg] brightness-75" />
             </td>
             <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center content-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
                 <StatusIcon icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
               </div>
             </td>
-            <td class="whitespace-nowrap  w-10 hover:cursor-pointer" on:click="{() => openDetailsImage(image)}">
+            <td class="whitespace-nowrap w-10 hover:cursor-pointer" on:click="{() => openDetailsImage(image)}">
               <div class="flex items-center">
                 <div class="">
                   <div class="flex flex-row items-center">
@@ -314,7 +333,11 @@ function computeInterval(): number {
               </div>
             </td>
             <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
-              <ImageActions image="{image}" onPushImage="{handlePushImageModal}" dropdownMenu="{true}" />
+              <ImageActions
+                image="{image}"
+                onPushImage="{handlePushImageModal}"
+                dropdownMenu="{true}"
+                contributions="{contributedMenus}" />
             </td>
           </tr>
           <tr><td class="leading-[8px]">&nbsp;</td></tr>

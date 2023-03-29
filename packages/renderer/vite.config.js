@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,11 @@ import * as path from 'path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'url';
-import { coverageConfig } from '../main/vite.config';
+import { coverageConfig } from '../../vitest-shared-extensions.config';
 
 let filename = fileURLToPath(import.meta.url);
 const PACKAGE_ROOT = path.dirname(filename);
+const PACKAGE_NAME = 'renderer';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -44,12 +45,16 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     globals: true,
     environment: 'jsdom',
+    alias: [
+      // https://github.com/vitest-dev/vitest/issues/2834
+      { find: /^svelte$/, replacement: 'svelte/internal' },
+    ],
     deps: {
       inline: [
         'moment',
       ],
     },
-      ...coverageConfig('renderer'),
+      ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
   base: '',
   server: {

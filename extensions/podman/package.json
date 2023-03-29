@@ -39,14 +39,14 @@
           "minimum": 1024,
           "default": 2048,
           "scope": "ContainerConnection",
-          "description": "Memory (MB)"
+          "description": "Memory"
         },
         "podman.machine.diskSize": {
           "type": "number",
           "format": "diskSize",
           "default": 100,
           "scope": "ContainerConnection",
-          "description": "Disk size (GB)"
+          "description": "Disk size"
         },
         "podman.factory.machine.name": {
           "type": "string",
@@ -88,17 +88,19 @@
   "scripts": {
     "build": "rollup --bundleConfigAsCjs --config rollup.config.js --compact --environment BUILD:production && npx ts-node ./scripts/download.ts  && node ./scripts/build.js",
     "watch": "rollup --bundleConfigAsCjs --config rollup.config.js -w",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch --coverage"
   },
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
-    "@tmpwip/extension-api": "^0.0.1",
-    "compare-versions": "^5.0.3"
+    "@podman-desktop/api": "^0.0.1",
+    "compare-versions": "^5.0.3",
+    "sudo-prompt": "^9.2.1"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
     "hasha": "^5.2.2",
-    "mkdirp": "^2.1.3",
+    "mkdirp": "^2.1.6",
     "octokit": "^2.0.14",
     "ts-node": "^10.9.1",
     "zip-local": "^0.3.5"

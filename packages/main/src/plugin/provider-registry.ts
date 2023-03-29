@@ -34,7 +34,9 @@ import type {
   RegisterKubernetesConnectionEvent,
   Logger,
   ProviderInformation,
-} from '@tmpwip/extension-api';
+  ProviderContainerConnection,
+  CancellationToken,
+} from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
@@ -336,7 +338,7 @@ export class ProviderRegistry {
     }
 
     if (!installOrUpdate.preflightChecks) {
-      return false;
+      return true;
     }
 
     const checks = installOrUpdate.preflightChecks();
@@ -587,6 +589,7 @@ export class ProviderRegistry {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params: { [key: string]: any },
     logHandler: Logger,
+    token?: CancellationToken,
   ): Promise<void> {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
@@ -596,8 +599,7 @@ export class ProviderRegistry {
     }
 
     // create a logger
-
-    return provider.containerProviderConnectionFactory.create(params, logHandler);
+    return provider.containerProviderConnectionFactory.create(params, logHandler, token);
   }
 
   async createKubernetesProviderConnection(
@@ -636,6 +638,7 @@ export class ProviderRegistry {
   async startProviderConnection(
     internalProviderId: string,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    logHandler?: Logger,
   ): Promise<void> {
     // grab the correct provider
     const connection = this.getMatchingContainerConnectionFromProvider(
@@ -653,12 +656,13 @@ export class ProviderRegistry {
       throw new Error('The connection does not have context to start');
     }
 
-    return lifecycle.start(context);
+    return lifecycle.start(context, logHandler);
   }
 
   async stopProviderConnection(
     internalProviderId: string,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    logHandler?: Logger,
   ): Promise<void> {
     // grab the correct provider
     const connection = this.getMatchingContainerConnectionFromProvider(
@@ -676,12 +680,13 @@ export class ProviderRegistry {
       throw new Error('The connection does not have context to start');
     }
 
-    return lifecycle.stop(context);
+    return lifecycle.stop(context, logHandler);
   }
 
   async deleteProviderConnection(
     internalProviderId: string,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    logHandler?: Logger,
   ): Promise<void> {
     // grab the correct provider
     const connection = this.getMatchingContainerConnectionFromProvider(
@@ -694,7 +699,7 @@ export class ProviderRegistry {
       throw new Error('The container connection does not support delete lifecycle');
     }
     this.telemetryService.track('deleteProviderConnection', { name: providerContainerConnectionInfo.name });
-    return lifecycle.delete();
+    return lifecycle.delete(logHandler);
   }
 
   onDidRegisterContainerConnectionCallback(
@@ -710,7 +715,7 @@ export class ProviderRegistry {
         this.getProviderContainerConnectionInfo(containerProviderConnection),
       );
     });
-    this._onDidRegisterContainerConnection.fire({ providerId: provider.id });
+    this._onDidRegisterContainerConnection.fire({ providerId: provider.id, connection: containerProviderConnection });
   }
 
   onDidRegisterKubernetesConnectionCallback(
@@ -768,5 +773,18 @@ export class ProviderRegistry {
       name: provider.name,
       status: provider.status,
     });
+  }
+
+  getContainerConnections(): ProviderContainerConnection[] {
+    const connections: ProviderContainerConnection[] = [];
+    this.providers.forEach(provider => {
+      provider.containerConnections.forEach(connection => {
+        connections.push({
+          providerId: provider.id,
+          connection,
+        });
+      });
+    });
+    return connections;
   }
 }

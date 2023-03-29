@@ -100,6 +100,7 @@ export interface LibPod {
   createPod(podOptions: PodCreateOptions): Promise<{ Id: string }>;
   createPodmanContainer(containerCreateOptions: ContainerCreateOptions): Promise<{ Id: string; Warnings: string[] }>;
   listPods(): Promise<PodInfo[]>;
+  prunePods(): Promise<void>;
   getPodInspect(podId: string): Promise<PodInspectInfo>;
   startPod(podId: string): Promise<void>;
   stopPod(podId: string): Promise<void>;
@@ -107,6 +108,7 @@ export interface LibPod {
   restartPod(podId: string): Promise<void>;
   generateKube(names: string[]): Promise<string>;
   playKube(yamlContentFilePath: string): Promise<PlayKubeInfo>;
+  pruneAllImages(dangling: boolean): Promise<void>;
 }
 
 // tweak Dockerode by adding the support of libpod API
@@ -149,6 +151,29 @@ export class LibpodDockerode {
         path: '/v4.2.0/libpod/pods/json',
         method: 'GET',
         options: {},
+        statusCodes: {
+          200: true,
+          400: 'bad parameter',
+          500: 'server error',
+        },
+      };
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // add pruneAllImages
+    prototypeOfDockerode.pruneAllImages = function () {
+      const optsf = {
+        path: '/v4.2.0/libpod/images/prune?all=true&', // this works
+        // For some reason the below doesn't work? TODO / help / fixme
+        // options: {all: 'true'}, // this doesn't work
+        method: 'POST',
         statusCodes: {
           200: true,
           400: 'bad parameter',
@@ -313,6 +338,27 @@ export class LibpodDockerode {
         options: {},
       };
 
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // add prunePods
+    prototypeOfDockerode.prunePods = function () {
+      const optsf = {
+        path: '/v4.2.0/libpod/pods/prune',
+        method: 'POST',
+        statusCodes: {
+          200: true,
+          500: 'server error',
+        },
+        options: {},
+      };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
           if (err) {

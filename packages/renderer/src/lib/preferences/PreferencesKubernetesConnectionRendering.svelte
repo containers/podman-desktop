@@ -2,13 +2,14 @@
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
 import { Buffer } from 'buffer';
-import type { KubernetesProviderConnection } from '@tmpwip/extension-api';
+import type { KubernetesProviderConnection } from '@podman-desktop/api';
 import { providerInfos } from '../../stores/providers';
 import { onMount } from 'svelte';
 import type { ProviderInfo, ProviderKubernetesConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import Logger from './Logger.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -128,10 +129,10 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
   <!-- Display lifecycle -->
   {#if kubernetesConnectionInfo?.lifecycleMethods && kubernetesConnectionInfo.lifecycleMethods.length > 0}
-    <div class="py-2 flex flex:row ">
+    <div class="py-2 flex flex:row">
       <!-- start is enabled only in stopped mode-->
       {#if kubernetesConnectionInfo.lifecycleMethods.includes('start')}
-        <div class="px-2 text-sm italic  text-gray-400">
+        <div class="px-2 text-sm italic text-gray-400">
           <button
             disabled="{kubernetesConnectionInfo.status !== 'stopped'}"
             on:click="{() => startConnection()}"
@@ -147,7 +148,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
       <!-- stop is enabled only in started mode-->
       {#if kubernetesConnectionInfo.lifecycleMethods.includes('stop')}
-        <div class="px-2 text-sm italic  text-gray-400">
+        <div class="px-2 text-sm italic text-gray-400">
           <button
             disabled="{kubernetesConnectionInfo.status !== 'started'}"
             on:click="{() => stopConnection()}"
@@ -163,7 +164,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
       <!-- delete is disabled if it is running-->
       {#if kubernetesConnectionInfo.lifecycleMethods.includes('delete')}
-        <div class="px-2 text-sm italic  text-gray-400">
+        <div class="px-2 text-sm italic text-gray-400">
           <button
             disabled="{kubernetesConnectionInfo.status !== 'stopped'}"
             on:click="{() => deleteConnection()}"
@@ -176,7 +177,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
           </button>
         </div>
       {/if}
-      <div class="px-2 text-sm italic  text-gray-400">
+      <div class="px-2 text-sm italic text-gray-400">
         <button
           type="button"
           disabled="{kubernetesConnectionInfo.status !== 'started'}"
@@ -193,26 +194,24 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     </div>
 
     {#if lifecycleError}
-      <div class="text-red-500">
-        {lifecycleError}
-      </div>
+      <ErrorMessage error="{lifecycleError}" />
     {/if}
   {/if}
 
   {#each connectionSettings as connectionSetting}
     <div class="pl-1 py-2">
-      <div class="text-sm italic  text-gray-400">{connectionSetting.description}</div>
+      <div class="text-sm italic text-gray-400">{connectionSetting.description}</div>
       <div class="pl-3">{connectionSetting.value}</div>
     </div>
   {/each}
 
   {#if kubernetesConnectionInfo}
     <div class="pl-1 py-2">
-      <div class="text-sm italic  text-gray-400">Status</div>
+      <div class="text-sm italic text-gray-400">Status</div>
       <div class="pl-3">{kubernetesConnectionInfo.status}</div>
     </div>
     <div class="pl-1 py-2">
-      <div class="text-sm italic  text-gray-400">Kubernetes endpoint API URL</div>
+      <div class="text-sm italic text-gray-400">Kubernetes endpoint API URL</div>
       <div class="pl-3">{kubernetesConnectionInfo.endpoint.apiURL}</div>
     </div>
   {/if}
