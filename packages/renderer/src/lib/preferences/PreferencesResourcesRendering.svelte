@@ -272,6 +272,7 @@ function setContainerStatusUpdateFailed(
   const currentStatus = containerConnectionStatus.get(containerConnectionName);
   containerConnectionStatus.set(containerConnectionName, {
     ...currentStatus,
+    inProgress: false,
     error,
   });
   containerConnectionStatus = containerConnectionStatus;
