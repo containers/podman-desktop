@@ -29,6 +29,7 @@
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/no-explicit-any": "error",
+    "prefer-promise-reject-errors": "error",
 
   /**
    * Having a semicolon helps the optimizer interpret your code correctly.
