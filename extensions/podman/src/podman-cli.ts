@@ -89,7 +89,7 @@ export function execPromise(
     token?.onCancellationRequested(() => {
       process.kill();
       // reject the promise
-      reject('Execution cancelled');
+      reject(new Error('Execution cancelled'));
     });
     process.on('error', error => {
       let content = '';
@@ -100,7 +100,7 @@ export function execPromise(
         content += stdErr + '\n';
       }
       options?.logger?.error(content);
-      reject(content + error);
+      reject(new Error(content + error));
     });
     process.stdout.setEncoding('utf8');
     process.stdout.on('data', data => {
@@ -123,7 +123,7 @@ export function execPromise(
       }
 
       if (exitCode !== 0) {
-        reject(content);
+        reject(new Error(content));
       }
       resolve(stdOut.trim());
     });

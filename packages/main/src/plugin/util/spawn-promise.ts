@@ -38,9 +38,11 @@ export async function spawnWithPromise(command: string, spawnArgs?: string[]): P
         if (code) {
           exitCode = code;
           reject(
-            `Unable to execute the command ${command} ${
-              spawnArgs ? spawnArgs.join(' ') : ''
-            }. Exited with code ${code}`,
+            new Error(
+              `Unable to execute the command ${command} ${
+                spawnArgs ? spawnArgs.join(' ') : ''
+              }. Exited with code ${code}`,
+            ),
           );
         } else {
           resolve(output);
