@@ -14,9 +14,7 @@ import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
-import { createConnectionsInfo } from '/@/stores/create-connections';
 import type { IContainerStatus } from './Util';
-import LoadingIcon from '../ui/LoadingIcon.svelte';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
@@ -38,7 +36,6 @@ $: containerConnectionStatus = new Map<string, IContainerStatus>();
 let isStatusUpdated = false;
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
-let loggerHandlerKey: symbol | undefined;
 let containersRestarting: IContainerRestart[] = [];
 
 let providersUnsubscribe: Unsubscriber;
@@ -59,14 +56,14 @@ onMount(() => {
           containerConnectionStatus.get(containerConnectionName).status !== container.status
         ) {
           isStatusUpdated = true;
-          const restartContainer = isContainerRestarting(provider.internalId, container.name)
-          if (restartContainer) {
+          const containerToRestart = getContainerRestarting(provider.internalId, container.name);
+          if (containerToRestart) {
             containerConnectionStatus.set(containerConnectionName, {
               inProgress: true,
               action: 'restart',
               status: container.status,
             });
-            startContainerProvider(provider, container, restartContainer.loggerHandlerKey);
+            startContainerProvider(provider, container, containerToRestart.loggerHandlerKey);
           } else {
             containerConnectionStatus.set(containerConnectionName, {
               inProgress: false,
@@ -84,7 +81,7 @@ onMount(() => {
   });
 });
 
-function isContainerRestarting(provider: string, container: string): IContainerRestart {
+function getContainerRestarting(provider: string, container: string): IContainerRestart {
   const containerToRestart = containersRestarting.filter(c => c.provider === provider && c.container === container)[0];
   if (containerToRestart) {
     containersRestarting = containersRestarting.filter(c => c.provider !== provider && c.container !== container);
@@ -147,7 +144,7 @@ function getLoggerHandler(
     log: () => {},
     warn: () => {},
     error: args => {
-      setContainerStatusUpdateFailed(provider, containerConnectionInfo, 'start', args);
+      setContainerStatusUpdateFailed(provider, containerConnectionInfo, args);
     },
     onEnd: () => {},
   };
@@ -156,7 +153,7 @@ function getLoggerHandler(
 async function startContainerProvider(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
-  loggerHandlerKey?: symbol
+  loggerHandlerKey?: symbol,
 ): Promise<void> {
   try {
     if (containerConnectionInfo.status === 'stopped') {
@@ -166,8 +163,8 @@ async function startContainerProvider(
           `Start ${provider.name} ${containerConnectionInfo.name}`,
           `/preferences/resources`,
           getLoggerHandler(provider, containerConnectionInfo),
-        );  
-      }          
+        );
+      }
       await window.startProviderConnectionLifecycle(
         provider.internalId,
         containerConnectionInfo,
@@ -185,13 +182,13 @@ async function stopContainerProvider(
   containerConnectionInfo: ProviderContainerConnectionInfo,
 ): Promise<void> {
   try {
-    if (containerConnectionInfo.status === 'started') {      
+    if (containerConnectionInfo.status === 'started') {
       setContainerStatusIsChanging(provider, 'stop', containerConnectionInfo);
       const loggerHandlerKey = startTask(
         `Stop ${provider.name} ${containerConnectionInfo.name}`,
         `/preferences/resources`,
         getLoggerHandler(provider, containerConnectionInfo),
-      );      
+      );
       await window.stopProviderConnectionLifecycle(
         provider.internalId,
         containerConnectionInfo,
@@ -209,15 +206,20 @@ async function restartContainerProvider(
   containerConnectionInfo: ProviderContainerConnectionInfo,
 ): Promise<void> {
   if (containerConnectionInfo.status === 'started') {
-    setContainerStatusIsChanging(provider, 'restart', containerConnectionInfo);  
+    setContainerStatusIsChanging(provider, 'restart', containerConnectionInfo);
     const loggerHandlerKey = startTask(
       `Restart ${provider.name} ${containerConnectionInfo.name}`,
       `/preferences/resources`,
       getLoggerHandler(provider, containerConnectionInfo),
     );
+    containersRestarting.push({
+      container: containerConnectionInfo.name,
+      provider: provider.internalId,
+      loggerHandlerKey,
+    });
     await window.stopProviderConnectionLifecycle(
-      provider.internalId, 
-      containerConnectionInfo, 
+      provider.internalId,
+      containerConnectionInfo,
       loggerHandlerKey,
       eventCollect,
     );
@@ -264,14 +266,12 @@ function setContainerStatusIsChanging(
 function setContainerStatusUpdateFailed(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo,
-  failedAction: string,
   error: string,
 ): void {
   const containerConnectionName = getContainerConnectionName(provider, containerConnectionInfo);
   const currentStatus = containerConnectionStatus.get(containerConnectionName);
   containerConnectionStatus.set(containerConnectionName, {
     ...currentStatus,
-    failedAction,
     error,
   });
   containerConnectionStatus = containerConnectionStatus;
@@ -341,8 +341,7 @@ function getContainerConnectionName(
                   {#if status.error}
                     <button
                       class="ml-3 text-[9px] text-red-500 underline"
-                      on:click="{() => window.events?.send('toggle-task-manager', '')}"
-                      >{status.failedAction} failed</button>
+                      on:click="{() => window.events?.send('toggle-task-manager', '')}">{status.action} failed</button>
                   {/if}
                 {/if}
               </div>

@@ -20,7 +20,6 @@ export interface IContainerStatus {
   status: string;
   action?: string;
   inProgress: boolean;
-  failedAction?: string;
   error?: string;
 }
 
