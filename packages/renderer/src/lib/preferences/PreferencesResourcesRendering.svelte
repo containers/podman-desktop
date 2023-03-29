@@ -154,7 +154,9 @@ async function startContainerProvider(
         eventCollect,
       );
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function stopContainerProvider(
@@ -179,7 +181,9 @@ async function stopContainerProvider(
         eventCollect,
       );
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function restartContainerProvider(
@@ -214,7 +218,9 @@ async function deleteContainerProvider(
         eventCollect,
       );
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function setContainerStatusIsChanging(
