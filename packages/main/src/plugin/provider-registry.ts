@@ -435,12 +435,20 @@ export class ProviderRegistry {
       }
     }
 
-    if (provider.containerProviderConnectionFactory) {
+    if (provider.containerProviderConnectionFactory && provider.containerProviderConnectionFactory.initialize) {
       this.telemetryService.track('initializeProvider', {
         name: provider.name,
       });
 
       return provider.containerProviderConnectionFactory.initialize();
+    }
+
+    if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.initialize) {
+      this.telemetryService.track('initializeProvider', {
+        name: provider.name,
+      });
+
+      return provider.kubernetesProviderConnectionFactory.initialize();
     }
     throw new Error('No initialize implementation found for this provider');
   }
@@ -485,15 +493,27 @@ export class ProviderRegistry {
     });
 
     // container connection factory ?
+    let containerProviderConnectionInitialization = false;
+    if (provider.containerProviderConnectionFactory && provider.containerProviderConnectionFactory.initialize) {
+      containerProviderConnectionInitialization = true;
+    }
+
+    // kubernetes connection factory ?
+    let kubernetesProviderConnectionCreation = false;
+    if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.create) {
+      kubernetesProviderConnectionCreation = true;
+    }
+
+    // container connection factory ?
     let containerProviderConnectionCreation = false;
     if (provider.containerProviderConnectionFactory) {
       containerProviderConnectionCreation = true;
     }
 
     // kubernetes connection factory ?
-    let kubernetesProviderConnectionCreation = false;
-    if (provider.kubernetesProviderConnectionFactory) {
-      kubernetesProviderConnectionCreation = true;
+    let kubernetesProviderConnectionInitialization = false;
+    if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.initialize) {
+      kubernetesProviderConnectionInitialization = true;
     }
 
     // handle installation
@@ -511,6 +531,8 @@ export class ProviderRegistry {
       status: provider.status,
       containerProviderConnectionCreation,
       kubernetesProviderConnectionCreation,
+      containerProviderConnectionInitialization,
+      kubernetesProviderConnectionInitialization,
       links: provider.links,
       detectionChecks: provider.detectionChecks,
       images: provider.images,
@@ -611,7 +633,7 @@ export class ProviderRegistry {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
 
-    if (!provider.kubernetesProviderConnectionFactory) {
+    if (!provider.kubernetesProviderConnectionFactory?.create) {
       throw new Error('The provider does not support kubernetes connection creation');
     }
     return provider.kubernetesProviderConnectionFactory.create(params, logHandler);

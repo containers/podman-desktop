@@ -82,6 +82,8 @@ export class TrayMenu {
             installationSupport: false,
             containerProviderConnectionCreation: false,
             kubernetesProviderConnectionCreation: false,
+            containerProviderConnectionInitialization: false,
+            kubernetesProviderConnectionInitialization: false,
           });
         }
         this.updateMenu();

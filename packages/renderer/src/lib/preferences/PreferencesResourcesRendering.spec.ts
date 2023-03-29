@@ -49,6 +49,8 @@ const providerInfo: ProviderInfo = {
   kubernetesConnections: [],
   kubernetesProviderConnectionCreation: true,
   links: undefined,
+  containerProviderConnectionInitialization: false,
+  kubernetesProviderConnectionInitialization: false,
 };
 
 beforeEach(() => {
