@@ -1187,7 +1187,7 @@ export class PluginSystem {
         loggerId: string,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
-        providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        await providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo, logger);
         logger.onEnd();
       },
     );
@@ -1201,7 +1201,7 @@ export class PluginSystem {
         loggerId: string,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
-        providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        await providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo, logger);
         logger.onEnd();
       },
     );
@@ -1215,7 +1215,7 @@ export class PluginSystem {
         loggerId: string,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
-        providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        await providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo, logger);
         logger.onEnd();
       },
     );
