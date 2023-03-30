@@ -16,11 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+
 export interface IContainerStatus {
   status: string;
   action?: string;
   inProgress: boolean;
   error?: string;
+}
+
+export interface IContainerRestart {
+  provider: string;
+  container: string;
+  loggerHandlerKey: symbol;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,4 +52,11 @@ function writeMultilineString(xterm: any, data: string, colorPrefix: string): vo
   } else {
     xterm.write(colorPrefix + data + '\r');
   }
+}
+
+export function getContainerConnectionName(
+  provider: ProviderInfo,
+  containerConnectionInfo: ProviderContainerConnectionInfo,
+): string {
+  return `${provider.name}-${containerConnectionInfo.name}`;
 }
