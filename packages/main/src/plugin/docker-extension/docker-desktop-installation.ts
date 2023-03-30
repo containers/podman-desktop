@@ -27,10 +27,11 @@ import * as tarFs from 'tar-fs';
 import type Dockerode from 'dockerode';
 import type { PullEvent } from '../api/pull-event';
 import type { ContributionManager } from '../contribution-manager';
+import type { ApiSenderType } from '../api';
+
 export class DockerDesktopInstallation {
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private apiSender: any,
+    private apiSender: ApiSenderType,
     private containerRegistry: ContainerProviderRegistry,
     private contributionManager: ContributionManager,
   ) {}

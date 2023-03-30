@@ -46,6 +46,7 @@ import type { MenuRegistry } from '/@/plugin/menu-registry';
 import { desktopAppHomeDir } from '../util';
 import { Emitter } from './events/emitter';
 import { CancellationTokenSource } from './cancellation-token';
+import type { ApiSenderType } from './api';
 
 /**
  * Handle the loading of an extension
@@ -95,8 +96,7 @@ export class ExtensionLoader {
     private providerRegistry: ProviderRegistry,
     private configurationRegistry: ConfigurationRegistry,
     private imageRegistry: ImageRegistry,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private apiSender: any,
+    private apiSender: ApiSenderType,
     private trayMenuRegistry: TrayMenuRegistry,
     private dialogs: Dialogs,
     private progress: ProgressImpl,

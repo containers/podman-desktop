@@ -29,6 +29,7 @@ import validator from 'validator';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import type { Certificates } from './certificates';
 import type { Proxy } from './proxy';
+import type { ApiSenderType } from './api';
 
 export interface RegistryAuthInfo {
   authUrl: string;
@@ -57,8 +58,7 @@ export class ImageRegistry {
   private proxyEnabled: boolean;
 
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private apiSender: any,
+    private apiSender: ApiSenderType,
     private telemetryService: Telemetry,
     private certificates: Certificates,
     private proxy: Proxy,

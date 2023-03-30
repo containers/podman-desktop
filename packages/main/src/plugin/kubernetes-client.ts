@@ -38,6 +38,7 @@ import type { ConfigurationRegistry, IConfigurationNode } from './configuration-
 import type { FilesystemMonitoring } from './filesystem-monitoring';
 import type { PodInfo } from './api/pod-info';
 import { PassThrough } from 'node:stream';
+import type { ApiSenderType } from './api';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -102,8 +103,7 @@ export class KubernetesClient {
     this._onDidUpdateKubeconfig.event;
 
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private apiSender: any,
+    private apiSender: ApiSenderType,
     private configurationRegistry: ConfigurationRegistry,
     private fileSystemMonitoring: FilesystemMonitoring,
   ) {

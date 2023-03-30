@@ -51,6 +51,7 @@ import { LifecycleContextImpl, LoggerImpl } from './lifecycle-context';
 import { ProviderImpl } from './provider-impl';
 import type { Telemetry } from './telemetry/telemetry';
 import { Disposable } from './types/disposable';
+import type { ApiSenderType } from './api';
 
 export type ProviderEventListener = (name: string, providerInfo: ProviderInfo) => void;
 export type ProviderLifecycleListener = (
@@ -105,8 +106,7 @@ export class ProviderRegistry {
     this._onDidRegisterContainerConnection.event;
 
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private apiSender: any,
+    private apiSender: ApiSenderType,
     private containerRegistry: ContainerProviderRegistry,
     private telemetryService: Telemetry,
   ) {

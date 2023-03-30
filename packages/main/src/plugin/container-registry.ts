@@ -49,6 +49,7 @@ import type { Event } from './events/emitter';
 import { Emitter } from './events/emitter';
 import fs from 'node:fs';
 import { pipeline } from 'node:stream/promises';
+import type { ApiSenderType } from './api';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -74,8 +75,11 @@ export class ContainerProviderRegistry {
   private readonly _onEvent = new Emitter<JSONEvent>();
   readonly onEvent: Event<JSONEvent> = this._onEvent.event;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any, private imageRegistry: ImageRegistry, private telemetryService: Telemetry) {
+  constructor(
+    private apiSender: ApiSenderType,
+    private imageRegistry: ImageRegistry,
+    private telemetryService: Telemetry,
+  ) {
     const libPodDockerode = new LibpodDockerode();
     libPodDockerode.enhancePrototypeWithLibPod();
   }

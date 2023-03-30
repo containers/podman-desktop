@@ -22,6 +22,7 @@ import type {
   InputBoxValidationMessage,
   QuickPickOptions,
 } from '@podman-desktop/api';
+import type { ApiSenderType } from '../api';
 import { Deferred } from '../util/deferred';
 
 export class InputQuickPickRegistry {
@@ -43,8 +44,7 @@ export class InputQuickPickRegistry {
     }
   >();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any) {}
+  constructor(private apiSender: ApiSenderType) {}
 
   async showInputBox(options?: InputBoxOptions, token?: CancellationToken): Promise<string | undefined> {
     // keep track of this request
