@@ -57,7 +57,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
 </script>
 
 <nav
-  class="pf-c-nav z-0 group w-52 shadow flex-col justify-between flex transition-all duration-500 ease-in-out"
+  class="pf-c-nav z-0 w-[250px] min-w-[200px] shadow flex-col justify-between flex transition-all duration-500 ease-in-out"
   style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))"
   aria-label="Global">
   <div class="flex items-center">
@@ -65,7 +65,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       <p class="text-xl first-letter:uppercase">Settings</p>
     </div>
   </div>
-  <ul class="pf-c-nav__list h-full overflow-auto">
+  <ul class="pf-c-nav__list" style="margin-bottom:auto">
     <!-- Resources configuration start -->
     <li
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
@@ -73,7 +73,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       )} hover:text-gray-300 cursor-pointer items-center">
       <a href="/preferences/resources" id="configuration-section-resources" class="pf-c-nav__link">
         <div class="flex items-center">
-          <span class="hidden md:block group-hover:block">Resources</span>
+          <span class="block group-hover:block">Resources</span>
         </div>
       </a>
     </li>
@@ -86,7 +86,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       )} hover:text-gray-300 cursor-pointer items-center">
       <a href="/preferences/proxies" id="configuration-section-proxy" class="pf-c-nav__link">
         <div class="flex items-center">
-          <span class="hidden md:block group-hover:block">Proxy</span>
+          <span class="block group-hover:block">Proxy</span>
         </div>
       </a>
     </li>
@@ -99,7 +99,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       )} hover:text-gray-300 cursor-pointer items-center">
       <a href="/preferences/registries" id="configuration-section-registries" class="pf-c-nav__link">
         <div class="flex items-center">
-          <span class="hidden md:block group-hover:block">Registries</span>
+          <span class="block group-hover:block">Registries</span>
         </div>
       </a>
     </li>
@@ -126,7 +126,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       <section class="pf-c-nav__subnav {addSectionHiddenClass('extensionsCatalog')}">
         <ul class="pf-c-nav__list">
           {#each extensions as extension}
-            <li class="pf-c-nav__item {addCurrentClass(`/preferences/extension/${extension.name}`)} ">
+            <li class="pf-c-nav__item {addCurrentClass(`/preferences/extension/${extension.name}`)}">
               <a
                 href="/preferences/extension/{extension.name}"
                 id="configuration-section-extensions-catalog-{extension.name.toLowerCase()}"
@@ -145,7 +145,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       )} hover:text-gray-300 cursor-pointer items-center">
       <a href="/preferences/ddExtensions" id="configuration-section-docker-desktop-extensions" class="pf-c-nav__link">
         <div class="flex items-center">
-          <span class="hidden md:block group-hover:block">Desktop Extensions</span>
+          <span class="block group-hover:block">Desktop Extensions</span>
         </div>
       </a>
     </li>
@@ -162,7 +162,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
           id="configuration-section-{configSection.toLowerCase()}"
           aria-expanded="{isAriaExpanded(configSection)}"
           href="/preferences/default/{configSection}">
-          <span class="hidden md:block group-hover:block mr-5 capitalize">{configSection}</span>
+          <span class="block group-hover:block mr-5 capitalize">{configSection}</span>
           {#if configItems.length > 0}
             <span class="pf-c-nav__toggle">
               <span class="pf-c-nav__toggle-icon" on:click="{() => toggleSection(configSection)}">
@@ -190,11 +190,12 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
 
   <ul class="pf-c-nav__list">
     <li
-      class="pf-c-nav__item pf-c-nav__link flex w-full justify-between dark:text-gray-400 hover:text-gray-300 cursor-pointer items-center"
+      class="pf-c-nav__item pf-c-nav__link flex w-full justify-between dark:text-gray-400 hover:text-gray-300 cursor-pointer items-center h-[50px] min-h-[50px]"
+      style="margin-top:auto"
       on:click="{exitSettingsCallback}">
-      <div class="flex items-center">
+      <div class="flex items-center" style="margin-top:4px">
         <i class="fa fa-angle-left"></i>
-        <span class="hidden md:block group-hover:block mx-2">Exit settings</span>
+        <span class="block group-hover:block mx-2">Exit settings</span>
       </div>
     </li>
   </ul>
