@@ -1385,12 +1385,16 @@ export class PluginSystem {
 
     await contributionManager.init();
 
+    this.markAsReady();
     await this.extensionLoader.start();
-    this.isReady = true;
     console.log('PluginSystem: initialization done.');
     apiSender.send('extension-system', `${this.isReady}`);
     autoStartConfiguration.start();
     return this.extensionLoader;
+  }
+
+  markAsReady(): void {
+    this.isReady = true;
   }
 
   getLogHandlerCreateConnection(channel: string, loggerId: string): LoggerWithEnd {
