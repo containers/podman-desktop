@@ -40,7 +40,7 @@ abstract class SocketCompatibility {
 
 export class DarwinSocketCompatibility extends SocketCompatibility {
   // Shows the details of the compatibility mode on what we do.
-  details = 'The podman-mac-helper binary will be ran. This requires administrative privileges.';
+  details = 'The podman-mac-helper binary will be run. This requires administrative privileges.';
 
   // Find the podman-mac-helper binary which should only be located in either
   // brew or podman's install location
