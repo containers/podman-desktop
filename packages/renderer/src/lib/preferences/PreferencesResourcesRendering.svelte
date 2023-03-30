@@ -217,15 +217,7 @@ async function startContainerProvider(
           {#each provider.containerConnections as container}
             <div class="px-5 py-2 w-[240px]">
               <div class="float-right text-gray-700 cursor-not-allowed">
-                <button
-                  on:click="{() =>
-                    router.goto(
-                      `/preferences/container-connection/${provider.internalId}/${Buffer.from(
-                        container.endpoint.socketPath,
-                      ).toString('base64')}`,
-                    )}">
-                  <Fa icon="{faArrowUpRightFromSquare}" />
-                </button>
+                <Fa icon="{faArrowUpRightFromSquare}" />
               </div>
               <div class="{container.status !== 'started' ? 'text-gray-500' : ''} text-sm">
                 {container.name}
@@ -276,17 +268,6 @@ async function startContainerProvider(
           {/each}
           {#each provider.kubernetesConnections as kubeConnection}
             <div class="px-5 py-2 w-[240px]">
-              <div class="float-right text-gray-700 cursor-not-allowed">
-                <button
-                  on:click="{() =>
-                    router.goto(
-                      `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
-                        kubeConnection.endpoint.apiURL,
-                      ).toString('base64')}`,
-                    )}">
-                  <Fa icon="{faArrowUpRightFromSquare}" />
-                </button>
-              </div>
               <div class="text-sm">
                 {kubeConnection.name}
               </div>
