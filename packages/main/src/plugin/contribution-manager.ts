@@ -21,6 +21,7 @@ import * as os from 'node:os';
 import * as fs from 'node:fs';
 import type { ContributionInfo } from './api/contribution-info';
 import { desktopAppHomeDir } from '../util';
+import type { ApiSenderType } from './api';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -32,8 +33,7 @@ export class ContributionManager {
   private readonly EMPTY_ICON =
     'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz4=';
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any) {}
+  constructor(private apiSender: ApiSenderType) {}
 
   // load the existing contributions
   async init(): Promise<void> {

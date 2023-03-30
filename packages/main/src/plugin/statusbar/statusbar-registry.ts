@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ApiSenderType } from '../api';
 import type { IDisposable } from '../types/disposable';
 
 export const STATUS_BAR_UPDATED_EVENT_NAME = 'status-bar-updated';
@@ -40,8 +41,7 @@ export interface StatusBarEntryDescriptor {
 export class StatusBarRegistry implements IDisposable {
   private readonly entries: Map<string, StatusBarEntryDescriptor> = new Map();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any) {}
+  constructor(private apiSender: ApiSenderType) {}
 
   removeEntry(id: string) {
     const entry = this.entries.get(id);

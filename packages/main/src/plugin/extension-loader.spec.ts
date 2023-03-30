@@ -37,6 +37,7 @@ import type { StatusBarRegistry } from './statusbar/statusbar-registry';
 import type { TrayMenuRegistry } from './tray-menu-registry';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import type { ApiSenderType } from './api';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -64,7 +65,7 @@ const configurationRegistry: ConfigurationRegistry = {} as unknown as Configurat
 
 const imageRegistry: ImageRegistry = {} as unknown as ImageRegistry;
 
-const apiSender: any = {};
+const apiSender: ApiSenderType = {} as unknown as ApiSenderType;
 
 const trayMenuRegistry: TrayMenuRegistry = {} as unknown as TrayMenuRegistry;
 

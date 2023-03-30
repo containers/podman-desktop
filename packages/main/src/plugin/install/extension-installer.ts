@@ -27,10 +27,11 @@ import * as tarFs from 'tar-fs';
 import type Dockerode from 'dockerode';
 import type { PullEvent } from '../api/pull-event';
 import type { ExtensionLoader } from '../extension-loader';
+import type { ApiSenderType } from '../api';
+
 export class ExtensionInstaller {
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private apiSender: any,
+    private apiSender: ApiSenderType,
     private containerRegistry: ContainerProviderRegistry,
     private extensionLoader: ExtensionLoader,
   ) {}

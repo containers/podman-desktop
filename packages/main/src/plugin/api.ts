@@ -22,3 +22,10 @@ export interface RemoteAPI {
   // eslint-disable-next-line @typescript-eslint/ban-types
   listContainers(options?: {}): Promise<ContainerInfo[]>;
 }
+
+export type ApiSenderType = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  send: (channel: string, data?: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  receive: (channel: string, func: any) => void;
+};

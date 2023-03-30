@@ -93,6 +93,7 @@ import { CancellationTokenRegistry } from './cancellation-token-registry';
 import type { UpdateCheckResult } from 'electron-updater';
 import { autoUpdater } from 'electron-updater';
 import { clipboard } from 'electron';
+import type { ApiSenderType } from './api';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -245,7 +246,7 @@ export class PluginSystem {
     this.redirectLogging();
 
     const eventEmitter = new EventEmitter();
-    const apiSender = {
+    const apiSender: ApiSenderType = {
       send: (channel: string, data: string) => {
         // send only if the UI is ready
         if (this.uiReady && this.isReady) {
