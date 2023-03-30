@@ -28,7 +28,6 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { get } from 'svelte/store';
 import { createConnectionsInfo } from '/@/stores/create-connections';
-import { createEventDispatcher, onMount } from 'svelte';
 
 const properties: IConfigurationPropertyRecordedSchema[] = [];
 const providerInfo: ProviderInfo = {
@@ -42,6 +41,7 @@ beforeAll(() => {
   (window as any).getOsMemory = vi.fn();
   (window as any).getOsCpu = vi.fn();
   (window as any).getOsFreeDiskSize = vi.fn();
+  (window as any).getCancellableTokenSource = vi.fn();
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
@@ -55,27 +55,18 @@ beforeAll(() => {
 });
 
 test('Expect that the create button is available', async () => {
-  const dispatch = createEventDispatcher();
-  const svelte = await import('svelte');
-  svelte.onMount = vi.fn().mockImplementation(async () => { 
-    svelte.onMount;
-    dispatch('pageLoaded');
-  });
   const callback = vi.fn();
-  const {component} = await render(PreferencesConnectionCreationRendering, { properties, providerInfo, propertyScope, callback });
-  await waitOnMount(component);
+  await render(PreferencesConnectionCreationRendering, {
+    properties,
+    providerInfo,
+    propertyScope,
+    callback,
+    pageIsLoading: false,
+  });
   const createButton = screen.getByRole('button', { name: 'Create' });
   expect(createButton).toBeInTheDocument();
   expect(createButton).toBeEnabled();
 });
-
-function waitOnMount(component: PreferencesConnectionCreationRendering): Promise<any> {
-  return new Promise(resolve => {
-    component.$on('pageLoaded', function() {
-      resolve(component);
-    });
-  })  
-}
 
 test('Expect create connection successfully', async () => {
   let providedKeyLogger;
@@ -91,7 +82,13 @@ test('Expect create connection successfully', async () => {
     providedKeyLogger = keyLogger;
   });
 
-  await render(PreferencesConnectionCreationRendering, { properties, providerInfo, propertyScope, callback });
+  await render(PreferencesConnectionCreationRendering, {
+    properties,
+    providerInfo,
+    propertyScope,
+    callback,
+    pageIsLoading: false,
+  });
   const createButton = screen.getByRole('button', { name: 'Create' });
   expect(createButton).toBeInTheDocument();
   // click on the button
@@ -104,6 +101,12 @@ test('Expect create connection successfully', async () => {
   expect(currentConnectionInfo.creationInProgress).toBeTruthy();
   expect(currentConnectionInfo.creationStarted).toBeTruthy();
   expect(currentConnectionInfo.creationSuccessful).toBeFalsy();
+
+  const showLogsButton = screen.getByRole('button', { name: 'Show Logs' });
+  expect(showLogsButton).toBeInTheDocument();
+
+  const cancelButton = screen.getByRole('button', { name: 'Cancel creation' });
+  expect(cancelButton).toBeInTheDocument();
 
   expect(currentConnectionInfo.propertyScope).toBe(propertyScope);
   expect(currentConnectionInfo.providerInfo).toBe(providerInfo);
@@ -119,4 +122,113 @@ test('Expect create connection successfully', async () => {
   expect(currentConnectionInfoAfter.creationInProgress).toBeFalsy();
   expect(currentConnectionInfoAfter.creationStarted).toBeTruthy();
   expect(currentConnectionInfoAfter.creationSuccessful).toBeTruthy();
+  const closeButton = screen.getByRole('button', { name: 'Close' });
+  expect(closeButton).toBeInTheDocument();
+});
+
+test('Expect cancelling the creation, trigger the cancellation token', async () => {
+  let providedKeyLogger;
+
+  const callback = vi.fn();
+  callback.mockImplementation(async function (
+    _id: string,
+    _params: unknown,
+    _key: unknown,
+    keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+  ): Promise<void> {
+    // keep reference
+    providedKeyLogger = keyLogger;
+  });
+
+  await render(PreferencesConnectionCreationRendering, {
+    properties,
+    providerInfo,
+    propertyScope,
+    callback,
+    pageIsLoading: false,
+  });
+  const createButton = screen.getByRole('button', { name: 'Create' });
+  expect(createButton).toBeInTheDocument();
+  // click on the button
+  await fireEvent.click(createButton);
+
+  // do we have a task
+  const currentConnectionInfo = get(createConnectionsInfo);
+
+  expect(currentConnectionInfo).toBeDefined();
+  expect(currentConnectionInfo.creationInProgress).toBeTruthy();
+  expect(currentConnectionInfo.creationStarted).toBeTruthy();
+  expect(currentConnectionInfo.creationSuccessful).toBeFalsy();
+
+  const showLogsButton = screen.getByRole('button', { name: 'Show Logs' });
+  expect(showLogsButton).toBeInTheDocument();
+
+  const cancelButton = screen.getByRole('button', { name: 'Cancel creation' });
+  expect(cancelButton).toBeInTheDocument();
+
+  expect(currentConnectionInfo.propertyScope).toBe(propertyScope);
+  expect(currentConnectionInfo.providerInfo).toBe(providerInfo);
+
+  expect(callback).toHaveBeenCalled();
+  expect(providedKeyLogger).toBeDefined();
+
+  const cancelTokenMock = vi.fn().mockImplementation(() => {});
+  (window as any).cancelToken = cancelTokenMock;
+  await fireEvent.click(cancelButton);
+
+  // simulate end of the create operation
+  providedKeyLogger(currentConnectionInfo.createKey, 'finish', []);
+
+  // expect it is sucessful
+  expect(cancelTokenMock).toBeCalled;
+});
+
+test('Expect create connection successfully', async () => {
+  let providedKeyLogger;
+
+  const callback = vi.fn();
+  callback.mockImplementation(async function (
+    _id: string,
+    _params: unknown,
+    _key: unknown,
+    keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+  ): Promise<void> {
+    // keep reference
+    providedKeyLogger = keyLogger;
+    throw 'creation failed';
+  });
+
+  await render(PreferencesConnectionCreationRendering, {
+    properties,
+    providerInfo,
+    propertyScope,
+    callback,
+    pageIsLoading: false,
+  });
+  const createButton = screen.getByRole('button', { name: 'Create' });
+  expect(createButton).toBeInTheDocument();
+
+  // click on the button
+  await fireEvent.click(createButton);
+
+  // do we have a task
+  const currentConnectionInfo = get(createConnectionsInfo);
+
+  expect(currentConnectionInfo).toBeDefined();
+  expect(currentConnectionInfo.creationInProgress).toBeTruthy();
+  expect(currentConnectionInfo.creationStarted).toBeTruthy();
+  expect(currentConnectionInfo.creationSuccessful).toBeFalsy();
+
+  const showLogsButton = screen.getByRole('button', { name: 'Show Logs' });
+  expect(showLogsButton).toBeInTheDocument();
+
+  const cancelButton = screen.getByRole('button', { name: 'Cancel creation' });
+  expect(cancelButton).toBeInTheDocument();
+
+  expect(currentConnectionInfo.propertyScope).toBe(propertyScope);
+  expect(currentConnectionInfo.providerInfo).toBe(providerInfo);
+
+  expect(callback).toHaveBeenCalled();
+  const errorMessage = screen.getByText('creation failed');
+  expect(errorMessage).toBeInTheDocument();
 });

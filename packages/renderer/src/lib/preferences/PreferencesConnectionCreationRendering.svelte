@@ -21,7 +21,6 @@ import { router } from 'tinro';
 import LinearProgress from '../ui/LinearProgress.svelte';
 import Spinner from '../ui/Spinner.svelte';
 
-const dispatch = createEventDispatcher();
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
 export let propertyScope: string;
@@ -38,7 +37,7 @@ let creationInProgress = false;
 let creationStarted = false;
 let creationSuccessful = false;
 let creationCancelled = false;
-let pageIsLoading = true;
+export let pageIsLoading = true;
 let showLogs = false;
 let tokenId: number;
 
@@ -95,8 +94,6 @@ onMount(async () => {
       return property;
     });
   pageIsLoading = false;
-
-  
 
   // check if we have an existing create action
   const value = get(createConnectionsInfo);
@@ -298,9 +295,13 @@ async function close() {
           <div class="mt-2 mb-8">
             <LinearProgress />
             <div class="mt-2 float-right">
-              <button class="text-xs mr-3 hover:underline" on:click="{() => (showLogs = !showLogs)}"
+              <button
+                aria-label="Show Logs"
+                class="text-xs mr-3 hover:underline"
+                on:click="{() => (showLogs = !showLogs)}"
                 >Show Logs <i class="fas {showLogs ? 'fa-angle-up' : 'fa-angle-down'}" aria-hidden="true"></i></button>
               <button
+                aria-label="Cancel creation"
                 class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
                 disabled="{!tokenId}"
                 on:click="{cancel}">Cancel</button>
