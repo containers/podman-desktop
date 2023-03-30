@@ -12,6 +12,7 @@ export let updateResetButtonVisibility = (recordValue: any) => {};
 export let resetToDefault = false;
 
 export let setRecordValue = (id: string, value: string) => {};
+export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
 
 let currentRecord: IConfigurationPropertyRecordedSchema;
@@ -79,7 +80,7 @@ function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
       invalidText = 'Minimun value is ' + record.minimum;
       return invalid();
     }
-    if (record.maximum && numberValue > record.maximum) {
+    if (record.maximum && typeof record.maximum === 'number' && numberValue > record.maximum) {
       invalidEntry = true;
       invalidText = 'Maximum value is ' + record.maximum;
       return invalid();
@@ -160,6 +161,10 @@ function canIncrement(value: number | string, maximumValue?: number | string) {
   }
   return !maximumValue || (typeof maximumValue === 'number' && value < maximumValue);
 }
+
+function handleRangeValue(id: string, target: HTMLInputElement) {
+  setRecordValue(id, target.value);
+}
 </script>
 
 <div class="flex flex-row mb-1 pt-2">
@@ -185,6 +190,15 @@ function canIncrement(value: number | string, maximumValue?: number | string) {
           class="w-8 h-[20px] bg-gray-500 rounded-full peer peer-checked:after:translate-x-full after:bg-zinc-800 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
         </div>
       </label>
+    {:else if enableSlider && record.type === 'number' && typeof record.maximum === 'number'}
+    <input
+      id="input-slider-{record.id}"
+      type="range"
+      min="{record.minimum}"
+      max="{record.maximum}"
+      value="{record.default}"
+      on:input="{event => handleRangeValue(record.id, event.currentTarget)}"
+      class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs" />
     {:else if record.type === 'number'}
       <div
         class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-zinc-900 w-24 border-b border-violet-500">
@@ -247,15 +261,6 @@ function canIncrement(value: number | string, maximumValue?: number | string) {
           <option value="{recordEnum}">{recordEnum}</option>
         {/each}
       </select>
-    {:else if record.type === 'number' && typeof record.maximum === 'number'}
-      <input
-        id="input-slider-{record.id}"
-        type="range"
-        min="{record.minimum}"
-        max="{record.maximum}"
-        value="{record.default}"
-        on:input="{event => setRecordValue(record.id, event.target.value)}"
-        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs" />
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"

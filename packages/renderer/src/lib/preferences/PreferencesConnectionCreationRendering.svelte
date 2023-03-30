@@ -342,7 +342,8 @@ async function close() {
                 invalidRecord="{handleInvalidComponent}"
                 validRecord="{handleValidComponent}"
                 record="{configurationKey}"
-                setRecordValue="{setConfigurationValue}" />
+                setRecordValue="{setConfigurationValue}"
+                enableSlider="{true}" />
             </div>
           {/each}
           <div class="w-full">
