@@ -23,7 +23,7 @@ import * as os from 'node:os';
 import { runCliCommand, detectKind } from './util';
 import { KindInstaller } from './kind-installer';
 import { window } from '@podman-desktop/api';
-import { tmpName } from 'tmp-promise';
+import { ImageHandler } from './image-handler';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 
@@ -31,7 +31,7 @@ const KIND_INSTALL_COMMAND = 'kind.install';
 
 const KIND_MOVE_IMAGE_COMMAND = 'kind.image.move';
 
-interface KindCluster {
+export interface KindCluster {
   name: string;
   status: extensionApi.ProviderConnectionStatus;
   apiPort: number;
@@ -45,6 +45,8 @@ const registeredKubernetesConnections: {
 }[] = [];
 
 let kindCli: string | undefined;
+
+const imageHandler = new ImageHandler();
 
 function registerProvider(extensionContext: extensionApi.ExtensionContext, provider: extensionApi.Provider): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -195,57 +197,6 @@ async function searchKindClusters(provider: extensionApi.Provider) {
   updateClusters(provider, kindContainers);
 }
 
-type ImageInfo = { engineId: string; id?: string; name?: string };
-
-async function moveImage(image: ImageInfo) {
-  if (!image.id) {
-    throw new Error('Image selection not supported yet');
-  }
-  const clusters = kindClusters.filter(cluster => cluster.status === 'started');
-  let selectedCluster: { label: string; engineType: string };
-
-  if (clusters.length == 0) {
-    throw new Error('No Kind clusters to push to');
-  } else if (clusters.length == 1) {
-    selectedCluster = { label: clusters[0].name, engineType: clusters[0].engineType };
-  } else {
-    selectedCluster = await extensionApi.window.showQuickPick(
-      clusters.map(cluster => {
-        return { label: cluster.name, engineType: cluster.engineType };
-      }),
-      { placeHolder: 'Select a Kind cluster to push to' },
-    );
-  }
-  if (selectedCluster) {
-    const filename = await tmpName();
-    try {
-      await extensionApi.containerEngine.saveImage(image.engineId, image.id, filename);
-      const env = process.env;
-      if (selectedCluster.engineType === 'podman') {
-        env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
-      } else {
-        env['KIND_EXPERIMENTAL_PROVIDER'] = 'docker';
-      }
-      const result = await runCliCommand(kindCli, ['load', 'image-archive', '-n', selectedCluster.label, filename], {
-        env: env,
-      });
-      if (result.exitCode === 0) {
-        extensionApi.window.showNotification({
-          body: `Image ${image.name} pushed to Kind cluster ${selectedCluster.label}`,
-        });
-      } else {
-        throw new Error(
-          `Error while pushing image ${image.name} to Kind cluster ${selectedCluster.label}: ${result.error}`,
-        );
-      }
-    } catch (err) {
-      throw new Error(`Error while pushing image ${image.name} to Kind cluster ${selectedCluster.label}: ${err}`);
-    } finally {
-      fs.promises.rm(filename);
-    }
-  }
-}
-
 function createProvider(extensionContext: extensionApi.ExtensionContext) {
   const provider = extensionApi.provider.createProvider({
     name: 'Kind',
@@ -262,7 +213,9 @@ function createProvider(extensionContext: extensionApi.ExtensionContext) {
   extensionContext.subscriptions.push(provider);
   registerProvider(extensionContext, provider);
   extensionContext.subscriptions.push(
-    extensionApi.commands.registerCommand(KIND_MOVE_IMAGE_COMMAND, image => moveImage(image)),
+    extensionApi.commands.registerCommand(KIND_MOVE_IMAGE_COMMAND, image =>
+      imageHandler.moveImage(image, kindClusters, kindCli),
+    ),
   );
 
   // when containers are refreshed, update
