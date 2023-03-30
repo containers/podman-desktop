@@ -20,7 +20,7 @@
     "@tsconfig/svelte": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "5.57.0",
     "autoprefixer": "^10.4.14",
-    "filesize": "^10.0.6",
+    "filesize": "^10.0.7",
     "humanize-duration": "^3.28.0",
     "jsdom": "^21.1.1",
     "moment": "^2.29.4",
