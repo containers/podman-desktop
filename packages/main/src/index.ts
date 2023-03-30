@@ -25,8 +25,6 @@ import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
 import { StartupInstall } from './system/startup-install';
 
-export const UPDATER_UPDATE_AVAILABLE_ICON = 'fa fa-exclamation-triangle';
-
 /**
  * Prevent multiple instances
  */

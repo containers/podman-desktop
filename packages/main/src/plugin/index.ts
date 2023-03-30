@@ -22,7 +22,6 @@
 import * as os from 'node:os';
 import * as path from 'path';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { UPDATER_UPDATE_AVAILABLE_ICON } from '..';
 import { CommandRegistry } from './command-registry';
 import { ContainerProviderRegistry } from './container-registry';
 import { ExtensionLoader } from './extension-loader';
@@ -96,6 +95,8 @@ import { clipboard } from 'electron';
 import type { ApiSenderType } from './api';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
+
+export const UPDATER_UPDATE_AVAILABLE_ICON = 'fa fa-exclamation-triangle';
 
 export interface LoggerWithEnd extends containerDesktopAPI.Logger {
   // when task is finished, this function is called
