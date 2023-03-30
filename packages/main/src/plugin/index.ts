@@ -214,13 +214,7 @@ export class PluginSystem {
     logTypes.forEach(logType => this.redirectConsole(logType));
   }
 
-  // initialize extension loader mechanism
-  async initExtensions(): Promise<ExtensionLoader> {
-    this.isReady = false;
-    this.uiReady = false;
-    this.ipcHandle('extension-system:isReady', async (): Promise<boolean> => {
-      return this.isReady;
-    });
+  getApiSender(webContents: WebContents): ApiSenderType {
     const queuedEvents: { channel: string; data: string }[] = [];
 
     const flushQueuedEvents = () => {
@@ -229,36 +223,32 @@ export class PluginSystem {
         if (queuedEvents.length > 0) {
           console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
           queuedEvents.forEach(({ channel, data }) => {
-            webSender.send(channel, data);
+            webContents.send('api-sender', channel, data);
           });
           queuedEvents.length = 0;
         }
       }
     };
 
-    const webSender = this.getWebContentsSender();
-    webSender.on('dom-ready', () => {
+    webContents.on('dom-ready', () => {
       console.log('PluginSystem: received dom-ready event from the UI');
       this.uiReady = true;
       flushQueuedEvents();
     });
 
-    // redirect main process logs to the extension loader
-    this.redirectLogging();
-
     const eventEmitter = new EventEmitter();
-    const apiSender: ApiSenderType = {
-      send: (channel: string, data: string) => {
-        // send only if the UI is ready
+    return {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      send: (channel: string, data: any) => {
+        // send only when the UI is ready
         if (this.uiReady && this.isReady) {
           flushQueuedEvents();
-          this.getWebContentsSender().send('api-sender', channel, data);
+          webContents.send('api-sender', channel, data);
         } else {
           // add to the queue
           queuedEvents.push({ channel, data });
         }
       },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       receive: (channel: string, func: any) => {
         eventEmitter.on(channel, data => {
@@ -266,6 +256,21 @@ export class PluginSystem {
         });
       },
     };
+  }
+
+  // initialize extension loader mechanism
+  async initExtensions(): Promise<ExtensionLoader> {
+    this.isReady = false;
+    this.uiReady = false;
+    this.ipcHandle('extension-system:isReady', async (): Promise<boolean> => {
+      return this.isReady;
+    });
+
+    // redirect main process logs to the extension loader
+    this.redirectLogging();
+
+    // init api sender
+    const apiSender = this.getApiSender(this.getWebContentsSender());
 
     const configurationRegistry = new ConfigurationRegistry();
     configurationRegistry.init();
@@ -1365,9 +1370,11 @@ export class PluginSystem {
     await contributionManager.init();
 
     this.markAsReady();
+
+    apiSender.send('starting-extensions', `${this.isReady}`);
+    console.log('System ready. Loading extensions...');
     await this.extensionLoader.start();
     console.log('PluginSystem: initialization done.');
-    apiSender.send('extension-system', `${this.isReady}`);
     autoStartConfiguration.start();
     return this.extensionLoader;
   }

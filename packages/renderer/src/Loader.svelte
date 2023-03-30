@@ -12,7 +12,7 @@ let loadingSequence;
 onMount(async () => {
   loadingSequence = setInterval(() => {
     toggle = !toggle;
-  }, 2000);
+  }, 100);
   // check if the server side is ready
   try {
     const isReady = await window.extensionSystemIsReady();
@@ -30,7 +30,7 @@ onDestroy(() => {
 });
 
 // Wait that the server-side is ready
-window.events.receive('extension-system', (value: string) => {
+window.events.receive('starting-extensions', (value: string) => {
   systemReady = value === 'true';
   if (systemReady) {
     window.dispatchEvent(new CustomEvent('system-ready', {}));
