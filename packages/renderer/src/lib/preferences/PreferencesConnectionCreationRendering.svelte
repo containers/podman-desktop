@@ -233,6 +233,11 @@ async function handleOnSubmit(e) {
   } catch (error) {
     //display error
     tokenId = undefined;
+    // filter cancellation message to avoid displaying error and allow user to restart the creation
+    if (error.message && error.message.indexOf('Execution cancelled') >= 0) {
+      close();
+      return;
+    }
     errorMessage = error;
   }
 }
