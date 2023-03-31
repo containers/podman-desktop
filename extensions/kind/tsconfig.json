@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
     "lib": [
         "ES2017",
         "webworker"
@@ -13,6 +17,8 @@
     ]
 },
 "include": [
-    "src"
+    "src",
+    "types/*.d.ts",
+    "../../types/**/*.d.ts"
 ]
 }
