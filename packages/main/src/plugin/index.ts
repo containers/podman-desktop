@@ -94,6 +94,7 @@ import type { UpdateCheckResult } from 'electron-updater';
 import { autoUpdater } from 'electron-updater';
 import { clipboard } from 'electron';
 import type { ApiSenderType } from './api';
+import { AuthenticationImpl, AuthenticationProviderInfo } from './authentication';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -529,6 +530,8 @@ export class PluginSystem {
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
 
+    const authentication = new AuthenticationImpl(apiSender);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -546,6 +549,7 @@ export class PluginSystem {
       proxy,
       containerProviderRegistry,
       inputQuickPickRegistry,
+      authentication,
     );
     await this.extensionLoader.init();
 
@@ -1065,6 +1069,14 @@ export class PluginSystem {
         await imageRegistry.updateRegistry(registry);
       },
     );
+
+    this.ipcHandle('authentication-provider-registry:getAuthenticationProvidersInfo', async (): Promise<readonly AuthenticationProviderInfo[]> => {
+      return authentication.getAuthenticationProvidersInfo();
+    });
+
+    this.ipcHandle('authentication-provider-registry:requestAuthenticationProviderSignOut', async (_listener, providerId: string, sessionId): Promise<void> => {
+      return authentication.signOut(providerId, sessionId);
+    });
 
     this.ipcHandle(
       'configuration-registry:getConfigurationProperties',
