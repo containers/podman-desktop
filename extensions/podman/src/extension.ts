@@ -484,8 +484,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   extensionContext.subscriptions.push(disguisedPodmanSocketWatcher);
 
   // Compatibility mode status bar item
-  // only available for macOS (for now).
-  if (isMac()) {
+  // only available for macOS or Linux (for now).
+  if (isMac() || isLinux()) {
     // Get the socketCompatibilityClass for the current OS.
     const socketCompatibilityMode = getSocketCompatibility();
 
@@ -507,6 +507,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       // Manually check to see if the socket is disguised (this will be called when pressing the status bar item)
       const isDisguisedPodmanSocket = await isDisguisedPodman();
 
+      // We use isEnabled() as we do not want to "renable" again if the user has already enabled it.
       if (!isDisguisedPodmanSocket && !socketCompatibilityMode.isEnabled()) {
         const result = await extensionApi.window.showInformationMessage(
           `Do you want to automatically enable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,

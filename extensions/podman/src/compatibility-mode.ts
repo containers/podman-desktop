@@ -21,6 +21,8 @@ import * as sudo from 'sudo-prompt';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 
+const podmanSystemdSocket = 'podman.socket';
+
 // Create an abstract class for compatibility mode (macOS only)
 // TODO: Windows, Linux
 abstract class SocketCompatibility {
@@ -28,6 +30,37 @@ abstract class SocketCompatibility {
   abstract enable(): Promise<void>;
   abstract disable(): Promise<void>;
   abstract details: string;
+  abstract tooltipText(): string;
+
+  // Run a sudo command with elevated privileges
+  async runSudoCommand(command: string): Promise<void> {
+    const sudoOptions = {
+      name: 'Podman Desktop Compatibility Mode',
+    };
+    return new Promise((resolve, reject) => {
+      sudo.exec(command, sudoOptions, (error, stdout, stderr) => {
+        // podman-mac-helper does not error out on failure for some reason, so we need to check the output for
+        // 'Error:' to determine if the command failed despite the exit code being 0
+        // Issue: https://github.com/containers/podman/issues/17785
+        // we'll most likely need to keep this check for old releases of podman-mac-helper.
+        // TODO remove in the future.
+        if (stderr?.includes('Error:')) {
+          reject(stderr);
+        }
+
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+}
+
+export class DarwinSocketCompatibility extends SocketCompatibility {
+  // Shows the details of the compatibility mode on what we do.
+  details = 'The podman-mac-helper binary will be ran. This requires administrative privileges.';
 
   // This will show the "opposite" of what the current state is
   // "Enable" if it's currently disabled, "Disable" if it's currently enabled
@@ -36,11 +69,6 @@ abstract class SocketCompatibility {
     const text = 'macOS Docker socket compatibility for Podman.';
     return this.isEnabled() ? `Disable ${text}` : `Enable ${text}`;
   }
-}
-
-export class DarwinSocketCompatibility extends SocketCompatibility {
-  // Shows the details of the compatibility mode on what we do.
-  details = 'The podman-mac-helper binary will be run. This requires administrative privileges.';
 
   // Find the podman-mac-helper binary which should only be located in either
   // brew or podman's install location
@@ -64,30 +92,6 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     return fs.existsSync(filename);
   }
 
-  // Run sudo command for podman mac helper
-  async runSudoMacHelperCommand(command: string): Promise<void> {
-    const sudoOptions = {
-      name: 'Podman Desktop Compatibility Mode',
-    };
-    return new Promise((resolve, reject) => {
-      sudo.exec(command, sudoOptions, (error, stdout, stderr) => {
-        // podman-mac-helper does not error out on failure for some reason, so we need to check the output for
-        // 'Error:' to determine if the command failed despite the exit code being 0
-        // Issue: https://github.com/containers/podman/issues/17785
-        // we'll most likely need to keep this check for old releases of podman-mac-helper.
-        if (stderr?.includes('Error:')) {
-          reject(stderr);
-        }
-
-        if (error) {
-          reject(error);
-        } else {
-          resolve();
-        }
-      });
-    });
-  }
-
   async runCommand(command: string, description: string): Promise<void> {
     // Find the podman-mac-helper binary
     const podmanHelperBinary = this.findPodmanHelper();
@@ -98,7 +102,7 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
 
     const fullCommand = `${podmanHelperBinary} ${command}`;
     try {
-      await this.runSudoMacHelperCommand(fullCommand);
+      await this.runSudoCommand(fullCommand);
       extensionApi.window.showInformationMessage(`Docker socket compatibility mode for Podman has been ${description}.
       Restart your Podman machine to apply the changes.`);
     } catch (error) {
@@ -118,11 +122,107 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
   }
 }
 
-// TODO: Windows, Linux
+export class LinuxSocketCompatibility extends SocketCompatibility {
+  details =
+    'Administrative privileges are required to enable or disable the systemd Podman socket for Docker compatibility.';
+
+  // This will show the "opposite" of what the current state is
+  // "Enable" if it's currently disabled, "Disable" if it's currently enabled
+  // for tooltip text
+  tooltipText(): string {
+    const text = 'Linux Docker socket compatibility for Podman.';
+    return this.isEnabled() ? `Disable ${text}` : `Enable ${text}`;
+  }
+
+  // isEnabled() checks to see if /etc/systemd/system/socket.target.wants/podman.socket exists
+  isEnabled(): boolean {
+    const filename = '/etc/systemd/system/socket.target.wants/podman.socket';
+    return fs.existsSync(filename);
+  }
+
+  // Systemctl would only ever exist in two locations. Either /usr/bin/systemctl or /bin/systemctl
+  // find sytemctl and return the path
+  private findSystemctl(): string {
+    const pathsToCheck = ['/usr/bin/systemctl', '/bin/systemctl'];
+    for (const path of pathsToCheck) {
+      if (fs.existsSync(path)) {
+        return path;
+      }
+    }
+    return '';
+  }
+
+  // Runs the systemd command either 'enable' or 'disable'
+  async runSystemdCommand(command: string, description: string): Promise<void> {
+    // Only allow enable or disable, throw error if anything else is inputted
+    if (command != 'enable' && command != 'disable') {
+      throw new Error('runSystemdCommand only accepts enable or disable as the command');
+    }
+
+    // Get the path to systemctl and throw an error if it doesn't exist
+    const systemctlPath = this.findSystemctl();
+    if (systemctlPath === '') {
+      extensionApi.window.showErrorMessage('systemctl command not found, cannot enable or disable podman.socket', 'OK');
+      return;
+    }
+
+    // Add the path to the podman.socket file to the command
+    // Add `--now` to the command so systemctl will enable / disable immediateley
+    // as well as the podman socket
+    command = command.concat(` --now ${podmanSystemdSocket}`);
+
+    try {
+      await this.runSudoCommand(`${systemctlPath} ${command}`);
+    } catch (error) {
+      console.error(`Error running systemctl command: ${error}`);
+      extensionApi.window.showErrorMessage(`Error running systemctl command: ${error}`, 'OK');
+      return;
+    }
+
+    // After enabling the socket, ask the user if they want to create a symlink from /run/podman/podman.sock to /var/run/docker.sock
+    // This is so that the user can use the Docker extension without having to change any settings (like DOCKER_HOST)
+    if (command.includes('enable')) {
+      const createSymlink = await extensionApi.window.showInformationMessage(
+        'Would you like to create a symlink from /run/podman/podman.sock to /var/run/docker.sock?\nAlternatively, you can set: export DOCKER_HOST=unix:///run/podman/podman.sock in your shell to use Docker CLI tools.',
+        'Yes',
+        'Cancel',
+      );
+      if (createSymlink === 'Yes') {
+        try {
+          // TODO: Maybe don't ask for sudo password again? Do both systemctl and enable
+          await this.runSudoCommand('ln -s /run/podman/podman.sock /var/run/docker.sock');
+          await extensionApi.window.showInformationMessage(
+            'Symlink created. You can now use the Docker-like tools with Podman without changing any settings.',
+          );
+        } catch (error) {
+          console.error(`Error creating symlink: ${error}`);
+          extensionApi.window.showErrorMessage(`Error creating symlink: ${error}`, 'OK');
+          return;
+        }
+      }
+    }
+
+    extensionApi.window.showInformationMessage(
+      `Podman systemd socket has been ${description} for Docker compatibility.`,
+    );
+  }
+
+  async enable(): Promise<void> {
+    return this.runSystemdCommand('enable', 'enabled');
+  }
+
+  async disable(): Promise<void> {
+    return this.runSystemdCommand('disable', 'disabled');
+  }
+}
+
+// TODO: Windows
 export function getSocketCompatibility(): SocketCompatibility {
   switch (process.platform) {
     case 'darwin':
       return new DarwinSocketCompatibility();
+    case 'linux':
+      return new LinuxSocketCompatibility();
     default:
       throw new Error(`Unsupported platform ${process.platform}`);
   }
