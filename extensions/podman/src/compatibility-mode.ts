@@ -109,7 +109,7 @@ abstract class SocketCompatibility {
 
 export class DarwinSocketCompatibility extends SocketCompatibility {
   // Shows the details of the compatibility mode on what we do.
-  details = 'The podman-mac-helper binary will be ran. This requires administrative privileges.';
+  details = 'The podman-mac-helper binary will be run. This requires administrative privileges.';
 
   // This will show the "opposite" of what the current state is
   // "Enable" if it's currently disabled, "Disable" if it's currently enabled
@@ -118,11 +118,6 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     const text = 'macOS Docker socket compatibility for Podman.';
     return this.isEnabled() ? `Disable ${text}` : `Enable ${text}`;
   }
-}
-
-export class DarwinSocketCompatibility extends SocketCompatibility {
-  // Shows the details of the compatibility mode on what we do.
-  details = 'The podman-mac-helper binary will be run. This requires administrative privileges.';
 
   // Find the podman-mac-helper binary which should only be located in either
   // brew or podman's install location
@@ -224,14 +219,10 @@ export class WindowsSocketCompatibility extends SocketCompatibility {
     // Create a recursive loop to check if Docker is still running and ask the user to stop it, (cancel will exit)
     const dockerUp = await this.isDockerRunning();
     if (dockerUp) {
-      const result = await extensionApi.window.showInformationMessage(
-        'Docker is running. Please stop Docker before enabling the compatibility mode.',
-        'Try again',
-        'Cancel',
+      await extensionApi.window.showInformationMessage(
+        'Docker is running. Please stop Docker before enabling the compatibility mode. This may require a restart of Podman Desktop',
+        'OK',
       );
-      if (result === 'Try again') {
-        this.enable();
-      }
       return;
     }
 
@@ -247,14 +238,10 @@ export class WindowsSocketCompatibility extends SocketCompatibility {
     // Create a recursive loop to check if Docker is still running and ask the user to stop it, (cancel will exit)
     const dockerDown = !(await this.isDockerRunning());
     if (dockerDown) {
-      const result = await extensionApi.window.showInformationMessage(
-        'Start Docker before continuing. To disable Podman compatibility mode, Docker must be started to override the emulated socket.',
-        'Try again',
-        'Cancel',
+      await extensionApi.window.showInformationMessage(
+        'Start Docker before continuing. To disable Podman compatibility mode, Docker must be started to override the emulated socket. This may require a restart of Podman Desktop.',
+        'OK',
       );
-      if (result === 'Try again') {
-        this.disable();
-      }
       return;
     }
 
