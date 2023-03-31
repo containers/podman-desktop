@@ -94,7 +94,6 @@ async function sendFeedback(): Promise<void> {
           >Tell us why, or share any suggestion or issue to improve your experience: ({1000 - tellUsWhyFeedback.length} characters
           left)</label>
         <textarea
-          type="text"
           rows="4"
           maxlength="1000"
           name="tellUsWhyFeedback"
