@@ -105,6 +105,19 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
     </li>
     <!-- Registries configuration end -->
 
+    <!-- Authentication Providers configuration start -->
+    <li
+      class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
+        '/preferences/authentication-providers',
+      )} hover:text-gray-300 cursor-pointer items-center">
+      <a href="/preferences/authentication-providers" id="configuration-section-authentication" class="pf-c-nav__link">
+        <div class="flex items-center">
+          <span class="hidden md:block group-hover:block">Authentication</span>
+        </div>
+      </a>
+    </li>
+    <!-- Authentication Providers configuration end -->
+
     <!-- Extensions catalog configuration start -->
     <li
       class="pf-c-nav__item pf-m-expandable {addExpandedClass('extensionsCatalog')} {addCurrentClass(

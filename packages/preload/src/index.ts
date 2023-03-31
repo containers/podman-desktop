@@ -35,6 +35,7 @@ import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-i
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
+import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
 import type {
   PreflightCheckEvent,
   PreflightChecksCallback,
@@ -777,6 +778,16 @@ function initExposure(): void {
       return ipcInvoke('image-registry:unregisterRegistry', registry);
     },
   );
+
+  contextBridge.exposeInMainWorld('getAuthenticationProvidersInfo',
+    async (): Promise<readonly AuthenticationProviderInfo[]> => {
+    return ipcInvoke('authentication-provider-registry:getAuthenticationProvidersInfo');
+  });
+
+  contextBridge.exposeInMainWorld('requestAuthenticationProviderSignOut',
+    async (providerId: string, sessionId: string): Promise<void> => {
+    return ipcInvoke('authentication-provider-registry:requestAuthenticationProviderSignOut', providerId, sessionId);
+  });
 
   contextBridge.exposeInMainWorld(
     'getConfigurationProperties',
