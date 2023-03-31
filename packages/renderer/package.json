@@ -33,7 +33,7 @@
     "svelte-preprocess": "^5.0.3",
     "tailwindcss": "^3.3.0",
     "tslib": "^2.5.0",
-    "typescript": "^5.0.2",
+    "typescript": "^5.0.3",
     "vite": "^4.2.1",
     "xterm": "^5.1.0",
     "xterm-addon-fit": "^0.7.0"
