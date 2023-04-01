@@ -529,8 +529,10 @@ export class PluginSystem {
     // init welcome configuration
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
+    
+    const dialogs = new Dialogs();
 
-    const authentication = new AuthenticationImpl(apiSender);
+    const authentication = new AuthenticationImpl(apiSender, dialogs);
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
@@ -540,7 +542,7 @@ export class PluginSystem {
       imageRegistry,
       apiSender,
       trayMenuRegistry,
-      new Dialogs(),
+      dialogs,
       new ProgressImpl(),
       new NotificationImpl(),
       statusBarRegistry,

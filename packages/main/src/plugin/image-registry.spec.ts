@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { ApiSenderType } from './api';
 import type { Certificates } from './certificates';
 
 import { ImageRegistry } from './image-registry';
@@ -34,7 +35,7 @@ beforeAll(() => {
     isEnabled: vi.fn(),
   } as unknown as Proxy;
 
-  imageRegistry = new ImageRegistry({}, telemetry, certificates, proxy);
+  imageRegistry = new ImageRegistry({} as ApiSenderType, telemetry, certificates, proxy);
 });
 
 beforeEach(() => {

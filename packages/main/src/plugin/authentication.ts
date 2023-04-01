@@ -31,6 +31,7 @@ import type {
 // import { window } from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
 import type { ApiSenderType } from './api';
+import { Dialogs } from './dialog-impl';
 
 type Authentication = typeof authentication;
 
@@ -65,7 +66,7 @@ export interface AllowedExtension {
 export class AuthenticationImpl {
   private _authenticationProviders: Map<string, ProviderWithMetadata> = new Map<string, ProviderWithMetadata>();
 
-  constructor(private apiSender: ApiSenderType) {}
+  constructor(private apiSender: ApiSenderType, private dialogs: Dialogs) {}
 
   public async getAuthenticationProvidersInfo(): Promise<AuthenticationProviderInfo[]> {
     const values = Array.from(this._authenticationProviders.values());
@@ -177,7 +178,7 @@ export class AuthenticationImpl {
 
     const provider = this._authenticationProviders.get(providerId)?.provider;
     if (!provider) {
-      // window.showInformationMessage(`Requested authentication provider ${providerId} is not installed.`);
+        await this.dialogs.showDialog('error', 'Authentication Error', `Requested authentication provider ${providerId} is not installed.`, ['Close']);
     } else {
       const sessions = await provider.getSessions(scopes);
       if (sessions.length > 0 && this.isAccessAllowed(providerId, sessions[0].account.label, requestingExtension.id)) {

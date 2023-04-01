@@ -23,8 +23,10 @@ import type {
   AuthenticationSessionAccountInformation,
   Event,
 } from '@podman-desktop/api';
-import { beforeAll, expect, expectTypeOf, test, suite } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
+import { ApiSenderType } from './api';
 import { AuthenticationImpl } from './authentication';
+import { Dialogs } from './dialog-impl';
 import { Emitter as EventEmitter } from './events/emitter';
 
 function randomNumber(n = 5) {
@@ -63,21 +65,29 @@ class AuthenticationProviderSingleAccout implements AuthenticationProvider {
   }
 }
 
-const apiSender = {
-  send: function () {},
+const apiSender: ApiSenderType = {
+  send: vi.fn(),
+  receive: vi.fn(),
 };
+
+const dialogs: Dialogs = {
+  showDialog: vi.fn(),
+}
 
 let authModule: AuthenticationImpl;
 
 beforeAll(function () {
-  authModule = new AuthenticationImpl(apiSender);
+  authModule = new AuthenticationImpl(
+    apiSender, dialogs);
 });
 
 test('Registered authentication provider stored in autentication module', async () => {
   const authProvidrer1 = new AuthenticationProviderSingleAccout();
   authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
-  const providersInfo = authModule.getAuthenticationProvidersInfo();
+  const providersInfo = await authModule.getAuthenticationProvidersInfo();
   expect(providersInfo).length(1, 'Provider was not registered');
 });
 
-test("Getting an authentication session with 'createIfNone = true' creates new one if not created yet", async () => {});
+test("Getting an authentication session with 'createIfNone = true' creates new one if not created yet", async () => {
+  
+});
