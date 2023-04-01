@@ -17,13 +17,12 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as os from 'node:os';
-import { runCliCommand, detectKind } from './util';
+import { detectKind } from './util';
 import { KindInstaller } from './kind-installer';
+import type { Logger } from '@podman-desktop/api';
 import { window } from '@podman-desktop/api';
 import { ImageHandler } from './image-handler';
+import { createCluster } from './create-cluster';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 
@@ -49,80 +48,9 @@ let kindCli: string | undefined;
 const imageHandler = new ImageHandler();
 
 function registerProvider(extensionContext: extensionApi.ExtensionContext, provider: extensionApi.Provider): void {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const createFunction = async (params: { [key: string]: any }, logger: extensionApi.Logger): Promise<void> => {
-    let clusterName = 'kind';
-    if (params['kind.cluster.creation.name']) {
-      clusterName = params['kind.cluster.creation.name'];
-    }
-
-    // grab provider
-    let provider = 'docker';
-    if (params['kind.cluster.creation.provider']) {
-      provider = params['kind.cluster.creation.provider'];
-    }
-
-    const env = Object.assign({}, process.env);
-    // add KIND_EXPERIMENTAL_PROVIDER env variable if needed
-    if (provider === 'podman') {
-      env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
-    }
-
-    // grab http host port
-    let httpHostPort = 9090;
-    if (params['kind.cluster.creation.http.port']) {
-      httpHostPort = params['kind.cluster.creation.http.port'];
-    }
-
-    // grab https host port
-    let httpsHostPort = 9443;
-    if (params['kind.cluster.creation.https.port']) {
-      httpsHostPort = params['kind.cluster.creation.https.port'];
-    }
-
-    // create the config file
-    const kindClusterConfig = `kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-name: ${clusterName}
-nodes:
-- role: control-plane
-  kubeadmConfigPatches:
-  - |
-    kind: InitConfiguration
-    nodeRegistration:
-      kubeletExtraArgs:
-        node-labels: "ingress-ready=true"
-  extraPortMappings:
-  - containerPort: 80
-    hostPort: ${httpHostPort}
-    protocol: TCP
-  - containerPort: 443
-    hostPort: ${httpsHostPort}
-    protocol: TCP
-`;
-
-    // create a temporary file
-    const tmpDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'kind-cluster-config-'));
-
-    // path to the file inside this directory
-    const tmpFilePath = path.join(tmpDirectory, 'kind-cluster-config.yaml');
-
-    // ok we need to write the file
-    await fs.promises.writeFile(tmpFilePath, kindClusterConfig, 'utf8');
-
-    // now execute the command to create the cluster
-    const result = await runCliCommand(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger });
-
-    // delete temporary directory/file
-    await fs.promises.rm(tmpDirectory, { recursive: true });
-
-    if (result.exitCode !== 0) {
-      throw new Error(`Failed to create kind cluster. ${result.error}`);
-    }
-  };
-
   const disposable = provider.setKubernetesProviderConnectionFactory({
-    create: createFunction,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    create: (params: { [key: string]: any }, logger?: Logger) => createCluster(params, logger, kindCli),
   });
   extensionContext.subscriptions.push(disposable);
   console.log('kind extension is active');

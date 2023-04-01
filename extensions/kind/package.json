@@ -55,14 +55,15 @@
     }
   },
   "scripts": {
-    "build": "tsc && node ./scripts/build.js",    
+    "build": "vite build && node ./scripts/build.js",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
-    "watch": "tsc -w"
+    "watch": "vite build -w"
   },
   "dependencies": {
     "@podman-desktop/api": "^0.0.1",
-    "@octokit/rest": "^19.0.7"
+    "@octokit/rest": "^19.0.7",
+    "mustache": "^4.2.0"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
