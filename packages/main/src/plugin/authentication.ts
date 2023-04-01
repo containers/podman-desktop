@@ -175,35 +175,22 @@ export class AuthenticationImpl {
 
     const provider = this._authenticationProviders.get(providerId)?.provider;
     if (!provider) {
-      await this.dialogs.showDialog(
-        'error',
-        'Authentication Error',
-        `Requested authentication provider ${providerId} is not installed.`,
-        ['Close'],
-      );
+      throw new Error(`Requested authentication provider ${providerId} is not installed.`);
     } else {
       const sessions = await provider.getSessions(scopes);
       if (sessions.length > 0 && this.isAccessAllowed(providerId, sessions[0].account.label, requestingExtension.id)) {
         return sessions[0];
-      } else {
-        return provider.createSession(scopes);
       }
+      return provider.createSession(scopes);
     }
-    return;
   }
 
   async removeSession(providerId: string, sessionId: string): Promise<void> {
     const provider = this._authenticationProviders.get(providerId)?.provider;
     if (!provider) {
-      await this.dialogs.showDialog(
-        'error',
-        'Authentication Error',
-        `Requested authentication provider ${providerId} is not installed.`,
-        ['Close'],
-      );
-    } else {
-      return provider.removeSession(sessionId);
+      throw new Error(`Requested authentication provider ${providerId} is not installed.`);
     }
+    return provider.removeSession(sessionId);
   }
 
   private readonly _onDidChangeSessions = new Emitter<AuthenticationSessionsChangeEvent>();
