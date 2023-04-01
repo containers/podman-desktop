@@ -953,7 +953,7 @@ declare module '@podman-desktop/api' {
      *
      * @param message The message to show.
      * @param items A set of items that will be rendered as actions in the message.
-     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     * @return A promise that resolves to the selected item or `undefined` when being dismissed.
      */
     export function showInformationMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
@@ -963,7 +963,7 @@ declare module '@podman-desktop/api' {
      *
      * @param message The message to show.
      * @param items A set of items that will be rendered as actions in the message.
-     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     * @return A promise that resolves to the selected item or `undefined` when being dismissed.
      */
     export function showWarningMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
@@ -973,7 +973,7 @@ declare module '@podman-desktop/api' {
      *
      * @param message The message to show.
      * @param items A set of items that will be rendered as actions in the message.
-     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     * @return A promise that resolves to the selected item or `undefined` when being dismissed.
      */
     export function showErrorMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
@@ -1600,7 +1600,7 @@ declare module '@podman-desktop/api' {
      * @param providerId The id of the provider to use
      * @param scopes A list of scopes representing the permissions requested. These are dependent on the authentication provider
      * @param options The [getSessionOptions](#GetSessionOptions) to use
-     * @returns A thenable that resolves to an authentication session
+     * @returns A promise that resolves to an authentication session
      */
     export function getSession(
       providerId: string,
@@ -1619,7 +1619,7 @@ declare module '@podman-desktop/api' {
      * @param providerId The id of the provider to use
      * @param scopes A list of scopes representing the permissions requested. These are dependent on the authentication provider
      * @param options The [getSessionOptions](#GetSessionOptions) to use
-     * @returns A thenable that resolves to an authentication session if available, or undefined if there are no sessions
+     * @returns A promise that resolves to an authentication session if available, or undefined if there are no sessions
      */
     export function getSession(
       providerId: string,
