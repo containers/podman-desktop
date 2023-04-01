@@ -101,11 +101,11 @@ export class AuthenticationImpl {
       provider,
       options: options ?? { supportsMultipleAccounts: false },
     });
-    this.apiSender.send('authentication-provider-update');
+    this.apiSender.send('authentication-provider-update', {id});
     const onDidChangeSessionDisposable = provider.onDidChangeSessions(
       (event: AuthenticationProviderAuthenticationSessionsChangeEvent) => {
         this._onDidChangeSessions.fire({ provider: { id, label } });
-        this.apiSender.send('authentication-provider-update');
+        this.apiSender.send('authentication-provider-update', {id});
       },
     );
     return {
