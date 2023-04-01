@@ -11,11 +11,18 @@ import Modal from '../dialogs/Modal.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
+import Fa from 'svelte-fa/src/fa.svelte';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import ConnectionStatus from '../ui/ConnectionStatus.svelte';
+import PreferencesKubernetesConnectionDetailsSummary from './PreferencesKubernetesConnectionDetailsSummary.svelte';
 import type { Terminal } from 'xterm';
+import Tab from '../ui/Tab.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
 export let apiUrlBase64 = '';
+
+let kubernetesConnectionInfo: ProviderKubernetesConnectionInfo;
 
 let scope: KubernetesProviderConnection;
 let providers: ProviderInfo[] = [];
@@ -23,6 +30,10 @@ onMount(() => {
   lifecycleError = '';
   providerInfos.subscribe(value => {
     providers = value;
+    providerInfo = providers.find(provider => provider.internalId === providerInternalId);
+    kubernetesConnectionInfo = providerInfo.kubernetesConnections?.find(
+      connection => connection.endpoint.apiURL === apiURL,
+    );
   });
 });
 
@@ -68,14 +79,9 @@ $: scope = {
   },
 } as KubernetesProviderConnection;
 
-let kubernetesConnectionInfo: ProviderKubernetesConnectionInfo = undefined;
 $: kubernetesConnectionInfo = providerInfo?.kubernetesConnections?.find(
   connection => connection.endpoint.apiURL === apiURL,
 );
-
-function createNewConnection(providerId: string) {
-  router.goto(`/preferences/provider/${providerId}`);
-}
 
 let lifecycleError = '';
 router.subscribe(() => {
@@ -110,26 +116,41 @@ async function stopReceivingLogs(_provider: ProviderInfo): Promise<void> {
 }
 </script>
 
-<Route path="/*" breadcrumb="{connectionName} Settings">
-  <div class="flex flex-1 flex-col bg-charcoal-600 px-2">
-    <div class="flex flex-row align-middle my-4">
-      <div class="capitalize text-xl">{connectionName}</div>
-      {#if providerInfo?.containerProviderConnectionCreation}
-        <div class="flex-1 ml-10">
+{#if kubernetesConnectionInfo}
+<Route path="/*" breadcrumb="{connectionName} Settings" let:meta>
+  <div class="flex flex-1 flex-col">
+    <div class="bg-[#222222]">
+      <div class="px-5">
+        <div class="pt-3">
           <button
-            on:click="{() => createNewConnection(providerInfo.internalId)}"
-            class="pf-c-button pf-m-secondary"
-            type="button">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-plus-circle" aria-hidden="true"></i>
-            </span>
-            Create New
-          </button>
+            aria-label="Close"
+            class="'hover:text-gray-400 float-right text-lg"
+            on:click="{() => router.goto('/preferences/resources')}">
+            <Fa icon="{faXmark}" />
+          </button>    
+          <h1 class="capitalize text-xs text-gray-400">Resources > {providerInfo?.name} > Details</h1>
+        </div>      
+        <div class="flex flex-row justify-between">        
+            <div class="flex flex-row my-3">
+              <div>
+              {#if providerInfo?.images && providerInfo?.images.icon}
+                {#if typeof providerInfo.images.icon === 'string'}
+                  <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
+                  <!-- TODO check theme used for image, now use dark by default -->
+                {:else}
+                  <img src="{providerInfo.images.icon.dark}" alt="{providerInfo.name}" class="max-h-10" />
+                {/if}
+              {/if}
+              </div>
+              <div class="flex flex-col ml-3">
+                <div class="capitalize text-md pt-1">{providerInfo?.name}</div>
+                <div class="flex flex-row mt-1"><ConnectionStatus status="{kubernetesConnectionInfo?.status}" /></div>
+              </div>
+            </div>        
+            <div class="mx-10 pt-1">
+            </div>
         </div>
-      {/if}
     </div>
-    <p class="capitalize text-sm">provider: {providerInfo?.name}</p>
-
     <!-- Display lifecycle -->
     {#if kubernetesConnectionInfo?.lifecycleMethods && kubernetesConnectionInfo.lifecycleMethods.length > 0}
       <div class="py-2 flex flex:row">
@@ -208,18 +229,24 @@ async function stopReceivingLogs(_provider: ProviderInfo): Promise<void> {
       </div>
     {/each}
 
-    {#if kubernetesConnectionInfo}
-      <div class="pl-1 py-2">
-        <div class="text-sm italic text-gray-700">Status</div>
-        <div class="pl-3">{kubernetesConnectionInfo.status}</div>
+    <section class="pf-c-page__main-tabs pf-m-limit-width">
+      <div class="pf-c-page__main-body">
+        <div class="pf-c-tabs" id="open-tabs-example-tabs-list">
+          <div class="pl-5">
+            <ul class="pf-c-tabs__list">
+              <Tab title="Summary" url="summary"/>
+            </ul>
+          </div>            
+        </div>
       </div>
-      <div class="pl-1 py-2">
-        <div class="text-sm italic text-gray-700">Kubernetes endpoint API URL</div>
-        <div class="pl-3">{kubernetesConnectionInfo.endpoint.apiURL}</div>
-      </div>
-    {/if}
+    </section> 
+    <Route path="/summary" breadcrumb="Summary">
+      <PreferencesKubernetesConnectionDetailsSummary kubernetesConnectionInfo="{kubernetesConnectionInfo}" properties="{configurationKeys}" />
+    </Route>
   </div>
+  
 </Route>
+{/if}
 {#if showModal}
   <Modal
     on:close="{() => {

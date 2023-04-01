@@ -23,6 +23,12 @@ import type {
 } from '../../../../main/src/plugin/api/provider-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
+export interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
+  value?: any;
+  container: string;
+  providerId: string;
+}
+
 export interface IConnectionStatus {
   status: string;
   action?: string;
