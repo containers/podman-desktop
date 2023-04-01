@@ -134,6 +134,14 @@ export class AuthenticationImpl {
     throw new Error('The method is not implemented!');
   }
 
+  /**
+   * Check extension access to an account
+   * @param providerId The id of the authentication provider
+   * @param accountName The account name that access is checked for
+   * @param extensionId The id of the extension requesting access
+   * @returns Returns true or false if the user has opted to permanently grant or disallow access, and undefined
+   * if they haven't made a choice yet
+   */
   isAccessAllowed(providerId: string, accountName: string, extensionId: string): boolean | undefined {
     return true; // To be implemented later
   }
