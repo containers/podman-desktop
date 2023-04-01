@@ -30,6 +30,8 @@ import type {
 } from '@podman-desktop/api';
 // import { window } from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
+import type { ApiSenderType } from './api';
+
 type Authentication = typeof authentication;
 
 /**
@@ -63,7 +65,7 @@ export interface AllowedExtension {
 export class AuthenticationImpl {
   private _authenticationProviders: Map<string, ProviderWithMetadata> = new Map<string, ProviderWithMetadata>();
 
-  constructor(private apiSender: any) {}
+  constructor(private apiSender: ApiSenderType) {}
 
   public async getAuthenticationProvidersInfo(): Promise<AuthenticationProviderInfo[]> {
     const values = Array.from(this._authenticationProviders.values());
