@@ -38,7 +38,7 @@ import type { TrayMenuRegistry } from './tray-menu-registry';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { ApiSenderType } from './api';
-import { AuthenticationImpl } from './authentication';
+import type { AuthenticationImpl } from './authentication';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {

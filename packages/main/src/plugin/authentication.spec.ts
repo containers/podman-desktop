@@ -24,9 +24,9 @@ import type {
   Event,
 } from '@podman-desktop/api';
 import { beforeAll, expect, test, vi } from 'vitest';
-import { ApiSenderType } from './api';
+import type { ApiSenderType } from './api';
 import { AuthenticationImpl } from './authentication';
-import { Dialogs } from './dialog-impl';
+import type { Dialogs } from './dialog-impl';
 import { Emitter as EventEmitter } from './events/emitter';
 
 function randomNumber(n = 5) {
@@ -60,7 +60,7 @@ class AuthenticationProviderSingleAccout implements AuthenticationProvider {
   async createSession(scopes: string[]): Promise<AuthenticationSession> {
     return new RandomAuthenticationSession(scopes);
   }
-  async removeSession(sessionId: string): Promise<void> {
+  async removeSession(): Promise<void> {
     this.session = undefined;
   }
 }
@@ -72,13 +72,12 @@ const apiSender: ApiSenderType = {
 
 const dialogs: Dialogs = {
   showDialog: vi.fn(),
-}
+};
 
 let authModule: AuthenticationImpl;
 
 beforeAll(function () {
-  authModule = new AuthenticationImpl(
-    apiSender, dialogs);
+  authModule = new AuthenticationImpl(apiSender, dialogs);
 });
 
 test('Registered authentication provider stored in autentication module', async () => {
@@ -86,8 +85,4 @@ test('Registered authentication provider stored in autentication module', async 
   authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
   const providersInfo = await authModule.getAuthenticationProvidersInfo();
   expect(providersInfo).length(1, 'Provider was not registered');
-});
-
-test("Getting an authentication session with 'createIfNone = true' creates new one if not created yet", async () => {
-  
 });

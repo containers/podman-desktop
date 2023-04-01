@@ -17,13 +17,11 @@
  ***********************************************************************/
 
 import type {
-  authentication,
   AuthenticationProvider,
   AuthenticationSession,
   AuthenticationSessionsChangeEvent,
   AuthenticationGetSessionOptions,
   Event,
-  AuthenticationProviderAuthenticationSessionsChangeEvent,
   AuthenticationSessionAccountInformation,
   AuthenticationProviderOptions,
   Disposable,
@@ -31,9 +29,7 @@ import type {
 // import { window } from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
 import type { ApiSenderType } from './api';
-import { Dialogs } from './dialog-impl';
-
-type Authentication = typeof authentication;
+import type { Dialogs } from './dialog-impl';
 
 /**
  * Structure to save authentication provider information
@@ -102,13 +98,11 @@ export class AuthenticationImpl {
       provider,
       options: options ?? { supportsMultipleAccounts: false },
     });
-    this.apiSender.send('authentication-provider-update', {id});
-    const onDidChangeSessionDisposable = provider.onDidChangeSessions(
-      (event: AuthenticationProviderAuthenticationSessionsChangeEvent) => {
-        this._onDidChangeSessions.fire({ provider: { id, label } });
-        this.apiSender.send('authentication-provider-update', {id});
-      },
-    );
+    this.apiSender.send('authentication-provider-update', { id });
+    const onDidChangeSessionDisposable = provider.onDidChangeSessions(() => {
+      this._onDidChangeSessions.fire({ provider: { id, label } });
+      this.apiSender.send('authentication-provider-update', { id });
+    });
     return {
       dispose: () => {
         onDidChangeSessionDisposable.dispose();
@@ -117,20 +111,22 @@ export class AuthenticationImpl {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   addAccountUsage(providerId: string, accountLabel: string, extensionId: string, extensionName: string): void {
     throw new Error('The method is not implemented!');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   readAllowedExtensions(providerId: string, accountName: string): AllowedExtension[] {
     throw new Error('The method is not implemented!');
   }
 
   updateAllowedExtension(
-    providerId: string,
-    accountName: string,
-    extensionId: string,
-    extensionName: string,
-    isAllowed: boolean,
+    providerId: string, // eslint-disable-line @typescript-eslint/no-unused-vars
+    accountName: string, // eslint-disable-line @typescript-eslint/no-unused-vars
+    extensionId: string, // eslint-disable-line @typescript-eslint/no-unused-vars
+    extensionName: string, // eslint-disable-line @typescript-eslint/no-unused-vars
+    isAllowed: boolean, // eslint-disable-line @typescript-eslint/no-unused-vars
   ): void {
     throw new Error('The method is not implemented!');
   }
@@ -143,6 +139,7 @@ export class AuthenticationImpl {
    * @returns Returns true or false if the user has opted to permanently grant or disallow access, and undefined
    * if they haven't made a choice yet
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isAccessAllowed(providerId: string, accountName: string, extensionId: string): boolean | undefined {
     return true; // To be implemented later
   }
@@ -178,7 +175,12 @@ export class AuthenticationImpl {
 
     const provider = this._authenticationProviders.get(providerId)?.provider;
     if (!provider) {
-        await this.dialogs.showDialog('error', 'Authentication Error', `Requested authentication provider ${providerId} is not installed.`, ['Close']);
+      await this.dialogs.showDialog(
+        'error',
+        'Authentication Error',
+        `Requested authentication provider ${providerId} is not installed.`,
+        ['Close'],
+      );
     } else {
       const sessions = await provider.getSessions(scopes);
       if (sessions.length > 0 && this.isAccessAllowed(providerId, sessions[0].account.label, requestingExtension.id)) {
@@ -192,7 +194,16 @@ export class AuthenticationImpl {
 
   async removeSession(providerId: string, sessionId: string): Promise<void> {
     const provider = this._authenticationProviders.get(providerId)?.provider;
-    return provider?.removeSession(sessionId);
+    if (!provider) {
+      await this.dialogs.showDialog(
+        'error',
+        'Authentication Error',
+        `Requested authentication provider ${providerId} is not installed.`,
+        ['Close'],
+      );
+    } else {
+      return provider.removeSession(sessionId);
+    }
   }
 
   private readonly _onDidChangeSessions = new Emitter<AuthenticationSessionsChangeEvent>();

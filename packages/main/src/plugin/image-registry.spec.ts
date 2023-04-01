@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import { ApiSenderType } from './api';
+import type { ApiSenderType } from './api';
 import type { Certificates } from './certificates';
 
 import { ImageRegistry } from './image-registry';

@@ -94,7 +94,8 @@ import type { UpdateCheckResult } from 'electron-updater';
 import { autoUpdater } from 'electron-updater';
 import { clipboard } from 'electron';
 import type { ApiSenderType } from './api';
-import { AuthenticationImpl, AuthenticationProviderInfo } from './authentication';
+import type { AuthenticationProviderInfo } from './authentication';
+import { AuthenticationImpl } from './authentication';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -529,7 +530,7 @@ export class PluginSystem {
     // init welcome configuration
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
-    
+
     const dialogs = new Dialogs();
 
     const authentication = new AuthenticationImpl(apiSender, dialogs);
@@ -1072,13 +1073,19 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('authentication-provider-registry:getAuthenticationProvidersInfo', async (): Promise<readonly AuthenticationProviderInfo[]> => {
-      return authentication.getAuthenticationProvidersInfo();
-    });
+    this.ipcHandle(
+      'authentication-provider-registry:getAuthenticationProvidersInfo',
+      async (): Promise<readonly AuthenticationProviderInfo[]> => {
+        return authentication.getAuthenticationProvidersInfo();
+      },
+    );
 
-    this.ipcHandle('authentication-provider-registry:requestAuthenticationProviderSignOut', async (_listener, providerId: string, sessionId): Promise<void> => {
-      return authentication.signOut(providerId, sessionId);
-    });
+    this.ipcHandle(
+      'authentication-provider-registry:requestAuthenticationProviderSignOut',
+      async (_listener, providerId: string, sessionId): Promise<void> => {
+        return authentication.signOut(providerId, sessionId);
+      },
+    );
 
     this.ipcHandle(
       'configuration-registry:getConfigurationProperties',

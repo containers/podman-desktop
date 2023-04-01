@@ -47,7 +47,7 @@ import { desktopAppHomeDir } from '../util';
 import { Emitter } from './events/emitter';
 import { CancellationTokenSource } from './cancellation-token';
 import type { ApiSenderType } from './api';
-import { AuthenticationImpl } from './authentication';
+import type { AuthenticationImpl } from './authentication';
 
 /**
  * Handle the loading of an extension
@@ -108,7 +108,7 @@ export class ExtensionLoader {
     private proxy: Proxy,
     private containerProviderRegistry: ContainerProviderRegistry,
     private inputQuickPickRegistry: InputQuickPickRegistry,
-    private authentticationProviderRegistry: AuthenticationImpl,
+    private authenticationProviderRegistry: AuthenticationImpl,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -599,17 +599,17 @@ export class ExtensionLoader {
       },
     };
 
-    const authentticationProviderRegistry = this.authentticationProviderRegistry;
+    const authenticationProviderRegistry = this.authenticationProviderRegistry;
     const extensionInfo = { id: extManifest.name, label: extManifest.displayName };
     const authentication: typeof containerDesktopAPI.authentication = {
       getSession: (providerId, scopes, options) => {
-        return authentticationProviderRegistry.getSession(extensionInfo, providerId, scopes, options);
+        return authenticationProviderRegistry.getSession(extensionInfo, providerId, scopes, options);
       },
       registerAuthenticationProvider: (id, label, provider, options) => {
-        return authentticationProviderRegistry.registerAuthenticationProvider(id, label, provider, options);
+        return authenticationProviderRegistry.registerAuthenticationProvider(id, label, provider, options);
       },
       onDidChangeSessions: (listener, thisArg, disposables) => {
-        return authentticationProviderRegistry.onDidChangeSessions(listener, thisArg, disposables);
+        return authenticationProviderRegistry.onDidChangeSessions(listener, thisArg, disposables);
       },
     };
 
