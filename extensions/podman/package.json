@@ -22,6 +22,7 @@
       "properties": {
         "podman.binary.path": {
           "type": "string",
+          "format": "file",
           "default": "",
           "description": "Custom path to Podman binary (Default is blank)"
         },
