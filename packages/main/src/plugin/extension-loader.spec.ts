@@ -38,6 +38,7 @@ import type { TrayMenuRegistry } from './tray-menu-registry';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { ApiSenderType } from './api';
+import type { AuthenticationImpl } from './authentication';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -87,6 +88,8 @@ const containerProviderRegistry: ContainerProviderRegistry = {} as unknown as Co
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
 
+const authenticationProviderRegistry: AuthenticationImpl = {} as unknown as AuthenticationImpl;
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
   extensionLoader = new TestExtensionLoader(
@@ -106,6 +109,7 @@ beforeAll(() => {
     proxy,
     containerProviderRegistry,
     inputQuickPickRegistry,
+    authenticationProviderRegistry,
   );
 });
 

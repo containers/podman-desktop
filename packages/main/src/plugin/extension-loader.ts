@@ -47,6 +47,7 @@ import { desktopAppHomeDir } from '../util';
 import { Emitter } from './events/emitter';
 import { CancellationTokenSource } from './cancellation-token';
 import type { ApiSenderType } from './api';
+import type { AuthenticationImpl } from './authentication';
 
 /**
  * Handle the loading of an extension
@@ -107,6 +108,7 @@ export class ExtensionLoader {
     private proxy: Proxy,
     private containerProviderRegistry: ContainerProviderRegistry,
     private inputQuickPickRegistry: InputQuickPickRegistry,
+    private authenticationProviderRegistry: AuthenticationImpl,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -597,6 +599,20 @@ export class ExtensionLoader {
       },
     };
 
+    const authenticationProviderRegistry = this.authenticationProviderRegistry;
+    const extensionInfo = { id: extManifest.name, label: extManifest.displayName };
+    const authentication: typeof containerDesktopAPI.authentication = {
+      getSession: (providerId, scopes, options) => {
+        return authenticationProviderRegistry.getSession(extensionInfo, providerId, scopes, options);
+      },
+      registerAuthenticationProvider: (id, label, provider, options) => {
+        return authenticationProviderRegistry.registerAuthenticationProvider(id, label, provider, options);
+      },
+      onDidChangeSessions: (listener, thisArg, disposables) => {
+        return authenticationProviderRegistry.onDidChangeSessions(listener, thisArg, disposables);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -619,6 +635,7 @@ export class ExtensionLoader {
       StatusBarAlignRight,
       InputBoxValidationSeverity,
       QuickPickItemKind,
+      authentication,
     };
   }
 
