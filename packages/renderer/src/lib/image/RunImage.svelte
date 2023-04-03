@@ -7,7 +7,8 @@ import NavPage from '../ui/NavPage.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { faFolderOpen, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
-import { router, Route } from 'tinro';
+import { router } from 'tinro';
+import Route from '../../Route.svelte';
 import type { NetworkInspectInfo } from '../../../../main/src/plugin/api/network-info';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { ContainerUtils } from '../container/container-utils';
@@ -434,7 +435,7 @@ function checkContainerName(event: any) {
             </div>
           </section>
           <div>
-            <Route path="/basic">
+            <Route path="/basic" breadcrumb="Basic">
               <div class="h-96 overflow-y-auto pr-4">
                 <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
                   >Container name:</label>
@@ -564,7 +565,7 @@ function checkContainerName(event: any) {
                 {/each}
               </div>
             </Route>
-            <Route path="/advanced">
+            <Route path="/advanced" breadcrumb="Advanced">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Use tty -->
                 <label for="containerTty" class="block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
@@ -633,7 +634,7 @@ function checkContainerName(event: any) {
               </div>
             </Route>
 
-            <Route path="/security">
+            <Route path="/security" breadcrumb="Security">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Privileged-->
                 <label for="containerPrivileged" class="block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
@@ -754,7 +755,7 @@ function checkContainerName(event: any) {
               </div>
             </Route>
 
-            <Route path="/networking">
+            <Route path="/networking" breadcrumb="Networking">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- hostname-->
                 <label for="containerHostname" class="block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
