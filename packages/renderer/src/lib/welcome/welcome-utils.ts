@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { WelcomeSettings } from '../../../../main/src/plugin/welcome/welcome-settings';
+import { TelemetrySettings } from '../../../../main/src/plugin/telemetry/telemetry-settings';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 
 export class WelcomeUtils {
@@ -28,6 +29,31 @@ export class WelcomeUtils {
     window.updateConfigurationValue(
       WelcomeSettings.SectionName + '.' + WelcomeSettings.Version,
       val,
+      CONFIGURATION_DEFAULT_SCOPE,
+    );
+  }
+
+  havePromptedForTelemetry(): Promise<boolean> {
+    return window.getConfigurationValue<boolean>(TelemetrySettings.SectionName + '.' + TelemetrySettings.Check);
+  }
+
+  async enableTelemetry(telemetry: boolean) {
+    console.log('Telemetry enablement: ' + telemetry);
+
+    // store if the user said yes or no to telemetry
+    window.updateConfigurationValue(
+      TelemetrySettings.SectionName + '.' + TelemetrySettings.Enabled,
+      telemetry,
+      CONFIGURATION_DEFAULT_SCOPE,
+    );
+
+    // trigger telemetry system initialization
+    if (telemetry) window.telemetryConfigure();
+
+    // save the fact that we've prompted
+    window.updateConfigurationValue(
+      TelemetrySettings.SectionName + '.' + TelemetrySettings.Check,
+      true,
       CONFIGURATION_DEFAULT_SCOPE,
     );
   }

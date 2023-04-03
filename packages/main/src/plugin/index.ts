@@ -1385,6 +1385,10 @@ export class PluginSystem {
       return telemetry.track(PAGE_EVENT_TYPE, { name: name });
     });
 
+    this.ipcHandle('telemetry:configure', async (): Promise<void> => {
+      return telemetry.configureTelemetry();
+    });
+
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,
