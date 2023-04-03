@@ -181,7 +181,7 @@ function canIncrement(value: number | string, maximumValue?: number) {
           aria-invalid="{invalidEntry}"
           aria-label="{record.description}" />
         <div
-          class="w-9 h-5 bg-gray-500 rounded-full peer peer-checked:after:translate-x-full after:bg-zinc-800 after:content-[''] after:absolute after:top-0.5 after:left-[59px] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-violet-600">
+          class="w-8 h-[20px] bg-gray-500 rounded-full peer peer-checked:after:translate-x-full after:bg-zinc-800 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
         </div>
       </label>
     {:else if record.type === 'number'}
@@ -192,7 +192,7 @@ function canIncrement(value: number | string, maximumValue?: number) {
           on:click="{e => decrement(e.currentTarget, record)}"
           disabled="{!canDecrement(recordValue, record.minimum)}"
           class="w-11 text-white {!canDecrement(recordValue, record.minimum)
-            ? 'bg-zinc-900 text-zinc-700'
+            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
             : 'hover:text-gray-700 hover:bg-gray-400'} cursor-pointer outline-none">
           <span class="m-auto font-thin">−</span>
         </button>
@@ -206,7 +206,7 @@ function canIncrement(value: number | string, maximumValue?: number) {
           on:click="{e => increment(e.currentTarget, record)}"
           disabled="{!canIncrement(recordValue, record.maximum)}"
           class="w-11 text-white {!canIncrement(recordValue, record.maximum)
-            ? 'bg-zinc-900 text-zinc-700'
+            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
             : 'hover:text-gray-700 hover:bg-gray-400'} cursor-pointer outline-none">
           <span class="m-auto font-thin">+</span>
         </button>

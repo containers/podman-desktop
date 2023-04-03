@@ -67,7 +67,7 @@ $: resetToDefault = false;
       {recordUI.title}
       {#if showResetButton}
         <div class="ml-2">
-          <button class="text-xs text-violet-500 float-right" on:click="{() => doResetToDefault()}">
+          <button class="text-xs text-violet-500" on:click="{() => doResetToDefault()}">
             <i class="fas fa-undo" aria-hidden="true"></i>
           </button>
         </div>
