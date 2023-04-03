@@ -15,7 +15,7 @@ import {
 } from './preferences-connection-rendering-task';
 import { get } from 'svelte/store';
 import { createConnectionsInfo } from '/@/stores/create-connections';
-import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import { filesize } from 'filesize';
 import { router } from 'tinro';
 import LinearProgress from '../ui/LinearProgress.svelte';
@@ -185,6 +185,7 @@ async function cleanup() {
   errorMessage = undefined;
   showLogs = false;
   creationInProgress = false;
+  creationStarted = false;
   creationCancelled = false;
   creationSuccessful = false;
   updateStore();
@@ -232,10 +233,11 @@ async function handleOnSubmit(e) {
     await callback(providerInfo.internalId, data, loggerHandlerKey, eventCollect, tokenId);
   } catch (error) {
     //display error
+    creationInProgress = false;
     tokenId = undefined;
     // filter cancellation message to avoid displaying error and allow user to restart the creation
     if (error.message && error.message.indexOf('Execution cancelled') >= 0) {
-      close();
+      errorMessage = 'Action cancelled. See logs for more details';
       return;
     }
     errorMessage = error;
@@ -246,6 +248,7 @@ async function cancel() {
   if (tokenId) {
     await window.cancelToken(tokenId);
     creationCancelled = true;
+    creationInProgress = false;
     tokenId = undefined;
   }
 }
@@ -284,9 +287,16 @@ async function close() {
         {/if}
       {/if}
     </div>
+    {@const providerDisplayName =
+      (providerInfo.containerProviderConnectionCreation
+        ? providerInfo.containerProviderConnectionCreationDisplayName || undefined
+        : providerInfo.kubernetesProviderConnectionCreation
+        ? providerInfo.kubernetesProviderConnectionCreationDisplayName
+        : undefined) || providerInfo.name}
     <h1 class="font-semibold">
       {creationInProgress ? 'Creating' : 'Create a'}
-      {providerInfo.name} Machine {creationInProgress ? '...' : ''}
+      {providerDisplayName}
+      {creationInProgress ? '...' : ''}
     </h1>
     {#if pageIsLoading}
       <div class="text-center mt-16">
@@ -295,10 +305,12 @@ async function close() {
         </div>
       </div>
     {:else}
-      {#if creationInProgress}
+      {#if creationStarted}
         <div class="w-4/5 mt-2">
           <div class="mt-2 mb-8">
-            <LinearProgress />
+            {#if creationInProgress}
+              <LinearProgress />
+            {/if}
             <div class="mt-2 float-right">
               <button
                 aria-label="Show Logs"
@@ -310,10 +322,11 @@ async function close() {
                 class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
                 disabled="{!tokenId}"
                 on:click="{cancel}">Cancel</button>
-              <button class="text-xs hover:underline {errorMessage ? '' : 'hidden'}" on:click="{close}">Close</button>
+              <button class="text-xs hover:underline {creationInProgress ? 'hidden' : ''}" on:click="{close}"
+                >Close</button>
             </div>
           </div>
-          <div id="log" class="h-80 {showLogs ? '' : 'hidden'}">
+          <div id="log" class="pt-2 h-80 {showLogs ? '' : 'hidden'}">
             <div class="w-full h-full">
               <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
             </div>
@@ -351,7 +364,7 @@ async function close() {
               <button
                 class="pf-c-button underline hover:text-gray-400"
                 on:click="{() => router.goto('/preferences/resources')}">
-                Cancel
+                Close
               </button>
               <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
                 <div class="mr-24">

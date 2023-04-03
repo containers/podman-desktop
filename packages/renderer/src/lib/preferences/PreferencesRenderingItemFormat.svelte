@@ -1,4 +1,6 @@
 <script lang="ts">
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa/src/fa.svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
@@ -165,6 +167,15 @@ function canIncrement(value: number | string, maximumValue?: number | string) {
 function handleRangeValue(id: string, target: HTMLInputElement) {
   setRecordValue(id, target.value);
 }
+
+function handleCleanValue(
+  event: MouseEvent & {
+    currentTarget: EventTarget & HTMLButtonElement;
+  },
+) {
+  recordValue = '';
+  event.preventDefault();
+}
 </script>
 
 <div class="flex flex-row mb-1 pt-2">
@@ -229,7 +240,7 @@ function handleRangeValue(id: string, target: HTMLInputElement) {
     {:else if record.type === 'string' && record.format === 'file'}
       <div class="w-full flex">
         <input
-          class="w-5/6 mr-3 py-1 px-2 outline-0 text-sm"
+          class="w-5/6 {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm"
           name="{record.id}"
           readonly
           type="text"
@@ -237,6 +248,13 @@ function handleRangeValue(id: string, target: HTMLInputElement) {
           id="input-standard-{record.id}"
           aria-invalid="{invalidEntry}"
           aria-label="{record.description}" />
+        <button
+          class="relative cursor-pointer right-5"
+          class:hidden="{!recordValue}"
+          aria-label="clear"
+          on:click="{event => handleCleanValue(event)}">
+          <Fa icon="{faXmark}" />
+        </button>
         <input
           name="{record.id}"
           on:click="{() => selectFilePath()}"
