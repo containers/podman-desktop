@@ -183,7 +183,7 @@ async function startContainerProvider(
     {#each $providerInfos as provider}
       <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-600 flex">
         <div>
-          <!-- left col - podman icon/name + "create new" button -->
+          <!-- left col - provider icon/name + "create new" button -->
           <div class="min-w-[150px] max-w-[200px]">
             <div class="flex">
               {#if provider.images.icon}
@@ -198,11 +198,17 @@ async function startContainerProvider(
             </div>
             <div class="text-center mt-10">
               {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
-                <!-- create new podman machine button -->
-                <Tooltip tip="Create new {provider.name} machine" bottom>
+                {@const providerDisplayName =
+                  (provider.containerProviderConnectionCreation
+                    ? provider.containerProviderConnectionCreationDisplayName || undefined
+                    : provider.kubernetesProviderConnectionCreation
+                    ? provider.kubernetesProviderConnectionCreationDisplayName
+                    : undefined) || provider.name}
+                <!-- create new provider button -->
+                <Tooltip tip="Create new {providerDisplayName}" bottom>
                   <button
                     class="pf-c-button pf-m-primary"
-                    aria-label="Create new {provider.name} machine"
+                    aria-label="Create new {providerDisplayName}"
                     type="button"
                     on:click="{() => router.goto(`/preferences/provider/${provider.internalId}`)}">
                     Create new ...

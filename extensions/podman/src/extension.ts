@@ -665,6 +665,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     provider.setContainerProviderConnectionFactory({
       initialize: () => createFunction({}, undefined),
       create: createFunction,
+      creationDisplayName: 'Podman machine',
     });
   }
 

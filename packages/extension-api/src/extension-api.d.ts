@@ -224,16 +224,23 @@ declare module '@podman-desktop/api' {
     status(): ProviderConnectionStatus;
   }
 
-  // create programmatically a ContainerProviderConnection
-  export interface ContainerProviderConnectionFactory {
+  // common set of options for creating a provider
+  export interface ProviderConnectionFactory {
+    // Allow to initialize a provider
     initialize?(): Promise<void>;
+
+    // Optional display name when creating the provider. For example 'Podman Machine' or 'Kind Cluster', etc.
+    creationDisplayName?: string;
+  }
+
+  // create programmatically a ContainerProviderConnection
+  export interface ContainerProviderConnectionFactory extends ProviderConnectionFactory {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     create(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
   }
 
   // create a kubernetes provider
-  export interface KubernetesProviderConnectionFactory {
-    initialize?(): Promise<void>;
+  export interface KubernetesProviderConnectionFactory extends ProviderConnectionFactory {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     create?(params: { [key: string]: any }, logger?: Logger): Promise<void>;
   }

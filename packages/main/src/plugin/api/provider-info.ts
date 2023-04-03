@@ -60,10 +60,16 @@ export interface ProviderInfo {
   // can initialize provider connection from ContainerProviderConnectionFactory params
   containerProviderConnectionInitialization: boolean;
 
+  // optional creation name (if defined)
+  containerProviderConnectionCreationDisplayName?: string;
+
   // can create provider connection from KubernetesProviderConnectionFactory params
   kubernetesProviderConnectionCreation: boolean;
   // can initialize provider connection from KubernetesProviderConnectionFactory params
   kubernetesProviderConnectionInitialization: boolean;
+
+  // optional creation name (if defined)
+  kubernetesProviderConnectionCreationDisplayName?: string;
 
   version?: string;
 

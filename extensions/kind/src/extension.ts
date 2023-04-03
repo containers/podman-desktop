@@ -51,6 +51,7 @@ function registerProvider(extensionContext: extensionApi.ExtensionContext, provi
   const disposable = provider.setKubernetesProviderConnectionFactory({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     create: (params: { [key: string]: any }, logger?: Logger) => createCluster(params, logger, kindCli),
+    creationDisplayName: 'Kind cluster',
   });
   extensionContext.subscriptions.push(disposable);
   console.log('kind extension is active');
