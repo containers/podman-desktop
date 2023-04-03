@@ -43,6 +43,18 @@ function update() {
 $: {
   update();
 }
+
+function updateResetButtonVisibility(recordValue: any) {
+  showResetButton =
+    recordUI.original.default !== undefined && recordValue !== undefined && recordValue != recordUI.original.default;
+}
+
+function doResetToDefault() {
+  resetToDefault = true;
+}
+
+$: showResetButton = false;
+$: resetToDefault = false;
 </script>
 
 <div class="flex flex-row px-2 py-2 justify-between w-full">
@@ -51,15 +63,30 @@ $: {
     (!recordUI.original.enum || recordUI.original.enum.length === 0)
       ? 'w-full'
       : ''}">
-    <div class="text-sm">
+    <div class="flex flex-row text-sm">
       {recordUI.title}
+      {#if showResetButton}
+        <div class="ml-2">
+          <button class="text-xs text-violet-500 float-right" on:click="{() => doResetToDefault()}">
+            <i class="fas fa-undo" aria-hidden="true"></i>
+          </button>
+        </div>
+      {/if}
     </div>
     <div class="pt-1 text-gray-400 text-xs">{recordUI.description}</div>
     {#if recordUI.original.type === 'string' && (!recordUI.original.enum || recordUI.original.enum.length === 0)}
-      <PreferencesRenderingItemFormat showUpdate="{false}" record="{recordUI.original}" showResetToDefault="{true}" />
+      <PreferencesRenderingItemFormat
+        showUpdate="{false}"
+        record="{recordUI.original}"
+        updateResetButtonVisibility="{updateResetButtonVisibility}"
+        resetToDefault="{resetToDefault}" />
     {/if}
   </div>
   {#if recordUI.original.type !== 'string' || (recordUI.original.enum && recordUI.original.enum.length > 0)}
-    <PreferencesRenderingItemFormat showUpdate="{false}" record="{recordUI.original}" showResetToDefault="{true}" />
+    <PreferencesRenderingItemFormat
+      showUpdate="{false}"
+      record="{recordUI.original}"
+      updateResetButtonVisibility="{updateResetButtonVisibility}"
+      resetToDefault="{resetToDefault}" />
   {/if}
 </div>

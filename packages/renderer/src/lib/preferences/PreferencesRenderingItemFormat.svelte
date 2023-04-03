@@ -8,24 +8,37 @@ let invalidText = undefined;
 export let showUpdate = false;
 export let invalidRecord = (error: string) => {};
 export let validRecord = () => {};
-export let showResetToDefault = false;
+export let updateResetButtonVisibility = (recordValue: any) => {};
+export let resetToDefault = false;
 
 export let record: IConfigurationPropertyRecordedSchema;
 
 let currentRecord: IConfigurationPropertyRecordedSchema;
 let recordUpdateTimeout: NodeJS.Timeout;
 
-$: recordValue = record.default;
+let recordValue: any;
+$: recordValue;
+$: updateResetButtonVisibility && updateResetButtonVisibility(recordValue);
 let checkboxValue: boolean = false;
+$: if (resetToDefault) {
+  recordValue = record.default;
+  if (typeof recordValue === 'boolean') {
+    checkboxValue = recordValue;
+  }
+  update(record);
+  resetToDefault = false;
+}
+
 $: if (currentRecord !== record) {
   if (record.scope === CONFIGURATION_DEFAULT_SCOPE) {
     window.getConfigurationValue(record.id, record.scope).then(value => {
       recordValue = value;
-      if (recordValue === true) {
-        checkboxValue = true;
+      if (record.type === 'boolean') {
+        recordValue = !!value;
+        checkboxValue = recordValue;
       }
     });
-  } else if (record.default) {
+  } else if (record.default !== undefined) {
     recordValue = record.default;
   }
 
@@ -97,13 +110,6 @@ function update(record: IConfigurationPropertyRecordedSchema) {
   }
 }
 
-function resetToDefault() {
-  if (record.default) {
-    recordValue = record.default;
-    update(record);
-  }
-}
-
 async function selectFilePath() {
   clearTimeout(recordUpdateTimeout);
   const result = await window.openFileDialog(`Select ${record.description}`);
@@ -162,7 +168,10 @@ function canIncrement(value: number | string, maximumValue?: number) {
         <span class="text-xs {checkboxValue ? 'text-white' : 'text-gray-400'} mr-3"
           >{checkboxValue ? 'Enabled' : 'Disabled'}</span>
         <input
-          on:input="{event => checkValue(record, event)}"
+          on:input="{event => {
+            recordValue = !checkboxValue;
+            checkValue(record, event);
+          }}"
           class="sr-only peer"
           bind:checked="{checkboxValue}"
           name="{record.id}"
@@ -252,15 +261,6 @@ function canIncrement(value: number | string, maximumValue?: number) {
 
     {#if invalidEntry}
       <ErrorMessage error="{invalidText}." />
-    {/if}
-    {#if showResetToDefault && record.default}
-      <div class="mt-2 w-full">
-        <button class="text-xs text-gray-400 float-right" on:click="{() => resetToDefault()}">
-          <span class="pf-c-button__icon pf-m-start">
-            <i class="fas fa-undo" aria-hidden="true"></i>
-          </span> Reset to default
-        </button>
-      </div>
     {/if}
   </div>
   {#if showUpdate}
