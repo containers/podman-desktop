@@ -506,12 +506,16 @@ export class ProviderRegistry {
 
     // container connection factory ?
     let containerProviderConnectionCreation = false;
+    const containerProviderConnectionCreationDisplayName =
+      provider.containerProviderConnectionFactory?.creationDisplayName;
     if (provider.containerProviderConnectionFactory) {
       containerProviderConnectionCreation = true;
     }
 
     // kubernetes connection factory ?
     let kubernetesProviderConnectionInitialization = false;
+    const kubernetesProviderConnectionCreationDisplayName =
+      provider.kubernetesProviderConnectionFactory?.creationDisplayName;
     if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.initialize) {
       kubernetesProviderConnectionInitialization = true;
     }
@@ -532,7 +536,9 @@ export class ProviderRegistry {
       containerProviderConnectionCreation,
       kubernetesProviderConnectionCreation,
       containerProviderConnectionInitialization,
+      containerProviderConnectionCreationDisplayName,
       kubernetesProviderConnectionInitialization,
+      kubernetesProviderConnectionCreationDisplayName,
       links: provider.links,
       detectionChecks: provider.detectionChecks,
       images: provider.images,

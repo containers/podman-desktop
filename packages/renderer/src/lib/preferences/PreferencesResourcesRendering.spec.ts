@@ -50,6 +50,7 @@ const providerInfo: ProviderInfo = {
   kubernetesProviderConnectionCreation: true,
   links: undefined,
   containerProviderConnectionInitialization: false,
+  containerProviderConnectionCreationDisplayName: 'Podman machine',
   kubernetesProviderConnectionInitialization: false,
 };
 
@@ -60,10 +61,33 @@ beforeEach(() => {
   };
 });
 
+test('Expect to see elements regarding default provider name', async () => {
+  // clone providerInfo and change id to foo
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  // remove display name
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  // change name of the provider
+  customProviderInfo.name = 'foo-provider';
+  providerInfos.set([customProviderInfo]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.getByRole('button', { name: 'Create new foo-provider' });
+  expect(button).toBeInTheDocument();
+});
+
+test('Expect to see elements regarding foo provider', async () => {
+  // clone providerInfo and change id to foo
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  customProviderInfo.containerProviderConnectionCreationDisplayName = 'foo';
+  providerInfos.set([customProviderInfo]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.getByRole('button', { name: 'Create new foo' });
+  expect(button).toBeInTheDocument();
+});
+
 test('Expect to see elements regarding podman provider', async () => {
   providerInfos.set([providerInfo]);
   render(PreferencesResourcesRendering, {});
-  const button = screen.getByRole('button', { name: 'Create new podman machine' });
+  const button = screen.getByRole('button', { name: 'Create new Podman machine' });
   expect(button).toBeInTheDocument();
 });
 
