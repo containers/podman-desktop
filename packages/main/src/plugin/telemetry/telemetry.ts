@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022, 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import Analytics from 'analytics-node';
-import { app, dialog } from 'electron';
+import { app } from 'electron';
 import { Identity } from './identity';
 import * as os from 'node:os';
 import type { LinuxOs } from 'getos';
@@ -25,8 +25,7 @@ import getos from 'getos';
 import * as osLocale from 'os-locale';
 import { promisify } from 'node:util';
 import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry';
-import { CONFIGURATION_DEFAULT_SCOPE } from '../configuration-registry-constants';
-import { findWindow } from '../../util';
+import { TelemetrySettings } from './telemetry-settings';
 
 export const TRACK_EVENT_TYPE = 'track';
 export const PAGE_EVENT_TYPE = 'page';
@@ -75,12 +74,12 @@ export class Telemetry {
       title: 'Telemetry',
       type: 'object',
       properties: {
-        ['telemetry.enabled']: {
+        [TelemetrySettings.SectionName + '.' + TelemetrySettings.Enabled]: {
           description: 'Enable telemetry',
           type: 'boolean',
           default: true,
         },
-        ['telemetry.check']: {
+        [TelemetrySettings.SectionName + '.' + TelemetrySettings.Check]: {
           description: 'Dialog prompt for telemetry',
           type: 'boolean',
           default: false,
@@ -92,59 +91,22 @@ export class Telemetry {
     this.configurationRegistry.registerConfigurations([telemetryConfigurationNode]);
 
     // grab value
-    const telemetryConfiguration = this.configurationRegistry.getConfiguration('telemetry');
-    const check = telemetryConfiguration.get<boolean>('check');
+    const telemetryConfiguration = this.configurationRegistry.getConfiguration(TelemetrySettings.SectionName);
+    const check = telemetryConfiguration.get<boolean>(TelemetrySettings.Check);
 
     // initalize objects
     this.analytics = new Analytics(Telemetry.SEGMENT_KEY);
 
     // needs to prompt the user for the first time he launches the app
-    if (!check) {
-      dialog
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        .showMessageBox(findWindow()!, {
-          title: 'Telemetry',
-          message: `Help Red Hat improve\n ${app.getName()} by allowing anonymous usage data to be collected.`,
-          buttons: ['OK'],
-          type: 'info',
-          checkboxChecked: true,
-          checkboxLabel: 'Enable telemetry',
-          detail:
-            'Read about our privacy statement:\n https://developers.redhat.com/article/tool-data-collection\n\nYou can update your choice later by changing the Telemetry preference.',
-        })
-        .then(async messageBoxReturnValue => {
-          // check has been performed, we asked the user and he answered, so check is done
-          await this.configurationRegistry.updateConfigurationValue(
-            'telemetry.check',
-            true,
-            CONFIGURATION_DEFAULT_SCOPE,
-          );
-          // if the user said yes, we enable the telemetry
-          if (messageBoxReturnValue.checkboxChecked) {
-            await this.configurationRegistry.updateConfigurationValue(
-              'telemetry.enabled',
-              true,
-              CONFIGURATION_DEFAULT_SCOPE,
-            );
-            this.configureTelemetry();
-          } else {
-            // else we disable it
-            await this.configurationRegistry.updateConfigurationValue(
-              'telemetry.enabled',
-              false,
-              CONFIGURATION_DEFAULT_SCOPE,
-            );
-          }
-        });
-    } else {
-      //
-      const enabled = telemetryConfiguration.get<boolean>('enabled');
-      if (enabled === true) {
-        await this.configureTelemetry();
-        this.telemetryConfigured = true;
-        this.telemetryEnabled = true;
+    if (check) {
+      const enabled = telemetryConfiguration.get<boolean>(TelemetrySettings.Enabled);
+      if (enabled === true) await this.configureTelemetry();
+      else {
+        this.telemetryInitialized = true;
+
+        // clear pending items
+        this.pendingItems.length = 0;
       }
-      this.telemetryInitialized = true;
     }
   }
 
@@ -158,7 +120,9 @@ export class Telemetry {
     });
   }
 
-  protected async configureTelemetry(): Promise<void> {
+  async configureTelemetry(): Promise<void> {
+    if (this.telemetryInitialized) return;
+
     await this.initTelemetry();
 
     this.internalTrack(STARTUP_EVENT_TYPE);
@@ -179,6 +143,8 @@ export class Telemetry {
       this.internalTrack(item.eventName, item.properties);
     });
     this.pendingItems.length = 0;
+    this.telemetryConfigured = true;
+    this.telemetryEnabled = true;
     this.telemetryInitialized = true;
   }
 

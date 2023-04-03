@@ -83,3 +83,20 @@ test('Expect that the settings button closes the window and opens the settings',
   // and we're in the preferences
   expect(path).toBe('/preferences');
 });
+
+test('Expect that telemetry UI is hidden when telemetry has already been prompted', async () => {
+  await render(WelcomePage, { showWelcome: true, showTelemetry: false });
+  let checkbox;
+  try {
+    checkbox = screen.getByRole('checkbox', { name: 'Enable telemetry' });
+  } catch {
+    // ignore errors
+  }
+  expect(checkbox).toBe(undefined);
+});
+
+test('Expect that telemetry UI is visible when necessary', async () => {
+  await render(WelcomePage, { showWelcome: true, showTelemetry: true });
+  const checkbox = screen.getByRole('checkbox', { name: 'Enable telemetry' });
+  expect(checkbox).toBeInTheDocument();
+});

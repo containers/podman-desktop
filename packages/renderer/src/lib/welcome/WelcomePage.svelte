@@ -2,21 +2,32 @@
 import bgImage from './background.png';
 import DesktopIcon from '../images/DesktopIcon.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faCircle } from '@fortawesome/free-solid-svg-icons';
-import { onMount } from 'svelte';
+import { faCircle, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { onMount, onDestroy } from 'svelte';
 import { WelcomeUtils } from './welcome-utils';
 import { router } from 'tinro';
 
 export let showWelcome = false;
+export let showTelemetry = false;
+
+let telemetry = true;
+
+const welcomeUtils = new WelcomeUtils();
 
 onMount(async () => {
-  const welcomeUtils = new WelcomeUtils();
   const ver = await welcomeUtils.getVersion();
   if (!ver) {
     welcomeUtils.updateVersion('initial');
     showWelcome = true;
   }
+  const telemetryPrompt = await welcomeUtils.havePromptedForTelemetry();
+  if (!telemetryPrompt) showTelemetry = true;
 });
+
+function closeWelcome() {
+  showWelcome = false;
+  if (showTelemetry) welcomeUtils.enableTelemetry(telemetry);
+}
 </script>
 
 {#if showWelcome}
@@ -35,24 +46,21 @@ onMount(async () => {
         <span class="mr-2">🎉</span>Welcome to Podman Desktop!
       </div>
       <div class="flex flex-row justify-center p-4">
-        <div class="bg-zinc-800 rounded-lg p-5 text-sm">
+        <div class="bg-zinc-800 rounded-lg p-5 text-sm space-y-3">
           <div class="font-bold">Podman Desktop supports many container engines, including:</div>
           <div class="flex flex-row px-5 justify-center">
-            <div class="flex flex-col px-4 py-2">
+            <div class="flex flex-row px-4">
               <div class="flex flex-row place-items-center p-1">
                 <div><Fa size="10" class="text-violet-600" icon="{faCircle}" /></div>
                 <div class="px-2">Podman</div>
               </div>
               <div class="flex flex-row place-items-center p-1">
                 <div><Fa size="10" class="text-violet-600" icon="{faCircle}" /></div>
-                <div class="px-2">Lima</div>
+                <div class="px-2">Docker</div>
               </div>
-            </div>
-
-            <div class="flex flex-col px-4 py-2">
               <div class="flex flex-row place-items-center p-1">
                 <div><Fa size="10" class="text-violet-600" icon="{faCircle}" /></div>
-                <div class="px-2">Docker</div>
+                <div class="px-2">Lima</div>
               </div>
             </div>
           </div>
@@ -62,12 +70,52 @@ onMount(async () => {
         Configure these and more under <button
           class="text-violet-400 pl-1"
           on:click="{() => {
-            showWelcome = false;
+            closeWelcome();
             router.goto('/preferences');
           }}">Settings</button
         >.
       </div>
     </div>
+
+    <!-- Telemetry -->
+    {#if showTelemetry}
+      <div class="flex flex-col justify-end flex-none p-4">
+        <div class="flex flex-row justify-center items-start p-1 text-sm">
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              id="toggle-telemetry"
+              class="sr-only peer"
+              bind:checked="{telemetry}"
+              name="Enable telemetry"
+              type="checkbox"
+              aria-label="Enable telemetry" />
+            <div
+              class="w-4 h-4 rounded border-2 border-gray-400 peer peer-checked:bg-violet-500 peer-checked:border-violet-500">
+            </div>
+            <Fa class="w-4 h-4 absolute text-zinc-700" size="10" icon="{faCheck}" />
+            <span class="font-medium font-bold px-2">Telemetry:</span>
+          </label>
+          <div class="w-2/5 text-gray-300">
+            Help Red Hat improve Podman Desktop by allowing anonymous usage data to be collected.
+            <button
+              class="text-violet-400 pl-1"
+              on:click="{() => {
+                window.openExternal('https://developers.redhat.com/article/tool-data-collection');
+              }}">Read our privacy statement</button>
+          </div>
+        </div>
+        <div class="flex justify-center p-1 text-sm text-gray-400">
+          <div>
+            You can always modify this preference later in <button
+              class="text-gray-400 pl-1"
+              on:click="{() => {
+                closeWelcome();
+                router.goto('/preferences/default/preferences.telemetry');
+              }}">Settings &gt; Preferences</button>
+          </div>
+        </div>
+      </div>
+    {/if}
 
     <!-- Footer - button bar -->
     <div class="flex justify-end flex-none bg-zinc-800 p-8">
@@ -76,7 +124,7 @@ onMount(async () => {
           class="pf-c-button pf-m-primary w-30 px-6"
           type="button"
           on:click="{() => {
-            showWelcome = false;
+            closeWelcome();
           }}">Go to Podman Desktop</button>
       </div>
     </div>
