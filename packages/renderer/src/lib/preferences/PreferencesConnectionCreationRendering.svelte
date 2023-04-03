@@ -322,8 +322,10 @@ async function close() {
                 class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
                 disabled="{!tokenId}"
                 on:click="{cancel}">Cancel</button>
-              <button class="text-xs hover:underline {creationInProgress ? 'hidden' : ''}" on:click="{close}"
-                >Close</button>
+              <button
+                class="text-xs hover:underline {creationInProgress ? 'hidden' : ''}"
+                aria-label="Close panel"
+                on:click="{close}">Close</button>
             </div>
           </div>
           <div id="log" class="pt-2 h-80 {showLogs ? '' : 'hidden'}">

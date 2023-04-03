@@ -122,7 +122,7 @@ test('Expect create connection successfully', async () => {
   expect(currentConnectionInfoAfter.creationInProgress).toBeFalsy();
   expect(currentConnectionInfoAfter.creationStarted).toBeTruthy();
   expect(currentConnectionInfoAfter.creationSuccessful).toBeTruthy();
-  const closeButton = screen.getByRole('button', { name: 'Close' });
+  const closeButton = screen.getByRole('button', { name: 'Close panel' });
   expect(closeButton).toBeInTheDocument();
 });
 
