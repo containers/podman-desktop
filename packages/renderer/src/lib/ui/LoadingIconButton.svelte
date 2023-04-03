@@ -1,12 +1,12 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
-import type { IContainerStatus } from '../preferences/Util';
+import type { IConnectionStatus } from '../preferences/Util';
 import LoadingIcon from './LoadingIcon.svelte';
 import Tooltip from './Tooltip.svelte';
 
 export let action: string;
 export let icon: IconDefinition;
-export let state: IContainerStatus;
+export let state: IConnectionStatus;
 export let leftPosition: string;
 export let clickAction: () => {};
 
@@ -23,7 +23,7 @@ function capitalizeFirstLetter(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-function getStyleByState(state: IContainerStatus, action: string) {
+function getStyleByState(state: IConnectionStatus, action: string) {
   if (
     (action === 'start' && (state.inProgress || state.status !== 'stopped')) ||
     ((action === 'stop' || action === 'restart') && (state.inProgress || state.status !== 'started')) ||
