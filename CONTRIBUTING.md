@@ -129,6 +129,8 @@ yarn compile:current
 
 This will create a binary according to your local system and output it to the `dist/` folder.
 
+> **_NOTE:_** macOS and Windows create binaries while Linux will create a `.flatpak`. Make sure your flatpak dependencies are installed for successful compiling on Linux.
+
 ## Submitting Pull Requests
 
 ### Process
