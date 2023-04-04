@@ -37,7 +37,7 @@ export class WelcomeUtils {
     return window.getConfigurationValue<boolean>(TelemetrySettings.SectionName + '.' + TelemetrySettings.Check);
   }
 
-  async enableTelemetry(telemetry: boolean) {
+  async setTelemetry(telemetry: boolean) {
     console.log('Telemetry enablement: ' + telemetry);
 
     // store if the user said yes or no to telemetry
