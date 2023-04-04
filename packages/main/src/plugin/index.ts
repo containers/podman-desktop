@@ -540,7 +540,7 @@ export class PluginSystem {
 
     const messageBox = new MessageBox(apiSender);
 
-    const authentication = new AuthenticationImpl(apiSender, messageBox);
+    const authentication = new AuthenticationImpl(apiSender);
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
