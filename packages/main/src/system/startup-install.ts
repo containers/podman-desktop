@@ -43,7 +43,7 @@ export class StartupInstall {
 
   async configure() {
     // development mode, do nothing
-    if (!import.meta.env.PROD) {
+    if (process.env.NODE_ENV && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       console.log('Development mode, skipping startup install');
       return;
     }

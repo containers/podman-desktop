@@ -209,12 +209,12 @@ export class ExtensionLoader {
 
     let folders;
     // scan all extensions that we can find from the extensions folder
-    if (import.meta.env.PROD) {
-      // in production mode, use the extensions locally
-      folders = await this.readProductionFolders(path.join(__dirname, '../../../extensions'));
-    } else {
+    if (process.env.NODE_ENV && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       // in development mode, use the extensions locally
       folders = await this.readDevelopmentFolders(path.join(__dirname, '../../../extensions'));
+    } else {
+      // in production mode, use the extensions locally
+      folders = await this.readProductionFolders(path.join(__dirname, '../../../extensions'));
     }
     const externalExtensions = await this.readExternalFolders();
     // ok now load all extensions from these folders

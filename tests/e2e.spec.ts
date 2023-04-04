@@ -5,7 +5,11 @@ import { afterAll, beforeAll, expect, test } from 'vitest';
 let electronApp: ElectronApplication;
 
 beforeAll(async () => {
-  electronApp = await electron.launch({ args: ['.'] });
+  electronApp = await electron.launch({ 
+    args: ['.'] },
+  );
+  electronApp.process().stderr?.on('data', (error) => console.log(`stderr: ${error}`));
+  electronApp.process().stdout?.on('data', (out) => console.log(`stdout: ${out}`));
 });
 
 afterAll(async () => {
@@ -38,7 +42,14 @@ test('Main window state', async () => {
 
 test('Main window web content', async () => {
   const page = await electronApp.firstWindow();
+  await delay(5000);
   const element = await page.$('#app', { strict: true });
   expect(element, 'Cannot find root element').toBeDefined();
   expect((await element.innerHTML()).trim(), 'Window content was empty').not.equal('');
+  await page.screenshot({ path: 'intro.png' });
 });
+
+export async function delay(ms: number) {
+  console.log(`Delaying for ${ms} ms`);
+  return new Promise( resolve => setTimeout(resolve, ms) );
+}

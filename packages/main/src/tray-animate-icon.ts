@@ -43,10 +43,10 @@ export class AnimatedTray {
     // choose right folder for resources
     // see extraResources in electron-builder config file
     let assetsFolder;
-    if (import.meta.env.PROD) {
-      assetsFolder = path.resolve(process.resourcesPath, 'packages/main/src/assets');
-    } else {
+    if (process.env.NODE_ENV && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       assetsFolder = path.resolve(__dirname, '../src/assets');
+    } else {
+      assetsFolder = path.resolve(process.resourcesPath, 'packages/main/src/assets');
     }
 
     return assetsFolder;
