@@ -21,12 +21,16 @@ onMount(async () => {
     showWelcome = true;
   }
   const telemetryPrompt = await welcomeUtils.havePromptedForTelemetry();
-  if (!telemetryPrompt) showTelemetry = true;
+  if (!telemetryPrompt) {
+    showTelemetry = true;
+  }
 });
 
 function closeWelcome() {
   showWelcome = false;
-  if (showTelemetry) welcomeUtils.enableTelemetry(telemetry);
+  if (showTelemetry) {
+    welcomeUtils.setTelemetry(telemetry);
+  }
 }
 </script>
 

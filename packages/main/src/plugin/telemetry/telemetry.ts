@@ -100,8 +100,9 @@ export class Telemetry {
     // needs to prompt the user for the first time he launches the app
     if (check) {
       const enabled = telemetryConfiguration.get<boolean>(TelemetrySettings.Enabled);
-      if (enabled === true) await this.configureTelemetry();
-      else {
+      if (enabled === true) {
+        await this.configureTelemetry();
+      } else {
         this.telemetryInitialized = true;
 
         // clear pending items
@@ -121,7 +122,9 @@ export class Telemetry {
   }
 
   async configureTelemetry(): Promise<void> {
-    if (this.telemetryInitialized) return;
+    if (this.telemetryInitialized) {
+      return;
+    }
 
     await this.initTelemetry();
 
