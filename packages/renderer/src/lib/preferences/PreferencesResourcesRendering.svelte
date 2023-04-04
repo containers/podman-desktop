@@ -183,11 +183,13 @@ async function startContainerProvider(
   </span>
   <div>
     {#if providers.length === 0}
-      <EmptyScreen
-        icon="{EngineIcon}"
-        title="No resource found"
-        message="Start an extension that manage container or Kubernetes engines"
-        classes="bg-zinc-800 mt-5 pb-10" />
+      <div aria-label="no-resource-panel">
+        <EmptyScreen
+          icon="{EngineIcon}"
+          title="No resource found"
+          message="Start an extension that manage container or Kubernetes engines"
+          classes="bg-zinc-800 mt-5 pb-10" />
+      </div>
     {:else}
       {#each providers as provider}
         <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-600 flex">
