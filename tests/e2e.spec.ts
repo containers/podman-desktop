@@ -5,11 +5,11 @@ import { afterAll, beforeAll, expect, test } from 'vitest';
 let electronApp: ElectronApplication;
 
 beforeAll(async () => {
-  electronApp = await electron.launch({ 
-    args: ['.'] },
-  );
-  electronApp.process().stderr?.on('data', (error) => console.log(`stderr: ${error}`));
-  electronApp.process().stdout?.on('data', (out) => console.log(`stdout: ${out}`));
+  electronApp = await electron.launch({
+    args: ['.'],
+  });
+  electronApp.process().stderr?.on('data', error => console.log(`stderr: ${error}`));
+  electronApp.process().stdout?.on('data', out => console.log(`stdout: ${out}`));
 });
 
 afterAll(async () => {
@@ -51,5 +51,5 @@ test('Main window web content', async () => {
 
 export async function delay(ms: number) {
   console.log(`Delaying for ${ms} ms`);
-  return new Promise( resolve => setTimeout(resolve, ms) );
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
