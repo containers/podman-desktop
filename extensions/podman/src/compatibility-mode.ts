@@ -220,7 +220,7 @@ export class WindowsSocketCompatibility extends SocketCompatibility {
     const dockerUp = await this.isDockerRunning();
     if (dockerUp) {
       await extensionApi.window.showInformationMessage(
-        'Docker is running. Please stop Docker before enabling the compatibility mode. This may require a restart of Podman Desktop',
+        'Docker is running. Please stop Docker before enabling the compatibility mode.',
         'OK',
       );
       return;
@@ -239,7 +239,7 @@ export class WindowsSocketCompatibility extends SocketCompatibility {
     const dockerDown = !(await this.isDockerRunning());
     if (dockerDown) {
       await extensionApi.window.showInformationMessage(
-        'Start Docker before continuing. To disable Podman compatibility mode, Docker must be started to override the emulated socket. This may require a restart of Podman Desktop.',
+        'Start Docker before continuing. To disable Podman compatibility mode, Docker must be started to override the emulated socket.',
         'OK',
       );
       return;
@@ -247,6 +247,10 @@ export class WindowsSocketCompatibility extends SocketCompatibility {
 
     // Restart the podman machine
     await this.restartPodmanMachineWithConfirmation();
+
+    // Temporary, due to: https://github.com/containers/podman-desktop/issues/1819
+    // Tell the user to restart Podman Desktop
+    await extensionApi.window.showInformationMessage('Podman Desktop must be restarted to apply the changes.', 'OK');
   }
 }
 
