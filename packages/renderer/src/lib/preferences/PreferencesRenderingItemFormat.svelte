@@ -240,7 +240,7 @@ function handleCleanValue(
     {:else if record.type === 'string' && record.format === 'file'}
       <div class="w-full flex">
         <input
-          class="w-5/6 {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm"
+          class="grow {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm"
           name="{record.id}"
           readonly
           type="text"
