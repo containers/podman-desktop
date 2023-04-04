@@ -126,3 +126,10 @@ test('Expect to be start, delete actions disabled and stop, restart enabled when
   expect(deleteButton).toBeInTheDocument();
   expect(deleteButton.classList.contains('cursor-not-allowed'));
 });
+
+test('Expect to see the no resource message when there is no providers', async () => {
+  providerInfos.set([]);
+  render(PreferencesResourcesRendering, {});
+  const panel = screen.getByLabelText('no-resource-panel');
+  expect(panel).toBeInTheDocument();
+});

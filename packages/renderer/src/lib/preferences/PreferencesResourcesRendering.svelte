@@ -183,7 +183,7 @@ async function startContainerProvider(
   <div>
     {#if providers.length === 0}
       <div class="p-2 flex flex-col bg-zinc-800 rounded-lg mt-4">
-        <div class="flex flex-col items-center text-center mt-10 mb-20">
+        <div aria-label="no-resource-panel" class="flex flex-col items-center text-center mt-10 mb-20">
           <EngineIcon />
           <p class="text-lg text-gray-200">No resource found</p>
           <div class="text-sm text-gray-400 mt-2">
