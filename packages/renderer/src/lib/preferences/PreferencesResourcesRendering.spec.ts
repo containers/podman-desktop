@@ -35,6 +35,7 @@ const providerInfo: ProviderInfo = {
   detectionChecks: undefined,
   containerConnections: [
     {
+      id: 'container',
       name: 'machine',
       status: 'started',
       endpoint: {
