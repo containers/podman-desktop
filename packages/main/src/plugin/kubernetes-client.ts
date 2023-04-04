@@ -124,6 +124,7 @@ export class KubernetesClient {
           description: 'Kubeconfig path to use for accessing clusters. (Default is usually ~/.kube/config)',
           type: 'string',
           default: defaultKubeconfigPath,
+          format: 'file',
         },
       },
     };

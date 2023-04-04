@@ -8,22 +8,37 @@ let invalidText = undefined;
 export let showUpdate = false;
 export let invalidRecord = (error: string) => {};
 export let validRecord = () => {};
+export let updateResetButtonVisibility = (recordValue: any) => {};
+export let resetToDefault = false;
 
 export let record: IConfigurationPropertyRecordedSchema;
 
 let currentRecord: IConfigurationPropertyRecordedSchema;
+let recordUpdateTimeout: NodeJS.Timeout;
 
-let recordValue;
+let recordValue: any;
+$: recordValue;
+$: updateResetButtonVisibility && updateResetButtonVisibility(recordValue);
 let checkboxValue: boolean = false;
+$: if (resetToDefault) {
+  recordValue = record.default;
+  if (typeof recordValue === 'boolean') {
+    checkboxValue = recordValue;
+  }
+  update(record);
+  resetToDefault = false;
+}
+
 $: if (currentRecord !== record) {
   if (record.scope === CONFIGURATION_DEFAULT_SCOPE) {
     window.getConfigurationValue(record.id, record.scope).then(value => {
       recordValue = value;
-      if (recordValue === true) {
-        checkboxValue = true;
+      if (record.type === 'boolean') {
+        recordValue = !!value;
+        checkboxValue = recordValue;
       }
     });
-  } else if (record.default) {
+  } else if (record.default !== undefined) {
     recordValue = record.default;
   }
 
@@ -42,6 +57,7 @@ function valid() {
 }
 
 function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
+  clearTimeout(recordUpdateTimeout);
   const userValue = event.target.value;
   if (record.type === 'number') {
     const numberValue = parseFloat(userValue);
@@ -69,6 +85,7 @@ function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
     }
   }
   valid();
+  recordUpdateTimeout = setTimeout(() => update(record), 1000);
   invalidEntry = false;
   invalidText = undefined;
 }
@@ -94,41 +111,131 @@ function update(record: IConfigurationPropertyRecordedSchema) {
 }
 
 async function selectFilePath() {
+  clearTimeout(recordUpdateTimeout);
   const result = await window.openFileDialog(`Select ${record.description}`);
   if (!result.canceled && result.filePaths.length === 1) {
     recordValue = result.filePaths[0];
+    recordUpdateTimeout = setTimeout(() => update(record), 1000);
   }
+}
+
+function decrement(e: HTMLButtonElement, record: IConfigurationPropertyRecordedSchema) {
+  clearTimeout(recordUpdateTimeout);
+  const target = getCurrentNumericInputElement(e);
+  let value = Number(target.value);
+  if (canDecrement(value, record.minimum)) {
+    value--;
+    recordValue = value;
+    recordUpdateTimeout = setTimeout(() => update(record), 1000);
+  }
+}
+
+function increment(e: HTMLButtonElement, record: IConfigurationPropertyRecordedSchema) {
+  clearTimeout(recordUpdateTimeout);
+  const target = getCurrentNumericInputElement(e);
+  let value = Number(target.value);
+  if (canIncrement(value, record.maximum)) {
+    value++;
+    recordValue = value;
+    recordUpdateTimeout = setTimeout(() => update(record), 1000);
+  }
+}
+
+function getCurrentNumericInputElement(e: HTMLButtonElement) {
+  const btn = e.parentNode.parentElement.querySelector('button[data-action="decrement"]');
+  return btn.nextElementSibling as unknown as HTMLInputElement;
+}
+
+function canDecrement(value: number | string, minimumValue?: number) {
+  if (typeof value === 'string') {
+    value = Number(value);
+  }
+  return !minimumValue || value > minimumValue;
+}
+
+function canIncrement(value: number | string, maximumValue?: number) {
+  if (typeof value === 'string') {
+    value = Number(value);
+  }
+  return !maximumValue || value < maximumValue;
 }
 </script>
 
-<div class="flex flex-row mb-2 pt-2">
-  <div class="flex flex-col mx-2 w-full text-start justify-center items-start pf-c-form__group-control">
+<div class="flex flex-row mb-1 pt-2">
+  <div class="flex flex-col mx-2 text-start w-full justify-center items-start pf-c-form__group-control">
     {#if record.type === 'boolean'}
-      <input
-        on:input="{event => checkValue(record, event)}"
-        class="pf-c-check__input"
-        bind:checked="{checkboxValue}"
-        name="{record.id}"
-        type="checkbox"
-        readonly="{!!record.readonly}"
-        id="input-standard-{record.id}"
-        aria-invalid="{invalidEntry}"
-        aria-label="{record.description}" />
+      <label class="relative inline-flex items-center cursor-pointer">
+        <span class="text-xs {checkboxValue ? 'text-white' : 'text-gray-400'} mr-3"
+          >{checkboxValue ? 'Enabled' : 'Disabled'}</span>
+        <input
+          on:input="{event => {
+            recordValue = !checkboxValue;
+            checkValue(record, event);
+          }}"
+          class="sr-only peer"
+          bind:checked="{checkboxValue}"
+          name="{record.id}"
+          type="checkbox"
+          readonly="{!!record.readonly}"
+          id="input-standard-{record.id}"
+          aria-invalid="{invalidEntry}"
+          aria-label="{record.description}" />
+        <div
+          class="w-8 h-[20px] bg-gray-500 rounded-full peer peer-checked:after:translate-x-full after:bg-zinc-800 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
+        </div>
+      </label>
+    {:else if record.type === 'number'}
+      <div
+        class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-zinc-900 w-24 border-b border-violet-500">
+        <button
+          data-action="decrement"
+          on:click="{e => decrement(e.currentTarget, record)}"
+          disabled="{!canDecrement(recordValue, record.minimum)}"
+          class="w-11 text-white {!canDecrement(recordValue, record.minimum)
+            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
+            : 'hover:text-gray-700 hover:bg-gray-400'} cursor-pointer outline-none">
+          <span class="m-auto font-thin">−</span>
+        </button>
+        <input
+          type="text"
+          readonly
+          class="w-full outline-none focus:outline-none text-center text-white text-sm py-0.5"
+          value="{recordValue}" />
+        <button
+          data-action="increment"
+          on:click="{e => increment(e.currentTarget, record)}"
+          disabled="{!canIncrement(recordValue, record.maximum)}"
+          class="w-11 text-white {!canIncrement(recordValue, record.maximum)
+            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
+            : 'hover:text-gray-700 hover:bg-gray-400'} cursor-pointer outline-none">
+          <span class="m-auto font-thin">+</span>
+        </button>
+      </div>
     {:else if record.type === 'string' && record.format === 'file'}
-      <input
-        name="{record.id}"
-        on:click="{() => selectFilePath()}"
-        id="rendering.FilePath.{record.id}"
-        bind:value="{recordValue}"
-        readonly
-        aria-invalid="{invalidEntry}"
-        aria-label="{record.description}"
-        placeholder="Select {record.description}..."
-        class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400 cursor-pointer"
-        required />
+      <div class="w-full flex">
+        <input
+          class="w-5/6 mr-3 py-1 px-2 outline-0 text-sm"
+          name="{record.id}"
+          readonly
+          type="text"
+          value="{recordValue || ''}"
+          id="input-standard-{record.id}"
+          aria-invalid="{invalidEntry}"
+          aria-label="{record.description}" />
+        <input
+          name="{record.id}"
+          on:click="{() => selectFilePath()}"
+          id="rendering.FilePath.{record.id}"
+          readonly
+          aria-invalid="{invalidEntry}"
+          aria-label="{record.description}"
+          placeholder="Browse ..."
+          class="bg-violet-500 p-1 text-xs text-center hover:bg-zinc-700 placeholder-white rounded-sm cursor-pointer outline-0"
+          required />
+      </div>
     {:else if record.type === 'string' && record.enum && record.enum.length > 0}
       <select
-        class="border-b text-md focus:ring-blue-500 focus:border-blue-500 block w-full p-1 bg-zinc-700 border-gray-500 placeholder-gray-400 text-white"
+        class="border-b block w-full p-1 bg-zinc-700 border-violet-500 text-white text-sm checked:bg-violet-50"
         name="{record.id}"
         id="input-standard-{record.id}"
         on:input="{event => checkValue(record, event)}"

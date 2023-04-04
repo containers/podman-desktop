@@ -43,13 +43,50 @@ function update() {
 $: {
   update();
 }
+
+function updateResetButtonVisibility(recordValue: any) {
+  showResetButton =
+    recordUI.original.default !== undefined && recordValue !== undefined && recordValue != recordUI.original.default;
+}
+
+function doResetToDefault() {
+  resetToDefault = true;
+}
+
+$: showResetButton = false;
+$: resetToDefault = false;
 </script>
 
-<div class="flex flex-col px-2 pt-2">
-  <div class="flex">
-    <div class="capitalize">{recordUI.breadCrumb}</div>
-    <div class="pl-2 text-violet-400">{recordUI.title}</div>
+<div class="flex flex-row px-2 py-2 justify-between w-full">
+  <div
+    class="flex flex-col {recordUI.original.type === 'string' &&
+    (!recordUI.original.enum || recordUI.original.enum.length === 0)
+      ? 'w-full'
+      : ''}">
+    <div class="flex flex-row text-sm">
+      {recordUI.title}
+      {#if showResetButton}
+        <div class="ml-2">
+          <button class="text-xs text-violet-500" on:click="{() => doResetToDefault()}">
+            <i class="fas fa-undo" aria-hidden="true"></i>
+          </button>
+        </div>
+      {/if}
+    </div>
+    <div class="pt-1 text-gray-400 text-xs">{recordUI.description}</div>
+    {#if recordUI.original.type === 'string' && (!recordUI.original.enum || recordUI.original.enum.length === 0)}
+      <PreferencesRenderingItemFormat
+        showUpdate="{false}"
+        record="{recordUI.original}"
+        updateResetButtonVisibility="{updateResetButtonVisibility}"
+        resetToDefault="{resetToDefault}" />
+    {/if}
   </div>
-  <div class="pt-2 text-gray-400">{recordUI.description}</div>
-  <PreferencesRenderingItemFormat showUpdate="{true}" record="{recordUI.original}" />
+  {#if recordUI.original.type !== 'string' || (recordUI.original.enum && recordUI.original.enum.length > 0)}
+    <PreferencesRenderingItemFormat
+      showUpdate="{false}"
+      record="{recordUI.original}"
+      updateResetButtonVisibility="{updateResetButtonVisibility}"
+      resetToDefault="{resetToDefault}" />
+  {/if}
 </div>
