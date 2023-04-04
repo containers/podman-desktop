@@ -1,4 +1,6 @@
 <script lang="ts">
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa/src/fa.svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
@@ -11,6 +13,8 @@ export let validRecord = () => {};
 export let updateResetButtonVisibility = (recordValue: any) => {};
 export let resetToDefault = false;
 
+export let setRecordValue = (id: string, value: string) => {};
+export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
 
 let currentRecord: IConfigurationPropertyRecordedSchema;
@@ -78,7 +82,7 @@ function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
       invalidText = 'Minimun value is ' + record.minimum;
       return invalid();
     }
-    if (record.maximum && numberValue > record.maximum) {
+    if (record.maximum && typeof record.maximum === 'number' && numberValue > record.maximum) {
       invalidEntry = true;
       invalidText = 'Maximum value is ' + record.maximum;
       return invalid();
@@ -153,11 +157,24 @@ function canDecrement(value: number | string, minimumValue?: number) {
   return !minimumValue || value > minimumValue;
 }
 
-function canIncrement(value: number | string, maximumValue?: number) {
+function canIncrement(value: number | string, maximumValue?: number | string) {
   if (typeof value === 'string') {
     value = Number(value);
   }
-  return !maximumValue || value < maximumValue;
+  return !maximumValue || (typeof maximumValue === 'number' && value < maximumValue);
+}
+
+function handleRangeValue(id: string, target: HTMLInputElement) {
+  setRecordValue(id, target.value);
+}
+
+function handleCleanValue(
+  event: MouseEvent & {
+    currentTarget: EventTarget & HTMLButtonElement;
+  },
+) {
+  recordValue = '';
+  event.preventDefault();
 }
 </script>
 
@@ -184,6 +201,15 @@ function canIncrement(value: number | string, maximumValue?: number) {
           class="w-8 h-[20px] bg-gray-500 rounded-full peer peer-checked:after:translate-x-full after:bg-zinc-800 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
         </div>
       </label>
+    {:else if enableSlider && record.type === 'number' && typeof record.maximum === 'number'}
+      <input
+        id="input-slider-{record.id}"
+        type="range"
+        min="{record.minimum}"
+        max="{record.maximum}"
+        value="{record.default}"
+        on:input="{event => handleRangeValue(record.id, event.currentTarget)}"
+        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs" />
     {:else if record.type === 'number'}
       <div
         class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-zinc-900 w-24 border-b border-violet-500">
@@ -214,7 +240,7 @@ function canIncrement(value: number | string, maximumValue?: number) {
     {:else if record.type === 'string' && record.format === 'file'}
       <div class="w-full flex">
         <input
-          class="w-5/6 mr-3 py-1 px-2 outline-0 text-sm"
+          class="w-5/6 {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm"
           name="{record.id}"
           readonly
           type="text"
@@ -222,6 +248,13 @@ function canIncrement(value: number | string, maximumValue?: number) {
           id="input-standard-{record.id}"
           aria-invalid="{invalidEntry}"
           aria-label="{record.description}" />
+        <button
+          class="relative cursor-pointer right-5"
+          class:hidden="{!recordValue}"
+          aria-label="clear"
+          on:click="{event => handleCleanValue(event)}">
+          <Fa icon="{faXmark}" />
+        </button>
         <input
           name="{record.id}"
           on:click="{() => selectFilePath()}"
@@ -249,7 +282,7 @@ function canIncrement(value: number | string, maximumValue?: number) {
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"
-        class="pf-c-form-control"
+        class="pf-c-form-control outline-0"
         name="{record.id}"
         type="text"
         bind:value="{recordValue}"

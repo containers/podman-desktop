@@ -1164,6 +1164,18 @@ function initExposure(): void {
     return ipcInvoke('cancellableToken:cancel', id);
   });
 
+  contextBridge.exposeInMainWorld('getOsFreeDiskSize', async (): Promise<string> => {
+    return ipcInvoke('os:getHostFreeDiskSize');
+  });
+
+  contextBridge.exposeInMainWorld('getOsMemory', async (): Promise<string> => {
+    return ipcInvoke('os:getHostMemory');
+  });
+
+  contextBridge.exposeInMainWorld('getOsCpu', async (): Promise<string> => {
+    return ipcInvoke('os:getHostCpu');
+  });
+
   contextBridge.exposeInMainWorld('sendFeedback', async (feedback: FeedbackProperties): Promise<void> => {
     return ipcInvoke('feedback:send', feedback);
   });
