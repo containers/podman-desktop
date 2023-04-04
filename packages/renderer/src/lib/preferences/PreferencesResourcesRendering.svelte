@@ -187,7 +187,7 @@ async function startContainerProvider(
           <EngineIcon />
           <p class="text-lg text-gray-200">No resource found</p>
           <div class="text-sm text-gray-400 mt-2">
-            <p>Create a container engine provider or install an extension to start</p>
+            <p>Start an extension that manage container or Kubernetes engines</p>
           </div>
         </div>
       </div>
