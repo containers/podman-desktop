@@ -261,6 +261,7 @@ export class Telemetry {
       os: {
         name: this.getPlatform(),
         version: os.release(),
+        arch: os.arch(),
       },
       locale,
       location: {
