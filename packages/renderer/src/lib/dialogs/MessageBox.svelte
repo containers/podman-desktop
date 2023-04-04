@@ -71,7 +71,7 @@ function handleKeydown(e: KeyboardEvent) {
       <div class="flex items-center justify-between px-6 py-4">
         <h1 class="text-lg font-bold capitalize">{title}</h1>
 
-        <button class="hover:text-gray-200 py-1" on:click="{() => clickButton()}">
+        <button class="hover:text-gray-200 py-1" on:click="{() => clickButton(undefined)}">
           <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </div>
