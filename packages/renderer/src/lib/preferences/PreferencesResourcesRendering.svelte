@@ -18,6 +18,7 @@ import { getContainerConnectionName, IContainerRestart, IContainerStatus } from 
 import { Buffer } from 'buffer';
 import PreferencesContainerConnectionActions from './PreferencesContainerConnectionActions.svelte';
 import EngineIcon from '../ui/EngineIcon.svelte';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   value?: any;
@@ -182,15 +183,11 @@ async function startContainerProvider(
   </span>
   <div>
     {#if providers.length === 0}
-      <div class="p-2 flex flex-col bg-zinc-800 rounded-lg mt-4">
-        <div aria-label="no-resource-panel" class="flex flex-col items-center text-center mt-10 mb-20">
-          <EngineIcon />
-          <p class="text-lg text-gray-200">No resource found</p>
-          <div class="text-sm text-gray-400 mt-2">
-            <p>Start an extension that manage container or Kubernetes engines</p>
-          </div>
-        </div>
-      </div>
+      <EmptyScreen
+        icon="{EngineIcon}"
+        title="No resource found"
+        message="Start an extension that manage container or Kubernetes engines"
+        classes="bg-zinc-800 mt-5 pb-10" />
     {:else}
       {#each providers as provider}
         <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-600 flex">
@@ -230,7 +227,7 @@ async function startContainerProvider(
               </div>
             </div>
           </div>
-          <!-- podman machines columns -->
+          <!-- providers columns -->
           <div class="grow flex flex-wrap divide-gray-600 ml-2">
             {#each provider.containerConnections as container}
               <div class="px-5 py-2 w-[240px]">
