@@ -38,6 +38,7 @@ import SendFeedback from './lib/feedback/SendFeedback.svelte';
 import ToastHandler from './lib/toast/ToastHandler.svelte';
 import QuickPickInput from './lib/dialogs/QuickPickInput.svelte';
 import TaskManager from './lib/task-manager/TaskManager.svelte';
+import MessageBox from './lib/dialogs/MessageBox.svelte';
 
 router.mode.hash();
 
@@ -95,6 +96,7 @@ window.events?.receive('display-help', () => {
         <TaskManager />
         <SendFeedback />
         <ToastHandler />
+        <MessageBox />
         <QuickPickInput />
         <Route path="/" breadcrumb="Dashboard Page">
           <DashboardPage />

@@ -28,7 +28,7 @@ import { Disposable } from './types/disposable';
 import type { ProviderRegistry } from './provider-registry';
 import type { ConfigurationRegistry } from './configuration-registry';
 import type { ImageRegistry } from './image-registry';
-import type { Dialogs } from './dialog-impl';
+import type { MessageBox } from './message-box';
 import type { ProgressImpl } from './progress-impl';
 import { ProgressLocation } from './progress-impl';
 import type { NotificationImpl } from './notification-impl';
@@ -99,7 +99,7 @@ export class ExtensionLoader {
     private imageRegistry: ImageRegistry,
     private apiSender: ApiSenderType,
     private trayMenuRegistry: TrayMenuRegistry,
-    private dialogs: Dialogs,
+    private messageBox: MessageBox,
     private progress: ProgressImpl,
     private notifications: NotificationImpl,
     private statusBarRegistry: StatusBarRegistry,
@@ -498,19 +498,19 @@ export class ExtensionLoader {
       },
     };
 
-    const dialogs = this.dialogs;
+    const messageBox = this.messageBox;
     const progress = this.progress;
     const notifications = this.notifications;
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
       showInformationMessage: (message: string, ...items: string[]) => {
-        return dialogs.showDialog('info', extManifest.name, message, items);
+        return messageBox.showDialog('info', extManifest.displayName, message, items);
       },
       showWarningMessage: (message: string, ...items: string[]) => {
-        return dialogs.showDialog('warning', extManifest.name, message, items);
+        return messageBox.showDialog('warning', extManifest.displayName, message, items);
       },
       showErrorMessage: (message: string, ...items: string[]) => {
-        return dialogs.showDialog('error', extManifest.name, message, items);
+        return messageBox.showDialog('error', extManifest.displayName, message, items);
       },
 
       showInputBox: (options?: containerDesktopAPI.InputBoxOptions, token?: containerDesktopAPI.CancellationToken) => {

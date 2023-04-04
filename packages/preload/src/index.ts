@@ -988,6 +988,13 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld(
+    'sendShowMessageBoxOnSelect',
+    async (messageBoxId: number, selectedIndex: number): Promise<void> => {
+      return ipcInvoke('showMessageBox:onSelect', messageBoxId, selectedIndex);
+    },
+  );
+
   let onDataCallbacksShellInContainerDDExtensionInstallId = 0;
   const onDataCallbacksShellInContainerDDExtension = new Map<number, (data: string) => void>();
   const onDataCallbacksShellInContainerDDExtensionError = new Map<number, (data: string) => void>();
