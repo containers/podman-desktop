@@ -43,7 +43,6 @@ export interface MessageBoxOptions {
 
 export interface MessageBoxReturnValue {
   response: number;
-  checkboxChecked: boolean | undefined;
 }
 
 export class MessageBox {
@@ -86,7 +85,8 @@ export class MessageBox {
       buttons: items,
       type: type,
     });
-    if (result) {
+
+    if (result.response) {
       return items[result.response];
     }
 
@@ -103,7 +103,6 @@ export class MessageBox {
       // grab item
       const val: MessageBoxReturnValue = {
         response: selectedIndex,
-        checkboxChecked: false,
       };
       // resolve the promise
       callback.resolve(val);
