@@ -457,19 +457,19 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // add links
   providerOptions.links = [
     {
-      title: 'Visit the Podman website',
+      title: 'Website',
       url: 'https://podman.io/',
     },
     {
-      title: 'Read the Podman installation guide',
+      title: 'Installation guide',
       url: 'https://podman.io/getting-started/installation',
     },
     {
-      title: 'Read the Podman/Docker compatibility guide',
+      title: 'Docker compatibility guide',
       url: 'https://podman-desktop.io/docs/troubleshooting#warning-about-docker-compatibility-mode',
     },
     {
-      title: 'Join the Podman community',
+      title: 'Join the community',
       url: 'https://podman.io/community/',
     },
   ];
