@@ -11,7 +11,7 @@ You can use Podman Desktop behind a proxy requiring custom Certificate Authoriti
 
 #### Prerequisites
 
-* `<your-custom-ca.pem>`: Your proxy Certificate Authorities (CA), in Privacy-Enhanced Mail (PEM) format.
+* `proxy_ca.pem`: Your proxy Certificate Authorities (CA), in Privacy-Enhanced Mail (PEM) format.
 * `<your.proxy.tld:port>`: Your proxy URL.
 
 #### Procedure
@@ -23,18 +23,24 @@ You can use Podman Desktop behind a proxy requiring custom Certificate Authoriti
    1. **Secure Web Proxy (HTTPS)**: `<your.proxy.tld:port>`
    1. Click the **Update** button
 
-1. Store the `<your-custom-ca.pem>` file in your `$HOME` directory.
+1. Store the `proxy_ca.pem` file in your `$HOME` directory.
+
+1. (On Windows and macOS) Copy the certificate to the Podman machine:
+
+    ```powershell
+    $ podman machine ssh podman-machine-default
+    ```
 
 1. (On Windows and macOS) Open a shell prompt on the Podman machine:
 
     ```powershell
-    > podman machine ssh podman-machine-default
+    $ cat proxy_ca.pem | podman machine ssh podman-machine-default "cat > proxy_ca.pem"
     ```
 
-6. Add the custom Certificate Authorities (CA) for your proxy:
+1. Add the custom Certificate Authorities (CA) for your proxy:
 
     ```shell-session
-    $ sudo cp <your-custom-ca.pem> /etc/pki/ca-trust/source/anchors/
+    $ sudo cp proxy_ca.pem /etc/pki/ca-trust/source/anchors/
     $ sudo update-ca-trust
    ```
 
