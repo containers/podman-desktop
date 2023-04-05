@@ -550,6 +550,7 @@ function initExposure(): void {
       params: { [key: string]: any },
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+      tokenId?: number,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -559,6 +560,7 @@ function initExposure(): void {
         internalProviderId,
         params,
         onDataCallbacksTaskConnectionId,
+        tokenId,
       );
     },
   );

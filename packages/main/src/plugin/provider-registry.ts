@@ -635,6 +635,7 @@ export class ProviderRegistry {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params: { [key: string]: any },
     logHandler: Logger,
+    token?: CancellationToken,
   ): Promise<void> {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
@@ -642,7 +643,7 @@ export class ProviderRegistry {
     if (!provider.kubernetesProviderConnectionFactory?.create) {
       throw new Error('The provider does not support kubernetes connection creation');
     }
-    return provider.kubernetesProviderConnectionFactory.create(params, logHandler);
+    return provider.kubernetesProviderConnectionFactory.create(params, logHandler, token);
   }
 
   // helper method

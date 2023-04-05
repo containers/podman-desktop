@@ -1285,10 +1285,15 @@ export class PluginSystem {
         internalProviderId: string,
         params: { [key: string]: unknown },
         loggerId: string,
+        tokenId?: number,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
-
-        await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger);
+        let token;
+        if (tokenId) {
+          const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+          token = tokenSource?.token;
+        }
+        await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger, token);
         logger.onEnd();
       },
     );

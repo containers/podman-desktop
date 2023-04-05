@@ -19,7 +19,7 @@
 import * as extensionApi from '@podman-desktop/api';
 import { detectKind } from './util';
 import { KindInstaller } from './kind-installer';
-import type { Logger } from '@podman-desktop/api';
+import type { CancellationToken, Logger } from '@podman-desktop/api';
 import { window } from '@podman-desktop/api';
 import { ImageHandler } from './image-handler';
 import { createCluster } from './create-cluster';
@@ -50,7 +50,8 @@ const imageHandler = new ImageHandler();
 function registerProvider(extensionContext: extensionApi.ExtensionContext, provider: extensionApi.Provider): void {
   const disposable = provider.setKubernetesProviderConnectionFactory({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create: (params: { [key: string]: any }, logger?: Logger) => createCluster(params, logger, kindCli),
+    create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) =>
+      createCluster(params, logger, kindCli, token),
     creationDisplayName: 'Kind cluster',
   });
   extensionContext.subscriptions.push(disposable);

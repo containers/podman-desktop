@@ -242,7 +242,7 @@ declare module '@podman-desktop/api' {
   // create a kubernetes provider
   export interface KubernetesProviderConnectionFactory extends ProviderConnectionFactory {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create?(params: { [key: string]: any }, logger?: Logger): Promise<void>;
+    create?(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
   }
 
   export interface Link {
