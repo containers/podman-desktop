@@ -16,7 +16,7 @@
       "properties": {
         "kind.cluster.creation.name": {
           "type": "string",
-          "default": "podman-desktop",
+          "default": "kind-cluster",
           "scope": "KubernetesProviderConnectionFactory",
           "description": "Name"
         },
