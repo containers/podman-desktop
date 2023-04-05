@@ -120,7 +120,7 @@ export function runCliCommand(
       } else {
         spawnProcess.kill();
       }
-
+      options?.logger?.error('Execution cancelled');
       // reject the promise
       reject(new Error('Execution cancelled'));
     });

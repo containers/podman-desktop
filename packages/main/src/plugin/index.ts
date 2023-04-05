@@ -1273,8 +1273,11 @@ export class PluginSystem {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
           token = tokenSource?.token;
         }
-        await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
-        logger.onEnd();
+        try {
+          await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
+        } finally {
+          logger.onEnd();
+        }
       },
     );
 
@@ -1293,8 +1296,11 @@ export class PluginSystem {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
           token = tokenSource?.token;
         }
-        await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger, token);
-        logger.onEnd();
+        try {
+          await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger, token);
+        } finally {
+          logger.onEnd();
+        }
       },
     );
 
