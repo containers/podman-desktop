@@ -64,9 +64,15 @@ Optional Linux requirements:
   flatpak install --user flathub org.flatpak.Builder org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
   ```
 * GNU C and C++ compiler
+  Fedora/RHEL
   ```sh
   dnf install gpp-c++
   ```
+  Ubuntu/Debian
+  ```sh
+  apt-get install build-essential
+  ```
+
 ### Step 1. Fork and clone Podman Desktop
 
 Clone and fork the project.
