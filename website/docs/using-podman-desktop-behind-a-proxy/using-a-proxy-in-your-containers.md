@@ -19,7 +19,7 @@ Podman Desktop configures the proxy for the Podman engine.
     $ podman machine ssh
     ```
 
-2. Edit the `containers.conf` file to pass the proxy environment variables to Podman CLI.
+1. Edit the `containers.conf` file to pass the proxy environment variables to Podman CLI.
 
    The file location depends on your connection mode:
 
@@ -27,7 +27,7 @@ Podman Desktop configures the proxy for the Podman engine.
 
   * `rootful`: `/etc/containers/containers.conf`
 
-4. Set the proxy environment variables to pass into the containers:
+1. Set the proxy environment variables to pass into the containers:
 
       ```toml
       [containers]
