@@ -166,14 +166,11 @@ function getLoggerHandler(): ConnectionCallback {
 async function ended() {
   creationInProgress = false;
   tokenId = undefined;
-  if (creationCancelled || creationFailed) {
-    // the creation has been cancelled or failed
-    updateStore();
-  } else {
+  if (!creationCancelled && !creationFailed) {
     window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
     creationSuccessful = true;
-    updateStore();
   }
+  updateStore();
 }
 
 async function cleanup() {

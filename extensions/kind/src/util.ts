@@ -18,6 +18,7 @@
 
 import * as os from 'node:os';
 import * as path from 'node:path';
+import type { ChildProcess } from 'node:child_process';
 import { spawn } from 'node:child_process';
 import type * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
@@ -115,11 +116,7 @@ export function runCliCommand(
 
     // if the token is cancelled, kill the process and reject the promise
     token?.onCancellationRequested(() => {
-      if (isWindows()) {
-        spawn('taskkill', ['/pid', spawnProcess.pid?.toString(), '/f', '/t']);
-      } else {
-        spawnProcess.kill();
-      }
+      killProcess(spawnProcess);
       options?.logger?.error('Execution cancelled');
       // reject the promise
       reject(new Error('Execution cancelled'));
@@ -157,4 +154,12 @@ export function runCliCommand(
       resolve({ exitCode, stdOut, stdErr, error: err });
     });
   });
+}
+
+function killProcess(spawnProcess: ChildProcess) {
+  if (isWindows()) {
+    spawn('taskkill', ['/pid', spawnProcess.pid?.toString(), '/f', '/t']);
+  } else {
+    spawnProcess.kill();
+  }
 }
