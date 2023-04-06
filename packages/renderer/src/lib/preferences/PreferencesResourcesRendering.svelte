@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faArrowUpRightFromSquare, faCircle, fas, faT } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { providerInfos } from '../../stores/providers';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
@@ -15,10 +15,9 @@ import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
 import { getProviderConnectionName, IConnectionRestart, IConnectionStatus } from './Util';
-import { Buffer } from 'buffer';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
-import PreferencesContainerConnectionActions from './PreferencesConnectionActions.svelte';
+import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   value?: any;
@@ -157,8 +156,8 @@ function updateContainerStatus(
   containerConnectionStatus = containerConnectionStatus;
 }
 
-function addContainerToRestartingQueue(container: IConnectionRestart) {
-  restartingQueue.push(container);
+function addConnectionToRestartingQueue(connection: IConnectionRestart) {
+  restartingQueue.push(connection);
 }
 
 async function startContainerProvider(
@@ -273,12 +272,12 @@ async function startContainerProvider(
                     {/each}
                   </div>
                 {/if}
-                <PreferencesContainerConnectionActions
+                <PreferencesConnectionActions
                   provider="{provider}"
                   container="{container}"
                   connectionStatuses="{containerConnectionStatus}"
                   updateConnectionStatus="{updateContainerStatus}"
-                  addConnectionToRestartingQueue="{addContainerToRestartingQueue}" />
+                  addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
                 <div class="mt-1.5 text-gray-500 text-[9px]">
                   <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
                 </div>

@@ -691,7 +691,9 @@ export class ProviderRegistry {
     }
   }
 
-  isProviderContainerConnection(connection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo): connection is ProviderContainerConnectionInfo {
+  isProviderContainerConnection(
+    connection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+  ): connection is ProviderContainerConnectionInfo {
     return (connection as ProviderContainerConnectionInfo).endpoint.socketPath !== undefined;
   }
 
@@ -703,7 +705,9 @@ export class ProviderRegistry {
     }
   }
 
-  isContainerConnection(connection: ContainerProviderConnection | KubernetesProviderConnection): connection is ContainerProviderConnection {
+  isContainerConnection(
+    connection: ContainerProviderConnection | KubernetesProviderConnection,
+  ): connection is ContainerProviderConnection {
     return (connection as ContainerProviderConnection).endpoint.socketPath !== undefined;
   }
 
