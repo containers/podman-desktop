@@ -16,13 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 import '@testing-library/jest-dom';
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 
+beforeAll(() => {
+  (window as any).getConfigurationValue = vi.fn();
+});
+
 test('Expect to see checkbox enabled', async () => {
-  const record = {
+  const record: IConfigurationPropertyRecordedSchema = {
     title: 'my boolean property',
     id: 'myid',
     parentId: '',
@@ -30,14 +39,14 @@ test('Expect to see checkbox enabled', async () => {
     default: true,
   };
   // remove display name
-  render(PreferencesRenderingItemFormat, { record: record });
+  render(PreferencesRenderingItemFormat, { record });
   const button = screen.getByRole('checkbox');
   expect(button).toBeInTheDocument();
   expect(button).toBeChecked();
 });
 
 test('Expect to see checkbox enabled', async () => {
-  const record = {
+  const record: IConfigurationPropertyRecordedSchema = {
     title: 'my boolean property',
     id: 'myid',
     parentId: '',
@@ -45,8 +54,110 @@ test('Expect to see checkbox enabled', async () => {
     default: false,
   };
   // remove display name
-  render(PreferencesRenderingItemFormat, { record: record });
+  render(PreferencesRenderingItemFormat, { record });
   const button = screen.getByRole('checkbox');
   expect(button).toBeInTheDocument();
   expect(button).not.toBeChecked();
+});
+
+test('Expect a checkbox when record is type boolean', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'boolean',
+  };
+  await render(PreferencesRenderingItemFormat, {
+    record,
+  });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLInputElement).toBe(true);
+  expect((input as HTMLInputElement).type).toBe('checkbox');
+});
+
+test('Expect a slider when record and its maximum are type number and enableSlider is true', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'number',
+    minimum: 1,
+    maximum: 34,
+  };
+  await render(PreferencesRenderingItemFormat, {
+    record,
+    enableSlider: true,
+  });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLInputElement).toBe(true);
+  expect((input as HTMLInputElement).type).toBe('range');
+});
+
+test('Expect a text input when record is type number and enableSlider is false', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'number',
+    minimum: 1,
+    maximum: 34,
+  };
+  await render(PreferencesRenderingItemFormat, {
+    record,
+  });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLInputElement).toBe(true);
+  expect((input as HTMLInputElement).type).toBe('text');
+});
+
+test('Expect an input button with Browse as placeholder when record is type string and format file', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'string',
+    format: 'file',
+  };
+  await render(PreferencesRenderingItemFormat, {
+    record,
+  });
+  const input = screen.getByLabelText('button-record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLInputElement).toBe(true);
+  expect((input as HTMLInputElement).placeholder).toBe('Browse ...');
+});
+
+test('Expect a select when record is type string and has enum values', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'string',
+    enum: ['first', 'second'],
+  };
+  await render(PreferencesRenderingItemFormat, {
+    record,
+  });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLSelectElement).toBe(true);
+});
+
+test('Expect a text input when record is type string', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'string',
+  };
+  await render(PreferencesRenderingItemFormat, {
+    record,
+  });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLInputElement).toBe(true);
+  expect((input as HTMLInputElement).type).toBe('text');
 });

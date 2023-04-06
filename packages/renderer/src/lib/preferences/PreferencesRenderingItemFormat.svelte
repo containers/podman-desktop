@@ -230,6 +230,7 @@ function handleCleanValue(
         min="{record.minimum}"
         max="{record.maximum}"
         value="{record.default}"
+        aria-label="{record.description}"
         on:input="{event => handleRangeValue(record.id, event.currentTarget)}"
         class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs" />
     {:else if record.type === 'number'}
@@ -248,7 +249,8 @@ function handleCleanValue(
           type="text"
           readonly
           class="w-full outline-none focus:outline-none text-center text-white text-sm py-0.5"
-          value="{recordValue}" />
+          value="{recordValue}"
+          aria-label="{record.description}" />
         <button
           data-action="increment"
           on:click="{e => increment(e, record)}"
@@ -283,7 +285,7 @@ function handleCleanValue(
           id="rendering.FilePath.{record.id}"
           readonly
           aria-invalid="{invalidEntry}"
-          aria-label="{record.description}"
+          aria-label="button-{record.description}"
           placeholder="Browse ..."
           class="bg-violet-500 p-1 text-xs text-center hover:bg-zinc-700 placeholder-white rounded-sm cursor-pointer outline-0"
           required />
