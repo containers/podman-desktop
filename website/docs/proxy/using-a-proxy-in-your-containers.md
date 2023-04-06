@@ -18,7 +18,7 @@ You can configure your Podman machine to use a proxy for your containers.
 
 1. Open a shell prompt on the Podman machine:
 
-    ```commandline
+    ```shell-session
     $ podman machine ssh
     ```
 
