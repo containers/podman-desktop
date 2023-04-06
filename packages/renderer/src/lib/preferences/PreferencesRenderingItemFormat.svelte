@@ -12,6 +12,7 @@ export let invalidRecord = (error: string) => {};
 export let validRecord = () => {};
 export let updateResetButtonVisibility = (recordValue: any) => {};
 export let resetToDefault = false;
+export let enableAutoCompletion = false;
 
 export let setRecordValue = (id: string, value: string) => {};
 export let enableSlider = false;
@@ -92,7 +93,7 @@ function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
     }
   }
   valid();
-  recordUpdateTimeout = setTimeout(() => update(record), 1000);
+  autoSave();
   invalidEntry = false;
   invalidText = undefined;
 }
@@ -122,28 +123,46 @@ async function selectFilePath() {
   const result = await window.openFileDialog(`Select ${record.description}`);
   if (!result.canceled && result.filePaths.length === 1) {
     recordValue = result.filePaths[0];
-    recordUpdateTimeout = setTimeout(() => update(record), 1000);
+    autoSave();
   }
 }
 
-function decrement(e: HTMLButtonElement, record: IConfigurationPropertyRecordedSchema) {
+function decrement(
+  e: MouseEvent & {
+    currentTarget: EventTarget & HTMLButtonElement;
+  },
+  record: IConfigurationPropertyRecordedSchema,
+) {
   clearTimeout(recordUpdateTimeout);
-  const target = getCurrentNumericInputElement(e);
+  const target = getCurrentNumericInputElement(e.currentTarget);
   let value = Number(target.value);
   if (canDecrement(value, record.minimum)) {
     value--;
     recordValue = value;
-    recordUpdateTimeout = setTimeout(() => update(record), 1000);
+    autoSave();
   }
+  e.preventDefault();
 }
 
-function increment(e: HTMLButtonElement, record: IConfigurationPropertyRecordedSchema) {
+function increment(
+  e: MouseEvent & {
+    currentTarget: EventTarget & HTMLButtonElement;
+  },
+  record: IConfigurationPropertyRecordedSchema,
+) {
   clearTimeout(recordUpdateTimeout);
-  const target = getCurrentNumericInputElement(e);
+  const target = getCurrentNumericInputElement(e.currentTarget);
   let value = Number(target.value);
   if (canIncrement(value, record.maximum)) {
     value++;
     recordValue = value;
+    autoSave();
+  }
+  e.preventDefault();
+}
+
+function autoSave() {
+  if (enableAutoCompletion) {
     recordUpdateTimeout = setTimeout(() => update(record), 1000);
   }
 }
@@ -218,7 +237,7 @@ function handleCleanValue(
         class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-zinc-900 w-24 border-b border-violet-500">
         <button
           data-action="decrement"
-          on:click="{e => decrement(e.currentTarget, record)}"
+          on:click="{e => decrement(e, record)}"
           disabled="{!canDecrement(recordValue, record.minimum)}"
           class="w-11 text-white {!canDecrement(recordValue, record.minimum)
             ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
@@ -232,7 +251,7 @@ function handleCleanValue(
           value="{recordValue}" />
         <button
           data-action="increment"
-          on:click="{e => increment(e.currentTarget, record)}"
+          on:click="{e => increment(e, record)}"
           disabled="{!canIncrement(recordValue, record.maximum)}"
           class="w-11 text-white {!canIncrement(recordValue, record.maximum)
             ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
