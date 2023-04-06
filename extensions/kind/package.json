@@ -41,6 +41,12 @@
           "default": 9443,
           "scope": "KubernetesProviderConnectionFactory",
           "description": "HTTPS Port"
+        },
+        "kind.cluster.creation.ingress": {
+          "type": "boolean",
+          "default": true,
+          "scope": "KubernetesProviderConnectionFactory",
+          "description": "Setup an ingress controller"
         }
       }
     },
@@ -54,7 +60,7 @@
     }
   },
   "scripts": {
-    "build": "vite build && node ./scripts/build.js",
+    "build": "npx ts-node ./scripts/download.ts && vite build && node ./scripts/build.js",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
     "watch": "vite build -w"
