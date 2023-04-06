@@ -1,5 +1,8 @@
 ---
-sidebar_position: 3 title: Using behind a proxy description: Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA). tags: [podman-desktop, installing, windows, macos, linux]
+sidebar_position: 1
+title: Using behind a proxy
+description: Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA).
+tags: [podman-desktop, installing, windows, macos, linux]
 keywords: [podman desktop, containers, podman, installing, installation, windows, macos, linux]
 ---
 
@@ -25,7 +28,7 @@ Podman Desktop can configure a proxy for the Podman engine.
 #### Verification
 
 1. Go to **Images**.
-2. Click **Pull an image**.
-3. **Image to Pull**: <a-test-image-name>.
-4. Click **Pull image**.
-4. Podman Desktop reports `Download complete`.
+1. Click **Pull an image**.
+1. **Image to Pull**: <a-test-image-name>.
+1. Click **Pull image**.
+1. Podman Desktop reports `Download complete`.

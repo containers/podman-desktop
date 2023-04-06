@@ -1,5 +1,8 @@
 ---
-sidebar_position: 3 title: Using behind a proxy description: Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA). tags: [podman-desktop, installing, windows, macos, linux]
+sidebar_position: 4
+title: Using behind a proxy
+description: Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA).
+tags: [podman-desktop, installing, windows, macos, linux]
 keywords: [podman desktop, containers, podman, installing, installation, windows, macos, linux]
 ---
 
