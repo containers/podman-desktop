@@ -231,7 +231,6 @@ async function initDefaultLinux(provider: extensionApi.Provider) {
   }
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
-    id: 'container',
     name: 'Podman',
     type: 'podman',
     status: () => podmanProviderStatus,
@@ -384,7 +383,6 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   };
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
-    id: 'container',
     name: prettyMachineName(machineInfo.name),
     type: 'podman',
     status: () => podmanMachinesStatuses.get(machineInfo.name),

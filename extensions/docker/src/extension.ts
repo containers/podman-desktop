@@ -159,7 +159,6 @@ function initProvider(extensionContext: extensionApi.ExtensionContext) {
   });
 
   containerProviderConnection = {
-    id: 'container',
     name: 'Docker',
     type: 'docker',
     status: () => providerState,

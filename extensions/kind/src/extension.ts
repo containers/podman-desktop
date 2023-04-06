@@ -90,7 +90,6 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
     if (!item) {
       // create a new connection
       const connection: extensionApi.KubernetesProviderConnection = {
-        id: 'kubernetes',
         name: cluster.name,
         status,
         endpoint: {

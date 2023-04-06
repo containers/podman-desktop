@@ -27,7 +27,6 @@ function registerProvider(
   providerSocketPath: string,
 ): void {
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
-    id: 'container',
     name: 'Lima',
     type: 'podman',
     status: () => 'unknown',

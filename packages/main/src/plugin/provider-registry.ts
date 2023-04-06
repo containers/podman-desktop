@@ -455,7 +455,6 @@ export class ProviderRegistry {
 
   public getProviderContainerConnectionInfo(connection: ContainerProviderConnection): ProviderContainerConnectionInfo {
     const containerProviderConnection: ProviderContainerConnectionInfo = {
-      id: 'container',
       name: connection.name,
       status: connection.status(),
       type: connection.type,
@@ -485,7 +484,6 @@ export class ProviderRegistry {
     });
     const kubernetesConnections: ProviderKubernetesConnectionInfo[] = provider.kubernetesConnections.map(connection => {
       return {
-        id: 'kubernetes',
         name: connection.name,
         status: connection.status(),
         endpoint: {
@@ -686,19 +684,27 @@ export class ProviderRegistry {
     internalProviderId: string,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   ): ContainerProviderConnection | KubernetesProviderConnection {
-    if (providerContainerConnectionInfo.id === 'container') {
+    if (this.isProviderContainerConnection(providerContainerConnectionInfo)) {
       return this.getMatchingContainerConnectionFromProvider(internalProviderId, providerContainerConnectionInfo);
     } else {
       return this.getMatchingKubernetesConnectionFromProvider(internalProviderId, providerContainerConnectionInfo);
     }
   }
 
+  isProviderContainerConnection(connection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo): connection is ProviderContainerConnectionInfo {
+    return (connection as ProviderContainerConnectionInfo).endpoint.socketPath !== undefined;
+  }
+
   getConnectionLifecycleContext(connection: ContainerProviderConnection | KubernetesProviderConnection) {
-    if (connection.id === 'container') {
+    if (this.isContainerConnection(connection)) {
       return this.connectionLifecycleContexts.get(connection);
     } else {
       return undefined;
     }
+  }
+
+  isContainerConnection(connection: ContainerProviderConnection | KubernetesProviderConnection): connection is ContainerProviderConnection {
+    return (connection as ContainerProviderConnection).endpoint.socketPath !== undefined;
   }
 
   async startProviderConnection(

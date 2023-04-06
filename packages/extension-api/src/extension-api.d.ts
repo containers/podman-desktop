@@ -207,7 +207,6 @@ declare module '@podman-desktop/api' {
   }
 
   export interface ContainerProviderConnection {
-    id: 'container';
     name: string;
     type: 'docker' | 'podman';
     endpoint: ContainerProviderConnectionEndpoint;
@@ -219,7 +218,6 @@ declare module '@podman-desktop/api' {
     apiURL: string;
   }
   export interface KubernetesProviderConnection {
-    id: 'kubernetes';
     name: string;
     endpoint: KubernetesProviderConnectionEndpoint;
     lifecycle?: ProviderConnectionLifecycle;
