@@ -16,9 +16,10 @@ $: {
   <!-- TODO: Add dismiss button / ignore warning? -->
   {#if providerInfo?.warnings?.length > 0}
     {#each providerInfo.warnings as warn}
-      <div class="flex-row items-center mt-0.5">
-        ⚠️
-        <span class="ml-1 text-sm text-gray-200 font-semibold">{warn.name}:</span>
+      <div class="flex-row items-center align-middle mt-0.5">
+        <!-- Make line height center-->
+        <span class="ml-1 text-md text-gray-400">⚠</span>
+        <span class="ml-1 text-sm text-gray-400">{warn.name}:</span>
         <span class="ml-1 text-sm text-gray-400">{warn.details}</span>
       </div>
     {/each}
