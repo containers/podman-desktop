@@ -1,20 +1,18 @@
 ---
-sidebar_position: 3
-title: Using behind a proxy
-description: Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA).
-tags: [podman-desktop, installing, windows, macos, linux]
-keywords: [podman desktop, containers, podman, installing, installation, windows, macos, linux]
+sidebar_position: 4
+title: Linux
+description: Using Podman Desktop behind a proxy on Linux.
+tags: [podman-desktop, proxy, linux]
+keywords: [podman desktop, containers, podman, proxy, linux]
 ---
 
-# Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA)
+# Using Podman Desktop behind a proxy on Linux
 
-Podman Desktop can configure a proxy for the Podman engine.
-
-You can use Podman Desktop behind a proxy requiring custom Certificate Authorities (CA), such as self-signed certificates.
+You can configure Podman to run behind a proxy.
 
 #### Prerequisites
 
-* `<your-custom-ca.pem>`: Your proxy Certificate Authorities (CA), in Privacy-Enhanced Mail (PEM) format.
+* `<proxy_ca.pem>`: Your proxy Certificate Authorities (CA), in Privacy-Enhanced Mail (PEM) format.
 * `<your.proxy.tld:port>`: Your proxy URL.
 
 #### Procedure
@@ -45,8 +43,8 @@ You can use Podman Desktop behind a proxy requiring custom Certificate Authoriti
 1. Add the custom Certificate Authorities (CA) for your proxy:
 
     ```shell-session
-    # cp <your-custom-ca.pem> /etc/pki/ca-trust/source/anchors/
-    # update-ca-trust
+    $ sudo cp <proxy_ca.pem> /etc/pki/ca-trust/source/anchors/
+    $ sudo update-ca-trust
    ```
 
 1. Restart Podman.

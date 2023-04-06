@@ -10,7 +10,7 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 You can use Podman Desktop behind a proxy in various situations, such as:
 
-* [Using a proxy on Windows and macOS](using-a-proxy)
-* [Using a proxy requiring a custom Certificate Authorities](using-a-proxy-requiring-a-custom-ca)
-* [Using a proxy on Linux](using-a-proxy-on-linux)
-* [Using a proxy in your containers](using-a-proxy-in-your-containers.md)
+* [Using a proxy on Windows and macOS](proxy/using-a-proxy)
+* [Using a proxy requiring a custom Certificate Authorities on macOS and Windows](proxy/using-a-proxy-requiring-a-custom-ca)
+* [Using a proxy on Linux](proxy/using-a-proxy-on-linux)
+* [Using a proxy in your containers](proxy/using-a-proxy-in-your-containers.md)

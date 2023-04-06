@@ -1,14 +1,14 @@
 ---
-sidebar_position: 4
-title: Using behind a proxy
+sidebar_position: 3
+title: In your containers
 description: Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA).
 tags: [podman-desktop, installing, windows, macos, linux]
 keywords: [podman desktop, containers, podman, installing, installation, windows, macos, linux]
 ---
 
-# Using a proxy in your containers
+# Using a proxy in your containers on macOS and Windows
 
-Podman Desktop configures the proxy for the Podman engine.
+You can configure your Podman machine to use a proxy for your containers.
 
 #### Prerequisites
 
@@ -16,7 +16,7 @@ Podman Desktop configures the proxy for the Podman engine.
 
 #### Procedure
 
-1. (On Windows and macOS) Open a shell prompt on the Podman machine:
+1. Open a shell prompt on the Podman machine:
 
     ```commandline
     $ podman machine ssh
@@ -26,9 +26,9 @@ Podman Desktop configures the proxy for the Podman engine.
 
    The file location depends on your connection mode:
 
-  * `rootless`: `$HOME/.config/containers/containers.conf`
+   * `rootless`: `$HOME/.config/containers/containers.conf`
 
-  * `rootful`: `/etc/containers/containers.conf`
+   * `rootful`: `/etc/containers/containers.conf`
 
 1. Set the proxy environment variables to pass into the containers:
 
@@ -38,5 +38,4 @@ Podman Desktop configures the proxy for the Podman engine.
       env = ["http_proxy=<your.proxy.tld:port>", "https_proxy=<your.proxy.tld:port>"] 
       ```
 
-1. The configuration changes do not apply to running or stopped containers. 
-   Go to **Containers** and delete all containers that require the proxy settings.
+1. Go to **Settings > Resources** and restart the Podman machine.
