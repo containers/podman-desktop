@@ -44,6 +44,9 @@ $: if (currentRecord !== record) {
     });
   } else if (record.default !== undefined) {
     recordValue = record.default;
+    if (record.type === 'boolean') {
+      checkboxValue = recordValue;
+    }
   }
 
   currentRecord = record;
