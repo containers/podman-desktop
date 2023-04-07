@@ -79,7 +79,8 @@ $: resetToDefault = false;
         showUpdate="{false}"
         record="{recordUI.original}"
         updateResetButtonVisibility="{updateResetButtonVisibility}"
-        resetToDefault="{resetToDefault}" />
+        resetToDefault="{resetToDefault}"
+        enableAutoSave="{true}" />
     {/if}
   </div>
   {#if recordUI.original.type !== 'string' || (recordUI.original.enum && recordUI.original.enum.length > 0)}
@@ -87,6 +88,7 @@ $: resetToDefault = false;
       showUpdate="{false}"
       record="{recordUI.original}"
       updateResetButtonVisibility="{updateResetButtonVisibility}"
-      resetToDefault="{resetToDefault}" />
+      resetToDefault="{resetToDefault}"
+      enableAutoSave="{true}" />
   {/if}
 </div>
