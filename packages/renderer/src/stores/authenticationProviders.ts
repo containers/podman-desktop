@@ -16,16 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { derived, readable, Readable, Writable, writable } from 'svelte/store';
+import type { Writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 import type { AuthenticationProviderInfo } from '../../../main/src/plugin/authentication';
 
 export async function fetchAuthenicationProvidersInfo() {
-  // here we have to rebuld authentication providers with sessinons 
+  // here we have to rebuld authentication providers with sessinons
   // which are not included
   const authProvidersInfo = await window.getAuthenticationProvidersInfo();
   authenticationProviders.set(authProvidersInfo);
 }
-
 
 export const authenticationProviders: Writable<readonly AuthenticationProviderInfo[]> = writable([]);
 
