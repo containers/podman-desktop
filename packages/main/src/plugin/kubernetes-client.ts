@@ -453,6 +453,29 @@ export class KubernetesClient {
     return Promise.reject(new Error(`Unsupported kind ${manifest.kind}`));
   }
 
+  createCustomResource(
+    client: CustomObjectsApi,
+    group: string,
+    version: string,
+    plural: string,
+    namespace: string | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    manifest: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): Promise<any> {
+    if (namespace) {
+      return client.createNamespacedCustomObject(
+        group,
+        version,
+        namespace,
+        manifest.kind.toLowerCase() + 's',
+        manifest,
+      );
+    } else {
+      return client.createClusterCustomObject(group, version, manifest.kind.toLowerCase() + 's', manifest);
+    }
+  }
+
   /**
    * Create Kubernetes resources on the specified cluster. Resources are create sequentially.
    *
@@ -475,22 +498,14 @@ export class KubernetesClient {
         await this.createV1Resource(client, manifest);
       } else {
         const client = ctx.makeApiClient(CustomObjectsApi);
-        if (manifest.metadata?.namespace) {
-          await client.createNamespacedCustomObject(
-            groupVersion.group,
-            groupVersion.version,
-            manifest.metadata.namespace,
-            manifest.kind.toLowerCase() + 's',
-            manifest,
-          );
-        } else {
-          await client.createClusterCustomObject(
-            groupVersion.group,
-            groupVersion.version,
-            manifest.kind.toLowerCase() + 's',
-            manifest,
-          );
-        }
+        await this.createCustomResource(
+          client,
+          groupVersion.group,
+          groupVersion.version,
+          manifest.kind.toLowerCase() + 's',
+          manifest.metadata?.namespace,
+          manifest,
+        );
       }
     }
     return undefined;
