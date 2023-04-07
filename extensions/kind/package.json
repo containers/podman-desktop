@@ -46,7 +46,7 @@
           "type": "boolean",
           "default": true,
           "scope": "KubernetesProviderConnectionFactory",
-          "description": "Setup an ingress controller"
+          "description": "Setup an ingress controller (Contour https://projectcontour.io)"
         }
       }
     },
