@@ -1,0 +1,25 @@
+---
+sidebar_position: 5
+title: Working with your Kind cluster
+description: Working with your local Kind-powered Kubernetes cluster.
+keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
+tags: [migrating-to-kubernetes, kind]
+---
+
+# Working with your local Kind-powered Kubernetes cluster
+
+Set your Kubernetes context to your local Kind-powered Kubernetes cluster.
+
+#### Procedure
+
+1. Open the Podman Desktop tray.
+2. Go to **Kubernetes**.
+3. Click on the Kubernetes context with the `kind` prefix.
+
+#### Verification
+
+* The Kubernetes CLI reports that the current context is your cluster with the `kind` suffix:
+
+   ```shell-session
+   $ kubectl config current-context
+   ```
