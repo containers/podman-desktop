@@ -44,8 +44,15 @@ vi.mock('@octokit/rest', () => {
   };
 });
 
+const telemetryLogUsageMock = vi.fn();
+const telemetryLogErrorMock = vi.fn();
+const telemetryLoggerMock = {
+  logUsage: telemetryLogUsageMock,
+  logError: telemetryLogErrorMock,
+} as unknown as extensionApi.TelemetryLogger;
+
 beforeEach(() => {
-  installer = new KindInstaller('.');
+  installer = new KindInstaller('.', telemetryLoggerMock);
   vi.clearAllMocks();
 });
 
@@ -66,6 +73,11 @@ test('expect showNotification to be called', async () => {
     };
   });
   const result = await installer.performInstall();
+  expect(telemetryLogErrorMock).not.toBeCalled();
+  expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(1, 'install-kind-prompt');
+  expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(2, 'install-kind-prompt-yes');
+  expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(3, 'install-kind-success');
+
   expect(result).toBeDefined();
   expect(result).toBeTruthy();
   expect(spy).toBeCalled();
