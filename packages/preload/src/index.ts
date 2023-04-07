@@ -779,15 +779,19 @@ function initExposure(): void {
     },
   );
 
-  contextBridge.exposeInMainWorld('getAuthenticationProvidersInfo',
+  contextBridge.exposeInMainWorld(
+    'getAuthenticationProvidersInfo',
     async (): Promise<readonly AuthenticationProviderInfo[]> => {
-    return ipcInvoke('authentication-provider-registry:getAuthenticationProvidersInfo');
-  });
+      return ipcInvoke('authentication-provider-registry:getAuthenticationProvidersInfo');
+    },
+  );
 
-  contextBridge.exposeInMainWorld('requestAuthenticationProviderSignOut',
+  contextBridge.exposeInMainWorld(
+    'requestAuthenticationProviderSignOut',
     async (providerId: string, sessionId: string): Promise<void> => {
-    return ipcInvoke('authentication-provider-registry:requestAuthenticationProviderSignOut', providerId, sessionId);
-  });
+      return ipcInvoke('authentication-provider-registry:requestAuthenticationProviderSignOut', providerId, sessionId);
+    },
+  );
 
   contextBridge.exposeInMainWorld(
     'getConfigurationProperties',
