@@ -86,6 +86,8 @@ export class ProviderRegistry {
   private lifecycleListeners: ProviderLifecycleListener[];
   private containerConnectionLifecycleListeners: ContainerConnectionProviderLifecycleListener[];
 
+  private kubernetesProviders: Map<string, KubernetesProviderConnection> = new Map();
+
   private readonly _onDidUpdateProvider = new Emitter<ProviderEvent>();
   readonly onDidUpdateProvider: Event<ProviderEvent> = this._onDidUpdateProvider.event;
 
@@ -853,5 +855,35 @@ export class ProviderRegistry {
       });
     });
     return connections;
+  }
+
+  registerKubernetesConnection(
+    provider: Provider,
+    kubernetesProviderConnection: KubernetesProviderConnection,
+  ): Disposable {
+    const providerName = kubernetesProviderConnection.name;
+    const id = `${provider.id}.${providerName}`;
+    this.kubernetesProviders.set(id, kubernetesProviderConnection);
+    this.telemetryService.track('registerKubernetesProviderConnection', {
+      name: kubernetesProviderConnection.name,
+      total: this.kubernetesProviders.size,
+    });
+
+    let previousStatus = kubernetesProviderConnection.status();
+
+    // track the status of the provider
+    const timer = setInterval(async () => {
+      const newStatus = kubernetesProviderConnection.status();
+      if (newStatus !== previousStatus) {
+        this.apiSender.send('provider-change', {});
+        previousStatus = newStatus;
+      }
+    }, 2000);
+
+    // listen to events
+    return Disposable.create(() => {
+      clearInterval(timer);
+      this.apiSender.send('provider-change', {});
+    });
   }
 }

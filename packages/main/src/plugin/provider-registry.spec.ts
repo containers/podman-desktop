@@ -157,3 +157,22 @@ test('expect isProviderContainerConnection returns false with a ProviderKubernet
   const res = providerRegistry.isProviderContainerConnection(connection);
   expect(res).toBe(false);
 });
+
+test('should register kubernetes provider', async () => {
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+  const connection: KubernetesProviderConnection = {
+    name: 'connection',
+    endpoint: {
+      apiURL: 'url',
+    },
+    lifecycle: undefined,
+    status: () => 'started',
+  };
+
+  providerRegistry.registerKubernetesConnection(provider, connection);
+
+  expect(telemetryTrackMock).toHaveBeenLastCalledWith('registerKubernetesProviderConnection', {
+    name: 'connection',
+    total: 1,
+  });
+});
