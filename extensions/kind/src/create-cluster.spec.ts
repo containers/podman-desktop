@@ -21,10 +21,14 @@ import type { Mock } from 'vitest';
 import { createCluster, getKindClusterConfig } from './create-cluster';
 import { runCliCommand } from './util';
 import type { TelemetryLogger } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 
 vi.mock('@podman-desktop/api', async () => {
   return {
     Logger: {},
+    kubernetes: {
+      createResources: vi.fn(),
+    },
   };
 });
 
@@ -65,6 +69,35 @@ test('expect cluster to be created', async () => {
     expect.objectContaining({ provider: 'docker' }),
   );
   expect(telemetryLogErrorMock).not.toBeCalled();
+  expect(extensionApi.kubernetes.createResources).not.toBeCalled();
+});
+
+test('expect cluster to be created with ingress', async () => {
+  (runCliCommand as Mock).mockReturnValue({ exitCode: 0 });
+  const logger = {
+    log: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+  };
+  await createCluster({ 'kind.cluster.creation.ingress': true }, logger, '');
+  expect(extensionApi.kubernetes.createResources).toBeCalled();
+});
+
+test('expect error if Kubernetes reports error', async () => {
+  try {
+    (runCliCommand as Mock).mockReturnValue({ exitCode: 0 });
+    const logger = {
+      log: vi.fn(),
+      error: vi.fn(),
+      warn: vi.fn(),
+    };
+    (extensionApi.kubernetes.createResources as Mock).mockRejectedValue(new Error('Kubernetes error'));
+    await createCluster({ 'kind.cluster.creation.ingress': true }, logger, '');
+  } catch (err) {
+    expect(extensionApi.kubernetes.createResources).toBeCalled();
+    expect(err).to.be.a('Error');
+    expect(err.message).equal('Kubernetes error');
+  }
 });
 
 test('check cluster configuration generation', async () => {
