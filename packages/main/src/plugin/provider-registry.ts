@@ -670,7 +670,7 @@ export class ProviderRegistry {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
 
-    // grab the correct container connection
+    // grab the correct kubernetes connection
     const kubernetesConnection = provider.kubernetesConnections.find(
       connection => connection.endpoint.apiURL === providerContainerConnectionInfo.endpoint.apiURL,
     );
