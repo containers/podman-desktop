@@ -12,7 +12,7 @@ export let invalidRecord = (error: string) => {};
 export let validRecord = () => {};
 export let updateResetButtonVisibility = (recordValue: any) => {};
 export let resetToDefault = false;
-export let enableAutoCompletion = false;
+export let enableAutoSave = false;
 
 export let setRecordValue = (id: string, value: string) => {};
 export let enableSlider = false;
@@ -162,7 +162,7 @@ function increment(
 }
 
 function autoSave() {
-  if (enableAutoCompletion) {
+  if (enableAutoSave) {
     recordUpdateTimeout = setTimeout(() => update(record), 1000);
   }
 }
