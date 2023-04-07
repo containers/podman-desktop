@@ -561,6 +561,7 @@ export class PluginSystem {
       containerProviderRegistry,
       inputQuickPickRegistry,
       authentication,
+      telemetry,
     );
     await this.extensionLoader.init();
 
