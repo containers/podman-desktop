@@ -38,7 +38,7 @@ const octokit = new Octokit(octokitOptions);
 export {};
 
 async function download(tagVersion: string, repoPath: string, fileName: string): Promise<void> {
-  const destDir = path.resolve(__dirname, '..', 'src');
+  const destDir = path.resolve(__dirname, '..', 'src-generated');
   if (!fs.existsSync(destDir)) {
     fs.mkdirSync(destDir);
   }

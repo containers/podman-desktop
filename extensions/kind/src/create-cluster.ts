@@ -25,7 +25,7 @@ import { parseAllDocuments } from 'yaml';
 
 import createClusterConfTemplate from './templates/create-cluster-conf.mustache?raw';
 import type { CancellationToken } from '@podman-desktop/api';
-import ingressManifests from './contour.yaml?raw';
+import ingressManifests from '/@gen/contour.yaml?raw';
 
 export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number) {
   return mustache.render(createClusterConfTemplate, {
