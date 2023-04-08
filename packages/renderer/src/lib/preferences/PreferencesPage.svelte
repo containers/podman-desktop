@@ -34,7 +34,7 @@ onMount(async () => {
 });
 </script>
 
-<div class="flex flex-col h-full bg-zinc-900">
+<div class="flex flex-col h-full bg-zinc-900 px-5">
   <Route path="/*" breadcrumb="Preferences">
     {#if defaultPrefPageId !== undefined}
       <PreferencesRendering key="{defaultPrefPageId}" properties="{properties}" />
