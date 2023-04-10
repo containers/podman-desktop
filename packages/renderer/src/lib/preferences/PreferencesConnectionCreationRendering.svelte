@@ -37,6 +37,7 @@ let creationInProgress = false;
 let creationStarted = false;
 let creationSuccessful = false;
 let creationCancelled = false;
+let creationFailed = false;
 export let pageIsLoading = true;
 let showLogs = false;
 let tokenId: number;
@@ -153,6 +154,7 @@ function getLoggerHandler(): ConnectionCallback {
       writeToTerminal(logsTerminal, args, '\x1b[33m');
     },
     error: args => {
+      creationFailed = true;
       writeToTerminal(logsTerminal, args, '\x1b[1;31m');
     },
     onEnd: () => {
@@ -164,14 +166,10 @@ function getLoggerHandler(): ConnectionCallback {
 async function ended() {
   creationInProgress = false;
   tokenId = undefined;
-  if (creationCancelled) {
-    // the creation has been cancelled
-    updateStore();
-    return;
+  if (!creationCancelled && !creationFailed) {
+    window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+    creationSuccessful = true;
   }
-
-  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
-  creationSuccessful = true;
   updateStore();
 }
 
@@ -186,6 +184,7 @@ async function cleanup() {
   showLogs = false;
   creationInProgress = false;
   creationStarted = false;
+  creationFailed = false;
   creationCancelled = false;
   creationSuccessful = false;
   updateStore();
@@ -219,6 +218,8 @@ async function handleOnSubmit(e) {
   // send the data to the right provider
   creationInProgress = true;
   creationStarted = true;
+  creationFailed = false;
+  creationCancelled = false;
 
   try {
     tokenId = await window.getCancellableTokenSource();
@@ -233,7 +234,6 @@ async function handleOnSubmit(e) {
     await callback(providerInfo.internalId, data, loggerHandlerKey, eventCollect, tokenId);
   } catch (error) {
     //display error
-    creationInProgress = false;
     tokenId = undefined;
     // filter cancellation message to avoid displaying error and allow user to restart the creation
     if (error.message && error.message.indexOf('Execution cancelled') >= 0) {
@@ -248,7 +248,6 @@ async function cancel() {
   if (tokenId) {
     await window.cancelToken(tokenId);
     creationCancelled = true;
-    creationInProgress = false;
     tokenId = undefined;
   }
 }
