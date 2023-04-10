@@ -86,7 +86,7 @@
     "electron-builder": "23.6.0",
     "electron-builder-notarize": "^1.5.1",
     "electron-devtools-installer": "^3.2.0",
-    "eslint": "^8.37.0",
+    "eslint": "^8.38.0",
     "playwright": "1.32.2",
     "postcss-import": "^15.1.0",
     "prettier": "^2.8.7",
