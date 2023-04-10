@@ -1398,6 +1398,8 @@ declare module '@podman-desktop/api' {
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
+    export function startContainer(engineId: string, id: string): Promise<void>;
+    export function stopContainer(engineId: string, id: string): Promise<void>;
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
     export const onEvent: Event<ContainerJSONEvent>;
   }

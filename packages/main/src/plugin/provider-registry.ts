@@ -81,7 +81,10 @@ export class ProviderRegistry {
   private providerUpdates: Map<string, ProviderUpdate> = new Map();
   private providerAutostarts: Map<string, ProviderAutostart> = new Map();
 
-  private connectionLifecycleContexts: Map<ContainerProviderConnection, LifecycleContextImpl> = new Map();
+  private connectionLifecycleContexts: Map<
+    ContainerProviderConnection | KubernetesProviderConnection,
+    LifecycleContextImpl
+  > = new Map();
   private listeners: ProviderEventListener[];
   private lifecycleListeners: ProviderLifecycleListener[];
   private containerConnectionLifecycleListeners: ContainerConnectionProviderLifecycleListener[];
@@ -456,14 +459,37 @@ export class ProviderRegistry {
   }
 
   public getProviderContainerConnectionInfo(connection: ContainerProviderConnection): ProviderContainerConnectionInfo {
-    const containerProviderConnection: ProviderContainerConnectionInfo = {
-      name: connection.name,
-      status: connection.status(),
-      type: connection.type,
-      endpoint: {
-        socketPath: connection.endpoint.socketPath,
-      },
-    };
+    return this.getProviderConnectionInfo(connection) as ProviderContainerConnectionInfo;
+  }
+
+  public getProviderKubernetesConnectionInfo(
+    connection: KubernetesProviderConnection,
+  ): ProviderKubernetesConnectionInfo {
+    return this.getProviderConnectionInfo(connection) as ProviderKubernetesConnectionInfo;
+  }
+
+  private getProviderConnectionInfo(
+    connection: ContainerProviderConnection | KubernetesProviderConnection,
+  ): ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo {
+    let providerConnection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo;
+    if (this.isContainerConnection(connection)) {
+      providerConnection = {
+        name: connection.name,
+        status: connection.status(),
+        type: connection.type,
+        endpoint: {
+          socketPath: connection.endpoint.socketPath,
+        },
+      };
+    } else {
+      providerConnection = {
+        name: connection.name,
+        status: connection.status(),
+        endpoint: {
+          apiURL: connection.endpoint.apiURL,
+        },
+      };
+    }
     if (connection.lifecycle) {
       const lifecycleMethods: LifecycleMethod[] = [];
       if (connection.lifecycle.delete) {
@@ -475,9 +501,9 @@ export class ProviderRegistry {
       if (connection.lifecycle.stop) {
         lifecycleMethods.push('stop');
       }
-      containerProviderConnection.lifecycleMethods = lifecycleMethods;
+      providerConnection.lifecycleMethods = lifecycleMethods;
     }
-    return containerProviderConnection;
+    return providerConnection;
   }
 
   protected getProviderInfo(provider: ProviderImpl): ProviderInfo {
@@ -485,13 +511,7 @@ export class ProviderRegistry {
       return this.getProviderContainerConnectionInfo(connection);
     });
     const kubernetesConnections: ProviderKubernetesConnectionInfo[] = provider.kubernetesConnections.map(connection => {
-      return {
-        name: connection.name,
-        status: connection.status(),
-        endpoint: {
-          apiURL: connection.endpoint.apiURL,
-        },
-      };
+      return this.getProviderKubernetesConnectionInfo(connection);
     });
 
     // container connection factory ?
@@ -700,14 +720,6 @@ export class ProviderRegistry {
     return (connection as ProviderContainerConnectionInfo).endpoint.socketPath !== undefined;
   }
 
-  getConnectionLifecycleContext(connection: ContainerProviderConnection | KubernetesProviderConnection) {
-    if (this.isContainerConnection(connection)) {
-      return this.connectionLifecycleContexts.get(connection);
-    } else {
-      return undefined;
-    }
-  }
-
   isContainerConnection(
     connection: ContainerProviderConnection | KubernetesProviderConnection,
   ): connection is ContainerProviderConnection {
@@ -727,7 +739,7 @@ export class ProviderRegistry {
       throw new Error('The container connection does not support start lifecycle');
     }
 
-    const context = this.getConnectionLifecycleContext(connection);
+    const context = this.connectionLifecycleContexts.get(connection);
     if (!context) {
       throw new Error('The connection does not have context to start');
     }
@@ -748,7 +760,7 @@ export class ProviderRegistry {
       throw new Error('The container connection does not support stop lifecycle');
     }
 
-    const context = this.getConnectionLifecycleContext(connection);
+    const context = this.connectionLifecycleContexts.get(connection);
     if (!context) {
       throw new Error('The connection does not have context to start');
     }
@@ -792,6 +804,7 @@ export class ProviderRegistry {
     provider: ProviderImpl,
     kubernetesProviderConnection: KubernetesProviderConnection,
   ) {
+    this.connectionLifecycleContexts.set(kubernetesProviderConnection, new LifecycleContextImpl());
     this.apiSender.send('provider-register-kubernetes-connection', { name: kubernetesProviderConnection.name });
     this._onDidRegisterKubernetesConnection.fire({ providerId: provider.id });
   }
