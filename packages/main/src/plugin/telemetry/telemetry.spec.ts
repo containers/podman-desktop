@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,28 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { ConfigurationRegistry } from '../configuration-registry';
 
-import { Telemetry } from './telemetry';
+import { Telemetry, TelemetryLoggerImpl } from './telemetry';
+import { TelemetrySettings } from './telemetry-settings';
+import type { ExtensionInfo } from '../api/extension-info';
+import type { TelemetrySender } from '@podman-desktop/api';
+import { TelemetryTrustedValue } from '../types/telemetry';
+
+const getConfigurationMock = vi.fn();
+const onDidChangeConfigurationMock = vi.fn();
+
+const configurationRegistryMock = {
+  getConfiguration: getConfigurationMock,
+  onDidChangeConfiguration: onDidChangeConfigurationMock,
+} as unknown as ConfigurationRegistry;
 
 class TelemetryTest extends Telemetry {
   constructor() {
-    super({} as ConfigurationRegistry);
+    super(configurationRegistryMock);
   }
   public getLastTimeEvents(): Map<string, number> {
     return this.lastTimeEvents;
@@ -32,15 +46,24 @@ class TelemetryTest extends Telemetry {
   public shouldDropEvent(eventName: string): boolean {
     return super.shouldDropEvent(eventName);
   }
+
+  public listenForTelemetryUpdates(): void {
+    super.listenForTelemetryUpdates();
+  }
+
+  public createBuiltinTelemetrySender(extensionInfo: ExtensionInfo): TelemetrySender {
+    return super.createBuiltinTelemetrySender(extensionInfo);
+  }
 }
 
-let telemetry;
+let telemetry: TelemetryTest;
 
 beforeEach(() => {
   telemetry = new TelemetryTest();
 });
 
-beforeEach(() => {
+afterEach(() => {
+  vi.resetAllMocks();
   vi.clearAllMocks();
 });
 
@@ -62,4 +85,124 @@ test('Should not filter out a list event if last event was > 24h', async () => {
   // last call was 25h ago, so it should not be filtered out
   telemetry.getLastTimeEvents().set('listVeryVeryOldime', Date.now() - 1000 * 60 * 60 * 25);
   expect(telemetry.shouldDropEvent('listVeryVeryOldime')).toBeFalsy();
+});
+
+test('Check Telemetry is enabled', async () => {
+  getConfigurationMock.mockReturnValue({
+    get: () => true,
+  });
+
+  const enabled = telemetry.isTelemetryEnabled();
+  expect(enabled).toBeTruthy();
+});
+
+test('Check Telemetry is disabled', async () => {
+  getConfigurationMock.mockReturnValue({
+    get: () => false,
+  });
+
+  const enabled = telemetry.isTelemetryEnabled();
+  expect(enabled).toBeFalsy();
+});
+
+test('Check propagate enablement event if configuration is updated', async () => {
+  let hasBeenEnabled = false;
+  telemetry.onDidChangeTelemetryEnabled(event => {
+    hasBeenEnabled = event;
+  });
+
+  // simulate configuration change
+  onDidChangeConfigurationMock.mockImplementation(callback => {
+    // simulate telemetry.enabled = true
+    callback({ value: true, key: `${TelemetrySettings.SectionName}.${TelemetrySettings.Enabled}` });
+  });
+
+  telemetry.listenForTelemetryUpdates();
+  expect(hasBeenEnabled).toBeTruthy();
+});
+
+describe('TelemetryLoggerImpl', () => {
+  const sendEventDataMock = vi.fn();
+  const sendErrorDataMock = vi.fn();
+  const senderMock = {
+    sendEventData: sendEventDataMock,
+    sendErrorData: sendErrorDataMock,
+  } as unknown as TelemetrySender;
+
+  const dummyExtensionInfo: ExtensionInfo = {
+    name: 'dummy',
+    version: '1.0.0',
+    publisher: 'bar',
+  } as unknown as ExtensionInfo;
+
+  test('check simple event', async () => {
+    const telemetryLogger = new TelemetryLoggerImpl(dummyExtensionInfo, senderMock);
+
+    // defaults are setup
+    expect(telemetryLogger.isUsageEnabled).toBeTruthy();
+    expect(telemetryLogger.isErrorsEnabled).toBeTruthy();
+    telemetryLogger.logUsage('foo');
+    expect(sendEventDataMock).toBeCalledWith('foo', {
+      'common.extensionName': 'bar.dummy',
+      'common.extensionVersion': '1.0.0',
+    });
+  });
+
+  test('check additional properties', async () => {
+    const telemetryLogger = new TelemetryLoggerImpl(dummyExtensionInfo, senderMock, {
+      additionalCommonProperties: { customProp: 'customVal' },
+    });
+
+    telemetryLogger.logUsage('foo');
+    expect(sendEventDataMock).toBeCalledWith(
+      'foo',
+      expect.objectContaining({
+        customProp: 'customVal',
+      }),
+    );
+  });
+
+  test('check TelemetryTrustedValue', async () => {
+    const telemetryLogger = new TelemetryLoggerImpl(dummyExtensionInfo, senderMock);
+
+    telemetryLogger.logUsage('foo', { prop: new TelemetryTrustedValue('bar') });
+    expect(sendEventDataMock).toBeCalledWith(
+      'foo',
+      expect.objectContaining({
+        prop: 'bar',
+      }),
+    );
+  });
+
+  test('check string error event', async () => {
+    const telemetryLogger = new TelemetryLoggerImpl(dummyExtensionInfo, senderMock);
+
+    telemetryLogger.logError('foo');
+    expect(sendErrorDataMock).toBeCalledWith(expect.any(Error), {
+      'common.extensionName': 'bar.dummy',
+      'common.extensionVersion': '1.0.0',
+    });
+  });
+
+  test('check error event', async () => {
+    const telemetryLogger = new TelemetryLoggerImpl(dummyExtensionInfo, senderMock);
+
+    const fakeError = new Error('fake error');
+
+    telemetryLogger.logError(fakeError, { add1: 'val1' });
+    expect(sendErrorDataMock).toBeCalledWith(
+      fakeError,
+      expect.objectContaining({
+        add1: 'val1',
+      }),
+    );
+  });
+
+  test('dispose', async () => {
+    const telemetryLogger = new TelemetryLoggerImpl(dummyExtensionInfo, senderMock);
+
+    expect((telemetryLogger as any).commonProperties).toContain({ 'common.extensionVersion': '1.0.0' });
+    telemetryLogger.dispose();
+    expect((telemetryLogger as any).commonProperties).toStrictEqual({});
+  });
 });
