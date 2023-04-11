@@ -38,7 +38,6 @@ export function isLinux(): boolean {
 }
 
 export interface SpawnResult {
-  exitCode: number;
   stdOut: string;
   stdErr: string;
   error: undefined | string;
@@ -67,10 +66,8 @@ export function getKindPath(): string {
 // search if kind is available in the path
 export async function detectKind(pathAddition: string, installer: KindInstaller): Promise<string> {
   try {
-    const result = await runCliCommand('kind', ['--version'], { env: { PATH: getKindPath() } });
-    if (result.exitCode === 0) {
-      return 'kind';
-    }
+    await runCliCommand('kind', ['--version'], { env: { PATH: getKindPath() } });
+    return 'kind';
   } catch (e) {
     // ignore and try another way
   }
@@ -78,12 +75,10 @@ export async function detectKind(pathAddition: string, installer: KindInstaller)
   const assetInfo = await installer.getAssetInfo();
   if (assetInfo) {
     try {
-      const result = await runCliCommand(assetInfo.name, ['--version'], {
+      await runCliCommand(assetInfo.name, ['--version'], {
         env: { PATH: getKindPath().concat(path.delimiter).concat(pathAddition) },
       });
-      if (result.exitCode === 0) {
-        return pathAddition.concat(path.sep).concat(isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
-      }
+      return pathAddition.concat(path.sep).concat(isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
     } catch (e) {
       // ignore
     }
@@ -163,7 +158,7 @@ export function runCliCommand(
 
     spawnProcess.on('close', exitCode => {
       if (exitCode == 0) {
-        resolve({ exitCode, stdOut, stdErr, error: err });
+        resolve({ stdOut, stdErr, error: err });
       } else {
         if (options?.logger) {
           options.logger.error(stdErr);
