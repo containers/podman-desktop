@@ -47,11 +47,15 @@ let kindCli: string | undefined;
 
 const imageHandler = new ImageHandler();
 
-function registerProvider(extensionContext: extensionApi.ExtensionContext, provider: extensionApi.Provider): void {
+function registerProvider(
+  extensionContext: extensionApi.ExtensionContext,
+  provider: extensionApi.Provider,
+  telemetryLogger: extensionApi.TelemetryLogger,
+): void {
   const disposable = provider.setKubernetesProviderConnectionFactory({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) =>
-      createCluster(params, logger, kindCli, token),
+      createCluster(params, logger, kindCli, token, telemetryLogger),
     creationDisplayName: 'Kind cluster',
   });
   extensionContext.subscriptions.push(disposable);
@@ -123,11 +127,13 @@ async function searchKindClusters(provider: extensionApi.Provider) {
   const kindContainers = allContainers.filter(container => {
     return container.Labels?.['io.x-k8s.kind.cluster'];
   });
-
   updateClusters(provider, kindContainers);
 }
 
-function createProvider(extensionContext: extensionApi.ExtensionContext) {
+function createProvider(
+  extensionContext: extensionApi.ExtensionContext,
+  telemetryLogger: extensionApi.TelemetryLogger,
+) {
   const provider = extensionApi.provider.createProvider({
     name: 'Kind',
     id: 'kind',
@@ -141,11 +147,12 @@ function createProvider(extensionContext: extensionApi.ExtensionContext) {
     },
   });
   extensionContext.subscriptions.push(provider);
-  registerProvider(extensionContext, provider);
+  registerProvider(extensionContext, provider, telemetryLogger);
   extensionContext.subscriptions.push(
-    extensionApi.commands.registerCommand(KIND_MOVE_IMAGE_COMMAND, image =>
-      imageHandler.moveImage(image, kindClusters, kindCli),
-    ),
+    extensionApi.commands.registerCommand(KIND_MOVE_IMAGE_COMMAND, image => {
+      telemetryLogger.logUsage('moveImage');
+      imageHandler.moveImage(image, kindClusters, kindCli);
+    }),
   );
 
   // when containers are refreshed, update
@@ -163,11 +170,12 @@ function createProvider(extensionContext: extensionApi.ExtensionContext) {
   extensionApi.provider.onDidUnregisterContainerConnection(() => {
     searchKindClusters(provider);
   });
-  extensionApi.provider.onDidUpdateProvider(() => registerProvider(extensionContext, provider));
+  extensionApi.provider.onDidUpdateProvider(() => registerProvider(extensionContext, provider, telemetryLogger));
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const installer = new KindInstaller(extensionContext.storagePath);
+  const telemetryLogger = extensionApi.env.createTelemetryLogger();
+  const installer = new KindInstaller(extensionContext.storagePath, telemetryLogger);
   kindCli = await detectKind(extensionContext.storagePath, installer);
 
   if (!kindCli) {
@@ -184,7 +192,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
               if (status) {
                 statusBarItem.dispose();
                 kindCli = await detectKind(extensionContext.storagePath, installer);
-                createProvider(extensionContext);
+                createProvider(extensionContext, telemetryLogger);
               }
             },
             err => window.showErrorMessage('Kind installation failed ' + err),
@@ -194,7 +202,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       statusBarItem.show();
     }
   } else {
-    createProvider(extensionContext);
+    createProvider(extensionContext, telemetryLogger);
   }
 }
 

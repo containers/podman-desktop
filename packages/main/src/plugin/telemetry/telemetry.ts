@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022, 2023 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,17 @@ import type { LinuxOs } from 'getos';
 import getos from 'getos';
 import * as osLocale from 'os-locale';
 import { promisify } from 'node:util';
-import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry';
+import type { ConfigurationRegistry, IConfigurationNode } from '/@/plugin/configuration-registry';
 import { TelemetrySettings } from './telemetry-settings';
+import type { Event } from '/@/plugin/events/emitter';
+import { Emitter } from '/@/plugin/events/emitter';
+import type {
+  TelemetryLogger,
+  TelemetryLoggerOptions,
+  TelemetrySender,
+  TelemetryTrustedValue,
+} from '@podman-desktop/api';
+import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry';
 
 export const TRACK_EVENT_TYPE = 'track';
 export const PAGE_EVENT_TYPE = 'page';
@@ -63,6 +72,9 @@ export class Telemetry {
 
   protected lastTimeEvents: Map<string, number>;
 
+  private readonly _onDidChangeTelemetryEnabled = new Emitter<boolean>();
+  readonly onDidChangeTelemetryEnabled: Event<boolean> = this._onDidChangeTelemetryEnabled.event;
+
   constructor(private configurationRegistry: ConfigurationRegistry) {
     this.identity = new Identity();
     this.lastTimeEvents = new Map();
@@ -95,13 +107,15 @@ export class Telemetry {
     const telemetryConfiguration = this.configurationRegistry.getConfiguration(TelemetrySettings.SectionName);
     const check = telemetryConfiguration.get<boolean>(TelemetrySettings.Check);
 
+    // track changes on enablement
+    this.listenForTelemetryUpdates();
+
     // initalize objects
     this.analytics = new Analytics(Telemetry.SEGMENT_KEY);
 
     // needs to prompt the user for the first time he launches the app
     if (check) {
-      const enabled = telemetryConfiguration.get<boolean>(TelemetrySettings.Enabled);
-      if (enabled === true) {
+      if (this.isTelemetryEnabled()) {
         await this.configureTelemetry();
       } else {
         this.telemetryInitialized = true;
@@ -110,6 +124,61 @@ export class Telemetry {
         this.pendingItems.length = 0;
       }
     }
+  }
+
+  // notify if the configuration change for enablement of the telemetry
+  protected listenForTelemetryUpdates(): void {
+    this.configurationRegistry.onDidChangeConfiguration(e => {
+      if (e.key === `${TelemetrySettings.SectionName}.${TelemetrySettings.Enabled}`) {
+        const val = e.value as boolean;
+        this._onDidChangeTelemetryEnabled.fire(val);
+      }
+    });
+  }
+
+  isTelemetryEnabled(): boolean {
+    const telemetryConfiguration = this.configurationRegistry.getConfiguration(TelemetrySettings.SectionName);
+    const enabled = telemetryConfiguration.get<boolean>(TelemetrySettings.Enabled);
+    return enabled === true;
+  }
+
+  protected createBuiltinTelemetrySender(extensionInfo: {
+    id: string;
+    name: string;
+    publisher: string;
+    version: string;
+  }): TelemetrySender {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const thisArg = this;
+    const instanceFlush = this.analytics?.flush;
+    return {
+      // prefix with extension id the event
+      sendEventData(eventName: string, data?: Record<string, unknown>): void {
+        thisArg.track.apply(thisArg, [`${extensionInfo.id}.${eventName}`, data]);
+      },
+      // report using the id of the extension suffixed by error
+      sendErrorData(error: Error, data?: Record<string, unknown>): void {
+        data = data || {};
+        data.sourceError = error.message;
+        thisArg.track.apply(thisArg, [`${extensionInfo.id}.error`, data]);
+      },
+      async flush(): Promise<void> {
+        await instanceFlush?.();
+      },
+    };
+  }
+
+  createTelemetryLogger(
+    extensionInfo: { id: string; name: string; publisher: string; version: string },
+    sender?: TelemetrySender | undefined,
+    options?: TelemetryLoggerOptions | undefined,
+  ): TelemetryLogger {
+    // if no sender, use the built-in
+    if (!sender) {
+      sender = this.createBuiltinTelemetrySender(extensionInfo);
+    }
+
+    return new TelemetryLoggerImpl(extensionInfo, sender, options);
   }
 
   protected async initTelemetry(): Promise<void> {
@@ -293,5 +362,74 @@ export class Telemetry {
       }
     }
     return undefined;
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RecordInfo = Record<string, any | TelemetryTrustedValue>;
+
+export class TelemetryLoggerImpl implements TelemetryLogger {
+  readonly isUsageEnabled = true;
+  readonly isErrorsEnabled = true;
+
+  private readonly _onDidChangeEnableStates = new Emitter<TelemetryLogger>();
+  readonly onDidChangeEnableStates: Event<TelemetryLogger> = this._onDidChangeEnableStates.event;
+
+  private commonProperties: RecordInfo = {};
+
+  constructor(
+    extensionInfo: { id: string; name: string; publisher: string; version: string },
+    private sender: TelemetrySender,
+    private options?: TelemetryLoggerOptions,
+  ) {
+    this.commonProperties = {
+      'common.extensionName': `${extensionInfo.publisher}.${extensionInfo.name}`,
+      'common.extensionVersion': extensionInfo.version,
+    };
+  }
+
+  setupData(data?: RecordInfo): RecordInfo {
+    data = data || {};
+
+    if (this.options?.additionalCommonProperties) {
+      data = { ...this.options.additionalCommonProperties, ...data };
+    }
+
+    if (!this.options?.ignoreBuiltInCommonProperties) {
+      data = { ...this.commonProperties, ...data };
+    }
+
+    // for each trusted value, extract the value and remove the trusted value wrapper
+    for (const key in data) {
+      const value = data[key];
+      if (value instanceof TypeTelemetryTrustedValue) {
+        data[key] = value.value;
+      }
+    }
+
+    return data;
+  }
+
+  logUsage(eventName: string, data?: RecordInfo): void {
+    data = this.setupData(data);
+    this.sender.sendEventData(eventName, data);
+  }
+
+  logError(eventName: string, data?: RecordInfo): void;
+  logError(error: Error, data?: RecordInfo): void;
+  logError(eventName: string | Error, data?: RecordInfo): void {
+    data = this.setupData(data);
+
+    let error = eventName;
+    if (eventName instanceof Error) {
+      error = eventName;
+    } else {
+      error = new Error(eventName);
+    }
+    this.sender.sendErrorData(error, data);
+  }
+
+  dispose(): void {
+    this.commonProperties = {};
   }
 }
