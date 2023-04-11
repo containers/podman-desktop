@@ -227,6 +227,7 @@ function handleCleanValue(
       <input
         id="input-slider-{record.id}"
         type="range"
+        name="{record.id}"
         min="{record.minimum}"
         max="{record.maximum}"
         value="{record.default}"
@@ -249,6 +250,7 @@ function handleCleanValue(
           type="text"
           readonly
           class="w-full outline-none focus:outline-none text-center text-white text-sm py-0.5"
+          name="{record.id}"
           value="{recordValue}"
           aria-label="{record.description}" />
         <button
@@ -280,7 +282,6 @@ function handleCleanValue(
           <Fa icon="{faXmark}" />
         </button>
         <input
-          name="{record.id}"
           on:click="{() => selectFilePath()}"
           id="rendering.FilePath.{record.id}"
           readonly
