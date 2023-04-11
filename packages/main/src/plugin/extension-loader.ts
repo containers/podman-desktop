@@ -122,7 +122,7 @@ export class ExtensionLoader {
       description: extension.manifest.description,
       version: extension.manifest.version,
       publisher: extension.manifest.publisher,
-      state: this.extensionState.get(extension.id) ? (this.extensionState.get(extension.id) || 'stopped' ): 'stopped',
+      state: this.extensionState.get(extension.id) ? this.extensionState.get(extension.id) || 'stopped' : 'stopped',
       id: extension.id,
       path: extension.path,
       removable: extension.removable,

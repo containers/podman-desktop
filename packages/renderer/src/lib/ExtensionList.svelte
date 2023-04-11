@@ -125,7 +125,8 @@ async function removeExtension(extension: ExtensionInfo) {
                 <div class="flex-shrink-0 h-10 w-10 py-1" title="Extension {extension.name} is {extension.state}">
                   <Fa
                     class="h-10 w-10 rounded-full {extension.state === 'started' ? 'text-violet-600' : 'text-gray-700'}"
-                    size="25" icon="{faPuzzlePiece}" />
+                    size="25"
+                    icon="{faPuzzlePiece}" />
                 </div>
                 <div class="ml-4">
                   <div class="flex flex-row">
@@ -139,7 +140,7 @@ async function removeExtension(extension: ExtensionInfo) {
                     <div class="text-sm text-gray-400 italic">{extension.description}</div>
                   </div>
                   <div class="flex">
-                    <ConnectionStatus status="{extension.state}"/>
+                    <ConnectionStatus status="{extension.state}" />
                   </div>
                 </div>
               </div>
