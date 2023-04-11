@@ -1700,6 +1700,11 @@ declare module '@podman-desktop/api' {
      * @returns A new telemetry logger
      */
     export function createTelemetryLogger(sender?: TelemetrySender, options?: TelemetryLoggerOptions): TelemetryLogger;
+
+    /**
+     * The system clipboard.
+     */
+    export const clipboard: Clipboard;
   }
 
   /**
@@ -1829,5 +1834,22 @@ declare module '@podman-desktop/api' {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly additionalCommonProperties?: Record<string, any>;
+  }
+
+  /**
+   * The clipboard provides read and write access to the system's clipboard.
+   */
+  export interface Clipboard {
+    /**
+     * Read the current clipboard contents as text.
+     * @returns A Promise that resolves to a string.
+     */
+    readText(): Promise<string>;
+
+    /**
+     * Writes text into the clipboard.
+     * @returns A Promise that resolves when writing happened.
+     */
+    writeText(value: string): Promise<void>;
   }
 }
