@@ -47,8 +47,8 @@ class TelemetryTest extends Telemetry {
     return super.shouldDropEvent(eventName);
   }
 
-  public checkForTelemetryUpdates(): void {
-    super.checkForTelemetryUpdates();
+  public listenForTelemetryUpdates(): void {
+    super.listenForTelemetryUpdates();
   }
 
   public createBuiltinTelemetrySender(extensionInfo: ExtensionInfo): TelemetrySender {
@@ -117,7 +117,7 @@ test('Check propagate enablement event if configuration is updated', async () =>
     callback({ value: true, key: `${TelemetrySettings.SectionName}.${TelemetrySettings.Enabled}` });
   });
 
-  telemetry.checkForTelemetryUpdates();
+  telemetry.listenForTelemetryUpdates();
   expect(hasBeenEnabled).toBeTruthy();
 });
 

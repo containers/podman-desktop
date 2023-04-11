@@ -108,7 +108,7 @@ export class Telemetry {
     const check = telemetryConfiguration.get<boolean>(TelemetrySettings.Check);
 
     // track changes on enablement
-    this.checkForTelemetryUpdates();
+    this.listenForTelemetryUpdates();
 
     // initalize objects
     this.analytics = new Analytics(Telemetry.SEGMENT_KEY);
@@ -127,7 +127,7 @@ export class Telemetry {
   }
 
   // notify if the configuration change for enablement of the telemetry
-  protected checkForTelemetryUpdates(): void {
+  protected listenForTelemetryUpdates(): void {
     this.configurationRegistry.onDidChangeConfiguration(e => {
       if (e.key === `${TelemetrySettings.SectionName}.${TelemetrySettings.Enabled}`) {
         const val = e.value as boolean;
