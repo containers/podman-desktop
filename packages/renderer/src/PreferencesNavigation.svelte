@@ -5,7 +5,6 @@ import { extensionInfos } from './stores/extensions';
 import { configurationProperties } from './stores/configurationProperties';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration-registry-constants';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
-import { providerInfos } from './stores/providers';
 
 export let exitSettingsCallback: () => void;
 export let meta;
@@ -107,34 +106,14 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
 
     <!-- Extensions catalog configuration start -->
     <li
-      class="pf-c-nav__item pf-m-expandable {addExpandedClass('extensionsCatalog')} {addCurrentClass(
+      class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/extensions',
       )} hover:text-gray-300 cursor-pointer items-center">
-      <a
-        href="/preferences/extensions"
-        class="pf-c-nav__link text-left"
-        id="configuration-section-extensions-catalog"
-        aria-expanded="{isAriaExpanded('extensionsCatalog')}"
-        on:click="{() => toggleSection('extensionsCatalog')}">
-        Extensions
-        <span class="pf-c-nav__toggle">
-          <span class="pf-c-nav__toggle-icon">
-            <i class="fas fa-angle-right" aria-hidden="true"></i>
-          </span>
-        </span>
+      <a href="/preferences/extensions" class="pf-c-nav__link" id="configuration-section-extensions-catalog">
+        <div class="flex items-center">
+          <span class="block group-hover:block">Extensions</span>
+        </div>
       </a>
-      <section class="pf-c-nav__subnav {addSectionHiddenClass('extensionsCatalog')}">
-        <ul class="pf-c-nav__list">
-          {#each extensions as extension}
-            <li class="pf-c-nav__item {addCurrentClass(`/preferences/extension/${extension.name}`)}">
-              <a
-                href="/preferences/extension/{extension.name}"
-                id="configuration-section-extensions-catalog-{extension.name.toLowerCase()}"
-                class="pf-c-nav__link">{extension.displayName}</a>
-            </li>
-          {/each}
-        </ul>
-      </section>
     </li>
     <!-- Extensions catalog configuration end -->
 

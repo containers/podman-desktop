@@ -8,7 +8,6 @@ import PreferencesRendering from './PreferencesRendering.svelte';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
 import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
 import PreferencesProviderRendering from './PreferencesProviderRendering.svelte';
-import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
 import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
 import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
 import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
@@ -47,9 +46,6 @@ onMount(async () => {
   </Route>
   <Route path="/ddExtensions" breadcrumb="Docker Desktop Extensions" let:meta>
     <PreferencesPageDockerExtensions />
-  </Route>
-  <Route path="/extension/:extensionId/*" breadcrumb="Extensions" let:meta>
-    <PreferencesExtensionRendering extensionId="{meta.params.extensionId}" />
   </Route>
   <Route path="/provider/:providerInternalId/*" breadcrumb="Resources" let:meta>
     <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
