@@ -63,6 +63,15 @@ Optional Linux requirements:
   flatpak remote-add --if-not-exists flathub --user https://flathub.org/repo/flathub.flatpakrepo
   flatpak install --user flathub org.flatpak.Builder org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
   ```
+* GNU C and C++ compiler
+  Fedora/RHEL
+  ```sh
+  dnf install gpp-c++
+  ```
+  Ubuntu/Debian
+  ```sh
+  apt-get install build-essential
+  ```
 
 ### Step 1. Fork and clone Podman Desktop
 
@@ -100,8 +109,53 @@ Run the tests using `yarn`:
 ```sh
 yarn test
 ```
+Depending on to what part of project you contribute to, you can specify to run tests for the given module only, ie., if you are working on extensions, you can run the tests for extensions and have faster feedback:
+```sh
+yarn test:extensions
+```
+or if you are contributing to a particular extension, you can call:
+```sh
+yarn test:extensions:compose
+```
+This will show a test results for restricted amount of tests:
+```
+ ✓ src/os.spec.ts (3)
+ ✓ src/detect.spec.ts (10) 518ms
+ ✓ src/compose-github-releases.spec.ts (10)
+ ✓ src/compose-extension.spec.ts (16)
+ ✓ src/compose-wrapper-generator.spec.ts (4)
 
-### Step 5. Code formatter / linter
+ Test Files  5 passed (5)
+      Tests  43 passed (43)
+   Start at  17:17:07
+   Duration  1.27s (transform 562ms, setup 0ms, collect 1.25s, tests 587ms)
+```
+Check the npm script tasks in our `package.json` for more options. 
+
+### Step 5. Code coverage
+
+Part of every test is also a code coverage report which can be obtain from the test run output (using simple text reporter)
+found in project root `./test-resources/coverage/*`. Depending if you have run all or just a part of the tests, you will have partial test coverage report generated, example:
+```
+ % Coverage report from c8
+------------------------------|---------|----------|---------|---------|-------------------
+File                          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+------------------------------|---------|----------|---------|---------|-------------------
+All files                     |    75.1 |    97.22 |   93.75 |    75.1 |                   
+ cli-run.ts                   |       0 |        0 |       0 |       0 | 1-119             
+ compose-extension.ts         |     100 |      100 |     100 |     100 |                   
+ compose-github-releases.ts   |     100 |      100 |     100 |     100 |                   
+ compose-wrapper-generator.ts |     100 |      100 |     100 |     100 |                   
+ detect.ts                    |     100 |      100 |     100 |     100 |                   
+ extension.ts                 |       0 |        0 |       0 |       0 | 1-54              
+ os.ts                        |     100 |      100 |     100 |     100 |                   
+------------------------------|---------|----------|---------|---------|-------------------
+```
+For a detailed information about the code coverage you can search the mentioned folder and find `html` lcov report:
+`test-resources/coverage/extensions/compose/lcov-report/index.html`
+
+When contribuing the new code, you should consider not lowering overall code coverage.
+### Step 6. Code formatter / linter
 
 We use `prettier` as a formatter and `eslint` for linting.
 
@@ -119,7 +173,7 @@ Fix:
 yarn lint:fix && yarn format:fix
 ```
 
-### Step 6. Compile production binaries (optional)
+### Step 7. Compile production binaries (optional)
 
 You may want to test the binary against your local system before pushing a PR, you can do so by running the following command:
 
