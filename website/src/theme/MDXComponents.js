@@ -1,4 +1,3 @@
-import React from 'react';
 // Import the original mapper
 import MDXComponents from '@theme-original/MDXComponents';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import the FontAwesomeIcon component.
