@@ -8,6 +8,8 @@ tags: [migrating-to-kubernetes, kind]
 
 # Creating a local Kind-powered Kubernetes cluster 
 
+You can create multiple local Kind-powered Kubernetes clusters.
+
 #### Prerequisites
 
 * [You installed Kind](installing-kind).
@@ -28,5 +30,5 @@ tags: [migrating-to-kubernetes, kind]
 
 #### Verification
 
-1. In **Settings > Resources**, in the **Kind** tile, your Kind cluster is running.
-1. In the Podman Desktop tray, open the  **Kubernetes** menu, you can set the context to your Kind cluster.
+1. In **Settings > Resources**, in the **Kind** tile, your `<kind-cluster>` instance is running.
+1. In the Podman Desktop tray, open the  **Kubernetes** menu, you can set the context to your Kind cluster: `kind-<kind-cluster>`.
