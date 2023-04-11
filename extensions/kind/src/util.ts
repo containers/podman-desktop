@@ -66,18 +66,26 @@ export function getKindPath(): string {
 
 // search if kind is available in the path
 export async function detectKind(pathAddition: string, installer: KindInstaller): Promise<string> {
-  let result = await runCliCommand('kind', ['--version'], { env: { PATH: getKindPath() } });
-  if (result.exitCode === 0) {
-    return 'kind';
-  } else {
-    const assetInfo = await installer.getAssetInfo();
-    if (assetInfo) {
-      result = await runCliCommand(assetInfo.name, ['--version'], {
+  try {
+    const result = await runCliCommand('kind', ['--version'], { env: { PATH: getKindPath() } });
+    if (result.exitCode === 0) {
+      return 'kind';
+    }
+  } catch (e) {
+    // ignore and try another way
+  }
+
+  const assetInfo = await installer.getAssetInfo();
+  if (assetInfo) {
+    try {
+      const result = await runCliCommand(assetInfo.name, ['--version'], {
         env: { PATH: getKindPath().concat(path.delimiter).concat(pathAddition) },
       });
       if (result.exitCode === 0) {
         return pathAddition.concat(path.sep).concat(isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
       }
+    } catch (e) {
+      // ignore
     }
   }
   return undefined;
@@ -139,19 +147,29 @@ export function runCliCommand(
     });
     spawnProcess.stderr.setEncoding('utf8');
     spawnProcess.stderr.on('data', data => {
-      if (options?.logger) {
-        // log create to stdout instead of stderr
-        if (args?.[0] === 'create') {
+      if (args?.[0] === 'create' || args?.[0] === 'delete') {
+        if (options?.logger) {
           options.logger.log(data);
-        } else {
-          options.logger.error(data);
         }
+        if (typeof data === 'string' && data.indexOf('error') >= 0) {
+          stdErr += data;
+        } else {
+          stdOut += data;
+        }
+      } else {
+        stdErr += data;
       }
-      stdErr += data;
     });
 
     spawnProcess.on('close', exitCode => {
-      resolve({ exitCode, stdOut, stdErr, error: err });
+      if (exitCode == 0) {
+        resolve({ exitCode, stdOut, stdErr, error: err });
+      } else {
+        if (options?.logger) {
+          options.logger.error(stdErr);
+        }
+        reject(new Error(stdErr));
+      }
     });
   });
 }
