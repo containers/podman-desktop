@@ -48,7 +48,7 @@ const telemetryLoggerMock = {
 test('expect error is cli returns non zero exit code', async () => {
   try {
     (runCliCommand as Mock).mockReturnValue({ exitCode: -1, error: 'error' });
-    await createCluster({}, undefined, '', telemetryLoggerMock);
+    await createCluster({}, undefined, '', undefined, telemetryLoggerMock);
   } catch (err) {
     expect(err).to.be.a('Error');
     expect(err.message).equal('Failed to create kind cluster. error');
@@ -58,15 +58,10 @@ test('expect error is cli returns non zero exit code', async () => {
 
 test('expect cluster to be created', async () => {
   (runCliCommand as Mock).mockReturnValue({ exitCode: 0 });
-  await createCluster({}, undefined, '', telemetryLoggerMock);
+  await createCluster({}, undefined, '', undefined, telemetryLoggerMock);
   expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(
     1,
     'createCluster',
-    expect.objectContaining({ provider: 'docker', httpsHostPort: 9443, httpHostPort: 9090 }),
-  );
-  expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(
-    2,
-    'createClusterSuccess',
     expect.objectContaining({ provider: 'docker' }),
   );
   expect(telemetryLogErrorMock).not.toBeCalled();

@@ -76,7 +76,7 @@ test('expect showNotification to be called', async () => {
   expect(telemetryLogErrorMock).not.toBeCalled();
   expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(1, 'install-kind-prompt');
   expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(2, 'install-kind-prompt-yes');
-  expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(3, 'install-kind-success');
+  expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(3, 'install-kind-downloaded');
 
   expect(result).toBeDefined();
   expect(result).toBeTruthy();

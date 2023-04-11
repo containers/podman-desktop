@@ -82,8 +82,6 @@ export async function createCluster(
   // ok we need to write the file
   await fs.promises.writeFile(tmpFilePath, kindClusterConfig, 'utf8');
 
-  telemetryLogger.logUsage('createCluster', { provider, httpHostPort, httpsHostPort });
-
   // now execute the command to create the cluster
   const result = await runCliCommand(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger }, token);
 
@@ -91,9 +89,15 @@ export async function createCluster(
   await fs.promises.rm(tmpDirectory, { recursive: true });
 
   if (result.exitCode !== 0) {
-    telemetryLogger.logError('createCluster', { provider, error: result.error, stdErr: result.stdErr });
+    telemetryLogger.logError('createCluster', {
+      provider,
+      httpHostPort,
+      httpsHostPort,
+      error: result.error,
+      stdErr: result.stdErr,
+    });
     throw new Error(`Failed to create kind cluster. ${result.error}`);
   } else {
-    telemetryLogger.logUsage('createClusterSuccess', { provider });
+    telemetryLogger.logUsage('createCluster', { provider, httpHostPort, httpsHostPort });
   }
 }

@@ -135,7 +135,7 @@ export class KindInstaller {
                 const stat = fs.statSync(destFile);
                 fs.chmodSync(destFile, stat.mode | fs.constants.S_IXUSR);
               }
-              this.telemetryLogger.logUsage('install-kind-success');
+              this.telemetryLogger.logUsage('install-kind-downloaded');
               extensionApi.window.showNotification({ body: 'Kind is successfully installed.' });
               return true;
             }
