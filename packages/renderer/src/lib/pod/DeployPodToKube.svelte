@@ -209,7 +209,7 @@ async function deployToKube() {
     // update status
     updatePodInterval = setInterval(updatePod, 2000);
   } catch (error) {
-    window.telemetryTrack('deployToKube.error', { ...eventProperties, errorMessage: error.message });
+    window.telemetryTrack('deployToKube', { ...eventProperties, errorMessage: error.message });
     deployError = error;
     deployStarted = false;
     deployFinished = false;

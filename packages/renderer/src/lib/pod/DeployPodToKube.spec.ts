@@ -104,7 +104,7 @@ test('Expect to send telemetry error event', async () => {
   // expect it throws a telemetry event reporting an error
   await fireEvent.click(createButton);
   await waitFor(() =>
-    expect(telemetryTrackMock).toHaveBeenCalledWith('deployToKube.error', {
+    expect(telemetryTrackMock).toHaveBeenCalledWith('deployToKube', {
       errorMessage: 'Custom Error',
       useRoutes: true,
       useServices: true,
