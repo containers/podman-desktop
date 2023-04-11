@@ -325,7 +325,7 @@ export class PluginSystem {
       false,
       0,
       undefined,
-      'tasks',
+      'Tasks',
       'fa fa-bell',
       true,
       'show-task-manager',
