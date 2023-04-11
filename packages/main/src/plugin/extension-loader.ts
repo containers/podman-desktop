@@ -581,6 +581,9 @@ export class ExtensionLoader {
       onDidUpdateKubeconfig: (listener, thisArg, disposables) => {
         return kubernetesClient.onDidUpdateKubeconfig(listener, thisArg, disposables);
       },
+      createResources: (context, manifests): Promise<void> => {
+        return kubernetesClient.createResources(context, manifests);
+      },
     };
 
     const containerProviderRegistry = this.containerProviderRegistry;

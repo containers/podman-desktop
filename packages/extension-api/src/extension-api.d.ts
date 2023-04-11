@@ -1079,6 +1079,14 @@ declare module '@podman-desktop/api' {
     export function getKubeconfig(): Uri;
     export const onDidUpdateKubeconfig: Event<KubeconfigUpdateEvent>;
     export function setKubeconfig(kubeconfig: Uri): Promise<void>;
+
+    /**
+     * Create one or several Kubernetes resources on the Kubernetes contenxt.
+     *
+     * @param context the Kubernetes context to use
+     * @param manifests the manifests to create as JSON objects
+     */
+    export function createResources(context: string, manifests: unknown[]): Promise<void>;
   }
   /**
    * An event describing the update in kubeconfig location
