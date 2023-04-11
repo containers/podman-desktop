@@ -85,7 +85,7 @@ function errorCallback(errorMessage: string): void {
               </div>
             </section>
           </div>
-          <div class="flex flex-col w-full px-5 pt-5">
+          <div class="flex flex-col px-5 pt-5">
             <div class="flex justify-end">
               <div class="flex items-center w-5">
                 {#if container.actionInProgress}
