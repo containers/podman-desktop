@@ -1685,6 +1685,14 @@ declare module '@podman-desktop/api' {
     export const onDidChangeTelemetryEnabled: Event<boolean>;
 
     /**
+     * Opens a link externally using the default application. Depending on the
+     *
+     * @param target The uri that should be opened.
+     * @returns A promise indicating if open was successful.
+     */
+    export function openExternal(uri: Uri): Promise<boolean>;
+
+    /**
      * Creates a new {@link TelemetryLogger telemetry logger}.
      *
      * @param sender The telemetry sender that is used by the telemetry logger.

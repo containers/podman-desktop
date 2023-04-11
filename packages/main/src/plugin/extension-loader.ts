@@ -39,6 +39,7 @@ import type { FilesystemMonitoring } from './filesystem-monitoring';
 import { Uri } from './types/uri';
 import type { KubernetesClient } from './kubernetes-client';
 import type { Proxy } from './proxy';
+import { shell as electronShell } from 'electron';
 import type { ContainerProviderRegistry } from './container-registry';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
 import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry';
@@ -627,6 +628,15 @@ export class ExtensionLoader {
 
     const telemetry = this.telemetry;
     const env: typeof containerDesktopAPI.env = {
+      openExternal: async (uri: containerDesktopAPI.Uri): Promise<boolean> => {
+        try {
+          await electronShell.openExternal(uri.toString());
+          return true;
+        } catch (error) {
+          console.error(`Unable to open external link  ${uri.toString()} from extension ${extensionInfo.id}`, error);
+          return false;
+        }
+      },
       createTelemetryLogger: (
         sender?: containerDesktopAPI.TelemetrySender | undefined,
         options?: containerDesktopAPI.TelemetryLoggerOptions | undefined,
