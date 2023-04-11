@@ -35,7 +35,10 @@ export const filtered = derived([searchPattern, containersInfos], ([$searchPatte
 );
 
 // need to refresh when extension is started or stopped
-window.addEventListener('extension-started', () => {
+window?.events.receive('extension-started', () => {
+  fetchContainers();
+});
+window?.events.receive('extension-stopped', () => {
   fetchContainers();
 });
 

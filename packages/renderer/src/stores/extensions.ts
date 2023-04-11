@@ -28,17 +28,19 @@ export async function fetchExtensions() {
 export const extensionInfos: Writable<ExtensionInfo[]> = writable([]);
 
 // need to refresh when extension is started or stopped
-window.addEventListener('extension-started', () => {
+window?.events.receive('extension-starting', () => {
   fetchExtensions();
 });
-window.addEventListener('extension-stopped', () => {
-  fetchExtensions();
-});
-window.addEventListener('extension-removed', () => {
-  fetchExtensions();
-});
-
 window?.events.receive('extension-started', () => {
+  fetchExtensions();
+});
+window?.events.receive('extension-stopping', () => {
+  fetchExtensions();
+});
+window?.events.receive('extension-stopped', () => {
+  fetchExtensions();
+});
+window?.events.receive('extension-removed', () => {
   fetchExtensions();
 });
 window.addEventListener('system-ready', () => {

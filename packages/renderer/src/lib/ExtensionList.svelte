@@ -3,7 +3,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faPuzzlePiece, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { faStop } from '@fortawesome/free-solid-svg-icons';
-import { afterUpdate, onMount } from 'svelte';
+import { afterUpdate } from 'svelte';
 import { extensionInfos } from '../stores/extensions';
 import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
 import ErrorMessage from './ui/ErrorMessage.svelte';
@@ -54,15 +54,12 @@ afterUpdate(() => {
 
 async function stopExtension(extension: ExtensionInfo) {
   await window.stopExtension(extension.id);
-  window.dispatchEvent(new CustomEvent('extension-stopped', { detail: extension }));
 }
 async function startExtension(extension: ExtensionInfo) {
   await window.startExtension(extension.id);
-  window.dispatchEvent(new CustomEvent('extension-started', { detail: extension }));
 }
 async function removeExtension(extension: ExtensionInfo) {
   await window.removeExtension(extension.id);
-  window.dispatchEvent(new CustomEvent('extension-removed', { detail: extension }));
 }
 </script>
 

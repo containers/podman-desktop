@@ -39,10 +39,10 @@ export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $i
 });
 
 // need to refresh when extension is started or stopped
-window.addEventListener('extension-started', () => {
+window?.events.receive('extension-started', () => {
   fetchPods();
 });
-window.addEventListener('extension-stopped', () => {
+window?.events.receive('extension-stopped', () => {
   fetchPods();
 });
 

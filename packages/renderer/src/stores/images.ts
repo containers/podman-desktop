@@ -34,10 +34,10 @@ export const filtered = derived([searchPattern, imagesInfos], ([$searchPattern, 
 );
 
 // need to refresh when extension is started or stopped
-window.addEventListener('extension-started', () => {
+window?.events.receive('extension-started', () => {
   fetchImages();
 });
-window.addEventListener('extension-stopped', () => {
+window?.events.receive('extension-stopped', () => {
   fetchImages();
 });
 

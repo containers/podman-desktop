@@ -725,6 +725,8 @@ export class ExtensionLoader {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
     this.extensionState.set(extension.id, 'starting');
+    this.apiSender.send('extension-starting', {});
+
     const subscriptions: containerDesktopAPI.Disposable[] = [];
 
     const extensionContext: containerDesktopAPI.ExtensionContext = {
@@ -749,6 +751,7 @@ export class ExtensionLoader {
     };
     this.activatedExtensions.set(extension.id, activatedExtension);
     this.extensionState.set(extension.id, 'started');
+    this.apiSender.send('extension-started', {});
   }
 
   async deactivateExtension(extensionId: string): Promise<void> {
@@ -758,6 +761,7 @@ export class ExtensionLoader {
     }
 
     this.extensionState.set(extension.id, 'stopping');
+    this.apiSender.send('extension-stopping', {});
     if (extension.deactivateFunction) {
       await extension.deactivateFunction();
     }
@@ -769,6 +773,7 @@ export class ExtensionLoader {
 
     this.activatedExtensions.delete(extensionId);
     this.extensionState.delete(extension.id);
+    this.apiSender.send('extension-stopped', {});
   }
 
   async stopAllExtensions(): Promise<void> {
