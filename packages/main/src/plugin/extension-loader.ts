@@ -83,6 +83,7 @@ export class ExtensionLoader {
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
   private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
   private reloadInProgressExtensions = new Map<string, boolean>();
+  private extensionState = new Map<string, string>();
 
   protected watchTimeout = 1000;
 
@@ -121,7 +122,7 @@ export class ExtensionLoader {
       description: extension.manifest.description,
       version: extension.manifest.version,
       publisher: extension.manifest.publisher,
-      state: this.activatedExtensions.get(extension.id) ? 'active' : 'inactive',
+      state: this.extensionState.get(extension.id) ? (this.extensionState.get(extension.id) || 'stopped' ): 'stopped',
       id: extension.id,
       path: extension.path,
       removable: extension.removable,
@@ -723,6 +724,7 @@ export class ExtensionLoader {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
+    this.extensionState.set(extension.id, 'starting');
     const subscriptions: containerDesktopAPI.Disposable[] = [];
 
     const extensionContext: containerDesktopAPI.ExtensionContext = {
@@ -746,22 +748,27 @@ export class ExtensionLoader {
       extensionContext,
     };
     this.activatedExtensions.set(extension.id, activatedExtension);
+    this.extensionState.set(extension.id, 'started');
   }
 
   async deactivateExtension(extensionId: string): Promise<void> {
     const extension = this.activatedExtensions.get(extensionId);
-    if (extension) {
-      if (extension.deactivateFunction) {
-        await extension.deactivateFunction();
-      }
-
-      // dispose subscriptions
-      extension.extensionContext.subscriptions.forEach(async subscription => {
-        await subscription.dispose();
-      });
-
-      this.activatedExtensions.delete(extensionId);
+    if (!extension) {
+      return;
     }
+
+    this.extensionState.set(extension.id, 'stopping');
+    if (extension.deactivateFunction) {
+      await extension.deactivateFunction();
+    }
+
+    // dispose subscriptions
+    extension.extensionContext.subscriptions.forEach(async subscription => {
+      await subscription.dispose();
+    });
+
+    this.activatedExtensions.delete(extensionId);
+    this.extensionState.delete(extension.id);
   }
 
   async stopAllExtensions(): Promise<void> {
