@@ -16,16 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type {
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../../../main/src/plugin/api/provider-info';
 
-export interface IContainerStatus {
+export interface IConnectionStatus {
   status: string;
   action?: string;
   inProgress: boolean;
   error?: string;
 }
 
-export interface IContainerRestart {
+export interface IConnectionRestart {
   provider: string;
   container: string;
   loggerHandlerKey: symbol;
@@ -54,9 +58,9 @@ function writeMultilineString(xterm: any, data: string, colorPrefix: string): vo
   }
 }
 
-export function getContainerConnectionName(
+export function getProviderConnectionName(
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
 ): string {
-  return `${provider.name}-${containerConnectionInfo.name}`;
+  return `${provider.name}-${providerConnectionInfo.name}`;
 }

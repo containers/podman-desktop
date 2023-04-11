@@ -18,9 +18,11 @@
 
 import * as os from 'node:os';
 import * as path from 'node:path';
+import type { ChildProcess } from 'node:child_process';
 import { spawn } from 'node:child_process';
 import type * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
+import type { CancellationToken } from '@podman-desktop/api';
 
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
@@ -81,8 +83,13 @@ export async function detectKind(pathAddition: string, installer: KindInstaller)
   return undefined;
 }
 
-export function runCliCommand(command: string, args: string[], options?: RunOptions): Promise<SpawnResult> {
-  return new Promise(resolve => {
+export function runCliCommand(
+  command: string,
+  args: string[],
+  options?: RunOptions,
+  token?: CancellationToken,
+): Promise<SpawnResult> {
+  return new Promise((resolve, reject) => {
     let stdOut = '';
     let stdErr = '';
     let err = '';
@@ -106,6 +113,14 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
     }
 
     const spawnProcess = spawn(command, args, { shell: isWindows(), env });
+
+    // if the token is cancelled, kill the process and reject the promise
+    token?.onCancellationRequested(() => {
+      killProcess(spawnProcess);
+      options?.logger?.error('Execution cancelled');
+      // reject the promise
+      reject(new Error('Execution cancelled'));
+    });
     // do not reject as we want to store exit code in the result
     spawnProcess.on('error', error => {
       if (options?.logger) {
@@ -139,4 +154,12 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
       resolve({ exitCode, stdOut, stdErr, error: err });
     });
   });
+}
+
+function killProcess(spawnProcess: ChildProcess) {
+  if (isWindows()) {
+    spawn('taskkill', ['/pid', spawnProcess.pid?.toString(), '/f', '/t']);
+  } else {
+    spawnProcess.kill();
+  }
 }

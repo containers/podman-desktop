@@ -1,40 +1,44 @@
 <script lang="ts">
 import { faPlay, faRotateRight, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type {
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../../../main/src/plugin/api/provider-info';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
 import { ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
-import { getContainerConnectionName, IContainerRestart, IContainerStatus } from './Util';
+import { getProviderConnectionName, IConnectionRestart, IConnectionStatus } from './Util';
 
-export let containerConnectionStatuses: Map<string, IContainerStatus>;
+export let connectionStatuses: Map<string, IConnectionStatus>;
 export let provider: ProviderInfo;
-export let container: ProviderContainerConnectionInfo;
-export let updateContainerStatus: (
+export let container: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo;
+export let updateConnectionStatus: (
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   action?: string,
   error?: string,
 ) => void;
-export let addContainerToRestartingQueue: (container: IContainerRestart) => void;
-$: containerConnectionStatus = containerConnectionStatuses;
+export let addConnectionToRestartingQueue: (connection: IConnectionRestart) => void;
+$: connectionStatus = connectionStatuses;
 
-async function startContainerProvider(
+async function startConnectionProvider(
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   loggerHandlerKey?: symbol,
 ): Promise<void> {
   try {
-    if (containerConnectionInfo.status === 'stopped') {
+    if (providerConnectionInfo.status === 'stopped') {
       if (!loggerHandlerKey) {
-        updateContainerStatus(provider, containerConnectionInfo, 'start');
+        updateConnectionStatus(provider, providerConnectionInfo, 'start');
         loggerHandlerKey = startTask(
-          `Start ${provider.name} ${containerConnectionInfo.name}`,
+          `Start ${provider.name} ${providerConnectionInfo.name}`,
           `/preferences/resources`,
-          getLoggerHandler(provider, containerConnectionInfo),
+          getLoggerHandler(provider, providerConnectionInfo),
         );
       }
       await window.startProviderConnectionLifecycle(
         provider.internalId,
-        containerConnectionInfo,
+        providerConnectionInfo,
         loggerHandlerKey,
         eventCollect,
       );
@@ -44,46 +48,46 @@ async function startContainerProvider(
   }
 }
 
-async function restartContainerProvider(
+async function restartConnectionProvider(
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
 ): Promise<void> {
-  if (containerConnectionInfo.status === 'started') {
-    updateContainerStatus(provider, containerConnectionInfo, 'restart');
+  if (providerConnectionInfo.status === 'started') {
+    updateConnectionStatus(provider, providerConnectionInfo, 'restart');
     const loggerHandlerKey = startTask(
-      `Restart ${provider.name} ${containerConnectionInfo.name}`,
+      `Restart ${provider.name} ${providerConnectionInfo.name}`,
       `/preferences/resources`,
-      getLoggerHandler(provider, containerConnectionInfo),
+      getLoggerHandler(provider, providerConnectionInfo),
     );
-    addContainerToRestartingQueue({
-      container: containerConnectionInfo.name,
+    addConnectionToRestartingQueue({
+      container: providerConnectionInfo.name,
       provider: provider.internalId,
       loggerHandlerKey,
     });
     await window.stopProviderConnectionLifecycle(
       provider.internalId,
-      containerConnectionInfo,
+      providerConnectionInfo,
       loggerHandlerKey,
       eventCollect,
     );
   }
 }
 
-async function stopContainerProvider(
+async function stopConnectionProvider(
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
 ): Promise<void> {
   try {
-    if (containerConnectionInfo.status === 'started') {
-      updateContainerStatus(provider, containerConnectionInfo, 'stop');
+    if (providerConnectionInfo.status === 'started') {
+      updateConnectionStatus(provider, providerConnectionInfo, 'stop');
       const loggerHandlerKey = startTask(
-        `Stop ${provider.name} ${containerConnectionInfo.name}`,
+        `Stop ${provider.name} ${providerConnectionInfo.name}`,
         `/preferences/resources`,
-        getLoggerHandler(provider, containerConnectionInfo),
+        getLoggerHandler(provider, providerConnectionInfo),
       );
       await window.stopProviderConnectionLifecycle(
         provider.internalId,
-        containerConnectionInfo,
+        providerConnectionInfo,
         loggerHandlerKey,
         eventCollect,
       );
@@ -93,21 +97,21 @@ async function stopContainerProvider(
   }
 }
 
-async function deleteContainerProvider(
+async function deleteConnectionProvider(
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
 ): Promise<void> {
   try {
-    if (containerConnectionInfo.status === 'stopped' || containerConnectionInfo.status === 'unknown') {
-      updateContainerStatus(provider, containerConnectionInfo, 'delete');
+    if (providerConnectionInfo.status === 'stopped' || providerConnectionInfo.status === 'unknown') {
+      updateConnectionStatus(provider, providerConnectionInfo, 'delete');
       const loggerHandlerKey = startTask(
-        `Delete ${provider.name} ${containerConnectionInfo.name}`,
+        `Delete ${provider.name} ${providerConnectionInfo.name}`,
         `/preferences/resources`,
-        getLoggerHandler(provider, containerConnectionInfo),
+        getLoggerHandler(provider, providerConnectionInfo),
       );
       await window.deleteProviderConnectionLifecycle(
         provider.internalId,
-        containerConnectionInfo,
+        providerConnectionInfo,
         loggerHandlerKey,
         eventCollect,
       );
@@ -119,21 +123,21 @@ async function deleteContainerProvider(
 
 function getLoggerHandler(
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  containerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
 ): ConnectionCallback {
   return {
     log: () => {},
     warn: () => {},
     error: args => {
-      updateContainerStatus(provider, containerConnectionInfo, undefined, args);
+      updateConnectionStatus(provider, containerConnectionInfo, undefined, args);
     },
     onEnd: () => {},
   };
 }
 </script>
 
-{#if containerConnectionStatus.has(getContainerConnectionName(provider, container))}
-  {@const state = containerConnectionStatus.get(getContainerConnectionName(provider, container))}
+{#if connectionStatus.has(getProviderConnectionName(provider, container))}
+  {@const state = connectionStatus.get(getProviderConnectionName(provider, container))}
   {#if container.lifecycleMethods && container.lifecycleMethods.length > 0}
     <div class="mt-2 relative">
       <!-- TODO: see action available like machine infos -->
@@ -141,7 +145,7 @@ function getLoggerHandler(
         {#if container.lifecycleMethods.includes('start')}
           <div class="ml-2">
             <LoadingIconButton
-              clickAction="{() => startContainerProvider(provider, container)}"
+              clickAction="{() => startConnectionProvider(provider, container)}"
               action="start"
               icon="{faPlay}"
               state="{state}"
@@ -150,7 +154,7 @@ function getLoggerHandler(
         {/if}
         {#if container.lifecycleMethods.includes('start') && container.lifecycleMethods.includes('stop')}
           <LoadingIconButton
-            clickAction="{() => restartContainerProvider(provider, container)}"
+            clickAction="{() => restartConnectionProvider(provider, container)}"
             action="restart"
             icon="{faRotateRight}"
             state="{state}"
@@ -158,7 +162,7 @@ function getLoggerHandler(
         {/if}
         {#if container.lifecycleMethods.includes('stop')}
           <LoadingIconButton
-            clickAction="{() => stopContainerProvider(provider, container)}"
+            clickAction="{() => stopConnectionProvider(provider, container)}"
             action="stop"
             icon="{faStop}"
             state="{state}"
@@ -167,7 +171,7 @@ function getLoggerHandler(
         {#if container.lifecycleMethods.includes('delete')}
           <div class="mr-2 text-sm">
             <LoadingIconButton
-              clickAction="{() => deleteContainerProvider(provider, container)}"
+              clickAction="{() => deleteConnectionProvider(provider, container)}"
               action="delete"
               icon="{faTrash}"
               state="{state}"

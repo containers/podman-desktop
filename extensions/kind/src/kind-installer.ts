@@ -59,7 +59,7 @@ export class KindInstaller {
 
   private assetPromise: Promise<AssetInfo>;
 
-  constructor(private readonly storagePath: string) {
+  constructor(private readonly storagePath: string, private telemetryLogger: extensionApi.TelemetryLogger) {
     this.assetNames.set(WINDOWS_X64_PLATFORM, WINDOWS_X64_ASSET_NAME);
     this.assetNames.set(LINUX_X64_PLATFORM, LINUX_X64_ASSET_NAME);
     this.assetNames.set(LINUX_ARM64_PLATFORM, LINUX_ARM64_ASSET_NAME);
@@ -102,12 +102,14 @@ export class KindInstaller {
   }
 
   async performInstall(): Promise<boolean> {
+    this.telemetryLogger.logUsage('install-kind-prompt');
     const dialogResult = await extensionApi.window.showInformationMessage(
       'kind is not installed on this system, would you like to install Kind ?',
       'Yes',
       'No',
     );
     if (dialogResult === 'Yes') {
+      this.telemetryLogger.logUsage('install-kind-prompt-yes');
       return extensionApi.window.withProgress({ location: ProgressLocation.APP_ICON }, async progress => {
         progress.report({ increment: 5 });
         try {
@@ -133,6 +135,7 @@ export class KindInstaller {
                 const stat = fs.statSync(destFile);
                 fs.chmodSync(destFile, stat.mode | fs.constants.S_IXUSR);
               }
+              this.telemetryLogger.logUsage('install-kind-downloaded');
               extensionApi.window.showNotification({ body: 'Kind is successfully installed.' });
               return true;
             }
@@ -141,6 +144,8 @@ export class KindInstaller {
           progress.report({ increment: -1 });
         }
       });
+    } else {
+      this.telemetryLogger.logUsage('install-kind-prompt-no');
     }
     return false;
   }

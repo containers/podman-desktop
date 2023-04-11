@@ -48,6 +48,8 @@ import { Emitter } from './events/emitter';
 import { CancellationTokenSource } from './cancellation-token';
 import type { ApiSenderType } from './api';
 import type { AuthenticationImpl } from './authentication';
+import type { Telemetry } from './telemetry/telemetry';
+import { TelemetryTrustedValue } from './types/telemetry';
 
 /**
  * Handle the loading of an extension
@@ -109,6 +111,7 @@ export class ExtensionLoader {
     private containerProviderRegistry: ContainerProviderRegistry,
     private inputQuickPickRegistry: InputQuickPickRegistry,
     private authenticationProviderRegistry: AuthenticationImpl,
+    private telemetry: Telemetry,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -581,6 +584,9 @@ export class ExtensionLoader {
       onDidUpdateKubeconfig: (listener, thisArg, disposables) => {
         return kubernetesClient.onDidUpdateKubeconfig(listener, thisArg, disposables);
       },
+      createResources: (context, manifests): Promise<void> => {
+        return kubernetesClient.createResources(context, manifests);
+      },
     };
 
     const containerProviderRegistry = this.containerProviderRegistry;
@@ -600,7 +606,13 @@ export class ExtensionLoader {
     };
 
     const authenticationProviderRegistry = this.authenticationProviderRegistry;
-    const extensionInfo = { id: extManifest.name, label: extManifest.displayName };
+    const extensionInfo = {
+      id: `${extManifest.publisher}.${extManifest.name}`,
+      label: extManifest.displayName,
+      version: extManifest.version,
+      publisher: extManifest.publisher,
+      name: extManifest.name,
+    };
     const authentication: typeof containerDesktopAPI.authentication = {
       getSession: (providerId, scopes, options) => {
         return authenticationProviderRegistry.getSession(extensionInfo, providerId, scopes, options);
@@ -613,13 +625,31 @@ export class ExtensionLoader {
       },
     };
 
+    const telemetry = this.telemetry;
+    const env: typeof containerDesktopAPI.env = {
+      createTelemetryLogger: (
+        sender?: containerDesktopAPI.TelemetrySender | undefined,
+        options?: containerDesktopAPI.TelemetryLoggerOptions | undefined,
+      ) => {
+        return telemetry.createTelemetryLogger(extensionInfo, sender, options);
+      },
+      get isTelemetryEnabled() {
+        return telemetry.isTelemetryEnabled();
+      },
+      onDidChangeTelemetryEnabled: (listener, thisArg, disposables) => {
+        return telemetry.onDidChangeTelemetryEnabled(listener, thisArg, disposables);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
       Uri: Uri,
       EventEmitter: Emitter,
       CancellationTokenSource: CancellationTokenSource,
+      TelemetryTrustedValue: TelemetryTrustedValue,
       commands,
+      env,
       registry,
       provider,
       fs,
