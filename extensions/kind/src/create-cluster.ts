@@ -39,6 +39,7 @@ export async function createCluster(
   logger: extensionApi.Logger,
   kindCli: string,
   token?: CancellationToken,
+  telemetryLogger: extensionApi.TelemetryLogger,
 ): Promise<void> {
   let clusterName = 'kind';
   if (params['kind.cluster.creation.name']) {
@@ -88,6 +89,15 @@ export async function createCluster(
   await fs.promises.rm(tmpDirectory, { recursive: true });
 
   if (result.exitCode !== 0) {
+    telemetryLogger.logError('createCluster', {
+      provider,
+      httpHostPort,
+      httpsHostPort,
+      error: result.error,
+      stdErr: result.stdErr,
+    });
     throw new Error(`Failed to create kind cluster. ${result.error}`);
+  } else {
+    telemetryLogger.logUsage('createCluster', { provider, httpHostPort, httpsHostPort });
   }
 }
