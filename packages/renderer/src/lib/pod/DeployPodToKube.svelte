@@ -80,6 +80,10 @@ async function updatePod() {
   if (createdPod.status?.phase === 'Running') {
     clearInterval(updatePodInterval);
     deployFinished = true;
+    window.telemetryTrack('deployToKube.running', {
+      useServices: deployUsingServices,
+      useRoutes: deployUsingRoutes,
+    });
   }
 }
 
@@ -179,6 +183,14 @@ async function deployToKube() {
     bodyPod.metadata.creationTimestamp = new Date(bodyPod.metadata.creationTimestamp);
   }
 
+  const eventProperties = {
+    useServices: deployUsingServices,
+    useRoutes: deployUsingRoutes,
+  };
+  if (openshiftConsoleURL) {
+    eventProperties['openshiftConsole'] = true;
+  }
+
   try {
     createdPod = await window.kubernetesCreatePod(currentNamespace, bodyPod);
 
@@ -192,10 +204,12 @@ async function deployToKube() {
       const createdRoute = await window.openshiftCreateRoute(currentNamespace, route);
       createdRoutes = [...createdRoutes, createdRoute];
     }
+    window.telemetryTrack('deployToKube', eventProperties);
 
     // update status
     updatePodInterval = setInterval(updatePod, 2000);
   } catch (error) {
+    window.telemetryTrack('deployToKube.error', { ...eventProperties, errorMessage: error.message });
     deployError = error;
     deployStarted = false;
     deployFinished = false;
