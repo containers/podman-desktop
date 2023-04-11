@@ -40,6 +40,7 @@ import type {
   PreflightChecksCallback,
   ProviderContainerConnectionInfo,
   ProviderInfo,
+  ProviderKubernetesConnectionInfo,
 } from '../../main/src/plugin/api/provider-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin/configuration-registry';
 import type { PullEvent } from '../../main/src/plugin/api/pull-event';
@@ -550,6 +551,7 @@ function initExposure(): void {
       params: { [key: string]: any },
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+      tokenId?: number,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -559,6 +561,7 @@ function initExposure(): void {
         internalProviderId,
         params,
         onDataCallbacksTaskConnectionId,
+        tokenId,
       );
     },
   );
@@ -587,7 +590,7 @@ function initExposure(): void {
     'startProviderConnectionLifecycle',
     async (
       providerId: string,
-      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
     ): Promise<void> => {
@@ -597,7 +600,7 @@ function initExposure(): void {
       return ipcInvoke(
         'provider-registry:startProviderConnectionLifecycle',
         providerId,
-        providerContainerConnectionInfo,
+        providerConnectionInfo,
         onDataCallbacksTaskConnectionId,
       );
     },
@@ -607,7 +610,7 @@ function initExposure(): void {
     'stopProviderConnectionLifecycle',
     async (
       providerId: string,
-      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
     ): Promise<void> => {
@@ -617,7 +620,7 @@ function initExposure(): void {
       return ipcInvoke(
         'provider-registry:stopProviderConnectionLifecycle',
         providerId,
-        providerContainerConnectionInfo,
+        providerConnectionInfo,
         onDataCallbacksTaskConnectionId,
       );
     },
@@ -627,7 +630,7 @@ function initExposure(): void {
     'deleteProviderConnectionLifecycle',
     async (
       providerId: string,
-      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       key: symbol,
       keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
     ): Promise<void> => {
@@ -637,7 +640,7 @@ function initExposure(): void {
       return ipcInvoke(
         'provider-registry:deleteProviderConnectionLifecycle',
         providerId,
-        providerContainerConnectionInfo,
+        providerConnectionInfo,
         onDataCallbacksTaskConnectionId,
       );
     },
