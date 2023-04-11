@@ -932,11 +932,64 @@ declare module '@podman-desktop/api' {
    * Resource identifier for a resource
    */
   export class Uri {
-    private constructor(scheme: string, authority: string, path: string);
+    /**
+     * Create an URI from a string, e.g. `http://www.example.com/some/path`,
+     * `file:///usr/home`, or `scheme:with/path`.
+     *
+     * *Note* that for a while uris without a `scheme` were accepted. That is not correct
+     * as all uris should have a scheme. To avoid breakage of existing code the optional
+     * `strict`-argument has been added. We *strongly* advise to use it, e.g. `Uri.parse('my:uri', true)`
+     *
+     * @see {@link Uri.toString}
+     * @param value The string value of an Uri.
+     * @param strict Throw an error when `value` is empty or when no `scheme` can be parsed.
+     * @return A new Uri instance.
+     */
+    static parse(value: string, strict?: boolean): Uri;
+
+    /**
+     * Create an URI from a file system path. The {@link Uri.scheme scheme}
+     * will be `file`.
+     */
     static file(path: string): Uri;
-    readonly fsPath: string;
-    readonly authority: string;
+
+    /**
+     * Use the `file` and `parse` factory functions to create new `Uri` objects.
+     */
+    private constructor(scheme: string, authority: string, path: string, query: string, fragment: string);
+
+    /**
+     * Scheme is the `http` part of `http://www.example.com/some/path?query#fragment`.
+     * The part before the first colon.
+     */
     readonly scheme: string;
+
+    /**
+     * Authority is the `www.example.com` part of `http://www.example.com/some/path?query#fragment`.
+     * The part between the first double slashes and the next slash.
+     */
+    readonly authority: string;
+
+    /**
+     * Path is the `/some/path` part of `http://www.example.com/some/path?query#fragment`.
+     */
+    readonly path: string;
+
+    /**
+     * The string representing the corresponding file system path of this Uri.
+     */
+    readonly fsPath: string;
+
+    /**
+     * Query is the `query` part of `http://www.example.com/some/path?query#fragment`.
+     */
+    readonly query: string;
+
+    /**
+     * Fragment is the `fragment` part of `http://www.example.com/some/path?query#fragment`.
+     */
+    readonly fragment: string;
+
     toString(): string;
   }
 
