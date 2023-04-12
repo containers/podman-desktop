@@ -46,7 +46,7 @@ onMount(() => {
 });
 </script>
 
-<div class="p-2 flex flex-col bg-zinc-800 rounded-lg">
+<div class="p-2 flex flex-col bg-zinc-900 rounded-lg">
   <ProviderLogo provider="{provider}" />
   <div class="flex flex-col items-center text-center">
     <p class="text-xl text-gray-300">

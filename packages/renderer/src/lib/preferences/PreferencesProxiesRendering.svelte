@@ -50,7 +50,7 @@ async function updateProxyState() {
           id="httpProxy"
           disabled="{!proxyState}"
           bind:value="{proxySettings.httpProxy}"
-          class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+          class="w-full outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
           required />
       </div>
       <div>
@@ -79,7 +79,7 @@ async function updateProxyState() {
           disabled="{!proxyState}"
           bind:value="{proxySettings.noProxy}"
           placeholder="Example: *.domain.com, 192.168.*.*"
-          class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+          class="w-full outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
           required />
       </div>
       {#if proxyState}
