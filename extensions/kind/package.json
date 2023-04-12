@@ -42,7 +42,6 @@
           "scope": "KubernetesProviderConnectionFactory",
           "description": "HTTPS Port"
         }
-
       }
     },
     "menus": {
@@ -61,9 +60,10 @@
     "watch": "vite build -w"
   },
   "dependencies": {
-    "@podman-desktop/api": "^0.0.1",
     "@octokit/rest": "^19.0.7",
-    "mustache": "^4.2.0"
+    "@podman-desktop/api": "^0.0.1",
+    "mustache": "^4.2.0",
+    "sudo-prompt": "^9.2.1"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",

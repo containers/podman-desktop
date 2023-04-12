@@ -21,7 +21,7 @@ import * as os from 'node:os';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Octokit } from '@octokit/rest';
-import { isWindows } from './util';
+import { isWindows, installBinaryToSystem } from './util';
 import type { components } from '@octokit/openapi-types';
 
 const githubOrganization = 'kubernetes-sigs';
@@ -104,9 +104,9 @@ export class KindInstaller {
   async performInstall(): Promise<boolean> {
     this.telemetryLogger.logUsage('install-kind-prompt');
     const dialogResult = await extensionApi.window.showInformationMessage(
-      'kind is not installed on this system, would you like to install Kind ?',
+      'The kind binary is required for local Kubernetes development, would you like to download it?',
       'Yes',
-      'No',
+      'Cancel',
     );
     if (dialogResult === 'Yes') {
       this.telemetryLogger.logUsage('install-kind-prompt-yes');
@@ -134,6 +134,25 @@ export class KindInstaller {
               if (!isWindows()) {
                 const stat = fs.statSync(destFile);
                 fs.chmodSync(destFile, stat.mode | fs.constants.S_IXUSR);
+              }
+              // Explain to the user that the binary has been successfully installed to the storage path
+              // prompt and ask if they want to install it system-wide (copied to /usr/bin/, or AppData for Windows)
+              const result = await extensionApi.window.showInformationMessage(
+                `Kind binary has been succesfully downloaded to ${destFile}.\n\nWould you like to install it system-wide for accessibility on the command line? This will require administrative privileges.`,
+                'Yes',
+                'Cancel',
+              );
+              if (result === 'Yes') {
+                try {
+                  // Move the binary file to the system from destFile and rename to 'kind'
+                  await installBinaryToSystem(destFile, 'kind');
+                  await extensionApi.window.showInformationMessage(
+                    'Kind binary has been successfully installed system-wide.',
+                  );
+                } catch (error) {
+                  console.error(error);
+                  await extensionApi.window.showErrorMessage(`Unable to install kind binary: ${error}`);
+                }
               }
               this.telemetryLogger.logUsage('install-kind-downloaded');
               extensionApi.window.showNotification({ body: 'Kind is successfully installed.' });
