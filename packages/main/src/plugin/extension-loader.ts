@@ -51,7 +51,7 @@ import type { ApiSenderType } from './api';
 import type { AuthenticationImpl } from './authentication';
 import type { Telemetry } from './telemetry/telemetry';
 import { TelemetryTrustedValue } from './types/telemetry';
-
+import { clipboard as electronClipboard } from 'electron';
 /**
  * Handle the loading of an extension
  */
@@ -654,6 +654,16 @@ export class ExtensionLoader {
       },
       onDidChangeTelemetryEnabled: (listener, thisArg, disposables) => {
         return telemetry.onDidChangeTelemetryEnabled(listener, thisArg, disposables);
+      },
+      get clipboard(): containerDesktopAPI.Clipboard {
+        return {
+          readText: async () => {
+            return electronClipboard.readText();
+          },
+          writeText: async value => {
+            return electronClipboard.writeText(value);
+          },
+        };
       },
     };
 
