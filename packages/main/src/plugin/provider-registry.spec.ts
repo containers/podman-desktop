@@ -18,31 +18,32 @@
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import type { ContainerProviderRegistry } from './container-registry';
 
 import { ProviderRegistry } from './provider-registry';
 import type { Telemetry } from './telemetry/telemetry';
 import type { ContainerProviderConnection, KubernetesProviderConnection } from '@podman-desktop/api';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info';
+import type { ApiSenderType } from './api';
 
 let providerRegistry: ProviderRegistry;
 
 const telemetryTrackMock = vi.fn();
 const apiSenderSendMock = vi.fn();
-beforeAll(() => {
+
+beforeEach(() => {
+  vi.clearAllMocks();
   const telemetry: Telemetry = {
     track: telemetryTrackMock,
   } as unknown as Telemetry;
   const apiSender = {
     send: apiSenderSendMock,
-  };
-  const containerRegistry: ContainerProviderRegistry = {} as ContainerProviderRegistry;
+  } as unknown as ApiSenderType;
+  const containerRegistry: ContainerProviderRegistry = {
+    registerContainerConnection: vi.fn(),
+  } as unknown as ContainerProviderRegistry;
   providerRegistry = new ProviderRegistry(apiSender, containerRegistry, telemetry);
-});
-
-beforeEach(() => {
-  vi.clearAllMocks();
 });
 
 test('should initialize provider if there is kubernetes connection provider', async () => {
@@ -175,4 +176,90 @@ test('should register kubernetes provider', async () => {
     name: 'connection',
     total: 1,
   });
+});
+
+test('should send events when starting a container connection', async () => {
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+  const connection: ProviderContainerConnectionInfo = {
+    name: 'connection',
+    type: 'docker',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status: 'started',
+  };
+
+  const startMock = vi.fn();
+  const stopMock = vi.fn();
+  provider.registerContainerProviderConnection({
+    name: 'connection',
+    type: 'docker',
+    lifecycle: {
+      start: startMock,
+      stop: stopMock,
+    },
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status() {
+      return 'started';
+    },
+  });
+
+  let onDidUpdateContainerConnectionCalled = false;
+  providerRegistry.onDidUpdateContainerConnection(event => {
+    expect(event.connection.name).toBe(connection.name);
+    expect(event.connection.type).toBe(connection.type);
+    expect(event.status).toBe('started');
+    onDidUpdateContainerConnectionCalled = true;
+  });
+
+  await providerRegistry.startProviderConnection('0', connection);
+
+  expect(startMock).toBeCalled();
+  expect(stopMock).not.toBeCalled();
+  expect(onDidUpdateContainerConnectionCalled).toBeTruthy();
+});
+
+test('should send events when stopping a container connection', async () => {
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+  const connection: ProviderContainerConnectionInfo = {
+    name: 'connection',
+    type: 'docker',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status: 'stopped',
+  };
+
+  const startMock = vi.fn();
+  const stopMock = vi.fn();
+  provider.registerContainerProviderConnection({
+    name: 'connection',
+    type: 'docker',
+    lifecycle: {
+      start: startMock,
+      stop: stopMock,
+    },
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status() {
+      return 'stopped';
+    },
+  });
+
+  let onDidUpdateContainerConnectionCalled = false;
+  providerRegistry.onDidUpdateContainerConnection(event => {
+    expect(event.connection.name).toBe(connection.name);
+    expect(event.connection.type).toBe(connection.type);
+    expect(event.status).toBe('stopped');
+    onDidUpdateContainerConnectionCalled = true;
+  });
+
+  await providerRegistry.stopProviderConnection('0', connection);
+
+  expect(stopMock).toBeCalled();
+  expect(startMock).not.toBeCalled();
+  expect(onDidUpdateContainerConnectionCalled).toBeTruthy();
 });
