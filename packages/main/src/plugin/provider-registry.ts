@@ -36,6 +36,9 @@ import type {
   ProviderInformation,
   ProviderContainerConnection,
   CancellationToken,
+  UpdateContainerConnectionEvent,
+  UpdateKubernetesConnectionEvent,
+  ProviderConnectionStatus,
 } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
@@ -90,6 +93,14 @@ export class ProviderRegistry {
 
   private readonly _onDidUpdateProvider = new Emitter<ProviderEvent>();
   readonly onDidUpdateProvider: Event<ProviderEvent> = this._onDidUpdateProvider.event;
+
+  private readonly _onDidUpdateContainerConnection = new Emitter<UpdateContainerConnectionEvent>();
+  readonly onDidUpdateContainerConnection: Event<UpdateContainerConnectionEvent> =
+    this._onDidUpdateContainerConnection.event;
+
+  private readonly _onDidUpdateKubernetesConnection = new Emitter<UpdateKubernetesConnectionEvent>();
+  readonly onDidUpdateKubernetesConnection: Event<UpdateKubernetesConnectionEvent> =
+    this._onDidUpdateKubernetesConnection.event;
 
   private readonly _onDidUnregisterContainerConnection = new Emitter<UnregisterContainerConnectionEvent>();
   readonly onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent> =
@@ -732,7 +743,36 @@ export class ProviderRegistry {
       throw new Error('The connection does not have context to start');
     }
 
-    return lifecycle.start(context, logHandler);
+    try {
+      await lifecycle.start(context, logHandler);
+    } finally {
+      if (this.isProviderContainerConnection(providerConnectionInfo)) {
+        this._onDidUpdateContainerConnection.fire({
+          providerId: internalProviderId,
+          connection: {
+            name: providerConnectionInfo.name,
+            type: providerConnectionInfo.type,
+            endpoint: providerConnectionInfo.endpoint,
+            status: (): ProviderConnectionStatus => {
+              return providerConnectionInfo.status;
+            },
+          },
+          status: providerConnectionInfo.status,
+        });
+      } else {
+        this._onDidUpdateKubernetesConnection.fire({
+          providerId: internalProviderId,
+          connection: {
+            name: providerConnectionInfo.name,
+            endpoint: providerConnectionInfo.endpoint,
+            status: (): ProviderConnectionStatus => {
+              return providerConnectionInfo.status;
+            },
+          },
+          status: providerConnectionInfo.status,
+        });
+      }
+    }
   }
 
   async stopProviderConnection(
@@ -753,7 +793,36 @@ export class ProviderRegistry {
       throw new Error('The connection does not have context to start');
     }
 
-    return lifecycle.stop(context, logHandler);
+    try {
+      await lifecycle.stop(context, logHandler);
+    } finally {
+      if (this.isProviderContainerConnection(providerConnectionInfo)) {
+        this._onDidUpdateContainerConnection.fire({
+          providerId: internalProviderId,
+          connection: {
+            name: providerConnectionInfo.name,
+            type: providerConnectionInfo.type,
+            endpoint: providerConnectionInfo.endpoint,
+            status: (): ProviderConnectionStatus => {
+              return providerConnectionInfo.status;
+            },
+          },
+          status: providerConnectionInfo.status,
+        });
+      } else {
+        this._onDidUpdateKubernetesConnection.fire({
+          providerId: internalProviderId,
+          connection: {
+            name: providerConnectionInfo.name,
+            endpoint: providerConnectionInfo.endpoint,
+            status: (): ProviderConnectionStatus => {
+              return providerConnectionInfo.status;
+            },
+          },
+          status: providerConnectionInfo.status,
+        });
+      }
+    }
   }
 
   async deleteProviderConnection(

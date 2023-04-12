@@ -420,6 +420,12 @@ export class ExtensionLoader {
       onDidUpdateProvider: (listener, thisArg, disposables) => {
         return providerRegistry.onDidUpdateProvider(listener, thisArg, disposables);
       },
+      onDidUpdateContainerConnection: (listener, thisArg, disposables) => {
+        return providerRegistry.onDidUpdateContainerConnection(listener, thisArg, disposables);
+      },
+      onDidUpdateKubernetesConnection: (listener, thisArg, disposables) => {
+        return providerRegistry.onDidUpdateKubernetesConnection(listener, thisArg, disposables);
+      },
       onDidUnregisterContainerConnection: (listener, thisArg, disposables) => {
         return providerRegistry.onDidUnregisterContainerConnection(listener, thisArg, disposables);
       },

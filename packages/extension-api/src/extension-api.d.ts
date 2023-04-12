@@ -357,6 +357,18 @@ declare module '@podman-desktop/api' {
     status: ProviderStatus;
   }
 
+  export interface UpdateContainerConnectionEvent {
+    providerId: string;
+    connection: ContainerProviderConnection;
+    status: ProviderConnectionStatus;
+  }
+
+  export interface UpdateKubernetesConnectionEvent {
+    providerId: string;
+    connection: KubernetesProviderConnection;
+    status: ProviderConnectionStatus;
+  }
+
   export interface UnregisterContainerConnectionEvent {
     providerId: string;
   }
@@ -378,6 +390,8 @@ declare module '@podman-desktop/api' {
   export namespace provider {
     export function createProvider(provider: ProviderOptions): Provider;
     export const onDidUpdateProvider: Event<ProviderEvent>;
+    export const onDidUpdateContainerConnection: Event<UpdateContainerConnectionEvent>;
+    export const onDidUpdateKubernetesConnection: Event<UpdateKubernetesConnectionEvent>;
     export const onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent>;
     export const onDidRegisterContainerConnection: Event<RegisterContainerConnectionEvent>;
     export function getContainerConnections(): ProviderContainerConnection[];
