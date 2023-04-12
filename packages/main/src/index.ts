@@ -51,7 +51,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('before-quit', () => {
+app.once('before-quit', () => {
   extensionLoader
     ?.stopAllExtensions()
     .then(() => {
