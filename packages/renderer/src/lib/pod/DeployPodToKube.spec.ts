@@ -92,6 +92,27 @@ test('Expect to send telemetry event', async () => {
   );
 });
 
+test('Expect to send telemetry event with OpenShift', async () => {
+  kubernetesReadNamespacedConfigMapMock.mockResolvedValue({
+    data: {
+      consoleURL: 'https://console-openshift-console.apps.cluster-1.example.com',
+    },
+  }),
+    await waitRender({});
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
+
+  await fireEvent.click(createButton);
+  await waitFor(() =>
+    expect(telemetryTrackMock).toBeCalledWith('deployToKube', {
+      useRoutes: true,
+      useServices: true,
+      isOpenshift: true,
+    }),
+  );
+});
+
 test('Expect to send telemetry error event', async () => {
   // creation throws an error
   kubernetesCreatePodMock.mockRejectedValue(new Error('Custom Error'));

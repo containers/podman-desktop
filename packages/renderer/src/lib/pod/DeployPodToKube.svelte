@@ -188,7 +188,7 @@ async function deployToKube() {
     useRoutes: deployUsingRoutes,
   };
   if (openshiftConsoleURL) {
-    eventProperties['openshiftConsole'] = true;
+    eventProperties['isOpenshift'] = true;
   }
 
   try {
