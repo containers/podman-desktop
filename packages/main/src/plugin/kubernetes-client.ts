@@ -79,6 +79,10 @@ function toPodInfo(pod: V1Pod): PodInfo {
   };
 }
 
+const OPENSHIFT_CONSOLE_NAMESPACE = 'console-public';
+
+const OPENSHIFT_CONSOLE_CONFIG_MAP = 'openshift-config-managed';
+
 /**
  * Handle calls to kubernetes API
  */
@@ -90,7 +94,7 @@ export class KubernetesClient {
   // Custom path to the location of the kubeconfig file
   private kubeconfigPath: string = KubernetesClient.DEFAULT_KUBECONFIG_PATH;
 
-  private currrentNamespace: string | undefined;
+  private currentNamespace: string | undefined;
   private currentContextName: string | undefined;
 
   private kubeConfigWatcher: containerDesktopAPI.FileSystemWatcher | undefined;
@@ -184,7 +188,7 @@ export class KubernetesClient {
 
   setupKubeWatcher() {
     this.kubeWatcher?.abort();
-    const ns = this.currrentNamespace;
+    const ns = this.currentNamespace;
     if (ns) {
       const watch = new Watch(this.kubeConfig);
       watch
@@ -207,10 +211,47 @@ export class KubernetesClient {
   }
 
   getCurrentNamespace(): string | undefined {
-    return this.currrentNamespace;
+    return this.currentNamespace;
   }
 
-  refresh() {
+  private async getDefaultNamespace(context: Context): Promise<string> {
+    if (context.namespace) {
+      return context.namespace;
+    }
+    const ctx = new KubeConfig();
+    ctx.loadFromOptions({
+      currentContext: context.name,
+      clusters: this.kubeConfig.clusters,
+      contexts: this.kubeConfig.contexts,
+      users: this.kubeConfig.users,
+    });
+    let namespace;
+
+    try {
+      const cm = await this.readNamespacedConfigMap(OPENSHIFT_CONSOLE_CONFIG_MAP, OPENSHIFT_CONSOLE_NAMESPACE);
+      if (cm) {
+        const projects = await ctx
+          .makeApiClient(CustomObjectsApi)
+          .listClusterCustomObject('project.openshift.io', 'v1', 'projects');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((projects?.body as any)?.items.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          namespace = (projects?.body as any)?.items[0].metadata?.name;
+        }
+      }
+    } catch (err) {
+      const namespaces = await ctx.makeApiClient(CoreV1Api).listNamespace();
+      if (namespaces?.body?.items.length > 0) {
+        namespace = namespaces?.body?.items[0].metadata?.name;
+      }
+    }
+    if (!namespace) {
+      namespace = 'default';
+    }
+    return namespace;
+  }
+
+  async refresh() {
     // perform it under a try/catch block as the file may not be valid for the kubernetes-javascript client library
     try {
       this.kubeConfig.loadFromFile(this.kubeconfigPath);
@@ -223,9 +264,10 @@ export class KubernetesClient {
     this.currentContextName = this.kubeConfig.getCurrentContext();
     const currentContext = this.kubeConfig.contexts.find(context => context.name === this.currentContextName);
     if (currentContext) {
-      this.currrentNamespace = currentContext.namespace;
+      this.currentNamespace = await this.getDefaultNamespace(currentContext);
     }
     this.setupKubeWatcher();
+    this.apiSender.send('pod-event');
   }
 
   newError(message: string, cause: Error): Error {
@@ -306,7 +348,7 @@ export class KubernetesClient {
   }
 
   async readPodLog(name: string, container: string, callback: (name: string, data: string) => void): Promise<void> {
-    const ns = this.currrentNamespace;
+    const ns = this.currentNamespace;
     if (ns) {
       const log = new Log(this.kubeConfig);
 
@@ -322,7 +364,7 @@ export class KubernetesClient {
   }
 
   async deletePod(name: string): Promise<void> {
-    const ns = this.currrentNamespace;
+    const ns = this.currentNamespace;
     if (ns) {
       const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
       k8sApi.deleteNamespacedPod(name, ns);
