@@ -263,3 +263,28 @@ test('should send events when stopping a container connection', async () => {
   expect(startMock).not.toBeCalled();
   expect(onDidUpdateContainerConnectionCalled).toBeTruthy();
 });
+
+test('runAutostartContainer should start container and send event', async () => {
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+
+  const autostartMock = vi.fn();
+
+  let notified = false;
+  providerRegistry.onDidUpdateProvider(event => {
+    expect(event.id).toBe(provider.id);
+    expect(event.status).toBe('installed');
+    notified = true;
+  });
+
+  provider.registerAutostart({
+    start: autostartMock,
+  });
+
+  await providerRegistry.runAutostart();
+
+  // check we have been notified
+  expect(notified).toBeTruthy();
+
+  // check that we have called the start method
+  expect(autostartMock).toBeCalled();
+});
