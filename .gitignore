@@ -9,3 +9,4 @@ dist
 **/test-resources
 **/coverage
 kind
+kind.exe
