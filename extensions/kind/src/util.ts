@@ -80,7 +80,7 @@ export async function detectKind(pathAddition: string, installer: KindInstaller)
       });
       return pathAddition.concat(path.sep).concat(isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
     } catch (e) {
-      // ignore
+      console.error(e);
     }
   }
   return undefined;
