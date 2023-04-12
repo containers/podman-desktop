@@ -79,7 +79,7 @@ test('expect cluster to be created with ingress', async () => {
     error: vi.fn(),
     warn: vi.fn(),
   };
-  await createCluster({ 'kind.cluster.creation.ingress': true }, logger, '', telemetryLoggerMock, undefined);
+  await createCluster({ 'kind.cluster.creation.ingress': 'on' }, logger, '', telemetryLoggerMock, undefined);
   expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(
     1,
     'createCluster',
