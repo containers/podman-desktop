@@ -62,6 +62,7 @@ test('Expect to see checkbox enabled', async () => {
 
 test('Expect a checkbox when record is type boolean', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
     title: 'record',
     parentId: 'parent.record',
     description: 'record-description',
@@ -74,10 +75,12 @@ test('Expect a checkbox when record is type boolean', async () => {
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLInputElement).toBe(true);
   expect((input as HTMLInputElement).type).toBe('checkbox');
+  expect((input as HTMLInputElement).name).toBe('record');
 });
 
 test('Expect a slider when record and its maximum are type number and enableSlider is true', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
     title: 'record',
     parentId: 'parent.record',
     description: 'record-description',
@@ -93,10 +96,12 @@ test('Expect a slider when record and its maximum are type number and enableSlid
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLInputElement).toBe(true);
   expect((input as HTMLInputElement).type).toBe('range');
+  expect((input as HTMLInputElement).name).toBe('record');
 });
 
 test('Expect a text input when record is type number and enableSlider is false', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
     title: 'record',
     parentId: 'parent.record',
     description: 'record-description',
@@ -111,6 +116,7 @@ test('Expect a text input when record is type number and enableSlider is false',
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLInputElement).toBe(true);
   expect((input as HTMLInputElement).type).toBe('text');
+  expect((input as HTMLInputElement).name).toBe('record');
 });
 
 test('Expect an input button with Browse as placeholder when record is type string and format file', async () => {
@@ -132,6 +138,7 @@ test('Expect an input button with Browse as placeholder when record is type stri
 
 test('Expect a select when record is type string and has enum values', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
     title: 'record',
     parentId: 'parent.record',
     description: 'record-description',
@@ -144,10 +151,12 @@ test('Expect a select when record is type string and has enum values', async () 
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLSelectElement).toBe(true);
+  expect((input as HTMLSelectElement).name).toBe('record');
 });
 
 test('Expect a text input when record is type string', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
     title: 'record',
     parentId: 'parent.record',
     description: 'record-description',
@@ -160,4 +169,5 @@ test('Expect a text input when record is type string', async () => {
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLInputElement).toBe(true);
   expect((input as HTMLInputElement).type).toBe('text');
+  expect((input as HTMLSelectElement).name).toBe('record');
 });
