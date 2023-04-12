@@ -118,7 +118,11 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
           await extensionApi.containerEngine.stopContainer(cluster.engineId, cluster.id);
         },
         delete: async (logger): Promise<void> => {
-          await runCliCommand(kindCli, ['delete', 'clusters', cluster.name], { logger });
+          const env = process.env;
+          if (cluster.engineType === 'podman') {
+            env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
+          }
+          await runCliCommand(kindCli, ['delete', 'cluster', '--name', cluster.name], { env, logger });
         },
       };
       // create a new connection
