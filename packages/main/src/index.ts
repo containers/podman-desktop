@@ -24,7 +24,9 @@ import { isMac, isWindows } from './util';
 import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
 import { StartupInstall } from './system/startup-install';
+import type { ExtensionLoader } from './plugin/extension-loader';
 
+let extensionLoader: ExtensionLoader | undefined;
 /**
  * Prevent multiple instances
  */
@@ -49,6 +51,16 @@ app.on('window-all-closed', () => {
   }
 });
 
+app.on('before-quit', () => {
+  extensionLoader
+    ?.stopAllExtensions()
+    .then(() => {
+      console.log('Stopped all extensions');
+    })
+    .catch(error => {
+      console.log('Error stopping extensions', error);
+    });
+});
 /**
  *  @see https://www.electronjs.org/docs/latest/api/app#appsetappusermodelidid-windows
  */
@@ -82,7 +94,7 @@ app.whenReady().then(
 
     // Start extensions
     const pluginSystem = new PluginSystem(trayMenu);
-    const extensionLoader = await pluginSystem.initExtensions();
+    extensionLoader = await pluginSystem.initExtensions();
 
     // Get the configuration registry (saves all our settings)
     const configurationRegistry = extensionLoader.getConfigurationRegistry();
