@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
-import { detectKind } from './util';
+import { detectKind, runCliCommand } from './util';
 import { KindInstaller } from './kind-installer';
 import type { CancellationToken, Logger } from '@podman-desktop/api';
 import { window } from '@podman-desktop/api';
@@ -64,7 +64,7 @@ function registerProvider(
 
 // search for clusters
 async function updateClusters(provider: extensionApi.Provider, containers: extensionApi.ContainerInfo[]) {
-  kindClusters = containers.map(container => {
+  const kindContainers = containers.map(container => {
     const clusterName = container.Labels['io.x-k8s.kind.cluster'];
     const clusterStatus = container.State;
 
@@ -84,15 +84,47 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
       status,
       apiPort: listeningPort?.PublicPort || 0,
       engineType: container.engineType,
+      engineId: container.engineId,
+      id: container.Id,
+    };
+  });
+  kindClusters = kindContainers.map(container => {
+    return {
+      name: container.name,
+      status: container.status,
+      apiPort: container.apiPort,
+      engineType: container.engineType,
     };
   });
 
-  kindClusters.forEach(cluster => {
+  kindContainers.forEach(cluster => {
     const item = registeredKubernetesConnections.find(item => item.connection.name === cluster.name);
     const status = () => {
       return cluster.status;
     };
     if (!item) {
+      const lifecycle: extensionApi.ProviderConnectionLifecycle = {
+        start: async (): Promise<void> => {
+          try {
+            // start the container
+            await extensionApi.containerEngine.startContainer(cluster.engineId, cluster.id);
+          } catch (err) {
+            console.error(err);
+            // propagate the error
+            throw err;
+          }
+        },
+        stop: async (): Promise<void> => {
+          await extensionApi.containerEngine.stopContainer(cluster.engineId, cluster.id);
+        },
+        delete: async (logger): Promise<void> => {
+          const env = process.env;
+          if (cluster.engineType === 'podman') {
+            env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
+          }
+          await runCliCommand(kindCli, ['delete', 'cluster', '--name', cluster.name], { env, logger });
+        },
+      };
       // create a new connection
       const connection: extensionApi.KubernetesProviderConnection = {
         name: cluster.name,
@@ -100,6 +132,7 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
         endpoint: {
           apiURL: `https://localhost:${cluster.apiPort}`,
         },
+        lifecycle,
       };
       const disposable = provider.registerKubernetesProviderConnection(connection);
 

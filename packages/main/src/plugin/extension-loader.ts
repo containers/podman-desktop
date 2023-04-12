@@ -604,6 +604,12 @@ export class ExtensionLoader {
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);
       },
+      startContainer(engineId: string, id: string) {
+        return containerProviderRegistry.startContainer(engineId, id);
+      },
+      stopContainer(engineId: string, id: string) {
+        return containerProviderRegistry.stopContainer(engineId, id);
+      },
       saveImage(engineId: string, id: string, filename: string) {
         return containerProviderRegistry.saveImage(engineId, id, filename);
       },
