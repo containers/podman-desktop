@@ -240,9 +240,14 @@ export class KubernetesClient {
         }
       }
     } catch (err) {
-      const namespaces = await ctx.makeApiClient(CoreV1Api).listNamespace();
-      if (namespaces?.body?.items.length > 0) {
-        namespace = namespaces?.body?.items[0].metadata?.name;
+      try {
+        const namespaces = await ctx.makeApiClient(CoreV1Api).listNamespace();
+        if (namespaces?.body?.items.length > 0) {
+          namespace = namespaces?.body?.items[0].metadata?.name;
+        }
+      } catch (error) {
+        // unable to list namespaces, can be due to a connection refused (cluster not up)
+        console.trace('unable to list namespaces', error);
       }
     }
     if (!namespace) {
