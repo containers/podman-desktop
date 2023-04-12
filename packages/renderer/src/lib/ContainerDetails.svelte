@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './container/ContainerInfoUI';
+import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './container/ContainerInfoUI';
 import Route from '../Route.svelte';
 import ContainerIcon from './images/ContainerIcon.svelte';
 import StatusIcon from './images/StatusIcon.svelte';

@@ -7,7 +7,7 @@ import { writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
   clearCreateTask,
-  ConnectionCallback,
+  type ConnectionCallback,
   disconnectUI,
   eventCollect,
   reconnectUI,

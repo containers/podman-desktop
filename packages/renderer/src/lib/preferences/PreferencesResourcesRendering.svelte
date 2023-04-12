@@ -14,7 +14,7 @@ import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
-import { getProviderConnectionName, IConnectionRestart, IConnectionStatus } from './Util';
+import { getProviderConnectionName, type IConnectionRestart, type IConnectionStatus } from './Util';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';

@@ -7,7 +7,7 @@ import ContainerIcon from './images/ContainerIcon.svelte';
 import ContainerGroupIcon from './container/ContainerGroupIcon.svelte';
 import StatusIcon from './images/StatusIcon.svelte';
 import { router } from 'tinro';
-import { ContainerGroupInfoTypeUI, ContainerGroupInfoUI, ContainerInfoUI } from './container/ContainerInfoUI';
+import { ContainerGroupInfoTypeUI, type ContainerGroupInfoUI, type ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
 import PodActions from './pod/PodActions.svelte';
 import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';

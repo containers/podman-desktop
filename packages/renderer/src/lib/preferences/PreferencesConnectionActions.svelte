@@ -6,8 +6,8 @@ import type {
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
-import { ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
-import { getProviderConnectionName, IConnectionRestart, IConnectionStatus } from './Util';
+import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
+import { getProviderConnectionName, type IConnectionRestart, type IConnectionStatus } from './Util';
 
 export let connectionStatuses: Map<string, IConnectionStatus>;
 export let provider: ProviderInfo;
