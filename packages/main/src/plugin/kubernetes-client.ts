@@ -144,7 +144,7 @@ export class KubernetesClient {
       // check if path exists
       if (existsSync(userKubeconfigPath)) {
         this.kubeconfigPath = userKubeconfigPath;
-        this.refresh();
+        await this.refresh();
       } else {
         console.error(`Kubeconfig path ${userKubeconfigPath} provided does not exist. Skipping.`);
       }
@@ -170,14 +170,14 @@ export class KubernetesClient {
     const location = Uri.file(kubeconfigFile);
 
     // needs to refresh
-    this.kubeConfigWatcher.onDidChange(() => {
+    this.kubeConfigWatcher.onDidChange(async () => {
       this._onDidUpdateKubeconfig.fire({ type: 'UPDATE', location });
-      this.refresh();
+      await this.refresh();
     });
 
-    this.kubeConfigWatcher.onDidCreate(() => {
+    this.kubeConfigWatcher.onDidCreate(async () => {
       this._onDidUpdateKubeconfig.fire({ type: 'CREATE', location });
-      this.refresh();
+      await this.refresh();
     });
 
     this.kubeConfigWatcher.onDidDelete(() => {
@@ -432,7 +432,7 @@ export class KubernetesClient {
 
   async setKubeconfig(location: containerDesktopAPI.Uri): Promise<void> {
     this.kubeconfigPath = location.fsPath;
-    this.refresh();
+    await this.refresh();
     // notify change
     this._onDidUpdateKubeconfig.fire({ type: 'UPDATE', location });
   }
