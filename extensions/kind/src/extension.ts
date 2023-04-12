@@ -59,6 +59,9 @@ function registerProvider(
     creationDisplayName: 'Kind cluster',
   });
   extensionContext.subscriptions.push(disposable);
+
+  // search
+  searchKindClusters(provider);
   console.log('kind extension is active');
 }
 
@@ -116,6 +119,12 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
     if (!cluster) {
       // remove the connection
       item.disposable.dispose();
+
+      // remove the item frm the list
+      const index = registeredKubernetesConnections.indexOf(item);
+      if (index > -1) {
+        registeredKubernetesConnections.splice(index, 1);
+      }
     }
   });
 }
@@ -128,6 +137,14 @@ async function searchKindClusters(provider: extensionApi.Provider) {
     return container.Labels?.['io.x-k8s.kind.cluster'];
   });
   updateClusters(provider, kindContainers);
+}
+
+export function refreshKindClustersOnProviderConnectionUpdate(provider: extensionApi.Provider) {
+  // when a provider is changing, update the status
+  extensionApi.provider.onDidUpdateContainerConnection(async () => {
+    // needs to search for kind clusters
+    await searchKindClusters(provider);
+  });
 }
 
 function createProvider(
@@ -163,6 +180,9 @@ function createProvider(
     }
   });
 
+  // when a container provider connection is changing, search for kind clusters
+  refreshKindClustersOnProviderConnectionUpdate(provider);
+
   // search when a new container is updated or removed
   extensionApi.provider.onDidRegisterContainerConnection(() => {
     searchKindClusters(provider);
@@ -171,6 +191,8 @@ function createProvider(
     searchKindClusters(provider);
   });
   extensionApi.provider.onDidUpdateProvider(() => registerProvider(extensionContext, provider, telemetryLogger));
+  // search for kind clusters on boot
+  searchKindClusters(provider);
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
