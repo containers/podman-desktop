@@ -55,7 +55,7 @@ function registerProvider(
   const disposable = provider.setKubernetesProviderConnectionFactory({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) =>
-      createCluster(params, logger, kindCli, token, telemetryLogger),
+      createCluster(params, logger, kindCli, telemetryLogger, token),
     creationDisplayName: 'Kind cluster',
   });
   extensionContext.subscriptions.push(disposable);

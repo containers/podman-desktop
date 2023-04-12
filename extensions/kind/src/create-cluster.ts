@@ -38,8 +38,8 @@ export async function createCluster(
   params: { [key: string]: any },
   logger: extensionApi.Logger,
   kindCli: string,
-  token?: CancellationToken,
   telemetryLogger: extensionApi.TelemetryLogger,
+  token?: CancellationToken,
 ): Promise<void> {
   let clusterName = 'kind';
   if (params['kind.cluster.creation.name']) {
