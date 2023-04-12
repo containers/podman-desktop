@@ -8,7 +8,7 @@ import ProviderUpdateButton from './ProviderUpdateButton.svelte';
 import { Steps } from 'svelte-steps';
 
 import { onMount } from 'svelte';
-import { InitializationMode, InitializeAndStartMode, InitializationSteps } from './ProviderInitUtils';
+import { type InitializationMode, InitializeAndStartMode, InitializationSteps } from './ProviderInitUtils';
 
 export let provider: ProviderInfo;
 export let initializationMode: InitializationMode;

@@ -2,7 +2,7 @@
 import { providerInfos } from '../../stores/providers';
 import { onDestroy, onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { PodCreation, podCreationHolder } from '../../stores/creation-from-containers-store';
+import { type PodCreation, podCreationHolder } from '../../stores/creation-from-containers-store';
 import NavPage from '../ui/NavPage.svelte';
 import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';

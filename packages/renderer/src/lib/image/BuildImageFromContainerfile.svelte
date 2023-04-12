@@ -10,7 +10,7 @@ import { providerInfos } from '../../stores/providers';
 import NavPage from '../ui/NavPage.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 import {
-  BuildImageCallback,
+  type BuildImageCallback,
   clearBuildTask,
   disconnectUI,
   eventCollect,

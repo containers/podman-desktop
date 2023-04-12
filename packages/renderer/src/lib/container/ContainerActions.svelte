@@ -1,17 +1,10 @@
 <script lang="ts">
-import {
-  faAlignLeft,
-  faEllipsisVertical,
-  faFileCode,
-  faPlay,
-  faRocket,
-  faTerminal,
-} from '@fortawesome/free-solid-svg-icons';
+import { faAlignLeft, faFileCode, faPlay, faRocket, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { faStop } from '@fortawesome/free-solid-svg-icons';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
-import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './ContainerInfoUI';
+import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
 
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
