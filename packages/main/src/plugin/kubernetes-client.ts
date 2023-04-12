@@ -79,9 +79,9 @@ function toPodInfo(pod: V1Pod): PodInfo {
   };
 }
 
-const OPENSHIFT_CONSOLE_NAMESPACE = 'console-public';
+const OPENSHIFT_CONSOLE_NAMESPACE = 'openshift-config-managed';
 
-const OPENSHIFT_CONSOLE_CONFIG_MAP = 'openshift-config-managed';
+const OPENSHIFT_CONSOLE_CONFIG_MAP = 'console-public';
 
 /**
  * Handle calls to kubernetes API
