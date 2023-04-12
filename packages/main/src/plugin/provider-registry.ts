@@ -331,10 +331,22 @@ export class ProviderRegistry {
   }
 
   // run autostart on all providers supporting this option
-  async runAutostart(): Promise<void[]> {
+  async runAutostart(): Promise<void> {
     // grab auto start providers
-    const autostartValues = Array.from(this.providerAutostarts.values());
-    return Promise.all(autostartValues.map(autoStart => autoStart.start(new LoggerImpl())));
+
+    this.providerAutostarts.forEach(async (autoStart, internalId) => {
+      // grab the provider
+      const provider = this.getMatchingProvider(internalId);
+
+      await autoStart.start(new LoggerImpl());
+
+      // send the event
+      this._onDidUpdateProvider.fire({
+        id: provider.id,
+        name: provider.name,
+        status: provider.status,
+      });
+    });
   }
 
   async runPreflightChecks(
