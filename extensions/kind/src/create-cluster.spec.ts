@@ -79,7 +79,12 @@ test('expect cluster to be created with ingress', async () => {
     error: vi.fn(),
     warn: vi.fn(),
   };
-  await createCluster({ 'kind.cluster.creation.ingress': true }, logger, '');
+  await createCluster({ 'kind.cluster.creation.ingress': true }, logger, '', telemetryLoggerMock, undefined);
+  expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(
+    1,
+    'createCluster',
+    expect.objectContaining({ provider: 'docker' }),
+  );
   expect(extensionApi.kubernetes.createResources).toBeCalled();
 });
 
@@ -92,11 +97,15 @@ test('expect error if Kubernetes reports error', async () => {
       warn: vi.fn(),
     };
     (extensionApi.kubernetes.createResources as Mock).mockRejectedValue(new Error('Kubernetes error'));
-    await createCluster({ 'kind.cluster.creation.ingress': true }, logger, '');
+    await createCluster({ 'kind.cluster.creation.ingress': true }, logger, '', telemetryLoggerMock, undefined);
   } catch (err) {
     expect(extensionApi.kubernetes.createResources).toBeCalled();
     expect(err).to.be.a('Error');
-    expect(err.message).equal('Kubernetes error');
+    expect(err.message).equal('Failed to create kind cluster. Kubernetes error');
+    expect(telemetryLogErrorMock).toBeCalledWith(
+      'createCluster',
+      expect.objectContaining({ error: 'Kubernetes error' }),
+    );
   }
 });
 

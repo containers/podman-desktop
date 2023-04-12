@@ -97,7 +97,7 @@ export async function createCluster(
   let ingressController = false;
 
   if (params['kind.cluster.creation.ingress']) {
-    ingressController = params['kind.cluster.creation.ingress'];
+    ingressController = params['kind.cluster.creation.ingress'] === 'on';
   }
 
   // create the config file
@@ -115,10 +115,10 @@ export async function createCluster(
   // now execute the command to create the cluster
   try {
     await runCliCommand(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger }, token);
-if (ingressController) {
-    logger.log('Creating ingress controller resources');
-    await setupIngressController(clusterName);
-  }
+    if (ingressController) {
+      logger.log('Creating ingress controller resources');
+      await setupIngressController(clusterName);
+    }
     telemetryLogger.logUsage('createCluster', { provider, httpHostPort, httpsHostPort });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : error;
