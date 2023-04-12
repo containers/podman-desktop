@@ -600,13 +600,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       // memory
       if (params['podman.factory.machine.memory']) {
         parameters.push('--memory');
-        parameters.push(params['podman.factory.machine.memory']);
+        const memoryAsMB = +params['podman.factory.machine.memory'] / (1000 * 1000);
+        parameters.push(Math.floor(memoryAsMB).toString());
       }
 
       // disk size
       if (params['podman.factory.machine.diskSize']) {
         parameters.push('--disk-size');
-        parameters.push(params['podman.factory.machine.diskSize']);
+        const diskAsGB = +params['podman.factory.machine.diskSize'] / (1000 * 1000 * 1000);
+        parameters.push(Math.floor(diskAsGB).toString());
       }
 
       // disk size
