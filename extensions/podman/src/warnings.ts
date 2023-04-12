@@ -21,8 +21,7 @@ import * as os from 'node:os';
 import * as http from 'node:http';
 
 // Explanations
-const detailsExplanation = 'Podman is not emulating the default Docker socket path: ';
-const detailsNotWorking = '. Docker-specific tools may not work.';
+const detailsExplanation = 'Docker-specific tools may not work.';
 
 // Default socket paths
 const windowsSocketPath = '//./pipe/docker_engine';
@@ -35,26 +34,19 @@ export function getDisguisedPodmanInformation(): extensionApi.ProviderInformatio
   // Set the details message based on the OS
   switch (os.platform()) {
     case 'win32':
-      details = detailsExplanation.concat(
-        windowsSocketPath,
-        detailsNotWorking,
-        // eslint-disable-next-line quotes
-        ` Press 'Docker Compatibility' button to enable.`,
-      );
+      details = detailsExplanation;
       break;
     case 'darwin':
       // Due to how `podman-mac-helper` does not (by default) map the emulator to /var/run/docker.sock, we need to explain
       // that the user must go on the Podman Desktop website for more information. This is because the user must manually
       // map the socket to /var/run/docker.sock if not done by `podman machine` already (podman machine automatically maps the socket if Docker is not running)
       details = detailsExplanation.concat(
-        defaultSocketPath,
-        detailsNotWorking,
         // eslint-disable-next-line quotes
         ` Press 'Docker Compatibility' button to enable.`,
       );
       break;
     default:
-      details = detailsExplanation.concat(defaultSocketPath, detailsNotWorking);
+      details = detailsExplanation;
       break;
   }
 

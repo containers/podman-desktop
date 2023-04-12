@@ -23,6 +23,8 @@ import type { ContainerProviderRegistry } from './container-registry';
 
 import { ProviderRegistry } from './provider-registry';
 import type { Telemetry } from './telemetry/telemetry';
+import type { ContainerProviderConnection, KubernetesProviderConnection } from '@podman-desktop/api';
+import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info';
 
 let providerRegistry: ProviderRegistry;
 
@@ -100,4 +102,77 @@ test('should initialize provider if there is container connection provider', asy
 
   expect(initalizeCalled).toBe(true);
   expect(apiSenderSendMock).toBeCalled();
+});
+
+test('expect isContainerConnection returns true with a ContainerConnection', async () => {
+  const connection: ContainerProviderConnection = {
+    name: 'connection',
+    type: 'docker',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    lifecycle: undefined,
+    status: () => 'started',
+  };
+  const res = providerRegistry.isContainerConnection(connection);
+  expect(res).toBe(true);
+});
+
+test('expect isContainerConnection returns false with a KubernetesConnection', async () => {
+  const connection: KubernetesProviderConnection = {
+    name: 'connection',
+    endpoint: {
+      apiURL: 'url',
+    },
+    lifecycle: undefined,
+    status: () => 'started',
+  };
+  const res = providerRegistry.isContainerConnection(connection);
+  expect(res).toBe(false);
+});
+
+test('expect isProviderContainerConnection returns true with a ProviderContainerConnection', async () => {
+  const connection: ProviderContainerConnectionInfo = {
+    name: 'connection',
+    type: 'docker',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    lifecycleMethods: undefined,
+    status: 'started',
+  };
+  const res = providerRegistry.isProviderContainerConnection(connection);
+  expect(res).toBe(true);
+});
+
+test('expect isProviderContainerConnection returns false with a ProviderKubernetesConnectionInfo', async () => {
+  const connection: ProviderKubernetesConnectionInfo = {
+    name: 'connection',
+    endpoint: {
+      apiURL: 'url',
+    },
+    lifecycleMethods: undefined,
+    status: 'started',
+  };
+  const res = providerRegistry.isProviderContainerConnection(connection);
+  expect(res).toBe(false);
+});
+
+test('should register kubernetes provider', async () => {
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+  const connection: KubernetesProviderConnection = {
+    name: 'connection',
+    endpoint: {
+      apiURL: 'url',
+    },
+    lifecycle: undefined,
+    status: () => 'started',
+  };
+
+  providerRegistry.registerKubernetesConnection(provider, connection);
+
+  expect(telemetryTrackMock).toHaveBeenLastCalledWith('registerKubernetesProviderConnection', {
+    name: 'connection',
+    total: 1,
+  });
 });

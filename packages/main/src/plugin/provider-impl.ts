@@ -199,9 +199,11 @@ export class ProviderImpl implements Provider, IDisposable {
 
   registerKubernetesProviderConnection(kubernetesProviderConnection: KubernetesProviderConnection): Disposable {
     this.kubernetesProviderConnections.add(kubernetesProviderConnection);
+    const disposable = this.providerRegistry.registerKubernetesConnection(this, kubernetesProviderConnection);
     this.providerRegistry.onDidRegisterKubernetesConnectionCallback(this, kubernetesProviderConnection);
     return Disposable.create(() => {
       this.kubernetesProviderConnections.delete(kubernetesProviderConnection);
+      disposable.dispose();
       this.providerRegistry.onDidUnregisterKubernetesConnectionCallback(this, kubernetesProviderConnection);
     });
   }

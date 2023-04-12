@@ -78,7 +78,7 @@ function errorCallback(errorMessage: string): void {
               </div>
               <div class="text-lg flex flex-col">
                 <div class="mr-2">{pod.name}</div>
-                <div class="mr-2 pb-4 text-small text-gray-500">{pod.id}</div>
+                <div class="mr-2 pb-4 text-small text-gray-500">{pod.shortId}</div>
               </div>
             </div>
             <section class="pf-c-page__main-tabs pf-m-limit-width">
@@ -94,7 +94,7 @@ function errorCallback(errorMessage: string): void {
               </div>
             </section>
           </div>
-          <div class="flex flex-col w-full px-5 pt-5">
+          <div class="flex flex-col px-5 pt-5">
             <div class="flex justify-end">
               <div class="flex items-center w-5">
                 {#if pod.actionInProgress}

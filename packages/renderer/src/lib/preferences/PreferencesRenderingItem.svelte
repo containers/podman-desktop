@@ -73,13 +73,14 @@ $: resetToDefault = false;
         </div>
       {/if}
     </div>
-    <div class="pt-1 text-gray-400 text-xs">{recordUI.description}</div>
+    <div class="pt-1 text-gray-400 text-xs pr-2">{recordUI.description}</div>
     {#if recordUI.original.type === 'string' && (!recordUI.original.enum || recordUI.original.enum.length === 0)}
       <PreferencesRenderingItemFormat
         showUpdate="{false}"
         record="{recordUI.original}"
         updateResetButtonVisibility="{updateResetButtonVisibility}"
-        resetToDefault="{resetToDefault}" />
+        resetToDefault="{resetToDefault}"
+        enableAutoSave="{true}" />
     {/if}
   </div>
   {#if recordUI.original.type !== 'string' || (recordUI.original.enum && recordUI.original.enum.length > 0)}
@@ -87,6 +88,7 @@ $: resetToDefault = false;
       showUpdate="{false}"
       record="{recordUI.original}"
       updateResetButtonVisibility="{updateResetButtonVisibility}"
-      resetToDefault="{resetToDefault}" />
+      resetToDefault="{resetToDefault}"
+      enableAutoSave="{true}" />
   {/if}
 </div>

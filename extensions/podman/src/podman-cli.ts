@@ -89,6 +89,7 @@ export function execPromise(
     token?.onCancellationRequested(() => {
       process.kill();
       // reject the promise
+      options?.logger?.error('Execution cancelled');
       reject(new Error('Execution cancelled'));
     });
     process.on('error', error => {

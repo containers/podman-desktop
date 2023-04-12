@@ -80,7 +80,7 @@ onMount(() => {
               </div>
             </section>
           </div>
-          <div class="flex flex-col w-full px-5 pt-5">
+          <div class="flex flex-col px-5 pt-5">
             <div class="flex justify-end">
               <ImageActions
                 image="{image}"

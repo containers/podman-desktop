@@ -14,9 +14,10 @@ import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
-import { getContainerConnectionName, IContainerRestart, IContainerStatus } from './Util';
-import { Buffer } from 'buffer';
-import PreferencesContainerConnectionActions from './PreferencesContainerConnectionActions.svelte';
+import { getProviderConnectionName, IConnectionRestart, IConnectionStatus } from './Util';
+import EngineIcon from '../ui/EngineIcon.svelte';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   value?: any;
@@ -26,12 +27,12 @@ interface IProviderContainerConfigurationPropertyRecorded extends IConfiguration
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
-$: containerConnectionStatus = new Map<string, IContainerStatus>();
+$: containerConnectionStatus = new Map<string, IConnectionStatus>();
 
 let isStatusUpdated = false;
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
-let restartingQueue: IContainerRestart[] = [];
+let restartingQueue: IConnectionRestart[] = [];
 
 let providersUnsubscribe: Unsubscriber;
 let configurationPropertiesUnsubscribe: Unsubscriber;
@@ -44,7 +45,7 @@ onMount(() => {
     providers = providerInfosValue;
     providers.forEach(provider => {
       provider.containerConnections.forEach(container => {
-        const containerConnectionName = getContainerConnectionName(provider, container);
+        const containerConnectionName = getProviderConnectionName(provider, container);
         // update the map only if the container state is different from last time
         if (
           !containerConnectionStatus.has(containerConnectionName) ||
@@ -76,7 +77,7 @@ onMount(() => {
   });
 });
 
-function getContainerRestarting(provider: string, container: string): IContainerRestart {
+function getContainerRestarting(provider: string, container: string): IConnectionRestart {
   const containerToRestart = restartingQueue.filter(c => c.provider === provider && c.container === container)[0];
   if (containerToRestart) {
     restartingQueue = restartingQueue.filter(c => c.provider !== provider && c.container !== container);
@@ -137,7 +138,7 @@ function updateContainerStatus(
   action?: string,
   error?: string,
 ): void {
-  const containerConnectionName = getContainerConnectionName(provider, containerConnectionInfo);
+  const containerConnectionName = getProviderConnectionName(provider, containerConnectionInfo);
   if (error) {
     const currentStatus = containerConnectionStatus.get(containerConnectionName);
     containerConnectionStatus.set(containerConnectionName, {
@@ -155,8 +156,8 @@ function updateContainerStatus(
   containerConnectionStatus = containerConnectionStatus;
 }
 
-function addContainerToRestartingQueue(container: IContainerRestart) {
-  restartingQueue.push(container);
+function addConnectionToRestartingQueue(connection: IConnectionRestart) {
+  restartingQueue.push(connection);
 }
 
 async function startContainerProvider(
@@ -174,124 +175,135 @@ async function startContainerProvider(
 </script>
 
 <SettingsPage title="Resources">
-  <span slot="subtitle">
+  <span slot="subtitle" class="{providers.length > 0 ? '' : 'hidden'}">
     Additional provider information is available under <a
       href="/preferences/extensions"
       class="text-gray-400 underline underline-offset-2">Extensions</a>
   </span>
   <div>
-    {#each $providerInfos as provider}
-      <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-600 flex">
-        <div>
-          <!-- left col - provider icon/name + "create new" button -->
-          <div class="min-w-[150px] max-w-[200px]">
-            <div class="flex">
-              {#if provider.images.icon}
-                {#if typeof provider.images.icon === 'string'}
-                  <img src="{provider.images.icon}" alt="{provider.name}" class="max-w-[40px] h-full" />
-                  <!-- TODO check theme used for image, now use dark by default -->
-                {:else}
-                  <img src="{provider.images.icon.dark}" alt="{provider.name}" class="max-w-[40px]" />
-                {/if}
-              {/if}
-              <span class="my-auto text-gray-300 ml-3 break-words">{provider.name}</span>
-            </div>
-            <div class="text-center mt-10">
-              {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
-                {@const providerDisplayName =
-                  (provider.containerProviderConnectionCreation
-                    ? provider.containerProviderConnectionCreationDisplayName || undefined
-                    : provider.kubernetesProviderConnectionCreation
-                    ? provider.kubernetesProviderConnectionCreationDisplayName
-                    : undefined) || provider.name}
-                <!-- create new provider button -->
-                <Tooltip tip="Create new {providerDisplayName}" bottom>
-                  <button
-                    class="pf-c-button pf-m-primary"
-                    aria-label="Create new {providerDisplayName}"
-                    type="button"
-                    on:click="{() => router.goto(`/preferences/provider/${provider.internalId}`)}">
-                    Create new ...
-                  </button>
-                </Tooltip>
-              {/if}
-            </div>
-          </div>
-        </div>
-        <!-- podman machines columns -->
-        <div class="grow flex flex-wrap divide-gray-600 ml-2">
-          {#each provider.containerConnections as container}
-            <div class="px-5 py-2 w-[240px]">
-              <div class="float-right text-gray-700 cursor-not-allowed">
-                <Fa icon="{faArrowUpRightFromSquare}" />
-              </div>
-              <div class="{container.status !== 'started' ? 'text-gray-500' : ''} text-sm">
-                {container.name}
-              </div>
+    {#if providers.length === 0}
+      <div aria-label="no-resource-panel">
+        <EmptyScreen
+          icon="{EngineIcon}"
+          title="No resource found"
+          message="Start an extension that manage container or Kubernetes engines"
+          classes="bg-zinc-800 mt-5 pb-10" />
+      </div>
+    {:else}
+      {#each providers as provider}
+        <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-600 flex">
+          <div>
+            <!-- left col - provider icon/name + "create new" button -->
+            <div class="min-w-[150px] max-w-[200px]">
               <div class="flex">
-                <ConnectionStatus status="{container.status}" />
-                {#if containerConnectionStatus.has(getContainerConnectionName(provider, container))}
-                  {@const status = containerConnectionStatus.get(getContainerConnectionName(provider, container))}
-                  {#if status.error}
-                    <button
-                      class="ml-3 text-[9px] text-red-500 underline"
-                      on:click="{() => window.events?.send('toggle-task-manager', '')}">{status.action} failed</button>
+                {#if provider.images.icon}
+                  {#if typeof provider.images.icon === 'string'}
+                    <img src="{provider.images.icon}" alt="{provider.name}" class="max-w-[40px] h-full" />
+                    <!-- TODO check theme used for image, now use dark by default -->
+                  {:else}
+                    <img src="{provider.images.icon.dark}" alt="{provider.name}" class="max-w-[40px]" />
                   {/if}
                 {/if}
+                <span class="my-auto text-gray-300 ml-3 break-words">{provider.name}</span>
               </div>
-
-              {#if providerContainerConfiguration.has(provider.internalId)}
-                <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-500' : ''}">
-                  {#each providerContainerConfiguration
-                    .get(provider.internalId)
-                    .filter(conf => conf.container === container.name) as connectionSetting}
-                    {#if connectionSetting.format === 'cpu'}
-                      <div class="mr-4">
-                        <div class="text-[9px]">{connectionSetting.description}</div>
-                        <div class="text-xs">{connectionSetting.value}</div>
-                      </div>
-                    {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
-                      <div class="mr-4">
-                        <div class="text-[9px]">{connectionSetting.description}</div>
-                        <div class="text-xs">{filesize(connectionSetting.value)}</div>
-                      </div>
-                    {:else}
-                      {connectionSetting.description}: {connectionSetting.value}
+              <div class="text-center mt-10">
+                {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
+                  {@const providerDisplayName =
+                    (provider.containerProviderConnectionCreation
+                      ? provider.containerProviderConnectionCreationDisplayName || undefined
+                      : provider.kubernetesProviderConnectionCreation
+                      ? provider.kubernetesProviderConnectionCreationDisplayName
+                      : undefined) || provider.name}
+                  <!-- create new provider button -->
+                  <Tooltip tip="Create new {providerDisplayName}" bottom>
+                    <button
+                      class="pf-c-button pf-m-primary"
+                      aria-label="Create new {providerDisplayName}"
+                      type="button"
+                      on:click="{() => router.goto(`/preferences/provider/${provider.internalId}`)}">
+                      Create new ...
+                    </button>
+                  </Tooltip>
+                {/if}
+              </div>
+            </div>
+          </div>
+          <!-- providers columns -->
+          <div class="grow flex flex-wrap divide-gray-600 ml-2">
+            {#each provider.containerConnections as container}
+              <div class="px-5 py-2 w-[240px]">
+                <div class="float-right text-gray-700 cursor-not-allowed">
+                  <Fa icon="{faArrowUpRightFromSquare}" />
+                </div>
+                <div class="{container.status !== 'started' ? 'text-gray-500' : ''} text-sm">
+                  {container.name}
+                </div>
+                <div class="flex">
+                  <ConnectionStatus status="{container.status}" />
+                  {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
+                    {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
+                    {#if status.error}
+                      <button
+                        class="ml-3 text-[9px] text-red-500 underline"
+                        on:click="{() => window.events?.send('toggle-task-manager', '')}"
+                        >{status.action} failed</button>
                     {/if}
-                  {/each}
+                  {/if}
                 </div>
-              {/if}
-              <PreferencesContainerConnectionActions
-                provider="{provider}"
-                container="{container}"
-                containerConnectionStatuses="{containerConnectionStatus}"
-                updateContainerStatus="{updateContainerStatus}"
-                addContainerToRestartingQueue="{addContainerToRestartingQueue}" />
-              <div class="mt-1.5 text-gray-500 text-[9px]">
-                <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
-              </div>
-            </div>
-          {/each}
-          {#each provider.kubernetesConnections as kubeConnection}
-            <div class="px-5 py-2 w-[240px]">
-              <div class="text-sm">
-                {kubeConnection.name}
-              </div>
-              <div class="flex mt-1">
-                <ConnectionStatus status="{kubeConnection.status}" />
-              </div>
-              {#if kubeConnection.status === 'started'}
-                <div class="mt-2">
-                  <div class="text-gray-400 text-xs">Kubernetes endpoint</div>
-                  <div class="mt-1">
-                    <span class="my-auto text-xs">{kubeConnection.endpoint.apiURL}</span>
+
+                {#if providerContainerConfiguration.has(provider.internalId)}
+                  <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-500' : ''}">
+                    {#each providerContainerConfiguration
+                      .get(provider.internalId)
+                      .filter(conf => conf.container === container.name) as connectionSetting}
+                      {#if connectionSetting.format === 'cpu'}
+                        <div class="mr-4">
+                          <div class="text-[9px]">{connectionSetting.description}</div>
+                          <div class="text-xs">{connectionSetting.value}</div>
+                        </div>
+                      {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
+                        <div class="mr-4">
+                          <div class="text-[9px]">{connectionSetting.description}</div>
+                          <div class="text-xs">{filesize(connectionSetting.value)}</div>
+                        </div>
+                      {:else}
+                        {connectionSetting.description}: {connectionSetting.value}
+                      {/if}
+                    {/each}
                   </div>
+                {/if}
+                <PreferencesConnectionActions
+                  provider="{provider}"
+                  container="{container}"
+                  connectionStatuses="{containerConnectionStatus}"
+                  updateConnectionStatus="{updateContainerStatus}"
+                  addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
+                <div class="mt-1.5 text-gray-500 text-[9px]">
+                  <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
                 </div>
-              {/if}
-            </div>
-          {/each}
+              </div>
+            {/each}
+            {#each provider.kubernetesConnections as kubeConnection}
+              <div class="px-5 py-2 w-[240px]">
+                <div class="text-sm">
+                  {kubeConnection.name}
+                </div>
+                <div class="flex mt-1">
+                  <ConnectionStatus status="{kubeConnection.status}" />
+                </div>
+                {#if kubeConnection.status === 'started'}
+                  <div class="mt-2">
+                    <div class="text-gray-400 text-xs">Kubernetes endpoint</div>
+                    <div class="mt-1">
+                      <span class="my-auto text-xs">{kubeConnection.endpoint.apiURL}</span>
+                    </div>
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
         </div>
-      </div>
-    {/each}
+      {/each}
+    {/if}
   </div>
 </SettingsPage>

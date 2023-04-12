@@ -12,6 +12,7 @@ export let invalidRecord = (error: string) => {};
 export let validRecord = () => {};
 export let updateResetButtonVisibility = (recordValue: any) => {};
 export let resetToDefault = false;
+export let enableAutoSave = false;
 
 export let setRecordValue = (id: string, value: string) => {};
 export let enableSlider = false;
@@ -44,6 +45,9 @@ $: if (currentRecord !== record) {
     });
   } else if (record.default !== undefined) {
     recordValue = record.default;
+    if (record.type === 'boolean') {
+      checkboxValue = recordValue;
+    }
   }
 
   currentRecord = record;
@@ -89,7 +93,7 @@ function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
     }
   }
   valid();
-  recordUpdateTimeout = setTimeout(() => update(record), 1000);
+  autoSave();
   invalidEntry = false;
   invalidText = undefined;
 }
@@ -119,28 +123,46 @@ async function selectFilePath() {
   const result = await window.openFileDialog(`Select ${record.description}`);
   if (!result.canceled && result.filePaths.length === 1) {
     recordValue = result.filePaths[0];
-    recordUpdateTimeout = setTimeout(() => update(record), 1000);
+    autoSave();
   }
 }
 
-function decrement(e: HTMLButtonElement, record: IConfigurationPropertyRecordedSchema) {
+function decrement(
+  e: MouseEvent & {
+    currentTarget: EventTarget & HTMLButtonElement;
+  },
+  record: IConfigurationPropertyRecordedSchema,
+) {
   clearTimeout(recordUpdateTimeout);
-  const target = getCurrentNumericInputElement(e);
+  const target = getCurrentNumericInputElement(e.currentTarget);
   let value = Number(target.value);
   if (canDecrement(value, record.minimum)) {
     value--;
     recordValue = value;
-    recordUpdateTimeout = setTimeout(() => update(record), 1000);
+    autoSave();
   }
+  e.preventDefault();
 }
 
-function increment(e: HTMLButtonElement, record: IConfigurationPropertyRecordedSchema) {
+function increment(
+  e: MouseEvent & {
+    currentTarget: EventTarget & HTMLButtonElement;
+  },
+  record: IConfigurationPropertyRecordedSchema,
+) {
   clearTimeout(recordUpdateTimeout);
-  const target = getCurrentNumericInputElement(e);
+  const target = getCurrentNumericInputElement(e.currentTarget);
   let value = Number(target.value);
   if (canIncrement(value, record.maximum)) {
     value++;
     recordValue = value;
+    autoSave();
+  }
+  e.preventDefault();
+}
+
+function autoSave() {
+  if (enableAutoSave) {
     recordUpdateTimeout = setTimeout(() => update(record), 1000);
   }
 }
@@ -208,6 +230,7 @@ function handleCleanValue(
         min="{record.minimum}"
         max="{record.maximum}"
         value="{record.default}"
+        aria-label="{record.description}"
         on:input="{event => handleRangeValue(record.id, event.currentTarget)}"
         class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs" />
     {:else if record.type === 'number'}
@@ -215,7 +238,7 @@ function handleCleanValue(
         class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-zinc-900 w-24 border-b border-violet-500">
         <button
           data-action="decrement"
-          on:click="{e => decrement(e.currentTarget, record)}"
+          on:click="{e => decrement(e, record)}"
           disabled="{!canDecrement(recordValue, record.minimum)}"
           class="w-11 text-white {!canDecrement(recordValue, record.minimum)
             ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
@@ -226,10 +249,11 @@ function handleCleanValue(
           type="text"
           readonly
           class="w-full outline-none focus:outline-none text-center text-white text-sm py-0.5"
-          value="{recordValue}" />
+          value="{recordValue}"
+          aria-label="{record.description}" />
         <button
           data-action="increment"
-          on:click="{e => increment(e.currentTarget, record)}"
+          on:click="{e => increment(e, record)}"
           disabled="{!canIncrement(recordValue, record.maximum)}"
           class="w-11 text-white {!canIncrement(recordValue, record.maximum)
             ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
@@ -240,7 +264,7 @@ function handleCleanValue(
     {:else if record.type === 'string' && record.format === 'file'}
       <div class="w-full flex">
         <input
-          class="w-5/6 {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm"
+          class="grow {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm"
           name="{record.id}"
           readonly
           type="text"
@@ -261,7 +285,7 @@ function handleCleanValue(
           id="rendering.FilePath.{record.id}"
           readonly
           aria-invalid="{invalidEntry}"
-          aria-label="{record.description}"
+          aria-label="button-{record.description}"
           placeholder="Browse ..."
           class="bg-violet-500 p-1 text-xs text-center hover:bg-zinc-700 placeholder-white rounded-sm cursor-pointer outline-0"
           required />
