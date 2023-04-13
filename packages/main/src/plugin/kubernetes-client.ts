@@ -24,10 +24,9 @@ import type {
   V1PodList,
   V1NamespaceList,
   V1Service,
-  V1ContainerState} from '@kubernetes/client-node';
-import {
-  AppsV1Api,
+  V1ContainerState,
 } from '@kubernetes/client-node';
+import { AppsV1Api } from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
 import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
@@ -578,6 +577,9 @@ export class KubernetesClient {
       if (groupVersion.group === '') {
         const client = ctx.makeApiClient(CoreV1Api);
         await this.createV1Resource(client, manifest);
+      } else if (groupVersion.group === 'apps') {
+        const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
+        await k8sAppsApi.createNamespacedDeployment(namespace || 'default', manifest);
       } else {
         const client = ctx.makeApiClient(CustomObjectsApi);
         await this.createCustomResource(
