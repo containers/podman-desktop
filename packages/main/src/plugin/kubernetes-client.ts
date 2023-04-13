@@ -606,7 +606,12 @@ export class KubernetesClient {
         await this.createV1Resource(client, manifest, optionalNamespace);
       } else if (groupVersion.group === 'apps') {
         const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
-        await k8sAppsApi.createNamespacedDeployment(optionalNamespace || 'default', manifest);
+        const namespaceToUse = optionalNamespace || manifest.metadata?.namespace || 'default';
+        if (manifest.kind === 'Deployment') {
+          await k8sAppsApi.createNamespacedDeployment(namespaceToUse, manifest);
+        } else if (manifest.kind === 'DaemonSet') {
+          await k8sAppsApi.createNamespacedDaemonSet(namespaceToUse, manifest);
+        }
       } else {
         const client = ctx.makeApiClient(CustomObjectsApi);
         await this.createCustomResource(
