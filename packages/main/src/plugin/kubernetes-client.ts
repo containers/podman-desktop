@@ -532,12 +532,8 @@ export class KubernetesClient {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async createResources(context: string, manifests: any[]): Promise<void> {
     const ctx = new KubeConfig();
-    ctx.loadFromOptions({
-      currentContext: context,
-      clusters: this.kubeConfig.clusters,
-      contexts: this.kubeConfig.contexts,
-      users: this.kubeConfig.users,
-    });
+    ctx.loadFromFile(this.kubeconfigPath);
+    ctx.currentContext = context;
     for (const manifest of manifests) {
       const groupVersion = this.groupAndVersion(manifest.apiVersion);
       if (groupVersion.group === '') {
