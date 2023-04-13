@@ -570,7 +570,18 @@ export class KubernetesClient {
 
   async createResourcesFromFile(context: string, filePath: string, namespace: string): Promise<void> {
     const manifests = await this.loadManifestsFromFile(filePath);
-    return this.createResources(context, manifests, namespace);
+    try {
+      await this.createResources(context, manifests, namespace);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.response && error.response.body) {
+        if (error.response.body.message) {
+          throw new Error(error.response.body.message);
+        }
+        throw new Error(error.response.body);
+      }
+      throw error;
+    }
   }
 
   /**
