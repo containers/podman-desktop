@@ -3,12 +3,22 @@ import { authenticationProviders } from '../../stores/authenticationProviders';
 import { faCircle, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import SettingsPage from './SettingsPage.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
+import KeyIcon from '../images/KeyIcon.svelte';
 </script>
 
 <SettingsPage title="Authentication">
-  <div class="container mx-auto">
+  <div class="containder h-full">
     <!-- Authentication Providers table start -->
-    <div class="w-full">
+    <div class="w-full h-full">
+      {#if $authenticationProviders.length === 0}
+        <div class="grid grid-cols-1 justify-items-center content-center h-full w-full">
+          <div class="mb-6"><svelte:component this="{KeyIcon}" size="55" /></div>
+          <div><h1 class="pf-c-title pf-m-lg text-center">No authentication providers</h1></div>
+          <div class="text-gray-400 mx-16 mt-3 text-center w-q">
+            Install an authentication provider extension to add an authentication provider here.
+          </div>
+        </div>
+      {/if}
       {#each $authenticationProviders as provider}
         <!-- Registered Authentication Provider row start -->
         <div class="flex flex-col w-full">
@@ -62,8 +72,4 @@ import Fa from 'svelte-fa/src/fa.svelte';
     </div>
     <!-- Authentication Providers table end -->
   </div>
-
-  <!-- Spacer start -->
-  <div class="container h-full"></div>
-  <!-- Spacer end -->
 </SettingsPage>
