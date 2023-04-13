@@ -585,6 +585,10 @@ export class KubernetesClient {
     ctx.loadFromFile(this.kubeconfigPath);
     ctx.currentContext = context;
     for (const manifest of manifests) {
+      // https://github.com/kubernetes-client/javascript/issues/487
+      if (manifest?.metadata?.creationTimestamp) {
+        manifest.metadata.creationTimestamp = new Date(manifest.metadata.creationTimestamp);
+      }
       const groupVersion = this.groupAndVersion(manifest.apiVersion);
       if (groupVersion.group === '') {
         const client = ctx.makeApiClient(CoreV1Api);
