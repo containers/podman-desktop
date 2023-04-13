@@ -38,7 +38,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  KubeConfig.prototype.loadFromOptions = vi.fn();
+  KubeConfig.prototype.loadFromFile = vi.fn();
   KubeConfig.prototype.makeApiClient = vi.fn();
 });
 
