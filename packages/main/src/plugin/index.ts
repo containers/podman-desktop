@@ -1277,6 +1277,9 @@ export class PluginSystem {
         }
         try {
           await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
+        } catch (error) {
+          logger.error(error);
+          throw error;
         } finally {
           logger.onEnd();
         }
@@ -1300,6 +1303,9 @@ export class PluginSystem {
         }
         try {
           await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger, token);
+        } catch (error) {
+          logger.error(error);
+          throw error;
         } finally {
           logger.onEnd();
         }
