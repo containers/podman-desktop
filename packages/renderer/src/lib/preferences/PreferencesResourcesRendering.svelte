@@ -19,7 +19,12 @@ import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
-import { getProviderConnectionName, type IConnectionRestart, type IConnectionStatus, type IProviderContainerConfigurationPropertyRecorded } from './Util';
+import {
+  getProviderConnectionName,
+  type IConnectionRestart,
+  type IConnectionStatus,
+  type IProviderContainerConfigurationPropertyRecorded,
+} from './Util';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
@@ -353,9 +358,12 @@ function hideInstallModal() {
                     <button
                       aria-label="{provider.name} details"
                       type="button"
-                      on:click="{() => router.goto(`/preferences/container-connection/${provider.internalId}/${Buffer.from(
-                        container.endpoint.socketPath,
-                      ).toString('base64')}/summary`)}">
+                      on:click="{() =>
+                        router.goto(
+                          `/preferences/container-connection/${provider.internalId}/${Buffer.from(
+                            container.endpoint.socketPath,
+                          ).toString('base64')}/summary`,
+                        )}">
                       <Fa icon="{faArrowUpRightFromSquare}" />
                     </button>
                   </Tooltip>
@@ -415,9 +423,12 @@ function hideInstallModal() {
                     <button
                       aria-label="{provider.name} details"
                       type="button"
-                      on:click="{() => router.goto(`/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
-                        kubeConnection.endpoint.apiURL,
-                      ).toString('base64')}/summary`)}">
+                      on:click="{() =>
+                        router.goto(
+                          `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
+                            kubeConnection.endpoint.apiURL,
+                          ).toString('base64')}/summary`,
+                        )}">
                       <Fa icon="{faArrowUpRightFromSquare}" />
                     </button>
                   </Tooltip>

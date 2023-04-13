@@ -11,44 +11,45 @@ export let containerConnectionInfo: ProviderContainerConnectionInfo = undefined;
 
 let tmpProviderContainerConfiguration: IProviderContainerConfigurationPropertyRecorded[] = [];
 $: Promise.all(
-    properties.map(async configurationKey => {
+  properties.map(async configurationKey => {
     return {
-        ...configurationKey,
-        value: await window.getConfigurationValue(
+      ...configurationKey,
+      value: await window.getConfigurationValue(
         configurationKey.id,
         containerConnectionInfo as unknown as ContainerProviderConnection,
-        ),
-        container: containerConnectionInfo.name,
-        providerId: providerInternalId,
+      ),
+      container: containerConnectionInfo.name,
+      providerId: providerInternalId,
     };
-    }),
+  }),
 ).then(value => (tmpProviderContainerConfiguration = value.flat()));
 
-$: providerContainerConfiguration = tmpProviderContainerConfiguration
-  .filter(configurationKey => configurationKey.value !== undefined);
+$: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
+  configurationKey => configurationKey.value !== undefined,
+);
 </script>
 
 <div class="h-full bg-zinc-900">
-    {#if containerConnectionInfo}
+  {#if containerConnectionInfo}
     <div class="flex pl-8 py-4 flex-col w-full text-sm">
+      <div class="flex flex-row mt-5">
+        <span class="font-semibold min-w-[150px]">Name</span>
+        <span>{containerConnectionInfo.name}</span>
+      </div>
+      {#each providerContainerConfiguration as connectionSetting}
         <div class="flex flex-row mt-5">
-            <span class="font-semibold min-w-[150px]">Name</span>
-            <span>{containerConnectionInfo.name}</span>
-        </div>
-        {#each providerContainerConfiguration as connectionSetting} 
-        <div class="flex flex-row mt-5">
-            <span class="font-semibold min-w-[150px]">{connectionSetting.description}</span>   
-            {#if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}            
+          <span class="font-semibold min-w-[150px]">{connectionSetting.description}</span>
+          {#if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
             <span>{filesize(connectionSetting.value)}</span>
-            {:else}
+          {:else}
             <span>{connectionSetting.value}</span>
-            {/if}
+          {/if}
         </div>
-        {/each}
-        <div class="flex flex-row mt-5">  
-            <span class="font-semibold min-w-[150px]">Endpoint</span>
-            <span>{containerConnectionInfo.endpoint.socketPath}</span>
-        </div>        
+      {/each}
+      <div class="flex flex-row mt-5">
+        <span class="font-semibold min-w-[150px]">Endpoint</span>
+        <span>{containerConnectionInfo.endpoint.socketPath}</span>
+      </div>
     </div>
-    {/if}
+  {/if}
 </div>

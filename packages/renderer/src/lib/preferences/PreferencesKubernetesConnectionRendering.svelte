@@ -117,11 +117,11 @@ function getLoggerHandler(): ConnectionCallback {
     writeToTerminal(logsTerminal, newContent, colorPrefix);
   };
   return {
-      log: (data) => logHandler(data, '\x1b[37m'),
-      warn: (data) => logHandler(data, '\x1b[37m'),
-      error: (data) => logHandler(data, '\x1b[37m'),
-      onEnd: () => {},
-    };
+    log: data => logHandler(data, '\x1b[37m'),
+    warn: data => logHandler(data, '\x1b[37m'),
+    error: data => logHandler(data, '\x1b[37m'),
+    onEnd: () => {},
+  };
 }
 
 function updateConnectionStatus(

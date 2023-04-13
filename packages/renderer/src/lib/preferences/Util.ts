@@ -24,6 +24,7 @@ import type {
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
 export interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
   container: string;
   providerId: string;

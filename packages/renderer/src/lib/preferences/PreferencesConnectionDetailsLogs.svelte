@@ -16,8 +16,8 @@ export let noLog: boolean;
 $: noLogs = !!noLog;
 
 logsTerminal.onLineFeed(() => {
-    setNoLogs();
-    noLogs = false;
+  setNoLogs();
+  noLogs = false;
 });
 
 // Log
@@ -31,44 +31,44 @@ let termFit: FitAddon;
 let currentRouterPath: string;
 
 async function refreshTerminal() {
-    // missing element, return
-    if (!logsXtermDiv) {
-        console.log('missing xterm div, exiting...');
-        return;
+  // missing element, return
+  if (!logsXtermDiv) {
+    console.log('missing xterm div, exiting...');
+    return;
+  }
+
+  termFit = new FitAddon();
+  logsTerminal.loadAddon(termFit);
+
+  logsTerminal.open(logsXtermDiv);
+
+  // disable cursor
+  logsTerminal.write('\x1b[?25l');
+
+  // call fit addon each time we resize the window
+  window.addEventListener('resize', () => {
+    if (currentRouterPath === `/container-connection/${providerInternalId}/${connection}/logs`) {
+      termFit.fit();
     }
-    
-    termFit = new FitAddon();
-    logsTerminal.loadAddon(termFit);
-
-    logsTerminal.open(logsXtermDiv);
-
-    // disable cursor
-    logsTerminal.write('\x1b[?25l');
-
-    // call fit addon each time we resize the window
-    window.addEventListener('resize', () => {
-        if (currentRouterPath === `/container-connection/${providerInternalId}/${connection}/logs`) {
-            termFit.fit();
-        }
-    });
-    termFit.fit();
+  });
+  termFit.fit();
 }
 
 onMount(async () => {
-    // Refresh the terminal on initial load
-    await refreshTerminal();
-    // Resize the terminal each time we change the div size
-    resizeObserver = new ResizeObserver(entries => {
-        termFit?.fit();
-    });
+  // Refresh the terminal on initial load
+  await refreshTerminal();
+  // Resize the terminal each time we change the div size
+  resizeObserver = new ResizeObserver(entries => {
+    termFit?.fit();
+  });
 
-    // Observe the terminal div
-    resizeObserver.observe(logsXtermDiv);
+  // Observe the terminal div
+  resizeObserver.observe(logsXtermDiv);
 });
 
 onDestroy(() => {
-    // Cleanup the observer on destroy
-    resizeObserver?.unobserve(logsXtermDiv);
+  // Cleanup the observer on destroy
+  resizeObserver?.unobserve(logsXtermDiv);
 });
 </script>
 
@@ -87,4 +87,3 @@ onDestroy(() => {
   style="background-color: {getPanelDetailColor()}"
   bind:this="{logsXtermDiv}">
 </div>
-    
