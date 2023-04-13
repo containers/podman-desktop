@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
 import type {
   Context,
   V1Pod,
@@ -23,7 +24,9 @@ import type {
   V1PodList,
   V1NamespaceList,
   V1Service,
-  V1ContainerState,
+  V1ContainerState} from '@kubernetes/client-node';
+import {
+  AppsV1Api,
 } from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
 import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
@@ -39,6 +42,7 @@ import type { FilesystemMonitoring } from './filesystem-monitoring';
 import type { PodInfo } from './api/pod-info';
 import { PassThrough } from 'node:stream';
 import type { ApiSenderType } from './api';
+import { parseAllDocuments } from 'yaml';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -523,6 +527,41 @@ export class KubernetesClient {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getTags(tags: any[]): any[] {
+    for (const tag of tags) {
+      if (tag.tag === 'tag:yaml.org,2002:int') {
+        const newTag = { ...tag };
+        newTag.test = /^(0[0-7][0-7][0-7])$/;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        newTag.resolve = (str: any) => parseInt(str, 8);
+        tags.unshift(newTag);
+        break;
+      }
+    }
+    return tags;
+  }
+
+  // load yaml file and extract manifests
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async loadManifestsFromFile(file: string): Promise<any[]> {
+    // throw exception if file does not exist
+    if (!fs.existsSync(file)) {
+      throw new Error(`File ${file} does not exist`);
+    }
+
+    // load file and create resources
+    const content = await fs.promises.readFile(file, 'utf-8');
+
+    const manifests = parseAllDocuments(content, { customTags: this.getTags });
+    return manifests.map(manifest => manifest.toJSON());
+  }
+
+  async createResourcesFromFile(context: string, filePath: string, namespace: string): Promise<void> {
+    const manifests = await this.loadManifestsFromFile(filePath);
+    return this.createResources(context, manifests, namespace);
+  }
+
   /**
    * Create Kubernetes resources on the specified cluster. Resources are create sequentially.
    *
@@ -530,7 +569,7 @@ export class KubernetesClient {
    * @param manifests the list of Kubernetes resources to create
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async createResources(context: string, manifests: any[]): Promise<void> {
+  async createResources(context: string, manifests: any[], namespace?: string): Promise<void> {
     const ctx = new KubeConfig();
     ctx.loadFromFile(this.kubeconfigPath);
     ctx.currentContext = context;
