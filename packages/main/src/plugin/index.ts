@@ -443,7 +443,6 @@ export class PluginSystem {
           return;
         }
         console.error('unable to check for updates', error);
-        dialog.showErrorBox('Error: ', error == null ? 'unknown' : (error.stack || error).toString());
       });
 
       // check for updates now
