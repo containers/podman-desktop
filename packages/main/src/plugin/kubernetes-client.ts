@@ -565,7 +565,8 @@ export class KubernetesClient {
     const content = await fs.promises.readFile(file, 'utf-8');
 
     const manifests = parseAllDocuments(content, { customTags: this.getTags });
-    return manifests.map(manifest => manifest.toJSON());
+    // filter out null manifests
+    return manifests.map(manifest => manifest.toJSON()).filter(manifest => manifest !== null);
   }
 
   async createResourcesFromFile(context: string, filePath: string, namespace: string): Promise<void> {
