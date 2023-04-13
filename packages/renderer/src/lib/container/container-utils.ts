@@ -67,6 +67,16 @@ export class ContainerUtils {
     return containerInfo.Image;
   }
 
+  getShortImage(containerInfo: ContainerInfo): string {
+    // if image has a digest, keep only first 7 digits
+    const image = containerInfo.Image;
+    const shaIndex = image.indexOf('@sha256:');
+    if (shaIndex > 0) {
+      return image.substring(0, shaIndex + 15);
+    }
+    return image;
+  }
+
   getPort(containerInfo: ContainerInfo): string {
     const ports = containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort);
 
@@ -116,6 +126,7 @@ export class ContainerUtils {
       shortId: containerInfo.Id.substring(0, 8),
       name: this.getName(containerInfo),
       image: this.getImage(containerInfo),
+      shortImage: this.getShortImage(containerInfo),
       state: this.getState(containerInfo),
       startedAt: containerInfo.StartedAt,
       uptime: this.getUptime(containerInfo),

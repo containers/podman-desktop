@@ -65,7 +65,7 @@ function errorCallback(errorMessage: string): void {
               </div>
               <div class="text-lg flex flex-col">
                 <div class="mr-2">{container.name}</div>
-                <div class="mr-2 pb-4 text-small text-gray-500">{container.image}</div>
+                <div class="mr-2 pb-4 text-small text-gray-500" title="{container.image}">{container.shortImage}</div>
               </div>
             </div>
             <section class="pf-c-page__main-tabs pf-m-limit-width">
