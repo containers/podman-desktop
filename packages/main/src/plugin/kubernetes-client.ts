@@ -464,41 +464,53 @@ export class KubernetesClient {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createV1Resource(client: CoreV1Api, manifest: any): Promise<any> {
+  createV1Resource(client: CoreV1Api, manifest: any, optionalNamespace?: string): Promise<any> {
     if (manifest.kind === 'Namespace') {
       return client.createNamespace(manifest);
     } else if (manifest.kind === 'Pod') {
-      return client.createNamespacedPod(manifest.metadata.namespace, manifest);
+      return client.createNamespacedPod(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'Service') {
-      return client.createNamespacedService(manifest.metadata.namespace, manifest);
+      return client.createNamespacedService(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'Binding') {
-      return client.createNamespacedBinding(manifest.metadata.namespace, manifest);
+      return client.createNamespacedBinding(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'Event') {
-      return client.createNamespacedEvent(manifest.metadata.namespace, manifest);
+      return client.createNamespacedEvent(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'Endpoints') {
-      return client.createNamespacedEndpoints(manifest.metadata.namespace, manifest);
+      return client.createNamespacedEndpoints(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ConfigMap') {
-      return client.createNamespacedConfigMap(manifest.metadata.namespace, manifest);
+      return client.createNamespacedConfigMap(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'LimitRange') {
-      return client.createNamespacedLimitRange(manifest.metadata.namespace, manifest);
+      return client.createNamespacedLimitRange(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'PersistentVolumeClaim') {
-      return client.createNamespacedPersistentVolumeClaim(manifest.metadata.namespace, manifest);
+      return client.createNamespacedPersistentVolumeClaim(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'PodBinding') {
-      return client.createNamespacedPodBinding(manifest.metadata.name, manifest.metadata.namespace, manifest);
+      return client.createNamespacedPodBinding(
+        manifest.metadata.name,
+        optionalNamespace || manifest.metadata.namespace,
+        manifest,
+      );
     } else if (manifest.kind === 'PodEviction') {
-      return client.createNamespacedPodEviction(manifest.metadata.name, manifest.metadata.namespace, manifest);
+      return client.createNamespacedPodEviction(
+        manifest.metadata.name,
+        optionalNamespace || manifest.metadata.namespace,
+        manifest,
+      );
     } else if (manifest.kind === 'PodTemplate') {
-      return client.createNamespacedPodTemplate(manifest.metadata.namespace, manifest);
+      return client.createNamespacedPodTemplate(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ReplicationController') {
-      return client.createNamespacedReplicationController(manifest.metadata.namespace, manifest);
+      return client.createNamespacedReplicationController(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ResourceQuota') {
-      return client.createNamespacedResourceQuota(manifest.metadata.namespace, manifest);
+      return client.createNamespacedResourceQuota(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'Secret') {
-      return client.createNamespacedSecret(manifest.metadata.namespace, manifest);
+      return client.createNamespacedSecret(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ServiceAccount') {
-      return client.createNamespacedServiceAccount(manifest.metadata.namespace, manifest);
+      return client.createNamespacedServiceAccount(optionalNamespace || manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ServiceAccountToken') {
-      return client.createNamespacedServiceAccountToken(manifest.metadata.name, manifest.metadata.namespace, manifest);
+      return client.createNamespacedServiceAccountToken(
+        manifest.metadata.name,
+        optionalNamespace || manifest.metadata.namespace,
+        manifest,
+      );
     }
     return Promise.reject(new Error(`Unsupported kind ${manifest.kind}`));
   }
@@ -568,7 +580,7 @@ export class KubernetesClient {
    * @param manifests the list of Kubernetes resources to create
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async createResources(context: string, manifests: any[], namespace?: string): Promise<void> {
+  async createResources(context: string, manifests: any[], optionalNamespace?: string): Promise<void> {
     const ctx = new KubeConfig();
     ctx.loadFromFile(this.kubeconfigPath);
     ctx.currentContext = context;
@@ -576,10 +588,10 @@ export class KubernetesClient {
       const groupVersion = this.groupAndVersion(manifest.apiVersion);
       if (groupVersion.group === '') {
         const client = ctx.makeApiClient(CoreV1Api);
-        await this.createV1Resource(client, manifest);
+        await this.createV1Resource(client, manifest, optionalNamespace);
       } else if (groupVersion.group === 'apps') {
         const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
-        await k8sAppsApi.createNamespacedDeployment(namespace || 'default', manifest);
+        await k8sAppsApi.createNamespacedDeployment(optionalNamespace || 'default', manifest);
       } else {
         const client = ctx.makeApiClient(CustomObjectsApi);
         await this.createCustomResource(
@@ -587,7 +599,7 @@ export class KubernetesClient {
           groupVersion.group,
           groupVersion.version,
           manifest.kind.toLowerCase() + 's',
-          manifest.metadata?.namespace,
+          optionalNamespace || manifest.metadata?.namespace,
           manifest,
         );
       }
