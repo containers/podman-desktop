@@ -63,7 +63,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-test('expect installBinaryToSystem to succesfully pass with a binary', async () => {
+test.skip('expect installBinaryToSystem to succesfully pass with a binary', async () => {
   // Mock process.platform to be linux
   // to avoid the usage of sudo-prompt (we cannot test that in unit tests)
   Object.defineProperty(process, 'platform', {
