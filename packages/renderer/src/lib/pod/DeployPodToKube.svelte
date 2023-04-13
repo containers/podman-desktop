@@ -317,7 +317,7 @@ function updateKubeResult() {
       <ErrorMessage class="text-sm" error="{deployError}" />
 
       {#if createdPod}
-        <div class="h-1/3 bg-zinc-900 p-5 my-4">
+        <div class="bg-zinc-900 p-5 my-4">
           <div class="flex flex-row items-center">
             <div>Created pod:</div>
             {#if openshiftConsoleURL && createdPod?.metadata?.name}
