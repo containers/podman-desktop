@@ -15,7 +15,7 @@ import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import PreferencesContainerConnectionDetailsSummary from './PreferencesContainerConnectionDetailsSummary.svelte';
-import PreferencesContainerConnectionDetailsLogs from './PreferencesContainerConnectionDetailsLogs.svelte';
+import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { Terminal } from 'xterm';
 import { getPanelDetailColor } from '../color/color';
@@ -214,7 +214,7 @@ function setNoLogs() {
       <PreferencesContainerConnectionDetailsSummary containerConnectionInfo="{connectionInfo}" providerInternalId="{providerInternalId}" properties="{configurationKeys}"/>
     </Route>
     <Route path="/logs" breadcrumb="Logs">
-      <PreferencesContainerConnectionDetailsLogs connection="{connection}" providerInternalId="{providerInternalId}" logsTerminal="{logsTerminal}" setNoLogs="{setNoLogs}" noLog="{noLog}"/>
+      <PreferencesConnectionDetailsLogs connection="{connection}" providerInternalId="{providerInternalId}" logsTerminal="{logsTerminal}" setNoLogs="{setNoLogs}" noLog="{noLog}"/>
     </Route>
     
       
