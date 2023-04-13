@@ -18,6 +18,7 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ContainerUtils } from './container-utils';
+import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 
 let containerUtils: ContainerUtils;
 
@@ -29,4 +30,20 @@ beforeEach(() => {
 test('should expect valid memory usage', async () => {
   const size = containerUtils.getMemoryPercentageUsageTitle(4, 1000000);
   expect(size).toBe('4.00% (1 MB)');
+});
+
+test('should expect short image for sha256', async () => {
+  const containerInfo = {
+    Image: 'docker.io/kindest/node@sha256:61b92f38dff6ccc29969e7aa154d34e38b89443af1a2c14e6cfbd2df6419c66f',
+  } as unknown as ContainerInfo;
+  const image = containerUtils.getShortImage(containerInfo);
+  expect(image).toBe('docker.io/kindest/node@sha256:61b92f3');
+});
+
+test('should expect full name for images', async () => {
+  const containerInfo = {
+    Image: 'docker.io/kindest/node:foobar',
+  } as unknown as ContainerInfo;
+  const image = containerUtils.getShortImage(containerInfo);
+  expect(image).toBe('docker.io/kindest/node:foobar');
 });

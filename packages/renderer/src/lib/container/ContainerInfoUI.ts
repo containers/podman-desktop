@@ -44,6 +44,7 @@ export interface ContainerInfoUI {
   shortId: string;
   name: string;
   image: string;
+  shortImage: string;
   engineId: string;
   engineName: string;
   engineType: 'podman' | 'docker';
