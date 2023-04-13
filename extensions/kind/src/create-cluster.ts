@@ -119,13 +119,14 @@ export async function createCluster(
       logger.log('Creating ingress controller resources');
       await setupIngressController(clusterName);
     }
-    telemetryLogger.logUsage('createCluster', { provider, httpHostPort, httpsHostPort });
+    telemetryLogger.logUsage('createCluster', { provider, httpHostPort, httpsHostPort, ingressController });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : error;
     telemetryLogger.logError('createCluster', {
       provider,
       httpHostPort,
       httpsHostPort,
+      ingressController,
       error: errorMessage,
       stdErr: errorMessage,
     });
