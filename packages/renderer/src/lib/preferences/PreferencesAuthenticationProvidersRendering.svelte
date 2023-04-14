@@ -41,13 +41,12 @@ import KeyIcon from '../images/KeyIcon.svelte';
                     </span>
                   </div>
                   {#if provider.accounts.length > 0}
-                    <a
+                    <button
                       class="pl-2 hover:cursor-pointer hover:text-white text-white"
-                      href="javascript:undefined"
                       on:click="{() =>
                         window.requestAuthenticationProviderSignOut(provider.id, provider.accounts[0].id)}">
                       <Fa class="h-3 w-3 text-md mr-2" icon="{faRightFromBracket}" />
-                    </a>
+                    </button>
                   {/if}
                 </div>
               </div>
