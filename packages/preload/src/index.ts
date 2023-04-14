@@ -1125,6 +1125,13 @@ function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld(
+    'kubernetesCreateResourcesFromFile',
+    async (context: string, file: string, namespace: string): Promise<void> => {
+      return ipcInvoke('kubernetes-client:createResourcesFromFile', context, file, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'openshiftCreateRoute',
     async (namespace: string, route: V1Route): Promise<V1Route> => {
       return ipcInvoke('openshift-client:createRoute', namespace, route);

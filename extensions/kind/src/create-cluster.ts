@@ -15,15 +15,17 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type * as extensionApi from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { runCliCommand } from './util';
 import mustache from 'mustache';
+import { parseAllDocuments } from 'yaml';
 
 import createClusterConfTemplate from './templates/create-cluster-conf.mustache?raw';
 import type { CancellationToken } from '@podman-desktop/api';
+import ingressManifests from '/@gen/contour.yaml?raw';
 
 export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number) {
   return mustache.render(createClusterConfTemplate, {
@@ -31,6 +33,28 @@ export function getKindClusterConfig(clusterName: string, httpHostPort: number, 
     httpHostPort: httpHostPort,
     httpsHostPort: httpsHostPort,
   });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getTags(tags: any[]): any[] {
+  for (const tag of tags) {
+    if (tag.tag === 'tag:yaml.org,2002:int') {
+      const newTag = { ...tag };
+      newTag.test = /^(0[0-7][0-7][0-7])$/;
+      newTag.resolve = str => parseInt(str, 8);
+      tags.unshift(newTag);
+      break;
+    }
+  }
+  return tags;
+}
+
+export async function setupIngressController(clusterName: string) {
+  const manifests = parseAllDocuments(ingressManifests, { customTags: getTags });
+  await extensionApi.kubernetes.createResources(
+    'kind-' + clusterName,
+    manifests.map(manifest => manifest.toJSON()),
+  );
 }
 
 export async function createCluster(
@@ -70,6 +94,12 @@ export async function createCluster(
     httpsHostPort = params['kind.cluster.creation.https.port'];
   }
 
+  let ingressController = false;
+
+  if (params['kind.cluster.creation.ingress']) {
+    ingressController = params['kind.cluster.creation.ingress'] === 'on';
+  }
+
   // create the config file
   const kindClusterConfig = getKindClusterConfig(clusterName, httpHostPort, httpsHostPort);
 
@@ -85,13 +115,18 @@ export async function createCluster(
   // now execute the command to create the cluster
   try {
     await runCliCommand(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger }, token);
-    telemetryLogger.logUsage('createCluster', { provider, httpHostPort, httpsHostPort });
+    if (ingressController) {
+      logger.log('Creating ingress controller resources');
+      await setupIngressController(clusterName);
+    }
+    telemetryLogger.logUsage('createCluster', { provider, httpHostPort, httpsHostPort, ingressController });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : error;
     telemetryLogger.logError('createCluster', {
       provider,
       httpHostPort,
       httpsHostPort,
+      ingressController,
       error: errorMessage,
       stdErr: errorMessage,
     });
