@@ -443,7 +443,6 @@ export class PluginSystem {
           return;
         }
         console.error('unable to check for updates', error);
-        dialog.showErrorBox('Error: ', error == null ? 'unknown' : (error.stack || error).toString());
       });
 
       // check for updates now
@@ -1340,6 +1339,14 @@ export class PluginSystem {
       return kubernetesClient.deletePod(name);
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.ipcHandle(
+      'kubernetes-client:createResourcesFromFile',
+      async (_listener, context: string, file: string, namespace: string): Promise<void> => {
+        return kubernetesClient.createResourcesFromFile(context, file, namespace);
+      },
+    );
+
     this.ipcHandle(
       'openshift-client:createRoute',
       async (_listener, namespace: string, route: V1Route): Promise<V1Route> => {
@@ -1429,6 +1436,7 @@ export class PluginSystem {
     console.log('System ready. Loading extensions...');
     await this.extensionLoader.start();
     console.log('PluginSystem: initialization done.');
+    apiSender.send('extensions-started');
     autoStartConfiguration.start();
     return this.extensionLoader;
   }

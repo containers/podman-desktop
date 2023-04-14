@@ -31,6 +31,10 @@ export async function fetchConfigurationProperties() {
 
 export const configurationProperties: Writable<IConfigurationPropertyRecordedSchema[]> = writable([]);
 
+window.events?.receive('extensions-started', () => {
+  fetchConfigurationProperties();
+});
+
 window.addEventListener('extension-started', () => {
   fetchConfigurationProperties();
 });

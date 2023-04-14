@@ -515,7 +515,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                   on:click="{() => openDetailsContainer(container)}">
                   <div class="flex items-center">
                     <div class="text-sm text-gray-400 overflow-hidden text-ellipsis" title="{container.image}">
-                      {container.image}
+                      {container.shortImage}
                     </div>
                   </div></td>
                 <td class="whitespace-nowrap pl-4">
