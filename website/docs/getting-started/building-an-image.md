@@ -1,19 +1,19 @@
 ---
 sidebar_position: 10
 title: Building an image
-description: Building an image on your Container engine.
+description: Building an image on your container engine.
 keywords: [podman desktop, podman, containers, images]
 tags: [images]
 ---
 
 # Building an image on your Container engine
 
-With Podman Desktop, you can build an image from a Containerfile on your Podman container engine.
+With Podman Desktop, you can build an image from a Containerfile on your container engine.
 
 
 #### Prerequisites
 
-* Your Containerfile: `Containerfile`.
+* Your Containerfile: `Containerfile` or `Dockerfile.
 
 #### Procedure
 
