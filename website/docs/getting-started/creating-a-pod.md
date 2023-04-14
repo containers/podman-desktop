@@ -13,7 +13,7 @@ With Podman Desktop, you can create a pod from your containers, and run it on th
 
 #### Prerequisites
 
-* Your are using the Podman container engine.
+* You are using the Podman container engine.
 * Your containers, running or stopped, are available on the **Containers** page. For example: *<your_frontend_container>* and *<your_backend_container>*.
 
 #### Procedure
