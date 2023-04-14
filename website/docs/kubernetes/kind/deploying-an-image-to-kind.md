@@ -1,7 +1,7 @@
 ---
 sidebar_position: 10
 title: Deploying an image to Kind
-description: Deploying an Podman image to your Kind cluster
+description: Deploying an image to your Kind cluster
 keywords: [podman desktop, podman, containers, images, migrating, kubernetes]
 tags: [migrating-to-kubernetes, images]
 ---
