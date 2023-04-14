@@ -16,6 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 import '@testing-library/jest-dom';
 import { test, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
