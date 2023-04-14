@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
-import { detectKind, runCliCommand } from './util';
+import { detectKind, getKindPath, runCliCommand } from './util';
 import { KindInstaller } from './kind-installer';
 import type { CancellationToken, Logger } from '@podman-desktop/api';
 import { window } from '@podman-desktop/api';
@@ -121,10 +121,11 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
           await extensionApi.containerEngine.stopContainer(cluster.engineId, cluster.id);
         },
         delete: async (logger): Promise<void> => {
-          const env = process.env;
+          const env = Object.assign({}, process.env);
           if (cluster.engineType === 'podman') {
             env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
           }
+          env.PATH = getKindPath();
           await runCliCommand(kindCli, ['delete', 'cluster', '--name', cluster.name], { env, logger });
         },
       };
