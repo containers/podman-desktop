@@ -20,8 +20,8 @@ import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import type { AuthenticationProviderInfo } from '../../../main/src/plugin/authentication';
 
-export async function fetchAuthenicationProvidersInfo() {
-  // here we have to rebuld authentication providers with sessinons
+export async function fetchAuthenticationProvidersInfo() {
+  // here we have to rebuild authentication providers with sessions
   // which are not included
   const authProvidersInfo = await window.getAuthenticationProvidersInfo();
   authenticationProviders.set(authProvidersInfo);
@@ -30,5 +30,5 @@ export async function fetchAuthenicationProvidersInfo() {
 export const authenticationProviders: Writable<readonly AuthenticationProviderInfo[]> = writable([]);
 
 // need to refresh when new registry are updated/deleted
-window.events?.receive('authentication-provider-update', fetchAuthenicationProvidersInfo);
+window.events?.receive('authentication-provider-update', fetchAuthenticationProvidersInfo);
 window.addEventListener('system-ready', fetchAuthenicationProvidersInfo);
