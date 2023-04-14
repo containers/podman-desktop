@@ -35,6 +35,7 @@ vi.mock('@podman-desktop/api', async () => {
 vi.mock('./util', async () => {
   return {
     runCliCommand: vi.fn(),
+    getKindPath: vi.fn(),
   };
 });
 
