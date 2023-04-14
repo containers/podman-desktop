@@ -10,6 +10,9 @@ export let enabled: boolean = true;
 export let onClick: () => void = () => {};
 export let menu: boolean = false;
 export let detailed: boolean = false;
+export let inProgress: boolean = false;
+let positionLeftClass = 'left-1';
+if (detailed) positionLeftClass = 'left-2';
 
 const buttonDetailedClass: string =
   'mx-1 text-gray-300 bg-zinc-900 hover:text-violet-600 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
@@ -22,10 +25,10 @@ const buttonDisabledClass: string =
 
 $: handleClick = enabled ? onClick : () => {};
 $: styleClass = detailed
-  ? enabled
+  ? enabled && !inProgress
     ? buttonDetailedClass
     : buttonDetailedDisabledClass
-  : enabled
+  : enabled && !inProgress
   ? buttonClass
   : buttonDisabledClass;
 </script>
@@ -36,7 +39,17 @@ $: styleClass = detailed
   <DropdownMenuItem title="{title}" icon="{icon}" hidden="{hidden}" onClick="{handleClick}" />
 {:else}
   <!-- enabled button -->
-  <button title="{title}" on:click="{handleClick}" class="{styleClass}" class:hidden="{hidden}">
+  <button
+    title="{title}"
+    on:click="{handleClick}"
+    class="{styleClass} relative"
+    class:disabled="{inProgress}"
+    class:hidden="{hidden}">
     <Fa class="h-4 w-4" icon="{icon}" />
+    <div
+      aria-label="spinner"
+      class="w-6 h-6 rounded-full animate-spin border border-solid border-violet-500 border-t-transparent absolute top-1 {positionLeftClass}"
+      class:hidden="{!inProgress}">
+    </div>
   </button>
 {/if}
