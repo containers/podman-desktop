@@ -97,7 +97,7 @@ export function runCliCommand(
     let stdOut = '';
     let stdErr = '';
     let err = '';
-    let env = Object.assign({}, process.env); // clone original env object
+    const env = options?.env ?? process.env;
 
     // In production mode, applications don't have access to the 'user' path like brew
     if (isMac() || isWindows()) {
@@ -110,10 +110,6 @@ export function runCliCommand(
       // need to execute the command on the host
       args = ['--host', command, ...args];
       command = 'flatpak-spawn';
-    }
-
-    if (options?.env) {
-      env = Object.assign(env, options.env);
     }
 
     const spawnProcess = spawn(command, args, { shell: isWindows(), env });
