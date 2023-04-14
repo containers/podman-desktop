@@ -64,13 +64,12 @@ export class ImageHandler {
           extensionApi.window.showNotification({
             body: `Image ${image.name} pushed to Kind cluster ${selectedCluster.label}`,
           });
-        } else {
-          throw new Error(
-            `Error while pushing image ${image.name} to Kind cluster ${selectedCluster.label}: ${result.error}`,
-          );
         }
-      } catch (err) {
-        throw new Error(`Error while pushing image ${image.name} to Kind cluster ${selectedCluster.label}: ${err}`);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : '' + error;
+        throw new Error(
+          `Error while pushing image ${image.name} to Kind cluster ${selectedCluster.label}: ${errorMessage}`,
+        );
       } finally {
         fs.promises.rm(filename);
       }

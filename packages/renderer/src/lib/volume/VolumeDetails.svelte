@@ -49,7 +49,7 @@ onMount(() => {
                 <StatusIcon icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
               </div>
               <div class="text-lg flex flex-col">
-                <div class="mr-2">{volume.name}</div>
+                <div class="mr-2">{volume.shortName}</div>
                 <div class="mr-2 pb-4 text-small text-gray-500">{volume.humanSize}</div>
               </div>
             </div>
@@ -65,7 +65,7 @@ onMount(() => {
               </div>
             </section>
           </div>
-          <div class="flex flex-col w-full px-5 pt-5">
+          <div class="flex flex-col px-5 pt-5">
             <div class="flex justify-end">
               <VolumeActions volume="{volume}" detailed="{true}" />
             </div>

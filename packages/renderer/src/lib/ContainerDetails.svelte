@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ContainerGroupInfoTypeUI, ContainerInfoUI } from './container/ContainerInfoUI';
+import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './container/ContainerInfoUI';
 import Route from '../Route.svelte';
 import ContainerIcon from './images/ContainerIcon.svelte';
 import StatusIcon from './images/StatusIcon.svelte';
@@ -65,7 +65,7 @@ function errorCallback(errorMessage: string): void {
               </div>
               <div class="text-lg flex flex-col">
                 <div class="mr-2">{container.name}</div>
-                <div class="mr-2 pb-4 text-small text-gray-500">{container.image}</div>
+                <div class="mr-2 pb-4 text-small text-gray-500" title="{container.image}">{container.shortImage}</div>
               </div>
             </div>
             <section class="pf-c-page__main-tabs pf-m-limit-width">
@@ -85,7 +85,7 @@ function errorCallback(errorMessage: string): void {
               </div>
             </section>
           </div>
-          <div class="flex flex-col w-full px-5 pt-5">
+          <div class="flex flex-col px-5 pt-5">
             <div class="flex justify-end">
               <div class="flex items-center w-5">
                 {#if container.actionInProgress}

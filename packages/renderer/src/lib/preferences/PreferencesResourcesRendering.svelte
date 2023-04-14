@@ -1,8 +1,12 @@
 <script lang="ts">
-import { faArrowUpRightFromSquare, faCircle, fas, faT } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { providerInfos } from '../../stores/providers';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type {
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../../../main/src/plugin/api/provider-info';
 import { onDestroy, onMount } from 'svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '../../stores/configurationProperties';
@@ -14,11 +18,10 @@ import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
-import { getContainerConnectionName, IContainerRestart, IContainerStatus } from './Util';
-import { Buffer } from 'buffer';
-import PreferencesContainerConnectionActions from './PreferencesContainerConnectionActions.svelte';
+import { getProviderConnectionName, type IConnectionRestart, type IConnectionStatus } from './Util';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
+import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   value?: any;
@@ -28,12 +31,12 @@ interface IProviderContainerConfigurationPropertyRecorded extends IConfiguration
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
-$: containerConnectionStatus = new Map<string, IContainerStatus>();
+$: containerConnectionStatus = new Map<string, IConnectionStatus>();
 
 let isStatusUpdated = false;
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
-let restartingQueue: IContainerRestart[] = [];
+let restartingQueue: IConnectionRestart[] = [];
 
 let providersUnsubscribe: Unsubscriber;
 let configurationPropertiesUnsubscribe: Unsubscriber;
@@ -46,7 +49,7 @@ onMount(() => {
     providers = providerInfosValue;
     providers.forEach(provider => {
       provider.containerConnections.forEach(container => {
-        const containerConnectionName = getContainerConnectionName(provider, container);
+        const containerConnectionName = getProviderConnectionName(provider, container);
         // update the map only if the container state is different from last time
         if (
           !containerConnectionStatus.has(containerConnectionName) ||
@@ -60,12 +63,37 @@ onMount(() => {
               action: 'restart',
               status: container.status,
             });
-            startContainerProvider(provider, container, containerToRestart.loggerHandlerKey);
+            startConnectionProvider(provider, container, containerToRestart.loggerHandlerKey);
           } else {
             containerConnectionStatus.set(containerConnectionName, {
               inProgress: false,
               action: undefined,
               status: container.status,
+            });
+          }
+        }
+      });
+      provider.kubernetesConnections.forEach(connection => {
+        const containerConnectionName = getProviderConnectionName(provider, connection);
+        // update the map only if the container state is different from last time
+        if (
+          !containerConnectionStatus.has(containerConnectionName) ||
+          containerConnectionStatus.get(containerConnectionName).status !== connection.status
+        ) {
+          isStatusUpdated = true;
+          const containerToRestart = getContainerRestarting(provider.internalId, connection.name);
+          if (containerToRestart) {
+            containerConnectionStatus.set(containerConnectionName, {
+              inProgress: true,
+              action: 'restart',
+              status: connection.status,
+            });
+            startConnectionProvider(provider, connection, containerToRestart.loggerHandlerKey);
+          } else {
+            containerConnectionStatus.set(containerConnectionName, {
+              inProgress: false,
+              action: undefined,
+              status: connection.status,
             });
           }
         }
@@ -78,7 +106,7 @@ onMount(() => {
   });
 });
 
-function getContainerRestarting(provider: string, container: string): IContainerRestart {
+function getContainerRestarting(provider: string, container: string): IConnectionRestart {
   const containerToRestart = restartingQueue.filter(c => c.provider === provider && c.container === container)[0];
   if (containerToRestart) {
     restartingQueue = restartingQueue.filter(c => c.provider !== provider && c.container !== container);
@@ -139,7 +167,7 @@ function updateContainerStatus(
   action?: string,
   error?: string,
 ): void {
-  const containerConnectionName = getContainerConnectionName(provider, containerConnectionInfo);
+  const containerConnectionName = getProviderConnectionName(provider, containerConnectionInfo);
   if (error) {
     const currentStatus = containerConnectionStatus.get(containerConnectionName);
     containerConnectionStatus.set(containerConnectionName, {
@@ -157,13 +185,13 @@ function updateContainerStatus(
   containerConnectionStatus = containerConnectionStatus;
 }
 
-function addContainerToRestartingQueue(container: IContainerRestart) {
-  restartingQueue.push(container);
+function addConnectionToRestartingQueue(connection: IConnectionRestart) {
+  restartingQueue.push(connection);
 }
 
-async function startContainerProvider(
+async function startConnectionProvider(
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  containerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   loggerHandlerKey: symbol,
 ) {
   await window.startProviderConnectionLifecycle(
@@ -241,8 +269,8 @@ async function startContainerProvider(
                 </div>
                 <div class="flex">
                   <ConnectionStatus status="{container.status}" />
-                  {#if containerConnectionStatus.has(getContainerConnectionName(provider, container))}
-                    {@const status = containerConnectionStatus.get(getContainerConnectionName(provider, container))}
+                  {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
+                    {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
                     {#if status.error}
                       <button
                         class="ml-3 text-[9px] text-red-500 underline"
@@ -273,12 +301,12 @@ async function startContainerProvider(
                     {/each}
                   </div>
                 {/if}
-                <PreferencesContainerConnectionActions
+                <PreferencesConnectionActions
                   provider="{provider}"
-                  container="{container}"
-                  containerConnectionStatuses="{containerConnectionStatus}"
-                  updateContainerStatus="{updateContainerStatus}"
-                  addContainerToRestartingQueue="{addContainerToRestartingQueue}" />
+                  connection="{container}"
+                  connectionStatuses="{containerConnectionStatus}"
+                  updateConnectionStatus="{updateContainerStatus}"
+                  addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
                 <div class="mt-1.5 text-gray-500 text-[9px]">
                   <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
                 </div>
@@ -300,6 +328,12 @@ async function startContainerProvider(
                     </div>
                   </div>
                 {/if}
+                <PreferencesConnectionActions
+                  provider="{provider}"
+                  connection="{kubeConnection}"
+                  connectionStatuses="{containerConnectionStatus}"
+                  updateConnectionStatus="{updateContainerStatus}"
+                  addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
               </div>
             {/each}
           </div>

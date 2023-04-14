@@ -37,6 +37,7 @@ import type {
   PreflightChecksCallback,
   ProviderContainerConnectionInfo,
   ProviderInfo,
+  ProviderKubernetesConnectionInfo,
 } from './api/provider-info';
 import type { WebContents } from 'electron';
 import { app } from 'electron';
@@ -324,7 +325,7 @@ export class PluginSystem {
       false,
       0,
       undefined,
-      'tasks',
+      'Tasks',
       'fa fa-bell',
       true,
       'show-task-manager',
@@ -442,7 +443,6 @@ export class PluginSystem {
           return;
         }
         console.error('unable to check for updates', error);
-        dialog.showErrorBox('Error: ', error == null ? 'unknown' : (error.stack || error).toString());
       });
 
       // check for updates now
@@ -560,6 +560,7 @@ export class PluginSystem {
       containerProviderRegistry,
       inputQuickPickRegistry,
       authentication,
+      telemetry,
     );
     await this.extensionLoader.init();
 
@@ -1225,11 +1226,11 @@ export class PluginSystem {
       async (
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
-        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
         loggerId: string,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
-        await providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        await providerRegistry.startProviderConnection(providerId, providerConnectionInfo, logger);
         logger.onEnd();
       },
     );
@@ -1239,11 +1240,11 @@ export class PluginSystem {
       async (
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
-        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
         loggerId: string,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
-        await providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        await providerRegistry.stopProviderConnection(providerId, providerConnectionInfo, logger);
         logger.onEnd();
       },
     );
@@ -1253,11 +1254,11 @@ export class PluginSystem {
       async (
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
-        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
         loggerId: string,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
-        await providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo, logger);
+        await providerRegistry.deleteProviderConnection(providerId, providerConnectionInfo, logger);
         logger.onEnd();
       },
     );
@@ -1277,8 +1278,14 @@ export class PluginSystem {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
           token = tokenSource?.token;
         }
-        await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
-        logger.onEnd();
+        try {
+          await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
+        } catch (error) {
+          logger.error(error);
+          throw error;
+        } finally {
+          logger.onEnd();
+        }
       },
     );
 
@@ -1289,11 +1296,22 @@ export class PluginSystem {
         internalProviderId: string,
         params: { [key: string]: unknown },
         loggerId: string,
+        tokenId?: number,
       ): Promise<void> => {
         const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
-
-        await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger);
-        logger.onEnd();
+        let token;
+        if (tokenId) {
+          const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+          token = tokenSource?.token;
+        }
+        try {
+          await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger, token);
+        } catch (error) {
+          logger.error(error);
+          throw error;
+        } finally {
+          logger.onEnd();
+        }
       },
     );
 
@@ -1324,6 +1342,14 @@ export class PluginSystem {
     this.ipcHandle('kubernetes-client:deletePod', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deletePod(name);
     });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.ipcHandle(
+      'kubernetes-client:createResourcesFromFile',
+      async (_listener, context: string, file: string, namespace: string): Promise<void> => {
+        return kubernetesClient.createResourcesFromFile(context, file, namespace);
+      },
+    );
 
     this.ipcHandle(
       'openshift-client:createRoute',

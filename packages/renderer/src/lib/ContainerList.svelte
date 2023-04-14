@@ -7,7 +7,7 @@ import ContainerIcon from './images/ContainerIcon.svelte';
 import ContainerGroupIcon from './container/ContainerGroupIcon.svelte';
 import StatusIcon from './images/StatusIcon.svelte';
 import { router } from 'tinro';
-import { ContainerGroupInfoTypeUI, ContainerGroupInfoUI, ContainerInfoUI } from './container/ContainerInfoUI';
+import { ContainerGroupInfoTypeUI, type ContainerGroupInfoUI, type ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
 import PodActions from './pod/PodActions.svelte';
 import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';
@@ -515,7 +515,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                   on:click="{() => openDetailsContainer(container)}">
                   <div class="flex items-center">
                     <div class="text-sm text-gray-400 overflow-hidden text-ellipsis" title="{container.image}">
-                      {container.image}
+                      {container.shortImage}
                     </div>
                   </div></td>
                 <td class="whitespace-nowrap pl-4">

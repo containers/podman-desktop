@@ -39,6 +39,7 @@ import type { FilesystemMonitoring } from './filesystem-monitoring';
 import { Uri } from './types/uri';
 import type { KubernetesClient } from './kubernetes-client';
 import type { Proxy } from './proxy';
+import { shell as electronShell } from 'electron';
 import type { ContainerProviderRegistry } from './container-registry';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
 import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry';
@@ -48,7 +49,9 @@ import { Emitter } from './events/emitter';
 import { CancellationTokenSource } from './cancellation-token';
 import type { ApiSenderType } from './api';
 import type { AuthenticationImpl } from './authentication';
-
+import type { Telemetry } from './telemetry/telemetry';
+import { TelemetryTrustedValue } from './types/telemetry';
+import { clipboard as electronClipboard } from 'electron';
 /**
  * Handle the loading of an extension
  */
@@ -109,6 +112,7 @@ export class ExtensionLoader {
     private containerProviderRegistry: ContainerProviderRegistry,
     private inputQuickPickRegistry: InputQuickPickRegistry,
     private authenticationProviderRegistry: AuthenticationImpl,
+    private telemetry: Telemetry,
   ) {}
 
   async listExtensions(): Promise<ExtensionInfo[]> {
@@ -416,6 +420,12 @@ export class ExtensionLoader {
       onDidUpdateProvider: (listener, thisArg, disposables) => {
         return providerRegistry.onDidUpdateProvider(listener, thisArg, disposables);
       },
+      onDidUpdateContainerConnection: (listener, thisArg, disposables) => {
+        return providerRegistry.onDidUpdateContainerConnection(listener, thisArg, disposables);
+      },
+      onDidUpdateKubernetesConnection: (listener, thisArg, disposables) => {
+        return providerRegistry.onDidUpdateKubernetesConnection(listener, thisArg, disposables);
+      },
       onDidUnregisterContainerConnection: (listener, thisArg, disposables) => {
         return providerRegistry.onDidUnregisterContainerConnection(listener, thisArg, disposables);
       },
@@ -581,6 +591,9 @@ export class ExtensionLoader {
       onDidUpdateKubeconfig: (listener, thisArg, disposables) => {
         return kubernetesClient.onDidUpdateKubeconfig(listener, thisArg, disposables);
       },
+      async createResources(context, manifests): Promise<void> {
+        return kubernetesClient.createResources(context, manifests);
+      },
     };
 
     const containerProviderRegistry = this.containerProviderRegistry;
@@ -591,6 +604,12 @@ export class ExtensionLoader {
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);
       },
+      startContainer(engineId: string, id: string) {
+        return containerProviderRegistry.startContainer(engineId, id);
+      },
+      stopContainer(engineId: string, id: string) {
+        return containerProviderRegistry.stopContainer(engineId, id);
+      },
       saveImage(engineId: string, id: string, filename: string) {
         return containerProviderRegistry.saveImage(engineId, id, filename);
       },
@@ -600,7 +619,13 @@ export class ExtensionLoader {
     };
 
     const authenticationProviderRegistry = this.authenticationProviderRegistry;
-    const extensionInfo = { id: extManifest.name, label: extManifest.displayName };
+    const extensionInfo = {
+      id: `${extManifest.publisher}.${extManifest.name}`,
+      label: extManifest.displayName,
+      version: extManifest.version,
+      publisher: extManifest.publisher,
+      name: extManifest.name,
+    };
     const authentication: typeof containerDesktopAPI.authentication = {
       getSession: (providerId, scopes, options) => {
         return authenticationProviderRegistry.getSession(extensionInfo, providerId, scopes, options);
@@ -613,13 +638,50 @@ export class ExtensionLoader {
       },
     };
 
+    const telemetry = this.telemetry;
+    const env: typeof containerDesktopAPI.env = {
+      openExternal: async (uri: containerDesktopAPI.Uri): Promise<boolean> => {
+        try {
+          await electronShell.openExternal(uri.toString());
+          return true;
+        } catch (error) {
+          console.error(`Unable to open external link  ${uri.toString()} from extension ${extensionInfo.id}`, error);
+          return false;
+        }
+      },
+      createTelemetryLogger: (
+        sender?: containerDesktopAPI.TelemetrySender | undefined,
+        options?: containerDesktopAPI.TelemetryLoggerOptions | undefined,
+      ) => {
+        return telemetry.createTelemetryLogger(extensionInfo, sender, options);
+      },
+      get isTelemetryEnabled() {
+        return telemetry.isTelemetryEnabled();
+      },
+      onDidChangeTelemetryEnabled: (listener, thisArg, disposables) => {
+        return telemetry.onDidChangeTelemetryEnabled(listener, thisArg, disposables);
+      },
+      get clipboard(): containerDesktopAPI.Clipboard {
+        return {
+          readText: async () => {
+            return electronClipboard.readText();
+          },
+          writeText: async value => {
+            return electronClipboard.writeText(value);
+          },
+        };
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
       Uri: Uri,
       EventEmitter: Emitter,
       CancellationTokenSource: CancellationTokenSource,
+      TelemetryTrustedValue: TelemetryTrustedValue,
       commands,
+      env,
       registry,
       provider,
       fs,

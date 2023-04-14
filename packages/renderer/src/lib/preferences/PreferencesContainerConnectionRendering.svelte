@@ -13,7 +13,7 @@ import { writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
 import { filesize } from 'filesize';
-import { ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
+import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;

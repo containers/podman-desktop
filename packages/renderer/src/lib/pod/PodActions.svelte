@@ -115,11 +115,11 @@ if (dropdownMenu) {
       menu="{dropdownMenu}"
       detailed="{detailed}"
       icon="{faRocket}" />
+    <ListItemButtonIcon
+      title="Restart Pod"
+      onClick="{() => restartPod(pod)}"
+      menu="{dropdownMenu}"
+      detailed="{detailed}"
+      icon="{faArrowsRotate}" />
   {/if}
-  <ListItemButtonIcon
-    title="Restart Pod"
-    onClick="{() => restartPod(pod)}"
-    menu="{dropdownMenu}"
-    detailed="{detailed}"
-    icon="{faArrowsRotate}" />
 </svelte:component>

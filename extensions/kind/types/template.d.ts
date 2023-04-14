@@ -20,3 +20,8 @@ declare module '*.mustache' {
   const contents: string;
   export = contents;
 }
+
+declare module '*.yaml' {
+  const contents: string;
+  export = contents;
+}

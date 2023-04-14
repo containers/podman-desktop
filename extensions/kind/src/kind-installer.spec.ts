@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { tmpName } from 'tmp-promise';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { KindInstaller } from './kind-installer';
 import * as extensionApi from '@podman-desktop/api';
+import { installBinaryToSystem } from './util';
 
 let installer: KindInstaller;
 
@@ -26,6 +28,7 @@ vi.mock('@podman-desktop/api', async () => {
   return {
     window: {
       showInformationMessage: vi.fn().mockReturnValue(Promise.resolve('Yes')),
+      showErrorMessage: vi.fn(),
       withProgress: vi.fn(),
       showNotification: vi.fn(),
     },
@@ -44,9 +47,54 @@ vi.mock('@octokit/rest', () => {
   };
 });
 
+const telemetryLogUsageMock = vi.fn();
+const telemetryLogErrorMock = vi.fn();
+const telemetryLoggerMock = {
+  logUsage: telemetryLogUsageMock,
+  logError: telemetryLogErrorMock,
+} as unknown as extensionApi.TelemetryLogger;
+
+vi.mock('runCliCommand', async () => {
+  return vi.fn();
+});
+
 beforeEach(() => {
-  installer = new KindInstaller('.');
+  installer = new KindInstaller('.', telemetryLoggerMock);
   vi.clearAllMocks();
+});
+
+test.skip('expect installBinaryToSystem to succesfully pass with a binary', async () => {
+  // Mock process.platform to be linux
+  // to avoid the usage of sudo-prompt (we cannot test that in unit tests)
+  Object.defineProperty(process, 'platform', {
+    value: 'linux',
+  });
+
+  // Create a tmp file using tmp-promise
+  const filename = await tmpName();
+
+  // "Install" the binary, this should pass sucessfully
+  try {
+    await installBinaryToSystem(filename, 'tmpBinary');
+  } catch (err) {
+    expect(err).toBeUndefined();
+  }
+});
+
+test('error: expect installBinaryToSystem to fail with a non existing binary', async () => {
+  Object.defineProperty(process, 'platform', {
+    value: 'linux',
+  });
+
+  // Run installBinaryToSystem with a non-binary file
+  try {
+    await installBinaryToSystem('test', 'tmpBinary');
+    // Expect that showErrorMessage is called
+    expect(extensionApi.window.showErrorMessage).toHaveBeenCalled();
+  } catch (err) {
+    expect(err).to.be.a('Error');
+    expect(err).toBeDefined();
+  }
 });
 
 test('expect showNotification to be called', async () => {
@@ -65,8 +113,20 @@ test('expect showNotification to be called', async () => {
       dispose: () => {},
     };
   });
+
+  // Check that install passes
   const result = await installer.performInstall();
+  expect(telemetryLogErrorMock).not.toBeCalled();
+  expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(1, 'install-kind-prompt');
+  expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(2, 'install-kind-prompt-yes');
+  expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(3, 'install-kind-downloaded');
+
   expect(result).toBeDefined();
   expect(result).toBeTruthy();
+
+  // Check that showNotification is called
   expect(spy).toBeCalled();
+
+  // Expect showInformationMessage to be shown and be asking for installing it system wide
+  expect(extensionApi.window.showInformationMessage).toBeCalled();
 });

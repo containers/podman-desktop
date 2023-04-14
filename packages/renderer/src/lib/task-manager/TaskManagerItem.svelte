@@ -2,8 +2,8 @@
 import { faClose, faInfoCircle, faSquareCheck, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { createEventDispatcher, onMount } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
-import { TaskManager, TaskUI } from './task-manager';
-import { removeTask, Task } from '/@/stores/tasks';
+import { TaskManager, type TaskUI } from './task-manager';
+import { removeTask, type Task } from '/@/stores/tasks';
 
 export let task: Task;
 

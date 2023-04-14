@@ -16,16 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type {
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../../../main/src/plugin/api/provider-info';
 
-export interface IContainerStatus {
+export interface IConnectionStatus {
   status: string;
   action?: string;
   inProgress: boolean;
   error?: string;
 }
 
-export interface IContainerRestart {
+export interface IConnectionRestart {
   provider: string;
   container: string;
   loggerHandlerKey: symbol;
@@ -44,7 +48,7 @@ export function writeToTerminal(xterm: any, data: string[], colorPrefix: string)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function writeMultilineString(xterm: any, data: string, colorPrefix: string): void {
-  if (data.includes('\n')) {
+  if (data && data.includes && data.includes('\n')) {
     const toWrite = data.split('\n');
     for (const s of toWrite) {
       xterm.write(colorPrefix + s + '\n\r');
@@ -54,9 +58,9 @@ function writeMultilineString(xterm: any, data: string, colorPrefix: string): vo
   }
 }
 
-export function getContainerConnectionName(
+export function getProviderConnectionName(
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
 ): string {
-  return `${provider.name}-${containerConnectionInfo.name}`;
+  return `${provider.name}-${providerConnectionInfo.name}`;
 }

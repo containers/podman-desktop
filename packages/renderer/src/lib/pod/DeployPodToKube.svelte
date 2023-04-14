@@ -80,6 +80,10 @@ async function updatePod() {
   if (createdPod.status?.phase === 'Running') {
     clearInterval(updatePodInterval);
     deployFinished = true;
+    window.telemetryTrack('deployToKube.running', {
+      useServices: deployUsingServices,
+      useRoutes: deployUsingRoutes,
+    });
   }
 }
 
@@ -179,6 +183,14 @@ async function deployToKube() {
     bodyPod.metadata.creationTimestamp = new Date(bodyPod.metadata.creationTimestamp);
   }
 
+  const eventProperties = {
+    useServices: deployUsingServices,
+    useRoutes: deployUsingRoutes,
+  };
+  if (openshiftConsoleURL) {
+    eventProperties['isOpenshift'] = true;
+  }
+
   try {
     createdPod = await window.kubernetesCreatePod(currentNamespace, bodyPod);
 
@@ -192,10 +204,12 @@ async function deployToKube() {
       const createdRoute = await window.openshiftCreateRoute(currentNamespace, route);
       createdRoutes = [...createdRoutes, createdRoute];
     }
+    window.telemetryTrack('deployToKube', eventProperties);
 
     // update status
     updatePodInterval = setInterval(updatePod, 2000);
   } catch (error) {
+    window.telemetryTrack('deployToKube', { ...eventProperties, errorMessage: error.message });
     deployError = error;
     deployStarted = false;
     deployFinished = false;
@@ -303,7 +317,7 @@ function updateKubeResult() {
       <ErrorMessage class="text-sm" error="{deployError}" />
 
       {#if createdPod}
-        <div class="h-1/3 bg-zinc-900 p-5 my-4">
+        <div class="bg-zinc-900 p-5 my-4">
           <div class="flex flex-row items-center">
             <div>Created pod:</div>
             {#if openshiftConsoleURL && createdPod?.metadata?.name}

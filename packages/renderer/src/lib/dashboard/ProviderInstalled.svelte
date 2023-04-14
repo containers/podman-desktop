@@ -11,7 +11,7 @@ import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
 import {
-  InitializationMode,
+  type InitializationMode,
   InitializationSteps,
   InitializeAndStartMode,
   InitializeOnlyMode,
@@ -132,7 +132,7 @@ function onInstallationClick() {
 }
 </script>
 
-<div class="p-2 flex flex-col bg-zinc-800 rounded-lg">
+<div class="p-2 flex flex-col bg-zinc-900 rounded-lg">
   <ProviderLogo provider="{provider}" />
   <div class="flex flex-col items-center text-center">
     <p class="text-xl text-gray-300">

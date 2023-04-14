@@ -457,19 +457,19 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // add links
   providerOptions.links = [
     {
-      title: 'Visit the Podman website',
+      title: 'Website',
       url: 'https://podman.io/',
     },
     {
-      title: 'Read the Podman installation guide',
+      title: 'Installation guide',
       url: 'https://podman.io/getting-started/installation',
     },
     {
-      title: 'Read the Podman/Docker compatibility guide',
+      title: 'Docker compatibility guide',
       url: 'https://podman-desktop.io/docs/troubleshooting#warning-about-docker-compatibility-mode',
     },
     {
-      title: 'Join the Podman community',
+      title: 'Join the community',
       url: 'https://podman.io/community/',
     },
   ];
@@ -581,90 +581,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // allows to create machines
   if (isMac() || isWindows()) {
-    const createFunction = async (
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      params: { [key: string]: any },
-      logger: extensionApi.Logger,
-      token?: extensionApi.CancellationToken,
-    ): Promise<void> => {
-      const parameters = [];
-      parameters.push('machine');
-      parameters.push('init');
-
-      // cpus
-      if (params['podman.factory.machine.cpus']) {
-        parameters.push('--cpus');
-        parameters.push(params['podman.factory.machine.cpus']);
-      }
-
-      // memory
-      if (params['podman.factory.machine.memory']) {
-        parameters.push('--memory');
-        parameters.push(params['podman.factory.machine.memory']);
-      }
-
-      // disk size
-      if (params['podman.factory.machine.diskSize']) {
-        parameters.push('--disk-size');
-        parameters.push(params['podman.factory.machine.diskSize']);
-      }
-
-      // disk size
-      if (params['podman.factory.machine.image-path']) {
-        parameters.push('--image-path');
-        parameters.push(params['podman.factory.machine.image-path']);
-      } else if (isMac() || isWindows()) {
-        // check if we have an embedded asset for the image path for macOS or Windows
-        let suffix = '';
-        if (isWindows()) {
-          suffix = `-${process.arch}.tar.xz`;
-        } else if (isMac()) {
-          suffix = `-${process.arch}.qcow2.xz`;
-        }
-        const assetImagePath = path.resolve(getAssetsFolder(), `podman-image${suffix}`);
-        // check if the file exists and if it does, use it
-        if (fs.existsSync(assetImagePath)) {
-          parameters.push('--image-path');
-          parameters.push(assetImagePath);
-        }
-      }
-
-      // name at the end
-      if (params['podman.factory.machine.name']) {
-        parameters.push(params['podman.factory.machine.name']);
-      }
-
-      // name at the end
-      if (params['podman.factory.machine.now']) {
-        parameters.push('--now');
-      }
-
-      // Add proxy environment variables if proxy is enabled
-      const proxyEnabled = extensionApi.proxy.isEnabled();
-      const env = {};
-      if (proxyEnabled) {
-        const proxySettings = extensionApi.proxy.getProxySettings();
-        if (proxySettings?.httpProxy) {
-          if (isWindows()) {
-            env['env:http_proxy'] = proxySettings.httpProxy;
-          } else {
-            env['http_proxy'] = proxySettings.httpProxy;
-          }
-        }
-        if (proxySettings?.httpsProxy) {
-          if (isWindows()) {
-            env['env:https_proxy'] = proxySettings.httpsProxy;
-          } else {
-            env['https_proxy'] = proxySettings.httpsProxy;
-          }
-        }
-      }
-      await execPromise(getPodmanCli(), parameters, { logger, env }, token);
-    };
-
     provider.setContainerProviderConnectionFactory({
-      initialize: () => createFunction({}, undefined),
-      create: createFunction,
+      initialize: () => createMachine({}, undefined),
+      create: createMachine,
       creationDisplayName: 'Podman machine',
     });
   }
@@ -731,6 +650,88 @@ export function deactivate(): void {
   console.log('stopping podman extension');
 }
 
+export async function createMachine(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params: { [key: string]: any },
+  logger: extensionApi.Logger,
+  token?: extensionApi.CancellationToken,
+): Promise<void> {
+  const parameters = [];
+  parameters.push('machine');
+  parameters.push('init');
+
+  // cpus
+  if (params['podman.factory.machine.cpus']) {
+    parameters.push('--cpus');
+    parameters.push(params['podman.factory.machine.cpus']);
+  }
+
+  // memory
+  if (params['podman.factory.machine.memory']) {
+    parameters.push('--memory');
+    const memoryAsMB = +params['podman.factory.machine.memory'] / (1000 * 1000);
+    parameters.push(Math.floor(memoryAsMB).toString());
+  }
+
+  // disk size
+  if (params['podman.factory.machine.diskSize']) {
+    parameters.push('--disk-size');
+    const diskAsGB = +params['podman.factory.machine.diskSize'] / (1000 * 1000 * 1000);
+    parameters.push(Math.floor(diskAsGB).toString());
+  }
+
+  // disk size
+  if (params['podman.factory.machine.image-path']) {
+    parameters.push('--image-path');
+    parameters.push(params['podman.factory.machine.image-path']);
+  } else if (isMac() || isWindows()) {
+    // check if we have an embedded asset for the image path for macOS or Windows
+    let suffix = '';
+    if (isWindows()) {
+      suffix = `-${process.arch}.tar.xz`;
+    } else if (isMac()) {
+      suffix = `-${process.arch}.qcow2.xz`;
+    }
+    const assetImagePath = path.resolve(getAssetsFolder(), `podman-image${suffix}`);
+    // check if the file exists and if it does, use it
+    if (fs.existsSync(assetImagePath)) {
+      parameters.push('--image-path');
+      parameters.push(assetImagePath);
+    }
+  }
+
+  // name at the end
+  if (params['podman.factory.machine.name']) {
+    parameters.push(params['podman.factory.machine.name']);
+  }
+
+  // name at the end
+  if (params['podman.factory.machine.now']) {
+    parameters.push('--now');
+  }
+
+  // Add proxy environment variables if proxy is enabled
+  const proxyEnabled = extensionApi.proxy.isEnabled();
+  const env = {};
+  if (proxyEnabled) {
+    const proxySettings = extensionApi.proxy.getProxySettings();
+    if (proxySettings?.httpProxy) {
+      if (isWindows()) {
+        env['env:http_proxy'] = proxySettings.httpProxy;
+      } else {
+        env['http_proxy'] = proxySettings.httpProxy;
+      }
+    }
+    if (proxySettings?.httpsProxy) {
+      if (isWindows()) {
+        env['env:https_proxy'] = proxySettings.httpsProxy;
+      } else {
+        env['https_proxy'] = proxySettings.httpsProxy;
+      }
+    }
+  }
+  await execPromise(getPodmanCli(), parameters, { logger, env }, token);
+}
 function setupDisguisedPodmanSocketWatcher(
   provider: extensionApi.Provider,
   socketFile: string,
