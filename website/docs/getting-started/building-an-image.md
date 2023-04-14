@@ -13,7 +13,7 @@ With Podman Desktop, you can build an image from a Containerfile on your contain
 
 #### Prerequisites
 
-* Your Containerfile: `Containerfile` or `Dockerfile.
+* Your Containerfile: `Containerfile` or `Dockerfile`.
 
 #### Procedure
 
