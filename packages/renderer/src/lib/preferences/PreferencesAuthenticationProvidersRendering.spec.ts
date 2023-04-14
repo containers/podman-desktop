@@ -35,13 +35,12 @@ test('Expect that page shows icon and message when no auth providers registered'
 
 test('Expect that page shows registered authentication providers without accounts as logged out', async () => {
   authenticationProviders.set([
-      {
-        id: 'test',
-        displayName: 'Test Authentication Provider',
-        accounts:[],
-      }
-    ]
-  );
+    {
+      id: 'test',
+      displayName: 'Test Authentication Provider',
+      accounts: [],
+    },
+  ]);
   render(PreferencesAuthenticationProvidersRendering, {});
   const providerText = await screen.findByText('Test Authentication Provider');
   expect(providerText).toBeInTheDocument();
@@ -53,13 +52,13 @@ const testProvidersInfo = [
   {
     id: 'test',
     displayName: 'Test Authentication Provider',
-    accounts:[
+    accounts: [
       {
         id: 'test-account',
         label: 'Test Account',
-      }  
+      },
     ],
-  }
+  },
 ];
 
 test('Expect that page shows registered authentication providers with account as logged in', async () => {
