@@ -1,4 +1,5 @@
 ---
+sidebar_position: 1
 id: getting-started
 title: Getting Started with Podman Desktop
 description: This blog will help you build and run your first container image on Podman Desktop

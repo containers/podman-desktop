@@ -19,7 +19,7 @@ import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { runCliCommand } from './util';
+import { getKindPath, runCliCommand } from './util';
 import mustache from 'mustache';
 import { parseAllDocuments } from 'yaml';
 
@@ -111,6 +111,9 @@ export async function createCluster(
 
   // ok we need to write the file
   await fs.promises.writeFile(tmpFilePath, kindClusterConfig, 'utf8');
+
+  // update PATH to include kind
+  env.PATH = getKindPath();
 
   // now execute the command to create the cluster
   try {

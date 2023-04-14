@@ -49,7 +49,7 @@ export interface RunOptions {
   logger?: extensionApi.Logger;
 }
 
-const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
+const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
 export function getKindPath(): string {
   const env = process.env;
