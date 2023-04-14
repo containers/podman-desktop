@@ -8,3 +8,5 @@ dist
 .vale/styles/RedHat
 **/test-resources
 **/coverage
+kind
+kind.exe

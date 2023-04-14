@@ -25,12 +25,14 @@ import { KubeConfig } from '@kubernetes/client-node';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
+const makeApiClientMock = vi.fn();
 
 beforeAll(() => {
   vi.mock('@kubernetes/client-node', async () => {
     return {
       KubeConfig: vi.fn(),
       CoreV1Api: {},
+      AppsV1Api: {},
       CustomObjectsApi: {},
     };
   });
@@ -38,8 +40,8 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  KubeConfig.prototype.loadFromOptions = vi.fn();
-  KubeConfig.prototype.makeApiClient = vi.fn();
+  KubeConfig.prototype.loadFromFile = vi.fn();
+  KubeConfig.prototype.makeApiClient = makeApiClientMock;
 });
 
 test('Create Kubernetes resources with empty should return ok', async () => {
@@ -52,6 +54,17 @@ test('Create Kubernetes resources with v1 resource should return ok', async () =
   const spy = vi.spyOn(client, 'createV1Resource').mockReturnValue(Promise.resolve());
   await client.createResources('dummy', [{ apiVersion: 'v1', kind: 'Namespace' }]);
   expect(spy).toBeCalled();
+});
+
+test('Create Kubernetes resources with apps/v1 resource should return ok', async () => {
+  const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring);
+  const createNamespacedDeploymentMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    createNamespacedDeployment: createNamespacedDeploymentMock,
+  });
+
+  await client.createResources('dummy', [{ apiVersion: 'apps/v1', kind: 'Deployment' }]);
+  expect(createNamespacedDeploymentMock).toBeCalledWith('default', { apiVersion: 'apps/v1', kind: 'Deployment' });
 });
 
 test('Create Kubernetes resources with v1 resource in error should return error', async () => {
