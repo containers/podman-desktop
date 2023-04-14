@@ -76,3 +76,6 @@ window?.events?.receive('provider-register-kubernetes-connection', () => {
 window?.events?.receive('provider-unregister-kubernetes-connection', () => {
   fetchProviders();
 });
+window.events?.receive('extensions-started', () => {
+  fetchProviders();
+});

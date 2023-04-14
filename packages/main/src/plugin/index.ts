@@ -1436,6 +1436,7 @@ export class PluginSystem {
     console.log('System ready. Loading extensions...');
     await this.extensionLoader.start();
     console.log('PluginSystem: initialization done.');
+    apiSender.send('extensions-started');
     autoStartConfiguration.start();
     return this.extensionLoader;
   }
