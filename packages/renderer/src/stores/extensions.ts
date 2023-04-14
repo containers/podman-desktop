@@ -44,3 +44,7 @@ window?.events.receive('extension-started', () => {
 window.addEventListener('system-ready', () => {
   fetchExtensions();
 });
+
+window.events?.receive('extensions-started', () => {
+  fetchExtensions();
+});

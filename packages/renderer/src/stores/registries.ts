@@ -71,3 +71,7 @@ window.events?.receive('registry-update', () => {
 window.addEventListener('system-ready', () => {
   fetchRegistries();
 });
+
+window.events?.receive('extensions-started', () => {
+  fetchRegistries();
+});
