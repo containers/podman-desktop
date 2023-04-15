@@ -29,13 +29,13 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-test('Expect that page shows icon and message when no auth providers registered', async () => {
+test('Expect that page shows icon and message when no auth providers registered', () => {
   render(PreferencesAuthenticationProvidersRendering, {});
-  const noProvidersText = await screen.getByText('No authentication providers');
+  const noProvidersText = screen.getByText('No authentication providers');
   expect(noProvidersText).toBeInTheDocument();
 });
 
-test('Expect that page shows registered authentication providers without accounts as logged out', async () => {
+test('Expect that page shows registered authentication providers without accounts as logged out', () => {
   authenticationProviders.set([
     {
       id: 'test',
@@ -44,9 +44,9 @@ test('Expect that page shows registered authentication providers without account
     },
   ]);
   render(PreferencesAuthenticationProvidersRendering, {});
-  const providerText = await screen.getByText('Test Authentication Provider');
+  const providerText = screen.getByText('Test Authentication Provider');
   expect(providerText).toBeInTheDocument();
-  const loggedOut = await screen.getByText('Logged out');
+  const loggedOut = screen.getByText('Logged out');
   expect(loggedOut).toBeInTheDocument();
 });
 
@@ -63,22 +63,22 @@ const testProvidersInfo = [
   },
 ];
 
-test('Expect that page shows registered authentication providers with account as logged in', async () => {
+test('Expect that page shows registered authentication providers with account as logged in', () => {
   authenticationProviders.set(testProvidersInfo);
   render(PreferencesAuthenticationProvidersRendering, {});
-  const providerText = await screen.getByText('Test Authentication Provider');
+  const providerText = screen.getByText('Test Authentication Provider');
   expect(providerText).toBeInTheDocument();
-  const loggedOut = await screen.getByText('Logged in');
+  const loggedOut = screen.getByText('Logged in');
   expect(loggedOut).toBeInTheDocument();
-  const signoutButton = await screen.getByRole('button', { name: `Sign out of ${testProvidersInfo[0].accounts[0].label}`});
+  const signoutButton = screen.getByRole('button', { name: `Sign out of ${testProvidersInfo[0].accounts[0].label}` });
   expect(signoutButton).toBeInTheDocument();
   expect(signoutButton).toBeEnabled();
 });
 
-test('Expect Sign Out button click calls window.requestAuthenticationProviderSignOut with provider and account ids', async () => {
+test('Expect Sign Out button click calls window.requestAuthenticationProviderSignOut with provider and account ids', () => {
   authenticationProviders.set(testProvidersInfo);
   render(PreferencesAuthenticationProvidersRendering, {});
-  const signoutButton = await screen.getByRole('button', { name: `Sign out of ${testProvidersInfo[0].accounts[0].label}`});
+  const signoutButton = screen.getByRole('button', { name: `Sign out of ${testProvidersInfo[0].accounts[0].label}` });
   const requestSignOutMock = vi.fn().mockImplementation(() => {});
   (window as any).requestAuthenticationProviderSignOut = requestSignOutMock;
   fireEvent.click(signoutButton);
