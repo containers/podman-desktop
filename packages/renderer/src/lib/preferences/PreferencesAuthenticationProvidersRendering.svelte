@@ -42,7 +42,7 @@ import KeyIcon from '../images/KeyIcon.svelte';
                   </div>
                   {#if provider.accounts.length > 0}
                     <button
-                      title="Sign out of {provider.accounts[0].label}"
+                      aria-label="Sign out of {provider.accounts[0].label}"
                       class="pl-2 hover:cursor-pointer hover:text-white text-white"
                       on:click="{() =>
                         window.requestAuthenticationProviderSignOut(provider.id, provider.accounts[0].id)}">
