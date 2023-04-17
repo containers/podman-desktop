@@ -23,7 +23,7 @@ const buttonClass: string =
 const buttonDisabledClass: string =
   'm-0.5 text-gray-700 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 
-$: handleClick = enabled ? onClick : () => {};
+$: handleClick = enabled && !inProgress ? onClick : () => {};
 $: styleClass = detailed
   ? enabled && !inProgress
     ? buttonDetailedClass

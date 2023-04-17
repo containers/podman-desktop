@@ -24,7 +24,7 @@ async function startContainer(containerInfo: ContainerInfoUI) {
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false);
+    inProgressCallback(false, 'RUNNING');
   }
 }
 
@@ -46,7 +46,7 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false);
+    inProgressCallback(false, 'STOPPED');
   }
 }
 
