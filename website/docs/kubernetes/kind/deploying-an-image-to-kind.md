@@ -12,7 +12,7 @@ With Podman Desktop, you can deploy an image to your local Kind-powered Kubernet
 
 #### Prerequisites
 
-* Your are using the Podman container engine.
+* You are using the Podman container engine.
 * Your image is available on the **Images** page: *<your_image>*.
 * [You created a Kind cluster](creating-a-kind-cluster.md).
 
