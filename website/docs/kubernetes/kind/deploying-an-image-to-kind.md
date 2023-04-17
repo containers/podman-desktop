@@ -8,7 +8,7 @@ tags: [migrating-to-kubernetes, images]
 
 # Deploying an image to your local Kind-powered Kubernetes cluster 
 
-With Podman Desktop, you can deploy a Podman image to your local Kind-powered Kubernetes cluster.
+With Podman Desktop, you can deploy an image to your local Kind-powered Kubernetes cluster.
 
 #### Prerequisites
 
