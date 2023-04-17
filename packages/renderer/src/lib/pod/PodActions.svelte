@@ -23,7 +23,7 @@ async function startPod(podInfoUI: PodInfoUI) {
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false);
+    inProgressCallback(false, 'RUNNING');
   }
 }
 
@@ -45,7 +45,7 @@ async function stopPod(podInfoUI: PodInfoUI) {
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false);
+    inProgressCallback(false, 'STOPPED');
   }
 }
 
