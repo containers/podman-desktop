@@ -114,11 +114,18 @@ export class PluginSystem {
   // notified when UI is dom-ready
   private uiReady = false;
 
+  // true if the application is quitting
+  private isQuitting = false;
+
   // The yet to be init ExtensionLoader
   private extensionLoader!: ExtensionLoader;
   private validExtList!: ExtensionInfo[];
 
-  constructor(private trayMenu: TrayMenu) {}
+  constructor(private trayMenu: TrayMenu) {
+    app.on('before-quit', () => {
+      this.isQuitting = true;
+    });
+  }
 
   getWebContentsSender(): WebContents {
     const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
@@ -204,10 +211,12 @@ export class PluginSystem {
       originalConsoleMethod(...args);
 
       // but also send the content remotely
-      try {
-        this.getWebContentsSender().send('console:output', logType, ...args);
-      } catch (err) {
-        originalConsoleMethod(err);
+      if (!this.isQuitting) {
+        try {
+          this.getWebContentsSender().send('console:output', logType, ...args);
+        } catch (err) {
+          originalConsoleMethod(err);
+        }
       }
     };
   }

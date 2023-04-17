@@ -320,14 +320,13 @@ async function startConnectionProvider(
                 <div class="flex mt-1">
                   <ConnectionStatus status="{kubeConnection.status}" />
                 </div>
-                {#if kubeConnection.status === 'started'}
-                  <div class="mt-2">
-                    <div class="text-gray-400 text-xs">Kubernetes endpoint</div>
-                    <div class="mt-1">
-                      <span class="my-auto text-xs">{kubeConnection.endpoint.apiURL}</span>
-                    </div>
+                <div class="mt-2">
+                  <div class="text-gray-400 text-xs">Kubernetes endpoint</div>
+                  <div class="mt-1">
+                    <span class="my-auto text-xs" class:text-gray-500="{kubeConnection.status !== 'started'}"
+                      >{kubeConnection.endpoint.apiURL}</span>
                   </div>
-                {/if}
+                </div>
                 <PreferencesConnectionActions
                   provider="{provider}"
                   connection="{kubeConnection}"

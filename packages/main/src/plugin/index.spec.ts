@@ -32,6 +32,13 @@ const webContents = emitter as unknown as WebContents;
 webContents.send = vi.fn();
 
 beforeAll(() => {
+  vi.mock('electron', () => {
+    return {
+      app: {
+        on: vi.fn(),
+      },
+    };
+  });
   const trayMenuMock = {} as unknown as TrayMenu;
   pluginSystem = new PluginSystem(trayMenuMock);
 });

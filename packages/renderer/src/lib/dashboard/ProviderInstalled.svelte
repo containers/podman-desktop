@@ -39,6 +39,10 @@ let termFit: FitAddon;
 let installationOptionsMenuVisible = false;
 let installationOptionSelected = InitializeAndStartMode;
 
+// no initialize support, hide the button
+$: initializationButtonVisible =
+  provider.containerProviderConnectionInitialization || provider.kubernetesProviderConnectionInitialization;
+
 async function initializeProvider() {
   initalizeError = undefined;
   logsTerminal.clear();
@@ -108,11 +112,6 @@ onMount(async () => {
 
   // Observe the terminal div
   resizeObserver.observe(logsXtermDiv);
-
-  // no initialize support, hide the button
-  if (!provider.containerProviderConnectionInitialization && !provider.kubernetesProviderConnectionInitialization) {
-    initializationButtonVisible = false;
-  }
 });
 
 onDestroy(() => {

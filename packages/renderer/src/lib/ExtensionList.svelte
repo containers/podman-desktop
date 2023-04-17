@@ -3,7 +3,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faPuzzlePiece, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { faStop } from '@fortawesome/free-solid-svg-icons';
-import { afterUpdate, onMount } from 'svelte';
+import { afterUpdate } from 'svelte';
 import { extensionInfos } from '../stores/extensions';
 import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
 import ErrorMessage from './ui/ErrorMessage.svelte';
@@ -115,22 +115,23 @@ async function removeExtension(extension: ExtensionInfo) {
       </div>
     </div>
   </div>
-  <div class="shadow overflow-hidden border border-zinc-700 sm mt-2">
-    <table class="min-w-full divide-y divide-gray-800">
-      <tbody class="bg-zinc-900 divide-y divide-zinc-700">
+  <div class="bg-zinc-800 mt-5 rounded-md p-3">
+    <table class="min-w-full">
+      <tbody>
         {#each sortedExtensions as extension}
-          <tr>
-            <td class="px-6 py-2 whitespace-nowrap">
+          <tr class="border-y border-gray-600">
+            <td class="px-6 py-2">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10 py-3" title="Extension {extension.name} is {extension.state}">
                   <Fa
                     class="h-10 w-10 rounded-full {extension.state === 'active' ? 'text-violet-600' : 'text-gray-700'}"
+                    size="25"
                     icon="{faPuzzlePiece}" />
                 </div>
                 <div class="ml-4">
                   <div class="flex flex-row">
                     <div class="text-sm text-gray-200">
-                      {extension.name}
+                      {extension.displayName}
                       {extension.removable ? '(user)' : '(default extension)'}
                     </div>
                   </div>
@@ -143,7 +144,7 @@ async function removeExtension(extension: ExtensionInfo) {
                 </div>
               </div>
             </td>
-            <td class="px-6 py-2 whitespace-nowrap">
+            <td class="px-2 py-2 whitespace-nowrap">
               <div class="flex flex-row justify-end">
                 <button
                   title="Start extension"
