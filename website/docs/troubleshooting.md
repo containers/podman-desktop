@@ -248,7 +248,7 @@ You can
 
 Then run a terminal in native mode (default) and install Podman machine `brew install podman-machine`
 
-Finally clean the Podman machine VMs that had been previously created and create new ones.
+Finally clean the Podman machine VMs that had been previously created, and create new ones.
 
 ```
 podman machine rm podman-machine-default
