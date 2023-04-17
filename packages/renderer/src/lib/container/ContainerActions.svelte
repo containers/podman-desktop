@@ -98,7 +98,8 @@ if (dropdownMenu) {
   hidden="{container.state === 'RUNNING' || container.state === 'STOPPING'}"
   detailed="{detailed}"
   inProgress="{container.actionInProgress && container.state === 'STARTING'}"
-  icon="{faPlay}" />
+  icon="{faPlay}"
+  iconOffset="pl-[0.15rem]" />
 
 <ListItemButtonIcon
   title="Stop Container"
