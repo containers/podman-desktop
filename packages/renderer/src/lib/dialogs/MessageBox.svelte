@@ -7,14 +7,7 @@ import {
   faCircleInfo,
   faCircleQuestion,
 } from '@fortawesome/free-solid-svg-icons';
-
-interface MessageBoxOptions {
-  id: number;
-  title: string;
-  message: string;
-  buttons: string[];
-  type?: string;
-}
+import type { MessageBoxOptions } from './messagebox-input';
 
 let currentId = 0;
 let title;
