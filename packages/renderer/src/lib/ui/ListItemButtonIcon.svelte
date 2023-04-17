@@ -11,8 +11,11 @@ export let onClick: () => void = () => {};
 export let menu: boolean = false;
 export let detailed: boolean = false;
 export let inProgress: boolean = false;
+export let iconOffset: string = '';
 let positionLeftClass = 'left-1';
 if (detailed) positionLeftClass = 'left-2';
+let positionTopClass = 'top-1';
+if (detailed) positionTopClass = '[0.2rem]';
 
 const buttonDetailedClass: string =
   'mx-1 text-gray-300 bg-zinc-900 hover:text-violet-600 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
@@ -45,10 +48,10 @@ $: styleClass = detailed
     class="{styleClass} relative"
     class:disabled="{inProgress}"
     class:hidden="{hidden}">
-    <Fa class="h-4 w-4" icon="{icon}" />
+    <Fa class="h-4 w-4 {iconOffset}" icon="{icon}" />
     <div
       aria-label="spinner"
-      class="w-6 h-6 rounded-full animate-spin border border-solid border-violet-500 border-t-transparent absolute top-1 {positionLeftClass}"
+      class="w-6 h-6 rounded-full animate-spin border border-solid border-violet-500 border-t-transparent absolute {positionTopClass} {positionLeftClass}"
       class:hidden="{!inProgress}">
     </div>
   </button>
