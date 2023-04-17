@@ -19,12 +19,8 @@ import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
-import {
-  getProviderConnectionName,
-  type IConnectionRestart,
-  type IConnectionStatus,
-  type IProviderContainerConfigurationPropertyRecorded,
-} from './Util';
+import { getProviderConnectionName } from './Util';
+import type { IConnectionRestart, IConnectionStatus, IProviderConnectionConfigurationPropertyRecorded } from './Util';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
@@ -155,7 +151,7 @@ $: configurationKeys = properties
   .filter(property => property.scope === 'ContainerConnection')
   .sort((a, b) => a.id.localeCompare(b.id));
 
-let tmpProviderContainerConfiguration: IProviderContainerConfigurationPropertyRecorded[] = [];
+let tmpProviderContainerConfiguration: IProviderConnectionConfigurationPropertyRecorded[] = [];
 $: Promise.all(
   providers.map(async provider => {
     const providerContainer = await Promise.all(
@@ -168,7 +164,7 @@ $: Promise.all(
                 configurationKey.id,
                 container as unknown as ContainerProviderConnection,
               ),
-              container: container.name,
+              connection: container.name,
               providerId: provider.internalId,
             };
           }),
@@ -186,7 +182,7 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration
     innerProviderContainerConfigurations.push(value);
     map.set(value.providerId, innerProviderContainerConfigurations);
     return map;
-  }, new Map<string, IProviderContainerConfigurationPropertyRecorded[]>());
+  }, new Map<string, IProviderConnectionConfigurationPropertyRecorded[]>());
 
 function updateContainerStatus(
   provider: ProviderInfo,
@@ -388,7 +384,7 @@ function hideInstallModal() {
                   <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}">
                     {#each providerContainerConfiguration
                       .get(provider.internalId)
-                      .filter(conf => conf.container === container.name) as connectionSetting}
+                      .filter(conf => conf.connection === container.name) as connectionSetting}
                       {#if connectionSetting.format === 'cpu'}
                         <div class="mr-4">
                           <div class="text-[9px]">{connectionSetting.description}</div>

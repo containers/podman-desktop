@@ -23,10 +23,10 @@ import type {
 } from '../../../../main/src/plugin/api/provider-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
-export interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
+export interface IProviderConnectionConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
-  container: string;
+  connection: string;
   providerId: string;
 }
 

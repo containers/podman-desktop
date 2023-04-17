@@ -80,6 +80,7 @@ onDestroy(() => {
   style="background-color: {getPanelDetailColor()}" />
 
 <div
+  aria-label="terminal"
   class="min-w-full flex flex-col"
   class:invisible="{noLogs === true}"
   class:h-0="{noLogs === true}"

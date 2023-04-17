@@ -6,9 +6,11 @@ import { providerInfos } from '../../stores/providers';
 import { onDestroy, onMount } from 'svelte';
 import type { ProviderInfo, ProviderKubernetesConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
-import { getProviderConnectionName, type IConnectionRestart, type IConnectionStatus, writeToTerminal } from './Util';
+import { getProviderConnectionName, writeToTerminal } from './Util';
+import type { IConnectionRestart, IConnectionStatus } from './Util';
 import Route from '../../Route.svelte';
-import { type ConnectionCallback, eventCollect } from './preferences-connection-rendering-task';
+import { eventCollect } from './preferences-connection-rendering-task';
+import type { ConnectionCallback } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import Fa from 'svelte-fa/src/fa.svelte';
@@ -17,7 +19,7 @@ import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { Terminal } from 'xterm';
 import Tab from '../ui/Tab.svelte';
 import PreferencesKubernetesConnectionDetailsSummary from './PreferencesKubernetesConnectionDetailsSummary.svelte';
-import PreferencesContainerConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
+import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
 
@@ -219,7 +221,7 @@ function setNoLogs() {
       <PreferencesKubernetesConnectionDetailsSummary kubernetesConnectionInfo="{connectionInfo}" properties="{configurationKeys}"/>
     </Route>
     <Route path="/logs" breadcrumb="Logs">
-      <PreferencesContainerConnectionDetailsLogs connection="{apiUrlBase64}" providerInternalId="{providerInternalId}" logsTerminal="{logsTerminal}" setNoLogs="{setNoLogs}" noLog="{noLog}"/>
+      <PreferencesConnectionDetailsLogs connection="{apiUrlBase64}" providerInternalId="{providerInternalId}" logsTerminal="{logsTerminal}" setNoLogs="{setNoLogs}" noLog="{noLog}"/>
     </Route>
     
       

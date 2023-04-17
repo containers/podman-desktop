@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { IProviderContainerConfigurationPropertyRecorded } from './Util';
+import type { IProviderConnectionConfigurationPropertyRecorded } from './Util';
 import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import { filesize } from 'filesize';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
@@ -9,7 +9,7 @@ export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
 export let containerConnectionInfo: ProviderContainerConnectionInfo = undefined;
 
-let tmpProviderContainerConfiguration: IProviderContainerConfigurationPropertyRecorded[] = [];
+let tmpProviderContainerConfiguration: IProviderConnectionConfigurationPropertyRecorded[] = [];
 $: Promise.all(
   properties.map(async configurationKey => {
     return {
@@ -18,7 +18,7 @@ $: Promise.all(
         configurationKey.id,
         containerConnectionInfo as unknown as ContainerProviderConnection,
       ),
-      container: containerConnectionInfo.name,
+      connection: containerConnectionInfo.name,
       providerId: providerInternalId,
     };
   }),
@@ -34,7 +34,7 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
     <div class="flex pl-8 py-4 flex-col w-full text-sm">
       <div class="flex flex-row mt-5">
         <span class="font-semibold min-w-[150px]">Name</span>
-        <span>{containerConnectionInfo.name}</span>
+        <span aria-label="{containerConnectionInfo.name}">{containerConnectionInfo.name}</span>
       </div>
       {#each providerContainerConfiguration as connectionSetting}
         <div class="flex flex-row mt-5">
@@ -48,7 +48,8 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
       {/each}
       <div class="flex flex-row mt-5">
         <span class="font-semibold min-w-[150px]">Endpoint</span>
-        <span>{containerConnectionInfo.endpoint.socketPath}</span>
+        <span aria-label="{containerConnectionInfo.endpoint.socketPath}"
+          >{containerConnectionInfo.endpoint.socketPath}</span>
       </div>
     </div>
   {/if}
