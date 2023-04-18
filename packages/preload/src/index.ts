@@ -1007,7 +1007,6 @@ function initExposure(): void {
     },
   );
 
-  
   contextBridge.exposeInMainWorld(
     'showMessageBox',
     async (messageBoxOptions: MessageBoxOptions): Promise<MessageBoxReturnValue> => {
