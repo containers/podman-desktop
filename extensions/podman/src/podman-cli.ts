@@ -111,6 +111,7 @@ export function execPromise(
     process.stderr.setEncoding('utf8');
     process.stderr.on('data', data => {
       stdErr += data;
+      options?.logger?.warn(data);
     });
 
     process.on('close', exitCode => {
