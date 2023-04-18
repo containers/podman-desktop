@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { ContainerInfoUI } from './container/ContainerInfoUI';
-import { getPanelDetailColor } from './color/color';
+import type { ContainerInfoUI } from './ContainerInfoUI';
+import { getPanelDetailColor } from '../color/color';
 
 export let container: ContainerInfoUI;
 </script>

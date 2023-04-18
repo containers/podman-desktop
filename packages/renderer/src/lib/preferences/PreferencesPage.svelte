@@ -12,7 +12,7 @@ import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelt
 import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
 import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
 import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
-import ExtensionList from '../ExtensionList.svelte';
+import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 
@@ -68,7 +68,7 @@ onMount(async () => {
     <PreferencesProxiesRendering />
   </Route>
   <Route path="/extensions" breadcrumb="Extensions">
-    <ExtensionList />
+    <PreferencesExtensionList />
   </Route>
 
   <Route path="/container-connection/:provider/:connection/*" breadcrumb="Container Engine" let:meta>

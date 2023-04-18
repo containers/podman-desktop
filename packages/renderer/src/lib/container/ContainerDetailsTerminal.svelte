@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { ContainerInfoUI } from './container/ContainerInfoUI';
-import { TerminalSettings } from '../../../main/src/plugin/terminal-settings';
+import type { ContainerInfoUI } from './ContainerInfoUI';
+import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { router } from 'tinro';
 import { onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
-import { getPanelDetailColor } from './color/color';
+import { getPanelDetailColor } from '../color/color';
 
 export let container: ContainerInfoUI;
 let terminalXtermDiv: HTMLDivElement;

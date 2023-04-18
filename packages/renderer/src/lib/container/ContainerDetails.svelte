@@ -1,22 +1,22 @@
 <script lang="ts">
-import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './container/ContainerInfoUI';
-import Route from '../Route.svelte';
-import ContainerIcon from './images/ContainerIcon.svelte';
-import StatusIcon from './images/StatusIcon.svelte';
+import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
+import Route from '../../Route.svelte';
+import ContainerIcon from '../images/ContainerIcon.svelte';
+import StatusIcon from '../images/StatusIcon.svelte';
 
 import 'xterm/css/xterm.css';
 import ContainerDetailsTerminal from './ContainerDetailsTerminal.svelte';
 import ContainerDetailsLogs from './ContainerDetailsLogs.svelte';
-import ContainerActions from './container/ContainerActions.svelte';
+import ContainerActions from './ContainerActions.svelte';
 import { onMount } from 'svelte';
-import { containersInfos } from '../stores/containers';
-import { ContainerUtils } from './container/container-utils';
+import { containersInfos } from '../../stores/containers';
+import { ContainerUtils } from './container-utils';
 import ContainerDetailsSummary from './ContainerDetailsSummary.svelte';
 import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
 import ContainerDetailsKube from './ContainerDetailsKube.svelte';
-import ContainerStatistics from './container/ContainerStatistics.svelte';
-import DetailsTab from './ui/DetailsTab.svelte';
-import ErrorMessage from './ui/ErrorMessage.svelte';
+import ContainerStatistics from './ContainerStatistics.svelte';
+import DetailsTab from '../ui/DetailsTab.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let containerID: string;
 
