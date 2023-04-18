@@ -27,7 +27,7 @@ With Podman Desktop, you can restart your local Kind-powered Kubernetes cluster.
 #### Workaround
 
 Kind has no command to restart a cluster.
-Therefore, Podman Desktop stops the Kind cluster, start it again, and hopes for the best.
+Therefore, Podman Desktop stops the Kind cluster, starts it again, and hopes for the best.
 The Kind cluster might not restart successfully.
 In that case:
 
