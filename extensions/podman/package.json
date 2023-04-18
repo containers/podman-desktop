@@ -106,7 +106,7 @@
   "devDependencies": {
     "7zip-min": "^1.4.4",
     "hasha": "^5.2.2",
-    "mkdirp": "^2.1.6",
+    "mkdirp": "^3.0.0",
     "octokit": "^2.0.14",
     "ts-node": "^10.9.1",
     "zip-local": "^0.3.5"
