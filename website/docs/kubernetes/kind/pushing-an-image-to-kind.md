@@ -27,7 +27,12 @@ With Podman Desktop, you can push an image to your local Kind-powered Kubernetes
 Kind does not enable you to list loaded images.
 Therefore, create a Pod that uses the loaded image.
 
-1. Create a `verify_my_image.yaml` Kubernetes YAML file on your workstation:
+1. Create a `verify_my_image.yaml` Kubernetes YAML file on your workstation.
+   Replace the placeholders:
+   
+   * Pod `name` and container `name` value must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character.
+   * Container `image` value is the image you pushed.
+   
 
    ```yaml
    apiVersion: v1
