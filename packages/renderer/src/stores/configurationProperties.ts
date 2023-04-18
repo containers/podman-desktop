@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,10 @@ export const configurationProperties: Writable<IConfigurationPropertyRecordedSch
 window.events?.receive('extensions-started', () => {
   fetchConfigurationProperties();
 });
-
-window.addEventListener('extension-started', () => {
+window.events?.receive('extension-started', () => {
   fetchConfigurationProperties();
 });
-window.addEventListener('extension-stopped', () => {
+window.events?.receive('extension-stopped', () => {
   fetchConfigurationProperties();
 });
 window.addEventListener('system-ready', () => {

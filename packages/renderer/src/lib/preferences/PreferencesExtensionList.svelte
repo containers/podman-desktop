@@ -53,16 +53,13 @@ afterUpdate(() => {
 
 async function stopExtension(extension: ExtensionInfo) {
   await window.stopExtension(extension.id);
-  window.dispatchEvent(new CustomEvent('extension-stopped', { detail: extension }));
 }
 async function startExtension(extension: ExtensionInfo) {
   await window.startExtension(extension.id);
-  window.dispatchEvent(new CustomEvent('extension-started', { detail: extension }));
 }
 
 async function removeExtension(extension: ExtensionInfo) {
   await window.removeExtension(extension.id);
-  window.dispatchEvent(new CustomEvent('extension-removed', { detail: extension }));
 }
 </script>
 
