@@ -16,7 +16,7 @@ import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
 import PullImage from './lib/image/PullImage.svelte';
 import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
-import ContainerDetails from './lib/ContainerDetails.svelte';
+import ContainerDetails from './lib/container/ContainerDetails.svelte';
 import { providerInfos } from './stores/providers';
 import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
