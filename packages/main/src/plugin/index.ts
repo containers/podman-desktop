@@ -51,7 +51,7 @@ import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
 import { isLinux, isMac } from '../util';
-import { Dialogs } from './dialog-impl';
+import { MessageBox } from './message-box';
 import { ProgressImpl } from './progress-impl';
 import type { ContributionInfo } from './api/contribution-info';
 import { ContributionManager } from './contribution-manager';
@@ -547,9 +547,9 @@ export class PluginSystem {
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
 
-    const dialogs = new Dialogs();
+    const messageBox = new MessageBox(apiSender);
 
-    const authentication = new AuthenticationImpl(apiSender, dialogs);
+    const authentication = new AuthenticationImpl(apiSender);
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
@@ -559,7 +559,7 @@ export class PluginSystem {
       imageRegistry,
       apiSender,
       trayMenuRegistry,
-      dialogs,
+      messageBox,
       new ProgressImpl(),
       new NotificationImpl(),
       statusBarRegistry,
@@ -1035,6 +1035,10 @@ export class PluginSystem {
 
     this.ipcHandle('showQuickPick:onSelect', async (_listener, id: number, selectedId: number): Promise<void> => {
       return inputQuickPickRegistry.onDidSelectQuickPickItem(id, selectedId);
+    });
+
+    this.ipcHandle('showMessageBox:onSelect', async (_listener, id: number, index: number): Promise<void> => {
+      return messageBox.onDidSelectButton(id, index);
     });
 
     this.ipcHandle('image-registry:getRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
