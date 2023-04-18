@@ -6,11 +6,30 @@ keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
 tags: [migrating-to-kubernetes, kind]
 ---
 
-# Restarting your local Kind-powered Kubernetes cluster 
+# Restarting your local Kind-powered Kubernetes cluster
 
-Kind has no command to restart a cluster.
+With Podman Desktop, you can restart your local Kind-powered Kubernetes cluster.
+
+#### Procedure
+
+1. Open **Settings > Resources**.
+1. Find the Kind cluster to restart.
+1. Click <icon icon="fa-solid fa-repeat" size="lg" />.
+
+#### Verification
+
+1. Open **Containers**.
+1. Find the Kind cluster that restarted.
+1. The cluster **Age** is consistent with the restart time.
+1. Open **Pods**.
+1. Find the pods that are running on your Kind cluster.
 
 #### Workaround
 
-* Consider replacing Kind with a local Kubernetes cluster that you can restart, such as [OpenShift Local](https://developers.redhat.com/products/openshift-local/).
-* Consider [deleting your Kind cluster](deleting-your-kind-cluster), and [creating a Kind cluster](creating-a-kind-cluster).
+Kind has no command to restart a cluster.
+Therefore, Podman Desktop stops the Kind cluster, starts it again, and hopes for the best.
+The Kind cluster might not restart successfully.
+In that case:
+
+- Consider replacing Kind with a local Kubernetes cluster that you can restart, such as [OpenShift Local](https://developers.redhat.com/products/openshift-local/).
+- Consider [deleting your Kind cluster](deleting-your-kind-cluster), and [creating a Kind cluster](creating-a-kind-cluster).
