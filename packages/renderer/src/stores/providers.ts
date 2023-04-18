@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@ export async function fetchProviders() {
 export const providerInfos: Writable<ProviderInfo[]> = writable([]);
 
 // need to refresh when extension is started or stopped
-window.addEventListener('extension-started', () => {
+window?.events?.receive('extension-started', () => {
   fetchProviders();
 });
-window.addEventListener('extension-stopped', () => {
+window?.events?.receive('extension-stopped', () => {
   fetchProviders();
 });
 

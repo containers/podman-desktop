@@ -10,11 +10,9 @@ $: extensionInfo = $extensionInfos.find(extension => extension.id === extensionI
 
 async function stopExtension() {
   await window.stopExtension(extensionInfo.id);
-  window.dispatchEvent(new CustomEvent('extension-stopped', { detail: extensionInfo }));
 }
 async function startExtension() {
   await window.startExtension(extensionInfo.id);
-  window.dispatchEvent(new CustomEvent('extension-started', { detail: extensionInfo }));
 }
 </script>
 

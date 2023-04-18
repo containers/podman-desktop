@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,17 +28,13 @@ export async function fetchExtensions() {
 export const extensionInfos: Writable<ExtensionInfo[]> = writable([]);
 
 // need to refresh when extension is started or stopped
-window.addEventListener('extension-started', () => {
-  fetchExtensions();
-});
-window.addEventListener('extension-stopped', () => {
-  fetchExtensions();
-});
-window.addEventListener('extension-removed', () => {
-  fetchExtensions();
-});
-
 window?.events.receive('extension-started', () => {
+  fetchExtensions();
+});
+window?.events.receive('extension-stopped', () => {
+  fetchExtensions();
+});
+window?.events.receive('extension-removed', () => {
   fetchExtensions();
 });
 window.addEventListener('system-ready', () => {

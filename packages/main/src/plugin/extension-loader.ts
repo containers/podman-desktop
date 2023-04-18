@@ -778,22 +778,26 @@ export class ExtensionLoader {
       extensionContext,
     };
     this.activatedExtensions.set(extension.id, activatedExtension);
+    this.apiSender.send('extension-started');
   }
 
   async deactivateExtension(extensionId: string): Promise<void> {
     const extension = this.activatedExtensions.get(extensionId);
-    if (extension) {
-      if (extension.deactivateFunction) {
-        await extension.deactivateFunction();
-      }
-
-      // dispose subscriptions
-      extension.extensionContext.subscriptions.forEach(async subscription => {
-        await subscription.dispose();
-      });
-
-      this.activatedExtensions.delete(extensionId);
+    if (!extension) {
+      return;
     }
+
+    if (extension.deactivateFunction) {
+      await extension.deactivateFunction();
+    }
+
+    // dispose subscriptions
+    extension.extensionContext.subscriptions.forEach(async subscription => {
+      await subscription.dispose();
+    });
+
+    this.activatedExtensions.delete(extensionId);
+    this.apiSender.send('extension-stopped');
   }
 
   async stopAllExtensions(): Promise<void> {
@@ -820,7 +824,7 @@ export class ExtensionLoader {
         throw new Error(`Extension ${extensionId} is not removable`);
       }
       this.analyzedExtensions.delete(extensionId);
-      this.apiSender.send('extension-removed', {});
+      this.apiSender.send('extension-removed');
     }
   }
 
