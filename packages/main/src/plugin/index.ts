@@ -1041,7 +1041,7 @@ export class PluginSystem {
     this.ipcHandle('showMessageBox', async (_listener, options: MessageBoxOptions): Promise<MessageBoxReturnValue> => {
       return messageBox.showMessageBox(options);
     });
-    
+
     this.ipcHandle('showMessageBox:onSelect', async (_listener, id: number, index: number): Promise<void> => {
       return messageBox.onDidSelectButton(id, index);
     });
