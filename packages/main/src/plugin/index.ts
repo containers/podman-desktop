@@ -51,6 +51,7 @@ import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
 import { isLinux, isMac } from '../util';
+import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box';
 import { MessageBox } from './message-box';
 import { ProgressImpl } from './progress-impl';
 import type { ContributionInfo } from './api/contribution-info';
@@ -1037,6 +1038,10 @@ export class PluginSystem {
       return inputQuickPickRegistry.onDidSelectQuickPickItem(id, selectedId);
     });
 
+    this.ipcHandle('showMessageBox', async (_listener, options: MessageBoxOptions): Promise<MessageBoxReturnValue> => {
+      return messageBox.showMessageBox(options);
+    });
+    
     this.ipcHandle('showMessageBox:onSelect', async (_listener, id: number, index: number): Promise<void> => {
       return messageBox.onDidSelectButton(id, index);
     });
