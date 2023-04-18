@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { dialog } from 'electron';
-import { findWindow } from '../util';
-
-type DialogType = 'none' | 'info' | 'error' | 'question' | 'warning';
-export class Dialogs {
-  async showDialog(type: DialogType, title: string, message: string, items: string[]): Promise<string | undefined> {
-    const window = findWindow();
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const result = await dialog.showMessageBox(window!, {
-      title: title,
-      message: message,
-      buttons: items,
-      type: type,
-      noLink: true,
-    });
-    if (result) {
-      return items[result.response];
-    }
-
-    return undefined;
-  }
+export interface MessageBoxOptions {
+  id: number;
+  title: string;
+  message: string;
+  buttons: string[];
+  type?: string;
 }

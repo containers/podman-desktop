@@ -24,7 +24,7 @@ async function startContainer(containerInfo: ContainerInfoUI) {
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false);
+    inProgressCallback(false, 'RUNNING');
   }
 }
 
@@ -40,13 +40,13 @@ async function restartContainer(containerInfo: ContainerInfoUI) {
 }
 
 async function stopContainer(containerInfo: ContainerInfoUI) {
-  inProgressCallback(true);
+  inProgressCallback(true, 'STOPPING');
   try {
     await window.stopContainer(containerInfo.engineId, containerInfo.id);
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false);
+    inProgressCallback(false, 'STOPPED');
   }
 }
 
@@ -59,7 +59,7 @@ function openLogs(containerInfo: ContainerInfoUI): void {
 }
 
 async function deleteContainer(containerInfo: ContainerInfoUI): Promise<void> {
-  inProgressCallback(true);
+  inProgressCallback(true, 'DELETING');
   try {
     await window.deleteContainer(containerInfo.engineId, containerInfo.id);
     router.goto('/containers/');
@@ -95,22 +95,26 @@ if (dropdownMenu) {
 <ListItemButtonIcon
   title="Start Container"
   onClick="{() => startContainer(container)}"
-  hidden="{container.state === 'RUNNING'}"
+  hidden="{container.state === 'RUNNING' || container.state === 'STOPPING'}"
   detailed="{detailed}"
-  icon="{faPlay}" />
+  inProgress="{container.actionInProgress && container.state === 'STARTING'}"
+  icon="{faPlay}"
+  iconOffset="pl-[0.15rem]" />
 
 <ListItemButtonIcon
   title="Stop Container"
   onClick="{() => stopContainer(container)}"
-  hidden="{!(container.state === 'RUNNING')}"
+  hidden="{!(container.state === 'RUNNING' || container.state === 'STOPPING')}"
   detailed="{detailed}"
+  inProgress="{container.actionInProgress && container.state === 'STOPPING'}"
   icon="{faStop}" />
 
 <ListItemButtonIcon
   title="Delete Container"
   onClick="{() => deleteContainer(container)}"
   icon="{faTrash}"
-  detailed="{detailed}" />
+  detailed="{detailed}"
+  inProgress="{container.actionInProgress && container.state === 'DELETING'}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
