@@ -29,7 +29,6 @@ import type {
 // import { window } from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
 import type { ApiSenderType } from './api';
-import type { Dialogs } from './dialog-impl';
 
 /**
  * Structure to save authentication provider information
@@ -62,7 +61,7 @@ export interface AllowedExtension {
 export class AuthenticationImpl {
   private _authenticationProviders: Map<string, ProviderWithMetadata> = new Map<string, ProviderWithMetadata>();
 
-  constructor(private apiSender: ApiSenderType, private dialogs: Dialogs) {}
+  constructor(private apiSender: ApiSenderType) {}
 
   public async getAuthenticationProvidersInfo(): Promise<AuthenticationProviderInfo[]> {
     const values = Array.from(this._authenticationProviders.values());
