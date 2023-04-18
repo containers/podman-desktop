@@ -12,7 +12,7 @@ export let key: string;
 let updateSearchValueTimeout: NodeJS.Timeout;
 
 let matchingRecords: Map<string, IConfigurationPropertyRecordedSchema[]>;
-let searchValue = '';
+export let searchValue = '';
 $: searchValue;
 
 $: matchingRecords = properties
