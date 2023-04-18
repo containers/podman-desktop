@@ -34,7 +34,7 @@
     "tailwindcss": "^3.3.1",
     "tslib": "^2.5.0",
     "typescript": "^5.0.4",
-    "vite": "^4.2.1",
+    "vite": "^4.2.2",
     "xterm": "^5.1.0",
     "xterm-addon-fit": "^0.7.0"
   },
