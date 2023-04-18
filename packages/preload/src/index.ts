@@ -54,6 +54,7 @@ import type {
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
 import type { V1ConfigMap, V1NamespaceList, V1Pod, V1PodList, V1Service } from '@kubernetes/client-node';
 import type { Menu } from '../../main/src/plugin/menu-registry';
+import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -1006,6 +1007,13 @@ function initExposure(): void {
     },
   );
 
+  
+  contextBridge.exposeInMainWorld(
+    'showMessageBox',
+    async (messageBoxOptions: MessageBoxOptions): Promise<MessageBoxReturnValue> => {
+      return ipcInvoke('showMessageBox', messageBoxOptions);
+    },
+  );
   contextBridge.exposeInMainWorld(
     'sendShowMessageBoxOnSelect',
     async (messageBoxId: number, selectedIndex: number): Promise<void> => {
