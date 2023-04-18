@@ -49,6 +49,9 @@ const podmanMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
 const containerProviderConnections = new Map<string, extensionApi.ContainerProviderConnection>();
 
+let autoMachineStarted = false;
+let autoMachineName;
+
 // Warning to check to see if the socket is a disguised Podman socket,
 // by default we assume it is until proven otherwise when we check
 let isDisguisedPodmanSocket = true;
@@ -572,6 +575,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           const [machineName] = machines[0];
           console.log('Podman extension:', 'Autostarting machine', machineName);
           await execPromise(getPodmanCli(), ['machine', 'start', machineName], { logger });
+          autoMachineStarted = true;
+          autoMachineName = machineName;
         }
       },
     });
@@ -645,9 +650,21 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   await podmanConfiguration.init();
 }
 
+async function stopAutoStartedMachine() {
+  if (!autoMachineStarted) {
+    return;
+  }
+  await execPromise(getPodmanCli(), ['machine', 'stop', autoMachineName]);
+}
+
 export function deactivate(): void {
   stopLoop = true;
   console.log('stopping podman extension');
+  stopAutoStartedMachine().then(() => {
+    if (autoMachineStarted) {
+      console.log('stopped autostarted machine', autoMachineName);
+    }
+  });
 }
 
 export async function createMachine(
