@@ -17,7 +17,7 @@ tags: [migrating-to-kubernetes, kind]
 
 1. Open **Settings > Resources**.
 1. Find the Kind cluster to delete.
-1. Click <icon icon="fa-solid fa-stop" size="lg" />.
+1. Click <icon icon="fa-solid fa-stop" size="lg" /> to stop the cluster.
 1. Click <icon icon="fa-solid fa-trash" size="lg" />.
 
 #### Verification
