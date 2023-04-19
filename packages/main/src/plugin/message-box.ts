@@ -86,7 +86,7 @@ export class MessageBox {
       type: type,
     });
 
-    if (result.response) {
+    if (result.response >= 0) {
       return items[result.response];
     }
 
