@@ -26,6 +26,10 @@ let deployUsingRoutes = true;
 let createdPod = undefined;
 let bodyPod;
 
+let createIngress = false;
+let ingressServiceName = '';
+let containerPortArray: string[] = [];
+
 let createdRoutes: V1Route[] = [];
 
 onMount(async () => {
@@ -65,6 +69,14 @@ onMount(async () => {
     // probably not OpenShift cluster, ignoring
     console.debug('Probably not an OpenShift cluster, so ignoring the error to grab console link', error);
   }
+
+  // Go through bodyPod.spec.containers and create a string array of each container and port,
+  // have the name as: containerName-portNumber
+  bodyPod.spec.containers.forEach((container: any) => {
+    container.ports.forEach((port: any) => {
+      containerPortArray.push(`${container.name}-${port.containerPort}`);
+    });
+  });
 });
 
 function openOpenshiftConsole() {
@@ -111,6 +123,7 @@ async function deployToKube() {
   createdRoutes = [];
   let servicesToCreate: any[] = [];
   let routesToCreate: any[] = [];
+  let ingressesToCreate: any[] = [];
 
   if (bodyPod?.spec?.volumes) {
     delete bodyPod.spec.volumes;
@@ -125,19 +138,20 @@ async function deployToKube() {
       }
 
       container?.ports?.forEach((port: any) => {
+        let portName = `${bodyPod.metadata.name}-${port.hostPort}`;
         if (port.hostPort) {
           // create service
           const service = {
             apiVersion: 'v1',
             kind: 'Service',
             metadata: {
-              name: `${bodyPod.metadata.name}-${port.hostPort}`,
+              name: portName,
               namespace: currentNamespace,
             },
             spec: {
               ports: [
                 {
-                  name: port.name,
+                  name: portName,
                   port: port.hostPort,
                   protocol: port.protocol || 'TCP',
                   targetPort: port.containerPort,
@@ -178,6 +192,44 @@ async function deployToKube() {
     });
   }
 
+  // Check if we are deploying an ingress, if so, we need to create an ingress object using ingressPath and ingressDomain.
+  if (createIngress) {
+    let serviceName = '';
+
+    // Check that there are services (servicesToCreate), if there aren't. Warn that we can't create an ingress.
+    if (servicesToCreate.length === 0) {
+      deployError = 'You need to deploy using services to create an ingress.';
+      return;
+    } else if (servicesToCreate.length == 1) {
+      // If there is only one service, retrieve the service name that we'll be creating an ingress for
+      serviceName = servicesToCreate[0].metadata.name;
+    } else if (servicesToCreate.length > 1) {
+      serviceName = ingressServiceName;
+    }
+
+    const ingress = {
+      apiVersion: 'networking.k8s.io/v1',
+      kind: 'Ingress',
+      metadata: {
+        name: bodyPod.metadata.name,
+        namespace: currentNamespace,
+      },
+      spec: {
+        defaultBackend: {
+          service: {
+            name: serviceName,
+            port: {
+              name: serviceName,
+            },
+          },
+        },
+      },
+    };
+
+    // Support for multiple ingress creation in the future
+    ingressesToCreate.push(ingress);
+  }
+
   // https://github.com/kubernetes-client/javascript/issues/487
   if (bodyPod?.metadata?.creationTimestamp) {
     bodyPod.metadata.creationTimestamp = new Date(bodyPod.metadata.creationTimestamp);
@@ -186,6 +238,7 @@ async function deployToKube() {
   const eventProperties = {
     useServices: deployUsingServices,
     useRoutes: deployUsingRoutes,
+    createIngress: createIngress,
   };
   if (openshiftConsoleURL) {
     eventProperties['isOpenshift'] = true;
@@ -204,6 +257,13 @@ async function deployToKube() {
       const createdRoute = await window.openshiftCreateRoute(currentNamespace, route);
       createdRoutes = [...createdRoutes, createdRoute];
     }
+
+    // Create ingresses
+    for (const ingress of ingressesToCreate) {
+      await window.kubernetesCreateIngress(currentNamespace, ingress);
+    }
+
+    // Telemetry
     window.telemetryTrack('deployToKube', eventProperties);
 
     // update status
@@ -246,8 +306,8 @@ function updateKubeResult() {
         </div>
       {/if}
 
-      <div class="pt-2 m-2">
-        <label for="services" class="block mb-1 text-sm font-medium text-gray-400">Use Kubernetes Services:</label>
+      <div class="pt-2 pb-4">
+        <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Use Kubernetes Services:</label>
         <input
           type="checkbox"
           bind:checked="{deployUsingServices}"
@@ -259,6 +319,40 @@ function updateKubeResult() {
           >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster
           policy may prevent to use hostPort.</span>
       </div>
+
+      <div class="pt-2 pb-4">
+        <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300">Use Kubernetes Ingress:</label>
+        <input
+          type="checkbox"
+          bind:checked="{createIngress}"
+          name="createIngress"
+          id="createIngress"
+          class=""
+          required />
+        <span class="text-gray-300 text-sm ml-1"
+          >Create a Kubernetes ingress to get access to the exposed ports of this pod. An ingress controller is required
+          on your cluster. This ingress will be created at the default Ingress location (example Podman kind setup:
+          localhost:9090)</span>
+      </div>
+
+      {#if createIngress && containerPortArray.length > 1}
+        <div class="pt-2 pb-4">
+          <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300">Ingress Service:</label>
+          <select
+            bind:value="{ingressServiceName}"
+            name="serviceName"
+            id="serviceName"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            required>
+            {#each containerPortArray as serviceName}
+              <option value="{serviceName}">{serviceName}</option>
+            {/each}
+          </select>
+          <span class="text-gray-300 text-sm ml-1"
+            >There are multiple services available. Select the one you want to expose with the Ingress.
+          </span>
+        </div>
+      {/if}
 
       <!-- Allow to create routes for OpenShift clusters -->
       {#if openshiftConsoleURL}

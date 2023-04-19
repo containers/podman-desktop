@@ -24,10 +24,13 @@ import type {
   V1PodList,
   V1NamespaceList,
   V1Service,
+  V1Ingress,
   V1ContainerState,
 } from '@kubernetes/client-node';
-import { AppsV1Api, CustomObjectsApi, CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
-import type { V1APIResource } from '@kubernetes/client-node';
+import { NetworkingV1Api } from '@kubernetes/client-node';
+import { AppsV1Api } from '@kubernetes/client-node';
+import { CustomObjectsApi } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
@@ -307,6 +310,17 @@ export class KubernetesClient {
     try {
       const createdPodData = await k8sCoreApi.createNamespacedService(namespace, body);
       return createdPodData.body;
+    } catch (error) {
+      throw this.wrapK8sClientError(error);
+    }
+  }
+
+  async createIngress(namespace: string, body: V1Ingress): Promise<V1Ingress> {
+    const k8sCoreApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
+
+    try {
+      const createdIngressData = await k8sCoreApi.createNamespacedIngress(namespace, body);
+      return createdIngressData.body;
     } catch (error) {
       throw this.wrapK8sClientError(error);
     }
@@ -634,6 +648,13 @@ export class KubernetesClient {
           await k8sAppsApi.createNamespacedDeployment(namespaceToUse, manifest);
         } else if (manifest.kind === 'DaemonSet') {
           await k8sAppsApi.createNamespacedDaemonSet(namespaceToUse, manifest);
+        }
+      } else if (groupVersion.group === 'networking.k8s.io') {
+        // Add networking object support (Ingress for now)
+        const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
+        const namespaceToUse = optionalNamespace || manifest.metadata?.namespace || 'default';
+        if (manifest.kind === 'Ingress') {
+          await k8sNetworkingApi.createNamespacedIngress(namespaceToUse, manifest);
         }
       } else {
         const client = ctx.makeApiClient(CustomObjectsApi);
