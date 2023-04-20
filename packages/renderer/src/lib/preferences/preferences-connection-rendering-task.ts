@@ -20,8 +20,8 @@ import { createConnectionsInfo } from '/@/stores/create-connections';
 import { router } from 'tinro';
 
 import type { Logger as LoggerType } from '@podman-desktop/api';
-import type { Task } from '/@/stores/tasks';
 import { createTask, removeTask } from '/@/stores/tasks';
+import type { Task } from '../../../../main/src/plugin/api/task';
 
 export interface ConnectionCallback extends LoggerType {
   // when build is finished, this function is called

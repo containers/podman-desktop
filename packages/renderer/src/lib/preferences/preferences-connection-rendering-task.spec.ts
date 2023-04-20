@@ -43,7 +43,7 @@ beforeEach(() => {
 });
 
 test('check start build', async () => {
-  const id = '1';
+  const id = 'ui-1';
   const key = startTask('foo', id, dummyCallback);
   expect(key).toBeDefined();
   const allTasks = get(tasksInfo);

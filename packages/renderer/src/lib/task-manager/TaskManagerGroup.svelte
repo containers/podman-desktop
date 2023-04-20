@@ -1,7 +1,8 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
 import TaskManagerItem from './TaskManagerItem.svelte';
-import type { Task } from '/@/stores/tasks';
+
+import type { Task } from '../../../../main/src/plugin/api/task';
 
 export let icon;
 export let tasks: Task[];

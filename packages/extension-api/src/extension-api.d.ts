@@ -568,6 +568,11 @@ declare module '@podman-desktop/api' {
      * Show progress bar under app icon in launcher bar.
      */
     APP_ICON = 1,
+
+    /**
+     * Show progress in the task manager widget
+     */
+    TASK_WIDGET = 2,
   }
 
   /**

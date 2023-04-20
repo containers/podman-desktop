@@ -3,7 +3,8 @@ import { faClose, faInfoCircle, faSquareCheck, faTriangleExclamation } from '@fo
 import { createEventDispatcher, onMount } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { TaskManager, type TaskUI } from './task-manager';
-import { removeTask, type Task } from '/@/stores/tasks';
+import { removeTask } from '/@/stores/tasks';
+import type { Task } from '../../../../main/src/plugin/api/task';
 
 export let task: Task;
 

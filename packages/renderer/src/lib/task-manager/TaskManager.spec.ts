@@ -21,8 +21,8 @@ import { beforeAll, test, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import TaskManager from './TaskManager.svelte';
 import userEvent from '@testing-library/user-event';
-import type { Task } from '/@/stores/tasks';
 import { tasksInfo } from '/@/stores/tasks';
+import type { Task } from '../../../../main/src/plugin/api/task';
 
 // fake the window.events object
 beforeAll(() => {
