@@ -1,11 +1,8 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { Buffer } from 'buffer';
 import { extensionInfos } from './stores/extensions';
 import { configurationProperties } from './stores/configurationProperties';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration-registry-constants';
-import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
-import { providerInfos } from './stores/providers';
 
 export let exitSettingsCallback: () => void;
 export let meta;
@@ -50,10 +47,6 @@ $: addCurrentClass = (pathParam: string): string =>
   isCurrentPage(pathParam) ? 'dark:text-white pf-m-current' : 'dark:text-gray-400';
 $: isAriaExpanded = (section: string): boolean => (sectionExpanded[section] ? true : false);
 $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section] ? '' : 'hidden');
-$: addExpandableClass = (provider: ProviderInfo): string =>
-  provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0 ? 'pf-m-expandable' : '';
-$: addHiddenClass = (provider: ProviderInfo): string =>
-  provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0 ? '' : 'hidden';
 </script>
 
 <nav
@@ -65,7 +58,7 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
       <p class="text-xl first-letter:uppercase">Settings</p>
     </div>
   </div>
-  <ul class="pf-c-nav__list" style="margin-bottom:auto">
+  <ul class="pf-c-nav__list h-full overflow-hidden hover:overflow-y-auto" style="margin-bottom:auto">
     <!-- Resources configuration start -->
     <li
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
@@ -174,11 +167,16 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
           class="pf-c-nav__link"
           id="configuration-section-{configSection.toLowerCase()}"
           aria-expanded="{isAriaExpanded(configSection)}"
-          href="/preferences/default/{configSection}">
+          href="/preferences/default/{configSection}"
+          on:click="{() => {
+            if (configItems.length > 0) {
+              toggleSection(configSection);
+            }
+          }}">
           <span class="block group-hover:block mr-5 capitalize">{configSection}</span>
           {#if configItems.length > 0}
             <span class="pf-c-nav__toggle">
-              <span class="pf-c-nav__toggle-icon" on:click="{() => toggleSection(configSection)}">
+              <span class="pf-c-nav__toggle-icon">
                 <i class="fas fa-angle-right" aria-hidden="true"></i>
               </span>
             </span>
@@ -186,12 +184,13 @@ $: addHiddenClass = (provider: ProviderInfo): string =>
         </a>
         <section class="pf-c-nav__subnav {addSectionHiddenClass(configSection)}">
           <ul class="pf-c-nav__list">
-            {#each configItems as configItem}
+            {#each configItems.sort((a, b) => a.title.localeCompare(b.title)) as configItem}
               <li class="pf-c-nav__item {addCurrentClass(`/preferences/default/${configItem.id}`)}">
                 <a
                   href="/preferences/default/{configItem.id}"
                   id="configuration-section-{configSection.toLowerCase()}-{configItem.title.toLowerCase()}"
-                  class="pf-c-nav__link">{configItem.title}</a>
+                  class="pf-c-nav__link"
+                  style="font-weight: 200">{configItem.title}</a>
               </li>
             {/each}
           </ul>
