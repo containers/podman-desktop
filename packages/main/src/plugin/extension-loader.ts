@@ -797,6 +797,18 @@ export class ExtensionLoader {
     });
 
     this.activatedExtensions.delete(extensionId);
+
+    const analyzedExtension = this.analyzedExtensions.get(extensionId);
+    if (analyzedExtension) {
+      const extensionConfiguration = analyzedExtension.manifest?.contributes?.configuration;
+      if (extensionConfiguration) {
+        this.configurationRegistry.deregisterConfigurations([extensionConfiguration]);
+      }
+      const menus = analyzedExtension.manifest?.contributes?.menus;
+      if (menus) {
+        this.menuRegistry.unregisterMenus(menus);
+      }
+    }
     this.apiSender.send('extension-stopped');
   }
 
