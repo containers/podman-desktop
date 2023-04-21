@@ -45,8 +45,8 @@ router.mode.hash();
 //remember from where we come to preference pages
 let nonSettingsPage = '/';
 router.subscribe(function (navigation) {
-  if (navigation.from !== undefined && !navigation.from.startsWith('/preferences')) {
-    nonSettingsPage = navigation.from;
+  if (navigation.url !== undefined && !navigation.url.startsWith('/preferences')) {
+    nonSettingsPage = navigation.url;
   }
 });
 
@@ -86,10 +86,9 @@ window.events?.receive('display-help', () => {
     <WelcomePage />
 
     <div class="overflow-x-hidden flex flex-1">
+      <AppNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
       {#if meta.url.startsWith('/preferences')}
-        <PreferencesNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
-      {:else}
-        <AppNavigation meta="{meta}" />
+        <PreferencesNavigation meta="{meta}" />
       {/if}
 
       <div

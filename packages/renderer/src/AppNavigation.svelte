@@ -1,63 +1,103 @@
 <script lang="ts">
-import { imagesInfos } from './stores/images';
 import { contributions } from './stores/contribs';
-import { podsInfos } from './stores/pods';
 import { onDestroy, onMount } from 'svelte';
 import { CommandRegistry } from './lib/CommandRegistry';
+import { podsInfos } from './stores/pods';
 import { containersInfos } from './stores/containers';
+import { imagesInfos } from './stores/images';
 import { volumeListInfos } from './stores/volumes';
 import { ImageUtils } from './lib/image/image-utils';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
-import type { ImageInfoUI } from './lib/image/ImageInfoUI';
 import ContainerIcon from './lib/images/ContainerIcon.svelte';
 import PodIcon from './lib/images/PodIcon.svelte';
 import ImageIcon from './lib/images/ImageIcon.svelte';
 import VolumeIcon from './lib/images/VolumeIcon.svelte';
 
-let containersCountValue;
+let podInfoSubscribe;
+let containerInfoSubscribe;
 let imageInfoSubscribe;
-let images: ImageInfoUI[] = [];
+let volumeInfoSubscribe;
+
+let podCount = '';
+let containerCount = '';
+let imageCount = '';
+let volumeCount = '';
 
 const imageUtils = new ImageUtils();
+export let exitSettingsCallback: () => void;
 
 onMount(async () => {
   const commandRegistry = new CommandRegistry();
   commandRegistry.init();
-  containersInfos.subscribe(value => {
-    containersCountValue = value.length;
+  podInfoSubscribe = podsInfos.subscribe(value => {
+    if (value.length > 0) {
+      podCount = ' (' + value.length + ')';
+    } else {
+      podCount = '';
+    }
+  });
+  containerInfoSubscribe = containersInfos.subscribe(value => {
+    if (value.length > 0) {
+      containerCount = ' (' + value.length + ')';
+    } else {
+      containerCount = '';
+    }
   });
   imageInfoSubscribe = imagesInfos.subscribe(value => {
-    images = value.map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo, [])).flat();
+    let images = value.map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo, [])).flat();
+    if (images.length > 0) {
+      imageCount = ' (' + images.length + ')';
+    } else {
+      imageCount = '';
+    }
+  });
+  volumeInfoSubscribe = volumeListInfos.subscribe(value => {
+    let flattenedVolumes = value.map(volumeInfo => volumeInfo.Volumes).flat();
+    if (flattenedVolumes.length > 0) {
+      volumeCount = ' (' + flattenedVolumes.length + ')';
+    } else {
+      volumeCount = '';
+    }
   });
 });
 
 onDestroy(() => {
+  if (podInfoSubscribe) {
+    podInfoSubscribe();
+  }
+  if (containerInfoSubscribe) {
+    containerInfoSubscribe();
+  }
   if (imageInfoSubscribe) {
     imageInfoSubscribe();
   }
+  if (volumeInfoSubscribe) {
+    volumeInfoSubscribe();
+  }
 });
 
-let contributionsExpanded: boolean = false;
-function toggleContributions() {
-  contributionsExpanded = !contributionsExpanded;
+function clickSettings(b: boolean) {
+  if (b) {
+    exitSettingsCallback();
+  } else {
+    window.location.href = '#/preferences/resources';
+  }
 }
-
-let innerWidth = 0;
 
 export let meta;
 </script>
 
-<svelte:window bind:innerWidth="{innerWidth}" />
+<svelte:window />
 <nav
-  class="pf-c-nav z-0 group w-14 hover:w-[250px] md:w-[250px] hover:sm:w-[250px] md:min-w-[200px] shadow flex-col justify-between sm:flex transition-all duration-500 ease-in-out overflow-hidden hover:overflow-y-auto"
+  class="pf-c-nav z-0 group w-[54px] min-w-[54px] shadow flex flex-col justify-between overflow-hidden hover:overflow-y-auto"
   aria-label="Global">
   <ul class="pf-c-nav__list">
     <li
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/'
         ? 'pf-m-current'
         : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/" class="pf-c-nav__link flex items-center align-middle">
-        <div class="flex items-center">
+      <a href="/" class="pf-c-nav__link flex" title="Dashboard">
+        <div class="flex items-center w-full h-full">
           <svg
             id="dashboard"
             width="24"
@@ -75,9 +115,6 @@ export let meta;
                 ></g
               ></g
             ></svg>
-          <span
-            class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out mx-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
-            >Dashboard</span>
         </div>
       </a>
     </li>
@@ -86,24 +123,9 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/containers')
         ? 'pf-m-current'
         : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/containers" class="pf-c-nav__link flex items-center align-middle">
+      <a href="/containers" class="pf-c-nav__link" title="Containers{containerCount}">
         <div class="flex items-center w-full h-full">
-          <div class="flex items-center">
-            <ContainerIcon size="24" />
-            <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out ml-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
-              >Containers</span>
-          </div>
-
-          <div class="flex w-full justify-end">
-            <div>
-              {#if containersCountValue > 0}
-                {#if innerWidth >= 768}
-                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{containersCountValue}</span>
-                {/if}
-              {/if}
-            </div>
-          </div>
+          <ContainerIcon size="24" />
         </div>
       </a>
     </li>
@@ -111,23 +133,9 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/pods'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/pods" class="pf-c-nav__link">
+      <a href="/pods" class="pf-c-nav__link" title="Pods{podCount}">
         <div class="flex items-center w-full h-full">
-          <div class="flex items-center">
-            <PodIcon size="24" />
-            <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out ml-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
-              >Pods</span>
-          </div>
-          <div class="flex w-full justify-end">
-            <div>
-              {#if innerWidth >= 768}
-                {#if $podsInfos.length > 0}
-                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{$podsInfos.length}</span>
-                {/if}
-              {/if}
-            </div>
-          </div>
+          <PodIcon size="24" />
         </div>
       </a>
     </li>
@@ -135,23 +143,9 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/images'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/images" class="pf-c-nav__link">
+      <a href="/images" class="pf-c-nav__link" title="Images{imageCount}">
         <div class="flex items-center w-full h-full">
-          <div class="flex items-center">
-            <ImageIcon size="24" />
-            <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out ml-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
-              >Images</span>
-          </div>
-          <div class="flex w-full justify-end">
-            <div>
-              {#if innerWidth >= 768}
-                {#if $imagesInfos.length > 0}
-                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{images.length}</span>
-                {/if}
-              {/if}
-            </div>
-          </div>
+          <ImageIcon size="24" />
         </div>
       </a>
     </li>
@@ -159,76 +153,27 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/volumes'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/volumes" class="pf-c-nav__link">
+      <a href="/volumes" class="pf-c-nav__link" title="Volumes{volumeCount}">
         <div class="flex items-center w-full h-full">
-          <div class="flex items-center">
-            <VolumeIcon size="24" />
-            <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out ml-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
-              >Volumes</span>
-          </div>
-          <div class="flex w-full justify-end">
-            <div>
-              {#if innerWidth >= 768}
-                {@const flattenedVolumes = $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat()}
-                {#if flattenedVolumes.length > 0}
-                  <span class="pf-c-badge pf-m-read hidden items-center justify-center">{flattenedVolumes.length}</span>
-                {/if}
-              {/if}
-            </div>
-          </div>
+          <VolumeIcon size="24" />
         </div>
       </a>
     </li>
     {#if $contributions.length > 0}
-      <li class="pf-c-nav__item pf-m-expandable {contributionsExpanded ? '' : 'pf-m-expanded'}">
-        <div class="pf-c-nav__link cursor-pointer" aria-expanded="true" on:click="{() => toggleContributions()}">
-          <div class="flex items-center">
-            <svg
-              id="extensions"
-              width="24"
-              height="24"
-              version="1.1"
-              viewBox="1.158 0.784 4.408 4.408"
-              xml:space="preserve"
-              xmlns="http://www.w3.org/2000/svg"
-              ><g transform="translate(-14.802 -15.079)"
-                ><path
-                  d="m17.906 15.863c-0.16971 0-0.32767 0.05096-0.44727 0.14062-0.11959 0.08966-0.20312 0.22586-0.20312 0.38086 0 0.15539 0.08551 0.29117 0.20508 0.38086 0.03655 0.02717 0.05273 0.05925 0.05273 0.07813 0 0.03194-0.02275 0.05469-0.05469 0.05469h-0.97852c-0.28604 0-0.51953 0.23545-0.51953 0.52148v0.45898c-1e-6 0.17526 0.14311 0.32031 0.31836 0.32031 0.13007 0 0.22915-0.07693 0.29102-0.16016 0.05114-0.06819 0.11002-0.09766 0.16992-0.09766 0.05948 0 0.11701 0.02968 0.16797 0.09766 0.05096 0.06797 0.08789 0.17112 0.08789 0.28711s-0.03693 0.21914-0.08789 0.28711c-0.05096 0.06797-0.10849 0.09961-0.16797 0.09961-0.0599 0-0.11877-0.03141-0.16992-0.09961-0.06186-0.08324-0.16095-0.16016-0.29102-0.16016-0.17526 0-0.31836 0.14506-0.31836 0.32031v0.97656c-1e-6 0.28603 0.2335 0.52148 0.51953 0.52148h0.97852c0.17526 0 0.32031-0.14506 0.32031-0.32031 0-0.13007-0.07693-0.22915-0.16016-0.29102-0.06819-0.05114-0.09961-0.10807-0.09961-0.16797 0-0.05948 0.03164-0.11896 0.09961-0.16992 0.06797-0.05096 0.17112-0.08594 0.28711-0.08594s0.21718 0.03497 0.28516 0.08594c0.06797 0.05096 0.09961 0.11044 0.09961 0.16992 0 0.0599-0.03141 0.11681-0.09961 0.16797-0.08324 0.06187-0.16016 0.16096-0.16016 0.29102 0 0.17526 0.14506 0.32031 0.32031 0.32031h0.46094c0.28604 0 0.51953-0.23545 0.51953-0.52148v-0.97656c0-0.03195 0.0247-0.05664 0.05664-0.05664 0.01886 0 0.05095 0.01813 0.07813 0.05469 0.08969 0.11959 0.22548 0.20508 0.38086 0.20508 0.155 0 0.2912-0.08548 0.38086-0.20508 0.08966-0.11959 0.14062-0.2756 0.14062-0.44531s-0.05096-0.32572-0.14062-0.44531c-0.08966-0.1196-0.22586-0.20508-0.38086-0.20508-0.15539 0-0.29118 0.08552-0.38086 0.20508-0.02716 0.03655-0.05925 0.05469-0.07813 0.05469-0.03194 0-0.05664-0.0247-0.05664-0.05664v-0.45898c0-0.28603-0.2335-0.52148-0.51953-0.52148h-0.46094c-0.03195 0-0.05469-0.02275-0.05469-0.05469 0-0.01886 0.01618-0.05095 0.05273-0.07813h2e-3c0.11959-0.08969 0.20508-0.22548 0.20508-0.38086 0-0.155-0.08548-0.2912-0.20508-0.38086-0.11959-0.08966-0.2756-0.14062-0.44531-0.14062zm0 0.26367c0.11599 0 0.21718 0.03693 0.28516 0.08789 0.06797 0.05096 0.09961 0.11044 0.09961 0.16992 0 0.0599-0.03142 0.11683-0.09961 0.16797-0.08322 0.06186-0.16016 0.16095-0.16016 0.29102 0 0.17525 0.14505 0.32031 0.32031 0.32031h0.46094c0.14293 0 0.25586 0.11293 0.25586 0.25586v0.45898c0 0.17525 0.14505 0.32031 0.32031 0.32031 0.12939 0 0.22714-0.0774 0.28906-0.16016 0.05116-0.0682 0.11003-0.09766 0.16992-0.09766 0.05948 0 0.11896 0.02968 0.16992 0.09766 0.05096 0.06797 0.08594 0.17112 0.08594 0.28711s-0.03498 0.21914-0.08594 0.28711c-0.05096 0.06797-0.11044 0.09961-0.16992 0.09961-0.05938 0-0.11714-0.03263-0.16797-0.09961h-2e-3c-0.06192-0.08273-0.15966-0.16016-0.28906-0.16016-0.17525 0-0.32031 0.14505-0.32031 0.32031v0.97656c0 0.14293-0.11293 0.25781-0.25586 0.25781h-0.46094c-0.03194 0-0.05469-0.0247-0.05469-0.05664 0-0.01888 0.01618-0.05096 0.05273-0.07813h2e-3c0.11956-0.08968 0.20508-0.22546 0.20508-0.38086 0-0.155-0.08548-0.2912-0.20508-0.38086-0.11959-0.08966-0.2756-0.14062-0.44531-0.14062s-0.32767 0.05096-0.44727 0.14062c-0.11959 0.08966-0.20312 0.22586-0.20312 0.38086 0 0.15538 0.08549 0.29117 0.20508 0.38086 0.03656 0.02718 0.05273 0.05927 0.05273 0.07813 0 0.03194-0.02274 0.05664-0.05469 0.05664h-0.97852c-0.14293 0-0.25586-0.11489-0.25586-0.25781v-0.97656c0-0.03194 0.02274-0.05664 0.05469-0.05664 0.01888 0 0.05291 0.01813 0.08008 0.05469 0.08968 0.11956 0.22547 0.20508 0.38086 0.20508 0.155 0 0.2912-0.08548 0.38086-0.20508 0.08966-0.11959 0.13867-0.2756 0.13867-0.44531s-0.04901-0.32572-0.13867-0.44531c-0.08966-0.1196-0.22586-0.20508-0.38086-0.20508-0.15538 0-0.29117 0.08549-0.38086 0.20508-0.02718 0.03656-0.06122 0.05469-0.08008 0.05469-0.03194 0-0.05469-0.0247-0.05469-0.05664v-0.45898c0-0.14292 0.11293-0.25586 0.25586-0.25586h0.97852c0.17525 0 0.32031-0.14505 0.32031-0.32031 0-0.13006-0.07691-0.22915-0.16016-0.29102-0.0682-0.05115-0.09961-0.10807-0.09961-0.16797 0-0.05948 0.03164-0.11896 0.09961-0.16992 0.06797-0.05096 0.17112-0.08789 0.28711-0.08789z"
-                  color="#000000"
-                  fill="#fff"
-                  style="-inkscape-stroke:none"></path
-                ></g
-              ></svg>
-            <span
-              class="opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out ml-3 md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
-              >Extensions</span>
-            <span class="pf-c-nav__toggle">
-              <span
-                class="pf-c-nav__toggle-icon opacity-0 -z-40 md:z-0 group-hover:z-0 md:opacity-100 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out">
-                <i class="fas fa-angle-right" aria-hidden="true"></i>
-              </span>
-            </span>
-          </div>
-        </div>
-        <section class="pf-c-nav__subnav {contributionsExpanded ? 'hidden' : 'flex'}">
-          <ul class="pf-c-nav__list w-full">
-            {#each $contributions as contribution}
-              <li class="pf-c-nav__item">
-                <a href="/contribs/{contribution.name}" class="pf-c-nav__link">
-                  <div class="flex items-center w-full sm:-ml-1.5 md:-ml-1.5 mr-2">
-                    <img src="{contribution.icon}" width="24" height="24" class="mr-4" alt="{contribution.name} icon" />
-                    <span
-                      class="w-full text-ellipsis whitespace-nowrap overflow-hidden opacity-0 -z-40 md:z-0 md:opacity-100 group-hover:z-0 group-hover:opacity-100 group-hover:delay-150 group-hover:duration-75 group-hover:ease-in-out md:transition-opacity md:delay-150 md:duration-150 md:ease-in-out"
-                      title="{contribution.name}">{contribution.name}</span>
-                  </div>
-                </a>
-              </li>
-            {/each}
-          </ul>
-        </section>
-      </li>
+      <li><div class="mx-3 mt-1 mb-2 h-[1px] bg-zinc-600"></div></li>
     {/if}
+    {#each $contributions as contribution}
+      <li
+        class="pf-c-nav__item flex w-full justify-between {meta.url === '/contribs/{contribution.name}'
+          ? 'dark:text-white pf-m-current'
+          : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
+        <a href="/contribs/{contribution.name}" class="pf-c-nav__link" title="{contribution.name}">
+          <div class="flex items-center w-full h-full">
+            <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
+          </div>
+        </a>
+      </li>
+    {/each}
   </ul>
 
   <ul class="pf-c-nav__list">
@@ -236,8 +181,12 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/preferences')
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
-      <a href="/preferences/resources" class="pf-c-nav__link">
-        <div class="flex items-center">
+      <a
+        href="#top"
+        class="pf-c-nav__link"
+        title="Settings"
+        on:click|preventDefault="{() => clickSettings(meta.url.startsWith('/preferences'))}">
+        <div class="flex items-center w-full h-full">
           <svg
             id="settings"
             width="24"
@@ -271,7 +220,6 @@ export let meta;
                 ></g
               ></g>
           </svg>
-          <span class="hidden md:block group-hover:block mx-3">Settings</span>
         </div>
       </a>
     </li>
