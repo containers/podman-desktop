@@ -8,6 +8,7 @@ import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
+import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 
 let ociImage: string;
 
@@ -121,7 +122,7 @@ async function removeExtension(extension: ExtensionInfo) {
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10 py-3" title="Extension {extension.name} is {extension.state}">
                   <Fa
-                    class="h-10 w-10 rounded-full {extension.state === 'active' ? 'text-violet-600' : 'text-gray-700'}"
+                    class="h-10 w-10 rounded-full {extension.state === 'started' ? 'text-violet-600' : 'text-gray-700'}"
                     size="25"
                     icon="{faPuzzlePiece}" />
                 </div>
@@ -130,13 +131,14 @@ async function removeExtension(extension: ExtensionInfo) {
                     <div class="text-sm text-gray-200">
                       {extension.displayName}
                       {extension.removable ? '(user)' : '(default extension)'}
+                      <span class="text-xs font-extra-light text-gray-500">v{extension.version}</span>
                     </div>
                   </div>
                   <div class="flex flex-row">
                     <div class="text-sm text-gray-400 italic">{extension.description}</div>
                   </div>
-                  <div class="flex flex-row text-xs font-extra-light text-violet-500">
-                    <div>v{extension.version}</div>
+                  <div class="flex">
+                    <ConnectionStatus status="{extension.state}" />
                   </div>
                 </div>
               </div>
@@ -147,22 +149,22 @@ async function removeExtension(extension: ExtensionInfo) {
                   title="Start extension"
                   on:click="{() => startExtension(extension)}"
                   class="{buttonClass}"
-                  class:hidden="{extension.state === 'active'}"><Fa class="h-4 w-4" icon="{faPlay}" /></button>
+                  class:hidden="{extension.state !== 'stopped'}"><Fa class="h-4 w-4" icon="{faPlay}" /></button>
                 <button
                   title="Stop extension"
                   class="{buttonClass}"
                   on:click="{() => stopExtension(extension)}"
                   hidden
-                  class:hidden="{extension.state !== 'active'}"><Fa class="h-4 w-4" icon="{faStop}" /></button>
+                  class:hidden="{extension.state !== 'started'}"><Fa class="h-4 w-4" icon="{faStop}" /></button>
 
                 {#if extension.removable}
-                  {#if extension.state === 'inactive'}
+                  {#if extension.state === 'stopped'}
                     <button title="Remove extension" class="{buttonClass}" on:click="{() => removeExtension(extension)}"
                       ><Fa class="h-4 w-4" icon="{faTrash}" /></button>
                   {:else}
                     <div
                       class="m-0.5 text-gray-700 rounded-full inline-flex items-center px-2 py-2 text-center"
-                      title="Active extension cannot be removed.">
+                      title="Running extension cannot be removed.">
                       <Fa class="h-4 w-4" icon="{faTrash}" />
                     </div>
                   {/if}
