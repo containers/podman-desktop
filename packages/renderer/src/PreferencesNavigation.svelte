@@ -4,7 +4,6 @@ import { extensionInfos } from './stores/extensions';
 import { configurationProperties } from './stores/configurationProperties';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration-registry-constants';
 
-export let exitSettingsCallback: () => void;
 export let meta;
 
 let extensions, configProperties: Map<string, { id: string; title: string }>;
@@ -54,7 +53,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
   style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))"
   aria-label="Global">
   <div class="flex items-center">
-    <div class="pt-5 px-5 mb-10">
+    <div class="pt-4 px-5 mb-10">
       <p class="text-xl first-letter:uppercase">Settings</p>
     </div>
   </div>
@@ -198,17 +197,5 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
       </li>
     {/each}
     <!-- Default configuration properties end -->
-  </ul>
-
-  <ul class="pf-c-nav__list">
-    <li
-      class="pf-c-nav__item pf-c-nav__link flex w-full justify-between dark:text-gray-400 hover:text-gray-300 cursor-pointer items-center h-[50px] min-h-[50px]"
-      style="margin-top:auto"
-      on:click="{exitSettingsCallback}">
-      <div class="flex items-center" style="margin-top:4px">
-        <i class="fa fa-angle-left"></i>
-        <span class="block group-hover:block mx-2">Exit settings</span>
-      </div>
-    </li>
   </ul>
 </nav>
