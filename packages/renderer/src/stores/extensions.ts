@@ -28,7 +28,13 @@ export async function fetchExtensions() {
 export const extensionInfos: Writable<ExtensionInfo[]> = writable([]);
 
 // need to refresh when extension is started or stopped
+window?.events.receive('extension-starting', () => {
+  fetchExtensions();
+});
 window?.events.receive('extension-started', () => {
+  fetchExtensions();
+});
+window?.events.receive('extension-stopping', () => {
   fetchExtensions();
 });
 window?.events.receive('extension-stopped', () => {

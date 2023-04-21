@@ -84,6 +84,7 @@ export class ExtensionLoader {
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
   private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
   private reloadInProgressExtensions = new Map<string, boolean>();
+  private extensionState = new Map<string, string>();
 
   protected watchTimeout = 1000;
 
@@ -122,7 +123,7 @@ export class ExtensionLoader {
       description: extension.manifest.description,
       version: extension.manifest.version,
       publisher: extension.manifest.publisher,
-      state: this.activatedExtensions.get(extension.id) ? 'active' : 'inactive',
+      state: this.extensionState.get(extension.id) || 'stopped',
       id: extension.id,
       path: extension.path,
       removable: extension.removable,
@@ -755,6 +756,9 @@ export class ExtensionLoader {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
+    this.extensionState.set(extension.id, 'starting');
+    this.apiSender.send('extension-starting', {});
+
     const subscriptions: containerDesktopAPI.Disposable[] = [];
 
     const extensionContext: containerDesktopAPI.ExtensionContext = {
@@ -778,6 +782,7 @@ export class ExtensionLoader {
       extensionContext,
     };
     this.activatedExtensions.set(extension.id, activatedExtension);
+    this.extensionState.set(extension.id, 'started');
     this.apiSender.send('extension-started');
   }
 
@@ -786,6 +791,9 @@ export class ExtensionLoader {
     if (!extension) {
       return;
     }
+
+    this.extensionState.set(extension.id, 'stopping');
+    this.apiSender.send('extension-stopping');
 
     if (extension.deactivateFunction) {
       await extension.deactivateFunction();
@@ -797,6 +805,7 @@ export class ExtensionLoader {
     });
 
     this.activatedExtensions.delete(extensionId);
+    this.extensionState.set(extension.id, 'stopped');
     this.apiSender.send('extension-stopped');
   }
 
