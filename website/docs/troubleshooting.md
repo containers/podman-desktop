@@ -261,7 +261,7 @@ You should be a happy camper from here.
 
 #### Issue
 
-When you launch Podman Desktop from the command line in Windows the terminal session attaches to it. You cannot quit the terminal because it will kill Podman Desktop as well.
+When you start Podman Desktop from the command line in Windows the terminal session attaches to it. You cannot quit the terminal because it will kill Podman Desktop as well.
 
 #### Solution
 
