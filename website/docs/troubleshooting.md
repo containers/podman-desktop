@@ -256,3 +256,13 @@ podman machine init
 ```
 
 You should be a happy camper from here.
+
+### The terminal session attaches to Podman Desktop when launching it from the command line in Windows
+
+#### Issue
+
+When you start Podman Desktop from the command line in Windows the terminal session attaches to it. You cannot quit the terminal because it will kill Podman Desktop as well.
+
+#### Solution
+
+Set the environment variable `ELECTRON_NO_ATTACH_CONSOLE` to true before launching Podman Desktop. 
