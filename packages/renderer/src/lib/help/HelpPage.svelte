@@ -53,10 +53,10 @@
       <li class="pb-2">
         <i class="fas fa-comments" aria-hidden="true"></i>
         <p
-          on:click="{() => window.openExternal('https://discordapp.com/invite/TCTB38RWpf')}"
+          on:click="{() => window.openExternal('https://discord.com/invite/x5GzFF6QH4')}"
           title="https://discordapp.com/invite/TCTB38RWpf"
           class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          General questions (bridged with IRC & Matrix): Join #general on Discord
+          General questions (bridged with IRC & Matrix): Join #podman-desktop on Discord
         </p>
       </li>
       <li class="pb-2">
