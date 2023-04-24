@@ -1136,6 +1136,10 @@ function initExposure(): void {
     return ipcInvoke('kubernetes-client:listPods');
   });
 
+  contextBridge.exposeInMainWorld('kubernetesCheckConnection', async (): Promise<boolean> => {
+    return ipcInvoke('kubernetes-client:checkConnection');
+  });
+
   let onDataCallbacksKubernetesPodLogId = 0;
   const onDataCallbacksKubernetesPodLog = new Map<number, (name: string, data: string) => void>();
   contextBridge.exposeInMainWorld(
