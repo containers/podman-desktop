@@ -44,11 +44,11 @@
 Apply style on documentation
 */
 [data-theme='dark'].docs-doc-page .main-wrapper a {
-  @apply text-purple-300;
+  @apply text-purple-200;
 }
 
 .docs-doc-page .main-wrapper a {
-  @apply text-purple-700;
+  @apply text-purple-600;
 }
 
 /* You can override the default Infima variables here. */

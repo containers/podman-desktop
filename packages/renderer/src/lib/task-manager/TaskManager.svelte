@@ -66,7 +66,7 @@ window.events?.receive('toggle-task-manager', () => {
       <!-- header of the task manager -->
       <div class="flex flex-row w-full">
         <!-- title of bars-->
-        <div class="p-2 flex flex-row items-center w-full text-gray-300">
+        <div class="p-2 flex flex-row items-center w-full text-gray-400">
           <TaskIcon size="15" />
           <div class="text-xs uppercase ml-2">tasks</div>
           <div class="flex-1"></div>
@@ -111,7 +111,7 @@ window.events?.receive('toggle-task-manager', () => {
       <!-- only if there are tasks-->
       {#if completedTasks.length > 0}
         <div class="flex flex-row w-full">
-          <div class="p-2 flex flex-row space-x-2 w-full text-gray-300">
+          <div class="p-2 flex flex-row space-x-2 w-full text-gray-400">
             <button on:click="{() => clearCompleted()}" class="pf-c-button pf-m-secondary">Clear completed</button>
             <!--<button class="pf-c-button pf-m-secondary">View task history</button>-->
           </div>

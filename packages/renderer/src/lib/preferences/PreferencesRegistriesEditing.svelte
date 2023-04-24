@@ -219,7 +219,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 <SettingsPage title="Registries">
   <div class="container mx-auto bg-zinc-800 mt-5 rounded-md p-3">
     <!-- Registries table start -->
-    <div class="w-full border-t border-b border-gray-600">
+    <div class="w-full border-t border-b border-gray-900">
       <div class="flex w-full">
         <div class="flex-1 text-left py-4 pl-5 text-sm font-bold w-auto">Registry Location</div>
         <div class="text-left py-4 text-sm font-bold w-1/4">Username</div>
@@ -228,7 +228,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
       {#each $registriesInfos as registry}
         <!-- containerDesktopAPI.Registry row start -->
-        <div class="flex flex-col w-full border-t border-gray-600">
+        <div class="flex flex-col w-full border-t border-gray-900">
           <div class="flex flex-row">
             <div class="flex-1 pt-2 pl-5 pr-5 text-sm w-auto m-auto">
               <div class="flex items-center w-full h-full">
@@ -262,7 +262,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                     type="text"
                     placeholder="Username"
                     bind:value="{registry.username}"
-                    class="block px-3 block w-full h-full transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none" />
+                    class="block px-3 block w-full h-full transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
                 </div>
               {:else if !registry.username && !registry.secret}
                 <button class="font-bold" on:click="{() => markRegistryAsModified(registry)}">Login now</button>
@@ -290,7 +290,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                               !showPasswordForServerUrls.some(r => r === registry.serverUrl),
                             )}" />
                         <label
-                          class="px-2 py-1 text text-gray-600 cursor-pointer"
+                          class="px-2 py-1 text text-gray-900 cursor-pointer"
                           for="password-toggle-{registry.serverUrl}">
                           {#if showPasswordForServerUrls.some(r => r === registry.serverUrl)}
                             <i class="fas fa-eye-slash"></i>
@@ -305,7 +305,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                         type="password"
                         placeholder="Password"
                         bind:value="{registry.secret}"
-                        class="px-3 block w-full h-full transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none pr-10" />
+                        class="px-3 block w-full h-full transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
                     </div>
                   </div>
                   <div class="h-7 mt-1.5 mb-0.5 text-sm">
@@ -399,7 +399,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
       {#each $registriesSuggestedInfos as registry, i (registry)}
         <!-- Add new registry form start -->
-        <div class="flex flex-col w-full border-t border-gray-600">
+        <div class="flex flex-col w-full border-t border-gray-900">
           <div class="flex flex-row">
             <div class="flex-1 pt-2 pl-5 pr-5 text-sm w-auto m-auto">
               <div class="flex items-center w-full h-full">
@@ -412,7 +412,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                       height="24" />
                   {/if}
                   <!-- By defualt, just show the name, but if we go to add it, show the full URL including https -->
-                  <span class="ml-2 text-gray-400">
+                  <span class="ml-2 text-gray-700">
                     {#if listedSuggestedRegistries[i]}
                       https://{registry.url}
                     {:else}
@@ -428,7 +428,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                   type="text"
                   placeholder="Username"
                   bind:value="{newRegistryRequest.username}"
-                  class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none" />
+                  class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
               {/if}
             </div>
             <div class="pt-4 pb-2 text-sm w-2/5">
@@ -447,7 +447,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                             newRegistryRequest,
                             !showPasswordForServerUrls.some(r => r === ''),
                           )}" />
-                      <label class="px-2 py-1 text text-gray-600 cursor-pointer" for="password-toggle-new-registry">
+                      <label class="px-2 py-1 text text-gray-900 cursor-pointer" for="password-toggle-new-registry">
                         {#if showPasswordForServerUrls.some(r => r === '')}
                           <i class="fas fa-eye-slash"></i>
                         {:else}
@@ -460,7 +460,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                       type="password"
                       placeholder="Password"
                       bind:value="{newRegistryRequest.secret}"
-                      class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none pr-10" />
+                      class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
                   {/if}
                 </div>
 
@@ -512,21 +512,21 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
       {#if showNewRegistryForm}
         <!-- Add new registry form start -->
-        <div class="flex flex-col w-full border-t border-gray-600">
+        <div class="flex flex-col w-full border-t border-gray-900">
           <div class="flex flex-row">
             <div class="flex-1 pt-2 pl-10 pr-5 text-sm w-auto m-auto">
               <input
                 type="text"
                 placeholder="URL (HTTPS only)"
                 bind:value="{newRegistryRequest.serverUrl}"
-                class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none" />
+                class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
             </div>
             <div class="flex pt-4 pb-2 pr-5 text-sm w-1/4">
               <input
                 type="text"
                 placeholder="Username"
                 bind:value="{newRegistryRequest.username}"
-                class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none" />
+                class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
             </div>
             <div class="pt-4 pb-2 text-sm w-2/5">
               <div class="flex flex-row">
@@ -543,7 +543,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                           newRegistryRequest,
                           !showPasswordForServerUrls.some(r => r === ''),
                         )}" />
-                    <label class="px-2 py-1 text text-gray-600 cursor-pointer" for="password-toggle-new-registry">
+                    <label class="px-2 py-1 text text-gray-900 cursor-pointer" for="password-toggle-new-registry">
                       {#if showPasswordForServerUrls.some(r => r === '')}
                         <i class="fas fa-eye-slash"></i>
                       {:else}
@@ -556,7 +556,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                     type="password"
                     placeholder="Password"
                     bind:value="{newRegistryRequest.secret}"
-                    class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-zinc-900 text-gray-400 placeholder-gray-400 rounded-sm focus:outline-none pr-10" />
+                    class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
                 </div>
 
                 <div class="flex text-sm">

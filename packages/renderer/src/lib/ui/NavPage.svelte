@@ -19,7 +19,7 @@ export let searchEnabled: boolean = true;
     {#if searchEnabled}
       <div class="flex flex-row pt-2 pb-4">
         <div class="pl-5 lg:w-[35rem] w-[22rem]">
-          <div class="flex items-center bg-zinc-900 text-gray-400 rounded-sm">
+          <div class="flex items-center bg-zinc-900 text-gray-700 rounded-sm">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="w-5 h-5 ml-2 mr-2"
@@ -37,7 +37,7 @@ export let searchEnabled: boolean = true;
               type="text"
               name="containerSearchName"
               placeholder="Search {title}...."
-              class="w-full py-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400" />
+              class="w-full py-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
           </div>
         </div>
         <div class="flex flex-1 px-5">

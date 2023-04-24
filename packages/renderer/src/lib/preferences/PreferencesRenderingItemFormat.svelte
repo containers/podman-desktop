@@ -204,7 +204,7 @@ function handleCleanValue(
   <div class="flex flex-col mx-2 text-start w-full justify-center items-start pf-c-form__group-control">
     {#if record.type === 'boolean'}
       <label class="relative inline-flex items-center cursor-pointer">
-        <span class="text-xs {checkboxValue ? 'text-white' : 'text-gray-400'} mr-3"
+        <span class="text-xs {checkboxValue ? 'text-white' : 'text-gray-700'} mr-3"
           >{checkboxValue ? 'Enabled' : 'Disabled'}</span>
         <input
           on:input="{event => {
@@ -220,7 +220,7 @@ function handleCleanValue(
           aria-invalid="{invalidEntry}"
           aria-label="{record.description}" />
         <div
-          class="w-8 h-[20px] bg-gray-500 rounded-full peer peer-checked:after:translate-x-full after:bg-zinc-800 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
+          class="w-8 h-[20px] bg-gray-900 rounded-full peer peer-checked:after:translate-x-full after:bg-zinc-800 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
         </div>
       </label>
     {:else if enableSlider && record.type === 'number' && typeof record.maximum === 'number'}
@@ -243,7 +243,7 @@ function handleCleanValue(
           disabled="{!canDecrement(recordValue, record.minimum)}"
           class="w-11 text-white {!canDecrement(recordValue, record.minimum)
             ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
-            : 'hover:text-gray-700 hover:bg-gray-400'} cursor-pointer outline-none">
+            : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
           <span class="m-auto font-thin">−</span>
         </button>
         <input
@@ -259,7 +259,7 @@ function handleCleanValue(
           disabled="{!canIncrement(recordValue, record.maximum)}"
           class="w-11 text-white {!canIncrement(recordValue, record.maximum)
             ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
-            : 'hover:text-gray-700 hover:bg-gray-400'} cursor-pointer outline-none">
+            : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
           <span class="m-auto font-thin">+</span>
         </button>
       </div>

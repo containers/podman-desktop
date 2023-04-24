@@ -52,8 +52,8 @@ onMount(() => {
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/images" title="Go back to images list"
                 >Images</a>
-              <div class="text-xl mx-2 text-gray-400">></div>
-              <div class="text-sm font-extralight text-gray-400">Image Details</div>
+              <div class="text-xl mx-2 text-gray-700">></div>
+              <div class="text-sm font-extralight text-gray-700">Image Details</div>
             </div>
             <div class="flex flex-row items-start pt-1">
               <div class="pr-3 pt-1">
@@ -64,7 +64,7 @@ onMount(() => {
                   <div class="mr-2">{image.name}</div>
                   <div class="text-base text-violet-400">{image.shortId}</div>
                 </div>
-                <div class="mr-2 pb-4 text-small text-gray-500">{image.tag}</div>
+                <div class="mr-2 pb-4 text-small text-gray-900">{image.tag}</div>
               </div>
             </div>
 
@@ -89,7 +89,7 @@ onMount(() => {
                 dropdownMenu="{false}" />
             </div>
           </div>
-          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
+          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
         <Route path="/history" breadcrumb="History">

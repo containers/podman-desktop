@@ -94,12 +94,12 @@ function closeWelcome() {
               type="checkbox"
               aria-label="Enable telemetry" />
             <div
-              class="w-4 h-4 rounded border-2 border-gray-400 peer peer-checked:bg-violet-500 peer-checked:border-violet-500">
+              class="w-4 h-4 rounded border-2 border-gray-700 peer peer-checked:bg-violet-500 peer-checked:border-violet-500">
             </div>
             <Fa class="w-4 h-4 absolute text-zinc-700" size="10" icon="{faCheck}" />
             <span class="font-medium font-bold px-2">Telemetry:</span>
           </label>
-          <div class="w-2/5 text-gray-300">
+          <div class="w-2/5 text-gray-400">
             Help Red Hat improve Podman Desktop by allowing anonymous usage data to be collected.
             <button
               class="text-violet-400 pl-1"
@@ -108,10 +108,10 @@ function closeWelcome() {
               }}">Read our privacy statement</button>
           </div>
         </div>
-        <div class="flex justify-center p-1 text-sm text-gray-400">
+        <div class="flex justify-center p-1 text-sm text-gray-700">
           <div>
             You can always modify this preference later in <button
-              class="text-gray-400 pl-1"
+              class="text-gray-700 pl-1"
               on:click="{() => {
                 closeWelcome();
                 router.goto('/preferences/default/preferences.telemetry');

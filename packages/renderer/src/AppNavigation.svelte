@@ -95,7 +95,7 @@ export let meta;
     <li
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/'
         ? 'pf-m-current'
-        : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
+        : ''} hover:text-gray-400 cursor-pointer items-center mb-6">
       <a href="/" class="pf-c-nav__link flex" title="Dashboard">
         <div class="flex items-center w-full h-full">
           <svg
@@ -122,7 +122,7 @@ export let meta;
     <li
       class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/containers')
         ? 'pf-m-current'
-        : ''} hover:text-gray-300 cursor-pointer items-center mb-6">
+        : ''} hover:text-gray-400 cursor-pointer items-center mb-6">
       <a href="/containers" class="pf-c-nav__link" title="Containers{containerCount}">
         <div class="flex items-center w-full h-full">
           <ContainerIcon size="24" />
@@ -132,7 +132,7 @@ export let meta;
     <li
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/pods'
         ? 'dark:text-white pf-m-current'
-        : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
+        : 'dark:text-gray-700'} hover:text-gray-400 cursor-pointer items-center mb-6">
       <a href="/pods" class="pf-c-nav__link" title="Pods{podCount}">
         <div class="flex items-center w-full h-full">
           <PodIcon size="24" />
@@ -142,7 +142,7 @@ export let meta;
     <li
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/images'
         ? 'dark:text-white pf-m-current'
-        : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
+        : 'dark:text-gray-700'} hover:text-gray-400 cursor-pointer items-center mb-6">
       <a href="/images" class="pf-c-nav__link" title="Images{imageCount}">
         <div class="flex items-center w-full h-full">
           <ImageIcon size="24" />
@@ -152,7 +152,7 @@ export let meta;
     <li
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/volumes'
         ? 'dark:text-white pf-m-current'
-        : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
+        : 'dark:text-gray-700'} hover:text-gray-400 cursor-pointer items-center mb-6">
       <a href="/volumes" class="pf-c-nav__link" title="Volumes{volumeCount}">
         <div class="flex items-center w-full h-full">
           <VolumeIcon size="24" />
@@ -166,7 +166,7 @@ export let meta;
       <li
         class="pf-c-nav__item flex w-full justify-between {meta.url === '/contribs/{contribution.name}'
           ? 'dark:text-white pf-m-current'
-          : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
+          : 'dark:text-gray-700'} hover:text-gray-400 cursor-pointer items-center mb-6">
         <a href="/contribs/{contribution.name}" class="pf-c-nav__link" title="{contribution.name}">
           <div class="flex items-center w-full h-full">
             <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
@@ -180,7 +180,7 @@ export let meta;
     <li
       class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/preferences')
         ? 'dark:text-white pf-m-current'
-        : 'dark:text-gray-400'} hover:text-gray-300 cursor-pointer items-center mb-6">
+        : 'dark:text-gray-700'} hover:text-gray-400 cursor-pointer items-center mb-6">
       <a
         href="#top"
         class="pf-c-nav__link"

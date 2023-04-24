@@ -123,19 +123,19 @@ onDestroy(() => {
 
 <NavPage title="Copy containers to a pod" searchEnabled="{false}">
   <div class="w-full h-full" slot="empty">
-    <div class="m-5 p-5 h-full bg-zinc-900 rounded-sm text-gray-400">
+    <div class="m-5 p-5 h-full bg-zinc-900 rounded-sm text-gray-700">
       {#if podCreation}
         <div class="">
           <label
             for="podName"
-            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300 dark:text-gray-300"
+            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-400 dark:text-gray-400"
             >Name of the pod:
             <input
               name="podName"
               id="podName"
               bind:value="{podCreation.name}"
               placeholder="Select name of the pod..."
-              class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+              class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
               required />
           </label>
         </div>
@@ -143,12 +143,12 @@ onDestroy(() => {
         <div class="">
           <label
             for="podName"
-            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300 dark:text-gray-300"
+            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-400 dark:text-gray-400"
             >Containers to replicate to the pod:
 
             <table>
               {#each podCreation.containers as container, index}
-                <tr class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400">
+                <tr class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700">
                   <td class="px-2">{index + 1}.</td>
                   <td class="px-2">{container.name}</td>
                   <td class="px-2">({container.id.substring(0, 7)})</td>
@@ -163,10 +163,10 @@ onDestroy(() => {
         {#if providerConnections.length > 1}
           <label
             for="providerConnectionName"
-            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300 dark:text-gray-300"
+            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-400 dark:text-gray-400"
             >Container Engine
             <select
-              class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+              class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
               name="providerChoice"
               bind:value="{selectedProvider}">
               {#each providerConnections as providerConnection}

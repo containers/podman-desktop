@@ -267,22 +267,22 @@ function handleKeydown(e: KeyboardEvent) {
             on:input="{event => onInputChange(event)}"
             type="text"
             bind:value="{inputValue}"
-            class="px-1 w-full text-gray-300 bg-zinc-700 border {validationError
+            class="px-1 w-full text-gray-400 bg-zinc-700 border {validationError
               ? 'border-red-700'
               : 'border-zinc-800'} focus:outline-none"
             placeholder="{placeHolder}" />
           {#if quickPickCanPickMany}
             <button
               on:click="{() => validateQuickPick()}"
-              class="text-gray-300 bg-violet-600 border border-zinc-800 focus:outline-none px-1">OK</button>
+              class="text-gray-400 bg-violet-600 border border-zinc-800 focus:outline-none px-1">OK</button>
           {/if}
         </div>
 
         {#if mode === 'InputBox'}
           {#if validationError}
-            <div class="text-gray-300 border border-red-700 relative w-full bg-red-700 px-1">{validationError}</div>
+            <div class="text-gray-400 border border-red-700 relative w-full bg-red-700 px-1">{validationError}</div>
           {:else}
-            <div class="relative text-gray-300 pt-2 px-1 h-6 overflow-y-auto">{prompt}</div>
+            <div class="relative text-gray-400 pt-2 px-1 h-6 overflow-y-auto">{prompt}</div>
           {/if}
         {:else if mode === 'QuickPick'}
           {#each quickPickFilteredItems as item, i}
@@ -295,7 +295,7 @@ function handleKeydown(e: KeyboardEvent) {
               {/if}
               <button
                 on:click="{() => clickQuickPickItem(item, i)}"
-                class="text-gray-300 text-left relative my-1 w-full {i === quickPickSelectedFilteredIndex
+                class="text-gray-400 text-left relative my-1 w-full {i === quickPickSelectedFilteredIndex
                   ? 'bg-violet-500'
                   : ''} px-1">
                 <div class="flex flex-col w-full">
@@ -303,12 +303,12 @@ function handleKeydown(e: KeyboardEvent) {
                   <div class="flex flex-row w-full max-w-[700px] truncate">
                     <div class="font-bold">{item.value}</div>
                     {#if item.description}
-                      <div class="text-gray-300 text-xs ml-2">{item.description}</div>
+                      <div class="text-gray-400 text-xs ml-2">{item.description}</div>
                     {/if}
                   </div>
                   <!-- second row is optional detail -->
                   {#if item.detail}
-                    <div class="w-full max-w-[700px] truncate text-gray-300 text-xs">{item.detail}</div>
+                    <div class="w-full max-w-[700px] truncate text-gray-400 text-xs">{item.detail}</div>
                   {/if}
                 </div>
               </button>

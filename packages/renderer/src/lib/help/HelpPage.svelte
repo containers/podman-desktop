@@ -2,7 +2,7 @@
   <div class="min-w-full flex">
     <div class="pt-5 px-5">
       <p class="text-xl">Help</p>
-      <p class="text-sm text-gray-400">Looking for assistance? We've got you covered.</p>
+      <p class="text-sm text-gray-700">Looking for assistance? We've got you covered.</p>
     </div>
   </div>
   <div class="min-w-full flex-1">

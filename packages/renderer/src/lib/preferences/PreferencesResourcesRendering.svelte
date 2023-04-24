@@ -207,7 +207,7 @@ async function startConnectionProvider(
   <span slot="subtitle" class="{providers.length > 0 ? '' : 'hidden'}">
     Additional provider information is available under <a
       href="/preferences/extensions"
-      class="text-gray-400 underline underline-offset-2">Extensions</a>
+      class="text-gray-700 underline underline-offset-2">Extensions</a>
   </span>
   <div>
     {#if providers.length === 0}
@@ -220,7 +220,7 @@ async function startConnectionProvider(
       </div>
     {:else}
       {#each providers as provider}
-        <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-600 flex">
+        <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-900 flex">
           <div>
             <!-- left col - provider icon/name + "create new" button -->
             <div class="min-w-[150px] max-w-[200px]">
@@ -233,7 +233,7 @@ async function startConnectionProvider(
                     <img src="{provider.images.icon.dark}" alt="{provider.name}" class="max-w-[40px]" />
                   {/if}
                 {/if}
-                <span class="my-auto text-gray-300 ml-3 break-words">{provider.name}</span>
+                <span class="my-auto text-gray-400 ml-3 break-words">{provider.name}</span>
               </div>
               <div class="text-center mt-10">
                 {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
@@ -258,13 +258,13 @@ async function startConnectionProvider(
             </div>
           </div>
           <!-- providers columns -->
-          <div class="grow flex flex-wrap divide-gray-600 ml-2">
+          <div class="grow flex flex-wrap divide-gray-900 ml-2">
             {#each provider.containerConnections as container}
               <div class="px-5 py-2 w-[240px]">
-                <div class="float-right text-gray-700 cursor-not-allowed">
+                <div class="float-right text-gray-900 cursor-not-allowed">
                   <Fa icon="{faArrowUpRightFromSquare}" />
                 </div>
-                <div class="{container.status !== 'started' ? 'text-gray-500' : ''} text-sm">
+                <div class="{container.status !== 'started' ? 'text-gray-900' : ''} text-sm">
                   {container.name}
                 </div>
                 <div class="flex">
@@ -281,7 +281,7 @@ async function startConnectionProvider(
                 </div>
 
                 {#if providerContainerConfiguration.has(provider.internalId)}
-                  <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-500' : ''}">
+                  <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}">
                     {#each providerContainerConfiguration
                       .get(provider.internalId)
                       .filter(conf => conf.container === container.name) as connectionSetting}
@@ -307,7 +307,7 @@ async function startConnectionProvider(
                   connectionStatuses="{containerConnectionStatus}"
                   updateConnectionStatus="{updateContainerStatus}"
                   addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
-                <div class="mt-1.5 text-gray-500 text-[9px]">
+                <div class="mt-1.5 text-gray-900 text-[9px]">
                   <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
                 </div>
               </div>
@@ -321,9 +321,9 @@ async function startConnectionProvider(
                   <ConnectionStatus status="{kubeConnection.status}" />
                 </div>
                 <div class="mt-2">
-                  <div class="text-gray-400 text-xs">Kubernetes endpoint</div>
+                  <div class="text-gray-700 text-xs">Kubernetes endpoint</div>
                   <div class="mt-1">
-                    <span class="my-auto text-xs" class:text-gray-500="{kubeConnection.status !== 'started'}"
+                    <span class="my-auto text-xs" class:text-gray-900="{kubeConnection.status !== 'started'}"
                       >{kubeConnection.endpoint.apiURL}</span>
                   </div>
                 </div>

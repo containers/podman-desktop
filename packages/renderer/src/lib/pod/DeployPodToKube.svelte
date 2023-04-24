@@ -235,19 +235,19 @@ function updateKubeResult() {
 
       {#if bodyPod}
         <div class="pt-2 pb-4">
-          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-300">Pod Name:</label>
+          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Pod Name:</label>
           <input
             type="text"
             bind:value="{bodyPod.metadata.name}"
             name="podName"
             id="podName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
 
       <div class="pt-2 m-2">
-        <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Use Kubernetes Services:</label>
+        <label for="services" class="block mb-1 text-sm font-medium text-gray-400">Use Kubernetes Services:</label>
         <input
           type="checkbox"
           bind:checked="{deployUsingServices}"
@@ -255,7 +255,7 @@ function updateKubeResult() {
           id="useServices"
           class=""
           required />
-        <span class="text-gray-300 text-sm ml-1"
+        <span class="text-gray-400 text-sm ml-1"
           >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster
           policy may prevent to use hostPort.</span>
       </div>
@@ -263,32 +263,32 @@ function updateKubeResult() {
       <!-- Allow to create routes for OpenShift clusters -->
       {#if openshiftConsoleURL}
         <div class="pt-2 m-2">
-          <label for="routes" class="block mb-1 text-sm font-medium text-gray-300">Create OpenShift routes:</label>
+          <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
           <input type="checkbox" bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" class="" required />
-          <span class="text-gray-300 text-sm ml-1"
+          <span class="text-gray-400 text-sm ml-1"
             >Create OpenShift routes to get access to the exposed ports of this pod.</span>
         </div>
       {/if}
 
       {#if defaultContextName}
         <div class="pt-2">
-          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes Context:</label>
+          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Context:</label>
           <input
             type="text"
             bind:value="{defaultContextName}"
             name="defaultContextName"
             id="defaultContextName"
             readonly
-            class="cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            class="cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
 
       {#if allNamespaces}
         <div class="pt-2">
-          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes namespace:</label>
+          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes namespace:</label>
           <select
-            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
             name="namespaceChoice"
             bind:value="{currentNamespace}">
             {#each allNamespaces.items as namespace}
@@ -331,7 +331,7 @@ function updateKubeResult() {
               </div>
             {/if}
           </div>
-          <div class="text-gray-400">
+          <div class="text-gray-700">
             {#if createdPod.metadata?.name}
               <p class="pt-2">Name: {createdPod.metadata.name}</p>
             {/if}
@@ -346,7 +346,7 @@ function updateKubeResult() {
                   <li class="pt-2">
                     {containerStatus.name}
                     {#if containerStatus.ready}
-                      <span class="text-gray-500">Ready</span>
+                      <span class="text-gray-900">Ready</span>
                     {/if}
                     {#if containerStatus.state?.running}
                       <span class="text-green-400">(Running)</span>

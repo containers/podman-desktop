@@ -121,13 +121,13 @@ let pushLogsXtermDiv: HTMLDivElement;
     <div class="modal-overlay fixed w-full h-full bg-gray-900 opacity-50"></div>
 
     <div class="relative px-4 w-full max-w-4xl h-full md:h-auto">
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-900">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-900">
           <div class="flex justify-end p-2">
             <button
               on:click="{() => closeCallback()}"
               type="button"
-              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
+              class="text-gray-700 bg-transparent hover:bg-gray-300 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-900 dark:hover:text-white"
               data-modal-toggle="authentication-modal">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
                 ><path
@@ -141,10 +141,10 @@ let pushLogsXtermDiv: HTMLDivElement;
             <h3 class="text-xl font-medium text-gray-900 dark:text-white">Pushing image</h3>
 
             <div>
-              <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
+              <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                 >Image Tag</label>
               <select
-                class="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+                class="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
                 name="imageChoice"
                 bind:value="{selectedImageTag}">
                 {#each imageTags as imageTag}

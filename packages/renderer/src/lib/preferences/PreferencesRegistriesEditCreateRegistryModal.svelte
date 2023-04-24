@@ -78,7 +78,7 @@ const setType = (node: any) => {
   <div class="flex items-center justify-between bg-black px-6 py-4 border-b-2 border-[#7c3aed]">
     <h1 class="text-xl font-bold">{mode === 'create' ? 'Login to a Registry' : 'Edit Registry'}</h1>
 
-    <button class="hover:text-gray-200 px-2 py-1" on:click="{toggleCallback}">
+    <button class="hover:text-gray-300 px-2 py-1" on:click="{toggleCallback}">
       <i class="fas fa-times" aria-hidden="true"></i>
     </button>
   </div>
@@ -99,7 +99,7 @@ const setType = (node: any) => {
           type="text"
           tabindex="0"
           use:serverUrlValidate="{registry.serverUrl}"
-          class="block disabled:opacity-75 disabled:text-gray-500 w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-400 placeholder-gray-400 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-opacity-20" />
+          class="block disabled:opacity-75 disabled:text-gray-900 w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-700 placeholder-gray-700 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-300 focus:ring-opacity-20" />
         <div class="h-3 mt-2 text-xs">
           {#if $serverUrlValidity.dirty && !$serverUrlValidity.valid}
             <ErrorMessage error="{$serverUrlValidity.message}" icon />
@@ -117,7 +117,7 @@ const setType = (node: any) => {
           placeholder="Username or email"
           type="text"
           use:userNameValidate="{registry.username}"
-          class="block w-full w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-400 placeholder-gray-400 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-opacity-20" />
+          class="block w-full w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-700 placeholder-gray-700 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-300 focus:ring-opacity-20" />
         <p class="mt-2 text-xs text-red-500 h-3">
           {#if $userNameValidity.dirty && !$userNameValidity.valid}
             <ErrorMessage error="{$userNameValidity.message}" icon />
@@ -136,7 +136,7 @@ const setType = (node: any) => {
             tabindex="-1"
             on:change="{event => showHidePassword(event)}"
             bind:checked="{showPassword}" />
-          <label class="px-2 py-1 text text-gray-600 cursor-pointer" for="password">
+          <label class="px-2 py-1 text text-gray-900 cursor-pointer" for="password">
             {#if showPassword}
               <i class="fas fa-eye-slash"></i>
             {:else}
@@ -151,7 +151,7 @@ const setType = (node: any) => {
           placeholder="Password"
           use:setType
           use:passwordValidate="{registry.secret}"
-          class="block w-full w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-400 placeholder-gray-400 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-200 focus:ring-opacity-20" />
+          class="block w-full w-full px-3 py-2 mt-2 transition ease-in-out delay-50 text-sm text-gray-700 placeholder-gray-700 bg-[#111311] rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-300 focus:ring-opacity-20" />
         <p class="mt-2 text-xs text-red-500 h-3">
           {#if $passwordValidity.dirty && !$passwordValidity.valid}
             <ErrorMessage error="{$passwordValidity.message}" icon />
@@ -165,7 +165,7 @@ const setType = (node: any) => {
 
       <div class="text-center mt-6 mb-2">
         <button
-          class="bg-[#6e4ff5] hover:bg-[#613ff4] transition ease-in-out delay-50 hover:cursor-pointer disabled:bg-gray-400 text-sm font-medium uppercase px-6 py-2 rounded-sm shadow hover:shadow-lg"
+          class="bg-[#6e4ff5] hover:bg-[#613ff4] transition ease-in-out delay-50 hover:cursor-pointer disabled:bg-gray-700 text-sm font-medium uppercase px-6 py-2 rounded-sm shadow hover:shadow-lg"
           type="button"
           disabled="{!$serverUrlValidity.valid || !$userNameValidity.valid || !$passwordValidity.valid}"
           on:click="{createOrUpdateRegistry}">

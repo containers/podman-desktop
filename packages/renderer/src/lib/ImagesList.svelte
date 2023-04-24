@@ -265,7 +265,7 @@ function computeInterval(): number {
     <table class="mx-5 w-full" class:hidden="{images.length === 0}">
       <!-- title -->
       <thead>
-        <tr class="h-7 uppercase text-xs text-gray-500">
+        <tr class="h-7 uppercase text-xs text-gray-900">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <input
@@ -305,13 +305,13 @@ function computeInterval(): number {
               <div class="flex items-center">
                 <div class="">
                   <div class="flex flex-row items-center">
-                    <div class="text-sm text-gray-200">{image.name}</div>
+                    <div class="text-sm text-gray-300">{image.name}</div>
                   </div>
                   <div class="flex flex-row items-center">
                     <div class="text-xs text-violet-400">{image.shortId}</div>
-                    <div class="ml-1 text-xs font-extra-light text-gray-300">{image.tag}</div>
+                    <div class="ml-1 text-xs font-extra-light text-gray-400">{image.tag}</div>
                   </div>
-                  <div class="flex flex-row text-xs font-extra-light text-gray-500">
+                  <div class="flex flex-row text-xs font-extra-light text-gray-900">
                     <!-- Hide in case of single engine-->
                     {#if multipleEngines}
                       <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
@@ -324,12 +324,12 @@ function computeInterval(): number {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-400">{image.age}</div>
+                <div class="text-sm text-gray-700">{image.age}</div>
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex">
-                <div class="w-full text-right text-sm text-gray-400">{image.humanSize}</div>
+                <div class="w-full text-right text-sm text-gray-700">{image.humanSize}</div>
               </div>
             </td>
             <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
