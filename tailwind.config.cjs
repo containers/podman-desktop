@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+const tailwindColors = require('tailwindcss/colors')
+
 module.exports = {
   content: [
     'packages/renderer/index.html',
@@ -124,43 +126,44 @@ module.exports = {
         800: '#9f2f15',
         900: '#842c18',
       },
+      transparent: 'transparent',
       // The remaining colors below are not part of our palette and are only here
       // to maintain existing code. No new use.
       'slate': {
-        400: '#94a3b8',
-        800: '#1e293b',
+        400: tailwindColors.slate[400],
+        800: tailwindColors.slate[800],
       },
       'zinc': {
-        100: '#f4f4f5',
-        200: '#e4e4e7',
-        300: '#d4d4d8',
-        400: '#a1a1aa',
-        600: '#52525b',
-        700: '#3f3f46',
-        800: '#27272a',
-        900: '#18181b',
+        100: tailwindColors.zinc[100],
+        200: tailwindColors.zinc[200],
+        300: tailwindColors.zinc[300],
+        400: tailwindColors.zinc[400],
+        600: tailwindColors.zinc[600],
+        700: tailwindColors.zinc[700],
+        800: tailwindColors.zinc[800],
+        900: tailwindColors.zinc[900],
       },
       'neutral': {
-        900: '#171717',
+        900: tailwindColors.neutral[900],
       },
       'yellow': {
-        500: '#eab308',
-        600: '#ca8a04',
+        500: tailwindColors.yellow[500],
+        600: tailwindColors.yellow[600],
       },
       'blue': {
-        500: '#3b82f6',
+        500: tailwindColors.blue[500],
       },
       'indigo': { // website only
-        500: '#6366f1',
-        600: '#4f46e5',
+        500: tailwindColors.indigo[500],
+        600: tailwindColors.indigo[600],
       },
       'violet': {
-         50: '#f5f3ff',
-        400: '#a78bfa',
-        500: '#8b5cf6',
-        600: '#7c3aed',
-        700: '#6d28d9',
-        800: '#5b21b6',
+         50: tailwindColors.violet[50],
+        400: tailwindColors.violet[400],
+        500: tailwindColors.violet[500],
+        600: tailwindColors.violet[600],
+        700: tailwindColors.violet[700],
+        800: tailwindColors.violet[800],
       },
     },
   },
