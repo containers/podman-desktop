@@ -22,11 +22,17 @@ import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { findMatchInLeaves } from './search-util';
 export async function fetchPods() {
   let result = await window.listPods();
-  try {
-    const pods = await window.kubernetesListPods();
-    result = result.concat(pods);
-  } finally {
-    podsInfos.set(result);
+  podsInfos.set(result);
+
+  const checkConnection = await window.kubernetesCheckConnection();
+  if (checkConnection) {
+    try {
+      const pods = await window.kubernetesListPods();
+      result = result.concat(pods);
+      podsInfos.set(result);
+    } catch (e) {
+      console.log('No Kubernetes provider found: ', e);
+    }
   }
 }
 

@@ -35,6 +35,7 @@ beforeAll(() => {
       AppsV1Api: {},
       CustomObjectsApi: {},
       NetworkingV1Api: {},
+      VersionApi: {},
     };
   });
 });
@@ -127,4 +128,26 @@ test('Create unknown custom Kubernetes resources should return error', async () 
     expect(err).to.be.a('Error');
     expect(err.message).equal('CustomError');
   }
+});
+
+test('Check connection to Kubernetes cluster', async () => {
+  // Mock k8sApi.getCode() to return the version of the cluster
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+  });
+
+  const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring);
+  const result = await client.checkConnection();
+  expect(result).toBeTruthy();
+});
+
+test('Check connection to Kubernetes cluster in error', async () => {
+  // Mock k8sApi.getCode() to return the version of the cluster
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+  });
+
+  const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring);
+  const result = await client.checkConnection();
+  expect(result).toBeFalsy();
 });

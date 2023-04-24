@@ -1393,6 +1393,10 @@ export class PluginSystem {
       return kubernetesClient.listNamespaces();
     });
 
+    this.ipcHandle('kubernetes-client:checkConnection', async (): Promise<boolean> => {
+      return kubernetesClient.checkConnection();
+    });
+
     this.ipcHandle(
       'kubernetes-client:readNamespacedPod',
       async (_listener, name: string, namespace: string): Promise<V1Pod | undefined> => {
