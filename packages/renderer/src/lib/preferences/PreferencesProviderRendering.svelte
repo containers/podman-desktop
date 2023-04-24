@@ -69,7 +69,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <div>
       <button
         aria-label="Close"
-        class="hover:text-gray-400 float-right text-lg"
+        class="hover:text-gray-700 float-right text-lg"
         on:click="{() => router.goto('/preferences/resources')}">
         <Fa icon="{faXmark}" />
       </button>
@@ -78,14 +78,14 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <!-- Manage lifecycle-->
     {#if providerInfo?.lifecycleMethods}
       <div class="pl-1 py-2">
-        <div class="text-sm italic text-gray-400">Status</div>
+        <div class="text-sm italic text-gray-700">Status</div>
         <div class="pl-3">{providerInfo.status}</div>
       </div>
 
       <div class="py-2 flex flex:row">
         <!-- start is enabled only in stopped mode-->
         {#if providerInfo?.lifecycleMethods.includes('start')}
-          <div class="px-2 text-sm italic text-gray-400">
+          <div class="px-2 text-sm italic text-gray-700">
             <button
               disabled="{providerInfo.status !== 'stopped'}"
               on:click="{() => startProvider()}"
@@ -101,7 +101,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
         <!-- stop is enabled only in started mode-->
         {#if providerInfo.lifecycleMethods.includes('stop')}
-          <div class="px-2 text-sm italic text-gray-400">
+          <div class="px-2 text-sm italic text-gray-700">
             <button
               disabled="{providerInfo.status !== 'started'}"
               on:click="{() => stopProvider()}"
@@ -114,7 +114,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
             </button>
           </div>
         {/if}
-        <div class="px-2 text-sm italic text-gray-400">
+        <div class="px-2 text-sm italic text-gray-700">
           <button
             type="button"
             on:click="{() => {
@@ -132,7 +132,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
         <div class="py-2 flex flex:row">
           <!-- start is enabled only in stopped mode-->
           {#if providerInfo?.lifecycleMethods.includes('start')}
-            <div class="px-2 text-sm italic text-gray-400">
+            <div class="px-2 text-sm italic text-gray-700">
               <button
                 disabled="{providerInfo.status !== 'stopped'}"
                 on:click="{() => startProvider()}"
@@ -148,7 +148,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
           <!-- stop is enabled only in started mode-->
           {#if providerInfo.lifecycleMethods.includes('stop')}
-            <div class="px-2 text-sm italic text-gray-400">
+            <div class="px-2 text-sm italic text-gray-700">
               <button
                 disabled="{providerInfo.status !== 'started'}"
                 on:click="{() => stopProvider()}"
@@ -161,7 +161,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
               </button>
             </div>
           {/if}
-          <div class="px-2 text-sm italic text-gray-400">
+          <div class="px-2 text-sm italic text-gray-700">
             <button
               type="button"
               on:click="{() => {

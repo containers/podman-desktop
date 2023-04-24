@@ -226,7 +226,7 @@ function validateImageName(event: any): void {
               <div class="pf-c-form__group-control">
                 <div class="flex w-full">
                   <select
-                    class="w-auto border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+                    class="w-auto border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
                     name="providerChoice"
                     bind:value="{selectedProviderConnection}">
                     {#each providerConnections as providerConnection}

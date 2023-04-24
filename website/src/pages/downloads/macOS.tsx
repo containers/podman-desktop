@@ -72,15 +72,15 @@ export function MacOSDownloads(): JSX.Element {
     grabfilenameforMac(setDownloadData);
   }, []);
   return (
-    <div className="basis-1/3 py-2 rounded-lg dark:text-gray-300 text-gray-700  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
+    <div className="basis-1/3 py-2 rounded-lg dark:text-gray-400 text-gray-900  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
       <FontAwesomeIcon size="4x" icon={faApple} className="my-4" />
-      <h2 className="w-full text-center text-4xl title-font font-medium pb-3 border-purple-600 border-b-2">macOS</h2>
+      <h2 className="w-full text-center text-4xl title-font font-medium pb-3 border-purple-500 border-b-2">macOS</h2>
       <div className="flex p-1 flex-col md:flex-col items-center align-top">
         <div className="flex flex-col align-middle items-center">
           <h3 className="mt-0">Podman Desktop for macOS</h3>
           <div className="pt-8">
             <Link
-              className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-md font-semibold"
+              className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-500 rounded text-md font-semibold"
               to={downloadData.universal}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               Download Now
@@ -92,19 +92,19 @@ export function MacOSDownloads(): JSX.Element {
           <div className="mt-4">
             <div>Other macOS downloads:</div>
             <Link
-              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
+              className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 font-semibold text-md"
               to={downloadData.x64}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               Intel
             </Link>
             <Link
-              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 text-md font-semibold"
+              className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 text-md font-semibold"
               to={downloadData.arm64}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               Arm
             </Link>
             <Link
-              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 text-md font-semibold"
+              className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 text-md font-semibold"
               to={downloadData.airgapsetup}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               Disk Image for restricted environments
@@ -120,7 +120,7 @@ export function MacOSDownloads(): JSX.Element {
                   <FontAwesomeIcon size="sm" icon={faBeer} className="mx-1 mt-2" />
                 </p>
                 <div className="dark:bg-zinc-900/50 bg-zinc-300/50 p-1 truncate">
-                  <p className="text-xl dark:text-purple-300 text-purple-700">
+                  <p className="text-xl dark:text-purple-200 text-purple-600">
                     <FontAwesomeIcon size="xs" icon={faTerminal} className="mx-2 mt-3" />
                     brew install podman-desktop
                     <button title="Copy To Clipboard" className="mr-2 p-1">

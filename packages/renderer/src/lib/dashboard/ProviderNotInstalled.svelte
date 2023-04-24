@@ -17,10 +17,10 @@ let preflightChecks: CheckStatus[] = [];
 <div class="p-2 flex flex-col bg-zinc-900 rounded-lg">
   <ProviderLogo provider="{provider}" />
   <div class="flex flex-col items-center text-center">
-    <p class="text-xl text-gray-300">
+    <p class="text-xl text-gray-400">
       Podman Desktop was not able to find an installation of {provider.name}.
     </p>
-    <p class="text-base text-gray-400">
+    <p class="text-base text-gray-700">
       To start working with containers, {provider.name} needs to be detected/installed.
     </p>
   </div>
@@ -34,7 +34,7 @@ let preflightChecks: CheckStatus[] = [];
         <div class="flex flex-col">
           <p class="mb-4 items-center list-inside">{detectionCheck.status ? '✅' : '❌'} {detectionCheck.name}</p>
           {#if detectionCheck.details}
-            Details: <p class="text-gray-300 w-full break-all">{detectionCheck.details}</p>
+            Details: <p class="text-gray-400 w-full break-all">{detectionCheck.details}</p>
           {/if}
         </div>
       {/each}

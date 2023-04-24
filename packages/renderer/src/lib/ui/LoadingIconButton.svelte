@@ -29,9 +29,9 @@ function getStyleByState(state: IConnectionStatus, action: string) {
     ((action === 'stop' || action === 'restart') && (state.inProgress || state.status !== 'started')) ||
     (action === 'delete' && (state.inProgress || (state.status !== 'stopped' && state.status !== 'unknown')))
   ) {
-    return 'text-gray-700 cursor-not-allowed';
+    return 'text-gray-900 cursor-not-allowed';
   } else {
-    return 'hover:text-gray-400';
+    return 'hover:text-gray-700';
   }
 }
 </script>

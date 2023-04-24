@@ -33,7 +33,7 @@ async function startExtension() {
 
         <div class="py-2 flex flex:row">
           <!-- start is enabled only in stopped mode-->
-          <div class="px-2 text-sm italic text-gray-400">
+          <div class="px-2 text-sm italic text-gray-700">
             <button
               disabled="{extensionInfo.state !== 'stopped'}"
               on:click="{() => startExtension()}"
@@ -47,7 +47,7 @@ async function startExtension() {
           </div>
 
           <!-- stop is enabled only in started mode-->
-          <div class="px-2 text-sm italic text-gray-400">
+          <div class="px-2 text-sm italic text-gray-700">
             <button
               disabled="{extensionInfo.state !== 'started'}"
               on:click="{() => stopExtension()}"

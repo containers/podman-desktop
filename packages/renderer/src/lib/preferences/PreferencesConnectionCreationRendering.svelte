@@ -363,7 +363,7 @@ async function close() {
           <div class="w-full">
             <div class="float-right">
               <button
-                class="pf-c-button underline hover:text-gray-400"
+                class="pf-c-button underline hover:text-gray-700"
                 on:click="{() => router.goto('/preferences/resources')}">
                 Close
               </button>

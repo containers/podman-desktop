@@ -49,14 +49,14 @@ onMount(() => {
 <div class="p-2 flex flex-col bg-zinc-900 rounded-lg">
   <ProviderLogo provider="{provider}" />
   <div class="flex flex-col items-center text-center">
-    <p class="text-xl text-gray-300">
+    <p class="text-xl text-gray-400">
       {provider.name}
       {#if provider.version}
         v{provider.version}
       {/if}
       is stopped
     </p>
-    <p class="text-base text-gray-400">
+    <p class="text-base text-gray-700">
       To start working with containers, {provider.name}
       {#if provider.version}
         v{provider.version}
@@ -81,7 +81,7 @@ onMount(() => {
             current="{1}"
             clickable="{false}" />
         {/if}
-        <div class="flex flex-col text-gray-400">
+        <div class="flex flex-col text-gray-700">
           <div>Starting</div>
           <div class="my-2 pr-5">
             <i class="pf-c-button__progress">

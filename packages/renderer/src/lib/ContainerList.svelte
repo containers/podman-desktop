@@ -370,7 +370,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     <table class="mx-5 w-full" class:hidden="{containerGroups.length === 0}">
       <!-- title -->
       <thead>
-        <tr class="h-7 uppercase text-xs text-gray-500">
+        <tr class="h-7 uppercase text-xs text-gray-900">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5"
             ><input
@@ -398,7 +398,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                 on:click="{() => toggleContainerGroup(containerGroup)}">
                 <Fa
                   size="12"
-                  class="text-gray-400 cursor-pointer"
+                  class="text-gray-700 cursor-pointer"
                   icon="{containerGroup.expanded ? faChevronDown : faChevronRight}" />
               </td>
               <td class="px-2">
@@ -414,15 +414,15 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                 </div>
               </td>
               <td class="whitespace-nowrap hover:cursor-pointer">
-                <div class="flex items-center text-sm text-gray-200 overflow-hidden text-ellipsis">
+                <div class="flex items-center text-sm text-gray-300 overflow-hidden text-ellipsis">
                   <div class="flex flex-col flex-nowrap">
                     <div
-                      class="text-sm text-gray-200 overflow-hidden text-ellipsis"
+                      class="text-sm text-gray-300 overflow-hidden text-ellipsis"
                       title="{containerGroup.type}"
                       on:click="{() => openGroupDetails(containerGroup)}">
                       {containerGroup.name} ({containerGroup.type})
                     </div>
-                    <div class="text-xs font-extra-light text-gray-500">
+                    <div class="text-xs font-extra-light text-gray-900">
                       {containerGroup.containers.length} container{containerGroup.containers.length > 1 ? 's' : ''}
                     </div>
                   </div>
@@ -430,12 +430,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               </td>
               <td class="px-6 py-2 whitespace-nowrap w-10">
                 <div class="flex items-center">
-                  <div class="ml-2 text-sm text-gray-400"></div>
+                  <div class="ml-2 text-sm text-gray-700"></div>
                 </div>
               </td>
               <td class="whitespace-nowrap pl-4">
                 <div class="flex items-center">
-                  <div class="text-sm text-gray-400"></div>
+                  <div class="text-sm text-gray-700"></div>
                 </div>
               </td>
               <td
@@ -490,12 +490,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     <div class="">
                       <div class="flex flex-nowrap">
                         <div
-                          class="text-sm text-gray-200 overflow-hidden text-ellipsis group-hover:text-violet-400"
+                          class="text-sm text-gray-300 overflow-hidden text-ellipsis group-hover:text-violet-400"
                           title="{container.name}">
                           {container.name}
                         </div>
                       </div>
-                      <div class="flex flex-row text-xs font-extra-light text-gray-500">
+                      <div class="flex flex-row text-xs font-extra-light text-gray-900">
                         <div>{container.state}</div>
                         <!-- Hide in case of single engines-->
                         {#if multipleEngines}
@@ -514,13 +514,13 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                   class="whitespace-nowrap hover:cursor-pointer group"
                   on:click="{() => openDetailsContainer(container)}">
                   <div class="flex items-center">
-                    <div class="text-sm text-gray-400 overflow-hidden text-ellipsis" title="{container.image}">
+                    <div class="text-sm text-gray-700 overflow-hidden text-ellipsis" title="{container.image}">
                       {container.shortImage}
                     </div>
                   </div></td>
                 <td class="whitespace-nowrap pl-4">
                   <div class="flex items-center">
-                    <div class="text-sm text-gray-400">{container.uptime}</div>
+                    <div class="text-sm text-gray-700">{container.uptime}</div>
                   </div>
                 </td>
                 <td
@@ -573,7 +573,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
         <h1 class="text-xl font-bold">Create a new container</h1>
 
-        <button class="hover:text-gray-200 px-2 py-1" on:click="{() => toggleCreateContainer()}">
+        <button class="hover:text-gray-300 px-2 py-1" on:click="{() => toggleCreateContainer()}">
           <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </div>

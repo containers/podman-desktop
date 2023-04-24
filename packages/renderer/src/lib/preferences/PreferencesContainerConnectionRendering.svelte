@@ -191,7 +191,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
       <div class="py-2 flex flex:row">
         <!-- start is enabled only in stopped mode-->
         {#if containerConnectionInfo.lifecycleMethods.includes('start')}
-          <div class="px-2 text-sm italic text-gray-400">
+          <div class="px-2 text-sm italic text-gray-700">
             <button
               disabled="{containerConnectionInfo.status !== 'stopped'}"
               on:click="{() => startConnection()}"
@@ -207,7 +207,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
         <!-- stop is enabled only in started mode-->
         {#if containerConnectionInfo.lifecycleMethods.includes('stop')}
-          <div class="px-2 text-sm italic text-gray-400">
+          <div class="px-2 text-sm italic text-gray-700">
             <button
               disabled="{containerConnectionInfo.status !== 'started'}"
               on:click="{() => stopConnection()}"
@@ -223,7 +223,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
         <!-- delete is disabled if it is running-->
         {#if containerConnectionInfo.lifecycleMethods.includes('delete')}
-          <div class="px-2 text-sm italic text-gray-400">
+          <div class="px-2 text-sm italic text-gray-700">
             <button
               disabled="{containerConnectionInfo.status !== 'stopped'}"
               on:click="{() => deleteConnection()}"
@@ -236,7 +236,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
             </button>
           </div>
         {/if}
-        <div class="px-2 text-sm italic text-gray-400">
+        <div class="px-2 text-sm italic text-gray-700">
           <button
             type="button"
             disabled="{containerConnectionInfo.status !== 'started'}"
@@ -261,12 +261,12 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
       <!--key is {connectionSetting.id} and value {connectionSetting.value}  <br />-->
       {#if connectionSetting.format === 'cpu'}
         <div class="pl-1 py-2">
-          <div class="text-sm italic text-gray-400">{connectionSetting.description}</div>
+          <div class="text-sm italic text-gray-700">{connectionSetting.description}</div>
           <div class="pl-3">{connectionSetting.value}</div>
         </div>
       {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
         <div class="pl-1 py-2">
-          <div class="text-sm italic text-gray-400">{connectionSetting.description}</div>
+          <div class="text-sm italic text-gray-700">{connectionSetting.description}</div>
           <div class="pl-3">{filesize(connectionSetting.value)}</div>
         </div>
       {:else}
@@ -276,11 +276,11 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 
     {#if containerConnectionInfo}
       <div class="pl-1 py-2">
-        <div class="text-sm italic text-gray-400">Status</div>
+        <div class="text-sm italic text-gray-700">Status</div>
         <div class="pl-3">{containerConnectionInfo.status}</div>
       </div>
       <div class="pl-1 py-2">
-        <div class="text-sm italic text-gray-400">Socket</div>
+        <div class="text-sm italic text-gray-700">Socket</div>
         <div class="pl-3">{containerConnectionInfo.endpoint.socketPath}</div>
       </div>
     {/if}

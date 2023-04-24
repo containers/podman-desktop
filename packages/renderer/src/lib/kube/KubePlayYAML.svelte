@@ -129,7 +129,7 @@ async function getKubernetesfileLocation() {
       <div class="bg-zinc-800 px-6 py-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
         <div class="text-xl font-medium">Select file:</div>
         <div hidden="{runStarted}">
-          <label for="containerFilePath" class="block mb-2 text-sm font-medium text-gray-300"
+          <label for="containerFilePath" class="block mb-2 text-sm font-medium text-gray-400"
             >Kubernetes YAML file</label>
           <input
             on:click="{() => getKubernetesfileLocation()}"
@@ -138,12 +138,12 @@ async function getKubernetesfileLocation() {
             bind:value="{kubernetesYamlFilePath}"
             readonly
             placeholder="Select a .yaml file to play"
-            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
 
         <div>
-          <div class="text-sm font-medium text-gray-300 pb-2">Select Runtime:</div>
+          <div class="text-sm font-medium text-gray-400 pb-2">Select Runtime:</div>
 
           <div class="px-5">
             <div class="flex flex-col space-y-3">
@@ -151,7 +151,7 @@ async function getKubernetesfileLocation() {
                 hidden="{providerConnections.length === 0}"
                 class:border-2="{defaultContextName}"
                 class="rounded-md p-5 cursor-pointer {userChoice === 'podman'
-                  ? 'border-dustypurple-800'
+                  ? 'border-dustypurple-700'
                   : 'border-zinc-700'}"
                 on:click="{() => {
                   userChoice = 'podman';
@@ -160,16 +160,16 @@ async function getKubernetesfileLocation() {
                   <div class=" text-2xl {userChoice === 'podman' ? 'text-dustypurple-500' : 'text-zinc-700'}">
                     <Fa icon="{faCircleCheck}" />
                   </div>
-                  <div class="pl-2 text-gray-500">Using a Podman container engine</div>
+                  <div class="pl-2 text-gray-900">Using a Podman container engine</div>
                 </div>
                 <div hidden="{runStarted}">
                   {#if providerConnections.length > 1}
                     <label
                       for="providerConnectionName"
-                      class="py-6 block mb-2 text-sm font-medium text-gray-300 dark:text-gray-300"
+                      class="py-6 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                       >Container Engine
                       <select
-                        class="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+                        class="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
                         name="providerChoice"
                         bind:value="{selectedProvider}">
                         {#each providerConnections as providerConnection}
@@ -190,7 +190,7 @@ async function getKubernetesfileLocation() {
               <div
                 hidden="{!defaultContextName}"
                 class="border-2 rounded-md p-5 cursor-pointer {userChoice === 'kubernetes'
-                  ? 'border-dustypurple-800'
+                  ? 'border-dustypurple-700'
                   : 'border-zinc-700'}"
                 on:click="{() => {
                   userChoice = 'kubernetes';
@@ -199,15 +199,15 @@ async function getKubernetesfileLocation() {
                   <div class=" text-2xl {userChoice === 'kubernetes' ? 'text-dustypurple-500' : 'text-zinc-700'}">
                     <Fa icon="{faCircleCheck}" />
                   </div>
-                  <div class="pl-2 text-gray-500">Using a Kubernetes cluster</div>
+                  <div class="pl-2 text-gray-900">Using a Kubernetes cluster</div>
                 </div>
 
                 {#if defaultContextName}
                   <div class="pt-2">
                     <label
                       for="contextToUse"
-                      class="block mb-1 text-sm font-medium text-gray-300"
-                      class:text-gray-600="{userChoice !== 'kubernetes'}">Kubernetes Context:</label>
+                      class="block mb-1 text-sm font-medium text-gray-400"
+                      class:text-gray-900="{userChoice !== 'kubernetes'}">Kubernetes Context:</label>
                     <input
                       type="text"
                       disabled="{userChoice === 'podman'}"
@@ -215,7 +215,7 @@ async function getKubernetesfileLocation() {
                       name="defaultContextName"
                       id="defaultContextName"
                       readonly
-                      class="cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+                      class="cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
                       required />
                   </div>
                 {/if}
@@ -224,11 +224,11 @@ async function getKubernetesfileLocation() {
                   <div class="pt-2">
                     <label
                       for="namespaceToUse"
-                      class="block mb-1 text-sm font-medium text-gray-300"
-                      class:text-gray-600="{userChoice !== 'kubernetes'}">Kubernetes namespace:</label>
+                      class="block mb-1 text-sm font-medium text-gray-400"
+                      class:text-gray-900="{userChoice !== 'kubernetes'}">Kubernetes namespace:</label>
                     <select
                       disabled="{userChoice === 'podman'}"
-                      class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+                      class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
                       name="namespaceChoice"
                       bind:value="{currentNamespace}">
                       {#each allNamespaces.items as namespace}
@@ -270,7 +270,7 @@ async function getKubernetesfileLocation() {
           </button>
         {/if}
         {#if runStarted}
-          <div class="text-gray-400 text-sm">
+          <div class="text-gray-700 text-sm">
             Please wait during the Play Kube and do not change screen. This process may take a few minutes to
             complete...
           </div>

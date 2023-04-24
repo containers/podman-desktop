@@ -43,7 +43,7 @@ onMount(async () => {
 $: isCurrentPage = (pathParam: string): boolean => meta.url === pathParam;
 $: addExpandedClass = (section: string): string => (sectionExpanded[section] ? 'pf-m-expanded' : '');
 $: addCurrentClass = (pathParam: string): string =>
-  isCurrentPage(pathParam) ? 'dark:text-white pf-m-current' : 'dark:text-gray-400';
+  isCurrentPage(pathParam) ? 'dark:text-white pf-m-current' : 'dark:text-gray-700';
 $: isAriaExpanded = (section: string): boolean => (sectionExpanded[section] ? true : false);
 $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section] ? '' : 'hidden');
 </script>
@@ -62,7 +62,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
     <li
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/resources',
-      )} hover:text-gray-300 cursor-pointer items-center">
+      )} hover:text-gray-400 cursor-pointer items-center">
       <a href="/preferences/resources" id="configuration-section-resources" class="pf-c-nav__link">
         <div class="flex items-center">
           <span class="block group-hover:block">Resources</span>
@@ -75,7 +75,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
     <li
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/proxies',
-      )} hover:text-gray-300 cursor-pointer items-center">
+      )} hover:text-gray-400 cursor-pointer items-center">
       <a href="/preferences/proxies" id="configuration-section-proxy" class="pf-c-nav__link">
         <div class="flex items-center">
           <span class="block group-hover:block">Proxy</span>
@@ -88,7 +88,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
     <li
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/registries',
-      )} hover:text-gray-300 cursor-pointer items-center">
+      )} hover:text-gray-400 cursor-pointer items-center">
       <a href="/preferences/registries" id="configuration-section-registries" class="pf-c-nav__link">
         <div class="flex items-center">
           <span class="block group-hover:block">Registries</span>
@@ -101,7 +101,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
     <li
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/authentication-providers',
-      )} hover:text-gray-300 cursor-pointer items-center">
+      )} hover:text-gray-400 cursor-pointer items-center">
       <a href="/preferences/authentication-providers" id="configuration-section-authentication" class="pf-c-nav__link">
         <div class="flex items-center">
           <span class="hidden md:block group-hover:block">Authentication</span>
@@ -114,7 +114,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
     <li
       class="pf-c-nav__item pf-m-expandable {addExpandedClass('extensionsCatalog')} {addCurrentClass(
         '/preferences/extensions',
-      )} hover:text-gray-300 cursor-pointer items-center">
+      )} hover:text-gray-400 cursor-pointer items-center">
       <a
         href="/preferences/extensions"
         class="pf-c-nav__link text-left"
@@ -147,7 +147,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
     <li
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/ddExtensions',
-      )} hover:text-gray-300 cursor-pointer items-center">
+      )} hover:text-gray-400 cursor-pointer items-center">
       <a href="/preferences/ddExtensions" id="configuration-section-docker-desktop-extensions" class="pf-c-nav__link">
         <div class="flex items-center">
           <span class="block group-hover:block">Desktop Extensions</span>
@@ -161,7 +161,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
       <li
         class="pf-c-nav__item pf-m-expandable {addExpandedClass(configSection)} {addCurrentClass(
           `/preferences/default/${configSection}`,
-        )} hover:text-gray-300 cursor-pointer items-center">
+        )} hover:text-gray-400 cursor-pointer items-center">
         <a
           class="pf-c-nav__link"
           id="configuration-section-{configSection.toLowerCase()}"

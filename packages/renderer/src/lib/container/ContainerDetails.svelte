@@ -56,8 +56,8 @@ function errorCallback(errorMessage: string): void {
                 class="text-violet-400 text-base hover:no-underline"
                 href="/containers"
                 title="Go back to containers list">Containers</a>
-              <div class="text-xl mx-2 text-gray-400">></div>
-              <div class="text-sm font-extralight text-gray-400">Container Details</div>
+              <div class="text-xl mx-2 text-gray-700">></div>
+              <div class="text-sm font-extralight text-gray-700">Container Details</div>
             </div>
             <div class="text-lg flex flex-row items-start pt-1">
               <div class="pr-3 pt-1">
@@ -65,7 +65,7 @@ function errorCallback(errorMessage: string): void {
               </div>
               <div class="text-lg flex flex-col">
                 <div class="mr-2">{container.name}</div>
-                <div class="mr-2 pb-4 text-small text-gray-500" title="{container.image}">{container.shortImage}</div>
+                <div class="mr-2 pb-4 text-small text-gray-900" title="{container.image}">{container.shortImage}</div>
               </div>
             </div>
             <section class="pf-c-page__main-tabs pf-m-limit-width">
@@ -104,7 +104,7 @@ function errorCallback(errorMessage: string): void {
               <ContainerStatistics container="{container}" />
             </div>
           </div>
-          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
+          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
         <Route path="/summary" breadcrumb="Summary">
