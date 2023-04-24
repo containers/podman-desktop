@@ -89,7 +89,7 @@
     "eslint": "^8.39.0",
     "playwright": "1.32.3",
     "postcss-import": "^15.1.0",
-    "prettier": "^2.8.7",
+    "prettier": "^2.8.8",
     "prettier-plugin-svelte": "^2.10.0",
     "svelte-steps": "2.4.1",
     "typescript": "5.0.4",
