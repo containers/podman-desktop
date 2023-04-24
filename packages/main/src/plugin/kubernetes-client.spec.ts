@@ -82,6 +82,7 @@ test('Create Kubernetes resources with v1 resource in error should return error'
 test('Create custom Kubernetes resources should return ok', async () => {
   const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring);
   const spy = vi.spyOn(client, 'createCustomResource').mockReturnValue(Promise.resolve());
+  vi.spyOn(client, 'getPlural').mockReturnValue(Promise.resolve('namespaces'));
   await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
   expect(spy).toBeCalled();
 });
@@ -89,10 +90,25 @@ test('Create custom Kubernetes resources should return ok', async () => {
 test('Create custom Kubernetes resources in error should return error', async () => {
   const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring);
   const spy = vi.spyOn(client, 'createCustomResource').mockRejectedValue(new Error('CustomError'));
+  vi.spyOn(client, 'getPlural').mockReturnValue(Promise.resolve('namespaces'));
   try {
     await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
   } catch (err) {
     expect(spy).toBeCalled();
+    expect(err).to.be.a('Error');
+    expect(err.message).equal('CustomError');
+  }
+});
+
+test('Create unknown custom Kubernetes resources should return error', async () => {
+  const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring);
+  const createSpy = vi.spyOn(client, 'createCustomResource').mockReturnValue(Promise.resolve());
+  const pluralSpy = vi.spyOn(client, 'getPlural').mockRejectedValue(new Error('CustomError'));
+  try {
+    await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
+  } catch (err) {
+    expect(createSpy).not.toBeCalled();
+    expect(pluralSpy).toBeCalled();
     expect(err).to.be.a('Error');
     expect(err.message).equal('CustomError');
   }
