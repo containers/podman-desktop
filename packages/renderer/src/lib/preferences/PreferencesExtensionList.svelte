@@ -18,8 +18,6 @@ let logs: string[] = [];
 
 let logElement;
 
-$: sortedExtensions = $extensionInfos.sort((a, b) => a.displayName.localeCompare(b.displayName));
-
 const buttonClass: string =
   'm-0.5 text-gray-400 hover:bg-zinc-800 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 
@@ -116,7 +114,7 @@ async function removeExtension(extension: ExtensionInfo) {
   <div class="bg-zinc-800 mt-5 rounded-md p-3">
     <table class="min-w-full">
       <tbody>
-        {#each sortedExtensions as extension}
+        {#each $extensionInfos as extension}
           <tr class="border-y border-gray-900">
             <td class="px-6 py-2">
               <div class="flex items-center">
