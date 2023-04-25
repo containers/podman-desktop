@@ -4,6 +4,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Markdown from '../markdown/Markdown.svelte';
 
 let invalidEntry = false;
 let invalidText = undefined;
@@ -304,6 +305,10 @@ function handleCleanValue(
           <option value="{recordEnum}">{recordEnum}</option>
         {/each}
       </select>
+    {:else if record.type === 'markdown'}
+      <div class="text-sm">
+        <Markdown>{record.markdownDescription}</Markdown>
+      </div>
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"

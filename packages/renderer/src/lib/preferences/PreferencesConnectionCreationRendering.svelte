@@ -20,6 +20,7 @@ import { filesize } from 'filesize';
 import { router } from 'tinro';
 import LinearProgress from '../ui/LinearProgress.svelte';
 import Spinner from '../ui/Spinner.svelte';
+import Markdown from '../markdown/Markdown.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
@@ -345,7 +346,11 @@ async function close() {
           {#each configurationKeys as configurationKey}
             <div class="mb-3">
               <div class="font-semibold text-xs mb-2">
-                {configurationKey.description}:
+                {#if configurationKey.description}
+                  {configurationKey.description}:
+                {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
+                  <Markdown>{configurationKey.markdownDescription}:</Markdown>
+                {/if}
                 {#if configurationValues.has(configurationKey.id)}
                   {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
                 {:else}
