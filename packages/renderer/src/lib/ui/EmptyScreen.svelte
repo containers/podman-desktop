@@ -8,8 +8,6 @@ export let title: string = 'No title';
 export let message: string = 'Message';
 export let commandline: string = '';
 export let hidden: boolean = false;
-export let style: string = '';
-export let classes: string = '';
 
 let fontAwesomeIcon = false;
 let processed = false;
@@ -29,7 +27,7 @@ function copyRunInstructionToClipboard() {
 let copyTextDivElement: HTMLDivElement;
 </script>
 
-<div class="h-full min-w-full flex flex-col {classes}" class:hidden="{hidden}" style="{style}">
+<div class="h-full min-w-full flex flex-col ${$$props.class || ''}" class:hidden="{hidden}" style="{$$props.style}">
   <div class="pf-c-empty-state h-full">
     <div class="pf-c-empty-state__content">
       <p class="pf-c-empty-state__body">
@@ -52,7 +50,7 @@ let copyTextDivElement: HTMLDivElement;
       <h1 class="pf-c-title pf-m-lg">{title}</h1>
       <div class="pf-c-empty-state__body">{message}</div>
       {#if commandline.length > 0}
-        <div class="flex flex-row bg-gray-900 w-full items-center p-2 mt-2">
+        <div class="flex flex-row bg-charcoal-800 w-full items-center p-2 mt-2">
           <div bind:this="{copyTextDivElement}" data-testid="copyTextDivElement">{commandline}</div>
           <button title="Copy To Clipboard" class="ml-5 mr-5" on:click="{() => copyRunInstructionToClipboard()}"
             ><Fa class="h-5 w-5 cursor-pointer rounded-full text-3xl text-sky-800" icon="{faPaste}" /></button>

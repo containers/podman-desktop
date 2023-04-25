@@ -214,9 +214,9 @@ async function startConnectionProvider(
       <div aria-label="no-resource-panel">
         <EmptyScreen
           icon="{EngineIcon}"
-          title="No resource found"
-          message="Start an extension that manage container or Kubernetes engines"
-          classes="bg-zinc-800 mt-5 pb-10" />
+          title="No resources found"
+          message="Start an extension that manages containers or Kubernetes engines"
+          class="bg-zinc-800 mt-5 pb-10" />
       </div>
     {:else}
       {#each providers as provider}
