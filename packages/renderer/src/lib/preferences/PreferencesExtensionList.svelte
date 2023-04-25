@@ -18,7 +18,7 @@ let logs: string[] = [];
 
 let logElement;
 
-$: sortedExtensions = $extensionInfos.sort((a, b) => a.name.localeCompare(b.name));
+$: sortedExtensions = $extensionInfos.sort((a, b) => a.displayName.localeCompare(b.displayName));
 
 const buttonClass: string =
   'm-0.5 text-gray-400 hover:bg-zinc-800 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';

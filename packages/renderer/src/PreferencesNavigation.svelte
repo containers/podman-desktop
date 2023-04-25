@@ -46,6 +46,8 @@ $: addCurrentClass = (pathParam: string): string =>
   isCurrentPage(pathParam) ? 'dark:text-white pf-m-current' : 'dark:text-gray-700';
 $: isAriaExpanded = (section: string): boolean => (sectionExpanded[section] ? true : false);
 $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section] ? '' : 'hidden');
+
+$: sortedExtensions = $extensionInfos.sort((a, b) => a.displayName.localeCompare(b.displayName));
 </script>
 
 <nav
@@ -130,12 +132,13 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
       </a>
       <section class="pf-c-nav__subnav {addSectionHiddenClass('extensionsCatalog')}">
         <ul class="pf-c-nav__list">
-          {#each extensions as extension}
+          {#each sortedExtensions as extension}
             <li class="pf-c-nav__item {addCurrentClass(`/preferences/extension/${extension.name}`)}">
               <a
                 href="/preferences/extension/{extension.name}"
                 id="configuration-section-extensions-catalog-{extension.name.toLowerCase()}"
-                class="pf-c-nav__link">{extension.displayName}</a>
+                class="pf-c-nav__link"
+                style="font-weight: 200">{extension.displayName}</a>
             </li>
           {/each}
         </ul>
