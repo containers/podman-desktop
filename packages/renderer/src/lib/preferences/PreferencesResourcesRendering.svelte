@@ -10,7 +10,7 @@ import type {
 import { onDestroy, onMount } from 'svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '../../stores/configurationProperties';
-import type { ContainerProviderConnection, provider } from '@podman-desktop/api';
+import type { ContainerProviderConnection } from '@podman-desktop/api';
 import type { Unsubscriber } from 'svelte/store';
 import Tooltip from '../ui/Tooltip.svelte';
 import { filesize } from 'filesize';
@@ -22,7 +22,6 @@ import { getProviderConnectionName, type IConnectionRestart, type IConnectionSta
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
-import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   value?: any;
@@ -266,9 +265,6 @@ async function startConnectionProvider(
           </div>
           <!-- providers columns -->
           <div class="grow flex flex-wrap divide-gray-600 ml-2">
-            <PreferencesConnectionsEmptyRendering
-              message="{provider.kubernetesProviderEmptyConnectionsViewMessage}"
-              hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
             {#each provider.containerConnections as container}
               <div class="px-5 py-2 w-[240px]">
                 <div class="float-right text-gray-900 cursor-not-allowed">
