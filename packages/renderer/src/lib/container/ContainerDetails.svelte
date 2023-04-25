@@ -56,7 +56,7 @@ function errorCallback(errorMessage: string): void {
                 class="text-violet-400 text-base hover:no-underline"
                 href="/containers"
                 title="Go back to containers list">Containers</a>
-              <div class="text-xl mx-2 text-gray-700">></div>
+              <div class="text-xl mx-2 text-gray-700"></div>
               <div class="text-sm font-extralight text-gray-700">Container Details</div>
             </div>
             <div class="text-lg flex flex-row items-start pt-1">
@@ -107,21 +107,23 @@ function errorCallback(errorMessage: string): void {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/summary" breadcrumb="Summary">
-          <ContainerDetailsSummary container="{container}" />
-        </Route>
-        <Route path="/logs" breadcrumb="Logs">
-          <ContainerDetailsLogs container="{container}" />
-        </Route>
-        <Route path="/inspect" breadcrumb="Inspect">
-          <ContainerDetailsInspect container="{container}" />
-        </Route>
-        <Route path="/kube" breadcrumb="Kube">
-          <ContainerDetailsKube container="{container}" />
-        </Route>
-        <Route path="/terminal" breadcrumb="Terminal">
-          <ContainerDetailsTerminal container="{container}" />
-        </Route>
+        <div class="h-full bg-charcoal-900">
+          <Route path="/summary" breadcrumb="Summary">
+            <ContainerDetailsSummary container="{container}" />
+          </Route>
+          <Route path="/logs" breadcrumb="Logs">
+            <ContainerDetailsLogs container="{container}" />
+          </Route>
+          <Route path="/inspect" breadcrumb="Inspect">
+            <ContainerDetailsInspect container="{container}" />
+          </Route>
+          <Route path="/kube" breadcrumb="Kube">
+            <ContainerDetailsKube container="{container}" />
+          </Route>
+          <Route path="/terminal" breadcrumb="Terminal">
+            <ContainerDetailsTerminal container="{container}" />
+          </Route>
+        </div>
       </div>
     </div>
   </Route>

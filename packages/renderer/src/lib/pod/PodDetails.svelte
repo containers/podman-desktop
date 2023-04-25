@@ -12,9 +12,6 @@ import PodDetailsSummary from './PodDetailsSummary.svelte';
 import PodDetailsInspect from './PodDetailsInspect.svelte';
 import PodDetailsKube from './PodDetailsKube.svelte';
 import PodDetailsLogs from './PodDetailsLogs.svelte';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-import Tooltip from '../ui/Tooltip.svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
 import DetailsTab from '../ui/DetailsTab.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 
@@ -69,7 +66,7 @@ function errorCallback(errorMessage: string): void {
           <div class="w-full px-5 pt-5">
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/pods" title="Go back to pods list">Pods</a>
-              <div class="text-xl mx-2 text-gray-700">></div>
+              <div class="text-xl mx-2 text-gray-700"></div>
               <div class="text-sm font-extralight text-gray-700">Pod Details</div>
             </div>
             <div class="text-lg flex flex-row items-start pt-1">
@@ -113,18 +110,20 @@ function errorCallback(errorMessage: string): void {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/summary" breadcrumb="Summary">
-          <PodDetailsSummary pod="{pod}" />
-        </Route>
-        <Route path="/logs" breadcrumb="Logs">
-          <PodDetailsLogs pod="{pod}" />
-        </Route>
-        <Route path="/inspect" breadcrumb="Inspect">
-          <PodDetailsInspect pod="{pod}" />
-        </Route>
-        <Route path="/kube" breadcrumb="Kube">
-          <PodDetailsKube pod="{pod}" />
-        </Route>
+        <div class="h-full bg-charcoal-900">
+          <Route path="/summary" breadcrumb="Summary">
+            <PodDetailsSummary pod="{pod}" />
+          </Route>
+          <Route path="/logs" breadcrumb="Logs">
+            <PodDetailsLogs pod="{pod}" />
+          </Route>
+          <Route path="/inspect" breadcrumb="Inspect">
+            <PodDetailsInspect pod="{pod}" />
+          </Route>
+          <Route path="/kube" breadcrumb="Kube">
+            <PodDetailsKube pod="{pod}" />
+          </Route>
+        </div>
       </div>
     </div>
   </Route>
