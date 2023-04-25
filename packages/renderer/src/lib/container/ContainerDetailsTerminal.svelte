@@ -80,10 +80,7 @@ onMount(async () => {
 
 <div class="h-full" bind:this="{terminalXtermDiv}" class:hidden="{container.state !== 'RUNNING'}"></div>
 
-<div
-  class="h-full min-w-full flex flex-col"
-  class:hidden="{container.state === 'RUNNING'}"
-  style="background-color: {getPanelDetailColor()}">
+<div class="h-full min-w-full flex flex-col" class:hidden="{container.state === 'RUNNING'}">
   <div class="pf-c-empty-state h-full">
     <div class="pf-c-empty-state__content">
       <i class="fas fa-terminal pf-c-empty-state__icon" aria-hidden="true"></i>

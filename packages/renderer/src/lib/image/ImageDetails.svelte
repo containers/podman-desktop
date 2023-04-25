@@ -52,7 +52,7 @@ onMount(() => {
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/images" title="Go back to images list"
                 >Images</a>
-              <div class="text-xl mx-2 text-gray-700">></div>
+              <div class="text-xl mx-2 text-gray-700"></div>
               <div class="text-sm font-extralight text-gray-700">Image Details</div>
             </div>
             <div class="flex flex-row items-start pt-1">
@@ -92,15 +92,17 @@ onMount(() => {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/history" breadcrumb="History">
-          <ImageDetailsHistory image="{image}" />
-        </Route>
-        <Route path="/inspect" breadcrumb="Inspect">
-          <ImageDetailsInspect image="{image}" />
-        </Route>
-        <Route path="/summary" breadcrumb="Summary">
-          <ImageDetailsSummary image="{image}" />
-        </Route>
+        <div class="h-full bg-charcoal-900">
+          <Route path="/history" breadcrumb="History">
+            <ImageDetailsHistory image="{image}" />
+          </Route>
+          <Route path="/inspect" breadcrumb="Inspect">
+            <ImageDetailsInspect image="{image}" />
+          </Route>
+          <Route path="/summary" breadcrumb="Summary">
+            <ImageDetailsSummary image="{image}" />
+          </Route>
+        </div>
       </div>
     </div>
   </Route>

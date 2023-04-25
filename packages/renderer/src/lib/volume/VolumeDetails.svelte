@@ -41,7 +41,7 @@ onMount(() => {
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/volumes" title="Go back to volumes list"
                 >Volumes</a>
-              <div class="text-xl mx-2 text-gray-700">></div>
+              <div class="text-xl mx-2 text-gray-700"></div>
               <div class="text-sm font-extralight text-gray-700">Volume Details</div>
             </div>
             <div class="text-lg flex flex-row items-start pt-1">
@@ -73,12 +73,14 @@ onMount(() => {
           <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/summary" breadcrumb="Summary">
-          <VolumeDetailsSummary volume="{volume}" />
-        </Route>
-        <Route path="/inspect" breadcrumb="Inspect">
-          <VolumeDetailsInspect volume="{volume}" />
-        </Route>
+        <div class="h-full bg-charcoal-900">
+          <Route path="/summary" breadcrumb="Summary">
+            <VolumeDetailsSummary volume="{volume}" />
+          </Route>
+          <Route path="/inspect" breadcrumb="Inspect">
+            <VolumeDetailsInspect volume="{volume}" />
+          </Route>
+        </div>
       </div>
     </div>
   </Route>
