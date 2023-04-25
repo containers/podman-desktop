@@ -1,9 +1,9 @@
 {
   "name": "compose",
   "displayName": "Compose",
-  "description": "Install Compose binary to work with Podman Engine.",
+  "description": "Install Compose binary to work with Podman",
   "version": "0.0.1",
-  "publisher": "benoitf",
+  "publisher": "podman-desktop",
   "license": "Apache-2.0",
   "engines": {
     "podman-desktop": "^0.0.1"

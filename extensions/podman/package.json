@@ -1,10 +1,10 @@
 {
   "name": "podman",
   "displayName": "Podman",
-  "description": "Enable support for controlling Podman and Podman Machines",
+  "description": "Integration for Podman and Podman Machines",
   "version": "0.0.1",
   "icon": "icon.png",
-  "publisher": "benoitf",
+  "publisher": "podman-desktop",
   "license": "Apache-2.0",
   "engines": {
     "podman-desktop": "^0.0.1"
