@@ -41,7 +41,7 @@ onMount(() => {
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/volumes" title="Go back to volumes list"
                 >Volumes</a>
-              <div class="text-xl mx-2 text-gray-700"></div>
+              <div class="text-xl mx-2 text-gray-700">></div>
               <div class="text-sm font-extralight text-gray-700">Volume Details</div>
             </div>
             <div class="text-lg flex flex-row items-start pt-1">

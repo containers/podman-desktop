@@ -52,7 +52,7 @@ onMount(() => {
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/images" title="Go back to images list"
                 >Images</a>
-              <div class="text-xl mx-2 text-gray-700"></div>
+              <div class="text-xl mx-2 text-gray-700">></div>
               <div class="text-sm font-extralight text-gray-700">Image Details</div>
             </div>
             <div class="flex flex-row items-start pt-1">
