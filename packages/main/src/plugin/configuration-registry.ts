@@ -27,6 +27,7 @@ import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants'
 import { desktopAppHomeDir } from '../util';
 
 export type IConfigurationPropertySchemaType =
+  | 'markdown'
   | 'string'
   | 'number'
   | 'integer'
@@ -54,6 +55,7 @@ export interface IConfigurationPropertySchema {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default?: any;
   description?: string;
+  markdownDescription?: string;
   minimum?: number;
   maximum?: number | string;
   format?: string;
@@ -244,6 +246,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     // for each key being already the default value, remove the entry
     Object.keys(cloneConfig)
       .filter(key => cloneConfig[key] === this.configurationProperties[key]?.default)
+      .filter(key => this.configurationProperties[key]?.type !== 'markdown')
       .forEach(key => {
         delete cloneConfig[key];
       });
