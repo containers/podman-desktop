@@ -796,8 +796,6 @@ export class ExtensionLoader {
       await subscription.dispose();
     });
 
-    this.activatedExtensions.delete(extensionId);
-
     const analyzedExtension = this.analyzedExtensions.get(extensionId);
     if (analyzedExtension) {
       const extensionConfiguration = analyzedExtension.manifest?.contributes?.configuration;
@@ -809,6 +807,7 @@ export class ExtensionLoader {
         this.menuRegistry.unregisterMenus(menus);
       }
     }
+    this.activatedExtensions.delete(extensionId);
     this.apiSender.send('extension-stopped');
   }
 
