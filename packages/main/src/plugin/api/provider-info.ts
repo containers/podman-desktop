@@ -77,8 +77,6 @@ export interface ProviderInfo {
   // optional creation button title (if defined)
   kubernetesProviderConnectionCreationButtonTitle?: string;
 
-  kubernetesProviderEmptyConnectionsViewMessage?: string;
-
   version?: string;
 
   links: ProviderLinks[];
