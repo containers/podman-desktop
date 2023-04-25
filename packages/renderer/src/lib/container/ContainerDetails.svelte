@@ -56,7 +56,7 @@ function errorCallback(errorMessage: string): void {
                 class="text-violet-400 text-base hover:no-underline"
                 href="/containers"
                 title="Go back to containers list">Containers</a>
-              <div class="text-xl mx-2 text-gray-700"></div>
+              <div class="text-xl mx-2 text-gray-700">></div>
               <div class="text-sm font-extralight text-gray-700">Container Details</div>
             </div>
             <div class="text-lg flex flex-row items-start pt-1">
