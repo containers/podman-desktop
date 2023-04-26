@@ -51,7 +51,7 @@ export interface ContainerInfoUI {
   state: string;
   uptime: string;
   startedAt: string;
-  port: string;
+  ports: number[];
   displayPort: string;
   command: string;
   hasPublicPort: boolean;

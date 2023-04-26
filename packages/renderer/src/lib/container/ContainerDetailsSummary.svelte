@@ -2,6 +2,16 @@
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
 export let container: ContainerInfoUI;
+
+function printPorts(ports: number[]): string {
+  if (ports.length > 1) {
+    return `${ports.join(', ')}`;
+  } else if (ports.length === 1) {
+    return `${ports[0]}`;
+  } else {
+    return '';
+  }
+}
 </script>
 
 <div class="flex px-5 py-4 flex-col">
@@ -22,7 +32,7 @@ export let container: ContainerInfoUI;
       <tr>
         <td class="pt-2 pr-2">Ports</td>
         <td class="pt-2 pr-2" class:hidden="{container.hasPublicPort}">N/A</td>
-        <td class="pt-2 pr-2" class:hidden="{!container.hasPublicPort}">{container.port}</td>
+        <td class="pt-2 pr-2" class:hidden="{!container.hasPublicPort}">{printPorts(container.ports)}</td>
       </tr>
     </table>
   </div>

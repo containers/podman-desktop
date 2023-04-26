@@ -77,24 +77,16 @@ export class ContainerUtils {
     return image;
   }
 
-  getPort(containerInfo: ContainerInfo): string {
-    const ports = containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort);
-
-    if (ports && ports.length > 1) {
-      return ports.join(', ');
-    } else if (ports && ports.length === 1) {
-      return `${ports[0]}`;
-    } else {
-      return '';
-    }
+  getPorts(containerInfo: ContainerInfo): number[] {
+    return containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort) || [];
   }
 
   getDisplayPort(containerInfo: ContainerInfo): string {
-    const ports = this.getPort(containerInfo);
-    if (ports === '') {
+    const ports = this.getPorts(containerInfo);
+    if (ports.length === 0) {
       return '';
     }
-    return `PORT${ports.indexOf(',') > 0 ? 'S' : ''} ${ports}`;
+    return `PORT${ports.length > 1 ? 'S' : ''} ${ports}`;
   }
 
   hasPublicPort(containerInfo: ContainerInfo): boolean {
@@ -134,7 +126,7 @@ export class ContainerUtils {
       engineName: this.getEngineName(containerInfo),
       engineType: containerInfo.engineType,
       command: containerInfo.Command,
-      port: this.getPort(containerInfo),
+      ports: this.getPorts(containerInfo),
       displayPort: this.getDisplayPort(containerInfo),
       hasPublicPort: this.hasPublicPort(containerInfo),
       openingUrl: this.getOpeningUrl(containerInfo),
