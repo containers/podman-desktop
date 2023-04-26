@@ -127,6 +127,8 @@ module.exports = {
         900: '#842c18',
       },
       transparent: 'transparent',
+      black: '#000',
+      white: '#fff',
       // The remaining colors below are not part of our palette and are only here
       // to maintain existing code. No new use.
       'slate': {
