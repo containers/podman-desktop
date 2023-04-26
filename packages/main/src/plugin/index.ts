@@ -41,7 +41,7 @@ import type {
 } from './api/provider-info';
 import type { WebContents } from 'electron';
 import { app } from 'electron';
-import { ipcMain, BrowserWindow, dialog } from 'electron';
+import { ipcMain, BrowserWindow } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { PullEvent } from './api/pull-event';
@@ -385,7 +385,7 @@ export class PluginSystem {
     // Register command 'version' that will display the current version and say that no update is available.
     // Only show the "no update available" command for macOS and Windows users, not linux users.
     commandRegistry.registerCommand('version', () => {
-      dialog.showMessageBox({
+      messageBox.showMessageBox({
         type: 'info',
         title: 'Version',
         message: `Using version ${currentVersion}`,
@@ -432,7 +432,7 @@ export class PluginSystem {
       autoUpdater.on('update-downloaded', async () => {
         updateAlreadyDownloaded = true;
         updateInProgress = false;
-        const result = await dialog.showMessageBox({
+        const result = await messageBox.showMessageBox({
           title: 'Update Downloaded',
           message: 'Update downloaded, Do you want to restart Podman Desktop ?',
           cancelId: 1,
@@ -473,10 +473,10 @@ export class PluginSystem {
         }
       }, 1000 * 60 * 60 * 12);
 
-      // Update will create the standard "autoUpdater" dialog / update process that Electron provides
+      // Update will create a standard "autoUpdater" dialog / update process
       commandRegistry.registerCommand('update', async () => {
         if (updateAlreadyDownloaded) {
-          const result = await dialog.showMessageBox({
+          const result = await messageBox.showMessageBox({
             type: 'info',
             title: 'Update',
             message: 'There is already an update downloaded. Please Restart Podman Desktop.',
@@ -490,7 +490,7 @@ export class PluginSystem {
         }
 
         if (updateInProgress) {
-          await dialog.showMessageBox({
+          await messageBox.showMessageBox({
             type: 'info',
             title: 'Update',
             message: 'There is already an update in progress. Please wait until it is downloaded',
@@ -502,7 +502,7 @@ export class PluginSystem {
         // Get the version of the update
         const updateVersion = updateCheckResult?.updateInfo.version ? `v${updateCheckResult?.updateInfo.version}` : '';
 
-        const result = await dialog.showMessageBox({
+        const result = await messageBox.showMessageBox({
           type: 'info',
           title: 'Update Available',
           message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${currentVersion}?`,
@@ -518,7 +518,7 @@ export class PluginSystem {
             await autoUpdater.downloadUpdate();
           } catch (error) {
             console.error('Update error: ', error);
-            dialog.showMessageBox({
+            messageBox.showMessageBox({
               type: 'error',
               title: 'Update Failed',
               message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,

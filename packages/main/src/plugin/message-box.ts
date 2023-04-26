@@ -32,13 +32,25 @@ export interface MessageBoxOptions {
    */
   message: string;
   /**
+   * An additional (optional) detailed message.
+   */
+  detail?: string;
+  /**
    * Text for buttons.
    */
-  buttons: string[];
+  buttons?: string[];
   /**
    * The (optional) type, one of 'none' | 'info' | 'error' | 'question' | 'warning'.
    */
   type?: string;
+  /**
+   * The (optional) index of the default button.
+   */
+  defaultId?: number;
+  /**
+   * The (optional) index of the button to be used to cancel the dialog.
+   */
+  cancelId?: number;
 }
 
 export interface MessageBoxReturnValue {
@@ -67,8 +79,11 @@ export class MessageBox {
       id: this.callbackId,
       title: options.title,
       message: options.message,
+      detail: options.detail,
       buttons: options.buttons,
       type: options.type,
+      defaultId: options.defaultId,
+      cancelId: options.cancelId,
     };
 
     // need to send the options to the frontend
