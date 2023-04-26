@@ -155,18 +155,18 @@ function updatePortExposure(port: number, checked: boolean) {
     <div class="m-5 p-6 h-full bg-charcoal-800 rounded-sm text-gray-700">
       <div class="w-4/5 min-w-[500px]">
         {#if podCreation}
-          <div class="">
-            <label for="podName" class="block mb-2 text-sm font-medium rounded text-gray-400 dark:text-gray-400"
-              >Name of the pod:
-              <input
-                name="podName"
-                id="podName"
-                bind:value="{podCreation.name}"
-                placeholder="Select name of the pod..."
-                aria-label="Pod name"
-                class="w-full mt-1 p-2 outline-0 text-sm bg-charcoal-500 focus:bg-charcoal-900 border-violet-700 border-b focus:border-violet-700 focus:border rounded-sm text-gray-500 focus:text-gray-700 placeholder-gray-700"
-                required />
-            </label>
+          <div class="mb-2">
+            <span class="block text-sm font-medium rounded text-gray-400 dark:text-gray-400">Name of the pod:</span>
+          </div>
+          <div class="mb-4">
+            <input
+              name="podName"
+              id="podName"
+              bind:value="{podCreation.name}"
+              placeholder="Select name of the pod..."
+              aria-label="Pod name"
+              class="w-full mt-1 p-2 outline-0 text-sm bg-charcoal-500 focus:bg-charcoal-900 border-violet-700 border-b focus:border-violet-700 focus:border rounded-sm text-gray-500 focus:text-gray-700 placeholder-gray-700"
+              required />
           </div>
 
           <div class="mb-2">
