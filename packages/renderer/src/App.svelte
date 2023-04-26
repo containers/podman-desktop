@@ -56,7 +56,10 @@ $: providerConnections = providers
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
-onMount(() => {
+let platform;
+
+onMount(async () => {
+  platform = await window.getOsPlatform();
   providerInfos.subscribe(value => {
     providers = value;
   });
@@ -71,16 +74,11 @@ window.events?.receive('display-help', () => {
 
 <Route path="/*" breadcrumb="Home" let:meta>
   <main class="min-h-screen flex flex-col h-screen bg-zinc-900">
-    <header id="navbar" class="text-gray-700 bg-zinc-900 body-font" style="-webkit-app-region: drag;">
-      <div class="flex mx-auto flex-row p-2 items-center">
-        <div class="flex lg:w-2/5 flex-1 items-center text-base ml-auto"></div>
-        <div
-          class="flex order-none title-font font-medium items-center text-white align-middle justify-center mb-4 md:mb-0">
-          <Logo />
-          <span class="select-none ml-3 text-xl block text-gray-400">Podman Desktop</span>
-        </div>
-        <div class="lg:w-2/5 flex-1 lg:justify-end ml-5 lg:ml-0"></div>
-      </div>
+    <header
+      id="navbar"
+      hidden="{platform !== 'darwin'}"
+      class="text-gray-700 bg-zinc-900 body-font h-7"
+      style="-webkit-app-region: drag;">
     </header>
 
     <WelcomePage />

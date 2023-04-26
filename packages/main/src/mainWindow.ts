@@ -56,7 +56,8 @@ async function createWindow() {
 
   if (isMac()) {
     // This property is not available on Linux.
-    browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
+    browserWindowConstructorOptions.titleBarStyle = 'hidden';
+    browserWindowConstructorOptions.trafficLightPosition = { x: 7, y: 7 };
   }
 
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
