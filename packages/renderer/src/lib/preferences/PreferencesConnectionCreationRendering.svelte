@@ -62,7 +62,6 @@ $: if (logsTerminal) {
 }
 
 onMount(async () => {
-  cleanup();
   osMemory = await window.getOsMemory();
   osCpu = await window.getOsCpu();
   osFreeDisk = await window.getOsFreeDiskSize();
@@ -98,9 +97,10 @@ onMount(async () => {
   pageIsLoading = false;
 
   // check if we have an existing create action
-  const value = get(createConnectionsInfo);
+  const createConnectionInfoMap = get(createConnectionsInfo);
 
-  if (value) {
+  if (createConnectionInfoMap && createConnectionInfoMap.has(providerInfo.name)) {
+    const value = createConnectionInfoMap.get(providerInfo.name);
     loggerHandlerKey = value.createKey;
     providerInfo = value.providerInfo;
     properties = value.properties;
@@ -111,6 +111,7 @@ onMount(async () => {
     creationStarted = value.creationStarted;
     errorMessage = value.errorMessage;
     creationSuccessful = value.creationSuccessful;
+    tokenId = value.tokenId;
   }
 });
 
@@ -180,7 +181,6 @@ async function cleanup() {
     clearCreateTask(loggerHandlerKey);
     loggerHandlerKey = undefined;
   }
-
   errorMessage = undefined;
   showLogs = false;
   creationInProgress = false;
@@ -194,15 +194,19 @@ async function cleanup() {
 
 // store the key
 function updateStore() {
-  createConnectionsInfo.set({
-    createKey: loggerHandlerKey,
-    providerInfo,
-    properties,
-    propertyScope,
-    creationInProgress,
-    creationSuccessful,
-    creationStarted,
-    errorMessage,
+  createConnectionsInfo.update(map => {
+    map.set(providerInfo.name, {
+      createKey: loggerHandlerKey,
+      providerInfo,
+      properties,
+      propertyScope,
+      creationInProgress,
+      creationSuccessful,
+      creationStarted,
+      errorMessage,
+      tokenId,
+    });
+    return map;
   });
 }
 

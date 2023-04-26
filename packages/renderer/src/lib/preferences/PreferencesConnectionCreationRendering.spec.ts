@@ -32,6 +32,7 @@ import { createConnectionsInfo } from '/@/stores/create-connections';
 const properties: IConfigurationPropertyRecordedSchema[] = [];
 const providerInfo: ProviderInfo = {
   id: 'test',
+  name: 'test',
 } as unknown as ProviderInfo;
 const propertyScope = 'FOO';
 
@@ -95,9 +96,10 @@ test('Expect create connection successfully', async () => {
   await fireEvent.click(createButton);
 
   // do we have a task
-  const currentConnectionInfo = get(createConnectionsInfo);
+  const currentConnectionInfoMap = get(createConnectionsInfo);
 
-  expect(currentConnectionInfo).toBeDefined();
+  expect(currentConnectionInfoMap).toBeDefined();
+  const currentConnectionInfo = currentConnectionInfoMap.get('test');
   expect(currentConnectionInfo.creationInProgress).toBeTruthy();
   expect(currentConnectionInfo.creationStarted).toBeTruthy();
   expect(currentConnectionInfo.creationSuccessful).toBeFalsy();
@@ -118,7 +120,11 @@ test('Expect create connection successfully', async () => {
   providedKeyLogger(currentConnectionInfo.createKey, 'finish', []);
 
   // expect it is sucessful
-  const currentConnectionInfoAfter = get(createConnectionsInfo);
+  const currentConnectionInfoAfterMap = get(createConnectionsInfo);
+
+  expect(currentConnectionInfoAfterMap).toBeDefined();
+  const currentConnectionInfoAfter = currentConnectionInfoAfterMap.get('test');
+
   expect(currentConnectionInfoAfter.creationInProgress).toBeFalsy();
   expect(currentConnectionInfoAfter.creationStarted).toBeTruthy();
   expect(currentConnectionInfoAfter.creationSuccessful).toBeTruthy();
@@ -153,7 +159,10 @@ test('Expect cancelling the creation, trigger the cancellation token', async () 
   await fireEvent.click(createButton);
 
   // do we have a task
-  const currentConnectionInfo = get(createConnectionsInfo);
+  const currentConnectionInfoMap = get(createConnectionsInfo);
+
+  expect(currentConnectionInfoMap).toBeDefined();
+  const currentConnectionInfo = currentConnectionInfoMap.get('test');
 
   expect(currentConnectionInfo).toBeDefined();
   expect(currentConnectionInfo.creationInProgress).toBeTruthy();
