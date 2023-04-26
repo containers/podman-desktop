@@ -231,6 +231,9 @@ declare module '@podman-desktop/api' {
 
     // Optional display name when creating the provider. For example 'Podman Machine' or 'Kind Cluster', etc.
     creationDisplayName?: string;
+
+    // Optional button title when creating the provider. Default is 'Create new'.
+    creationButtonTitle?: string;
   }
 
   // create programmatically a ContainerProviderConnection

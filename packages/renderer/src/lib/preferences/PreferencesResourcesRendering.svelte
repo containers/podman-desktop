@@ -243,6 +243,12 @@ async function startConnectionProvider(
                       : provider.kubernetesProviderConnectionCreation
                       ? provider.kubernetesProviderConnectionCreationDisplayName
                       : undefined) || provider.name}
+                  {@const buttonTitle =
+                    (provider.containerProviderConnectionCreation
+                      ? provider.containerProviderConnectionCreationButtonTitle || undefined
+                      : provider.kubernetesProviderConnectionCreation
+                      ? provider.kubernetesProviderConnectionCreationButtonTitle
+                      : undefined) || 'Create new'}
                   <!-- create new provider button -->
                   <Tooltip tip="Create new {providerDisplayName}" bottom>
                     <button
@@ -250,7 +256,7 @@ async function startConnectionProvider(
                       aria-label="Create new {providerDisplayName}"
                       type="button"
                       on:click="{() => router.goto(`/preferences/provider/${provider.internalId}`)}">
-                      Create new ...
+                      {buttonTitle} ...
                     </button>
                   </Tooltip>
                 {/if}

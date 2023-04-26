@@ -72,16 +72,21 @@ test('Expect to see elements regarding default provider name', async () => {
   render(PreferencesResourcesRendering, {});
   const button = screen.getByRole('button', { name: 'Create new foo-provider' });
   expect(button).toBeInTheDocument();
+  // expect default create title
+  expect(button).toHaveTextContent('Create new ...');
 });
 
 test('Expect to see elements regarding foo provider', async () => {
   // clone providerInfo and change id to foo
   const customProviderInfo: ProviderInfo = { ...providerInfo };
   customProviderInfo.containerProviderConnectionCreationDisplayName = 'foo';
+  customProviderInfo.containerProviderConnectionCreationButtonTitle = 'Connect';
   providerInfos.set([customProviderInfo]);
   render(PreferencesResourcesRendering, {});
   const button = screen.getByRole('button', { name: 'Create new foo' });
   expect(button).toBeInTheDocument();
+  // expect custom create title
+  expect(button).toHaveTextContent('Connect ...');
 });
 
 test('Expect to see elements regarding podman provider', async () => {
