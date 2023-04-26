@@ -553,6 +553,8 @@ export class ProviderRegistry {
     let containerProviderConnectionCreation = false;
     const containerProviderConnectionCreationDisplayName =
       provider.containerProviderConnectionFactory?.creationDisplayName;
+    const containerProviderConnectionCreationButtonTitle =
+      provider.containerProviderConnectionFactory?.creationButtonTitle;
     if (provider.containerProviderConnectionFactory) {
       containerProviderConnectionCreation = true;
     }
@@ -561,6 +563,8 @@ export class ProviderRegistry {
     let kubernetesProviderConnectionInitialization = false;
     const kubernetesProviderConnectionCreationDisplayName =
       provider.kubernetesProviderConnectionFactory?.creationDisplayName;
+    const kubernetesProviderConnectionCreationButtonTitle =
+      provider.kubernetesProviderConnectionFactory?.creationButtonTitle;
     if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.initialize) {
       kubernetesProviderConnectionInitialization = true;
     }
@@ -582,8 +586,10 @@ export class ProviderRegistry {
       kubernetesProviderConnectionCreation,
       containerProviderConnectionInitialization,
       containerProviderConnectionCreationDisplayName,
+      containerProviderConnectionCreationButtonTitle,
       kubernetesProviderConnectionInitialization,
       kubernetesProviderConnectionCreationDisplayName,
+      kubernetesProviderConnectionCreationButtonTitle,
       links: provider.links,
       detectionChecks: provider.detectionChecks,
       images: provider.images,
