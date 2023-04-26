@@ -804,6 +804,17 @@ export class ExtensionLoader {
       await subscription.dispose();
     });
 
+    const analyzedExtension = this.analyzedExtensions.get(extensionId);
+    if (analyzedExtension) {
+      const extensionConfiguration = analyzedExtension.manifest?.contributes?.configuration;
+      if (extensionConfiguration) {
+        this.configurationRegistry.deregisterConfigurations([extensionConfiguration]);
+      }
+      const menus = analyzedExtension.manifest?.contributes?.menus;
+      if (menus) {
+        this.menuRegistry.unregisterMenus(menus);
+      }
+    }
     this.activatedExtensions.delete(extensionId);
     this.extensionState.set(extension.id, 'stopped');
     this.apiSender.send('extension-stopped');
