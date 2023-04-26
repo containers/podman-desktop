@@ -124,7 +124,7 @@ async function pullImage() {
 
   pullInProgress = true;
   try {
-    await window.pullImage(selectedProviderConnection, imageToPull.name, callback);
+    await window.pullImage(selectedProviderConnection, imageToPull.name.trim(), callback);
     pullInProgress = false;
     pullFinished = true;
   } catch (error) {
@@ -156,7 +156,7 @@ onMount(() => {
 let imageNameInvalid = 'Please enter a value';
 function validateImageName(event: any): void {
   const userValue = event.target.value;
-  if (userValue === '' || userValue === undefined) {
+  if (userValue === undefined || userValue.trim() === '') {
     imageNameInvalid = 'Please enter a value';
   } else {
     imageNameInvalid = '';

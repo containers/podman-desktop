@@ -78,7 +78,7 @@ async function removeExtension(extension: ExtensionInfo) {
 
         <button
           on:click="{() => installExtensionFromImage()}"
-          disabled="{ociImage === undefined || ociImage === '' || installInProgress}"
+          disabled="{ociImage === undefined || ociImage.trim() === '' || installInProgress}"
           class="w-full pf-c-button pf-m-primary"
           type="button">
           {#if installInProgress}
