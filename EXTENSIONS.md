@@ -16,6 +16,7 @@ When loading an extension, Podman Desktop will:
 
 When unloading an extension, Podman Desktop will:
 1. Run the exported `deactivate` function.
+2. Dispose of any resources that have been added to `extensionContext.subscriptions`, see `deactivateExtension` in [extension-loader.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/plugin/extension-loader.ts).
 
 #### Example boilerplate code
 
@@ -85,7 +86,7 @@ export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'sto
 
 `ProviderConnectionStatus` is the main "Lifecycle" of your extension. The status is updated by automatically by Podman Desktop and reflected within the provider.
 
-Upon a successful start up via your `active` function within your extension, `ProviderConnectionStatus` will be reflected as 'started'. 
+Upon a successful start up via the `activate` function within your extension, `ProviderConnectionStatus` will be reflected as 'started'. 
 
 `ProviderConnectionStatus` statuses are used in two areas, [extension-loader.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/plugin/extension-loader.ts) and [tray-menu.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/tray-menu.ts):
 * `extension-loader.ts`: Attempts to load the extension and sets the status accordingly (either `started`, `stopped`, `starting` or `stopping`). If an unknown error has occured, the status is set to `unknown`. `extension-loader.ts` also sends an API call to Podman Desktop to update the UI of the extension.
@@ -135,6 +136,11 @@ const foobar: typeof containerDesktopAPI.foobar = {
     return foobarClient.hello(input);
   },
 };
+
+// Add 'foobar' to the list of configurations being returned by `return <typeof containerDesktopAPI>`
+return <typeof containerDesktopAPI>{
+  foobar
+};
 ```
 
 3. The above code won't work until we've created the class! So let's create a `packages/main/src/plugin/foobar-client.ts` file with the functionality:
@@ -147,7 +153,7 @@ export class FoobarClient {
 }
 ```
 
-4. Last step! Call the new API call to the extension you are implementing, such as an example file `extensions/foobar/src/extension.ts`:
+4. Last step! Call the new API call to the extension you are implementing from your extension:
 
 ```ts
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
