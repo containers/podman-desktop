@@ -128,7 +128,7 @@ function handleKeydown(e: KeyboardEvent) {
         {/if}
         <h1 class="grow text-lg font-bold capitalize">{title}</h1>
 
-        <button class="hover:text-gray-300 py-1" on:click="{() => clickButton(undefined)}">
+        <button class="hover:text-gray-300 py-1" on:click="{() => clickButton(cancelId >= 0 ? cancelId : undefined)}">
           <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </div>
