@@ -57,14 +57,12 @@ export class ImageHandler {
         } else {
           env['KIND_EXPERIMENTAL_PROVIDER'] = 'docker';
         }
-        const result = await runCliCommand(kindCli, ['load', 'image-archive', '-n', selectedCluster.label, filename], {
+        await runCliCommand(kindCli, ['load', 'image-archive', '-n', selectedCluster.label, filename], {
           env: env,
         });
-        if (result.exitCode === 0) {
-          extensionApi.window.showNotification({
-            body: `Image ${image.name} pushed to Kind cluster ${selectedCluster.label}`,
-          });
-        }
+        extensionApi.window.showNotification({
+          body: `Image ${image.name} pushed to Kind cluster ${selectedCluster.label}`,
+        });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : '' + error;
         throw new Error(
