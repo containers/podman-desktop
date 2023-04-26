@@ -282,9 +282,15 @@ test('Check that we have registered commands', async () => {
 });
 
 describe.each([
-  { existDir: false, os: 'Windows' },
-  { existDir: true, os: 'Linux' },
-])('Check install docker compose command', ({ existDir, os }) => {
+  { existDir: false, os: 'Windows', noPick: false },
+  { existDir: true, os: 'Windows', noPick: false },
+  { existDir: true, os: 'Windows', noPick: true },
+  { existDir: false, os: 'Windows', noPick: true },
+  { existDir: true, os: 'Linux', noPick: false },
+  { existDir: false, os: 'Linux', noPick: false },
+  { existDir: true, os: 'Linux', noPick: true },
+  { existDir: false, os: 'Linux', noPick: true },
+])('Check install docker compose command', ({ existDir, os, noPick }) => {
   test(`Check install docker compose command dir exists ${existDir}`, async () => {
     let dockerComposeFileExtension = '';
 
@@ -300,16 +306,21 @@ describe.each([
     const mkdirSpy = vi.spyOn(promises, 'mkdir');
     mkdirSpy.mockImplementation(() => Promise.resolve(''));
 
+    // Mock the OS
     if (os === 'Windows') {
       osMock.isWindows.mockReturnValue(true);
       dockerComposeFileExtension = '.exe';
-      // mock one item
-      showQuickPickMock.mockResolvedValue({ label: 'latest', id: 'LATEST' } as any);
     } else if (os === 'Linux') {
       osMock.isLinux.mockReturnValue(true);
-      // mock no choice from user
-      showQuickPickMock.mockResolvedValue(undefined);
     }
+
+    // Mock if the user "picked" a version or not.
+    if (noPick) {
+      showQuickPickMock.mockResolvedValue(undefined);
+    } else {
+      showQuickPickMock.mockResolvedValue({ label: 'latest', id: 'LATEST' } as any);
+    }
+
     // fake chmod
     const chmodMock = vi.spyOn(promises, 'chmod');
     chmodMock.mockImplementation(() => Promise.resolve());
@@ -329,18 +340,21 @@ describe.each([
     expect(showQuickPickMock).toHaveBeenCalledWith(items, { placeHolder: 'Select docker compose version to install' });
     // should have fetched latest releases
     expect(composeGitHubReleasesMock.grabLatestsReleasesMetadata).toHaveBeenCalled();
+
     // should have downloaded the release asset
-    expect(composeGitHubReleasesMock.downloadReleaseAsset).toHaveBeenCalledWith(
-      fakeAssetId,
-      resolve(extensionContext.storagePath, `bin/docker-compose${dockerComposeFileExtension}`),
-    );
+    if (!noPick) {
+      expect(composeGitHubReleasesMock.downloadReleaseAsset).toHaveBeenCalledWith(
+        fakeAssetId,
+        resolve(extensionContext.storagePath, `bin/docker-compose${dockerComposeFileExtension}`),
+      );
 
-    // should have called run checks
-    expect(runChecksSpy).toHaveBeenCalled();
+      // should have called run checks
+      expect(runChecksSpy).toHaveBeenCalled();
 
-    // should have created the directory if non-existent
-    if (!existDir) {
-      expect(mkdirSpy).toHaveBeenCalledWith(resolve(extensionContext.storagePath, 'bin'), { recursive: true });
+      // should have created the directory if non-existent
+      if (!existDir) {
+        expect(mkdirSpy).toHaveBeenCalledWith(resolve(extensionContext.storagePath, 'bin'), { recursive: true });
+      }
     }
   });
 });
