@@ -44,6 +44,10 @@ let stopLoop = false;
 let autoMachineStarted = false;
 let autoMachineName;
 
+// System default notifier
+let defaultMachineNotify = true;
+let defaultMachineMonitor = true;
+
 // current status of machines
 const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
 let podmanProviderStatus: extensionApi.ProviderConnectionStatus = 'started';
@@ -63,6 +67,7 @@ type MachineJSON = {
   DiskSize: string;
   Running: boolean;
   Starting: boolean;
+  Default: boolean;
 };
 
 type MachineInfo = {
@@ -188,6 +193,47 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       // needs to start a machine
       provider.updateStatus('configured');
     }
+  }
+
+  // Finally, we check to see if the machine that is running is set by default or not on the CLI
+  // this will create a dialog that will ask the user if they wish to set the running machine as default.
+  await checkDefaultMachine(machines);
+}
+
+async function checkDefaultMachine(machines: MachineJSON[]): Promise<void> {
+  // As a last check, let's see if the machine that is running is set by default or not on the CLI.
+  // if it isn't, we should prompt the user to set it as default, or else podman CLI commands will not work
+  const runningMachine = machines.find(machine => machine.Running);
+  const defaultMachine = machines.find(machine => machine.Default);
+  if (defaultMachineNotify && defaultMachineMonitor && runningMachine && !runningMachine.Default) {
+    // Make sure we do notifyDefault = false so we don't keep notifying the user when this dialog is open.
+    defaultMachineMonitor = false;
+
+    // Create an information message to ask the user if they wish to set the running machine as default.
+    const result = await extensionApi.window.showInformationMessage(
+      `Podman Machine '${runningMachine.Name}' is running but not the default machine (default is '${defaultMachine.Name}'). This will cause podman CLI errors while trying to connect to '${runningMachine.Name}'. Do you want to set it as default?`,
+      'Yes',
+      'Ignore',
+      'Cancel',
+    );
+    if (result === 'Yes') {
+      try {
+        await execPromise(getPodmanCli(), ['system', 'connection', 'default', runningMachine.Name]);
+      } catch (error) {
+        // eslint-disable-next-line quotes
+        console.error("Error running 'podman system connection default': ", error);
+        await extensionApi.window.showErrorMessage(`Error running 'podman system connection default': ${error}`);
+      }
+      await extensionApi.window.showInformationMessage(
+        `Podman Machine '${runningMachine.Name}' is now the default machine on the CLI.`,
+        'OK',
+      );
+    } else if (result === 'Ignore') {
+      // If the user chooses to ignore, we should not notify them again until Podman Desktop is restarted.
+      defaultMachineNotify = false;
+    }
+
+    defaultMachineMonitor = true;
   }
 }
 
