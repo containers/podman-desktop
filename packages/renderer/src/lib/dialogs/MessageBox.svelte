@@ -12,6 +12,7 @@ import type { MessageBoxOptions } from './messagebox-input';
 let currentId = 0;
 let title;
 let message;
+let detail;
 let buttons;
 let type;
 let cancelId = -1;
@@ -26,19 +27,36 @@ const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
   currentId = options.id;
   title = options.title;
   message = options.message;
-  buttons = options.buttons;
+  if (options.detail) {
+    detail = options.detail;
+  }
+
+  // use provided buttons, or a single 'OK' button if none are provided
+  if (options.buttons && options.buttons.length > 0) {
+    buttons = options.buttons;
+  } else {
+    buttons = ['OK'];
+  }
   type = options.type;
 
   buttonOrder = Array.from(buttons, (value, index) => index);
 
-  // find cancel button if it exists
-  cancelId = buttons.findIndex(b => b.toLowerCase() === 'cancel');
-
-  // the first non-cancel button is the default (primary) action
-  if (cancelId == 0) {
-    defaultId = 1;
+  // use the provided cancel id, otherwise try to find a button labelled 'cancel'
+  if (options.cancelId) {
+    cancelId = options.cancelId;
   } else {
-    defaultId = 0;
+    cancelId = buttons.findIndex(b => b.toLowerCase() === 'cancel');
+  }
+
+  // use the provided default (primary) id, otherwise the first non-cancel button is the default
+  if (options.defaultId) {
+    defaultId = options.defaultId;
+  } else {
+    if (cancelId == 0) {
+      defaultId = 1;
+    } else {
+      defaultId = 0;
+    }
   }
 
   // move cancel button to the start/left and default button to the end/right
@@ -83,7 +101,8 @@ function clickButton(index: number) {
 
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
-    window.sendShowMessageBoxOnSelect(currentId, undefined);
+    // if there is a cancel button use its id, otherwise undefined
+    window.sendShowMessageBoxOnSelect(currentId, cancelId >= 0 ? cancelId : undefined);
     cleanup();
     e.preventDefault();
     return;
@@ -115,6 +134,10 @@ function handleKeydown(e: KeyboardEvent) {
       </div>
 
       <div class="px-10 py-4 text-sm leading-5">{message}</div>
+
+      {#if detail}
+        <div class="px-10 pb-4 text-sm leading-5">{detail}</div>
+      {/if}
 
       <div class="px-6 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
         {#each buttonOrder as i}

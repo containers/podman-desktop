@@ -43,6 +43,7 @@ describe('MessageBox', () => {
       id: idRequest,
       title: 'My custom title',
       message: 'My message',
+      detail: 'A more detailed message',
       buttons: ['OK', 'Not OK'],
     };
 
@@ -58,9 +59,32 @@ describe('MessageBox', () => {
     expect(title).toBeInTheDocument();
     const message = await screen.findByText(messageBoxOptions.message);
     expect(message).toBeInTheDocument();
+    const detail = await screen.findByText(messageBoxOptions.detail);
+    expect(detail).toBeInTheDocument();
     const button1 = await screen.findByText(messageBoxOptions.buttons[0]);
     expect(button1).toBeInTheDocument();
     const button2 = await screen.findByText(messageBoxOptions.buttons[1]);
     expect(button2).toBeInTheDocument();
+  });
+
+  test('Expect that default OK button is displayed', async () => {
+    const idRequest = 234;
+
+    const messageBoxOptions: MessageBoxOptions = {
+      id: idRequest,
+      title: 'My custom title',
+      message: 'My message',
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: MessageBoxOptions) => void) => {
+      if (message === 'showMessageBox:open') {
+        callback(messageBoxOptions);
+      }
+    });
+
+    render(MessageBox, {});
+
+    const ok = await screen.findByText('OK');
+    expect(ok).toBeInTheDocument();
   });
 });
