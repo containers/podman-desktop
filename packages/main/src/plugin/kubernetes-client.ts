@@ -26,6 +26,7 @@ import type {
   V1Service,
   V1Ingress,
   V1ContainerState,
+  V1APIResource,
 } from '@kubernetes/client-node';
 import { NetworkingV1Api } from '@kubernetes/client-node';
 import { AppsV1Api } from '@kubernetes/client-node';

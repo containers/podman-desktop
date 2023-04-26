@@ -6,6 +6,7 @@ import * as jsYaml from 'js-yaml';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
 
 export let resourceId: string;
 export let engineId: string;
@@ -18,6 +19,7 @@ let allNamespaces: V1NamespaceList;
 let deployStarted = false;
 let deployFinished = false;
 let deployError = '';
+let deployWarning = '';
 let updatePodInterval: NodeJS.Timeout;
 let openshiftConsoleURL: string;
 
@@ -73,7 +75,7 @@ onMount(async () => {
   // Go through bodyPod.spec.containers and create a string array of port that we'll be exposing
   bodyPod.spec.containers.forEach((container: any) => {
     container.ports?.forEach((port: any) => {
-      containerPortArray.push(port.containerPort);
+      containerPortArray.push(port.hostPort);
     });
   });
 });
@@ -115,6 +117,7 @@ async function deployToKube() {
   deployStarted = true;
   deployFinished = false;
   deployError = '';
+  deployWarning = '';
   createdPod = undefined;
   // reset any timeout
   clearInterval(updatePodInterval);
@@ -124,18 +127,10 @@ async function deployToKube() {
   let routesToCreate: any[] = [];
   let ingressesToCreate: any[] = [];
 
-  if (bodyPod?.spec?.volumes) {
-    delete bodyPod.spec.volumes;
-  }
-
   // if we deploy using services, we need to get rid of .hostPort and generate kubernetes services object
   if (deployUsingServices) {
     // collect all ports
     bodyPod.spec?.containers?.forEach((container: any) => {
-      if (container.volumeMounts) {
-        delete container.volumeMounts;
-      }
-
       container?.ports?.forEach((port: any) => {
         let portName = `${bodyPod.metadata.name}-${port.hostPort}`;
         if (port.hostPort) {
@@ -184,8 +179,6 @@ async function deployToKube() {
             };
             routesToCreate.push(route);
           }
-          // delete
-          delete port.hostPort;
         }
       });
     });
@@ -198,13 +191,20 @@ async function deployToKube() {
 
     // Check that there are services (servicesToCreate), if there aren't. Warn that we can't create an ingress.
     // All services are always created with one port (the first one), so we can use that port to create the ingress.
-    if (servicesToCreate.length === 0) {
-      deployError = 'You need to deploy using services to create an ingress.';
+    // Must be a number
+    if (servicesToCreate.length == 0) {
+      deployWarning = 'You need to deploy using services to create an ingress.';
       return;
     } else if (servicesToCreate.length == 1) {
       serviceName = servicesToCreate[0].metadata.name;
       servicePort = servicesToCreate[0].spec.ports[0].port;
     } else if (servicesToCreate.length > 1) {
+      // If there was more than one service being created, the user would of had a dialog to pick which port to use
+      // warn out if the user did not pick anything (we do not do form validation for this as we're using svelte for the form)
+      if (!ingressPort) {
+        deployWarning = 'You need to specify a port to create an ingress.';
+        return;
+      }
       const matchingService = servicesToCreate.find(service => service.spec.ports[0].port == ingressPort);
       if (matchingService) {
         serviceName = matchingService.metadata.name;
@@ -281,6 +281,31 @@ async function deployToKube() {
     deployError = error;
     deployStarted = false;
     deployFinished = false;
+    return;
+  }
+
+  // Only on a successful deploy, do we want to update the kubeDetails with the removed fields
+  // to show the "final" version of the pod that was deployed.
+  if (bodyPod?.spec?.volumes) {
+    delete bodyPod.spec.volumes;
+  }
+
+  if (deployUsingServices) {
+    bodyPod.spec?.containers?.forEach((container: any) => {
+      // UNUSED
+      // Delete all volume mounts
+      if (container.volumeMounts) {
+        delete container.volumeMounts;
+      }
+
+      // UNUSED
+      // Delete all hostPorts
+      if (container.ports) {
+        container.ports.forEach((port: any) => {
+          delete port.hostPort;
+        });
+      }
+    });
   }
 }
 
@@ -329,7 +354,7 @@ function updateKubeResult() {
       </div>
 
       <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
-      {#if !openshiftConsoleURL}
+      {#if !openshiftConsoleURL && deployUsingServices}
         <div class="pt-2 pb-4">
           <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300"
             >Expose service locally using Kubernetes Ingress:</label>
@@ -349,14 +374,14 @@ function updateKubeResult() {
 
       {#if createIngress && containerPortArray.length > 1}
         <div class="pt-2 pb-4">
-          <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300">Ingress Container Port:</label>
+          <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300">Ingress Host Port:</label>
           <select
             bind:value="{ingressPort}"
             name="serviceName"
             id="serviceName"
             class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
             required>
-            <option value="">Select a port</option>
+            <option value="" disabled selected>Select a port</option>
             {#each containerPortArray as port}
               <option value="{port}">{port}</option>
             {/each}
@@ -407,6 +432,13 @@ function updateKubeResult() {
         </div>
       {/if}
 
+      {#if deployWarning}
+        <WarningMessage class="text-sm" error="{deployWarning}" />
+      {/if}
+      {#if deployError}
+        <ErrorMessage class="text-sm" error="{deployError}" />
+      {/if}
+
       {#if !deployStarted}
         <div class="pt-2 m-2">
           <button
@@ -421,7 +453,6 @@ function updateKubeResult() {
           </button>
         </div>
       {/if}
-      <ErrorMessage class="text-sm" error="{deployError}" />
 
       {#if createdPod}
         <div class="bg-zinc-900 p-5 my-4">
