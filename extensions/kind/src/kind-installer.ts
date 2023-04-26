@@ -111,7 +111,7 @@ export class KindInstaller {
     if (dialogResult === 'Yes') {
       this.telemetryLogger.logUsage('install-kind-prompt-yes');
       return extensionApi.window.withProgress(
-        { location: ProgressLocation.TASK_WIDGET, title: 'Downloading kind' },
+        { location: ProgressLocation.TASK_WIDGET, title: 'Installing kind' },
         async progress => {
           progress.report({ increment: 5 });
           try {
