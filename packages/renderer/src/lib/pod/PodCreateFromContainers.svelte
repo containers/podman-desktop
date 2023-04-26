@@ -12,7 +12,7 @@ import ContainerIcon from '../images/ContainerIcon.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
-$: createError = undefined;
+let createError = undefined;
 $: mapPortExposed = new Map<number, { exposed: boolean; container: string }>();
 
 let providers: ProviderInfo[] = [];
