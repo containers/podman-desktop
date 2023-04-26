@@ -12,7 +12,7 @@ import ContainerIcon from '../images/ContainerIcon.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
-let createError = undefined;
+$: createError = undefined;
 $: mapPortExposed = new Map<number, { exposed: boolean; container: string }>();
 
 let providers: ProviderInfo[] = [];
@@ -163,13 +163,14 @@ function updatePortExposure(port: number, checked: boolean) {
                 id="podName"
                 bind:value="{podCreation.name}"
                 placeholder="Select name of the pod..."
+                aria-label="Pod name"
                 class="w-full mt-1 p-2 outline-0 text-sm bg-charcoal-500 focus:bg-charcoal-900 border-violet-700 border-b focus:border-violet-700 focus:border rounded-sm text-gray-500 focus:text-gray-700 placeholder-gray-700"
                 required />
             </label>
           </div>
 
           <div class="mb-2">
-            <span class="block text-sm font-medium rounded text-gray-400 dark:text-gray-400"
+            <span class="block text-sm font-medium rounded text-gray-400 dark:text-gray-400" aria-label="Containers"
               >Containers to replicate to the pod:</span>
           </div>
           <div class="max-w-full bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
@@ -185,8 +186,9 @@ function updatePortExposure(port: number, checked: boolean) {
 
           {#if mapPortExposed.size > 0}
             <div class="mb-2">
-              <span class="block text-sm font-medium rounded text-gray-400 dark:text-gray-400"
-                >All selected ports will be exposed:</span>
+              <span
+                class="block text-sm font-medium rounded text-gray-400 dark:text-gray-400"
+                aria-label="Exposed ports">All selected ports will be exposed:</span>
             </div>
             <div class="bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
               {#each [...mapPortExposed] as [port, value]}
@@ -237,6 +239,7 @@ function updatePortExposure(port: number, checked: boolean) {
               on:click="{() => {
                 createPodFromContainers();
               }}"
+              aria-label="Create pod"
               class="pf-c-button pf-m-primary"
               type="button">
               <span class="pf-c-button__icon pf-m-start">
