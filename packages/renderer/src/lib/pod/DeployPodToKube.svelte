@@ -194,6 +194,7 @@ async function deployToKube() {
     // Must be a number
     if (servicesToCreate.length == 0) {
       deployWarning = 'You need to deploy using services to create an ingress.';
+      deployStarted = false;
       return;
     } else if (servicesToCreate.length == 1) {
       serviceName = servicesToCreate[0].metadata.name;
@@ -203,6 +204,7 @@ async function deployToKube() {
       // warn out if the user did not pick anything (we do not do form validation for this as we're using svelte for the form)
       if (!ingressPort) {
         deployWarning = 'You need to specify a port to create an ingress.';
+        deployStarted = false;
         return;
       }
       const matchingService = servicesToCreate.find(service => service.spec.ports[0].port == ingressPort);
