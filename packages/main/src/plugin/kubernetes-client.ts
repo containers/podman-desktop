@@ -281,8 +281,8 @@ export class KubernetesClient {
     this.currentContextName = this.kubeConfig.getCurrentContext();
     const currentContext = this.kubeConfig.contexts.find(context => context.name === this.currentContextName);
     // Only update the namespace if we're able to actually connect to the cluster, otherwise we'll end up with a connection error.
-    const checkConnection = await this.checkConnection();
-    if (currentContext && checkConnection) {
+    const connected = await this.checkConnection();
+    if (currentContext && connected) {
       this.currentNamespace = await this.getDefaultNamespace(currentContext);
     }
     this.setupKubeWatcher();
@@ -371,7 +371,9 @@ export class KubernetesClient {
 
   async listPods(): Promise<PodInfo[]> {
     const ns = this.getCurrentNamespace();
-    if (ns) {
+    // Only retrieve pods if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
       const pods = await this.listNamespacedPod(ns);
       return pods.items.map(pod => toPodInfo(pod));
     }
