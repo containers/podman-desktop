@@ -26,9 +26,8 @@ import type {
   V1Service,
   V1ContainerState,
 } from '@kubernetes/client-node';
-import { AppsV1Api } from '@kubernetes/client-node';
-import { CustomObjectsApi } from '@kubernetes/client-node';
-import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
+import { AppsV1Api, CustomObjectsApi, CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
+import type { V1APIResource } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
@@ -104,6 +103,12 @@ export class KubernetesClient {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private kubeWatcher: any | undefined;
+
+  /*
+   a Cache of API resources for the cluster. This is used to compute the plural when dealing
+   with custom resources. The key is the apiGroup (including version) like 'networking.k8s.io/v1'
+   */
+  private apiResources = new Map<string, Array<V1APIResource>>();
 
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
@@ -275,6 +280,7 @@ export class KubernetesClient {
       this.currentNamespace = await this.getDefaultNamespace(currentContext);
     }
     this.setupKubeWatcher();
+    this.apiResources.clear();
     this.apiSender.send('pod-event');
   }
 
@@ -526,13 +532,7 @@ export class KubernetesClient {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     if (namespace) {
-      return client.createNamespacedCustomObject(
-        group,
-        version,
-        namespace,
-        manifest.kind.toLowerCase() + 's',
-        manifest,
-      );
+      return client.createNamespacedCustomObject(group, version, namespace, plural, manifest);
     } else {
       return client.createClusterCustomObject(group, version, manifest.kind.toLowerCase() + 's', manifest);
     }
@@ -585,6 +585,28 @@ export class KubernetesClient {
     }
   }
 
+  async getPlural(
+    client: CustomObjectsApi,
+    apiGroup: { group: string; version: string },
+    kind: string,
+  ): Promise<string> {
+    let apiResources = this.apiResources.get(apiGroup.group + '/' + apiGroup.version);
+    if (!apiResources) {
+      const response = await client.listClusterCustomObject(apiGroup.group, apiGroup.version, '');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      apiResources = (response.body as any).resources;
+      this.apiResources.set(apiGroup.group + '/' + apiGroup.version, apiResources as V1APIResource[]);
+    }
+    if (apiResources) {
+      for (const apiResource of apiResources) {
+        if (apiResource.kind === kind) {
+          return apiResource.name;
+        }
+      }
+    }
+    throw new Error(`Unable to find API resource for ${apiGroup.group}/${apiGroup.version}/${kind}`);
+  }
+
   /**
    * Create Kubernetes resources on the specified cluster. Resources are create sequentially.
    *
@@ -619,7 +641,7 @@ export class KubernetesClient {
           client,
           groupVersion.group,
           groupVersion.version,
-          manifest.kind.toLowerCase() + 's',
+          await this.getPlural(client, groupVersion, manifest.kind),
           optionalNamespace || manifest.metadata?.namespace,
           manifest,
         );
