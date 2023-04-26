@@ -16,9 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Task } from '/@/stores/tasks';
-
 import humanizeDuration from 'humanize-duration';
+import type { Task } from '../../../../main/src/plugin/api/task';
 
 export interface TaskUI extends Task {
   age: string;

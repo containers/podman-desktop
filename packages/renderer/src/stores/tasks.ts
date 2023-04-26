@@ -18,20 +18,7 @@
 
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
-
-type TaskState = 'running' | 'completed';
-type TaskStatus = 'in-progress' | 'success' | 'failure';
-
-export interface Task {
-  id: string;
-  name: string;
-  started: number;
-  state: TaskState;
-  status: TaskStatus;
-  progress?: number;
-  gotoTask?: () => void;
-  error?: string;
-}
+import type { Task } from '../../../main/src/plugin/api/task';
 
 /**
  * Defines the store used to define the tasks.
@@ -48,6 +35,14 @@ export function removeTask(id: string) {
   tasksInfo.update(tasks => tasks.filter(task => task.id !== id));
 }
 
+function updateTask(task: Task) {
+  tasksInfo.update(tasks => {
+    tasks = tasks.filter(t => t.id != task.id);
+    tasks.push(task);
+    return tasks;
+  });
+}
+
 // remove element from the store that are completed
 export function clearCompletedTasks() {
   tasksInfo.update(tasks => tasks.filter(task => task.state !== 'completed'));
@@ -59,7 +54,7 @@ let taskId = 0;
 export function createTask(name: string): Task {
   taskId++;
   const task: Task = {
-    id: `${taskId}`,
+    id: `ui-${taskId}`,
     name,
     started: new Date().getTime(),
     state: 'running',
@@ -68,3 +63,13 @@ export function createTask(name: string): Task {
   tasksInfo.update(tasks => [...tasks, task]);
   return task;
 }
+
+window.events?.receive('task-created', task => {
+  tasksInfo.update(tasks => [...tasks, task]);
+});
+window.events?.receive('task-updated', task => {
+  updateTask(task);
+});
+window.events?.receive('task-removed', task => {
+  removeTask(task.id);
+});

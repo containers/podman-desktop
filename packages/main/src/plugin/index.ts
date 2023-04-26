@@ -98,6 +98,7 @@ import type { ApiSenderType } from './api';
 import type { AuthenticationProviderInfo } from './authentication';
 import { AuthenticationImpl } from './authentication';
 import checkDiskSpace from 'check-disk-space';
+import { TaskManager } from '/@/plugin/task-manager';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -552,6 +553,8 @@ export class PluginSystem {
 
     const authentication = new AuthenticationImpl(apiSender);
 
+    const taskManager = new TaskManager(apiSender);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -561,7 +564,7 @@ export class PluginSystem {
       apiSender,
       trayMenuRegistry,
       messageBox,
-      new ProgressImpl(),
+      new ProgressImpl(taskManager),
       new NotificationImpl(),
       statusBarRegistry,
       kubernetesClient,
