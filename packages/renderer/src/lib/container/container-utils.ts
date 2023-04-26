@@ -127,6 +127,7 @@ export class ContainerUtils {
       engineType: containerInfo.engineType,
       command: containerInfo.Command,
       ports: this.getPorts(containerInfo),
+      portsAsString: this.getPortsAsString(containerInfo),
       displayPort: this.getDisplayPort(containerInfo),
       hasPublicPort: this.hasPublicPort(containerInfo),
       openingUrl: this.getOpeningUrl(containerInfo),
@@ -196,5 +197,16 @@ export class ContainerUtils {
 
   getMemoryUsageTitle(usedMemory: number): string {
     return `${filesize(usedMemory)}`;
+  }
+
+  getPortsAsString(containerInfo: ContainerInfo): string {
+    const ports = containerInfo.Ports;
+    if (ports.length > 1) {
+      return `${ports.join(', ')}`;
+    } else if (ports.length === 1) {
+      return `${ports[0]}`;
+    } else {
+      return '';
+    }
   }
 }
