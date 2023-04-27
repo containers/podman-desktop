@@ -51,16 +51,22 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.once('before-quit', async event => {
+let stoppedAllExtensions = false;
+app.on('before-quit', async event => {
+  if (stoppedAllExtensions) {
+    return;
+  }
   event.preventDefault();
   await extensionLoader
     ?.stopAllExtensions()
     .then(() => {
       console.log('Stopped all extensions');
-      app.quit();
     })
     .catch(error => {
       console.log('Error stopping extensions', error);
+    })
+    .finally(() => {
+      stoppedAllExtensions = true;
       app.quit();
     });
 });
