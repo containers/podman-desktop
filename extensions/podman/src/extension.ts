@@ -41,6 +41,8 @@ const podmanMachineSocketsSymlinkDirectoryMac = path.resolve(os.homedir(), '.pod
 const MACOS_MAX_SOCKET_PATH_LENGTH = 104;
 let storedExtensionContext;
 let stopLoop = false;
+let autoMachineStarted = false;
+let autoMachineName;
 
 // current status of machines
 const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
@@ -48,9 +50,6 @@ let podmanProviderStatus: extensionApi.ProviderConnectionStatus = 'started';
 const podmanMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
 const containerProviderConnections = new Map<string, extensionApi.ContainerProviderConnection>();
-
-let autoMachineStarted = false;
-let autoMachineName;
 
 // Warning to check to see if the socket is a disguised Podman socket,
 // by default we assume it is until proven otherwise when we check
@@ -652,15 +651,29 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
 async function stopAutoStartedMachine() {
   if (!autoMachineStarted) {
+    console.log('No machine to stop');
     return;
   }
+  const machineListOutput = await execPromise(getPodmanCli(), ['machine', 'list', '--format', 'json']);
+
+  const machines = JSON.parse(machineListOutput) as MachineJSON[];
+
+  // Find the autostarted machine and check its status
+  const currentMachine: MachineJSON = machines.find(machine => machine?.Name === autoMachineName);
+
+  if (!currentMachine?.Running && !currentMachine?.Starting) {
+    console.log('No machine to stop');
+    autoMachineStarted = false;
+    return;
+  }
+  console.log('stopping machine', autoMachineName);
   await execPromise(getPodmanCli(), ['machine', 'stop', autoMachineName]);
 }
 
-export function deactivate(): void {
+export async function deactivate(): Promise<void> {
   stopLoop = true;
   console.log('stopping podman extension');
-  stopAutoStartedMachine().then(() => {
+  await stopAutoStartedMachine().then(() => {
     if (autoMachineStarted) {
       console.log('stopped autostarted machine', autoMachineName);
     }

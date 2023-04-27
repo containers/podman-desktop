@@ -152,8 +152,13 @@ async function createWindow() {
     }
   });
 
+  let destroyed = false;
   app.on('before-quit', () => {
+    if (destroyed) {
+      return;
+    }
     browserWindow.destroy();
+    destroyed = true;
   });
 
   contextMenu({
