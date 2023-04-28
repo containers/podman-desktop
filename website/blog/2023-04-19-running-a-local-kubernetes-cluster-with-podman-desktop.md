@@ -139,12 +139,16 @@ This is functionally equivalent to the `redis-leader` deployment that the Kubern
 1. Click **<icon icon="fa-solid fa-stop" size="lg" />** to stop the container, and leave the `6379` port available for the Redis follower container.
 
 1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
+
    1. **Pod Name**: type `redis-leader`.
    1. **Use Kubernetes Services**: select **Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use hostPort.**
+   1. **Expose service locally using Kubernetes Ingress**: deselect **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
    1. **Kubernetes namespaces**: select `default`.
    1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
    1. Wait for the pod to reach the state: **Phase: Running**.
    1. Click **Done**.
+
+   ![Deploy generated `redis-leader` pod to Kubernetes ](img/running-a-local-kubernetes-cluster-with-podman-desktop/deploy-generated-redis-leader-pod-to-kubernetes.png)
 
 #### Verification
 
@@ -156,7 +160,7 @@ This is functionally equivalent to the `redis-leader` deployment that the Kubern
 
 Although the Redis leader is a single Pod, you can make it highly available and meet traffic demands by adding a few Redis followers, or replicas.
 
-With Podman Desktop, you can prepare the Redis follower image and container on your local container engine, and deploy the results to Kubernetes pods and services.
+**With Podman Desktop, you can prepare the Redis follower image and container on your local container engine, and deploy the results to Kubernetes pods and services.**
 This is functionally equal to the `redis-follower` deployment that the Kubernetes example propose.
 
 #### Procedure
@@ -177,6 +181,7 @@ This is functionally equal to the `redis-follower` deployment that the Kubernete
 1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
    1. **Pod Name**: type `redis-follower`.
    1. **Use Kubernetes Services**: select **Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use hostPort.**
+   1. **Expose service locally using Kubernetes Ingress**: deselect **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
    1. **Kubernetes namespaces**: select `default`.
    1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
    1. Wait for the pod to reach the state: **Phase: Running**.
@@ -220,6 +225,7 @@ This is functionally equal to the `frontend` deployment that the Kubernetes exam
 1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
    1. **Pod Name**: type `frontend`.
    1. **Use Kubernetes Services**: select **Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use hostPort.**
+   1. **Expose service locally using Kubernetes Ingress**: select **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
    1. **Kubernetes namespaces**: select `default`.
    1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
    1. Wait for the pod to reach the state: **Phase: Running**.
@@ -227,46 +233,8 @@ This is functionally equal to the `frontend` deployment that the Kubernetes exam
 
 #### Verification
 
-- The **<icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `frontend` pod.
+1. The **<icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `frontend` pod.
 
-  ![`frontend` pod is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/frontend-pod-is-running.png)
+   ![`frontend` pod is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/frontend-pod-is-running.png)
 
-## Exposing the Guestbook frontend service
-
-You installed Kind with the Ingress controller.
-Use Ingress to expose the Guestbook frontend.
-
-#### Procedure
-
-1. Create a `frontend-ingress.yaml` file:
-
-   ```yaml
-   apiVersion: networking.k8s.io/v1
-   kind: Ingress
-   metadata:
-     name: frontend-ingress
-     annotations:
-       nginx.ingress.kubernetes.io/rewrite-target: /
-   spec:
-     rules:
-       - http:
-           paths:
-             - pathType: Prefix
-               path: /
-               backend:
-                 service:
-                   name: frontend-9000
-                   port:
-                     number: 9000
-   ```
-
-1. Deploy the Ingress:
-
-   ```shell-session
-   $ kubectl apply -f frontend-ingress.yaml
-   ```
-
-#### Verification
-
-1. Go to `http://localhost`
-1. The Guestbook application is running
+1. Go to `http://localhost`: the Guestbook application is running.
