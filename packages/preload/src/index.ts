@@ -1282,6 +1282,10 @@ function initExposure(): void {
       resolveCallback();
     }
   });
+
+  contextBridge.exposeInMainWorld('getPodmanDesktopVersion', async (): Promise<string> => {
+    return ipcInvoke('app:getVersion');
+  });
 }
 
 // expose methods
