@@ -367,10 +367,10 @@ function updateKubeResult() {
             id="createIngress"
             class=""
             required />
-          <span class="text-gray-300 text-sm ml-1"
-            >Create a Kubernetes ingress to get access to the exposed ports of this pod. An ingress controller is
-            required on your cluster. This ingress will be created at the default Ingress Controller location (example
-            Podman kind setup: localhost:9090)</span>
+          <span class="text-gray-300 text-sm ml-1">
+            Create an Ingress to get access to the local ports exposed, at the default Ingress Controller location.
+            Example: On default kind cluster created with Podman Desktop, it will be accessible at 'localhost:9090'.
+            Requirements: Your cluster must have an Ingress Controller.</span>
         </div>
       {/if}
 
