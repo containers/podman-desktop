@@ -6,9 +6,13 @@ import 'xterm/css/xterm.css';
 import { getPanelDetailColor } from '../color/color';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
+import { writeToTerminal } from './Util';
+import type { ConnectionCallback } from './preferences-connection-rendering-task';
+import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 
 export let providerInternalId: string = undefined;
 export let connection: string = undefined;
+export let containerConnectioniInfo: ProviderContainerConnectionInfo = undefined;
 export let logsTerminal: Terminal;
 export let setNoLogs: () => void;
 export let noLog: boolean;
@@ -52,6 +56,7 @@ async function refreshTerminal() {
     }
   });
   termFit.fit();
+
 }
 
 onMount(async () => {
@@ -64,7 +69,21 @@ onMount(async () => {
 
   // Observe the terminal div
   resizeObserver.observe(logsXtermDiv);
+  const logHandler = getLoggerHandler();
+  window.startReceiveLogs(providerInternalId, logHandler, logHandler, logHandler, containerConnectioniInfo);
 });
+
+function getLoggerHandler(): ConnectionCallback {
+  const logHandler = (newContent: any[], colorPrefix: string) => {
+    writeToTerminal(logsTerminal, newContent, colorPrefix);
+  };
+  return {
+    log: data => logHandler(data, '\x1b[37m'),
+    warn: data => logHandler(data, '\x1b[37m'),
+    error: data => logHandler(data, '\x1b[37m'),
+    onEnd: () => {},
+  };
+}
 
 onDestroy(() => {
   // Cleanup the observer on destroy

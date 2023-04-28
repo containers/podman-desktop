@@ -308,7 +308,7 @@ declare module '@podman-desktop/api' {
    * It can be turned off/on by the user.
    */
   export interface ProviderAutostart {
-    start(logger: Logger): Promise<void>;
+    start(logger?: Logger): Promise<void>;
   }
 
   export type ProviderLinks = Link;

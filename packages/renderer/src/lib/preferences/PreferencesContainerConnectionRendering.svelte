@@ -226,6 +226,7 @@ function setNoLogs() {
         <PreferencesConnectionDetailsLogs
           connection="{connection}"
           providerInternalId="{providerInternalId}"
+          containerConnectioniInfo="{connectionInfo}"
           logsTerminal="{logsTerminal}"
           setNoLogs="{setNoLogs}"
           noLog="{noLog}" />
