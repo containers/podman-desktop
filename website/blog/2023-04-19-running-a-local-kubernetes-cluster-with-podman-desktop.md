@@ -237,4 +237,4 @@ This is functionally equal to the `frontend` deployment that the Kubernetes exam
 
    ![`frontend` pod is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/frontend-pod-is-running.png)
 
-1. Go to `http://localhost`: the Guestbook application is running.
+1. Go to `http://localhost:9090`: the Guestbook application is running.
