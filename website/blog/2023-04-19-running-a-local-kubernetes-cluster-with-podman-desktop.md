@@ -65,13 +65,13 @@ Podman Desktop helps you installing Podman and initializing a Podman machine:
 1. Podman displays the dialog: _Podman is not installed on this system, would you like to install Podman?_. Click on **Yes** to install Podman.
 1. Click on **Initialize and start**.
 
-Now you can start working with containers.
+#### Verification
 
-#### Additional resources
+- The **Dashboard** displays _Podman is running_.
 
-- [Installing Podman on Windows](/docs/Installation/windows-install/installing-podman-with-podman-desktop)
-- [Installing Podman on macOS](/docs/installation/macos-install)
-- [Installing Podman on Linux](https://podman.io/getting-started/installation#installing-on-linux)
+  ![Podman is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/podman-is-running.png)
+
+  Now you can start working with containers.
 
 ## Installing and starting your local Kubernetes provider: Kind
 
@@ -99,9 +99,18 @@ Podman Desktop helps you [installing the `kind` CLI](/docs/kubernetes/kind/insta
    1. **Setup an ingress controller**: `Enabled`
    1. Click the **Create** button.
 1. After successful creation, click on the **Go back to resources** button
+
+#### Verification
+
+1. In **Settings > Resources** your Kind cluster is running/
+
+   ![Kind cluster is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/kind-cluster-is-running.png)
+
 1. In the **Podman Desktop** tray, open the **Kubernetes** menu: you can set the context to your Kind cluster: `kind-kind-cluster`.
 
-Now you can start working with containers, and your local Kubernetes cluster.
+   ![Kind cluster Kubernetes context in the tray](img/running-a-local-kubernetes-cluster-with-podman-desktop/kind-cluster-context-in-the-tray.png)
+
+   Now you can start working with containers, and your local Kubernetes cluster.
 
 #### Additional resources
 
@@ -139,8 +148,9 @@ This is functionally equivalent to the `redis-leader` deployment that the Kubern
 
 #### Verification
 
-1. Open **<icon icon="fa-solid fa-cubes" size="lg" /> Pods**
-1. The pods list has a running `redis-leader` pod.
+- The **<icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `redis-leader` pod.
+
+  ![`redis-leader` pod is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/redis-leader-pod-is-running.png)
 
 ## Starting the Redis followers
 
@@ -175,15 +185,9 @@ This is functionally equal to the `redis-follower` deployment that the Kubernete
 
 #### Verification
 
-1. Open **<icon icon="fa-solid fa-cubes" size="lg" /> Pods**
-1. The pods list has a running `redis-follower` pod.
+- The **<icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `redis-follower` pods.
 
-#### Known issue
-
-Currently, you need a workaround to increase the replicas with Podman Desktop. The team in working on an impromvement:
-
-- [Create a deployment rather than a pod](https://github.com/containers/podman-desktop/issues/1323)
-- [Configure `replicas` count](https://github.com/containers/podman-desktop/issues/2210)
+  ![`redis-follower` pods are running](img/running-a-local-kubernetes-cluster-with-podman-desktop/redis-follower-pods-are-running.png)
 
 ## Starting the default frontend
 
@@ -223,8 +227,9 @@ This is functionally equal to the `frontend` deployment that the Kubernetes exam
 
 #### Verification
 
-1. Open **<icon icon="fa-solid fa-cubes" size="lg" /> Pods**
-1. The pods list has a running `frontend` pod.
+- The **<icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `frontend` pod.
+
+  ![`frontend` pod is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/frontend-pod-is-running.png)
 
 ## Exposing the Guestbook frontend service
 
