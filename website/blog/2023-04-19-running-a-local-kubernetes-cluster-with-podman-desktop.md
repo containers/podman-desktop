@@ -148,13 +148,13 @@ This is functionally equal to the `redis-leader` deployment that the Kubernetes 
    1. Wait for the pod to reach the state: **Phase: Running**.
    1. Click **Done**.
 
-   ![Deploy generated `redis-leader` pod to Kubernetes](img/running-a-local-kubernetes-cluster-with-podman-desktop/deploy-generated-redis-leader-pod-to-kubernetes.png)
+   ![Deploy generated pod to Kubernetes](img/running-a-local-kubernetes-cluster-with-podman-desktop/deploy-generated-leader-pod-to-kubernetes.png)
 
 #### Verification
 
 - The **<icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `redis-leader` pod.
 
-  ![`redis-leader` pod is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/redis-leader-pod-is-running.png)
+  ![leader pod is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/leader-pod-is-running.png)
 
 ## Starting the Redis followers
 
@@ -192,7 +192,7 @@ This is functionally equal to the `redis-follower` deployment that the Kubernete
 
 - The **<icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `redis-follower` pods.
 
-  ![`redis-follower` pods are running](img/running-a-local-kubernetes-cluster-with-podman-desktop/redis-follower-pods-are-running.png)
+  ![follower pods are running](img/running-a-local-kubernetes-cluster-with-podman-desktop/follower-pods-are-running.png)
 
 ## Starting the default frontend
 
