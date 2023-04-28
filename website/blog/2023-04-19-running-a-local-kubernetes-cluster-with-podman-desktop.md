@@ -30,15 +30,9 @@ You need Podman Desktop.
 1. Go to [Podman Desktop installation documentation](/docs/Installation).
 1. Click on your platform name: [Windows](/docs/installation/windows-install), [macOS](/docs/installation/macos-install), or [Linux](/docs/installation/linux-install).
 1. Follow the instructions. Stick to the default installation method.
-1. Start **Podman Desktop**
+1. Start **Podman Desktop**.
 
 Now you have a graphical user interface to control your container engine.
-
-#### Additional resources
-
-- [Installing Podman Desktop on Windows](/docs/installation/windows-install)
-- [Installing Podman Desktop on macOS](/docs/installation/macos-install)
-- [Installing Podman Desktop on Linux](/docs/installation/linux-install).
 
 ## Installing and initializing your container engine: Podman
 
@@ -60,7 +54,8 @@ Consider installing the Podman container engine for:
 On Linux, you can install Podman natively.
 See: [Installing Podman on Linux](https://podman.io/getting-started/installation#installing-on-linux).
 
-On macOS and Windows, Podman requires to run in a virtual machine.
+Containers are a Linux technology.
+On macOS and Windows, Podman requires to run in a Linux virtual machine.
 Podman Desktop helps you installing Podman and initializing a Podman machine:
 
 1. Open Podman Desktop **Dashboard**
@@ -68,7 +63,7 @@ Podman Desktop helps you installing Podman and initializing a Podman machine:
 1. Click on **Install**.
 1. Podman Desktop checks the prerequisites to install Podman Engine. When necessary, follow the instructions to install prerequisites.
 1. Podman displays the dialog: _Podman is not installed on this system, would you like to install Podman?_. Click on **Yes** to install Podman.
-1. Click on **Initialize Podman**.
+1. Click on **Initialize and start**.
 
 Now you can start working with containers.
 
@@ -87,7 +82,7 @@ Podman Desktop can help you run Kind-powered local Kubernetes clusters on a cont
 Podman Desktop helps you [installing the `kind` CLI](/docs/kubernetes/kind/installing-kind):
 
 1. In the status bar, click on **Kind**, and follow the prompts.
-1. On Windows, [configure Podman in rootless mode](docs/kubernetes/kind/configuring-podman-for-kind-on-windows)
+1. On Windows, [configure Podman in rootful mode](docs/kubernetes/kind/configuring-podman-for-kind-on-windows)
 
    ```shell-session
    $ podman system connection default podman-machine-default-root
@@ -114,7 +109,7 @@ Now you can start working with containers, and your local Kubernetes cluster.
 
 ## Starting the Redis leader
 
-The guestbook application uses Redis to store its data.
+The Guestbook application uses Redis to store its data.
 
 With Podman Desktop, you can prepare the Redis leader image and container on your local container engine, and deploy the results to a Kubernetes pod and service.
 This is functionally equivalent to the `redis-leader` deployment that the Kubernetes example propose.
@@ -137,7 +132,7 @@ This is functionally equivalent to the `redis-leader` deployment that the Kubern
 1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
    1. **Pod Name**: type `redis-leader`.
    1. **Use Kubernetes Services**: select **Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use hostPort.**
-   1. **Kubernetes namespaces**: select `guestbook`.
+   1. **Kubernetes namespaces**: select `default`.
    1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
    1. Wait for the pod to reach the state: **Phase: Running**.
    1. Click **Done**.
@@ -172,7 +167,7 @@ This is functionally equal to the `redis-follower` deployment that the Kubernete
 1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
    1. **Pod Name**: type `redis-follower`.
    1. **Use Kubernetes Services**: select **Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use hostPort.**
-   1. **Kubernetes namespaces**: select `guestbook`.
+   1. **Kubernetes namespaces**: select `default`.
    1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
    1. Wait for the pod to reach the state: **Phase: Running**.
    1. Click **Done**.
@@ -190,12 +185,12 @@ Currently, you need a workaround to increase the replicas with Podman Desktop. T
 - [Create a deployment rather than a pod](https://github.com/containers/podman-desktop/issues/1323)
 - [Configure `replicas` count](https://github.com/containers/podman-desktop/issues/2210)
 
-## Starting the Guestbook frontend
+## Starting the default frontend
 
-Now that you have the Redis storage of your guestbook up and running, start the guestbook web servers.
+Now that you have the Redis storage of your Guestbook up and running, start the Guestbook web servers.
 Like the Redis followers, the frontend is deployed using Kubernetes pods and services.
 
-The guestbook app uses a PHP frontend.
+The Guestbook app uses a PHP frontend.
 It is configured to communicate with either the Redis follower or leader Services, depending on whether the request is a read or a write.
 The frontend exposes a JSON interface, and serves a jQuery-Ajax-based UX.
 
@@ -233,7 +228,7 @@ This is functionally equal to the `frontend` deployment that the Kubernetes exam
 
 ## Exposing the Guestbook frontend service
 
-Podman Desktop installs Kind with the Contour Ingress controller.
+You installed Kind with the Ingress controller.
 Use Ingress to expose the Guestbook frontend.
 
 #### Procedure
