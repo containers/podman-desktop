@@ -1,0 +1,25 @@
+{
+  "//": "Fake digest with both amd64 and arm64 being the same digest",
+  "mediaType": "application/vnd.oci.image.index.v1+json",
+  "schemaVersion": 2,
+  "manifests": [
+    {
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "digest": "sha256:791352c5f8969387d576cae0586f24a12e716db584c117a15a6138812ddbaef0",
+      "size": 1236,
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      }
+    },
+    {
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "digest": "sha256:791352c5f8969387d576cae0586f24a12e716db584c117a15a6138812ddbaef0",
+      "size": 1236,
+      "platform": {
+        "architecture": "arm64",
+        "os": "linux"
+      }
+    }
+  ]
+}

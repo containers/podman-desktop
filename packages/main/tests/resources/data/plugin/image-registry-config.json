@@ -1,0 +1,60 @@
+{
+  "architecture": "arm64",
+  "config": {
+    "Env": ["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"],
+    "WorkingDir": "/",
+    "Labels": {
+      "io.podman-desktop.api.version": "\u003e= 0.12.0",
+      "org.opencontainers.image.description": "Allows the ability to start and stop OpenShift Local and use Podman Desktop to interact with it",
+      "org.opencontainers.image.title": "OpenShift Local",
+      "org.opencontainers.image.vendor": "podman-desktop"
+    },
+    "OnBuild": null
+  },
+  "created": "2023-04-27T06:11:21.889865612Z",
+  "history": [
+    {
+      "created": "2023-04-27T06:11:21.77240614Z",
+      "created_by": "LABEL org.opencontainers.image.title=OpenShift Local org.opencontainers.image.description=Allows the ability to start and stop OpenShift Local and use Podman Desktop to interact with it org.opencontainers.image.vendor=podman-desktop io.podman-desktop.api.version=\u003e= 0.12.0",
+      "comment": "buildkit.dockerfile.v0",
+      "empty_layer": true
+    },
+    {
+      "created": "2023-04-27T06:11:21.77240614Z",
+      "created_by": "COPY package.json /extension/ # buildkit",
+      "comment": "buildkit.dockerfile.v0"
+    },
+    {
+      "created": "2023-04-27T06:11:21.826017957Z",
+      "created_by": "COPY LICENSE /extension/ # buildkit",
+      "comment": "buildkit.dockerfile.v0"
+    },
+    {
+      "created": "2023-04-27T06:11:21.84190407Z",
+      "created_by": "COPY README.md /extension/ # buildkit",
+      "comment": "buildkit.dockerfile.v0"
+    },
+    {
+      "created": "2023-04-27T06:11:21.865956692Z",
+      "created_by": "COPY icon.png /extension/ # buildkit",
+      "comment": "buildkit.dockerfile.v0"
+    },
+    {
+      "created": "2023-04-27T06:11:21.889865612Z",
+      "created_by": "COPY dist /extension/dist # buildkit",
+      "comment": "buildkit.dockerfile.v0"
+    }
+  ],
+  "moby.buildkit.buildinfo.v1": "eyJmcm9udGVuZCI6ImRvY2tlcmZpbGUudjAifQ==",
+  "os": "linux",
+  "rootfs": {
+    "type": "layers",
+    "diff_ids": [
+      "sha256:e0b17f06c57c628aa7fee5129869f2036e4025e9f1a579e15652c1145a9869ef",
+      "sha256:f8d5ae6d33ae486fa5c13001a5d1e597c9fa2bc98933db0ae3885dfdc8f8e569",
+      "sha256:b977fadbae132aea8aabdb6410912f2df3103cc9edd3774b69456768c256f129",
+      "sha256:e96a01dd861180049e258943e53c3d31b6e5346817c4d5f14e16b27527d7fd80",
+      "sha256:06ff59acf251c6321a61811923365976d0785a645b0e081f7f4c1b2b9dc44a68"
+    ]
+  }
+}
