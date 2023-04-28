@@ -34,4 +34,4 @@ interface CreateConnectionInfo {
 }
 
 // current create key
-export const createConnectionsInfo: Writable<Map<string, CreateConnectionInfo>> = writable(new Map());
+export const createConnectionsInfo: Writable<Map<number, CreateConnectionInfo>> = writable(new Map());

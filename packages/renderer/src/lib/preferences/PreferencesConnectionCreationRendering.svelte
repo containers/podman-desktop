@@ -32,6 +32,7 @@ export let callback: (
   collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
   tokenId?: number,
 ) => Promise<void>;
+export let taskId: number = undefined;
 
 $: configurationValues = new Map<string, string>();
 let creationInProgress = false;
@@ -99,8 +100,8 @@ onMount(async () => {
   // check if we have an existing create action
   const createConnectionInfoMap = get(createConnectionsInfo);
 
-  if (createConnectionInfoMap && createConnectionInfoMap.has(providerInfo.name)) {
-    const value = createConnectionInfoMap.get(providerInfo.name);
+  if (taskId && createConnectionInfoMap && createConnectionInfoMap.has(taskId)) {
+    const value = createConnectionInfoMap.get(taskId);
     loggerHandlerKey = value.createKey;
     providerInfo = value.providerInfo;
     properties = value.properties;
@@ -112,6 +113,9 @@ onMount(async () => {
     errorMessage = value.errorMessage;
     creationSuccessful = value.creationSuccessful;
     tokenId = value.tokenId;
+  }
+  if (taskId === undefined) {
+    taskId = createConnectionInfoMap.size + 1;
   }
 });
 
@@ -195,7 +199,7 @@ async function cleanup() {
 // store the key
 function updateStore() {
   createConnectionsInfo.update(map => {
-    map.set(providerInfo.name, {
+    map.set(taskId, {
       createKey: loggerHandlerKey,
       providerInfo,
       properties,
@@ -232,7 +236,7 @@ async function handleOnSubmit(e) {
     logsTerminal?.clear();
     loggerHandlerKey = startTask(
       `Creating a ${providerInfo.name} provider`,
-      `/preferences/provider/${providerInfo.internalId}`,
+      `/preferences/provider-task/${providerInfo.internalId}/${taskId}`,
       getLoggerHandler(),
     );
     updateStore();

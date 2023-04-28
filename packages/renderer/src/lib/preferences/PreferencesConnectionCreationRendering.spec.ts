@@ -97,9 +97,8 @@ test('Expect create connection successfully', async () => {
 
   // do we have a task
   const currentConnectionInfoMap = get(createConnectionsInfo);
-
   expect(currentConnectionInfoMap).toBeDefined();
-  const currentConnectionInfo = currentConnectionInfoMap.get('test');
+  const currentConnectionInfo = currentConnectionInfoMap.values().next().value;
   expect(currentConnectionInfo.creationInProgress).toBeTruthy();
   expect(currentConnectionInfo.creationStarted).toBeTruthy();
   expect(currentConnectionInfo.creationSuccessful).toBeFalsy();
@@ -121,9 +120,8 @@ test('Expect create connection successfully', async () => {
 
   // expect it is sucessful
   const currentConnectionInfoAfterMap = get(createConnectionsInfo);
-
   expect(currentConnectionInfoAfterMap).toBeDefined();
-  const currentConnectionInfoAfter = currentConnectionInfoAfterMap.get('test');
+  const currentConnectionInfoAfter = currentConnectionInfoAfterMap.get(2);
 
   expect(currentConnectionInfoAfter.creationInProgress).toBeFalsy();
   expect(currentConnectionInfoAfter.creationStarted).toBeTruthy();
@@ -162,7 +160,7 @@ test('Expect cancelling the creation, trigger the cancellation token', async () 
   const currentConnectionInfoMap = get(createConnectionsInfo);
 
   expect(currentConnectionInfoMap).toBeDefined();
-  const currentConnectionInfo = currentConnectionInfoMap.get('test');
+  const currentConnectionInfo = currentConnectionInfoMap.values().next().value;
 
   expect(currentConnectionInfo).toBeDefined();
   expect(currentConnectionInfo.creationInProgress).toBeTruthy();
