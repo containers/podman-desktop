@@ -8,14 +8,14 @@ Bundled extensions are located in the `/extensions` folder.
 
 When creating a new extension, import the extension API: `import * as extensionApi from '@podman-desktop/api';` 
 
-All functionality with Podman Desktop is communicated through this API including registering the new extension. The API is located [here](https://github.com/containers/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts).
+All functionality with Podman Desktop is communicated through the `extension-api`. The API is located [here](https://github.com/containers/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts).
 
 When loading an extension, Podman Desktop will:
 1. Search and load the JavaScript file specified in `main` entry of the `package.json` file in the extension directory (typically `extension.js`).
 2. Run the exported `activate` function.
 
 When unloading an extension, Podman Desktop will:
-1. Run the exported `deactivate` function.
+1. Run the (optional) exported `deactivate` function.
 2. Dispose of any resources that have been added to `extensionContext.subscriptions`, see `deactivateExtension` in [extension-loader.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/plugin/extension-loader.ts).
 
 #### Example boilerplate code
