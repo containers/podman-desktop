@@ -16,6 +16,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
+export let taskId: number = undefined;
 
 let showModal: ProviderInfo = undefined;
 
@@ -189,7 +190,8 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
         providerInfo="{providerInfo}"
         properties="{properties}"
         propertyScope="ContainerProviderConnectionFactory"
-        callback="{window.createContainerProviderConnection}" />
+        callback="{window.createContainerProviderConnection}"
+        taskId="{taskId}" />
     {/if}
 
     <!-- Create connection panel-->
@@ -198,7 +200,8 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
         providerInfo="{providerInfo}"
         properties="{properties}"
         propertyScope="KubernetesProviderConnectionFactory"
-        callback="{window.createKubernetesProviderConnection}" />
+        callback="{window.createKubernetesProviderConnection}"
+        taskId="{taskId}" />
     {/if}
   </div>
 </Route>

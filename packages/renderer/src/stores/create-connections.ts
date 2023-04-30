@@ -21,8 +21,7 @@ import { writable } from 'svelte/store';
 import type { IConfigurationPropertyRecordedSchema } from '../../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../../main/src/plugin/api/provider-info';
 
-// current create key
-export const createConnectionsInfo: Writable<{
+interface CreateConnectionInfo {
   createKey: symbol;
   providerInfo: ProviderInfo;
   properties: IConfigurationPropertyRecordedSchema[];
@@ -31,4 +30,8 @@ export const createConnectionsInfo: Writable<{
   creationSuccessful: boolean;
   creationStarted: boolean;
   errorMessage: string;
-}> = writable();
+  tokenId?: number;
+}
+
+// current create key
+export const createConnectionsInfo: Writable<Map<number, CreateConnectionInfo>> = writable(new Map());

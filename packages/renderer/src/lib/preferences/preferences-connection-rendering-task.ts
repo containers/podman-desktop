@@ -88,7 +88,7 @@ export function clearCreateTask(key: symbol): void {
   taskLogOnHolds.delete(key);
   taskLogReplays.delete(key);
   // remove current create
-  createConnectionsInfo.set(undefined);
+  createConnectionsInfo.set(new Map());
 
   // remove the task
   const task = allTasks.get(key);

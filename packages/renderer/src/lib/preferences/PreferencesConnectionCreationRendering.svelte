@@ -32,6 +32,7 @@ export let callback: (
   collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
   tokenId?: number,
 ) => Promise<void>;
+export let taskId: number = undefined;
 
 $: configurationValues = new Map<string, string>();
 let creationInProgress = false;
@@ -62,7 +63,6 @@ $: if (logsTerminal) {
 }
 
 onMount(async () => {
-  cleanup();
   osMemory = await window.getOsMemory();
   osCpu = await window.getOsCpu();
   osFreeDisk = await window.getOsFreeDiskSize();
@@ -98,9 +98,10 @@ onMount(async () => {
   pageIsLoading = false;
 
   // check if we have an existing create action
-  const value = get(createConnectionsInfo);
+  const createConnectionInfoMap = get(createConnectionsInfo);
 
-  if (value) {
+  if (taskId && createConnectionInfoMap && createConnectionInfoMap.has(taskId)) {
+    const value = createConnectionInfoMap.get(taskId);
     loggerHandlerKey = value.createKey;
     providerInfo = value.providerInfo;
     properties = value.properties;
@@ -111,6 +112,10 @@ onMount(async () => {
     creationStarted = value.creationStarted;
     errorMessage = value.errorMessage;
     creationSuccessful = value.creationSuccessful;
+    tokenId = value.tokenId;
+  }
+  if (taskId === undefined) {
+    taskId = createConnectionInfoMap.size + 1;
   }
 });
 
@@ -180,7 +185,6 @@ async function cleanup() {
     clearCreateTask(loggerHandlerKey);
     loggerHandlerKey = undefined;
   }
-
   errorMessage = undefined;
   showLogs = false;
   creationInProgress = false;
@@ -194,15 +198,19 @@ async function cleanup() {
 
 // store the key
 function updateStore() {
-  createConnectionsInfo.set({
-    createKey: loggerHandlerKey,
-    providerInfo,
-    properties,
-    propertyScope,
-    creationInProgress,
-    creationSuccessful,
-    creationStarted,
-    errorMessage,
+  createConnectionsInfo.update(map => {
+    map.set(taskId, {
+      createKey: loggerHandlerKey,
+      providerInfo,
+      properties,
+      propertyScope,
+      creationInProgress,
+      creationSuccessful,
+      creationStarted,
+      errorMessage,
+      tokenId,
+    });
+    return map;
   });
 }
 
@@ -228,7 +236,7 @@ async function handleOnSubmit(e) {
     logsTerminal?.clear();
     loggerHandlerKey = startTask(
       `Creating a ${providerInfo.name} provider`,
-      `/preferences/provider/${providerInfo.internalId}`,
+      `/preferences/provider-task/${providerInfo.internalId}/${taskId}`,
       getLoggerHandler(),
     );
     updateStore();
