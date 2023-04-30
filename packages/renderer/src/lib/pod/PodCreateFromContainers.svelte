@@ -156,7 +156,7 @@ function updatePortExposure(port: number, checked: boolean) {
       <div class="w-4/5 min-w-[500px]">
         {#if podCreation}
           <div class="mb-2">
-            <span class="block text-sm font-medium rounded text-gray-400 dark:text-gray-400">Name of the pod:</span>
+            <span class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400">Name of the pod:</span>
           </div>
           <div class="mb-4">
             <input
@@ -170,7 +170,7 @@ function updatePortExposure(port: number, checked: boolean) {
           </div>
 
           <div class="mb-2">
-            <span class="block text-sm font-medium rounded text-gray-400 dark:text-gray-400" aria-label="Containers"
+            <span class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400" aria-label="Containers"
               >Containers to replicate to the pod:</span>
           </div>
           <div class="max-w-full bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
@@ -187,7 +187,7 @@ function updatePortExposure(port: number, checked: boolean) {
           {#if mapPortExposed.size > 0}
             <div class="mb-2">
               <span
-                class="block text-sm font-medium rounded text-gray-400 dark:text-gray-400"
+                class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400"
                 aria-label="Exposed ports">All selected ports will be exposed:</span>
             </div>
             <div class="bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
