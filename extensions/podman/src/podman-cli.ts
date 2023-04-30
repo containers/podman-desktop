@@ -117,6 +117,7 @@ export function execPromise(
       stdErr += data;
       options?.context?.log.warn(data);
       options?.logger?.warn(data);
+      options?.context?.log.warn(data);
     });
 
     process.on('close', exitCode => {

@@ -1,28 +1,26 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import type { Terminal } from 'xterm';
+import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
 import { getPanelDetailColor } from '../color/color';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import { writeToTerminal } from './Util';
-import type { ConnectionCallback } from './preferences-connection-rendering-task';
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type {
+  ProviderContainerConnectionInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../../../main/src/plugin/api/provider-info';
+import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
 export let providerInternalId: string = undefined;
 export let connection: string = undefined;
-export let containerConnectioniInfo: ProviderContainerConnectionInfo = undefined;
-export let logsTerminal: Terminal;
+export let connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo = undefined;
 export let setNoLogs: () => void;
 export let noLog: boolean;
+let logsTerminal: Terminal;
 
 $: noLogs = !!noLog;
-
-logsTerminal.onLineFeed(() => {
-  setNoLogs();
-  noLogs = false;
-});
 
 // Log
 let logsXtermDiv: HTMLDivElement;
@@ -56,12 +54,32 @@ async function refreshTerminal() {
     }
   });
   termFit.fit();
-
 }
 
 onMount(async () => {
+  // grab font size
+  const fontSize = await window.getConfigurationValue<number>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
+  );
+  const lineHeight = await window.getConfigurationValue<number>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
+  );
+  logsTerminal = new Terminal({
+    fontSize,
+    lineHeight,
+    disableStdin: true,
+    theme: {
+      background: getPanelDetailColor(),
+    },
+    convertEol: true,
+  });
   // Refresh the terminal on initial load
   await refreshTerminal();
+
+  logsTerminal.onLineFeed(() => {
+    setNoLogs();
+    noLogs = false;
+  });
   // Resize the terminal each time we change the div size
   resizeObserver = new ResizeObserver(entries => {
     termFit?.fit();
@@ -69,21 +87,17 @@ onMount(async () => {
 
   // Observe the terminal div
   resizeObserver.observe(logsXtermDiv);
-  const logHandler = getLoggerHandler();
-  window.startReceiveLogs(providerInternalId, logHandler, logHandler, logHandler, containerConnectioniInfo);
-});
-
-function getLoggerHandler(): ConnectionCallback {
   const logHandler = (newContent: any[], colorPrefix: string) => {
     writeToTerminal(logsTerminal, newContent, colorPrefix);
   };
-  return {
-    log: data => logHandler(data, '\x1b[37m'),
-    warn: data => logHandler(data, '\x1b[37m'),
-    error: data => logHandler(data, '\x1b[37m'),
-    onEnd: () => {},
-  };
-}
+  window.startReceiveLogs(
+    providerInternalId,
+    data => logHandler(data, '\x1b[37m'),
+    data => logHandler(data, '\x1b[37m'),
+    data => logHandler(data, '\x1b[37m'),
+    connectionInfo,
+  );
+});
 
 onDestroy(() => {
   // Cleanup the observer on destroy

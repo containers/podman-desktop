@@ -25,19 +25,31 @@ import { test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
 import { Terminal } from 'xterm';
-
-const logsTerminal: Terminal = new Terminal();
+import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
 }));
 
+const containerConnection: ProviderContainerConnectionInfo = {
+  name: 'connection',
+  endpoint: {
+    socketPath: 'socket',
+  },
+  status: 'started',
+  type: 'podman',
+};
+
+beforeAll(() => {
+  (window as any).getConfigurationValue = vi.fn();
+  (window as any).startReceiveLogs = vi.fn();
+  Terminal.prototype.open = vi.fn();
+});
+
 test('Expect that the no logs view is displayed', async () => {
-  const existSyncSpy = vi.spyOn(logsTerminal, 'open');
-  existSyncSpy.mockImplementation(() => {});
-  await render(PreferencesConnectionDetailsLogs, {
-    logsTerminal,
+  render(PreferencesConnectionDetailsLogs, {
+    connectionInfo: containerConnection,
     setNoLogs: () => {
       // nothing
     },
@@ -48,10 +60,8 @@ test('Expect that the no logs view is displayed', async () => {
 });
 
 test('Expect that the terminal is displayed', async () => {
-  const existSyncSpy = vi.spyOn(logsTerminal, 'open');
-  existSyncSpy.mockImplementation(() => {});
-  await render(PreferencesConnectionDetailsLogs, {
-    logsTerminal,
+  render(PreferencesConnectionDetailsLogs, {
+    connectionInfo: containerConnection,
     setNoLogs: () => {
       // nothing
     },

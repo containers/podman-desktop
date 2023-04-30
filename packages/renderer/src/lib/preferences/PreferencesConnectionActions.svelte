@@ -20,7 +20,6 @@ export let updateConnectionStatus: (
   inProgress?: boolean,
 ) => void;
 export let addConnectionToRestartingQueue: (connection: IConnectionRestart) => void;
-export let loggerHandler: ConnectionCallback = undefined;
 $: connectionStatus = connectionStatuses;
 
 async function startConnectionProvider(
@@ -129,18 +128,14 @@ function getLoggerHandler(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
 ): ConnectionCallback {
-  if (loggerHandler) {
-    return loggerHandler;
-  } else {
-    return {
-      log: () => {},
-      warn: () => {},
-      error: args => {
-        updateConnectionStatus(provider, containerConnectionInfo, undefined, args);
-      },
-      onEnd: () => {},
-    };
-  }
+  return {
+    log: () => {},
+    warn: () => {},
+    error: args => {
+      updateConnectionStatus(provider, containerConnectionInfo, undefined, args);
+    },
+    onEnd: () => {},
+  };
 }
 </script>
 

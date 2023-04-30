@@ -77,6 +77,7 @@ export type ContainerConnectionProviderLifecycleListener = (
 export class ProviderRegistry {
   private count = 0;
   private providers: Map<string, ProviderImpl>;
+  private providerIdInternalIdMap: Map<string, string>;
   private providerStatuses = new Map<string, ProviderStatus>();
   private providerWarnings = new Map<string, ProviderInformation[]>();
 
@@ -129,6 +130,7 @@ export class ProviderRegistry {
     private telemetryService: Telemetry,
   ) {
     this.providers = new Map();
+    this.providerIdInternalIdMap = new Map();
     this.listeners = [];
     this.lifecycleListeners = [];
     this.containerConnectionLifecycleListeners = [];
@@ -172,6 +174,7 @@ export class ProviderRegistry {
     const providerImpl = new ProviderImpl(id, providerOptions, this, this.containerRegistry);
     this.count++;
     this.providers.set(id, providerImpl);
+    this.providerIdInternalIdMap.set(providerOptions.id, id);
     this.listeners.forEach(listener => listener('provider:create', this.getProviderInfo(providerImpl)));
     const trackOpts: { name: string; status: string; version?: string } = {
       name: providerOptions.name,

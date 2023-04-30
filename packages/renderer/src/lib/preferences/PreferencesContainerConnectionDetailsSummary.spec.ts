@@ -36,7 +36,7 @@ const containerConnection: ProviderContainerConnectionInfo = {
 };
 
 test('Expect that name and socket are displayed', async () => {
-  await render(PreferencesContainerConnectionDetailsSummary, {
+  render(PreferencesContainerConnectionDetailsSummary, {
     containerConnectionInfo: containerConnection,
   });
   const spanConnection = screen.getByLabelText('connection');

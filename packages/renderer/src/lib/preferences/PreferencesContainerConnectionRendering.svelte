@@ -10,7 +10,6 @@ import { getProviderConnectionName, writeToTerminal } from './Util';
 import type { IConnectionRestart, IConnectionStatus } from './Util';
 import Route from '../../Route.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
-import type { ConnectionCallback } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
@@ -18,9 +17,6 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import PreferencesContainerConnectionDetailsSummary from './PreferencesContainerConnectionDetailsSummary.svelte';
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
-import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
-import { Terminal } from 'xterm';
-import { getPanelDetailColor } from '../color/color';
 import Tab from '../ui/Tab.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
@@ -29,7 +25,6 @@ export let connection: string = undefined;
 
 const socketPath: string = Buffer.from(connection, 'base64').toString();
 $: connectionStatus = new Map<string, IConnectionStatus>();
-let logsTerminal: Terminal;
 let noLog = true;
 let connectionInfo: ProviderContainerConnectionInfo;
 let providerInfo: ProviderInfo;
@@ -42,22 +37,6 @@ $: configurationKeys = properties
 let providersUnsubscribe: Unsubscriber;
 onMount(async () => {
   noLog = true;
-  // grab font size
-  const fontSize = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
-  );
-  const lineHeight = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
-  );
-  logsTerminal = new Terminal({
-    fontSize,
-    lineHeight,
-    disableStdin: true,
-    theme: {
-      background: getPanelDetailColor(),
-    },
-    convertEol: true,
-  });
   providersUnsubscribe = providerInfos.subscribe(providerInfosValue => {
     const providers = providerInfosValue;
     providerInfo = providers.find(provider => provider.internalId === providerInternalId);
@@ -107,18 +86,6 @@ async function startContainerProvider(
     loggerHandlerKey,
     eventCollect,
   );
-}
-
-function getLoggerHandler(): ConnectionCallback {
-  const logHandler = (newContent: any[], colorPrefix: string) => {
-    writeToTerminal(logsTerminal, newContent, colorPrefix);
-  };
-  return {
-    log: data => logHandler(data, '\x1b[37m'),
-    warn: data => logHandler(data, '\x1b[37m'),
-    error: data => logHandler(data, '\x1b[37m'),
-    onEnd: () => {},
-  };
 }
 
 function updateConectionStatus(
@@ -195,8 +162,7 @@ function setNoLogs() {
                 connection="{connectionInfo}"
                 connectionStatuses="{connectionStatus}"
                 updateConnectionStatus="{updateConectionStatus}"
-                addConnectionToRestartingQueue="{addConnectionToRestartingQueue}"
-                loggerHandler="{getLoggerHandler()}" />
+                addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
             </div>
           </div>
         </div>
@@ -226,8 +192,7 @@ function setNoLogs() {
         <PreferencesConnectionDetailsLogs
           connection="{connection}"
           providerInternalId="{providerInternalId}"
-          containerConnectioniInfo="{connectionInfo}"
-          logsTerminal="{logsTerminal}"
+          connectionInfo="{connectionInfo}"
           setNoLogs="{setNoLogs}"
           noLog="{noLog}" />
       </Route>

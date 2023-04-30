@@ -35,7 +35,7 @@ const kubernetesConnection: ProviderKubernetesConnectionInfo = {
 };
 
 test('Expect that name and url are displayed', async () => {
-  await render(PreferencesKubernetesConnectionDetailsSummary, {
+  render(PreferencesKubernetesConnectionDetailsSummary, {
     kubernetesConnectionInfo: kubernetesConnection,
   });
   const spanConnection = screen.getByLabelText('connection');

@@ -723,7 +723,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       // ignore the update of machines
     }
     provider.registerAutostart({
-      start: async (logger) => {
+      start: async (logger: extensionApi.Logger) => {
         // do we have a running machine ?
         const isRunningMachine = Array.from(podmanMachinesStatuses.values()).find(
           connectionStatus => connectionStatus === 'started' || connectionStatus === 'starting',

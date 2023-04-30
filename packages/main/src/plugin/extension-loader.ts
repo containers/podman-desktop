@@ -63,8 +63,8 @@ import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo 
 import type { ViewRegistry } from './view-registry.js';
 import type { ContextRegistry } from './context-registry.js';
 
-import { LifecycleContextImpl } from './lifecycle-context';
-import { ProviderContainerConnectionInfo } from './api/provider-info';
+import type { LifecycleContextImpl } from './lifecycle-context';
+import type { ProviderContainerConnectionInfo } from './api/provider-info';
 /**
  * Handle the loading of an extension
  */
