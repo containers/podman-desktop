@@ -34,6 +34,7 @@ beforeAll(() => {
       CoreV1Api: {},
       AppsV1Api: {},
       CustomObjectsApi: {},
+      NetworkingV1Api: {},
     };
   });
 });
@@ -65,6 +66,20 @@ test('Create Kubernetes resources with apps/v1 resource should return ok', async
 
   await client.createResources('dummy', [{ apiVersion: 'apps/v1', kind: 'Deployment' }]);
   expect(createNamespacedDeploymentMock).toBeCalledWith('default', { apiVersion: 'apps/v1', kind: 'Deployment' });
+});
+
+test('Create Kubernetes resources with networking.k8s.io/v1 resource should return ok', async () => {
+  const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring);
+  const createNamespacedIngressMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    createNamespacedIngress: createNamespacedIngressMock,
+  });
+
+  await client.createResources('dummy', [{ apiVersion: 'networking.k8s.io/v1', kind: 'Ingress' }]);
+  expect(createNamespacedIngressMock).toBeCalledWith('default', {
+    apiVersion: 'networking.k8s.io/v1',
+    kind: 'Ingress',
+  });
 });
 
 test('Create Kubernetes resources with v1 resource in error should return error', async () => {

@@ -78,7 +78,7 @@ import { AutostartEngine } from './autostart-engine';
 import { CloseBehavior } from './close-behavior';
 import { TrayIconColor } from './tray-icon-color';
 import { KubernetesClient } from './kubernetes-client';
-import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '@kubernetes/client-node';
+import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service, V1Ingress } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type { NetworkInspectInfo } from './api/network-info';
 import { FilesystemMonitoring } from './filesystem-monitoring';
@@ -1340,6 +1340,13 @@ export class PluginSystem {
       'kubernetes-client:createService',
       async (_listener, namespace: string, service: V1Service): Promise<V1Service> => {
         return kubernetesClient.createService(namespace, service);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:createIngress',
+      async (_listener, namespace: string, ingress: V1Ingress): Promise<V1Ingress> => {
+        return kubernetesClient.createIngress(namespace, ingress);
       },
     );
 
