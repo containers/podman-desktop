@@ -319,8 +319,8 @@ function updateKubeResult() {
 </script>
 
 <NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
-  <div slot="empty" class="p-5 bg-zinc-700 h-full">
-    <div class="bg-zinc-800 h-full p-5">
+  <div slot="empty" class="p-5 bg-charcoal-700 h-full">
+    <div class="bg-charcoal-800 h-full p-5 rounded-lg">
       {#if kubeDetails}
         <p>Generated pod to deploy to Kubernetes:</p>
         <div class="h-1/3 pt-2">
@@ -330,19 +330,21 @@ function updateKubeResult() {
 
       {#if bodyPod}
         <div class="pt-2 pb-4">
-          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Pod Name:</label>
+          <label for="contextToUse" class="block mb-1 text-sm font-bold text-gray-400">Pod Name:</label>
           <input
             type="text"
             bind:value="{bodyPod.metadata.name}"
             name="podName"
             id="podName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-900 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
 
       <div class="pt-2 pb-4">
         <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Use Kubernetes Services:</label>
+      <div class="pt-2 m-2">
+        <label for="services" class="block mb-1 text-sm font-bold text-gray-400">Use Kubernetes Services:</label>
         <input
           type="checkbox"
           bind:checked="{deployUsingServices}"
@@ -406,14 +408,14 @@ function updateKubeResult() {
 
       {#if defaultContextName}
         <div class="pt-2">
-          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Context:</label>
+          <label for="contextToUse" class="block mb-1 text-sm font-bold text-gray-400">Kubernetes Context:</label>
           <input
             type="text"
             bind:value="{defaultContextName}"
             name="defaultContextName"
             id="defaultContextName"
             readonly
-            class="cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class="cursor-default w-full p-2 outline-none text-sm bg-charcoal-900 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
