@@ -166,7 +166,7 @@ validateImageName();
 {/if}
 
 {#if providerConnections.length > 0}
-  <div class="flex p-4 space-x-2">
+  <div class="flex p-4 gap-x-2 flex-row-reverse">
     <button on:click="{() => toggleAddARegistry()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-id-badge" aria-hidden="true"></i>
@@ -181,15 +181,15 @@ validateImageName();
       Manage registries
     </button>
   </div>
-  <hr />
 
   <div class="px-6 pt-2 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
     <h3 class="text-xl font-medium :text-white">Pull Image From a Registry</h3>
 
-    <form novalidate class="pf-c-form pf-m-horizontal-on-sm">
-      <div class="pf-c-form__group">
-        <div class="pf-c-form__group-label">
-          <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name">
+    <div class="bg-charcoal-800 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
+    <form novalidate class="pf-c-form pf-m-horizontal-on-sm w-full">
+      <div class="pf-c-form__group w-full">
+        <div class="pf-c-form__group-label w-full">
+          <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name w-full">
             <span class="pf-c-form__label-text">Image to Pull:</span>
             <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
           </label>
@@ -269,6 +269,7 @@ validateImageName();
         </div>
       </footer>
     </form>
+  </div>
   </div>
   <div bind:this="{pullLogsXtermDiv}"></div>
 {/if}
