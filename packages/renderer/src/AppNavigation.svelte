@@ -89,7 +89,7 @@ export let meta;
 
 <svelte:window />
 <nav
-  class="pf-c-nav z-0 group w-[54px] min-w-[54px] shadow flex flex-col justify-between overflow-hidden hover:overflow-y-auto"
+  class="pf-c-nav z-0 group w-[54px] min-w-[54px] flex flex-col justify-between overflow-hidden hover:overflow-y-auto"
   aria-label="Global">
   <ul class="pf-c-nav__list">
     <li
