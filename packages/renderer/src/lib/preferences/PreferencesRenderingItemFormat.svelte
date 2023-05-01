@@ -234,7 +234,7 @@ function handleCleanValue(
         value="{record.default}"
         aria-label="{record.description}"
         on:input="{event => handleRangeValue(record.id, event.currentTarget)}"
-        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs" />
+        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs mt-2" />
     {:else if record.type === 'number'}
       <div
         class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-zinc-900 w-24 border-b border-violet-500">
