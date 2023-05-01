@@ -355,9 +355,9 @@ function updateKubeResult() {
                       <span class="text-red-500">(Terminated)</span>
                     {/if}
                     {#if containerStatus.state?.waiting}
-                      <span class="text-yellow-500">(Waiting)</span>
+                      <span class="text-amber-500">(Waiting)</span>
                       {#if containerStatus.state.waiting.reason}
-                        <span class="text-yellow-500">[{containerStatus.state.waiting.reason}]</span>
+                        <span class="text-amber-500">[{containerStatus.state.waiting.reason}]</span>
                       {/if}
                     {/if}
                   </li>
