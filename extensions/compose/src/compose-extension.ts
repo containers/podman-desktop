@@ -152,44 +152,41 @@ export class ComposeExtension {
     const lastReleasesMetadata = await this.composeGitHubReleases.grabLatestsReleasesMetadata();
 
     // display a choice to the user with quickpick
-    let selectedRelease = await extensionApi.window.showQuickPick(lastReleasesMetadata, {
+    const selectedRelease = await extensionApi.window.showQuickPick(lastReleasesMetadata, {
       placeHolder: 'Select docker compose version to install',
     });
-    if (!selectedRelease) {
-      // user cancelled
-      selectedRelease = lastReleasesMetadata[0];
+    if (selectedRelease) {
+      // get asset id
+      const assetId = await this.composeGitHubReleases.getReleaseAssetId(selectedRelease.id, platform(), arch());
+
+      // get storage data
+      const storageData = await this.extensionContext.storagePath;
+      const storageBinFolder = path.resolve(storageData, 'bin');
+      if (!existsSync(storageBinFolder)) {
+        // create the folder
+        await promises.mkdir(storageBinFolder, { recursive: true });
+      }
+
+      // append file extension
+      let fileExtension = '';
+      if (this.os.isWindows()) {
+        fileExtension = '.exe';
+      }
+
+      // path
+      const dockerComposeDownloadLocation = path.resolve(storageBinFolder, `docker-compose${fileExtension}`);
+
+      // download the asset
+      await this.composeGitHubReleases.downloadReleaseAsset(assetId, dockerComposeDownloadLocation);
+
+      // make it executable
+      await this.makeExecutable(dockerComposeDownloadLocation);
+
+      extensionApi.window.showInformationMessage(`Docker Compose ${selectedRelease.label} installed`);
+
+      // update checks
+      this.runChecks(false);
     }
-
-    // get asset id
-    const assetId = await this.composeGitHubReleases.getReleaseAssetId(selectedRelease.id, platform(), arch());
-
-    // get storage data
-    const storageData = await this.extensionContext.storagePath;
-    const storageBinFolder = path.resolve(storageData, 'bin');
-    if (!existsSync(storageBinFolder)) {
-      // create the folder
-      await promises.mkdir(storageBinFolder, { recursive: true });
-    }
-
-    // append file extension
-    let fileExtension = '';
-    if (this.os.isWindows()) {
-      fileExtension = '.exe';
-    }
-
-    // path
-    const dockerComposeDownloadLocation = path.resolve(storageBinFolder, `docker-compose${fileExtension}`);
-
-    // download the asset
-    await this.composeGitHubReleases.downloadReleaseAsset(assetId, dockerComposeDownloadLocation);
-
-    // make it executable
-    await this.makeExecutable(dockerComposeDownloadLocation);
-
-    extensionApi.window.showInformationMessage(`Docker Compose ${selectedRelease.label} installed`);
-
-    // update checks
-    this.runChecks(false);
   }
 
   // add script that is redirecting to docker-compose and configuring the socket using DOCKER_HOST

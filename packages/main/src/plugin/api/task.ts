@@ -16,32 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export class TelemetryService {
-  private static instance: TelemetryService;
+export type TaskState = 'running' | 'completed';
+type TaskStatus = 'in-progress' | 'success' | 'failure';
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private constructor() {}
-
-  public static getService(): TelemetryService {
-    if (!TelemetryService.instance) {
-      TelemetryService.instance = new TelemetryService();
-    }
-
-    return TelemetryService.instance;
-  }
-
-  private handlerFlusher;
-
-  public handlePageOpen(pagePath: string) {
-    if (this.handlerFlusher !== undefined) {
-      clearTimeout(this.handlerFlusher);
-      this.handlerFlusher = undefined;
-    }
-
-    this.handlerFlusher = setTimeout(() => {
-      if (window.telemetryPage) {
-        window.telemetryPage(pagePath);
-      }
-    }, 200);
-  }
+export interface Task {
+  id: string;
+  name: string;
+  started: number;
+  state: TaskState;
+  status: TaskStatus;
+  progress?: number;
+  gotoTask?: () => void;
+  error?: string;
 }

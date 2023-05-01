@@ -20,6 +20,9 @@ export interface MessageBoxOptions {
   id: number;
   title: string;
   message: string;
-  buttons: string[];
+  detail?: string;
+  buttons?: string[];
   type?: string;
+  defaultId?: number;
+  cancelId?: number;
 }
