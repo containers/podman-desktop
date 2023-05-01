@@ -12,6 +12,7 @@
   "devDependencies": {
     "@fortawesome/free-brands-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
+    "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@patternfly/patternfly": "^4.224.2",
     "@sveltejs/vite-plugin-svelte": "^2.1.1",
     "@testing-library/jest-dom": "^5.16.5",
