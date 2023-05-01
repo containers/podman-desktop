@@ -16,6 +16,10 @@ async function stopExtension() {
 async function startExtension() {
   await window.startExtension(extensionInfo.id);
 }
+async function removeExtension() {
+  window.location.href = '#/preferences/extensions';
+  await window.removeExtension(extensionInfo.id);
+}
 </script>
 
 <SettingsPage title="{extensionInfo.displayName} Extension">
@@ -31,8 +35,8 @@ async function startExtension() {
           <ConnectionStatus status="{extensionInfo.state}" />
         </div>
 
-        <div class="py-2 flex flex:row">
-          <!-- start is enabled only in stopped mode-->
+        <div class="py-2 flex flex-row items-center">
+          <!-- start is enabled only when stopped -->
           <div class="px-2 text-sm italic text-gray-700">
             <button
               disabled="{extensionInfo.state !== 'stopped'}"
@@ -46,7 +50,7 @@ async function startExtension() {
             </button>
           </div>
 
-          <!-- stop is enabled only in started mode-->
+          <!-- stop is enabled only when started -->
           <div class="px-2 text-sm italic text-gray-700">
             <button
               disabled="{extensionInfo.state !== 'started'}"
@@ -59,6 +63,24 @@ async function startExtension() {
               Stop
             </button>
           </div>
+
+          <!-- delete is enabled only when stopped -->
+          {#if extensionInfo.removable}
+            <div class="px-2 text-sm italic text-gray-700">
+              <button
+                disabled="{extensionInfo.state !== 'stopped'}"
+                on:click="{() => removeExtension()}"
+                class="pf-c-button pf-m-primary"
+                type="button">
+                <span class="pf-c-button__icon pf-m-start">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+                </span>
+                Remove
+              </button>
+            </div>
+          {:else}
+            <div class="text-gray-900 items-center px-2 text-sm">Default extension, cannot be removed</div>
+          {/if}
         </div>
       </Route>
     {/if}
