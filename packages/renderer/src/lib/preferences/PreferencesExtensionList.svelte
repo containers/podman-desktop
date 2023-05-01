@@ -10,7 +10,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 
-let ociImage: string;
+export let ociImage: string = undefined;
 
 let installInProgress: boolean = false;
 let errorInstall: string = '';
@@ -47,7 +47,9 @@ async function installExtensionFromImage() {
 }
 
 afterUpdate(() => {
-  logElement.scroll({ top: logElement.scrollHeight, behavior: 'smooth' });
+  if (logElement.scroll) {
+    logElement.scroll({ top: logElement.scrollHeight, behavior: 'smooth' });
+  }
 });
 
 async function stopExtension(extension: ExtensionInfo) {
