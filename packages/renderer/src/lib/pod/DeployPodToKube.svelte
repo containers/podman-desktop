@@ -342,25 +342,22 @@ function updateKubeResult() {
       {/if}
 
       <div class="pt-2 pb-4">
-        <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Use Kubernetes Services:</label>
-        <div class="pt-2 m-2">
-          <label for="services" class="block mb-1 text-sm font-bold text-gray-400">Use Kubernetes Services:</label>
-          <input
-            type="checkbox"
-            bind:checked="{deployUsingServices}"
-            name="useServices"
-            id="useServices"
-            class=""
-            required />
-          <span class="text-gray-400 text-sm ml-1"
-            >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a
-            cluster policy may prevent to use hostPort.</span>
-        </div>
+        <label for="services" class="block mb-1 text-sm font-bold text-gray-300">Use Kubernetes Services:</label>
+        <input
+          type="checkbox"
+          bind:checked="{deployUsingServices}"
+          name="useServices"
+          id="useServices"
+          class=""
+          required />
+        <span class="text-gray-400 text-sm ml-1"
+          >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster
+          policy may prevent to use hostPort.</span>
 
         <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
         {#if !openshiftConsoleURL && deployUsingServices}
           <div class="pt-2 pb-4">
-            <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300"
+            <label for="ingress" class="block mb-1 text-sm font-bold text-gray-300"
               >Expose service locally using Kubernetes Ingress:</label>
             <input
               type="checkbox"
