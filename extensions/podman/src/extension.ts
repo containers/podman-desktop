@@ -454,6 +454,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     logo: './logo.png',
   };
 
+  const corePodmanEngineLinkGroup = 'Core Podman Engine';
+
   // add links
   providerOptions.links = [
     {
@@ -471,6 +473,26 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     {
       title: 'Join the community',
       url: 'https://podman.io/community/',
+    },
+    {
+      title: 'Getting started with containers',
+      url: 'https://podman.io/getting-started/',
+      group: corePodmanEngineLinkGroup,
+    },
+    {
+      title: 'View podman commands',
+      url: 'https://docs.podman.io/en/latest/Commands.html',
+      group: corePodmanEngineLinkGroup,
+    },
+    {
+      title: 'Set up podman',
+      url: 'https://podman.io/getting-started/installation',
+      group: corePodmanEngineLinkGroup,
+    },
+    {
+      title: 'View all tutorials',
+      url: 'https://docs.podman.io/en/latest/Tutorials.html',
+      group: corePodmanEngineLinkGroup,
     },
   ];
 
