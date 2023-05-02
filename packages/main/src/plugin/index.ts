@@ -1443,6 +1443,10 @@ export class PluginSystem {
       return telemetry.configureTelemetry();
     });
 
+    this.ipcHandle('app:getVersion', async (): Promise<string> => {
+      return app.getVersion();
+    });
+
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,

@@ -1,12 +1,8 @@
 <script lang="ts">
 import { onDestroy, onMount, tick } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
-import {
-  faCircleExclamation,
-  faTriangleExclamation,
-  faCircleInfo,
-  faCircleQuestion,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCircleQuestion, faCircle } from '@fortawesome/free-regular-svg-icons';
+import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import type { MessageBoxOptions } from './messagebox-input';
 
 let currentId = 0;
@@ -114,32 +110,37 @@ function handleKeydown(e: KeyboardEvent) {
 
 {#if display}
   <!-- Create overlay-->
-  <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 h-full grid z-50">
-    <div class="flex flex-col place-self-center w-[550px] rounded-xl bg-zinc-900 shadow-xl shadow-black">
-      <div class="flex items-center justify-between px-6 py-5 space-x-2">
+  <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 bg-blend-multiply h-full grid z-50">
+    <div class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black">
+      <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
         {#if type === 'error'}
-          <Fa class="h-4 w-4" icon="{faCircleExclamation}" />
+          <Fa class="h-4 w-4 text-red-500" icon="{faCircleExclamation}" />
         {:else if type === 'warning'}
-          <Fa class="h-4 w-4" icon="{faTriangleExclamation}" />
+          <Fa class="h-4 w-4 text-amber-400" icon="{faTriangleExclamation}" />
         {:else if type === 'info'}
-          <Fa class="h-4 w-4" icon="{faCircleInfo}" />
+          <div class="flex">
+            <Fa class="h-4 w-4 place-content-center" icon="{faCircle}" />
+            <Fa class="h-4 w-4 place-content-center -ml-4 mt-px text-xs" icon="{faInfo}" />
+          </div>
         {:else if type === 'question'}
           <Fa class="h-4 w-4" icon="{faCircleQuestion}" />
         {/if}
         <h1 class="grow text-lg font-bold capitalize">{title}</h1>
 
-        <button class="hover:text-gray-300 py-1" on:click="{() => clickButton(cancelId >= 0 ? cancelId : undefined)}">
+        <button
+          class="p-2 hover:text-gray-300 hover:bg-charcoal-500 rounded-full cursor-pointer"
+          on:click="{() => clickButton(cancelId >= 0 ? cancelId : undefined)}">
           <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </div>
 
-      <div class="px-10 py-4 text-sm leading-5">{message}</div>
+      <div class="px-10 py-4 text-sm text-gray-500 leading-5">{message}</div>
 
       {#if detail}
-        <div class="px-10 pb-4 text-sm leading-5">{detail}</div>
+        <div class="px-10 pb-4 text-sm text-gray-500 leading-5">{detail}</div>
       {/if}
 
-      <div class="px-6 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
+      <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
         {#each buttonOrder as i}
           {#if i == cancelId}
             <button aria-label="Cancel" class="text-xs hover:underline" on:click="{() => clickButton(i)}"

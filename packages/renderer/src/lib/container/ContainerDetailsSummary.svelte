@@ -22,7 +22,7 @@ export let container: ContainerInfoUI;
       <tr>
         <td class="pt-2 pr-2">Ports</td>
         <td class="pt-2 pr-2" class:hidden="{container.hasPublicPort}">N/A</td>
-        <td class="pt-2 pr-2" class:hidden="{!container.hasPublicPort}">{container.port}</td>
+        <td class="pt-2 pr-2" class:hidden="{!container.hasPublicPort}">{container.portsAsString}</td>
       </tr>
     </table>
   </div>
