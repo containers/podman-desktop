@@ -70,8 +70,8 @@ window.events?.receive('display-help', () => {
 </script>
 
 <Route path="/*" breadcrumb="Home" let:meta>
-  <main class="min-h-screen flex flex-col h-screen bg-zinc-900">
-    <header id="navbar" class="text-gray-700 bg-zinc-900 body-font" style="-webkit-app-region: drag;">
+  <main class="min-h-screen flex flex-col h-screen bg-charcoal-800">
+    <header id="navbar" class="text-gray-700 bg-charcoal-900 body-font" style="-webkit-app-region: drag;">
       <div class="flex mx-auto flex-row p-2 items-center">
         <div class="flex lg:w-2/5 flex-1 items-center text-base ml-auto"></div>
         <div
@@ -92,9 +92,9 @@ window.events?.receive('display-help', () => {
       {/if}
 
       <div
-        class="z-0 w-full h-full flex flex-col overflow-y-scroll"
-        class:bg-zinc-800="{!meta.url.startsWith('/preferences')}"
-        class:bg-zinc-900="{meta.url.startsWith('/preferences')}">
+        class="z-0 w-full h-full flex flex-col overflow-y-scroll;"
+        class:bg-charcoal-700="{!meta.url.startsWith('/preferences')}"
+        class:bg-charcoal-800="{meta.url.startsWith('/preferences')}">
         <TaskManager />
         <SendFeedback />
         <ToastHandler />
