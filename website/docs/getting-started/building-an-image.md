@@ -10,10 +10,9 @@ tags: [images]
 
 With Podman Desktop, you can build an image from a Containerfile on your container engine.
 
-
 #### Prerequisites
 
-* Your Containerfile: `Containerfile` or `Dockerfile`.
+- Your Containerfile: `Containerfile` or `Dockerfile`.
 
 #### Procedure
 
@@ -27,4 +26,4 @@ With Podman Desktop, you can build an image from a Containerfile on your contain
 #### Verification
 
 1. Open **Images**
-1. Your image *`<my_image>`* is in the list. 
+1. Your image _`<my_image>`_ is in the list.

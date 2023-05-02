@@ -12,16 +12,16 @@ On Windows, running the Podman container engine requires running a Linux distrib
 
 Consider installing the Podman Preset in OpenShift Local rather than [installing Podman with Podman Desktop](installing-podman-with-podman-desktop) when you require one of following:
 
-* No WSL 2
-* Full control on the HyperV virtual machine
-* User without administrator privileges
-* VPN
-* Windows 10
+- No WSL 2
+- Full control on the HyperV virtual machine
+- User without administrator privileges
+- VPN
+- Windows 10
 
 #### Prerequisites
 
-* The user is a member of the *Hyper-V Administrators* group. The user can add a virtual machine, start or stop this virtual machine, and access the resources related to this virtual machine.
-* Windows 10 version 1709 or later, Enterprise or Professional edition, or Windows 11, Enterprise or Professional edition
+- The user is a member of the _Hyper-V Administrators_ group. The user can add a virtual machine, start or stop this virtual machine, and access the resources related to this virtual machine.
+- Windows 10 version 1709 or later, Enterprise or Professional edition, or Windows 11, Enterprise or Professional edition
 
 #### Procedure
 
@@ -29,25 +29,25 @@ Consider installing the Podman Preset in OpenShift Local rather than [installing
 
 2. Select the Podman container runtime preset:
 
-    ```
-    $ crc config set preset podman
-    ```
+   ```
+   $ crc config set preset podman
+   ```
 
 3. Set up your host machine for Red Hat OpenShift Local:
 
-    ```
-    $ crc setup
-    ```
+   ```
+   $ crc setup
+   ```
 
 4. Start the Red Hat OpenShift instance:
-    ```
-    $ crc start
-    ```
+   ```
+   $ crc start
+   ```
 
 #### Additional resources
 
-* [Red Hat OpenShift Local presets](https://access.redhat.com/documentation/en-us/red_hat_openshift_local/2.12/html/getting_started_guide/using_gsg#about-presets_gsg)
+- [Red Hat OpenShift Local presets](https://access.redhat.com/documentation/en-us/red_hat_openshift_local/2.12/html/getting_started_guide/using_gsg#about-presets_gsg)
 
 #### Next steps
 
-* [Getting Started with Podman Desktop](/docs/getting-started/getting-started)
+- [Getting Started with Podman Desktop](/docs/getting-started/getting-started)

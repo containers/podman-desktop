@@ -10,12 +10,12 @@ keywords: [podman desktop, podman, containers, installing, installation, linux, 
 
 Consider installing from an archive rather than [from Flathub](../linux-install), or [from a Flatpak bundle](installing-podman-desktop-from-a-flatpak-bundle) when:
 
-* You cannot use Flatpak.
-* You install in a restricted environment.
+- You cannot use Flatpak.
+- You install in a restricted environment.
 
 #### Prerequisites
 
-* [Podman](https://podman.io/whatis.html) stable version
+- [Podman](https://podman.io/whatis.html) stable version
 
 #### Procedure
 
@@ -27,4 +27,4 @@ Consider installing from an archive rather than [from Flathub](../linux-install)
 
 #### Next steps
 
-* [Getting started](../../getting-started/getting-started)
+- [Getting started](../../getting-started/getting-started)

@@ -29,10 +29,9 @@ Therefore, create a Pod that uses the loaded image.
 
 1. Create a `verify_my_image.yaml` Kubernetes YAML file on your workstation.
    Replace the placeholders:
-   
-   * Pod `name` and container `name` value must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character.
-   * Container `image` value is the image you pushed.
-   
+
+   - Pod `name` and container `name` value must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character.
+   - Container `image` value is the image you pushed.
 
    ```yaml
    apiVersion: v1
@@ -41,9 +40,9 @@ Therefore, create a Pod that uses the loaded image.
      name: <verify-my-image>
    spec:
      containers:
-     - name: <my-image>
-       image: <my_image>:<my_tag>
-       imagePullPolicy: Never
+       - name: <my-image>
+         image: <my_image>:<my_tag>
+         imagePullPolicy: Never
    ```
 
 1. Open **Pods > Play Kubernetes YAML**.

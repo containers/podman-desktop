@@ -10,9 +10,9 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 You can install Podman Desktop on:
 
-* [Windows](./installation/windows-install)
-* [macOS](./installation/macos-install)
-* [Linux](./installation/linux-install)
+- [Windows](./installation/windows-install)
+- [macOS](./installation/macos-install)
+- [Linux](./installation/linux-install)
 
 Podman Desktop requires you to install at least one container engine.
 
@@ -20,13 +20,13 @@ Podman Desktop does not install any container engine automatically.
 
 Podman Desktop can control various container engines, such as:
 
-* Docker
-* Lima
-* Podman
+- Docker
+- Lima
+- Podman
 
 Consider installing the Podman container engine for:
 
-* Added security
-* No daemon
-* Open source
-* Rootless
+- Added security
+- No daemon
+- Open source
+- Rootless

@@ -10,40 +10,40 @@ keywords: [podman desktop, podman, containers, installing, installation, linux, 
 
 Consider installing a Flatpak bundle rather than [from Flathub](../linux-install) when:
 
-* You cannot use Flathub.
-* You want to install an unreleased version.
+- You cannot use Flathub.
+- You want to install an unreleased version.
 
 #### Prerequisites
 
-* [Flatpak](https://flatpak.org/setup/)
-* [Podman](https://podman.io/whatis.html) stable version
+- [Flatpak](https://flatpak.org/setup/)
+- [Podman](https://podman.io/whatis.html) stable version
 
 #### Procedure
 
 1. Download the Flatpak bundle to a `$HOME/Downloads/podman-desktop-<version>.flatpak` file from:
 
-    * [Downloads page](../../../downloads/linux)
+   - [Downloads page](../../../downloads/linux)
 
-    * [Git repository release assets](https://github.com/containers/podman-desktop/releases)
+   - [Git repository release assets](https://github.com/containers/podman-desktop/releases)
 
 2. Install Podman Desktop from the downloaded Flatpak bundle:
 
-    ```shell-session
-    $ flatpak install --user $HOME/Downloads/podman-desktop-<version>.flatpak 
-    ```
+   ```shell-session
+   $ flatpak install --user $HOME/Downloads/podman-desktop-<version>.flatpak
+   ```
 
 #### Verification
 
-* Open Podman Desktop from a terminal:
+- Open Podman Desktop from a terminal:
 
-    ```shell-session
-    $ flatpak run io.podman_desktop.PodmanDesktop
-    ```
+  ```shell-session
+  $ flatpak run io.podman_desktop.PodmanDesktop
+  ```
 
 #### Additional resources
 
-* [Using Flatpak](https://docs.flatpak.org/en/latest/using-flatpak.html)
+- [Using Flatpak](https://docs.flatpak.org/en/latest/using-flatpak.html)
 
 #### Next steps
 
-* [Getting started](../../getting-started/getting-started).
+- [Getting started](../../getting-started/getting-started).

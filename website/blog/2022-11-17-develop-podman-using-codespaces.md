@@ -81,21 +81,21 @@ COPY supervisord.conf /etc/supervisord.conf
 ```
 
 A custom theme for fluxbox:
+
 ```docker
 COPY fluxbox /usr/share/fluxbox/init
 ```
 
-
 Then we need a special configuration to allow to have Podman working inside the container
 
 We add the `podman-desktop` user with correct range on subuid and subgid when running containers. I used the [tutorial](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md#etcsubuid-and-etcsubgid-configuration).
-
 
 ```docker
 RUN useradd -u 1000 podman-desktop && echo podman-desktop:10000:5000 > /etc/subuid && echo podman-desktop:10000:5000 > /etc/subgid
 ```
 
 Then use some default configuration files
+
 ```docker
 # initialize conf files
 ADD https://raw.githubusercontent.com/containers/libpod/master/contrib/podmanimage/stable/containers.conf /etc/containers/containers.conf
@@ -118,6 +118,7 @@ ENV _CONTAINERS_USERNS_CONFIGURED=""
 ```
 
 Make sure Podman will create the socket in an expected directory:
+
 ```
 # socket path for podman
 ENV XDG_RUNTIME_DIR=/run/user/1000
@@ -127,10 +128,7 @@ OK ! we have a custom Containerfile providing all the tools to build and run Pod
 
 The current file is available at https://github.com/containers/podman-desktop/blob/main/.devcontainer/.parent/Containerfile
 
-
 Let's configure the DevContainer.
-
-
 
 ## Configure the DevContainer using devcontainer.json
 
@@ -151,7 +149,6 @@ Inside `.devcontainer` directory there is a `.parent` directory with everything 
 
 And in the `.devcontainer/Containerfile` file we reference this image
 
-
 ```docker
 FROM quay.io/podman-desktop/devcontainer-parent:next
 ```
@@ -163,6 +160,7 @@ By default, we will be `root` in the container and this is probably not what we 
 ```
 
 Some Visual Studio Code extensions are nice to use and we can add them
+
 ```json
   "extensions": ["svelte.svelte-vscode", "bradlc.vscode-tailwindcss"]
 ```
@@ -211,6 +209,7 @@ MODE=production yarn run build && yarn run electron-builder build --linux --dir 
 ```
 
 Two instructions:
+
 1. Fetch all Node.js dependencies.
 2. build Podman Desktop in the `dist` folder using `Linux` as target Operating System.
 
@@ -278,7 +277,6 @@ Let's tweak the `devcontainer.json` file by adding the `portsAttributes` section
 ```
 
 After all post-creation steps, the `Preview` browser inside the VS Code editor will open a window to VNC. And another port (`3000`) is flagged for the website.
-
 
 ## Using the DevContainer.json on Github Codespace
 
