@@ -17,9 +17,8 @@ On the agenda:
 1. Installing and initializing your container engine: Podman.
 1. Installing and starting your local Kubernetes provider: Kind.
 1. Starting the Redis leader.
-1. Starting the Redis followers.
-1. Starting the Guestbook frontend.
-1. Exposing the Guestbook frontend service.
+1. Starting and scaling the Redis followers.
+1. Starting and exposing the Guestbook frontend.
 
 <!--truncate-->
 
@@ -32,11 +31,13 @@ You need Podman Desktop.
 1. Follow the instructions. Stick to the default installation method.
 1. Start **Podman Desktop**.
 
-At this point, you have a graphical user interface to control your container engine.
+At this point, you have a graphical user interface to:
+
+- Install Podman and Kind.
+- Control and work with your container engines and Kubernetes clusters.
+- Run your application on your container engine and migrate it to Kubernetes.
 
 ## Installing and initializing your container engine: Podman
-
-You need a container engine.
 
 Podman Desktop can control various container engines, such as:
 
@@ -49,14 +50,15 @@ Consider installing the Podman container engine for:
 - Added security
 - No daemon
 - Open source
-- Rootless mode (for macOS and Linux: on Windows, it conflicts with Kind)
-
-On Linux, you can install Podman natively.
-See: [Installing Podman on Linux](https://podman.io/getting-started/installation#installing-on-linux).
 
 Containers are a Linux technology.
-On macOS and Windows, Podman requires to run in a Linux virtual machine.
-Podman Desktop helps you installing Podman and initializing a Podman machine:
+
+- On Linux, you can install Podman natively.
+  See: [Installing Podman on Linux](https://podman.io/getting-started/installation#installing-on-linux).
+- On macOS and Windows, Podman requires to run in a Linux virtual machine: the Podman machine.
+  Use Podman Desktop to install Podman and initialize your Podman machine:
+
+#### Procedure
 
 1. Open Podman Desktop **Dashboard**
 1. The **Dashboard** displays _Podman Desktop was not able to find an installation of Podman_.
@@ -82,27 +84,27 @@ Podman Desktop can help you run Kind-powered local Kubernetes clusters on a cont
 Podman Desktop helps you [installing the `kind` CLI](/docs/kubernetes/kind/installing-kind):
 
 1. In the status bar, click on **Kind**, and follow the prompts.
+1. When the `kind` CLI is available, the status bar does not display **Kind**.
 1. On Windows, [configure Podman in rootful mode](docs/kubernetes/kind/configuring-podman-for-kind-on-windows)
 
    ```shell-session
    $ podman system connection default podman-machine-default-root
    ```
 
-   When the `kind` CLI is available, the status bar does not display **Kind**.
-
-1. Go to **Settings > Resources**
-1. In the **Kind** tile, click on the **Create new** button.
+1. Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**
+1. In the **<img src="/img/kind-icon.png" alt="Kind icon" style={{height: '1.5em', display: 'inline'}} /> Kind** tile, click on the **Create new** button.
    1. **Name**: enter `kind-cluster`.
    1. **Provider Type**: select `podman`.
    1. **HTTP Port**: select `9090`.
    1. **HTTPS Port**: select `9443`.
    1. **Setup an ingress controller**: `Enabled`
    1. Click the **Create** button.
+      ![Create a Kind cluster screen](img/running-a-local-kubernetes-cluster-with-podman-desktop/create-a-kind-cluster.png)
 1. After successful creation, click on the **Go back to resources** button
 
 #### Verification
 
-1. In **Settings > Resources** your Kind cluster is running/
+1. In **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources** your Kind cluster is running/
 
    ![Kind cluster is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/kind-cluster-is-running.png)
 
@@ -145,10 +147,9 @@ This is functionally equal to the `redis-leader` deployment that the Kubernetes 
    1. **Expose service locally using Kubernetes Ingress**: deselect **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
    1. **Kubernetes namespaces**: select `default`.
    1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
+      ![Deploy generated leader pod to Kubernetes screen](img/running-a-local-kubernetes-cluster-with-podman-desktop/deploy-generated-leader-pod-to-kubernetes.png)
    1. Wait for the pod to reach the state: **Phase: Running**.
    1. Click **Done**.
-
-   ![Deploy generated pod to Kubernetes](img/running-a-local-kubernetes-cluster-with-podman-desktop/deploy-generated-leader-pod-to-kubernetes.png)
 
 #### Verification
 
@@ -184,6 +185,7 @@ This is functionally equal to the `redis-follower` deployment that the Kubernete
    1. **Expose service locally using Kubernetes Ingress**: deselect **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
    1. **Kubernetes namespaces**: select `default`.
    1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
+      ![Deploy generated follower pod to Kubernetes screen](img/running-a-local-kubernetes-cluster-with-podman-desktop/deploy-generated-follower-pod-to-kubernetes.png)
    1. Wait for the pod to reach the state: **Phase: Running**.
    1. Click **Done**.
 1. To add replicas, repeat the last step with another **Pod Name** value.
@@ -228,6 +230,7 @@ This is functionally equal to the `frontend` deployment that the Kubernetes exam
    1. **Expose service locally using Kubernetes Ingress**: select **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
    1. **Kubernetes namespaces**: select `default`.
    1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
+      ![Deploy generated frontend pod to Kubernetes screen](img/running-a-local-kubernetes-cluster-with-podman-desktop/deploy-generated-frontend-pod-to-kubernetes.png)
    1. Wait for the pod to reach the state: **Phase: Running**.
    1. Click **Done**.
 
