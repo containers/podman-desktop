@@ -264,7 +264,7 @@ async function startConnectionProvider(
             </div>
           </div>
           <!-- providers columns -->
-          <div class="grow flex flex-wrap divide-gray-600 ml-2">
+          <div class="grow flex flex-wrap divide-gray-900 ml-2">
             {#each provider.containerConnections as container}
               <div class="px-5 py-2 w-[240px]">
                 <div class="float-right text-gray-900 cursor-not-allowed">
