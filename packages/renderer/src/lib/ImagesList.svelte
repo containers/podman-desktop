@@ -65,7 +65,7 @@ function updateImages() {
       image.selected = matchingImage.selected;
     }
   });
-  images = computedImages;
+  images = computedImages.sort((first, second) => second.createdAt - first.createdAt);
 
   // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
   const engines = images.map(container => {
