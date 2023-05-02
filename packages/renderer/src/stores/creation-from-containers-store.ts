@@ -23,6 +23,7 @@ export interface PodCreationContainer {
   id: string;
   name: string;
   engineId: string;
+  ports: number[];
 }
 
 export interface PodCreation {
