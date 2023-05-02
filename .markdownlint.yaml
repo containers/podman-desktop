@@ -1,0 +1,12 @@
+# We increment heading levels my more by one level at a time for the Procedure, Verification headings:
+MD001: false
+# We do not limit line length:
+MD013: false
+# We always use Dollar signs before commands:
+MD014: false
+# We have multiple headings with the same content (Prerequisites, Procedure, Verification)
+MD024: false
+# We have multiple top-level headings in the same document to set different page title and navigation title:
+MD025: false
+# We allow inline HTML (icon):
+MD033: false
