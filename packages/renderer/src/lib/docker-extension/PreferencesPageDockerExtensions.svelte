@@ -5,7 +5,7 @@ import { contributions } from '../../stores/contribs';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 
-let ociImage: string;
+export let ociImage: string = undefined;
 
 let installInProgress: boolean = false;
 let errorInstall: string = '';
@@ -37,7 +37,9 @@ async function installDDExtensionFromImage() {
 }
 
 afterUpdate(() => {
-  logElement.scroll({ top: logElement.scrollHeight, behavior: 'smooth' });
+  if (logElement.scroll) {
+    logElement.scroll({ top: logElement.scrollHeight, behavior: 'smooth' });
+  }
 });
 
 function deleteContribution(extensionName: string) {
@@ -64,14 +66,14 @@ function deleteContribution(extensionName: string) {
           id="ociImage"
           bind:value="{ociImage}"
           placeholder="Name of the Image"
-          class="text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
+          class="text-sm rounded-sm focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-zinc-900 border-gray-900 placeholder-gray-400 text-white"
           required />
       </div>
     </div>
 
     <button
       on:click="{() => installDDExtensionFromImage()}"
-      disabled="{ociImage === undefined || ociImage === '' || installInProgress}"
+      disabled="{ociImage === undefined || ociImage.trim() === '' || installInProgress}"
       class="pf-c-button pf-m-primary"
       type="button">
       {#if installInProgress}

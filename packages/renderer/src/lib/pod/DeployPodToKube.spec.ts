@@ -88,7 +88,11 @@ test('Expect to send telemetry event', async () => {
 
   await fireEvent.click(createButton);
   await waitFor(() =>
-    expect(telemetryTrackMock).toBeCalledWith('deployToKube', { useRoutes: true, useServices: true }),
+    expect(telemetryTrackMock).toBeCalledWith('deployToKube', {
+      useRoutes: true,
+      useServices: true,
+      createIngress: false,
+    }),
   );
 });
 
@@ -109,6 +113,7 @@ test('Expect to send telemetry event with OpenShift', async () => {
       useRoutes: true,
       useServices: true,
       isOpenshift: true,
+      createIngress: false,
     }),
   );
 });
@@ -129,6 +134,7 @@ test('Expect to send telemetry error event', async () => {
       errorMessage: 'Custom Error',
       useRoutes: true,
       useServices: true,
+      createIngress: false,
     }),
   );
 });

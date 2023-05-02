@@ -39,7 +39,9 @@ export class TelemetryService {
     }
 
     this.handlerFlusher = setTimeout(() => {
-      window.telemetryPage(pagePath);
+      if (window.telemetryPage) {
+        window.telemetryPage(pagePath);
+      }
     }, 200);
   }
 }

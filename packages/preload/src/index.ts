@@ -52,7 +52,7 @@ import type {
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
-import type { V1ConfigMap, V1NamespaceList, V1Pod, V1PodList, V1Service } from '@kubernetes/client-node';
+import type { V1ConfigMap, V1Ingress, V1NamespaceList, V1Pod, V1PodList, V1Service } from '@kubernetes/client-node';
 import type { Menu } from '../../main/src/plugin/menu-registry';
 import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
 
@@ -1122,6 +1122,13 @@ function initExposure(): void {
     'kubernetesCreateService',
     async (namespace: string, service: V1Service): Promise<V1Service> => {
       return ipcInvoke('kubernetes-client:createService', namespace, service);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesCreateIngress',
+    async (namespace: string, ingress: V1Ingress): Promise<V1Ingress> => {
+      return ipcInvoke('kubernetes-client:createIngress', namespace, ingress);
     },
   );
 

@@ -10,7 +10,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 
-let ociImage: string;
+export let ociImage: string = undefined;
 
 let installInProgress: boolean = false;
 let errorInstall: string = '';
@@ -47,7 +47,9 @@ async function installExtensionFromImage() {
 }
 
 afterUpdate(() => {
-  logElement.scroll({ top: logElement.scrollHeight, behavior: 'smooth' });
+  if (logElement.scroll) {
+    logElement.scroll({ top: logElement.scrollHeight, behavior: 'smooth' });
+  }
 });
 
 async function stopExtension(extension: ExtensionInfo) {
@@ -78,7 +80,7 @@ async function removeExtension(extension: ExtensionInfo) {
 
         <button
           on:click="{() => installExtensionFromImage()}"
-          disabled="{ociImage === undefined || ociImage === '' || installInProgress}"
+          disabled="{ociImage === undefined || ociImage.trim() === '' || installInProgress}"
           class="w-full pf-c-button pf-m-primary"
           type="button">
           {#if installInProgress}
