@@ -170,11 +170,10 @@ async function initTerminal() {
 
 {#if providerConnections.length > 0}
   <NavPage title="Build Image from Containerfile" searchEnabled="{false}">
-    <div slot="empty" class="p-5 bg-zinc-700">
-      <div class="bg-zinc-800 pt-5 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
-        <div class="text-xl">Build</div>
+    <div slot="empty" class="p-5 bg-charcoal-700">
+      <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div hidden="{buildStarted}">
-          <label for="containerFilePath" class="block mb-2 text-sm font-medium text-gray-400">Containerfile path</label>
+          <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile path</label>
           <input
             on:click="{() => getContainerfileLocation()}"
             name="containerFilePath"
@@ -182,12 +181,12 @@ async function initTerminal() {
             bind:value="{containerFilePath}"
             readonly
             placeholder="Select Containerfile to build..."
-            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
 
         <div hidden="{!containerFilePath || buildStarted}">
-          <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-medium text-gray-400"
+          <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-gray-400"
             >Build context directory</label>
           <input
             on:click="{() => getContainerBuildContextDirectory()}"
@@ -195,27 +194,27 @@ async function initTerminal() {
             id="containerBuildContextDirectory"
             bind:value="{containerBuildContextDirectory}"
             readonly
-            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
 
         <div hidden="{buildStarted}">
-          <label for="containerImageName" class="block mb-2 text-sm font-medium text-gray-400">Image Name</label>
+          <label for="containerImageName" class="block mb-2 text-sm font-bold text-gray-400">Image Name</label>
           <input
             type="text"
             bind:value="{containerImageName}"
             name="containerImageName"
             id="containerImageName"
             placeholder="Enter image name"
-            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
             required />
           {#if providerConnections.length > 1}
             <label
               for="providerConnectionName"
-              class="py-6 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+              class="py-6 block mb-2 text-sm font-bold text-gray-400 dark:text-gray-400"
               >Container Engine
               <select
-                class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
                 name="providerChoice"
                 bind:value="{selectedProvider}">
                 {#each providerConnections as providerConnection}

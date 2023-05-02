@@ -30,6 +30,13 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import type { Certificates } from './certificates';
 import type { Proxy } from './proxy';
 import type { ApiSenderType } from './api';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import * as nodeTar from 'tar';
+
+import { pipeline } from 'node:stream/promises';
+import { createWriteStream } from 'node:fs';
 
 export interface RegistryAuthInfo {
   authUrl: string;
@@ -332,7 +339,290 @@ export class ImageRegistry {
     return options;
   }
 
-  async getAuthInfo(serviceUrl: string): Promise<{ authUrl: string | undefined; scheme: string }> {
+  // Adds the missing registry URL to the image name
+  // examples:
+  // httpd --> name library/httpd, tag latest, registryURL https://index.docker.io/v2/
+  // ghcr.io/repo/image:1.2.3 -> name repo/image, tag 1.2.3, registryURL https://ghcr.io/v2/
+
+  extractImageDataFromImageName(imageName: string): ImageRegistryNameTag {
+    if (!imageName) {
+      throw new Error('Image name is empty');
+    }
+
+    // check that there is no protocol prefix in the image name
+    // like http:// or https://, etc.
+    if (imageName.match(/^[a-zA-Z0-9+.-]+:\/\//)) {
+      throw new Error(`Invalid image name: ${imageName}`);
+    }
+
+    // do we have a tag at the end with last
+    let tag = 'latest';
+    const lastColon = imageName.lastIndexOf(':');
+    const lastSlash = imageName.lastIndexOf('/');
+    if (lastColon !== -1 && lastColon > lastSlash) {
+      tag = imageName.substring(lastColon + 1);
+      imageName = imageName.substring(0, lastColon);
+    }
+
+    let registry = '';
+    let name = '';
+
+    const slashes = imageName.split('/');
+    let valid = false;
+    if (slashes.length === 1) {
+      registry = 'index.docker.io';
+      name = `library/${slashes[0]}`;
+      valid = true;
+    } else if (slashes.length === 2) {
+      if (slashes[0].startsWith('localhost')) {
+        registry = slashes[0];
+        name = slashes[1];
+      } else {
+        registry = 'index.docker.io';
+        name = `${slashes[0]}/${slashes[1]}`;
+      }
+      valid = true;
+    } else if (slashes.length > 2) {
+      registry = slashes[0];
+      name = `${slashes[1]}/${slashes[2]}`;
+      valid = true;
+    }
+    if (!valid) {
+      throw new Error(`Invalid image Name: ${imageName}`);
+    }
+    const registryURL = `https://${registry}/v2`;
+    return {
+      registry,
+      registryURL,
+      name,
+      tag,
+    };
+  }
+
+  // Fetch the image Labels from the registry for a given image URL
+  async getImageConfigLabels(imageName: string): Promise<{ [key: string]: unknown }> {
+    const imageData = await this.extractImageDataFromImageName(imageName);
+
+    // grab auth info from the registry
+    const authInfo = await this.getAuthInfo(imageData.registry);
+    const token = await this.getToken(authInfo, imageData);
+    if (authInfo.scheme.toLowerCase() !== 'bearer') {
+      throw new Error(`Unsupported auth scheme: ${authInfo.scheme}`);
+    }
+
+    // now, grab manifest for the given image URL
+    const manifest = await this.getManifest(imageData, token);
+
+    // now, search a config manifest
+    const configManifest = manifest.config;
+    if (!configManifest) {
+      throw new Error(`No config manifest found for ${imageName}`);
+    }
+    if (!configManifest.digest) {
+      throw new Error(`No digest found for config manifest for ${imageName}`);
+    }
+    if (configManifest.mediaType !== 'application/vnd.oci.image.config.v1+json') {
+      throw new Error(`Invalid media type for config manifest for ${imageName}`);
+    }
+
+    // now pull the blob from the registry
+    const config = await this.fetchOciImageConfig(imageData, configManifest.digest, token);
+
+    // get labels from the config
+    return config?.config?.Labels;
+  }
+
+  async downloadAndExtractImage(
+    imageName: string,
+    destFolder: string,
+    logger: (message: string) => void,
+  ): Promise<void> {
+    const imageData = await this.extractImageDataFromImageName(imageName);
+
+    // grab auth info from the registry
+    const authInfo = await this.getAuthInfo(imageData.registry);
+    const token = await this.getToken(authInfo, imageData);
+    if (authInfo.scheme.toLowerCase() !== 'bearer') {
+      throw new Error(`Unsupported auth scheme: ${authInfo.scheme}`);
+    }
+
+    // now, grab manifest for the given image URL
+    const manifest = await this.getManifest(imageData, token);
+
+    // now, get all layers 'application/vnd.oci.image.layer.v1.tar+gzip' and download and expand them
+    const layers = manifest.layers.filter(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (layer: any) => layer.mediaType === 'application/vnd.oci.image.layer.v1.tar+gzip',
+    );
+
+    // total size of all layers
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const totalSize = layers.reduce((acc: number, layer: any) => acc + layer.size, 0);
+
+    // download each layer and extract it to the destination folder
+    let currentDownloaded = 0;
+    for (const layer of layers) {
+      const layerDigest = layer.digest;
+      await this.fetchAndExtractLayer(imageData, layerDigest, destFolder, token, currentDownloaded, totalSize, logger);
+      currentDownloaded += layer.size;
+    }
+  }
+
+  protected async fetchAndExtractLayer(
+    imageData: ImageRegistryNameTag,
+    digest: string,
+    destFolder: string,
+    token: string,
+    currentDownloaded: number,
+    totalSize: number,
+    logger: (message: string) => void,
+  ): Promise<void> {
+    const options = this.getOptions();
+    options.headers = options.headers || {};
+
+    // add the Bearer token
+    options.headers.Authorization = `Bearer ${token}`;
+
+    // replace all special characters with _ in digest
+    const digestWithoutSpecialChars = digest.replace(/[^a-zA-Z0-9]/g, '_');
+
+    if (!fs.existsSync(destFolder)) {
+      await fs.promises.mkdir(destFolder, { recursive: true });
+    }
+
+    const tmpFileName = path.resolve(os.tmpdir(), `${digestWithoutSpecialChars}.tar`);
+
+    // ensure the folder exists
+    const parentDir = path.dirname(tmpFileName);
+    if (!fs.existsSync(parentDir)) {
+      await fs.promises.mkdir(parentDir, { recursive: true });
+    }
+
+    const blobURL = `${imageData.registryURL}/${imageData.name}/blobs/${digest}`;
+
+    const readStream = got.stream(blobURL, { ...options, isStream: true });
+
+    readStream.on('downloadProgress', ({ transferred }) => {
+      const globalPercentage = Math.round(((transferred + currentDownloaded) / totalSize) * 100);
+      logger(`Downloading ${digest}.tar - ${globalPercentage}% - (${transferred + currentDownloaded}/${totalSize})`);
+    });
+    await pipeline(readStream, createWriteStream(tmpFileName));
+    await nodeTar.extract({ file: tmpFileName, cwd: destFolder });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected async fetchOciImageConfig(imageData: ImageRegistryNameTag, digest: string, token: string): Promise<any> {
+    const options = this.getOptions();
+    options.headers = options.headers || {};
+    // add the Bearer token
+    options.headers.Authorization = `Bearer ${token}`;
+
+    // say we want to return JSON from got
+    const blobURL = `${imageData.registryURL}/${imageData.name}/blobs/${digest}`;
+
+    let jsonConfig: string | undefined;
+    try {
+      jsonConfig = await got.get(blobURL, options).json();
+    } catch (requestErr) {
+      if (
+        requestErr instanceof RequestError &&
+        (requestErr.response?.statusCode === 401 || requestErr.response?.statusCode === 403)
+      ) {
+        throw Error('Unable to get access');
+      } else if (requestErr instanceof Error) {
+        throw Error(requestErr.message);
+      }
+    }
+    return jsonConfig;
+  }
+
+  // internal method that can loop to get the manifest specific to the arch/platform
+  protected async getManifestFromURL(
+    manifestURL: string,
+    imageData: ImageRegistryNameTag,
+    token: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): Promise<any> {
+    const options = this.getOptions();
+    options.headers = options.headers || {};
+
+    // add the Bearer token
+    options.headers.Authorization = `Bearer ${token}`;
+
+    // add the manifest accept headers
+    const acceptHeaders = [];
+    if (options.headers.Accept) {
+      if (typeof options.headers.Accept === 'string') {
+        acceptHeaders.push(options.headers.Accept);
+      } else if (Array.isArray(options.headers.Accept)) {
+        acceptHeaders.push(...options.headers.Accept);
+      }
+    }
+    acceptHeaders.push('application/vnd.oci.image.manifest.v1+json');
+    acceptHeaders.push('application/vnd.docker.distribution.manifest.v2+json');
+    acceptHeaders.push('application/vnd.docker.distribution.manifest.v1+prettyjws');
+    acceptHeaders.push('application/vnd.docker.distribution.manifest.v1+json');
+    acceptHeaders.push('application/vnd.docker.distribution.manifest.list.v2+json');
+    acceptHeaders.push('application/vnd.oci.image.index.v1+json');
+
+    options.headers.Accept = acceptHeaders;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let parsedManifest: any;
+    try {
+      parsedManifest = await got.get(manifestURL, options).json();
+    } catch (requestErr) {
+      if (
+        requestErr instanceof RequestError &&
+        (requestErr.response?.statusCode === 401 || requestErr.response?.statusCode === 403)
+      ) {
+        throw Error('Unable to get access');
+      } else if (requestErr instanceof Error) {
+        throw Error(requestErr.message);
+      }
+    }
+
+    // check mediaType of the manifest
+    // if it is application/vnd.oci.image.index.v1+json it is an index
+    if (parsedManifest.mediaType === 'application/vnd.oci.image.index.v1+json') {
+      // need to grab correct manifest from the index corresponding to our platform
+      let platformArch: 'amd64' | 'arm64' = 'amd64';
+      const arch = os.arch();
+      if (arch === 'x64') {
+        // default to amd64
+        platformArch = 'amd64';
+      } else if (arch === 'arm64') {
+        platformArch = 'arm64';
+      }
+
+      // find the manifest corresponding to our platform
+      const matchedManifest = parsedManifest.manifests.find(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (manifestIterator: any) =>
+          manifestIterator.mediaType === 'application/vnd.oci.image.manifest.v1+json' &&
+          manifestIterator.platform.architecture === platformArch,
+      );
+
+      // need to grab that manifest
+      if (matchedManifest) {
+        const matchedManifestDigest = matchedManifest.digest;
+        // now, grab the manifest corresponding to the digest
+        const manifestURL = `${imageData.registryURL}/${imageData.name}/manifests/${matchedManifestDigest}`;
+        const manifestResponse = await this.getManifestFromURL(manifestURL, imageData, token);
+        return manifestResponse;
+      }
+      throw new Error('Unable to find a manifest corresponding to the platform/architecture');
+    }
+    return parsedManifest;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async getManifest(imageData: ImageRegistryNameTag, token: string): Promise<any> {
+    const manifestURL = `${imageData.registryURL}/${imageData.name}/manifests/${imageData.tag}`;
+    return this.getManifestFromURL(manifestURL, imageData, token);
+  }
+
+  async getAuthInfo(serviceUrl: string): Promise<{ authUrl: string; scheme: string }> {
     let registryUrl: string;
 
     if (serviceUrl.includes('docker.io')) {
@@ -407,6 +697,33 @@ export class ImageRegistry {
     }
   }
 
+  async getToken(authInfo: { authUrl: string; scheme: string }, imageData: ImageRegistryNameTag): Promise<string> {
+    let rawResponse: string | undefined;
+    const options = this.getOptions();
+
+    // need to replace repository%3Auser with repository:user coming from imageData
+    const tokenUrl = authInfo.authUrl.replace('user%2Fimage', imageData.name.replaceAll('/', '%2F'));
+
+    try {
+      const { body } = await got.get(tokenUrl, options);
+      rawResponse = body;
+    } catch (requestErr) {
+      if (
+        requestErr instanceof RequestError &&
+        (requestErr.response?.statusCode === 401 || requestErr.response?.statusCode === 403)
+      ) {
+        throw Error('Required authentication. Not supported.');
+      } else if (requestErr instanceof Error) {
+        throw Error(requestErr.message);
+      }
+    }
+    if (!rawResponse?.includes('token')) {
+      throw Error('Unable to validate registry URL.');
+    }
+    const response = JSON.parse(rawResponse);
+    return response.token;
+  }
+
   async doCheckCredentials(scheme: string, authUrl: string, username: string, password: string): Promise<void> {
     let rawResponse: string | undefined;
     // add credentials in the header
@@ -438,4 +755,15 @@ export class ImageRegistry {
       throw Error('Unable to validate provided credentials.');
     }
   }
+}
+
+interface ImageRegistryNameTag {
+  // for example foo/bar for foo/bar
+  name: string;
+  // for example latest for docker.io/foo/bar:latest
+  tag: string;
+  // for example index.docker.io for docker.io/foo/bar:latest
+  registry: string;
+  // for example https://index.docker.io/v2 for foo/bar:latest
+  registryURL: string;
 }

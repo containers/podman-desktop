@@ -112,6 +112,10 @@ export class ProviderImpl implements Provider, IDisposable {
     return this.providerOptions.name;
   }
 
+  get emptyConnectionMarkdownDescription(): string | undefined {
+    return this.providerOptions.emptyConnectionMarkdownDescription;
+  }
+
   get version(): string | undefined {
     return this._version;
   }

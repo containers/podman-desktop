@@ -352,8 +352,8 @@ async function close() {
       <div class="p-3 mt-4 w-4/5 {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
         <form novalidate class="pf-c-form p-2" on:submit|preventDefault="{handleOnSubmit}">
           {#each configurationKeys as configurationKey}
-            <div class="mb-3">
-              <div class="font-semibold text-xs mb-2">
+            <div class="mb-2.5">
+              <div class="font-semibold text-xs">
                 {#if configurationKey.description}
                   {configurationKey.description}:
                 {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}

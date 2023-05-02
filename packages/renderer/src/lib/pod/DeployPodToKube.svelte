@@ -254,7 +254,34 @@ async function deployToKube() {
     eventProperties['isOpenshift'] = true;
   }
 
+  let previousPod = bodyPod;
+
   try {
+    // In order to deploy to Kubernetes, we must remove volumes for the pod as we do not support them
+    // if we are deploying using services, remove the hostPort as well as volumeMounts from the container
+    if (bodyPod?.spec?.volumes) {
+      delete bodyPod.spec.volumes;
+    }
+
+    if (deployUsingServices) {
+      bodyPod.spec?.containers?.forEach((container: any) => {
+        // UNUSED
+        // Delete all volume mounts
+        if (container.volumeMounts) {
+          delete container.volumeMounts;
+        }
+
+        // UNUSED
+        // Delete all hostPorts
+        if (container.ports) {
+          container.ports.forEach((port: any) => {
+            delete port.hostPort;
+          });
+        }
+      });
+    }
+
+    // create pod
     createdPod = await window.kubernetesCreatePod(currentNamespace, bodyPod);
 
     // create services
@@ -279,35 +306,14 @@ async function deployToKube() {
     // update status
     updatePodInterval = setInterval(updatePod, 2000);
   } catch (error) {
+    // Revert back to the previous bodyPod so the user can hit deploy again
+    // we only update the bodyPod if we successfully create the pod.
+    bodyPod = previousPod;
     window.telemetryTrack('deployToKube', { ...eventProperties, errorMessage: error.message });
     deployError = error;
     deployStarted = false;
     deployFinished = false;
     return;
-  }
-
-  // Only on a successful deploy, do we want to update the kubeDetails with the removed fields
-  // to show the "final" version of the pod that was deployed.
-  if (bodyPod?.spec?.volumes) {
-    delete bodyPod.spec.volumes;
-  }
-
-  if (deployUsingServices) {
-    bodyPod.spec?.containers?.forEach((container: any) => {
-      // UNUSED
-      // Delete all volume mounts
-      if (container.volumeMounts) {
-        delete container.volumeMounts;
-      }
-
-      // UNUSED
-      // Delete all hostPorts
-      if (container.ports) {
-        container.ports.forEach((port: any) => {
-          delete port.hostPort;
-        });
-      }
-    });
   }
 }
 
@@ -358,7 +364,7 @@ function updateKubeResult() {
       <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
       {#if !openshiftConsoleURL && deployUsingServices}
         <div class="pt-2 pb-4">
-          <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300"
+          <label for="createIngress" class="block mb-1 text-sm font-medium text-gray-300"
             >Expose service locally using Kubernetes Ingress:</label>
           <input
             type="checkbox"
@@ -495,9 +501,9 @@ function updateKubeResult() {
                       <span class="text-red-500">(Terminated)</span>
                     {/if}
                     {#if containerStatus.state?.waiting}
-                      <span class="text-yellow-500">(Waiting)</span>
+                      <span class="text-amber-500">(Waiting)</span>
                       {#if containerStatus.state.waiting.reason}
-                        <span class="text-yellow-500">[{containerStatus.state.waiting.reason}]</span>
+                        <span class="text-amber-500">[{containerStatus.state.waiting.reason}]</span>
                       {/if}
                     {/if}
                   </li>

@@ -1,91 +1,176 @@
-<div class="flex flex-col min-h-full">
-  <div class="min-w-full flex">
-    <div class="pt-5 px-5">
-      <p class="text-xl">Help</p>
-      <p class="text-sm text-gray-700">Looking for assistance? We've got you covered.</p>
+<script lang="ts">
+import NavPage from '../ui/NavPage.svelte';
+import { providerInfos } from '../../stores/providers';
+import type { ProviderLinks } from '@podman-desktop/api';
+
+$: contributedLinks = $providerInfos
+  .filter(provider => provider.status === 'ready' || provider.status === 'started')
+  .filter(provider => provider.links.length > 0)
+  .flatMap(provider => provider.links)
+  .reduce((links: Map<string, ProviderLinks[]>, link) => {
+    if (link['group'] === undefined) return links;
+    if (!links.has(link['group'])) {
+      links = links.set(link['group'], []);
+    }
+    links.get(link['group']).push(link);
+    return links;
+  }, new Map<string, ProviderLinks[]>());
+</script>
+
+<NavPage searchEnabled="{false}" title="Help">
+  <div slot="empty" class="flex flex-col min-h-full bg-zinc-700">
+    <div class="min-w-full flex-1 pt-5 px-5 pb-5 space-y-5">
+      <!-- Getting Started -->
+      <div class="bg-zinc-800 px-3 pt-3 pb-3 rounded-lg">
+        <div class="text-lg">Getting Started</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 py-3">
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
+            on:click="{() => window.openExternal('https://podman-desktop.io/docs/intro')}"
+            title="https://podman-desktop.io/docs/intro">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">Getting started</p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-external-link-alt ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:place-content-end md:ml-2"
+            on:click="{() => window.openExternal('https://podman-desktop.io/docs/troubleshooting')}"
+            title="https://podman-desktop.io/docs/troubleshooting">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">Troubleshooting guide</p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-external-link-alt ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
+            on:click="{() => window.openExternal('https://podman-desktop.io/features')}"
+            title="https://podman-desktop.io/features">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">View all features</p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-external-link-alt ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:place-content-end md:ml-2"
+            on:click="{() => window.openExternal('https://podman-desktop.io/extend')}"
+            title="https://podman-desktop.io/extend">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">Extend podman desktop</p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-external-link-alt ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contributed Links -->
+      {#if contributedLinks.size > 0}
+        {#each [...contributedLinks] as [group, links]}
+          {#if links.length > 0}
+            <div class="bg-zinc-800 px-3 pt-3 pb-3 rounded-lg">
+              <div class="text-lg">{group}</div>
+              <div class="grid grid-cols-1 md:grid-cols-2 py-3">
+                {#each links as link, index}
+                  {@const evenItems = index % 2 !== 0}
+                  <div
+                    class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer {evenItems
+                      ? 'md:place-content-end md:ml-2'
+                      : 'md:border-r-2'}"
+                    on:click="{() => window.openExternal(link.url)}"
+                    title="{link.url}">
+                    <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">
+                      {link.title}
+                    </p>
+                    <i
+                      class="opacity-0 group-hover:opacity-100 fas fa-solid fa-external-link-alt ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+                      aria-hidden="true"></i>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/if}
+        {/each}
+      {/if}
+
+      <!-- Get in Touch -->
+      <div class="bg-zinc-800 px-3 pt-3 pb-3 rounded-lg">
+        <div class="text-lg">Get in Touch</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 py-3">
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
+            on:click="{() => window.openExternal('https://github.com/containers/podman-desktop/issues/new/choose')}"
+            title="https://github.com/containers/podman-desktop/issues/new/choose">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">Report a bug</p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-exclamation-triangle ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:place-content-end md:ml-2"
+            on:click="{() =>
+              window.openExternal('https://github.com/containers/podman-desktop/discussions/categories/general')}"
+            title="https://github.com/containers/podman-desktop/discussions/categories/general">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">Create a GitHub discussion</p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-exclamation-triangle ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
+            on:click="{() => window.events.send('display-feedback', undefined)}"
+            title="Share your Feedback">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">Share your Feedback</p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-comment ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Communication -->
+      <div class="bg-zinc-800 px-3 pt-3 pb-3 rounded-lg">
+        <div class="text-lg">Communication</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 py-3">
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
+            on:click="{() => window.openExternal('https://discord.com/invite/x5GzFF6QH4')}"
+            title="https://discordapp.com/invite/TCTB38RWpf">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">Discord: Join #general channel</p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-comments ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:place-content-end md:ml-2"
+            on:click="{() => window.openExternal('https://libera.chat')}"
+            title="https://libera.chat">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">
+              Libera.Chat: Join #podman-desktop channel
+            </p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-comments ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
+            on:click="{() => window.openExternal('https://fedora.im')}"
+            title="https://fedora.im">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">Matrix: Join #podman-desktop channel</p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-comments ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+          <div
+            class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:place-content-end md:ml-2"
+            on:click="{() => window.openExternal('https://slack.k8s.io')}"
+            title="https://slack.k8s.io">
+            <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">Slack: Join #podman-desktop channel</p>
+            <i
+              class="opacity-0 group-hover:opacity-100 fas fa-solid fa-comments ml-2 transition-opacity delay-150 duration-150 ease-in-out"
+              aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="min-w-full flex-1">
-    <ul role="list" class="px-5 py-3">
-      <li class="pb-2">
-        <i class="fas fa-solid fa-book-open" aria-hidden="true"></i>
-        <p
-          on:click="{() => window.openExternal('https://podman-desktop.io/docs/intro')}"
-          title="https://podman-desktop.io/docs/intro"
-          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          Access to Documentation
-        </p>
-      </li>
-
-      <li class="pb-2">
-        <i class="fas fa-solid fa-bug" aria-hidden="true"></i>
-        <p
-          on:click="{() => window.openExternal('https://github.com/containers/podman-desktop/issues/new/choose')}"
-          title="https://github.com/containers/podman-desktop/issues/new/choose"
-          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          Report a bug
-        </p>
-      </li>
-
-      <li class="pb-2">
-        <i class="fas fa-solid fa-comment" aria-hidden="true"></i>
-        <p
-          on:click="{() => {
-            window.events.send('display-feedback', undefined);
-          }}"
-          title="Share your Feedback"
-          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          Share your Feedback
-        </p>
-      </li>
-
-      <li class="pb-2">
-        <i class="fas fa-solid fa-comment" aria-hidden="true"></i>
-        <p
-          on:click="{() =>
-            window.openExternal('https://github.com/containers/podman-desktop/discussions/categories/general')}"
-          title="https://github.com/containers/podman-desktop/discussions/categories/general"
-          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          Create a GitHub discussion
-        </p>
-      </li>
-
-      <li class="pb-2">
-        <i class="fas fa-comments" aria-hidden="true"></i>
-        <p
-          on:click="{() => window.openExternal('https://discord.com/invite/x5GzFF6QH4')}"
-          title="https://discordapp.com/invite/TCTB38RWpf"
-          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          General questions (bridged with IRC & Matrix): Join #podman-desktop on Discord
-        </p>
-      </li>
-      <li class="pb-2">
-        <i class="fas fa-comments" aria-hidden="true"></i>
-        <p
-          on:click="{() => window.openExternal('https://libera.chat')}"
-          title="https://libera.chat"
-          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          General questions (bridged with Discord & Matrix): Join #podman-desktop on Libera.Chat
-        </p>
-      </li>
-      <li class="pb-2">
-        <i class="fas fa-comments" aria-hidden="true"></i>
-        <p
-          on:click="{() => window.openExternal('https://fedora.im')}"
-          title="https://fedora.im"
-          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          General questions (bridged with Discord & IRC): Join #podman-desktop on Matrix
-        </p>
-      </li>
-      <li class="pb-2">
-        <i class="fas fa-comments" aria-hidden="true"></i>
-        <p
-          on:click="{() => window.openExternal('https://slack.k8s.io/')}"
-          title="https://slack.k8s.io/"
-          class="text-sm inline-flex ml-1 cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-          Kubernetes questions: Join #podman-desktop on the Kubernetes Slack
-        </p>
-      </li>
-    </ul>
-  </div>
-</div>
+</NavPage>

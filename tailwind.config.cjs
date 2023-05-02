@@ -131,6 +131,18 @@ module.exports = {
         800: '#9f2f15',
         900: '#842c18',
       },
+      'amber': {
+         50: tailwindColors.amber[50],
+        100: tailwindColors.amber[100],
+        200: tailwindColors.amber[200],
+        300: tailwindColors.amber[300],
+        400: tailwindColors.amber[400],
+        500: tailwindColors.amber[500],
+        600: tailwindColors.amber[600],
+        700: tailwindColors.amber[700],
+        800: tailwindColors.amber[800],
+        900: tailwindColors.amber[900],
+      },
       transparent: 'transparent',
       black: '#000',
       white: '#fff',
@@ -152,10 +164,6 @@ module.exports = {
       },
       'neutral': {
         900: tailwindColors.neutral[900],
-      },
-      'yellow': {
-        500: tailwindColors.yellow[500],
-        600: tailwindColors.yellow[600],
       },
       'blue': {
         500: tailwindColors.blue[500],

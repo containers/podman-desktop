@@ -169,7 +169,7 @@ function createPodFromContainers() {
   const podCreation = {
     name: 'my-pod',
     containers: selectedContainers.map(container => {
-      return { id: container.id, name: container.name, engineId: container.engineId, ports: container.port };
+      return { id: container.id, name: container.name, engineId: container.engineId, ports: container.ports };
     }),
   };
 

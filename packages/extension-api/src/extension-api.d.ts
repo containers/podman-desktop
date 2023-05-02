@@ -179,6 +179,9 @@ declare module '@podman-desktop/api' {
 
     // Provide way to add additional warnings to the provider
     warnings?: ProviderInformation[];
+
+    // Provide the message to display when the provider has no connections
+    emptyConnectionMarkdownDescription?: string;
   }
 
   export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
@@ -251,6 +254,7 @@ declare module '@podman-desktop/api' {
   export interface Link {
     title: string;
     url: string;
+    group?: string;
   }
   export type CheckResultLink = Link;
 
