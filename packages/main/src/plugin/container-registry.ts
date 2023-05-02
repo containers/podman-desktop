@@ -50,6 +50,7 @@ import { Emitter } from './events/emitter';
 import fs from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import type { ApiSenderType } from './api';
+import type { ProviderRegistry } from '/@/plugin/provider-registry';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -155,6 +156,7 @@ export class ContainerProviderRegistry {
   registerContainerConnection(
     provider: containerDesktopAPI.Provider,
     containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
+    providerRegistry: ProviderRegistry,
   ): Disposable {
     const providerName = containerProviderConnection.name;
     const id = `${provider.id}.${providerName}`;
@@ -170,20 +172,11 @@ export class ContainerProviderRegistry {
       name: provider.name,
       connection: containerProviderConnection,
     };
-    let previousStatus = containerProviderConnection.status();
 
-    if (containerProviderConnection.status() === 'started') {
-      internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
-      if (containerProviderConnection.type === 'podman') {
-        internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
-      }
-      this.handleEvents(internalProvider.api);
-    }
-
-    // track the status of the provider
-    const timer = setInterval(async () => {
-      const newStatus = containerProviderConnection.status();
-      if (newStatus !== previousStatus) {
+    providerRegistry.onBeforeDidUpdateContainerConnection(event => {
+      if (event.providerId === provider.id && event.connection.name === containerProviderConnection.name) {
+        const newStatus = event.status;
+        console.log(` New status ${newStatus}`);
         if (newStatus === 'stopped') {
           internalProvider.api = undefined;
           internalProvider.libpodApi = undefined;
@@ -198,9 +191,16 @@ export class ContainerProviderRegistry {
           this.internalProviders.set(id, internalProvider);
           this.apiSender.send('provider-change', {});
         }
-        previousStatus = newStatus;
       }
-    }, 2000);
+    });
+
+    if (containerProviderConnection.status() === 'started') {
+      internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
+      if (containerProviderConnection.type === 'podman') {
+        internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
+      }
+      this.handleEvents(internalProvider.api);
+    }
 
     this.internalProviders.set(id, internalProvider);
     this.apiSender.send('provider-change', {});
@@ -208,7 +208,6 @@ export class ContainerProviderRegistry {
     // listen to events
 
     return Disposable.create(() => {
-      clearInterval(timer);
       this.internalProviders.delete(id);
       this.containerProviders.delete(id);
       this.apiSender.send('provider-change', {});
