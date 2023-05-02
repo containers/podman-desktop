@@ -319,8 +319,8 @@ function updateKubeResult() {
 </script>
 
 <NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
-  <div slot="empty" class="p-5 bg-charcoal-700 h-full">
-    <div class="bg-charcoal-800 h-full p-5 rounded-lg">
+  <div slot="empty" class="p-5 bg-zinc-700 h-full">
+    <div class="bg-zinc-800 h-full p-5">
       {#if kubeDetails}
         <p>Generated pod to deploy to Kubernetes:</p>
         <div class="h-1/3 pt-2">
@@ -330,19 +330,19 @@ function updateKubeResult() {
 
       {#if bodyPod}
         <div class="pt-2 pb-4">
-          <label for="contextToUse" class="block mb-1 text-sm font-bold text-gray-400">Pod Name:</label>
+          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Pod Name:</label>
           <input
             type="text"
             bind:value="{bodyPod.metadata.name}"
             name="podName"
             id="podName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
 
       <div class="pt-2 pb-4">
-        <label for="services" class="block mb-1 text-sm font-bold text-gray-300">Use Kubernetes Services:</label>
+        <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Use Kubernetes Services:</label>
         <input
           type="checkbox"
           bind:checked="{deployUsingServices}"
@@ -353,137 +353,131 @@ function updateKubeResult() {
         <span class="text-gray-400 text-sm ml-1"
           >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster
           policy may prevent to use hostPort.</span>
+      </div>
 
-        <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
-        {#if !openshiftConsoleURL && deployUsingServices}
-          <div class="pt-2 pb-4">
-            <label for="ingress" class="block mb-1 text-sm font-bold text-gray-300"
-              >Expose service locally using Kubernetes Ingress:</label>
-            <input
-              type="checkbox"
-              bind:checked="{createIngress}"
-              name="createIngress"
-              id="createIngress"
-              class=""
-              required />
-            <span class="text-gray-300 text-sm ml-1">
-              Create an Ingress to get access to the local ports exposed, at the default Ingress Controller location.
-              Example: On default kind cluster created with Podman Desktop, it will be accessible at 'localhost:9090'.
-              Requirements: Your cluster must have an Ingress Controller.</span>
-          </div>
-        {/if}
+      <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
+      {#if !openshiftConsoleURL && deployUsingServices}
+        <div class="pt-2 pb-4">
+          <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300"
+            >Expose service locally using Kubernetes Ingress:</label>
+          <input
+            type="checkbox"
+            bind:checked="{createIngress}"
+            name="createIngress"
+            id="createIngress"
+            class=""
+            required />
+          <span class="text-gray-300 text-sm ml-1">
+            Create an Ingress to get access to the local ports exposed, at the default Ingress Controller location.
+            Example: On default kind cluster created with Podman Desktop, it will be accessible at 'localhost:9090'.
+            Requirements: Your cluster must have an Ingress Controller.</span>
+        </div>
+      {/if}
 
-        {#if createIngress && containerPortArray.length > 1}
-          <div class="pt-2 pb-4">
-            <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300">Ingress Host Port:</label>
-            <select
-              bind:value="{ingressPort}"
-              name="serviceName"
-              id="serviceName"
-              class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
-              required>
-              <option value="" disabled selected>Select a port</option>
-              {#each containerPortArray as port}
-                <option value="{port}">{port}</option>
-              {/each}
-            </select>
-            <span class="text-gray-300 text-sm ml-1"
-              >There are multiple exposed ports available. Select the one you want to expose to '/' with the Ingress.
+      {#if createIngress && containerPortArray.length > 1}
+        <div class="pt-2 pb-4">
+          <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300">Ingress Host Port:</label>
+          <select
+            bind:value="{ingressPort}"
+            name="serviceName"
+            id="serviceName"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            required>
+            <option value="" disabled selected>Select a port</option>
+            {#each containerPortArray as port}
+              <option value="{port}">{port}</option>
+            {/each}
+          </select>
+          <span class="text-gray-300 text-sm ml-1"
+            >There are multiple exposed ports available. Select the one you want to expose to '/' with the Ingress.
+          </span>
+        </div>
+      {/if}
+
+      <!-- Allow to create routes for OpenShift clusters -->
+      {#if openshiftConsoleURL}
+        <div class="pt-2 m-2">
+          <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
+          <input type="checkbox" bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" class="" required />
+          <span class="text-gray-400 text-sm ml-1"
+            >Create OpenShift routes to get access to the exposed ports of this pod.</span>
+        </div>
+      {/if}
+
+      {#if defaultContextName}
+        <div class="pt-2">
+          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Context:</label>
+          <input
+            type="text"
+            bind:value="{defaultContextName}"
+            name="defaultContextName"
+            id="defaultContextName"
+            readonly
+            class="cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            required />
+        </div>
+      {/if}
+
+      {#if allNamespaces}
+        <div class="pt-2">
+          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes namespace:</label>
+          <select
+            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            name="namespaceChoice"
+            bind:value="{currentNamespace}">
+            {#each allNamespaces.items as namespace}
+              <option value="{namespace.metadata.name}">
+                {namespace.metadata.name}
+              </option>
+            {/each}
+          </select>
+        </div>
+      {/if}
+
+      {#if deployWarning}
+        <WarningMessage class="text-sm" error="{deployWarning}" />
+      {/if}
+      {#if deployError}
+        <ErrorMessage class="text-sm" error="{deployError}" />
+      {/if}
+
+      {#if !deployStarted}
+        <div class="pt-2 m-2">
+          <button
+            on:click="{() => deployToKube()}"
+            class="w-full pf-c-button pf-m-primary"
+            type="button"
+            disabled="{bodyPod?.metadata?.name === ''}">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-rocket" aria-hidden="true"></i>
             </span>
-          </div>
-        {/if}
+            Deploy
+          </button>
+        </div>
+      {/if}
 
-        <!-- Allow to create routes for OpenShift clusters -->
-        {#if openshiftConsoleURL}
-          <div class="pt-2 m-2">
-            <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
-            <input
-              type="checkbox"
-              bind:checked="{deployUsingRoutes}"
-              name="useRoutes"
-              id="useRoutes"
-              class=""
-              required />
-            <span class="text-gray-400 text-sm ml-1"
-              >Create OpenShift routes to get access to the exposed ports of this pod.</span>
-          </div>
-        {/if}
-
-        {#if defaultContextName}
-          <div class="pt-2">
-            <label for="contextToUse" class="block mb-1 text-sm font-bold text-gray-400">Kubernetes Context:</label>
-            <input
-              type="text"
-              bind:value="{defaultContextName}"
-              name="defaultContextName"
-              id="defaultContextName"
-              readonly
-              class="cursor-default w-full p-2 outline-none text-sm bg-charcoal-900 rounded-sm text-gray-700 placeholder-gray-700"
-              required />
-          </div>
-        {/if}
-
-        {#if allNamespaces}
-          <div class="pt-2">
-            <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400"
-              >Kubernetes namespace:</label>
-            <select
-              class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
-              name="namespaceChoice"
-              bind:value="{currentNamespace}">
-              {#each allNamespaces.items as namespace}
-                <option value="{namespace.metadata.name}">
-                  {namespace.metadata.name}
-                </option>
-              {/each}
-            </select>
-          </div>
-        {/if}
-
-        {#if deployWarning}
-          <WarningMessage class="text-sm" error="{deployWarning}" />
-        {/if}
-        {#if deployError}
-          <ErrorMessage class="text-sm" error="{deployError}" />
-        {/if}
-
-        {#if !deployStarted}
-          <div class="pt-2 m-2">
-            <button
-              on:click="{() => deployToKube()}"
-              class="w-full pf-c-button pf-m-primary"
-              type="button"
-              disabled="{bodyPod?.metadata?.name === ''}">
-              <span class="pf-c-button__icon pf-m-start">
-                <i class="fas fa-rocket" aria-hidden="true"></i>
-              </span>
-              Deploy
-            </button>
-          </div>
-        {/if}
-
-        {#if createdPod}
-          <div class="bg-zinc-900 p-5 my-4">
-            <div class="flex flex-row items-center">
-              <div>Created pod:</div>
-              {#if openshiftConsoleURL && createdPod?.metadata?.name}
-                <div class="justify-end flex flex-1">
-                  <div class="pf-c-button pf-m-link cursor-pointer" on:click="{() => openOpenshiftConsole()}">
-                    <span class="pf-c-button__icon pf-m-start">
-                      <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-                    </span>
-                    Open in OpenShift console
-                  </div>
+      {#if createdPod}
+        <div class="bg-zinc-900 p-5 my-4">
+          <div class="flex flex-row items-center">
+            <div>Created pod:</div>
+            {#if openshiftConsoleURL && createdPod?.metadata?.name}
+              <div class="justify-end flex flex-1">
+                <div class="pf-c-button pf-m-link cursor-pointer" on:click="{() => openOpenshiftConsole()}">
+                  <span class="pf-c-button__icon pf-m-start">
+                    <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                  </span>
+                  Open in OpenShift console
                 </div>
-              {/if}
-            </div>
-            <div class="text-gray-700">
-              {#if createdPod.metadata?.name}
-                <p class="pt-2">Name: {createdPod.metadata.name}</p>
-              {/if}
-              {#if createdPod.status?.phase}
-                <p class="pt-2">Phase: {createdPod.status.phase}</p>
-              {/if}
+              </div>
+            {/if}
+          </div>
+          <div class="text-gray-700">
+            {#if createdPod.metadata?.name}
+              <p class="pt-2">Name: {createdPod.metadata.name}</p>
+            {/if}
+            {#if createdPod.status?.phase}
+              <p class="pt-2">Phase: {createdPod.status.phase}</p>
+            {/if}
 
             {#if createdPod.status?.containerStatuses}
               <p class="pt-2">Container statuses:</p>
@@ -505,49 +499,38 @@ function updateKubeResult() {
                       {#if containerStatus.state.waiting.reason}
                         <span class="text-amber-500">[{containerStatus.state.waiting.reason}]</span>
                       {/if}
-                      {#if containerStatus.state?.running}
-                        <span class="text-green-400">(Running)</span>
-                      {/if}
-                      {#if containerStatus.state?.terminated}
-                        <span class="text-red-500">(Terminated)</span>
-                      {/if}
-                      {#if containerStatus.state?.waiting}
-                        <span class="text-yellow-500">(Waiting)</span>
-                        {#if containerStatus.state.waiting.reason}
-                          <span class="text-yellow-500">[{containerStatus.state.waiting.reason}]</span>
-                        {/if}
-                      {/if}
-                    </li>
-                  {/each}
-                </ul>
-              {/if}
-              {#if createdRoutes && createdRoutes.length > 0}
-                <p class="pt-2">Endpoints:</p>
-                <ul class="list-disc list-inside">
-                  {#each createdRoutes as createdRoute}
-                    <li class="pt-2">
-                      Port {createdRoute.spec.port.targetPort} is reachable with route
-                      <span
-                        class="cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline"
-                        on:click="{() => {
-                          openRoute(createdRoute);
-                        }}">{createdRoute.metadata.name}</span>
-                    </li>
-                  {/each}
-                </ul>
-              {/if}
-            </div>
-
-            <!-- add editor for the result-->
-            <div class="h-[100px] pt-2">
-              <MonacoEditor content="{jsYaml.dump(createdPod)}" language="yaml" />
-            </div>
+                    {/if}
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+            {#if createdRoutes && createdRoutes.length > 0}
+              <p class="pt-2">Endpoints:</p>
+              <ul class="list-disc list-inside">
+                {#each createdRoutes as createdRoute}
+                  <li class="pt-2">
+                    Port {createdRoute.spec.port.targetPort} is reachable with route
+                    <span
+                      class="cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline"
+                      on:click="{() => {
+                        openRoute(createdRoute);
+                      }}">{createdRoute.metadata.name}</span>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
           </div>
-        {/if}
 
-        {#if deployFinished}
-          <button on:click="{() => goBackToHistory()}" class="pt-4 w-full pf-c-button pf-m-primary">Done</button>
-        {/if}
-      </div>
+          <!-- add editor for the result-->
+          <div class="h-[100px] pt-2">
+            <MonacoEditor content="{jsYaml.dump(createdPod)}" language="yaml" />
+          </div>
+        </div>
+      {/if}
+
+      {#if deployFinished}
+        <button on:click="{() => goBackToHistory()}" class="pt-4 w-full pf-c-button pf-m-primary">Done</button>
+      {/if}
     </div>
-  </div></NavPage>
+  </div>
+</NavPage>
