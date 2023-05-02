@@ -666,7 +666,7 @@ async function stopAutoStartedMachine() {
     autoMachineStarted = false;
     return;
   }
-  console.log('stopping machine', autoMachineName);
+  console.log('stopping autostarted machine', autoMachineName);
   await execPromise(getPodmanCli(), ['machine', 'stop', autoMachineName]);
 }
 

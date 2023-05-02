@@ -20,7 +20,7 @@ import { app, ipcMain, Tray } from 'electron';
 import './security-restrictions';
 import { createNewWindow, restoreWindow } from '/@/mainWindow';
 import { TrayMenu } from './tray-menu';
-import { isMac, isWindows } from './util';
+import { isMac, isWindows, stoppedExtensions } from './util';
 import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
 import { StartupInstall } from './system/startup-install';
@@ -51,9 +51,9 @@ app.on('window-all-closed', () => {
   }
 });
 
-let stoppedAllExtensions = false;
-app.on('before-quit', async event => {
-  if (stoppedAllExtensions) {
+app.once('before-quit', async event => {
+  if (!extensionLoader) {
+    stoppedExtensions.val = true;
     return;
   }
   event.preventDefault();
@@ -66,7 +66,7 @@ app.on('before-quit', async event => {
       console.log('Error stopping extensions', error);
     })
     .finally(() => {
-      stoppedAllExtensions = true;
+      stoppedExtensions.val = true;
       app.quit();
     });
 });

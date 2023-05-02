@@ -25,7 +25,7 @@ const { aboutMenuItem } = require('electron-util');
 import { join } from 'path';
 import { URL } from 'url';
 import type { ConfigurationRegistry } from './plugin/configuration-registry';
-import { isLinux, isMac } from './util';
+import { isLinux, isMac, stoppedExtensions } from './util';
 
 async function createWindow() {
   const INITIAL_APP_WIDTH = 1050;
@@ -154,7 +154,7 @@ async function createWindow() {
 
   let destroyed = false;
   app.on('before-quit', () => {
-    if (destroyed) {
+    if (destroyed || !stoppedExtensions.val) {
       return;
     }
     browserWindow.destroy();
