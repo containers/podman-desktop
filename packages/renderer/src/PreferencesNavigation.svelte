@@ -49,7 +49,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
 </script>
 
 <nav
-  class="pf-c-nav z-0 w-[250px] min-w-[200px] shadow flex-col justify-between flex transition-all duration-500 ease-in-out shadow-[inset_7px_-4px_6px_rgba(0,0,0,0.15)]"
+  class="pf-c-nav z-0 w-[250px] min-w-[200px] flex-col justify-between flex transition-all duration-500 ease-in-out shadow-nav"
   style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))"
   aria-label="Global">
   <div class="flex items-center">
