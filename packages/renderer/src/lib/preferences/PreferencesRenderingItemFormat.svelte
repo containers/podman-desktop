@@ -219,7 +219,7 @@ function handleCleanValue(
           readonly="{!!record.readonly}"
           id="input-standard-{record.id}"
           aria-invalid="{invalidEntry}"
-          aria-label="{record.description}" />
+          aria-label="{record.description || record.markdownDescription}" />
         <div
           class="w-8 h-[20px] bg-gray-900 rounded-full peer peer-checked:after:translate-x-full after:bg-zinc-800 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
         </div>
