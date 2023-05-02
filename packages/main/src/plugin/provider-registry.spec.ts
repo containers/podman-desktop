@@ -206,6 +206,13 @@ test('should send events when starting a container connection', async () => {
     },
   });
 
+  let onBeforeDidUpdateContainerConnectionCalled = false;
+  providerRegistry.onBeforeDidUpdateContainerConnection(event => {
+    expect(event.connection.name).toBe(connection.name);
+    expect(event.connection.type).toBe(connection.type);
+    expect(event.status).toBe('started');
+    onBeforeDidUpdateContainerConnectionCalled = true;
+  });
   let onDidUpdateContainerConnectionCalled = false;
   providerRegistry.onDidUpdateContainerConnection(event => {
     expect(event.connection.name).toBe(connection.name);
@@ -213,12 +220,21 @@ test('should send events when starting a container connection', async () => {
     expect(event.status).toBe('started');
     onDidUpdateContainerConnectionCalled = true;
   });
+  let onAfterDidUpdateContainerConnectionCalled = false;
+  providerRegistry.onAfterDidUpdateContainerConnection(event => {
+    expect(event.connection.name).toBe(connection.name);
+    expect(event.connection.type).toBe(connection.type);
+    expect(event.status).toBe('started');
+    onAfterDidUpdateContainerConnectionCalled = true;
+  });
 
   await providerRegistry.startProviderConnection('0', connection);
 
   expect(startMock).toBeCalled();
   expect(stopMock).not.toBeCalled();
+  expect(onBeforeDidUpdateContainerConnectionCalled).toBeTruthy();
   expect(onDidUpdateContainerConnectionCalled).toBeTruthy();
+  expect(onAfterDidUpdateContainerConnectionCalled).toBeTruthy();
 });
 
 test('should send events when stopping a container connection', async () => {
@@ -249,6 +265,13 @@ test('should send events when stopping a container connection', async () => {
     },
   });
 
+  let onBeforeDidUpdateContainerConnectionCalled = false;
+  providerRegistry.onBeforeDidUpdateContainerConnection(event => {
+    expect(event.connection.name).toBe(connection.name);
+    expect(event.connection.type).toBe(connection.type);
+    expect(event.status).toBe('stopped');
+    onBeforeDidUpdateContainerConnectionCalled = true;
+  });
   let onDidUpdateContainerConnectionCalled = false;
   providerRegistry.onDidUpdateContainerConnection(event => {
     expect(event.connection.name).toBe(connection.name);
@@ -256,12 +279,21 @@ test('should send events when stopping a container connection', async () => {
     expect(event.status).toBe('stopped');
     onDidUpdateContainerConnectionCalled = true;
   });
+  let onAfterDidUpdateContainerConnectionCalled = false;
+  providerRegistry.onAfterDidUpdateContainerConnection(event => {
+    expect(event.connection.name).toBe(connection.name);
+    expect(event.connection.type).toBe(connection.type);
+    expect(event.status).toBe('stopped');
+    onAfterDidUpdateContainerConnectionCalled = true;
+  });
 
   await providerRegistry.stopProviderConnection('0', connection);
 
   expect(stopMock).toBeCalled();
   expect(startMock).not.toBeCalled();
+  expect(onBeforeDidUpdateContainerConnectionCalled).toBeTruthy();
   expect(onDidUpdateContainerConnectionCalled).toBeTruthy();
+  expect(onAfterDidUpdateContainerConnectionCalled).toBeTruthy();
 });
 
 test('runAutostartContainer should start container and send event', async () => {
