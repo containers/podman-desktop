@@ -47,7 +47,7 @@ const record2: IConfigurationPropertyRecordedSchema = {
   parentId: 'key',
   type: 'boolean',
   default: true,
-  description: 'record2',
+  markdownDescription: 'record2',
   scope: CONFIGURATION_DEFAULT_SCOPE,
 };
 const records = [record, record2];
