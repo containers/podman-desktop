@@ -71,7 +71,10 @@ window.events?.receive('display-help', () => {
 
 <Route path="/*" breadcrumb="Home" let:meta>
   <main class="min-h-screen flex flex-col h-screen bg-charcoal-800">
-    <header id="navbar" class="text-gray-700 bg-charcoal-900 body-font" style="-webkit-app-region: drag;">
+    <header
+      id="navbar"
+      class="text-gray-700 bg-charcoal-900 body-font shadow-titlebar z-999;"
+      style="-webkit-app-region: drag;">
       <div class="flex mx-auto flex-row p-2 items-center">
         <div class="flex lg:w-2/5 flex-1 items-center text-base ml-auto"></div>
         <div
