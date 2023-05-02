@@ -1,0 +1,5 @@
+[Dd]eploy
+[Dd]isplay
+[Dd]one
+jQuery
+[Ss]elect
