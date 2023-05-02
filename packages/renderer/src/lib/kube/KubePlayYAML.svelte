@@ -129,8 +129,7 @@ async function getKubernetesfileLocation() {
       <div class="bg-charcoal-800 px-6 py-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div class="text-xl font-medium">Select file:</div>
         <div hidden="{runStarted}">
-          <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400"
-            >Kubernetes YAML file</label>
+          <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Kubernetes YAML file</label>
           <input
             on:click="{() => getKubernetesfileLocation()}"
             name="containerFilePath"
