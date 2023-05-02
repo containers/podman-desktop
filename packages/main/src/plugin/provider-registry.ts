@@ -565,8 +565,7 @@ export class ProviderRegistry {
       provider.kubernetesProviderConnectionFactory?.creationDisplayName;
     const kubernetesProviderConnectionCreationButtonTitle =
       provider.kubernetesProviderConnectionFactory?.creationButtonTitle;
-    const kubernetesProviderEmptyConnectionsViewMarkdown =
-      provider.kubernetesProviderConnectionFactory?.emptyConnectionsMarkdownDescription;
+    const emptyConnectionMarkdownDescription = provider.emptyConnectionMarkdownDescription;
     if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.initialize) {
       kubernetesProviderConnectionInitialization = true;
     }
@@ -592,7 +591,7 @@ export class ProviderRegistry {
       kubernetesProviderConnectionInitialization,
       kubernetesProviderConnectionCreationDisplayName,
       kubernetesProviderConnectionCreationButtonTitle,
-      kubernetesProviderEmptyConnectionsViewMarkdown,
+      emptyConnectionMarkdownDescription,
       links: provider.links,
       detectionChecks: provider.detectionChecks,
       images: provider.images,

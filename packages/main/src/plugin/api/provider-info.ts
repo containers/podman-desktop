@@ -76,6 +76,8 @@ export interface ProviderInfo {
 
   // optional creation button title (if defined)
   kubernetesProviderConnectionCreationButtonTitle?: string;
+  
+  emptyConnectionMarkdownDescription?: string;
 
   version?: string;
 

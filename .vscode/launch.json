@@ -7,7 +7,19 @@
             "name": "Debug Main Process",
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/scripts/watch.cjs",
-            "autoAttachChildProcesses": true
+            "args": [
+                "--extension-folder",
+                "../podman-desktop-redhat-account-ext",
+                "--extension-folder",
+                "../podman-desktop-sandbox-ext"
+            ],
+            "autoAttachChildProcesses": true,
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**",
+                "${workspaceFolder}/../podman-desktop-redhat-account-ext/**",
+                "${workspaceFolder}/../podman-desktop-sandbox-ext/**"
+            ]
         },
         {
             // Needs to start "Debug Main Process" first
@@ -17,7 +29,10 @@
             "port": 9223,
             "sourceMaps": true,
             "webRoot": "${workspaceRoot}/packages/",
-            "timeout": 30000
+            "timeout": 30000,
+            "sourceMapPathOverrides": {
+                "webpack:///./~/*": "${workspaceFolder}/packages/renderer/dist/*",
+            }
           },
     ],
 }
