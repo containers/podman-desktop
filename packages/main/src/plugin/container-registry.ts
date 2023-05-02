@@ -176,7 +176,6 @@ export class ContainerProviderRegistry {
     providerRegistry.onBeforeDidUpdateContainerConnection(event => {
       if (event.providerId === provider.id && event.connection.name === containerProviderConnection.name) {
         const newStatus = event.status;
-        console.log(` New status ${newStatus}`);
         if (newStatus === 'stopped') {
           internalProvider.api = undefined;
           internalProvider.libpodApi = undefined;
