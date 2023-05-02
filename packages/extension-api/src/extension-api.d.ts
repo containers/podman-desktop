@@ -254,6 +254,7 @@ declare module '@podman-desktop/api' {
   export interface Link {
     title: string;
     url: string;
+    group?: string;
   }
   export type CheckResultLink = Link;
 
