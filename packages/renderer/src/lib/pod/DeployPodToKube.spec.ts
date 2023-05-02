@@ -33,6 +33,8 @@ const kubernetesListNamespacesMock = vi.fn();
 const kubernetesReadNamespacedConfigMapMock = vi.fn();
 const telemetryTrackMock = vi.fn();
 const kubernetesCreatePodMock = vi.fn();
+const kubernetesCreateIngressMock = vi.fn();
+const kubernetesCreateServiceMock = vi.fn();
 
 beforeEach(() => {
   Object.defineProperty(window, 'generatePodmanKube', {
@@ -54,14 +56,40 @@ beforeEach(() => {
   Object.defineProperty(window, 'kubernetesCreatePod', {
     value: kubernetesCreatePodMock,
   });
+  Object.defineProperty(window, 'kubernetesCreateIngress', {
+    value: kubernetesCreateIngressMock,
+  });
+  Object.defineProperty(window, 'kubernetesCreateService', {
+    value: kubernetesCreateServiceMock,
+  });
   Object.defineProperty(window, 'telemetryTrack', {
     value: telemetryTrackMock,
   });
 
+  // podYaml with volumes
   const podYaml = {
     metadata: { name: 'hello' },
     spec: {
-      containers: [],
+      containers: [
+        {
+          name: 'hello',
+          image: 'hello-world',
+          volumeMounts: [
+            // Test that this will be removed by PD
+            {
+              name: 'hello',
+              mountPath: '/hello',
+            },
+          ],
+        },
+      ],
+      volumes: [
+        // Test that this will be removed by PD
+        {
+          name: 'hello',
+          emptyDir: {},
+        },
+      ],
     },
   };
   generatePodmanKubeMock.mockResolvedValue(jsYaml.dump(podYaml));
@@ -137,4 +165,47 @@ test('Expect to send telemetry error event', async () => {
       createIngress: false,
     }),
   );
+});
+
+test('When deploying a pod, volumes should not be added (they are deleted by podman desktop)', async () => {
+  await waitRender({});
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
+
+  // Press the deploy button
+  await fireEvent.click(createButton);
+
+  // Expect kubernetesCreatePod to be called with default namespace and a modified bodyPod with volumes removed
+  await waitFor(() =>
+    expect(kubernetesCreatePodMock).toBeCalledWith('default', {
+      metadata: { name: 'hello' },
+      spec: {
+        containers: [
+          {
+            name: 'hello',
+            image: 'hello-world',
+          },
+        ],
+      },
+    }),
+  );
+});
+
+test('Fail to deploy ingress if service is not selected', async () => {
+  await waitRender({});
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
+
+  // Checkmark the ingress
+  const checkbox = screen.getByLabelText('Expose service locally using Kubernetes Ingress:');
+  await fireEvent.click(checkbox);
+  expect(checkbox).toHaveProperty('checked', true);
+
+  // Press the deploy button
+  await fireEvent.click(createButton);
+
+  // Expect kubernetesCreateIngress to not be called since we error out as service wasn't selected
+  await waitFor(() => expect(kubernetesCreateIngressMock).not.toHaveBeenCalled());
 });
