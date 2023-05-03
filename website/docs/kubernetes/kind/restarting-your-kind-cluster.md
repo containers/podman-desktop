@@ -12,7 +12,7 @@ With Podman Desktop, you can restart your local Kind-powered Kubernetes cluster.
 
 #### Procedure
 
-1. Open **Settings > Resources**.
+1. Open **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**.
 1. Find the Kind cluster to restart.
 1. Click <icon icon="fa-solid fa-repeat" size="lg" />.
 
