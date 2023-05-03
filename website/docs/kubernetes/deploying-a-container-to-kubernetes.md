@@ -20,7 +20,7 @@ With Podman Desktop, you can deploy a container to your Kubernetes cluster.
 #### Procedure
 
 1. Click **Podman Desktop tray > Kubernetes > Context > _<your_kubernetes_cluster>_** to set your Kubernetes context.
-1. Open **Podman Desktop dashboard > Containers > _<your_container>_** to see the **Container Details** page.
+1. Open **Podman Desktop dashboard > <icon icon="fa-solid fa-cubes" size="lg" /> Containers > _<your_container>_** to see the **Container Details** page.
 1. Click <icon icon="fa-solid fa-rocket" size="lg" /> to generate a Kubernetes pod.
 1. On the **Deploy generated pod to Kubernetes** screen, choose your options:
    1. **Pod Name**: edit the proposed name.
