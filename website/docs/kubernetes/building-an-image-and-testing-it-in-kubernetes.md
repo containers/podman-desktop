@@ -44,7 +44,7 @@ With Podman Desktop, you can build an image with your container engine, and test
 1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search containers**: enter `my-image-container` to find the running container.
 
 1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
-   1. **Pod Name**: enter `my-image-container-pod`.
+   1. **Pod Name**: keep the proposed value `my-image-container-pod`.
    1. **Use Kubernetes Services**: select **Replace `hostPort` exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use `hostPort`.**
    1. **Expose service locally using Kubernetes Ingress**: select **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
    1. **Kubernetes namespaces**: select `default`.
