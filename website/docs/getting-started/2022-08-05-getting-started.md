@@ -81,7 +81,7 @@ Following are the steps to create and start a container from the image.
 
    ![img2.4](img/2.4.png)
 
-5. To check if it is running our application as desired, I will open the URL in the browser (in this case, localhost:8080 because that’s where we mapped our port). This can be done by clicking on the ‘Open Browser’ button.
+5. To check if it is running our application as desired, open the URL in the browser (in this case, localhost:8080 because that’s where we mapped our port). This can be done by clicking on the ‘Open Browser’ button.
 
    ![img2.5](img/2.5.png)
 
