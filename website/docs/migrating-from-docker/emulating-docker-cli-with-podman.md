@@ -31,7 +31,7 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
 
 2. (Optional) Create an empty `/etc/containers/nodocker` file to avoid the `Emulate Docker CLI using podman.` message when running the script.
 
-   ```
+   ```shell-session
    # touch /etc/containers/nodocker
    ```
 

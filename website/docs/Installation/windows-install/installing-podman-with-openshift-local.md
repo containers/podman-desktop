@@ -29,18 +29,19 @@ Consider installing the Podman Preset in OpenShift Local rather than [installing
 
 2. Select the Podman container runtime preset:
 
-   ```
+   ```shell-session
    $ crc config set preset podman
    ```
 
 3. Set up your host machine for Red Hat OpenShift Local:
 
-   ```
+   ```shell-session
    $ crc setup
    ```
 
 4. Start the Red Hat OpenShift instance:
-   ```
+
+   ```shell-session
    $ crc start
    ```
 

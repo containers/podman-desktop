@@ -32,6 +32,6 @@ With Podman Desktop, you can deploy a container to your Kubernetes cluster.
 
 - On the **Deploy generated pod to Kubernetes** screen, the created pod status is _Phase: Running_
 
-  ![](img/deploying-a-container.png)
+  ![Deploying a container](img/deploying-a-container.png)
 
 - Go to **Containers**: your pod is in the list.

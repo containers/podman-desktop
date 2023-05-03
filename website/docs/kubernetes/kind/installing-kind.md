@@ -19,6 +19,7 @@ tags: [migrating-to-kubernetes, kind]
 1. **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources** contain a **Kind** tile.
    ![Kind resource tile](img/kind-resource.png)
 1. You can run the `kind` CLI:
+
    ```shell-session
    $ kind get clusters
    ```

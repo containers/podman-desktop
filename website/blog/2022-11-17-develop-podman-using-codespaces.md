@@ -17,7 +17,7 @@ The challenges are to run a desktop tool (Podman Desktop) and running a containe
 
 ## Defining image of the container
 
-The first thing is in the choice of the image for the container. It is possible to pick-up a default image and add some features but there is no existing feature for Podman at https://github.com/devcontainers/features/tree/main/src and most of the features are expecting to run on top of Debian/Ubuntu
+The first thing is in the choice of the image for the container. It is possible to pick-up a default image and add some features but there is no existing feature for Podman at <https://github.com/devcontainers/features/tree/main/src> and most of the features are expecting to run on top of Debian/Ubuntu
 
 If you are not interested in how to setup the image, jump to the [next section](#configure-the-devcontainer-using-devcontainerjson).
 
@@ -119,14 +119,14 @@ ENV _CONTAINERS_USERNS_CONFIGURED=""
 
 Make sure Podman will create the socket in an expected directory:
 
-```
+```docker
 # socket path for podman
 ENV XDG_RUNTIME_DIR=/run/user/1000
 ```
 
 OK ! we have a custom Containerfile providing all the tools to build and run Podman Desktop (using VNC for the display), run Podman and run Electron.
 
-The current file is available at https://github.com/containers/podman-desktop/blob/main/.devcontainer/.parent/Containerfile
+The current file is available at <https://github.com/containers/podman-desktop/blob/main/.devcontainer/.parent/Containerfile>
 
 Let's configure the DevContainer.
 
@@ -282,7 +282,7 @@ After all post-creation steps, the `Preview` browser inside the VS Code editor w
 
 As a user, opening a workspace with all what we configured is done using a single click.
 
-Go to https://github.com/containers/podman-desktop then click on the `< > Code` dropdown and click on `Create codespace on main` button.
+Go to <https://github.com/containers/podman-desktop> then click on the `< > Code` dropdown and click on `Create codespace on main` button.
 
 ![Open Codespace](img/develop-podman-using-codespaces/codespaces-click-repository.png)
 
