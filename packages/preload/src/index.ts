@@ -1114,6 +1114,10 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('kubernetesisAPIGroupSupported', async (group: string): Promise<boolean> => {
+    return ipcInvoke('kubernetes-client:isAPIGroupSupported', group);
+  });
+
   contextBridge.exposeInMainWorld('kubernetesCreatePod', async (namespace: string, pod: V1Pod): Promise<V1Pod> => {
     return ipcInvoke('kubernetes-client:createPod', namespace, pod);
   });

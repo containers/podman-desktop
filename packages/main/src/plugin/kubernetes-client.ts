@@ -27,8 +27,9 @@ import type {
   V1Ingress,
   V1ContainerState,
   V1APIResource,
+  V1APIGroup,
 } from '@kubernetes/client-node';
-import { NetworkingV1Api } from '@kubernetes/client-node';
+import { ApisApi, NetworkingV1Api } from '@kubernetes/client-node';
 import { AppsV1Api } from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
 import { CoreV1Api, KubeConfig, Log, Watch, VersionApi } from '@kubernetes/client-node';
@@ -85,9 +86,7 @@ function toPodInfo(pod: V1Pod): PodInfo {
   };
 }
 
-const OPENSHIFT_CONSOLE_NAMESPACE = 'openshift-config-managed';
-
-const OPENSHIFT_CONSOLE_CONFIG_MAP = 'console-public';
+const PROJECT_API_GROUP = 'project.openshift.io';
 
 /**
  * Handle calls to kubernetes API
@@ -107,6 +106,8 @@ export class KubernetesClient {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private kubeWatcher: any | undefined;
+
+  private apiGroups = new Array<V1APIGroup>();
 
   /*
    a Cache of API resources for the cluster. This is used to compute the plural when dealing
@@ -214,6 +215,22 @@ export class KubernetesClient {
     }
   }
 
+  async fetchAPIGroups() {
+    this.apiGroups = [];
+    try {
+      if (this.kubeConfig) {
+        const result = await this.kubeConfig.makeApiClient(ApisApi).getAPIVersions();
+        this.apiGroups = result?.body.groups;
+      }
+    } catch (err) {
+      console.log(`Error while fetching API groups: ${err}`);
+    }
+  }
+
+  async isAPIGroupSupported(group: string): Promise<boolean> {
+    return this.apiGroups.filter(g => g.name === group).length > 0;
+  }
+
   getContexts(): Context[] {
     return this.kubeConfig.contexts;
   }
@@ -240,8 +257,8 @@ export class KubernetesClient {
     let namespace;
 
     try {
-      const cm = await this.readNamespacedConfigMap(OPENSHIFT_CONSOLE_CONFIG_MAP, OPENSHIFT_CONSOLE_NAMESPACE);
-      if (cm) {
+      const projectGroupSupported = await this.isAPIGroupSupported(PROJECT_API_GROUP);
+      if (projectGroupSupported) {
         const projects = await ctx
           .makeApiClient(CustomObjectsApi)
           .listClusterCustomObject('project.openshift.io', 'v1', 'projects');
@@ -287,6 +304,7 @@ export class KubernetesClient {
     }
     this.setupKubeWatcher();
     this.apiResources.clear();
+    await this.fetchAPIGroups();
     this.apiSender.send('pod-event');
   }
 

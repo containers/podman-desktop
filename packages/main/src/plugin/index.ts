@@ -1407,6 +1407,10 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle('kubernetes-client:isAPIGroupSupported', async (_listener, group): Promise<boolean> => {
+      return kubernetesClient.isAPIGroupSupported(group);
+    });
+
     this.ipcHandle('kubernetes-client:getCurrentContextName', async (): Promise<string | undefined> => {
       return kubernetesClient.getCurrentContextName();
     });

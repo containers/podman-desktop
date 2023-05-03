@@ -35,6 +35,7 @@ const telemetryTrackMock = vi.fn();
 const kubernetesCreatePodMock = vi.fn();
 const kubernetesCreateIngressMock = vi.fn();
 const kubernetesCreateServiceMock = vi.fn();
+const kubernetesisAPIGroupSupported = vi.fn();
 
 beforeEach(() => {
   Object.defineProperty(window, 'generatePodmanKube', {
@@ -61,6 +62,9 @@ beforeEach(() => {
   });
   Object.defineProperty(window, 'kubernetesCreateService', {
     value: kubernetesCreateServiceMock,
+  });
+  Object.defineProperty(window, 'kubernetesisAPIGroupSupported', {
+    value: kubernetesisAPIGroupSupported,
   });
   Object.defineProperty(window, 'telemetryTrack', {
     value: telemetryTrackMock,
@@ -129,8 +133,9 @@ test('Expect to send telemetry event with OpenShift', async () => {
     data: {
       consoleURL: 'https://console-openshift-console.apps.cluster-1.example.com',
     },
-  }),
-    await waitRender({});
+  });
+  kubernetesisAPIGroupSupported.mockResolvedValue(true);
+  await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
   expect(createButton).toBeEnabled();
