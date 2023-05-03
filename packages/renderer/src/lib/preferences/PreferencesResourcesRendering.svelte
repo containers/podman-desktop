@@ -267,7 +267,7 @@ async function startConnectionProvider(
           <!-- providers columns -->
           <div class="grow flex flex-wrap divide-gray-900 ml-2">
             <PreferencesConnectionsEmptyRendering
-              message="{provider.kubernetesProviderEmptyConnectionsViewMessage}"
+              message="{provider.emptyConnectionMarkdownDescription}"
               hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
             {#each provider.containerConnections as container}
               <div class="px-5 py-2 w-[240px]">
