@@ -10,43 +10,42 @@ tags: [migrating-from-docker]
 
 Consider emulating Docker CLI with Podman to migrate transparently to Podman.
 
-* Continue using familiar Docker commands.
-* Take advantage of the benefits of Podman on macOS.
-* Your tools, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
+- Continue using familiar Docker commands.
+- Take advantage of the benefits of Podman on macOS.
+- Your tools, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
 
 #### Prerequisites
 
-* Podman
+- Podman
 
 #### Procedure
 
 1. Create a `/usr/local/bin/docker` script:
 
-    ```shell
-    #!/usr/bin/sh
-    [ -e /etc/containers/nodocker ] || \
-    echo "Emulate Docker CLI using podman. Create /etc/containers/nodocker to quiet msg." >&2
-    exec podman "$@"
-    ```
-
+   ```shell
+   #!/usr/bin/sh
+   [ -e /etc/containers/nodocker ] || \
+   echo "Emulate Docker CLI using podman. Create /etc/containers/nodocker to quiet msg." >&2
+   exec podman "$@"
+   ```
 
 2. (Optional) Create an empty `/etc/containers/nodocker` file to avoid the `Emulate Docker CLI using podman.` message when running the script.
 
-    ```
-    # touch /etc/containers/nodocker
-    ```
+   ```
+   # touch /etc/containers/nodocker
+   ```
 
 3. Make the script executable:
 
-    ```shell-session
-    # chmod +x /usr/local/bin/docker 
-    ```
+   ```shell-session
+   # chmod +x /usr/local/bin/docker
+   ```
 
 #### Verification
 
-* Use the `docker` script to run commands.
+- Use the `docker` script to run commands.
   Example:
 
-    ```shell-session
-    $ docker run -it docker.io/hello-world
-    ```
+  ```shell-session
+  $ docker run -it docker.io/hello-world
+  ```

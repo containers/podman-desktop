@@ -15,11 +15,11 @@ The 5 things to know being a Docker user by using Podman Desktop:
 - **Kubernetes** support: How to use Kubernetes with Podman.
 - **Security**: Use `rootless` mode or containers without root privileges.
 
-
 ![5-things-to-know-for-a-docker-user-hero](img/5-things-to-know-for-a-docker-user/5-things-to-know-for-a-docker-user-hero.png)
 
 <!--truncate-->
-_________________
+
+---
 
 ## Use Podman Desktop to interact with containers running in Docker
 
@@ -39,7 +39,7 @@ Using Podman with Podman Desktop or with the Podman CLI is straightforward. But 
 
 The socket compatibility mode is a feature of Podman that allows to bind the Podman socket under the Docker socket path.
 
-On Windows the socket compatibility mode is always enabled by default. On macOS, by using the `.pkg installer` it is active by default. But when installing with `brew`, it will not be there because it requires some admin permissions. 
+On Windows the socket compatibility mode is always enabled by default. On macOS, by using the `.pkg installer` it is active by default. But when installing with `brew`, it will not be there because it requires some admin permissions.
 
 That is not an issue because you can enable it by [invoking a CLI tool](https://podman-desktop.io/docs/migrating-from-docker/using-podman-mac-helper) that will setup the compatibility mode.
 
@@ -54,7 +54,6 @@ If you have the `docker` CLI installed on your computer, you can use the socket 
 If you do not have the `docker` CLI installed on your computer, you can [Create a script](https://podman-desktop.io/docs/migrating-from-docker/emulating-docker-cli-with-podman) called `docker` that will call the `podman` CLI
 
 **_NOTE:_** creating a shell prompt alias, for example `alias docker=podman`, will not work inside scripts that you call.
-
 
 ## Compose
 
@@ -98,7 +97,6 @@ Podman handles pods and in the Podman Desktop UI, you can see all the pods insid
 ![Containers from pod](img/5-things-to-know-for-a-docker-user/containers-from-pod.png)
 
 An experimental `kind` extension is bringing the creation of full-blown Kubernetes cluster with Podman.
-
 
 ## Rootless mode
 

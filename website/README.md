@@ -1,6 +1,7 @@
 # Website
 
 ### Install the project dependencies
+
 ```
 $ yarn install
 ```
