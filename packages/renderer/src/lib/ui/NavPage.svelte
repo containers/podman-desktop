@@ -4,7 +4,7 @@ export let searchTerm = '';
 export let searchEnabled: boolean = true;
 </script>
 
-<div class="flex flex-col min-h-full min-w-full">
+<div class="flex flex-col min-h-full min-w-full shadow-pageheader">
   <div class="min-w-full pt-4" class:pb-4="{!searchEnabled}">
     <div class="flex">
       <div class="px-5">

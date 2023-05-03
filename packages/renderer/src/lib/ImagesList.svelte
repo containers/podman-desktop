@@ -65,7 +65,7 @@ function updateImages() {
       image.selected = matchingImage.selected;
     }
   });
-  images = computedImages;
+  images = computedImages.sort((first, second) => second.createdAt - first.createdAt);
 
   // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
   const engines = images.map(container => {
@@ -265,7 +265,7 @@ function computeInterval(): number {
     <table class="mx-5 w-full" class:hidden="{images.length === 0}">
       <!-- title -->
       <thead>
-        <tr class="h-7 uppercase text-xs text-gray-900">
+        <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <input

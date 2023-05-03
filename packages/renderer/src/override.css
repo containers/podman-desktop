@@ -11,7 +11,7 @@
   --pf-global--primary-color--light-300: #8c4afd;
   --pf-global--primary-color--dark-300: #8c4afd;
 
-  --pf-global--BackgroundColor--300: #4b5563;
+  --pf-global--BackgroundColor--300: #222222; /*charcoal-700*/
 
   --pf-c-form__helper-text--m-error--Color: #ff0000;
 
@@ -24,7 +24,7 @@
 .pf-c-nav {
   --pf-c-nav__link--before--BorderBottomWidth: 0;
   --pf-c-nav__link--FontWeight: 600;
-  --pf-c-nav__link--m-current--BackgroundColor: rgba(255, 255, 255, 0.2);
+  --pf-c-nav__link--m-current--BackgroundColor: #36363d; /*charcoal-500*/
 
 
   --pf-c-nav__link--PaddingTop: 13px;

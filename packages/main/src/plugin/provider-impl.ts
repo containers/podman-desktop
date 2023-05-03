@@ -112,6 +112,10 @@ export class ProviderImpl implements Provider, IDisposable {
     return this.providerOptions.name;
   }
 
+  get emptyConnectionMarkdownDescription(): string | undefined {
+    return this.providerOptions.emptyConnectionMarkdownDescription;
+  }
+
   get version(): string | undefined {
     return this._version;
   }
@@ -210,7 +214,11 @@ export class ProviderImpl implements Provider, IDisposable {
 
   registerContainerProviderConnection(containerProviderConnection: ContainerProviderConnection): Disposable {
     this.containerProviderConnections.add(containerProviderConnection);
-    const disposable = this.containerRegistry.registerContainerConnection(this, containerProviderConnection);
+    const disposable = this.containerRegistry.registerContainerConnection(
+      this,
+      containerProviderConnection,
+      this.providerRegistry,
+    );
     this.providerRegistry.onDidRegisterContainerConnectionCallback(this, containerProviderConnection);
 
     return Disposable.create(() => {

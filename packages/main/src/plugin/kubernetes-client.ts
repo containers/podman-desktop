@@ -31,7 +31,7 @@ import type {
 import { NetworkingV1Api } from '@kubernetes/client-node';
 import { AppsV1Api } from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
-import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig, Log, Watch, VersionApi } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
@@ -280,7 +280,9 @@ export class KubernetesClient {
     // get the current context
     this.currentContextName = this.kubeConfig.getCurrentContext();
     const currentContext = this.kubeConfig.contexts.find(context => context.name === this.currentContextName);
-    if (currentContext) {
+    // Only update the namespace if we're able to actually connect to the cluster, otherwise we'll end up with a connection error.
+    const connected = await this.checkConnection();
+    if (currentContext && connected) {
       this.currentNamespace = await this.getDefaultNamespace(currentContext);
     }
     this.setupKubeWatcher();
@@ -369,7 +371,9 @@ export class KubernetesClient {
 
   async listPods(): Promise<PodInfo[]> {
     const ns = this.getCurrentNamespace();
-    if (ns) {
+    // Only retrieve pods if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
       const pods = await this.listNamespacedPod(ns);
       return pods.items.map(pod => toPodInfo(pod));
     }
@@ -441,6 +445,19 @@ export class KubernetesClient {
       }
     } catch (error) {
       throw this.wrapK8sClientError(error);
+    }
+  }
+
+  // Check that we can connect to the cluster and return a Promise<boolean> of true or false depending on the result.
+  // We will check via trying to retrieve a list of API Versions from the server.
+  async checkConnection(): Promise<boolean> {
+    try {
+      const k8sApi = this.kubeConfig.makeApiClient(VersionApi);
+      // getCode will error out if we're unable to connect to the cluster
+      await k8sApi.getCode();
+      return true;
+    } catch (error) {
+      return false;
     }
   }
 

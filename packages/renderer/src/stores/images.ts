@@ -34,10 +34,10 @@ export const filtered = derived([searchPattern, imagesInfos], ([$searchPattern, 
 );
 
 // need to refresh when extension is started or stopped
-window?.events.receive('extension-started', () => {
+window?.events?.receive('extension-started', () => {
   fetchImages();
 });
-window?.events.receive('extension-stopped', () => {
+window?.events?.receive('extension-stopped', () => {
   fetchImages();
 });
 
@@ -48,17 +48,17 @@ window.addEventListener('system-ready', () => {
   fetchImages();
 });
 
-window?.events.receive('provider-change', () => {
+window?.events?.receive('provider-change', () => {
   fetchImages();
 });
 
-window.events.receive('image-pull-event', () => {
+window.events?.receive('image-pull-event', () => {
   fetchImages();
 });
-window.events.receive('image-remove-event', () => {
+window.events?.receive('image-remove-event', () => {
   fetchImages();
 });
-window.events.receive('image-build-event', () => {
+window.events?.receive('image-build-event', () => {
   fetchImages();
 });
 window.events?.receive('registry-register', () => {

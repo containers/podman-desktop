@@ -26,7 +26,7 @@ function updateInitializationMode(id: string, mode: InitializationMode) {
 </script>
 
 <NavPage searchEnabled="{false}" title="Dashboard">
-  <div slot="empty" class="flex flex-col min-h-full bg-zinc-800">
+  <div slot="empty" class="flex flex-col min-h-full bg-charcoal-700 shadow-nav">
     <div class="min-w-full flex-1">
       <div class="pt-5 px-5 space-y-5">
         <!-- Provider is ready display a box to indicate some information -->

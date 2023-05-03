@@ -293,7 +293,7 @@ export class TrayMenu {
 
     (result.submenu as MenuItemConstructorOptions[]).push({
       label: 'Start',
-      enabled: item.status === 'stopped',
+      enabled: item.status === 'stopped' || item.status === 'configured',
       click: () => {
         this.sendItemClick({ action: 'Start', providerInfo: item });
       },
@@ -370,6 +370,7 @@ export class TrayMenu {
       case 'started':
         image = statusStarted;
         break;
+      case 'configured':
       case 'stopped':
         image = statusStopped;
         break;

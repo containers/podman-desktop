@@ -97,9 +97,15 @@ export class ProviderRegistry {
   private readonly _onDidUpdateProvider = new Emitter<ProviderEvent>();
   readonly onDidUpdateProvider: Event<ProviderEvent> = this._onDidUpdateProvider.event;
 
+  private readonly _onBeforeDidUpdateContainerConnection = new Emitter<UpdateContainerConnectionEvent>();
+  readonly onBeforeDidUpdateContainerConnection: Event<UpdateContainerConnectionEvent> =
+    this._onBeforeDidUpdateContainerConnection.event;
   private readonly _onDidUpdateContainerConnection = new Emitter<UpdateContainerConnectionEvent>();
   readonly onDidUpdateContainerConnection: Event<UpdateContainerConnectionEvent> =
     this._onDidUpdateContainerConnection.event;
+  private readonly _onAfterDidUpdateContainerConnection = new Emitter<UpdateContainerConnectionEvent>();
+  readonly onAfterDidUpdateContainerConnection: Event<UpdateContainerConnectionEvent> =
+    this._onAfterDidUpdateContainerConnection.event;
 
   private readonly _onDidUpdateKubernetesConnection = new Emitter<UpdateKubernetesConnectionEvent>();
   readonly onDidUpdateKubernetesConnection: Event<UpdateKubernetesConnectionEvent> =
@@ -565,6 +571,7 @@ export class ProviderRegistry {
       provider.kubernetesProviderConnectionFactory?.creationDisplayName;
     const kubernetesProviderConnectionCreationButtonTitle =
       provider.kubernetesProviderConnectionFactory?.creationButtonTitle;
+    const emptyConnectionMarkdownDescription = provider.emptyConnectionMarkdownDescription;
     if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.initialize) {
       kubernetesProviderConnectionInitialization = true;
     }
@@ -590,6 +597,7 @@ export class ProviderRegistry {
       kubernetesProviderConnectionInitialization,
       kubernetesProviderConnectionCreationDisplayName,
       kubernetesProviderConnectionCreationButtonTitle,
+      emptyConnectionMarkdownDescription,
       links: provider.links,
       detectionChecks: provider.detectionChecks,
       images: provider.images,
@@ -707,7 +715,9 @@ export class ProviderRegistry {
 
     // grab the correct container connection
     const containerConnection = provider.containerConnections.find(
-      connection => connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath,
+      connection =>
+        connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath &&
+        connection.name === providerContainerConnectionInfo.name,
     );
     if (!containerConnection) {
       throw new Error(`no container connection matching provider id ${internalProviderId}`);
@@ -724,7 +734,9 @@ export class ProviderRegistry {
 
     // grab the correct kubernetes connection
     const kubernetesConnection = provider.kubernetesConnections.find(
-      connection => connection.endpoint.apiURL === providerContainerConnectionInfo.endpoint.apiURL,
+      connection =>
+        connection.endpoint.apiURL === providerContainerConnectionInfo.endpoint.apiURL &&
+        connection.name === providerContainerConnectionInfo.name,
     );
     if (!kubernetesConnection) {
       throw new Error(`no kubernetes connection matching provider id ${internalProviderId}`);
@@ -777,7 +789,7 @@ export class ProviderRegistry {
       await lifecycle.start(context, logHandler);
     } finally {
       if (this.isProviderContainerConnection(providerConnectionInfo)) {
-        this._onDidUpdateContainerConnection.fire({
+        const event = {
           providerId: internalProviderId,
           connection: {
             name: providerConnectionInfo.name,
@@ -788,7 +800,10 @@ export class ProviderRegistry {
             },
           },
           status: providerConnectionInfo.status,
-        });
+        };
+        this._onBeforeDidUpdateContainerConnection.fire(event);
+        this._onDidUpdateContainerConnection.fire(event);
+        this._onAfterDidUpdateContainerConnection.fire(event);
       } else {
         this._onDidUpdateKubernetesConnection.fire({
           providerId: internalProviderId,
@@ -827,7 +842,7 @@ export class ProviderRegistry {
       await lifecycle.stop(context, logHandler);
     } finally {
       if (this.isProviderContainerConnection(providerConnectionInfo)) {
-        this._onDidUpdateContainerConnection.fire({
+        const event = {
           providerId: internalProviderId,
           connection: {
             name: providerConnectionInfo.name,
@@ -838,7 +853,10 @@ export class ProviderRegistry {
             },
           },
           status: providerConnectionInfo.status,
-        });
+        };
+        this._onBeforeDidUpdateContainerConnection.fire(event);
+        this._onDidUpdateContainerConnection.fire(event);
+        this._onAfterDidUpdateContainerConnection.fire(event);
       } else {
         this._onDidUpdateKubernetesConnection.fire({
           providerId: internalProviderId,
