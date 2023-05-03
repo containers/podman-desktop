@@ -3,10 +3,6 @@ import Markdown from '../markdown/Markdown.svelte';
 
 export let message: string;
 export let hidden: boolean;
-let messageLines: string[] = [];
-if (message) {
-  messageLines = message.split('\n');
-}
 </script>
 
 {#if !hidden}
