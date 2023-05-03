@@ -3,7 +3,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import Logger from './Logger.svelte';
-import { writeToTerminal } from './Util';
+import { getNormalizedDefaultNumberValue, writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
   clearCreateTask,
@@ -140,9 +140,9 @@ function setConfigurationValue(id: string, value: string) {
 
 function getDisplayConfigurationValue(configurationKey: IConfigurationPropertyRecordedSchema, value?: any) {
   if (configurationKey.format === 'memory' || configurationKey.format === 'diskSize') {
-    return value ? filesize(value) : filesize(configurationKey.default);
+    return value ? filesize(value) : filesize(getNormalizedDefaultNumberValue(configurationKey));
   } else if (configurationKey.format === 'cpu') {
-    return value ? value : configurationKey.default;
+    return value ? value : getNormalizedDefaultNumberValue(configurationKey);
   } else {
     return '';
   }
