@@ -86,7 +86,7 @@ function toPodInfo(pod: V1Pod): PodInfo {
   };
 }
 
-const PROJECT_API_GROUP = 'project.openshift.io';
+const OPENSHIFT_PROJECT_API_GROUP = 'project.openshift.io';
 
 /**
  * Handle calls to kubernetes API
@@ -257,11 +257,11 @@ export class KubernetesClient {
     let namespace;
 
     try {
-      const projectGroupSupported = await this.isAPIGroupSupported(PROJECT_API_GROUP);
+      const projectGroupSupported = await this.isAPIGroupSupported(OPENSHIFT_PROJECT_API_GROUP);
       if (projectGroupSupported) {
         const projects = await ctx
           .makeApiClient(CustomObjectsApi)
-          .listClusterCustomObject('project.openshift.io', 'v1', 'projects');
+          .listClusterCustomObject(OPENSHIFT_PROJECT_API_GROUP, 'v1', 'projects');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((projects?.body as any)?.items.length > 0) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

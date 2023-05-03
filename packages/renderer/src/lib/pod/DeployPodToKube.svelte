@@ -22,7 +22,7 @@ let deployError = '';
 let deployWarning = '';
 let updatePodInterval: NodeJS.Timeout;
 let openshiftConsoleURL: string;
-let routeGroupSupported = false;
+let openshiftRouteGroupSupported = false;
 
 let deployUsingServices = true;
 let deployUsingRoutes = true;
@@ -63,7 +63,7 @@ onMount(async () => {
 
   // check if there is OpenShift and then grab openshift console URL
   try {
-    routeGroupSupported = await window.kubernetesisAPIGroupSupported('route.openshift.io');
+    openshiftRouteGroupSupported = await window.kubernetesIsAPIGroupSupported('route.openshift.io');
     const openshiftConfigMap = await window.kubernetesReadNamespacedConfigMap(
       'console-public',
       'openshift-config-managed',
@@ -160,7 +160,7 @@ async function deployToKube() {
           };
           servicesToCreate.push(service);
 
-          if (routeGroupSupported && deployUsingRoutes) {
+          if (openshiftRouteGroupSupported && deployUsingRoutes) {
             // Create OpenShift route object
             const route = {
               apiVersion: 'route.openshift.io/v1',
@@ -252,7 +252,7 @@ async function deployToKube() {
     useRoutes: deployUsingRoutes,
     createIngress: createIngress,
   };
-  if (routeGroupSupported) {
+  if (openshiftRouteGroupSupported) {
     eventProperties['isOpenshift'] = true;
   }
 
@@ -364,7 +364,7 @@ function updateKubeResult() {
       </div>
 
       <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
-      {#if !routeGroupSupported && deployUsingServices}
+      {#if !openshiftRouteGroupSupported && deployUsingServices}
         <div class="pt-2 pb-4">
           <label for="createIngress" class="block mb-1 text-sm font-medium text-gray-300"
             >Expose service locally using Kubernetes Ingress:</label>
@@ -403,7 +403,7 @@ function updateKubeResult() {
       {/if}
 
       <!-- Allow to create routes for OpenShift clusters -->
-      {#if routeGroupSupported}
+      {#if openshiftRouteGroupSupported}
         <div class="pt-2 m-2">
           <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
           <input type="checkbox" bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" class="" required />
