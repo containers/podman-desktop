@@ -46,7 +46,7 @@ Podman Desktop requires [Podman Engine](https://docs.podman.io/en/latest/index.h
 
 1. After the installation is complete, close the installation program. Podman Engine has been installed and you are now ready to use Podman Desktop.
 
-## Installing Podman Desktop on MacOS using [brew](https://brew.sh/).
+## Installing Podman Desktop on MacOS using [brew](https://brew.sh/)
 
 :::infoPrerequisite
 

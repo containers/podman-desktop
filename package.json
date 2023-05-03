@@ -56,6 +56,8 @@
     "watch": "node scripts/watch.cjs",
     "format:check": "prettier --check \"{extensions,packages,tests,types}/**/*.{ts,svelte}\" \"extensions/*/scripts/build.js\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
     "format:fix": "prettier --write \"{extensions,packages,tests,types}/**/*.{ts,svelte}\" \"extensions/*/scripts/build.js\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
+    "markdownlint:check": "markdownlint-cli2 \"website/**/*.md\" \"#website/node_modules\"",
+    "markdownlint:fix": "markdownlint-cli2-fix \"website/**/*.md\" \"#website/node_modules\"",
     "lint:check": "eslint . --ext js,ts,tsx",
     "lint:fix": "eslint . --fix --ext js,ts,tsx",
     "svelte:check": "svelte-check",

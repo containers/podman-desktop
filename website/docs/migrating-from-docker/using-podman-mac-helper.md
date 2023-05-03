@@ -47,7 +47,7 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
 
    Example:
 
-   ```
+   ```shell-session
    $ podman-mac-helper run -it <your_container> bash
    ```
 

@@ -2,13 +2,13 @@
 
 ### Install the project dependencies
 
-```
+```shell-session
 $ yarn install
 ```
 
 ### Local Development of the website / documentation
 
-```
+```shell-session
 $ yarn start
 ```
 
@@ -16,7 +16,7 @@ This command starts a local development server and opens up a browser window. Mo
 
 ### Build
 
-```
+```shell-session
 $ yarn build
 ```
 
@@ -26,13 +26,13 @@ This command generates static content into the `build` directory and can be serv
 
 Using SSH:
 
-```
+```shell-session
 $ USE_SSH=true yarn deploy
 ```
 
 Not using SSH:
 
-```
+```shell-session
 $ GIT_USER=<Your GitHub username> yarn deploy
 ```
 
