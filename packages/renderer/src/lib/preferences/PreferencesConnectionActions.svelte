@@ -17,6 +17,7 @@ export let updateConnectionStatus: (
   providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   action?: string,
   error?: string,
+  inProgress?: boolean,
 ) => void;
 export let addConnectionToRestartingQueue: (connection: IConnectionRestart) => void;
 $: connectionStatus = connectionStatuses;
@@ -115,8 +116,10 @@ async function deleteConnectionProvider(
         loggerHandlerKey,
         eventCollect,
       );
+      updateConnectionStatus(provider, providerConnectionInfo, 'delete', undefined, false);
     }
   } catch (e) {
+    updateConnectionStatus(provider, providerConnectionInfo, 'delete', e);
     console.error(e);
   }
 }
