@@ -17,7 +17,7 @@ With Podman Desktop, you can create a pod from your containers, and run it on th
 
 #### Procedure
 
-1. Open **Podman Desktop dashboard > Containers**.
+1. Open **Podman Desktop dashboard > <icon icon="fa-solid fa-cube" size="lg" /> Containers**.
 1. Click the checkboxes to select your containers.
 1. Click <icon icon="fa-solid fa-cubes" size="lg" /> to create a pod with the selected containers.
 1. On the **Copy containers to a pod** screen
