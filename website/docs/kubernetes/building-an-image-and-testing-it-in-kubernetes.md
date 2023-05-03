@@ -12,8 +12,9 @@ With Podman Desktop, you can build an image with your container engine, and test
 
 #### Prerequisites
 
-- Podman Desktop has access to a running container engine.
-- Podman Desktop has access to a running Kubernetes cluster.
+- Podman Desktop has access to:
+  - A running container engine.
+  - A running Kubernetes cluster.
 - A container definition file: `Containerfile` or `Dockerfile`.
 
 #### Procedure
