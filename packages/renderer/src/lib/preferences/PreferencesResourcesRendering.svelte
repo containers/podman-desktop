@@ -166,7 +166,7 @@ function updateContainerStatus(
   containerConnectionInfo: ProviderContainerConnectionInfo,
   action?: string,
   error?: string,
-  inProgress?: boolean
+  inProgress?: boolean,
 ): void {
   const containerConnectionName = getProviderConnectionName(provider, containerConnectionInfo);
   if (error) {
