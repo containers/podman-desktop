@@ -1,7 +1,7 @@
 <script lang="ts">
 import Markdown from '../markdown/Markdown.svelte';
 
-export let message: string;
+export let message = '';
 export let hidden: boolean;
 </script>
 
