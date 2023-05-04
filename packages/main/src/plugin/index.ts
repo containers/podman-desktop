@@ -99,6 +99,9 @@ import type { AuthenticationProviderInfo } from './authentication';
 import { AuthenticationImpl } from './authentication';
 import checkDiskSpace from 'check-disk-space';
 import { TaskManager } from '/@/plugin/task-manager';
+import { Featured } from './featured/featured';
+import type { FeaturedExtension } from './featured/featured-api';
+import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -576,6 +579,13 @@ export class PluginSystem {
       telemetry,
     );
     await this.extensionLoader.init();
+
+    const extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
+    const featured = new Featured(this.extensionLoader, extensionsCatalog);
+    // do not wait
+    featured.init().catch(e => {
+      console.error('Unable to initialized the featured extensions', e);
+    });
 
     const contributionManager = new ContributionManager(apiSender);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
@@ -1155,6 +1165,10 @@ export class PluginSystem {
 
     this.ipcHandle('extension-loader:listExtensions', async (): Promise<ExtensionInfo[]> => {
       return this.extensionLoader.listExtensions();
+    });
+
+    this.ipcHandle('featured:getFeaturedExtensions', async (): Promise<FeaturedExtension[]> => {
+      return featured.getFeaturedExtensions();
     });
 
     this.ipcHandle(
