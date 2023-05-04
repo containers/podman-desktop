@@ -204,6 +204,7 @@ function validateImageName(event): void {
               bind:value="{imageToPull}"
               aria-invalid="{imageNameInvalid && imageNameInvalid !== ''}"
               placeholder="Image name"
+              aria-label="imageName"
               required />
             {#if imageNameInvalid}
               <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">

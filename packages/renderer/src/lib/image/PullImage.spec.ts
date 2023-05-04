@@ -19,12 +19,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom';
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import PullImage from './PullImage.svelte';
 import { providerInfos } from '../../stores/providers';
 import type { ProviderStatus } from '@podman-desktop/api';
 import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import userEvent from '@testing-library/user-event';
 
 // fake the window.events object
 beforeAll(() => {
@@ -34,6 +35,7 @@ beforeAll(() => {
       func();
     },
   };
+  (window as any).telemetryPage = vi.fn();
 });
 
 const buttonText = 'Pull image';
@@ -96,6 +98,21 @@ describe('PullImage', () => {
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
+    expect(button).toBeEnabled();
+  });
+
+  test('Expect that valid entry enables button', async () => {
+    setup();
+    render(PullImage);
+
+    const button = screen.getByRole('button', { name: buttonText });
+    expect(button).toBeInTheDocument();
+    expect(button).toBeDisabled();
+
+    const textbox = screen.getByRole('textbox', { name: 'imageName' });
+    await userEvent.click(textbox);
+    await userEvent.paste('some-valid-image');
+
     expect(button).toBeEnabled();
   });
 });
