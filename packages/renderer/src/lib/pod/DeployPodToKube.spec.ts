@@ -200,6 +200,41 @@ test('When deploying a pod, volumes should not be added (they are deleted by pod
   );
 });
 
+test('When deploying a pod, restricted security context is added', async () => {
+  await waitRender({});
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
+
+  // Press the deploy button
+  await fireEvent.click(createButton);
+
+  // Expect kubernetesCreatePod to be called with default namespace and a modified bodyPod with volumes removed
+  await waitFor(() =>
+    expect(kubernetesCreatePodMock).toBeCalledWith('default', {
+      metadata: { name: 'hello' },
+      spec: {
+        containers: [
+          {
+            name: 'hello',
+            image: 'hello-world',
+            securityContext: {
+              allowPrivilegeEscalation: false,
+              capabilities: {
+                drop: ['ALL'],
+              },
+              runAsNonRoot: true,
+              seccompProfile: {
+                type: 'RuntimeDefault',
+              },
+            },
+          },
+        ],
+      },
+    }),
+  );
+});
+
 test('Fail to deploy ingress if service is not selected', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
