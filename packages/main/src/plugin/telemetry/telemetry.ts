@@ -35,6 +35,7 @@ import type {
   TelemetryTrustedValue,
 } from '@podman-desktop/api';
 import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry';
+import { stoppedExtensions } from '/@/util';
 
 export const TRACK_EVENT_TYPE = 'track';
 export const PAGE_EVENT_TYPE = 'page';
@@ -202,7 +203,7 @@ export class Telemetry {
     let sendShutdownAnalytics = false;
 
     app.on('before-quit', async e => {
-      if (!sendShutdownAnalytics) {
+      if (!sendShutdownAnalytics && stoppedExtensions.val) {
         e.preventDefault();
         await this.internalTrack(SHUTDOWN_EVENT_TYPE);
         await this.analytics?.flush();
