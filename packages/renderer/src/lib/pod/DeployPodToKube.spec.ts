@@ -178,6 +178,9 @@ test('When deploying a pod, volumes should not be added (they are deleted by pod
   expect(createButton).toBeInTheDocument();
   expect(createButton).toBeEnabled();
 
+  const useRestricted = screen.getByTestId('useRestricted');
+  await fireEvent.click(useRestricted);
+
   // Press the deploy button
   await fireEvent.click(createButton);
 

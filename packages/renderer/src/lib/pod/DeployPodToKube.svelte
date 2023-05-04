@@ -7,6 +7,7 @@ import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
+import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
 
 export let resourceId: string;
 export let engineId: string;
@@ -26,6 +27,7 @@ let openshiftRouteGroupSupported = false;
 
 let deployUsingServices = true;
 let deployUsingRoutes = true;
+let deployUsingRestrictedSecurityContext = true;
 let createdPod = undefined;
 let bodyPod;
 
@@ -283,6 +285,10 @@ async function deployToKube() {
       });
     }
 
+    if (deployUsingRestrictedSecurityContext) {
+      ensureRestrictedSecurityContext(bodyPod);
+    }
+
     // create pod
     createdPod = await window.kubernetesCreatePod(currentNamespace, bodyPod);
 
@@ -361,6 +367,23 @@ function updateKubeResult() {
         <span class="text-gray-400 text-sm ml-1"
           >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster
           policy may prevent to use hostPort.</span>
+      </div>
+
+      <div class="pt-2 pb-4">
+        <label for="useRestricted" class="block mb-1 text-sm font-medium text-gray-300"
+          >Use restricted security context</label>
+        <input
+          type="checkbox"
+          bind:checked="{deployUsingRestrictedSecurityContext}"
+          name="useRestricted"
+          id="useRestricted"
+          data-testid="useRestricted"
+          class=""
+          required />
+        <span class="text-gray-400 text-sm ml-1"
+          >Update Kubernetes manifest to respect the Pod security <a
+            href="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted">restricted profile</a
+          >.</span>
       </div>
 
       <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
