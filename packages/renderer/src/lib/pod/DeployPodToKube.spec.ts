@@ -35,6 +35,7 @@ const telemetryTrackMock = vi.fn();
 const kubernetesCreatePodMock = vi.fn();
 const kubernetesCreateIngressMock = vi.fn();
 const kubernetesCreateServiceMock = vi.fn();
+const kubernetesIsAPIGroupSupported = vi.fn();
 
 beforeEach(() => {
   Object.defineProperty(window, 'generatePodmanKube', {
@@ -61,6 +62,9 @@ beforeEach(() => {
   });
   Object.defineProperty(window, 'kubernetesCreateService', {
     value: kubernetesCreateServiceMock,
+  });
+  Object.defineProperty(window, 'kubernetesIsAPIGroupSupported', {
+    value: kubernetesIsAPIGroupSupported,
   });
   Object.defineProperty(window, 'telemetryTrack', {
     value: telemetryTrackMock,
@@ -129,8 +133,9 @@ test('Expect to send telemetry event with OpenShift', async () => {
     data: {
       consoleURL: 'https://console-openshift-console.apps.cluster-1.example.com',
     },
-  }),
-    await waitRender({});
+  });
+  kubernetesIsAPIGroupSupported.mockResolvedValue(true);
+  await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
   expect(createButton).toBeEnabled();
@@ -173,6 +178,9 @@ test('When deploying a pod, volumes should not be added (they are deleted by pod
   expect(createButton).toBeInTheDocument();
   expect(createButton).toBeEnabled();
 
+  const useRestricted = screen.getByTestId('useRestricted');
+  await fireEvent.click(useRestricted);
+
   // Press the deploy button
   await fireEvent.click(createButton);
 
@@ -185,6 +193,41 @@ test('When deploying a pod, volumes should not be added (they are deleted by pod
           {
             name: 'hello',
             image: 'hello-world',
+          },
+        ],
+      },
+    }),
+  );
+});
+
+test('When deploying a pod, restricted security context is added', async () => {
+  await waitRender({});
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
+
+  // Press the deploy button
+  await fireEvent.click(createButton);
+
+  // Expect kubernetesCreatePod to be called with default namespace and a modified bodyPod with volumes removed
+  await waitFor(() =>
+    expect(kubernetesCreatePodMock).toBeCalledWith('default', {
+      metadata: { name: 'hello' },
+      spec: {
+        containers: [
+          {
+            name: 'hello',
+            image: 'hello-world',
+            securityContext: {
+              allowPrivilegeEscalation: false,
+              capabilities: {
+                drop: ['ALL'],
+              },
+              runAsNonRoot: true,
+              seccompProfile: {
+                type: 'RuntimeDefault',
+              },
+            },
           },
         ],
       },

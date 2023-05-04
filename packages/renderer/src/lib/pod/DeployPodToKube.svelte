@@ -7,6 +7,7 @@ import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
+import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
 
 export let resourceId: string;
 export let engineId: string;
@@ -22,9 +23,11 @@ let deployError = '';
 let deployWarning = '';
 let updatePodInterval: NodeJS.Timeout;
 let openshiftConsoleURL: string;
+let openshiftRouteGroupSupported = false;
 
 let deployUsingServices = true;
 let deployUsingRoutes = true;
+let deployUsingRestrictedSecurityContext = true;
 let createdPod = undefined;
 let bodyPod;
 
@@ -62,6 +65,7 @@ onMount(async () => {
 
   // check if there is OpenShift and then grab openshift console URL
   try {
+    openshiftRouteGroupSupported = await window.kubernetesIsAPIGroupSupported('route.openshift.io');
     const openshiftConfigMap = await window.kubernetesReadNamespacedConfigMap(
       'console-public',
       'openshift-config-managed',
@@ -158,7 +162,7 @@ async function deployToKube() {
           };
           servicesToCreate.push(service);
 
-          if (openshiftConsoleURL && deployUsingRoutes) {
+          if (openshiftRouteGroupSupported && deployUsingRoutes) {
             // Create OpenShift route object
             const route = {
               apiVersion: 'route.openshift.io/v1',
@@ -250,7 +254,7 @@ async function deployToKube() {
     useRoutes: deployUsingRoutes,
     createIngress: createIngress,
   };
-  if (openshiftConsoleURL) {
+  if (openshiftRouteGroupSupported) {
     eventProperties['isOpenshift'] = true;
   }
 
@@ -279,6 +283,10 @@ async function deployToKube() {
           });
         }
       });
+    }
+
+    if (deployUsingRestrictedSecurityContext) {
+      ensureRestrictedSecurityContext(bodyPod);
     }
 
     // create pod
@@ -361,8 +369,25 @@ function updateKubeResult() {
           policy may prevent to use hostPort.</span>
       </div>
 
+      <div class="pt-2 pb-4">
+        <label for="useRestricted" class="block mb-1 text-sm font-medium text-gray-300"
+          >Use restricted security context</label>
+        <input
+          type="checkbox"
+          bind:checked="{deployUsingRestrictedSecurityContext}"
+          name="useRestricted"
+          id="useRestricted"
+          data-testid="useRestricted"
+          class=""
+          required />
+        <span class="text-gray-400 text-sm ml-1"
+          >Update Kubernetes manifest to respect the Pod security <a
+            href="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted">restricted profile</a
+          >.</span>
+      </div>
+
       <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
-      {#if !openshiftConsoleURL && deployUsingServices}
+      {#if !openshiftRouteGroupSupported && deployUsingServices}
         <div class="pt-2 pb-4">
           <label for="createIngress" class="block mb-1 text-sm font-medium text-gray-300"
             >Expose service locally using Kubernetes Ingress:</label>
@@ -401,7 +426,7 @@ function updateKubeResult() {
       {/if}
 
       <!-- Allow to create routes for OpenShift clusters -->
-      {#if openshiftConsoleURL}
+      {#if openshiftRouteGroupSupported}
         <div class="pt-2 m-2">
           <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
           <input type="checkbox" bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" class="" required />
