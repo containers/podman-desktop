@@ -18,8 +18,8 @@ Set your Kubernetes context to your local Kind-powered Kubernetes cluster.
 
 #### Verification
 
-* The Kubernetes CLI reports that the current context is your cluster with the `kind` suffix:
+- The Kubernetes CLI reports that the current context is your cluster with the `kind` suffix:
 
-   ```shell-session
-   $ kubectl config current-context
-   ```
+  ```shell-session
+  $ kubectl config current-context
+  ```

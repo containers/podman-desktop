@@ -39,3 +39,5 @@ export function desktopAppHomeDir(): string {
 export function findWindow(): Electron.BrowserWindow | undefined {
   return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 }
+
+export const stoppedExtensions = { val: false };

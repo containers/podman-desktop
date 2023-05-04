@@ -8,6 +8,6 @@ export let title: string;
       <p class="capitalize text-xl">{title}</p>
       <p class="text-sm text-gray-700"><slot name="subtitle"><br /></slot></p>
     </div>
-    <slot />
   </div>
+  <slot />
 </div>

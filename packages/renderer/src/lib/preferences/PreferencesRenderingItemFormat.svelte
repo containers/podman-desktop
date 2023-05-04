@@ -5,6 +5,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Markdown from '../markdown/Markdown.svelte';
+import { getNormalizedDefaultNumberValue } from './Util';
 
 let invalidEntry = false;
 let invalidText = undefined;
@@ -27,7 +28,7 @@ $: recordValue;
 $: updateResetButtonVisibility && updateResetButtonVisibility(recordValue);
 let checkboxValue: boolean = false;
 $: if (resetToDefault) {
-  recordValue = record.default;
+  recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
   if (typeof recordValue === 'boolean') {
     checkboxValue = recordValue;
   }
@@ -45,7 +46,7 @@ $: if (currentRecord !== record) {
       }
     });
   } else if (record.default !== undefined) {
-    recordValue = record.default;
+    recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
     if (record.type === 'boolean') {
       checkboxValue = recordValue;
     }
@@ -231,7 +232,7 @@ function handleCleanValue(
         name="{record.id}"
         min="{record.minimum}"
         max="{record.maximum}"
-        value="{record.default}"
+        value="{getNormalizedDefaultNumberValue(record)}"
         aria-label="{record.description}"
         on:input="{event => handleRangeValue(record.id, event.currentTarget)}"
         class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs mt-2" />

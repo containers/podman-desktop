@@ -15,63 +15,62 @@ When you have configured your host to use Podman rather then Docker, consider ve
 
 #### Prerequisites
 
-* Docker service is stopped, or not installed.
-* [Saved containers are imported to Podman](importing-saved-containers)
-* [The `DOCKER_HOST` environment variable is set](using-the-docker_host-environment-variable)
-* [On macOS, the `podman-mac-helper` service is running](using-podman-mac-helper)
-* [Podman is emulating Docker CLI](emulating-docker-cli-with-podman)
+- Docker service is stopped, or not installed.
+- [Saved containers are imported to Podman](importing-saved-containers)
+- [The `DOCKER_HOST` environment variable is set](using-the-docker_host-environment-variable)
+- [On macOS, the `podman-mac-helper` service is running](using-podman-mac-helper)
+- [Podman is emulating Docker CLI](emulating-docker-cli-with-podman)
 
 #### Procedure
 
 1. The Docker socket replies successfully for listing all containers:
 
-    <Tabs groupId="operating-systems">
-      <TabItem value="win" label="Windows">
+   <Tabs groupId="operating-systems">
+     <TabItem value="win" label="Windows">
 
-      ```shell-session
-      $ curl --unix-socket npipe:////./pipe/docker_engine "http:/v1.41/containers/json?all=true"
-      ```
+   ```shell-session
+   $ curl --unix-socket npipe:////./pipe/docker_engine "http:/v1.41/containers/json?all=true"
+   ```
 
-      </TabItem>
-      <TabItem value="mac" label="macOS">
+     </TabItem>
+     <TabItem value="mac" label="macOS">
 
-      ```shell-session
-      $ curl --unix-socket /var/run/docker.sock "http:/v1.41/containers/json?all=true"
-      ```
+   ```shell-session
+   $ curl --unix-socket /var/run/docker.sock "http:/v1.41/containers/json?all=true"
+   ```
 
-      </TabItem>
-      <TabItem value="linux" label="Linux">
+     </TabItem>
+     <TabItem value="linux" label="Linux">
 
-      ```shell-session
-      $ curl --unix-socket /var/run/docker.sock "http:/v1.41/containers/json?all=true"
-      ```
+   ```shell-session
+   $ curl --unix-socket /var/run/docker.sock "http:/v1.41/containers/json?all=true"
+   ```
 
-      </TabItem>
-    </Tabs>
-
+     </TabItem>
+   </Tabs>
 
 2. Podman commands run successfully when redirected to the Docker socket:
 
-    <Tabs groupId="operating-systems">
-      <TabItem value="win" label="Windows">
+   <Tabs groupId="operating-systems">
+     <TabItem value="win" label="Windows">
 
-      ```shell-session
-      $ CONTAINER_HOST=npipe:////./pipe/docker_engine podman ps
-      ```
+   ```shell-session
+   $ CONTAINER_HOST=npipe:////./pipe/docker_engine podman ps
+   ```
 
-      </TabItem>
-      <TabItem value="mac" label="macOS">
+     </TabItem>
+     <TabItem value="mac" label="macOS">
 
-      ```shell-session
-      $ CONTAINER_HOST=/var/run/docker.sock podman ps
-      ```
+   ```shell-session
+   $ CONTAINER_HOST=/var/run/docker.sock podman ps
+   ```
 
-      </TabItem>
-      <TabItem value="linux" label="Linux">
+     </TabItem>
+     <TabItem value="linux" label="Linux">
 
-      ```shell-session
-      $ CONTAINER_HOST=/var/run/docker.sock podman ps
-      ```
+   ```shell-session
+   $ CONTAINER_HOST=/var/run/docker.sock podman ps
+   ```
 
-      </TabItem>
-    </Tabs>
+     </TabItem>
+   </Tabs>

@@ -10,13 +10,13 @@ tags: [migrating-to-kubernetes, kind]
 
 When you create a Podman machine, Podman creates two system connections:
 
-* The default rootless connection.
-* A rootful connection, which has a `-root` suffix.
+- The default rootless connection.
+- A rootful connection, which has a `-root` suffix.
 
 With a Podman machine running on WSL, Kind:
 
-* Uses the default Podman connection.
-* Requires the rootful connection.
+- Uses the default Podman connection.
+- Requires the rootful connection.
 
 Therefore, set the Podman machine default connection to rootful.
 

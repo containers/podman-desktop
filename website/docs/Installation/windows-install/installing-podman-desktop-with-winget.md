@@ -10,11 +10,11 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 #### Prerequisites
 
-* [Winget Package manager for Windows](https://aka.ms/getwinget)
+- [Winget Package manager for Windows](https://aka.ms/getwinget)
 
 #### Procedure
 
-* Run the command from the command line or from PowerShell:
+- Run the command from the command line or from PowerShell:
 
   ```sh
   winget install -e --id RedHat.Podman-Desktop
@@ -22,9 +22,9 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 #### Additional resources
 
-* [Podman Desktop Winget package](https://winget.run/pkg/RedHat/Podman-Desktop)
+- [Podman Desktop Winget package](https://winget.run/pkg/RedHat/Podman-Desktop)
 
 #### Next steps
 
-* [Installing Podman](installing-podman-with-podman-desktop)
-* [Getting Started with Podman Desktop](/docs/getting-started/getting-started)
+- [Installing Podman](installing-podman-with-podman-desktop)
+- [Getting Started with Podman Desktop](/docs/getting-started/getting-started)

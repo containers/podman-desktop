@@ -95,7 +95,7 @@ window.events?.receive('display-help', () => {
       {/if}
 
       <div
-        class="z-0 w-full h-full flex flex-col overflow-y-scroll;"
+        class="z-0 w-full h-full min-h-fit flex flex-col overflow-y-scroll"
         class:bg-charcoal-700="{!meta.url.startsWith('/preferences')}"
         class:bg-charcoal-800="{meta.url.startsWith('/preferences')}">
         <TaskManager />

@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import { test, expect, vi } from 'vitest';
-import { writeToTerminal } from './Util';
+import { getNormalizedDefaultNumberValue, writeToTerminal } from './Util';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
 const xtermMock = {
   write: vi.fn(),
@@ -43,4 +44,42 @@ test('write undefined object', () => {
   writeToTerminal(xtermMock, undefined as unknown as string[], 'test');
   // no error reported
   expect(xtermMock.write).toBeCalledWith(expect.stringContaining('test'));
+});
+
+test('return default if type is not number', () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'my boolean property',
+    id: 'myid',
+    parentId: '',
+    type: 'boolean',
+    default: true,
+  };
+  const res = getNormalizedDefaultNumberValue(record);
+  expect(res).equal(true);
+});
+
+test('return maximum number value if less than default number value', () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'my number property',
+    id: 'myid',
+    parentId: '',
+    type: 'number',
+    default: 12,
+    maximum: 10,
+  };
+  const res = getNormalizedDefaultNumberValue(record);
+  expect(res).equal(10);
+});
+
+test('return default number value if less than maximum number value', () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'my number property',
+    id: 'myid',
+    parentId: '',
+    type: 'number',
+    default: 8,
+    maximum: 10,
+  };
+  const res = getNormalizedDefaultNumberValue(record);
+  expect(res).equal(8);
 });

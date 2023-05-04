@@ -10,15 +10,16 @@ tags: [migrating-to-kubernetes, kind]
 
 #### Procedure
 
-* In the status bar, click on **Kind**, and follow the prompts.
+- In the status bar, click on **Kind**, and follow the prompts.
   ![Kind in the status bar](img/kind-status-bar.png)
 
 #### Verification
 
 1. The status bar doesn't display **Kind**.
-1. **Settings > Resources** contain a **Kind** tile.
-  ![Kind resource tile](img/kind-resource.png)
+1. **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources** contain a **Kind** tile.
+   ![Kind resource tile](img/kind-resource.png)
 1. You can run the `kind` CLI:
+
    ```shell-session
    $ kind get clusters
    ```

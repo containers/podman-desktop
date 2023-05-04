@@ -9,7 +9,7 @@ Podman Desktop supports the [Compose spec](https://compose-spec.io). With Podman
 
 ### How does it work
 
-Each time you run a Compose file by using [Podman Compose](https://github.com/containers/podman-compose) or [Docker Compose](https://docs.docker.com/compose/) a label is assigned to each container. 
+Each time you run a Compose file by using [Podman Compose](https://github.com/containers/podman-compose) or [Docker Compose](https://docs.docker.com/compose/) a label is assigned to each container.
 Podman Desktop detects that label and shows it appropriately within the management console.
 
 ![img2](img/compose_doc_image_2.png)

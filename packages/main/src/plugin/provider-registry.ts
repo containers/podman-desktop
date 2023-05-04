@@ -715,7 +715,9 @@ export class ProviderRegistry {
 
     // grab the correct container connection
     const containerConnection = provider.containerConnections.find(
-      connection => connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath,
+      connection =>
+        connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath &&
+        connection.name === providerContainerConnectionInfo.name,
     );
     if (!containerConnection) {
       throw new Error(`no container connection matching provider id ${internalProviderId}`);
@@ -732,7 +734,9 @@ export class ProviderRegistry {
 
     // grab the correct kubernetes connection
     const kubernetesConnection = provider.kubernetesConnections.find(
-      connection => connection.endpoint.apiURL === providerContainerConnectionInfo.endpoint.apiURL,
+      connection =>
+        connection.endpoint.apiURL === providerContainerConnectionInfo.endpoint.apiURL &&
+        connection.name === providerContainerConnectionInfo.name,
     );
     if (!kubernetesConnection) {
       throw new Error(`no kubernetes connection matching provider id ${internalProviderId}`);

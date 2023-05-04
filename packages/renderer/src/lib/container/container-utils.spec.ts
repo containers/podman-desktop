@@ -47,3 +47,40 @@ test('should expect full name for images', async () => {
   const image = containerUtils.getShortImage(containerInfo);
   expect(image).toBe('docker.io/kindest/node:foobar');
 });
+
+test('should expect empty string when there are no public ports', async () => {
+  const containerInfo = {
+    Image: 'docker.io/kindest/node:foobar',
+  } as unknown as ContainerInfo;
+  const ports = containerUtils.getPortsAsString(containerInfo);
+  expect(ports).toBe('');
+});
+
+test('should expect port as string when there is one public ports', async () => {
+  const containerInfo = {
+    Image: 'docker.io/kindest/node:foobar',
+    Ports: [
+      {
+        PublicPort: 80,
+      },
+    ],
+  } as unknown as ContainerInfo;
+  const ports = containerUtils.getPortsAsString(containerInfo);
+  expect(ports).toBe('80');
+});
+
+test('should expect ports as string when there are multiple public ports', async () => {
+  const containerInfo = {
+    Image: 'docker.io/kindest/node:foobar',
+    Ports: [
+      {
+        PublicPort: 80,
+      },
+      {
+        PublicPort: 8022,
+      },
+    ],
+  } as unknown as ContainerInfo;
+  const ports = containerUtils.getPortsAsString(containerInfo);
+  expect(ports).toBe('80, 8022');
+});
