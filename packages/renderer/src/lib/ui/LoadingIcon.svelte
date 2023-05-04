@@ -8,10 +8,11 @@ export let loadingHeightClass: string;
 export let positionTopClass: string;
 export let positionLeftClass: string;
 export let loading: boolean;
+export let iconSize = '';
 </script>
 
 <div>
-  <Fa icon="{icon}" />
+  <Fa size="{iconSize}" icon="{icon}" />
   <div
     aria-label="spinner"
     class="{loading
