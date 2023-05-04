@@ -217,7 +217,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 </script>
 
 <SettingsPage title="Registries">
-  <div class="container mx-auto bg-zinc-800 mt-5 rounded-md p-3">
+  <div class="container mx-auto bg-charcoal-600 mt-5 rounded-md p-3">
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-gray-900">
       <div class="flex w-full">
@@ -262,7 +262,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                     type="text"
                     placeholder="Username"
                     bind:value="{registry.username}"
-                    class="block px-3 block w-full h-full transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
+                    class="block px-3 block w-full h-full transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
                 </div>
               {:else if !registry.username && !registry.secret}
                 <button class="font-bold" on:click="{() => markRegistryAsModified(registry)}">Login now</button>
@@ -305,7 +305,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                         type="password"
                         placeholder="Password"
                         bind:value="{registry.secret}"
-                        class="px-3 block w-full h-full transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
+                        class="px-3 block w-full h-full transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
                     </div>
                   </div>
                   <div class="h-7 mt-1.5 mb-0.5 text-sm">
@@ -428,7 +428,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                   type="text"
                   placeholder="Username"
                   bind:value="{newRegistryRequest.username}"
-                  class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
+                  class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
               {/if}
             </div>
             <div class="pt-4 pb-2 text-sm w-2/5">
@@ -460,7 +460,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                       type="password"
                       placeholder="Password"
                       bind:value="{newRegistryRequest.secret}"
-                      class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
+                      class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
                   {/if}
                 </div>
 
@@ -519,14 +519,14 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                 type="text"
                 placeholder="URL (HTTPS only)"
                 bind:value="{newRegistryRequest.serverUrl}"
-                class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
+                class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
             </div>
             <div class="flex pt-4 pb-2 pr-5 text-sm w-1/4">
               <input
                 type="text"
                 placeholder="Username"
                 bind:value="{newRegistryRequest.username}"
-                class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
+                class="px-3 block w-full h-7 pr-5 mb-0.5 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
             </div>
             <div class="pt-4 pb-2 text-sm w-2/5">
               <div class="flex flex-row">
@@ -556,7 +556,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                     type="password"
                     placeholder="Password"
                     bind:value="{newRegistryRequest.secret}"
-                    class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-zinc-900 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
+                    class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
                 </div>
 
                 <div class="flex text-sm">

@@ -112,7 +112,7 @@ let pushLogsXtermDiv: HTMLDivElement;
   on:close="{() => {
     closeCallback();
   }}">
-  <div class="modal flex flex-col place-self-center bg-zinc-900 shadow-xl shadow-black">
+  <div class="modal flex flex-col place-self-center bg-charcoal-800 shadow-xl shadow-black">
     <div class="flex items-center justify-between px-6 py-5 space-x-2">
       <h1 class="grow text-lg font-bold capitalize">Push Image</h1>
 
@@ -126,7 +126,7 @@ let pushLogsXtermDiv: HTMLDivElement;
         <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
           >Image Tag</label>
         <select
-          class="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-zinc-800 border-gray-900 placeholder-gray-700 text-white"
+          class="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-charcoal-600 border-gray-900 placeholder-gray-700 text-white"
           name="imageChoice"
           bind:value="{selectedImageTag}">
           {#each imageTags as imageTag}

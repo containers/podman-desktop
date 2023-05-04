@@ -21,7 +21,7 @@ $: contributedLinks = $providerInfos
   <div slot="empty" class="flex flex-col min-h-full bg-zinc-700">
     <div class="min-w-full flex-1 pt-5 px-5 pb-5 space-y-5">
       <!-- Getting Started -->
-      <div class="bg-zinc-800 px-3 pt-3 pb-3 rounded-lg">
+      <div class="bg-charcoal-600 px-3 pt-3 pb-3 rounded-lg">
         <div class="text-lg">Getting Started</div>
         <div class="grid grid-cols-1 md:grid-cols-2 py-3">
           <div
@@ -67,7 +67,7 @@ $: contributedLinks = $providerInfos
       {#if contributedLinks.size > 0}
         {#each [...contributedLinks] as [group, links]}
           {#if links.length > 0}
-            <div class="bg-zinc-800 px-3 pt-3 pb-3 rounded-lg">
+            <div class="bg-charcoal-600 px-3 pt-3 pb-3 rounded-lg">
               <div class="text-lg">{group}</div>
               <div class="grid grid-cols-1 md:grid-cols-2 py-3">
                 {#each links as link, index}
@@ -93,7 +93,7 @@ $: contributedLinks = $providerInfos
       {/if}
 
       <!-- Get in Touch -->
-      <div class="bg-zinc-800 px-3 pt-3 pb-3 rounded-lg">
+      <div class="bg-charcoal-600 px-3 pt-3 pb-3 rounded-lg">
         <div class="text-lg">Get in Touch</div>
         <div class="grid grid-cols-1 md:grid-cols-2 py-3">
           <div
@@ -128,7 +128,7 @@ $: contributedLinks = $providerInfos
       </div>
 
       <!-- Communication -->
-      <div class="bg-zinc-800 px-3 pt-3 pb-3 rounded-lg">
+      <div class="bg-charcoal-600 px-3 pt-3 pb-3 rounded-lg">
         <div class="text-lg">Communication</div>
         <div class="grid grid-cols-1 md:grid-cols-2 py-3">
           <div

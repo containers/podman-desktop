@@ -119,7 +119,7 @@ export function MacOSDownloads(): JSX.Element {
                 <p className="text-xl p-1">
                   <FontAwesomeIcon size="sm" icon={faBeer} className="mx-1 mt-2" />
                 </p>
-                <div className="dark:bg-zinc-900/50 bg-zinc-300/50 p-1 truncate">
+                <div className="dark:bg-charcoal-800/50 bg-zinc-300/50 p-1 truncate">
                   <p className="text-xl dark:text-purple-200 text-purple-600">
                     <FontAwesomeIcon size="xs" icon={faTerminal} className="mx-2 mt-3" />
                     brew install podman-desktop

@@ -48,7 +48,7 @@ function deleteContribution(extensionName: string) {
 </script>
 
 <SettingsPage title="Docker Desktop Extensions">
-  <div class="bg-zinc-800 mt-5 rounded-md p-3">
+  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
     <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
     <p class="text-xs italic">
       Not all are guaranteed to work but you can add their OCI Image below to try and load them.
@@ -66,7 +66,7 @@ function deleteContribution(extensionName: string) {
           id="ociImage"
           bind:value="{ociImage}"
           placeholder="Name of the Image"
-          class="text-sm rounded-sm focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-zinc-900 border-gray-900 placeholder-gray-400 text-white"
+          class="text-sm rounded-sm focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-charcoal-800 border-gray-900 placeholder-gray-400 text-white"
           required />
       </div>
     </div>

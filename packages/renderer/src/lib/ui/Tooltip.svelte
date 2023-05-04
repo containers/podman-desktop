@@ -45,7 +45,7 @@ export let left = false;
     class:bottom="{bottom}"
     class:top="{top}">
     {#if tip}
-      <div class="inline-block py-2 px-4 rounded-md bg-zinc-900 text-xs">{tip}</div>
+      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs">{tip}</div>
     {/if}
   </div>
 </div>

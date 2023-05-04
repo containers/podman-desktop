@@ -253,11 +253,13 @@ function handleKeydown(e: KeyboardEvent) {
   <div class="absolute m-auto left-0 right-0 z-50">
     <div class=" flex justify-center items-center mt-1">
       <div
-        class="bg-zinc-900 w-[700px] {mode === 'InputBox' ? 'h-16' : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
+        class="bg-charcoal-800 w-[700px] {mode === 'InputBox'
+          ? 'h-16'
+          : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
         {#if title}
           <div
             aria-label="title"
-            class="w-full bg-zinc-800 rounded-sm text-center max-w-[700px] truncate cursor-default">
+            class="w-full bg-charcoal-600 rounded-sm text-center max-w-[700px] truncate cursor-default">
             {title}
           </div>
         {/if}
@@ -269,12 +271,12 @@ function handleKeydown(e: KeyboardEvent) {
             bind:value="{inputValue}"
             class="px-1 w-full text-gray-400 bg-zinc-700 border {validationError
               ? 'border-red-700'
-              : 'border-zinc-800'} focus:outline-none"
+              : 'border-charcoal-600'} focus:outline-none"
             placeholder="{placeHolder}" />
           {#if quickPickCanPickMany}
             <button
               on:click="{() => validateQuickPick()}"
-              class="text-gray-400 bg-violet-600 border border-zinc-800 focus:outline-none px-1">OK</button>
+              class="text-gray-400 bg-violet-600 border border-charcoal-600 focus:outline-none px-1">OK</button>
           {/if}
         </div>
 
@@ -289,7 +291,7 @@ function handleKeydown(e: KeyboardEvent) {
             <div
               class="flex w-full flex-row {i === quickPickSelectedFilteredIndex
                 ? 'bg-violet-500'
-                : 'hover:bg-zinc-800'} ">
+                : 'hover:bg-charcoal-600'} ">
               {#if quickPickCanPickMany}
                 <input type="checkbox" class="mx-1 outline-none" bind:checked="{item.checkbox}" />
               {/if}

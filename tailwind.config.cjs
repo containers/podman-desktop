@@ -159,8 +159,6 @@ module.exports = {
         400: tailwindColors.zinc[400],
         600: tailwindColors.zinc[600],
         700: tailwindColors.zinc[700],
-        800: tailwindColors.zinc[800],
-        900: tailwindColors.zinc[900],
       },
       'neutral': {
         900: tailwindColors.neutral[900],

@@ -334,7 +334,7 @@ function updateKubeResult() {
 
 <NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
   <div slot="empty" class="p-5 bg-zinc-700 h-full">
-    <div class="bg-zinc-800 h-full p-5">
+    <div class="bg-charcoal-600 h-full p-5">
       {#if kubeDetails}
         <p>Generated pod to deploy to Kubernetes:</p>
         <div class="h-1/3 pt-2">
@@ -350,7 +350,7 @@ function updateKubeResult() {
             bind:value="{bodyPod.metadata.name}"
             name="podName"
             id="podName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
@@ -412,7 +412,7 @@ function updateKubeResult() {
             bind:value="{ingressPort}"
             name="serviceName"
             id="serviceName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"
             required>
             <option value="" disabled selected>Select a port</option>
             {#each containerPortArray as port}
@@ -444,7 +444,7 @@ function updateKubeResult() {
             name="defaultContextName"
             id="defaultContextName"
             readonly
-            class="cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class="cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
@@ -453,7 +453,7 @@ function updateKubeResult() {
         <div class="pt-2">
           <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes namespace:</label>
           <select
-            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             name="namespaceChoice"
             bind:value="{currentNamespace}">
             {#each allNamespaces.items as namespace}
@@ -488,7 +488,7 @@ function updateKubeResult() {
       {/if}
 
       {#if createdPod}
-        <div class="bg-zinc-900 p-5 my-4">
+        <div class="bg-charcoal-800 p-5 my-4">
           <div class="flex flex-row items-center">
             <div>Created pod:</div>
             {#if openshiftConsoleURL && createdPod?.metadata?.name}

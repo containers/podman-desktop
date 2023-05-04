@@ -66,7 +66,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 </script>
 
 <Route path="/*" breadcrumb="{providerInfo?.name}" let:meta>
-  <div class="flex flex-1 flex-col bg-zinc-900 px-6 py-1">
+  <div class="flex flex-1 flex-col bg-charcoal-800 px-6 py-1">
     <div>
       <button
         aria-label="Close"
