@@ -111,7 +111,7 @@ export function WindowsDownloads(): JSX.Element {
                 <p className="text-xl p-1">
                   <FontAwesomeIcon size="sm" icon={faMicrosoft} className="mx-1 mt-2" />
                 </p>
-                <div className="dark:bg-zinc-900/50 bg-zinc-300/50 p-1 text-xl dark:text-purple-200 text-purple-600 flex flex-row">
+                <div className="dark:bg-charcoal-800/50 bg-zinc-300/50 p-1 text-xl dark:text-purple-200 text-purple-600 flex flex-row">
                   <div className="w-72 truncate">
                     <FontAwesomeIcon size="xs" icon={faTerminal} className="mx-2 mt-3" />
                     winget install -e --id RedHat.Podman-Desktop

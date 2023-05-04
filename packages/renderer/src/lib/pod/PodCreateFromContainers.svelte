@@ -215,7 +215,7 @@ function updatePortExposure(port: number, checked: boolean) {
               class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300 dark:text-gray-300"
               >Container Engine
               <select
-                class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+                class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"
                 name="providerChoice"
                 bind:value="{selectedProvider}">
                 {#each providerConnections as providerConnection}

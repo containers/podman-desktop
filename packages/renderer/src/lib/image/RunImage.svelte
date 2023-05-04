@@ -389,7 +389,7 @@ function checkContainerName(event: any) {
   {#if dataReady}
     <NavPage title="Create a container from image {imageDisplayName}:{image.tag}" searchEnabled="{false}">
       <div slot="empty" class="bg-zinc-700 p-5 h-full">
-        <div class="bg-zinc-800 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
+        <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
           <section class="pf-c-page__main-tabs pf-m-limit-width">
             <div class="pf-c-page__main-body">
               <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
@@ -446,21 +446,22 @@ function checkContainerName(event: any) {
                   name="modalContainerName"
                   id="modalContainerName"
                   placeholder="Leave blank to generate a name"
-                  class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700 border {containerNameError
+                  class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border {containerNameError
                     ? 'border-red-500'
-                    : 'border-zinc-900'}" />
+                    : 'border-charcoal-800'}" />
                 <ErrorMessage class="h-1 text-sm" error="{containerNameError}" />
                 <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                   >Volumes:</label>
                 <!-- Display the list of volumes -->
                 {#each volumeMounts as volumeMount, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
-                    <div class="flex w-full flex-row bg-zinc-900 rounded-sm text-sm text-gray-700 placeholder-gray-700">
+                    <div
+                      class="flex w-full flex-row bg-charcoal-800 rounded-sm text-sm text-gray-700 placeholder-gray-700">
                       <input
                         type="text"
                         bind:value="{volumeMount.source}"
                         placeholder="Path on the host"
-                        class="ml-2 w-full p-2 outline-none bg-zinc-900" />
+                        class="ml-2 w-full p-2 outline-none bg-charcoal-800" />
                       <button
                         title="Open dialog to select a directory"
                         class="p-2 outline-none text-gray-700"
@@ -472,15 +473,15 @@ function checkContainerName(event: any) {
                       type="text"
                       bind:value="{volumeMount.target}"
                       placeholder="Path inside the container"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index === volumeMounts.length - 1}"
                       on:click="{() => deleteVolumeMount(index)}">
                       <Fa class="h-4 w-4 text-xl" icon="{faMinusCircle}" />
                     </button>
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index < volumeMounts.length - 1}"
                       on:click="{addVolumeMount}">
                       <Fa class="h-4 w-4 text-xl" icon="{faPlusCircle}" />
@@ -500,7 +501,7 @@ function checkContainerName(event: any) {
                       type="text"
                       bind:value="{containerPortMapping[index]}"
                       placeholder="Enter value for port {port}"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                   </div>
                 {/each}
 
@@ -518,14 +519,14 @@ function checkContainerName(event: any) {
                       type="text"
                       bind:value="{hostContainerPortMapping.hostPort}"
                       placeholder="Host Port"
-                      class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                     <input
                       type="text"
                       bind:value="{hostContainerPortMapping.containerPort}"
                       placeholder="Container Port"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       on:click="{() => deleteHostContainerPorts(index)}">
                       <Fa class="h-4 w-4 text-xl" icon="{faMinusCircle}" />
                     </button>
@@ -542,21 +543,21 @@ function checkContainerName(event: any) {
                       type="text"
                       bind:value="{environmentVariable.key}"
                       placeholder="Name"
-                      class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
 
                     <input
                       type="text"
                       bind:value="{environmentVariable.value}"
                       placeholder="Value (leave blank for empty)"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index === environmentVariables.length - 1}"
                       on:click="{() => deleteEnvVariable(index)}">
                       <Fa class="h-4 w-4 text-xl" icon="{faMinusCircle}" />
                     </button>
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index < environmentVariables.length - 1}"
                       on:click="{addEnvVariable}">
                       <Fa class="h-4 w-4 text-xl" icon="{faPlusCircle}" />
@@ -583,7 +584,7 @@ function checkContainerName(event: any) {
                     type="text"
                     bind:value="{runUser}"
                     placeholder="If you specify a username, user must exist in /etc/passwd file (use user id instead)"
-                    class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                    class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                 </div>
 
                 <!-- Autoremove-->
@@ -605,7 +606,7 @@ function checkContainerName(event: any) {
                     >Policy name:</span>
 
                   <select
-                    class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                    class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                     name="restartPolicyName"
                     bind:value="{restartPolicyName}">
                     <option value="">No restart</option>
@@ -628,7 +629,7 @@ function checkContainerName(event: any) {
                     min="0"
                     bind:value="{restartPolicyMaxRetryCount}"
                     placeholder="Number of times to retry before giving up"
-                    class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                    class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                     disabled="{restartPolicyName !== 'on-failure'}" />
                 </div>
               </div>
@@ -664,16 +665,16 @@ function checkContainerName(event: any) {
                       type="text"
                       bind:value="{securityOpt}"
                       placeholder="Enter a security option (Ex. seccomp=/path/to/profile.json)"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
 
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index === securityOpts.length - 1}"
                       on:click="{() => deleteSecurityOpt(index)}">
                       <Fa class="h-4 w-4 text-xl" icon="{faMinusCircle}" />
                     </button>
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index < securityOpts.length - 1}"
                       on:click="{addSecurityOpt}">
                       <Fa class="h-4 w-4 text-xl" icon="{faPlusCircle}" />
@@ -696,16 +697,16 @@ function checkContainerName(event: any) {
                       type="text"
                       bind:value="{capAdd}"
                       placeholder="Enter a kernel capability (Ex. SYS_ADMIN)"
-                      class="ml-4 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-4 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
 
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index === capAdds.length - 1}"
                       on:click="{() => deleteCapAdd(index)}">
                       <Fa class="h-4 w-4 text-xl" icon="{faMinusCircle}" />
                     </button>
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index < capAdds.length - 1}"
                       on:click="{addCapAdd}">
                       <Fa class="h-4 w-4 text-xl" icon="{faPlusCircle}" />
@@ -723,16 +724,16 @@ function checkContainerName(event: any) {
                       type="text"
                       bind:value="{capDrop}"
                       placeholder="Enter a kernel capability (Ex. SYS_ADMIN)"
-                      class="ml-4 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-4 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
 
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index === capDrops.length - 1}"
                       on:click="{() => deleteCappDrop(index)}">
                       <Fa class="h-4 w-4 text-xl" icon="{faMinusCircle}" />
                     </button>
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index < capDrops.length - 1}"
                       on:click="{addCapDrop}">
                       <Fa class="h-4 w-4 text-xl" icon="{faPlusCircle}" />
@@ -750,7 +751,7 @@ function checkContainerName(event: any) {
                     type="text"
                     bind:value="{userNamespace}"
                     placeholder="Enter a user namespace"
-                    class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                    class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                 </div>
               </div>
             </Route>
@@ -765,7 +766,7 @@ function checkContainerName(event: any) {
                     type="text"
                     bind:value="{hostname}"
                     placeholder="Must be a valid RFC 1123 hostname"
-                    class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                    class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                 </div>
 
                 <!-- DNS -->
@@ -778,16 +779,16 @@ function checkContainerName(event: any) {
                       type="text"
                       bind:value="{dnsServer}"
                       placeholder="IP Address"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
 
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index === dnsServers.length - 1}"
                       on:click="{() => deleteDnsServer(index)}">
                       <Fa class="h-4 w-4 text-xl" icon="{faMinusCircle}" />
                     </button>
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index < dnsServers.length - 1}"
                       on:click="{addDnsServer}">
                       <Fa class="h-4 w-4 text-xl" icon="{faPlusCircle}" />
@@ -806,21 +807,21 @@ function checkContainerName(event: any) {
                       type="text"
                       bind:value="{extraHost.host}"
                       placeholder="Hostname"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
 
                     <input
                       type="text"
                       bind:value="{extraHost.ip}"
                       placeholder="IP Address"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index === extraHosts.length - 1}"
                       on:click="{() => deleteExtraHost(index)}">
                       <Fa class="h-4 w-4 text-xl" icon="{faMinusCircle}" />
                     </button>
                     <button
-                      class="ml-2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index < extraHosts.length - 1}"
                       on:click="{addExtraHost}">
                       <Fa class="h-4 w-4 text-xl" icon="{faPlusCircle}" />
@@ -837,7 +838,7 @@ function checkContainerName(event: any) {
                   <span class="text-sm w-28 inline-block align-middle whitespace-nowrap text-gray-700">Mode:</span>
 
                   <select
-                    class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                    class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                     name="providerChoice"
                     bind:value="{networkingMode}">
                     <option value="bridge">Creates a network stack on the default bridge (default)</option>
@@ -853,7 +854,7 @@ function checkContainerName(event: any) {
                   <div class="flex flex-row justify-center items-center w-full py-1">
                     <span class="text-sm w-28 inline-block align-middle whitespace-nowrap text-gray-700">Network:</span>
                     <select
-                      class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       disabled="{networkingMode !== 'choice-network'}"
                       name="networkingModeUserNetwork"
                       bind:value="{networkingModeUserNetwork}">
@@ -869,7 +870,7 @@ function checkContainerName(event: any) {
                     <span class="text-sm w-28 inline-block align-middle whitespace-nowrap text-gray-700"
                       >Container:</span>
                     <select
-                      class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       disabled="{networkingMode !== 'choice-container'}"
                       name="networkingModeUserContainer"
                       bind:value="{networkingModeUserContainer}">

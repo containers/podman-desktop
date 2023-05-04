@@ -218,11 +218,11 @@ async function startConnectionProvider(
           icon="{EngineIcon}"
           title="No resources found"
           message="Start an extension that manages containers or Kubernetes engines"
-          class="bg-zinc-800 mt-5 pb-10" />
+          class="bg-charcoal-600 mt-5 pb-10" />
       </div>
     {:else}
       {#each providers as provider}
-        <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-900 flex">
+        <div class="bg-charcoal-600 mt-5 rounded-md p-3 divide-x divide-gray-900 flex">
           <div>
             <!-- left col - provider icon/name + "create new" button -->
             <div class="min-w-[150px] max-w-[200px]">

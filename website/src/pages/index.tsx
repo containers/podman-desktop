@@ -145,7 +145,7 @@ function WorkInProgress() {
 
 function KeepUpToDate() {
   return (
-    <section className="text-gray-900 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font">
+    <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-800 bg-zinc-100 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="update" />
@@ -184,7 +184,7 @@ function KeepUpToDate() {
 
 function Extensibility() {
   return (
-    <section className="text-gray-900 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font">
+    <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="extensibility" />
@@ -251,7 +251,7 @@ function Extensibility() {
 
 function Configure() {
   return (
-    <section className="text-gray-900 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
+    <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-800 bg-zinc-100 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="Configure" />
@@ -319,7 +319,7 @@ function Configure() {
 
 function EnterpriseReady() {
   return (
-    <section className="text-gray-900 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
+    <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="enterprise" />
@@ -377,7 +377,7 @@ const copyBrewInstructions = () => {
 
 function RunAnywhere() {
   return (
-    <section className="text-gray-900 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font">
+    <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
@@ -389,7 +389,7 @@ function RunAnywhere() {
         </div>
         <div className="flex flex-wrap w-full justify-center">
           <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-zinc-900 bg-opacity-60 p-8 flex-col">
+            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
               <Link
                 title="Download for Windows"
                 className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
@@ -408,7 +408,7 @@ function RunAnywhere() {
             </div>
           </div>
           <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-zinc-900 bg-opacity-60 p-8 flex-col">
+            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
               <Link
                 title="Download for macOS"
                 className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
@@ -436,7 +436,7 @@ function RunAnywhere() {
             </div>
           </div>
           <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-zinc-900 bg-opacity-60 p-8 flex-col">
+            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
               <Link
                 title="Download for Linux"
                 className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
@@ -461,7 +461,7 @@ function RunAnywhere() {
 
 function MainFeatures() {
   return (
-    <section className="text-gray-900 dark:text-gray-400 dark:bg-zinc-900 bg-zinc-100 body-font py-24">
+    <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-800 bg-zinc-100 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="features" />
@@ -564,7 +564,7 @@ function MainFeatures() {
 
 function Pods() {
   return (
-    <section className="text-gray-900 dark:text-gray-400 dark:bg-zinc-800 bg-zinc-200 body-font py-24">
+    <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-col text-center w-full mb-5">
           <SectionTitle name="features" />

@@ -19,7 +19,7 @@ let logs: string[] = [];
 let logElement;
 
 const buttonClass: string =
-  'm-0.5 text-gray-400 hover:bg-zinc-800 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
+  'm-0.5 text-gray-400 hover:bg-charcoal-600 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 
 async function installExtensionFromImage() {
   errorInstall = '';
@@ -65,7 +65,7 @@ async function removeExtension(extension: ExtensionInfo) {
 </script>
 
 <SettingsPage title="Extensions">
-  <div class="bg-zinc-800 mt-5 rounded-md p-3">
+  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
     <h1 class="text-lg mb-2">Install a new extension from OCI Image</h1>
 
     <div class="flex flex-col w-full">
@@ -75,7 +75,7 @@ async function removeExtension(extension: ExtensionInfo) {
           id="ociImage"
           bind:value="{ociImage}"
           placeholder="Name of the Image"
-          class="w-1/2 p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+          class="w-1/2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           required />
 
         <button
@@ -113,7 +113,7 @@ async function removeExtension(extension: ExtensionInfo) {
       </div>
     </div>
   </div>
-  <div class="bg-zinc-800 mt-5 rounded-md p-3">
+  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
     <table class="min-w-full">
       <tbody>
         {#each $extensionInfos as extension}

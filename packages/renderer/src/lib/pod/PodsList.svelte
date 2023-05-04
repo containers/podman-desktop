@@ -267,7 +267,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
       </thead>
       <tbody class="">
         {#each pods as pod}
-          <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+          <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
               <input
@@ -275,7 +275,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                 bind:checked="{pod.selected}"
                 class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
             </td>
-            <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
+            <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
                 <StatusIcon icon="{PodIcon}" status="{pod.status}" />
               </div>

@@ -51,7 +51,7 @@ async function sendFeedback(): Promise<void> {
 {#if displayModal}
   <Modal on:close="{() => hideModal()}">
     <div
-      class="inline-block w-full overflow-hidden text-left transition-all transform bg-zinc-800 z-50 rounded-xl shadow-xl shadow-neutral-900">
+      class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 rounded-xl shadow-xl shadow-neutral-900">
       <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
         <h1 class="text-xl font-bold">Share your feedback</h1>
 
@@ -100,7 +100,8 @@ async function sendFeedback(): Promise<void> {
           id="tellUsWhyFeedback"
           bind:value="{tellUsWhyFeedback}"
           placeholder="Leave blank to generate a name"
-          class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"></textarea>
+          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+        ></textarea>
 
         <label for="contactInformation" class="block mt-4 mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
           >Share your contact information if you'd like us to answer you:</label>
@@ -110,7 +111,7 @@ async function sendFeedback(): Promise<void> {
           id="contactInformation"
           bind:value="{contactInformation}"
           placeholder="Enter email address, phone number or leave blank for anonymous feedback"
-          class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700" />
+          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
 
         <div class="pt-5 flex flex-row w-full">
           {#if smileyRating === 0}
