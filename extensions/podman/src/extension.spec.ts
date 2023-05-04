@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import * as extension from './extension';
 import * as podmanCli from './podman-cli';
 import { getPodmanCli } from './podman-cli';
 import type { Configuration } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 
 const config: Configuration = {
   get: () => {
@@ -38,7 +39,14 @@ vi.mock('@podman-desktop/api', async () => {
     proxy: {
       isEnabled: () => false,
     },
+    window: {
+      showInformationMessage: vi.fn(),
+    },
   };
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
 });
 
 test('verify create command called with correct values', async () => {
@@ -66,28 +74,62 @@ test('verify create command called with correct values', async () => {
   );
 });
 
-test('verify create command called with correct values in rootful mode', async () => {
-  const spyExecPromise = vi.spyOn(podmanCli, 'execPromise');
-  spyExecPromise.mockImplementation(() => {
-    return Promise.resolve('');
-  });
-  await extension.createMachine(
+test('test checkDefaultMachine, if the machine running is not default, the function will prompt', async () => {
+  // Create fake of MachineJSON
+  const fakeJSON: extension.MachineJSON[] = [
     {
-      'podman.factory.machine.cpus': '2',
-      'podman.factory.machine.image-path': 'path',
-      'podman.factory.machine.memory': '1048000000',
-      'podman.factory.machine.diskSize': '250000000000',
-      'podman.factory.machine.rootful': true,
+      Name: 'podman-machine-default',
+      CPUs: 2,
+      Memory: '1048000000',
+      DiskSize: '250000000000',
+      Running: true,
+      Starting: false,
+      Default: false,
     },
-    undefined,
-  );
-  expect(spyExecPromise).toBeCalledWith(
-    getPodmanCli(),
-    ['machine', 'init', '--cpus', '2', '--memory', '1048', '--disk-size', '250', '--image-path', 'path', '--rootful'],
     {
-      env: {},
-      logger: undefined,
+      Name: 'podman-machine-1',
+      CPUs: 2,
+      Memory: '1048000000',
+      DiskSize: '250000000000',
+      Running: false,
+      Starting: false,
+      Default: true,
     },
-    undefined,
+  ];
+
+  await extension.checkDefaultMachine(fakeJSON);
+
+  expect(extensionApi.window.showInformationMessage).toBeCalledWith(
+    "Podman Machine 'podman-machine-default' is running but not the default machine (default is 'podman-machine-1'). This will cause podman CLI errors while trying to connect to 'podman-machine-default'. Do you want to set it as default?",
+    'Yes',
+    'Ignore',
+    'Cancel',
   );
+});
+
+test('checkDefaultMachine: do not prompt if the running machine is already the default', async () => {
+  // Create fake of MachineJSON
+  const fakeJSON: extension.MachineJSON[] = [
+    {
+      Name: 'podman-machine-default',
+      CPUs: 2,
+      Memory: '1048000000',
+      DiskSize: '250000000000',
+      Running: true,
+      Starting: false,
+      Default: true,
+    },
+    {
+      Name: 'podman-machine-1',
+      CPUs: 2,
+      Memory: '1048000000',
+      DiskSize: '250000000000',
+      Running: false,
+      Starting: false,
+      Default: false,
+    },
+  ];
+
+  await extension.checkDefaultMachine(fakeJSON);
+  expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
 });

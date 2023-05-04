@@ -60,7 +60,7 @@ const containerProviderConnections = new Map<string, extensionApi.ContainerProvi
 let isDisguisedPodmanSocket = true;
 let disguisedPodmanSocketWatcher: extensionApi.FileSystemWatcher;
 
-type MachineJSON = {
+export type MachineJSON = {
   Name: string;
   CPUs: number;
   Memory: string;
@@ -200,11 +200,12 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   await checkDefaultMachine(machines);
 }
 
-async function checkDefaultMachine(machines: MachineJSON[]): Promise<void> {
+export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void> {
   // As a last check, let's see if the machine that is running is set by default or not on the CLI.
   // if it isn't, we should prompt the user to set it as default, or else podman CLI commands will not work
   const runningMachine = machines.find(machine => machine.Running);
   const defaultMachine = machines.find(machine => machine.Default);
+
   if (defaultMachineNotify && defaultMachineMonitor && runningMachine && !runningMachine.Default) {
     // Make sure we do notifyDefault = false so we don't keep notifying the user when this dialog is open.
     defaultMachineMonitor = false;
