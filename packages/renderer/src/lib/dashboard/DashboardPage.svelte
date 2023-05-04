@@ -10,6 +10,7 @@ import ProviderStopped from './ProviderStopped.svelte';
 import ProviderStarting from './ProviderStarting.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import type { InitializationMode } from './ProviderInitUtils';
+import FeaturedExtensions from '/@/lib/featured/FeaturedExtensions.svelte';
 
 const providerInitMode = new Map<string, InitializationMode>();
 
@@ -74,6 +75,8 @@ function updateInitializationMode(id: string, mode: InitializationMode) {
             <ProviderStopped provider="{providerStopped}" />
           {/each}
         {/if}
+
+        <FeaturedExtensions />
       </div>
     </div>
   </div>
