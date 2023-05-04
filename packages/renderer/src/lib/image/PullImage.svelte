@@ -150,15 +150,15 @@ onMount(() => {
   }
 });
 
-let imageNameInvalid = 'Please enter a value';
-function validateImageName(): void {
+let imageNameInvalid = undefined;
+function validateImageName(event): void {
+  imageToPull = event.target.value;
   if (imageToPull === undefined || imageToPull.trim() === '') {
     imageNameInvalid = 'Please enter a value';
   } else {
     imageNameInvalid = '';
   }
 }
-validateImageName();
 </script>
 
 {#if providerConnections.length === 0}
@@ -196,14 +196,15 @@ validateImageName();
           </div>
           <div class="pf-c-form__group-control">
             <input
-              class="pf-c-form-control"
+              class="pf-c-form-control outline-none"
               type="text"
               name="serverUrl"
               disabled="{pullFinished || pullInProgress}"
-              on:input="{event => validateImageName()}"
+              on:input="{event => validateImageName(event)}"
               bind:value="{imageToPull}"
-              aria-invalid="{!!imageNameInvalid}"
+              aria-invalid="{imageNameInvalid && imageNameInvalid !== ''}"
               placeholder="Image name"
+              aria-label="imageName"
               required />
             {#if imageNameInvalid}
               <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
@@ -245,7 +246,7 @@ validateImageName();
             {#if !pullFinished}
               <button
                 class="pf-c-button pf-m-primary"
-                disabled="{!!imageNameInvalid || pullInProgress}"
+                disabled="{!imageToPull || imageToPull.trim() === '' || pullInProgress}"
                 type="button"
                 on:click="{() => pullImage()}">
                 {#if pullInProgress === true}
