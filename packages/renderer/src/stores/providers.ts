@@ -67,6 +67,9 @@ window?.events?.receive('provider:update-status', () => {
 window?.events?.receive('provider:update-warnings', () => {
   fetchProviders();
 });
+window?.events?.receive('provider:update-version', () => {
+  fetchProviders();
+});
 window.addEventListener('system-ready', () => {
   fetchProviders();
 });

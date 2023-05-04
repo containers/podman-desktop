@@ -75,6 +75,39 @@ test('should initialize provider if there is kubernetes connection provider', as
   expect(apiSenderSendMock).toBeCalled();
 });
 
+test('should send version event if update', async () => {
+  let providerInternalId;
+
+  apiSenderSendMock.mockImplementation((message, data) => {
+    expect(['provider-create', 'provider:update-version']).toContain(message);
+    if (message === 'provider-create') {
+      providerInternalId = data;
+    }
+  });
+
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+
+  let updateCalled = false;
+  provider.registerUpdate({
+    version: 'next',
+    update: async () => {
+      updateCalled = true;
+      provider.updateVersion('next');
+    },
+  });
+
+  expect(providerInternalId).toBeDefined();
+  await providerRegistry.updateProvider(providerInternalId);
+
+  expect(telemetryTrackMock).toHaveBeenNthCalledWith(1, 'createProvider', {
+    name: 'internal',
+    status: 'installed',
+  });
+
+  expect(updateCalled).toBe(true);
+  expect(apiSenderSendMock).toBeCalledTimes(2);
+});
+
 test('should initialize provider if there is container connection provider', async () => {
   let providerInternalId;
 
