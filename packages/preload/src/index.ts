@@ -1303,6 +1303,16 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('getPodmanDesktopVersion', async (): Promise<string> => {
     return ipcInvoke('app:getVersion');
   });
+
+  contextBridge.exposeInMainWorld('windowMinimize', async (): Promise<void> => {
+    return ipcInvoke('window:minimize');
+  });
+  contextBridge.exposeInMainWorld('windowMaximize', async (): Promise<void> => {
+    return ipcInvoke('window:maximize');
+  });
+  contextBridge.exposeInMainWorld('windowClose', async (): Promise<void> => {
+    return ipcInvoke('window:close');
+  });
 }
 
 // expose methods
