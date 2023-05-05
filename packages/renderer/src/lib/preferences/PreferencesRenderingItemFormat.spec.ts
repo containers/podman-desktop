@@ -192,7 +192,7 @@ test('Expect tooltip text shows info when input is less than minimum', async () 
   await userEvent.keyboard('0');
   const tooltip = screen.getByLabelText('tooltip');
   expect(tooltip).toBeInTheDocument();
-  expect(tooltip.textContent).toBe('The value must be greater than or equal to 1');
+  expect(tooltip.textContent).toBe('The value cannot be less than 1');
 });
 
 test('Expect tooltip text shows info when input is empty', async () => {
@@ -214,5 +214,5 @@ test('Expect tooltip text shows info when input is empty', async () => {
   await userEvent.keyboard('40');
   const tooltip = screen.getByLabelText('tooltip');
   expect(tooltip).toBeInTheDocument();
-  expect(tooltip.textContent).toBe('The value must be less than or equal to 34');
+  expect(tooltip.textContent).toBe('The value cannot be greater than 34');
 });

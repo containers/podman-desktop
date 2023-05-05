@@ -217,8 +217,8 @@ function onNumberInputKeyPress(event: any) {
 function onNumberInputChange(event: any) {
   if (event.target.value === '') {
     numberInputInvalid = true;
-    numberInputErrorMessage = `The value must be greater than or equal to ${record.minimum}${
-      record.maximum ? ` and less than or equal to ${record.maximum}` : ''
+    numberInputErrorMessage = `The value cannot be less than ${record.minimum}${
+      record.maximum ? ` or greater than ${record.maximum}` : ''
     }`;
     clearTimeout(recordUpdateTimeout);
     return;
@@ -233,13 +233,13 @@ function onNumberInputChange(event: any) {
 function assertNumericValueIsValid(value: number) {
   if (record.maximum && typeof record.maximum === 'number' && value > record.maximum) {
     numberInputInvalid = true;
-    numberInputErrorMessage = `The value must be less than or equal to ${record.maximum}`;
+    numberInputErrorMessage = `The value cannot be greater than ${record.maximum}`;
     clearTimeout(recordUpdateTimeout);
     return false;
   }
   if (record.minimum && typeof record.minimum === 'number' && value < record.minimum) {
     numberInputInvalid = true;
-    numberInputErrorMessage = `The value must be greater than or equal to ${record.minimum}`;
+    numberInputErrorMessage = `The value cannot be less than ${record.minimum}`;
     clearTimeout(recordUpdateTimeout);
     return false;
   }
