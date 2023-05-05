@@ -54,9 +54,11 @@ async function createWindow() {
     },
   };
 
+  // frameless window
+  browserWindowConstructorOptions.titleBarStyle = 'hidden';
   if (isMac()) {
-    // This property is not available on Linux.
-    browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
+    // change position of traffic light buttons
+    browserWindowConstructorOptions.trafficLightPosition = { x: 20, y: 13 };
   }
 
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);

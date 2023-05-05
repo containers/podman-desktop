@@ -1465,6 +1465,34 @@ export class PluginSystem {
       return app.getVersion();
     });
 
+    this.ipcHandle('window:minimize', async (): Promise<void> => {
+      const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (!window) {
+        return;
+      }
+      window.minimize();
+    });
+
+    this.ipcHandle('window:maximize', async (): Promise<void> => {
+      const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (!window) {
+        return;
+      }
+      if (window.isMaximized()) {
+        window.unmaximize();
+        return;
+      }
+      window.maximize();
+    });
+
+    this.ipcHandle('window:close', async (): Promise<void> => {
+      const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (!window) {
+        return;
+      }
+      window.close();
+    });
+
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,
