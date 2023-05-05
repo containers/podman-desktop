@@ -6,6 +6,7 @@ import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configu
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Markdown from '../markdown/Markdown.svelte';
 import { getNormalizedDefaultNumberValue } from './Util';
+import Tooltip from '../ui/Tooltip.svelte';
 
 let invalidEntry = false;
 let invalidText = undefined;
@@ -143,6 +144,7 @@ function decrement(
     recordValue = value;
     autoSave();
   }
+  assertNumericValueIsValid(value);
   e.preventDefault();
 }
 
@@ -160,6 +162,7 @@ function increment(
     recordValue = value;
     autoSave();
   }
+  assertNumericValueIsValid(value);
   e.preventDefault();
 }
 
@@ -171,7 +174,7 @@ function autoSave() {
 
 function getCurrentNumericInputElement(e: HTMLButtonElement) {
   const btn = e.parentNode.parentElement.querySelector('button[data-action="decrement"]');
-  return btn.nextElementSibling as unknown as HTMLInputElement;
+  return btn.nextElementSibling.firstElementChild.firstElementChild as unknown as HTMLInputElement;
 }
 
 function canDecrement(value: number | string, minimumValue?: number) {
@@ -199,6 +202,50 @@ function handleCleanValue(
 ) {
   recordValue = '';
   event.preventDefault();
+}
+
+let numberInputInvalid = false;
+let numberInputErrorMessage = '';
+function onNumberInputKeyPress(event: any) {
+  // if the key is not a number skip it
+  if (isNaN(Number(event.key))) {
+    event.preventDefault();
+    return;
+  }
+}
+
+function onNumberInputChange(event: any) {
+  if (event.target.value === '') {
+    numberInputInvalid = true;
+    numberInputErrorMessage = `The value must be greater than or equal to ${record.minimum}${
+      record.maximum ? ` and less than or equal to ${record.maximum}` : ''
+    }`;
+    clearTimeout(recordUpdateTimeout);
+    return;
+  }
+  // if the resulting value is greater than the maximum or less than the minimum skip it
+  const resultingValue = Number(event.target.value);
+  if (assertNumericValueIsValid(resultingValue)) {
+    autoSave();
+  }
+}
+
+function assertNumericValueIsValid(value: number) {
+  if (record.maximum && typeof record.maximum === 'number' && value > record.maximum) {
+    numberInputInvalid = true;
+    numberInputErrorMessage = `The value must be less than or equal to ${record.maximum}`;
+    clearTimeout(recordUpdateTimeout);
+    return false;
+  }
+  if (record.minimum && typeof record.minimum === 'number' && value < record.minimum) {
+    numberInputInvalid = true;
+    numberInputErrorMessage = `The value must be greater than or equal to ${record.minimum}`;
+    clearTimeout(recordUpdateTimeout);
+    return false;
+  }
+  numberInputErrorMessage = '';
+  numberInputInvalid = false;
+  return true;
 }
 </script>
 
@@ -238,7 +285,9 @@ function handleCleanValue(
         class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs mt-2" />
     {:else if record.type === 'number'}
       <div
-        class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-charcoal-800 w-24 border-b border-violet-500">
+        class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-charcoal-800 w-24 border-b"
+        class:border-violet-500="{!numberInputInvalid}"
+        class:border-red-500="{numberInputInvalid}">
         <button
           data-action="decrement"
           on:click="{e => decrement(e, record)}"
@@ -248,13 +297,16 @@ function handleCleanValue(
             : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
           <span class="m-auto font-thin">−</span>
         </button>
-        <input
-          type="text"
-          readonly
-          class="w-full outline-none focus:outline-none text-center text-white text-sm py-0.5"
-          name="{record.id}"
-          value="{recordValue}"
-          aria-label="{record.description}" />
+        <Tooltip topLeft tip="{numberInputErrorMessage}">
+          <input
+            type="text"
+            class="w-[50px] outline-none focus:outline-none text-center text-white text-sm py-0.5"
+            name="{record.id}"
+            bind:value="{recordValue}"
+            on:keypress="{event => onNumberInputKeyPress(event)}"
+            on:input="{event => onNumberInputChange(event)}"
+            aria-label="{record.description}" />
+        </Tooltip>
         <button
           data-action="increment"
           on:click="{e => increment(e, record)}"

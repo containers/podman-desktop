@@ -20,6 +20,11 @@
   transform: translateX(100%);
   margin-right: -8px;
 }
+.tooltip.top-left {
+  left: 0;
+  transform: translate(-80%, -100%);
+  margin-top: -8px;
+}
 .tooltip-slot:hover + .tooltip {
   opacity: 1;
   visibility: initial;
@@ -29,6 +34,7 @@
 <script>
 export let tip = '';
 export let top = false;
+export let topLeft = false;
 export let right = false;
 export let bottom = false;
 export let left = false;
@@ -43,9 +49,10 @@ export let left = false;
     class:left="{left}"
     class:right="{right}"
     class:bottom="{bottom}"
-    class:top="{top}">
+    class:top="{top}"
+    class:top-left="{topLeft}">
     {#if tip}
-      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs">{tip}</div>
+      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs" aria-label="tooltip">{tip}</div>
     {/if}
   </div>
 </div>
