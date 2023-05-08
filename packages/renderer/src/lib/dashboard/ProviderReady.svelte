@@ -30,7 +30,7 @@ let preflightChecks: CheckStatus[] = [];
       </div>
     {/if}
   </div>
-  {#if provider.updateInfo}
+  {#if provider.version !== provider.updateInfo?.version}
     <div class="mt-10 mb-1 w-full flex justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>

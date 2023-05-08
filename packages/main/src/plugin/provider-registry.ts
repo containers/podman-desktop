@@ -188,6 +188,7 @@ export class ProviderRegistry {
     }
     this.telemetryService.track('createProvider', trackOpts);
     this.apiSender.send('provider-create', id);
+    providerImpl.onDidUpdateVersion(() => this.apiSender.send('provider:update-version'));
     return providerImpl;
   }
 
