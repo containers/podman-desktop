@@ -92,6 +92,7 @@ Podman Desktop helps you [installing the `kind` CLI](/docs/kubernetes/kind/insta
    ```
 
 1. Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**
+1. In the **<img src="/img/podman-icon.png" alt="Podman icon" style={{height: '1.5em', display: 'inline'}} /> Podman** tile, click on the **<icon icon="fa-solid fa-repeat" size="lg" />** icon to restart the Podman container engine.
 1. In the **<img src="/img/kind-icon.png" alt="Kind icon" style={{height: '1.5em', display: 'inline'}} /> Kind** tile, click on the **Create new** button.
    1. **Name**: enter `kind-cluster`.
    1. **Provider Type**: select `podman`.
