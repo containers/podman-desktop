@@ -7,6 +7,7 @@ import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
+import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
 
 export let resourceId: string;
 export let engineId: string;
@@ -22,9 +23,11 @@ let deployError = '';
 let deployWarning = '';
 let updatePodInterval: NodeJS.Timeout;
 let openshiftConsoleURL: string;
+let openshiftRouteGroupSupported = false;
 
 let deployUsingServices = true;
 let deployUsingRoutes = true;
+let deployUsingRestrictedSecurityContext = true;
 let createdPod = undefined;
 let bodyPod;
 
@@ -62,6 +65,7 @@ onMount(async () => {
 
   // check if there is OpenShift and then grab openshift console URL
   try {
+    openshiftRouteGroupSupported = await window.kubernetesIsAPIGroupSupported('route.openshift.io');
     const openshiftConfigMap = await window.kubernetesReadNamespacedConfigMap(
       'console-public',
       'openshift-config-managed',
@@ -158,7 +162,7 @@ async function deployToKube() {
           };
           servicesToCreate.push(service);
 
-          if (openshiftConsoleURL && deployUsingRoutes) {
+          if (openshiftRouteGroupSupported && deployUsingRoutes) {
             // Create OpenShift route object
             const route = {
               apiVersion: 'route.openshift.io/v1',
@@ -250,11 +254,42 @@ async function deployToKube() {
     useRoutes: deployUsingRoutes,
     createIngress: createIngress,
   };
-  if (openshiftConsoleURL) {
+  if (openshiftRouteGroupSupported) {
     eventProperties['isOpenshift'] = true;
   }
 
+  let previousPod = bodyPod;
+
   try {
+    // In order to deploy to Kubernetes, we must remove volumes for the pod as we do not support them
+    // if we are deploying using services, remove the hostPort as well as volumeMounts from the container
+    if (bodyPod?.spec?.volumes) {
+      delete bodyPod.spec.volumes;
+    }
+
+    if (deployUsingServices) {
+      bodyPod.spec?.containers?.forEach((container: any) => {
+        // UNUSED
+        // Delete all volume mounts
+        if (container.volumeMounts) {
+          delete container.volumeMounts;
+        }
+
+        // UNUSED
+        // Delete all hostPorts
+        if (container.ports) {
+          container.ports.forEach((port: any) => {
+            delete port.hostPort;
+          });
+        }
+      });
+    }
+
+    if (deployUsingRestrictedSecurityContext) {
+      ensureRestrictedSecurityContext(bodyPod);
+    }
+
+    // create pod
     createdPod = await window.kubernetesCreatePod(currentNamespace, bodyPod);
 
     // create services
@@ -279,35 +314,14 @@ async function deployToKube() {
     // update status
     updatePodInterval = setInterval(updatePod, 2000);
   } catch (error) {
+    // Revert back to the previous bodyPod so the user can hit deploy again
+    // we only update the bodyPod if we successfully create the pod.
+    bodyPod = previousPod;
     window.telemetryTrack('deployToKube', { ...eventProperties, errorMessage: error.message });
     deployError = error;
     deployStarted = false;
     deployFinished = false;
     return;
-  }
-
-  // Only on a successful deploy, do we want to update the kubeDetails with the removed fields
-  // to show the "final" version of the pod that was deployed.
-  if (bodyPod?.spec?.volumes) {
-    delete bodyPod.spec.volumes;
-  }
-
-  if (deployUsingServices) {
-    bodyPod.spec?.containers?.forEach((container: any) => {
-      // UNUSED
-      // Delete all volume mounts
-      if (container.volumeMounts) {
-        delete container.volumeMounts;
-      }
-
-      // UNUSED
-      // Delete all hostPorts
-      if (container.ports) {
-        container.ports.forEach((port: any) => {
-          delete port.hostPort;
-        });
-      }
-    });
   }
 }
 
@@ -320,7 +334,7 @@ function updateKubeResult() {
 
 <NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
   <div slot="empty" class="p-5 bg-zinc-700 h-full">
-    <div class="bg-zinc-800 h-full p-5">
+    <div class="bg-charcoal-600 h-full p-5">
       {#if kubeDetails}
         <p>Generated pod to deploy to Kubernetes:</p>
         <div class="h-1/3 pt-2">
@@ -336,7 +350,7 @@ function updateKubeResult() {
             bind:value="{bodyPod.metadata.name}"
             name="podName"
             id="podName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
@@ -355,10 +369,27 @@ function updateKubeResult() {
           policy may prevent to use hostPort.</span>
       </div>
 
+      <div class="pt-2 pb-4">
+        <label for="useRestricted" class="block mb-1 text-sm font-medium text-gray-300"
+          >Use restricted security context</label>
+        <input
+          type="checkbox"
+          bind:checked="{deployUsingRestrictedSecurityContext}"
+          name="useRestricted"
+          id="useRestricted"
+          data-testid="useRestricted"
+          class=""
+          required />
+        <span class="text-gray-400 text-sm ml-1"
+          >Update Kubernetes manifest to respect the Pod security <a
+            href="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted">restricted profile</a
+          >.</span>
+      </div>
+
       <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
-      {#if !openshiftConsoleURL && deployUsingServices}
+      {#if !openshiftRouteGroupSupported && deployUsingServices}
         <div class="pt-2 pb-4">
-          <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300"
+          <label for="createIngress" class="block mb-1 text-sm font-medium text-gray-300"
             >Expose service locally using Kubernetes Ingress:</label>
           <input
             type="checkbox"
@@ -381,7 +412,7 @@ function updateKubeResult() {
             bind:value="{ingressPort}"
             name="serviceName"
             id="serviceName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"
             required>
             <option value="" disabled selected>Select a port</option>
             {#each containerPortArray as port}
@@ -395,7 +426,7 @@ function updateKubeResult() {
       {/if}
 
       <!-- Allow to create routes for OpenShift clusters -->
-      {#if openshiftConsoleURL}
+      {#if openshiftRouteGroupSupported}
         <div class="pt-2 m-2">
           <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
           <input type="checkbox" bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" class="" required />
@@ -413,7 +444,7 @@ function updateKubeResult() {
             name="defaultContextName"
             id="defaultContextName"
             readonly
-            class="cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class="cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
@@ -422,7 +453,7 @@ function updateKubeResult() {
         <div class="pt-2">
           <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes namespace:</label>
           <select
-            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             name="namespaceChoice"
             bind:value="{currentNamespace}">
             {#each allNamespaces.items as namespace}
@@ -457,7 +488,7 @@ function updateKubeResult() {
       {/if}
 
       {#if createdPod}
-        <div class="bg-zinc-900 p-5 my-4">
+        <div class="bg-charcoal-800 p-5 my-4">
           <div class="flex flex-row items-center">
             <div>Created pod:</div>
             {#if openshiftConsoleURL && createdPod?.metadata?.name}

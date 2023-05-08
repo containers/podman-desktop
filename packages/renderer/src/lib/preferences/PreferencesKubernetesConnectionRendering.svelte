@@ -110,7 +110,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 </script>
 
 <Route path="/*" breadcrumb="{connectionName} Settings" let:meta>
-  <div class="flex flex-1 flex-col bg-zinc-800 px-2">
+  <div class="flex flex-1 flex-col bg-charcoal-600 px-2">
     <div class="flex flex-row align-middle my-4">
       <div class="capitalize text-xl">{connectionName}</div>
       {#if providerInfo?.containerProviderConnectionCreation}

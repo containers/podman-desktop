@@ -10,36 +10,36 @@ keywords: [podman desktop, podman, containers, installing, installation, linux, 
 
 Consider installing the Podman Desktop from Flathub to have:
 
-* One command installation
-* Package updates
+- One command installation
+- Package updates
 
 Alternatively, you can install Podman Desktop from:
 
-* [A Flatpak bundle](./linux-install/installing-podman-desktop-from-a-flatpak-bundle)
-* [A compressed tar file](linux-install/installing-podman-desktop-from-a-compressed-tar-file)
+- [A Flatpak bundle](./linux-install/installing-podman-desktop-from-a-flatpak-bundle)
+- [A compressed tar file](linux-install/installing-podman-desktop-from-a-compressed-tar-file)
 
 #### Prerequisites
 
-* [Flatpak](https://flatpak.org/setup/)
-* [Podman](https://podman.io/whatis.html) stable version
+- [Flatpak](https://flatpak.org/setup/)
+- [Podman](https://podman.io/whatis.html) stable version
 
 #### Procedure
 
 1. Verify the Flathub repository is enabled, and add it if required:
 
-    ```shell-session
-    $ flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
-    ```
+   ```shell-session
+   $ flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
+   ```
 
 2. Install Podman Desktop from Flathub:
 
-    ```shell-session
-    $ flatpak install --user flathub io.podman_desktop.PodmanDesktop
-    ```
+   ```shell-session
+   $ flatpak install --user flathub io.podman_desktop.PodmanDesktop
+   ```
 
 #### Verification
 
-* Open Podman Desktop from a terminal:
+- Open Podman Desktop from a terminal:
 
   ```shell-session
   $ flatpak run io.podman_desktop.PodmanDesktop
@@ -47,7 +47,7 @@ Alternatively, you can install Podman Desktop from:
 
 #### Update
 
-* Update Podman Desktop from Flathub:
+- Update Podman Desktop from Flathub:
 
   ```shell-session
   $ flatpak update --user io.podman_desktop.PodmanDesktop
@@ -55,9 +55,9 @@ Alternatively, you can install Podman Desktop from:
 
 #### Additional resources
 
-* [Podman Desktop Flathub package](https://flathub.org/apps/details/io.podman_desktop.PodmanDesktop)
-* [Using Flatpak](https://docs.flatpak.org/en/latest/using-flatpak.html)
+- [Podman Desktop Flathub package](https://flathub.org/apps/details/io.podman_desktop.PodmanDesktop)
+- [Using Flatpak](https://docs.flatpak.org/en/latest/using-flatpak.html)
 
 #### Next steps
 
-* [Getting started](../getting-started/getting-started)
+- [Getting started](../getting-started/getting-started)

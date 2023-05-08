@@ -11,7 +11,6 @@ import ContainerList from './lib/ContainerList.svelte';
 import { onMount } from 'svelte';
 import ImagesList from './lib/ImagesList.svelte';
 import ProviderList from './lib/ProviderList.svelte';
-import Logo from './lib/images/Logo.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
 import PullImage from './lib/image/PullImage.svelte';
@@ -39,6 +38,7 @@ import ToastHandler from './lib/toast/ToastHandler.svelte';
 import QuickPickInput from './lib/dialogs/QuickPickInput.svelte';
 import TaskManager from './lib/task-manager/TaskManager.svelte';
 import MessageBox from './lib/dialogs/MessageBox.svelte';
+import TitleBar from './lib/ui/TitleBar.svelte';
 
 router.mode.hash();
 
@@ -70,18 +70,8 @@ window.events?.receive('display-help', () => {
 </script>
 
 <Route path="/*" breadcrumb="Home" let:meta>
-  <main class="min-h-screen flex flex-col h-screen bg-zinc-900">
-    <header id="navbar" class="text-gray-700 bg-zinc-900 body-font" style="-webkit-app-region: drag;">
-      <div class="flex mx-auto flex-row p-2 items-center">
-        <div class="flex lg:w-2/5 flex-1 items-center text-base ml-auto"></div>
-        <div
-          class="flex order-none title-font font-medium items-center text-white align-middle justify-center mb-4 md:mb-0">
-          <Logo />
-          <span class="select-none ml-3 text-xl block text-gray-400">Podman Desktop</span>
-        </div>
-        <div class="lg:w-2/5 flex-1 lg:justify-end ml-5 lg:ml-0"></div>
-      </div>
-    </header>
+  <main class="min-h-screen flex flex-col h-screen bg-charcoal-800">
+    <TitleBar />
 
     <WelcomePage />
 
@@ -92,9 +82,9 @@ window.events?.receive('display-help', () => {
       {/if}
 
       <div
-        class="z-0 w-full h-full flex flex-col overflow-y-scroll"
-        class:bg-zinc-800="{!meta.url.startsWith('/preferences')}"
-        class:bg-zinc-900="{meta.url.startsWith('/preferences')}">
+        class="z-0 w-full h-full min-h-fit flex flex-col overflow-y-scroll"
+        class:bg-charcoal-700="{!meta.url.startsWith('/preferences')}"
+        class:bg-charcoal-800="{meta.url.startsWith('/preferences')}">
         <TaskManager />
         <SendFeedback />
         <ToastHandler />

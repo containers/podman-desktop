@@ -35,8 +35,9 @@ body:
       label: Version
       description: What version of the software are you running?
       options:
-        - "0.14.1"
+        - "0.15.0"
         - "next (development version)"
+        - "0.14.1"
         - "0.14.0"
         - "0.13.0"
         - "0.12.0"

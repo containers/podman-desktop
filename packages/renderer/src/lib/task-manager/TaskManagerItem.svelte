@@ -59,7 +59,7 @@ function gotoTask(taskUI: TaskUI) {
         {#if taskUI.state === 'completed'}
           <button
             title="Clear notification"
-            class="hover:bg-zinc-900 hover:text-purple-500"
+            class="hover:bg-charcoal-800 hover:text-purple-500"
             on:click="{() => closeCompleted(taskUI)}"><Fa size="12" icon="{faClose}" /></button>
         {/if}
       </div>

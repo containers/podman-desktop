@@ -50,7 +50,7 @@ function closeWelcome() {
         <span class="mr-2">🎉</span>Welcome to Podman Desktop!
       </div>
       <div class="flex flex-row justify-center p-4">
-        <div class="bg-zinc-800 rounded-lg p-5 text-sm space-y-3">
+        <div class="bg-charcoal-600 rounded-lg p-5 text-sm space-y-3">
           <div class="font-bold">Podman Desktop supports many container engines, including:</div>
           <div class="flex flex-row px-5 justify-center">
             <div class="flex flex-row px-4">
@@ -122,7 +122,7 @@ function closeWelcome() {
     {/if}
 
     <!-- Footer - button bar -->
-    <div class="flex justify-end flex-none bg-zinc-800 p-8">
+    <div class="flex justify-end flex-none bg-charcoal-600 p-8">
       <div class="flex flex-row">
         <button
           class="pf-c-button pf-m-primary w-30 px-6"

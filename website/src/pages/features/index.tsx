@@ -8,7 +8,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 function FeatureManageContainers() {
   return (
     <div>
-      <section className="text-gray-900 bg-zinc-200 dark:bg-zinc-800 dark:text-gray-700 body-font">
+      <section className="text-gray-900 bg-zinc-200 dark:bg-charcoal-600 dark:text-gray-700 body-font">
         <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
           <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
             <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 dark:text-white">
@@ -37,7 +37,7 @@ function FeatureManageContainers() {
 
 function FeatureManageImages() {
   return (
-    <section className="text-gray-900 bg-zinc-100 dark:text-gray-700 dark:bg-zinc-900 body-font">
+    <section className="text-gray-900 bg-zinc-100 dark:text-gray-700 dark:bg-charcoal-800 body-font">
       <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
         <div className="w-5/6 mb-10 md:mb-0">
           <ThemedImage
@@ -68,7 +68,7 @@ function FeatureManageImages() {
 function FeatureManagementFromTrayIcon() {
   return (
     <div>
-      <section className="text-gray-900 bg-zinc-200 dark:bg-zinc-800 dark:text-gray-700 body-font">
+      <section className="text-gray-900 bg-zinc-200 dark:bg-charcoal-600 dark:text-gray-700 body-font">
         <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
           <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
             <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 dark:text-white">
@@ -104,7 +104,7 @@ function FeatureManagementFromTrayIcon() {
 function FeatureManageResources() {
   return (
     <div>
-      <section className="text-gray-900 bg-zinc-100 dark:bg-zinc-900 dark:text-gray-700 body-font">
+      <section className="text-gray-900 bg-zinc-100 dark:bg-charcoal-800 dark:text-gray-700 body-font">
         <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
           <div className="lg:w-5/6 md:w-4/5 w-5/6 flex flex:col gap-10">
             <ThemedImage
@@ -135,7 +135,7 @@ function FeatureManageResources() {
 function FeatureManagePods() {
   return (
     <div>
-      <section className="text-gray-900 bg-zinc-200 dark:bg-zinc-800 dark:text-gray-700 body-font">
+      <section className="text-gray-900 bg-zinc-200 dark:bg-charcoal-600 dark:text-gray-700 body-font">
         <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
           <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
             <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 dark:text-white">
@@ -170,7 +170,7 @@ function FeatureManagePods() {
 
 function FeatureDDExtensions() {
   return (
-    <section className="text-gray-900 bg-zinc-100 dark:bg-zinc-900 dark:text-gray-700 body-font">
+    <section className="text-gray-900 bg-zinc-100 dark:bg-charcoal-800 dark:text-gray-700 body-font">
       <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
         <div className="lg:w-5/6 md:w-4/5 w-5/6 flex flex:col gap-10">
           <ThemedImage

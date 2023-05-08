@@ -7,11 +7,13 @@ export let provider: ProviderInfo;
 {#if provider.links.length > 0}
   <div class="mt-10 flex flex-row justify-around">
     {#each provider.links as link}
-      <p
-        on:click="{() => window.openExternal(link.url)}"
-        class="text-sm text-center cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
-        {link.title}
-      </p>
+      {#if link.group === undefined}
+        <p
+          on:click="{() => window.openExternal(link.url)}"
+          class="text-sm text-center cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
+          {link.title}
+        </p>
+      {/if}
     {/each}
   </div>
 {/if}

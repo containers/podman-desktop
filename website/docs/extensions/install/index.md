@@ -12,13 +12,13 @@ Consider installing Podman Desktop extensions to enrich the default capabilities
 
 #### Prerequisites
 
-* The extension Open Container Initiative (OCI) image name, such as: `quay.io/fbenoit/my-first-extension`.
+- The extension Open Container Initiative (OCI) image name, such as: `quay.io/fbenoit/my-first-extension`.
 
-   See [Publishing a Podman Desktop extension](publish).
+  See [Publishing a Podman Desktop extension](publish).
 
 #### Procedure
 
-1. Go to the **Settings > Extensions**.
+1. Go to the **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions**.
 
 1. In the **Name of the Image** field, write the extension OCI image name.
 
@@ -26,6 +26,6 @@ Consider installing Podman Desktop extensions to enrich the default capabilities
 
 #### Verification
 
-* If Podman Desktop satisfies the minimum required version of the extension, the extension activates.
+- If Podman Desktop satisfies the minimum required version of the extension, the extension activates.
 
-* Depending on the extension, items can appear in the status bar, tray menu, or other contributions.
+- Depending on the extension, items can appear in the status bar, tray menu, or other contributions.

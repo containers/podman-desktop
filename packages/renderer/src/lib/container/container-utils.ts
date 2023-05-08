@@ -200,7 +200,7 @@ export class ContainerUtils {
   }
 
   getPortsAsString(containerInfo: ContainerInfo): string {
-    const ports = containerInfo.Ports;
+    const ports = this.getPorts(containerInfo);
     if (ports.length > 1) {
       return `${ports.join(', ')}`;
     } else if (ports.length === 1) {

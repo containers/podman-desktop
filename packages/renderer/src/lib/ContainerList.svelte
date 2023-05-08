@@ -370,7 +370,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     <table class="mx-5 w-full" class:hidden="{containerGroups.length === 0}">
       <!-- title -->
       <thead>
-        <tr class="h-7 uppercase text-xs text-gray-900">
+        <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5"
             ><input
@@ -391,9 +391,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       {#each containerGroups as containerGroup}
         <tbody>
           {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE || containerGroup.type === ContainerGroupInfoTypeUI.POD}
-            <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+            <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
               <td
-                class="bg-zinc-900 group-hover:bg-zinc-700 pl-2 w-3 rounded-tl-lg"
+                class="bg-charcoal-800 group-hover:bg-zinc-700 pl-2 w-3 rounded-tl-lg"
                 class:rounded-bl-lg="{!containerGroup.expanded}"
                 on:click="{() => toggleContainerGroup(containerGroup)}">
                 <Fa
@@ -465,7 +465,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
           <!-- Display each container of this group -->
           {#if containerGroup.expanded}
             {#each containerGroup.containers as container, index}
-              <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+              <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
                 <td
                   class="{containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE ? 'rounded-tl-lg' : ''} {index ===
                   containerGroup.containers.length - 1
@@ -568,7 +568,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       openChoiceModal = false;
     }}">
     <div
-      class="inline-block w-full overflow-hidden text-left transition-all transform bg-zinc-800 z-50 h-[200px] rounded-xl shadow-xl shadow-neutral-900"
+      class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 h-[200px] rounded-xl shadow-xl shadow-neutral-900"
       on:keydown="{keydownChoice}">
       <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
         <h1 class="text-xl font-bold">Create a new container</h1>
@@ -577,7 +577,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
           <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </div>
-      <div class="bg-zinc-800 p-5 h-full flex flex-col justify-items-center">
+      <div class="bg-charcoal-600 p-5 h-full flex flex-col justify-items-center">
         <span class="pb-3">Choose the following:</span>
         <ul class="list-disc ml-8 space-y-2">
           <li>Create a container from a Containerfile</li>

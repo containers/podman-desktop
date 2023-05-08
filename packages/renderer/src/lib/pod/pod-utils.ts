@@ -20,6 +20,7 @@ import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 import type { PodInfoUI } from './PodInfoUI';
+
 export class PodUtils {
   getStatus(podinfo: PodInfo): string {
     return (podinfo.Status || '').toUpperCase();
@@ -63,4 +64,37 @@ export class PodUtils {
       kind: podinfo.kind,
     };
   }
+}
+
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+export function ensureRestrictedSecurityContext(body: any) {
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  body.spec?.containers?.forEach((container: any) => {
+    if (!container.securityContext) {
+      container.securityContext = {};
+    }
+    container.securityContext.allowPrivilegeEscalation = false;
+    if (!container.securityContext.runAsNonRoot) {
+      container.securityContext.runAsNonRoot = true;
+    }
+    if (!container.securityContext.seccompProfile) {
+      container.securityContext.seccompProfile = {};
+    }
+    if (
+      !container.securityContext.seccompProfile.type ||
+      (container.securityContext.seccompProfile.type !== 'RuntimeDefault' &&
+        container.securityContext.seccompProfile.type !== 'Localhost')
+    ) {
+      container.securityContext.seccompProfile.type = 'RuntimeDefault';
+    }
+    if (!container.securityContext.capabilities) {
+      container.securityContext.capabilities = {};
+    }
+    if (!container.securityContext.capabilities.drop) {
+      container.securityContext.capabilities.drop = [];
+    }
+    if (container.securityContext.capabilities.drop.indexOf('ALL') === -1) {
+      container.securityContext.capabilities.drop.push('ALL');
+    }
+  });
 }

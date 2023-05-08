@@ -41,6 +41,8 @@ const podmanMachineSocketsSymlinkDirectoryMac = path.resolve(os.homedir(), '.pod
 const MACOS_MAX_SOCKET_PATH_LENGTH = 104;
 let storedExtensionContext;
 let stopLoop = false;
+let autoMachineStarted = false;
+let autoMachineName;
 
 // current status of machines
 const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
@@ -454,6 +456,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     logo: './logo.png',
   };
 
+  const corePodmanEngineLinkGroup = 'Core Podman Engine';
+
   // add links
   providerOptions.links = [
     {
@@ -471,6 +475,26 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     {
       title: 'Join the community',
       url: 'https://podman.io/community/',
+    },
+    {
+      title: 'Getting started with containers',
+      url: 'https://podman.io/getting-started/',
+      group: corePodmanEngineLinkGroup,
+    },
+    {
+      title: 'View podman commands',
+      url: 'https://docs.podman.io/en/latest/Commands.html',
+      group: corePodmanEngineLinkGroup,
+    },
+    {
+      title: 'Set up podman',
+      url: 'https://podman.io/getting-started/installation',
+      group: corePodmanEngineLinkGroup,
+    },
+    {
+      title: 'View all tutorials',
+      url: 'https://docs.podman.io/en/latest/Tutorials.html',
+      group: corePodmanEngineLinkGroup,
     },
   ];
 
@@ -572,6 +596,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           const [machineName] = machines[0];
           console.log('Podman extension:', 'Autostarting machine', machineName);
           await execPromise(getPodmanCli(), ['machine', 'start', machineName], { logger });
+          autoMachineStarted = true;
+          autoMachineName = machineName;
         }
       },
     });
@@ -645,9 +671,35 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   await podmanConfiguration.init();
 }
 
-export function deactivate(): void {
+async function stopAutoStartedMachine() {
+  if (!autoMachineStarted) {
+    console.log('No machine to stop');
+    return;
+  }
+  const machineListOutput = await execPromise(getPodmanCli(), ['machine', 'list', '--format', 'json']);
+
+  const machines = JSON.parse(machineListOutput) as MachineJSON[];
+
+  // Find the autostarted machine and check its status
+  const currentMachine: MachineJSON = machines.find(machine => machine?.Name === autoMachineName);
+
+  if (!currentMachine?.Running && !currentMachine?.Starting) {
+    console.log('No machine to stop');
+    autoMachineStarted = false;
+    return;
+  }
+  console.log('stopping autostarted machine', autoMachineName);
+  await execPromise(getPodmanCli(), ['machine', 'stop', autoMachineName]);
+}
+
+export async function deactivate(): Promise<void> {
   stopLoop = true;
   console.log('stopping podman extension');
+  await stopAutoStartedMachine().then(() => {
+    if (autoMachineStarted) {
+      console.log('stopped autostarted machine', autoMachineName);
+    }
+  });
 }
 
 export async function createMachine(

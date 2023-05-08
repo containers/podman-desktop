@@ -21,7 +21,10 @@ $: matchingRecords = properties
   )
   .filter(
     property =>
-      !searchValue || matchValue(property.title, searchValue) || matchValue(property.description, searchValue),
+      !searchValue ||
+      matchValue(property.title, searchValue) ||
+      (property.description && matchValue(property.description, searchValue)) ||
+      (property.markdownDescription && matchValue(property.markdownDescription, searchValue)),
   )
   .reduce((map, property) => {
     if (!map.has(property.parentId)) {
@@ -32,6 +35,9 @@ $: matchingRecords = properties
   }, new Map<string, IConfigurationPropertyRecordedSchema[]>());
 
 function matchValue(text: string, searchValue: string): boolean {
+  if (!text) {
+    return false;
+  }
   return text.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0;
 }
 function updateSearchValue(event: any) {
@@ -75,7 +81,7 @@ function updateSearchValue(event: any) {
           <div class="mt-5">
             <div class="first-letter:uppercase">{configSection.replace('preferences.', '').replace('.', ' ')}</div>
             {#each matchingRecords.get(configSection) as configItem}
-              <div class="bg-zinc-800 rounded-md mt-2 ml-2">
+              <div class="bg-charcoal-600 rounded-md mt-2 ml-2">
                 <PreferencesRenderingItem record="{configItem}" />
               </div>
             {/each}

@@ -17,6 +17,7 @@ export let updateConnectionStatus: (
   providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   action?: string,
   error?: string,
+  inProgress?: boolean,
 ) => void;
 export let addConnectionToRestartingQueue: (connection: IConnectionRestart) => void;
 $: connectionStatus = connectionStatuses;
@@ -115,8 +116,10 @@ async function deleteConnectionProvider(
         loggerHandlerKey,
         eventCollect,
       );
+      updateConnectionStatus(provider, providerConnectionInfo, 'delete', undefined, false);
     }
   } catch (e) {
+    updateConnectionStatus(provider, providerConnectionInfo, 'delete', e);
     console.error(e);
   }
 }
@@ -141,7 +144,7 @@ function getLoggerHandler(
   {#if connection.lifecycleMethods && connection.lifecycleMethods.length > 0}
     <div class="mt-2 relative">
       <!-- TODO: see action available like machine infos -->
-      <div class="flex bg-zinc-900 w-fit rounded-lg m-auto">
+      <div class="flex bg-charcoal-800 w-fit rounded-lg m-auto">
         {#if connection.lifecycleMethods.includes('start')}
           <div class="ml-2">
             <LoadingIconButton

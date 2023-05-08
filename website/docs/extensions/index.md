@@ -10,12 +10,12 @@ tags: [migrating-to-kubernetes]
 
 Podman Desktop extensions contribute to:
 
-* Container engine support, such as Podman, Docker, Lima.
-* Podman Desktop extension points such as tray icon menu, status bar items, icons, menus, and commands.
-* Integration with third parties tools, such as Kind or Compose.
+- Container engine support, such as Podman, Docker, Lima.
+- Podman Desktop extension points such as tray icon menu, status bar items, icons, menus, and commands.
+- Integration with third parties tools, such as Kind or Compose.
 
 #### Next steps
 
-* [Writing a Podman Desktop extension entry point](extensions/write)
-* [Publishing a Podman Desktop extension](extensions/publish)
-* [Installing a Podman Desktop extension](extensions/install)
+- [Writing a Podman Desktop extension entry point](extensions/write)
+- [Publishing a Podman Desktop extension](extensions/publish)
+- [Installing a Podman Desktop extension](extensions/install)

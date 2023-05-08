@@ -27,11 +27,12 @@ import type {
   V1Ingress,
   V1ContainerState,
   V1APIResource,
+  V1APIGroup,
 } from '@kubernetes/client-node';
-import { NetworkingV1Api } from '@kubernetes/client-node';
+import { ApisApi, NetworkingV1Api } from '@kubernetes/client-node';
 import { AppsV1Api } from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
-import { CoreV1Api, KubeConfig, Log, Watch } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig, Log, Watch, VersionApi } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
@@ -85,9 +86,7 @@ function toPodInfo(pod: V1Pod): PodInfo {
   };
 }
 
-const OPENSHIFT_CONSOLE_NAMESPACE = 'openshift-config-managed';
-
-const OPENSHIFT_CONSOLE_CONFIG_MAP = 'console-public';
+const OPENSHIFT_PROJECT_API_GROUP = 'project.openshift.io';
 
 /**
  * Handle calls to kubernetes API
@@ -107,6 +106,8 @@ export class KubernetesClient {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private kubeWatcher: any | undefined;
+
+  private apiGroups = new Array<V1APIGroup>();
 
   /*
    a Cache of API resources for the cluster. This is used to compute the plural when dealing
@@ -214,6 +215,22 @@ export class KubernetesClient {
     }
   }
 
+  async fetchAPIGroups() {
+    this.apiGroups = [];
+    try {
+      if (this.kubeConfig) {
+        const result = await this.kubeConfig.makeApiClient(ApisApi).getAPIVersions();
+        this.apiGroups = result?.body.groups;
+      }
+    } catch (err) {
+      console.log(`Error while fetching API groups: ${err}`);
+    }
+  }
+
+  async isAPIGroupSupported(group: string): Promise<boolean> {
+    return this.apiGroups.filter(g => g.name === group).length > 0;
+  }
+
   getContexts(): Context[] {
     return this.kubeConfig.contexts;
   }
@@ -240,11 +257,11 @@ export class KubernetesClient {
     let namespace;
 
     try {
-      const cm = await this.readNamespacedConfigMap(OPENSHIFT_CONSOLE_CONFIG_MAP, OPENSHIFT_CONSOLE_NAMESPACE);
-      if (cm) {
+      const projectGroupSupported = await this.isAPIGroupSupported(OPENSHIFT_PROJECT_API_GROUP);
+      if (projectGroupSupported) {
         const projects = await ctx
           .makeApiClient(CustomObjectsApi)
-          .listClusterCustomObject('project.openshift.io', 'v1', 'projects');
+          .listClusterCustomObject(OPENSHIFT_PROJECT_API_GROUP, 'v1', 'projects');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((projects?.body as any)?.items.length > 0) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -280,11 +297,14 @@ export class KubernetesClient {
     // get the current context
     this.currentContextName = this.kubeConfig.getCurrentContext();
     const currentContext = this.kubeConfig.contexts.find(context => context.name === this.currentContextName);
-    if (currentContext) {
+    // Only update the namespace if we're able to actually connect to the cluster, otherwise we'll end up with a connection error.
+    const connected = await this.checkConnection();
+    if (currentContext && connected) {
       this.currentNamespace = await this.getDefaultNamespace(currentContext);
     }
     this.setupKubeWatcher();
     this.apiResources.clear();
+    await this.fetchAPIGroups();
     this.apiSender.send('pod-event');
   }
 
@@ -369,7 +389,9 @@ export class KubernetesClient {
 
   async listPods(): Promise<PodInfo[]> {
     const ns = this.getCurrentNamespace();
-    if (ns) {
+    // Only retrieve pods if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
       const pods = await this.listNamespacedPod(ns);
       return pods.items.map(pod => toPodInfo(pod));
     }
@@ -441,6 +463,19 @@ export class KubernetesClient {
       }
     } catch (error) {
       throw this.wrapK8sClientError(error);
+    }
+  }
+
+  // Check that we can connect to the cluster and return a Promise<boolean> of true or false depending on the result.
+  // We will check via trying to retrieve a list of API Versions from the server.
+  async checkConnection(): Promise<boolean> {
+    try {
+      const k8sApi = this.kubeConfig.makeApiClient(VersionApi);
+      // getCode will error out if we're unable to connect to the cluster
+      await k8sApi.getCode();
+      return true;
+    } catch (error) {
+      return false;
     }
   }
 

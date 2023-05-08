@@ -5,6 +5,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Markdown from '../markdown/Markdown.svelte';
+import { getNormalizedDefaultNumberValue } from './Util';
 
 let invalidEntry = false;
 let invalidText = undefined;
@@ -27,7 +28,7 @@ $: recordValue;
 $: updateResetButtonVisibility && updateResetButtonVisibility(recordValue);
 let checkboxValue: boolean = false;
 $: if (resetToDefault) {
-  recordValue = record.default;
+  recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
   if (typeof recordValue === 'boolean') {
     checkboxValue = recordValue;
   }
@@ -45,7 +46,7 @@ $: if (currentRecord !== record) {
       }
     });
   } else if (record.default !== undefined) {
-    recordValue = record.default;
+    recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
     if (record.type === 'boolean') {
       checkboxValue = recordValue;
     }
@@ -219,9 +220,9 @@ function handleCleanValue(
           readonly="{!!record.readonly}"
           id="input-standard-{record.id}"
           aria-invalid="{invalidEntry}"
-          aria-label="{record.description}" />
+          aria-label="{record.description || record.markdownDescription}" />
         <div
-          class="w-8 h-[20px] bg-gray-900 rounded-full peer peer-checked:after:translate-x-full after:bg-zinc-800 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
+          class="w-8 h-[20px] bg-gray-900 rounded-full peer peer-checked:after:translate-x-full after:bg-charcoal-600 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
         </div>
       </label>
     {:else if enableSlider && record.type === 'number' && typeof record.maximum === 'number'}
@@ -231,19 +232,19 @@ function handleCleanValue(
         name="{record.id}"
         min="{record.minimum}"
         max="{record.maximum}"
-        value="{record.default}"
+        value="{getNormalizedDefaultNumberValue(record)}"
         aria-label="{record.description}"
         on:input="{event => handleRangeValue(record.id, event.currentTarget)}"
         class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs mt-2" />
     {:else if record.type === 'number'}
       <div
-        class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-zinc-900 w-24 border-b border-violet-500">
+        class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-charcoal-800 w-24 border-b border-violet-500">
         <button
           data-action="decrement"
           on:click="{e => decrement(e, record)}"
           disabled="{!canDecrement(recordValue, record.minimum)}"
           class="w-11 text-white {!canDecrement(recordValue, record.minimum)
-            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
+            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
             : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
           <span class="m-auto font-thin">−</span>
         </button>
@@ -259,7 +260,7 @@ function handleCleanValue(
           on:click="{e => increment(e, record)}"
           disabled="{!canIncrement(recordValue, record.maximum)}"
           class="w-11 text-white {!canIncrement(recordValue, record.maximum)
-            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
+            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
             : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
           <span class="m-auto font-thin">+</span>
         </button>

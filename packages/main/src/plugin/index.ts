@@ -1407,6 +1407,10 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle('kubernetes-client:isAPIGroupSupported', async (_listener, group): Promise<boolean> => {
+      return kubernetesClient.isAPIGroupSupported(group);
+    });
+
     this.ipcHandle('kubernetes-client:getCurrentContextName', async (): Promise<string | undefined> => {
       return kubernetesClient.getCurrentContextName();
     });
@@ -1457,7 +1461,7 @@ export class PluginSystem {
     const dockerExtensionAdapter = new DockerPluginAdapter(contributionManager);
     dockerExtensionAdapter.init();
 
-    const extensionInstaller = new ExtensionInstaller(apiSender, containerProviderRegistry, this.extensionLoader);
+    const extensionInstaller = new ExtensionInstaller(apiSender, this.extensionLoader, imageRegistry);
     await extensionInstaller.init();
 
     await contributionManager.init();

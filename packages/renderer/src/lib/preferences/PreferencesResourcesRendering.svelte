@@ -10,7 +10,7 @@ import type {
 import { onDestroy, onMount } from 'svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '../../stores/configurationProperties';
-import type { ContainerProviderConnection } from '@podman-desktop/api';
+import type { ContainerProviderConnection, provider } from '@podman-desktop/api';
 import type { Unsubscriber } from 'svelte/store';
 import Tooltip from '../ui/Tooltip.svelte';
 import { filesize } from 'filesize';
@@ -22,6 +22,7 @@ import { getProviderConnectionName, type IConnectionRestart, type IConnectionSta
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
+import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   value?: any;
@@ -166,6 +167,7 @@ function updateContainerStatus(
   containerConnectionInfo: ProviderContainerConnectionInfo,
   action?: string,
   error?: string,
+  inProgress?: boolean,
 ): void {
   const containerConnectionName = getProviderConnectionName(provider, containerConnectionInfo);
   if (error) {
@@ -177,7 +179,7 @@ function updateContainerStatus(
     });
   } else if (action) {
     containerConnectionStatus.set(containerConnectionName, {
-      inProgress: true,
+      inProgress: inProgress === undefined ? true : inProgress,
       action: action,
       status: containerConnectionInfo.status,
     });
@@ -216,11 +218,11 @@ async function startConnectionProvider(
           icon="{EngineIcon}"
           title="No resources found"
           message="Start an extension that manages containers or Kubernetes engines"
-          class="bg-zinc-800 mt-5 pb-10" />
+          class="bg-charcoal-600 mt-5 pb-10" />
       </div>
     {:else}
       {#each providers as provider}
-        <div class="bg-zinc-800 mt-5 rounded-md p-3 divide-x divide-gray-900 flex">
+        <div class="bg-charcoal-600 mt-5 rounded-md p-3 divide-x divide-gray-900 flex">
           <div>
             <!-- left col - provider icon/name + "create new" button -->
             <div class="min-w-[150px] max-w-[200px]">
@@ -265,6 +267,9 @@ async function startConnectionProvider(
           </div>
           <!-- providers columns -->
           <div class="grow flex flex-wrap divide-gray-900 ml-2">
+            <PreferencesConnectionsEmptyRendering
+              message="{provider.emptyConnectionMarkdownDescription}"
+              hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
             {#each provider.containerConnections as container}
               <div class="px-5 py-2 w-[240px]">
                 <div class="float-right text-gray-900 cursor-not-allowed">
