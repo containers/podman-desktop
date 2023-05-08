@@ -36,21 +36,19 @@ With Podman Desktop, you can build an image with your container engine, and test
 1. To test your image in Kubernetes:
 
    1. Click **<icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
-
-   1. **Container name**: enter `my-image-container`.
-   1. Optionally, configure other parameters.
+   1. Review the parameters that Podman Desktop has detected from your image definition.
    1. Click **<icon icon="fa-solid fa-play" size="lg" /> Start Container** to start the container in your container engine.
 
 1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search containers**: enter `my-image-container` to find the running container.
 
 1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
    1. **Pod Name**: keep the proposed value `my-image-container-pod`.
-   1. **Use Kubernetes Services**: select **Replace `hostPort` exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use `hostPort`.**
-   1. **Expose service locally using Kubernetes Ingress**: select **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
-   1. **Kubernetes namespaces**: select `default`.
-   1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
-   1. Wait for the pod to reach the state: **Phase: Running**.
-   1. Click **Done**.
+   2. **Use Kubernetes Services**: select **Replace `hostPort` exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use `hostPort`.**
+   3. **Expose service locally using Kubernetes Ingress**: select **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
+   4. **Kubernetes namespaces**: select `default`.
+   5. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
+   6. Wait for the pod to reach the state: **Phase: Running**.
+   7. Click **Done**.
 
 #### Verification
 
