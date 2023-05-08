@@ -163,7 +163,7 @@ export class ContainerUtils {
     return {
       name: this.getName(containerInfo),
       type: ContainerGroupInfoTypeUI.STANDALONE,
-      status: (containerInfo.Status || '').toUpperCase()
+      status: (containerInfo.Status || '').toUpperCase(),
     };
   }
 
@@ -196,7 +196,7 @@ export class ContainerUtils {
       if (group.type === ContainerGroupInfoTypeUI.COMPOSE)
         group.status = group.containers.every(c => c.state === 'RUNNING') ? 'RUNNING' : 'STOPPED';
     }
-    
+
     return Array.from(groups.values());
   }
 
