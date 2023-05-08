@@ -132,7 +132,6 @@ This is functionally equal to the `redis-leader` deployment that the Kubernetes 
    1. Click **Pull image** to pull the image to your container engine local image registry.
    1. Click **Done** to get back to the images list.
 1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search images**: enter `redis:6.0.5` to find the image.
-1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-ellipsis-v" size="lg" /> Push image to Kind cluster**.
 1. Click **<icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
    1. **Container name**: enter `leader`,
    1. **Local port for `6379/tcp`**: `6379`.
@@ -171,8 +170,6 @@ This is functionally equal to the `redis-follower` deployment that the Kubernete
    1. Click **Pull image** to pull the image to your container engine local image registry.
    1. Click **Done** to get back to the images list.
 1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search images**: enter `gb-redis-follower:v2` to find the image.
-   `
-1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-ellipsis-v" size="lg" /> Push image to Kind cluster**.
 1. Click **<icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
    1. **Container name**: enter `follower`,
    1. **Local port for `6379/tcp`**: `6379`.
@@ -216,8 +213,6 @@ This is functionally equal to the `frontend` deployment that the Kubernetes exam
    1. Wait for the pull to complete.
    1. Click **Done** to get back to the images list.
 1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search images**: enter `gb-frontend:v5` to find the image.
-
-1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-ellipsis-v" size="lg" /> Push image to Kind cluster**.
 1. Click **<icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
    1. **Container name**: enter `frontend`,
    1. **Local port for `80/tcp`**: `9000`.
