@@ -154,6 +154,7 @@ export class ContainerUtils {
         name: podInfo.name,
         type: ContainerGroupInfoTypeUI.POD,
         id: podInfo.id,
+        status: (podInfo.status || '').toUpperCase(),
         engineId: containerInfo.engineId,
       };
     }
@@ -162,6 +163,7 @@ export class ContainerUtils {
     return {
       name: this.getName(containerInfo),
       type: ContainerGroupInfoTypeUI.STANDALONE,
+      status: (containerInfo.Status || '').toUpperCase()
     };
   }
 
@@ -181,6 +183,7 @@ export class ContainerUtils {
             name: group.name,
             type: group.type,
             id: group.id,
+            status: group.status,
             engineId: group.engineId,
             containers: [],
           });
@@ -188,6 +191,12 @@ export class ContainerUtils {
         groups.get(group.name).containers.push(containerInfo);
       }
     });
+
+    for (const group of groups.values()) {
+      if (group.type === ContainerGroupInfoTypeUI.COMPOSE)
+        group.status = group.containers.every(c => c.state === 'RUNNING') ? 'RUNNING' : 'STOPPED';
+    }
+    
     return Array.from(groups.values());
   }
 
