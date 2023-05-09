@@ -327,6 +327,14 @@ async function deployToKube() {
 
 $: bodyPod && updateKubeResult();
 
+// Update bodyPod.metadata.labels.app to be the same as bodyPod.metadata.name
+// If statement required as bodyPod.metadata is undefined when bodyPod is undefined
+$: {
+  if (bodyPod && bodyPod.metadata && bodyPod.metadata.labels) {
+    bodyPod.metadata.labels.app = bodyPod.metadata.name;
+  }
+}
+
 function updateKubeResult() {
   kubeDetails = jsYaml.dump(bodyPod, { noArrayIndent: true, quotingType: '"', lineWidth: -1 });
 }
