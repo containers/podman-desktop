@@ -710,6 +710,11 @@ declare module '@podman-desktop/api' {
     ignoreFocusOut?: boolean;
 
     /**
+     * Set to `true` when value represents a multi line content.
+     */
+    multiline?: boolean;
+
+    /**
      * An optional function that will be called to validate input and to give a hint
      * to the user.
      *

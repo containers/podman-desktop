@@ -67,6 +67,7 @@ export class InputQuickPickRegistry {
       title: options?.title,
       valueSelection: options?.valueSelection,
       prompt: options?.prompt,
+      multiline: options?.multiline,
       validate,
     };
 
