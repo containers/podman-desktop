@@ -191,12 +191,9 @@ test('Authentication provider creates session when session request is executed',
   const createSessionSpy = vi.spyOn(authProvidrer1, 'createSession');
 
   authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
-  await authModule.getSession(
-    { id: 'ext1', label: 'Ext 1' },
-    'company.auth-provider',
-    ['scope1', 'scope2'],
-    { silent: false },
-  );
+  await authModule.getSession({ id: 'ext1', label: 'Ext 1' }, 'company.auth-provider', ['scope1', 'scope2'], {
+    silent: false,
+  });
 
   expect(authModule.getSessionRequests()).length(1);
 
