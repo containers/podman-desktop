@@ -22,6 +22,10 @@ import type { TrayMenu } from '../tray-menu';
 import { EventEmitter } from 'node:events';
 import { PluginSystem } from './index';
 import type { WebContents } from 'electron';
+import { shell } from 'electron';
+import type { MessageBox } from './message-box';
+import { clipboard } from 'electron';
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
 
 let pluginSystem: PluginSystem;
 
@@ -34,8 +38,14 @@ webContents.send = vi.fn();
 beforeAll(() => {
   vi.mock('electron', () => {
     return {
+      shell: {
+        openExternal: vi.fn(),
+      },
       app: {
         on: vi.fn(),
+      },
+      clipboard: {
+        writeText: vi.fn(),
       },
     };
   });
@@ -65,4 +75,104 @@ test('Should queue events until we are ready', async () => {
 
   // data should be sent when flushing queue
   expect(webContents.send).toBeCalledWith('api-sender', 'foo', 'hello-world');
+});
+
+test('Check SecurityRestrictions on Links and user accept', async () => {
+  const showMessageBoxMock = vi.fn();
+  const messageBox = {
+    showMessageBox: showMessageBoxMock,
+  } as unknown as MessageBox;
+
+  // configure
+  await pluginSystem.setupSecurityRestrictionsOnLinks(messageBox);
+
+  // expect user click on Yes
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
+
+  // call with a link
+  const value = await securityRestrictionCurrentHandler.handler?.('https://www.my-custom-domain.io');
+
+  expect(showMessageBoxMock).toBeCalledWith({
+    buttons: ['Yes', 'Copy link', 'Cancel'],
+    message: 'Are you sure you want to open the external website ?',
+    detail: 'https://www.my-custom-domain.io',
+    cancelId: 2,
+    title: 'Open External Website',
+    type: 'question',
+  });
+  expect(value).toBeTruthy();
+});
+
+test('Check SecurityRestrictions on Links and user copy link', async () => {
+  const showMessageBoxMock = vi.fn();
+  const messageBox = {
+    showMessageBox: showMessageBoxMock,
+  } as unknown as MessageBox;
+
+  // configure
+  await pluginSystem.setupSecurityRestrictionsOnLinks(messageBox);
+
+  // expect user click on Yes
+  showMessageBoxMock.mockResolvedValue({ response: 1 });
+
+  // call with a link
+  const value = await securityRestrictionCurrentHandler.handler?.('https://www.my-custom-domain.io');
+
+  expect(showMessageBoxMock).toBeCalledWith({
+    buttons: ['Yes', 'Copy link', 'Cancel'],
+    message: 'Are you sure you want to open the external website ?',
+    detail: 'https://www.my-custom-domain.io',
+    title: 'Open External Website',
+    cancelId: 2,
+    type: 'question',
+  });
+  expect(value).toBeFalsy();
+
+  // expect clipboard has been called
+  expect(clipboard.writeText).toBeCalledWith('https://www.my-custom-domain.io');
+});
+
+test('Check SecurityRestrictions on Links and user refuses', async () => {
+  const showMessageBoxMock = vi.fn();
+  const messageBox = {
+    showMessageBox: showMessageBoxMock,
+  } as unknown as MessageBox;
+
+  // configure
+  await pluginSystem.setupSecurityRestrictionsOnLinks(messageBox);
+
+  // expect user click on Yes
+  showMessageBoxMock.mockResolvedValue({ response: 2 });
+
+  // call with a link
+  const value = await securityRestrictionCurrentHandler.handler?.('https://www.my-custom-domain.io');
+
+  expect(showMessageBoxMock).toBeCalledWith({
+    cancelId: 2,
+    buttons: ['Yes', 'Copy link', 'Cancel'],
+    message: 'Are you sure you want to open the external website ?',
+    detail: 'https://www.my-custom-domain.io',
+    title: 'Open External Website',
+    type: 'question',
+  });
+  expect(value).toBeFalsy();
+});
+
+test('Check SecurityRestrictions on known domains', async () => {
+  const showMessageBoxMock = vi.fn();
+  const messageBox = {
+    showMessageBox: showMessageBoxMock,
+  } as unknown as MessageBox;
+
+  // configure
+  await pluginSystem.setupSecurityRestrictionsOnLinks(messageBox);
+
+  // call with a link
+  const value = await securityRestrictionCurrentHandler.handler?.('https://www.podman-desktop.io');
+  expect(value).toBeTruthy();
+
+  expect(showMessageBoxMock).not.toBeCalled();
+
+  // expect openExternal has been called
+  expect(shell.openExternal).toBeCalledWith('https://www.podman-desktop.io');
 });
