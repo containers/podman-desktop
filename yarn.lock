@@ -2071,14 +2071,14 @@
   resolved "https://registry.yarnpkg.com/@eslint-community/regexpp/-/regexpp-4.4.0.tgz#3e61c564fcd6b921cb789838631c5ee44df09403"
   integrity sha512-A9983Q0LnDGdLPjxyXQ00sbV+K+O+ko2Dr+CZigbHWtX9pNfxlaBkMR8X1CztI73zuEyEBXTVjx7CE+/VSwDiQ==
 
-"@eslint/eslintrc@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-2.0.2.tgz#01575e38707add677cf73ca1589abba8da899a02"
-  integrity sha512-3W4f5tDUra+pA+FzgugqL2pRimUTDJWKr7BINqOpkZrC0uYI0NIc0/JFgBROCU07HR6GieA5m3/rsPIhDmCXTQ==
+"@eslint/eslintrc@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-2.0.3.tgz#4910db5505f4d503f27774bf356e3704818a0331"
+  integrity sha512-+5gy6OQfk+xx3q0d6jGZZC3f3KzAkXc/IanVxd1is/VIIziRqqt3ongQz0FiTUXqTk0c7aDB3OaFuKnuSoJicQ==
   dependencies:
     ajv "^6.12.4"
     debug "^4.3.2"
-    espree "^9.5.1"
+    espree "^9.5.2"
     globals "^13.19.0"
     ignore "^5.2.0"
     import-fresh "^3.2.1"
@@ -2086,10 +2086,10 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@eslint/js@8.39.0":
-  version "8.39.0"
-  resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.39.0.tgz#58b536bcc843f4cd1e02a7e6171da5c040f4d44b"
-  integrity sha512-kf9RB0Fg7NZfap83B3QOqOGg9QmD9yBudqQXzzOtn3i4y7ZUXe5ONeW34Gwi+TxhH4mvj72R1Zc300KUMa9Bng==
+"@eslint/js@8.40.0":
+  version "8.40.0"
+  resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.40.0.tgz#3ba73359e11f5a7bd3e407f70b3528abfae69cec"
+  integrity sha512-ElyB54bJIhXQYVKjDSvCkPO1iU1tSAeVQJbllWJq1XQSmmA4dgFk8CbiBGpiOPxleE48vDogxCtmMYku4HSVLA==
 
 "@fortawesome/fontawesome-common-types@6.4.0":
   version "6.4.0"
@@ -2737,10 +2737,10 @@
     p-map "^4.0.0"
     webpack-sources "^3.2.2"
 
-"@sveltejs/vite-plugin-svelte@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-2.1.1.tgz#df08dba9094208a2048968e329237be6893cf66d"
-  integrity sha512-7YeBDt4us0FiIMNsVXxyaP4Hwyn2/v9x3oqStkHU3ZdIc5O22pGwUwH33wUqYo+7Itdmo8zxJ45Qvfm3H7UUjQ==
+"@sveltejs/vite-plugin-svelte@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-2.2.0.tgz#6e78e912dc0cff5e92bcb936f194e96b849356f9"
+  integrity sha512-KDtdva+FZrZlyug15KlbXuubntAPKcBau0K7QhAIqC5SAy0uDbjZwoexDRx0L0J2T4niEfC6FnA9GuQQJKg+Aw==
   dependencies:
     debug "^4.3.4"
     deepmerge "^4.3.1"
@@ -3501,10 +3501,10 @@
   resolved "https://registry.yarnpkg.com/@types/unist/-/unist-2.0.6.tgz#250a7b16c3b91f672a24552ec64678eeb1d3a08d"
   integrity sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==
 
-"@types/validator@^13.7.15":
-  version "13.7.15"
-  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.7.15.tgz#408c99d1b5f0eecc78109c11f896f72d1f026a10"
-  integrity sha512-yeinDVQunb03AEP8luErFcyf/7Lf7AzKCD0NXfgVoGCCQDNpZET8Jgq74oBgqKld3hafLbfzt/3inUdQvaFeXQ==
+"@types/validator@^13.7.16":
+  version "13.7.16"
+  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.7.16.tgz#096c7951189e93ec49fd5df5bfbf088f0d95ea85"
+  integrity sha512-VyKmLktUHYLbrSbsRi241MSUlGYomQgK/tfCNpej3Gt5qDOM10AZ3nU2aR2s5JritClXuOBu4K7MkywVW/Y6Ow==
 
 "@types/verror@^1.10.3":
   version "1.10.5"
@@ -6252,20 +6252,20 @@ eslint-scope@^7.2.0:
     esrecurse "^4.3.0"
     estraverse "^5.2.0"
 
-eslint-visitor-keys@^3.3.0, eslint-visitor-keys@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-3.4.0.tgz#c7f0f956124ce677047ddbc192a68f999454dedc"
-  integrity sha512-HPpKPUBQcAsZOsHAFwTtIKcYlCje62XB7SEAcxjtmW6TD1WVpkS6i6/hOVtTZIl4zGj/mBqpFVGvaDneik+VoQ==
+eslint-visitor-keys@^3.3.0, eslint-visitor-keys@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-3.4.1.tgz#c22c48f48942d08ca824cc526211ae400478a994"
+  integrity sha512-pZnmmLwYzf+kWaM/Qgrvpen51upAktaaiI01nsJD/Yr3lMOdNtq0cxkrrg16w64VtisN6okbs7Q8AfGqj4c9fA==
 
-eslint@^8.39.0:
-  version "8.39.0"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-8.39.0.tgz#7fd20a295ef92d43809e914b70c39fd5a23cf3f1"
-  integrity sha512-mwiok6cy7KTW7rBpo05k6+p4YVZByLNjAZ/ACB9DRCu4YDRwjXI01tWHp6KAUWelsBetTxKK/2sHB0vdS8Z2Og==
+eslint@^8.40.0:
+  version "8.40.0"
+  resolved "https://registry.yarnpkg.com/eslint/-/eslint-8.40.0.tgz#a564cd0099f38542c4e9a2f630fa45bf33bc42a4"
+  integrity sha512-bvR+TsP9EHL3TqNtj9sCNJVAFK3fBN8Q7g5waghxyRsPLIMwL73XSKnZFK0hk/O2ANC+iAoq6PWMQ+IfBAJIiQ==
   dependencies:
     "@eslint-community/eslint-utils" "^4.2.0"
     "@eslint-community/regexpp" "^4.4.0"
-    "@eslint/eslintrc" "^2.0.2"
-    "@eslint/js" "8.39.0"
+    "@eslint/eslintrc" "^2.0.3"
+    "@eslint/js" "8.40.0"
     "@humanwhocodes/config-array" "^0.11.8"
     "@humanwhocodes/module-importer" "^1.0.1"
     "@nodelib/fs.walk" "^1.2.8"
@@ -6276,8 +6276,8 @@ eslint@^8.39.0:
     doctrine "^3.0.0"
     escape-string-regexp "^4.0.0"
     eslint-scope "^7.2.0"
-    eslint-visitor-keys "^3.4.0"
-    espree "^9.5.1"
+    eslint-visitor-keys "^3.4.1"
+    espree "^9.5.2"
     esquery "^1.4.2"
     esutils "^2.0.2"
     fast-deep-equal "^3.1.3"
@@ -6303,14 +6303,14 @@ eslint@^8.39.0:
     strip-json-comments "^3.1.0"
     text-table "^0.2.0"
 
-espree@^9.5.1:
-  version "9.5.1"
-  resolved "https://registry.yarnpkg.com/espree/-/espree-9.5.1.tgz#4f26a4d5f18905bf4f2e0bd99002aab807e96dd4"
-  integrity sha512-5yxtHSZXRSW5pvv3hAlXM5+/Oswi1AUFqBmbibKb5s6bp3rGIDkyXU6xCoyuuLhijr4SFwPrXRoZjz0AZDN9tg==
+espree@^9.5.2:
+  version "9.5.2"
+  resolved "https://registry.yarnpkg.com/espree/-/espree-9.5.2.tgz#e994e7dc33a082a7a82dceaf12883a829353215b"
+  integrity sha512-7OASN1Wma5fum5SrNhFMAMJxOUAbhyfQ8dQ//PJaJbNw0URTPWqIghHWt1MmAANKhHZIYOHruW4Kw4ruUWOdGw==
   dependencies:
     acorn "^8.8.0"
     acorn-jsx "^5.3.2"
-    eslint-visitor-keys "^3.4.0"
+    eslint-visitor-keys "^3.4.1"
 
 esprima@^4.0.0:
   version "4.0.1"
@@ -10311,10 +10311,10 @@ prism-react-renderer@^1.3.5:
   resolved "https://registry.yarnpkg.com/prism-react-renderer/-/prism-react-renderer-1.3.5.tgz#786bb69aa6f73c32ba1ee813fbe17a0115435085"
   integrity sha512-IJ+MSwBWKG+SM3b2SUfdrhC+gu01QkV2KmRQgREThBfSQRoufqRfxfHUxpG1WcaFjP+kojcFyO9Qqtpgt3qLCg==
 
-prism-react-renderer@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/prism-react-renderer/-/prism-react-renderer-2.0.3.tgz#251c93af94718991f6d4805bae70ac08c37997ce"
-  integrity sha512-KhTfMTznJeSqJkoqh9TUDuvRdyaNWXHCii1Z46sqthQXnMiFzCaWapfsmW5kHcFjRwEUJ92iysrgznv0y9XHlQ==
+prism-react-renderer@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/prism-react-renderer/-/prism-react-renderer-2.0.4.tgz#df607d5ee1fdaeabf792b021bb7a91f7bd603a6f"
+  integrity sha512-1fcayBPhlGWLjKHeZMA2eJbvLsq1YJsoP3CUOF0BNlobw4knAYS6EWHYawywaZ5zoIxYkgxuqrrkCj7b+135ow==
   dependencies:
     "@types/prismjs" "^1.26.0"
     clsx "^1.2.1"

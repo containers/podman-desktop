@@ -27,7 +27,7 @@ let openshiftRouteGroupSupported = false;
 
 let deployUsingServices = true;
 let deployUsingRoutes = true;
-let deployUsingRestrictedSecurityContext = true;
+let deployUsingRestrictedSecurityContext = false;
 let createdPod = undefined;
 let bodyPod;
 
