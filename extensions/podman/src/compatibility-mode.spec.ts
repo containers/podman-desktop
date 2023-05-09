@@ -75,6 +75,36 @@ test('darwin: DarwinSocketCompatibility class, test runSudoMacHelperCommand ran 
   expect(spyMacHelperCommand).toHaveBeenCalled();
 });
 
+test('darwin: mock fs.existsSync returns /usr/local/bin/podman-mac-helper', async () => {
+  // Mock platform to be darwin
+  Object.defineProperty(process, 'platform', {
+    value: 'darwin',
+  });
+
+  // mock existsSync to return true only if '/usr/local/bin/podman-mac-helper' is passed in,
+  // forcing it to return false for all other paths.
+  // this imitates that the binary is found in /usr/local/bin and not other folders
+  vi.mock('fs', () => {
+    return {
+      existsSync: (path: string) => {
+        if (path === '/usr/local/bin/podman-mac-helper') {
+          return true;
+        }
+        return false;
+      },
+    };
+  });
+
+  // Mock that the binary is found
+  const socketCompatClass = new DarwinSocketCompatibility();
+
+  // Run findPodmanHelper
+  const binaryPath = socketCompatClass.findPodmanHelper();
+
+  // Expect binaryPath to be /usr/local/bin/podman-mac-helper
+  expect(binaryPath).toBe('/usr/local/bin/podman-mac-helper');
+});
+
 // Linux tests
 
 test('linux: compatibility mode fail', async () => {
