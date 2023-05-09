@@ -2737,10 +2737,10 @@
     p-map "^4.0.0"
     webpack-sources "^3.2.2"
 
-"@sveltejs/vite-plugin-svelte@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-2.1.1.tgz#df08dba9094208a2048968e329237be6893cf66d"
-  integrity sha512-7YeBDt4us0FiIMNsVXxyaP4Hwyn2/v9x3oqStkHU3ZdIc5O22pGwUwH33wUqYo+7Itdmo8zxJ45Qvfm3H7UUjQ==
+"@sveltejs/vite-plugin-svelte@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-2.2.0.tgz#6e78e912dc0cff5e92bcb936f194e96b849356f9"
+  integrity sha512-KDtdva+FZrZlyug15KlbXuubntAPKcBau0K7QhAIqC5SAy0uDbjZwoexDRx0L0J2T4niEfC6FnA9GuQQJKg+Aw==
   dependencies:
     debug "^4.3.4"
     deepmerge "^4.3.1"
