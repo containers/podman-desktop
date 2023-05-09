@@ -102,6 +102,7 @@ import { TaskManager } from '/@/plugin/task-manager';
 import { Featured } from './featured/featured';
 import type { FeaturedExtension } from './featured/featured-api';
 import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog';
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -273,6 +274,46 @@ export class PluginSystem {
           func(data);
         });
       },
+    };
+  }
+
+  async setupSecurityRestrictionsOnLinks(messageBox: MessageBox) {
+    // external URLs should be validated by the user
+    securityRestrictionCurrentHandler.handler = async (url: string) => {
+      if (!url) {
+        return false;
+      }
+
+      // if url is a known domain, open it directly
+      const urlObject = new URL(url);
+      const validDomains = ['podman-desktop.io', 'podman.io'];
+      const skipConfirmationUrl = validDomains.some(
+        domain => urlObject.hostname.endsWith(domain) || urlObject.hostname === domain,
+      );
+
+      if (skipConfirmationUrl) {
+        shell.openExternal(url);
+        return true;
+      }
+
+      const result = await messageBox.showMessageBox({
+        title: 'Open External Website',
+        message: 'Are you sure you want to open the external website ?',
+        detail: url,
+        type: 'question',
+        buttons: ['Yes', 'Copy link', 'Cancel'],
+        cancelId: 2,
+      });
+
+      if (result.response === 0) {
+        // open externally the URL
+        shell.openExternal(url);
+        return true;
+      } else if (result.response === 1) {
+        // copy to clipboard
+        clipboard.writeText(url);
+      }
+      return false;
     };
   }
 
@@ -586,6 +627,9 @@ export class PluginSystem {
     featured.init().catch(e => {
       console.error('Unable to initialized the featured extensions', e);
     });
+
+    // setup security restrictions on links
+    await this.setupSecurityRestrictionsOnLinks(messageBox);
 
     const contributionManager = new ContributionManager(apiSender);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
@@ -1200,7 +1244,11 @@ export class PluginSystem {
     this.ipcHandle(
       'shell:openExternal',
       async (_listener: Electron.IpcMainInvokeEvent, link: string): Promise<void> => {
-        shell.openExternal(link);
+        if (securityRestrictionCurrentHandler.handler) {
+          await securityRestrictionCurrentHandler.handler(link);
+        } else {
+          shell.openExternal(link);
+        }
       },
     );
 

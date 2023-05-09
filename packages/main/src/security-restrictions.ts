@@ -18,6 +18,7 @@
 
 import { app, shell } from 'electron';
 import { URL } from 'url';
+import { securityRestrictionCurrentHandler } from './security-restrictions-handler';
 
 /**
  * List of origins that you allow open INSIDE the application and permissions for each of them.
@@ -70,7 +71,7 @@ app.on('web-contents-created', (_, contents) => {
    *
    * @see https://www.electronjs.org/docs/latest/tutorial/security#13-disable-or-limit-navigation
    */
-  contents.on('will-navigate', (event, url) => {
+  contents.on('will-navigate', async (event, url) => {
     const { origin } = new URL(url);
     if (ALLOWED_ORIGINS_AND_PERMISSIONS.has(origin)) {
       return;
@@ -78,6 +79,14 @@ app.on('web-contents-created', (_, contents) => {
 
     // Prevent navigation
     event.preventDefault();
+
+    const handler = securityRestrictionCurrentHandler.handler;
+
+    // handled
+    if (handler) {
+      await securityRestrictionCurrentHandler.handler?.(url);
+      return;
+    }
 
     if (import.meta.env.DEV) {
       console.warn('Blocked navigating to an unallowed origin:', origin);
