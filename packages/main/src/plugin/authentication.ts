@@ -66,7 +66,6 @@ export interface SessionRequest {
 export interface SessionRequestInfo {
   id: string;
   providerId: string;
-  providerLabel: string;
   scopes: string[];
   extensionId: string;
   extensionLabel: string;
@@ -196,18 +195,19 @@ export class AuthenticationImpl {
 
     const providerData = this._authenticationProviders.get(providerId);
     const sortedScopes = [...scopes].sort();
-    if (!providerData) {
-      throw new Error(`Requested authentication provider ${providerId} is not installed.`);
-    }
 
-    const sessions = await providerData.provider.getSessions(sortedScopes);
+    const sessions = providerData ? await providerData.provider.getSessions(sortedScopes) : [];
 
     if (sessions.length && this.isAccessAllowed(providerId, sessions[0].account.label, requestingExtension.id)) {
       return sessions[0];
     }
 
     if (options.createIfNone) {
-      return providerData.provider.createSession(sortedScopes);
+      if (providerData) {
+        return providerData.provider.createSession(sortedScopes);
+      } else {
+        throw new Error(`Requested authentication provider ${providerId} is not installed.`);
+      }
     }
 
     if (!options.silent) {
@@ -225,7 +225,6 @@ export class AuthenticationImpl {
       this._signInRequestsData.set(requestId, {
         id: requestId,
         providerId,
-        providerLabel: providerData.label,
         extensionId: requestingExtension.id,
         extensionLabel: requestingExtension.label,
         scopes: sortedScopes,
@@ -237,7 +236,7 @@ export class AuthenticationImpl {
       } else {
         this._signInRequests.set(providerId, { [scopesList]: [requestingExtension.id] });
       }
-      this.apiSender.send('authentication-provider-update', { id: providerData.id });
+      this.apiSender.send('authentication-provider-update', { id: providerId });
     }
   }
 
@@ -249,7 +248,7 @@ export class AuthenticationImpl {
   async executeSessionRequest(id: string) {
     const data = this._signInRequestsData.get(id);
     if (!data) {
-      throw new Error(`Requested session is '${id}' is not found.`);
+      throw new Error(`Session request '${id}' is not found.`);
     }
 
     const provider = this._authenticationProviders.get(data.providerId)?.provider;
