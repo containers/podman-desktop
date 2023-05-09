@@ -21,7 +21,7 @@ With Podman Desktop, you can build an image with your container engine, and test
 
 1. Build your image:
 
-   1. open **<icon icon="fa-solid fa-cloud" size="lg" /> Images > <icon icon="fa-solid fa-cube" size="lg" /> Build an image**.
+   1. Open **<icon icon="fa-solid fa-cloud" size="lg" /> Images > <icon icon="fa-solid fa-cube" size="lg" /> Build an image**.
    2. **Containerfile path**: select your `Containerfile` or `Dockerfile`.
    3. **Build context directory**: optionally, select a directory different from the directory containing your `Containerfile` or `Dockerfile`.
    4. **Image Name**: enter your image name `my-custom-image`.
@@ -34,14 +34,14 @@ With Podman Desktop, you can build an image with your container engine, and test
    1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search images**: enter your image name `my-custom-image` to find the image.
    2. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-ellipsis-v" size="lg" /> Push image to Kind cluster**.
 
-1. Test your image in a container running in your container engine:
+1. Test your image by creating a container:
 
    1. Click **<icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
    2. **Container name**: enter `my-custom-image-container`.
    3. Review the parameters that Podman Desktop has detected from your image definition.
    4. Click **<icon icon="fa-solid fa-play" size="lg" /> Start Container** to start the container in your container engine.
 
-1. Test your image and container in a pod running in Kubernetes:
+1. Test your image and container on Kubernetes:
 
    1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search containers**: enter `my-custom-image-container` to find the running container.
    2. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
