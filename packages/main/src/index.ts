@@ -25,6 +25,7 @@ import { AnimatedTray } from './tray-animate-icon';
 import { PluginSystem } from './plugin';
 import { StartupInstall } from './system/startup-install';
 import type { ExtensionLoader } from './plugin/extension-loader';
+import dns from 'node:dns';
 
 let extensionLoader: ExtensionLoader | undefined;
 /**
@@ -94,6 +95,11 @@ app.whenReady().then(
     // We use 'activate' within whenReady in order to gracefully start on macOS, see this link:
     // https://www.electronjs.org/docs/latest/tutorial/quick-start#open-a-window-if-none-are-open-macos
     app.on('activate', createNewWindow);
+
+    // prefer ipv4 over ipv6
+    // TODO: Needs to be there until Happy Eyeballs(https://en.wikipedia.org/wiki/Happy_Eyeballs) is implemented
+    // which is the case in Node.js 20+ https://github.com/nodejs/node/issues/41625
+    dns.setDefaultResultOrder('ipv4first');
 
     // Setup the default tray icon + menu items
     const animatedTray = new AnimatedTray();
