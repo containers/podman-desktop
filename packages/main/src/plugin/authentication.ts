@@ -45,6 +45,7 @@ export interface AuthenticationProviderInfo {
   id: string;
   displayName: string;
   accounts: AuthenticationSessionAccountInformation[];
+  sessionRequests?: SessionRequestInfo[];
 }
 
 export interface ExtensionInfo {
@@ -58,24 +59,45 @@ export interface AllowedExtension {
   allowed?: boolean;
 }
 
+export interface SessionRequest {
+  [scopes: string]: string[]; // maps sting with scopes to provider ids
+}
+
+export interface SessionRequestInfo {
+  id: string;
+  providerId: string;
+  providerLabel: string;
+  scopes: string[];
+  extensionId: string;
+  extensionLabel: string;
+}
+
 export class AuthenticationImpl {
   private _authenticationProviders: Map<string, ProviderWithMetadata> = new Map<string, ProviderWithMetadata>();
+  // map of scopes to extension ids
+  private _signInRequests: Map<string, SessionRequest> = new Map();
+  // map id to getSession call
+  private _signInRequestsData: Map<string, SessionRequestInfo> = new Map();
 
   constructor(private apiSender: ApiSenderType) {}
 
   public async getAuthenticationProvidersInfo(): Promise<AuthenticationProviderInfo[]> {
     const values = Array.from(this._authenticationProviders.values());
-    const sessionsRequests = values.map(meta => {
+    const providers = values.map(meta => {
       return meta.provider.getSessions().then(sessions => {
+        const sessionRequests = sessions.length
+          ? []
+          : Array.from(this._signInRequestsData.values()).filter(request => request.providerId === meta.id);
         return {
           id: meta.id,
           displayName: meta.label,
           accounts: sessions.map(session => ({ id: session.id, label: session.account.label })),
+          sessionRequests,
         };
       });
     });
 
-    return await Promise.all(sessionsRequests);
+    return await Promise.all(providers);
   }
 
   public async signOut(providerId: string, sessionId: string) {
@@ -165,23 +187,77 @@ export class AuthenticationImpl {
     if (options.forceNewSession) {
       throw new Error('Option is not supported. Please remove forceNewSession option.');
     }
-    if (options.silent) {
-      throw new Error('Option is not supported. Please remove silent option.');
-    }
     if (options.clearSessionPreference) {
       throw new Error('Option is not supported. Please remove clearSessionPreference option.');
     }
-
-    const provider = this._authenticationProviders.get(providerId)?.provider;
-    if (!provider) {
-      throw new Error(`Requested authentication provider ${providerId} is not installed.`);
-    } else {
-      const sessions = await provider.getSessions(scopes);
-      if (sessions.length > 0 && this.isAccessAllowed(providerId, sessions[0].account.label, requestingExtension.id)) {
-        return sessions[0];
-      }
-      return provider.createSession(scopes);
+    if (options.createIfNone && options.silent) {
+      throw new Error('Invalid combination of options. Please remove one of the following: createIfNone, silent');
     }
+
+    const providerData = this._authenticationProviders.get(providerId);
+    const sortedScopes = [...scopes].sort();
+    if (!providerData) {
+      throw new Error(`Requested authentication provider ${providerId} is not installed.`);
+    }
+
+    const sessions = await providerData.provider.getSessions(sortedScopes);
+
+    if (sessions.length && this.isAccessAllowed(providerId, sessions[0].account.label, requestingExtension.id)) {
+      return sessions[0];
+    }
+
+    if (options.createIfNone) {
+      return providerData.provider.createSession(sortedScopes);
+    }
+
+    if (!options.silent) {
+      const providerRequests = this._signInRequests.get(providerId);
+      const scopesList = sortedScopes.join(' ');
+      const extHasRequests =
+        providerRequests &&
+        providerRequests[scopesList] &&
+        providerRequests[scopesList].includes(requestingExtension.id);
+      if (extHasRequests) {
+        // request was added already by this extension
+        return;
+      }
+      const requestId = `${providerId}:${requestingExtension.id}:signIn${Object.keys(providerRequests || []).length}`;
+      this._signInRequestsData.set(requestId, {
+        id: requestId,
+        providerId,
+        providerLabel: providerData.label,
+        extensionId: requestingExtension.id,
+        extensionLabel: requestingExtension.label,
+        scopes: sortedScopes,
+      });
+
+      if (providerRequests) {
+        const existingRequests = providerRequests[scopesList] || [];
+        providerRequests[scopesList] = [...existingRequests, requestingExtension.id];
+      } else {
+        this._signInRequests.set(providerId, { [scopesList]: [requestingExtension.id] });
+      }
+      this.apiSender.send('authentication-provider-update', { id: providerData.id });
+    }
+  }
+
+  getSessionRequests(): SessionRequestInfo[] {
+    return Array.from(this._signInRequestsData.values());
+  }
+
+  // called by the UI to indicate that the user has requested a sing-in
+  async executeSessionRequest(id: string) {
+    const data = this._signInRequestsData.get(id);
+    if (!data) {
+      throw new Error(`Requested session is '${id}' is not found.`);
+    }
+
+    const provider = this._authenticationProviders.get(data.providerId)?.provider;
+    if (!provider) {
+      throw new Error(`Requested authentication provider '${data.providerId}' is not installed.`);
+    }
+
+    await provider.createSession(data.scopes);
   }
 
   async removeSession(providerId: string, sessionId: string): Promise<void> {
