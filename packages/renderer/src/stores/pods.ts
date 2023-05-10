@@ -20,7 +20,14 @@ import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
 import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { findMatchInLeaves } from './search-util';
+
+let readyToUpdate = false;
+
 export async function fetchPods() {
+  // do not fetch until extensions are all started
+  if (!readyToUpdate) {
+    return;
+  }
   let result = await window.listPods();
   try {
     const pods = await window.kubernetesListPods();
@@ -69,6 +76,14 @@ window.events?.receive('provider-change', () => {
 window.events?.receive('pod-event', () => {
   fetchPods();
 });
-window.addEventListener('system-ready', () => {
-  fetchPods();
+
+window?.events?.receive('extensions-started', async () => {
+  readyToUpdate = true;
+  await fetchPods();
+});
+
+// if client is doing a refresh, we will receive this event and we need to update the data
+window.addEventListener('extensions-already-started', async () => {
+  readyToUpdate = true;
+  await fetchPods();
 });

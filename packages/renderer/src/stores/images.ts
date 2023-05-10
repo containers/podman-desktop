@@ -20,7 +20,14 @@ import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
 import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
 import { findMatchInLeaves } from './search-util';
+
+let readyToUpdate = false;
+
 export async function fetchImages() {
+  // do not fetch until extensions are all started
+  if (!readyToUpdate) {
+    return;
+  }
   const result = await window.listImages();
   imagesInfos.set(result);
 }
@@ -42,9 +49,6 @@ window?.events?.receive('extension-stopped', () => {
 });
 
 window.addEventListener('image-build', () => {
-  fetchImages();
-});
-window.addEventListener('system-ready', () => {
   fetchImages();
 });
 
@@ -75,4 +79,15 @@ window.events?.receive('image-tag-event', () => {
 
 window.events?.receive('image-untag-event', () => {
   fetchImages();
+});
+
+window?.events?.receive('extensions-started', async () => {
+  readyToUpdate = true;
+  await fetchImages();
+});
+
+// if client is doing a refresh, we will receive this event and we need to update the data
+window.addEventListener('extensions-already-started', async () => {
+  readyToUpdate = true;
+  await fetchImages();
 });

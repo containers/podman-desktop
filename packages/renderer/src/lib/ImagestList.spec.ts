@@ -38,6 +38,7 @@ beforeAll(() => {
   (window as any).hasAuthconfigForImage = vi.fn();
   (window as any).hasAuthconfigForImage.mockImplementation(() => Promise.resolve(false));
 
+  (window as any).listContainers = vi.fn();
   (window as any).listImages = listImagesMock;
   (window as any).getProviderInfos = getProviderInfosMock;
 
@@ -107,6 +108,7 @@ test('Expect images being ordered by newest first', async () => {
     },
   ]);
 
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('image-build'));
 

@@ -21,7 +21,13 @@ import { writable, derived } from 'svelte/store';
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import { findMatchInLeaves } from './search-util';
 
+let readyToUpdate = false;
+
 export async function fetchContainers() {
+  // do not fetch until extensions are all started
+  if (!readyToUpdate) {
+    return;
+  }
   const result = await window.listContainers();
   containersInfos.set(result);
 }
@@ -40,9 +46,6 @@ window.events?.receive('extension-started', () => {
 });
 
 window.addEventListener('tray:update-provider', () => {
-  fetchContainers();
-});
-window.addEventListener('system-ready', () => {
   fetchContainers();
 });
 
@@ -72,4 +75,15 @@ window.events?.receive('provider-change', () => {
 
 window.events?.receive('pod-event', () => {
   fetchContainers();
+});
+
+window?.events?.receive('extensions-started', async () => {
+  readyToUpdate = true;
+  await fetchContainers();
+});
+
+// if client is doing a refresh, we will receive this event and we need to update the data
+window.addEventListener('extensions-already-started', async () => {
+  readyToUpdate = true;
+  await fetchContainers();
 });
