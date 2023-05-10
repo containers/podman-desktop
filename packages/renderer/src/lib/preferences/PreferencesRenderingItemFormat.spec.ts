@@ -25,6 +25,7 @@ import { test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
+import userEvent from '@testing-library/user-event';
 
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
@@ -170,4 +171,48 @@ test('Expect a text input when record is type string', async () => {
   expect(input instanceof HTMLInputElement).toBe(true);
   expect((input as HTMLInputElement).type).toBe('text');
   expect((input as HTMLSelectElement).name).toBe('record');
+});
+
+test('Expect tooltip text shows info when input is less than minimum', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'number',
+    minimum: 1,
+    maximum: 34,
+  };
+  await render(PreferencesRenderingItemFormat, {
+    record,
+  });
+  const input = screen.getByLabelText('record-description');
+  await userEvent.click(input);
+  await userEvent.clear(input);
+  await userEvent.keyboard('0');
+  const tooltip = screen.getByLabelText('tooltip');
+  expect(tooltip).toBeInTheDocument();
+  expect(tooltip.textContent).toBe('The value cannot be less than 1');
+});
+
+test('Expect tooltip text shows info when input is empty', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'number',
+    minimum: 1,
+    maximum: 34,
+  };
+  await render(PreferencesRenderingItemFormat, {
+    record,
+  });
+  const input = screen.getByLabelText('record-description');
+  await userEvent.click(input);
+  await userEvent.clear(input);
+  await userEvent.keyboard('40');
+  const tooltip = screen.getByLabelText('tooltip');
+  expect(tooltip).toBeInTheDocument();
+  expect(tooltip.textContent).toBe('The value cannot be greater than 34');
 });
