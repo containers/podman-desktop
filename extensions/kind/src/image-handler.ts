@@ -23,14 +23,21 @@ import * as fs from 'node:fs';
 
 type ImageInfo = { engineId: string; name?: string; tag?: string };
 
+// Handle the image move command when moving from Podman or Docker to Kind
 export class ImageHandler {
-  async moveImage(image: ImageInfo, kindClusters: KindCluster[], kindCli: string) {
+  // Move image from Podman or Docker to Kind
+  async moveImage(image: ImageInfo, kindClusters: KindCluster[], kindCli: string): Promise<void> {
+    // If there's no image name passed in, we can't do anything
     if (!image.name) {
       throw new Error('Image selection not supported yet');
     }
+
+    // Retrieve all the Kind clusters available.
     const clusters = kindClusters.filter(cluster => cluster.status === 'started');
     let selectedCluster: { label: string; engineType: string };
 
+    // Throw an error if there is no clusters,
+    // but if there are multiple ones, prompt the user to select one
     if (clusters.length == 0) {
       throw new Error('No Kind clusters to push to');
     } else if (clusters.length == 1) {
@@ -43,33 +50,55 @@ export class ImageHandler {
         { placeHolder: 'Select a Kind cluster to push to' },
       );
     }
+
+    // Only proceed if a cluster was selected
     if (selectedCluster) {
-      const filename = await tmpName();
+      let name = image.name;
+      let filename: string;
+      const env = process.env;
+
+      // Create a name:tag string for the image
+      if (image.tag) {
+        name = name + ':' + image.tag;
+      }
+
+      // Check to see if the selected cluster is either podman or docker
+      if (selectedCluster.engineType === 'podman') {
+        env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
+      } else {
+        env['KIND_EXPERIMENTAL_PROVIDER'] = 'docker';
+      }
+
       try {
-        let name = image.name;
-        if (image.tag) {
-          name = name + ':' + image.tag;
-        }
+        // Create a temporary file to store the image
+        filename = await tmpName();
+
+        // Save the image to the temporary file
         await extensionApi.containerEngine.saveImage(image.engineId, name, filename);
-        const env = process.env;
-        if (selectedCluster.engineType === 'podman') {
-          env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
-        } else {
-          env['KIND_EXPERIMENTAL_PROVIDER'] = 'docker';
-        }
+
+        // Run the Kind load command to push the image to the cluster
         await runCliCommand(kindCli, ['load', 'image-archive', '-n', selectedCluster.label, filename], {
           env: env,
         });
-        extensionApi.window.showNotification({
-          body: `Image ${image.name} pushed to Kind cluster ${selectedCluster.label}`,
-        });
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : '' + error;
-        throw new Error(
-          `Error while pushing image ${image.name} to Kind cluster ${selectedCluster.label}: ${errorMessage}`,
+
+        // Show a dialog to the user that the image was pushed
+        // TODO: Change this to taskbar notification when implemented
+        extensionApi.window.showInformationMessage(
+          `Image ${image.name} pushed to Kind cluster: ${selectedCluster.label}`,
         );
+      } catch (err) {
+        // Show a dialog error to the user that the image was not pushed
+        extensionApi.window.showErrorMessage(
+          `Unable to push image ${image.name} to Kind cluster: ${selectedCluster.label}. Error: ${err}`,
+        );
+
+        // Throw the errors to the console aswell
+        throw new Error(`Unable to push image to Kind cluster: ${err}`);
       } finally {
-        fs.promises.rm(filename);
+        // Remove the temporary file if one was created
+        if (filename !== undefined) {
+          fs.promises.rm(filename);
+        }
       }
     }
   }

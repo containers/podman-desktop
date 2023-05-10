@@ -30,6 +30,7 @@ vi.mock('@podman-desktop/api', async () => {
     },
     window: {
       showNotification: vi.fn(),
+      showInformationMessage: vi.fn(),
     },
   };
 });
@@ -74,6 +75,19 @@ test('expect image name to be given', async () => {
     undefined,
   );
   expect(extensionApi.containerEngine.saveImage).toBeCalledWith('dummy', 'myimage', expect.anything());
+});
+
+test('expect getting showInformationMessage when image is pushed', async () => {
+  (extensionApi.containerEngine.saveImage as Mock).mockImplementation(
+    (engineId: string, id: string, filename: string) => fs.promises.open(filename, 'w'),
+  );
+
+  await imageHandler.moveImage(
+    { engineId: 'dummy', name: 'myimage' },
+    [{ name: 'c1', engineType: 'podman', status: 'started', apiPort: 9443 }],
+    undefined,
+  );
+  expect(extensionApi.window.showInformationMessage).toBeCalledWith('Image myimage pushed to Kind cluster: c1');
 });
 
 test('expect image name and tag to be given', async () => {
