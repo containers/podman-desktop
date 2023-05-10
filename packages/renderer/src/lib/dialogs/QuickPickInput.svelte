@@ -26,7 +26,7 @@ let quickPickSelectedIndex = 0;
 let quickPickSelectedFilteredIndex = 0;
 let quickPickCanPickMany = false;
 
-let inputElement: HTMLInputElement = undefined;
+let inputElement: HTMLInputElement | HTMLTextAreaElement = undefined;
 
 const showInputCallback = async (options?: InputBoxOptions) => {
   mode = 'InputBox';
@@ -273,7 +273,6 @@ function handleKeydown(e: KeyboardEvent) {
             <textarea
               bind:this="{inputElement}"
               on:input="{event => onInputChange(event)}"
-              type="text"
               bind:value="{inputValue}"
               class="px-1 w-full h-20 text-gray-400 bg-zinc-700 border {validationError
                 ? 'border-red-700'
