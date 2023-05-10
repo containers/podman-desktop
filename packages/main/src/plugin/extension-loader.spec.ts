@@ -235,7 +235,7 @@ test('Should load file from watching scanning folder', async () => {
   expect(loadPackagedFileMock).toBeCalledWith(path.resolve(rootedFakeDirectory, 'watch.cdix'));
 });
 
-test('Verify extension error leads to errored state', async () => {
+test('Verify extension error leads to failed state', async () => {
   const id = 'extension.id';
   await extensionLoader.activateExtension(
     {
@@ -252,5 +252,5 @@ test('Verify extension error leads to errored state', async () => {
       },
     },
   );
-  expect(extensionLoader.getExtensionState().get(id)).toBe('errored');
+  expect(extensionLoader.getExtensionState().get(id)).toBe('failed');
 });

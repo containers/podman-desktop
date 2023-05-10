@@ -803,8 +803,8 @@ export class ExtensionLoader {
       this.extensionState.set(extension.id, 'started');
       this.apiSender.send('extension-started');
     } catch (err) {
-      console.log(`Activation extension ${extension.id} errored error:${err}`);
-      this.extensionState.set(extension.id, 'errored');
+      console.log(`Activation extension ${extension.id} failed error:${err}`);
+      this.extensionState.set(extension.id, 'failed');
     }
   }
 
@@ -821,7 +821,7 @@ export class ExtensionLoader {
       try {
         await extension.deactivateFunction();
       } catch (err) {
-        console.log(`Deactivation extension ${extension.id} errored error:${err}`);
+        console.log(`Deactivation extension ${extension.id} failed error:${err}`);
       }
     }
 
