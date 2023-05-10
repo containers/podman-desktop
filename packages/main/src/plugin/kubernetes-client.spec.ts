@@ -88,7 +88,8 @@ test('Create Kubernetes resources with v1 resource in error should return error'
   const spy = vi.spyOn(client, 'createV1Resource').mockRejectedValue(new Error('V1Error'));
   try {
     await client.createResources('dummy', [{ apiVersion: 'v1', kind: 'Namespace' }]);
-  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
     expect(spy).toBeCalled();
     expect(err).to.be.a('Error');
     expect(err.message).equal('V1Error');
@@ -109,7 +110,8 @@ test('Create custom Kubernetes resources in error should return error', async ()
   vi.spyOn(client, 'getPlural').mockReturnValue(Promise.resolve('namespaces'));
   try {
     await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
-  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
     expect(spy).toBeCalled();
     expect(err).to.be.a('Error');
     expect(err.message).equal('CustomError');
@@ -122,7 +124,8 @@ test('Create unknown custom Kubernetes resources should return error', async () 
   const pluralSpy = vi.spyOn(client, 'getPlural').mockRejectedValue(new Error('CustomError'));
   try {
     await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
-  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
     expect(createSpy).not.toBeCalled();
     expect(pluralSpy).toBeCalled();
     expect(err).to.be.a('Error');

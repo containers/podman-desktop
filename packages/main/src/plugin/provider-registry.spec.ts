@@ -47,7 +47,8 @@ beforeEach(() => {
 });
 
 test('should initialize provider if there is kubernetes connection provider', async () => {
-  let providerInternalId;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let providerInternalId: any;
 
   apiSenderSendMock.mockImplementation((message, data) => {
     expect(message).toBe('provider-create');
@@ -64,6 +65,7 @@ test('should initialize provider if there is kubernetes connection provider', as
   });
 
   expect(providerInternalId).toBeDefined();
+
   await providerRegistry.initializeProvider(providerInternalId);
 
   expect(telemetryTrackMock).toHaveBeenNthCalledWith(1, 'createProvider', {
@@ -76,7 +78,8 @@ test('should initialize provider if there is kubernetes connection provider', as
 });
 
 test('should send version event if update', async () => {
-  let providerInternalId;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let providerInternalId: any;
 
   apiSenderSendMock.mockImplementation((message, data) => {
     expect(['provider-create', 'provider:update-version']).toContain(message);
@@ -109,7 +112,8 @@ test('should send version event if update', async () => {
 });
 
 test('should initialize provider if there is container connection provider', async () => {
-  let providerInternalId;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let providerInternalId: any;
 
   apiSenderSendMock.mockImplementation((message, data) => {
     expect(message).toBe('provider-create');

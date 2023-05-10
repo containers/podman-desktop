@@ -26,8 +26,8 @@ vi.mock('./util', () => {
   };
 });
 
-let closeBehavior;
-let configurationRegistry;
+let closeBehavior: CloseBehavior;
+let configurationRegistry: ConfigurationRegistry;
 
 beforeEach(() => {
   configurationRegistry = new ConfigurationRegistry();

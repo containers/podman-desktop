@@ -19,7 +19,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { Certificates } from './certificates';
 
-let certificate;
+let certificate: Certificates;
 
 const BEGIN_CERTIFICATE = '-----BEGIN CERTIFICATE-----';
 const END_CERTIFICATE = '-----END CERTIFICATE-----';

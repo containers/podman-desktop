@@ -20,7 +20,8 @@ import { beforeAll, beforeEach, expect, expectTypeOf, test, vi, vitest } from 'v
 import { CancellationTokenImpl } from './cancellation-token';
 import { CancellationTokenRegistry } from './cancellation-token-registry';
 
-let cancellationTokenRegistry;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let cancellationTokenRegistry: any;
 
 beforeEach(() => {
   vi.clearAllMocks();
