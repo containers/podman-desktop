@@ -64,12 +64,14 @@ export function MacOSDownloads(): JSX.Element {
     arm64: '',
   });
 
-  const copyBrewInstructions = () => {
-    navigator.clipboard.writeText('brew install podman-desktop');
+  const copyBrewInstructions = async () => {
+    await navigator.clipboard.writeText('brew install podman-desktop');
   };
 
   useEffect(() => {
-    grabfilenameforMac(setDownloadData);
+    grabfilenameforMac(setDownloadData).catch(err => {
+      console.error(err);
+    });
   }, []);
   return (
     <div className="basis-1/3 py-2 rounded-lg dark:text-gray-400 text-gray-900  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">

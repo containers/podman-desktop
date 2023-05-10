@@ -53,14 +53,17 @@ export function WindowsDownloads(): JSX.Element {
     version: '',
     binary: '',
     setup: '',
+    airgapsetup: '',
   });
 
-  const copyCliInstructions = () => {
-    navigator.clipboard.writeText('winget install -e --id RedHat.Podman-Desktop');
+  const copyCliInstructions = async () => {
+    await navigator.clipboard.writeText('winget install -e --id RedHat.Podman-Desktop');
   };
 
   useEffect(() => {
-    grabfilenameforWindows(setDownloadData);
+    grabfilenameforWindows(setDownloadData).catch(err => {
+      console.error(err);
+    });
   }, []);
 
   return (
