@@ -41,6 +41,7 @@ test('Expect that page shows registered authentication providers without account
       id: 'test',
       displayName: 'Test Authentication Provider',
       accounts: [],
+      sessionRequests: [],
     },
   ]);
   render(PreferencesAuthenticationProvidersRendering, {});
@@ -60,6 +61,7 @@ const testProvidersInfo = [
         label: 'Test Account',
       },
     ],
+    sessionRequests: [],
   },
 ];
 
