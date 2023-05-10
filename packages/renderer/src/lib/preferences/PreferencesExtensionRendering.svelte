@@ -82,6 +82,15 @@ async function removeExtension() {
             <div class="text-gray-900 items-center px-2 text-sm">Default extension, cannot be removed</div>
           {/if}
         </div>
+        {#if extensionInfo.error}
+          <div class="flex flex-col">
+            <div class="py-2">Extension error: {extensionInfo.error.message}</div>
+            {#if extensionInfo.error.stack}
+              <div class="py-2">Stack trace</div>
+              <div class="py-2">{extensionInfo.error.stack}</div>
+            {/if}
+          </div>
+        {/if}
       </Route>
     {/if}
   </div></SettingsPage>

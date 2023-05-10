@@ -21,7 +21,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import type { CommandRegistry } from './command-registry';
-import type { ExtensionInfo } from './api/extension-info';
+import type { ExtensionError, ExtensionInfo } from './api/extension-info';
 import * as zipper from 'zip-local';
 import type { TrayMenuRegistry } from './tray-menu-registry';
 import { Disposable } from './types/disposable';
@@ -90,6 +90,7 @@ export class ExtensionLoader {
   private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
   private reloadInProgressExtensions = new Map<string, boolean>();
   protected extensionState = new Map<string, string>();
+  protected extensionStateErrors = new Map<string, unknown>();
 
   protected watchTimeout = 1000;
 
@@ -121,6 +122,18 @@ export class ExtensionLoader {
     private telemetry: Telemetry,
   ) {}
 
+  mapError(err: unknown): ExtensionError | undefined {
+    if (err) {
+      if (err instanceof Error) {
+        return { message: err.message, stack: err.stack };
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return { message: (err as any).toString() };
+      }
+    }
+    return undefined;
+  }
+
   async listExtensions(): Promise<ExtensionInfo[]> {
     return Array.from(this.analyzedExtensions.values()).map(extension => ({
       name: extension.manifest.name,
@@ -129,6 +142,7 @@ export class ExtensionLoader {
       version: extension.manifest.version,
       publisher: extension.manifest.publisher,
       state: this.extensionState.get(extension.id) || 'stopped',
+      error: this.mapError(this.extensionStateErrors.get(extension.id)),
       id: extension.id,
       path: extension.path,
       removable: extension.removable,
@@ -774,6 +788,7 @@ export class ExtensionLoader {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
     this.extensionState.set(extension.id, 'starting');
+    this.extensionStateErrors.delete(extension.id);
     this.apiSender.send('extension-starting', {});
 
     const subscriptions: containerDesktopAPI.Disposable[] = [];
@@ -805,6 +820,7 @@ export class ExtensionLoader {
     } catch (err) {
       console.log(`Activation extension ${extension.id} failed error:${err}`);
       this.extensionState.set(extension.id, 'failed');
+      this.extensionStateErrors.set(extension.id, err);
     }
   }
 
