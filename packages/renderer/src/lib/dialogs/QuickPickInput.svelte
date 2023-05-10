@@ -301,9 +301,9 @@ function handleKeydown(e: KeyboardEvent) {
           {#if validationError}
             <div class="text-gray-400 border border-red-700 relative w-full bg-red-700 px-1">{validationError}</div>
           {:else}
-            <div class="relative text-gray-400 pt-2 px-1 h-6 overflow-y-auto">{prompt}</div>
+            <div class="relative text-gray-400 pt-2 px-1 h-7 overflow-y-auto">{prompt}</div>
             {#if markdownDescription?.length > 0}
-              <div class="relative text-gray-400 pt-2 px-1 h-6 overflow-y-auto">
+              <div class="relative text-gray-400 pt-2 px-1 h-fit overflow-y-auto">
                 <Markdown>{markdownDescription}</Markdown>
               </div>
             {/if}
