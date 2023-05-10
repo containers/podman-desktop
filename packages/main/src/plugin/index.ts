@@ -114,6 +114,9 @@ export class PluginSystem {
   // ready is when we've finished to initialize extension system
   private isReady = false;
 
+  // ready when all extensions have been started
+  private isExtensionsStarted = false;
+
   // notified when UI is dom-ready
   private uiReady = false;
 
@@ -320,6 +323,10 @@ export class PluginSystem {
     this.uiReady = false;
     this.ipcHandle('extension-system:isReady', async (): Promise<boolean> => {
       return this.isReady;
+    });
+
+    this.ipcHandle('extension-system:isExtensionsStarted', async (): Promise<boolean> => {
+      return this.isExtensionsStarted;
     });
 
     // redirect main process logs to the extension loader
@@ -1564,11 +1571,19 @@ export class PluginSystem {
 
     apiSender.send('starting-extensions', `${this.isReady}`);
     console.log('System ready. Loading extensions...');
-    await this.extensionLoader.start();
-    console.log('PluginSystem: initialization done.');
-    apiSender.send('extensions-started');
+    try {
+      await this.extensionLoader.start();
+      console.log('PluginSystem: initialization done.');
+    } finally {
+      apiSender.send('extensions-started');
+      this.markAsExtensionsStarted();
+    }
     autoStartConfiguration.start();
     return this.extensionLoader;
+  }
+
+  markAsExtensionsStarted(): void {
+    this.isExtensionsStarted = true;
   }
 
   markAsReady(): void {
