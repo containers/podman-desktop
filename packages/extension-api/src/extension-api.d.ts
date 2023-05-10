@@ -694,6 +694,11 @@ declare module '@podman-desktop/api' {
     prompt?: string;
 
     /**
+     * A description of the field to be show (Markdown format)
+     */
+    markdownDescription?;
+
+    /**
      * An optional string to show as placeholder in the input box to guide the user what to type.
      */
     placeHolder?: string;

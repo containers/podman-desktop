@@ -131,14 +131,15 @@ describe('QuickPickInput', () => {
     expect(itemDetail2).toBeInTheDocument();
   });
 
-  test('Expect that prompt is displayed', async () => {
+  test('Expect that description is displayed', async () => {
     const idRequest = 123;
 
     const inputBoxOptions: InputBoxOptions = {
       multiline: false,
       validate: false,
       placeHolder: '',
-      prompt: 'Enter a value',
+      prompt: '',
+      markdownDescription: 'Enter a value',
       id: idRequest,
     };
 
@@ -156,14 +157,15 @@ describe('QuickPickInput', () => {
     expect(paragraph).toBeDefined();
   });
 
-  test('Expect that markdown prompt is displayed', async () => {
+  test('Expect that markdown description is displayed', async () => {
     const idRequest = 123;
 
     const inputBoxOptions: InputBoxOptions = {
       multiline: false,
       validate: false,
       placeHolder: '',
-      prompt: 'Enter a value [See](https://podman-desktop.io)',
+      prompt: '',
+      markdownDescription: 'Enter a value [See](https://podman-desktop.io)',
       id: idRequest,
     };
 

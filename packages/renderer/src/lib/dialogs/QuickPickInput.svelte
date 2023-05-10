@@ -7,6 +7,7 @@ const DEFAULT_PROMPT = "Press 'Enter' to confirm your input or 'Escape' to cance
 let inputValue = '';
 let placeHolder = '';
 let prompt = '';
+let markdownDescription = '';
 let currentId = 0;
 let title = '';
 let multiline = false;
@@ -38,6 +39,7 @@ const showInputCallback = async (options?: InputBoxOptions) => {
   } else {
     prompt = DEFAULT_PROMPT;
   }
+  markdownDescription = options.markdownDescription;
   multiline = options.multiline;
 
   validationEnabled = options.validate;
@@ -257,7 +259,7 @@ function handleKeydown(e: KeyboardEvent) {
     <div class=" flex justify-center items-center mt-1">
       <div
         class="bg-charcoal-800 w-[700px] {mode === 'InputBox'
-          ? 'h-16'
+          ? 'h-fit'
           : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
         {#if title}
           <div
@@ -299,7 +301,12 @@ function handleKeydown(e: KeyboardEvent) {
           {#if validationError}
             <div class="text-gray-400 border border-red-700 relative w-full bg-red-700 px-1">{validationError}</div>
           {:else}
-            <div class="relative text-gray-400 pt-2 px-1 h-6 overflow-y-auto"><Markdown>{prompt}</Markdown></div>
+            <div class="relative text-gray-400 pt-2 px-1 h-6 overflow-y-auto">{prompt}</div>
+            {#if markdownDescription?.length > 0}
+              <div class="relative text-gray-400 pt-2 px-1 h-6 overflow-y-auto">
+                <Markdown>{markdownDescription}</Markdown>
+              </div>
+            {/if}
           {/if}
         {:else if mode === 'QuickPick'}
           {#each quickPickFilteredItems as item, i}
