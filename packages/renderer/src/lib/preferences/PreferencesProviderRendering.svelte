@@ -129,7 +129,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
             Show Logs
           </button>
         </div>
-        
+
         {#if providerLifecycleError}
           <ErrorMessage error="{providerLifecycleError}" />
         {/if}
