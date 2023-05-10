@@ -215,11 +215,7 @@ export class ProviderImpl implements Provider, IDisposable {
 
   registerContainerProviderConnection(containerProviderConnection: ContainerProviderConnection): Disposable {
     this.containerProviderConnections.add(containerProviderConnection);
-    const disposable = this.containerRegistry.registerContainerConnection(
-      this,
-      containerProviderConnection,
-      this.providerRegistry,
-    );
+    const disposable = this.containerRegistry.registerContainerConnection(this, containerProviderConnection);
     this.providerRegistry.onDidRegisterContainerConnectionCallback(this, containerProviderConnection);
 
     return Disposable.create(() => {
