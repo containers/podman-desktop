@@ -116,12 +116,12 @@ export class ComposeExtension {
       this.statusBarItem.command = statusBarChangesToApply.command;
     }
 
-    this.notifyOnChecks(firstCheck);
+    await this.notifyOnChecks(firstCheck);
   }
 
-  protected notifyOnChecks(firstCheck: boolean): void {
+  protected async notifyOnChecks(firstCheck: boolean): Promise<void> {
     if (this.currentInformation && !firstCheck) {
-      this.showCurrentInformation();
+      await this.showCurrentInformation();
     }
   }
 
@@ -182,10 +182,10 @@ export class ComposeExtension {
       // make it executable
       await this.makeExecutable(dockerComposeDownloadLocation);
 
-      extensionApi.window.showInformationMessage(`Docker Compose ${selectedRelease.label} installed`);
+      await extensionApi.window.showInformationMessage(`Docker Compose ${selectedRelease.label} installed`);
 
       // update checks
-      this.runChecks(false);
+      await this.runChecks(false);
     }
   }
 
@@ -215,9 +215,9 @@ export class ComposeExtension {
     await this.makeExecutable(composeWrapperScript);
   }
 
-  showCurrentInformation(): void {
+  async showCurrentInformation(): Promise<void> {
     if (this.currentInformation) {
-      extensionApi.window.showInformationMessage(this.currentInformation);
+      await extensionApi.window.showInformationMessage(this.currentInformation);
     }
   }
 

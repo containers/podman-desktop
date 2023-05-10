@@ -87,7 +87,7 @@ async function isDisguisedPodman(socketPath: string): Promise<boolean> {
   });
 }
 
-async function monitorDaemon(extensionContext: extensionApi.ExtensionContext) {
+async function monitorDaemon(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // call us again
   if (!stopLoop) {
     try {
@@ -96,7 +96,9 @@ async function monitorDaemon(extensionContext: extensionApi.ExtensionContext) {
       // ignore the update of machines
     }
     await timeout(5000);
-    monitorDaemon(extensionContext);
+    monitorDaemon(extensionContext).catch(err => {
+      console.error('Error while monitoring docker daemon', err);
+    });
   }
 }
 
@@ -144,7 +146,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }
 
   // monitor daemon
-  monitorDaemon(extensionContext);
+  monitorDaemon(extensionContext).catch(err => {
+    console.error('Error while monitoring docker daemon', err);
+  });
 }
 
 function initProvider(extensionContext: extensionApi.ExtensionContext) {

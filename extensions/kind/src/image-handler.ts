@@ -83,12 +83,12 @@ export class ImageHandler {
 
         // Show a dialog to the user that the image was pushed
         // TODO: Change this to taskbar notification when implemented
-        extensionApi.window.showInformationMessage(
+        await extensionApi.window.showInformationMessage(
           `Image ${image.name} pushed to Kind cluster: ${selectedCluster.label}`,
         );
       } catch (err) {
         // Show a dialog error to the user that the image was not pushed
-        extensionApi.window.showErrorMessage(
+        await extensionApi.window.showErrorMessage(
           `Unable to push image ${image.name} to Kind cluster: ${selectedCluster.label}. Error: ${err}`,
         );
 
@@ -97,7 +97,7 @@ export class ImageHandler {
       } finally {
         // Remove the temporary file if one was created
         if (filename !== undefined) {
-          fs.promises.rm(filename);
+          await fs.promises.rm(filename);
         }
       }
     }
