@@ -112,7 +112,11 @@ export class Telemetry {
     this.listenForTelemetryUpdates();
 
     // initalize objects
-    this.analytics = new Analytics(Telemetry.SEGMENT_KEY);
+    this.analytics = new Analytics(Telemetry.SEGMENT_KEY, {
+      errorHandler: err => {
+        console.log(`Telemetry request error: ${err}`);
+      },
+    });
 
     // needs to prompt the user for the first time he launches the app
     if (check) {
@@ -205,8 +209,12 @@ export class Telemetry {
     app.on('before-quit', async e => {
       if (!sendShutdownAnalytics && stoppedExtensions.val) {
         e.preventDefault();
-        await this.internalTrack(SHUTDOWN_EVENT_TYPE);
-        await this.analytics?.flush();
+        try {
+          await this.internalTrack(SHUTDOWN_EVENT_TYPE);
+          await this.analytics?.flush();
+        } catch (err) {
+          console.log(`Telemetry error on shutdown: ${err}`);
+        }
         sendShutdownAnalytics = true;
         app.quit();
       }
