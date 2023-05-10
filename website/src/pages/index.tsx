@@ -371,8 +371,8 @@ function EnterpriseReady() {
   );
 }
 
-const copyBrewInstructions = () => {
-  navigator.clipboard.writeText('brew install podman-desktop');
+const copyBrewInstructions = async () => {
+  await navigator.clipboard.writeText('brew install podman-desktop');
 };
 
 function RunAnywhere() {
