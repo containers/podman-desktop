@@ -1127,6 +1127,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'authentication-provider-registry:requestAuthenticationProviderSignIn',
+      async (_listener, requestId: string): Promise<void> => {
+        return authentication.executeSessionRequest(requestId);
+      },
+    );
+
+    this.ipcHandle(
       'configuration-registry:getConfigurationProperties',
       async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
         return configurationRegistry.getConfigurationProperties();

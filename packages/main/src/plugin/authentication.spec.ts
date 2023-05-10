@@ -23,10 +23,9 @@ import type {
   AuthenticationSessionAccountInformation,
   Event,
 } from '@podman-desktop/api';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api';
 import { AuthenticationImpl } from './authentication';
-import type { Dialogs } from './dialog-impl';
 import { Emitter as EventEmitter } from './events/emitter';
 
 function randomNumber(n = 5) {
@@ -47,18 +46,19 @@ class RandomAuthenticationSession implements AuthenticationSession {
   }
 }
 
-class AuthenticationProviderSingleAccout implements AuthenticationProvider {
+class AuthenticationProviderSingleAccount implements AuthenticationProvider {
   private _onDidChangeSession = new EventEmitter<AuthenticationProviderAuthenticationSessionsChangeEvent>();
   private session: AuthenticationSession | undefined;
   onDidChangeSessions: Event<AuthenticationProviderAuthenticationSessionsChangeEvent> = this._onDidChangeSession.event;
   async getSessions(scopes?: string[] | undefined): Promise<readonly AuthenticationSession[]> {
     if (scopes) {
-      return [this.session ? this.session : (this.session = await this.createSession(scopes))];
+      return this.session ? [this.session] : [];
     }
     return this.session ? [this.session] : [];
   }
   async createSession(scopes: string[]): Promise<AuthenticationSession> {
-    return new RandomAuthenticationSession(scopes);
+    this.session = new RandomAuthenticationSession(scopes);
+    return this.session;
   }
   async removeSession(): Promise<void> {
     this.session = undefined;
@@ -70,19 +70,134 @@ const apiSender: ApiSenderType = {
   receive: vi.fn(),
 };
 
-const dialogs: Dialogs = {
-  showDialog: vi.fn(),
-};
-
 let authModule: AuthenticationImpl;
 
-beforeAll(function () {
-  authModule = new AuthenticationImpl(apiSender, dialogs);
+beforeEach(function () {
+  authModule = new AuthenticationImpl(apiSender);
 });
 
-test('Registered authentication provider stored in autentication module', async () => {
-  const authProvidrer1 = new AuthenticationProviderSingleAccout();
+test('Registered authentication provider stored in authentication module', async () => {
+  const authProvidrer1 = new AuthenticationProviderSingleAccount();
   authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
   const providersInfo = await authModule.getAuthenticationProvidersInfo();
   expect(providersInfo).length(1, 'Provider was not registered');
+});
+
+test('Session request with option silent===false does not fail if there is no provider with requested ID', async () => {
+  const err = await authModule
+    .getSession({ id: 'ext1', label: 'Ext 1' }, 'company.auth-provider', ['scope1', 'scope2'], { silent: false })
+    .catch(err => Promise.resolve(err));
+  expect(err).toBeUndefined();
+});
+
+test('Authentication provider does not creates session when silent options is false', async () => {
+  const authProvidrer1 = new AuthenticationProviderSingleAccount();
+  authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
+  const sessions = await authModule.getSession(
+    { id: 'ext1', label: 'Ext 1' },
+    'company.auth-provider',
+    ['scope1', 'scope2'],
+    { silent: false },
+  );
+  expect(sessions).toBeUndefined();
+});
+
+test('Authentication creates new auth request when silent is true and session for requested provider does not exist', async () => {
+  const authProvidrer1 = new AuthenticationProviderSingleAccount();
+  authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
+
+  const session2 = await authModule.getSession(
+    { id: 'ext2', label: 'Ext 2' },
+    'company.auth-provider',
+    ['scope1', 'scope2'],
+    { silent: false },
+  );
+
+  expect(session2).toBeUndefined();
+  expect(authModule.getSessionRequests()).length(1);
+});
+
+test('Authentication does not create new auth request when silent is true and session exists', async () => {
+  const authProvidrer1 = new AuthenticationProviderSingleAccount();
+  authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
+  const session1 = await authModule.getSession(
+    { id: 'ext1', label: 'Ext 2' },
+    'company.auth-provider',
+    ['scope1', 'scope2'],
+    { createIfNone: true },
+  );
+
+  expect(session1).toBeDefined();
+
+  const session2 = await authModule.getSession(
+    { id: 'ext2', label: 'Ext 2' },
+    'company.auth-provider',
+    ['scope1', 'scope2'],
+    { silent: false },
+  );
+
+  expect(session2).toBeDefined();
+  expect(authModule.getSessionRequests()).length(0);
+});
+
+test('Authentication creates one auth request per extension', async () => {
+  const authProvidrer1 = new AuthenticationProviderSingleAccount();
+  authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
+  const session1 = await authModule.getSession(
+    { id: 'ext1', label: 'Ext 2' },
+    'company.auth-provider',
+    ['scope1', 'scope2'],
+    { silent: false },
+  );
+
+  expect(session1).toBeUndefined();
+
+  const session2 = await authModule.getSession(
+    { id: 'ext2', label: 'Ext 2' },
+    'company.auth-provider',
+    ['scope1', 'scope2'],
+    { silent: false },
+  );
+
+  expect(session2).toBeUndefined();
+  expect(authModule.getSessionRequests()).length(2);
+});
+
+test('Authentication does not creates auth request when request for the same extension and scopes exists', async () => {
+  const authProvidrer1 = new AuthenticationProviderSingleAccount();
+  authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
+  const session1 = await authModule.getSession(
+    { id: 'ext1', label: 'Ext 2' },
+    'company.auth-provider',
+    ['scope1', 'scope2'],
+    { silent: false },
+  );
+
+  expect(session1).toBeUndefined();
+
+  const session2 = await authModule.getSession(
+    { id: 'ext1', label: 'Ext 1' },
+    'company.auth-provider',
+    ['scope1', 'scope2'],
+    { silent: false },
+  );
+
+  expect(session2).toBeUndefined();
+  expect(authModule.getSessionRequests()).length(1);
+});
+
+test('Authentication provider creates session when session request is executed', async () => {
+  const authProvidrer1 = new AuthenticationProviderSingleAccount();
+  const createSessionSpy = vi.spyOn(authProvidrer1, 'createSession');
+
+  authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
+  await authModule.getSession({ id: 'ext1', label: 'Ext 1' }, 'company.auth-provider', ['scope1', 'scope2'], {
+    silent: false,
+  });
+
+  expect(authModule.getSessionRequests()).length(1);
+
+  const [signInRequest] = authModule.getSessionRequests();
+  await authModule.executeSessionRequest(signInRequest.id);
+  expect(createSessionSpy).toBeCalledTimes(1);
 });
