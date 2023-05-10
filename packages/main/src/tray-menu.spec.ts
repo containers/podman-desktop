@@ -27,10 +27,11 @@ import { TrayMenu } from './tray-menu';
 import statusStopped from './assets/status-stopped.png';
 
 let trayMenu: TrayMenu;
-let tray;
-let animatedTray;
+let tray: Tray;
+let animatedTray: AnimatedTray;
 vi.mock('electron', async () => {
-  const Menu = vi.fn();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Menu = {} as unknown as any;
   Menu['buildFromTemplate'] = vi.fn();
   return {
     Menu,

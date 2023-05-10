@@ -20,7 +20,8 @@ import { beforeAll, expect, expectTypeOf, test } from 'vitest';
 import { CancellationTokenSource } from './cancellation-token';
 import { CancellationTokenRegistry } from './cancellation-token-registry';
 
-let cancellationTokenRegistry;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let cancellationTokenRegistry: any;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
