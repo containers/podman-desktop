@@ -46,7 +46,7 @@ test('verify create command called with correct values', async () => {
   spyExecPromise.mockImplementation(() => {
     return Promise.resolve('');
   });
-  extension.createMachine(
+  await extension.createMachine(
     {
       'podman.factory.machine.cpus': '2',
       'podman.factory.machine.image-path': 'path',
