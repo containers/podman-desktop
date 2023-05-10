@@ -158,7 +158,7 @@ export class TrayMenu {
       childItems: [],
     };
     this.menuContainerProviderConnectionItems.set(
-      providerContainerConnectionInfoMenuItem.endpoint.socketPath,
+      `${providerContainerConnectionInfoMenuItem.name}.${providerContainerConnectionInfoMenuItem.endpoint.socketPath}`,
       providerContainerConnectionInfoMenuItem,
     );
     this.updateMenu();
@@ -169,7 +169,7 @@ export class TrayMenu {
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
   ): void {
     const menuProviderItem = this.menuContainerProviderConnectionItems.get(
-      providerContainerConnectionInfo.endpoint.socketPath,
+      `${providerContainerConnectionInfo.name}.${providerContainerConnectionInfo.endpoint.socketPath}`,
     );
     if (menuProviderItem) {
       menuProviderItem.status = providerContainerConnectionInfo.status;
@@ -181,7 +181,9 @@ export class TrayMenu {
     _provider: ProviderInfo,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
   ): void {
-    this.menuContainerProviderConnectionItems.delete(providerContainerConnectionInfo.endpoint.socketPath);
+    this.menuContainerProviderConnectionItems.delete(
+      `${providerContainerConnectionInfo.name}.${providerContainerConnectionInfo.endpoint.socketPath}`,
+    );
     this.updateMenu();
   }
 

@@ -565,7 +565,8 @@ export class ContainerProviderRegistry {
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
       containerProvider =>
-        containerProvider.connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath,
+        containerProvider.connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath &&
+        containerProvider.connection.name === providerContainerConnectionInfo.name,
     );
     if (!matchingContainerProvider || !matchingContainerProvider.api) {
       throw new Error('No provider with a running engine');
@@ -690,7 +691,9 @@ export class ContainerProviderRegistry {
     this.telemetryService.track('createPod');
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-      containerProvider => containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath,
+      containerProvider =>
+        containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+        containerProvider.connection.name === selectedProvider.name,
     );
     if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
       throw new Error('No provider with a running engine');
@@ -1000,7 +1003,9 @@ export class ContainerProviderRegistry {
     this.telemetryService.track('playKube');
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-      containerProvider => containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath,
+      containerProvider =>
+        containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+        containerProvider.name === selectedProvider.name,
     );
     if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
       throw new Error('No provider with a running engine');
@@ -1020,6 +1025,7 @@ export class ContainerProviderRegistry {
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
       containerProvider =>
         containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+        containerProvider.connection.name === selectedProvider.name &&
         selectedProvider.status === 'started',
     );
     if (!matchingContainerProvider || !matchingContainerProvider.api) {

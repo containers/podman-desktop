@@ -94,6 +94,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     if (previousStatus !== status) {
       // notify status change
       listeners.forEach(listener => listener(machine.Name, status));
+      podmanMachinesStatuses.set(machine.Name, status);
     }
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
@@ -394,7 +395,9 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     },
   };
 
-  monitorPodmanSocket(socketPath, machineInfo.name);
+  // Since Podman 4.5, machines are using the same path for all sockets of machines
+  // so a machine is not distinguishable from another one.
+  // monitorPodmanSocket(socketPath, machineInfo.name);
   containerProviderConnections.set(machineInfo.name, containerProviderConnection);
 
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
