@@ -53,6 +53,10 @@ class TestExtensionLoader extends ExtensionLoader {
   setWatchTimeout(timeout: number): void {
     this.watchTimeout = timeout;
   }
+
+  getExtensionState() {
+    return this.extensionState;
+  }
 }
 
 let extensionLoader: TestExtensionLoader;
@@ -67,7 +71,7 @@ const configurationRegistry: ConfigurationRegistry = {} as unknown as Configurat
 
 const imageRegistry: ImageRegistry = {} as unknown as ImageRegistry;
 
-const apiSender: ApiSenderType = {} as unknown as ApiSenderType;
+const apiSender: ApiSenderType = { send: vi.fn() } as unknown as ApiSenderType;
 
 const trayMenuRegistry: TrayMenuRegistry = {} as unknown as TrayMenuRegistry;
 
@@ -229,4 +233,24 @@ test('Should load file from watching scanning folder', async () => {
 
   // expect to load only one file (other are invalid files/folder)
   expect(loadPackagedFileMock).toBeCalledWith(path.resolve(rootedFakeDirectory, 'watch.cdix'));
+});
+
+test('Verify extension error leads to errored state', async () => {
+  const id = 'extension.id';
+  await extensionLoader.activateExtension(
+    {
+      id: id,
+      path: 'dummy',
+      api: undefined,
+      mainPath: '',
+      removable: false,
+      manifest: {},
+    },
+    {
+      activate: () => {
+        throw Error('Failed');
+      },
+    },
+  );
+  expect(extensionLoader.getExtensionState().get(id)).toBe('errored');
 });

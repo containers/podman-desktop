@@ -89,7 +89,7 @@ export class ExtensionLoader {
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
   private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
   private reloadInProgressExtensions = new Map<string, boolean>();
-  private extensionState = new Map<string, string>();
+  protected extensionState = new Map<string, string>();
 
   protected watchTimeout = 1000;
 
@@ -786,21 +786,26 @@ export class ExtensionLoader {
     if (typeof extensionMain['deactivate'] === 'function') {
       deactivateFunction = extensionMain['deactivate'];
     }
-    if (typeof extensionMain['activate'] === 'function') {
-      // activate the extension
-      console.log(`Activating extension (${extension.id})`);
-      await extensionMain['activate'].apply(undefined, [extensionContext]);
-      console.log(`Activation extension (${extension.id}) ended`);
+    try {
+      if (typeof extensionMain['activate'] === 'function') {
+        // return exports
+        console.log(`Activating extension (${extension.id})`);
+        await extensionMain['activate'].apply(undefined, [extensionContext]);
+        console.log(`Activation extension (${extension.id}) ended`);
+      }
+      const id = extension.id;
+      const activatedExtension: ActivatedExtension = {
+        id,
+        deactivateFunction,
+        extensionContext,
+      };
+      this.activatedExtensions.set(extension.id, activatedExtension);
+      this.extensionState.set(extension.id, 'started');
+      this.apiSender.send('extension-started');
+    } catch (err) {
+      console.log(`Activation extension ${extension.id} errored error:${err}`);
+      this.extensionState.set(extension.id, 'errored');
     }
-    const id = extension.id;
-    const activatedExtension: ActivatedExtension = {
-      id,
-      deactivateFunction,
-      extensionContext,
-    };
-    this.activatedExtensions.set(extension.id, activatedExtension);
-    this.extensionState.set(extension.id, 'started');
-    this.apiSender.send('extension-started');
   }
 
   async deactivateExtension(extensionId: string): Promise<void> {
@@ -813,7 +818,11 @@ export class ExtensionLoader {
     this.apiSender.send('extension-stopping');
 
     if (extension.deactivateFunction) {
-      await extension.deactivateFunction();
+      try {
+        await extension.deactivateFunction();
+      } catch (err) {
+        console.log(`Deactivation extension ${extension.id} errored error:${err}`);
+      }
     }
 
     // dispose subscriptions
