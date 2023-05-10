@@ -87,7 +87,12 @@
           "format": "file",
           "scope": "ContainerProviderConnectionFactory",
           "description": "Image Path (Optional)"
-        }
+        },
+        "podman.factory.machine.rootful": {
+                  "type": "boolean",
+                  "scope": "ContainerProviderConnectionFactory",
+                  "description": "Machine with root privileges"
+      }
       }
     }
   },

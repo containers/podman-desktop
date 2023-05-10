@@ -65,3 +65,29 @@ test('verify create command called with correct values', async () => {
     undefined,
   );
 });
+
+test('verify create command called with correct values in rootful mode', async () => {
+  const spyExecPromise = vi.spyOn(podmanCli, 'execPromise');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.resolve('');
+  });
+  extension.createMachine(
+    {
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.image-path': 'path',
+      'podman.factory.machine.memory': '1048000000',
+      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.rootful': true,
+    },
+    undefined,
+  );
+  expect(spyExecPromise).toBeCalledWith(
+    getPodmanCli(),
+    ['machine', 'init', '--cpus', '2', '--memory', '1048', '--disk-size', '250', '--image-path', 'path', '--rootful'],
+    {
+      env: {},
+      logger: undefined,
+    },
+    undefined,
+  );
+});

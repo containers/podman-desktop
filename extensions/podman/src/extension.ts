@@ -752,12 +752,17 @@ export async function createMachine(
     }
   }
 
+  // rootful
+  if (params['podman.factory.machine.rootful']) {
+    parameters.push('--rootful');
+  }
+
   // name at the end
   if (params['podman.factory.machine.name']) {
     parameters.push(params['podman.factory.machine.name']);
   }
 
-  // name at the end
+  // starts now
   if (params['podman.factory.machine.now']) {
     parameters.push('--now');
   }
