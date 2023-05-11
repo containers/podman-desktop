@@ -160,7 +160,7 @@ export class ComposeExtension {
       const assetId = await this.composeGitHubReleases.getReleaseAssetId(selectedRelease.id, platform(), arch());
 
       // get storage data
-      const storageData = await this.extensionContext.storagePath;
+      const storageData = this.extensionContext.storagePath;
       const storageBinFolder = path.resolve(storageData, 'bin');
       if (!existsSync(storageBinFolder)) {
         // create the folder
@@ -192,7 +192,7 @@ export class ComposeExtension {
   // add script that is redirecting to docker-compose and configuring the socket using DOCKER_HOST
   async addComposeWrapper(connection: extensionApi.ProviderContainerConnection): Promise<void> {
     // get storage data
-    const storageData = await this.extensionContext.storagePath;
+    const storageData = this.extensionContext.storagePath;
     const storageBinFolder = path.resolve(storageData, 'bin');
 
     if (!existsSync(storageBinFolder)) {

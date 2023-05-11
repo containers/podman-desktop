@@ -203,7 +203,7 @@ export class DockerDesktopInstallation {
         }
 
         // get the image information
-        const image = await providerConnection.getImage(foundMatchingImage.Id);
+        const image = providerConnection.getImage(foundMatchingImage.Id);
         reportLog('Check if image is a Docker Desktop Extension...');
 
         // analyze the image

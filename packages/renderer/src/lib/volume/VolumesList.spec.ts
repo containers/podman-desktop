@@ -70,7 +70,7 @@ test('Expect fetching in progress being displayed', async () => {
       ],
     },
   ]);
-  await render(VolumesList);
+  render(VolumesList);
   const noEngine = screen.getByRole('heading', { name: 'No Container Engine' });
   expect(noEngine).toBeInTheDocument();
 });

@@ -609,7 +609,7 @@ export class ContainerProviderRegistry {
 
   async pushImage(engineId: string, imageTag: string, callback: (name: string, data: string) => void): Promise<void> {
     const engine = this.getMatchingEngine(engineId);
-    const image = await engine.getImage(imageTag);
+    const image = engine.getImage(imageTag);
     this.telemetryService.track('pushImage', { imageName: this.getImageHash(imageTag) });
     const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
     const pushStream = await image.push({ authconfig });

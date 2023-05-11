@@ -69,7 +69,7 @@ test('Expect a checkbox when record is type boolean', async () => {
     description: 'record-description',
     type: 'boolean',
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('record-description');
@@ -89,7 +89,7 @@ test('Expect a slider when record and its maximum are type number and enableSlid
     minimum: 1,
     maximum: 34,
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
     enableSlider: true,
   });
@@ -110,7 +110,7 @@ test('Expect a text input when record is type number and enableSlider is false',
     minimum: 1,
     maximum: 34,
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('record-description');
@@ -128,7 +128,7 @@ test('Expect an input button with Browse as placeholder when record is type stri
     type: 'string',
     format: 'file',
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('button-record-description');
@@ -146,7 +146,7 @@ test('Expect a select when record is type string and has enum values', async () 
     type: 'string',
     enum: ['first', 'second'],
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('record-description');
@@ -163,7 +163,7 @@ test('Expect a text input when record is type string', async () => {
     description: 'record-description',
     type: 'string',
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('record-description');
@@ -183,7 +183,7 @@ test('Expect tooltip text shows info when input is less than minimum', async () 
     minimum: 1,
     maximum: 34,
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('record-description');
@@ -205,7 +205,7 @@ test('Expect tooltip text shows info when input is empty', async () => {
     minimum: 1,
     maximum: 34,
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('record-description');

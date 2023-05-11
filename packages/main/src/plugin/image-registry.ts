@@ -400,7 +400,7 @@ export class ImageRegistry {
 
   // Fetch the image Labels from the registry for a given image URL
   async getImageConfigLabels(imageName: string): Promise<{ [key: string]: unknown }> {
-    const imageData = await this.extractImageDataFromImageName(imageName);
+    const imageData = this.extractImageDataFromImageName(imageName);
 
     // grab auth info from the registry
     const authInfo = await this.getAuthInfo(imageData.registry);
@@ -436,7 +436,7 @@ export class ImageRegistry {
     destFolder: string,
     logger: (message: string) => void,
   ): Promise<void> {
-    const imageData = await this.extractImageDataFromImageName(imageName);
+    const imageData = this.extractImageDataFromImageName(imageName);
 
     // grab auth info from the registry
     const authInfo = await this.getAuthInfo(imageData.registry);
