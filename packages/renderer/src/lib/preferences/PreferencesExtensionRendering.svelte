@@ -39,7 +39,7 @@ async function removeExtension() {
           <!-- start is enabled only when stopped -->
           <div class="px-2 text-sm italic text-gray-700">
             <button
-              disabled="{extensionInfo.state !== 'stopped'}"
+              disabled="{extensionInfo.state !== 'stopped' && extensionInfo.state !== 'failed'}"
               on:click="{() => startExtension()}"
               class="pf-c-button pf-m-primary"
               type="button">
@@ -68,7 +68,7 @@ async function removeExtension() {
           {#if extensionInfo.removable}
             <div class="px-2 text-sm italic text-gray-700">
               <button
-                disabled="{extensionInfo.state !== 'stopped'}"
+                disabled="{extensionInfo.state !== 'stopped' && extensionInfo.state !== 'failed'}"
                 on:click="{() => removeExtension()}"
                 class="pf-c-button pf-m-primary"
                 type="button">
