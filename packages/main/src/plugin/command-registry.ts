@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { Disposable } from './types/disposable';
+import { Telemetry } from '/@/plugin/telemetry/telemetry';
 
 export interface CommandHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,6 +27,8 @@ export interface CommandHandler {
 }
 
 export class CommandRegistry {
+  constructor(private readonly telemetry: Telemetry) {}
+
   private commands = new Map<string, CommandHandler>();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,16 +48,25 @@ export class CommandRegistry {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async executeCommand<T = unknown>(commandId: string, ...args: any[]): Promise<T> {
-    // command is on node world, just execute it
-    if (this.commands.has(commandId)) {
-      const command = this.commands.get(commandId);
-      if (command) {
-        return command.callback.apply(command.thisArg, args);
+    const telemetryOptions = { commandId: commandId };
+    try {
+      // command is on node world, just execute it
+      if (this.commands.has(commandId)) {
+        const command = this.commands.get(commandId);
+        if (command) {
+          return command.callback.apply(command.thisArg, args);
+        }
       }
-    }
 
-    // should try to execute on client side
-    throw new Error('Unknown command: ' + commandId);
+      // should try to execute on client side
+      throw new Error('Unknown command: ' + commandId);
+    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (telemetryOptions as any).error = err;
+      throw err;
+    } finally {
+      this.telemetry.track('executeCommand', telemetryOptions);
+    }
   }
 
   hasCommand(commandId: string): boolean {

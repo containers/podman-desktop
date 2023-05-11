@@ -98,6 +98,7 @@ async function monitorDaemon(extensionContext: extensionApi.ExtensionContext): P
     await timeout(5000);
     monitorDaemon(extensionContext).catch((err: unknown) => {
       console.error('Error while monitoring docker daemon', err);
+      extensionApi.env.createTelemetryLogger().logError(err);
     });
   }
 }
@@ -148,6 +149,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // monitor daemon
   monitorDaemon(extensionContext).catch((err: unknown) => {
     console.error('Error while monitoring docker daemon', err);
+    extensionApi.env.createTelemetryLogger().logError(err);
   });
 }
 
