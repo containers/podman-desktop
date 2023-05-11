@@ -625,7 +625,7 @@ export class PluginSystem {
     const extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
     const featured = new Featured(this.extensionLoader, extensionsCatalog);
     // do not wait
-    featured.init().catch(e => {
+    featured.init().catch((e: unknown) => {
       console.error('Unable to initialized the featured extensions', e);
     });
 

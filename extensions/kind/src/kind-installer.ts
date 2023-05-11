@@ -88,7 +88,7 @@ export class KindInstaller {
       this.assetPromise = octokit.repos
         .listReleases({ owner: githubOrganization, repo: githubRepo })
         .then(response => this.findAssetInfo(response.data, assetName))
-        .catch(error => {
+        .catch((error: unknown) => {
           console.error(error);
           return undefined;
         });

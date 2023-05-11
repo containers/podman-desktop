@@ -730,7 +730,7 @@ export class ExtensionLoader {
       }
 
       if (key.startsWith(extension.path)) {
-        // delete entry
+        // delete the entry
         delete require.cache[key];
         const ix = mod?.parent?.children.indexOf(mod) || 0;
         if (ix >= 0) {
@@ -771,7 +771,7 @@ export class ExtensionLoader {
       deactivateFunction = extensionMain['deactivate'];
     }
     if (typeof extensionMain['activate'] === 'function') {
-      // return exports
+      // activate the extension
       console.log(`Activating extension (${extension.id})`);
       await extensionMain['activate'].apply(undefined, [extensionContext]);
       console.log(`Activation extension (${extension.id}) ended`);

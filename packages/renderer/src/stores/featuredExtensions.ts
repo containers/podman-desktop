@@ -44,7 +44,7 @@ window?.events?.receive('extension-removed', async () => {
   await fetchFeaturedExtensions();
 });
 window.addEventListener('system-ready', () => {
-  fetchFeaturedExtensions().catch(e => {
+  fetchFeaturedExtensions().catch((e: unknown) => {
     console.error('Unable to fetch featured extensions', e);
   });
 });
