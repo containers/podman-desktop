@@ -8,12 +8,36 @@
   "extends": [
     "eslint:recommended",
     /** @see https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#recommended-configs */
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 12,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": ["packages/*/tsconfig.json",
+    "./website/tsconfig.json",
+    "./extensions/*/tsconfig.json",
+    "./tests/tsconfig.json"
+]
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": true,
+      "node": true,
+      "eslint-import-resolver-custom-alias": {
+        "alias": {
+          "/@": "./src",
+          "/@gen": "./src-generated"
+        },
+        "extensions": [".ts"],
+        "packages": [
+          "packages/*",
+          "extensions/*"
+        ]
+      }
+    }
   },
   "plugins": [
     "@typescript-eslint"
@@ -52,6 +76,11 @@
      */
     "quotes": [
       "warn", "single"
-    ]
+    ],
+    "import/no-duplicates" : "error",
+    "import/no-unresolved": "off",
+    "import/default": "off",
+    "import/no-named-as-default-member": "off",
+    "import/no-named-as-default": "off"
   }
 }
