@@ -694,6 +694,11 @@ declare module '@podman-desktop/api' {
     prompt?: string;
 
     /**
+     * A description of the field to be show (Markdown format)
+     */
+    markdownDescription?;
+
+    /**
      * An optional string to show as placeholder in the input box to guide the user what to type.
      */
     placeHolder?: string;
@@ -708,6 +713,11 @@ declare module '@podman-desktop/api' {
      * This setting is ignored on iPad and is always false.
      */
     ignoreFocusOut?: boolean;
+
+    /**
+     * Set to `true` when value represents a multi line content.
+     */
+    multiline?: boolean;
 
     /**
      * An optional function that will be called to validate input and to give a hint
