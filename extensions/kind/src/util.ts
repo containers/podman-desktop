@@ -23,7 +23,6 @@ import { spawn } from 'node:child_process';
 import * as sudo from 'sudo-prompt';
 import type * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
-import type { CancellationToken } from '@podman-desktop/api';
 
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
@@ -91,7 +90,7 @@ export function runCliCommand(
   command: string,
   args: string[],
   options?: RunOptions,
-  token?: CancellationToken,
+  token?: extensionApi.CancellationToken,
 ): Promise<SpawnResult> {
   return new Promise((resolve, reject) => {
     let stdOut = '';

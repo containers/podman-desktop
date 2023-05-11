@@ -40,13 +40,11 @@ import type {
   ProviderKubernetesConnectionInfo,
 } from './api/provider-info';
 import type { WebContents } from 'electron';
-import { app } from 'electron';
-import { ipcMain, BrowserWindow } from 'electron';
+import { app, ipcMain, BrowserWindow, shell, clipboard } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { PullEvent } from './api/pull-event';
 import type { ExtensionInfo } from './api/extension-info';
-import { shell } from 'electron';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
@@ -93,7 +91,6 @@ import { MenuRegistry } from '/@/plugin/menu-registry';
 import { CancellationTokenRegistry } from './cancellation-token-registry';
 import type { UpdateCheckResult } from 'electron-updater';
 import { autoUpdater } from 'electron-updater';
-import { clipboard } from 'electron';
 import type { ApiSenderType } from './api';
 import type { AuthenticationProviderInfo } from './authentication';
 import { AuthenticationImpl } from './authentication';

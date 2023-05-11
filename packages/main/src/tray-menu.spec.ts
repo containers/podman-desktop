@@ -17,9 +17,7 @@
  ***********************************************************************/
 
 import type { MenuItemConstructorOptions, Tray } from 'electron';
-import { nativeImage } from 'electron';
-import { Menu } from 'electron';
-import { ipcMain } from 'electron';
+import { nativeImage, Menu, ipcMain } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import type { ProviderInfo } from './plugin/api/provider-info';
 import type { AnimatedTray } from './tray-animate-icon';

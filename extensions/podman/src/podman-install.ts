@@ -24,8 +24,7 @@ import { compare } from 'compare-versions';
 
 import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
-import { execPromise } from './podman-cli';
-import { getPodmanInstallation } from './podman-cli';
+import { execPromise, getPodmanInstallation } from './podman-cli';
 import { getAssetsFolder, runCliCommand } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';

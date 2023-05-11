@@ -29,10 +29,17 @@ import type {
   V1APIResource,
   V1APIGroup,
 } from '@kubernetes/client-node';
-import { ApisApi, NetworkingV1Api } from '@kubernetes/client-node';
-import { AppsV1Api } from '@kubernetes/client-node';
-import { CustomObjectsApi } from '@kubernetes/client-node';
-import { CoreV1Api, KubeConfig, Log, Watch, VersionApi } from '@kubernetes/client-node';
+import {
+  ApisApi,
+  NetworkingV1Api,
+  AppsV1Api,
+  CustomObjectsApi,
+  CoreV1Api,
+  KubeConfig,
+  Log,
+  Watch,
+  VersionApi,
+} from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
