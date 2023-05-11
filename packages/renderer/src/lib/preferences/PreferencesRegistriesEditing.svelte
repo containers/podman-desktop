@@ -20,7 +20,7 @@ let errorResponses: { serverUrl: string; error: string }[] = [];
 let showPasswordForServerUrls: string[] = [];
 
 // show or hide new registry form
-let showNewRegistryForm = false;
+export let showNewRegistryForm = false;
 
 // at this moment it should be `podman`, but later can be any
 let defaultProviderSourceName: string;
@@ -47,7 +47,7 @@ const newRegistryRequest = {
 
 onMount(async () => {
   let providerSourceNames = await window.getImageRegistryProviderNames();
-  if (providerSourceNames.length > 0) {
+  if (providerSourceNames && providerSourceNames.length > 0) {
     defaultProviderSourceName = providerSourceNames[0];
   }
 });
