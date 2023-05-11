@@ -99,7 +99,7 @@ export class ProgressImpl {
     task_.catch((err: unknown) => {
       t.status = 'failure';
       t.state = 'completed';
-      t.error = err.toString();
+      t.error = String(err);
       this.taskManager.updateTask(t);
     });
     return task_;
