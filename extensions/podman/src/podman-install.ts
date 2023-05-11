@@ -269,7 +269,6 @@ class WinInstaller extends BaseInstaller {
   update(): Promise<boolean> {
     return this.install();
   }
-  // `podman-${tagVersion}-setup.exe`
   install(): Promise<boolean> {
     return extensionApi.window.withProgress({ location: extensionApi.ProgressLocation.APP_ICON }, async progress => {
       progress.report({ increment: 5 });

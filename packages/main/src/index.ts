@@ -63,7 +63,7 @@ app.once('before-quit', async event => {
     .then(() => {
       console.log('Stopped all extensions');
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       console.log('Error stopping extensions', error);
     })
     .finally(() => {
@@ -130,5 +130,5 @@ app.whenReady().then(
     const automaticStartup = new StartupInstall(configurationRegistry);
     await automaticStartup.configure();
   },
-  e => console.error('Failed to start app:', e),
+  (e: unknown) => console.error('Failed to start app:', e),
 );

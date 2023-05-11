@@ -46,7 +46,7 @@ export function LinuxDownloads(): JSX.Element {
   };
 
   useEffect(() => {
-    grabfilenameforMac(setDownloadData).catch(err => {
+    grabfilenameforMac(setDownloadData).catch((err: unknown) => {
       console.error(err);
     });
   }, []);

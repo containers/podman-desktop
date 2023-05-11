@@ -94,7 +94,6 @@ function DownloadGenericLinks() {
 }
 
 function Hero() {
-  // const { siteConfig } = useDocusaurusContext();
   return (
     <section className="text-gray-900 dark:text-gray-400 body-font">
       <div className="container mx-auto flex px-5 pb-24 pt-4 items-center justify-center flex-col">

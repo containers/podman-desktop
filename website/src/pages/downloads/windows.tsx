@@ -61,7 +61,7 @@ export function WindowsDownloads(): JSX.Element {
   };
 
   useEffect(() => {
-    grabfilenameforWindows(setDownloadData).catch(err => {
+    grabfilenameforWindows(setDownloadData).catch((err: unknown) => {
       console.error(err);
     });
   }, []);

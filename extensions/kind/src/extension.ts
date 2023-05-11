@@ -251,7 +251,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
                 createProvider(extensionContext, telemetryLogger);
               }
             },
-            err => window.showErrorMessage('Kind installation failed ' + err),
+            (err: unknown) => window.showErrorMessage('Kind installation failed ' + err),
           ),
         ),
       );

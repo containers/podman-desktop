@@ -26,7 +26,6 @@ import type {
   AuthenticationProviderOptions,
   Disposable,
 } from '@podman-desktop/api';
-// import { window } from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
 import type { ApiSenderType } from './api';
 
