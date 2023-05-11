@@ -1623,6 +1623,8 @@ declare module '@podman-desktop/api' {
      * If not specified, will default to false.
      */
     readonly supportsMultipleAccounts?: boolean;
+
+    readonly images?: ProviderImages;
   }
 
   /**

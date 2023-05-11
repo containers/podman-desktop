@@ -23,10 +23,27 @@ import type {
   AuthenticationSessionAccountInformation,
   Event,
 } from '@podman-desktop/api';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, afterEach, expect, test, vi, suite } from 'vitest';
 import type { ApiSenderType } from './api';
 import { AuthenticationImpl } from './authentication';
+import type { CommandRegistry } from './command-registry';
+import type { ConfigurationRegistry } from './configuration-registry';
+import type { ContainerProviderRegistry } from './container-registry';
 import { Emitter as EventEmitter } from './events/emitter';
+import { ExtensionLoader } from './extension-loader';
+import type { FilesystemMonitoring } from './filesystem-monitoring';
+import type { ImageRegistry } from './image-registry';
+import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
+import type { KubernetesClient } from './kubernetes-client';
+import type { MenuRegistry } from './menu-registry';
+import type { MessageBox } from './message-box';
+import type { NotificationImpl } from './notification-impl';
+import type { ProgressImpl } from './progress-impl';
+import type { ProviderRegistry } from './provider-registry';
+import type { StatusBarRegistry } from './statusbar/statusbar-registry';
+import type { Telemetry } from './telemetry/telemetry';
+import type { TrayMenuRegistry } from './tray-menu-registry';
+import type { Proxy } from './proxy';
 
 function randomNumber(n = 5) {
   return Math.round(Math.random() * 10 * n);
@@ -200,4 +217,112 @@ test('Authentication provider creates session when session request is executed',
   const [signInRequest] = authModule.getSessionRequests();
   await authModule.executeSessionRequest(signInRequest.id);
   expect(createSessionSpy).toBeCalledTimes(1);
+});
+
+suite('Authentication', () => {
+  let extLoader: ExtensionLoader;
+  let authentication: AuthenticationImpl;
+  let providerMock: AuthenticationProvider;
+  beforeEach(() => {
+    authentication = new AuthenticationImpl(apiSender);
+    extLoader = new ExtensionLoader(
+      vi.fn() as unknown as CommandRegistry,
+      vi.fn() as unknown as MenuRegistry,
+      vi.fn() as unknown as ProviderRegistry,
+      vi.fn() as unknown as ConfigurationRegistry,
+      vi.fn() as unknown as ImageRegistry,
+      vi.fn() as unknown as ApiSenderType,
+      vi.fn() as unknown as TrayMenuRegistry,
+      vi.fn() as unknown as MessageBox,
+      vi.fn() as unknown as ProgressImpl,
+      vi.fn() as unknown as NotificationImpl,
+      vi.fn() as unknown as StatusBarRegistry,
+      vi.fn() as unknown as KubernetesClient,
+      vi.fn() as unknown as FilesystemMonitoring,
+      vi.fn() as unknown as Proxy,
+      vi.fn() as unknown as ContainerProviderRegistry,
+      vi.fn() as unknown as InputQuickPickRegistry,
+      authentication,
+      vi.fn() as unknown as Telemetry,
+    );
+    providerMock = {
+      onDidChangeSessions: vi.fn(),
+      getSessions: vi.fn().mockResolvedValue([]),
+      createSession: vi.fn(),
+      removeSession: vi.fn(),
+    };
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  const BASE64ENCODEDIMAGE = 'BASE64ENCODEDIMAGE';
+
+  test('allows images option to be undefined or empty', async () => {
+    vi.spyOn(extLoader, 'getBase64Image').mockImplementation(() => BASE64ENCODEDIMAGE);
+    const api = extLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock);
+    let providers = await authentication.getAuthenticationProvidersInfo();
+    const provider1 = providers.find(item => item.id === 'provider1.id');
+    expect(provider1).toBeDefined();
+    expect(provider1?.images).toBeUndefined();
+
+    api.authentication.registerAuthenticationProvider('provider2.id', 'Provider2 Label', providerMock, {
+      images: {},
+    });
+    providers = await authentication.getAuthenticationProvidersInfo();
+    const provider2 = providers.find(item => item.id === 'provider2.id');
+    expect(provider2).toBeDefined();
+    expect(provider2?.images).toBeDefined();
+    expect(provider2?.images?.logo).toBeUndefined();
+    expect(provider2?.images?.icon).toBeUndefined();
+  });
+
+  test('converts images.icon path to base 64 image when registering provider', async () => {
+    vi.spyOn(extLoader, 'getBase64Image').mockImplementation(() => BASE64ENCODEDIMAGE);
+    const api = extLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {
+      images: {
+        icon: './image.png',
+        logo: './image.png',
+      },
+    });
+    const providers = await authentication.getAuthenticationProvidersInfo();
+    const provider = providers.find(item => item.id === 'provider1.id');
+    expect(provider).toBeDefined();
+    expect(provider?.images?.icon).equals(BASE64ENCODEDIMAGE);
+    expect(provider?.images?.icon).equals(BASE64ENCODEDIMAGE);
+  });
+
+  test('converts images.icon with themes path to base 64 image when registering provider', async () => {
+    vi.spyOn(extLoader, 'getBase64Image').mockImplementation(() => BASE64ENCODEDIMAGE);
+    const api = extLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+    api.authentication.registerAuthenticationProvider('provider2.id', 'Provider2 Label', providerMock, {
+      images: {
+        icon: {
+          light: './image.png',
+          dark: './image.png',
+        },
+        logo: {
+          light: './image.png',
+          dark: './image.png',
+        },
+      },
+    });
+    const providers = await authentication.getAuthenticationProvidersInfo();
+    const provider = providers.find(item => item.id === 'provider2.id');
+    expect(provider).toBeDefined();
+    const themeIcon = typeof provider?.images?.icon === 'string' ? undefined : provider?.images?.icon;
+    expect(themeIcon).toBeDefined();
+    expect(themeIcon?.light).equals(BASE64ENCODEDIMAGE);
+    expect(themeIcon?.dark).equals(BASE64ENCODEDIMAGE);
+    const themeLogo = typeof provider?.images?.logo === 'string' ? undefined : provider?.images?.logo;
+    expect(themeLogo).toBeDefined();
+    expect(themeLogo?.light).equals(BASE64ENCODEDIMAGE);
+    expect(themeLogo?.dark).equals(BASE64ENCODEDIMAGE);
+  });
 });

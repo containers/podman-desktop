@@ -632,6 +632,13 @@ export class ExtensionLoader {
         return authenticationProviderRegistry.getSession(extensionInfo, providerId, scopes, options);
       },
       registerAuthenticationProvider: (id, label, provider, options) => {
+        // update path of images using the extension path
+        if (options?.images) {
+          const images = options.images;
+          instance.updateImage.bind(instance);
+          images.icon = instance.updateImage(images.icon, extensionPath);
+          images.logo = instance.updateImage(images.logo, extensionPath);
+        }
         return authenticationProviderRegistry.registerAuthenticationProvider(id, label, provider, options);
       },
       onDidChangeSessions: (listener, thisArg, disposables) => {
