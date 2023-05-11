@@ -822,11 +822,9 @@ export class ContainerProviderRegistry {
       onData(chunk.toString('utf-8'));
     });
 
-    const writeFunction = (param: string) => {
+    return (param: string) => {
       execStream.write(param);
     };
-
-    return writeFunction;
   }
 
   async createAndStartContainer(engineId: string, options: ContainerCreateOptions): Promise<void> {

@@ -26,7 +26,6 @@ export class DockerPluginAdapter {
       const j = i - 1;
       if (j >= 0 && args[j] === '-v' && args[i] === '/var/run/docker.sock:/var/run/docker.sock') {
         i--;
-        continue;
       } else {
         result = [args[i], ...result];
       }
@@ -101,11 +100,8 @@ export class DockerPluginAdapter {
             } else {
               execResult.code = 0;
             }
-            if (code === 0) {
-              resolve(execResult);
-            } else {
-              resolve(execResult);
-            }
+
+            resolve(execResult);
           });
           spawnProcess.on('error', error => {
             execResult.killed = true;

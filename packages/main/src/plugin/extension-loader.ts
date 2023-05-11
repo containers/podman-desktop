@@ -276,10 +276,8 @@ export class ExtensionLoader {
     // convert to base64
     const base64Content = Buffer.from(imageContent).toString('base64');
 
-    const base64Image = `data:image/png;base64,${base64Content}`;
-
     // create base64 image content
-    return base64Image;
+    return `data:image/png;base64,${base64Content}`;
   }
 
   /**
@@ -369,16 +367,14 @@ export class ExtensionLoader {
     this.analyzedExtensions.set(extension.id, extension);
 
     // in development mode, watch if the extension is updated and reload it
-    if (import.meta.env.DEV) {
-      if (!this.watcherExtensions.has(extension.id)) {
-        const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extensionPath);
-        extensionWatcher.onDidChange(async () => {
-          // wait 1 second before trying to reload the extension
-          // this is to avoid reloading the extension while it is still being updated
-          setTimeout(() => this.reloadExtension(extension, removable), 1000);
-        });
-        this.watcherExtensions.set(extension.id, extensionWatcher);
-      }
+    if (import.meta.env.DEV && !this.watcherExtensions.has(extension.id)) {
+      const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extensionPath);
+      extensionWatcher.onDidChange(async () => {
+        // wait 1 second before trying to reload the extension
+        // this is to avoid reloading the extension while it is still being updated
+        setTimeout(() => this.reloadExtension(extension, removable), 1000);
+      });
+      this.watcherExtensions.set(extension.id, extensionWatcher);
     }
 
     const runtime = this.loadRuntime(extension);

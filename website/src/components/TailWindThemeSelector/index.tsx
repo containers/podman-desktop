@@ -34,9 +34,10 @@ function TailWindThemeSelector(): JSX.Element {
     }
     const mutationObserver = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
-        if (mutation.attributeName === 'data-rh' && mutation.type == 'attributes') {
-          updadeTailwindDarkTheme();
-        } else if (mutation.attributeName === 'data-theme' && mutation.type == 'attributes') {
+        if (
+          mutation.type == 'attributes' &&
+          (mutation.attributeName === 'data-rh' || mutation.attributeName === 'data-theme')
+        ) {
           updadeTailwindDarkTheme();
         }
       });

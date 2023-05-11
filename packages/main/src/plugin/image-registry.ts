@@ -607,8 +607,7 @@ export class ImageRegistry {
         const matchedManifestDigest = matchedManifest.digest;
         // now, grab the manifest corresponding to the digest
         const manifestURL = `${imageData.registryURL}/${imageData.name}/manifests/${matchedManifestDigest}`;
-        const manifestResponse = await this.getManifestFromURL(manifestURL, imageData, token);
-        return manifestResponse;
+        return this.getManifestFromURL(manifestURL, imageData, token);
       }
       throw new Error('Unable to find a manifest corresponding to the platform/architecture');
     }

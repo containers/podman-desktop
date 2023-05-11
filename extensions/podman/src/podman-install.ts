@@ -478,21 +478,14 @@ class WSL2Check extends BaseCheck {
     const res = await execPromise('powershell.exe', [
       '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
     ]);
-    if (res.trim() === 'True') {
-      return true;
-    }
-
-    return false;
+    return res.trim() === 'True';
   }
 
   private async isWSLPresent(): Promise<boolean> {
     try {
       const res = await execPromise('wsl', ['--set-default-version', '2'], { env: { WSL_UTF8: '1' } });
       const output = this.normalizeOutput(res);
-      if (!output) {
-        return false;
-      }
-      return true;
+      return !!output;
     } catch (error) {
       return false;
     }

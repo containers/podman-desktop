@@ -87,10 +87,7 @@ test('darwin: mock fs.existsSync returns /usr/local/bin/podman-mac-helper', asyn
   vi.mock('fs', () => {
     return {
       existsSync: (path: string) => {
-        if (path === '/usr/local/bin/podman-mac-helper') {
-          return true;
-        }
-        return false;
+        return path === '/usr/local/bin/podman-mac-helper';
       },
     };
   });

@@ -52,10 +52,8 @@ export class AutostartEngine {
 
     // start the engine if we toggle the property
     this.configurationRegistry.onDidChangeConfiguration(e => {
-      if (e.key === 'preferences.engine.autostart') {
-        if (e.value === true) {
-          this.providerRegistry.runAutostart();
-        }
+      if (e.key === 'preferences.engine.autostart' && e.value === true) {
+        this.providerRegistry.runAutostart();
       }
     });
   }
