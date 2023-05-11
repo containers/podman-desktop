@@ -43,7 +43,7 @@ export class PodmanConfiguration {
     // in case of proxy being enabled or disabled we need to update the containers.conf file
     extensionApi.proxy.onDidStateChange(async (enabled: boolean) => {
       if (enabled) {
-        const updatedProxySettings = await extensionApi.proxy.getProxySettings();
+        const updatedProxySettings = extensionApi.proxy.getProxySettings();
         this.updateProxySettings(updatedProxySettings);
       } else {
         this.updateProxySettings(undefined);

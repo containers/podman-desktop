@@ -83,7 +83,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   console.log('starting extension kube-context');
 
   // grab current file
-  const kubeconfigUri = await extensionApi.kubernetes.getKubeconfig();
+  const kubeconfigUri = extensionApi.kubernetes.getKubeconfig();
 
   kubeconfigFile = kubeconfigUri.fsPath;
 

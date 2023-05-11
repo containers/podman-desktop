@@ -53,7 +53,7 @@ test('check we received notifications ', async () => {
   });
 
   const fakeProvider = {} as unknown as podmanDesktopApi.Provider;
-  await refreshKindClustersOnProviderConnectionUpdate(fakeProvider);
+  refreshKindClustersOnProviderConnectionUpdate(fakeProvider);
   expect(callbackCalled).toBeTruthy();
   expect(listContainersMock).toBeCalledTimes(1);
 });

@@ -58,7 +58,7 @@ async function waitRender(customProperties: object): Promise<void> {
 }
 
 test('Expect no container engines being displayed', async () => {
-  await render(ImagesList);
+  render(ImagesList);
   const noEngine = screen.getByRole('heading', { name: 'No Container Engine' });
   expect(noEngine).toBeInTheDocument();
 });

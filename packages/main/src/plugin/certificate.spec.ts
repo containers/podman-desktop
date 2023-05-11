@@ -39,7 +39,7 @@ beforeEach(() => {
 
 test('expect parse correctly certificates', async () => {
   const certificateContent = `${BEGIN_CERTIFICATE}${CR}Foo${CR}${END_CERTIFICATE}${CR}${BEGIN_CERTIFICATE}${CR}Bar${CR}${END_CERTIFICATE}${CR}${BEGIN_CERTIFICATE}${CR}Baz${CR}${END_CERTIFICATE}${CR}${BEGIN_CERTIFICATE}${CR}Qux${CR}${END_CERTIFICATE}${CR}`;
-  const list = await certificate.extractCertificates(certificateContent);
+  const list = certificate.extractCertificates(certificateContent);
   expect(list.length).toBe(4);
 
   // strip prefix and suffix, CR

@@ -84,7 +84,7 @@ test('Expect that featured extensions are displayed', async () => {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
-  await render(FeaturedExtensions);
+  render(FeaturedExtensions);
 
   // get by title
   const firstExtension = screen.getByTitle('This is FooBar description');

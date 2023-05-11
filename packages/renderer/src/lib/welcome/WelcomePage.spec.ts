@@ -54,31 +54,38 @@ afterAll(() => {
   routerUnsubscribe();
 });
 
+async function waitRender(customProperties: object): Promise<void> {
+  const result = render(WelcomePage, { ...customProperties });
+  // wait that result.component.$$.ctx[0] is set
+  while (result.component.$$.ctx[0] === undefined) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+}
+
 test('Expect the close button is on the page', async () => {
-  await render(WelcomePage, { showWelcome: true });
+  await waitRender({ showWelcome: true });
   const button = screen.getByRole('button', { name: 'Go to Podman Desktop' });
   expect(button).toBeInTheDocument();
   expect(button).toBeEnabled();
 });
 
 test('Expect the settings button is on the page', async () => {
-  await render(WelcomePage, { showWelcome: true });
+  await waitRender({ showWelcome: true });
   const button = screen.getByRole('button', { name: 'Settings' });
   expect(button).toBeInTheDocument();
   expect(button).toBeEnabled();
 });
 
 test('Expect that the close button closes the window', async () => {
-  await render(WelcomePage, { showWelcome: true });
+  await waitRender({ showWelcome: true });
   const button = screen.getByRole('button', { name: 'Go to Podman Desktop' });
   await fireEvent.click(button);
-
   // and the button is gone
   expect(button).not.toBeInTheDocument();
 });
 
 test('Expect that the settings button closes the window and opens the settings', async () => {
-  await render(WelcomePage, { showWelcome: true });
+  await waitRender({ showWelcome: true });
 
   const button = screen.getByRole('button', { name: 'Settings' });
   await fireEvent.click(button);
@@ -91,7 +98,7 @@ test('Expect that the settings button closes the window and opens the settings',
 });
 
 test('Expect that telemetry UI is hidden when telemetry has already been prompted', async () => {
-  await render(WelcomePage, { showWelcome: true, showTelemetry: false });
+  await waitRender({ showWelcome: true, showTelemetry: false });
   let checkbox;
   try {
     checkbox = screen.getByRole('checkbox', { name: 'Enable telemetry' });
@@ -102,7 +109,7 @@ test('Expect that telemetry UI is hidden when telemetry has already been prompte
 });
 
 test('Expect that telemetry UI is visible when necessary', async () => {
-  await render(WelcomePage, { showWelcome: true, showTelemetry: true });
+  await waitRender({ showWelcome: true, showTelemetry: true });
   const checkbox = screen.getByRole('checkbox', { name: 'Enable telemetry' });
   expect(checkbox).toBeInTheDocument();
 });
@@ -142,7 +149,8 @@ test('Expect that featured extensions are displayed', async () => {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
-  await render(WelcomePage, { showWelcome: true });
+  await waitRender({ showWelcome: true });
+
   const imageExt1 = screen.getByRole('img', { name: 'FooBar logo' });
   // expect the image to be there
   expect(imageExt1).toBeInTheDocument();
