@@ -174,7 +174,6 @@ export class DockerDesktopInstallation {
 
         const providerConnectionInfo = providerConnectionDetails[0];
         const providerConnection = providerConnectionDetails[1];
-        //await providerConnection.pull('aquasec/trivy-docker-extension:0.4.3');
         reportLog(`Pulling image ${imageName}...`);
 
         try {
@@ -259,7 +258,7 @@ export class DockerDesktopInstallation {
         reportLog('Grabbing image content...');
         await this.exportContentOfContainer(providerConnection, foundMatchingImage.Id, tmpTarPath);
 
-        // delete image
+        // delete the image
         await image.remove();
 
         reportLog('Extracting image content...');

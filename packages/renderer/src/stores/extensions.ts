@@ -22,7 +22,8 @@ import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info'
 
 export async function fetchExtensions() {
   const result = await window.listExtensions();
-  extensionInfos.set(result.sort((a, b) => a.displayName.localeCompare(b.displayName)));
+  result.sort((a, b) => a.displayName.localeCompare(b.displayName));
+  extensionInfos.set(result);
 }
 
 export const extensionInfos: Writable<ExtensionInfo[]> = writable([]);

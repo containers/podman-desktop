@@ -86,7 +86,7 @@ test('Registered authentication provider stored in authentication module', async
 test('Session request with option silent===false does not fail if there is no provider with requested ID', async () => {
   const err = await authModule
     .getSession({ id: 'ext1', label: 'Ext 1' }, 'company.auth-provider', ['scope1', 'scope2'], { silent: false })
-    .catch(err => Promise.resolve(err));
+    .catch((err: unknown) => Promise.resolve(err));
   expect(err).toBeUndefined();
 });
 

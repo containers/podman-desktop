@@ -46,7 +46,7 @@ export class TrayMenuRegistry {
     readonly providerRegistry: ProviderRegistry,
     private readonly telemetryService: Telemetry,
   ) {
-    // add as listener
+    // add a listener
     providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
       if (name === 'provider:create') {
         this.providers.set(providerInfo.internalId, providerInfo);
