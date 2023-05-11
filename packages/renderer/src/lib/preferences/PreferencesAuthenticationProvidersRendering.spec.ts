@@ -24,8 +24,6 @@ import { test, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { authenticationProviders } from '../../stores/authenticationProviders';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
-import { AuthenticationProviderInfo } from '../../../../main/src/plugin/authentication';
-import { fieldEnds } from 'tar';
 
 afterEach(() => {
   vi.clearAllMocks();
