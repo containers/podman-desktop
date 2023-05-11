@@ -796,6 +796,10 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('requestAuthenticationProviderSignIn', async (requestId: string): Promise<void> => {
+    return ipcInvoke('authentication-provider-registry:requestAuthenticationProviderSignIn', requestId);
+  });
+
   contextBridge.exposeInMainWorld(
     'getConfigurationProperties',
     async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {

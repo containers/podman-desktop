@@ -1,10 +1,12 @@
 <script lang="ts">
 import { authenticationProviders } from '../../stores/authenticationProviders';
-import { faCircle, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faRightFromBracket, faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons';
 import SettingsPage from './SettingsPage.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import KeyIcon from '../images/KeyIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
+import DropdownMenu from '../ui/DropdownMenu.svelte';
+import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 </script>
 
 <SettingsPage title="Authentication">
@@ -61,6 +63,18 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
             </div>
           </div>
           <!-- Authentication Provider Session label start -->
+          <div class="ml-4 flex items-center">
+            {#if provider.sessionRequests.length > 0}
+              <DropdownMenu>
+                {#each provider.sessionRequests as request}
+                  <DropdownMenuItem
+                    title="Sign in to use {request.extensionLabel}"
+                    onClick="{() => window.requestAuthenticationProviderSignIn(request.id)}"
+                    icon="{faArrowRightToBracket}" />
+                {/each}
+              </DropdownMenu>
+            {/if}
+          </div>
         </div>
       </div>
       <!-- Registered Authentication Provider row end -->

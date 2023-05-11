@@ -41,6 +41,7 @@ test('Expect that page shows registered authentication providers without account
       id: 'test',
       displayName: 'Test Authentication Provider',
       accounts: [],
+      sessionRequests: [],
     },
   ]);
   render(PreferencesAuthenticationProvidersRendering, {});
@@ -60,6 +61,7 @@ const testProvidersInfo = [
         label: 'Test Account',
       },
     ],
+    sessionRequests: [],
   },
 ];
 
@@ -83,4 +85,52 @@ test('Expect Sign Out button click calls window.requestAuthenticationProviderSig
   (window as any).requestAuthenticationProviderSignOut = requestSignOutMock;
   fireEvent.click(signoutButton);
   expect(requestSignOutMock).toBeCalledWith('test', 'test-account');
+});
+
+const testProividersInfoWithoutSessionRequests = [
+  {
+    id: 'test',
+    displayName: 'Test Authentication Provider',
+    accounts: [],
+    sessionRequests: [],
+  },
+];
+
+test('Expect Sign in menu item to be hidden when there are no session requests', async () => {
+  authenticationProviders.set(testProividersInfoWithoutSessionRequests);
+  render(PreferencesAuthenticationProvidersRendering, {});
+  const menuButton = screen.queryAllByRole('button');
+  expect(menuButton.length).equals(0); // no menu button
+});
+
+const testProividersInfoWithSessionRequests = [
+  {
+    id: 'test',
+    displayName: 'Test Authentication Provider',
+    accounts: [],
+    sessionRequests: [
+      {
+        id: 'ext:test',
+        providerId: 'test',
+        extensionId: 'ext',
+        extensionLabel: 'Extension Label',
+        scopes: ['scope1', 'scope2'],
+      },
+    ],
+  },
+];
+
+test('Expect Sign in menu item to be visible when there are session requests', async () => {
+  authenticationProviders.set(testProividersInfoWithSessionRequests);
+  render(PreferencesAuthenticationProvidersRendering, {});
+  const menuButton = screen.getAllByRole('button');
+  expect(menuButton.length).equals(1); // menu button
+  fireEvent.click(menuButton[0]);
+  render(PreferencesAuthenticationProvidersRendering, {});
+  const menuItems = screen.getAllByText('Sign in to use Extension Label');
+  expect(menuItems.length).equals(1);
+  const requestSignInMock = vi.fn();
+  (window as any).requestAuthenticationProviderSignIn = requestSignInMock;
+  fireEvent.click(menuItems[0]);
+  expect(requestSignInMock).toBeCalled();
 });
