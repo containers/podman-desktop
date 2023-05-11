@@ -801,6 +801,8 @@ export class ExtensionLoader {
     if (typeof extensionMain['deactivate'] === 'function') {
       deactivateFunction = extensionMain['deactivate'];
     }
+
+    const telemetryOptions = { extensionId: extension.id };
     try {
       if (typeof extensionMain['activate'] === 'function') {
         // return exports
@@ -821,6 +823,10 @@ export class ExtensionLoader {
       console.log(`Activation extension ${extension.id} failed error:${err}`);
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (telemetryOptions as any).error = err;
+    } finally {
+      this.telemetry.track('activateExtension', telemetryOptions);
     }
   }
 
@@ -830,6 +836,8 @@ export class ExtensionLoader {
       return;
     }
 
+    const telemetryOptions = { extensionId: extension.id };
+
     this.extensionState.set(extension.id, 'stopping');
     this.apiSender.send('extension-stopping');
 
@@ -838,6 +846,8 @@ export class ExtensionLoader {
         await extension.deactivateFunction();
       } catch (err) {
         console.log(`Deactivation extension ${extension.id} failed error:${err}`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (telemetryOptions as any).error = err;
       }
     }
 
@@ -860,6 +870,7 @@ export class ExtensionLoader {
     this.activatedExtensions.delete(extensionId);
     this.extensionState.set(extension.id, 'stopped');
     this.apiSender.send('extension-stopped');
+    this.telemetry.track('deactivateExtension', telemetryOptions);
   }
 
   async stopAllExtensions(): Promise<void> {
