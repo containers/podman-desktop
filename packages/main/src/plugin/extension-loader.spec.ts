@@ -95,7 +95,7 @@ const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQui
 
 const authenticationProviderRegistry: AuthenticationImpl = {} as unknown as AuthenticationImpl;
 
-const telemetry: Telemetry = {} as unknown as Telemetry;
+const telemetry: Telemetry = { track: vi.fn() } as unknown as Telemetry;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
