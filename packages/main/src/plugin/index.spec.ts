@@ -22,9 +22,8 @@ import type { TrayMenu } from '../tray-menu';
 import { EventEmitter } from 'node:events';
 import { PluginSystem } from './index';
 import type { WebContents } from 'electron';
-import { shell } from 'electron';
+import { shell, clipboard } from 'electron';
 import type { MessageBox } from './message-box';
-import { clipboard } from 'electron';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
 
 let pluginSystem: PluginSystem;

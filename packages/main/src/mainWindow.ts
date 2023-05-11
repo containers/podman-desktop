@@ -17,9 +17,7 @@
  ***********************************************************************/
 
 import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
-import { autoUpdater } from 'electron';
-import { Menu } from 'electron';
-import { BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
+import { autoUpdater, Menu, BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
 import contextMenu from 'electron-context-menu';
 const { aboutMenuItem } = require('electron-util');
 import { join } from 'path';

@@ -32,9 +32,13 @@ import type { MessageBox } from './message-box';
 import type { ProgressImpl } from './progress-impl';
 import { ProgressLocation } from './progress-impl';
 import type { NotificationImpl } from './notification-impl';
-import { StatusBarItemImpl } from './statusbar/statusbar-item';
+import {
+  StatusBarItemImpl,
+  StatusBarAlignLeft,
+  StatusBarAlignRight,
+  StatusBarItemDefaultPriority,
+} from './statusbar/statusbar-item';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry';
-import { StatusBarAlignLeft, StatusBarAlignRight, StatusBarItemDefaultPriority } from './statusbar/statusbar-item';
 import type { FilesystemMonitoring } from './filesystem-monitoring';
 import { Uri } from './types/uri';
 import type { KubernetesClient } from './kubernetes-client';
