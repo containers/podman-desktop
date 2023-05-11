@@ -14,6 +14,7 @@ let logs: string[] = [];
 let logElement;
 
 async function installDDExtensionFromImage() {
+  errorInstall = '';
   logs.length = 0;
   installInProgress = true;
 
