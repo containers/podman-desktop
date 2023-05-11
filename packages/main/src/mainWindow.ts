@@ -137,7 +137,7 @@ async function createWindow() {
     const closeBehaviorConfiguration = configurationRegistry?.getConfiguration('preferences');
     let exitonclose = isLinux(); // default value, which we will use unless the user preference is available.
     if (closeBehaviorConfiguration) {
-      exitonclose = closeBehaviorConfiguration.get<boolean>('ExitOnClose') == true;
+      exitonclose = closeBehaviorConfiguration.get<boolean>('ExitOnClose') === true;
     }
 
     if (!exitonclose) {

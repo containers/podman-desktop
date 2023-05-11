@@ -45,11 +45,10 @@ export const filtered = derived([searchPattern, volumeListInfos], ([$searchPatte
       findMatchInLeaves(volume, $searchPattern.toLowerCase()),
     );
 
-    const updatedVolumeInfo = {
+    return {
       ...volumeInfo,
       Volumes: filteredVolumes,
     };
-    return updatedVolumeInfo;
   });
 });
 

@@ -200,7 +200,6 @@ export class PluginSystem {
 
       if (toAppend != '') return `[${toAppend}]`;
     }
-    return;
   }
 
   // log locally and also send it to the renderer process
@@ -237,15 +236,13 @@ export class PluginSystem {
     const queuedEvents: { channel: string; data: string }[] = [];
 
     const flushQueuedEvents = () => {
-      if (this.uiReady && this.isReady) {
-        // flush queued events ?
-        if (queuedEvents.length > 0) {
-          console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
-          queuedEvents.forEach(({ channel, data }) => {
-            webContents.send('api-sender', channel, data);
-          });
-          queuedEvents.length = 0;
-        }
+      // flush queued events ?
+      if (this.uiReady && this.isReady && queuedEvents.length > 0) {
+        console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
+        queuedEvents.forEach(({ channel, data }) => {
+          webContents.send('api-sender', channel, data);
+        });
+        queuedEvents.length = 0;
       }
     };
 

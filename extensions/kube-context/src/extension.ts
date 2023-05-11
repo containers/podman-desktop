@@ -33,7 +33,6 @@ async function deleteContext(): Promise<void> {
   menuItemsRegistered.forEach(item => {
     item.dispose();
   });
-  return;
 }
 
 async function updateContext(extensionContext: extensionApi.ExtensionContext, kubeconfigFile: string): Promise<void> {

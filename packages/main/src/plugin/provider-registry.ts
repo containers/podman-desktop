@@ -155,13 +155,11 @@ export class ProviderRegistry {
         }
 
         // Update the warnings of the provider
-        if (provider) {
-          // If the warnings do not match the current cache, we will send an update event to the renderer
-          // and update the local warnings cache
-          if (JSON.stringify(providerWarnings) !== JSON.stringify(provider?.warnings)) {
-            this.apiSender.send('provider:update-warnings', provider.id);
-            this.providerWarnings.set(providerKey, provider.warnings);
-          }
+        // If the warnings do not match the current cache, we will send an update event to the renderer
+        // and update the local warnings cache
+        if (provider && JSON.stringify(providerWarnings) !== JSON.stringify(provider?.warnings)) {
+          this.apiSender.send('provider:update-warnings', provider.id);
+          this.providerWarnings.set(providerKey, provider.warnings);
         }
       });
     }, 2000);
@@ -458,10 +456,11 @@ export class ProviderRegistry {
     const provider = this.getMatchingProvider(providerInternalId);
 
     // do we have a lifecycle attached to the provider ?
-    if (this.providerLifecycles.has(providerInternalId)) {
-      if (this.providerLifecycles.get(providerInternalId)?.initialize) {
-        return this.intializeProviderLifecycle(providerInternalId);
-      }
+    if (
+      this.providerLifecycles.has(providerInternalId) &&
+      this.providerLifecycles.get(providerInternalId)?.initialize
+    ) {
+      return this.intializeProviderLifecycle(providerInternalId);
     }
 
     if (provider.containerProviderConnectionFactory && provider.containerProviderConnectionFactory.initialize) {

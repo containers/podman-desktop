@@ -60,23 +60,21 @@ export class PodmanConfiguration {
         const engineConf: any = tomlConfigFile.engine;
 
         // env in engine section
-        if (engineConf.env) {
-          // env are written like array of key=value ['https_proxy=http://10.0.0.244:9090', 'http_proxy=http://10.0.0.244:9090']
-          if (Array.isArray(engineConf.env)) {
-            const envArray: string[] = engineConf.env;
-            envArray.forEach(envVar => {
-              const split = envVar.split('=');
-              if (split.length === 2) {
-                if (split[0] === 'https_proxy') {
-                  httpsProxy = split[1];
-                } else if (split[0] === 'http_proxy') {
-                  httpProxy = split[1];
-                } else if (split[0] === 'no_proxy') {
-                  noProxy = split[1];
-                }
+        // env are written like array of key=value ['https_proxy=http://10.0.0.244:9090', 'http_proxy=http://10.0.0.244:9090']
+        if (engineConf.env && Array.isArray(engineConf.env)) {
+          const envArray: string[] = engineConf.env;
+          envArray.forEach(envVar => {
+            const split = envVar.split('=');
+            if (split.length === 2) {
+              if (split[0] === 'https_proxy') {
+                httpsProxy = split[1];
+              } else if (split[0] === 'http_proxy') {
+                httpProxy = split[1];
+              } else if (split[0] === 'no_proxy') {
+                noProxy = split[1];
               }
-            });
-          }
+            }
+          });
         }
       }
     }

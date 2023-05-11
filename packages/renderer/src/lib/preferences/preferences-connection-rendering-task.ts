@@ -151,10 +151,8 @@ export function reconnectUI(key: symbol, connectionCallback: ConnectionCallback)
   taskLogOnHolds.delete(key);
 
   // check if it was ended in the replay
-  if (!ended) {
-    if (replay && replay.end) {
-      connectionCallback.onEnd();
-    }
+  if (!ended && replay && replay.end) {
+    connectionCallback.onEnd();
   }
 }
 
