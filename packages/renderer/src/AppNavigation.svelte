@@ -90,7 +90,7 @@ export let meta;
 
 <svelte:window />
 <nav
-  class="pf-c-nav -z-1 group w-[54px] min-w-[54px] flex flex-col justify-between hover:overflow-y-none top-0"
+  class="pf-c-nav z-[9] group w-[54px] min-w-[54px] flex flex-col justify-between hover:overflow-y-none top-0"
   style="position: sticky"
   aria-label="Global">
   <ul class="pf-c-nav__list">
