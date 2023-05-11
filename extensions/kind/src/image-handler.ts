@@ -18,7 +18,7 @@
 import type { KindCluster } from './extension';
 import * as extensionApi from '@podman-desktop/api';
 import { tmpName } from 'tmp-promise';
-import { runCliCommand } from './util';
+import { getKindPath, runCliCommand } from './util';
 import * as fs from 'node:fs';
 
 type ImageInfo = { engineId: string; name?: string; tag?: string };
@@ -55,7 +55,7 @@ export class ImageHandler {
     if (selectedCluster) {
       let name = image.name;
       let filename: string;
-      const env = process.env;
+      const env = Object.assign({}, process.env);
 
       // Create a name:tag string for the image
       if (image.tag) {
@@ -69,6 +69,7 @@ export class ImageHandler {
         env['KIND_EXPERIMENTAL_PROVIDER'] = 'docker';
       }
 
+      env.PATH = getKindPath();
       try {
         // Create a temporary file to store the image
         filename = await tmpName();
