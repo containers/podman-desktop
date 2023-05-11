@@ -36,7 +36,7 @@ async function removeExtension() {
         </div>
 
         <div class="py-2 flex flex-row items-center">
-          <!-- start is enabled only when stopped -->
+          <!-- start is enabled only when stopped or failed -->
           <div class="px-2 text-sm italic text-gray-700">
             <button
               disabled="{extensionInfo.state !== 'stopped' && extensionInfo.state !== 'failed'}"
@@ -64,7 +64,7 @@ async function removeExtension() {
             </button>
           </div>
 
-          <!-- delete is enabled only when stopped -->
+          <!-- delete is enabled only when stopped or failed -->
           {#if extensionInfo.removable}
             <div class="px-2 text-sm italic text-gray-700">
               <button
