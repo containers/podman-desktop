@@ -3,6 +3,8 @@ export let size: string = '40';
 </script>
 
 <svg
+  {...$$restProps}
+  role="img"
   xmlns:xlink="http://www.w3.org/1999/xlink"
   width="{size}"
   xmlns="http://www.w3.org/2000/svg"

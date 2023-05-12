@@ -134,3 +134,53 @@ test('Expect Sign in menu item to be visible when there are session requests', a
   fireEvent.click(menuItems[0]);
   expect(requestSignInMock).toBeCalled();
 });
+
+test('Expects default icon to be used when provider has no images option', async () => {
+  authenticationProviders.set(testProividersInfoWithSessionRequests);
+  const { container } = render(PreferencesAuthenticationProvidersRendering, {});
+  screen.getByRole('img', {
+    name: `Default Key Icon for ${testProividersInfoWithSessionRequests[0].displayName} provider`,
+    hidden: true,
+  });
+  const key = container.querySelector('[aria-label=\'Key Icon\']');
+  console.log(key);
+});
+
+test('Expects images.icon option to be used when no themes are present', () => {
+  const providerWithImageIcon = [
+    {
+      id: 'test',
+      displayName: 'Test Authentication Provider',
+      accounts: [],
+      images: {
+        icon: './icon.png',
+      },
+      sessionRequests: [],
+    },
+  ];
+  authenticationProviders.set(providerWithImageIcon);
+  render(PreferencesAuthenticationProvidersRendering, {});
+  screen.getByRole('img', { name: `Icon for ${testProividersInfoWithSessionRequests[0].displayName} provider` });
+});
+
+test('Expects images.icon.dark option to be used when themes are present', () => {
+  const providerWithImageIcon = [
+    {
+      id: 'test',
+      displayName: 'Test Authentication Provider',
+      accounts: [],
+      images: {
+        icon: {
+          dark: './icon.png',
+          light: './icon.png',
+        },
+      },
+      sessionRequests: [],
+    },
+  ];
+  authenticationProviders.set(providerWithImageIcon);
+  render(PreferencesAuthenticationProvidersRendering, {});
+  screen.getByRole('img', {
+    name: `Dark theme icon for ${testProividersInfoWithSessionRequests[0].displayName} provider`,
+  });
+});

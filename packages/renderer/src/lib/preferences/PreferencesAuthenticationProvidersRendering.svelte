@@ -25,13 +25,24 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
             <div class="flex">
               {#if provider?.images?.icon}
                 {#if typeof provider.images.icon === 'string'}
-                  <img src="{provider.images.icon}" alt="{provider.displayName}" class="max-w-[40px] h-full" />
+                  <img
+                    src="{provider.images.icon}"
+                    alt="{provider.displayName}"
+                    aria-label="Icon for {provider.displayName} provider"
+                    class="max-w-[40px] h-full" />
                   <!-- TODO check theme used for image, now use dark by default -->
                 {:else}
-                  <img src="{provider.images.icon.dark}" alt="{provider.displayName}" class="max-w-[40px]" />
+                  <img
+                    src="{provider.images.icon.dark}"
+                    alt="Dark theme icon for {provider.displayName} provider"
+                    class="max-w-[40px]" />
                 {/if}
               {:else}
-                <svelte:component this="{KeyIcon}" size="40" />
+                <svelte:component
+                  this="{KeyIcon}"
+                  size="40"
+                  alt="{provider.displayName}"
+                  aria-label="Default Key Icon for {provider.displayName} provider" />
               {/if}
             </div>
           </div>
