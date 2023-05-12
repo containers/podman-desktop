@@ -53,7 +53,12 @@ async function createWindow() {
   };
 
   // frameless window
-  browserWindowConstructorOptions.titleBarStyle = 'hidden';
+  if (isLinux()) {
+    browserWindowConstructorOptions.frame = false;
+  } else {
+    browserWindowConstructorOptions.titleBarStyle = 'hidden';
+  }
+
   if (isMac()) {
     // change position of traffic light buttons
     browserWindowConstructorOptions.trafficLightPosition = { x: 20, y: 13 };
