@@ -139,7 +139,7 @@ test('Expects default icon to be used when provider has no images option', async
   authenticationProviders.set(testProividersInfoWithSessionRequests);
   render(PreferencesAuthenticationProvidersRendering, {});
   screen.getByRole('img', {
-    name: `Default Key Icon for ${testProividersInfoWithSessionRequests[0].displayName} provider`,
+    name: `Default icon for ${testProividersInfoWithSessionRequests[0].displayName} provider`,
   });
 });
 
