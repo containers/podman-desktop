@@ -142,7 +142,7 @@ test('Expects default icon to be used when provider has no images option', async
     name: `Default Key Icon for ${testProividersInfoWithSessionRequests[0].displayName} provider`,
     hidden: true,
   });
-  const key = container.querySelector('[aria-label=\'Key Icon\']');
+  const key = container.querySelector("[aria-label='Key Icon']");
   console.log(key);
 });
 
