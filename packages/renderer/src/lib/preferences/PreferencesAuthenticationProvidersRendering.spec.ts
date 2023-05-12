@@ -178,6 +178,6 @@ test('Expects images.icon.dark option to be used when themes are present', () =>
   authenticationProviders.set(providerWithImageIcon);
   render(PreferencesAuthenticationProvidersRendering, {});
   screen.getByRole('img', {
-    name: `Dark theme icon for ${testProividersInfoWithSessionRequests[0].displayName} provider`,
+    name: `Dark color theme icon for ${testProividersInfoWithSessionRequests[0].displayName} provider`,
   });
 });
