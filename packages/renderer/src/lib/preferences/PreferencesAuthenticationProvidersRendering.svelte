@@ -34,7 +34,7 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
                 {:else}
                   <img
                     src="{provider.images.icon.dark}"
-                    alt="Dark theme icon for {provider.displayName} provider"
+                    alt="Dark color theme icon for {provider.displayName} provider"
                     class="max-w-[40px]" />
                 {/if}
               {:else}
@@ -42,7 +42,7 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
                   this="{KeyIcon}"
                   size="40"
                   alt="{provider.displayName}"
-                  aria-label="Default Key Icon for {provider.displayName} provider" />
+                  aria-label="Default icon for {provider.displayName} provider" />
               {/if}
             </div>
           </div>

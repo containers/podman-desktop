@@ -140,10 +140,7 @@ test('Expects default icon to be used when provider has no images option', async
   const { container } = render(PreferencesAuthenticationProvidersRendering, {});
   screen.getByRole('img', {
     name: `Default Key Icon for ${testProividersInfoWithSessionRequests[0].displayName} provider`,
-    hidden: true,
   });
-  const key = container.querySelector("[aria-label='Key Icon']");
-  console.log(key);
 });
 
 test('Expects images.icon option to be used when no themes are present', () => {
