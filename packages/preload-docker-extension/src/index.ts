@@ -184,7 +184,7 @@ export class DockerExtensionPreload {
       'docker-plugin-adapter:execWithOptions-callback-stdout',
       (_event, callbackId: number, data: string) => {
         const streamOptions = this.onDockerPluginExecWithOptionsCallbacks.get(callbackId);
-        if (streamOptions && streamOptions.onOutput) {
+        if (streamOptions?.onOutput) {
           streamOptions.onOutput({ stdout: data });
         }
       },
@@ -193,7 +193,7 @@ export class DockerExtensionPreload {
       'docker-plugin-adapter:execWithOptions-callback-stderr',
       (_event, callbackId: number, data: string) => {
         const streamOptions = this.onDockerPluginExecWithOptionsCallbacks.get(callbackId);
-        if (streamOptions && streamOptions.onOutput) {
+        if (streamOptions?.onOutput) {
           streamOptions.onOutput({ stderr: data });
         }
       },
@@ -202,14 +202,14 @@ export class DockerExtensionPreload {
       'docker-plugin-adapter:execWithOptions-callback-close',
       (_event, callbackId: number, exitCode: number) => {
         const streamOptions = this.onDockerPluginExecWithOptionsCallbacks.get(callbackId);
-        if (streamOptions && streamOptions.onClose) {
+        if (streamOptions?.onClose) {
           streamOptions.onClose(exitCode);
         }
       },
     );
     ipcRenderer.on('docker-plugin-adapter:execWithOptions-callback-error', (_event, callbackId: number, error: any) => {
       const streamOptions = this.onDockerPluginExecWithOptionsCallbacks.get(callbackId);
-      if (streamOptions && streamOptions.onError) {
+      if (streamOptions?.onError) {
         streamOptions.onError(error);
       }
     });

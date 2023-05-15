@@ -215,10 +215,7 @@ export class AuthenticationImpl {
     if (!options.silent) {
       const providerRequests = this._signInRequests.get(providerId);
       const scopesList = sortedScopes.join(' ');
-      const extHasRequests =
-        providerRequests &&
-        providerRequests[scopesList] &&
-        providerRequests[scopesList].includes(requestingExtension.id);
+      const extHasRequests = providerRequests?.[scopesList]?.includes(requestingExtension.id);
       if (extHasRequests) {
         // request was added already by this extension
         return;

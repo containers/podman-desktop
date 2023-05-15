@@ -137,7 +137,7 @@ export class InputQuickPickRegistry {
     const callback = this.callbacksInputBox.get(id);
 
     // if there is a callback
-    if (callback && callback.options?.validateInput) {
+    if (callback?.options?.validateInput) {
       return callback.options.validateInput(value);
     }
     return undefined;
@@ -149,7 +149,7 @@ export class InputQuickPickRegistry {
     const callback = this.callbacksQuickPicks.get(id);
 
     // if there is a callback
-    if (callback && callback.options?.onDidSelectItem) {
+    if (callback?.options?.onDidSelectItem) {
       // grab item
       const item = callback.items[index];
 

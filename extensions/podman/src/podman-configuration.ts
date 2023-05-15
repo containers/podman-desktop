@@ -55,7 +55,7 @@ export class PodmanConfiguration {
       const containersConfigFile = await this.readContainersConfigFile();
       const tomlConfigFile = toml.parse(containersConfigFile);
 
-      if (tomlConfigFile && tomlConfigFile.engine) {
+      if (tomlConfigFile?.engine) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const engineConf: any = tomlConfigFile.engine;
 

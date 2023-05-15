@@ -285,7 +285,7 @@ export class ImageRegistry {
       /(?<scheme>Bearer|Basic) realm="(?<realm>[^"]+)"(,service="(?<service>[^"]+)")?(,scope="(?<scope>[^"]+)")?/;
 
     const parsed = WWW_AUTH_REGEXP.exec(wwwAuthenticate);
-    if (parsed && parsed.groups) {
+    if (parsed?.groups) {
       const { realm, service, scope, scheme } = parsed.groups;
       return { authUrl: realm, service, scope, scheme };
     }
@@ -305,8 +305,8 @@ export class ImageRegistry {
     if (this.proxyEnabled) {
       // use proxy when performing got request
       const proxy = this.proxySettings;
-      const httpProxyUrl = proxy && proxy.httpProxy;
-      const httpsProxyUrl = proxy && proxy.httpsProxy;
+      const httpProxyUrl = proxy?.httpProxy;
+      const httpsProxyUrl = proxy?.httpsProxy;
 
       if (httpProxyUrl) {
         if (!options.agent) {

@@ -193,7 +193,7 @@ async function createWindow() {
       // In development mode, show the "Open DevTools of Extension" menu item
       if (import.meta.env.DEV) {
         let extensionId = '';
-        if (parameters.linkURL && parameters.linkURL.includes('/contribs')) {
+        if (parameters?.linkURL?.includes('/contribs')) {
           extensionId = parameters.linkURL.split('/contribs/')[1];
         }
         return [

@@ -3,7 +3,7 @@ import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
 
 function TailWindThemeSelector(): JSX.Element {
   function updadeTailwindDarkTheme() {
-    if (!document || !document.documentElement) {
+    if (!document?.documentElement) {
       return;
     }
 

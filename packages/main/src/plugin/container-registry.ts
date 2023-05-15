@@ -584,10 +584,7 @@ export class ContainerProviderRegistry {
         containerProvider.connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath &&
         containerProvider.connection.name === providerContainerConnectionInfo.name,
     );
-    if (!matchingContainerProvider || !matchingContainerProvider.api) {
-      throw new Error('No provider with a running engine');
-    }
-    if (!matchingContainerProvider.api) {
+    if (!matchingContainerProvider?.api) {
       throw new Error('no running provider for the matching container');
     }
     return matchingContainerProvider.api;
@@ -715,7 +712,7 @@ export class ContainerProviderRegistry {
         containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
         containerProvider.connection.name === selectedProvider.name,
     );
-    if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
+    if (!matchingContainerProvider?.libpodApi) {
       throw new Error('No provider with a running engine');
     }
     const result = await matchingContainerProvider.libpodApi.createPod(podOptions);
@@ -1029,7 +1026,7 @@ export class ContainerProviderRegistry {
         containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
         containerProvider.name === selectedProvider.name,
     );
-    if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
+    if (!matchingContainerProvider?.libpodApi) {
       throw new Error('No provider with a running engine');
     }
     return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath);
@@ -1050,7 +1047,7 @@ export class ContainerProviderRegistry {
         containerProvider.connection.name === selectedProvider.name &&
         selectedProvider.status === 'started',
     );
-    if (!matchingContainerProvider || !matchingContainerProvider.api) {
+    if (!matchingContainerProvider?.api) {
       throw new Error('No provider with a running engine');
     }
 
