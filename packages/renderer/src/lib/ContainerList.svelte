@@ -16,7 +16,7 @@ import { ContainerUtils } from './container/container-utils';
 import { providerInfos } from '../stores/providers';
 import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
 import moment from 'moment';
-import type { Unsubscriber } from 'svelte/store';
+import { get, type Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
@@ -25,6 +25,7 @@ import { podCreationHolder } from '../stores/creation-from-containers-store';
 import KubePlayButton from './kube/KubePlayButton.svelte';
 import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
+import { containerGroupsInfo } from '../stores/containerGroups';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -182,6 +183,9 @@ function createPodFromContainers() {
 
 let containersUnsubscribe: Unsubscriber;
 onMount(async () => {
+  // grab previous groups
+  containerGroups = get(containerGroupsInfo);
+
   containersUnsubscribe = filtered.subscribe(value => {
     const currentContainers = value.map((containerInfo: ContainerInfo) => {
       return containerUtils.getContainerInfoUI(containerInfo);
@@ -240,6 +244,9 @@ onMount(async () => {
 });
 
 onDestroy(() => {
+  // store current groups for later
+  containerGroupsInfo.set(containerGroups);
+
   // kill timers
   refreshTimeouts.forEach(timeout => clearTimeout(timeout));
   refreshTimeouts.length = 0;
