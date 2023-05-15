@@ -1293,26 +1293,26 @@ export class ContainerProviderRegistry {
     );
     if (!matchingContainerProvider?.libpodApi) {
       throw new Error('No provider with a running engine');
-      let telemetryOptions = {};
-      try {
-        // grab all connections
-        const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-          containerProvider =>
-            containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
-            containerProvider.name === selectedProvider.name,
-        );
-        if (!matchingContainerProvider?.libpodApi) {
-          throw new Error('No provider with a running engine');
-        }
-        return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath);
-      } catch (error) {
-        telemetryOptions = { error: error };
-        throw error;
-      } finally {
-        this.telemetryService
-          .track('playKube', telemetryOptions)
-          .catch((err: unknown) => console.error('Unable to track', err));
+    }
+    let telemetryOptions = {};
+    try {
+      // grab all connections
+      const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+        containerProvider =>
+          containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+          containerProvider.name === selectedProvider.name,
+      );
+      if (!matchingContainerProvider?.libpodApi) {
+        throw new Error('No provider with a running engine');
       }
+      return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('playKube', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
