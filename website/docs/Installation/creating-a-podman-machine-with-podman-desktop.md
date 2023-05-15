@@ -1,7 +1,7 @@
 ---
 sidebar_position: 11
 title: Custom Podman machine
-description: Podman Desktop can assist you to install custom Podman machine on Windows and macOS.
+description: Podman Desktop can assist you to create custom Podman machine on Windows and macOS.
 tags: [podman-desktop, podman, installing, windows, macOS]
 keywords: [podman desktop, containers, podman, installing, installation, windows, macos, podman machine]
 ---
