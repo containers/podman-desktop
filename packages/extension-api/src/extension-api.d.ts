@@ -573,6 +573,10 @@ declare module '@podman-desktop/api' {
   export enum ProgressLocation {
     /**
      * Show progress bar under app icon in launcher bar.
+     *
+     * @deprecated This value is deprecated as it does not render equally on various supported platforms. It will be
+     * removed in future versions of Podman Desktop. We strongly encourage to use TASK_WIDGET instead.
+     * @see TASK_WIDGET
      */
     APP_ICON = 1,
 
