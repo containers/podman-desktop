@@ -2648,6 +2648,16 @@
     picocolors "^1.0.0"
     tslib "^2.5.0"
 
+"@playwright/test@^1.33.0":
+  version "1.33.0"
+  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.33.0.tgz#669ef859efb81b143dfc624eef99d1dd92a81b67"
+  integrity sha512-YunBa2mE7Hq4CfPkGzQRK916a4tuZoVx/EpLjeWlTVOnD4S2+fdaQZE0LJkbfhN5FTSKNLdcl7MoT5XB37bTkg==
+  dependencies:
+    "@types/node" "*"
+    playwright-core "1.33.0"
+  optionalDependencies:
+    fsevents "2.3.2"
+
 "@polka/url@^1.0.0-next.20":
   version "1.0.0-next.21"
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
@@ -7156,7 +7166,7 @@ fs.realpath@^1.0.0:
   resolved "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   integrity sha1-FQStJSMVjKpA20onh8sBQRmU6k8=
 
-fsevents@~2.3.2:
+fsevents@2.3.2, fsevents@~2.3.2:
   version "2.3.2"
   resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz"
   integrity sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==
