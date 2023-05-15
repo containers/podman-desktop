@@ -64,7 +64,7 @@ export class DockerDesktopInstallation {
 
     // host binaries
     const hostFiles: string[] = [];
-    if (metadata.host && metadata.host.binaries) {
+    if (metadata?.host?.binaries) {
       // grab current platform
       let platform: string = process.platform;
       if (platform === 'win32') {

@@ -383,7 +383,7 @@ export class KubernetesClient {
         fieldSelector,
         labelSelector,
       );
-      if (res && res.body) {
+      if (res?.body) {
         return res.body;
       } else {
         return {
@@ -434,7 +434,7 @@ export class KubernetesClient {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedPod(name, namespace);
-      if (res && res.body) {
+      if (res?.body) {
         return res.body;
       } else {
         return undefined;
@@ -448,7 +448,7 @@ export class KubernetesClient {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedConfigMap(name, namespace);
-      if (res && res.body) {
+      if (res?.body) {
         return res.body;
       } else {
         return undefined;
@@ -462,7 +462,7 @@ export class KubernetesClient {
     try {
       const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
       const res = await k8sApi.listNamespace();
-      if (res && res.body) {
+      if (res?.body) {
         return res.body;
       } else {
         return {
@@ -489,7 +489,7 @@ export class KubernetesClient {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private wrapK8sClientError(e: any): Error {
-    if (e.response && e.response.body) {
+    if (e?.response?.body) {
       if (e.response.body.message) {
         return this.newError(e.response.body.message, e);
       }
@@ -633,7 +633,7 @@ export class KubernetesClient {
       await this.createResources(context, manifests, namespace);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      if (error.response && error.response.body) {
+      if (error?.response?.body) {
         if (error.response.body.message) {
           throw new Error(error.response.body.message);
         }

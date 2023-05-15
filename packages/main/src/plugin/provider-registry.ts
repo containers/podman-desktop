@@ -442,7 +442,7 @@ export class ProviderRegistry {
     if (provider.containerConnections && provider.containerConnections.length > 0) {
       const connection = provider.containerConnections[0];
       const lifecycle = connection.lifecycle;
-      if (!lifecycle || !lifecycle.start) {
+      if (!lifecycle?.start) {
         throw new Error('The container connection does not support start lifecycle');
       }
 
@@ -469,7 +469,7 @@ export class ProviderRegistry {
       return this.intializeProviderLifecycle(providerInternalId);
     }
 
-    if (provider.containerProviderConnectionFactory && provider.containerProviderConnectionFactory.initialize) {
+    if (provider?.containerProviderConnectionFactory?.initialize) {
       this.telemetryService
         .track('initializeProvider', {
           name: provider.name,
@@ -479,7 +479,7 @@ export class ProviderRegistry {
       return provider.containerProviderConnectionFactory.initialize();
     }
 
-    if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.initialize) {
+    if (provider?.kubernetesProviderConnectionFactory?.initialize) {
       this.telemetryService
         .track('initializeProvider', {
           name: provider.name,
@@ -549,13 +549,13 @@ export class ProviderRegistry {
 
     // container connection factory ?
     let containerProviderConnectionInitialization = false;
-    if (provider.containerProviderConnectionFactory && provider.containerProviderConnectionFactory.initialize) {
+    if (provider?.containerProviderConnectionFactory?.initialize) {
       containerProviderConnectionInitialization = true;
     }
 
     // kubernetes connection factory ?
     let kubernetesProviderConnectionCreation = false;
-    if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.create) {
+    if (provider?.kubernetesProviderConnectionFactory?.create) {
       kubernetesProviderConnectionCreation = true;
     }
 
@@ -576,7 +576,7 @@ export class ProviderRegistry {
     const kubernetesProviderConnectionCreationButtonTitle =
       provider.kubernetesProviderConnectionFactory?.creationButtonTitle;
     const emptyConnectionMarkdownDescription = provider.emptyConnectionMarkdownDescription;
-    if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.initialize) {
+    if (provider?.kubernetesProviderConnectionFactory?.initialize) {
       kubernetesProviderConnectionInitialization = true;
     }
 
@@ -780,7 +780,7 @@ export class ProviderRegistry {
     const connection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
 
     const lifecycle = connection.lifecycle;
-    if (!lifecycle || !lifecycle.start) {
+    if (!lifecycle?.start) {
       throw new Error('The container connection does not support start lifecycle');
     }
 
@@ -830,7 +830,7 @@ export class ProviderRegistry {
     const connection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
 
     const lifecycle = connection.lifecycle;
-    if (!lifecycle || !lifecycle.stop) {
+    if (!lifecycle?.stop) {
       throw new Error('The container connection does not support stop lifecycle');
     }
 
@@ -880,7 +880,7 @@ export class ProviderRegistry {
     const connection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
 
     const lifecycle = connection.lifecycle;
-    if (!lifecycle || !lifecycle.delete) {
+    if (!lifecycle?.delete) {
       throw new Error('The container connection does not support delete lifecycle');
     }
     this.telemetryService

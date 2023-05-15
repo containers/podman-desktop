@@ -149,11 +149,7 @@ export class PodmanInstall {
     const installer = this.getInstaller();
     const bundledVersion = getBundledPodmanVersion();
 
-    if (
-      installer &&
-      installer.requireUpdate(installedVersion) &&
-      this.podmanInfo.ignoreVersionUpdate !== bundledVersion
-    ) {
+    if (installer?.requireUpdate(installedVersion) && this.podmanInfo.ignoreVersionUpdate !== bundledVersion) {
       return { installedVersion, hasUpdate: true, bundledVersion };
     }
     return { installedVersion, hasUpdate: false, bundledVersion };

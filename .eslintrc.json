@@ -55,6 +55,7 @@
     "@typescript-eslint/await-thenable": "error",
     "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/no-misused-promises": "error",
+    "@typescript-eslint/prefer-optional-chain": "error",
 
   /**
    * Having a semicolon helps the optimizer interpret your code correctly.

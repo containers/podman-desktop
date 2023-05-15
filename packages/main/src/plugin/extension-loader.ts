@@ -167,7 +167,7 @@ export class ExtensionLoader {
         const extension = Array.from(analyzedExtensions.values()).find(extension =>
           path.normalize(parent.filename).startsWith(path.normalize(extension.path)),
         );
-        if (extension && extension.api) {
+        if (extension?.api) {
           return extension.api;
         }
         throw new Error('Unable to find extension API');
@@ -763,7 +763,7 @@ export class ExtensionLoader {
       while (i--) {
         const childMod: NodeJS.Module | undefined = mod?.children[i];
         // ensure the child module is not null, is in the plug-in folder, and is not a native module (see above)
-        if (childMod && childMod.id.startsWith(extension.path) && !childMod.id.endsWith('.node')) {
+        if (childMod?.id.startsWith(extension.path) && !childMod.id.endsWith('.node')) {
           // cleanup exports - note that some modules (e.g. ansi-styles) define their
           // exports in an immutable manner, so overwriting the exports throws an error
           delete childMod.exports;
