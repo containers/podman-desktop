@@ -24,10 +24,10 @@ import type { LinuxOs } from 'getos';
 import getos from 'getos';
 import * as osLocale from 'os-locale';
 import { promisify } from 'node:util';
-import type { ConfigurationRegistry, IConfigurationNode } from '/@/plugin/configuration-registry';
+import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry';
 import { TelemetrySettings } from './telemetry-settings';
-import type { Event } from '/@/plugin/events/emitter';
-import { Emitter } from '/@/plugin/events/emitter';
+import type { Event } from '../events/emitter';
+import { Emitter } from '../events/emitter';
 import type {
   TelemetryLogger,
   TelemetryLoggerOptions,
@@ -35,7 +35,7 @@ import type {
   TelemetryTrustedValue,
 } from '@podman-desktop/api';
 import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry';
-import { stoppedExtensions } from '/@/util';
+import { stoppedExtensions } from '../../util';
 
 export const TRACK_EVENT_TYPE = 'track';
 export const PAGE_EVENT_TYPE = 'page';

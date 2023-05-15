@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { Disposable } from './types/disposable';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry';
+import type { Telemetry } from './telemetry/telemetry';
 
 export interface CommandHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
