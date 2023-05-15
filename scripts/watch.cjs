@@ -177,15 +177,15 @@ const setupBuiltinExtensionApiWatcher = name => {
     });
 
     await viteDevServer.listen();
-    await setupBuiltinExtensionApiWatcher('compose');
-    await setupBuiltinExtensionApiWatcher('docker');
-    await setupBuiltinExtensionApiWatcher('kube-context');
-    await setupBuiltinExtensionApiWatcher('lima');
-    await setupBuiltinExtensionApiWatcher('podman');
-    await setupBuiltinExtensionApiWatcher('kind');
-    await setupBuiltinExtensionApiWatcher('registries');
+    setupBuiltinExtensionApiWatcher('compose');
+    setupBuiltinExtensionApiWatcher('docker');
+    setupBuiltinExtensionApiWatcher('kube-context');
+    setupBuiltinExtensionApiWatcher('lima');
+    setupBuiltinExtensionApiWatcher('podman');
+    setupBuiltinExtensionApiWatcher('kind');
+    setupBuiltinExtensionApiWatcher('registries');
     for (const extension of extensions) {
-      await setupExtensionApiWatcher(extension);
+      setupExtensionApiWatcher(extension);
     }
     await setupPreloadPackageWatcher(viteDevServer);
     await setupPreloadDockerExtensionPackageWatcher(viteDevServer);
