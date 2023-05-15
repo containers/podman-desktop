@@ -39,7 +39,7 @@
       }
     }
   },
-  "plugins": ["@typescript-eslint", "sonarjs", "etc"],
+  "plugins": ["@typescript-eslint", "sonarjs", "etc", "redundant-undefined"],
   "ignorePatterns": [
     "packages/preload/exposedInMainWorld.d.ts",
     "packages/preload-docker-extension/exposedInDockerExtension.d.ts",
@@ -89,6 +89,7 @@
     "sonarjs/no-empty-collection": "off",
     "sonarjs/no-small-switch": "off",
     "etc/no-commented-out-code": "error",
-    "etc/no-deprecated": "off"
+    "etc/no-deprecated": "off",
+    "redundant-undefined/redundant-undefined": "error"
   }
 }

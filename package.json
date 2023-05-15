@@ -94,6 +94,7 @@
     "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-etc": "^2.0.3",
     "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-redundant-undefined": "^0.4.0",
     "eslint-plugin-sonarjs": "^0.19.0",
     "nock": "^13.3.1",
     "playwright": "1.33.0",

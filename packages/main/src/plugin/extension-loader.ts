@@ -697,8 +697,8 @@ export class ExtensionLoader {
         }
       },
       createTelemetryLogger: (
-        sender?: containerDesktopAPI.TelemetrySender | undefined,
-        options?: containerDesktopAPI.TelemetryLoggerOptions | undefined,
+        sender?: containerDesktopAPI.TelemetrySender,
+        options?: containerDesktopAPI.TelemetryLoggerOptions,
       ) => {
         return telemetry.createTelemetryLogger(extensionInfo, sender, options);
       },
