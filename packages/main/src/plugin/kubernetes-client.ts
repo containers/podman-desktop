@@ -53,7 +53,7 @@ import type { PodInfo } from './api/pod-info';
 import { PassThrough } from 'node:stream';
 import type { ApiSenderType } from './api';
 import { parseAllDocuments } from 'yaml';
-import { Telemetry } from '/@/plugin/telemetry/telemetry';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {

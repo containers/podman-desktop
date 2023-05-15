@@ -22,7 +22,7 @@ import type { ApiSenderType } from './api';
 import type { ConfigurationRegistry } from './configuration-registry';
 import { FilesystemMonitoring } from './filesystem-monitoring';
 import { KubeConfig } from '@kubernetes/client-node';
-import { Telemetry } from '/@/plugin/telemetry/telemetry';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();

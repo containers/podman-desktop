@@ -667,7 +667,7 @@ export class ContainerProviderRegistry {
     let telemetryOptions = {};
     try {
       const engine = this.getMatchingEngine(engineId);
-      const image = await engine.getImage(imageTag);
+      const image = engine.getImage(imageTag);
       const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
       const pushStream = await image.push({ authconfig });
       pushStream.on('end', () => {
@@ -713,16 +713,16 @@ export class ContainerProviderRegistry {
       });
 
       // eslint-disable-next-line @typescript-eslint/ban-types
-      function onFinished(err: Error | null) {
+      const onFinished = (err: Error | null) => {
         if (err) {
           return reject(err);
         }
         resolve();
-      }
+      };
 
-      function onProgress(event: PullEvent) {
+      const onProgress = (event: PullEvent) => {
         callback(event);
-      }
+      };
       matchingEngine.modem.followProgress(pullStream, onFinished, onProgress);
 
       return promise;
@@ -1307,28 +1307,28 @@ export class ContainerProviderRegistry {
       });
 
       // eslint-disable-next-line @typescript-eslint/ban-types
-      function onFinished(err: Error | null, output: {}) {
+      const onFinished = (err: Error | null, output: {}) => {
         if (err) {
           eventCollect('finish', err.message);
           return reject(err);
         }
         eventCollect('finish', '');
         resolve(output);
-      }
+      };
 
-      function onProgress(event: {
+      const onProgress = (event: {
         stream?: string;
         status?: string;
         progress?: string;
         error?: string;
         errorDetails?: { message?: string };
-      }) {
+      }) => {
         if (event.stream) {
           eventCollect('stream', event.stream);
         } else if (event.error) {
           eventCollect('error', event.error);
         }
-      }
+      };
 
       matchingContainerProvider.api.modem.followProgress(streamingPromise, onFinished, onProgress);
       return promise;
