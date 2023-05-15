@@ -4,7 +4,7 @@ import { filtered, searchPattern, containersInfos } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import ContainerIcon from './images/ContainerIcon.svelte';
-import ContainerGroupIcon from './container/ContainerGroupIcon.svelte';
+import PodIcon from './images/PodIcon.svelte';
 import StatusIcon from './images/StatusIcon.svelte';
 import { router } from 'tinro';
 import { ContainerGroupInfoTypeUI, type ContainerGroupInfoUI, type ContainerInfoUI } from './container/ContainerInfoUI';
@@ -410,7 +410,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               </td>
               <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
                 <div class="grid place-content-center ml-3 mr-4">
-                  <ContainerGroupIcon containers="{containerGroup.containers}" />
+                  <StatusIcon icon="{PodIcon}" status="{containerGroup.status}" />
                 </div>
               </td>
               <td class="whitespace-nowrap hover:cursor-pointer">

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ContainerUtils } from './container-utils';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
+import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
 
 let containerUtils: ContainerUtils;
 
@@ -83,4 +84,120 @@ test('should expect ports as string when there are multiple public ports', async
   } as unknown as ContainerInfo;
   const ports = containerUtils.getPortsAsString(containerInfo);
   expect(ports).toBe('80, 8022');
+});
+
+test('container group status should be running when all compose containers are running', async () => {
+  const groupName = 'compose-group';
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'docker.io/kindest/node:foobar',
+    Labels: { 'com.docker.compose.project': groupName },
+    Names: ['container1'],
+    State: 'RUNNING',
+  } as unknown as ContainerInfo;
+  const containerInfo2 = {
+    Id: 'container2',
+    Image: 'docker.io/kindest/node:foobar',
+    Labels: { 'com.docker.compose.project': groupName },
+    Names: ['container2'],
+    State: 'RUNNING',
+  } as unknown as ContainerInfo;
+  const groups = containerUtils.getContainerGroups([
+    containerUtils.getContainerInfoUI(containerInfo),
+    containerUtils.getContainerInfoUI(containerInfo2),
+  ]);
+  const group = groups[0];
+  expect(group.name).toBe(groupName);
+  expect(group.type).toBe(ContainerGroupInfoTypeUI.COMPOSE);
+  expect(group.status).toBe('RUNNING');
+});
+
+test('container group status should be stopped when any compose container is stopped', async () => {
+  const groupName = 'compose-group';
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'docker.io/kindest/node:foobar',
+    Labels: { 'com.docker.compose.project': groupName },
+    Names: ['container1'],
+    State: 'RUNNING',
+  } as unknown as ContainerInfo;
+  const containerInfo2 = {
+    Id: 'container2',
+    Image: 'docker.io/kindest/node:foobar',
+    Labels: { 'com.docker.compose.project': groupName },
+    Names: ['container2'],
+    State: 'STOPPED',
+  } as unknown as ContainerInfo;
+  const groups = containerUtils.getContainerGroups([
+    containerUtils.getContainerInfoUI(containerInfo),
+    containerUtils.getContainerInfoUI(containerInfo2),
+  ]);
+
+  const group = groups[0];
+  expect(group.name).toBe(groupName);
+  expect(group.type).toBe(ContainerGroupInfoTypeUI.COMPOSE);
+  expect(group.status).toBe('STOPPED');
+});
+
+test('container group status should be running when the pod status is running', async () => {
+  const groupName = 'pod-group';
+  const pod = {
+    id: 'podId',
+    name: groupName,
+    status: 'RUNNING',
+  };
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'docker.io/kindest/node:foobar',
+    Names: ['container1'],
+    State: 'RUNNING',
+    pod: pod,
+  } as unknown as ContainerInfo;
+  const containerInfo2 = {
+    Id: 'container2',
+    Image: 'docker.io/kindest/node:foobar',
+    Names: ['container2'],
+    State: 'RUNNING',
+    pod: pod,
+  } as unknown as ContainerInfo;
+  const groups = containerUtils.getContainerGroups([
+    containerUtils.getContainerInfoUI(containerInfo),
+    containerUtils.getContainerInfoUI(containerInfo2),
+  ]);
+  const group = groups[0];
+  expect(group.name).toBe(groupName);
+  expect(group.type).toBe(ContainerGroupInfoTypeUI.POD);
+  expect(group.status).toBe('RUNNING');
+});
+
+test('container group status should be degraded when the pod status is degraded', async () => {
+  const groupName = 'pod-group';
+  const pod = {
+    id: 'podId',
+    name: groupName,
+    status: 'DEGRADED',
+  };
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'docker.io/kindest/node:foobar',
+    Names: ['container1'],
+    State: 'RUNNING',
+    pod: pod,
+  } as unknown as ContainerInfo;
+  const containerInfo2 = {
+    Id: 'container2',
+    Image: 'docker.io/kindest/node:foobar',
+    Names: ['container2'],
+    State: 'STOPPED',
+    pod: pod,
+  } as unknown as ContainerInfo;
+  const groups = containerUtils.getContainerGroups([
+    containerUtils.getContainerInfoUI(containerInfo),
+    containerUtils.getContainerInfoUI(containerInfo2),
+  ]);
+
+  const group = groups[0];
+  expect(group.name).toBe(groupName);
+  expect(group.type).toBe(ContainerGroupInfoTypeUI.POD);
+  expect(group.status).toBe('DEGRADED');
 });

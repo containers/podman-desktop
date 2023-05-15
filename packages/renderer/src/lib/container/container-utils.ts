@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ export class ContainerUtils {
   hasPublicPort(containerInfo: ContainerInfo): boolean {
     const publicPorts = containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort);
 
-    return publicPorts.length > 0;
+    return publicPorts && publicPorts.length > 0;
   }
 
   getOpeningUrl(containerInfo: ContainerInfo): string {
@@ -154,6 +154,7 @@ export class ContainerUtils {
         name: podInfo.name,
         type: ContainerGroupInfoTypeUI.POD,
         id: podInfo.id,
+        status: (podInfo.status || '').toUpperCase(),
         engineId: containerInfo.engineId,
       };
     }
@@ -162,6 +163,7 @@ export class ContainerUtils {
     return {
       name: this.getName(containerInfo),
       type: ContainerGroupInfoTypeUI.STANDALONE,
+      status: (containerInfo.Status || '').toUpperCase(),
     };
   }
 
@@ -181,6 +183,7 @@ export class ContainerUtils {
             name: group.name,
             type: group.type,
             id: group.id,
+            status: group.status,
             engineId: group.engineId,
             containers: [],
           });
@@ -188,6 +191,11 @@ export class ContainerUtils {
         groups.get(group.name).containers.push(containerInfo);
       }
     });
+
+    Array.from(groups.values())
+      .filter(group => group.type === ContainerGroupInfoTypeUI.COMPOSE)
+      .forEach(group => (group.status = group.containers.every(c => c.state === 'RUNNING') ? 'RUNNING' : 'STOPPED'));
+
     return Array.from(groups.values());
   }
 
