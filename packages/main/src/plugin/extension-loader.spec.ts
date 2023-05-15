@@ -241,7 +241,7 @@ test('Verify extension error leads to failed state', async () => {
     {
       id: id,
       path: 'dummy',
-      api: undefined,
+      api: {},
       mainPath: '',
       removable: false,
       manifest: {},
