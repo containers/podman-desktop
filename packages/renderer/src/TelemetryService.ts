@@ -38,9 +38,9 @@ export class TelemetryService {
       this.handlerFlusher = undefined;
     }
 
-    this.handlerFlusher = setTimeout(() => {
+    this.handlerFlusher = setTimeout(async () => {
       if (window.telemetryPage) {
-        window.telemetryPage(pagePath);
+        await window.telemetryPage(pagePath);
       }
     }, 200);
   }

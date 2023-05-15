@@ -56,22 +56,22 @@ export const registriesSuggestedInfos: Writable<readonly containerDesktopAPI.Reg
 export const searchPattern = writable('');
 
 // need to refresh when new registry are updated/deleted
-window.events?.receive('registry-register', () => {
-  fetchRegistries();
+window.events?.receive('registry-register', async () => {
+  await fetchRegistries();
 });
 
-window.events?.receive('registry-unregister', () => {
-  fetchRegistries();
+window.events?.receive('registry-unregister', async () => {
+  await fetchRegistries();
 });
 
-window.events?.receive('registry-update', () => {
-  fetchRegistries();
+window.events?.receive('registry-update', async () => {
+  await fetchRegistries();
 });
 
-window.addEventListener('system-ready', () => {
-  fetchRegistries();
+window.addEventListener('system-ready', async () => {
+  await fetchRegistries();
 });
 
-window.events?.receive('extensions-started', () => {
-  fetchRegistries();
+window.events?.receive('extensions-started', async () => {
+  await fetchRegistries();
 });

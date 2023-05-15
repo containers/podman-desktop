@@ -29,24 +29,24 @@ export async function fetchExtensions() {
 export const extensionInfos: Writable<ExtensionInfo[]> = writable([]);
 
 // need to refresh when extension is started or stopped
-window?.events?.receive('extension-starting', () => {
-  fetchExtensions();
+window?.events?.receive('extension-starting', async () => {
+  await fetchExtensions();
 });
-window?.events?.receive('extension-started', () => {
-  fetchExtensions();
+window?.events?.receive('extension-started', async () => {
+  await fetchExtensions();
 });
-window?.events?.receive('extension-stopping', () => {
-  fetchExtensions();
+window?.events?.receive('extension-stopping', async () => {
+  await fetchExtensions();
 });
-window?.events?.receive('extension-stopped', () => {
-  fetchExtensions();
+window?.events?.receive('extension-stopped', async () => {
+  await fetchExtensions();
 });
-window?.events?.receive('extension-removed', () => {
-  fetchExtensions();
+window?.events?.receive('extension-removed', async () => {
+  await fetchExtensions();
 });
-window?.events?.receive('extensions-started', () => {
-  fetchExtensions();
+window?.events?.receive('extensions-started', async () => {
+  await fetchExtensions();
 });
-window.addEventListener('system-ready', () => {
-  fetchExtensions();
+window.addEventListener('system-ready', async () => {
+  await fetchExtensions();
 });

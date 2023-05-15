@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,21 +77,21 @@ export class TrayMenuRegistry {
     );
 
     ipcMain.on('tray:menu-item-click', (_, menuItemId: string, label: string) => {
-      try {
-        this.commandRegistry.executeCommand(menuItemId, label);
-      } catch (err) {
+      this.commandRegistry.executeCommand(menuItemId, label).catch((err: unknown) => {
         console.error(err);
-      }
+      });
     });
 
-    ipcMain.on('tray:menu-provider-click', (_, param: { action: string; providerInfo: ProviderInfo }) => {
-      this.telemetryService.track('tray:menu-provider-click', { action: param.action, name: param.providerInfo.name });
+    ipcMain.on('tray:menu-provider-click', async (_, param: { action: string; providerInfo: ProviderInfo }) => {
+      this.telemetryService
+        .track('tray:menu-provider-click', { action: param.action, name: param.providerInfo.name })
+        .catch((err: unknown) => console.error('Unable to track', err));
       const provider = this.providers.get(param.providerInfo.internalId);
       if (provider) {
         if (param.action === 'Start') {
-          providerRegistry.startProviderLifecycle(param.providerInfo.internalId);
+          return providerRegistry.startProviderLifecycle(param.providerInfo.internalId);
         } else if (param.action === 'Stop') {
-          providerRegistry.stopProviderLifecycle(param.providerInfo.internalId);
+          return providerRegistry.stopProviderLifecycle(param.providerInfo.internalId);
         }
       }
     });
@@ -106,10 +106,12 @@ export class TrayMenuRegistry {
           providerContainerConnectionInfo: ProviderContainerConnectionInfo;
         },
       ) => {
-        this.telemetryService.track('tray:menu-provider-container-connection-click', {
-          action: param.action,
-          name: param.providerContainerConnectionInfo.name,
-        });
+        this.telemetryService
+          .track('tray:menu-provider-container-connection-click', {
+            action: param.action,
+            name: param.providerContainerConnectionInfo.name,
+          })
+          .catch((err: unknown) => console.error('Unable to track', err));
 
         const provider = this.providers.get(param.providerInfo.internalId);
         if (provider) {

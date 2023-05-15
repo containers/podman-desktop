@@ -443,8 +443,8 @@ export class ExtensionLoader {
       getProxySettings(): containerDesktopAPI.ProxySettings | undefined {
         return proxyInstance.proxy;
       },
-      setProxy(proxySettings: containerDesktopAPI.ProxySettings): void {
-        proxyInstance.setProxy(proxySettings);
+      async setProxy(proxySettings: containerDesktopAPI.ProxySettings): Promise<void> {
+        return proxyInstance.setProxy(proxySettings);
       },
       onDidUpdateProxy: (listener, thisArg, disposables) => {
         return proxyInstance.onDidUpdateProxy(listener, thisArg, disposables);

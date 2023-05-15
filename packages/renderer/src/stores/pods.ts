@@ -46,35 +46,35 @@ export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $i
 });
 
 // need to refresh when extension is started or stopped
-window.events?.receive('extension-started', () => {
-  fetchPods();
+window.events?.receive('extension-started', async () => {
+  await fetchPods();
 });
-window.events?.receive('extension-stopped', () => {
-  fetchPods();
-});
-
-window.events?.receive('container-stopped-event', () => {
-  fetchPods();
+window.events?.receive('extension-stopped', async () => {
+  await fetchPods();
 });
 
-window.events?.receive('container-die-event', () => {
-  fetchPods();
+window.events?.receive('container-stopped-event', async () => {
+  await fetchPods();
 });
 
-window.events?.receive('container-kill-event', () => {
-  fetchPods();
+window.events?.receive('container-die-event', async () => {
+  await fetchPods();
 });
 
-window.events?.receive('container-started-event', () => {
-  fetchPods();
+window.events?.receive('container-kill-event', async () => {
+  await fetchPods();
 });
 
-window.events?.receive('provider-change', () => {
-  fetchPods();
+window.events?.receive('container-started-event', async () => {
+  await fetchPods();
 });
 
-window.events?.receive('pod-event', () => {
-  fetchPods();
+window.events?.receive('provider-change', async () => {
+  await fetchPods();
+});
+
+window.events?.receive('pod-event', async () => {
+  await fetchPods();
 });
 
 window?.events?.receive('extensions-started', async () => {

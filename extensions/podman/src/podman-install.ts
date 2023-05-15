@@ -53,7 +53,7 @@ export class PodmanInfoImpl implements PodmanInfo {
   set podmanVersion(version: string) {
     if (this.podmanInfo.podmanVersion !== version) {
       this.podmanInfo.podmanVersion = version;
-      this.writeInfo();
+      this.writeInfo().catch((err: unknown) => console.error('Unable to write Podman Version', err));
     }
   }
 
@@ -64,7 +64,7 @@ export class PodmanInfoImpl implements PodmanInfo {
   set lastUpdateCheck(lastCheck: number) {
     if (this.podmanInfo.lastUpdateCheck !== lastCheck) {
       this.podmanInfo.lastUpdateCheck = lastCheck;
-      this.writeInfo();
+      this.writeInfo().catch((err: unknown) => console.error('Unable to write Podman Version', err));
     }
   }
 
@@ -79,7 +79,7 @@ export class PodmanInfoImpl implements PodmanInfo {
   set ignoreVersionUpdate(version: string) {
     if (this.podmanInfo.ignoreVersionUpdate !== version) {
       this.podmanInfo.ignoreVersionUpdate = version;
-      this.writeInfo();
+      this.writeInfo().catch((err: unknown) => console.error('Unable to write Podman Version', err));
     }
   }
 

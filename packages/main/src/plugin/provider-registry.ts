@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,7 +178,9 @@ export class ProviderRegistry {
     if (providerOptions.version) {
       trackOpts.version = providerOptions.version;
     }
-    this.telemetryService.track('createProvider', trackOpts);
+    this.telemetryService
+      .track('createProvider', trackOpts)
+      .catch((err: unknown) => console.error('Unable to track', err));
     this.apiSender.send('provider-create', id);
     providerImpl.onDidUpdateVersion(() => this.apiSender.send('provider:update-version'));
     return providerImpl;
@@ -404,9 +406,11 @@ export class ProviderRegistry {
     if (!providerInstall) {
       throw new Error(`No matching installation for provider ${provider.internalId}`);
     }
-    this.telemetryService.track('installProvider', {
-      name: provider.name,
-    });
+    this.telemetryService
+      .track('installProvider', {
+        name: provider.name,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     return providerInstall.install(new LoggerImpl());
   }
 
@@ -418,9 +422,11 @@ export class ProviderRegistry {
       throw new Error(`No matching update for provider ${provider.internalId}`);
     }
 
-    this.telemetryService.track('updateProvider', {
-      name: provider.name,
-    });
+    this.telemetryService
+      .track('updateProvider', {
+        name: provider.name,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     return providerUpdate.update(new LoggerImpl());
   }
 
@@ -464,17 +470,21 @@ export class ProviderRegistry {
     }
 
     if (provider.containerProviderConnectionFactory && provider.containerProviderConnectionFactory.initialize) {
-      this.telemetryService.track('initializeProvider', {
-        name: provider.name,
-      });
+      this.telemetryService
+        .track('initializeProvider', {
+          name: provider.name,
+        })
+        .catch((err: unknown) => console.error('Unable to track', err));
 
       return provider.containerProviderConnectionFactory.initialize();
     }
 
     if (provider.kubernetesProviderConnectionFactory && provider.kubernetesProviderConnectionFactory.initialize) {
-      this.telemetryService.track('initializeProvider', {
-        name: provider.name,
-      });
+      this.telemetryService
+        .track('initializeProvider', {
+          name: provider.name,
+        })
+        .catch((err: unknown) => console.error('Unable to track', err));
 
       return provider.kubernetesProviderConnectionFactory.initialize();
     }
@@ -873,7 +883,9 @@ export class ProviderRegistry {
     if (!lifecycle || !lifecycle.delete) {
       throw new Error('The container connection does not support delete lifecycle');
     }
-    this.telemetryService.track('deleteProviderConnection', { name: providerConnectionInfo.name });
+    this.telemetryService
+      .track('deleteProviderConnection', { name: providerConnectionInfo.name })
+      .catch((err: unknown) => console.error('Unable to track', err));
     return lifecycle.delete(logHandler);
   }
 
@@ -971,10 +983,12 @@ export class ProviderRegistry {
     const providerName = kubernetesProviderConnection.name;
     const id = `${provider.id}.${providerName}`;
     this.kubernetesProviders.set(id, kubernetesProviderConnection);
-    this.telemetryService.track('registerKubernetesProviderConnection', {
-      name: kubernetesProviderConnection.name,
-      total: this.kubernetesProviders.size,
-    });
+    this.telemetryService
+      .track('registerKubernetesProviderConnection', {
+        name: kubernetesProviderConnection.name,
+        total: this.kubernetesProviders.size,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     let previousStatus = kubernetesProviderConnection.status();
 

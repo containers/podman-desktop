@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,9 @@ export class DockerExtensionPreload {
     const execProcess: dockerDesktopAPI.ExecProcess = {
       close(): void {
         // send abort on the remote side
-        ipcRenderer.invoke('docker-plugin-adapter:execAbort', callbackId);
+        ipcRenderer.invoke('docker-plugin-adapter:execAbort', callbackId).catch((err: unknown) => {
+          console.error('docker-plugin-adapter:execAbort', err);
+        });
       },
     };
     return execProcess;
@@ -214,16 +216,22 @@ export class DockerExtensionPreload {
     const toast: dockerDesktopAPI.Toast = {
       success(msg: string): void {
         console.info('docker-desktop-adapter:toast:success', msg);
-        ipcRenderer.invoke('docker-desktop-adapter:desktopUIToast', 'success', msg);
+        ipcRenderer.invoke('docker-desktop-adapter:desktopUIToast', 'success', msg).catch((err: unknown) => {
+          console.error('docker-desktop-adapter:toast:success:error', err);
+        });
       },
 
       warning(msg: string): void {
         console.warn('docker-desktop-adapter:toast:warning', msg);
-        ipcRenderer.invoke('docker-desktop-adapter:desktopUIToast', 'warning', msg);
+        ipcRenderer.invoke('docker-desktop-adapter:desktopUIToast', 'warning', msg).catch((err: unknown) => {
+          console.error('docker-desktop-adapter:toast:warning', err);
+        });
       },
       error(msg: string): void {
         console.error('docker-desktop-adapter:toast:error', msg);
-        ipcRenderer.invoke('docker-desktop-adapter:desktopUIToast', 'error', msg);
+        ipcRenderer.invoke('docker-desktop-adapter:desktopUIToast', 'error', msg).catch((err: unknown) => {
+          console.error('docker-desktop-adapter:toast:error', err);
+        });
       },
     };
 
@@ -356,7 +364,9 @@ export class DockerExtensionPreload {
 
     const toastError = (error: Error) => {
       console.error(error);
-      ipcRenderer.invoke('docker-desktop-adapter:desktopUIToast', 'error', error?.toString());
+      ipcRenderer.invoke('docker-desktop-adapter:desktopUIToast', 'error', error?.toString()).catch((err: unknown) => {
+        console.error('docker-desktop-adapter:desktopUIToast', err);
+      });
     };
     (result as any).toastError = toastError;
 

@@ -41,40 +41,40 @@ export const filtered = derived([searchPattern, containersInfos], ([$searchPatte
 );
 
 // need to refresh when extension is started
-window.events?.receive('extension-started', () => {
-  fetchContainers();
+window.events?.receive('extension-started', async () => {
+  await fetchContainers();
 });
 
-window.addEventListener('tray:update-provider', () => {
-  fetchContainers();
+window.addEventListener('tray:update-provider', async () => {
+  await fetchContainers();
 });
 
-window.events?.receive('container-stopped-event', () => {
-  fetchContainers();
+window.events?.receive('container-stopped-event', async () => {
+  await fetchContainers();
 });
 
-window.events?.receive('container-die-event', () => {
-  fetchContainers();
+window.events?.receive('container-die-event', async () => {
+  await fetchContainers();
 });
 
-window.events?.receive('container-kill-event', () => {
-  fetchContainers();
+window.events?.receive('container-kill-event', async () => {
+  await fetchContainers();
 });
 
-window.events?.receive('container-started-event', () => {
-  fetchContainers();
+window.events?.receive('container-started-event', async () => {
+  await fetchContainers();
 });
 
-window.events?.receive('container-removed-event', () => {
-  fetchContainers();
+window.events?.receive('container-removed-event', async () => {
+  await fetchContainers();
 });
 
-window.events?.receive('provider-change', () => {
-  fetchContainers();
+window.events?.receive('provider-change', async () => {
+  await fetchContainers();
 });
 
-window.events?.receive('pod-event', () => {
-  fetchContainers();
+window.events?.receive('pod-event', async () => {
+  await fetchContainers();
 });
 
 window?.events?.receive('extensions-started', async () => {

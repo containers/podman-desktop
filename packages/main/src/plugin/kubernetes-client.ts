@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,11 +171,11 @@ export class KubernetesClient {
     }
 
     // Update the property on change
-    this.configurationRegistry.onDidChangeConfiguration(e => {
+    this.configurationRegistry.onDidChangeConfiguration(async e => {
       if (e.key === 'kubernetes.Kubeconfig') {
         const val = e.value as string;
         this.setupWatcher(val);
-        this.setKubeconfig(Uri.file(val));
+        await this.setKubeconfig(Uri.file(val));
       }
     });
   }
@@ -218,7 +218,8 @@ export class KubernetesClient {
           () => this.apiSender.send('pod-event'),
           (err: unknown) => console.error('Kube event error', err),
         )
-        .then(req => (this.kubeWatcher = req));
+        .then(req => (this.kubeWatcher = req))
+        .catch((err: unknown) => console.error('Kube event error', err));
     }
   }
 
@@ -417,7 +418,7 @@ export class KubernetesClient {
         callback('data', chunk.toString('utf-8'));
       });
 
-      log.log(ns, name, container, logStream, { follow: true });
+      await log.log(ns, name, container, logStream, { follow: true });
     }
   }
 
@@ -425,7 +426,7 @@ export class KubernetesClient {
     const ns = this.currentNamespace;
     if (ns) {
       const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-      k8sApi.deleteNamespacedPod(name, ns);
+      await k8sApi.deleteNamespacedPod(name, ns);
     }
   }
 

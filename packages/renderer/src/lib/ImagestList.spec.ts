@@ -34,7 +34,9 @@ beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
   (window as any).updateConfigurationValue = vi.fn();
   (window as any).getContributedMenus = vi.fn();
-  (window as any).onDidUpdateProviderStatus = vi.fn();
+  const onDidUpdateProviderStatusMock = vi.fn();
+  (window as any).onDidUpdateProviderStatus = onDidUpdateProviderStatusMock;
+  onDidUpdateProviderStatusMock.mockImplementation(() => Promise.resolve());
   (window as any).hasAuthconfigForImage = vi.fn();
   (window as any).hasAuthconfigForImage.mockImplementation(() => Promise.resolve(false));
 

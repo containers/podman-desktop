@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,12 +158,12 @@ export class RegistrySetup {
     }
 
     // need to monitor this file
-    fs.watchFile(this.getAuthFileLocation(), () => {
-      this.updateRegistries(extensionContext);
+    fs.watchFile(this.getAuthFileLocation(), async () => {
+      await this.updateRegistries(extensionContext);
     });
 
     // else init with the content of this file
-    this.updateRegistries(extensionContext);
+    await this.updateRegistries(extensionContext);
   }
 
   protected async readAuthFile(): Promise<ContainersAuthConfigFile> {

@@ -34,6 +34,7 @@ const apiSenderSendMock = vi.fn();
 
 beforeEach(() => {
   vi.clearAllMocks();
+  telemetryTrackMock.mockImplementation(() => Promise.resolve());
   const telemetry: Telemetry = {
     track: telemetryTrackMock,
   } as unknown as Telemetry;
