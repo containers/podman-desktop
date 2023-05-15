@@ -83,6 +83,11 @@ const dummyConnection2 = {
   },
 } as extensionApi.ProviderContainerConnection;
 
+const telemetryLogger = {
+  logUsage: vi.fn(),
+  logError: vi.fn(),
+};
+
 vi.mock('@podman-desktop/api', () => {
   return {
     StatusBarAlignLeft: 1,
@@ -102,6 +107,11 @@ vi.mock('@podman-desktop/api', () => {
       showQuickPick: vi.fn(),
       createStatusBarItem: vi.fn(),
       showInformationMessage: vi.fn(),
+    },
+    env: {
+      createTelemetryLogger: () => {
+        return telemetryLogger;
+      },
     },
   };
 });
@@ -336,6 +346,8 @@ describe.each([
     runChecksSpy.mockResolvedValue(undefined);
 
     await composeExtension.installDockerCompose();
+
+    expect(telemetryLogger.logUsage).toHaveBeenCalled();
 
     expect(showQuickPickMock).toHaveBeenCalledWith(items, { placeHolder: 'Select docker compose version to install' });
     // should have fetched latest releases
