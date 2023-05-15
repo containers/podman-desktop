@@ -67,7 +67,7 @@ class AuthenticationProviderSingleAccount implements AuthenticationProvider {
   private _onDidChangeSession = new EventEmitter<AuthenticationProviderAuthenticationSessionsChangeEvent>();
   private session: AuthenticationSession | undefined;
   onDidChangeSessions: Event<AuthenticationProviderAuthenticationSessionsChangeEvent> = this._onDidChangeSession.event;
-  async getSessions(scopes?: string[] | undefined): Promise<readonly AuthenticationSession[]> {
+  async getSessions(scopes?: string[]): Promise<readonly AuthenticationSession[]> {
     if (scopes) {
       return this.session ? [this.session] : [];
     }

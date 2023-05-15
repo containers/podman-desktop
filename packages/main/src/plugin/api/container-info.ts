@@ -61,8 +61,8 @@ export interface ContainerCreateOptions {
   // Env using ["MYVAR=value", ...]
   Env?: string[];
   // eslint-disable-next-line @typescript-eslint/ban-types
-  ExposedPorts?: { [port: string]: {} } | undefined;
-  HostConfig?: HostConfig | undefined;
-  Image?: string | undefined;
+  ExposedPorts?: { [port: string]: {} };
+  HostConfig?: HostConfig;
+  Image?: string;
   Tty?: boolean;
 }

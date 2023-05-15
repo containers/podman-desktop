@@ -179,8 +179,8 @@ export class Telemetry {
 
   createTelemetryLogger(
     extensionInfo: { id: string; name: string; publisher: string; version: string },
-    sender?: TelemetrySender | undefined,
-    options?: TelemetryLoggerOptions | undefined,
+    sender?: TelemetrySender,
+    options?: TelemetryLoggerOptions,
   ): TelemetryLogger {
     // if no sender, use the built-in
     if (!sender) {

@@ -3643,7 +3643,7 @@
     semver "^7.3.7"
     tsutils "^3.21.0"
 
-"@typescript-eslint/utils@5.59.5":
+"@typescript-eslint/utils@5.59.5", "@typescript-eslint/utils@^5.47.1":
   version "5.59.5"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/utils/-/utils-5.59.5.tgz#15b3eb619bb223302e60413adb0accd29c32bcae"
   integrity sha512-sCEHOiw+RbyTii9c3/qN74hYDPNORb8yWCoPLmB7BIflhplJ65u2PBpdRla12e3SSTJ2erRkPjz7ngLHhUegxA==
@@ -6520,6 +6520,13 @@ eslint-plugin-import@^2.27.5:
     resolve "^1.22.1"
     semver "^6.3.0"
     tsconfig-paths "^3.14.1"
+
+eslint-plugin-redundant-undefined@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-redundant-undefined/-/eslint-plugin-redundant-undefined-0.4.0.tgz#1445467d1920809f13f965f486a2d59f14f4aa65"
+  integrity sha512-+nzoUIWJCIwlWxhoFL9LJDPE2y0RCq2Eq8qD8NhfMScTHlNHvBc0haIWdBkjgzJZaN6OX/bkke/4WisV0qs7Vg==
+  dependencies:
+    "@typescript-eslint/utils" "^5.47.1"
 
 eslint-plugin-sonarjs@^0.19.0:
   version "0.19.0"
