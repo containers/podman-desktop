@@ -101,8 +101,8 @@ export class AuthenticationImpl {
     return await Promise.all(providers);
   }
 
-  public async signOut(providerId: string, sessionId: string) {
-    this.removeSession(providerId, sessionId);
+  public async signOut(providerId: string, sessionId: string): Promise<void> {
+    await this.removeSession(providerId, sessionId);
   }
 
   registerAuthenticationProvider(

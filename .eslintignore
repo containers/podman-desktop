@@ -7,3 +7,4 @@ extensions/*/builtin/**
 extensions/*/scripts/**
 extensions/*.ts
 __mocks__
+coverage

@@ -412,7 +412,7 @@ declare module '@podman-desktop/api' {
 
   export namespace proxy {
     export function getProxySettings(): ProxySettings | undefined;
-    export function setProxy(proxySettings: ProxySettings): void;
+    export function setProxy(proxySettings: ProxySettings): Promise<void>;
     // Podman Desktop has updated the settings, propagates the changes to the provider.
     export const onDidUpdateProxy: Event<ProxySettings>;
 
@@ -530,7 +530,7 @@ declare module '@podman-desktop/api' {
      * Update a configuration value. The updated configuration values are persisted.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    update(section: string, value: any): PromiseLike<void>;
+    update(section: string, value: any): Promise<void>;
 
     /**
      * Readable dictionary that backs this configuration.

@@ -88,7 +88,9 @@ app.whenReady().then(
 
     // Platforms: Linux, macOS, Windows
     // Create the main window
-    createNewWindow();
+    createNewWindow().catch((error: unknown) => {
+      console.log('Error creating window', error);
+    });
 
     // Platforms: macOS
     // Required for macOS to start the app correctly (this is will be shown in the dock)

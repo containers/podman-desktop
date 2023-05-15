@@ -142,10 +142,12 @@ export class ImageRegistry {
 
   registerRegistry(registry: containerDesktopAPI.Registry): Disposable {
     this.registries = [...this.registries, registry];
-    this.telemetryService.track('registerRegistry', {
-      serverUrl: this.getRegistryHash(registry),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('registerRegistry', {
+        serverUrl: this.getRegistryHash(registry),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     this.apiSender.send('registry-register', registry);
     this._onDidRegisterRegistry.fire(Object.freeze({ ...registry }));
     return Disposable.create(() => {
@@ -193,10 +195,12 @@ export class ImageRegistry {
       this.registries = filtered;
       this.apiSender.send('registry-unregister', registry);
     }
-    this.telemetryService.track('unregisterRegistry', {
-      serverUrl: this.getRegistryHash(registry),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('unregisterRegistry', {
+        serverUrl: this.getRegistryHash(registry),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
   }
 
   getRegistries(): readonly containerDesktopAPI.Registry[] {
@@ -239,10 +243,12 @@ export class ImageRegistry {
       registryCreateOptions.secret,
     );
     const registry = provider.create(registryCreateOptions);
-    this.telemetryService.track('createRegistry', {
-      serverUrlHash: this.getRegistryHash(registryCreateOptions),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('createRegistry', {
+        serverUrlHash: this.getRegistryHash(registryCreateOptions),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     return this.registerRegistry(registry);
   }
 
@@ -259,10 +265,12 @@ export class ImageRegistry {
     }
     matchingRegistry.username = registry.username;
     matchingRegistry.secret = registry.secret;
-    this.telemetryService.track('updateRegistry', {
-      serverUrl: this.getRegistryHash(matchingRegistry),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('updateRegistry', {
+        serverUrl: this.getRegistryHash(matchingRegistry),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     this.apiSender.send('registry-update', registry);
     this._onDidUpdateRegistry.fire(Object.freeze(registry));
   }

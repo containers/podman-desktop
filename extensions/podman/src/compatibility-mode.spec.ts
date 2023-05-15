@@ -69,7 +69,7 @@ test('darwin: DarwinSocketCompatibility class, test runSudoMacHelperCommand ran 
   });
 
   // Run the command
-  socketCompatClass.runCommand('enable', 'enabled');
+  await socketCompatClass.runCommand('enable', 'enabled');
 
   // Expect that mac helper command was ran
   expect(spyMacHelperCommand).toHaveBeenCalled();

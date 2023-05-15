@@ -159,11 +159,13 @@ export class ContainerProviderRegistry {
     const providerName = containerProviderConnection.name;
     const id = `${provider.id}.${providerName}`;
     this.containerProviders.set(id, containerProviderConnection);
-    this.telemetryService.track('registerContainerProviderConnection', {
-      name: containerProviderConnection.name,
-      type: containerProviderConnection.type,
-      total: this.containerProviders.size,
-    });
+    this.telemetryService
+      .track('registerContainerProviderConnection', {
+        name: containerProviderConnection.name,
+        type: containerProviderConnection.type,
+        total: this.containerProviders.size,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     const internalProvider: InternalContainerProvider = {
       id,
@@ -244,7 +246,9 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedContainers = containers.flat();
-    this.telemetryService.track('listSimpleContainers', { total: flatttenedContainers.length });
+    this.telemetryService
+      .track('listSimpleContainers', { total: flatttenedContainers.length })
+      .catch((err: unknown) => console.error('Unable to track', err));
     return flatttenedContainers;
   }
 
@@ -325,7 +329,9 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedContainers = containers.flat();
-    this.telemetryService.track('listContainers', { total: flatttenedContainers.length });
+    this.telemetryService
+      .track('listContainers', { total: flatttenedContainers.length })
+      .catch((err: unknown) => console.error('Unable to track', err));
     return flatttenedContainers;
   }
 
@@ -348,13 +354,15 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedImages = images.flat();
-    this.telemetryService.track('listImages', { total: flatttenedImages.length });
+    this.telemetryService
+      .track('listImages', { total: flatttenedImages.length })
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     return flatttenedImages;
   }
 
   async pruneImages(engineId: string): Promise<void> {
-    this.telemetryService.track('pruneImages');
+    this.telemetryService.track('pruneImages').catch((err: unknown) => console.error('Unable to track', err));
     // We have to use two different API calls for pruning images, because the Podman API does not respect the 'dangling' filter
     // and instead uses 'all' and 'external'. See: https://github.com/containers/podman/issues/11576
     // so for Dockerode we'll have to call pruneImages with the 'dangling' filter, and for Podman we'll have to call pruneImages
@@ -391,7 +399,9 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedPods = pods.flat();
-    this.telemetryService.track('listPods', { total: flatttenedPods.length });
+    this.telemetryService
+      .track('listPods', { total: flatttenedPods.length })
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     return flatttenedPods;
   }
@@ -415,7 +425,9 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedNetworks = networks.flat();
-    this.telemetryService.track('listNetworks', { total: flatttenedNetworks.length });
+    this.telemetryService
+      .track('listNetworks', { total: flatttenedNetworks.length })
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     return flatttenedNetworks;
   }
@@ -475,12 +487,14 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedVolumes: VolumeListInfo[] = volumes.flat();
-    this.telemetryService.track('listVolumes', { total: flatttenedVolumes.length });
+    this.telemetryService
+      .track('listVolumes', { total: flatttenedVolumes.length })
+      .catch((err: unknown) => console.error('Unable to track', err));
     return flatttenedVolumes;
   }
 
   async getVolumeInspect(engineId: string, volumeName: string): Promise<VolumeInspectInfo> {
-    this.telemetryService.track('volumeInspect');
+    this.telemetryService.track('volumeInspect').catch((err: unknown) => console.error('Unable to track', err));
     // need to find the container engine of the container
     const provider = this.internalProviders.get(engineId);
     if (!provider) {
@@ -499,7 +513,7 @@ export class ContainerProviderRegistry {
   }
 
   async removeVolume(engineId: string, volumeName: string): Promise<void> {
-    this.telemetryService.track('removeVolume');
+    this.telemetryService.track('removeVolume').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingEngine(engineId).getVolume(volumeName).remove();
   }
 
@@ -588,12 +602,12 @@ export class ContainerProviderRegistry {
   }
 
   async stopContainer(engineId: string, id: string): Promise<void> {
-    this.telemetryService.track('stopContainer');
+    this.telemetryService.track('stopContainer').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingContainer(engineId, id).stop();
   }
 
   async deleteImage(engineId: string, id: string): Promise<void> {
-    this.telemetryService.track('deleteImage');
+    this.telemetryService.track('deleteImage').catch((err: unknown) => console.error('Unable to track', err));
     // use force to delete it even it is running
     return this.getMatchingImage(engineId, id).remove({ force: true });
   }
@@ -610,7 +624,9 @@ export class ContainerProviderRegistry {
   async pushImage(engineId: string, imageTag: string, callback: (name: string, data: string) => void): Promise<void> {
     const engine = this.getMatchingEngine(engineId);
     const image = engine.getImage(imageTag);
-    this.telemetryService.track('pushImage', { imageName: this.getImageHash(imageTag) });
+    this.telemetryService
+      .track('pushImage', { imageName: this.getImageHash(imageTag) })
+      .catch((err: unknown) => console.error('Unable to track', err));
     const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
     const pushStream = await image.push({ authconfig });
     pushStream.on('end', () => {
@@ -631,7 +647,9 @@ export class ContainerProviderRegistry {
     imageName: string,
     callback: (event: PullEvent) => void,
   ): Promise<void> {
-    this.telemetryService.track('pullImage', { imageName: this.getImageHash(imageName) });
+    this.telemetryService
+      .track('pullImage', { imageName: this.getImageHash(imageName) })
+      .catch((err: unknown) => console.error('Unable to track', err));
     const authconfig = this.imageRegistry.getAuthconfigForImage(imageName);
     const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
     const pullStream = await matchingEngine.pull(imageName, {
@@ -666,23 +684,23 @@ export class ContainerProviderRegistry {
   }
 
   async deleteContainer(engineId: string, id: string): Promise<void> {
-    this.telemetryService.track('deleteContainer');
+    this.telemetryService.track('deleteContainer').catch((err: unknown) => console.error('Unable to track', err));
     // use force to delete it even it is running
     return this.getMatchingContainer(engineId, id).remove({ force: true });
   }
 
   async startContainer(engineId: string, id: string): Promise<void> {
-    this.telemetryService.track('startContainer');
+    this.telemetryService.track('startContainer').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingContainer(engineId, id).start();
   }
 
   async generatePodmanKube(engineId: string, names: string[]): Promise<string> {
-    this.telemetryService.track('generatePodmanKube');
+    this.telemetryService.track('generatePodmanKube').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingPodmanEngine(engineId).generateKube(names);
   }
 
   async startPod(engineId: string, podId: string): Promise<void> {
-    this.telemetryService.track('startPod');
+    this.telemetryService.track('startPod').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingPodmanEngine(engineId).startPod(podId);
   }
 
@@ -690,7 +708,7 @@ export class ContainerProviderRegistry {
     selectedProvider: ProviderContainerConnectionInfo,
     podOptions: PodCreateOptions,
   ): Promise<{ engineId: string; Id: string }> {
-    this.telemetryService.track('createPod');
+    this.telemetryService.track('createPod').catch((err: unknown) => console.error('Unable to track', err));
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
       containerProvider =>
@@ -705,7 +723,7 @@ export class ContainerProviderRegistry {
   }
 
   async restartPod(engineId: string, podId: string): Promise<void> {
-    this.telemetryService.track('restartPod');
+    this.telemetryService.track('restartPod').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingPodmanEngine(engineId).restartPod(podId);
   }
 
@@ -714,7 +732,9 @@ export class ContainerProviderRegistry {
     target: { engineId: string },
     overrideParameters: PodmanContainerCreateOptions,
   ): Promise<{ Id: string; Warnings: string[] }> {
-    this.telemetryService.track('replicatePodmanContainer');
+    this.telemetryService
+      .track('replicatePodmanContainer')
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     // will publish in the target engine
     const libPod = this.getMatchingPodmanEngine(target.engineId);
@@ -746,37 +766,37 @@ export class ContainerProviderRegistry {
   }
 
   async stopPod(engineId: string, podId: string): Promise<void> {
-    this.telemetryService.track('stopPod');
+    this.telemetryService.track('stopPod').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingPodmanEngine(engineId).stopPod(podId);
   }
 
   async removePod(engineId: string, podId: string): Promise<void> {
-    this.telemetryService.track('removePod');
+    this.telemetryService.track('removePod').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingPodmanEngine(engineId).removePod(podId);
   }
 
   async prunePods(engineId: string): Promise<void> {
-    this.telemetryService.track('prunePods');
+    this.telemetryService.track('prunePods').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingPodmanEngine(engineId).prunePods();
   }
 
   async pruneContainers(engineId: string): Promise<Dockerode.PruneContainersInfo> {
-    this.telemetryService.track('pruneContainers');
+    this.telemetryService.track('pruneContainers').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingEngine(engineId).pruneContainers();
   }
 
   async pruneVolumes(engineId: string): Promise<Dockerode.PruneVolumesInfo> {
-    this.telemetryService.track('pruneVolumes');
+    this.telemetryService.track('pruneVolumes').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingEngine(engineId).pruneVolumes();
   }
 
   async restartContainer(engineId: string, id: string): Promise<void> {
-    this.telemetryService.track('restartContainer');
+    this.telemetryService.track('restartContainer').catch((err: unknown) => console.error('Unable to track', err));
     return this.getMatchingContainer(engineId, id).restart();
   }
 
   async logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void): Promise<void> {
-    this.telemetryService.track('logsContainer');
+    this.telemetryService.track('logsContainer').catch((err: unknown) => console.error('Unable to track', err));
     let firstMessage = true;
     const container = this.getMatchingContainer(engineId, id);
     const containerStream = await container.logs({
@@ -803,7 +823,7 @@ export class ContainerProviderRegistry {
     id: string,
     onData: (data: Buffer) => void,
   ): Promise<(param: string) => void> {
-    this.telemetryService.track('shellInContainer');
+    this.telemetryService.track('shellInContainer').catch((err: unknown) => console.error('Unable to track', err));
     const exec = await this.getMatchingContainer(engineId, id).exec({
       AttachStdin: true,
       AttachStdout: true,
@@ -836,13 +856,15 @@ export class ContainerProviderRegistry {
     if (!engine.api) {
       throw new Error('no running provider for the matching container');
     }
-    this.telemetryService.track('createAndStartContainer');
+    this.telemetryService
+      .track('createAndStartContainer')
+      .catch((err: unknown) => console.error('Unable to track', err));
     const container = await engine.api.createContainer(options);
     return container.start();
   }
 
   async getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo> {
-    this.telemetryService.track('imageInspect');
+    this.telemetryService.track('imageInspect').catch((err: unknown) => console.error('Unable to track', err));
     // need to find the container engine of the container
     const provider = this.internalProviders.get(engineId);
     if (!provider) {
@@ -861,7 +883,7 @@ export class ContainerProviderRegistry {
   }
 
   async getImageHistory(engineId: string, id: string): Promise<HistoryInfo[]> {
-    this.telemetryService.track('imageHistory');
+    this.telemetryService.track('imageHistory').catch((err: unknown) => console.error('Unable to track', err));
     // need to find the container engine of the container
     const provider = this.internalProviders.get(engineId);
     if (!provider) {
@@ -875,7 +897,7 @@ export class ContainerProviderRegistry {
   }
 
   async getContainerInspect(engineId: string, id: string): Promise<ContainerInspectInfo> {
-    this.telemetryService.track('containerInspect');
+    this.telemetryService.track('containerInspect').catch((err: unknown) => console.error('Unable to track', err));
     // need to find the container engine of the container
     const provider = this.internalProviders.get(engineId);
     if (!provider) {
@@ -895,7 +917,7 @@ export class ContainerProviderRegistry {
   }
 
   async saveImage(engineId: string, id: string, filename: string): Promise<void> {
-    this.telemetryService.track('imageSave');
+    this.telemetryService.track('imageSave').catch((err: unknown) => console.error('Unable to track', err));
     // need to find the container engine of the container
     const provider = this.internalProviders.get(engineId);
     if (!provider) {
@@ -913,7 +935,7 @@ export class ContainerProviderRegistry {
   }
 
   async getPodInspect(engineId: string, id: string): Promise<PodInspectInfo> {
-    this.telemetryService.track('podInspect');
+    this.telemetryService.track('podInspect').catch((err: unknown) => console.error('Unable to track', err));
     // need to find the container engine of the container
     const provider = this.internalProviders.get(engineId);
     if (!provider) {
@@ -948,7 +970,7 @@ export class ContainerProviderRegistry {
     id: string,
     callback: (stats: ContainerStatsInfo) => void,
   ): Promise<number> {
-    this.telemetryService.track('containerStats');
+    this.telemetryService.track('containerStats').catch((err: unknown) => console.error('Unable to track', err));
     // need to find the container engine of the container
     const provider = this.internalProviders.get(engineId);
     if (!provider) {
@@ -1000,7 +1022,7 @@ export class ContainerProviderRegistry {
     kubernetesYamlFilePath: string,
     selectedProvider: ProviderContainerConnectionInfo,
   ): Promise<PlayKubeInfo> {
-    this.telemetryService.track('playKube');
+    this.telemetryService.track('playKube').catch((err: unknown) => console.error('Unable to track', err));
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
       containerProvider =>
@@ -1020,7 +1042,7 @@ export class ContainerProviderRegistry {
     selectedProvider: ProviderContainerConnectionInfo,
     eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
   ): Promise<unknown> {
-    this.telemetryService.track('buildImage');
+    this.telemetryService.track('buildImage').catch((err: unknown) => console.error('Unable to track', err));
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
       containerProvider =>

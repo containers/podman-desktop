@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,13 +47,15 @@ export class AutostartEngine {
     if (autostart) {
       console.log('Autostarting container engine');
       // send autostart
-      this.providerRegistry.runAutostart();
+      this.providerRegistry.runAutostart().catch((e: unknown) => {
+        console.error('Failed to autostart container engine', e);
+      });
     }
 
     // start the engine if we toggle the property
-    this.configurationRegistry.onDidChangeConfiguration(e => {
+    this.configurationRegistry.onDidChangeConfiguration(async e => {
       if (e.key === 'preferences.engine.autostart' && e.value === true) {
-        this.providerRegistry.runAutostart();
+        await this.providerRegistry.runAutostart();
       }
     });
   }

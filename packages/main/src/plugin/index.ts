@@ -289,7 +289,7 @@ export class PluginSystem {
       );
 
       if (skipConfirmationUrl) {
-        shell.openExternal(url);
+        await shell.openExternal(url);
         return true;
       }
 
@@ -304,7 +304,7 @@ export class PluginSystem {
 
       if (result.response === 0) {
         // open externally the URL
-        shell.openExternal(url);
+        await shell.openExternal(url);
         return true;
       } else if (result.response === 1) {
         // copy to clipboard
@@ -430,8 +430,8 @@ export class PluginSystem {
 
     // Register command 'version' that will display the current version and say that no update is available.
     // Only show the "no update available" command for macOS and Windows users, not linux users.
-    commandRegistry.registerCommand('version', () => {
-      messageBox.showMessageBox({
+    commandRegistry.registerCommand('version', async () => {
+      await messageBox.showMessageBox({
         type: 'info',
         title: 'Version',
         message: `Using version ${currentVersion}`,
@@ -564,7 +564,7 @@ export class PluginSystem {
             await autoUpdater.downloadUpdate();
           } catch (error) {
             console.error('Update error: ', error);
-            messageBox.showMessageBox({
+            await messageBox.showMessageBox({
               type: 'error',
               title: 'Update Failed',
               message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,
@@ -1248,7 +1248,7 @@ export class PluginSystem {
         if (securityRestrictionCurrentHandler.handler) {
           await securityRestrictionCurrentHandler.handler(link);
         } else {
-          shell.openExternal(link);
+          await shell.openExternal(link);
         }
       },
     );
@@ -1575,7 +1575,7 @@ export class PluginSystem {
       apiSender.send('extensions-started');
       this.markAsExtensionsStarted();
     }
-    autoStartConfiguration.start();
+    autoStartConfiguration.start().catch((err: unknown) => console.error('Unable to perform autostart', err));
     return this.extensionLoader;
   }
 

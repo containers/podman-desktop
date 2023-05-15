@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,11 +129,11 @@ export class DockerDesktopInstallation {
     });
 
     return new Promise<void>((resolve, reject) => {
-      exportResult.on('close', () => {
+      exportResult.on('close', async () => {
         fileWriteStream.close();
 
         // ok we can remove the container
-        containerFromImage.remove().then(() => resolve(undefined));
+        await containerFromImage.remove().then(() => resolve(undefined));
       });
 
       exportResult.on('data', chunk => {

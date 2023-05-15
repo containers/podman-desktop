@@ -41,44 +41,44 @@ export const filtered = derived([searchPattern, imagesInfos], ([$searchPattern, 
 );
 
 // need to refresh when extension is started or stopped
-window?.events?.receive('extension-started', () => {
-  fetchImages();
+window?.events?.receive('extension-started', async () => {
+  await fetchImages();
 });
-window?.events?.receive('extension-stopped', () => {
-  fetchImages();
-});
-
-window.addEventListener('image-build', () => {
-  fetchImages();
+window?.events?.receive('extension-stopped', async () => {
+  await fetchImages();
 });
 
-window?.events?.receive('provider-change', () => {
-  fetchImages();
+window.addEventListener('image-build', async () => {
+  await fetchImages();
 });
 
-window.events?.receive('image-pull-event', () => {
-  fetchImages();
-});
-window.events?.receive('image-remove-event', () => {
-  fetchImages();
-});
-window.events?.receive('image-build-event', () => {
-  fetchImages();
-});
-window.events?.receive('registry-register', () => {
-  fetchImages();
+window?.events?.receive('provider-change', async () => {
+  await fetchImages();
 });
 
-window.events?.receive('registry-unregister', () => {
-  fetchImages();
+window.events?.receive('image-pull-event', async () => {
+  await fetchImages();
+});
+window.events?.receive('image-remove-event', async () => {
+  await fetchImages();
+});
+window.events?.receive('image-build-event', async () => {
+  await fetchImages();
+});
+window.events?.receive('registry-register', async () => {
+  await fetchImages();
 });
 
-window.events?.receive('image-tag-event', () => {
-  fetchImages();
+window.events?.receive('registry-unregister', async () => {
+  await fetchImages();
 });
 
-window.events?.receive('image-untag-event', () => {
-  fetchImages();
+window.events?.receive('image-tag-event', async () => {
+  await fetchImages();
+});
+
+window.events?.receive('image-untag-event', async () => {
+  await fetchImages();
 });
 
 window?.events?.receive('extensions-started', async () => {

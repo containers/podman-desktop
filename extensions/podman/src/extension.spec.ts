@@ -75,10 +75,13 @@ test('verify create command called with correct values', async () => {
 });
 
 test('test checkDefaultMachine, if the machine running is not default, the function will prompt', async () => {
+  const machineDefaultName = 'podman-machine-default';
+  const machine1Name = 'podman-machine-1';
+
   // Create fake of MachineJSON
   const fakeJSON: extension.MachineJSON[] = [
     {
-      Name: 'podman-machine-default',
+      Name: machineDefaultName,
       CPUs: 2,
       Memory: '1048000000',
       DiskSize: '250000000000',
@@ -87,7 +90,7 @@ test('test checkDefaultMachine, if the machine running is not default, the funct
       Default: false,
     },
     {
-      Name: 'podman-machine-1',
+      Name: machine1Name,
       CPUs: 2,
       Memory: '1048000000',
       DiskSize: '250000000000',
@@ -100,7 +103,7 @@ test('test checkDefaultMachine, if the machine running is not default, the funct
   await extension.checkDefaultMachine(fakeJSON);
 
   expect(extensionApi.window.showInformationMessage).toBeCalledWith(
-    "Podman Machine 'podman-machine-default' is running but not the default machine (default is 'podman-machine-1'). This will cause podman CLI errors while trying to connect to 'podman-machine-default'. Do you want to set it as default?",
+    `Podman Machine '${machineDefaultName}' is running but not the default machine (default is '${machine1Name}'). This will cause podman CLI errors while trying to connect to '${machineDefaultName}'. Do you want to set it as default?`,
     'Yes',
     'Ignore',
     'Cancel',

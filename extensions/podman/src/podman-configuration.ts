@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,16 +37,16 @@ export class PodmanConfiguration {
 
     // we receive an update for the current proxy settings
     extensionApi.proxy.onDidUpdateProxy(async (proxySettings: ProxySettings) => {
-      this.updateProxySettings(proxySettings);
+      await this.updateProxySettings(proxySettings);
     });
 
     // in case of proxy being enabled or disabled we need to update the containers.conf file
     extensionApi.proxy.onDidStateChange(async (enabled: boolean) => {
       if (enabled) {
         const updatedProxySettings = extensionApi.proxy.getProxySettings();
-        this.updateProxySettings(updatedProxySettings);
+        await this.updateProxySettings(updatedProxySettings);
       } else {
-        this.updateProxySettings(undefined);
+        await this.updateProxySettings(undefined);
       }
     });
 
@@ -91,7 +91,7 @@ export class PodmanConfiguration {
       extensionApi.proxy.isEnabled() &&
       (httpsProxy || httpProxy || noProxy)
     ) {
-      extensionApi.proxy.setProxy(proxySettings);
+      await extensionApi.proxy.setProxy(proxySettings);
     }
   }
 
