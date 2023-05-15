@@ -427,7 +427,11 @@ function RunAnywhere() {
                       size="1x"
                       icon={faPaste}
                       className="ml-3  cursor-pointer text-3xl  text-white-500"
-                      onClick={() => copyBrewInstructions()}
+                      onClick={() => {
+                        copyBrewInstructions().catch((err: unknown) => {
+                          console.error('unable to copy instructions', err);
+                        });
+                      }}
                     />
                   </button>
                 </p>

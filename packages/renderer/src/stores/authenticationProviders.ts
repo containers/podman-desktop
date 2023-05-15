@@ -31,4 +31,8 @@ export const authenticationProviders: Writable<readonly AuthenticationProviderIn
 
 // need to refresh when new registry are updated/deleted
 window.events?.receive('authentication-provider-update', fetchAuthenticationProvidersInfo);
-window.addEventListener('system-ready', fetchAuthenticationProvidersInfo);
+window.addEventListener('system-ready', () => {
+  fetchAuthenticationProvidersInfo().catch((error: unknown) => {
+    console.error('Failed to fetch authentication providers', error);
+  });
+});

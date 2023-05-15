@@ -183,7 +183,7 @@ export class ContainerProviderRegistry {
     }
 
     // track the status of the provider
-    const timer = setInterval(async () => {
+    const timer = setInterval(() => {
       const newStatus = containerProviderConnection.status();
       if (newStatus !== previousStatus) {
         if (newStatus === 'stopped') {

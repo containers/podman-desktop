@@ -48,8 +48,10 @@ window?.events?.receive('extension-stopped', async () => {
   await fetchImages();
 });
 
-window.addEventListener('image-build', async () => {
-  await fetchImages();
+window.addEventListener('image-build', () => {
+  fetchImages().catch((error: unknown) => {
+    console.error('Failed to fetch images', error);
+  });
 });
 
 window?.events?.receive('provider-change', async () => {
@@ -87,7 +89,9 @@ window?.events?.receive('extensions-started', async () => {
 });
 
 // if client is doing a refresh, we will receive this event and we need to update the data
-window.addEventListener('extensions-already-started', async () => {
+window.addEventListener('extensions-already-started', () => {
   readyToUpdate = true;
-  await fetchImages();
+  fetchImages().catch((error: unknown) => {
+    console.error('Failed to fetch images', error);
+  });
 });

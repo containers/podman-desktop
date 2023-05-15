@@ -94,7 +94,7 @@ export function initWindowFetchVolumes() {
     readyToUpdate = true;
   });
 
-  window.addEventListener('extensions-already-started', async () => {
+  window.addEventListener('extensions-already-started', () => {
     // make it ready to update
     readyToUpdate = true;
   });

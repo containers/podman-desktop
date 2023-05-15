@@ -68,8 +68,10 @@ window.events?.receive('registry-update', async () => {
   await fetchRegistries();
 });
 
-window.addEventListener('system-ready', async () => {
-  await fetchRegistries();
+window.addEventListener('system-ready', () => {
+  fetchRegistries().catch((error: unknown) => {
+    console.error('Failed to fetch registries entries', error);
+  });
 });
 
 window.events?.receive('extensions-started', async () => {

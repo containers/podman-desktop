@@ -207,22 +207,26 @@ export class PluginSystem {
   redirectConsole(logType: LogType): void {
     // keep original method
     const originalConsoleMethod = console[logType];
-    console[logType] = async (...args) => {
-      const extName = await this.getExtName();
+    console[logType] = (...args) => {
+      this.getExtName()
+        .then(extName => {
+          if (extName) args.unshift(extName);
 
-      if (extName) args.unshift(extName);
+          // still display as before by invoking original method
+          originalConsoleMethod(...args);
 
-      // still display as before by invoking original method
-      originalConsoleMethod(...args);
-
-      // but also send the content remotely
-      if (!this.isQuitting) {
-        try {
-          this.getWebContentsSender().send('console:output', logType, ...args);
-        } catch (err) {
-          originalConsoleMethod(err);
-        }
-      }
+          // but also send the content remotely
+          if (!this.isQuitting) {
+            try {
+              this.getWebContentsSender().send('console:output', logType, ...args);
+            } catch (err) {
+              originalConsoleMethod(err);
+            }
+          }
+        })
+        .catch((err: unknown) => {
+          console.error('Error in redirectConsole', err);
+        });
     };
   }
 
@@ -475,19 +479,25 @@ export class PluginSystem {
         defaultVersionEntry();
       });
 
-      autoUpdater.on('update-downloaded', async () => {
+      autoUpdater.on('update-downloaded', () => {
         updateAlreadyDownloaded = true;
         updateInProgress = false;
-        const result = await messageBox.showMessageBox({
-          title: 'Update Downloaded',
-          message: 'Update downloaded, Do you want to restart Podman Desktop ?',
-          cancelId: 1,
-          type: 'info',
-          buttons: ['Restart', 'Cancel'],
-        });
-        if (result.response === 0) {
-          setImmediate(() => autoUpdater.quitAndInstall());
-        }
+        messageBox
+          .showMessageBox({
+            title: 'Update Downloaded',
+            message: 'Update downloaded, Do you want to restart Podman Desktop ?',
+            cancelId: 1,
+            type: 'info',
+            buttons: ['Restart', 'Cancel'],
+          })
+          .then(result => {
+            if (result.response === 0) {
+              setImmediate(() => autoUpdater.quitAndInstall());
+            }
+          })
+          .catch((error: unknown) => {
+            console.error('unable to show message box', error);
+          });
       });
 
       autoUpdater.on('error', error => {
@@ -511,12 +521,13 @@ export class PluginSystem {
       }
 
       // Create an interval to check for updates every 12 hours
-      setInterval(async () => {
-        try {
-          updateCheckResult = await autoUpdater.checkForUpdates();
-        } catch (error) {
-          console.log('unable to check for updates', error);
-        }
+      setInterval(() => {
+        autoUpdater
+          .checkForUpdates()
+          .then(result => (updateCheckResult = result))
+          .catch((error: unknown) => {
+            console.log('unable to check for updates', error);
+          });
       }, 1000 * 60 * 60 * 12);
 
       // Update will create a standard "autoUpdater" dialog / update process

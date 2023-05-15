@@ -100,24 +100,36 @@ async function createWindow() {
   });
 
   // select a file using native widget
-  ipcMain.on('dialog:openFile', async (_, param: { dialogId: string; message: string; filter: FileFilter }) => {
-    const response = await dialog.showOpenDialog(browserWindow, {
-      properties: ['openFile'],
-      filters: [param.filter],
-      message: param.message,
-    });
-    // send the response back
-    browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
+  ipcMain.on('dialog:openFile', (_, param: { dialogId: string; message: string; filter: FileFilter }) => {
+    dialog
+      .showOpenDialog(browserWindow, {
+        properties: ['openFile'],
+        filters: [param.filter],
+        message: param.message,
+      })
+      .then(response => {
+        // send the response back
+        browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
+      })
+      .catch((err: unknown) => {
+        console.error('Error opening file', err);
+      });
   });
 
   // select a folder using native widget
-  ipcMain.on('dialog:openFolder', async (_, param: { dialogId: string; message: string }) => {
-    const response = await dialog.showOpenDialog(browserWindow, {
-      properties: ['openDirectory'],
-      message: param.message,
-    });
-    // send the response back
-    browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
+  ipcMain.on('dialog:openFolder', (_, param: { dialogId: string; message: string }) => {
+    dialog
+      .showOpenDialog(browserWindow, {
+        properties: ['openDirectory'],
+        message: param.message,
+      })
+      .then(response => {
+        // send the response back
+        browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
+      })
+      .catch((err: unknown) => {
+        console.error('Error opening folder', err);
+      });
   });
 
   let configurationRegistry: ConfigurationRegistry;

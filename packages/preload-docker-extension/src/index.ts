@@ -285,7 +285,9 @@ export class DockerExtensionPreload {
     const platform = urlParams.get('platform') || '';
     const host: dockerDesktopAPI.Host = {
       openExternal: (link: string) => {
-        return ipcInvoke('shell:openExternal', link);
+        ipcInvoke('shell:openExternal', link).catch((err: unknown) => {
+          console.error('dockerDesktopAPI.Host.openExternal', err);
+        });
       },
       platform,
       arch,

@@ -212,12 +212,16 @@ export class Telemetry {
     });
     let sendShutdownAnalytics = false;
 
-    app.on('before-quit', async e => {
+    app.on('before-quit', e => {
       if (!sendShutdownAnalytics && stoppedExtensions.val) {
         e.preventDefault();
         try {
-          await this.internalTrack(SHUTDOWN_EVENT_TYPE);
-          await this.analytics?.flush();
+          this.internalTrack(SHUTDOWN_EVENT_TYPE).catch((err: unknown) => {
+            console.log(`Error sending shutdown event: ${err}`);
+          });
+          this.analytics?.flush().catch((err: unknown) => {
+            console.log(`Error flushing analytics: ${err}`);
+          });
         } catch (err) {
           console.log(`Telemetry error on shutdown: ${err}`);
         }

@@ -45,8 +45,10 @@ window.events?.receive('extension-started', async () => {
   await fetchContainers();
 });
 
-window.addEventListener('tray:update-provider', async () => {
-  await fetchContainers();
+window.addEventListener('tray:update-provider', () => {
+  fetchContainers().catch((error: unknown) => {
+    console.error('Failed to fetch containers', error);
+  });
 });
 
 window.events?.receive('container-stopped-event', async () => {
@@ -83,7 +85,9 @@ window?.events?.receive('extensions-started', async () => {
 });
 
 // if client is doing a refresh, we will receive this event and we need to update the data
-window.addEventListener('extensions-already-started', async () => {
+window.addEventListener('extensions-already-started', () => {
   readyToUpdate = true;
-  await fetchContainers();
+  fetchContainers().catch((error: unknown) => {
+    console.error('Failed to fetch containers', error);
+  });
 });

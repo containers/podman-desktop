@@ -62,6 +62,7 @@ export function MacOSDownloads(): JSX.Element {
     universal: '',
     x64: '',
     arm64: '',
+    airgapsetup: '',
   });
 
   const copyBrewInstructions = async () => {
@@ -131,7 +132,11 @@ export function MacOSDownloads(): JSX.Element {
                         size="xs"
                         icon={faPaste}
                         className="ml-3  cursor-pointer text-xl  text-white-500"
-                        onClick={() => copyBrewInstructions()}
+                        onClick={() => {
+                          copyBrewInstructions().catch((err: unknown) => {
+                            console.error('unable to copy instructions', err);
+                          });
+                        }}
                       />
                     </button>
                   </p>
