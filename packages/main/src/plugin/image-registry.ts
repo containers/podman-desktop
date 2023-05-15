@@ -250,16 +250,18 @@ export class ImageRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track(
-        'createRegistry',
-        Object.assign(
-          {
-            serverUrlHash: this.getRegistryHash(registryCreateOptions),
-            total: this.registries.length,
-          },
-          telemetryOptions,
-        ),
-      ).catch((err: unknown) => console.error('Unable to track', err));;
+      this.telemetryService
+        .track(
+          'createRegistry',
+          Object.assign(
+            {
+              serverUrlHash: this.getRegistryHash(registryCreateOptions),
+              total: this.registries.length,
+            },
+            telemetryOptions,
+          ),
+        )
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 

@@ -248,11 +248,9 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedContainers = containers.flat();
-    this.telemetryService.track(
-      'listSimpleContainers',
-      Object.assign({ total: flatttenedContainers.length }, telemetryOptions),
-    )
-    .catch((err: unknown) => console.error('Unable to track', err));;
+    this.telemetryService
+      .track('listSimpleContainers', Object.assign({ total: flatttenedContainers.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
     return flatttenedContainers;
   }
 
@@ -336,11 +334,9 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedContainers = containers.flat();
-    this.telemetryService.track(
-      'listContainers',
-      Object.assign({ total: flatttenedContainers.length }, telemetryOptions),
-    )
-    .catch((err: unknown) => console.error('Unable to track', err));;
+    this.telemetryService
+      .track('listContainers', Object.assign({ total: flatttenedContainers.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
     return flatttenedContainers;
   }
 
@@ -365,7 +361,9 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedImages = images.flat();
-    this.telemetryService.track('listImages', Object.assign({ total: flatttenedImages.length }, telemetryOptions)).catch((err: unknown) => console.error('Unable to track', err));
+    this.telemetryService
+      .track('listImages', Object.assign({ total: flatttenedImages.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     return flatttenedImages;
   }
@@ -393,7 +391,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('pruneImages', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('pruneImages', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -418,7 +418,9 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedPods = pods.flat();
-    this.telemetryService.track('listPods', Object.assign({ total: flatttenedPods.length }, telemetryOptions)).catch((err: unknown) => console.error('Unable to track', err));;
+    this.telemetryService
+      .track('listPods', Object.assign({ total: flatttenedPods.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     return flatttenedPods;
   }
@@ -444,7 +446,9 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedNetworks = networks.flat();
-    this.telemetryService.track('listNetworks', Object.assign({ total: flatttenedNetworks.length }, telemetryOptions)).catch((err: unknown) => console.error('Unable to track', err));;
+    this.telemetryService
+      .track('listNetworks', Object.assign({ total: flatttenedNetworks.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     return flatttenedNetworks;
   }
@@ -506,7 +510,9 @@ export class ContainerProviderRegistry {
       }),
     );
     const flatttenedVolumes: VolumeListInfo[] = volumes.flat();
-    this.telemetryService.track('listVolumes', Object.assign({ total: flatttenedVolumes.length }, telemetryOptions)).catch((err: unknown) => console.error('Unable to track', err));
+    this.telemetryService
+      .track('listVolumes', Object.assign({ total: flatttenedVolumes.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
     return flatttenedVolumes;
   }
 
@@ -532,7 +538,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('volumeInspect', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('volumeInspect', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -544,7 +552,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('removeVolume', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('removeVolume', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -637,7 +647,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('stopContainer', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('stopContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -650,7 +662,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('deleteImage', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('deleteImage', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -686,10 +700,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track(
-        'pushImage',
-        Object.assign({ imageName: this.getImageHash(imageTag) }, telemetryOptions),
-      ).catch((err: unknown) => console.error('Unable to track', err));;
+      this.telemetryService
+        .track('pushImage', Object.assign({ imageName: this.getImageHash(imageTag) }, telemetryOptions))
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
   async pullImage(
@@ -730,10 +743,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track(
-        'pullImage',
-        Object.assign({ imageName: this.getImageHash(imageName) }, telemetryOptions),
-      ).catch((err: unknown) => console.error('Unable to track', err));;
+      this.telemetryService
+        .track('pullImage', Object.assign({ imageName: this.getImageHash(imageName) }, telemetryOptions))
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -750,7 +762,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('deleteContainer', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('deleteContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -762,7 +776,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('startContainer', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('startContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -774,7 +790,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('generatePodmanKube', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('generatePodmanKube', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -786,7 +804,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('startPod', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('startPod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -811,7 +831,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('createPod', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('createPod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -823,7 +845,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('restartPod', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('restartPod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -865,7 +889,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('replicatePodmanContainer', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('replicatePodmanContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -877,7 +903,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('stopPod', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('stopPod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -889,7 +917,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('removePod', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('removePod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -901,7 +931,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('prunePods', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('prunePods', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -913,7 +945,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('pruneContainers', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('pruneContainers', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -925,7 +959,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('pruneVolumes', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('pruneVolumes', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -937,7 +973,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('restartContainer', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('restartContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -967,7 +1005,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('logsContainer', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('logsContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -1003,7 +1043,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('shellInContainer', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('shellInContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -1024,7 +1066,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('createAndStartContainer', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('createAndStartContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -1050,7 +1094,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('imageInspect', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('imageInspect', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -1071,7 +1117,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('imageHistory', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('imageHistory', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -1098,7 +1146,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('containerInspect', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('containerInspect', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -1123,7 +1173,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('imageSave', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('imageSave', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -1149,7 +1201,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('podInspect', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('podInspect', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -1221,7 +1275,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('containerStats', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('containerStats', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -1229,7 +1285,6 @@ export class ContainerProviderRegistry {
     kubernetesYamlFilePath: string,
     selectedProvider: ProviderContainerConnectionInfo,
   ): Promise<PlayKubeInfo> {
-    this.telemetryService.track('playKube').catch((err: unknown) => console.error('Unable to track', err));
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
       containerProvider =>
@@ -1238,23 +1293,26 @@ export class ContainerProviderRegistry {
     );
     if (!matchingContainerProvider?.libpodApi) {
       throw new Error('No provider with a running engine');
-    let telemetryOptions = {};
-    try {
-      // grab all connections
-      const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-        containerProvider =>
-          containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
-          containerProvider.name === selectedProvider.name,
-      );
-      if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
-        throw new Error('No provider with a running engine');
+      let telemetryOptions = {};
+      try {
+        // grab all connections
+        const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+          containerProvider =>
+            containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+            containerProvider.name === selectedProvider.name,
+        );
+        if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
+          throw new Error('No provider with a running engine');
+        }
+        return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath);
+      } catch (error) {
+        telemetryOptions = { error: error };
+        throw error;
+      } finally {
+        this.telemetryService
+          .track('playKube', telemetryOptions)
+          .catch((err: unknown) => console.error('Unable to track', err));
       }
-      return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath);
-    } catch (error) {
-      telemetryOptions = { error: error };
-      throw error;
-    } finally {
-      this.telemetryService.track('playKube', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -1336,7 +1394,9 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('buildImage', telemetryOptions).catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService
+        .track('buildImage', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 }
