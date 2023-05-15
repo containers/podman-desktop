@@ -10,7 +10,7 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 On macOS and Windows, running the Podman container engine requires running a Linux virtual machine.
 
-By default, Podman Desktop is initializing a Podman machine with a standard configuration.
+By default, Podman Desktop initializes a Podman machine with a standard configuration.
 
 Consider creating a custom Podman machine to:
 
