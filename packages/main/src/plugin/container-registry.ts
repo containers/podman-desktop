@@ -1323,6 +1323,7 @@ export class ContainerProviderRegistry {
     selectedProvider: ProviderContainerConnectionInfo,
     eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
   ): Promise<unknown> {
+    let telemetryOptions = {};
     try {
       // grab all connections
       const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
