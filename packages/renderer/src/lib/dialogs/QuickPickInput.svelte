@@ -1,13 +1,16 @@
 <script lang="ts">
 import { onDestroy, onMount, tick } from 'svelte';
 import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
+import Markdown from '/@/lib/markdown/Markdown.svelte';
 
 const DEFAULT_PROMPT = "Press 'Enter' to confirm your input or 'Escape' to cancel";
 let inputValue = '';
 let placeHolder = '';
 let prompt = '';
+let markdownDescription = '';
 let currentId = 0;
 let title = '';
+let multiline = false;
 
 let validationEnabled = false;
 let validationError = '';
@@ -23,7 +26,7 @@ let quickPickSelectedIndex = 0;
 let quickPickSelectedFilteredIndex = 0;
 let quickPickCanPickMany = false;
 
-let inputElement: HTMLInputElement = undefined;
+let inputElement: HTMLInputElement | HTMLTextAreaElement = undefined;
 
 const showInputCallback = async (options?: InputBoxOptions) => {
   mode = 'InputBox';
@@ -36,6 +39,8 @@ const showInputCallback = async (options?: InputBoxOptions) => {
   } else {
     prompt = DEFAULT_PROMPT;
   }
+  markdownDescription = options.markdownDescription;
+  multiline = options.multiline;
 
   validationEnabled = options.validate;
   display = true;
@@ -254,7 +259,7 @@ function handleKeydown(e: KeyboardEvent) {
     <div class=" flex justify-center items-center mt-1">
       <div
         class="bg-charcoal-800 w-[700px] {mode === 'InputBox'
-          ? 'h-16'
+          ? 'h-fit'
           : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
         {#if title}
           <div
@@ -264,15 +269,26 @@ function handleKeydown(e: KeyboardEvent) {
           </div>
         {/if}
         <div class="w-full flex flex-row">
-          <input
-            bind:this="{inputElement}"
-            on:input="{event => onInputChange(event)}"
-            type="text"
-            bind:value="{inputValue}"
-            class="px-1 w-full text-gray-400 bg-zinc-700 border {validationError
-              ? 'border-red-700'
-              : 'border-charcoal-600'} focus:outline-none"
-            placeholder="{placeHolder}" />
+          {#if multiline}
+            <textarea
+              bind:this="{inputElement}"
+              on:input="{event => onInputChange(event)}"
+              bind:value="{inputValue}"
+              class="px-1 w-full h-20 text-gray-400 bg-zinc-700 border {validationError
+                ? 'border-red-700'
+                : 'border-charcoal-600'} focus:outline-none"
+              placeholder="{placeHolder}"></textarea>
+          {:else}
+            <input
+              bind:this="{inputElement}"
+              on:input="{event => onInputChange(event)}"
+              type="text"
+              bind:value="{inputValue}"
+              class="px-1 w-full text-gray-400 bg-zinc-700 border {validationError
+                ? 'border-red-700'
+                : 'border-charcoal-600'} focus:outline-none"
+              placeholder="{placeHolder}" />
+          {/if}
           {#if quickPickCanPickMany}
             <button
               on:click="{() => validateQuickPick()}"
@@ -284,7 +300,12 @@ function handleKeydown(e: KeyboardEvent) {
           {#if validationError}
             <div class="text-gray-400 border border-red-700 relative w-full bg-red-700 px-1">{validationError}</div>
           {:else}
-            <div class="relative text-gray-400 pt-2 px-1 h-6 overflow-y-auto">{prompt}</div>
+            <div class="relative text-gray-400 pt-2 px-1 h-7 overflow-y-auto">{prompt}</div>
+            {#if markdownDescription?.length > 0}
+              <div class="relative text-gray-400 pt-2 px-1 h-fit overflow-y-auto">
+                <Markdown>{markdownDescription}</Markdown>
+              </div>
+            {/if}
           {/if}
         {:else if mode === 'QuickPick'}
           {#each quickPickFilteredItems as item, i}

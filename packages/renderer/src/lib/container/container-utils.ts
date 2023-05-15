@@ -25,9 +25,9 @@ import { filesize } from 'filesize';
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {
     // part of a compose ?
-    const composeService = (containerInfo.Labels || {})['com.docker.compose.service'];
+    const composeService = containerInfo.Labels?.['com.docker.compose.service'];
     if (composeService) {
-      const composeContainerNumber = (containerInfo.Labels || {})['com.docker.compose.container-number'];
+      const composeContainerNumber = containerInfo.Labels?.['com.docker.compose.container-number'];
       if (composeContainerNumber) {
         return `${composeService}-${composeContainerNumber}`;
       }
@@ -139,7 +139,7 @@ export class ContainerUtils {
 
   getContainerGroup(containerInfo: ContainerInfo): ContainerGroupPartInfoUI {
     // compose metatadata ?
-    const composeProject = (containerInfo.Labels || {})['com.docker.compose.project'];
+    const composeProject = containerInfo.Labels?.['com.docker.compose.project'];
     if (composeProject) {
       return {
         name: composeProject,

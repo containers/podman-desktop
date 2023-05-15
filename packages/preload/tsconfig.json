@@ -22,9 +22,5 @@
     "src/**/*.ts",
     "exposedInMainWorld.d.ts",
     "../../types/**/*.d.ts"
-  ],
-  "exclude": [
-    "**/*.spec.ts",
-    "**/*.test.ts"
   ]
 }

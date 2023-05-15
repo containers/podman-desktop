@@ -47,11 +47,14 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
   findPodmanHelper(): string {
     const homebrewPath = '/opt/homebrew/bin/podman-mac-helper';
     const podmanPath = '/opt/podman/bin/podman-mac-helper';
+    const userBinaryPath = '/usr/local/bin/podman-mac-helper';
 
     if (fs.existsSync(homebrewPath)) {
       return homebrewPath;
     } else if (fs.existsSync(podmanPath)) {
       return podmanPath;
+    } else if (fs.existsSync(userBinaryPath)) {
+      return userBinaryPath;
     } else {
       return '';
     }
@@ -92,18 +95,19 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     // Find the podman-mac-helper binary
     const podmanHelperBinary = this.findPodmanHelper();
     if (podmanHelperBinary === '') {
-      extensionApi.window.showErrorMessage('podman-mac-helper binary not found.', 'OK');
+      await extensionApi.window.showErrorMessage('podman-mac-helper binary not found.', 'OK');
       return;
     }
 
     const fullCommand = `${podmanHelperBinary} ${command}`;
     try {
       await this.runSudoMacHelperCommand(fullCommand);
-      extensionApi.window.showInformationMessage(`Docker socket compatibility mode for Podman has been ${description}.
+      await extensionApi.window
+        .showInformationMessage(`Docker socket compatibility mode for Podman has been ${description}.
       Restart your Podman machine to apply the changes.`);
     } catch (error) {
       console.error(`Error running podman-mac-helper: ${error}`);
-      extensionApi.window.showErrorMessage(`Error running podman-mac-helper: ${error}`, 'OK');
+      await extensionApi.window.showErrorMessage(`Error running podman-mac-helper: ${error}`, 'OK');
     }
   }
 

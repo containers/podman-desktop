@@ -23,8 +23,7 @@ import type * as Dockerode from 'dockerode';
 import type { Telemetry } from './telemetry/telemetry';
 import * as crypto from 'node:crypto';
 import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
-import got, { HTTPError } from 'got';
-import { RequestError } from 'got';
+import got, { HTTPError, RequestError } from 'got';
 import validator from 'validator';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import type { Certificates } from './certificates';
@@ -143,10 +142,12 @@ export class ImageRegistry {
 
   registerRegistry(registry: containerDesktopAPI.Registry): Disposable {
     this.registries = [...this.registries, registry];
-    this.telemetryService.track('registerRegistry', {
-      serverUrl: this.getRegistryHash(registry),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('registerRegistry', {
+        serverUrl: this.getRegistryHash(registry),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     this.apiSender.send('registry-register', registry);
     this._onDidRegisterRegistry.fire(Object.freeze({ ...registry }));
     return Disposable.create(() => {
@@ -194,10 +195,12 @@ export class ImageRegistry {
       this.registries = filtered;
       this.apiSender.send('registry-unregister', registry);
     }
-    this.telemetryService.track('unregisterRegistry', {
-      serverUrl: this.getRegistryHash(registry),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('unregisterRegistry', {
+        serverUrl: this.getRegistryHash(registry),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
   }
 
   getRegistries(): readonly containerDesktopAPI.Registry[] {
@@ -240,10 +243,12 @@ export class ImageRegistry {
       registryCreateOptions.secret,
     );
     const registry = provider.create(registryCreateOptions);
-    this.telemetryService.track('createRegistry', {
-      serverUrlHash: this.getRegistryHash(registryCreateOptions),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('createRegistry', {
+        serverUrlHash: this.getRegistryHash(registryCreateOptions),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     return this.registerRegistry(registry);
   }
 
@@ -260,10 +265,12 @@ export class ImageRegistry {
     }
     matchingRegistry.username = registry.username;
     matchingRegistry.secret = registry.secret;
-    this.telemetryService.track('updateRegistry', {
-      serverUrl: this.getRegistryHash(matchingRegistry),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('updateRegistry', {
+        serverUrl: this.getRegistryHash(matchingRegistry),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     this.apiSender.send('registry-update', registry);
     this._onDidUpdateRegistry.fire(Object.freeze(registry));
   }
@@ -278,7 +285,7 @@ export class ImageRegistry {
       /(?<scheme>Bearer|Basic) realm="(?<realm>[^"]+)"(,service="(?<service>[^"]+)")?(,scope="(?<scope>[^"]+)")?/;
 
     const parsed = WWW_AUTH_REGEXP.exec(wwwAuthenticate);
-    if (parsed && parsed.groups) {
+    if (parsed?.groups) {
       const { realm, service, scope, scheme } = parsed.groups;
       return { authUrl: realm, service, scope, scheme };
     }
@@ -298,8 +305,8 @@ export class ImageRegistry {
     if (this.proxyEnabled) {
       // use proxy when performing got request
       const proxy = this.proxySettings;
-      const httpProxyUrl = proxy && proxy.httpProxy;
-      const httpsProxyUrl = proxy && proxy.httpsProxy;
+      const httpProxyUrl = proxy?.httpProxy;
+      const httpsProxyUrl = proxy?.httpsProxy;
 
       if (httpProxyUrl) {
         if (!options.agent) {
@@ -401,7 +408,7 @@ export class ImageRegistry {
 
   // Fetch the image Labels from the registry for a given image URL
   async getImageConfigLabels(imageName: string): Promise<{ [key: string]: unknown }> {
-    const imageData = await this.extractImageDataFromImageName(imageName);
+    const imageData = this.extractImageDataFromImageName(imageName);
 
     // grab auth info from the registry
     const authInfo = await this.getAuthInfo(imageData.registry);
@@ -437,7 +444,7 @@ export class ImageRegistry {
     destFolder: string,
     logger: (message: string) => void,
   ): Promise<void> {
-    const imageData = await this.extractImageDataFromImageName(imageName);
+    const imageData = this.extractImageDataFromImageName(imageName);
 
     // grab auth info from the registry
     const authInfo = await this.getAuthInfo(imageData.registry);
@@ -608,8 +615,7 @@ export class ImageRegistry {
         const matchedManifestDigest = matchedManifest.digest;
         // now, grab the manifest corresponding to the digest
         const manifestURL = `${imageData.registryURL}/${imageData.name}/manifests/${matchedManifestDigest}`;
-        const manifestResponse = await this.getManifestFromURL(manifestURL, imageData, token);
-        return manifestResponse;
+        return this.getManifestFromURL(manifestURL, imageData, token);
       }
       throw new Error('Unable to find a manifest corresponding to the platform/architecture');
     }

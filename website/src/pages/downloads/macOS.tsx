@@ -62,14 +62,17 @@ export function MacOSDownloads(): JSX.Element {
     universal: '',
     x64: '',
     arm64: '',
+    airgapsetup: '',
   });
 
-  const copyBrewInstructions = () => {
-    navigator.clipboard.writeText('brew install podman-desktop');
+  const copyBrewInstructions = async () => {
+    await navigator.clipboard.writeText('brew install podman-desktop');
   };
 
   useEffect(() => {
-    grabfilenameforMac(setDownloadData);
+    grabfilenameforMac(setDownloadData).catch((err: unknown) => {
+      console.error(err);
+    });
   }, []);
   return (
     <div className="basis-1/3 py-2 rounded-lg dark:text-gray-400 text-gray-900  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
@@ -129,7 +132,11 @@ export function MacOSDownloads(): JSX.Element {
                         size="xs"
                         icon={faPaste}
                         className="ml-3  cursor-pointer text-xl  text-white-500"
-                        onClick={() => copyBrewInstructions()}
+                        onClick={() => {
+                          copyBrewInstructions().catch((err: unknown) => {
+                            console.error('unable to copy instructions', err);
+                          });
+                        }}
                       />
                     </button>
                   </p>

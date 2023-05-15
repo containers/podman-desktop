@@ -34,6 +34,8 @@ import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
+import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
+
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
 import type {
@@ -134,6 +136,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('extensionSystemIsReady', async (): Promise<boolean> => {
     return ipcInvoke('extension-system:isReady');
+  });
+
+  contextBridge.exposeInMainWorld('extensionSystemIsExtensionsStarted', async (): Promise<boolean> => {
+    return ipcInvoke('extension-system:isExtensionsStarted');
   });
 
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
@@ -794,6 +800,10 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('requestAuthenticationProviderSignIn', async (requestId: string): Promise<void> => {
+    return ipcInvoke('authentication-provider-registry:requestAuthenticationProviderSignIn', requestId);
+  });
+
   contextBridge.exposeInMainWorld(
     'getConfigurationProperties',
     async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
@@ -817,6 +827,10 @@ function initExposure(): void {
       return ipcInvoke('configuration-registry:updateConfigurationValue', key, value, scope);
     },
   );
+
+  contextBridge.exposeInMainWorld('getFeaturedExtensions', async (): Promise<FeaturedExtension[]> => {
+    return ipcInvoke('featured:getFeaturedExtensions');
+  });
 
   contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
     return ipcInvoke('extension-loader:listExtensions');
@@ -1296,6 +1310,16 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('getPodmanDesktopVersion', async (): Promise<string> => {
     return ipcInvoke('app:getVersion');
+  });
+
+  contextBridge.exposeInMainWorld('windowMinimize', async (): Promise<void> => {
+    return ipcInvoke('window:minimize');
+  });
+  contextBridge.exposeInMainWorld('windowMaximize', async (): Promise<void> => {
+    return ipcInvoke('window:maximize');
+  });
+  contextBridge.exposeInMainWorld('windowClose', async (): Promise<void> => {
+    return ipcInvoke('window:close');
   });
 }
 

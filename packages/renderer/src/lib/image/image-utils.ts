@@ -41,8 +41,7 @@ export class ImageUtils {
     // get start time in ms (using unix timestamp for the created)
     const age = moment().diff(moment.unix(created));
     // make it human friendly
-    const res = humanizeDuration(age, { round: true, largest: 1 });
-    return res;
+    return humanizeDuration(age, { round: true, largest: 1 });
   }
 
   refreshAge(imageInfoUi: ImageInfoUI): string {

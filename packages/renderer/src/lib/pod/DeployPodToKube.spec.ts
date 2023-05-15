@@ -178,8 +178,31 @@ test('When deploying a pod, volumes should not be added (they are deleted by pod
   expect(createButton).toBeInTheDocument();
   expect(createButton).toBeEnabled();
 
-  const useRestricted = screen.getByTestId('useRestricted');
-  await fireEvent.click(useRestricted);
+  // Press the deploy button
+  await fireEvent.click(createButton);
+
+  // Expect kubernetesCreatePod to be called with default namespace and a modified bodyPod with volumes removed
+  await waitFor(() =>
+    expect(kubernetesCreatePodMock).toBeCalledWith('default', {
+      metadata: { name: 'hello' },
+      spec: {
+        containers: [
+          {
+            name: 'hello',
+            image: 'hello-world',
+          },
+        ],
+      },
+    }),
+  );
+});
+
+// After modifying the pod name, metadata.apps.label should also have been changed
+test('When modifying the pod name, metadata.apps.label should also have been changed', async () => {
+  await waitRender({});
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
 
   // Press the deploy button
   await fireEvent.click(createButton);
@@ -205,6 +228,10 @@ test('When deploying a pod, restricted security context is added', async () => {
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
   expect(createButton).toBeEnabled();
+
+  // Click restricted
+  const useRestricted = screen.getByTestId('useRestricted');
+  await fireEvent.click(useRestricted);
 
   // Press the deploy button
   await fireEvent.click(createButton);

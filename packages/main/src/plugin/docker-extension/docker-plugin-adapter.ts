@@ -26,7 +26,6 @@ export class DockerPluginAdapter {
       const j = i - 1;
       if (j >= 0 && args[j] === '-v' && args[i] === '/var/run/docker.sock:/var/run/docker.sock') {
         i--;
-        continue;
       } else {
         result = [args[i], ...result];
       }
@@ -101,11 +100,8 @@ export class DockerPluginAdapter {
             } else {
               execResult.code = 0;
             }
-            if (code === 0) {
-              resolve(execResult);
-            } else {
-              resolve(execResult);
-            }
+
+            resolve(execResult);
           });
           spawnProcess.on('error', error => {
             execResult.killed = true;
@@ -118,7 +114,7 @@ export class DockerPluginAdapter {
 
     ipcMain.on(
       'docker-plugin-adapter:execWithOptions',
-      async (
+      (
         event: IpcMainEvent,
         contributionId: string,
         launcher: string | undefined,
@@ -127,7 +123,7 @@ export class DockerPluginAdapter {
         options: { splitOutputLines?: boolean },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         args: any[],
-      ): Promise<void> => {
+      ): void => {
         // need to add launcher as command and we move command as the first arg
         let updatedCommand;
         let updatedArgs;

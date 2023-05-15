@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,12 +89,12 @@ export class StartupInstall {
 
     // add notification handling
 
-    this.configurationRegistry.onDidChangeConfiguration(e => {
+    this.configurationRegistry.onDidChangeConfiguration(async e => {
       if (e.key === 'preferences.login.start') {
         if (e.value === true) {
-          this.enableStartupOnLogin();
+          await this.enableStartupOnLogin();
         } else {
-          this.disableStartupOnLogin();
+          await this.disableStartupOnLogin();
         }
       }
       // If the "minimize on start" option has changed, we need to update the startup configuration
@@ -103,7 +103,7 @@ export class StartupInstall {
         const dashboardConfiguration = this.configurationRegistry.getConfiguration('preferences.login');
         const enabled = dashboardConfiguration.get<boolean>('start');
         if (enabled) {
-          this.enableStartupOnLogin();
+          await this.enableStartupOnLogin();
         }
       }
     });

@@ -20,7 +20,7 @@ import { beforeAll, beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
 import { MenuRegistry } from './menu-registry';
 import { CommandRegistry } from './command-registry';
 
-let menuRegistry;
+let menuRegistry: MenuRegistry;
 let commandRegistry;
 
 /* eslint-disable @typescript-eslint/no-empty-function */

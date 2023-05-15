@@ -24,7 +24,7 @@ class CallbackList implements Iterable<Callback> {
   private _contexts: any[] | undefined;
 
   get length(): number {
-    return (this._callbacks && this._callbacks.length) || 0;
+    return this._callbacks?.length || 0;
   }
 
   public add(callback: Function, context: any = undefined, bucket?: IDisposable[]): void {
@@ -146,7 +146,7 @@ export class Emitter<T = any> {
           if (!this._callbacks) {
             this._callbacks = new CallbackList();
           }
-          if (this._options && this._options.onFirstListenerAdd && this._callbacks.isEmpty()) {
+          if (this._options?.onFirstListenerAdd && this._callbacks.isEmpty()) {
             this._options.onFirstListenerAdd(this);
           }
           this._callbacks.add(listener, thisArgs);
@@ -161,7 +161,7 @@ export class Emitter<T = any> {
               if (!this._disposed) {
                 this._callbacks?.remove(listener, thisArgs);
                 result.dispose = Emitter._noop;
-                if (this._options && this._options.onLastListenerRemove && this._callbacks?.isEmpty()) {
+                if (this._options?.onLastListenerRemove && this._callbacks?.isEmpty()) {
                   this._options.onLastListenerRemove(this);
                 }
               }

@@ -20,6 +20,11 @@ onMount(async () => {
     if (systemReady) {
       window.dispatchEvent(new CustomEvent('system-ready', {}));
     }
+
+    const extensionsStarted = await window.extensionSystemIsExtensionsStarted();
+    if (extensionsStarted) {
+      window.dispatchEvent(new CustomEvent('extensions-already-started', {}));
+    }
   } catch (error) {}
 });
 

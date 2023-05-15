@@ -20,10 +20,10 @@
 
 import '@testing-library/jest-dom';
 import { beforeAll, test, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import QuickPickInput from './QuickPickInput.svelte';
-import type { QuickPickOptions } from './quickpick-input';
+import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 
 const sendShowQuickPickValuesMock = vi.fn();
 const sendShowInputBoxValueMock = vi.fn();
@@ -129,5 +129,82 @@ describe('QuickPickInput', () => {
     expect(itemDescription2).toBeInTheDocument();
     const itemDetail2 = await screen.findByText('my detail2');
     expect(itemDetail2).toBeInTheDocument();
+  });
+
+  test('Expect that description is displayed', async () => {
+    const idRequest = 123;
+
+    const inputBoxOptions: InputBoxOptions = {
+      multiline: false,
+      validate: false,
+      placeHolder: '',
+      prompt: '',
+      markdownDescription: 'Enter a value',
+      id: idRequest,
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: InputBoxOptions) => void) => {
+      if (message === 'showInputBox:add') {
+        callback(inputBoxOptions);
+      }
+    });
+
+    render(QuickPickInput, {});
+
+    const section = await screen.findByLabelText('markdown-content');
+    expect(section).toBeInTheDocument();
+    const paragraph = within(section).findByText(/Enter a value/g);
+    expect(paragraph).toBeDefined();
+  });
+
+  test('Expect that markdown description is displayed', async () => {
+    const idRequest = 123;
+
+    const inputBoxOptions: InputBoxOptions = {
+      multiline: false,
+      validate: false,
+      placeHolder: '',
+      prompt: '',
+      markdownDescription: 'Enter a value [See](https://podman-desktop.io)',
+      id: idRequest,
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: InputBoxOptions) => void) => {
+      if (message === 'showInputBox:add') {
+        callback(inputBoxOptions);
+      }
+    });
+
+    render(QuickPickInput, {});
+
+    const section = await screen.findByLabelText('markdown-content');
+    expect(section).toBeInTheDocument();
+    const paragraph = await within(section).findByText(/Enter a value/g);
+    expect(paragraph).toBeInTheDocument();
+    const link = await within(paragraph).findByRole('link');
+    expect(link).toBeInTheDocument();
+  });
+
+  test('Expect that multiline is displayed', async () => {
+    const idRequest = 123;
+
+    const inputBoxOptions: InputBoxOptions = {
+      multiline: true,
+      validate: false,
+      placeHolder: '',
+      prompt: 'Enter a value',
+      id: idRequest,
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: InputBoxOptions) => void) => {
+      if (message === 'showInputBox:add') {
+        callback(inputBoxOptions);
+      }
+    });
+
+    render(QuickPickInput, {});
+
+    const area = await screen.findByRole('textbox');
+    expect(area).toBeInTheDocument();
   });
 });

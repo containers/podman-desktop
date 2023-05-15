@@ -53,14 +53,17 @@ export function WindowsDownloads(): JSX.Element {
     version: '',
     binary: '',
     setup: '',
+    airgapsetup: '',
   });
 
-  const copyCliInstructions = () => {
-    navigator.clipboard.writeText('winget install -e --id RedHat.Podman-Desktop');
+  const copyCliInstructions = async () => {
+    await navigator.clipboard.writeText('winget install -e --id RedHat.Podman-Desktop');
   };
 
   useEffect(() => {
-    grabfilenameforWindows(setDownloadData);
+    grabfilenameforWindows(setDownloadData).catch((err: unknown) => {
+      console.error(err);
+    });
   }, []);
 
   return (
@@ -123,7 +126,11 @@ export function WindowsDownloads(): JSX.Element {
                         size="xs"
                         icon={faPaste}
                         className="ml-3  cursor-pointer text-xl  text-white-500"
-                        onClick={() => copyCliInstructions()}
+                        onClick={() => {
+                          copyCliInstructions().catch((err: unknown) => {
+                            console.error('unable to copy instructions', err);
+                          });
+                        }}
                       />
                     </button>
                   </div>

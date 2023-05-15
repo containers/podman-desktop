@@ -29,7 +29,11 @@ let composeExtension: ComposeExtension | undefined;
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // do not hold the activation promise
-  setTimeout(() => postActivate(extensionContext), 0);
+  setTimeout(() => {
+    postActivate(extensionContext).catch((error: unknown) => {
+      console.error('Error activating extension', error);
+    });
+  }, 0);
 }
 
 async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {

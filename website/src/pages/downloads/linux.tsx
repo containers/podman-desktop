@@ -41,12 +41,14 @@ export function LinuxDownloads(): JSX.Element {
     flatpak: '',
   });
 
-  const copyFlathubInstructions = () => {
-    navigator.clipboard.writeText('flatpak install --user flathub io.podman_desktop.PodmanDesktop');
+  const copyFlathubInstructions = async () => {
+    await navigator.clipboard.writeText('flatpak install --user flathub io.podman_desktop.PodmanDesktop');
   };
 
   useEffect(() => {
-    grabfilenameforMac(setDownloadData);
+    grabfilenameforMac(setDownloadData).catch((err: unknown) => {
+      console.error(err);
+    });
   }, []);
 
   return (
@@ -103,7 +105,11 @@ export function LinuxDownloads(): JSX.Element {
                         size="xs"
                         icon={faPaste}
                         className="ml-3  cursor-pointer text-xl  text-white-500"
-                        onClick={() => copyFlathubInstructions()}
+                        onClick={() => {
+                          copyFlathubInstructions().catch((err: unknown) => {
+                            console.error('unable to copy instructions', err);
+                          });
+                        }}
                       />
                     </button>
                   </div>

@@ -36,10 +36,10 @@ async function removeExtension() {
         </div>
 
         <div class="py-2 flex flex-row items-center">
-          <!-- start is enabled only when stopped -->
+          <!-- start is enabled only when stopped or failed -->
           <div class="px-2 text-sm italic text-gray-700">
             <button
-              disabled="{extensionInfo.state !== 'stopped'}"
+              disabled="{extensionInfo.state !== 'stopped' && extensionInfo.state !== 'failed'}"
               on:click="{() => startExtension()}"
               class="pf-c-button pf-m-primary"
               type="button">
@@ -64,11 +64,11 @@ async function removeExtension() {
             </button>
           </div>
 
-          <!-- delete is enabled only when stopped -->
+          <!-- delete is enabled only when stopped or failed -->
           {#if extensionInfo.removable}
             <div class="px-2 text-sm italic text-gray-700">
               <button
-                disabled="{extensionInfo.state !== 'stopped'}"
+                disabled="{extensionInfo.state !== 'stopped' && extensionInfo.state !== 'failed'}"
                 on:click="{() => removeExtension()}"
                 class="pf-c-button pf-m-primary"
                 type="button">
@@ -82,6 +82,15 @@ async function removeExtension() {
             <div class="text-gray-900 items-center px-2 text-sm">Default extension, cannot be removed</div>
           {/if}
         </div>
+        {#if extensionInfo.error}
+          <div class="flex flex-col">
+            <div class="py-2">Extension error: {extensionInfo.error.message}</div>
+            {#if extensionInfo.error.stack}
+              <div class="py-2">Stack trace</div>
+              <div class="py-2">{extensionInfo.error.stack}</div>
+            {/if}
+          </div>
+        {/if}
       </Route>
     {/if}
   </div></SettingsPage>

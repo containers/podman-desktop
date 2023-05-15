@@ -17,9 +17,7 @@
  ***********************************************************************/
 
 import type { MenuItemConstructorOptions, Tray } from 'electron';
-import { nativeImage } from 'electron';
-import { Menu } from 'electron';
-import { ipcMain } from 'electron';
+import { nativeImage, Menu, ipcMain } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import type { ProviderInfo } from './plugin/api/provider-info';
 import type { AnimatedTray } from './tray-animate-icon';
@@ -27,10 +25,11 @@ import { TrayMenu } from './tray-menu';
 import statusStopped from './assets/status-stopped.png';
 
 let trayMenu: TrayMenu;
-let tray;
-let animatedTray;
+let tray: Tray;
+let animatedTray: AnimatedTray;
 vi.mock('electron', async () => {
-  const Menu = vi.fn();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Menu = {} as unknown as any;
   Menu['buildFromTemplate'] = vi.fn();
   return {
     Menu,

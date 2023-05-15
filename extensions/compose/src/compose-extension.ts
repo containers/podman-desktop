@@ -116,12 +116,12 @@ export class ComposeExtension {
       this.statusBarItem.command = statusBarChangesToApply.command;
     }
 
-    this.notifyOnChecks(firstCheck);
+    await this.notifyOnChecks(firstCheck);
   }
 
-  protected notifyOnChecks(firstCheck: boolean): void {
+  protected async notifyOnChecks(firstCheck: boolean): Promise<void> {
     if (this.currentInformation && !firstCheck) {
-      this.showCurrentInformation();
+      await this.showCurrentInformation();
     }
   }
 
@@ -160,7 +160,7 @@ export class ComposeExtension {
       const assetId = await this.composeGitHubReleases.getReleaseAssetId(selectedRelease.id, platform(), arch());
 
       // get storage data
-      const storageData = await this.extensionContext.storagePath;
+      const storageData = this.extensionContext.storagePath;
       const storageBinFolder = path.resolve(storageData, 'bin');
       if (!existsSync(storageBinFolder)) {
         // create the folder
@@ -182,17 +182,17 @@ export class ComposeExtension {
       // make it executable
       await this.makeExecutable(dockerComposeDownloadLocation);
 
-      extensionApi.window.showInformationMessage(`Docker Compose ${selectedRelease.label} installed`);
+      await extensionApi.window.showInformationMessage(`Docker Compose ${selectedRelease.label} installed`);
 
       // update checks
-      this.runChecks(false);
+      await this.runChecks(false);
     }
   }
 
   // add script that is redirecting to docker-compose and configuring the socket using DOCKER_HOST
   async addComposeWrapper(connection: extensionApi.ProviderContainerConnection): Promise<void> {
     // get storage data
-    const storageData = await this.extensionContext.storagePath;
+    const storageData = this.extensionContext.storagePath;
     const storageBinFolder = path.resolve(storageData, 'bin');
 
     if (!existsSync(storageBinFolder)) {
@@ -215,9 +215,9 @@ export class ComposeExtension {
     await this.makeExecutable(composeWrapperScript);
   }
 
-  showCurrentInformation(): void {
+  async showCurrentInformation(): Promise<void> {
     if (this.currentInformation) {
-      extensionApi.window.showInformationMessage(this.currentInformation);
+      await extensionApi.window.showInformationMessage(this.currentInformation);
     }
   }
 

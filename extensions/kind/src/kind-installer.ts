@@ -82,13 +82,13 @@ export class KindInstaller {
   }
 
   async getAssetInfo(): Promise<AssetInfo> {
-    if (!this.assetPromise) {
+    if (!(await this.assetPromise)) {
       const assetName = this.assetNames.get(os.platform().concat('-').concat(os.arch()));
       const octokit = new Octokit();
       this.assetPromise = octokit.repos
         .listReleases({ owner: githubOrganization, repo: githubRepo })
         .then(response => this.findAssetInfo(response.data, assetName))
-        .catch(error => {
+        .catch((error: unknown) => {
           console.error(error);
           return undefined;
         });

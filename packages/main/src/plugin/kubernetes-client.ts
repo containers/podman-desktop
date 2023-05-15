@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,17 @@ import type {
   V1APIResource,
   V1APIGroup,
 } from '@kubernetes/client-node';
-import { ApisApi, NetworkingV1Api } from '@kubernetes/client-node';
-import { AppsV1Api } from '@kubernetes/client-node';
-import { CustomObjectsApi } from '@kubernetes/client-node';
-import { CoreV1Api, KubeConfig, Log, Watch, VersionApi } from '@kubernetes/client-node';
+import {
+  ApisApi,
+  NetworkingV1Api,
+  AppsV1Api,
+  CustomObjectsApi,
+  CoreV1Api,
+  KubeConfig,
+  Log,
+  Watch,
+  VersionApi,
+} from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
@@ -164,11 +171,11 @@ export class KubernetesClient {
     }
 
     // Update the property on change
-    this.configurationRegistry.onDidChangeConfiguration(e => {
+    this.configurationRegistry.onDidChangeConfiguration(async e => {
       if (e.key === 'kubernetes.Kubeconfig') {
         const val = e.value as string;
         this.setupWatcher(val);
-        this.setKubeconfig(Uri.file(val));
+        await this.setKubeconfig(Uri.file(val));
       }
     });
   }
@@ -211,7 +218,8 @@ export class KubernetesClient {
           () => this.apiSender.send('pod-event'),
           (err: unknown) => console.error('Kube event error', err),
         )
-        .then(req => (this.kubeWatcher = req));
+        .then(req => (this.kubeWatcher = req))
+        .catch((err: unknown) => console.error('Kube event error', err));
     }
   }
 
@@ -375,7 +383,7 @@ export class KubernetesClient {
         fieldSelector,
         labelSelector,
       );
-      if (res && res.body) {
+      if (res?.body) {
         return res.body;
       } else {
         return {
@@ -410,7 +418,7 @@ export class KubernetesClient {
         callback('data', chunk.toString('utf-8'));
       });
 
-      log.log(ns, name, container, logStream, { follow: true });
+      await log.log(ns, name, container, logStream, { follow: true });
     }
   }
 
@@ -418,7 +426,7 @@ export class KubernetesClient {
     const ns = this.currentNamespace;
     if (ns) {
       const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-      k8sApi.deleteNamespacedPod(name, ns);
+      await k8sApi.deleteNamespacedPod(name, ns);
     }
   }
 
@@ -426,7 +434,7 @@ export class KubernetesClient {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedPod(name, namespace);
-      if (res && res.body) {
+      if (res?.body) {
         return res.body;
       } else {
         return undefined;
@@ -440,7 +448,7 @@ export class KubernetesClient {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedConfigMap(name, namespace);
-      if (res && res.body) {
+      if (res?.body) {
         return res.body;
       } else {
         return undefined;
@@ -454,7 +462,7 @@ export class KubernetesClient {
     try {
       const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
       const res = await k8sApi.listNamespace();
-      if (res && res.body) {
+      if (res?.body) {
         return res.body;
       } else {
         return {
@@ -481,7 +489,7 @@ export class KubernetesClient {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private wrapK8sClientError(e: any): Error {
-    if (e.response && e.response.body) {
+    if (e?.response?.body) {
       if (e.response.body.message) {
         return this.newError(e.response.body.message, e);
       }
@@ -625,7 +633,7 @@ export class KubernetesClient {
       await this.createResources(context, manifests, namespace);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      if (error.response && error.response.body) {
+      if (error?.response?.body) {
         if (error.response.body.message) {
           throw new Error(error.response.body.message);
         }

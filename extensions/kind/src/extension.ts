@@ -47,11 +47,11 @@ let kindCli: string | undefined;
 
 const imageHandler = new ImageHandler();
 
-function registerProvider(
+async function registerProvider(
   extensionContext: extensionApi.ExtensionContext,
   provider: extensionApi.Provider,
   telemetryLogger: extensionApi.TelemetryLogger,
-): void {
+): Promise<void> {
   const disposable = provider.setKubernetesProviderConnectionFactory({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) =>
@@ -61,7 +61,7 @@ function registerProvider(
   extensionContext.subscriptions.push(disposable);
 
   // search
-  searchKindClusters(provider);
+  await searchKindClusters(provider);
   console.log('kind extension is active');
 }
 
@@ -163,14 +163,14 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
   });
 }
 
-async function searchKindClusters(provider: extensionApi.Provider) {
+async function searchKindClusters(provider: extensionApi.Provider): Promise<void> {
   const allContainers = await extensionApi.containerEngine.listContainers();
 
   // search all containers with io.x-k8s.kind.cluster label
   const kindContainers = allContainers.filter(container => {
     return container.Labels?.['io.x-k8s.kind.cluster'];
   });
-  updateClusters(provider, kindContainers);
+  await updateClusters(provider, kindContainers);
 }
 
 export function refreshKindClustersOnProviderConnectionUpdate(provider: extensionApi.Provider) {
@@ -181,10 +181,10 @@ export function refreshKindClustersOnProviderConnectionUpdate(provider: extensio
   });
 }
 
-function createProvider(
+async function createProvider(
   extensionContext: extensionApi.ExtensionContext,
   telemetryLogger: extensionApi.TelemetryLogger,
-) {
+): Promise<void> {
   const provider = extensionApi.provider.createProvider({
     name: 'Kind',
     id: 'kind',
@@ -198,11 +198,11 @@ function createProvider(
     },
   });
   extensionContext.subscriptions.push(provider);
-  registerProvider(extensionContext, provider, telemetryLogger);
+  await registerProvider(extensionContext, provider, telemetryLogger);
   extensionContext.subscriptions.push(
-    extensionApi.commands.registerCommand(KIND_MOVE_IMAGE_COMMAND, image => {
+    extensionApi.commands.registerCommand(KIND_MOVE_IMAGE_COMMAND, async image => {
       telemetryLogger.logUsage('moveImage');
-      imageHandler.moveImage(image, kindClusters, kindCli);
+      await imageHandler.moveImage(image, kindClusters, kindCli);
     }),
   );
 
@@ -210,7 +210,7 @@ function createProvider(
   extensionApi.containerEngine.onEvent(async event => {
     if (event.Type === 'container') {
       // needs to search for kind clusters
-      searchKindClusters(provider);
+      await searchKindClusters(provider);
     }
   });
 
@@ -218,15 +218,15 @@ function createProvider(
   refreshKindClustersOnProviderConnectionUpdate(provider);
 
   // search when a new container is updated or removed
-  extensionApi.provider.onDidRegisterContainerConnection(() => {
-    searchKindClusters(provider);
+  extensionApi.provider.onDidRegisterContainerConnection(async () => {
+    await searchKindClusters(provider);
   });
-  extensionApi.provider.onDidUnregisterContainerConnection(() => {
-    searchKindClusters(provider);
+  extensionApi.provider.onDidUnregisterContainerConnection(async () => {
+    await searchKindClusters(provider);
   });
-  extensionApi.provider.onDidUpdateProvider(() => registerProvider(extensionContext, provider, telemetryLogger));
+  extensionApi.provider.onDidUpdateProvider(async () => registerProvider(extensionContext, provider, telemetryLogger));
   // search for kind clusters on boot
-  searchKindClusters(provider);
+  await searchKindClusters(provider);
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
@@ -248,17 +248,17 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
               if (status) {
                 statusBarItem.dispose();
                 kindCli = await detectKind(extensionContext.storagePath, installer);
-                createProvider(extensionContext, telemetryLogger);
+                await createProvider(extensionContext, telemetryLogger);
               }
             },
-            err => window.showErrorMessage('Kind installation failed ' + err),
+            (err: unknown) => window.showErrorMessage('Kind installation failed ' + err),
           ),
         ),
       );
       statusBarItem.show();
     }
   } else {
-    createProvider(extensionContext, telemetryLogger);
+    await createProvider(extensionContext, telemetryLogger);
   }
 }
 

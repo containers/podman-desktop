@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import * as extension from './extension';
 import * as podmanCli from './podman-cli';
 import { getPodmanCli } from './podman-cli';
 import type { Configuration } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 
 const config: Configuration = {
   get: () => {
@@ -38,7 +39,14 @@ vi.mock('@podman-desktop/api', async () => {
     proxy: {
       isEnabled: () => false,
     },
+    window: {
+      showInformationMessage: vi.fn(),
+    },
   };
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
 });
 
 test('verify create command called with correct values', async () => {
@@ -46,7 +54,7 @@ test('verify create command called with correct values', async () => {
   spyExecPromise.mockImplementation(() => {
     return Promise.resolve('');
   });
-  extension.createMachine(
+  await extension.createMachine(
     {
       'podman.factory.machine.cpus': '2',
       'podman.factory.machine.image-path': 'path',
@@ -64,4 +72,67 @@ test('verify create command called with correct values', async () => {
     },
     undefined,
   );
+});
+
+test('test checkDefaultMachine, if the machine running is not default, the function will prompt', async () => {
+  const machineDefaultName = 'podman-machine-default';
+  const machine1Name = 'podman-machine-1';
+
+  // Create fake of MachineJSON
+  const fakeJSON: extension.MachineJSON[] = [
+    {
+      Name: machineDefaultName,
+      CPUs: 2,
+      Memory: '1048000000',
+      DiskSize: '250000000000',
+      Running: true,
+      Starting: false,
+      Default: false,
+    },
+    {
+      Name: machine1Name,
+      CPUs: 2,
+      Memory: '1048000000',
+      DiskSize: '250000000000',
+      Running: false,
+      Starting: false,
+      Default: true,
+    },
+  ];
+
+  await extension.checkDefaultMachine(fakeJSON);
+
+  expect(extensionApi.window.showInformationMessage).toBeCalledWith(
+    `Podman Machine '${machineDefaultName}' is running but not the default machine (default is '${machine1Name}'). This will cause podman CLI errors while trying to connect to '${machineDefaultName}'. Do you want to set it as default?`,
+    'Yes',
+    'Ignore',
+    'Cancel',
+  );
+});
+
+test('checkDefaultMachine: do not prompt if the running machine is already the default', async () => {
+  // Create fake of MachineJSON
+  const fakeJSON: extension.MachineJSON[] = [
+    {
+      Name: 'podman-machine-default',
+      CPUs: 2,
+      Memory: '1048000000',
+      DiskSize: '250000000000',
+      Running: true,
+      Starting: false,
+      Default: true,
+    },
+    {
+      Name: 'podman-machine-1',
+      CPUs: 2,
+      Memory: '1048000000',
+      DiskSize: '250000000000',
+      Running: false,
+      Starting: false,
+      Default: false,
+    },
+  ];
+
+  await extension.checkDefaultMachine(fakeJSON);
+  expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
 });

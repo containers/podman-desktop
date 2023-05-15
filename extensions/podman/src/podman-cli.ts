@@ -111,20 +111,13 @@ export function execPromise(
     process.stderr.setEncoding('utf8');
     process.stderr.on('data', data => {
       stdErr += data;
-      options?.logger?.error(data);
+      options?.logger?.warn(data);
     });
 
     process.on('close', exitCode => {
-      let content = '';
-      if (stdOut && stdOut !== '') {
-        content += stdOut + '\n';
-      }
-      if (stdErr && stdErr !== '') {
-        content += stdErr + '\n';
-      }
-
       if (exitCode !== 0) {
-        reject(new Error(content));
+        options?.logger?.error(stdErr);
+        reject(new Error(stdErr));
       }
       resolve(stdOut.trim());
     });

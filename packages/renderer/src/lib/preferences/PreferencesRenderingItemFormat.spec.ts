@@ -25,6 +25,7 @@ import { test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
+import userEvent from '@testing-library/user-event';
 
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
@@ -68,7 +69,7 @@ test('Expect a checkbox when record is type boolean', async () => {
     description: 'record-description',
     type: 'boolean',
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('record-description');
@@ -88,7 +89,7 @@ test('Expect a slider when record and its maximum are type number and enableSlid
     minimum: 1,
     maximum: 34,
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
     enableSlider: true,
   });
@@ -109,7 +110,7 @@ test('Expect a text input when record is type number and enableSlider is false',
     minimum: 1,
     maximum: 34,
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('record-description');
@@ -127,7 +128,7 @@ test('Expect an input button with Browse as placeholder when record is type stri
     type: 'string',
     format: 'file',
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('button-record-description');
@@ -145,7 +146,7 @@ test('Expect a select when record is type string and has enum values', async () 
     type: 'string',
     enum: ['first', 'second'],
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('record-description');
@@ -162,7 +163,7 @@ test('Expect a text input when record is type string', async () => {
     description: 'record-description',
     type: 'string',
   };
-  await render(PreferencesRenderingItemFormat, {
+  render(PreferencesRenderingItemFormat, {
     record,
   });
   const input = screen.getByLabelText('record-description');
@@ -170,4 +171,48 @@ test('Expect a text input when record is type string', async () => {
   expect(input instanceof HTMLInputElement).toBe(true);
   expect((input as HTMLInputElement).type).toBe('text');
   expect((input as HTMLSelectElement).name).toBe('record');
+});
+
+test('Expect tooltip text shows info when input is less than minimum', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'number',
+    minimum: 1,
+    maximum: 34,
+  };
+  render(PreferencesRenderingItemFormat, {
+    record,
+  });
+  const input = screen.getByLabelText('record-description');
+  await userEvent.click(input);
+  await userEvent.clear(input);
+  await userEvent.keyboard('0');
+  const tooltip = screen.getByLabelText('tooltip');
+  expect(tooltip).toBeInTheDocument();
+  expect(tooltip.textContent).toBe('The value cannot be less than 1');
+});
+
+test('Expect tooltip text shows info when input is empty', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'number',
+    minimum: 1,
+    maximum: 34,
+  };
+  render(PreferencesRenderingItemFormat, {
+    record,
+  });
+  const input = screen.getByLabelText('record-description');
+  await userEvent.click(input);
+  await userEvent.clear(input);
+  await userEvent.keyboard('40');
+  const tooltip = screen.getByLabelText('tooltip');
+  expect(tooltip).toBeInTheDocument();
+  expect(tooltip.textContent).toBe('The value cannot be greater than 34');
 });

@@ -1,10 +1,12 @@
 <script lang="ts">
 import { authenticationProviders } from '../../stores/authenticationProviders';
-import { faCircle, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faRightFromBracket, faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons';
 import SettingsPage from './SettingsPage.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import KeyIcon from '../images/KeyIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
+import DropdownMenu from '../ui/DropdownMenu.svelte';
+import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 </script>
 
 <SettingsPage title="Authentication">
@@ -19,6 +21,31 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
       <!-- Registered Authentication Provider row start -->
       <div class="flex flex-col w-full">
         <div class="flex rounded-md border-0" style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))">
+          <div class="ml-4 flex items-center">
+            <div class="flex">
+              {#if provider?.images?.icon}
+                {#if typeof provider.images.icon === 'string'}
+                  <img
+                    src="{provider.images.icon}"
+                    alt="{provider.displayName}"
+                    aria-label="Icon for {provider.displayName} provider"
+                    class="max-w-[40px] h-full" />
+                  <!-- TODO check theme used for image, now use dark by default -->
+                {:else}
+                  <img
+                    src="{provider.images.icon.dark}"
+                    alt="Dark color theme icon for {provider.displayName} provider"
+                    class="max-w-[40px]" />
+                {/if}
+              {:else}
+                <svelte:component
+                  this="{KeyIcon}"
+                  size="40"
+                  alt="{provider.displayName}"
+                  aria-label="Default icon for {provider.displayName} provider" />
+              {/if}
+            </div>
+          </div>
           <!-- Authentication Provider name and status item start -->
           <div class="px-5 py-2 text-sm w-1/3 m-auto">
             <div class="flex flex-col">
@@ -61,6 +88,18 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
             </div>
           </div>
           <!-- Authentication Provider Session label start -->
+          <div class="ml-4 flex items-center">
+            {#if provider.sessionRequests.length > 0}
+              <DropdownMenu>
+                {#each provider.sessionRequests as request}
+                  <DropdownMenuItem
+                    title="Sign in to use {request.extensionLabel}"
+                    onClick="{() => window.requestAuthenticationProviderSignIn(request.id)}"
+                    icon="{faArrowRightToBracket}" />
+                {/each}
+              </DropdownMenu>
+            {/if}
+          </div>
         </div>
       </div>
       <!-- Registered Authentication Provider row end -->

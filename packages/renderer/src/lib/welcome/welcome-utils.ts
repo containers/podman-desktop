@@ -25,8 +25,8 @@ export class WelcomeUtils {
     return window.getConfigurationValue<string>(WelcomeSettings.SectionName + '.' + WelcomeSettings.Version);
   }
 
-  updateVersion(val: string) {
-    window.updateConfigurationValue(
+  async updateVersion(val: string): Promise<void> {
+    await window.updateConfigurationValue(
       WelcomeSettings.SectionName + '.' + WelcomeSettings.Version,
       val,
       CONFIGURATION_DEFAULT_SCOPE,
@@ -41,17 +41,19 @@ export class WelcomeUtils {
     console.log('Telemetry enablement: ' + telemetry);
 
     // store if the user said yes or no to telemetry
-    window.updateConfigurationValue(
+    await window.updateConfigurationValue(
       TelemetrySettings.SectionName + '.' + TelemetrySettings.Enabled,
       telemetry,
       CONFIGURATION_DEFAULT_SCOPE,
     );
 
     // trigger telemetry system initialization
-    if (telemetry) window.telemetryConfigure();
+    if (telemetry) {
+      await window.telemetryConfigure();
+    }
 
     // save the fact that we've prompted
-    window.updateConfigurationValue(
+    await window.updateConfigurationValue(
       TelemetrySettings.SectionName + '.' + TelemetrySettings.Check,
       true,
       CONFIGURATION_DEFAULT_SCOPE,

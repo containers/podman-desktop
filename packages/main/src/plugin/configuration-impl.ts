@@ -124,7 +124,7 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
 
   getConfigurationKey(): string {
     if (this.isContainerProviderConnection(this.scope)) {
-      return `container-connection:${this.scope.endpoint.socketPath}`;
+      return `container-connection:${this.scope.name}.${this.scope.endpoint.socketPath}`;
     } else if (this.isKubernetesProviderConnection(this.scope)) {
       return `kubernetes-connection:${this.scope.endpoint.apiURL}`;
     } else {
