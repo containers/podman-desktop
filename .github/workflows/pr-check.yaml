@@ -208,3 +208,9 @@ jobs:
 
       - name: Run svelte check
         run: yarn svelte:check
+
+      - uses: actions/upload-artifact@v3.1.2
+        if: always()
+        with:
+          name: tests
+          path: ./tests/output/

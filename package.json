@@ -39,7 +39,7 @@
     "compile:pull-request": "cross-env MODE=production npm run build && electron-builder build --publish never --config .electron-builder.config.cjs",
     "compile:current": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.cjs",
     "test": "npm run test:main && npm run test:preload && npm run test:preload-docker-extension && npm run test:renderer && npm run test:e2e && npm run test:extensions",
-    "test:e2e": "npm run build && xvfb-maybe vitest run tests",
+    "test:e2e": "NODE_ENV=development MODE=development DEBUG=pw:browser npm run build && xvfb-maybe vitest run tests",
     "test:main": "vitest run -r packages/main --passWithNoTests --coverage",
     "test:preload": "vitest run -r packages/preload --passWithNoTests --coverage",
     "test:preload-docker-extension": "vitest run -r packages/preload-docker-extension --passWithNoTests --coverage",
@@ -70,6 +70,7 @@
     "website:dev": "cd website && yarn run docusaurus start"
   },
   "devDependencies": {
+    "@playwright/test": "^1.33.0",
     "@rollup/plugin-commonjs": "^25.0.0",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.2",
