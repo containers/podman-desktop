@@ -27,8 +27,10 @@ export async function fetchProviders() {
     // register only if none for this provider id
     if (!updateProviderCallbacks.includes(providerInfo.internalId)) {
       window
-        .onDidUpdateProviderStatus(providerInfo.internalId, async () => {
-          await fetchProviders();
+        .onDidUpdateProviderStatus(providerInfo.internalId, () => {
+          fetchProviders().catch((error: unknown) => {
+            console.error('Failed to fetch providers', error);
+          });
         })
         .catch((err: unknown) => {
           console.error('Failed to register onDidUpdateProviderStatus callback', err);
@@ -48,8 +50,10 @@ window?.events?.receive('extension-stopped', async () => {
   await fetchProviders();
 });
 
-window.addEventListener('provider-lifecycle-change', async () => {
-  await fetchProviders();
+window.addEventListener('provider-lifecycle-change', () => {
+  fetchProviders().catch((error: unknown) => {
+    console.error('Failed to fetch providers', error);
+  });
 });
 
 window?.events?.receive('provider-lifecycle-change', async () => {
@@ -74,8 +78,10 @@ window?.events?.receive('provider:update-warnings', async () => {
 window?.events?.receive('provider:update-version', async () => {
   await fetchProviders();
 });
-window.addEventListener('system-ready', async () => {
-  await fetchProviders();
+window.addEventListener('system-ready', () => {
+  fetchProviders().catch((error: unknown) => {
+    console.error('Failed to fetch providers', error);
+  });
 });
 window?.events?.receive('provider-register-kubernetes-connection', async () => {
   await fetchProviders();

@@ -38,9 +38,11 @@ export class TelemetryService {
       this.handlerFlusher = undefined;
     }
 
-    this.handlerFlusher = setTimeout(async () => {
+    this.handlerFlusher = setTimeout(() => {
       if (window.telemetryPage) {
-        await window.telemetryPage(pagePath);
+        window.telemetryPage(pagePath).catch((error: unknown) => {
+          console.error('Failed to send page event', error);
+        });
       }
     }, 200);
   }

@@ -88,8 +88,8 @@ export class ProviderImpl implements Provider, IDisposable {
     this._warnings = providerOptions.warnings || [];
 
     // monitor connection statuses
-    setInterval(async () => {
-      this.containerProviderConnections.forEach(providerConnection => {
+    setInterval(() => {
+      for (const providerConnection of this.containerProviderConnections) {
         const status = providerConnection.status();
         // key can't be socket path as for some providers it can be the same
         const key = `${providerConnection.name}.${providerConnection.endpoint.socketPath}`;
@@ -97,7 +97,7 @@ export class ProviderImpl implements Provider, IDisposable {
           this.providerRegistry.onDidChangeContainerProviderConnectionStatus(this, providerConnection);
           this.containerProviderConnectionsStatuses.set(key, status);
         }
-      });
+      }
     }, 2000);
   }
 

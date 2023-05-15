@@ -47,6 +47,8 @@ window?.events?.receive('extension-removed', async () => {
 window?.events?.receive('extensions-started', async () => {
   await fetchExtensions();
 });
-window.addEventListener('system-ready', async () => {
-  await fetchExtensions();
+window.addEventListener('system-ready', () => {
+  fetchExtensions().catch((error: unknown) => {
+    console.error('Failed to fetch extensions', error);
+  });
 });

@@ -36,7 +36,11 @@ if (!isSingleInstance) {
   app.quit();
   process.exit(0);
 }
-app.on('second-instance', restoreWindow);
+app.on('second-instance', () => {
+  restoreWindow().catch((error: unknown) => {
+    console.log('Error restoring window', error);
+  });
+});
 
 /**
  * Disable Hardware Acceleration for more power-save
@@ -52,13 +56,13 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.once('before-quit', async event => {
+app.once('before-quit', event => {
   if (!extensionLoader) {
     stoppedExtensions.val = true;
     return;
   }
   event.preventDefault();
-  await extensionLoader
+  extensionLoader
     ?.stopAllExtensions()
     .then(() => {
       console.log('Stopped all extensions');
@@ -96,7 +100,11 @@ app.whenReady().then(
     // Required for macOS to start the app correctly (this is will be shown in the dock)
     // We use 'activate' within whenReady in order to gracefully start on macOS, see this link:
     // https://www.electronjs.org/docs/latest/tutorial/quick-start#open-a-window-if-none-are-open-macos
-    app.on('activate', createNewWindow);
+    app.on('activate', () => {
+      createNewWindow().catch((error: unknown) => {
+        console.log('Error creating window', error);
+      });
+    });
 
     // prefer ipv4 over ipv6
     // TODO: Needs to be there until Happy Eyeballs(https://en.wikipedia.org/wiki/Happy_Eyeballs) is implemented

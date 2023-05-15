@@ -56,6 +56,7 @@ import type { Telemetry } from './telemetry/telemetry';
 import { TelemetryTrustedValue } from './types/telemetry';
 import { clipboard as electronClipboard } from 'electron';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
+
 /**
  * Handle the loading of an extension
  */
@@ -191,7 +192,11 @@ export class ExtensionLoader {
       fs.watch(this.pluginsScanDirectory, (_, filename) => {
         // need to load the file
         const packagedFile = path.resolve(this.pluginsScanDirectory, filename);
-        setTimeout(() => this.loadPackagedFile(packagedFile), this.watchTimeout);
+        setTimeout(() => {
+          this.loadPackagedFile(packagedFile).catch((error: unknown) => {
+            console.error('Error while loadPackagedFile', error);
+          });
+        }, this.watchTimeout);
       });
 
       // scan all files in the directory
@@ -372,7 +377,11 @@ export class ExtensionLoader {
       extensionWatcher.onDidChange(async () => {
         // wait 1 second before trying to reload the extension
         // this is to avoid reloading the extension while it is still being updated
-        setTimeout(() => this.reloadExtension(extension, removable), 1000);
+        setTimeout(() => {
+          this.reloadExtension(extension, removable).catch((error: unknown) =>
+            console.error('error while reloading extension', error),
+          );
+        }, 1000);
       });
       this.watcherExtensions.set(extension.id, extensionWatcher);
     }
@@ -808,9 +817,9 @@ export class ExtensionLoader {
     }
 
     // dispose subscriptions
-    extension.extensionContext.subscriptions.forEach(async subscription => {
+    for (const subscription of extension.extensionContext.subscriptions) {
       await subscription.dispose();
-    });
+    }
 
     const analyzedExtension = this.analyzedExtensions.get(extensionId);
     if (analyzedExtension) {

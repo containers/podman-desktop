@@ -85,7 +85,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   const machines = JSON.parse(machineListOutput) as MachineJSON[];
 
   // update status of existing machines
-  machines.forEach(async machine => {
+  for (const machine of machines) {
     const running = machine?.Running === true;
     let status: extensionApi.ProviderConnectionStatus = running ? 'started' : 'stopped';
 
@@ -116,7 +116,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       const containerProviderConnection = containerProviderConnections.get(machine.Name);
       await updateContainerConfiguration(containerProviderConnection, podmanMachinesInfo.get(machine.Name));
     }
-  });
+  }
 
   // remove machine no longer there
   const machinesToRemove = Array.from(podmanMachinesStatuses.keys()).filter(
@@ -863,8 +863,10 @@ function setupDisguisedPodmanSocketWatcher(
   // and trigger a change if that happens
 
   // Add the check to the listeners as well to make sure we check on podman status change as well
-  listeners.add(async () => {
-    await checkDisguisedPodmanSocket(provider);
+  listeners.add(() => {
+    checkDisguisedPodmanSocket(provider).catch((error: unknown) => {
+      console.error('Error while checking disguised podman socket', error);
+    });
   });
 
   let socketWatcher: extensionApi.FileSystemWatcher;

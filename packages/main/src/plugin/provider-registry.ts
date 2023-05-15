@@ -134,8 +134,8 @@ export class ProviderRegistry {
     // Every 2 seconds, we will check:
     // * The status of the providers
     // * Any new warnings or informations for each provider
-    setInterval(async () => {
-      Array.from(this.providers.keys()).forEach(providerKey => {
+    setInterval(() => {
+      for (const [providerKey] of this.providers) {
         // Get the provider and its lifecycle
         const provider = this.providers.get(providerKey);
         const providerLifecycle = this.providerLifecycles.get(providerKey);
@@ -161,7 +161,7 @@ export class ProviderRegistry {
           this.apiSender.send('provider:update-warnings', provider.id);
           this.providerWarnings.set(providerKey, provider.warnings);
         }
-      });
+      }
     }, 2000);
   }
 
@@ -338,7 +338,7 @@ export class ProviderRegistry {
   async runAutostart(): Promise<void> {
     // grab auto start providers
 
-    this.providerAutostarts.forEach(async (autoStart, internalId) => {
+    for (const [internalId, autoStart] of this.providerAutostarts) {
       // grab the provider
       const provider = this.getMatchingProvider(internalId);
 
@@ -350,7 +350,7 @@ export class ProviderRegistry {
         name: provider.name,
         status: provider.status,
       });
-    });
+    }
   }
 
   async runPreflightChecks(
@@ -993,7 +993,7 @@ export class ProviderRegistry {
     let previousStatus = kubernetesProviderConnection.status();
 
     // track the status of the provider
-    const timer = setInterval(async () => {
+    const timer = setInterval(() => {
       const newStatus = kubernetesProviderConnection.status();
       if (newStatus !== previousStatus) {
         this.apiSender.send('provider-change', {});

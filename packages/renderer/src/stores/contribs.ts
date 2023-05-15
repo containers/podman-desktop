@@ -35,6 +35,8 @@ window.events?.receive('contribution-register', async () => {
 window.events?.receive('contribution-unregister', async () => {
   await fetchContributions();
 });
-window.addEventListener('system-ready', async () => {
-  await fetchContributions();
+window.addEventListener('system-ready', () => {
+  fetchContributions().catch((error: unknown) => {
+    console.error('Failed to fetch contributions', error);
+  });
 });

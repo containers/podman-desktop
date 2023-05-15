@@ -82,7 +82,7 @@ export class KindInstaller {
   }
 
   async getAssetInfo(): Promise<AssetInfo> {
-    if (!this.assetPromise) {
+    if (!(await this.assetPromise)) {
       const assetName = this.assetNames.get(os.platform().concat('-').concat(os.arch()));
       const octokit = new Octokit();
       this.assetPromise = octokit.repos

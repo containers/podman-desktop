@@ -105,7 +105,11 @@ export function LinuxDownloads(): JSX.Element {
                         size="xs"
                         icon={faPaste}
                         className="ml-3  cursor-pointer text-xl  text-white-500"
-                        onClick={() => copyFlathubInstructions()}
+                        onClick={() => {
+                          copyFlathubInstructions().catch((err: unknown) => {
+                            console.error('unable to copy instructions', err);
+                          });
+                        }}
                       />
                     </button>
                   </div>

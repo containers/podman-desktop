@@ -71,7 +71,7 @@ app.on('web-contents-created', (_, contents) => {
    *
    * @see https://www.electronjs.org/docs/latest/tutorial/security#13-disable-or-limit-navigation
    */
-  contents.on('will-navigate', async (event, url) => {
+  contents.on('will-navigate', (event, url) => {
     const { origin } = new URL(url);
     if (ALLOWED_ORIGINS_AND_PERMISSIONS.has(origin)) {
       return;
@@ -84,7 +84,9 @@ app.on('web-contents-created', (_, contents) => {
 
     // handled
     if (handler) {
-      await securityRestrictionCurrentHandler.handler?.(url);
+      securityRestrictionCurrentHandler.handler?.(url).catch((error: unknown) => {
+        console.error('Error in security restriction handler:', error);
+      });
       return;
     }
 

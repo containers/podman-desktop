@@ -158,8 +158,10 @@ export class RegistrySetup {
     }
 
     // need to monitor this file
-    fs.watchFile(this.getAuthFileLocation(), async () => {
-      await this.updateRegistries(extensionContext);
+    fs.watchFile(this.getAuthFileLocation(), () => {
+      this.updateRegistries(extensionContext).catch((error: unknown) => {
+        console.error('Error updating registries', error);
+      });
     });
 
     // else init with the content of this file

@@ -82,23 +82,27 @@ export class TrayMenuRegistry {
       });
     });
 
-    ipcMain.on('tray:menu-provider-click', async (_, param: { action: string; providerInfo: ProviderInfo }) => {
+    ipcMain.on('tray:menu-provider-click', (_, param: { action: string; providerInfo: ProviderInfo }) => {
       this.telemetryService
         .track('tray:menu-provider-click', { action: param.action, name: param.providerInfo.name })
         .catch((err: unknown) => console.error('Unable to track', err));
       const provider = this.providers.get(param.providerInfo.internalId);
       if (provider) {
         if (param.action === 'Start') {
-          return providerRegistry.startProviderLifecycle(param.providerInfo.internalId);
+          providerRegistry.startProviderLifecycle(param.providerInfo.internalId).catch((err: unknown) => {
+            console.error(`Error while starting ${param.providerInfo.name}`, '' + err);
+          });
         } else if (param.action === 'Stop') {
-          return providerRegistry.stopProviderLifecycle(param.providerInfo.internalId);
+          providerRegistry.stopProviderLifecycle(param.providerInfo.internalId).catch((err: unknown) => {
+            console.error(`Error while starting ${param.providerInfo.name}`, '' + err);
+          });
         }
       }
     });
 
     ipcMain.on(
       'tray:menu-provider-container-connection-click',
-      async (
+      (
         _,
         param: {
           action: string;
@@ -116,23 +120,17 @@ export class TrayMenuRegistry {
         const provider = this.providers.get(param.providerInfo.internalId);
         if (provider) {
           if (param.action === 'Start') {
-            try {
-              await providerRegistry.startProviderConnection(
-                param.providerInfo.internalId,
-                param.providerContainerConnectionInfo,
-              );
-            } catch (err) {
-              dialog.showErrorBox(`Error while starting ${param.providerContainerConnectionInfo.name}`, '' + err);
-            }
+            providerRegistry
+              .startProviderConnection(param.providerInfo.internalId, param.providerContainerConnectionInfo)
+              .catch((err: unknown) => {
+                dialog.showErrorBox(`Error while starting ${param.providerContainerConnectionInfo.name}`, '' + err);
+              });
           } else if (param.action === 'Stop') {
-            try {
-              await providerRegistry.stopProviderConnection(
-                param.providerInfo.internalId,
-                param.providerContainerConnectionInfo,
-              );
-            } catch (err) {
-              dialog.showErrorBox(`Error while stopping ${param.providerContainerConnectionInfo.name}`, '' + err);
-            }
+            providerRegistry
+              .stopProviderConnection(param.providerInfo.internalId, param.providerContainerConnectionInfo)
+              .catch((err: unknown) => {
+                dialog.showErrorBox(`Error while stopping ${param.providerContainerConnectionInfo.name}`, '' + err);
+              });
           }
         }
       },

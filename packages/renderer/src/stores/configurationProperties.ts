@@ -40,6 +40,8 @@ window.events?.receive('extension-started', async () => {
 window.events?.receive('extension-stopped', async () => {
   await fetchConfigurationProperties();
 });
-window.addEventListener('system-ready', async () => {
-  await fetchConfigurationProperties();
+window.addEventListener('system-ready', () => {
+  fetchConfigurationProperties().catch((error: unknown) => {
+    console.error('Failed to fetch configuration properties', error);
+  });
 });
