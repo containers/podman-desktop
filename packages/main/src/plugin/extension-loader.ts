@@ -384,25 +384,40 @@ export class ExtensionLoader {
     }
 
     this.analyzedExtensions.set(extension.id, extension);
+    this.extensionState.delete(extension.id);
+    this.extensionStateErrors.delete(extension.id);
 
-    // in development mode, watch if the extension is updated and reload it
-    if (import.meta.env.DEV && !this.watcherExtensions.has(extension.id)) {
-      const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extensionPath);
-      extensionWatcher.onDidChange(async () => {
-        // wait 1 second before trying to reload the extension
-        // this is to avoid reloading the extension while it is still being updated
-        setTimeout(() => {
-          this.reloadExtension(extension, removable).catch((error: unknown) =>
-            console.error('error while reloading extension', error),
-          );
-        }, 1000);
+    const telemetryOptions = { extensionId: extension.id };
+
+    try {
+      // in development mode, watch if the extension is updated and reload it
+      if (import.meta.env.DEV && !this.watcherExtensions.has(extension.id)) {
+        const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extensionPath);
+        extensionWatcher.onDidChange(async () => {
+          // wait 1 second before trying to reload the extension
+          // this is to avoid reloading the extension while it is still being updated
+          setTimeout(() => {
+            this.reloadExtension(extension, removable).catch((error: unknown) =>
+              console.error('error while reloading extension', error),
+            );
+          }, 1000);
+        });
+        this.watcherExtensions.set(extension.id, extensionWatcher);
+      }
+
+      const runtime = this.loadRuntime(extension);
+
+      await this.activateExtension(extension, runtime);
+    } catch (err) {
+      this.extensionState.set(extension.id, 'failed');
+      this.extensionStateErrors.set(extension.id, err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (telemetryOptions as any).error = err;
+    } finally {
+      this.telemetry.track('loadExtension', telemetryOptions).catch((error: unknown) => {
+        console.error('error while tracking loadExtension telemetry', error);
       });
-      this.watcherExtensions.set(extension.id, extensionWatcher);
     }
-
-    const runtime = this.loadRuntime(extension);
-
-    await this.activateExtension(extension, runtime);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -805,7 +820,7 @@ export class ExtensionLoader {
     const telemetryOptions = { extensionId: extension.id };
     try {
       if (typeof extensionMain['activate'] === 'function') {
-        // return exports
+        // it returns exports
         console.log(`Activating extension (${extension.id})`);
         await extensionMain['activate'].apply(undefined, [extensionContext]);
         console.log(`Activation extension (${extension.id}) ended`);
@@ -826,7 +841,9 @@ export class ExtensionLoader {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (telemetryOptions as any).error = err;
     } finally {
-      this.telemetry.track('activateExtension', telemetryOptions);
+      this.telemetry
+        .track('activateExtension', telemetryOptions)
+        .catch((error: unknown) => console.log(`Failed to track activateExtension telemetry event. Error: ${error}`));
     }
   }
 
@@ -870,7 +887,9 @@ export class ExtensionLoader {
     this.activatedExtensions.delete(extensionId);
     this.extensionState.set(extension.id, 'stopped');
     this.apiSender.send('extension-stopped');
-    this.telemetry.track('deactivateExtension', telemetryOptions);
+    this.telemetry
+      .track('deactivateExtension', telemetryOptions)
+      .catch((error: unknown) => console.log(`Failed to track deactivateExtension telemetry event. Error: ${error}`));
   }
 
   async stopAllExtensions(): Promise<void> {
