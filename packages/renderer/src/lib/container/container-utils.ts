@@ -192,10 +192,9 @@ export class ContainerUtils {
       }
     });
 
-    for (const group of groups.values()) {
-      if (group.type === ContainerGroupInfoTypeUI.COMPOSE)
-        group.status = group.containers.every(c => c.state === 'RUNNING') ? 'RUNNING' : 'STOPPED';
-    }
+    Array.from(groups.values())
+      .filter(group => group.type === ContainerGroupInfoTypeUI.COMPOSE)
+      .forEach(group => (group.status = group.containers.every(c => c.state === 'RUNNING') ? 'RUNNING' : 'STOPPED'));
 
     return Array.from(groups.values());
   }
