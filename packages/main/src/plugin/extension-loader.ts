@@ -21,7 +21,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import type { CommandRegistry } from './command-registry';
-import type { ExtensionInfo } from './api/extension-info';
+import type { ExtensionError, ExtensionInfo } from './api/extension-info';
 import * as zipper from 'zip-local';
 import type { TrayMenuRegistry } from './tray-menu-registry';
 import { Disposable } from './types/disposable';
@@ -89,7 +89,8 @@ export class ExtensionLoader {
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
   private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
   private reloadInProgressExtensions = new Map<string, boolean>();
-  private extensionState = new Map<string, string>();
+  protected extensionState = new Map<string, string>();
+  protected extensionStateErrors = new Map<string, unknown>();
 
   protected watchTimeout = 1000;
 
@@ -121,6 +122,18 @@ export class ExtensionLoader {
     private telemetry: Telemetry,
   ) {}
 
+  mapError(err: unknown): ExtensionError | undefined {
+    if (err) {
+      if (err instanceof Error) {
+        return { message: err.message, stack: err.stack };
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return { message: (err as any).toString() };
+      }
+    }
+    return undefined;
+  }
+
   async listExtensions(): Promise<ExtensionInfo[]> {
     return Array.from(this.analyzedExtensions.values()).map(extension => ({
       name: extension.manifest.name,
@@ -129,6 +142,7 @@ export class ExtensionLoader {
       version: extension.manifest.version,
       publisher: extension.manifest.publisher,
       state: this.extensionState.get(extension.id) || 'stopped',
+      error: this.mapError(this.extensionStateErrors.get(extension.id)),
       id: extension.id,
       path: extension.path,
       removable: extension.removable,
@@ -370,25 +384,40 @@ export class ExtensionLoader {
     }
 
     this.analyzedExtensions.set(extension.id, extension);
+    this.extensionState.delete(extension.id);
+    this.extensionStateErrors.delete(extension.id);
 
-    // in development mode, watch if the extension is updated and reload it
-    if (import.meta.env.DEV && !this.watcherExtensions.has(extension.id)) {
-      const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extensionPath);
-      extensionWatcher.onDidChange(async () => {
-        // wait 1 second before trying to reload the extension
-        // this is to avoid reloading the extension while it is still being updated
-        setTimeout(() => {
-          this.reloadExtension(extension, removable).catch((error: unknown) =>
-            console.error('error while reloading extension', error),
-          );
-        }, 1000);
+    const telemetryOptions = { extensionId: extension.id };
+
+    try {
+      // in development mode, watch if the extension is updated and reload it
+      if (import.meta.env.DEV && !this.watcherExtensions.has(extension.id)) {
+        const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extensionPath);
+        extensionWatcher.onDidChange(async () => {
+          // wait 1 second before trying to reload the extension
+          // this is to avoid reloading the extension while it is still being updated
+          setTimeout(() => {
+            this.reloadExtension(extension, removable).catch((error: unknown) =>
+              console.error('error while reloading extension', error),
+            );
+          }, 1000);
+        });
+        this.watcherExtensions.set(extension.id, extensionWatcher);
+      }
+
+      const runtime = this.loadRuntime(extension);
+
+      await this.activateExtension(extension, runtime);
+    } catch (err) {
+      this.extensionState.set(extension.id, 'failed');
+      this.extensionStateErrors.set(extension.id, err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (telemetryOptions as any).error = err;
+    } finally {
+      this.telemetry.track('loadExtension', telemetryOptions).catch((error: unknown) => {
+        console.error('error while tracking loadExtension telemetry', error);
       });
-      this.watcherExtensions.set(extension.id, extensionWatcher);
     }
-
-    const runtime = this.loadRuntime(extension);
-
-    await this.activateExtension(extension, runtime);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -774,6 +803,7 @@ export class ExtensionLoader {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
     this.extensionState.set(extension.id, 'starting');
+    this.extensionStateErrors.delete(extension.id);
     this.apiSender.send('extension-starting', {});
 
     const subscriptions: containerDesktopAPI.Disposable[] = [];
@@ -786,21 +816,35 @@ export class ExtensionLoader {
     if (typeof extensionMain['deactivate'] === 'function') {
       deactivateFunction = extensionMain['deactivate'];
     }
-    if (typeof extensionMain['activate'] === 'function') {
-      // activate the extension
-      console.log(`Activating extension (${extension.id})`);
-      await extensionMain['activate'].apply(undefined, [extensionContext]);
-      console.log(`Activation extension (${extension.id}) ended`);
+
+    const telemetryOptions = { extensionId: extension.id };
+    try {
+      if (typeof extensionMain['activate'] === 'function') {
+        // it returns exports
+        console.log(`Activating extension (${extension.id})`);
+        await extensionMain['activate'].apply(undefined, [extensionContext]);
+        console.log(`Activation extension (${extension.id}) ended`);
+      }
+      const id = extension.id;
+      const activatedExtension: ActivatedExtension = {
+        id,
+        deactivateFunction,
+        extensionContext,
+      };
+      this.activatedExtensions.set(extension.id, activatedExtension);
+      this.extensionState.set(extension.id, 'started');
+      this.apiSender.send('extension-started');
+    } catch (err) {
+      console.log(`Activation extension ${extension.id} failed error:${err}`);
+      this.extensionState.set(extension.id, 'failed');
+      this.extensionStateErrors.set(extension.id, err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (telemetryOptions as any).error = err;
+    } finally {
+      this.telemetry
+        .track('activateExtension', telemetryOptions)
+        .catch((error: unknown) => console.log(`Failed to track activateExtension telemetry event. Error: ${error}`));
     }
-    const id = extension.id;
-    const activatedExtension: ActivatedExtension = {
-      id,
-      deactivateFunction,
-      extensionContext,
-    };
-    this.activatedExtensions.set(extension.id, activatedExtension);
-    this.extensionState.set(extension.id, 'started');
-    this.apiSender.send('extension-started');
   }
 
   async deactivateExtension(extensionId: string): Promise<void> {
@@ -809,11 +853,19 @@ export class ExtensionLoader {
       return;
     }
 
+    const telemetryOptions = { extensionId: extension.id };
+
     this.extensionState.set(extension.id, 'stopping');
     this.apiSender.send('extension-stopping');
 
     if (extension.deactivateFunction) {
-      await extension.deactivateFunction();
+      try {
+        await extension.deactivateFunction();
+      } catch (err) {
+        console.log(`Deactivation extension ${extension.id} failed error:${err}`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (telemetryOptions as any).error = err;
+      }
     }
 
     // dispose subscriptions
@@ -835,6 +887,9 @@ export class ExtensionLoader {
     this.activatedExtensions.delete(extensionId);
     this.extensionState.set(extension.id, 'stopped');
     this.apiSender.send('extension-stopped');
+    this.telemetry
+      .track('deactivateExtension', telemetryOptions)
+      .catch((error: unknown) => console.log(`Failed to track deactivateExtension telemetry event. Error: ${error}`));
   }
 
   async stopAllExtensions(): Promise<void> {
