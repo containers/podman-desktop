@@ -40,6 +40,7 @@ import type { ApiSenderType } from './api';
 import type { AuthenticationImpl } from './authentication';
 import type { MessageBox } from './message-box';
 import type { Telemetry } from './telemetry/telemetry';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -241,7 +242,7 @@ test('Verify extension error leads to failed state', async () => {
     {
       id: id,
       path: 'dummy',
-      api: {},
+      api: {} as typeof containerDesktopAPI,
       mainPath: '',
       removable: false,
       manifest: {},
