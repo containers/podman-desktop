@@ -345,7 +345,7 @@ export class PluginSystem {
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
 
-    const commandRegistry = new CommandRegistry();
+    const commandRegistry = new CommandRegistry(telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const certificates = new Certificates();
     await certificates.init();
@@ -358,7 +358,7 @@ export class PluginSystem {
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
 
-    const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring);
+    const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();

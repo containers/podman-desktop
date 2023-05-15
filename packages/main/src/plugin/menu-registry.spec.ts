@@ -19,13 +19,14 @@
 import { beforeAll, beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
 import { MenuRegistry } from './menu-registry';
 import { CommandRegistry } from './command-registry';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry';
 
 let menuRegistry: MenuRegistry;
 let commandRegistry;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
-  commandRegistry = new CommandRegistry();
+  commandRegistry = new CommandRegistry({} as Telemetry);
   menuRegistry = new MenuRegistry(commandRegistry);
   const manifest = {
     contributes: {

@@ -226,30 +226,43 @@ export class ImageRegistry {
     providerName: string,
     registryCreateOptions: containerDesktopAPI.RegistryCreateOptions,
   ): Promise<Disposable> {
-    const provider = this.providers.get(providerName);
-    if (!provider) {
-      throw new Error(`Provider ${providerName} not found`);
-    }
+    let telemetryOptions = {};
+    try {
+      const provider = this.providers.get(providerName);
+      if (!provider) {
+        throw new Error(`Provider ${providerName} not found`);
+      }
 
-    const exists = this.registries.find(
-      registry => registry.serverUrl === registryCreateOptions.serverUrl && registry.source === providerName,
-    );
-    if (exists) {
-      throw new Error(`Registry ${registryCreateOptions.serverUrl} already exists`);
+      const exists = this.registries.find(
+        registry => registry.serverUrl === registryCreateOptions.serverUrl && registry.source === providerName,
+      );
+      if (exists) {
+        throw new Error(`Registry ${registryCreateOptions.serverUrl} already exists`);
+      }
+      await this.checkCredentials(
+        registryCreateOptions.serverUrl,
+        registryCreateOptions.username,
+        registryCreateOptions.secret,
+      );
+      const registry = provider.create(registryCreateOptions);
+      return this.registerRegistry(registry);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track(
+          'createRegistry',
+          Object.assign(
+            {
+              serverUrlHash: this.getRegistryHash(registryCreateOptions),
+              total: this.registries.length,
+            },
+            telemetryOptions,
+          ),
+        )
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-    await this.checkCredentials(
-      registryCreateOptions.serverUrl,
-      registryCreateOptions.username,
-      registryCreateOptions.secret,
-    );
-    const registry = provider.create(registryCreateOptions);
-    this.telemetryService
-      .track('createRegistry', {
-        serverUrlHash: this.getRegistryHash(registryCreateOptions),
-        total: this.registries.length,
-      })
-      .catch((err: unknown) => console.error('Unable to track', err));
-    return this.registerRegistry(registry);
   }
 
   async updateRegistry(registry: containerDesktopAPI.Registry): Promise<void> {

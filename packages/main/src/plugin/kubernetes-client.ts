@@ -53,6 +53,7 @@ import type { PodInfo } from './api/pod-info';
 import { PassThrough } from 'node:stream';
 import type { ApiSenderType } from './api';
 import { parseAllDocuments } from 'yaml';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -127,9 +128,10 @@ export class KubernetesClient {
     this._onDidUpdateKubeconfig.event;
 
   constructor(
-    private apiSender: ApiSenderType,
-    private configurationRegistry: ConfigurationRegistry,
-    private fileSystemMonitoring: FilesystemMonitoring,
+    private readonly apiSender: ApiSenderType,
+    private readonly configurationRegistry: ConfigurationRegistry,
+    private readonly fileSystemMonitoring: FilesystemMonitoring,
+    private readonly telemetry: Telemetry,
   ) {
     this.kubeConfig = new KubeConfig();
   }
@@ -323,39 +325,58 @@ export class KubernetesClient {
   }
 
   async createPod(namespace: string, body: V1Pod): Promise<V1Pod> {
+    let telemetryOptions = {};
     const k8sCoreApi = this.kubeConfig.makeApiClient(CoreV1Api);
 
     try {
       const createdPodData = await k8sCoreApi.createNamespacedPod(namespace, body);
       return createdPodData.body;
     } catch (error) {
+      telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry
+        .track('kubernetesCreatePod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
   async createService(namespace: string, body: V1Service): Promise<V1Service> {
+    let telemetryOptions = {};
     const k8sCoreApi = this.kubeConfig.makeApiClient(CoreV1Api);
 
     try {
       const createdPodData = await k8sCoreApi.createNamespacedService(namespace, body);
       return createdPodData.body;
     } catch (error) {
+      telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry
+        .track('kubernetesCreateService', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
   async createIngress(namespace: string, body: V1Ingress): Promise<V1Ingress> {
+    let telemetryOptions = {};
     const k8sCoreApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
 
     try {
       const createdIngressData = await k8sCoreApi.createNamespacedIngress(namespace, body);
       return createdIngressData.body;
     } catch (error) {
+      telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry
+        .track('kubernetesCreateIngress', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
   async createOpenShiftRoute(namespace: string, body: V1Route): Promise<V1Route> {
+    let telemetryOptions = {};
     const k8sCustomObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
 
     try {
@@ -368,11 +389,17 @@ export class KubernetesClient {
       );
       return createdPodData.body as V1Route;
     } catch (error) {
+      telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry
+        .track('kubernetesCreateRoute', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
   async listNamespacedPod(namespace: string, fieldSelector?: string, labelSelector?: string): Promise<V1PodList> {
+    let telemetryOptions = {};
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.listNamespacedPod(
@@ -391,7 +418,12 @@ export class KubernetesClient {
         };
       }
     } catch (error) {
+      telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry
+        .track('kubernetesListNamespacePod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -407,6 +439,7 @@ export class KubernetesClient {
   }
 
   async readPodLog(name: string, container: string, callback: (name: string, data: string) => void): Promise<void> {
+    this.telemetry.track('kubernetesReadPodLog').catch((err: unknown) => console.error('Unable to track', err));
     const ns = this.currentNamespace;
     if (ns) {
       const log = new Log(this.kubeConfig);
@@ -423,14 +456,25 @@ export class KubernetesClient {
   }
 
   async deletePod(name: string): Promise<void> {
-    const ns = this.currentNamespace;
-    if (ns) {
-      const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-      await k8sApi.deleteNamespacedPod(name, ns);
+    let telemetryOptions = {};
+    try {
+      const ns = this.currentNamespace;
+      if (ns) {
+        const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
+        await k8sApi.deleteNamespacedPod(name, ns);
+      }
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry
+        .track('kubernetesDeletePod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
   async readNamespacedPod(name: string, namespace: string): Promise<V1Pod | undefined> {
+    let telemetryOptions = {};
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedPod(name, namespace);
@@ -440,11 +484,17 @@ export class KubernetesClient {
         return undefined;
       }
     } catch (error) {
+      telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry
+        .track('kubernetesReadNamespacedPod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
   async readNamespacedConfigMap(name: string, namespace: string): Promise<V1ConfigMap | undefined> {
+    let telemetryOptions = {};
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedConfigMap(name, namespace);
@@ -454,11 +504,17 @@ export class KubernetesClient {
         return undefined;
       }
     } catch (error) {
+      telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry
+        .track('kubernetesReadNamespacedConfigMap', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
   async listNamespaces(): Promise<V1NamespaceList> {
+    let telemetryOptions = {};
     try {
       const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
       const res = await k8sApi.listNamespace();
@@ -470,7 +526,12 @@ export class KubernetesClient {
         };
       }
     } catch (error) {
+      telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry
+        .track('kubernetesListNamespaces', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -628,18 +689,28 @@ export class KubernetesClient {
   }
 
   async createResourcesFromFile(context: string, filePath: string, namespace: string): Promise<void> {
-    const manifests = await this.loadManifestsFromFile(filePath);
+    let telemetryOptions = {};
     try {
-      await this.createResources(context, manifests, namespace);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error?.response?.body) {
-        if (error.response.body.message) {
-          throw new Error(error.response.body.message);
+      const manifests = await this.loadManifestsFromFile(filePath);
+      try {
+        await this.createResources(context, manifests, namespace);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        if (error?.response?.body) {
+          if (error.response.body.message) {
+            throw new Error(error.response.body.message);
+          }
+          throw new Error(error.response.body);
         }
-        throw new Error(error.response.body);
+        throw error;
       }
+    } catch (error) {
+      telemetryOptions = { error: error };
       throw error;
+    } finally {
+      this.telemetry
+        .track('kubernetesCreateResourcesFromFile', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
@@ -673,45 +744,55 @@ export class KubernetesClient {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async createResources(context: string, manifests: any[], optionalNamespace?: string): Promise<void> {
-    const ctx = new KubeConfig();
-    ctx.loadFromFile(this.kubeconfigPath);
-    ctx.currentContext = context;
-    for (const manifest of manifests) {
-      // https://github.com/kubernetes-client/javascript/issues/487
-      if (manifest?.metadata?.creationTimestamp) {
-        manifest.metadata.creationTimestamp = new Date(manifest.metadata.creationTimestamp);
-      }
-      const groupVersion = this.groupAndVersion(manifest.apiVersion);
-      if (groupVersion.group === '') {
-        const client = ctx.makeApiClient(CoreV1Api);
-        await this.createV1Resource(client, manifest, optionalNamespace);
-      } else if (groupVersion.group === 'apps') {
-        const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
-        const namespaceToUse = optionalNamespace || manifest.metadata?.namespace || 'default';
-        if (manifest.kind === 'Deployment') {
-          await k8sAppsApi.createNamespacedDeployment(namespaceToUse, manifest);
-        } else if (manifest.kind === 'DaemonSet') {
-          await k8sAppsApi.createNamespacedDaemonSet(namespaceToUse, manifest);
+    let telemetryOptions = {};
+    try {
+      const ctx = new KubeConfig();
+      ctx.loadFromFile(this.kubeconfigPath);
+      ctx.currentContext = context;
+      for (const manifest of manifests) {
+        // https://github.com/kubernetes-client/javascript/issues/487
+        if (manifest?.metadata?.creationTimestamp) {
+          manifest.metadata.creationTimestamp = new Date(manifest.metadata.creationTimestamp);
         }
-      } else if (groupVersion.group === 'networking.k8s.io') {
-        // Add networking object support (Ingress for now)
-        const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
-        const namespaceToUse = optionalNamespace || manifest.metadata?.namespace || 'default';
-        if (manifest.kind === 'Ingress') {
-          await k8sNetworkingApi.createNamespacedIngress(namespaceToUse, manifest);
+        const groupVersion = this.groupAndVersion(manifest.apiVersion);
+        if (groupVersion.group === '') {
+          const client = ctx.makeApiClient(CoreV1Api);
+          await this.createV1Resource(client, manifest, optionalNamespace);
+        } else if (groupVersion.group === 'apps') {
+          const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
+          const namespaceToUse = optionalNamespace || manifest.metadata?.namespace || 'default';
+          if (manifest.kind === 'Deployment') {
+            await k8sAppsApi.createNamespacedDeployment(namespaceToUse, manifest);
+          } else if (manifest.kind === 'DaemonSet') {
+            await k8sAppsApi.createNamespacedDaemonSet(namespaceToUse, manifest);
+          }
+        } else if (groupVersion.group === 'networking.k8s.io') {
+          // Add networking object support (Ingress for now)
+          const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
+          const namespaceToUse = optionalNamespace || manifest.metadata?.namespace || 'default';
+          if (manifest.kind === 'Ingress') {
+            await k8sNetworkingApi.createNamespacedIngress(namespaceToUse, manifest);
+          }
+        } else {
+          const client = ctx.makeApiClient(CustomObjectsApi);
+          await this.createCustomResource(
+            client,
+            groupVersion.group,
+            groupVersion.version,
+            await this.getPlural(client, groupVersion, manifest.kind),
+            optionalNamespace || manifest.metadata?.namespace,
+            manifest,
+          );
         }
-      } else {
-        const client = ctx.makeApiClient(CustomObjectsApi);
-        await this.createCustomResource(
-          client,
-          groupVersion.group,
-          groupVersion.version,
-          await this.getPlural(client, groupVersion, manifest.kind),
-          optionalNamespace || manifest.metadata?.namespace,
-          manifest,
-        );
       }
+      return undefined;
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetry
+        .track('kubernetesCreateResource', Object.assign({ manifestsSize: manifests?.length }, telemetryOptions))
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-    return undefined;
   }
 }
