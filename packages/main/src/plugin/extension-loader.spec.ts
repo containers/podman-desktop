@@ -96,7 +96,8 @@ const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQui
 
 const authenticationProviderRegistry: AuthenticationImpl = {} as unknown as AuthenticationImpl;
 
-const telemetry: Telemetry = { track: vi.fn() } as unknown as Telemetry;
+const telemetryTrackMock = vi.fn();
+const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
@@ -123,6 +124,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
+  telemetryTrackMock.mockImplementation(() => Promise.resolve());
   vi.clearAllMocks();
 });
 
