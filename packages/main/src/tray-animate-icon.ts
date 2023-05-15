@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 import type { Tray } from 'electron';
+import { app, nativeTheme } from 'electron';
 import * as path from 'path';
 import { isLinux, isMac } from './util';
-import { nativeTheme } from 'electron';
 export type TrayIconStatus = 'initialized' | 'updating' | 'error' | 'ready';
 
 export class AnimatedTray {
@@ -28,6 +28,7 @@ export class AnimatedTray {
   private animatedInterval: NodeJS.Timeout | undefined = undefined;
   private tray: Tray | undefined = undefined;
   private color = 'default'; // default, light, dark
+  static readonly MAIN_ASSETS_FOLDER = 'packages/main/src/assets';
 
   constructor() {
     this.status = 'initialized';
@@ -39,14 +40,18 @@ export class AnimatedTray {
     });
   }
 
+  protected isProd(): boolean {
+    return import.meta.env.PROD;
+  }
+
   protected getAssetsFolder(): string {
     // choose right folder for resources
     // see extraResources in electron-builder config file
     let assetsFolder;
-    if (import.meta.env.PROD) {
-      assetsFolder = path.resolve(process.resourcesPath, 'packages/main/src/assets');
+    if (this.isProd()) {
+      assetsFolder = path.resolve(process.resourcesPath, AnimatedTray.MAIN_ASSETS_FOLDER);
     } else {
-      assetsFolder = path.resolve(__dirname, '../src/assets');
+      assetsFolder = path.resolve(app.getAppPath(), AnimatedTray.MAIN_ASSETS_FOLDER);
     }
 
     return assetsFolder;
