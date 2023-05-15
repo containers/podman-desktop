@@ -1301,7 +1301,7 @@ export class ContainerProviderRegistry {
             containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
             containerProvider.name === selectedProvider.name,
         );
-        if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
+        if (!matchingContainerProvider?.libpodApi) {
           throw new Error('No provider with a running engine');
         }
         return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath);

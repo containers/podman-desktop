@@ -788,6 +788,7 @@ export class KubernetesClient {
       return undefined;
     } catch (error) {
       telemetryOptions = { error: error };
+      throw error;
     } finally {
       this.telemetry
         .track('kubernetesCreateResource', Object.assign({ manifestsSize: manifests?.length }, telemetryOptions))

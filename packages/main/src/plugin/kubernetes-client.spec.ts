@@ -26,7 +26,11 @@ import type { Telemetry } from '/@/plugin/telemetry/telemetry';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
-const telemetry: Telemetry = { track: vi.fn() } as unknown as Telemetry;
+const telemetry: Telemetry = {
+  track: vi.fn().mockImplementation(async () => {
+    // do nothing
+  }),
+} as unknown as Telemetry;
 const makeApiClientMock = vi.fn();
 
 beforeAll(() => {
@@ -51,6 +55,7 @@ beforeEach(() => {
 test('Create Kubernetes resources with empty should return ok', async () => {
   const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
   await client.createResources('dummy', []);
+  expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 0 });
 });
 
 test('Create Kubernetes resources with v1 resource should return ok', async () => {
@@ -58,6 +63,7 @@ test('Create Kubernetes resources with v1 resource should return ok', async () =
   const spy = vi.spyOn(client, 'createV1Resource').mockReturnValue(Promise.resolve());
   await client.createResources('dummy', [{ apiVersion: 'v1', kind: 'Namespace' }]);
   expect(spy).toBeCalled();
+  expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
 });
 
 test('Create Kubernetes resources with apps/v1 resource should return ok', async () => {
@@ -69,6 +75,7 @@ test('Create Kubernetes resources with apps/v1 resource should return ok', async
 
   await client.createResources('dummy', [{ apiVersion: 'apps/v1', kind: 'Deployment' }]);
   expect(createNamespacedDeploymentMock).toBeCalledWith('default', { apiVersion: 'apps/v1', kind: 'Deployment' });
+  expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
 });
 
 test('Create Kubernetes resources with networking.k8s.io/v1 resource should return ok', async () => {
@@ -83,6 +90,7 @@ test('Create Kubernetes resources with networking.k8s.io/v1 resource should retu
     apiVersion: 'networking.k8s.io/v1',
     kind: 'Ingress',
   });
+  expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
 });
 
 test('Create Kubernetes resources with v1 resource in error should return error', async () => {
@@ -95,6 +103,10 @@ test('Create Kubernetes resources with v1 resource in error should return error'
     expect(spy).toBeCalled();
     expect(err).to.be.a('Error');
     expect(err.message).equal('V1Error');
+    expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', {
+      manifestsSize: 1,
+      error: new Error('V1Error'),
+    });
   }
 });
 
@@ -104,6 +116,7 @@ test('Create custom Kubernetes resources should return ok', async () => {
   vi.spyOn(client, 'getPlural').mockReturnValue(Promise.resolve('namespaces'));
   await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
   expect(spy).toBeCalled();
+  expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
 });
 
 test('Create custom Kubernetes resources in error should return error', async () => {
@@ -117,6 +130,10 @@ test('Create custom Kubernetes resources in error should return error', async ()
     expect(spy).toBeCalled();
     expect(err).to.be.a('Error');
     expect(err.message).equal('CustomError');
+    expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', {
+      manifestsSize: 1,
+      error: new Error('CustomError'),
+    });
   }
 });
 
@@ -132,6 +149,10 @@ test('Create unknown custom Kubernetes resources should return error', async () 
     expect(pluralSpy).toBeCalled();
     expect(err).to.be.a('Error');
     expect(err.message).equal('CustomError');
+    expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', {
+      manifestsSize: 1,
+      error: new Error('CustomError'),
+    });
   }
 });
 
