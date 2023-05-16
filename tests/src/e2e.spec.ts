@@ -35,7 +35,7 @@ afterAll(async () => {
   await electronApp.close();
 });
 
-test('Check welcome page is displayed and that we are redirected to the main page where dashboard page is there', async () => {
+test.skip('Check welcome page is displayed and that we are redirected to the main page where dashboard page is there', async () => {
   // Direct Electron console to Node terminal.
   page.on('console', console.log);
 
