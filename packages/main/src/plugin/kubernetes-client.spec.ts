@@ -155,7 +155,7 @@ describe.each([
     const spy = vi.spyOn(client, 'createCustomResource').mockReturnValue(Promise.resolve());
     vi.spyOn(client, 'getPlural').mockReturnValue(Promise.resolve('namespaces'));
     await client.createResources('dummy', [manifest], namespace);
-    expect(spy).toBeCalledWith(undefined, 'group', 'v1', 'namespaces', expectedNamespace, manifest);
+    expect(spy).toBeCalledWith(expect.anything(), 'group', 'v1', 'namespaces', expectedNamespace, manifest);
     expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
   });
 });
