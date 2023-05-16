@@ -40,10 +40,10 @@ function closeWelcome() {
 
 {#if showWelcome}
   <div
-    class="flex flex-col flex-auto fixed top-10 left-0 right-0 bottom-0 bg-zinc-700 bg-no-repeat z-50"
+    class="flex flex-col flex-auto fixed top-0 left-0 right-0 bottom-0 bg-zinc-700 bg-no-repeat z-50"
     style="background-image: url({bgImage}); background-position: 50% -175%; background-size: 100% 75%">
     <!-- Header -->
-    <div class="flex flex-row flex-none backdrop-blur p-6">
+    <div class="flex flex-row flex-none backdrop-blur p-6 mt-10">
       <div class="flex flex-auto text-lg font-bold">Get started with Podman Desktop</div>
     </div>
 
