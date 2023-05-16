@@ -441,7 +441,11 @@ export class ImageRegistry {
     if (!configManifest.digest) {
       throw new Error(`No digest found for config manifest for ${imageName}`);
     }
-    if (configManifest.mediaType !== 'application/vnd.oci.image.config.v1+json') {
+    // check the media type
+    if (
+      configManifest.mediaType !== 'application/vnd.oci.image.config.v1+json' &&
+      configManifest.mediaType !== 'application/vnd.docker.container.image.v1+json'
+    ) {
       throw new Error(`Invalid media type for config manifest for ${imageName}`);
     }
 
@@ -472,7 +476,9 @@ export class ImageRegistry {
     // now, get all layers 'application/vnd.oci.image.layer.v1.tar+gzip' and download and expand them
     const layers = manifest.layers.filter(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (layer: any) => layer.mediaType === 'application/vnd.oci.image.layer.v1.tar+gzip',
+      (layer: any) =>
+        layer.mediaType === 'application/vnd.oci.image.layer.v1.tar+gzip' ||
+        layer.mediaType === 'application/vnd.docker.image.rootfs.diff.tar.gzip',
     );
 
     // total size of all layers
@@ -721,8 +727,14 @@ export class ImageRegistry {
     const options = this.getOptions();
 
     // need to replace repository%3Auser with repository:user coming from imageData
-    const tokenUrl = authInfo.authUrl.replace('user%2Fimage', imageData.name.replaceAll('/', '%2F'));
+    let tokenUrl = authInfo.authUrl.replace('user%2Fimage', imageData.name.replaceAll('/', '%2F'));
 
+    // no scope ? we add it
+    if (!tokenUrl.includes('scope')) {
+      const url = new URL(tokenUrl);
+      url.searchParams.set('scope', `repository:${imageData.name}:pull`);
+      tokenUrl = url.toString();
+    }
     try {
       const { body } = await got.get(tokenUrl, options);
       rawResponse = body;

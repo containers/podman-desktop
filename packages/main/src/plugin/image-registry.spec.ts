@@ -106,6 +106,15 @@ test('Should extract auth registry with Amazon ECR registry', async () => {
   expect(authInfo?.scope).toBeUndefined();
 });
 
+test('Should extract auth registry with quay.io registry', async () => {
+  const authInfo = imageRegistry.extractAuthData('Bearer realm="https://quay.io/v2/auth",service="quay.io"');
+  expect(authInfo).toBeDefined();
+  expect(authInfo?.scheme).toBe('Bearer');
+  expect(authInfo?.authUrl).toBe('https://quay.io/v2/auth');
+  expect(authInfo?.service).toBe('quay.io');
+  expect(authInfo?.scope).toBeUndefined();
+});
+
 test('should map short name to hub server', () => {
   const registryServer = imageRegistry.extractRegistryServerFromImage('mysql');
   expect(registryServer).toBe('docker.io');
