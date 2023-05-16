@@ -28,33 +28,35 @@ With Podman Desktop and the OpenShift Local extension, you can manage your OpenS
    <TabItem value="win" label="Windows">
 
    1. In the **OpenShift Local** tile, click **<icon icon="fa-solid fa-rocket" size="lg" /> Install**.
-   2. When prerequisites are missing, follow the instructions.
-   3. In the **Red Hat OpenShift Local** screen, click **Yes** to start the installation.
-   4. Follow the installation program instructions.
-   5. Reboot to finalize system changes.
+   1. When prerequisites are missing, follow the instructions.
+   1. In the **Red Hat OpenShift Local** screen, click **Yes** to start the installation.
+   1. Follow the installation program instructions.
+   1. Reboot to finalize system changes.
 
    </TabItem>
    <TabItem value="mac" label="macOS">
 
    1. In the **OpenShift Local** tile, click **<icon icon="fa-solid fa-rocket" size="lg" /> Install**.
-   2. When prerequisites are missing, follow the instructions.
-   3. In the **Red Hat OpenShift Local** screen, click **Yes** to start the installation.
-   4. Follow the installation program instructions.
-   5. Reboot to finalize system changes.
+   1. When prerequisites are missing, follow the instructions.
+   1. In the **Red Hat OpenShift Local** screen, click **Yes** to start the installation.
+   1. Follow the installation program instructions.
+   1. Reboot to finalize system changes.
 
    </TabItem>
    <TabItem value="linux" label="Linux">
 
    1. Go to the [Red Hat OpenShift local download page](https://console.redhat.com/openshift/create/local).
-   2. Select your platform.
-   3. Click **Download OpenShift Local**.
-   4. Extract the archive.
-   5. Copy the `crc` binary to a directory in your`$PATH`, such as `/usr/local/bin`.
-   6. To configure your system, run the command:
+   1. Select your platform.
+   1. Click **Download OpenShift Local**.
+   1. Extract the archive.
+   1. Copy the `crc` binary to a directory in your`$PATH`, such as `/usr/local/bin`.
+   1. To configure your system, run the command:
 
       ```shell-session
       $ crc setup
       ```
+
+   1. Exit and restart Podman Desktop.
 
    </TabItem>
    </Tabs>
@@ -68,9 +70,9 @@ With Podman Desktop and the OpenShift Local extension, you can manage your OpenS
    2. Provide a pull secret, required to pull container images from the registry:
 
       1. Open the [Red Hat OpenShift Local download page](https://cloud.redhat.com/openshift/create/local).
-      2. Click **Copy pull secret**.
-      3. Get back to Podman Desktop.
-      4. Paste the pull secret, and press `Enter`.
+      1. Click **Copy pull secret**.
+      1. Get back to Podman Desktop.
+      1. Paste the pull secret, and press `Enter`.
 
 #### Verification
 
