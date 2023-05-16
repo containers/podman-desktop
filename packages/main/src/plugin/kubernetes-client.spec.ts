@@ -153,7 +153,15 @@ describe.each([
   test(`should use namespace ${expectedNamespace}`, async () => {
     const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
     const spy = vi.spyOn(client, 'createCustomResource').mockReturnValue(Promise.resolve());
-    vi.spyOn(client, 'getPlural').mockReturnValue(Promise.resolve('namespaces'));
+    vi.spyOn(client, 'getAPIResource').mockReturnValue(
+      Promise.resolve({
+        name: 'namespaces',
+        namespaced: true,
+        kind: 'Namespace',
+        singularName: 'namespace',
+        verbs: [],
+      }),
+    );
     await client.createResources('dummy', [manifest], namespace);
     expect(spy).toBeCalledWith(expect.anything(), 'group', 'v1', 'namespaces', expectedNamespace, manifest);
     expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
@@ -163,7 +171,9 @@ describe.each([
 test('Create custom Kubernetes resources in error should return error', async () => {
   const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
   const spy = vi.spyOn(client, 'createCustomResource').mockRejectedValue(new Error('CustomError'));
-  vi.spyOn(client, 'getPlural').mockReturnValue(Promise.resolve('namespaces'));
+  vi.spyOn(client, 'getAPIResource').mockReturnValue(
+    Promise.resolve({ name: 'namespaces', namespaced: true, kind: 'Namespace', singularName: 'namespace', verbs: [] }),
+  );
   try {
     await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -181,7 +191,7 @@ test('Create custom Kubernetes resources in error should return error', async ()
 test('Create unknown custom Kubernetes resources should return error', async () => {
   const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
   const createSpy = vi.spyOn(client, 'createCustomResource').mockReturnValue(Promise.resolve());
-  const pluralSpy = vi.spyOn(client, 'getPlural').mockRejectedValue(new Error('CustomError'));
+  const pluralSpy = vi.spyOn(client, 'getAPIResource').mockRejectedValue(new Error('CustomError'));
   try {
     await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
