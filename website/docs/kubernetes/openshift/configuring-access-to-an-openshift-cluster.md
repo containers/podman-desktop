@@ -6,7 +6,7 @@ keywords: [podman desktop, podman, containers, pods, migrating, kubernetes]
 tags: [migrating-to-kubernetes]
 ---
 
-# Configuring accessto an OpenShift cluster
+# Configuring access to an OpenShift cluster
 
 With Podman Desktop, you can configure access to your OpenShift cluster.
 

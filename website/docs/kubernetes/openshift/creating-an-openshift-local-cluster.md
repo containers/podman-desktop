@@ -20,12 +20,14 @@ With Podman Desktop, you can manage your OpenShift Local instances.
 1. Install the OpenShift Local binaries.
 1. Click **Initialize and start**.
 1. Select your OpenShift Local Virtual machine preset, if not set in **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Extension: Red Hat OpenShift Local > Preset**.
+   - _Microshift_ (experimental): provides a lightweight and optimized environment with a limited set of services.
+   - _OpenShift_: provides a single node OpenShift cluster with a fuller set of services, including a web console (requires more resources).
 1. Provide a pull secret, required to pull container images from the registry:
 
    1. Open the [Red Hat OpenShift Local download page](https://cloud.redhat.com/openshift/create/local).
-   1. Click **Copy pull secret**.
-   1. Get back to Podman Desktop.
-   1. Paste the pull secret, and press `Enter`.
+   2. Click **Copy pull secret**.
+   3. Get back to Podman Desktop.
+   4. Paste the pull secret, and press `Enter`.
 
 #### Verification
 
@@ -38,3 +40,7 @@ With Podman Desktop, you can manage your OpenShift Local instances.
 1. Run basic tasks such as:
    - [Deploying a container](../deploying-a-container-to-kubernetes)
    - [Deploying a pod](../deploying-a-pod-to-kubernetes)
+
+#### Additional resources
+
+- [Red Hat OpenShift Local extension repository](https://github.com/crc-org/crc-extension)
