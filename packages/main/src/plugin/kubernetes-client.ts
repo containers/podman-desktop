@@ -716,11 +716,11 @@ export class KubernetesClient {
     }
   }
 
-  async getPlural(
+  async getAPIResource(
     client: CustomObjectsApi,
     apiGroup: { group: string; version: string },
     kind: string,
-  ): Promise<string> {
+  ): Promise<V1APIResource> {
     let apiResources = this.apiResources.get(apiGroup.group + '/' + apiGroup.version);
     if (!apiResources) {
       const response = await client.listClusterCustomObject(apiGroup.group, apiGroup.version, '');
@@ -731,7 +731,7 @@ export class KubernetesClient {
     if (apiResources) {
       for (const apiResource of apiResources) {
         if (apiResource.kind === kind) {
-          return apiResource.name;
+          return apiResource;
         }
       }
     }
@@ -776,12 +776,13 @@ export class KubernetesClient {
           }
         } else {
           const client = ctx.makeApiClient(CustomObjectsApi);
+          const apiResource = await this.getAPIResource(client, groupVersion, manifest.kind);
           await this.createCustomResource(
             client,
             groupVersion.group,
             groupVersion.version,
-            await this.getPlural(client, groupVersion, manifest.kind),
-            namespaceToUse,
+            apiResource.name,
+            apiResource.namespaced ? namespaceToUse : undefined,
             manifest,
           );
         }
