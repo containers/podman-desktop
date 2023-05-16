@@ -868,6 +868,9 @@ export class ExtensionLoader {
       }
     }
 
+    const watcher = this.watcherExtensions.get(extensionId);
+    watcher?.dispose();
+
     // dispose subscriptions
     for (const subscription of extension.extensionContext.subscriptions) {
       await subscription.dispose();
