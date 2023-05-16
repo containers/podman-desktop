@@ -60,7 +60,7 @@ With Podman Desktop and the OpenShift Local extension, you can manage your OpenS
    </Tabs>
 
 1. (Optionally) Review the extension settings in **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Extension: Red Hat OpenShift Local**.
-1. On the **Deashboard**, click **Initialize and start**.
+1. On the **Dashboard**, click **Initialize and start**.
 
    1. Select your OpenShift Local Virtual machine preset, if not set in **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Extension: Red Hat OpenShift Local > Preset**.
       - _Microshift_ (experimental): provides a lightweight and optimized environment with a limited set of services.
