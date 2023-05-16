@@ -1,32 +1,40 @@
 ---
-sidebar_position: 10
-title: Creating an OpenShift Local cluster
-description: Creating an OpenShift Local cluster
+sidebar_position: 1
+title: OpenShift Local
+description: Creating an OpenShift Local instance
 keywords: [podman desktop, podman, containers, pods, migrating, kubernetes, openshift]
-tags: [migrating-to-kubernetes]
+tags: [migrating-to-kubernetes, openshift]
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+# Creating an OpenShift Local instance
 
-# Registering a Kubernetes cluster
-
-You can register manually your Kubernetes cluster when Podman Desktop, when you are not using a method that registers your cluster automatically, such as:
-
-- [Creating a kind cluster](../kind/creating-a-kind-cluster).
-- Creating an OpenShift Local cluster.
-- Creating a free OpenShift cluster on the Developer Sandbox.
-- Login to an OpenShift cluster.
+With Podman Desktop, you can manage your OpenShift Local instances.
 
 #### Prerequisites
 
-- You have credentials for your Kubernetes cluster.
+- [Register a Red Hat account](https://developers.redhat.com/register).
 
 #### Procedure
 
-1. (Optionally) Go to **Settings > Preferences > Path to the kubeconfig file** to adapt your kubeconfig file location when different from the default `$HOME/.kube/config`.
-1. Register your _<my_kubernetes>_ Kubernetes cluster:
+1. Install the _OpenShift Local_ extension: go to **Dashboard**, and click **OpenShift Local <icon icon="fa-solid fa-download" size="lg" />**.
+1. Install the OpenShift Local binaries.
+1. Click **Initialize and start**.
+1. Select your OpenShift Local Virtual machine preset, if not set in **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Extension: Red Hat OpenShift Local > Preset**.
+1. Provide a pull secret, required to pull container images from the registry:
 
-   ```shell-session
-   $ kubectl config set-cluster <my_kubernetes> --server=<my_kubernetes_url>
-   ```
+   1. Open the [Red Hat OpenShift Local download page](https://cloud.redhat.com/openshift/create/local).
+   1. Click **Copy pull secret**.
+   1. Get back to Podman Desktop.
+   1. Paste the pull secret, and press `Enter`.
+
+#### Verification
+
+1. On the **Dashboard** screen, _OpenShift Local is running_.
+1. On the **<icon icon="fa-solid fa-cog" size="lg" />Settings > Resources** screen, your OpenShift Local instance is running.
+
+   ![Developer Sandbox is running](img/resources-openshift-local-running.png)
+
+1. [Select your OpenShift Local instance the Podman Desktop tray](../viewing-and-selecting-current-kubernete-context).
+1. Run basic tasks such as:
+   - [Deploying a container](../deploying-a-container-to-kubernetes)
+   - [Deploying a pod](../deploying-a-pod-to-kubernetes)
