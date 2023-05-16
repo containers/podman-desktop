@@ -19,7 +19,7 @@
     "lint:fix": "eslint . --fix --ext js,ts,tsx"
   },
   "dependencies": {
-    "@docusaurus/core": "2.4.0",
+    "@docusaurus/core": "2.4.1",
     "@docusaurus/preset-classic": "2.4.0",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
     "@fortawesome/free-brands-svg-icons": "^6.4.0",
