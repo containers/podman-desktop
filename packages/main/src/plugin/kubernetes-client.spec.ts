@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { KubernetesClient } from './kubernetes-client';
 import type { ApiSenderType } from './api';
 import type { ConfigurationRegistry } from './configuration-registry';
@@ -66,32 +66,63 @@ test('Create Kubernetes resources with v1 resource should return ok', async () =
   expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
 });
 
-test('Create Kubernetes resources with apps/v1 resource should return ok', async () => {
-  const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
-  const createNamespacedDeploymentMock = vi.fn();
-  makeApiClientMock.mockReturnValue({
-    createNamespacedDeployment: createNamespacedDeploymentMock,
-  });
+describe.each([
+  { manifest: { apiVersion: 'apps/v1', kind: 'Deployment' }, namespace: undefined, expectedNamespace: 'default' },
+  { manifest: { apiVersion: 'apps/v1', kind: 'Deployment' }, namespace: 'defaultns', expectedNamespace: 'defaultns' },
+  {
+    manifest: { apiVersion: 'apps/v1', kind: 'Deployment', metadata: { namespace: 'demons' } },
+    namespace: undefined,
+    expectedNamespace: 'demons',
+  },
+])(
+  'Create Kubernetes resources with apps/v1 resource should return ok',
+  ({ manifest, namespace, expectedNamespace }) => {
+    test(`should use namespace ${expectedNamespace}`, async () => {
+      const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+      const createNamespacedDeploymentMock = vi.fn();
+      makeApiClientMock.mockReturnValue({
+        createNamespacedDeployment: createNamespacedDeploymentMock,
+      });
 
-  await client.createResources('dummy', [{ apiVersion: 'apps/v1', kind: 'Deployment' }]);
-  expect(createNamespacedDeploymentMock).toBeCalledWith('default', { apiVersion: 'apps/v1', kind: 'Deployment' });
-  expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
-});
+      await client.createResources('dummy', [manifest], namespace);
+      expect(createNamespacedDeploymentMock).toBeCalledWith(expectedNamespace, manifest);
+      expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
+    });
+  },
+);
 
-test('Create Kubernetes resources with networking.k8s.io/v1 resource should return ok', async () => {
-  const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
-  const createNamespacedIngressMock = vi.fn();
-  makeApiClientMock.mockReturnValue({
-    createNamespacedIngress: createNamespacedIngressMock,
-  });
+describe.each([
+  {
+    manifest: { apiVersion: 'networking.k8s.io/v1', kind: 'Ingress' },
+    namespace: undefined,
+    expectedNamespace: 'default',
+  },
+  {
+    manifest: { apiVersion: 'networking.k8s.io/v1', kind: 'Ingress' },
+    namespace: 'defaultns',
+    expectedNamespace: 'defaultns',
+  },
+  {
+    manifest: { apiVersion: 'networking.k8s.io/v1', kind: 'Ingress', metadata: { namespace: 'demons' } },
+    namespace: undefined,
+    expectedNamespace: 'demons',
+  },
+])(
+  'Create Kubernetes resources with networking.k8s.io/v1 resource should return ok',
+  ({ manifest, namespace, expectedNamespace }) => {
+    test(`should use namespace ${expectedNamespace}`, async () => {
+      const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+      const createNamespacedIngressMock = vi.fn();
+      makeApiClientMock.mockReturnValue({
+        createNamespacedIngress: createNamespacedIngressMock,
+      });
 
-  await client.createResources('dummy', [{ apiVersion: 'networking.k8s.io/v1', kind: 'Ingress' }]);
-  expect(createNamespacedIngressMock).toBeCalledWith('default', {
-    apiVersion: 'networking.k8s.io/v1',
-    kind: 'Ingress',
-  });
-  expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
-});
+      await client.createResources('dummy', [manifest], namespace);
+      expect(createNamespacedIngressMock).toBeCalledWith(expectedNamespace, manifest);
+      expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
+    });
+  },
+);
 
 test('Create Kubernetes resources with v1 resource in error should return error', async () => {
   const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
@@ -110,13 +141,23 @@ test('Create Kubernetes resources with v1 resource in error should return error'
   }
 });
 
-test('Create custom Kubernetes resources should return ok', async () => {
-  const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
-  const spy = vi.spyOn(client, 'createCustomResource').mockReturnValue(Promise.resolve());
-  vi.spyOn(client, 'getPlural').mockReturnValue(Promise.resolve('namespaces'));
-  await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
-  expect(spy).toBeCalled();
-  expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
+describe.each([
+  { manifest: { apiVersion: 'group/v1', kind: 'Namespace' }, namespace: undefined, expectedNamespace: 'default' },
+  { manifest: { apiVersion: 'group/v1', kind: 'Namespace' }, namespace: 'defaultns', expectedNamespace: 'defaultns' },
+  {
+    manifest: { apiVersion: 'group/v1', kind: 'Namespace', metadata: { namespace: 'demons' } },
+    namespace: undefined,
+    expectedNamespace: 'demons',
+  },
+])('Create custom Kubernetes resources should return ok', ({ manifest, namespace, expectedNamespace }) => {
+  test(`should use namespace ${expectedNamespace}`, async () => {
+    const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+    const spy = vi.spyOn(client, 'createCustomResource').mockReturnValue(Promise.resolve());
+    vi.spyOn(client, 'getPlural').mockReturnValue(Promise.resolve('namespaces'));
+    await client.createResources('dummy', [manifest], namespace);
+    expect(spy).toBeCalledWith(undefined, 'group', 'v1', 'namespaces', expectedNamespace, manifest);
+    expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
+  });
 });
 
 test('Create custom Kubernetes resources in error should return error', async () => {

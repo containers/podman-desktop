@@ -96,6 +96,8 @@ function toPodInfo(pod: V1Pod): PodInfo {
 
 const OPENSHIFT_PROJECT_API_GROUP = 'project.openshift.io';
 
+const DEFAULT_NAMESPACE = 'default';
+
 /**
  * Handle calls to kubernetes API
  */
@@ -755,12 +757,12 @@ export class KubernetesClient {
           manifest.metadata.creationTimestamp = new Date(manifest.metadata.creationTimestamp);
         }
         const groupVersion = this.groupAndVersion(manifest.apiVersion);
+        const namespaceToUse = manifest.metadata?.namespace || optionalNamespace || DEFAULT_NAMESPACE;
         if (groupVersion.group === '') {
           const client = ctx.makeApiClient(CoreV1Api);
-          await this.createV1Resource(client, manifest, optionalNamespace);
+          await this.createV1Resource(client, manifest, namespaceToUse);
         } else if (groupVersion.group === 'apps') {
           const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
-          const namespaceToUse = optionalNamespace || manifest.metadata?.namespace || 'default';
           if (manifest.kind === 'Deployment') {
             await k8sAppsApi.createNamespacedDeployment(namespaceToUse, manifest);
           } else if (manifest.kind === 'DaemonSet') {
@@ -769,7 +771,6 @@ export class KubernetesClient {
         } else if (groupVersion.group === 'networking.k8s.io') {
           // Add networking object support (Ingress for now)
           const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
-          const namespaceToUse = optionalNamespace || manifest.metadata?.namespace || 'default';
           if (manifest.kind === 'Ingress') {
             await k8sNetworkingApi.createNamespacedIngress(namespaceToUse, manifest);
           }
@@ -780,7 +781,7 @@ export class KubernetesClient {
             groupVersion.group,
             groupVersion.version,
             await this.getPlural(client, groupVersion, manifest.kind),
-            optionalNamespace || manifest.metadata?.namespace,
+            namespaceToUse,
             manifest,
           );
         }
