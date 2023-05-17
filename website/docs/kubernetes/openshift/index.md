@@ -14,4 +14,3 @@ To get started, configure access to an OpenShift cluster, and optionally, create
 
 - [Creating an OpenShift Local cluster](openshift/creating-an-openshift-local-cluster).
 - [Configuring access to a Developer Sandbox](openshift/configuring-access-to-a-developer-sandbox).
-- [Configuring access to an OpenShift cluster](openshift/configuring-access-to-an-openshift-cluster).
