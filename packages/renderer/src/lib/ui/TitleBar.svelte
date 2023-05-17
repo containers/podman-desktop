@@ -16,7 +16,7 @@ onMount(async () => {
   id="navbar"
   class="text-gray-700 {platform === 'win32'
     ? 'bg-[#202020]'
-    : 'bg-charcoal-900'} body-font shadow-titlebar z-999 relative {platform === 'win32'
+    : 'bg-charcoal-900'} body-font shadow-titlebar z-[999] relative {platform === 'win32'
     ? 'min-h-[32px]'
     : 'min-h-[38px]'}"
   style="-webkit-app-region: drag;">
