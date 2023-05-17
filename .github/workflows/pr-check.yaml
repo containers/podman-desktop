@@ -126,6 +126,7 @@ jobs:
     timeout-minutes: 40
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      AIRGAP_DOWNLOAD: '1'
     steps:
       - uses: actions/checkout@v3
 
