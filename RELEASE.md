@@ -37,7 +37,7 @@ Publish to brew. The workflow will create an automated PR to the brew cask repos
 1. Enter the release version `0.12.0`. DO NOT add the `v`
 1. Click `Run workflow`
 
-You can view the PR at: https://github.com/Homebrew/homebrew-cask/pulls 
+You can view the PR at: https://github.com/Homebrew/homebrew-cask/pulls?q=is%3Apr+podman-desktop 
 
 
 #### Winget
@@ -49,7 +49,7 @@ Publish to winget. The workflow will create an automated PR to the Winget pkgs r
 1. Enter the release version `0.12.0`. DO NOT add the `v`
 1. Click `Run workflow`
 
-You can view the PR at: https://github.com/microsoft/winget-pkgs/pulls
+You can view the PR at: https://github.com/microsoft/winget-pkgs/pulls?q=is%3Apr+podman-desktop
 
 #### Chocolatey
 
@@ -61,7 +61,7 @@ Publish to chocolatey. The workflow will create an automatic submission to the c
 1. Click `Run workflow`
 
 Afterwards, you'll have to:
-* Approve the PR with title `chore: Update Chocolatey package to 0.12.0` at https://github.com/containers/podman-desktop/pulls
+* Approve the PR with title `chore: Update Chocolatey package to 0.12.0` at https://github.com/containers/podman-desktop/pulls?q=is%3Apr+Update+Chocolatey
 
 You can view the progress at: https://community.chocolatey.org/packages/podman-desktop/0.12.0
 
