@@ -51,9 +51,13 @@ let copyTextDivElement: HTMLDivElement;
       <div class="pf-c-empty-state__body">{message}</div>
       {#if commandline.length > 0}
         <div class="flex flex-row bg-charcoal-900 w-full items-center justify-between rounded-sm p-3 mt-4">
-          <div class="font-mono text-gray-400" bind:this="{copyTextDivElement}" data-testid="copyTextDivElement">{commandline}</div>
+          <div class="font-mono text-gray-400" bind:this="{copyTextDivElement}" data-testid="copyTextDivElement">
+            {commandline}
+          </div>
           <button title="Copy To Clipboard" class="ml-5" on:click="{() => copyRunInstructionToClipboard()}"
-            ><Fa class="h-5 w-5 cursor-pointer text-xl text-purple-500 hover:text-purple-600" icon="{faPaste}" /></button>
+            ><Fa
+              class="h-5 w-5 cursor-pointer text-xl text-purple-500 hover:text-purple-600"
+              icon="{faPaste}" /></button>
         </div>
       {/if}
     </div>
