@@ -25,6 +25,8 @@ const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
   message = options.message;
   if (options.detail) {
     detail = options.detail;
+  } else {
+    detail = null;
   }
 
   // use provided buttons, or a single 'OK' button if none are provided
