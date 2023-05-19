@@ -21,7 +21,7 @@
  */
 import * as os from 'node:os';
 import * as path from 'path';
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { CommandRegistry } from './command-registry';
 import { ContainerProviderRegistry } from './container-registry';
 import { ExtensionLoader } from './extension-loader';
@@ -37,25 +37,26 @@ import type {
   PreflightChecksCallback,
   ProviderContainerConnectionInfo,
   ProviderInfo,
+  ProviderKubernetesConnectionInfo,
 } from './api/provider-info';
 import type { WebContents } from 'electron';
-import { ipcMain, BrowserWindow } from 'electron';
+import { app, ipcMain, BrowserWindow, shell, clipboard } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { PullEvent } from './api/pull-event';
 import type { ExtensionInfo } from './api/extension-info';
-import { shell } from 'electron';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
-import { isMac } from '../util';
-import { Dialogs } from './dialog-impl';
+import { isLinux, isMac } from '../util';
+import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box';
+import { MessageBox } from './message-box';
 import { ProgressImpl } from './progress-impl';
 import type { ContributionInfo } from './api/contribution-info';
 import { ContributionManager } from './contribution-manager';
 import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation';
 import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter';
-import { Telemetry } from './telemetry/telemetry';
+import { PAGE_EVENT_TYPE, Telemetry } from './telemetry/telemetry';
 import { NotificationImpl } from './notification-impl';
 import { StatusBarRegistry } from './statusbar/statusbar-registry';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry';
@@ -75,29 +76,62 @@ import { AutostartEngine } from './autostart-engine';
 import { CloseBehavior } from './close-behavior';
 import { TrayIconColor } from './tray-icon-color';
 import { KubernetesClient } from './kubernetes-client';
-import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '@kubernetes/client-node';
+import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service, V1Ingress } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type { NetworkInspectInfo } from './api/network-info';
 import { FilesystemMonitoring } from './filesystem-monitoring';
 import { Certificates } from './certificates';
 import { Proxy } from './proxy';
 import { EditorInit } from './editor-init';
+import { WelcomeInit } from './welcome/welcome-init';
 import { ExtensionInstaller } from './install/extension-installer';
 import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
+import type { Menu } from '/@/plugin/menu-registry';
+import { MenuRegistry } from '/@/plugin/menu-registry';
+import { CancellationTokenRegistry } from './cancellation-token-registry';
+import type { UpdateCheckResult } from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
+import type { ApiSenderType } from './api';
+import type { AuthenticationProviderInfo } from './authentication';
+import { AuthenticationImpl } from './authentication';
+import checkDiskSpace from 'check-disk-space';
+import { TaskManager } from '/@/plugin/task-manager';
+import { Featured } from './featured/featured';
+import type { FeaturedExtension } from './featured/featured-api';
+import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog';
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
+
+export const UPDATER_UPDATE_AVAILABLE_ICON = 'fa fa-exclamation-triangle';
+
+export interface LoggerWithEnd extends containerDesktopAPI.Logger {
+  // when task is finished, this function is called
+  onEnd: () => void;
+}
+
 export class PluginSystem {
   // ready is when we've finished to initialize extension system
   private isReady = false;
 
+  // ready when all extensions have been started
+  private isExtensionsStarted = false;
+
   // notified when UI is dom-ready
   private uiReady = false;
+
+  // true if the application is quitting
+  private isQuitting = false;
 
   // The yet to be init ExtensionLoader
   private extensionLoader!: ExtensionLoader;
   private validExtList!: ExtensionInfo[];
 
-  constructor(private trayMenu: TrayMenu) {}
+  constructor(private trayMenu: TrayMenu) {
+    app.on('before-quit', () => {
+      this.isQuitting = true;
+    });
+  }
 
   getWebContentsSender(): WebContents {
     const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
@@ -166,7 +200,6 @@ export class PluginSystem {
 
       if (toAppend != '') return `[${toAppend}]`;
     }
-    return;
   }
 
   // log locally and also send it to the renderer process
@@ -174,20 +207,26 @@ export class PluginSystem {
   redirectConsole(logType: LogType): void {
     // keep original method
     const originalConsoleMethod = console[logType];
-    console[logType] = async (...args) => {
-      const extName = await this.getExtName();
+    console[logType] = (...args) => {
+      this.getExtName()
+        .then(extName => {
+          if (extName) args.unshift(extName);
 
-      if (extName) args.unshift(extName);
+          // still display as before by invoking original method
+          originalConsoleMethod(...args);
 
-      // still display as before by invoking original method
-      originalConsoleMethod(...args);
-
-      // but also send the content remotely
-      try {
-        this.getWebContentsSender().send('console:output', logType, ...args);
-      } catch (err) {
-        originalConsoleMethod(err);
-      }
+          // but also send the content remotely
+          if (!this.isQuitting) {
+            try {
+              this.getWebContentsSender().send('console:output', logType, ...args);
+            } catch (err) {
+              originalConsoleMethod(err);
+            }
+          }
+        })
+        .catch((err: unknown) => {
+          console.error('Error in redirectConsole', err);
+        });
     };
   }
 
@@ -197,51 +236,39 @@ export class PluginSystem {
     logTypes.forEach(logType => this.redirectConsole(logType));
   }
 
-  // initialize extension loader mechanism
-  async initExtensions(): Promise<ExtensionLoader> {
-    this.isReady = false;
-    this.uiReady = false;
-    this.ipcHandle('extension-system:isReady', async (): Promise<boolean> => {
-      return this.isReady;
-    });
+  getApiSender(webContents: WebContents): ApiSenderType {
     const queuedEvents: { channel: string; data: string }[] = [];
 
     const flushQueuedEvents = () => {
-      if (this.uiReady && this.isReady) {
-        // flush queued events ?
-        if (queuedEvents.length > 0) {
-          console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
-          queuedEvents.forEach(({ channel, data }) => {
-            webSender.send(channel, data);
-          });
-          queuedEvents.length = 0;
-        }
+      // flush queued events ?
+      if (this.uiReady && this.isReady && queuedEvents.length > 0) {
+        console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
+        queuedEvents.forEach(({ channel, data }) => {
+          webContents.send('api-sender', channel, data);
+        });
+        queuedEvents.length = 0;
       }
     };
 
-    const webSender = this.getWebContentsSender();
-    webSender.on('dom-ready', () => {
+    webContents.on('dom-ready', () => {
       console.log('PluginSystem: received dom-ready event from the UI');
       this.uiReady = true;
       flushQueuedEvents();
     });
 
-    // redirect main process logs to the extension loader
-    this.redirectLogging();
-
     const eventEmitter = new EventEmitter();
-    const apiSender = {
-      send: (channel: string, data: string) => {
-        // send only if the UI is ready
+    return {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      send: (channel: string, data: any) => {
+        // send only when the UI is ready
         if (this.uiReady && this.isReady) {
           flushQueuedEvents();
-          this.getWebContentsSender().send('api-sender', channel, data);
+          webContents.send('api-sender', channel, data);
         } else {
           // add to the queue
           queuedEvents.push({ channel, data });
         }
       },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       receive: (channel: string, func: any) => {
         eventEmitter.on(channel, data => {
@@ -249,6 +276,65 @@ export class PluginSystem {
         });
       },
     };
+  }
+
+  async setupSecurityRestrictionsOnLinks(messageBox: MessageBox) {
+    // external URLs should be validated by the user
+    securityRestrictionCurrentHandler.handler = async (url: string) => {
+      if (!url) {
+        return false;
+      }
+
+      // if url is a known domain, open it directly
+      const urlObject = new URL(url);
+      const validDomains = ['podman-desktop.io', 'podman.io'];
+      const skipConfirmationUrl = validDomains.some(
+        domain => urlObject.hostname.endsWith(domain) || urlObject.hostname === domain,
+      );
+
+      if (skipConfirmationUrl) {
+        await shell.openExternal(url);
+        return true;
+      }
+
+      const result = await messageBox.showMessageBox({
+        title: 'Open External Website',
+        message: 'Are you sure you want to open the external website ?',
+        detail: url,
+        type: 'question',
+        buttons: ['Yes', 'Copy link', 'Cancel'],
+        cancelId: 2,
+      });
+
+      if (result.response === 0) {
+        // open externally the URL
+        await shell.openExternal(url);
+        return true;
+      } else if (result.response === 1) {
+        // copy to clipboard
+        clipboard.writeText(url);
+      }
+      return false;
+    };
+  }
+
+  // initialize extension loader mechanism
+  async initExtensions(): Promise<ExtensionLoader> {
+    this.isReady = false;
+    this.uiReady = false;
+    this.ipcHandle('extension-system:isReady', async (): Promise<boolean> => {
+      return this.isReady;
+    });
+
+    this.ipcHandle('extension-system:isExtensionsStarted', async (): Promise<boolean> => {
+      return this.isExtensionsStarted;
+    });
+
+    // redirect main process logs to the extension loader
+    this.redirectLogging();
+
+    // init api sender
+    const apiSender = this.getApiSender(this.getWebContentsSender());
 
     const configurationRegistry = new ConfigurationRegistry();
     configurationRegistry.init();
@@ -259,18 +345,20 @@ export class PluginSystem {
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
 
-    const commandRegistry = new CommandRegistry();
+    const commandRegistry = new CommandRegistry(telemetry);
+    const menuRegistry = new MenuRegistry(commandRegistry);
     const certificates = new Certificates();
     await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
+    const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
     const statusBarRegistry = new StatusBarRegistry(apiSender);
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
 
-    const kubernetesClient = new KubernetesClient(configurationRegistry, fileSystemMonitoring);
+    const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
@@ -293,6 +381,21 @@ export class PluginSystem {
     statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
 
     statusBarRegistry.setEntry(
+      'tasks',
+      false,
+      0,
+      undefined,
+      'Tasks',
+      'fa fa-bell',
+      true,
+      'show-task-manager',
+      undefined,
+    );
+    commandRegistry.registerCommand('show-task-manager', () => {
+      apiSender.send('toggle-task-manager', '');
+    });
+
+    statusBarRegistry.setEntry(
       'feedback',
       false,
       0,
@@ -303,6 +406,186 @@ export class PluginSystem {
       'feedback',
       undefined,
     );
+
+    // Get the current version of our application
+    const currentVersion = `v${app.getVersion()}`;
+
+    // Add version entry to the status bar
+    const defaultVersionEntry = () => {
+      statusBarRegistry.setEntry(
+        'version',
+        false,
+        0,
+        currentVersion,
+        `Using version ${currentVersion}`,
+        undefined,
+        true,
+        'version',
+        undefined,
+      );
+    };
+    defaultVersionEntry();
+
+    // Show a "No update available" only for macOS and Windows users and on production builds
+    let detailMessage: string;
+    if (!isLinux() && import.meta.env.PROD) {
+      detailMessage = 'No update available';
+    }
+
+    // Register command 'version' that will display the current version and say that no update is available.
+    // Only show the "no update available" command for macOS and Windows users, not linux users.
+    commandRegistry.registerCommand('version', async () => {
+      await messageBox.showMessageBox({
+        type: 'info',
+        title: 'Version',
+        message: `Using version ${currentVersion}`,
+        detail: detailMessage,
+      });
+    });
+
+    // Only check on production builds for Windows and macOS users
+    if (import.meta.env.PROD && !isLinux()) {
+      // disable auto download
+      autoUpdater.autoDownload = false;
+
+      let updateInProgress = false;
+      let updateAlreadyDownloaded = false;
+
+      // setup the event listeners
+      autoUpdater.on('update-available', () => {
+        updateInProgress = false;
+        updateAlreadyDownloaded = false;
+
+        // Update the 'version' entry in the status bar to show that an update is available
+        // this uses setEntry to update the existing entry
+        statusBarRegistry.setEntry(
+          'version',
+          false,
+          0,
+          currentVersion,
+          'Update available',
+          UPDATER_UPDATE_AVAILABLE_ICON,
+          true,
+          'update',
+          undefined,
+        );
+      });
+
+      autoUpdater.on('update-not-available', () => {
+        updateInProgress = false;
+        updateAlreadyDownloaded = false;
+
+        // Update the 'version' entry in the status bar to show that no update is available
+        defaultVersionEntry();
+      });
+
+      autoUpdater.on('update-downloaded', () => {
+        updateAlreadyDownloaded = true;
+        updateInProgress = false;
+        messageBox
+          .showMessageBox({
+            title: 'Update Downloaded',
+            message: 'Update downloaded, Do you want to restart Podman Desktop ?',
+            cancelId: 1,
+            type: 'info',
+            buttons: ['Restart', 'Cancel'],
+          })
+          .then(result => {
+            if (result.response === 0) {
+              setImmediate(() => autoUpdater.quitAndInstall());
+            }
+          })
+          .catch((error: unknown) => {
+            console.error('unable to show message box', error);
+          });
+      });
+
+      autoUpdater.on('error', error => {
+        updateInProgress = false;
+        // local build not pushed to GitHub so prevent any 'update'
+        if (error?.message?.includes('No published versions on GitHub')) {
+          console.log('Cannot check for updates, no published versions on GitHub');
+          defaultVersionEntry();
+          return;
+        }
+        console.error('unable to check for updates', error);
+      });
+
+      // check for updates now
+      let updateCheckResult: UpdateCheckResult | null;
+
+      try {
+        updateCheckResult = await autoUpdater.checkForUpdates();
+      } catch (error) {
+        console.error('unable to check for updates', error);
+      }
+
+      // Create an interval to check for updates every 12 hours
+      setInterval(() => {
+        autoUpdater
+          .checkForUpdates()
+          .then(result => (updateCheckResult = result))
+          .catch((error: unknown) => {
+            console.log('unable to check for updates', error);
+          });
+      }, 1000 * 60 * 60 * 12);
+
+      // Update will create a standard "autoUpdater" dialog / update process
+      commandRegistry.registerCommand('update', async () => {
+        if (updateAlreadyDownloaded) {
+          const result = await messageBox.showMessageBox({
+            type: 'info',
+            title: 'Update',
+            message: 'There is already an update downloaded. Please Restart Podman Desktop.',
+            cancelId: 1,
+            buttons: ['Restart', 'Cancel'],
+          });
+          if (result.response === 0) {
+            setImmediate(() => autoUpdater.quitAndInstall());
+          }
+          return;
+        }
+
+        if (updateInProgress) {
+          await messageBox.showMessageBox({
+            type: 'info',
+            title: 'Update',
+            message: 'There is already an update in progress. Please wait until it is downloaded',
+            buttons: ['OK'],
+          });
+          return;
+        }
+
+        // Get the version of the update
+        const updateVersion = updateCheckResult?.updateInfo.version ? `v${updateCheckResult?.updateInfo.version}` : '';
+
+        const result = await messageBox.showMessageBox({
+          type: 'info',
+          title: 'Update Available',
+          message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${currentVersion}?`,
+          buttons: ['Update', 'Cancel'],
+          cancelId: 1,
+        });
+        if (result.response === 0) {
+          updateInProgress = true;
+          updateAlreadyDownloaded = false;
+
+          // Download update and try / catch it and create a dialog if it fails
+          try {
+            await autoUpdater.downloadUpdate();
+          } catch (error) {
+            console.error('Update error: ', error);
+            await messageBox.showMessageBox({
+              type: 'error',
+              title: 'Update Failed',
+              message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,
+              buttons: ['OK'],
+            });
+          }
+        }
+      });
+    }
+
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
     });
@@ -318,15 +601,26 @@ export class PluginSystem {
     const editorInit = new EditorInit(configurationRegistry);
     editorInit.init();
 
+    // init welcome configuration
+    const welcomeInit = new WelcomeInit(configurationRegistry);
+    welcomeInit.init();
+
+    const messageBox = new MessageBox(apiSender);
+
+    const authentication = new AuthenticationImpl(apiSender);
+
+    const taskManager = new TaskManager(apiSender);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
+      menuRegistry,
       providerRegistry,
       configurationRegistry,
       imageRegistry,
       apiSender,
       trayMenuRegistry,
-      new Dialogs(),
-      new ProgressImpl(),
+      messageBox,
+      new ProgressImpl(taskManager),
       new NotificationImpl(),
       statusBarRegistry,
       kubernetesClient,
@@ -334,8 +628,20 @@ export class PluginSystem {
       proxy,
       containerProviderRegistry,
       inputQuickPickRegistry,
+      authentication,
+      telemetry,
     );
     await this.extensionLoader.init();
+
+    const extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
+    const featured = new Featured(this.extensionLoader, extensionsCatalog);
+    // do not wait
+    featured.init().catch((e: unknown) => {
+      console.error('Unable to initialized the featured extensions', e);
+    });
+
+    // setup security restrictions on links
+    await this.setupSecurityRestrictionsOnLinks(messageBox);
 
     const contributionManager = new ContributionManager(apiSender);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
@@ -356,6 +662,13 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listVolumes', async (): Promise<VolumeListInfo[]> => {
       return containerProviderRegistry.listVolumes();
     });
+    this.ipcHandle(
+      'container-provider-registry:pruneVolumes',
+      async (_listener, engine: string): Promise<Dockerode.PruneVolumesInfo> => {
+        return containerProviderRegistry.pruneVolumes(engine);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:getVolumeInspect',
       async (_listener, engine: string, volumeName: string): Promise<VolumeInspectInfo> => {
@@ -503,6 +816,14 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle('container-provider-registry:prunePods', async (_listener, engine: string): Promise<void> => {
+      return containerProviderRegistry.prunePods(engine);
+    });
+
+    this.ipcHandle('container-provider-registry:pruneImages', async (_listener, engine: string): Promise<void> => {
+      return containerProviderRegistry.pruneImages(engine);
+    });
+
     this.ipcHandle(
       'container-provider-registry:restartContainer',
       async (_listener, engine: string, containerId: string): Promise<void> => {
@@ -619,6 +940,18 @@ export class PluginSystem {
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
       return providerRegistry.getProviderInfos();
+    });
+
+    this.ipcHandle('menu-registry:getContributedMenus', async (_, context: string): Promise<Menu[]> => {
+      return menuRegistry.getContributedMenus(context);
+    });
+
+    this.ipcHandle('command-registry:executeCommand', async (_, command: string, ...args: unknown[]): Promise<void> => {
+      return commandRegistry.executeCommand(command, ...args);
+    });
+
+    this.ipcHandle('clipboard:writeText', async (_, text: string, type?: 'selection' | 'clipboard'): Promise<void> => {
+      return clipboard.writeText(text, type);
     });
 
     this.ipcHandle(
@@ -774,6 +1107,14 @@ export class PluginSystem {
       return inputQuickPickRegistry.onDidSelectQuickPickItem(id, selectedId);
     });
 
+    this.ipcHandle('showMessageBox', async (_listener, options: MessageBoxOptions): Promise<MessageBoxReturnValue> => {
+      return messageBox.showMessageBox(options);
+    });
+
+    this.ipcHandle('showMessageBox:onSelect', async (_listener, id: number, index: number): Promise<void> => {
+      return messageBox.onDidSelectButton(id, index);
+    });
+
     this.ipcHandle('image-registry:getRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
       return imageRegistry.getRegistries();
     });
@@ -828,6 +1169,27 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'authentication-provider-registry:getAuthenticationProvidersInfo',
+      async (): Promise<readonly AuthenticationProviderInfo[]> => {
+        return authentication.getAuthenticationProvidersInfo();
+      },
+    );
+
+    this.ipcHandle(
+      'authentication-provider-registry:requestAuthenticationProviderSignOut',
+      async (_listener, providerId: string, sessionId): Promise<void> => {
+        return authentication.signOut(providerId, sessionId);
+      },
+    );
+
+    this.ipcHandle(
+      'authentication-provider-registry:requestAuthenticationProviderSignIn',
+      async (_listener, requestId: string): Promise<void> => {
+        return authentication.executeSessionRequest(requestId);
+      },
+    );
+
+    this.ipcHandle(
       'configuration-registry:getConfigurationProperties',
       async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
         return configurationRegistry.getConfigurationProperties();
@@ -868,6 +1230,10 @@ export class PluginSystem {
       return this.extensionLoader.listExtensions();
     });
 
+    this.ipcHandle('featured:getFeaturedExtensions', async (): Promise<FeaturedExtension[]> => {
+      return featured.getFeaturedExtensions();
+    });
+
     this.ipcHandle(
       'extension-loader:deactivateExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
@@ -890,7 +1256,11 @@ export class PluginSystem {
     this.ipcHandle(
       'shell:openExternal',
       async (_listener: Electron.IpcMainInvokeEvent, link: string): Promise<void> => {
-        shell.openExternal(link);
+        if (securityRestrictionCurrentHandler.handler) {
+          await securityRestrictionCurrentHandler.handler(link);
+        } else {
+          await shell.openExternal(link);
+        }
       },
     );
 
@@ -902,6 +1272,15 @@ export class PluginSystem {
     });
     this.ipcHandle('os:getHostname', async (): Promise<string> => {
       return os.hostname();
+    });
+    this.ipcHandle('os:getHostFreeDiskSize', async (): Promise<number> => {
+      return (await checkDiskSpace(os.homedir())).free;
+    });
+    this.ipcHandle('os:getHostMemory', async (): Promise<number> => {
+      return os.totalmem();
+    });
+    this.ipcHandle('os:getHostCpu', async (): Promise<number> => {
+      return os.cpus().length;
     });
 
     this.ipcHandle(
@@ -945,9 +1324,12 @@ export class PluginSystem {
       async (
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
-        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+        loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.startProviderConnection(providerId, providerContainerConnectionInfo);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        await providerRegistry.startProviderConnection(providerId, providerConnectionInfo, logger);
+        logger.onEnd();
       },
     );
 
@@ -956,9 +1338,12 @@ export class PluginSystem {
       async (
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
-        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+        loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.stopProviderConnection(providerId, providerContainerConnectionInfo);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        await providerRegistry.stopProviderConnection(providerId, providerConnectionInfo, logger);
+        logger.onEnd();
       },
     );
 
@@ -967,9 +1352,12 @@ export class PluginSystem {
       async (
         _listener: Electron.IpcMainInvokeEvent,
         providerId: string,
-        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+        loggerId: string,
       ): Promise<void> => {
-        return providerRegistry.deleteProviderConnection(providerId, providerContainerConnectionInfo);
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        await providerRegistry.deleteProviderConnection(providerId, providerConnectionInfo, logger);
+        logger.onEnd();
       },
     );
 
@@ -980,12 +1368,22 @@ export class PluginSystem {
         internalProviderId: string,
         params: { [key: string]: unknown },
         loggerId: string,
+        tokenId?: number,
       ): Promise<void> => {
-        return providerRegistry.createContainerProviderConnection(
-          internalProviderId,
-          params,
-          this.getLogHandlerCreateConnection(loggerId),
-        );
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        let token;
+        if (tokenId) {
+          const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+          token = tokenSource?.token;
+        }
+        try {
+          await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
+        } catch (error) {
+          logger.error(error);
+          throw error;
+        } finally {
+          logger.onEnd();
+        }
       },
     );
 
@@ -996,12 +1394,22 @@ export class PluginSystem {
         internalProviderId: string,
         params: { [key: string]: unknown },
         loggerId: string,
+        tokenId?: number,
       ): Promise<void> => {
-        return providerRegistry.createKubernetesProviderConnection(
-          internalProviderId,
-          params,
-          this.getLogHandlerCreateConnection(loggerId),
-        );
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        let token;
+        if (tokenId) {
+          const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+          token = tokenSource?.token;
+        }
+        try {
+          await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger, token);
+        } catch (error) {
+          logger.error(error);
+          throw error;
+        } finally {
+          logger.onEnd();
+        }
       },
     );
 
@@ -1013,6 +1421,38 @@ export class PluginSystem {
       'kubernetes-client:createService',
       async (_listener, namespace: string, service: V1Service): Promise<V1Service> => {
         return kubernetesClient.createService(namespace, service);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:createIngress',
+      async (_listener, namespace: string, ingress: V1Ingress): Promise<V1Ingress> => {
+        return kubernetesClient.createIngress(namespace, ingress);
+      },
+    );
+
+    this.ipcHandle('kubernetes-client:listPods', async (): Promise<PodInfo[]> => {
+      return kubernetesClient.listPods();
+    });
+
+    this.ipcHandle(
+      'kubernetes-client:readPodLog',
+      async (_listener, name: string, container: string, onDataId: number): Promise<void> => {
+        return kubernetesClient.readPodLog(name, container, (name: string, data: string) => {
+          this.getWebContentsSender().send('kubernetes-client:readPodLog-onData', onDataId, name, data);
+        });
+      },
+    );
+
+    this.ipcHandle('kubernetes-client:deletePod', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deletePod(name);
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.ipcHandle(
+      'kubernetes-client:createResourcesFromFile',
+      async (_listener, context: string, file: string, namespace: string): Promise<void> => {
+        return kubernetesClient.createResourcesFromFile(context, file, namespace);
       },
     );
 
@@ -1048,6 +1488,10 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle('kubernetes-client:isAPIGroupSupported', async (_listener, group): Promise<boolean> => {
+      return kubernetesClient.isAPIGroupSupported(group);
+    });
+
     this.ipcHandle('kubernetes-client:getCurrentContextName', async (): Promise<string | undefined> => {
       return kubernetesClient.getCurrentContextName();
     });
@@ -1060,6 +1504,62 @@ export class PluginSystem {
       return telemetry.sendFeedback(feedbackProperties);
     });
 
+    this.ipcHandle('cancellableTokenSource:create', async (): Promise<number> => {
+      return cancellationTokenRegistry.createCancellationTokenSource();
+    });
+
+    this.ipcHandle('cancellableToken:cancel', async (_listener, id: number): Promise<void> => {
+      const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(id);
+      if (!tokenSource?.token.isCancellationRequested) {
+        tokenSource?.dispose(true);
+      }
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.ipcHandle('telemetry:track', async (_listener, event: string, eventProperties?: any): Promise<void> => {
+      return telemetry.track(event, eventProperties);
+    });
+
+    this.ipcHandle('telemetry:page', async (_listener, name: string): Promise<void> => {
+      return telemetry.track(PAGE_EVENT_TYPE, { name: name });
+    });
+
+    this.ipcHandle('telemetry:configure', async (): Promise<void> => {
+      return telemetry.configureTelemetry();
+    });
+
+    this.ipcHandle('app:getVersion', async (): Promise<string> => {
+      return app.getVersion();
+    });
+
+    this.ipcHandle('window:minimize', async (): Promise<void> => {
+      const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (!window) {
+        return;
+      }
+      window.minimize();
+    });
+
+    this.ipcHandle('window:maximize', async (): Promise<void> => {
+      const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (!window) {
+        return;
+      }
+      if (window.isMaximized()) {
+        window.unmaximize();
+        return;
+      }
+      window.maximize();
+    });
+
+    this.ipcHandle('window:close', async (): Promise<void> => {
+      const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (!window) {
+        return;
+      }
+      window.close();
+    });
+
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,
@@ -1070,29 +1570,47 @@ export class PluginSystem {
     const dockerExtensionAdapter = new DockerPluginAdapter(contributionManager);
     dockerExtensionAdapter.init();
 
-    const extensionInstaller = new ExtensionInstaller(apiSender, containerProviderRegistry, this.extensionLoader);
+    const extensionInstaller = new ExtensionInstaller(apiSender, this.extensionLoader, imageRegistry);
     await extensionInstaller.init();
 
     await contributionManager.init();
 
-    await this.extensionLoader.start();
-    this.isReady = true;
-    console.log('PluginSystem: initialization done.');
-    apiSender.send('extension-system', `${this.isReady}`);
-    autoStartConfiguration.start();
+    this.markAsReady();
+
+    apiSender.send('starting-extensions', `${this.isReady}`);
+    console.log('System ready. Loading extensions...');
+    try {
+      await this.extensionLoader.start();
+      console.log('PluginSystem: initialization done.');
+    } finally {
+      apiSender.send('extensions-started');
+      this.markAsExtensionsStarted();
+    }
+    autoStartConfiguration.start().catch((err: unknown) => console.error('Unable to perform autostart', err));
     return this.extensionLoader;
   }
 
-  getLogHandlerCreateConnection(loggerId: string): containerDesktopAPI.Logger {
+  markAsExtensionsStarted(): void {
+    this.isExtensionsStarted = true;
+  }
+
+  markAsReady(): void {
+    this.isReady = true;
+  }
+
+  getLogHandlerCreateConnection(channel: string, loggerId: string): LoggerWithEnd {
     return {
       log: (...data: unknown[]) => {
-        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'log', data);
+        this.getWebContentsSender().send(channel, loggerId, 'log', data);
       },
       warn: (...data: unknown[]) => {
-        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'warn', data);
+        this.getWebContentsSender().send(channel, loggerId, 'warn', data);
       },
       error: (...data: unknown[]) => {
-        this.getWebContentsSender().send('provider-registry:createConnection-onData', loggerId, 'error', data);
+        this.getWebContentsSender().send(channel, loggerId, 'error', data);
+      },
+      onEnd: () => {
+        this.getWebContentsSender().send(channel, loggerId, 'finish');
       },
     };
   }

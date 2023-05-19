@@ -33,6 +33,10 @@ const linux = os.platform() === 'linux';
 export function isLinux(): boolean {
   return linux;
 }
+const xdgDataDirectory = '.local/share/containers';
+export function appHomeDir(): string {
+  return xdgDataDirectory + '/podman';
+}
 
 /**
  * @returns true if app running in dev mode

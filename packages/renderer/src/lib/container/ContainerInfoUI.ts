@@ -44,13 +44,15 @@ export interface ContainerInfoUI {
   shortId: string;
   name: string;
   image: string;
+  shortImage: string;
   engineId: string;
   engineName: string;
   engineType: 'podman' | 'docker';
   state: string;
   uptime: string;
   startedAt: string;
-  port: string;
+  ports: number[];
+  portsAsString: string;
   displayPort: string;
   command: string;
   hasPublicPort: boolean;

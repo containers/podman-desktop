@@ -16,6 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type {
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../../../main/src/plugin/api/provider-info';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+
+export interface IConnectionStatus {
+  status: string;
+  action?: string;
+  inProgress: boolean;
+  error?: string;
+}
+
+export interface IConnectionRestart {
+  provider: string;
+  container: string;
+  loggerHandlerKey: symbol;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function writeToTerminal(xterm: any, data: string[], colorPrefix: string): void {
   if (Array.isArray(data)) {
@@ -29,7 +49,7 @@ export function writeToTerminal(xterm: any, data: string[], colorPrefix: string)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function writeMultilineString(xterm: any, data: string, colorPrefix: string): void {
-  if (data.includes('\n')) {
+  if (data?.includes?.('\n')) {
     const toWrite = data.split('\n');
     for (const s of toWrite) {
       xterm.write(colorPrefix + s + '\n\r');
@@ -37,4 +57,22 @@ function writeMultilineString(xterm: any, data: string, colorPrefix: string): vo
   } else {
     xterm.write(colorPrefix + data + '\r');
   }
+}
+
+export function getProviderConnectionName(
+  provider: ProviderInfo,
+  providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+): string {
+  return `${provider.name}-${providerConnectionInfo.name}`;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getNormalizedDefaultNumberValue(configurationKey: IConfigurationPropertyRecordedSchema): any {
+  if (!configurationKey.maximum || typeof configurationKey.maximum !== 'number') {
+    return configurationKey.default;
+  }
+  if (configurationKey.maximum > configurationKey.default) {
+    return configurationKey.default;
+  }
+  return configurationKey.maximum;
 }

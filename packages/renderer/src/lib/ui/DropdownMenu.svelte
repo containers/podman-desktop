@@ -41,7 +41,7 @@ function onWindowClick(e) {
       toggleMenu();
     }}"
     bind:this="{outsideWindow}"
-    class="mr-2 text-gray-300 hover:bg-zinc-900 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center">
+    class="mr-2 text-gray-400 hover:bg-charcoal-800 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center">
     <Fa class="h-4 w-4" icon="{faEllipsisVertical}" />
   </button>
 

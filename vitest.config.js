@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import path from 'node:path';
+
 /**
  * Config for global end-to-end tests
  * placed in project root tests folder
@@ -36,42 +37,19 @@ const config = {
       '**/builtin/**',
       '**/node_modules/**',
       '**/dist/**',
-      '**/cypress/**',
       '**/.{idea,git,cache,output,temp,cdix}/**',
-      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress}.config.*',
+      '**/{.electron-builder,babel,changelog,docusaurus,jest,postcss,prettier,rollup,svelte,tailwind,vite,vitest*,webpack}.config.*',
     ],
 
     /**
      * A default timeout of 5000ms is sometimes not enough for playwright.
      */
-    testTimeout: 30_000,
-    hookTimeout: 30_000,
-    /**
-     * Vitest configuration for code coverage of the extensions folder
-     */
-    coverage: {
-      all: true,
-      src: ['extensions'],
-      clean: true,
-      exclude: [
-        '**/builtin/**',
-        '**/cypress/**',
-        '**/dist/**',
-        '**/node_modules/**',
-        '**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-        '**/*.{svelte,tsx,cjs,js,d.ts}',
-        '**/*-info.ts',
-        '**/.{cache,git,idea,output,temp,cdix}/**',
-        '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
-      ],
-      provider: 'c8',
-      reportsDirectory: '../test-resources/coverage/extensions',
-      reporter: ['lcov', 'json', 'text-summary'],
-    },
+    testTimeout: 60_000,
+    hookTimeout: 60_000,
   },
   resolve: {
     alias: {
-      '@tmpwip/extension-api': path.resolve(__dirname, '__mocks__/@tmpwip/extension-api.js'),
+      '@podman-desktop/api': path.resolve(__dirname, '__mocks__/@podman-desktop/api.js'),
     },
   },
 };

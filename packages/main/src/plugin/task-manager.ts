@@ -1,0 +1,52 @@
+/**********************************************************************
+ * Copyright (C) 2023 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
+import type { ApiSenderType } from './api';
+import type { Task } from '/@/plugin/api/task';
+
+/**
+ * Contribution manager to provide the list of external OCI contributions
+ */
+export class TaskManager {
+  private taskId = 0;
+
+  private tasks = new Map<string, Task>();
+
+  constructor(private apiSender: ApiSenderType) {}
+
+  public createTask(title: string | undefined): Task {
+    this.taskId++;
+    const task: Task = {
+      id: `main-${this.taskId}`,
+      name: title ? title : `Task ${this.taskId}`,
+      started: new Date().getTime(),
+      state: 'running',
+      status: 'in-progress',
+    };
+    this.tasks.set(task.id, task);
+    this.apiSender.send('task-created', task);
+    return task;
+  }
+
+  public updateTask(task: Task) {
+    this.apiSender.send('task-updated', task);
+    if (task.state == 'completed') {
+      this.tasks.delete(task.id);
+    }
+  }
+}

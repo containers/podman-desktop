@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@
  import {chrome} from '../../.electron-vendors.cache.json';
  import {join} from 'path';
  import {builtinModules} from 'module';
-import {coverageConfig} from '../main/vite.config';
+ import { coverageConfig } from '../../vitest-shared-extensions.config';
+
  const PACKAGE_ROOT = __dirname;
+ const PACKAGE_NAME = 'preload-docker-extension';
  
  /**
   * @type {import('vite').UserConfig}
@@ -66,7 +68,7 @@ import {coverageConfig} from '../main/vite.config';
      reportCompressedSize: false,
    },
    test: {
-    ...coverageConfig('preload-docker-extension'),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
  };
  

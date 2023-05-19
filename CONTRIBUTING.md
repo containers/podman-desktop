@@ -63,6 +63,15 @@ Optional Linux requirements:
   flatpak remote-add --if-not-exists flathub --user https://flathub.org/repo/flathub.flatpakrepo
   flatpak install --user flathub org.flatpak.Builder org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
   ```
+* GNU C and C++ compiler
+  Fedora/RHEL
+  ```sh
+  dnf install gpp-c++
+  ```
+  Ubuntu/Debian
+  ```sh
+  apt-get install build-essential
+  ```
 
 ### Step 1. Fork and clone Podman Desktop
 
@@ -100,8 +109,53 @@ Run the tests using `yarn`:
 ```sh
 yarn test
 ```
+Depending on to what part of project you contribute to, you can specify to run tests for the given module only, ie., if you are working on extensions, you can run the tests for extensions and have faster feedback:
+```sh
+yarn test:extensions
+```
+or if you are contributing to a particular extension, you can call:
+```sh
+yarn test:extensions:compose
+```
+This will show a test results for restricted amount of tests:
+```
+ ✓ src/os.spec.ts (3)
+ ✓ src/detect.spec.ts (10) 518ms
+ ✓ src/compose-github-releases.spec.ts (10)
+ ✓ src/compose-extension.spec.ts (16)
+ ✓ src/compose-wrapper-generator.spec.ts (4)
 
-### Step 5. Code formatter / linter
+ Test Files  5 passed (5)
+      Tests  43 passed (43)
+   Start at  17:17:07
+   Duration  1.27s (transform 562ms, setup 0ms, collect 1.25s, tests 587ms)
+```
+Check the npm script tasks in our `package.json` for more options. 
+
+### Step 5. Code coverage
+
+Part of every test is also a code coverage report which can be obtain from the test run output (using simple text reporter)
+found in project root `./test-resources/coverage/*`. Depending if you have run all or just a part of the tests, you will have partial test coverage report generated, example:
+```
+ % Coverage report from c8
+------------------------------|---------|----------|---------|---------|-------------------
+File                          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+------------------------------|---------|----------|---------|---------|-------------------
+All files                     |    75.1 |    97.22 |   93.75 |    75.1 |                   
+ cli-run.ts                   |       0 |        0 |       0 |       0 | 1-119             
+ compose-extension.ts         |     100 |      100 |     100 |     100 |                   
+ compose-github-releases.ts   |     100 |      100 |     100 |     100 |                   
+ compose-wrapper-generator.ts |     100 |      100 |     100 |     100 |                   
+ detect.ts                    |     100 |      100 |     100 |     100 |                   
+ extension.ts                 |       0 |        0 |       0 |       0 | 1-54              
+ os.ts                        |     100 |      100 |     100 |     100 |                   
+------------------------------|---------|----------|---------|---------|-------------------
+```
+For a detailed information about the code coverage you can search the mentioned folder and find `html` lcov report:
+`test-resources/coverage/extensions/compose/lcov-report/index.html`
+
+When contribuing the new code, you should consider not lowering overall code coverage.
+### Step 6. Code formatter / linter
 
 We use `prettier` as a formatter and `eslint` for linting.
 
@@ -119,7 +173,7 @@ Fix:
 yarn lint:fix && yarn format:fix
 ```
 
-### Step 6. Compile production binaries (optional)
+### Step 7. Compile production binaries (optional)
 
 You may want to test the binary against your local system before pushing a PR, you can do so by running the following command:
 
@@ -128,6 +182,8 @@ yarn compile:current
 ```
 
 This will create a binary according to your local system and output it to the `dist/` folder.
+
+> **_NOTE:_** macOS and Windows create binaries while Linux will create a `.flatpak`. Make sure your flatpak dependencies are installed for successful compiling on Linux.
 
 ## Submitting Pull Requests
 
@@ -161,12 +217,12 @@ Some examples for correct titles would be:
 
 For Podman Desktop we use the following types:
 
-
+* `fix:` A bug fix
+* `chore:` Very small change / insignificant impact
+* `docs:` Documentation only changes (ex. website)
 * `build:` Changes that affect the build system
 * `ci:` Changes to the CI (ex. GitHub actions)
-* `docs:` Documentation only changes (ex. website)
 * `feat:` A new feature
-* `fix:` A bug fix
 * `perf:` A code change that improves performance
 * `refactor:` A code change that neither fixes a bug nor adds a feature
 * `style:` Changes that affect the formatting, but not the ability of the code
@@ -198,6 +254,15 @@ Legal name must be used (no pseudonyms or anonymous contributions)
 If you set your `user.name` and `user.email` git configs, you can sign your
 commit automatically with `git commit -s`.
 
+
+### Review process
+
+1. Submit your PR
+2. Reviewers are assigned by GitHub to two Podman Desktop developers
+3. PR's require 1 LGTM / Approval (2 if it's a large code change)
+
+> **_NOTE:_** If your PR hasn't been merged in an appropriate amount of time, ping the two developers assigned to the issue with `@`
+
 ## Continuous Integration
 
 All pull requests and branch-merges automatically run:
@@ -225,6 +290,12 @@ Within Podman Desktop, we use the following frameworks and tools to build the de
 
 > **_NOTE:_**  We also use TypeScript instead of JavaScript for strongly typed programming language development.
 
+### Testing
+
+Within Podman Desktop, we use the following for testing:
+* [Vitest](https://vitest.dev/): Unit tests - Written as `spec.ts` files.
+* [Testing Library](https://testing-library.com/): Component tests - Utilities and best practices for writing component tests.
+* [Playwright](https://playwright.dev/): Integration tests.
 
 ### Folders
 
@@ -251,131 +322,6 @@ If you're unsure where to add code (renderer, UI, extensions, plugins) see the b
 
 ### Extensions
 
-Podman Desktop is organized so that you can modularly add new functionality in the form of "extensions" as well as the corresponding `extension-api`. This allows you to communicate with Podman Desktop without having to know the internal-workings. You look for the API call and Podman Desktop will do the rest.
+Podman Desktop is moduralized into extensions for each 'Provider'. You can also create and add your own extension.
 
-This is located in the `/extensions` folder.
-
-#### Creating a new extension
-
-When creating a new extension, import the extension API: `import * as extensionApi from '@tmpwip/extension-api';` All functionality with Podman Desktop is communicated through this API including registering the new extension. The API is located [here](https://github.com/containers/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts).
-
-When loading an extension, Podman Desktop will:
-1. Search and load the JavaScript file specified in `main` entry of the `package.json` file in the extension directory (typically `extension.js`).
-2. Run the exported `activate` function.
-
-When unloading an extension, Podman Desktop will:
-1. Run the exported `deactivate` function.
-
-
-#### Example boilerplate code
-
-This is an example `extensions/foobar/src/extensions.ts` file with the basic `activate ` and `deactivate` functionality:
-
-```ts
-import * as extensionApi from '@tmpwip/extension-api';
-
-
-// Activate the extension asynchronously
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-
-  // Create a provider with an example name, ID and icon
-  const provider = extensionApi.provider.createProvider({
-    name: 'foobar',
-    id: 'foobar',
-    status: 'unknown',
-    images: {
-      icon: './icon.png',
-      logo: './icon.png',
-    },
-  });
-
-  // Push the new provider to Podman Desktop
-  extensionContext.subscriptions.push(provider);
-}
-
-// Deactivate the extension
-export function deactivate(): void {
-  console.log('stopping foobar extension');
-}
-```
-
-
-#### Expanding the `extension-api` API
-
-Sometimes you'll need to add new functionality to the API in order to make an internal change within Podman Desktop. An example would be a new UI/UX component that happens within the renderer, you'd need to expand the API in order to make that change to Podman Desktop's inner-workings.
-
-In this example, we'll add a new function to simply display: "hello world" in the console.
-
-1. Add the new function to `/packages/extension-api/src/extension-api.d.ts`, under a namespace. This will make it accessible within the API when it's being called within your extension:
-
-```ts
-  export namespace foobar {
-    // ...
-    export function hello(input: string): void;
-  }
-```
-
-2. The `packages/main/src/plugin/extension-loader.ts` acts as an extension loader that defines all the actions needed by the API. Modify it to add the main functionality of `hello()` under the `foobar` namespace const:
-
-```ts
-// It's recommended you define a class that you retrieve from a separate file
-// see Podman and Kubernetes examples for implementation.
-
-// Add the class to the constructor of the extension loader
-import type { FoobarClient } from './foobar';
-
-export class ExtensionLoader {
-  // ...
-  constructor(
-    private foobarClient: FoobarClient,
-    // ...
-  ) {}
-// ..
-}
-
-// Initialize the 'foobar' client
-const foobarClient = this.foobarClient;
-
-// The "containerDesktopAPI.foobar" call is the namespace you previously defined within `extension-api.d.ts`
-const foobar: typeof containerDesktopAPI.foobar = {
-
-  // Define the function that you are implementing and call the function from the class you created.
-  hello(input: string): void => {
-    return foobarClient.hello(input);
-  },
-};
-```
-
-3. The above code won't work until we've created the class! So let's create a `packages/main/src/plugin/foobar-client.ts` file with the functionality:
-
-```ts
-export class FoobarClient {
-  hello(input: string) {
-    console.log("hello " + input);
-  }
-}
-```
-
-4. Last step! Call the new API call to the extension you are implementing, such as an example file `extensions/foobar/src/extension.ts`:
-
-```ts
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-
-  // Define the provider
-  const provider = extensionApi.provider.createProvider({
-    name: 'foobar',
-    id: 'foobar',
-    status: 'unknown',
-    images: {
-      icon: './icon.png',
-      logo: './icon.png',
-    },
-  });
-
-  // Push the new provider to Podman Desktop
-  extensionContext.subscriptions.push(provider);
-
-  // Call the "hello world" function that'll output to the console
-  extensionContext.foobar.hello("world");
-}
-```
+See our [EXTENSIONS.md](/EXTENSIONS.md) document for more details.

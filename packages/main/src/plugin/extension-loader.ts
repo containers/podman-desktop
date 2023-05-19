@@ -16,25 +16,29 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import type { CommandRegistry } from './command-registry';
-import type { ExtensionInfo } from './api/extension-info';
+import type { ExtensionError, ExtensionInfo } from './api/extension-info';
 import * as zipper from 'zip-local';
 import type { TrayMenuRegistry } from './tray-menu-registry';
 import { Disposable } from './types/disposable';
 import type { ProviderRegistry } from './provider-registry';
 import type { ConfigurationRegistry } from './configuration-registry';
 import type { ImageRegistry } from './image-registry';
-import type { Dialogs } from './dialog-impl';
+import type { MessageBox } from './message-box';
 import type { ProgressImpl } from './progress-impl';
 import { ProgressLocation } from './progress-impl';
 import type { NotificationImpl } from './notification-impl';
-import { StatusBarItemImpl } from './statusbar/statusbar-item';
+import {
+  StatusBarItemImpl,
+  StatusBarAlignLeft,
+  StatusBarAlignRight,
+  StatusBarItemDefaultPriority,
+} from './statusbar/statusbar-item';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry';
-import { StatusBarAlignLeft, StatusBarAlignRight, StatusBarItemDefaultPriority } from './statusbar/statusbar-item';
 import type { FilesystemMonitoring } from './filesystem-monitoring';
 import { Uri } from './types/uri';
 import type { KubernetesClient } from './kubernetes-client';
@@ -42,6 +46,16 @@ import type { Proxy } from './proxy';
 import type { ContainerProviderRegistry } from './container-registry';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
 import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry';
+import type { MenuRegistry } from '/@/plugin/menu-registry';
+import { desktopAppHomeDir } from '../util';
+import { Emitter } from './events/emitter';
+import { CancellationTokenSource } from './cancellation-token';
+import type { ApiSenderType } from './api';
+import type { AuthenticationImpl } from './authentication';
+import type { Telemetry } from './telemetry/telemetry';
+import { TelemetryTrustedValue } from './types/telemetry';
+import { clipboard as electronClipboard } from 'electron';
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
 
 /**
  * Handle the loading of an extension
@@ -66,23 +80,36 @@ export interface ActivatedExtension {
   extensionContext: containerDesktopAPI.ExtensionContext;
 }
 
+const EXTENSION_OPTION = '--extension-folder';
+
 export class ExtensionLoader {
   private overrideRequireDone = false;
 
   private activatedExtensions = new Map<string, ActivatedExtension>();
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
-  private extensionsStoragePath = '';
-  private pluginsDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins');
-  private pluginsScanDirectory = path.resolve(os.homedir(), '.local/share/podman-desktop/plugins-scanning');
+  private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
+  private reloadInProgressExtensions = new Map<string, boolean>();
+  protected extensionState = new Map<string, string>();
+  protected extensionStateErrors = new Map<string, unknown>();
+
+  protected watchTimeout = 1000;
+
+  // Plugins directory location
+  private pluginsDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'plugins');
+  protected pluginsScanDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'plugins-scanning');
+
+  // Extensions directory location
+  private extensionsStorageDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'extensions-storage');
+
   constructor(
     private commandRegistry: CommandRegistry,
+    private menuRegistry: MenuRegistry,
     private providerRegistry: ProviderRegistry,
     private configurationRegistry: ConfigurationRegistry,
     private imageRegistry: ImageRegistry,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private apiSender: any,
+    private apiSender: ApiSenderType,
     private trayMenuRegistry: TrayMenuRegistry,
-    private dialogs: Dialogs,
+    private messageBox: MessageBox,
     private progress: ProgressImpl,
     private notifications: NotificationImpl,
     private statusBarRegistry: StatusBarRegistry,
@@ -91,7 +118,21 @@ export class ExtensionLoader {
     private proxy: Proxy,
     private containerProviderRegistry: ContainerProviderRegistry,
     private inputQuickPickRegistry: InputQuickPickRegistry,
+    private authenticationProviderRegistry: AuthenticationImpl,
+    private telemetry: Telemetry,
   ) {}
+
+  mapError(err: unknown): ExtensionError | undefined {
+    if (err) {
+      if (err instanceof Error) {
+        return { message: err.message, stack: err.stack };
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return { message: (err as any).toString() };
+      }
+    }
+    return undefined;
+  }
 
   async listExtensions(): Promise<ExtensionInfo[]> {
     return Array.from(this.analyzedExtensions.values()).map(extension => ({
@@ -100,7 +141,8 @@ export class ExtensionLoader {
       description: extension.manifest.description,
       version: extension.manifest.version,
       publisher: extension.manifest.publisher,
-      state: this.activatedExtensions.get(extension.id) ? 'active' : 'inactive',
+      state: this.extensionState.get(extension.id) || 'stopped',
+      error: this.mapError(this.extensionStateErrors.get(extension.id)),
       id: extension.id,
       path: extension.path,
       removable: extension.removable,
@@ -118,14 +160,14 @@ export class ExtensionLoader {
       // if we try to resolve theia module, return the filename entry to use cache.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       module._load = function (request: string, parent: any): any {
-        if (request !== '@tmpwip/extension-api') {
+        if (request !== '@podman-desktop/api') {
           // eslint-disable-next-line prefer-rest-params
           return internalLoad.apply(this, arguments);
         }
         const extension = Array.from(analyzedExtensions.values()).find(extension =>
           path.normalize(parent.filename).startsWith(path.normalize(extension.path)),
         );
-        if (extension && extension.api) {
+        if (extension?.api) {
           return extension.api;
         }
         throw new Error('Unable to find extension API');
@@ -158,21 +200,39 @@ export class ExtensionLoader {
     }
   }
 
-  async start() {
-    // add watcher to the $HOME/podman-desktop
-
+  protected async setupScanningDirectory(): Promise<void> {
     if (fs.existsSync(this.pluginsScanDirectory)) {
       // add watcher
       fs.watch(this.pluginsScanDirectory, (_, filename) => {
         // need to load the file
         const packagedFile = path.resolve(this.pluginsScanDirectory, filename);
-        setTimeout(() => this.loadPackagedFile(packagedFile), 1000);
+        setTimeout(() => {
+          this.loadPackagedFile(packagedFile).catch((error: unknown) => {
+            console.error('Error while loadPackagedFile', error);
+          });
+        }, this.watchTimeout);
       });
-    }
 
-    this.extensionsStoragePath = path.resolve(os.homedir(), '.podman-desktop');
-    if (!fs.existsSync(this.extensionsStoragePath)) {
-      fs.mkdirSync(this.extensionsStoragePath);
+      // scan all files in the directory
+      const entries = await fs.promises.readdir(this.pluginsScanDirectory, { withFileTypes: true });
+      // filter only files
+      const files = entries
+        .filter(entry => entry.isFile())
+        .filter(entry => entry.name.endsWith('.cdix'))
+        .map(file => path.join(this.pluginsScanDirectory, file.name));
+
+      // load all files
+      await Promise.all(files.map(file => this.loadPackagedFile(file)));
+    }
+  }
+
+  async start() {
+    // Scan the plugins-scanning directory
+    await this.setupScanningDirectory();
+
+    // Create the extensions storage directory if it does not exist
+    if (!fs.existsSync(this.extensionsStorageDirectory)) {
+      fs.mkdirSync(this.extensionsStorageDirectory);
     }
 
     let folders;
@@ -184,8 +244,10 @@ export class ExtensionLoader {
       // in development mode, use the extensions locally
       folders = await this.readDevelopmentFolders(path.join(__dirname, '../../../extensions'));
     }
+    const externalExtensions = await this.readExternalFolders();
     // ok now load all extensions from these folders
     await Promise.all(folders.map(folder => this.loadExtension(folder, false)));
+    await Promise.all(externalExtensions.map(folder => this.loadExtension(folder, false)));
 
     // also load extensions from the plugins directory
     if (fs.existsSync(this.pluginsDirectory)) {
@@ -209,6 +271,16 @@ export class ExtensionLoader {
       .map(directory => path + '/' + directory.name);
   }
 
+  async readExternalFolders(): Promise<string[]> {
+    const pathes = [];
+    for (let index = 0; index < process.argv.length; index++) {
+      if (process.argv[index] === EXTENSION_OPTION && index < process.argv.length - 1) {
+        pathes.push(process.argv[++index]);
+      }
+    }
+    return pathes;
+  }
+
   async readProductionFolders(path: string): Promise<string[]> {
     const entries = await fs.promises.readdir(path, { withFileTypes: true });
     return entries
@@ -223,10 +295,8 @@ export class ExtensionLoader {
     // convert to base64
     const base64Content = Buffer.from(imageContent).toString('base64');
 
-    const base64Image = `data:image/png;base64,${base64Content}`;
-
     // create base64 image content
-    return base64Image;
+    return `data:image/png;base64,${base64Content}`;
   }
 
   /**
@@ -250,6 +320,28 @@ export class ExtensionLoader {
         image.dark = this.getBase64Image(path.resolve(rootPath, image.dark));
       }
       return image;
+    }
+  }
+
+  protected async reloadExtension(extension: AnalyzedExtension, removable: boolean): Promise<void> {
+    const inProgress = this.reloadInProgressExtensions.get(extension.id);
+    if (inProgress) {
+      return;
+    }
+
+    console.log(`Extension ${extension.path} has been updated, reloading it`);
+    this.reloadInProgressExtensions.set(extension.id, true);
+
+    // unload the extension
+    await this.deactivateExtension(extension.id);
+
+    // reload the extension
+    try {
+      await this.loadExtension(extension.path, removable);
+    } catch (error) {
+      console.error('error while reloading extension', error);
+    } finally {
+      this.reloadInProgressExtensions.set(extension.id, false);
     }
   }
 
@@ -286,10 +378,46 @@ export class ExtensionLoader {
       this.configurationRegistry.registerConfigurations([extensionConfiguration]);
     }
 
-    this.analyzedExtensions.set(extension.id, extension);
-    const runtime = this.loadRuntime(extension.mainPath);
+    const menus = manifest?.contributes?.menus;
+    if (menus) {
+      this.menuRegistry.registerMenus(menus);
+    }
 
-    await this.activateExtension(extension, runtime);
+    this.analyzedExtensions.set(extension.id, extension);
+    this.extensionState.delete(extension.id);
+    this.extensionStateErrors.delete(extension.id);
+
+    const telemetryOptions = { extensionId: extension.id };
+
+    try {
+      // in development mode, watch if the extension is updated and reload it
+      if (import.meta.env.DEV && !this.watcherExtensions.has(extension.id)) {
+        const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extensionPath);
+        extensionWatcher.onDidChange(async () => {
+          // wait 1 second before trying to reload the extension
+          // this is to avoid reloading the extension while it is still being updated
+          setTimeout(() => {
+            this.reloadExtension(extension, removable).catch((error: unknown) =>
+              console.error('error while reloading extension', error),
+            );
+          }, 1000);
+        });
+        this.watcherExtensions.set(extension.id, extensionWatcher);
+      }
+
+      const runtime = this.loadRuntime(extension);
+
+      await this.activateExtension(extension, runtime);
+    } catch (err) {
+      this.extensionState.set(extension.id, 'failed');
+      this.extensionStateErrors.set(extension.id, err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (telemetryOptions as any).error = err;
+    } finally {
+      this.telemetry.track('loadExtension', telemetryOptions).catch((error: unknown) => {
+        console.error('error while tracking loadExtension telemetry', error);
+      });
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -331,11 +459,20 @@ export class ExtensionLoader {
       onDidUpdateProvider: (listener, thisArg, disposables) => {
         return providerRegistry.onDidUpdateProvider(listener, thisArg, disposables);
       },
+      onDidUpdateContainerConnection: (listener, thisArg, disposables) => {
+        return providerRegistry.onDidUpdateContainerConnection(listener, thisArg, disposables);
+      },
+      onDidUpdateKubernetesConnection: (listener, thisArg, disposables) => {
+        return providerRegistry.onDidUpdateKubernetesConnection(listener, thisArg, disposables);
+      },
       onDidUnregisterContainerConnection: (listener, thisArg, disposables) => {
         return providerRegistry.onDidUnregisterContainerConnection(listener, thisArg, disposables);
       },
       onDidRegisterContainerConnection: (listener, thisArg, disposables) => {
         return providerRegistry.onDidRegisterContainerConnection(listener, thisArg, disposables);
+      },
+      getContainerConnections: () => {
+        return providerRegistry.getContainerConnections();
       },
     };
 
@@ -344,8 +481,8 @@ export class ExtensionLoader {
       getProxySettings(): containerDesktopAPI.ProxySettings | undefined {
         return proxyInstance.proxy;
       },
-      setProxy(proxySettings: containerDesktopAPI.ProxySettings): void {
-        proxyInstance.setProxy(proxySettings);
+      async setProxy(proxySettings: containerDesktopAPI.ProxySettings): Promise<void> {
+        return proxyInstance.setProxy(proxySettings);
       },
       onDidUpdateProxy: (listener, thisArg, disposables) => {
         return proxyInstance.onDidUpdateProxy(listener, thisArg, disposables);
@@ -374,6 +511,9 @@ export class ExtensionLoader {
         scope?: containerDesktopAPI.ConfigurationScope,
       ): containerDesktopAPI.Configuration {
         return configurationRegistry.getConfiguration(section, scope);
+      },
+      onDidChangeConfiguration: (listener, thisArg, disposables) => {
+        return configurationRegistry.onDidChangeConfigurationAPI(listener, thisArg, disposables);
       },
     };
 
@@ -407,19 +547,19 @@ export class ExtensionLoader {
       },
     };
 
-    const dialogs = this.dialogs;
+    const messageBox = this.messageBox;
     const progress = this.progress;
     const notifications = this.notifications;
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
       showInformationMessage: (message: string, ...items: string[]) => {
-        return dialogs.showDialog('info', extManifest.name, message, items);
+        return messageBox.showDialog('info', extManifest.displayName, message, items);
       },
       showWarningMessage: (message: string, ...items: string[]) => {
-        return dialogs.showDialog('warning', extManifest.name, message, items);
+        return messageBox.showDialog('warning', extManifest.displayName, message, items);
       },
       showErrorMessage: (message: string, ...items: string[]) => {
-        return dialogs.showDialog('error', extManifest.name, message, items);
+        return messageBox.showDialog('error', extManifest.displayName, message, items);
       },
 
       showInputBox: (options?: containerDesktopAPI.InputBoxOptions, token?: containerDesktopAPI.CancellationToken) => {
@@ -490,6 +630,9 @@ export class ExtensionLoader {
       onDidUpdateKubeconfig: (listener, thisArg, disposables) => {
         return kubernetesClient.onDidUpdateKubeconfig(listener, thisArg, disposables);
       },
+      async createResources(context, manifests): Promise<void> {
+        return kubernetesClient.createResources(context, manifests);
+      },
     };
 
     const containerProviderRegistry = this.containerProviderRegistry;
@@ -500,8 +643,80 @@ export class ExtensionLoader {
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);
       },
+      startContainer(engineId: string, id: string) {
+        return containerProviderRegistry.startContainer(engineId, id);
+      },
+      stopContainer(engineId: string, id: string) {
+        return containerProviderRegistry.stopContainer(engineId, id);
+      },
+      saveImage(engineId: string, id: string, filename: string) {
+        return containerProviderRegistry.saveImage(engineId, id, filename);
+      },
       onEvent: (listener, thisArg, disposables) => {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
+      },
+    };
+
+    const authenticationProviderRegistry = this.authenticationProviderRegistry;
+    const extensionInfo = {
+      id: `${extManifest.publisher}.${extManifest.name}`,
+      label: extManifest.displayName,
+      version: extManifest.version,
+      publisher: extManifest.publisher,
+      name: extManifest.name,
+    };
+    const authentication: typeof containerDesktopAPI.authentication = {
+      getSession: (providerId, scopes, options) => {
+        return authenticationProviderRegistry.getSession(extensionInfo, providerId, scopes, options);
+      },
+      registerAuthenticationProvider: (id, label, provider, options) => {
+        // update path of images using the extension path
+        if (options?.images) {
+          const images = options.images;
+          instance.updateImage.bind(instance);
+          images.icon = instance.updateImage(images.icon, extensionPath);
+          images.logo = instance.updateImage(images.logo, extensionPath);
+        }
+        return authenticationProviderRegistry.registerAuthenticationProvider(id, label, provider, options);
+      },
+      onDidChangeSessions: (listener, thisArg, disposables) => {
+        return authenticationProviderRegistry.onDidChangeSessions(listener, thisArg, disposables);
+      },
+    };
+
+    const telemetry = this.telemetry;
+    const env: typeof containerDesktopAPI.env = {
+      openExternal: async (uri: containerDesktopAPI.Uri): Promise<boolean> => {
+        const url = uri.toString();
+        try {
+          const result = await securityRestrictionCurrentHandler.handler?.(url);
+          return result || false;
+        } catch (error) {
+          console.error(`Unable to open external link  ${uri.toString()} from extension ${extensionInfo.id}`, error);
+          return false;
+        }
+      },
+      createTelemetryLogger: (
+        sender?: containerDesktopAPI.TelemetrySender,
+        options?: containerDesktopAPI.TelemetryLoggerOptions,
+      ) => {
+        return telemetry.createTelemetryLogger(extensionInfo, sender, options);
+      },
+      get isTelemetryEnabled() {
+        return telemetry.isTelemetryEnabled();
+      },
+      onDidChangeTelemetryEnabled: (listener, thisArg, disposables) => {
+        return telemetry.onDidChangeTelemetryEnabled(listener, thisArg, disposables);
+      },
+      get clipboard(): containerDesktopAPI.Clipboard {
+        return {
+          readText: async () => {
+            return electronClipboard.readText();
+          },
+          writeText: async value => {
+            return electronClipboard.writeText(value);
+          },
+        };
       },
     };
 
@@ -509,7 +724,11 @@ export class ExtensionLoader {
       // Types
       Disposable: Disposable,
       Uri: Uri,
+      EventEmitter: Emitter,
+      CancellationTokenSource: CancellationTokenSource,
+      TelemetryTrustedValue: TelemetryTrustedValue,
       commands,
+      env,
       registry,
       provider,
       fs,
@@ -525,10 +744,11 @@ export class ExtensionLoader {
       StatusBarAlignRight,
       InputBoxValidationSeverity,
       QuickPickItemKind,
+      authentication,
     };
   }
 
-  loadRuntime(extensionPathFolder: string): NodeRequire {
+  loadRuntime(extension: AnalyzedExtension): NodeRequire {
     // cleaning the cache for all files of that plug-in.
     Object.keys(require.cache).forEach(function (key): void {
       const mod: NodeJS.Module | undefined = require.cache[key];
@@ -543,7 +763,7 @@ export class ExtensionLoader {
       while (i--) {
         const childMod: NodeJS.Module | undefined = mod?.children[i];
         // ensure the child module is not null, is in the plug-in folder, and is not a native module (see above)
-        if (childMod && childMod.id.startsWith(extensionPathFolder) && !childMod.id.endsWith('.node')) {
+        if (childMod?.id.startsWith(extension.path) && !childMod.id.endsWith('.node')) {
           // cleanup exports - note that some modules (e.g. ansi-styles) define their
           // exports in an immutable manner, so overwriting the exports throws an error
           delete childMod.exports;
@@ -554,8 +774,8 @@ export class ExtensionLoader {
         }
       }
 
-      if (key.startsWith(extensionPathFolder)) {
-        // delete entry
+      if (key.startsWith(extension.path)) {
+        // delete the entry
         delete require.cache[key];
         const ix = mod?.parent?.children.indexOf(mod) || 0;
         if (ix >= 0) {
@@ -563,7 +783,7 @@ export class ExtensionLoader {
         }
       }
     });
-    return require(extensionPathFolder);
+    return require(extension.mainPath);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -582,45 +802,97 @@ export class ExtensionLoader {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
+    this.extensionState.set(extension.id, 'starting');
+    this.extensionStateErrors.delete(extension.id);
+    this.apiSender.send('extension-starting', {});
+
     const subscriptions: containerDesktopAPI.Disposable[] = [];
 
     const extensionContext: containerDesktopAPI.ExtensionContext = {
       subscriptions,
-      storagePath: path.resolve(this.extensionsStoragePath, extension.id),
+      storagePath: path.resolve(this.extensionsStorageDirectory, extension.id),
     };
     let deactivateFunction = undefined;
     if (typeof extensionMain['deactivate'] === 'function') {
       deactivateFunction = extensionMain['deactivate'];
     }
-    if (typeof extensionMain['activate'] === 'function') {
-      // return exports
-      console.log(`Activating extension (${extension.id})`);
-      await extensionMain['activate'].apply(undefined, [extensionContext]);
-      console.log(`Activation extension (${extension.id}) ended`);
+
+    const telemetryOptions = { extensionId: extension.id };
+    try {
+      if (typeof extensionMain['activate'] === 'function') {
+        // it returns exports
+        console.log(`Activating extension (${extension.id})`);
+        await extensionMain['activate'].apply(undefined, [extensionContext]);
+        console.log(`Activation extension (${extension.id}) ended`);
+      }
+      const id = extension.id;
+      const activatedExtension: ActivatedExtension = {
+        id,
+        deactivateFunction,
+        extensionContext,
+      };
+      this.activatedExtensions.set(extension.id, activatedExtension);
+      this.extensionState.set(extension.id, 'started');
+      this.apiSender.send('extension-started');
+    } catch (err) {
+      console.log(`Activation extension ${extension.id} failed error:${err}`);
+      this.extensionState.set(extension.id, 'failed');
+      this.extensionStateErrors.set(extension.id, err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (telemetryOptions as any).error = err;
+    } finally {
+      this.telemetry
+        .track('activateExtension', telemetryOptions)
+        .catch((error: unknown) => console.log(`Failed to track activateExtension telemetry event. Error: ${error}`));
     }
-    const id = extension.id;
-    const activatedExtension: ActivatedExtension = {
-      id,
-      deactivateFunction,
-      extensionContext,
-    };
-    this.activatedExtensions.set(extension.id, activatedExtension);
   }
 
   async deactivateExtension(extensionId: string): Promise<void> {
     const extension = this.activatedExtensions.get(extensionId);
-    if (extension) {
-      if (extension.deactivateFunction) {
-        await extension.deactivateFunction();
-      }
-
-      // dispose subscriptions
-      extension.extensionContext.subscriptions.forEach(subscription => {
-        subscription.dispose();
-      });
-
-      this.activatedExtensions.delete(extensionId);
+    if (!extension) {
+      return;
     }
+
+    const telemetryOptions = { extensionId: extension.id };
+
+    this.extensionState.set(extension.id, 'stopping');
+    this.apiSender.send('extension-stopping');
+
+    if (extension.deactivateFunction) {
+      try {
+        await extension.deactivateFunction();
+      } catch (err) {
+        console.log(`Deactivation extension ${extension.id} failed error:${err}`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (telemetryOptions as any).error = err;
+      }
+    }
+
+    const watcher = this.watcherExtensions.get(extensionId);
+    watcher?.dispose();
+
+    // dispose subscriptions
+    for (const subscription of extension.extensionContext.subscriptions) {
+      await subscription.dispose();
+    }
+
+    const analyzedExtension = this.analyzedExtensions.get(extensionId);
+    if (analyzedExtension) {
+      const extensionConfiguration = analyzedExtension.manifest?.contributes?.configuration;
+      if (extensionConfiguration) {
+        this.configurationRegistry.deregisterConfigurations([extensionConfiguration]);
+      }
+      const menus = analyzedExtension.manifest?.contributes?.menus;
+      if (menus) {
+        this.menuRegistry.unregisterMenus(menus);
+      }
+    }
+    this.activatedExtensions.delete(extensionId);
+    this.extensionState.set(extension.id, 'stopped');
+    this.apiSender.send('extension-stopped');
+    this.telemetry
+      .track('deactivateExtension', telemetryOptions)
+      .catch((error: unknown) => console.log(`Failed to track deactivateExtension telemetry event. Error: ${error}`));
   }
 
   async stopAllExtensions(): Promise<void> {
@@ -647,7 +919,7 @@ export class ExtensionLoader {
         throw new Error(`Extension ${extensionId} is not removable`);
       }
       this.analyzedExtensions.delete(extensionId);
-      this.apiSender.send('extension-removed', {});
+      this.apiSender.send('extension-removed');
     }
   }
 

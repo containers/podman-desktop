@@ -13,48 +13,48 @@ import TabItem from '@theme/TabItem';
 
 Consider using the `DOCKER_HOST` environment variable to migrate transparently from Docker to Podman Desktop on all platforms.
 
-* Continue using familiar Docker commands.
-* Take advantage of the benefits of Podman.
-* Your tools, such as [Gradle](https://gradle.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
+- Continue using familiar Docker commands.
+- Take advantage of the benefits of Podman.
+- Your tools, such as [Gradle](https://gradle.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
 
 #### Prerequisites
 
-* Podman
+- Podman
 
 #### Procedure
 
 1. Identify the location of your Podman socket
 
-    <Tabs groupId="operating-systems">
-      <TabItem value="win" label="Windows">
+   <Tabs groupId="operating-systems">
+     <TabItem value="win" label="Windows">
 
-      ```shell-session
-      $ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
-      ```
+   ```shell-session
+   $ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
+   ```
 
-      </TabItem>
-      <TabItem value="mac" label="macOS">
+     </TabItem>
+     <TabItem value="mac" label="macOS">
 
-      ```shell-session
-      $ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
-      ```
+   ```shell-session
+   $ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
+   ```
 
-      </TabItem>
-      <TabItem value="linux" label="Linux">
+     </TabItem>
+     <TabItem value="linux" label="Linux">
 
-      ```shell-session
-      $ podman info --format '{{.Host.RemoteSocket.Path}}'
-      ```
+   ```shell-session
+   $ podman info --format '{{.Host.RemoteSocket.Path}}'
+   ```
 
-      </TabItem>
-    </Tabs>
+     </TabItem>
+   </Tabs>
 
-2. Set the `DOCKER_HOST` environment variable to your Podman socker location:
+2. Set the `DOCKER_HOST` environment variable to your Podman socket location:
 
-    ```shell-session
-    $ export DOCKER_HOST=<your_podman_socket_location>
-    ```
+   ```shell-session
+   $ export DOCKER_HOST=<your_podman_socket_location>
+   ```
 
 #### Verification
 
-* Your tools using the `DOCKER_HOST` environment variable, such as [Gradle](https://gradle.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
+- Your tools using the `DOCKER_HOST` environment variable, such as [Gradle](https://gradle.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.

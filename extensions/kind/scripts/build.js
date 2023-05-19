@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@
 
 const zipper = require('zip-local');
 const path = require('path');
-const package = require('../package.json');
+const packageJson = require('../package.json');
 const fs = require('fs');
+const { mkdirp } = require('mkdirp');
 
-const destFile = path.resolve(__dirname, `../${package.name}.cdix`);
+const destFile = path.resolve(__dirname, `../${packageJson.name}.cdix`);
 const builtinDirectory = path.resolve(__dirname, '../builtin');
+const unzippedDirectory = path.resolve(builtinDirectory, `${packageJson.name}.cdix`);
 // remove the .cdix file before zipping
 if (fs.existsSync(destFile)) {
   fs.rmSync(destFile);
@@ -34,3 +36,7 @@ if (fs.existsSync(builtinDirectory)) {
 }
 
 zipper.sync.zip(path.resolve(__dirname, '../')).compress().save(destFile);
+
+mkdirp(unzippedDirectory).then(() => {
+  zipper.sync.unzip(destFile).save(unzippedDirectory);
+});

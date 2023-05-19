@@ -10,21 +10,21 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 #### Prerequisites
 
-* [Chocolatey package manager](https://chocolatey.org/install)
+- [Chocolatey package manager](https://chocolatey.org/install)
 
 #### Procedure
 
-* Run the command from the command line or from PowerShell:
+- Run the command from the command line or from PowerShell:
 
-    ```sh
-    choco install podman-desktop
-    ```
+  ```sh
+  choco install podman-desktop
+  ```
 
 #### Additional resources
 
-* [Podman Desktop Chocolatey package](https://community.chocolatey.org/packages/podman-desktop)
+- [Podman Desktop Chocolatey package](https://community.chocolatey.org/packages/podman-desktop)
 
 #### Next steps
 
-* [Installing Podman](installing-podman-with-podman-desktop)
-* [Getting Started with Podman Desktop](/docs/getting-started/getting-started)
+- [Installing Podman](installing-podman-with-podman-desktop)
+- [Getting Started with Podman Desktop](/docs/getting-started/getting-started)

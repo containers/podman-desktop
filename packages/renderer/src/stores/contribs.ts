@@ -28,13 +28,15 @@ export async function fetchContributions() {
 export const contributions: Writable<readonly ContributionInfo[]> = writable([]);
 
 // need to refresh when new registry are updated/deleted
-window.events?.receive('contribution-register', () => {
-  fetchContributions();
+window.events?.receive('contribution-register', async () => {
+  await fetchContributions();
 });
 
-window.events?.receive('contribution-unregister', () => {
-  fetchContributions();
+window.events?.receive('contribution-unregister', async () => {
+  await fetchContributions();
 });
 window.addEventListener('system-ready', () => {
-  fetchContributions();
+  fetchContributions().catch((error: unknown) => {
+    console.error('Failed to fetch contributions', error);
+  });
 });

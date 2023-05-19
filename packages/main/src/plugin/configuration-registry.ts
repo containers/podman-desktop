@@ -19,14 +19,15 @@
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { ConfigurationImpl } from './configuration-impl';
 import type { Event } from './events/emitter';
 import { Emitter } from './events/emitter';
-
-export const CONFIGURATION_DEFAULT_SCOPE = 'DEFAULT';
+import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants';
+import { desktopAppHomeDir } from '../util';
 
 export type IConfigurationPropertySchemaType =
+  | 'markdown'
   | 'string'
   | 'number'
   | 'integer'
@@ -54,8 +55,9 @@ export interface IConfigurationPropertySchema {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default?: any;
   description?: string;
+  markdownDescription?: string;
   minimum?: number;
-  maximum?: number;
+  maximum?: number | string;
   format?: string;
   scope?: ConfigurationScope;
   readonly?: boolean;
@@ -103,6 +105,10 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   private readonly _onDidChangeConfiguration = new Emitter<IConfigurationChangeEvent>();
   readonly onDidChangeConfiguration: Event<IConfigurationChangeEvent> = this._onDidChangeConfiguration.event;
 
+  private readonly _onDidChangeConfigurationAPI = new Emitter<containerDesktopAPI.ConfigurationChangeEvent>();
+  readonly onDidChangeConfigurationAPI: Event<containerDesktopAPI.ConfigurationChangeEvent> =
+    this._onDidChangeConfigurationAPI.event;
+
   // Contains the value of the current configuration
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private configurationValues: Map<string, any>;
@@ -115,7 +121,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   }
 
   protected getSettingsFile(): string {
-    const configurationDirectory = path.resolve(os.homedir(), '.local/share/containers/podman-desktop/configuration');
+    const configurationDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'configuration');
     // create directory if it does not exist
     return path.resolve(configurationDirectory, 'settings.json');
   }
@@ -224,6 +230,14 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     }
     const event = { key, value, scope };
     this._onDidChangeConfiguration.fire(event);
+
+    const affectsConfiguration = function (affectedSection: string, affectedScope?: ConfigurationScope): boolean {
+      if (affectedScope && affectedScope !== scope) {
+        return false;
+      }
+      return key.startsWith(affectedSection);
+    };
+    this._onDidChangeConfigurationAPI.fire({ affectsConfiguration });
     return promise;
   }
 
@@ -232,6 +246,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     // for each key being already the default value, remove the entry
     Object.keys(cloneConfig)
       .filter(key => cloneConfig[key] === this.configurationProperties[key]?.default)
+      .filter(key => this.configurationProperties[key]?.type !== 'markdown')
       .forEach(key => {
         delete cloneConfig[key];
       });

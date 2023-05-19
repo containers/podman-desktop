@@ -1,6 +1,6 @@
 # Default Owners
-* @cdrage @jeffmaury @lstocchi @vzhukovs @benoitf
+* @containers/podman-desktop-reviewers @benoitf
 
 # website
-website/** @cdrage @jeffmaury @lstocchi @slemeur @themr0c @vzhukovs @benoitf
+website/** @containers/podman-desktop-reviewers @slemeur @themr0c @benoitf
 

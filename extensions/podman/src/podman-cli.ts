@@ -17,8 +17,8 @@
  ***********************************************************************/
 import { spawn } from 'node:child_process';
 import { isMac, isWindows } from './util';
-import type { Logger } from '@tmpwip/extension-api';
-import { configuration } from '@tmpwip/extension-api';
+import type { CancellationToken, Logger } from '@podman-desktop/api';
+import { configuration } from '@podman-desktop/api';
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
@@ -58,10 +58,15 @@ export function getCustomBinaryPath(): string | undefined {
 
 export interface ExecOptions {
   logger?: Logger;
-  env?: NodeJS.ProcessEnv | undefined;
+  env?: NodeJS.ProcessEnv;
 }
 
-export function execPromise(command: string, args?: string[], options?: ExecOptions): Promise<string> {
+export function execPromise(
+  command: string,
+  args?: string[],
+  options?: ExecOptions,
+  token?: CancellationToken,
+): Promise<string> {
   let env = Object.assign({}, process.env); // clone original env object
 
   // In production mode, applications don't have access to the 'user' path like brew
@@ -80,6 +85,13 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
     let stdOut = '';
     let stdErr = '';
     const process = spawn(command, args, { env });
+    // if the token is cancelled, kill the process and reject the promise
+    token?.onCancellationRequested(() => {
+      process.kill();
+      // reject the promise
+      options?.logger?.error('Execution cancelled');
+      reject(new Error('Execution cancelled'));
+    });
     process.on('error', error => {
       let content = '';
       if (stdOut && stdOut !== '') {
@@ -88,7 +100,8 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
       if (stdErr && stdErr !== '') {
         content += stdErr + '\n';
       }
-      reject(content + error);
+      options?.logger?.error(content);
+      reject(new Error(content + error));
     });
     process.stdout.setEncoding('utf8');
     process.stdout.on('data', data => {
@@ -98,20 +111,13 @@ export function execPromise(command: string, args?: string[], options?: ExecOpti
     process.stderr.setEncoding('utf8');
     process.stderr.on('data', data => {
       stdErr += data;
-      options?.logger?.error(data);
+      options?.logger?.warn(data);
     });
 
     process.on('close', exitCode => {
-      let content = '';
-      if (stdOut && stdOut !== '') {
-        content += stdOut + '\n';
-      }
-      if (stdErr && stdErr !== '') {
-        content += stdErr + '\n';
-      }
-
       if (exitCode !== 0) {
-        reject(content);
+        options?.logger?.error(stdErr);
+        reject(new Error(stdErr));
       }
       resolve(stdOut.trim());
     });

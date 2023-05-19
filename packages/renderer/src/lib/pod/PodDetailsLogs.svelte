@@ -1,5 +1,4 @@
 <script lang="ts">
-import { router } from 'tinro';
 import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
@@ -15,16 +14,25 @@ export let pod: PodInfoUI;
 
 // Log
 let logsXtermDiv: HTMLDivElement;
-
+let refPod;
 // Logs has been initialized
 let noLogs = true;
 let logsTerminal: Terminal;
+
+// need to refresh logs when pod is switched or state changes
+$: {
+  if (refPod && (refPod.id !== pod.id || (refPod.status != pod.status && pod.status !== 'EXITED'))) {
+    logsTerminal?.clear();
+    fetchPodLogs();
+  }
+  refPod = pod;
+}
 
 // Terminal resize
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
 let currentRouterPath: string;
-let logsRouterPath: string = `/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
+let logsRouterPath: string = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
 
 // An array of readable ANSI escape sequence colours against a black terminal background
 // these are the most "readable" colours against a black background
@@ -102,7 +110,11 @@ async function fetchPodLogs() {
     };
 
     // Get the logs for the container
-    await window.logsContainer(pod.engineId, container.Id, logsCallback);
+    if (pod.kind === 'podman') {
+      await window.logsContainer(pod.engineId, container.Id, logsCallback);
+    } else {
+      await window.kubernetesReadPodLog(pod.name, container.Names, logsCallback);
+    }
   });
 }
 
@@ -166,18 +178,12 @@ onDestroy(() => {
 });
 </script>
 
-<EmptyScreen
-  icon="{NoLogIcon}"
-  title="No Log"
-  message="Log output of Pod {pod.name}"
-  hidden="{noLogs === false}"
-  style="background-color: {getPanelDetailColor()}" />
+<EmptyScreen icon="{NoLogIcon}" title="No Log" message="Log output of Pod {pod.name}" hidden="{noLogs === false}" />
 
 <div
   class="min-w-full flex flex-col"
   class:invisible="{noLogs === true}"
   class:h-0="{noLogs === true}"
   class:h-full="{noLogs === false}"
-  style="background-color: {getPanelDetailColor()}"
   bind:this="{logsXtermDiv}">
 </div>

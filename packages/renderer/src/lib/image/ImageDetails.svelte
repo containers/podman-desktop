@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { ImageInfoUI } from './ImageInfoUI';
-import { Route } from 'tinro';
+import Route from '../../Route.svelte';
 import { onMount } from 'svelte';
 import { imagesInfos } from '../../stores/images';
 import ImageIcon from '../images/ImageIcon.svelte';
@@ -11,6 +11,7 @@ import ImageDetailsInspect from './ImageDetailsInspect.svelte';
 import ImageDetailsHistory from './ImageDetailsHistory.svelte';
 import ImageDetailsSummary from './ImageDetailsSummary.svelte';
 import PushImageModal from './PushImageModal.svelte';
+import DetailsTab from '../ui/DetailsTab.svelte';
 
 export let imageID: string;
 export let engineId: string;
@@ -43,7 +44,7 @@ onMount(() => {
 </script>
 
 {#if image}
-  <Route path="/*" let:meta>
+  <Route path="/*">
     <div class="w-full h-full">
       <div class="flex h-full flex-col">
         <div class="flex w-full flex-row">
@@ -51,8 +52,8 @@ onMount(() => {
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/images" title="Go back to images list"
                 >Images</a>
-              <div class="text-xl mx-2 text-gray-400">></div>
-              <div class="text-sm font-extralight text-gray-400">Image Details</div>
+              <div class="text-xl mx-2 text-gray-700">></div>
+              <div class="text-sm font-extralight text-gray-700">Image Details</div>
             </div>
             <div class="flex flex-row items-start pt-1">
               <div class="pr-3 pt-1">
@@ -63,7 +64,7 @@ onMount(() => {
                   <div class="mr-2">{image.name}</div>
                   <div class="text-base text-violet-400">{image.shortId}</div>
                 </div>
-                <div class="mr-2 pb-4 text-small text-gray-500">{image.tag}</div>
+                <div class="mr-2 pb-4 text-small text-gray-900">{image.tag}</div>
               </div>
             </div>
 
@@ -71,49 +72,15 @@ onMount(() => {
               <div class="pf-c-page__main-body">
                 <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
                   <ul class="pf-c-tabs__list">
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url ===
-                        `/images/${image.id}/${encodeURI(image.engineId)}/${image.base64RepoTag}/summary`}">
-                      <a
-                        href="/images/{image.id}/{image.engineId}/{image.base64RepoTag}/summary"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-details-panel"
-                        id="open-tabs-example-tabs-list-details-link">
-                        <span class="pf-c-tabs__item-text">Summary</span>
-                      </a>
-                    </li>
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url ===
-                        `/images/${image.id}/${encodeURI(image.engineId)}/${image.base64RepoTag}/history`}">
-                      <a
-                        href="/images/{image.id}/{image.engineId}/{image.base64RepoTag}/history"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-details-panel"
-                        id="open-tabs-example-tabs-list-details-link">
-                        <span class="pf-c-tabs__item-text">History</span>
-                      </a>
-                    </li>
-
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url ===
-                        `/images/${image.id}/${encodeURI(image.engineId)}/${image.base64RepoTag}/inspect`}">
-                      <a
-                        href="/images/{image.id}/{image.engineId}/{image.base64RepoTag}/inspect"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-yaml-panel"
-                        id="open-tabs-example-tabs-list-yaml-link">
-                        <span class="pf-c-tabs__item-text">Inspect</span>
-                      </a>
-                    </li>
+                    <DetailsTab title="Summary" url="summary" />
+                    <DetailsTab title="History" url="history" />
+                    <DetailsTab title="Inspect" url="inspect" />
                   </ul>
                 </div>
               </div>
             </section>
           </div>
-          <div class="flex flex-col w-full px-5 pt-5">
+          <div class="flex flex-col px-5 pt-5">
             <div class="flex justify-end">
               <ImageActions
                 image="{image}"
@@ -122,18 +89,20 @@ onMount(() => {
                 dropdownMenu="{false}" />
             </div>
           </div>
-          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
+          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/history">
-          <ImageDetailsHistory image="{image}" />
-        </Route>
-        <Route path="/inspect">
-          <ImageDetailsInspect image="{image}" />
-        </Route>
-        <Route path="/summary">
-          <ImageDetailsSummary image="{image}" />
-        </Route>
+        <div class="h-full bg-charcoal-900">
+          <Route path="/history" breadcrumb="History">
+            <ImageDetailsHistory image="{image}" />
+          </Route>
+          <Route path="/inspect" breadcrumb="Inspect">
+            <ImageDetailsInspect image="{image}" />
+          </Route>
+          <Route path="/summary" breadcrumb="Summary">
+            <ImageDetailsSummary image="{image}" />
+          </Route>
+        </div>
       </div>
     </div>
   </Route>

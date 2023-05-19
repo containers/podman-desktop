@@ -16,18 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@tmpwip/extension-api';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as os from 'node:os';
-import { runCliCommand, detectKind } from './util';
+import * as extensionApi from '@podman-desktop/api';
+import { detectKind, getKindPath, runCliCommand } from './util';
+import { KindInstaller } from './kind-installer';
+import type { CancellationToken, Logger } from '@podman-desktop/api';
+import { window } from '@podman-desktop/api';
+import { ImageHandler } from './image-handler';
+import { createCluster } from './create-cluster';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 
-interface KindCluster {
+const KIND_INSTALL_COMMAND = 'kind.install';
+
+const KIND_MOVE_IMAGE_COMMAND = 'kind.image.move';
+
+export interface KindCluster {
   name: string;
   status: extensionApi.ProviderConnectionStatus;
   apiPort: number;
+  engineType: 'podman' | 'docker';
 }
 
 let kindClusters: KindCluster[] = [];
@@ -36,89 +43,31 @@ const registeredKubernetesConnections: {
   disposable: extensionApi.Disposable;
 }[] = [];
 
-function registerProvider(extensionContext: extensionApi.ExtensionContext, provider: extensionApi.Provider): void {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const createFunction = async (params: { [key: string]: any }, logger: extensionApi.Logger): Promise<void> => {
-    let clusterName = 'kind';
-    if (params['kind.cluster.creation.name']) {
-      clusterName = params['kind.cluster.creation.name'];
-    }
+let kindCli: string | undefined;
 
-    // grab provider
-    let provider = 'docker';
-    if (params['kind.cluster.creation.provider']) {
-      provider = params['kind.cluster.creation.provider'];
-    }
+const imageHandler = new ImageHandler();
 
-    const env = Object.assign({}, process.env);
-    // add KIND_EXPERIMENTAL_PROVIDER env variable if needed
-    if (provider === 'podman') {
-      env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
-    }
-
-    // grab http host port
-    let httpHostPort = 9090;
-    if (params['kind.cluster.creation.http.port']) {
-      httpHostPort = params['kind.cluster.creation.http.port'];
-    }
-
-    // grab https host port
-    let httpsHostPort = 9443;
-    if (params['kind.cluster.creation.https.port']) {
-      httpsHostPort = params['kind.cluster.creation.https.port'];
-    }
-
-    // create the config file
-    const kindClusterConfig = `kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-name: ${clusterName}
-nodes:
-- role: control-plane
-  kubeadmConfigPatches:
-  - |
-    kind: InitConfiguration
-    nodeRegistration:
-      kubeletExtraArgs:
-        node-labels: "ingress-ready=true"
-  extraPortMappings:
-  - containerPort: 80
-    hostPort: ${httpHostPort}
-    protocol: TCP
-  - containerPort: 443
-    hostPort: ${httpsHostPort}
-    protocol: TCP
-`;
-
-    // create a temporary file
-    const tmpDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'kind-cluster-config-'));
-
-    // path to the file inside this directory
-    const tmpFilePath = path.join(tmpDirectory, 'kind-cluster-config.yaml');
-
-    // ok we need to write the file
-    await fs.promises.writeFile(tmpFilePath, kindClusterConfig, 'utf8');
-
-    // now execute the command to create the cluster
-    const result = await runCliCommand('kind', ['create', 'cluster', '--config', tmpFilePath], { env, logger });
-
-    // delete temporary directory/file
-    await fs.promises.rm(tmpDirectory, { recursive: true });
-
-    if (result.exitCode !== 0) {
-      throw new Error(`Failed to create kind cluster. ${result.error}`);
-    }
-  };
-
+async function registerProvider(
+  extensionContext: extensionApi.ExtensionContext,
+  provider: extensionApi.Provider,
+  telemetryLogger: extensionApi.TelemetryLogger,
+): Promise<void> {
   const disposable = provider.setKubernetesProviderConnectionFactory({
-    create: createFunction,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) =>
+      createCluster(params, logger, kindCli, telemetryLogger, token),
+    creationDisplayName: 'Kind cluster',
   });
   extensionContext.subscriptions.push(disposable);
+
+  // search
+  await searchKindClusters(provider);
   console.log('kind extension is active');
 }
 
 // search for clusters
 async function updateClusters(provider: extensionApi.Provider, containers: extensionApi.ContainerInfo[]) {
-  kindClusters = containers.map(container => {
+  const kindContainers = containers.map(container => {
     const clusterName = container.Labels['io.x-k8s.kind.cluster'];
     const clusterStatus = container.State;
 
@@ -137,15 +86,49 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
       name: clusterName,
       status,
       apiPort: listeningPort?.PublicPort || 0,
+      engineType: container.engineType,
+      engineId: container.engineId,
+      id: container.Id,
+    };
+  });
+  kindClusters = kindContainers.map(container => {
+    return {
+      name: container.name,
+      status: container.status,
+      apiPort: container.apiPort,
+      engineType: container.engineType,
     };
   });
 
-  kindClusters.forEach(cluster => {
+  kindContainers.forEach(cluster => {
     const item = registeredKubernetesConnections.find(item => item.connection.name === cluster.name);
     const status = () => {
       return cluster.status;
     };
     if (!item) {
+      const lifecycle: extensionApi.ProviderConnectionLifecycle = {
+        start: async (): Promise<void> => {
+          try {
+            // start the container
+            await extensionApi.containerEngine.startContainer(cluster.engineId, cluster.id);
+          } catch (err) {
+            console.error(err);
+            // propagate the error
+            throw err;
+          }
+        },
+        stop: async (): Promise<void> => {
+          await extensionApi.containerEngine.stopContainer(cluster.engineId, cluster.id);
+        },
+        delete: async (logger): Promise<void> => {
+          const env = Object.assign({}, process.env);
+          if (cluster.engineType === 'podman') {
+            env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
+          }
+          env.PATH = getKindPath();
+          await runCliCommand(kindCli, ['delete', 'cluster', '--name', cluster.name], { env, logger });
+        },
+      };
       // create a new connection
       const connection: extensionApi.KubernetesProviderConnection = {
         name: cluster.name,
@@ -153,6 +136,7 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
         endpoint: {
           apiURL: `https://localhost:${cluster.apiPort}`,
         },
+        lifecycle,
       };
       const disposable = provider.registerKubernetesProviderConnection(connection);
 
@@ -169,28 +153,38 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
     if (!cluster) {
       // remove the connection
       item.disposable.dispose();
+
+      // remove the item frm the list
+      const index = registeredKubernetesConnections.indexOf(item);
+      if (index > -1) {
+        registeredKubernetesConnections.splice(index, 1);
+      }
     }
   });
 }
 
-async function searchKindClusters(provider: extensionApi.Provider) {
+async function searchKindClusters(provider: extensionApi.Provider): Promise<void> {
   const allContainers = await extensionApi.containerEngine.listContainers();
 
   // search all containers with io.x-k8s.kind.cluster label
   const kindContainers = allContainers.filter(container => {
     return container.Labels?.['io.x-k8s.kind.cluster'];
   });
-
-  updateClusters(provider, kindContainers);
+  await updateClusters(provider, kindContainers);
 }
 
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const foundKind = await detectKind();
-  if (!foundKind) {
-    console.log('kind binary was not found in the path, not activating the extension');
-    return;
-  }
+export function refreshKindClustersOnProviderConnectionUpdate(provider: extensionApi.Provider) {
+  // when a provider is changing, update the status
+  extensionApi.provider.onDidUpdateContainerConnection(async () => {
+    // needs to search for kind clusters
+    await searchKindClusters(provider);
+  });
+}
 
+async function createProvider(
+  extensionContext: extensionApi.ExtensionContext,
+  telemetryLogger: extensionApi.TelemetryLogger,
+): Promise<void> {
   const provider = extensionApi.provider.createProvider({
     name: 'Kind',
     id: 'kind',
@@ -204,24 +198,68 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   });
   extensionContext.subscriptions.push(provider);
-
-  registerProvider(extensionContext, provider);
+  await registerProvider(extensionContext, provider, telemetryLogger);
+  extensionContext.subscriptions.push(
+    extensionApi.commands.registerCommand(KIND_MOVE_IMAGE_COMMAND, async image => {
+      telemetryLogger.logUsage('moveImage');
+      await imageHandler.moveImage(image, kindClusters, kindCli);
+    }),
+  );
 
   // when containers are refreshed, update
   extensionApi.containerEngine.onEvent(async event => {
     if (event.Type === 'container') {
       // needs to search for kind clusters
-      searchKindClusters(provider);
+      await searchKindClusters(provider);
     }
   });
 
+  // when a container provider connection is changing, search for kind clusters
+  refreshKindClustersOnProviderConnectionUpdate(provider);
+
   // search when a new container is updated or removed
-  extensionApi.provider.onDidRegisterContainerConnection(() => {
-    searchKindClusters(provider);
+  extensionApi.provider.onDidRegisterContainerConnection(async () => {
+    await searchKindClusters(provider);
   });
-  extensionApi.provider.onDidUnregisterContainerConnection(() => {
-    searchKindClusters(provider);
+  extensionApi.provider.onDidUnregisterContainerConnection(async () => {
+    await searchKindClusters(provider);
   });
+  extensionApi.provider.onDidUpdateProvider(async () => registerProvider(extensionContext, provider, telemetryLogger));
+  // search for kind clusters on boot
+  await searchKindClusters(provider);
+}
+
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  const telemetryLogger = extensionApi.env.createTelemetryLogger();
+  const installer = new KindInstaller(extensionContext.storagePath, telemetryLogger);
+  kindCli = await detectKind(extensionContext.storagePath, installer);
+
+  if (!kindCli) {
+    if (await installer.isAvailable()) {
+      const statusBarItem = extensionApi.window.createStatusBarItem();
+      statusBarItem.text = 'Kind';
+      statusBarItem.tooltip = 'Kind not found on your system, click to download and install it';
+      statusBarItem.command = KIND_INSTALL_COMMAND;
+      statusBarItem.iconClass = 'fa fa-exclamation-triangle';
+      extensionContext.subscriptions.push(
+        extensionApi.commands.registerCommand(KIND_INSTALL_COMMAND, () =>
+          installer.performInstall().then(
+            async status => {
+              if (status) {
+                statusBarItem.dispose();
+                kindCli = await detectKind(extensionContext.storagePath, installer);
+                await createProvider(extensionContext, telemetryLogger);
+              }
+            },
+            (err: unknown) => window.showErrorMessage('Kind installation failed ' + err),
+          ),
+        ),
+      );
+      statusBarItem.show();
+    }
+  } else {
+    await createProvider(extensionContext, telemetryLogger);
+  }
 }
 
 export function deactivate(): void {

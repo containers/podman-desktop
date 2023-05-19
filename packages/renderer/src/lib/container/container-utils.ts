@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ import { filesize } from 'filesize';
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {
     // part of a compose ?
-    const composeService = (containerInfo.Labels || {})['com.docker.compose.service'];
+    const composeService = containerInfo.Labels?.['com.docker.compose.service'];
     if (composeService) {
-      const composeContainerNumber = (containerInfo.Labels || {})['com.docker.compose.container-number'];
+      const composeContainerNumber = containerInfo.Labels?.['com.docker.compose.container-number'];
       if (composeContainerNumber) {
         return `${composeService}-${composeContainerNumber}`;
       }
@@ -67,30 +67,32 @@ export class ContainerUtils {
     return containerInfo.Image;
   }
 
-  getPort(containerInfo: ContainerInfo): string {
-    const ports = containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort);
-
-    if (ports && ports.length > 1) {
-      return ports.join(', ');
-    } else if (ports && ports.length === 1) {
-      return `${ports[0]}`;
-    } else {
-      return '';
+  getShortImage(containerInfo: ContainerInfo): string {
+    // if image has a digest, keep only first 7 digits
+    const image = containerInfo.Image;
+    const shaIndex = image.indexOf('@sha256:');
+    if (shaIndex > 0) {
+      return image.substring(0, shaIndex + 15);
     }
+    return image;
+  }
+
+  getPorts(containerInfo: ContainerInfo): number[] {
+    return containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort) || [];
   }
 
   getDisplayPort(containerInfo: ContainerInfo): string {
-    const ports = this.getPort(containerInfo);
-    if (ports === '') {
+    const ports = this.getPorts(containerInfo);
+    if (ports.length === 0) {
       return '';
     }
-    return `PORT${ports.indexOf(',') > 0 ? 'S' : ''} ${ports}`;
+    return `PORT${ports.length > 1 ? 'S' : ''} ${ports}`;
   }
 
   hasPublicPort(containerInfo: ContainerInfo): boolean {
     const publicPorts = containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort);
 
-    return publicPorts.length > 0;
+    return publicPorts && publicPorts.length > 0;
   }
 
   getOpeningUrl(containerInfo: ContainerInfo): string {
@@ -116,6 +118,7 @@ export class ContainerUtils {
       shortId: containerInfo.Id.substring(0, 8),
       name: this.getName(containerInfo),
       image: this.getImage(containerInfo),
+      shortImage: this.getShortImage(containerInfo),
       state: this.getState(containerInfo),
       startedAt: containerInfo.StartedAt,
       uptime: this.getUptime(containerInfo),
@@ -123,7 +126,8 @@ export class ContainerUtils {
       engineName: this.getEngineName(containerInfo),
       engineType: containerInfo.engineType,
       command: containerInfo.Command,
-      port: this.getPort(containerInfo),
+      ports: this.getPorts(containerInfo),
+      portsAsString: this.getPortsAsString(containerInfo),
       displayPort: this.getDisplayPort(containerInfo),
       hasPublicPort: this.hasPublicPort(containerInfo),
       openingUrl: this.getOpeningUrl(containerInfo),
@@ -135,7 +139,7 @@ export class ContainerUtils {
 
   getContainerGroup(containerInfo: ContainerInfo): ContainerGroupPartInfoUI {
     // compose metatadata ?
-    const composeProject = (containerInfo.Labels || {})['com.docker.compose.project'];
+    const composeProject = containerInfo.Labels?.['com.docker.compose.project'];
     if (composeProject) {
       return {
         name: composeProject,
@@ -150,6 +154,7 @@ export class ContainerUtils {
         name: podInfo.name,
         type: ContainerGroupInfoTypeUI.POD,
         id: podInfo.id,
+        status: (podInfo.status || '').toUpperCase(),
         engineId: containerInfo.engineId,
       };
     }
@@ -158,6 +163,7 @@ export class ContainerUtils {
     return {
       name: this.getName(containerInfo),
       type: ContainerGroupInfoTypeUI.STANDALONE,
+      status: (containerInfo.Status || '').toUpperCase(),
     };
   }
 
@@ -177,6 +183,7 @@ export class ContainerUtils {
             name: group.name,
             type: group.type,
             id: group.id,
+            status: group.status,
             engineId: group.engineId,
             containers: [],
           });
@@ -184,6 +191,11 @@ export class ContainerUtils {
         groups.get(group.name).containers.push(containerInfo);
       }
     });
+
+    Array.from(groups.values())
+      .filter(group => group.type === ContainerGroupInfoTypeUI.COMPOSE)
+      .forEach(group => (group.status = group.containers.every(c => c.state === 'RUNNING') ? 'RUNNING' : 'STOPPED'));
+
     return Array.from(groups.values());
   }
 
@@ -193,5 +205,16 @@ export class ContainerUtils {
 
   getMemoryUsageTitle(usedMemory: number): string {
     return `${filesize(usedMemory)}`;
+  }
+
+  getPortsAsString(containerInfo: ContainerInfo): string {
+    const ports = this.getPorts(containerInfo);
+    if (ports.length > 1) {
+      return `${ports.join(', ')}`;
+    } else if (ports.length === 1) {
+      return `${ports[0]}`;
+    } else {
+      return '';
+    }
   }
 }

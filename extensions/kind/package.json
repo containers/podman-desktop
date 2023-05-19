@@ -1,10 +1,10 @@
 {
   "name": "kind",
   "displayName": "Kind",
-  "description": "Create a Kind cluster: Creates a Kubernetes cluster with a single node.",
+  "description": "Integration for Kind: run local Kubernetes clusters using container “nodes”",
   "version": "0.0.1",
   "icon": "icon.png",
-  "publisher": "benoitf",
+  "publisher": "podman-desktop",
   "license": "Apache-2.0",
   "engines": {
     "podman-desktop": "^0.0.1"
@@ -16,7 +16,7 @@
       "properties": {
         "kind.cluster.creation.name": {
           "type": "string",
-          "default": "podman-desktop",
+          "default": "kind-cluster",
           "scope": "KubernetesProviderConnectionFactory",
           "description": "Name"
         },
@@ -41,21 +41,40 @@
           "default": 9443,
           "scope": "KubernetesProviderConnectionFactory",
           "description": "HTTPS Port"
+        },
+        "kind.cluster.creation.ingress": {
+          "type": "boolean",
+          "default": true,
+          "scope": "KubernetesProviderConnectionFactory",
+          "description": "Setup an ingress controller (Contour https://projectcontour.io)"
         }
-
       }
+    },
+    "menus": {
+      "dashboard/image": [
+        {
+          "command": "kind.image.move",
+          "title": "Push image to Kind cluster"
+        }
+      ]
     }
   },
   "scripts": {
-    "build": "tsc && node ./scripts/build.js",
-    "watch": "tsc -w"
+    "build": "npx ts-node ./scripts/download.ts && vite build && node ./scripts/build.js",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch --coverage",
+    "watch": "vite build -w"
   },
   "dependencies": {
-    "@tmpwip/extension-api": "^0.0.1"
+    "@octokit/rest": "^19.0.8",
+    "@podman-desktop/api": "^0.0.1",
+    "mustache": "^4.2.0",
+    "sudo-prompt": "^9.2.1"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
-    "mkdirp": "^2.1.3",
+    "mkdirp": "^2.1.6",
+    "vite": "^4.3.8",
     "zip-local": "^0.3.5"
   }
 }

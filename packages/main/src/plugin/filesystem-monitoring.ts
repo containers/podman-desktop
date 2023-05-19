@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as containerDesktopAPI from '@tmpwip/extension-api';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
 import { Disposable } from './types/disposable';
 import * as chokidar from 'chokidar';

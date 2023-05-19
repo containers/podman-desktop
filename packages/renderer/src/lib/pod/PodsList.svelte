@@ -4,7 +4,7 @@ import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
 import type { PodInfoUI } from './PodInfoUI';
-import { filtered, searchPattern } from '../../stores/pods';
+import { filtered, searchPattern, podsInfos } from '../../stores/pods';
 import { providerInfos } from '../../stores/providers';
 import NavPage from '../ui/NavPage.svelte';
 import { PodUtils } from './pod-utils';
@@ -19,12 +19,16 @@ import moment from 'moment';
 import Tooltip from '../ui/Tooltip.svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import Prune from '../engine/Prune.svelte';
+import type { EngineInfoUI } from '../engine/EngineInfoUI';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let pods: PodInfoUI[] = [];
 let multipleEngines = false;
+let enginesList: EngineInfoUI[];
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
@@ -53,15 +57,27 @@ onMount(async () => {
   podsUnsubscribe = filtered.subscribe(value => {
     const computedPods = value.map((podInfo: PodInfo) => podUtils.getPodInfoUI(podInfo)).flat();
 
-    // multiple engines ?
-    const engineNamesArray = computedPods.map(container => container.engineName);
-    // remove duplicates
-    const engineNames = [...new Set(engineNamesArray)];
-    if (engineNames.length > 1) {
+    // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
+    const engines = computedPods.map(container => {
+      return {
+        name: container.engineName,
+        id: container.engineId,
+      };
+    });
+
+    // Remove duplicates from engines by name
+    const uniqueEngines = engines.filter(
+      (engine, index, self) => index === self.findIndex(t => t.name === engine.name),
+    );
+
+    if (uniqueEngines.length > 1) {
       multipleEngines = true;
     } else {
       multipleEngines = false;
     }
+
+    // Set the engines to the global variable for the Prune functionality button
+    enginesList = uniqueEngines;
 
     // update selected items based on current selected items
     computedPods.forEach(pod => {
@@ -106,7 +122,11 @@ async function deleteSelectedPods() {
     await Promise.all(
       selectedPods.map(async pod => {
         try {
-          await window.removePod(pod.engineId, pod.id);
+          if (pod.kind === 'podman') {
+            await window.removePod(pod.engineId, pod.id);
+          } else {
+            await window.kubernetesDeletePod(pod.name);
+          }
         } catch (e) {
           console.log('error while removing pod', e);
         }
@@ -117,7 +137,7 @@ async function deleteSelectedPods() {
 }
 
 function openDetailsPod(pod: PodInfoUI) {
-  router.goto(`/pods/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`);
+  router.goto(`/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`);
 }
 
 function openContainersFromPod(pod: PodInfoUI) {
@@ -189,11 +209,11 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
 }
 </script>
 
-<NavPage
-  bind:searchTerm="{searchTerm}"
-  title="pods"
-  subtitle="Hover over an pod to view action buttons; click to open up full details.">
+<NavPage bind:searchTerm="{searchTerm}" title="pods">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+    {#if $podsInfos.length > 0}
+      <Prune type="pods" engines="{enginesList}" />
+    {/if}
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
@@ -230,7 +250,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
     <table class="mx-5 w-full" class:hidden="{pods.length === 0}">
       <!-- title -->
       <thead>
-        <tr class="h-7 uppercase text-xs text-gray-500">
+        <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5"
             ><input
@@ -247,15 +267,15 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
       </thead>
       <tbody class="">
         {#each pods as pod}
-          <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+          <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
               <input
                 type="checkbox"
                 bind:checked="{pod.selected}"
-                class="cursor-pointer invert hue-rotate-[218deg] brightness-75 " />
+                class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
             </td>
-            <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
+            <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
                 <StatusIcon icon="{PodIcon}" status="{pod.status}" />
               </div>
@@ -264,18 +284,18 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
               <div class="flex items-center">
                 <div class="">
                   <div class="flex flex-row items-center">
-                    <div class="text-sm text-gray-200">{pod.name}</div>
+                    <div class="text-sm text-gray-300">{pod.name}</div>
                   </div>
                   <div class="flex flex-row items-center">
                     <div class="text-xs text-violet-400">{pod.shortId}</div>
                     <div
-                      class="ml-1 text-xs font-extra-light text-gray-500"
+                      class="ml-1 text-xs font-extra-light text-gray-900"
                       class:cursor-pointer="{pod.containers.length > 0}"
                       on:click="{() => openContainersFromPod(pod)}">
                       {pod.containers.length} container{pod.containers.length > 1 ? 's' : ''}
                     </div>
                   </div>
-                  <div class="flex flex-row text-xs font-extra-light text-gray-500">
+                  <div class="flex flex-row text-xs font-extra-light text-gray-900">
                     <!-- Hide in case of single engine-->
                     {#if multipleEngines}
                       <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
@@ -288,30 +308,15 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-200">{pod.age}</div>
+                <div class="text-sm text-gray-300">{pod.age}</div>
               </div>
             </td>
 
             <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
               <div class="flex w-full">
                 <div class="flex items-center w-5">
-                  {#if pod.actionInProgress}
-                    <svg
-                      class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  {:else if pod.actionError}
-                    <Tooltip tip="{pod.actionError}" top>
-                      <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
-                    </Tooltip>
+                  {#if pod.actionError}
+                    <ErrorMessage error="{pod.actionError}" icon />
                   {:else}
                     <div>&nbsp;</div>
                   {/if}

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as jsYaml from 'js-yaml';
 
@@ -33,7 +33,6 @@ async function deleteContext(): Promise<void> {
   menuItemsRegistered.forEach(item => {
     item.dispose();
   });
-  return;
 }
 
 async function updateContext(extensionContext: extensionApi.ExtensionContext, kubeconfigFile: string): Promise<void> {
@@ -84,23 +83,23 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   console.log('starting extension kube-context');
 
   // grab current file
-  const kubeconfigUri = await extensionApi.kubernetes.getKubeconfig();
+  const kubeconfigUri = extensionApi.kubernetes.getKubeconfig();
 
   kubeconfigFile = kubeconfigUri.fsPath;
 
   // if path exists, update context
   if (fs.existsSync(kubeconfigFile)) {
-    updateContext(extensionContext, kubeconfigFile);
+    await updateContext(extensionContext, kubeconfigFile);
   }
 
   // update context menu on change
-  extensionApi.kubernetes.onDidUpdateKubeconfig((event: extensionApi.KubeconfigUpdateEvent) => {
+  extensionApi.kubernetes.onDidUpdateKubeconfig(async (event: extensionApi.KubeconfigUpdateEvent) => {
     // update the tray everytime .kube/config file is updated
     if (event.type === 'UPDATE' || event.type === 'CREATE') {
       kubeconfigFile = event.location.fsPath;
-      updateContext(extensionContext, kubeconfigFile);
+      await updateContext(extensionContext, kubeconfigFile);
     } else if (event.type === 'DELETE') {
-      deleteContext();
+      await deleteContext();
       kubeconfigFile = undefined;
     }
   });
@@ -108,7 +107,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const command = extensionApi.commands.registerCommand('kubecontext.switch', async (newContext: string) => {
     const file = getKubeconfig();
     if (!file) {
-      extensionApi.window.showErrorMessage('No kubeconfig file found');
+      await extensionApi.window.showErrorMessage('No kubeconfig file found');
       return;
     }
     // load the file

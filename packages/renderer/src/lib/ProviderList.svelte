@@ -24,10 +24,10 @@ async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
 
 <div class="grid xl:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4">
   {#each $providerInfos as provider}
-    <div class="rounded overflow-hidden shadow-lg m-5 bg-gray-700">
+    <div class="rounded overflow-hidden shadow-lg m-5 bg-gray-900">
       <div class="px-6 py-4">
-        <div class="font-bold text-gray-200 text-sm mb-2 h-10">{provider.name}</div>
-        <div class="text-gray-300 text-sm h-5">
+        <div class="font-bold text-gray-300 text-sm mb-2 h-10">{provider.name}</div>
+        <div class="text-gray-400 text-sm h-5">
           Status: {provider.status}
         </div>
       </div>
@@ -39,7 +39,7 @@ async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
               on:click="{() => startProviderLifecycle(provider)}"
               hidden
               class:inline-flex="{provider.status === 'stopped'}"
-              class="text-white bg-violet-700 hover:bg-violet-800 disabled:hover:bg-gray-600 disabled:bg-gray-500 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-xs px-3 py-1.5 text-center items-center mr-2 ">
+              class="text-white bg-violet-700 hover:bg-violet-800 disabled:hover:bg-gray-900 disabled:bg-gray-900 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-xs px-3 py-1.5 text-center items-center mr-2">
               {#if waiting === true}
                 <svg
                   class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
@@ -63,7 +63,7 @@ async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
               on:click="{() => stopProviderLifecycle(provider)}"
               hidden
               class:inline-flex="{provider.status === 'started'}"
-              class="text-white bg-violet-700 hover:bg-violet-800 disabled:hover:bg-gray-600 disabled:bg-gray-500 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-xs px-3 py-1.5 text-center items-center">
+              class="text-white bg-violet-700 hover:bg-violet-800 disabled:hover:bg-gray-900 disabled:bg-gray-900 focus:ring-4 focus:ring-violet-400 font-medium rounded-lg text-xs px-3 py-1.5 text-center items-center">
               {#if waiting === true}
                 <svg
                   class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
@@ -86,7 +86,7 @@ async function stopProviderLifecycle(provider: ProviderInfo): Promise<void> {
         </div>
       </div>
 
-      <div class="px-6 py-6 flex-wrap font-thin break-words text-gray-400 text-xs">
+      <div class="px-6 py-6 flex-wrap font-thin break-words text-gray-700 text-xs">
         {#if provider.containerConnections}
           {#each provider.containerConnections as connection}
             <div>{connection.name} / {connection.status}: {connection.endpoint.socketPath}</div>

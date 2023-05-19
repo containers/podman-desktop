@@ -1,6 +1,10 @@
 <script lang="ts">
+import Route from '../../Route.svelte';
 import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
+import SettingsPage from './SettingsPage.svelte';
+import ConnectionStatus from '../ui/ConnectionStatus.svelte';
+
 export let extensionId: string = undefined;
 
 let extensionInfo: ExtensionInfo;
@@ -8,55 +12,85 @@ $: extensionInfo = $extensionInfos.find(extension => extension.id === extensionI
 
 async function stopExtension() {
   await window.stopExtension(extensionInfo.id);
-  window.dispatchEvent(new CustomEvent('extension-stopped', { detail: extensionInfo }));
 }
 async function startExtension() {
   await window.startExtension(extensionInfo.id);
-  window.dispatchEvent(new CustomEvent('extension-started', { detail: extensionInfo }));
+}
+async function removeExtension() {
+  window.location.href = '#/preferences/extensions';
+  await window.removeExtension(extensionInfo.id);
 }
 </script>
 
-<div class="flex flex-1 flex-col bg-zinc-800 px-2">
-  {#if extensionInfo}
-    <div class="pl-1 py-2">
-      <h1 class="capitalize text-xl">{extensionInfo.displayName} Extension</h1>
-      <div class="text-sm italic  text-gray-400">{extensionInfo.description}</div>
-    </div>
+<SettingsPage title="{extensionInfo.displayName} Extension">
+  <span slot="subtitle">
+    {extensionInfo.description}
+  </span>
+  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
+    {#if extensionInfo}
+      <Route path="/*" breadcrumb="{extensionInfo.displayName}" let:meta>
+        <!-- Manage lifecycle-->
+        <div class="flex pb-2">
+          <div class="pr-2">Status</div>
+          <ConnectionStatus status="{extensionInfo.state}" />
+        </div>
 
-    <!-- Manage lifecycle-->
-    <div class="pl-1 py-2">
-      <div class="text-sm italic  text-gray-400">Status</div>
-      <div class="pl-3 capitalize">{extensionInfo.state}</div>
-    </div>
+        <div class="py-2 flex flex-row items-center">
+          <!-- start is enabled only when stopped or failed -->
+          <div class="px-2 text-sm italic text-gray-700">
+            <button
+              disabled="{extensionInfo.state !== 'stopped' && extensionInfo.state !== 'failed'}"
+              on:click="{() => startExtension()}"
+              class="pf-c-button pf-m-primary"
+              type="button">
+              <span class="pf-c-button__icon pf-m-start">
+                <i class="fas fa-play" aria-hidden="true"></i>
+              </span>
+              Start
+            </button>
+          </div>
 
-    <div class="py-2 flex flex:row ">
-      <!-- start is enabled only in stopped mode-->
-      <div class="px-2 text-sm italic  text-gray-400">
-        <button
-          disabled="{extensionInfo.state !== 'inactive'}"
-          on:click="{() => startExtension()}"
-          class="pf-c-button pf-m-primary"
-          type="button">
-          <span class="pf-c-button__icon pf-m-start">
-            <i class="fas fa-play" aria-hidden="true"></i>
-          </span>
-          Enable
-        </button>
-      </div>
+          <!-- stop is enabled only when started -->
+          <div class="px-2 text-sm italic text-gray-700">
+            <button
+              disabled="{extensionInfo.state !== 'started'}"
+              on:click="{() => stopExtension()}"
+              class="pf-c-button pf-m-primary"
+              type="button">
+              <span class="pf-c-button__icon pf-m-start">
+                <i class="fas fa-stop" aria-hidden="true"></i>
+              </span>
+              Stop
+            </button>
+          </div>
 
-      <!-- stop is enabled only in started mode-->
-      <div class="px-2 text-sm italic  text-gray-400">
-        <button
-          disabled="{extensionInfo.state !== 'active'}"
-          on:click="{() => stopExtension()}"
-          class="pf-c-button pf-m-primary"
-          type="button">
-          <span class="pf-c-button__icon pf-m-start">
-            <i class="fas fa-stop" aria-hidden="true"></i>
-          </span>
-          Disable
-        </button>
-      </div>
-    </div>
-  {/if}
-</div>
+          <!-- delete is enabled only when stopped or failed -->
+          {#if extensionInfo.removable}
+            <div class="px-2 text-sm italic text-gray-700">
+              <button
+                disabled="{extensionInfo.state !== 'stopped' && extensionInfo.state !== 'failed'}"
+                on:click="{() => removeExtension()}"
+                class="pf-c-button pf-m-primary"
+                type="button">
+                <span class="pf-c-button__icon pf-m-start">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+                </span>
+                Remove
+              </button>
+            </div>
+          {:else}
+            <div class="text-gray-900 items-center px-2 text-sm">Default extension, cannot be removed</div>
+          {/if}
+        </div>
+        {#if extensionInfo.error}
+          <div class="flex flex-col">
+            <div class="py-2">Extension error: {extensionInfo.error.message}</div>
+            {#if extensionInfo.error.stack}
+              <div class="py-2">Stack trace</div>
+              <div class="py-2">{extensionInfo.error.stack}</div>
+            {/if}
+          </div>
+        {/if}
+      </Route>
+    {/if}
+  </div></SettingsPage>

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import * as os from 'node:os';
 import { isLinux, isMac, isWindows } from './util';
 
 import * as toml from '@ltd/j-toml';
-import type { ProxySettings } from '@tmpwip/extension-api';
+import type { ProxySettings } from '@podman-desktop/api';
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 
 /**
  * Manages access to the containers.conf configuration file used to configure Podman
@@ -37,16 +37,16 @@ export class PodmanConfiguration {
 
     // we receive an update for the current proxy settings
     extensionApi.proxy.onDidUpdateProxy(async (proxySettings: ProxySettings) => {
-      this.updateProxySettings(proxySettings);
+      await this.updateProxySettings(proxySettings);
     });
 
     // in case of proxy being enabled or disabled we need to update the containers.conf file
     extensionApi.proxy.onDidStateChange(async (enabled: boolean) => {
       if (enabled) {
-        const updatedProxySettings = await extensionApi.proxy.getProxySettings();
-        this.updateProxySettings(updatedProxySettings);
+        const updatedProxySettings = extensionApi.proxy.getProxySettings();
+        await this.updateProxySettings(updatedProxySettings);
       } else {
-        this.updateProxySettings(undefined);
+        await this.updateProxySettings(undefined);
       }
     });
 
@@ -55,28 +55,26 @@ export class PodmanConfiguration {
       const containersConfigFile = await this.readContainersConfigFile();
       const tomlConfigFile = toml.parse(containersConfigFile);
 
-      if (tomlConfigFile && tomlConfigFile.engine) {
+      if (tomlConfigFile?.engine) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const engineConf: any = tomlConfigFile.engine;
 
         // env in engine section
-        if (engineConf.env) {
-          // env are written like array of key=value ['https_proxy=http://10.0.0.244:9090', 'http_proxy=http://10.0.0.244:9090']
-          if (Array.isArray(engineConf.env)) {
-            const envArray: string[] = engineConf.env;
-            envArray.forEach(envVar => {
-              const split = envVar.split('=');
-              if (split.length === 2) {
-                if (split[0] === 'https_proxy') {
-                  httpsProxy = split[1];
-                } else if (split[0] === 'http_proxy') {
-                  httpProxy = split[1];
-                } else if (split[0] === 'no_proxy') {
-                  noProxy = split[1];
-                }
+        // env are written like array of key=value ['https_proxy=http://10.0.0.244:9090', 'http_proxy=http://10.0.0.244:9090']
+        if (engineConf.env && Array.isArray(engineConf.env)) {
+          const envArray: string[] = engineConf.env;
+          envArray.forEach(envVar => {
+            const split = envVar.split('=');
+            if (split.length === 2) {
+              if (split[0] === 'https_proxy') {
+                httpsProxy = split[1];
+              } else if (split[0] === 'http_proxy') {
+                httpProxy = split[1];
+              } else if (split[0] === 'no_proxy') {
+                noProxy = split[1];
               }
-            });
-          }
+            }
+          });
         }
       }
     }
@@ -93,7 +91,7 @@ export class PodmanConfiguration {
       extensionApi.proxy.isEnabled() &&
       (httpsProxy || httpProxy || noProxy)
     ) {
-      extensionApi.proxy.setProxy(proxySettings);
+      await extensionApi.proxy.setProxy(proxySettings);
     }
   }
 

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import Analytics from 'analytics-node';
-import { app, dialog } from 'electron';
+import { app } from 'electron';
 import { Identity } from './identity';
 import * as os from 'node:os';
 import type { LinuxOs } from 'getos';
@@ -25,8 +25,31 @@ import getos from 'getos';
 import * as osLocale from 'os-locale';
 import { promisify } from 'node:util';
 import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry';
-import { CONFIGURATION_DEFAULT_SCOPE } from '../configuration-registry';
-import { findWindow } from '../../util';
+import { TelemetrySettings } from './telemetry-settings';
+import type { Event } from '../events/emitter';
+import { Emitter } from '../events/emitter';
+import type {
+  TelemetryLogger,
+  TelemetryLoggerOptions,
+  TelemetrySender,
+  TelemetryTrustedValue,
+} from '@podman-desktop/api';
+import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry';
+import { stoppedExtensions } from '../../util';
+
+export const TRACK_EVENT_TYPE = 'track';
+export const PAGE_EVENT_TYPE = 'page';
+export const STARTUP_EVENT_TYPE = 'startup';
+export const SHUTDOWN_EVENT_TYPE = 'shutdown';
+export const FEEDBACK_EVENT_TYPE = 'feedback';
+
+export type EventType =
+  | typeof TRACK_EVENT_TYPE
+  | typeof PAGE_EVENT_TYPE
+  | typeof STARTUP_EVENT_TYPE
+  | typeof SHUTDOWN_EVENT_TYPE
+  | typeof FEEDBACK_EVENT_TYPE
+  | string;
 
 /**
  * Handle the telemetry reporting.
@@ -50,6 +73,9 @@ export class Telemetry {
 
   protected lastTimeEvents: Map<string, number>;
 
+  private readonly _onDidChangeTelemetryEnabled = new Emitter<boolean>();
+  readonly onDidChangeTelemetryEnabled: Event<boolean> = this._onDidChangeTelemetryEnabled.event;
+
   constructor(private configurationRegistry: ConfigurationRegistry) {
     this.identity = new Identity();
     this.lastTimeEvents = new Map();
@@ -61,12 +87,13 @@ export class Telemetry {
       title: 'Telemetry',
       type: 'object',
       properties: {
-        ['telemetry.enabled']: {
-          description: 'Enable telemetry',
+        [TelemetrySettings.SectionName + '.' + TelemetrySettings.Enabled]: {
+          markdownDescription:
+            'Help improve Podman Desktop by allowing anonymous usage data to be sent to Red Hat. Read our [Privacy statement](https://developers.redhat.com/article/tool-data-collection)',
           type: 'boolean',
           default: true,
         },
-        ['telemetry.check']: {
+        [TelemetrySettings.SectionName + '.' + TelemetrySettings.Check]: {
           description: 'Dialog prompt for telemetry',
           type: 'boolean',
           default: false,
@@ -78,60 +105,89 @@ export class Telemetry {
     this.configurationRegistry.registerConfigurations([telemetryConfigurationNode]);
 
     // grab value
-    const telemetryConfiguration = this.configurationRegistry.getConfiguration('telemetry');
-    const check = telemetryConfiguration.get<boolean>('check');
+    const telemetryConfiguration = this.configurationRegistry.getConfiguration(TelemetrySettings.SectionName);
+    const check = telemetryConfiguration.get<boolean>(TelemetrySettings.Check);
+
+    // track changes on enablement
+    this.listenForTelemetryUpdates();
 
     // initalize objects
-    this.analytics = new Analytics(Telemetry.SEGMENT_KEY);
+    this.analytics = new Analytics(Telemetry.SEGMENT_KEY, {
+      errorHandler: err => {
+        console.log(`Telemetry request error: ${err}`);
+      },
+    });
 
     // needs to prompt the user for the first time he launches the app
-    if (!check) {
-      dialog
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        .showMessageBox(findWindow()!, {
-          title: 'Telemetry',
-          message: `Help Red Hat improve\n ${app.getName()} by allowing anonymous usage data to be collected.`,
-          buttons: ['OK'],
-          type: 'info',
-          checkboxChecked: true,
-          checkboxLabel: 'Enable telemetry',
-          detail:
-            'Read about our privacy statement:\n https://developers.redhat.com/article/tool-data-collection\n\nYou can update your choice later by changing the Telemetry preference.',
-        })
-        .then(async messageBoxReturnValue => {
-          // check has been performed, we asked the user and he answered, so check is done
-          await this.configurationRegistry.updateConfigurationValue(
-            'telemetry.check',
-            true,
-            CONFIGURATION_DEFAULT_SCOPE,
-          );
-          // if the user said yes, we enable the telemetry
-          if (messageBoxReturnValue.checkboxChecked) {
-            await this.configurationRegistry.updateConfigurationValue(
-              'telemetry.enabled',
-              true,
-              CONFIGURATION_DEFAULT_SCOPE,
-            );
-            this.configureTelemetry();
-          } else {
-            // else we disable it
-            await this.configurationRegistry.updateConfigurationValue(
-              'telemetry.enabled',
-              false,
-              CONFIGURATION_DEFAULT_SCOPE,
-            );
-          }
-        });
-    } else {
-      //
-      const enabled = telemetryConfiguration.get<boolean>('enabled');
-      if (enabled === true) {
+    if (check) {
+      if (this.isTelemetryEnabled()) {
         await this.configureTelemetry();
-        this.telemetryConfigured = true;
-        this.telemetryEnabled = true;
+      } else {
+        this.telemetryInitialized = true;
+
+        // clear pending items
+        this.pendingItems.length = 0;
       }
-      this.telemetryInitialized = true;
     }
+  }
+
+  // notify if the configuration change for enablement of the telemetry
+  protected listenForTelemetryUpdates(): void {
+    this.configurationRegistry.onDidChangeConfiguration(e => {
+      if (e.key === `${TelemetrySettings.SectionName}.${TelemetrySettings.Enabled}`) {
+        const val = e.value as boolean;
+        this._onDidChangeTelemetryEnabled.fire(val);
+      }
+    });
+  }
+
+  isTelemetryEnabled(): boolean {
+    const telemetryConfiguration = this.configurationRegistry.getConfiguration(TelemetrySettings.SectionName);
+    const enabled = telemetryConfiguration.get<boolean>(TelemetrySettings.Enabled);
+    return enabled === true;
+  }
+
+  protected createBuiltinTelemetrySender(extensionInfo: {
+    id: string;
+    name: string;
+    publisher: string;
+    version: string;
+  }): TelemetrySender {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const thisArg = this;
+    const instanceFlush = this.analytics?.flush;
+    return {
+      // prefix with extension id the event
+      sendEventData(eventName: string, data?: Record<string, unknown>): void {
+        thisArg.track.apply(thisArg, [`${extensionInfo.id}.${eventName}`, data]).catch((err: unknown) => {
+          console.log(`Error sending event ${eventName}: ${err}`);
+        });
+      },
+      // report using the id of the extension suffixed by error
+      sendErrorData(error: Error, data?: Record<string, unknown>): void {
+        data = data || {};
+        data.sourceError = error.message;
+        thisArg.track.apply(thisArg, [`${extensionInfo.id}.error`, data]).catch((err: unknown) => {
+          console.log(`Error sending error event: ${err}`);
+        });
+      },
+      async flush(): Promise<void> {
+        await instanceFlush?.();
+      },
+    };
+  }
+
+  createTelemetryLogger(
+    extensionInfo: { id: string; name: string; publisher: string; version: string },
+    sender?: TelemetrySender,
+    options?: TelemetryLoggerOptions,
+  ): TelemetryLogger {
+    // if no sender, use the built-in
+    if (!sender) {
+      sender = this.createBuiltinTelemetrySender(extensionInfo);
+    }
+
+    return new TelemetryLoggerImpl(extensionInfo, sender, options);
   }
 
   protected async initTelemetry(): Promise<void> {
@@ -144,17 +200,31 @@ export class Telemetry {
     });
   }
 
-  protected async configureTelemetry(): Promise<void> {
+  async configureTelemetry(): Promise<void> {
+    if (this.telemetryInitialized) {
+      return;
+    }
+
     await this.initTelemetry();
 
-    this.internalTrack('startup');
+    this.internalTrack(STARTUP_EVENT_TYPE).catch((err: unknown) => {
+      console.log(`Error sending startup event: ${err}`);
+    });
     let sendShutdownAnalytics = false;
 
-    app.on('before-quit', async e => {
-      if (!sendShutdownAnalytics) {
+    app.on('before-quit', e => {
+      if (!sendShutdownAnalytics && stoppedExtensions.val) {
         e.preventDefault();
-        await this.internalTrack('shutdown');
-        await this.analytics?.flush();
+        try {
+          this.internalTrack(SHUTDOWN_EVENT_TYPE).catch((err: unknown) => {
+            console.log(`Error sending shutdown event: ${err}`);
+          });
+          this.analytics?.flush().catch((err: unknown) => {
+            console.log(`Error flushing analytics: ${err}`);
+          });
+        } catch (err) {
+          console.log(`Telemetry error on shutdown: ${err}`);
+        }
         sendShutdownAnalytics = true;
         app.quit();
       }
@@ -162,14 +232,18 @@ export class Telemetry {
 
     // send all pending items
     this.pendingItems.forEach(item => {
-      this.internalTrack(item.eventName, item.properties);
+      this.internalTrack(item.eventName, item.properties).catch((err: unknown) => {
+        console.log(`Error sending pending event: ${err}`);
+      });
     });
     this.pendingItems.length = 0;
+    this.telemetryConfigured = true;
+    this.telemetryEnabled = true;
     this.telemetryInitialized = true;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected async internalTrack(event: string, eventProperties?: any): Promise<void> {
+  protected async internalTrack(event: EventType, eventProperties?: any): Promise<void> {
     const anonymousId = await this.identity.getUserId();
 
     const context = await this.getContext();
@@ -177,17 +251,23 @@ export class Telemetry {
       eventProperties = {};
     }
 
-    const properties = {
-      app_name: app.getName(),
-      app_version: app.getVersion(),
-      ...eventProperties,
-    };
-
     const integrations = {
       All: true,
     };
 
-    this.analytics?.track({ anonymousId, event, context, properties, integrations });
+    if (event === PAGE_EVENT_TYPE) {
+      const name = eventProperties?.name;
+
+      this.analytics?.page({ anonymousId, name, context, integrations });
+    } else {
+      const properties = {
+        app_name: app.getName(),
+        app_version: app.getVersion(),
+        ...eventProperties,
+      };
+
+      this.analytics?.track({ anonymousId, event, context, properties, integrations });
+    }
   }
 
   // return true if the event needs to be dropped
@@ -214,7 +294,7 @@ export class Telemetry {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async track(event: string, eventProperties?: any): Promise<void> {
+  async track(event: EventType, eventProperties?: any): Promise<void> {
     // skip event ?
     if (this.shouldDropEvent(event)) {
       return;
@@ -226,14 +306,18 @@ export class Telemetry {
     if (!this.telemetryEnabled) {
       return;
     }
-    this.internalTrack(event, eventProperties);
+    this.internalTrack(event, eventProperties).catch((err: unknown) => {
+      console.log(`Error sending event: ${event}`, err);
+    });
   }
 
   async sendFeedback(feedbackProperties: unknown): Promise<void> {
     if (!this.telemetryConfigured) {
       await this.initTelemetry();
     }
-    this.internalTrack('feedback', feedbackProperties);
+    this.internalTrack('feedback', feedbackProperties).catch((err: unknown) => {
+      console.log(`Error sending feedback event: ${err}`);
+    });
   }
 
   protected async getLocale(): Promise<string> {
@@ -272,6 +356,7 @@ export class Telemetry {
       os: {
         name: this.getPlatform(),
         version: os.release(),
+        arch: os.arch(),
       },
       locale,
       location: {
@@ -302,5 +387,74 @@ export class Telemetry {
       }
     }
     return undefined;
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RecordInfo = Record<string, any | TelemetryTrustedValue>;
+
+export class TelemetryLoggerImpl implements TelemetryLogger {
+  readonly isUsageEnabled = true;
+  readonly isErrorsEnabled = true;
+
+  private readonly _onDidChangeEnableStates = new Emitter<TelemetryLogger>();
+  readonly onDidChangeEnableStates: Event<TelemetryLogger> = this._onDidChangeEnableStates.event;
+
+  private commonProperties: RecordInfo = {};
+
+  constructor(
+    extensionInfo: { id: string; name: string; publisher: string; version: string },
+    private sender: TelemetrySender,
+    private options?: TelemetryLoggerOptions,
+  ) {
+    this.commonProperties = {
+      'common.extensionName': `${extensionInfo.publisher}.${extensionInfo.name}`,
+      'common.extensionVersion': extensionInfo.version,
+    };
+  }
+
+  setupData(data?: RecordInfo): RecordInfo {
+    data = data || {};
+
+    if (this.options?.additionalCommonProperties) {
+      data = { ...this.options.additionalCommonProperties, ...data };
+    }
+
+    if (!this.options?.ignoreBuiltInCommonProperties) {
+      data = { ...this.commonProperties, ...data };
+    }
+
+    // for each trusted value, extract the value and remove the trusted value wrapper
+    for (const key in data) {
+      const value = data[key];
+      if (value instanceof TypeTelemetryTrustedValue) {
+        data[key] = value.value;
+      }
+    }
+
+    return data;
+  }
+
+  logUsage(eventName: string, data?: RecordInfo): void {
+    data = this.setupData(data);
+    this.sender.sendEventData(eventName, data);
+  }
+
+  logError(eventName: string, data?: RecordInfo): void;
+  logError(error: Error, data?: RecordInfo): void;
+  logError(eventName: string | Error, data?: RecordInfo): void {
+    data = this.setupData(data);
+
+    let error = eventName;
+    if (eventName instanceof Error) {
+      error = eventName;
+    } else {
+      error = new Error(eventName);
+    }
+    this.sender.sendErrorData(error, data);
+  }
+
+  dispose(): void {
+    this.commonProperties = {};
   }
 }

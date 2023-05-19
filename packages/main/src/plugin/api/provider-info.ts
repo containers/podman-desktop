@@ -24,7 +24,7 @@ import type {
   ProviderStatus,
   Link,
   ProviderInformation,
-} from '@tmpwip/extension-api';
+} from '@podman-desktop/api';
 
 export type LifecycleMethod = 'start' | 'stop' | 'delete';
 
@@ -57,9 +57,27 @@ export interface ProviderInfo {
   lifecycleMethods?: LifecycleMethod[];
   // can create provider connection from ContainerProviderConnectionFactory params
   containerProviderConnectionCreation: boolean;
+  // can initialize provider connection from ContainerProviderConnectionFactory params
+  containerProviderConnectionInitialization: boolean;
+
+  // optional creation name (if defined)
+  containerProviderConnectionCreationDisplayName?: string;
+
+  // optional creation button title (if defined)
+  containerProviderConnectionCreationButtonTitle?: string;
 
   // can create provider connection from KubernetesProviderConnectionFactory params
   kubernetesProviderConnectionCreation: boolean;
+  // can initialize provider connection from KubernetesProviderConnectionFactory params
+  kubernetesProviderConnectionInitialization: boolean;
+
+  // optional creation name (if defined)
+  kubernetesProviderConnectionCreationDisplayName?: string;
+
+  // optional creation button title (if defined)
+  kubernetesProviderConnectionCreationButtonTitle?: string;
+
+  emptyConnectionMarkdownDescription?: string;
 
   version?: string;
 

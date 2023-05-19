@@ -61,7 +61,13 @@ const config = {
       colorMode: {
         defaultMode: 'dark',
         disableSwitch: false,
-        respectPrefersColorScheme: false,
+        respectPrefersColorScheme: true,
+      },
+      docs: {
+        sidebar: {
+          autoCollapseCategories: true,
+          hideable: true,
+        },
       },
       navbar: {
         title,
@@ -72,8 +78,8 @@ const config = {
         },
         items: [
           {
-            type: 'doc',
-            docId: 'intro',
+            type: 'docSidebar',
+            sidebarId: 'mySidebar',
             position: 'left',
             label: 'Documentation',
           },
@@ -112,7 +118,7 @@ const config = {
               },
               {
                 label: 'Using Compose',
-                to: '/docs/podman-compose',
+                to: '/docs/compose/podman-compose',
               },
               {
                 label: 'Troubleshooting',
@@ -132,8 +138,8 @@ const config = {
                 href: 'https://github.com/containers/podman-desktop',
               },
               {
-                label: 'General chat (bridged): #general on Discord',
-                href: 'https://discordapp.com/invite/TCTB38RWpf',
+                label: 'General chat (bridged): #podman-desktop on Discord',
+                href: 'https://discord.com/invite/x5GzFF6QH4',
               },
               {
                 label: 'General chat (bridged): #podman-desktop@libera.chat on IRC',

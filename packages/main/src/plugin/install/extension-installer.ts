@@ -18,21 +18,20 @@
 
 import type { IpcMainEvent } from 'electron';
 import { ipcMain } from 'electron';
-import type { ContainerProviderRegistry } from '../container-registry';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { cp } from 'node:fs/promises';
 import * as tarFs from 'tar-fs';
-import type Dockerode from 'dockerode';
-import type { PullEvent } from '../api/pull-event';
 import type { ExtensionLoader } from '../extension-loader';
+import type { ApiSenderType } from '../api';
+import type { ImageRegistry } from '../image-registry';
+
 export class ExtensionInstaller {
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private apiSender: any,
-    private containerRegistry: ContainerProviderRegistry,
+    private apiSender: ApiSenderType,
     private extensionLoader: ExtensionLoader,
+    private imageRegistry: ImageRegistry,
   ) {}
 
   async extractExtensionFiles(tmpFolderPath: string, finalFolderPath: string, reportLog: (message: string) => void) {
@@ -83,7 +82,7 @@ export class ExtensionInstaller {
       const extract = tarFs.extract(destFolder);
       readStream.pipe(extract);
 
-      extract.on('finish', async () => {
+      extract.on('finish', () => {
         resolve();
       });
 
@@ -93,188 +92,109 @@ export class ExtensionInstaller {
     });
   }
 
-  async exportContentOfContainer(providerConnection: Dockerode, imageId: string, tmpTarPath: string): Promise<void> {
-    // export the content of the image
-    const containerFromImage = await providerConnection.createContainer({ Image: imageId, Entrypoint: ['/bin/sh'] });
-    const exportResult = await containerFromImage.export();
-
-    const fileWriteStream = fs.createWriteStream(tmpTarPath, {
-      flags: 'w',
-    });
-
-    return new Promise<void>((resolve, reject) => {
-      exportResult.on('close', () => {
-        fileWriteStream.close();
-
-        // ok we can remove the container
-        containerFromImage.remove().then(() => resolve(undefined));
-      });
-
-      exportResult.on('data', chunk => {
-        fileWriteStream.write(chunk);
-      });
-
-      exportResult.on('error', error => {
-        reject(error);
-      });
-    });
-  }
-
   async init(): Promise<void> {
     ipcMain.on(
       'extension-installer:install-from-image',
-      async (event: IpcMainEvent, imageName: string, logCallbackId: number): Promise<void> => {
+      (event: IpcMainEvent, imageName: string, logCallbackId: number): void => {
         const reportLog = (message: string): void => {
           event.reply('extension-installer:install-from-image-log', logCallbackId, message);
         };
 
-        // use first working connection
-        let providerConnectionDetails;
-        try {
-          providerConnectionDetails = this.containerRegistry.getFirstRunningConnection();
-        } catch (error) {
-          event.reply(
-            'extension-installer:install-from-image-error',
-            logCallbackId,
-            'No provider is running. Please start a provider.',
-          );
-          return;
-        }
+        const handler = async (): Promise<void> => {
+          imageName = imageName.trim();
+          reportLog(`Analyzing image ${imageName}...`);
+          let imageConfigLabels;
+          try {
+            imageConfigLabels = await this.imageRegistry.getImageConfigLabels(imageName);
+          } catch (error) {
+            event.reply(
+              'extension-installer:install-from-image-error',
+              logCallbackId,
+              'Error while analyzing image: ' + error,
+            );
+            return;
+          }
 
-        const providerConnectionInfo = providerConnectionDetails[0];
-        const providerConnection = providerConnectionDetails[1];
-        reportLog(`Pulling image ${imageName}...`);
+          if (!imageConfigLabels) {
+            event.reply(
+              'extension-installer:install-from-image-error',
+              logCallbackId,
+              `Image ${imageName} is not a Podman Desktop Extension. Unable to grab image config labels.`,
+            );
+            return;
+          }
 
-        try {
-          await this.containerRegistry.pullImage(providerConnectionInfo, imageName, (pullEvent: PullEvent) => {
-            if (pullEvent.progress || pullEvent.progressDetail) {
-              console.log(pullEvent.progress);
-            } else if (pullEvent.status) {
-              reportLog(pullEvent.status);
-            }
-          });
-        } catch (error) {
-          event.reply(
-            'extension-installer:install-from-image-error',
-            logCallbackId,
-            'Error while pulling image: ' + error,
-          );
-          return;
-        }
+          const titleLabel = imageConfigLabels['org.opencontainers.image.title'];
+          const descriptionLabel = imageConfigLabels['org.opencontainers.image.description'];
+          const vendorLabel = imageConfigLabels['org.opencontainers.image.vendor'];
+          const apiVersion = imageConfigLabels['io.podman-desktop.api.version'];
 
-        // ok search the image
-        const images = await providerConnection.listImages();
-        const foundMatchingImage = images.find(image =>
-          image.RepoTags?.find(tag => tag.includes(imageName) || imageName.includes(tag)),
-        );
+          if (!titleLabel || !descriptionLabel || !vendorLabel || !apiVersion) {
+            event.reply(
+              'extension-installer:install-from-image-error',
+              logCallbackId,
+              `Image ${imageName} is not a Podman Desktop Extension`,
+            );
+            return;
+          }
 
-        if (!foundMatchingImage) {
-          event.reply(
-            'extension-installer:install-from-image-error',
-            logCallbackId,
-            `Not able to pull image ${imageName}`,
-          );
-          return;
-        }
+          // strip the tag (ending with :something) from the image name if any
+          let imageNameWithoutTag: string;
+          if (imageName.includes(':')) {
+            imageNameWithoutTag = imageName.split(':')[0];
+          } else {
+            imageNameWithoutTag = imageName;
+          }
 
-        // get the image information
-        const image = await providerConnection.getImage(foundMatchingImage.Id);
-        reportLog('Check if image is a Podman Desktop Extension...');
+          // remove all special characters from the image name
+          const imageNameWithoutSpecialChars = imageNameWithoutTag.replace(/[^a-zA-Z0-9]/g, '');
 
-        // analyze the image
-        const imageAnalysis = await image.inspect();
+          // tmp folder
+          const tmpFolderPath = path.join(os.tmpdir(), `/tmp/${imageNameWithoutSpecialChars}-tmp`);
 
-        // check if it's a Podman Desktop Extension
-        const labels = imageAnalysis.Config.Labels;
-        if (!labels) {
-          event.reply(
-            'extension-installer:install-from-image-error',
-            logCallbackId,
-            `Image ${imageName} is not a Podman Desktop Extension`,
-          );
-          return;
-        }
-        const titleLabel = labels['org.opencontainers.image.title'];
-        const descriptionLabel = labels['org.opencontainers.image.description'];
-        const vendorLabel = labels['org.opencontainers.image.vendor'];
-        const apiVersion = labels['io.podman-desktop.api.version'];
+          // final folder
+          const finalFolderPath = path.join(this.extensionLoader.getPluginsDirectory(), imageNameWithoutSpecialChars);
 
-        if (!titleLabel || !descriptionLabel || !vendorLabel || !apiVersion) {
-          event.reply(
-            'extension-installer:install-from-image-error',
-            logCallbackId,
-            `Image ${imageName} is not a Podman Desktop Extension`,
-          );
-          return;
-        }
+          // grab all extensions
+          const extensions = await this.extensionLoader.listExtensions();
 
-        // strip the tag (ending with :something) from the image name if any
-        let imageNameWithoutTag: string;
-        if (imageName.includes(':')) {
-          imageNameWithoutTag = imageName.split(':')[0];
-        } else {
-          imageNameWithoutTag = imageName;
-        }
+          // check if the extension is already installed for that path
+          const alreadyInstalledExtension = extensions.find(extension => extension.path === finalFolderPath);
 
-        // remove all special characters from the image name
-        const imageNameWithoutSpecialChars = imageNameWithoutTag.replace(/[^a-zA-Z0-9]/g, '');
+          if (alreadyInstalledExtension) {
+            event.reply(
+              'extension-installer:install-from-image-error',
+              logCallbackId,
+              `Extension ${alreadyInstalledExtension.name} is already installed`,
+            );
+            return;
+          }
 
-        // tmp folder
-        const tmpFolderPath = path.join(os.tmpdir(), `/tmp/${imageNameWithoutSpecialChars}-tmp`);
+          reportLog('Downloading and extract layers...');
+          await this.imageRegistry.downloadAndExtractImage(imageName, tmpFolderPath, reportLog);
 
-        // tmp tar file
-        const tmpTarPath = path.join(os.tmpdir(), `${imageNameWithoutSpecialChars}-tmp.tar`);
+          event.reply('extension-installer:install-from-image-log', logCallbackId, 'Filtering image content...');
+          await this.extractExtensionFiles(tmpFolderPath, finalFolderPath, reportLog);
 
-        // final folder
-        const finalFolderPath = path.join(this.extensionLoader.getPluginsDirectory(), imageNameWithoutSpecialChars);
+          // refresh contributions
+          try {
+            await this.extensionLoader.loadExtension(finalFolderPath, true);
+          } catch (error) {
+            event.reply(
+              'extension-installer:install-from-image-error',
+              logCallbackId,
+              'Error while loading the extension ' + error,
+            );
+            return;
+          }
 
-        // grab all extensions
-        const extensions = await this.extensionLoader.listExtensions();
+          event.reply('extension-installer:install-from-image-end', logCallbackId, 'Extension Successfully installed.');
+          this.apiSender.send('extension-started', {});
+        };
 
-        // check if the extension is already installed for that path
-        const alreadyInstalledExtension = extensions.find(extension => extension.path === finalFolderPath);
-
-        if (alreadyInstalledExtension) {
-          event.reply(
-            'extension-installer:install-from-image-error',
-            logCallbackId,
-            `Extension ${alreadyInstalledExtension.name} is already installed`,
-          );
-          return;
-        }
-
-        reportLog('Grabbing image content...');
-        await this.exportContentOfContainer(providerConnection, foundMatchingImage.Id, tmpTarPath);
-
-        // delete image
-        await image.remove();
-
-        reportLog('Extracting image content...');
-        try {
-          await this.unpackTarFile(tmpTarPath, tmpFolderPath);
-        } finally {
-          // delete the tmp tar file
-          fs.unlinkSync(tmpTarPath);
-        }
-
-        event.reply('extension-installer:install-from-image-log', logCallbackId, 'Filtering image content...');
-
-        await this.extractExtensionFiles(tmpFolderPath, finalFolderPath, reportLog);
-
-        // refresh contributions
-        try {
-          await this.extensionLoader.loadExtension(finalFolderPath, true);
-        } catch (error) {
-          event.reply(
-            'extension-installer:install-from-image-error',
-            logCallbackId,
-            'Error while loading the extension ' + error,
-          );
-          return;
-        }
-
-        event.reply('extension-installer:install-from-image-end', logCallbackId, 'Extension Successfully installed.');
-        this.apiSender.send('extension-started', {});
+        handler().catch((error: unknown) => {
+          event.reply('extension-installer:install-from-image-error', logCallbackId, error);
+        });
       },
     );
   }

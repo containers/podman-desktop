@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { VolumeInfoUI } from './VolumeInfoUI';
-import { Route } from 'tinro';
+import Route from '../../Route.svelte';
 import { onMount } from 'svelte';
 import { volumeListInfos } from '../../stores/volumes';
 import VolumeIcon from '../images/VolumeIcon.svelte';
@@ -9,6 +9,7 @@ import VolumeActions from './VolumeActions.svelte';
 import { VolumeUtils } from './volume-utils';
 import VolumeDetailsSummary from '././VolumeDetailsSummary.svelte';
 import VolumeDetailsInspect from './VolumeDetailsInspect.svelte';
+import DetailsTab from '../ui/DetailsTab.svelte';
 
 export let volumeName: string;
 export let engineId: string;
@@ -32,24 +33,24 @@ onMount(() => {
 </script>
 
 {#if volume}
-  <Route path="/*" let:meta>
+  <Route path="/*">
     <div class="w-full h-full">
       <div class="flex h-full flex-col">
         <div class="flex w-full flex-row">
-          <div class="w-full  px-5 pt-5">
+          <div class="w-full px-5 pt-5">
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/volumes" title="Go back to volumes list"
                 >Volumes</a>
-              <div class="text-xl mx-2 text-gray-400">></div>
-              <div class="text-sm font-extralight text-gray-400">Volume Details</div>
+              <div class="text-xl mx-2 text-gray-700">></div>
+              <div class="text-sm font-extralight text-gray-700">Volume Details</div>
             </div>
             <div class="text-lg flex flex-row items-start pt-1">
               <div class="pr-3 pt-1">
                 <StatusIcon icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
               </div>
               <div class="text-lg flex flex-col">
-                <div class="mr-2">{volume.name}</div>
-                <div class="mr-2 pb-4 text-small text-gray-500">{volume.humanSize}</div>
+                <div class="mr-2">{volume.shortName}</div>
+                <div class="mr-2 pb-4 text-small text-gray-900">{volume.humanSize}</div>
               </div>
             </div>
 
@@ -57,49 +58,29 @@ onMount(() => {
               <div class="pf-c-page__main-body">
                 <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
                   <ul class="pf-c-tabs__list">
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url ===
-                        `/volumes/${encodeURI(volume.name)}/${encodeURI(volume.engineId)}/summary`}">
-                      <a
-                        href="/volumes/{encodeURI(volume.name)}/{encodeURI(volume.engineId)}/summary"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-details-panel"
-                        id="open-tabs-example-tabs-list-details-link">
-                        <span class="pf-c-tabs__item-text">Summary</span>
-                      </a>
-                    </li>
-                    <li
-                      class="pf-c-tabs__item"
-                      class:pf-m-current="{meta.url ===
-                        `/volumes/${encodeURI(volume.name)}/${encodeURI(volume.engineId)}/inspect`}">
-                      <a
-                        href="/volumes/{encodeURI(volume.name)}/{encodeURI(volume.engineId)}/inspect"
-                        class="pf-c-tabs__link"
-                        aria-controls="open-tabs-example-tabs-list-yaml-panel"
-                        id="open-tabs-example-tabs-list-yaml-link">
-                        <span class="pf-c-tabs__item-text">Inspect</span>
-                      </a>
-                    </li>
+                    <DetailsTab title="Summary" url="summary" />
+                    <DetailsTab title="Inspect" url="inspect" />
                   </ul>
                 </div>
               </div>
             </section>
           </div>
-          <div class="flex flex-col w-full px-5 pt-5">
+          <div class="flex flex-col px-5 pt-5">
             <div class="flex justify-end">
               <VolumeActions volume="{volume}" detailed="{true}" />
             </div>
           </div>
-          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
+          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/summary">
-          <VolumeDetailsSummary volume="{volume}" />
-        </Route>
-        <Route path="/inspect">
-          <VolumeDetailsInspect volume="{volume}" />
-        </Route>
+        <div class="h-full bg-charcoal-900">
+          <Route path="/summary" breadcrumb="Summary">
+            <VolumeDetailsSummary volume="{volume}" />
+          </Route>
+          <Route path="/inspect" breadcrumb="Inspect">
+            <VolumeDetailsInspect volume="{volume}" />
+          </Route>
+        </div>
       </div>
     </div>
   </Route>

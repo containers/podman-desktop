@@ -6,6 +6,7 @@
     "moduleResolution": "Node",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "strict": true,
     "isolatedModules": true,
 
@@ -21,9 +22,5 @@
   "include": [
     "src/**/*.ts",
     "../../types/**/*.d.ts"
-  ],
-  "exclude": [
-    "**/*.spec.ts",
-    "**/*.test.ts"
   ]
 }

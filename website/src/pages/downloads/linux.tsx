@@ -41,24 +41,26 @@ export function LinuxDownloads(): JSX.Element {
     flatpak: '',
   });
 
-  const copyFlathubInstructions = () => {
-    navigator.clipboard.writeText('flatpak install --user flathub io.podman_desktop.PodmanDesktop');
+  const copyFlathubInstructions = async () => {
+    await navigator.clipboard.writeText('flatpak install --user flathub io.podman_desktop.PodmanDesktop');
   };
 
   useEffect(() => {
-    grabfilenameforMac(setDownloadData);
+    grabfilenameforMac(setDownloadData).catch((err: unknown) => {
+      console.error(err);
+    });
   }, []);
 
   return (
-    <div className="basis-1/3 py-2 rounded-lg dark:text-gray-300 text-gray-700  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
+    <div className="basis-1/3 py-2 rounded-lg dark:text-gray-400 text-gray-900  bg-zinc-300/25 dark:bg-zinc-700/25 bg-blend-multiply text-center items-center">
       <FontAwesomeIcon size="4x" icon={faLinux} className="my-4" />
-      <h2 className="w-full text-center text-4xl title-font font-medium pb-3 border-purple-600 border-b-2">Linux</h2>
+      <h2 className="w-full text-center text-4xl title-font font-medium pb-3 border-purple-500 border-b-2">Linux</h2>
       <div className="flex p-1 flex-col md:flex-col items-center align-top">
         <div className="flex flex-col align-middle items-center">
           <h3 className="mt-0">Podman Desktop for Linux</h3>
           <div className="pt-8">
             <Link
-              className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-md font-semibold"
+              className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-500 rounded text-md font-semibold"
               to={downloadData.flatpak}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               Download Now
@@ -70,7 +72,7 @@ export function LinuxDownloads(): JSX.Element {
           <div className="mt-4">
             <div>Other Linux downloads:</div>
             <Link
-              className="underline inline-flex dark:text-white text-purple-600 hover:text-purple-300 py-2 px-6 font-semibold text-md"
+              className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 font-semibold text-md"
               to={downloadData.binary}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               AMD64 binary (tar.gz)
@@ -91,7 +93,7 @@ export function LinuxDownloads(): JSX.Element {
                     <path d="M12 2.604l-.43.283L0 10.459v6.752l6.393 4.184L12 17.725l5.607 3.671L24 17.211v-6.752L12 2.604zm0 .828l5.434 3.556-2.717 1.778L12 10.545l-2.717-1.78-2.717-1.777L12 3.432zM6.39 7.104l5.434 3.556-5.408 3.54-5.434-3.557 5.409-3.54zm11.22 0l5.431 3.554-5.434 3.557-5.433-3.555 5.435-3.556zM.925 10.867l5.379 3.52a.123.08 0 00.027.013v5.647l-5.406-3.54v-5.64zm11.213.115l5.408 3.54v5.664l-5.408-3.54v-5.664z" />
                   </svg>
                 </p>
-                <div className="dark:bg-zinc-900/50 bg-zinc-300/50 p-1 text-xl dark:text-purple-300 text-purple-700 flex flex-row">
+                <div className="dark:bg-charcoal-800/50 bg-zinc-300/50 p-1 text-xl dark:text-purple-200 text-purple-600 flex flex-row">
                   <div className="w-72 truncate">
                     <FontAwesomeIcon size="xs" icon={faTerminal} className="mx-2 mt-3" />
                     flatpak install flathub io.podman_desktop.PodmanDesktop
@@ -103,7 +105,11 @@ export function LinuxDownloads(): JSX.Element {
                         size="xs"
                         icon={faPaste}
                         className="ml-3  cursor-pointer text-xl  text-white-500"
-                        onClick={() => copyFlathubInstructions()}
+                        onClick={() => {
+                          copyFlathubInstructions().catch((err: unknown) => {
+                            console.error('unable to copy instructions', err);
+                          });
+                        }}
                       />
                     </button>
                   </div>
@@ -116,14 +122,14 @@ export function LinuxDownloads(): JSX.Element {
     </div>
 
     /*
-    <section className="text-gray-400 bg-gray-900 min-h-full">
+    <section className="text-gray-700 bg-gray-900 min-h-full">
       <div className="container px-5 py-24 mx-auto center">
         <h1 className="text-3xl font-medium title-font text-white mb-12 text-center">
           {downloadData.version}: Downloads for Linux
         </h1>
         <div className="w-2/3 flex mx-auto justify-center center">
           <div className="p-4 ">
-            <div className="h-full bg-gray-800 bg-opacity-40 p-8 rounded">
+            <div className="h-full bg-gray-900 bg-opacity-40 p-8 rounded">
               <div className="w-full flex flex-col justify-center center">
                 <p className="mb-6 text-5xl">Tgz archive of binary</p>
                 <Link

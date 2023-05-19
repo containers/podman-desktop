@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-declare module '@tmpwip/extension-api' {
+declare module '@podman-desktop/api' {
   /**
    * Represents a reference to a command. Provides a title which
    * will be used to represent a command in the UI and, optionally,
@@ -101,6 +101,29 @@ declare module '@tmpwip/extension-api' {
     (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]): Disposable;
   }
 
+  /**
+   * A class to create and manage an {@link Event} for clients to subscribe to.
+   * The emitter can only send one kind of event.
+   *
+   * Use this class to send events inside extension or provide API to the other
+   * extensions.
+   */
+  export class EventEmitter<T> {
+    /**
+     * For the public to allow to subscribe to events from this Emitter
+     */
+    event: Event<T>;
+    /**
+     * To fire an event to the subscribers
+     * @param event The event to send to the registered listeners
+     */
+    fire(data: T): void;
+    /**
+     * Dispose by removing registered listeners
+     */
+    dispose(): void;
+  }
+
   export interface ExtensionContext {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly subscriptions: { dispose(): any }[];
@@ -156,6 +179,9 @@ declare module '@tmpwip/extension-api' {
 
     // Provide way to add additional warnings to the provider
     warnings?: ProviderInformation[];
+
+    // Provide the message to display when the provider has no connections
+    emptyConnectionMarkdownDescription?: string;
   }
 
   export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
@@ -174,9 +200,9 @@ declare module '@tmpwip/extension-api' {
   }
 
   export interface ProviderConnectionLifecycle {
-    start?(startContext: LifecycleContext): Promise<void>;
-    stop?(stopContext: LifecycleContext): Promise<void>;
-    delete?(): Promise<void>;
+    start?(startContext: LifecycleContext, logger?: Logger): Promise<void>;
+    stop?(stopContext: LifecycleContext, logger?: Logger): Promise<void>;
+    delete?(logger?: Logger): Promise<void>;
   }
 
   export interface ContainerProviderConnectionEndpoint {
@@ -201,22 +227,34 @@ declare module '@tmpwip/extension-api' {
     status(): ProviderConnectionStatus;
   }
 
+  // common set of options for creating a provider
+  export interface ProviderConnectionFactory {
+    // Allow to initialize a provider
+    initialize?(): Promise<void>;
+
+    // Optional display name when creating the provider. For example 'Podman Machine' or 'Kind Cluster', etc.
+    creationDisplayName?: string;
+
+    // Optional button title when creating the provider. Default is 'Create new'.
+    creationButtonTitle?: string;
+  }
+
   // create programmatically a ContainerProviderConnection
-  export interface ContainerProviderConnectionFactory {
-    initialize(): Promise<void>;
+  export interface ContainerProviderConnectionFactory extends ProviderConnectionFactory {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create(params: { [key: string]: any }, logger?: Logger): Promise<void>;
+    create(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
   }
 
   // create a kubernetes provider
-  export interface KubernetesProviderConnectionFactory {
+  export interface KubernetesProviderConnectionFactory extends ProviderConnectionFactory {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create(params: { [key: string]: any }, logger?: Logger): Promise<void>;
+    create?(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
   }
 
   export interface Link {
     title: string;
     url: string;
+    group?: string;
   }
   export type CheckResultLink = Link;
 
@@ -326,6 +364,18 @@ declare module '@tmpwip/extension-api' {
     status: ProviderStatus;
   }
 
+  export interface UpdateContainerConnectionEvent {
+    providerId: string;
+    connection: ContainerProviderConnection;
+    status: ProviderConnectionStatus;
+  }
+
+  export interface UpdateKubernetesConnectionEvent {
+    providerId: string;
+    connection: KubernetesProviderConnection;
+    status: ProviderConnectionStatus;
+  }
+
   export interface UnregisterContainerConnectionEvent {
     providerId: string;
   }
@@ -337,12 +387,21 @@ declare module '@tmpwip/extension-api' {
   }
   export interface RegisterContainerConnectionEvent {
     providerId: string;
+    connection: ContainerProviderConnection;
   }
+  export interface ProviderContainerConnection {
+    providerId: string;
+    connection: ContainerProviderConnection;
+  }
+
   export namespace provider {
     export function createProvider(provider: ProviderOptions): Provider;
     export const onDidUpdateProvider: Event<ProviderEvent>;
+    export const onDidUpdateContainerConnection: Event<UpdateContainerConnectionEvent>;
+    export const onDidUpdateKubernetesConnection: Event<UpdateKubernetesConnectionEvent>;
     export const onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent>;
-    export const onDidRegisterContainerConnection: Event<UnregisterContainerConnectionEvent>;
+    export const onDidRegisterContainerConnection: Event<RegisterContainerConnectionEvent>;
+    export function getContainerConnections(): ProviderContainerConnection[];
   }
 
   export interface ProxySettings {
@@ -353,7 +412,7 @@ declare module '@tmpwip/extension-api' {
 
   export namespace proxy {
     export function getProxySettings(): ProxySettings | undefined;
-    export function setProxy(proxySettings: ProxySettings): void;
+    export function setProxy(proxySettings: ProxySettings): Promise<void>;
     // Podman Desktop has updated the settings, propagates the changes to the provider.
     export const onDidUpdateProxy: Event<ProxySettings>;
 
@@ -433,7 +492,7 @@ declare module '@tmpwip/extension-api' {
     /**
      * An event that is emitted when the {@link Configuration configuration} changed.
      */
-    // export const onDidChangeConfiguration: Event<ConfigurationChangeEvent>;
+    export const onDidChangeConfiguration: Event<ConfigurationChangeEvent>;
   }
 
   /**
@@ -471,7 +530,7 @@ declare module '@tmpwip/extension-api' {
      * Update a configuration value. The updated configuration values are persisted.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    update(section: string, value: any): PromiseLike<void>;
+    update(section: string, value: any): Promise<void>;
 
     /**
      * Readable dictionary that backs this configuration.
@@ -514,8 +573,17 @@ declare module '@tmpwip/extension-api' {
   export enum ProgressLocation {
     /**
      * Show progress bar under app icon in launcher bar.
+     *
+     * @deprecated This value is deprecated as it does not render equally on various supported platforms. It will be
+     * removed in future versions of Podman Desktop. We strongly encourage to use TASK_WIDGET instead.
+     * @see TASK_WIDGET
      */
     APP_ICON = 1,
+
+    /**
+     * Show progress in the task manager widget
+     */
+    TASK_WIDGET = 2,
   }
 
   /**
@@ -557,6 +625,23 @@ declare module '@tmpwip/extension-api' {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onCancellationRequested: Event<any>;
+  }
+
+  export interface CancellationTokenSource {
+    /**
+     * The cancellation token of this source.
+     */
+    token: CancellationToken;
+
+    /**
+     * Signal cancellation on the token.
+     */
+    cancel(): void;
+
+    /**
+     * Dispose object and free resources.
+     */
+    dispose(): void;
   }
 
   /**
@@ -613,6 +698,11 @@ declare module '@tmpwip/extension-api' {
     prompt?: string;
 
     /**
+     * A description of the field to be show (Markdown format)
+     */
+    markdownDescription?;
+
+    /**
      * An optional string to show as placeholder in the input box to guide the user what to type.
      */
     placeHolder?: string;
@@ -627,6 +717,11 @@ declare module '@tmpwip/extension-api' {
      * This setting is ignored on iPad and is always false.
      */
     ignoreFocusOut?: boolean;
+
+    /**
+     * Set to `true` when value represents a multi line content.
+     */
+    multiline?: boolean;
 
     /**
      * An optional function that will be called to validate input and to give a hint
@@ -673,7 +768,7 @@ declare module '@tmpwip/extension-api' {
     /**
      * An optional tooltip.
      */
-    readonly tooltip?: string | undefined;
+    readonly tooltip?: string;
   }
 
   /**
@@ -877,11 +972,64 @@ declare module '@tmpwip/extension-api' {
    * Resource identifier for a resource
    */
   export class Uri {
-    private constructor(scheme: string, authority: string, path: string);
+    /**
+     * Create an URI from a string, e.g. `http://www.example.com/some/path`,
+     * `file:///usr/home`, or `scheme:with/path`.
+     *
+     * *Note* that for a while uris without a `scheme` were accepted. That is not correct
+     * as all uris should have a scheme. To avoid breakage of existing code the optional
+     * `strict`-argument has been added. We *strongly* advise to use it, e.g. `Uri.parse('my:uri', true)`
+     *
+     * @see {@link Uri.toString}
+     * @param value The string value of an Uri.
+     * @param strict Throw an error when `value` is empty or when no `scheme` can be parsed.
+     * @return A new Uri instance.
+     */
+    static parse(value: string, strict?: boolean): Uri;
+
+    /**
+     * Create an URI from a file system path. The {@link Uri.scheme scheme}
+     * will be `file`.
+     */
     static file(path: string): Uri;
-    readonly fsPath: string;
-    readonly authority: string;
+
+    /**
+     * Use the `file` and `parse` factory functions to create new `Uri` objects.
+     */
+    private constructor(scheme: string, authority: string, path: string, query: string, fragment: string);
+
+    /**
+     * Scheme is the `http` part of `http://www.example.com/some/path?query#fragment`.
+     * The part before the first colon.
+     */
     readonly scheme: string;
+
+    /**
+     * Authority is the `www.example.com` part of `http://www.example.com/some/path?query#fragment`.
+     * The part between the first double slashes and the next slash.
+     */
+    readonly authority: string;
+
+    /**
+     * Path is the `/some/path` part of `http://www.example.com/some/path?query#fragment`.
+     */
+    readonly path: string;
+
+    /**
+     * The string representing the corresponding file system path of this Uri.
+     */
+    readonly fsPath: string;
+
+    /**
+     * Query is the `query` part of `http://www.example.com/some/path?query#fragment`.
+     */
+    readonly query: string;
+
+    /**
+     * Fragment is the `fragment` part of `http://www.example.com/some/path?query#fragment`.
+     */
+    readonly fragment: string;
+
     toString(): string;
   }
 
@@ -905,7 +1053,7 @@ declare module '@tmpwip/extension-api' {
      *
      * @param message The message to show.
      * @param items A set of items that will be rendered as actions in the message.
-     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     * @return A promise that resolves to the selected item or `undefined` when being dismissed.
      */
     export function showInformationMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
@@ -915,7 +1063,7 @@ declare module '@tmpwip/extension-api' {
      *
      * @param message The message to show.
      * @param items A set of items that will be rendered as actions in the message.
-     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     * @return A promise that resolves to the selected item or `undefined` when being dismissed.
      */
     export function showWarningMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
@@ -925,7 +1073,7 @@ declare module '@tmpwip/extension-api' {
      *
      * @param message The message to show.
      * @param items A set of items that will be rendered as actions in the message.
-     * @return A thenable that resolves to the selected item or `undefined` when being dismissed.
+     * @return A promise that resolves to the selected item or `undefined` when being dismissed.
      */
     export function showErrorMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
@@ -1024,6 +1172,14 @@ declare module '@tmpwip/extension-api' {
     export function getKubeconfig(): Uri;
     export const onDidUpdateKubeconfig: Event<KubeconfigUpdateEvent>;
     export function setKubeconfig(kubeconfig: Uri): Promise<void>;
+
+    /**
+     * Create one or several Kubernetes resources on the Kubernetes contenxt.
+     *
+     * @param context the Kubernetes context to use
+     * @param manifests the manifests to create as JSON objects
+     */
+    export function createResources(context: string, manifests: unknown[]): Promise<void>;
   }
   /**
    * An event describing the update in kubeconfig location
@@ -1054,11 +1210,11 @@ declare module '@tmpwip/extension-api' {
       Networks: { [networkType: string]: NetworkInfo };
     };
     Mounts: Array<{
-      Name?: string | undefined;
+      Name?: string;
       Type: string;
       Source: string;
       Destination: string;
-      Driver?: string | undefined;
+      Driver?: string;
       Mode: string;
       RW: boolean;
       Propagation: string;
@@ -1091,7 +1247,7 @@ declare module '@tmpwip/extension-api' {
     username: string;
     password: string;
     serveraddress: string;
-    email?: string | undefined;
+    email?: string;
   }
 
   interface RegistryConfig {
@@ -1102,8 +1258,8 @@ declare module '@tmpwip/extension-api' {
   }
 
   interface PortBinding {
-    HostIp?: string | undefined;
-    HostPort?: string | undefined;
+    HostIp?: string;
+    HostPort?: string;
   }
 
   interface PortMap {
@@ -1112,82 +1268,80 @@ declare module '@tmpwip/extension-api' {
 
   interface HostRestartPolicy {
     Name: string;
-    MaximumRetryCount?: number | undefined;
+    MaximumRetryCount?: number;
   }
 
   interface HostConfig {
-    AutoRemove?: boolean | undefined;
-    Binds?: string[] | undefined;
-    ContainerIDFile?: string | undefined;
-    LogConfig?:
-      | {
-          Type: string;
-          Config: unknown;
-        }
-      | undefined;
-    NetworkMode?: string | undefined;
+    AutoRemove?: boolean;
+    Binds?: string[];
+    ContainerIDFile?: string;
+    LogConfig?: {
+      Type: string;
+      Config: unknown;
+    };
+    NetworkMode?: string;
     PortBindings?: unknown;
-    RestartPolicy?: HostRestartPolicy | undefined;
-    VolumeDriver?: string | undefined;
+    RestartPolicy?: HostRestartPolicy;
+    VolumeDriver?: string;
     VolumesFrom?: unknown;
-    Mounts?: MountConfig | undefined;
+    Mounts?: MountConfig;
     CapAdd?: unknown;
     CapDrop?: unknown;
-    Dns?: unknown[] | undefined;
-    DnsOptions?: unknown[] | undefined;
-    DnsSearch?: string[] | undefined;
+    Dns?: unknown[];
+    DnsOptions?: unknown[];
+    DnsSearch?: string[];
     ExtraHosts?: unknown;
-    GroupAdd?: string[] | undefined;
-    IpcMode?: string | undefined;
-    Cgroup?: string | undefined;
+    GroupAdd?: string[];
+    IpcMode?: string;
+    Cgroup?: string;
     Links?: unknown;
-    OomScoreAdj?: number | undefined;
-    PidMode?: string | undefined;
-    Privileged?: boolean | undefined;
-    PublishAllPorts?: boolean | undefined;
-    ReadonlyRootfs?: boolean | undefined;
+    OomScoreAdj?: number;
+    PidMode?: string;
+    Privileged?: boolean;
+    PublishAllPorts?: boolean;
+    ReadonlyRootfs?: boolean;
     SecurityOpt?: unknown;
-    StorageOpt?: { [option: string]: string } | undefined;
-    Tmpfs?: { [dir: string]: string } | undefined;
-    UTSMode?: string | undefined;
-    UsernsMode?: string | undefined;
-    ShmSize?: number | undefined;
-    Sysctls?: { [index: string]: string } | undefined;
-    Runtime?: string | undefined;
-    ConsoleSize?: number[] | undefined;
-    Isolation?: string | undefined;
-    MaskedPaths?: string[] | undefined;
-    ReadonlyPaths?: string[] | undefined;
-    CpuShares?: number | undefined;
-    CgroupParent?: string | undefined;
-    BlkioWeight?: number | undefined;
+    StorageOpt?: { [option: string]: string };
+    Tmpfs?: { [dir: string]: string };
+    UTSMode?: string;
+    UsernsMode?: string;
+    ShmSize?: number;
+    Sysctls?: { [index: string]: string };
+    Runtime?: string;
+    ConsoleSize?: number[];
+    Isolation?: string;
+    MaskedPaths?: string[];
+    ReadonlyPaths?: string[];
+    CpuShares?: number;
+    CgroupParent?: string;
+    BlkioWeight?: number;
     BlkioWeightDevice?: unknown;
     BlkioDeviceReadBps?: unknown;
     BlkioDeviceWriteBps?: unknown;
     BlkioDeviceReadIOps?: unknown;
     BlkioDeviceWriteIOps?: unknown;
-    CpuPeriod?: number | undefined;
-    CpuQuota?: number | undefined;
-    CpusetCpus?: string | undefined;
-    CpusetMems?: string | undefined;
+    CpuPeriod?: number;
+    CpuQuota?: number;
+    CpusetCpus?: string;
+    CpusetMems?: string;
     Devices?: unknown;
-    DeviceCgroupRules?: string[] | undefined;
-    DeviceRequests?: DeviceRequest[] | undefined;
-    DiskQuota?: number | undefined;
-    KernelMemory?: number | undefined;
-    Memory?: number | undefined;
-    MemoryReservation?: number | undefined;
-    MemorySwap?: number | undefined;
-    MemorySwappiness?: number | undefined;
-    NanoCpus?: number | undefined;
-    OomKillDisable?: boolean | undefined;
-    Init?: boolean | undefined;
-    PidsLimit?: number | undefined;
+    DeviceCgroupRules?: string[];
+    DeviceRequests?: DeviceRequest[];
+    DiskQuota?: number;
+    KernelMemory?: number;
+    Memory?: number;
+    MemoryReservation?: number;
+    MemorySwap?: number;
+    MemorySwappiness?: number;
+    NanoCpus?: number;
+    OomKillDisable?: boolean;
+    Init?: boolean;
+    PidsLimit?: number;
     Ulimits?: unknown;
-    CpuCount?: number | undefined;
-    CpuPercent?: number | undefined;
-    CpuRealtimePeriod?: number | undefined;
-    CpuRealtimeRuntime?: number | undefined;
+    CpuCount?: number;
+    CpuPercent?: number;
+    CpuRealtimePeriod?: number;
+    CpuRealtimeRuntime?: number;
   }
 
   export interface ContainerInspectInfo {
@@ -1209,18 +1363,16 @@ declare module '@tmpwip/extension-api' {
       Error: string;
       StartedAt: string;
       FinishedAt: string;
-      Health?:
-        | {
-            Status: string;
-            FailingStreak: number;
-            Log: Array<{
-              Start: string;
-              End: string;
-              ExitCode: number;
-              Output: string;
-            }>;
-          }
-        | undefined;
+      Health?: {
+        Status: string;
+        FailingStreak: number;
+        Log: Array<{
+          Start: string;
+          End: string;
+          ExitCode: number;
+          Output: string;
+        }>;
+      };
     };
     Image: string;
     ResolvConfPath: string;
@@ -1234,7 +1386,7 @@ declare module '@tmpwip/extension-api' {
     MountLabel: string;
     ProcessLabel: string;
     AppArmorProfile: string;
-    ExecIDs?: string[] | undefined;
+    ExecIDs?: string[];
     HostConfig: HostConfig;
     GraphDriver: {
       Name: string;
@@ -1245,7 +1397,7 @@ declare module '@tmpwip/extension-api' {
       };
     };
     Mounts: Array<{
-      Name?: string | undefined;
+      Name?: string;
       Source: string;
       Destination: string;
       Mode: string;
@@ -1268,7 +1420,7 @@ declare module '@tmpwip/extension-api' {
       Image: string;
       Volumes: { [volume: string]: unknown };
       WorkingDir: string;
-      Entrypoint?: string | string[] | undefined;
+      Entrypoint?: string | string[];
       OnBuild?: unknown;
       Labels: { [label: string]: string };
     };
@@ -1311,17 +1463,15 @@ declare module '@tmpwip/extension-api' {
           MacAddress: string;
         };
       };
-      Node?:
-        | {
-            ID: string;
-            IP: string;
-            Addr: string;
-            Name: string;
-            Cpus: number;
-            Memory: number;
-            Labels: unknown;
-          }
-        | undefined;
+      Node?: {
+        ID: string;
+        IP: string;
+        Addr: string;
+        Name: string;
+        Cpus: number;
+        Memory: number;
+        Labels: unknown;
+      };
     };
   }
 
@@ -1335,6 +1485,462 @@ declare module '@tmpwip/extension-api' {
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
+    export function startContainer(engineId: string, id: string): Promise<void>;
+    export function stopContainer(engineId: string, id: string): Promise<void>;
+    export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
     export const onEvent: Event<ContainerJSONEvent>;
+  }
+
+  /**
+   * Represents a session of a currently logged in user.
+   */
+  export interface AuthenticationSession {
+    /**
+     * The identifier of the authentication session.
+     */
+    readonly id: string;
+
+    /**
+     * The access token.
+     */
+    readonly accessToken: string;
+
+    /**
+     * The account associated with the session.
+     */
+    readonly account: AuthenticationSessionAccountInformation;
+
+    /**
+     * The permissions granted by the session's access token. Available scopes
+     * are defined by the [AuthenticationProvider](#AuthenticationProvider).
+     */
+    readonly scopes: ReadonlyArray<string>;
+  }
+
+  /**
+   * The information of an account associated with an [AuthenticationSession](#AuthenticationSession).
+   */
+  export interface AuthenticationSessionAccountInformation {
+    /**
+     * The unique identifier of the account.
+     */
+    readonly id: string;
+
+    /**
+     * The human-readable name of the account.
+     */
+    readonly label: string;
+  }
+
+  /**
+   * Options to be used when getting an [AuthenticationSession](#AuthenticationSession) from an [AuthenticationProvider](#AuthenticationProvider).
+   */
+  export interface AuthenticationGetSessionOptions {
+    /**
+     * Whether login should be performed if there is no matching session.
+     *
+     * If true, a modal dialog will be shown asking the user to sign in. If false, a numbered badge will be shown
+     * on the accounts activity bar icon. An entry for the extension will be added under the menu to sign in. This
+     * allows quietly prompting the user to sign in.
+     *
+     * If there is a matching session but the extension has not been granted access to it, setting this to true
+     * will also result in an immediate modal dialog, and false will add a numbered badge to the accounts icon.
+     *
+     * Defaults to false.
+     */
+    createIfNone?: boolean;
+
+    /**
+     * Whether the existing user session preference should be cleared.
+     *
+     * For authentication providers that support being signed into multiple accounts at once, the user will be
+     * prompted to select an account to use when [getSession](#authentication.getSession) is called. This preference
+     * is remembered until [getSession](#authentication.getSession) is called with this flag.
+     *
+     * Defaults to false.
+     */
+    clearSessionPreference?: boolean;
+
+    /**
+     * Whether we should attempt to reauthenticate even if there is already a session available.
+     *
+     * If true, a modal dialog will be shown asking the user to sign in again. This is mostly used for scenarios
+     * where the token needs to be re minted because it has lost some authorization.
+     *
+     * If there are no existing sessions and forceNewSession is true, it will behave identically to
+     * {@link AuthenticationGetSessionOptions.createIfNone createIfNone}.
+     *
+     * This defaults to false.
+     */
+    forceNewSession?: boolean | { detail: string };
+
+    /**
+     * Whether we should show the indication to sign in in the Accounts menu.
+     *
+     * If false, the user will be shown a badge on the Accounts menu with an option to sign in for the extension.
+     * If true, no indication will be shown.
+     *
+     * Defaults to false.
+     *
+     * Note: you cannot use this option with any other options that prompt the user like {@link AuthenticationGetSessionOptions.createIfNone createIfNone}.
+     */
+    silent?: boolean;
+  }
+
+  /**
+   * Basic information about an [authenticationProvider](#AuthenticationProvider)
+   */
+  export interface AuthenticationProviderInformation {
+    /**
+     * The unique identifier of the authentication provider.
+     */
+    readonly id: string;
+
+    /**
+     * The human-readable name of the authentication provider.
+     */
+    readonly label: string;
+  }
+
+  /**
+   * An [event](#Event) which fires when an [AuthenticationSession](#AuthenticationSession) is added, removed, or changed.
+   */
+  export interface AuthenticationSessionsChangeEvent {
+    /**
+     * The [authenticationProvider](#AuthenticationProvider) that has had its sessions change.
+     */
+    readonly provider: AuthenticationProviderInformation;
+  }
+
+  /**
+   * Options for creating an [AuthenticationProvider](#AuthenticationProvider).
+   */
+  export interface AuthenticationProviderOptions {
+    /**
+     * Whether it is possible to be signed into multiple accounts at once with this provider.
+     * If not specified, will default to false.
+     */
+    readonly supportsMultipleAccounts?: boolean;
+
+    readonly images?: ProviderImages;
+  }
+
+  /**
+   * An [event](#Event) which fires when an [AuthenticationSession](#AuthenticationSession) is added, removed, or changed.
+   */
+  export interface AuthenticationProviderAuthenticationSessionsChangeEvent {
+    /**
+     * The [AuthenticationSession](#AuthenticationSession)s of the [AuthenticationProvider](#AuthentiationProvider) that have been added.
+     */
+    readonly added?: ReadonlyArray<AuthenticationSession>;
+
+    /**
+     * The [AuthenticationSession](#AuthenticationSession)s of the [AuthenticationProvider](#AuthentiationProvider) that have been removed.
+     */
+    readonly removed?: ReadonlyArray<AuthenticationSession>;
+
+    /**
+     * The [AuthenticationSession](#AuthenticationSession)s of the [AuthenticationProvider](#AuthentiationProvider) that have been changed.
+     * A session changes when its data excluding the id are updated. An example of this is a session refresh that results in a new
+     * access token being set for the session.
+     */
+    readonly changed?: ReadonlyArray<AuthenticationSession>;
+  }
+
+  /**
+   * A provider for performing authentication to a service.
+   */
+  export interface AuthenticationProvider {
+    /**
+     * An [event](#Event) which fires when the array of sessions has changed, or data
+     * within a session has changed.
+     */
+    readonly onDidChangeSessions: Event<AuthenticationProviderAuthenticationSessionsChangeEvent>;
+
+    /**
+     * Get a list of sessions.
+     * @param scopes An optional list of scopes. If provided, the sessions returned should match
+     * these permissions, otherwise all sessions should be returned.
+     * @returns A promise that resolves to an array of authentication sessions.
+     */
+    getSessions(scopes?: string[]): Promise<ReadonlyArray<AuthenticationSession>>;
+
+    /**
+     * Prompts a user to login.
+     *
+     * If login is successful, the onDidChangeSessions event should be fired.
+     *
+     * If login fails, a rejected promise should be returned.
+     *
+     * If the provider has specified that it does not support multiple accounts,
+     * then this should never be called if there is already an existing session matching these
+     * scopes.
+     * @param scopes A list of scopes, permissions, that the new session should be created with.
+     * @returns A promise that resolves to an authentication session.
+     */
+    createSession(scopes: string[]): Promise<AuthenticationSession>;
+
+    /**
+     * Removes the session corresponding to session id.
+     *
+     * If the removal is successful, the onDidChangeSessions event should be fired.
+     *
+     * If a session cannot be removed, the provider should reject with an error message.
+     * @param sessionId The id of the session to remove.
+     */
+    removeSession(sessionId: string): Promise<void>;
+  }
+
+  /**
+   * Namespace for authentication.
+   */
+  export namespace authentication {
+    /**
+     * Get an authentication session matching the desired scopes. Rejects if a provider with providerId is not
+     * registered, or if the user does not consent to sharing authentication information with
+     * the extension. If there are multiple sessions with the same scopes, the user will be shown a
+     * quickpick to select which account they would like to use.
+     *
+     * Currently, there are only two authentication providers that are contributed from built in extensions
+     * to VS Code that implement GitHub and Microsoft authentication: their providerId's are 'github' and 'microsoft'.
+     * @param providerId The id of the provider to use
+     * @param scopes A list of scopes representing the permissions requested. These are dependent on the authentication provider
+     * @param options The [getSessionOptions](#GetSessionOptions) to use
+     * @returns A promise that resolves to an authentication session
+     */
+    export function getSession(
+      providerId: string,
+      scopes: string[],
+      options: AuthenticationGetSessionOptions & { createIfNone: true },
+    ): Promise<AuthenticationSession | undefined>;
+
+    /**
+     * Get an authentication session matching the desired scopes. Rejects if a provider with providerId is not
+     * registered, or if the user does not consent to sharing authentication information with
+     * the extension. If there are multiple sessions with the same scopes, the user will be shown a
+     * quickpick to select which account they would like to use.
+     *
+     * Currently, there are only two authentication providers that are contributed from built in extensions
+     * to VS Code that implement GitHub and Microsoft authentication: their providerId's are 'github' and 'microsoft'.
+     * @param providerId The id of the provider to use
+     * @param scopes A list of scopes representing the permissions requested. These are dependent on the authentication provider
+     * @param options The [getSessionOptions](#GetSessionOptions) to use
+     * @returns A promise that resolves to an authentication session if available, or undefined if there are no sessions
+     */
+    export function getSession(
+      providerId: string,
+      scopes: string[],
+      options?: AuthenticationGetSessionOptions,
+    ): Promise<AuthenticationSession | undefined>;
+
+    /**
+     * An [event](#Event) which fires when the authentication sessions of an authentication provider have
+     * been added, removed, or changed.
+     */
+    export const onDidChangeSessions: Event<AuthenticationSessionsChangeEvent>;
+
+    /**
+     * Register an authentication provider.
+     *
+     * There can only be one provider per id and an error is being thrown when an id
+     * has already been used by another provider. Ids are case-sensitive.
+     *
+     * @param id The unique identifier of the provider.
+     * @param label The human-readable name of the provider.
+     * @param provider The authentication provider provider.
+     * @params options Additional options for the provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    export function registerAuthenticationProvider(
+      id: string,
+      label: string,
+      provider: AuthenticationProvider,
+      options?: AuthenticationProviderOptions,
+    ): Disposable;
+  }
+
+  /**
+   * Namespace describing the environment Podman Desktop runs in.
+   */
+  export namespace env {
+    /**
+     * Indicates whether the users has telemetry enabled.
+     * Can be observed to determine if the extension should send telemetry.
+     */
+    export const isTelemetryEnabled: boolean;
+
+    /**
+     * An {@link Event} which fires when the user enabled or disables telemetry.
+     * `true` if the user has enabled telemetry or `false` if the user has disabled telemetry.
+     */
+    export const onDidChangeTelemetryEnabled: Event<boolean>;
+
+    /**
+     * Opens a link externally using the default application. Depending on the
+     *
+     * @param target The uri that should be opened.
+     * @returns A promise indicating if open was successful.
+     */
+    export function openExternal(uri: Uri): Promise<boolean>;
+
+    /**
+     * Creates a new {@link TelemetryLogger telemetry logger}.
+     *
+     * @param sender The telemetry sender that is used by the telemetry logger.
+     * @param options Options for the telemetry logger.
+     * @returns A new telemetry logger
+     */
+    export function createTelemetryLogger(sender?: TelemetrySender, options?: TelemetryLoggerOptions): TelemetryLogger;
+
+    /**
+     * The system clipboard.
+     */
+    export const clipboard: Clipboard;
+  }
+
+  /**
+   * A special value wrapper denoting a value that is safe to not clean.
+   * This is to be used when you can guarantee no identifiable information is contained in the value and the cleaning is improperly redacting it.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export class TelemetryTrustedValue<T = any> {
+    readonly value: T;
+
+    constructor(value: T);
+  }
+
+  /**
+   * A telemetry logger which can be used by extensions to log usage and error telementry.
+   *
+   * A logger wraps around an {@link TelemetrySender sender} but it guarantees that
+   * - user settings to disable or tweak telemetry are respected, and that
+   * - potential sensitive data is removed
+   *
+   * It also enables an "echo UI" that prints whatever data is send and it allows the editor
+   * to forward unhandled errors to the respective extensions.
+   *
+   * To get an instance of a `TelemetryLogger`, use
+   * {@link env.createTelemetryLogger `createTelemetryLogger`}.
+   */
+  export interface TelemetryLogger {
+    /**
+     * An {@link Event} which fires when the enablement state of usage or error telemetry changes.
+     */
+    readonly onDidChangeEnableStates: Event<TelemetryLogger>;
+
+    /**
+     * Whether or not usage telemetry is enabled for this logger.
+     */
+    readonly isUsageEnabled: boolean;
+
+    /**
+     * Whether or not error telemetry is enabled for this logger.
+     */
+    readonly isErrorsEnabled: boolean;
+
+    /**
+     * Log a usage event.
+     *
+     * After completing cleaning, telemetry setting checks, and data mix-in calls `TelemetrySender.sendEventData` to log the event.
+     * Automatically supports echoing to extension telemetry output channel.
+     * @param eventName The event name to log
+     * @param data The data to log
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    logUsage(eventName: string, data?: Record<string, any | TelemetryTrustedValue>): void;
+
+    /**
+     * Log an error event.
+     *
+     * After completing cleaning, telemetry setting checks, and data mix-in calls `TelemetrySender.sendEventData` to log the event. Differs from `logUsage` in that it will log the event if the telemetry setting is Error+.
+     * Automatically supports echoing to extension telemetry output channel.
+     * @param eventName The event name to log
+     * @param data The data to log
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    logError(eventName: string, data?: Record<string, any | TelemetryTrustedValue>): void;
+
+    /**
+     * Log an error event.
+     * @param error The error object which contains the stack trace cleaned of PII
+     * @param data Additional data to log alongside the stack trace
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    logError(error: Error, data?: Record<string, any | TelemetryTrustedValue>): void;
+
+    /**
+     * Dispose this object and free resources.
+     */
+    dispose(): void;
+  }
+
+  /**
+   * The telemetry sender is the contract between a telemetry logger and some telemetry service. **Note** that extensions must NOT
+   * call the methods of their sender directly as the logger provides extra guards and cleaning.
+   */
+  export interface TelemetrySender {
+    /**
+     * Function to send event data without a stacktrace. Used within a {@link TelemetryLogger}
+     *
+     * @param eventName The name of the event which you are logging
+     * @param data A serializable key value pair that is being logged
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sendEventData(eventName: string, data?: Record<string, any>): void;
+
+    /**
+     * Function to send an error. Used within a {@link TelemetryLogger}
+     *
+     * @param error The error being logged
+     * @param data Any additional data to be collected with the exception
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sendErrorData(error: Error, data?: Record<string, any>): void;
+
+    /**
+     * Optional flush function which will give this sender a chance to send any remaining events
+     * as its {@link TelemetryLogger} is being disposed
+     */
+    flush?(): void | Promise<void>;
+  }
+
+  /**
+   * Options for creating a {@link TelemetryLogger}
+   */
+  export interface TelemetryLoggerOptions {
+    /**
+     * Whether or not you want to avoid having the built-in common properties such as os, extension name, etc injected into the data object.
+     * Defaults to `false` if not defined.
+     */
+    readonly ignoreBuiltInCommonProperties?: boolean;
+
+    /**
+     * Whether or not unhandled errors on the extension host caused by your extension should be logged to your sender.
+     * Defaults to `false` if not defined.
+     */
+    readonly ignoreUnhandledErrors?: boolean;
+
+    /**
+     * Any additional common properties which should be injected into the data object.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    readonly additionalCommonProperties?: Record<string, any>;
+  }
+
+  /**
+   * The clipboard provides read and write access to the system's clipboard.
+   */
+  export interface Clipboard {
+    /**
+     * Read the current clipboard contents as text.
+     * @returns A Promise that resolves to a string.
+     */
+    readText(): Promise<string>;
+
+    /**
+     * Writes text into the clipboard.
+     * @returns A Promise that resolves when writing happened.
+     */
+    writeText(value: string): Promise<void>;
   }
 }

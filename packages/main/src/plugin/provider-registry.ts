@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,12 @@ import type {
   RegisterKubernetesConnectionEvent,
   Logger,
   ProviderInformation,
-} from '@tmpwip/extension-api';
+  ProviderContainerConnection,
+  CancellationToken,
+  UpdateContainerConnectionEvent,
+  UpdateKubernetesConnectionEvent,
+  ProviderConnectionStatus,
+} from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
@@ -49,6 +54,7 @@ import { LifecycleContextImpl, LoggerImpl } from './lifecycle-context';
 import { ProviderImpl } from './provider-impl';
 import type { Telemetry } from './telemetry/telemetry';
 import { Disposable } from './types/disposable';
+import type { ApiSenderType } from './api';
 
 export type ProviderEventListener = (name: string, providerInfo: ProviderInfo) => void;
 export type ProviderLifecycleListener = (
@@ -78,13 +84,26 @@ export class ProviderRegistry {
   private providerUpdates: Map<string, ProviderUpdate> = new Map();
   private providerAutostarts: Map<string, ProviderAutostart> = new Map();
 
-  private connectionLifecycleContexts: Map<ContainerProviderConnection, LifecycleContextImpl> = new Map();
+  private connectionLifecycleContexts: Map<
+    ContainerProviderConnection | KubernetesProviderConnection,
+    LifecycleContextImpl
+  > = new Map();
   private listeners: ProviderEventListener[];
   private lifecycleListeners: ProviderLifecycleListener[];
   private containerConnectionLifecycleListeners: ContainerConnectionProviderLifecycleListener[];
 
+  private kubernetesProviders: Map<string, KubernetesProviderConnection> = new Map();
+
   private readonly _onDidUpdateProvider = new Emitter<ProviderEvent>();
   readonly onDidUpdateProvider: Event<ProviderEvent> = this._onDidUpdateProvider.event;
+
+  private readonly _onDidUpdateContainerConnection = new Emitter<UpdateContainerConnectionEvent>();
+  readonly onDidUpdateContainerConnection: Event<UpdateContainerConnectionEvent> =
+    this._onDidUpdateContainerConnection.event;
+
+  private readonly _onDidUpdateKubernetesConnection = new Emitter<UpdateKubernetesConnectionEvent>();
+  readonly onDidUpdateKubernetesConnection: Event<UpdateKubernetesConnectionEvent> =
+    this._onDidUpdateKubernetesConnection.event;
 
   private readonly _onDidUnregisterContainerConnection = new Emitter<UnregisterContainerConnectionEvent>();
   readonly onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent> =
@@ -103,8 +122,7 @@ export class ProviderRegistry {
     this._onDidRegisterContainerConnection.event;
 
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private apiSender: any,
+    private apiSender: ApiSenderType,
     private containerRegistry: ContainerProviderRegistry,
     private telemetryService: Telemetry,
   ) {
@@ -116,8 +134,8 @@ export class ProviderRegistry {
     // Every 2 seconds, we will check:
     // * The status of the providers
     // * Any new warnings or informations for each provider
-    setInterval(async () => {
-      Array.from(this.providers.keys()).forEach(providerKey => {
+    setInterval(() => {
+      for (const [providerKey] of this.providers) {
         // Get the provider and its lifecycle
         const provider = this.providers.get(providerKey);
         const providerLifecycle = this.providerLifecycles.get(providerKey);
@@ -137,15 +155,13 @@ export class ProviderRegistry {
         }
 
         // Update the warnings of the provider
-        if (provider) {
-          // If the warnings do not match the current cache, we will send an update event to the renderer
-          // and update the local warnings cache
-          if (JSON.stringify(providerWarnings) !== JSON.stringify(provider?.warnings)) {
-            this.apiSender.send('provider:update-warnings', provider.id);
-            this.providerWarnings.set(providerKey, provider.warnings);
-          }
+        // If the warnings do not match the current cache, we will send an update event to the renderer
+        // and update the local warnings cache
+        if (provider && JSON.stringify(providerWarnings) !== JSON.stringify(provider?.warnings)) {
+          this.apiSender.send('provider:update-warnings', provider.id);
+          this.providerWarnings.set(providerKey, provider.warnings);
         }
-      });
+      }
     }, 2000);
   }
 
@@ -162,8 +178,11 @@ export class ProviderRegistry {
     if (providerOptions.version) {
       trackOpts.version = providerOptions.version;
     }
-    this.telemetryService.track('createProvider', trackOpts);
+    this.telemetryService
+      .track('createProvider', trackOpts)
+      .catch((err: unknown) => console.error('Unable to track', err));
     this.apiSender.send('provider-create', id);
+    providerImpl.onDidUpdateVersion(() => this.apiSender.send('provider:update-version'));
     return providerImpl;
   }
 
@@ -316,10 +335,22 @@ export class ProviderRegistry {
   }
 
   // run autostart on all providers supporting this option
-  async runAutostart(): Promise<void[]> {
+  async runAutostart(): Promise<void> {
     // grab auto start providers
-    const autostartValues = Array.from(this.providerAutostarts.values());
-    return Promise.all(autostartValues.map(autoStart => autoStart.start(new LoggerImpl())));
+
+    for (const [internalId, autoStart] of this.providerAutostarts) {
+      // grab the provider
+      const provider = this.getMatchingProvider(internalId);
+
+      await autoStart.start(new LoggerImpl());
+
+      // send the event
+      this._onDidUpdateProvider.fire({
+        id: provider.id,
+        name: provider.name,
+        status: provider.status,
+      });
+    }
   }
 
   async runPreflightChecks(
@@ -336,7 +367,7 @@ export class ProviderRegistry {
     }
 
     if (!installOrUpdate.preflightChecks) {
-      return false;
+      return true;
     }
 
     const checks = installOrUpdate.preflightChecks();
@@ -375,9 +406,11 @@ export class ProviderRegistry {
     if (!providerInstall) {
       throw new Error(`No matching installation for provider ${provider.internalId}`);
     }
-    this.telemetryService.track('installProvider', {
-      name: provider.name,
-    });
+    this.telemetryService
+      .track('installProvider', {
+        name: provider.name,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     return providerInstall.install(new LoggerImpl());
   }
 
@@ -389,9 +422,11 @@ export class ProviderRegistry {
       throw new Error(`No matching update for provider ${provider.internalId}`);
     }
 
-    this.telemetryService.track('updateProvider', {
-      name: provider.name,
-    });
+    this.telemetryService
+      .track('updateProvider', {
+        name: provider.name,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     return providerUpdate.update(new LoggerImpl());
   }
 
@@ -407,7 +442,7 @@ export class ProviderRegistry {
     if (provider.containerConnections && provider.containerConnections.length > 0) {
       const connection = provider.containerConnections[0];
       const lifecycle = connection.lifecycle;
-      if (!lifecycle || !lifecycle.start) {
+      if (!lifecycle?.start) {
         throw new Error('The container connection does not support start lifecycle');
       }
 
@@ -427,31 +462,67 @@ export class ProviderRegistry {
     const provider = this.getMatchingProvider(providerInternalId);
 
     // do we have a lifecycle attached to the provider ?
-    if (this.providerLifecycles.has(providerInternalId)) {
-      if (this.providerLifecycles.get(providerInternalId)?.initialize) {
-        return this.intializeProviderLifecycle(providerInternalId);
-      }
+    if (
+      this.providerLifecycles.has(providerInternalId) &&
+      this.providerLifecycles.get(providerInternalId)?.initialize
+    ) {
+      return this.intializeProviderLifecycle(providerInternalId);
     }
 
-    if (provider.containerProviderConnectionFactory) {
-      this.telemetryService.track('initializeProvider', {
-        name: provider.name,
-      });
+    if (provider?.containerProviderConnectionFactory?.initialize) {
+      this.telemetryService
+        .track('initializeProvider', {
+          name: provider.name,
+        })
+        .catch((err: unknown) => console.error('Unable to track', err));
 
       return provider.containerProviderConnectionFactory.initialize();
+    }
+
+    if (provider?.kubernetesProviderConnectionFactory?.initialize) {
+      this.telemetryService
+        .track('initializeProvider', {
+          name: provider.name,
+        })
+        .catch((err: unknown) => console.error('Unable to track', err));
+
+      return provider.kubernetesProviderConnectionFactory.initialize();
     }
     throw new Error('No initialize implementation found for this provider');
   }
 
   public getProviderContainerConnectionInfo(connection: ContainerProviderConnection): ProviderContainerConnectionInfo {
-    const containerProviderConnection: ProviderContainerConnectionInfo = {
-      name: connection.name,
-      status: connection.status(),
-      type: connection.type,
-      endpoint: {
-        socketPath: connection.endpoint.socketPath,
-      },
-    };
+    return this.getProviderConnectionInfo(connection) as ProviderContainerConnectionInfo;
+  }
+
+  public getProviderKubernetesConnectionInfo(
+    connection: KubernetesProviderConnection,
+  ): ProviderKubernetesConnectionInfo {
+    return this.getProviderConnectionInfo(connection) as ProviderKubernetesConnectionInfo;
+  }
+
+  private getProviderConnectionInfo(
+    connection: ContainerProviderConnection | KubernetesProviderConnection,
+  ): ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo {
+    let providerConnection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo;
+    if (this.isContainerConnection(connection)) {
+      providerConnection = {
+        name: connection.name,
+        status: connection.status(),
+        type: connection.type,
+        endpoint: {
+          socketPath: connection.endpoint.socketPath,
+        },
+      };
+    } else {
+      providerConnection = {
+        name: connection.name,
+        status: connection.status(),
+        endpoint: {
+          apiURL: connection.endpoint.apiURL,
+        },
+      };
+    }
     if (connection.lifecycle) {
       const lifecycleMethods: LifecycleMethod[] = [];
       if (connection.lifecycle.delete) {
@@ -463,9 +534,9 @@ export class ProviderRegistry {
       if (connection.lifecycle.stop) {
         lifecycleMethods.push('stop');
       }
-      containerProviderConnection.lifecycleMethods = lifecycleMethods;
+      providerConnection.lifecycleMethods = lifecycleMethods;
     }
-    return containerProviderConnection;
+    return providerConnection;
   }
 
   protected getProviderInfo(provider: ProviderImpl): ProviderInfo {
@@ -473,25 +544,40 @@ export class ProviderRegistry {
       return this.getProviderContainerConnectionInfo(connection);
     });
     const kubernetesConnections: ProviderKubernetesConnectionInfo[] = provider.kubernetesConnections.map(connection => {
-      return {
-        name: connection.name,
-        status: connection.status(),
-        endpoint: {
-          apiURL: connection.endpoint.apiURL,
-        },
-      };
+      return this.getProviderKubernetesConnectionInfo(connection);
     });
 
     // container connection factory ?
+    let containerProviderConnectionInitialization = false;
+    if (provider?.containerProviderConnectionFactory?.initialize) {
+      containerProviderConnectionInitialization = true;
+    }
+
+    // kubernetes connection factory ?
+    let kubernetesProviderConnectionCreation = false;
+    if (provider?.kubernetesProviderConnectionFactory?.create) {
+      kubernetesProviderConnectionCreation = true;
+    }
+
+    // container connection factory ?
     let containerProviderConnectionCreation = false;
+    const containerProviderConnectionCreationDisplayName =
+      provider.containerProviderConnectionFactory?.creationDisplayName;
+    const containerProviderConnectionCreationButtonTitle =
+      provider.containerProviderConnectionFactory?.creationButtonTitle;
     if (provider.containerProviderConnectionFactory) {
       containerProviderConnectionCreation = true;
     }
 
     // kubernetes connection factory ?
-    let kubernetesProviderConnectionCreation = false;
-    if (provider.kubernetesProviderConnectionFactory) {
-      kubernetesProviderConnectionCreation = true;
+    let kubernetesProviderConnectionInitialization = false;
+    const kubernetesProviderConnectionCreationDisplayName =
+      provider.kubernetesProviderConnectionFactory?.creationDisplayName;
+    const kubernetesProviderConnectionCreationButtonTitle =
+      provider.kubernetesProviderConnectionFactory?.creationButtonTitle;
+    const emptyConnectionMarkdownDescription = provider.emptyConnectionMarkdownDescription;
+    if (provider?.kubernetesProviderConnectionFactory?.initialize) {
+      kubernetesProviderConnectionInitialization = true;
     }
 
     // handle installation
@@ -509,6 +595,13 @@ export class ProviderRegistry {
       status: provider.status,
       containerProviderConnectionCreation,
       kubernetesProviderConnectionCreation,
+      containerProviderConnectionInitialization,
+      containerProviderConnectionCreationDisplayName,
+      containerProviderConnectionCreationButtonTitle,
+      kubernetesProviderConnectionInitialization,
+      kubernetesProviderConnectionCreationDisplayName,
+      kubernetesProviderConnectionCreationButtonTitle,
+      emptyConnectionMarkdownDescription,
       links: provider.links,
       detectionChecks: provider.detectionChecks,
       images: provider.images,
@@ -587,6 +680,7 @@ export class ProviderRegistry {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params: { [key: string]: any },
     logHandler: Logger,
+    token?: CancellationToken,
   ): Promise<void> {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
@@ -596,8 +690,7 @@ export class ProviderRegistry {
     }
 
     // create a logger
-
-    return provider.containerProviderConnectionFactory.create(params, logHandler);
+    return provider.containerProviderConnectionFactory.create(params, logHandler, token);
   }
 
   async createKubernetesProviderConnection(
@@ -605,14 +698,15 @@ export class ProviderRegistry {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params: { [key: string]: any },
     logHandler: Logger,
+    token?: CancellationToken,
   ): Promise<void> {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
 
-    if (!provider.kubernetesProviderConnectionFactory) {
+    if (!provider.kubernetesProviderConnectionFactory?.create) {
       throw new Error('The provider does not support kubernetes connection creation');
     }
-    return provider.kubernetesProviderConnectionFactory.create(params, logHandler);
+    return provider.kubernetesProviderConnectionFactory.create(params, logHandler, token);
   }
 
   // helper method
@@ -625,7 +719,9 @@ export class ProviderRegistry {
 
     // grab the correct container connection
     const containerConnection = provider.containerConnections.find(
-      connection => connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath,
+      connection =>
+        connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath &&
+        connection.name === providerContainerConnectionInfo.name,
     );
     if (!containerConnection) {
       throw new Error(`no container connection matching provider id ${internalProviderId}`);
@@ -633,18 +729,58 @@ export class ProviderRegistry {
     return containerConnection;
   }
 
+  protected getMatchingKubernetesConnectionFromProvider(
+    internalProviderId: string,
+    providerContainerConnectionInfo: ProviderKubernetesConnectionInfo,
+  ): KubernetesProviderConnection {
+    // grab the correct provider
+    const provider = this.getMatchingProvider(internalProviderId);
+
+    // grab the correct kubernetes connection
+    const kubernetesConnection = provider.kubernetesConnections.find(
+      connection =>
+        connection.endpoint.apiURL === providerContainerConnectionInfo.endpoint.apiURL &&
+        connection.name === providerContainerConnectionInfo.name,
+    );
+    if (!kubernetesConnection) {
+      throw new Error(`no kubernetes connection matching provider id ${internalProviderId}`);
+    }
+    return kubernetesConnection;
+  }
+
+  getMatchingConnectionFromProvider(
+    internalProviderId: string,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+  ): ContainerProviderConnection | KubernetesProviderConnection {
+    if (this.isProviderContainerConnection(providerContainerConnectionInfo)) {
+      return this.getMatchingContainerConnectionFromProvider(internalProviderId, providerContainerConnectionInfo);
+    } else {
+      return this.getMatchingKubernetesConnectionFromProvider(internalProviderId, providerContainerConnectionInfo);
+    }
+  }
+
+  isProviderContainerConnection(
+    connection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+  ): connection is ProviderContainerConnectionInfo {
+    return (connection as ProviderContainerConnectionInfo).endpoint.socketPath !== undefined;
+  }
+
+  isContainerConnection(
+    connection: ContainerProviderConnection | KubernetesProviderConnection,
+  ): connection is ContainerProviderConnection {
+    return (connection as ContainerProviderConnection).endpoint.socketPath !== undefined;
+  }
+
   async startProviderConnection(
     internalProviderId: string,
-    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    logHandler?: Logger,
   ): Promise<void> {
     // grab the correct provider
-    const connection = this.getMatchingContainerConnectionFromProvider(
-      internalProviderId,
-      providerContainerConnectionInfo,
-    );
+    const connection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
 
     const lifecycle = connection.lifecycle;
-    if (!lifecycle || !lifecycle.start) {
+    if (!lifecycle?.start) {
       throw new Error('The container connection does not support start lifecycle');
     }
 
@@ -653,21 +789,48 @@ export class ProviderRegistry {
       throw new Error('The connection does not have context to start');
     }
 
-    return lifecycle.start(context);
+    try {
+      await lifecycle.start(context, logHandler);
+    } finally {
+      if (this.isProviderContainerConnection(providerConnectionInfo)) {
+        this._onDidUpdateContainerConnection.fire({
+          providerId: internalProviderId,
+          connection: {
+            name: providerConnectionInfo.name,
+            type: providerConnectionInfo.type,
+            endpoint: providerConnectionInfo.endpoint,
+            status: (): ProviderConnectionStatus => {
+              return providerConnectionInfo.status;
+            },
+          },
+          status: providerConnectionInfo.status,
+        });
+      } else {
+        this._onDidUpdateKubernetesConnection.fire({
+          providerId: internalProviderId,
+          connection: {
+            name: providerConnectionInfo.name,
+            endpoint: providerConnectionInfo.endpoint,
+            status: (): ProviderConnectionStatus => {
+              return providerConnectionInfo.status;
+            },
+          },
+          status: providerConnectionInfo.status,
+        });
+      }
+    }
   }
 
   async stopProviderConnection(
     internalProviderId: string,
-    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    logHandler?: Logger,
   ): Promise<void> {
     // grab the correct provider
-    const connection = this.getMatchingContainerConnectionFromProvider(
-      internalProviderId,
-      providerContainerConnectionInfo,
-    );
+    const connection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
 
     const lifecycle = connection.lifecycle;
-    if (!lifecycle || !lifecycle.stop) {
+    if (!lifecycle?.stop) {
       throw new Error('The container connection does not support stop lifecycle');
     }
 
@@ -676,25 +839,54 @@ export class ProviderRegistry {
       throw new Error('The connection does not have context to start');
     }
 
-    return lifecycle.stop(context);
+    try {
+      await lifecycle.stop(context, logHandler);
+    } finally {
+      if (this.isProviderContainerConnection(providerConnectionInfo)) {
+        this._onDidUpdateContainerConnection.fire({
+          providerId: internalProviderId,
+          connection: {
+            name: providerConnectionInfo.name,
+            type: providerConnectionInfo.type,
+            endpoint: providerConnectionInfo.endpoint,
+            status: (): ProviderConnectionStatus => {
+              return providerConnectionInfo.status;
+            },
+          },
+          status: providerConnectionInfo.status,
+        });
+      } else {
+        this._onDidUpdateKubernetesConnection.fire({
+          providerId: internalProviderId,
+          connection: {
+            name: providerConnectionInfo.name,
+            endpoint: providerConnectionInfo.endpoint,
+            status: (): ProviderConnectionStatus => {
+              return providerConnectionInfo.status;
+            },
+          },
+          status: providerConnectionInfo.status,
+        });
+      }
+    }
   }
 
   async deleteProviderConnection(
     internalProviderId: string,
-    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    logHandler?: Logger,
   ): Promise<void> {
     // grab the correct provider
-    const connection = this.getMatchingContainerConnectionFromProvider(
-      internalProviderId,
-      providerContainerConnectionInfo,
-    );
+    const connection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
 
     const lifecycle = connection.lifecycle;
-    if (!lifecycle || !lifecycle.delete) {
+    if (!lifecycle?.delete) {
       throw new Error('The container connection does not support delete lifecycle');
     }
-    this.telemetryService.track('deleteProviderConnection', { name: providerContainerConnectionInfo.name });
-    return lifecycle.delete();
+    this.telemetryService
+      .track('deleteProviderConnection', { name: providerConnectionInfo.name })
+      .catch((err: unknown) => console.error('Unable to track', err));
+    return lifecycle.delete(logHandler);
   }
 
   onDidRegisterContainerConnectionCallback(
@@ -710,13 +902,14 @@ export class ProviderRegistry {
         this.getProviderContainerConnectionInfo(containerProviderConnection),
       );
     });
-    this._onDidRegisterContainerConnection.fire({ providerId: provider.id });
+    this._onDidRegisterContainerConnection.fire({ providerId: provider.id, connection: containerProviderConnection });
   }
 
   onDidRegisterKubernetesConnectionCallback(
     provider: ProviderImpl,
     kubernetesProviderConnection: KubernetesProviderConnection,
   ) {
+    this.connectionLifecycleContexts.set(kubernetesProviderConnection, new LifecycleContextImpl());
     this.apiSender.send('provider-register-kubernetes-connection', { name: kubernetesProviderConnection.name });
     this._onDidRegisterKubernetesConnection.fire({ providerId: provider.id });
   }
@@ -767,6 +960,51 @@ export class ProviderRegistry {
       id: providerId,
       name: provider.name,
       status: provider.status,
+    });
+  }
+
+  getContainerConnections(): ProviderContainerConnection[] {
+    const connections: ProviderContainerConnection[] = [];
+    this.providers.forEach(provider => {
+      provider.containerConnections.forEach(connection => {
+        connections.push({
+          providerId: provider.id,
+          connection,
+        });
+      });
+    });
+    return connections;
+  }
+
+  registerKubernetesConnection(
+    provider: Provider,
+    kubernetesProviderConnection: KubernetesProviderConnection,
+  ): Disposable {
+    const providerName = kubernetesProviderConnection.name;
+    const id = `${provider.id}.${providerName}`;
+    this.kubernetesProviders.set(id, kubernetesProviderConnection);
+    this.telemetryService
+      .track('registerKubernetesProviderConnection', {
+        name: kubernetesProviderConnection.name,
+        total: this.kubernetesProviders.size,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
+
+    let previousStatus = kubernetesProviderConnection.status();
+
+    // track the status of the provider
+    const timer = setInterval(() => {
+      const newStatus = kubernetesProviderConnection.status();
+      if (newStatus !== previousStatus) {
+        this.apiSender.send('provider-change', {});
+        previousStatus = newStatus;
+      }
+    }, 2000);
+
+    // listen to events
+    return Disposable.create(() => {
+      clearInterval(timer);
+      this.apiSender.send('provider-change', {});
     });
   }
 }

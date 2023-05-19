@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderStatus } from '@tmpwip/extension-api';
+import type { ProviderStatus } from '@podman-desktop/api';
 import { app, ipcMain, Menu, nativeImage } from 'electron';
 import type { MenuItemConstructorOptions, Tray, NativeImage } from 'electron';
 import statusStarted from './assets/status-started.png';
@@ -82,6 +82,8 @@ export class TrayMenu {
             installationSupport: false,
             containerProviderConnectionCreation: false,
             kubernetesProviderConnectionCreation: false,
+            containerProviderConnectionInitialization: false,
+            kubernetesProviderConnectionInitialization: false,
           });
         }
         this.updateMenu();
@@ -116,6 +118,16 @@ export class TrayMenu {
     this.updateMenu();
   }
 
+  public deleteProviderItem(providerId: string, itemId: string): void {
+    const provider = Array.from(this.menuProviderItems.values()).find(item => item.id === providerId);
+    if (provider) {
+      provider.childItems = provider.childItems.filter(it => it.id !== itemId);
+      this.updateMenu();
+    } else {
+      console.error(`Cannot find provider ${providerId}`);
+    }
+  }
+
   // Handle provider container connection
   handleConnection(
     action: string,
@@ -146,7 +158,7 @@ export class TrayMenu {
       childItems: [],
     };
     this.menuContainerProviderConnectionItems.set(
-      providerContainerConnectionInfoMenuItem.endpoint.socketPath,
+      `${providerContainerConnectionInfoMenuItem.name}.${providerContainerConnectionInfoMenuItem.endpoint.socketPath}`,
       providerContainerConnectionInfoMenuItem,
     );
     this.updateMenu();
@@ -157,7 +169,7 @@ export class TrayMenu {
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
   ): void {
     const menuProviderItem = this.menuContainerProviderConnectionItems.get(
-      providerContainerConnectionInfo.endpoint.socketPath,
+      `${providerContainerConnectionInfo.name}.${providerContainerConnectionInfo.endpoint.socketPath}`,
     );
     if (menuProviderItem) {
       menuProviderItem.status = providerContainerConnectionInfo.status;
@@ -169,7 +181,9 @@ export class TrayMenu {
     _provider: ProviderInfo,
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
   ): void {
-    this.menuContainerProviderConnectionItems.delete(providerContainerConnectionInfo.endpoint.socketPath);
+    this.menuContainerProviderConnectionItems.delete(
+      `${providerContainerConnectionInfo.name}.${providerContainerConnectionInfo.endpoint.socketPath}`,
+    );
     this.updateMenu();
   }
 
@@ -180,8 +194,7 @@ export class TrayMenu {
     };
 
     const oldProvider = this.menuProviderItems.get(providerMenuItem.internalId);
-    if (oldProvider && oldProvider.name === 'temp') {
-      this.menuProviderItems.delete(provider.internalId);
+    if (oldProvider) {
       providerMenuItem.childItems.push(...oldProvider.childItems);
     }
     this.menuProviderItems.set(provider.internalId, providerMenuItem);
@@ -282,7 +295,7 @@ export class TrayMenu {
 
     (result.submenu as MenuItemConstructorOptions[]).push({
       label: 'Start',
-      enabled: item.status === 'stopped',
+      enabled: item.status === 'stopped' || item.status === 'configured',
       click: () => {
         this.sendItemClick({ action: 'Start', providerInfo: item });
       },
@@ -359,6 +372,7 @@ export class TrayMenu {
       case 'started':
         image = statusStarted;
         break;
+      case 'configured':
       case 'stopped':
         image = statusStopped;
         break;
@@ -393,7 +407,9 @@ export class TrayMenu {
     }
     window?.show();
     if (isMac()) {
-      app.dock.show();
+      app.dock.show().catch((error: unknown) => {
+        console.error('Error while showing dock', error);
+      });
     }
     window?.focus();
     window?.moveTop();

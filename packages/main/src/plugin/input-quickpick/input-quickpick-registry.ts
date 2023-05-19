@@ -21,7 +21,8 @@ import type {
   InputBoxOptions,
   InputBoxValidationMessage,
   QuickPickOptions,
-} from '@tmpwip/extension-api';
+} from '@podman-desktop/api';
+import type { ApiSenderType } from '../api';
 import { Deferred } from '../util/deferred';
 
 export class InputQuickPickRegistry {
@@ -43,8 +44,7 @@ export class InputQuickPickRegistry {
     }
   >();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private apiSender: any) {}
+  constructor(private apiSender: ApiSenderType) {}
 
   async showInputBox(options?: InputBoxOptions, token?: CancellationToken): Promise<string | undefined> {
     // keep track of this request
@@ -64,8 +64,11 @@ export class InputQuickPickRegistry {
       id: this.callbackId,
       value: options?.value,
       placeHolder: options?.placeHolder,
+      title: options?.title,
       valueSelection: options?.valueSelection,
       prompt: options?.prompt,
+      markdownDescription: options?.markdownDescription,
+      multiline: options?.multiline,
       validate,
     };
 
@@ -134,7 +137,7 @@ export class InputQuickPickRegistry {
     const callback = this.callbacksInputBox.get(id);
 
     // if there is a callback
-    if (callback && callback.options?.validateInput) {
+    if (callback?.options?.validateInput) {
       return callback.options.validateInput(value);
     }
     return undefined;
@@ -146,7 +149,7 @@ export class InputQuickPickRegistry {
     const callback = this.callbacksQuickPicks.get(id);
 
     // if there is a callback
-    if (callback && callback.options?.onDidSelectItem) {
+    if (callback?.options?.onDidSelectItem) {
       // grab item
       const item = callback.items[index];
 
@@ -188,6 +191,7 @@ export class InputQuickPickRegistry {
       id: this.callbackId,
       placeHolder: options?.placeHolder,
       canPickMany: options?.canPickMany,
+      title: options?.title,
       items: items,
       // need to callback to the frontend when selecting an item
       onSelectCallback,

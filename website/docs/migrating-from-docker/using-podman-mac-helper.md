@@ -10,42 +10,33 @@ tags: [migrating-from-docker, mac0S]
 
 Consider using `podman-mac-help` to migrate transparently to Podman on macOS.
 
-* Continue using familiar Docker commands.
-* Take advantage of the benefits of Podman on macOS.
-* Your tools, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
+- Continue using familiar Docker commands.
+- Take advantage of the benefits of Podman on macOS.
+- Your tools, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
 
 The `podman-mac-helper` tool provides a compatibility layer that allows you to use most Docker commands with Podman on macOS.
 The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket location.
 
 #### Prerequisites
 
-* macOS
-* [Podman](../Installation/macos-install)
-* [Homebrew](https://brew.sh/)
-* Docker service is [paused](https://docs.docker.com/desktop/use-desktop/pause/) and [*Start Docker Desktop when you log in* is disabled](https://docs.docker.com/desktop/settings/mac/), or Docker is [uninstalled](https://docs.docker.com/desktop/uninstall/).
+- macOS
+- [Podman](../Installation/macos-install)
+- Docker service is [paused](https://docs.docker.com/desktop/use-desktop/pause/) and [_Start Docker Desktop when you log in_ is disabled](https://docs.docker.com/desktop/settings/mac/), or Docker is [uninstalled](https://docs.docker.com/desktop/uninstall/).
 
 #### Procedure
 
-1. Install the `podman-mac-helper` tool.
-   Run the command:
+- Set up the `podman-mac-helper` service for each user.
+  Run the command:
 
-    ```sh
-    brew install podman-mac-helper
-    ```
+  ```sh
+  sudo podman-mac-helper install
+  ```
 
-2. Set up the `podman-mac-helper` service for each user.
-   Run the command:
+  For additional install options please run the command:
 
-    ```sh
-    sudo podman-mac-helper install
-    ```
-
-    For additional install options please run the command:
-
-    ```sh
-    sudo podman-mac-helper install --help
-    ```
-
+  ```sh
+  sudo podman-mac-helper install --help
+  ```
 
 #### Verification
 
@@ -56,13 +47,12 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
 
    Example:
 
-    ```
-    $ podman-mac-helper run -it <your_container> bash
-    ```
+   ```shell-session
+   $ podman-mac-helper run -it <your_container> bash
+   ```
 
 #### Additional resources
 
-* [`podman-mac-helper` source](https://github.com/containers/podman/tree/main/cmd/podman-mac-helper)
-* [`docker save` reference documentation](https://docs.docker.com/engine/reference/commandline/save/)
-* [`podman import` reference documentation](https://docs.podman.io/en/latest/markdown/podman-import.1.html)
-
+- [`podman-mac-helper` source](https://github.com/containers/podman/tree/main/cmd/podman-mac-helper)
+- [`docker save` reference documentation](https://docs.docker.com/engine/reference/commandline/save/)
+- [`podman import` reference documentation](https://docs.podman.io/en/latest/markdown/podman-import.1.html)

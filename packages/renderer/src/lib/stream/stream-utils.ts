@@ -40,10 +40,5 @@ export function isMultiplexedLog(log: string): boolean {
   // SIZE1, SIZE2, SIZE3, SIZE4 are the four bytes of the uint32 size encoded as big endian.
   const length = Buffer.from([size1, size2, size3, size4]).readInt32BE();
   const potentialLength = log.substring(8).length;
-  if (length !== potentialLength) {
-    return false;
-  } else {
-    // it is multiplexed
-    return true;
-  }
+  return length === potentialLength;
 }

@@ -16,47 +16,58 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import * as path from 'node:path';
 import * as os from 'node:os';
+import * as http from 'node:http';
 import * as fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import { RegistrySetup } from './registry-setup';
 
-import { getAssetsFolder, isLinux, isMac, isWindows } from './util';
+import { getAssetsFolder, isLinux, isMac, isWindows, appHomeDir } from './util';
 import { PodmanInstall } from './podman-install';
 import type { InstalledPodman } from './podman-cli';
 import { execPromise, getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { getDetectionChecks } from './detection-checks';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
+import { getSocketCompatibility } from './compatibility-mode';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
 const listeners = new Set<StatusHandler>();
-const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), '.local/share/containers/podman/machine');
+const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), appHomeDir(), 'machine');
 const podmanMachineSocketsSymlinkDirectoryMac = path.resolve(os.homedir(), '.podman');
 const MACOS_MAX_SOCKET_PATH_LENGTH = 104;
 let storedExtensionContext;
 let stopLoop = false;
+let autoMachineStarted = false;
+let autoMachineName;
+
+// System default notifier
+let defaultMachineNotify = true;
+let defaultMachineMonitor = true;
 
 // current status of machines
 const podmanMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
+let podmanProviderStatus: extensionApi.ProviderConnectionStatus = 'started';
 const podmanMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
+const containerProviderConnections = new Map<string, extensionApi.ContainerProviderConnection>();
 
 // Warning to check to see if the socket is a disguised Podman socket,
 // by default we assume it is until proven otherwise when we check
 let isDisguisedPodmanSocket = true;
 let disguisedPodmanSocketWatcher: extensionApi.FileSystemWatcher;
 
-type MachineJSON = {
+export type MachineJSON = {
   Name: string;
   CPUs: number;
   Memory: string;
   DiskSize: string;
   Running: boolean;
   Starting: boolean;
+  Default: boolean;
 };
 
 type MachineInfo = {
@@ -74,7 +85,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   const machines = JSON.parse(machineListOutput) as MachineJSON[];
 
   // update status of existing machines
-  machines.forEach(machine => {
+  for (const machine of machines) {
     const running = machine?.Running === true;
     let status: extensionApi.ProviderConnectionStatus = running ? 'started' : 'stopped';
 
@@ -88,16 +99,24 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     if (previousStatus !== status) {
       // notify status change
       listeners.forEach(listener => listener(machine.Name, status));
+      podmanMachinesStatuses.set(machine.Name, status);
     }
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
-      memory: parseInt(machine.Memory) / 1048576,
+      memory: parseInt(machine.Memory),
       cpus: machine.CPUs,
-      diskSize: parseInt(machine.DiskSize) / 1073741824,
+      diskSize: parseInt(machine.DiskSize),
     });
 
-    podmanMachinesStatuses.set(machine.Name, status);
-  });
+    if (!podmanMachinesStatuses.has(machine.Name)) {
+      podmanMachinesStatuses.set(machine.Name, status);
+    }
+
+    if (containerProviderConnections.has(machine.Name)) {
+      const containerProviderConnection = containerProviderConnections.get(machine.Name);
+      await updateContainerConfiguration(containerProviderConnection, podmanMachinesInfo.get(machine.Name));
+    }
+  }
 
   // remove machine no longer there
   const machinesToRemove = Array.from(podmanMachinesStatuses.keys()).filter(
@@ -106,6 +125,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   machinesToRemove.forEach(machine => {
     podmanMachinesStatuses.delete(machine);
     podmanMachinesInfo.delete(machine);
+    containerProviderConnections.delete(machine);
   });
 
   // create connections for new machines
@@ -174,6 +194,61 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       provider.updateStatus('configured');
     }
   }
+
+  // Finally, we check to see if the machine that is running is set by default or not on the CLI
+  // this will create a dialog that will ask the user if they wish to set the running machine as default.
+  await checkDefaultMachine(machines);
+}
+
+export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void> {
+  // As a last check, let's see if the machine that is running is set by default or not on the CLI.
+  // if it isn't, we should prompt the user to set it as default, or else podman CLI commands will not work
+  const runningMachine = machines.find(machine => machine.Running);
+  const defaultMachine = machines.find(machine => machine.Default);
+
+  if (defaultMachineNotify && defaultMachineMonitor && runningMachine && !runningMachine.Default) {
+    // Make sure we do notifyDefault = false so we don't keep notifying the user when this dialog is open.
+    defaultMachineMonitor = false;
+
+    // Create an information message to ask the user if they wish to set the running machine as default.
+    const result = await extensionApi.window.showInformationMessage(
+      `Podman Machine '${runningMachine.Name}' is running but not the default machine (default is '${defaultMachine.Name}'). This will cause podman CLI errors while trying to connect to '${runningMachine.Name}'. Do you want to set it as default?`,
+      'Yes',
+      'Ignore',
+      'Cancel',
+    );
+    if (result === 'Yes') {
+      try {
+        await execPromise(getPodmanCli(), ['system', 'connection', 'default', runningMachine.Name]);
+      } catch (error) {
+        // eslint-disable-next-line quotes
+        console.error("Error running 'podman system connection default': ", error);
+        await extensionApi.window.showErrorMessage(`Error running 'podman system connection default': ${error}`);
+      }
+      await extensionApi.window.showInformationMessage(
+        `Podman Machine '${runningMachine.Name}' is now the default machine on the CLI.`,
+        'OK',
+      );
+    } else if (result === 'Ignore') {
+      // If the user chooses to ignore, we should not notify them again until Podman Desktop is restarted.
+      defaultMachineNotify = false;
+    }
+
+    defaultMachineMonitor = true;
+  }
+}
+
+async function updateContainerConfiguration(
+  containerProviderConnection: extensionApi.ContainerProviderConnection,
+  machineInfo: MachineInfo,
+): Promise<void> {
+  // get configuration for this connection
+  const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
+
+  // Set values for the machine
+  await containerConfiguration.update('machine.cpus', machineInfo.cpus);
+  await containerConfiguration.update('machine.memory', machineInfo.memory);
+  await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
 }
 
 function calcMacosSocketPath(machineName: string): string {
@@ -208,15 +283,78 @@ async function initDefaultLinux(provider: extensionApi.Provider) {
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: 'Podman',
     type: 'podman',
-    status: () => 'started',
+    status: () => podmanProviderStatus,
     endpoint: {
       socketPath,
     },
   };
 
+  monitorPodmanSocket(socketPath).catch((error: unknown) => {
+    console.error('Error monitoring podman socket', error);
+  });
+
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
   currentConnections.set('podman', disposable);
   storedExtensionContext.subscriptions.push(disposable);
+}
+
+async function isPodmanSocketAlive(socketPath: string): Promise<boolean> {
+  const pingUrl = {
+    path: '/_ping',
+    socketPath,
+  };
+  return new Promise<boolean>(resolve => {
+    const req = http.get(pingUrl, res => {
+      res.on('data', () => {
+        // do nothing
+      });
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    });
+    req.once('error', () => {
+      resolve(false);
+    });
+  });
+}
+
+async function monitorPodmanSocket(socketPath: string, machineName?: string) {
+  // call us again
+  if (!stopMonitoringPodmanSocket(machineName)) {
+    try {
+      const alive = await isPodmanSocketAlive(socketPath);
+      if (!alive) {
+        updateProviderStatus('stopped', machineName);
+      } else {
+        updateProviderStatus('started', machineName);
+      }
+    } catch (error) {
+      // ignore the update of machines
+    }
+    await timeout(5000);
+    monitorPodmanSocket(socketPath, machineName).catch((error: unknown) => {
+      console.error('Error monitoring podman socket', error);
+    });
+  }
+}
+
+function stopMonitoringPodmanSocket(machineName?: string) {
+  if (machineName) {
+    return stopLoop || !podmanMachinesStatuses.has(machineName);
+  }
+  return stopLoop;
+}
+
+function updateProviderStatus(status: extensionApi.ProviderConnectionStatus, machineName?: string) {
+  if (machineName) {
+    podmanMachinesStatuses.set(machineName, status);
+  } else {
+    podmanProviderStatus = status;
+  }
 }
 
 async function timeout(time: number): Promise<void> {
@@ -234,7 +372,9 @@ async function monitorMachines(provider: extensionApi.Provider) {
       // ignore the update of machines
     }
     await timeout(5000);
-    monitorMachines(provider);
+    monitorMachines(provider).catch((error: unknown) => {
+      console.error('Error monitoring podman machines', error);
+    });
   }
 }
 
@@ -260,7 +400,9 @@ async function monitorProvider(provider: extensionApi.Provider) {
     }
   }
   await timeout(8000);
-  monitorProvider(provider);
+  monitorProvider(provider).catch((error: unknown) => {
+    console.error('Error monitoring podman provider', error);
+  });
 }
 
 function prettyMachineName(machineName: string): string {
@@ -275,12 +417,13 @@ function prettyMachineName(machineName: string): string {
   }
   return name;
 }
+
 async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
-    start: async (context): Promise<void> => {
+    start: async (context, logger): Promise<void> => {
       try {
         // start the machine
-        await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], { logger: context.log });
+        await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], { logger });
         provider.updateStatus('started');
       } catch (err) {
         console.error(err);
@@ -288,12 +431,12 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
         throw err;
       }
     },
-    stop: async (context): Promise<void> => {
-      await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], { logger: context.log });
+    stop: async (context, logger): Promise<void> => {
+      await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], { logger });
       provider.updateStatus('ready');
     },
-    delete: async (): Promise<void> => {
-      await execPromise(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name]);
+    delete: async (logger): Promise<void> => {
+      await execPromise(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name], { logger });
     },
   };
 
@@ -307,6 +450,11 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     },
   };
 
+  // Since Podman 4.5, machines are using the same path for all sockets of machines
+  // so a machine is not distinguishable from another one.
+  // monitorPodmanSocket(socketPath, machineInfo.name);
+  containerProviderConnections.set(machineInfo.name, containerProviderConnection);
+
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
   provider.updateStatus('ready');
 
@@ -314,9 +462,9 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
 
   // Set values for the machine
-  containerConfiguration.update('machine.cpus', machineInfo.cpus);
-  containerConfiguration.update('machine.memory', machineInfo.memory);
-  containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
+  await containerConfiguration.update('machine.cpus', machineInfo.cpus);
+  await containerConfiguration.update('machine.memory', machineInfo.memory);
+  await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
 
   currentConnections.set(machineInfo.name, disposable);
   storedExtensionContext.subscriptions.push(disposable);
@@ -366,29 +514,109 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     logo: './logo.png',
   };
 
+  const corePodmanEngineLinkGroup = 'Core Podman Engine';
+
   // add links
   providerOptions.links = [
     {
-      title: 'Visit the Podman website',
+      title: 'Website',
       url: 'https://podman.io/',
     },
     {
-      title: 'Read the Podman installation guide',
+      title: 'Installation guide',
       url: 'https://podman.io/getting-started/installation',
     },
     {
-      title: 'Join the Podman community',
+      title: 'Docker compatibility guide',
+      url: 'https://podman-desktop.io/docs/troubleshooting#warning-about-docker-compatibility-mode',
+    },
+    {
+      title: 'Join the community',
       url: 'https://podman.io/community/',
+    },
+    {
+      title: 'Getting started with containers',
+      url: 'https://podman.io/getting-started/',
+      group: corePodmanEngineLinkGroup,
+    },
+    {
+      title: 'View podman commands',
+      url: 'https://docs.podman.io/en/latest/Commands.html',
+      group: corePodmanEngineLinkGroup,
+    },
+    {
+      title: 'Set up podman',
+      url: 'https://podman.io/getting-started/installation',
+      group: corePodmanEngineLinkGroup,
+    },
+    {
+      title: 'View all tutorials',
+      url: 'https://docs.podman.io/en/latest/Tutorials.html',
+      group: corePodmanEngineLinkGroup,
     },
   ];
 
   const provider = extensionApi.provider.createProvider(providerOptions);
 
   // Check on initial setup
-  checkDisguisedPodmanSocket(provider);
-  // update the status of the provider if the socket is changed, created or deleted
+  await checkDisguisedPodmanSocket(provider);
+
+  // Update the status of the provider if the socket is changed, created or deleted
   disguisedPodmanSocketWatcher = setupDisguisedPodmanSocketWatcher(provider, getSocketPath());
   extensionContext.subscriptions.push(disguisedPodmanSocketWatcher);
+
+  // Compatibility mode status bar item
+  // only available for macOS (for now).
+  if (isMac()) {
+    // Get the socketCompatibilityClass for the current OS.
+    const socketCompatibilityMode = getSocketCompatibility();
+
+    // Create a status bar item to show the status of compatibility mode as well as
+    // create a command so when you can disable / enable compatibility mode
+    const statusBarItem = extensionApi.window.createStatusBarItem();
+    statusBarItem.text = 'Docker Compatibility';
+    statusBarItem.command = 'podman.socketCompatibilityMode';
+
+    // Use tooltip text from class
+    statusBarItem.tooltip = socketCompatibilityMode.tooltipText();
+
+    statusBarItem.iconClass = 'fa fa-plug';
+    statusBarItem.show();
+    extensionContext.subscriptions.push(statusBarItem);
+
+    // Create a modal dialog to ask the user if they want to enable or disable compatibility mode
+    const command = extensionApi.commands.registerCommand('podman.socketCompatibilityMode', async () => {
+      // Manually check to see if the socket is disguised (this will be called when pressing the status bar item)
+      const isDisguisedPodmanSocket = await isDisguisedPodman();
+
+      if (!isDisguisedPodmanSocket && !socketCompatibilityMode.isEnabled()) {
+        const result = await extensionApi.window.showInformationMessage(
+          `Do you want to automatically enable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
+          'Enable',
+          'Cancel',
+        );
+
+        if (result === 'Enable') {
+          await socketCompatibilityMode.enable();
+        }
+      } else {
+        const result = await extensionApi.window.showInformationMessage(
+          `Do you want to automatically disable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
+          'Disable',
+          'Cancel',
+        );
+
+        if (result === 'Disable') {
+          await socketCompatibilityMode.disable();
+        }
+      }
+      // Use tooltip text from class
+      statusBarItem.tooltip = socketCompatibilityMode.tooltipText();
+    });
+
+    // Push the results of the command so we can unload it later
+    extensionContext.subscriptions.push(command);
+  }
 
   // provide an installation path ?
   if (podmanInstall.isAbleToInstall()) {
@@ -400,7 +628,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // provide an installation path ?
   // add update information asynchronously
-  registerUpdatesIfAny(provider, installedPodman, podmanInstall);
+  await registerUpdatesIfAny(provider, installedPodman, podmanInstall);
 
   // register autostart if enabled
   if (isMac() || isWindows()) {
@@ -426,6 +654,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           const [machineName] = machines[0];
           console.log('Podman extension:', 'Autostarting machine', machineName);
           await execPromise(getPodmanCli(), ['machine', 'start', machineName], { logger });
+          autoMachineStarted = true;
+          autoMachineName = machineName;
         }
       },
     });
@@ -435,86 +665,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // allows to create machines
   if (isMac() || isWindows()) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const createFunction = async (params: { [key: string]: any }, logger: extensionApi.Logger): Promise<void> => {
-      const parameters = [];
-      parameters.push('machine');
-      parameters.push('init');
-
-      // cpus
-      if (params['podman.factory.machine.cpus']) {
-        parameters.push('--cpus');
-        parameters.push(params['podman.factory.machine.cpus']);
-      }
-
-      // memory
-      if (params['podman.factory.machine.memory']) {
-        parameters.push('--memory');
-        parameters.push(params['podman.factory.machine.memory']);
-      }
-
-      // disk size
-      if (params['podman.factory.machine.diskSize']) {
-        parameters.push('--disk-size');
-        parameters.push(params['podman.factory.machine.diskSize']);
-      }
-
-      // disk size
-      if (params['podman.factory.machine.image-path']) {
-        parameters.push('--image-path');
-        parameters.push(params['podman.factory.machine.image-path']);
-      } else if (isMac() || isWindows()) {
-        // check if we have an embedded asset for the image path for macOS or Windows
-        let suffix = '';
-        if (isWindows()) {
-          suffix = `-${process.arch}.tar.xz`;
-        } else if (isMac()) {
-          suffix = `-${process.arch}.qcow2.xz`;
-        }
-        const assetImagePath = path.resolve(getAssetsFolder(), `podman-image${suffix}`);
-        // check if the file exists and if it does, use it
-        if (fs.existsSync(assetImagePath)) {
-          parameters.push('--image-path');
-          parameters.push(assetImagePath);
-        }
-      }
-
-      // name at the end
-      if (params['podman.factory.machine.name']) {
-        parameters.push(params['podman.factory.machine.name']);
-      }
-
-      // name at the end
-      if (params['podman.factory.machine.now']) {
-        parameters.push('--now');
-      }
-
-      // Add proxy environment variables if proxy is enabled
-      const proxyEnabled = extensionApi.proxy.isEnabled();
-      const env = {};
-      if (proxyEnabled) {
-        const proxySettings = extensionApi.proxy.getProxySettings();
-        if (proxySettings?.httpProxy) {
-          if (isWindows()) {
-            env['env:http_proxy'] = proxySettings.httpProxy;
-          } else {
-            env['http_proxy'] = proxySettings.httpProxy;
-          }
-        }
-        if (proxySettings?.httpsProxy) {
-          if (isWindows()) {
-            env['env:https_proxy'] = proxySettings.httpsProxy;
-          } else {
-            env['https_proxy'] = proxySettings.httpsProxy;
-          }
-        }
-      }
-      await execPromise(getPodmanCli(), parameters, { logger, env });
-    };
-
     provider.setContainerProviderConnectionFactory({
-      initialize: () => createFunction({}, undefined),
-      create: createFunction,
+      initialize: () => createMachine({}, undefined),
+      create: createMachine,
+      creationDisplayName: 'Podman machine',
     });
   }
 
@@ -523,7 +677,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     if (!fs.existsSync(podmanMachineSocketsDirectoryMac)) {
       return;
     }
-    monitorMachines(provider);
+    monitorMachines(provider).catch((error: unknown) => {
+      console.error('Error while monitoring machines', error);
+    });
   } else if (isLinux()) {
     // on Linux, need to run the system service for unlimited time
     let command = 'podman';
@@ -558,14 +714,20 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       podmanProcess.kill();
     });
     extensionContext.subscriptions.push(disposable);
-    initDefaultLinux(provider);
+    initDefaultLinux(provider).catch((error: unknown) => {
+      console.error('Error while initializing default linux', error);
+    });
   } else if (isWindows()) {
-    monitorMachines(provider);
+    monitorMachines(provider).catch((error: unknown) => {
+      console.error('Error while monitoring machines', error);
+    });
   }
 
   // monitor provider
   // like version, checks, warnings
-  monitorProvider(provider);
+  monitorProvider(provider).catch((error: unknown) => {
+    console.error('Error while monitoring provider', error);
+  });
 
   // register the registries
   const registrySetup = new RegistrySetup();
@@ -575,11 +737,124 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   await podmanConfiguration.init();
 }
 
-export function deactivate(): void {
-  stopLoop = true;
-  console.log('stopping podman extension');
+async function stopAutoStartedMachine() {
+  if (!autoMachineStarted) {
+    console.log('No machine to stop');
+    return;
+  }
+  const machineListOutput = await execPromise(getPodmanCli(), ['machine', 'list', '--format', 'json']);
+
+  const machines = JSON.parse(machineListOutput) as MachineJSON[];
+
+  // Find the autostarted machine and check its status
+  const currentMachine: MachineJSON = machines.find(machine => machine?.Name === autoMachineName);
+
+  if (!currentMachine?.Running && !currentMachine?.Starting) {
+    console.log('No machine to stop');
+    autoMachineStarted = false;
+    return;
+  }
+  console.log('stopping autostarted machine', autoMachineName);
+  await execPromise(getPodmanCli(), ['machine', 'stop', autoMachineName]);
 }
 
+export async function deactivate(): Promise<void> {
+  stopLoop = true;
+  console.log('stopping podman extension');
+  await stopAutoStartedMachine().then(() => {
+    if (autoMachineStarted) {
+      console.log('stopped autostarted machine', autoMachineName);
+    }
+  });
+}
+
+export async function createMachine(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params: { [key: string]: any },
+  logger: extensionApi.Logger,
+  token?: extensionApi.CancellationToken,
+): Promise<void> {
+  const parameters = [];
+  parameters.push('machine');
+  parameters.push('init');
+
+  // cpus
+  if (params['podman.factory.machine.cpus']) {
+    parameters.push('--cpus');
+    parameters.push(params['podman.factory.machine.cpus']);
+  }
+
+  // memory
+  if (params['podman.factory.machine.memory']) {
+    parameters.push('--memory');
+    const memoryAsMB = +params['podman.factory.machine.memory'] / (1000 * 1000);
+    parameters.push(Math.floor(memoryAsMB).toString());
+  }
+
+  // disk size
+  if (params['podman.factory.machine.diskSize']) {
+    parameters.push('--disk-size');
+    const diskAsGB = +params['podman.factory.machine.diskSize'] / (1000 * 1000 * 1000);
+    parameters.push(Math.floor(diskAsGB).toString());
+  }
+
+  // disk size
+  if (params['podman.factory.machine.image-path']) {
+    parameters.push('--image-path');
+    parameters.push(params['podman.factory.machine.image-path']);
+  } else if (isMac() || isWindows()) {
+    // check if we have an embedded asset for the image path for macOS or Windows
+    let suffix = '';
+    if (isWindows()) {
+      suffix = `-${process.arch}.tar.xz`;
+    } else if (isMac()) {
+      suffix = `-${process.arch}.qcow2.xz`;
+    }
+    const assetImagePath = path.resolve(getAssetsFolder(), `podman-image${suffix}`);
+    // check if the file exists and if it does, use it
+    if (fs.existsSync(assetImagePath)) {
+      parameters.push('--image-path');
+      parameters.push(assetImagePath);
+    }
+  }
+
+  // rootful
+  if (params['podman.factory.machine.rootful']) {
+    parameters.push('--rootful');
+  }
+
+  // name at the end
+  if (params['podman.factory.machine.name']) {
+    parameters.push(params['podman.factory.machine.name']);
+  }
+
+  // starts now
+  if (params['podman.factory.machine.now']) {
+    parameters.push('--now');
+  }
+
+  // Add proxy environment variables if proxy is enabled
+  const proxyEnabled = extensionApi.proxy.isEnabled();
+  const env = {};
+  if (proxyEnabled) {
+    const proxySettings = extensionApi.proxy.getProxySettings();
+    if (proxySettings?.httpProxy) {
+      if (isWindows()) {
+        env['env:http_proxy'] = proxySettings.httpProxy;
+      } else {
+        env['http_proxy'] = proxySettings.httpProxy;
+      }
+    }
+    if (proxySettings?.httpsProxy) {
+      if (isWindows()) {
+        env['env:https_proxy'] = proxySettings.httpsProxy;
+      } else {
+        env['https_proxy'] = proxySettings.httpsProxy;
+      }
+    }
+  }
+  await execPromise(getPodmanCli(), parameters, { logger, env }, token);
+}
 function setupDisguisedPodmanSocketWatcher(
   provider: extensionApi.Provider,
   socketFile: string,
@@ -589,29 +864,36 @@ function setupDisguisedPodmanSocketWatcher(
 
   // Add the check to the listeners as well to make sure we check on podman status change as well
   listeners.add(() => {
-    checkDisguisedPodmanSocket(provider);
+    checkDisguisedPodmanSocket(provider).catch((error: unknown) => {
+      console.error('Error while checking disguised podman socket', error);
+    });
   });
 
-  // watch parent directory
-  const socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
+  let socketWatcher: extensionApi.FileSystemWatcher;
+  if (isLinux) {
+    socketWatcher = extensionApi.fs.createFileSystemWatcher(socketFile);
+  } else {
+    // watch parent directory
+    socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
+  }
 
   // only trigger if the watched file is the socket file
-  const updateSocket = (uri: extensionApi.Uri) => {
+  const updateSocket = async (uri: extensionApi.Uri) => {
     if (uri.fsPath === socketFile) {
-      checkDisguisedPodmanSocket(provider);
+      await checkDisguisedPodmanSocket(provider);
     }
   };
 
-  socketWatcher.onDidChange(uri => {
-    updateSocket(uri);
+  socketWatcher.onDidChange(async uri => {
+    await updateSocket(uri);
   });
 
-  socketWatcher.onDidCreate(uri => {
-    updateSocket(uri);
+  socketWatcher.onDidCreate(async uri => {
+    await updateSocket(uri);
   });
 
-  socketWatcher.onDidDelete(uri => {
-    updateSocket(uri);
+  socketWatcher.onDidDelete(async uri => {
+    await updateSocket(uri);
   });
 
   return socketWatcher;

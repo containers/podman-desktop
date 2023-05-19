@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import * as os from 'node:os';
 import * as http from 'node:http';
 
@@ -87,7 +87,7 @@ async function isDisguisedPodman(socketPath: string): Promise<boolean> {
   });
 }
 
-async function monitorDaemon(extensionContext: extensionApi.ExtensionContext) {
+async function monitorDaemon(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // call us again
   if (!stopLoop) {
     try {
@@ -96,7 +96,14 @@ async function monitorDaemon(extensionContext: extensionApi.ExtensionContext) {
       // ignore the update of machines
     }
     await timeout(5000);
-    monitorDaemon(extensionContext);
+    monitorDaemon(extensionContext).catch((err: unknown) => {
+      console.error('Error while monitoring docker daemon', err);
+      if (err instanceof Error) {
+        extensionApi.env.createTelemetryLogger().logError(err);
+      } else {
+        extensionApi.env.createTelemetryLogger().logError(err.toString());
+      }
+    });
   }
 }
 
@@ -144,7 +151,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }
 
   // monitor daemon
-  monitorDaemon(extensionContext);
+  monitorDaemon(extensionContext).catch((err: unknown) => {
+    console.error('Error while monitoring docker daemon', err);
+    if (err instanceof Error) {
+      extensionApi.env.createTelemetryLogger().logError(err);
+    } else {
+      extensionApi.env.createTelemetryLogger().logError(err.toString());
+    }
+  });
 }
 
 function initProvider(extensionContext: extensionApi.ExtensionContext) {

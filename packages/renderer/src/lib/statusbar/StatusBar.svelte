@@ -46,9 +46,9 @@ onMount(async () => {
 });
 </script>
 
-<div class="flex flex-wrap items-center justify-between px-2 h-6 bg-[#302251] text-sm">
-  <div class="w-1/2">
-    <ul class="flex flex-wrap list-none space-x-4">
+<div class="flex items-center justify-between px-1 bg-[#302251] text-sm py-0.5 space-x-2">
+  <div>
+    <ul class="flex flex-wrap gap-x-2 list-none">
       {#each leftEntries as entry}
         <li>
           <StatusBarItem entry="{entry}" />
@@ -56,8 +56,8 @@ onMount(async () => {
       {/each}
     </ul>
   </div>
-  <div class="w-1/2">
-    <ul class="flex flex-wrap flex-row-reverse list-none space-x-2 space-x-reverse">
+  <div class="place-self-end">
+    <ul class="flex flex-wrap flex-row-reverse gap-x-2 list-none">
       {#each rightEntries as entry}
         <li>
           <StatusBarItem entry="{entry}" />

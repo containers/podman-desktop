@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
@@ -159,11 +159,13 @@ export class RegistrySetup {
 
     // need to monitor this file
     fs.watchFile(this.getAuthFileLocation(), () => {
-      this.updateRegistries(extensionContext);
+      this.updateRegistries(extensionContext).catch((error: unknown) => {
+        console.error('Error updating registries', error);
+      });
     });
 
     // else init with the content of this file
-    this.updateRegistries(extensionContext);
+    await this.updateRegistries(extensionContext);
   }
 
   protected async readAuthFile(): Promise<ContainersAuthConfigFile> {
@@ -174,11 +176,19 @@ export class RegistrySetup {
     }
 
     return new Promise((resolve, reject) => {
-      fs.readFile(this.getAuthFileLocation(), 'utf8', (err, data) => {
+      fs.readFile(this.getAuthFileLocation(), 'utf-8', (err, data) => {
         if (err) {
           reject(err);
         } else {
-          resolve(JSON.parse(data));
+          let authFile: ContainersAuthConfigFile;
+          try {
+            authFile = JSON.parse(data);
+          } catch (error) {
+            console.error('Error parsing auth file', error);
+            // return empty auth file
+            resolve({});
+          }
+          resolve(authFile);
         }
       });
     });

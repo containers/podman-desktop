@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,17 @@ export async function fetchConfigurationProperties() {
 
 export const configurationProperties: Writable<IConfigurationPropertyRecordedSchema[]> = writable([]);
 
-window.addEventListener('extension-started', () => {
-  fetchConfigurationProperties();
+window.events?.receive('extensions-started', async () => {
+  await fetchConfigurationProperties();
 });
-window.addEventListener('extension-stopped', () => {
-  fetchConfigurationProperties();
+window.events?.receive('extension-started', async () => {
+  await fetchConfigurationProperties();
+});
+window.events?.receive('extension-stopped', async () => {
+  await fetchConfigurationProperties();
 });
 window.addEventListener('system-ready', () => {
-  fetchConfigurationProperties();
+  fetchConfigurationProperties().catch((error: unknown) => {
+    console.error('Failed to fetch configuration properties', error);
+  });
 });

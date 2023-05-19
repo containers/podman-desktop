@@ -9,10 +9,23 @@ let inspectDetails: string;
 
 onMount(async () => {
   // grab inspect result from the container
-  const inspectResult = await window.getPodInspect(pod.engineId, pod.id);
-  // remove engine* properties from the inspect result as it's more internal
-  delete inspectResult.engineId;
-  delete inspectResult.engineName;
+  let inspectResult;
+  if (pod.kind === 'podman') {
+    inspectResult = await window.getPodInspect(pod.engineId, pod.id);
+    // remove engine* properties from the inspect result as it's more internal
+    delete inspectResult.engineId;
+    delete inspectResult.engineName;
+  } else {
+    const ns = await window.kubernetesGetCurrentNamespace();
+    if (ns) {
+      const kubepod = await window.kubernetesReadNamespacedPod(pod.name, ns);
+      if (kubepod) {
+        inspectResult = kubepod;
+      } else {
+        inspectResult = "Can't inspect pod " + pod.name;
+      }
+    }
+  }
 
   inspectDetails = JSON.stringify(inspectResult, null, 2);
 });

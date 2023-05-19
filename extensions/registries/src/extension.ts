@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@tmpwip/extension-api';
+import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 
 // The image path for the registry logos
@@ -25,7 +25,7 @@ const imageExtension = '.png';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // For each defaultRegistries, suggest the registry to Podman Desktop
-  defaultRegistries.forEach(async registry => {
+  for (const registry of defaultRegistries) {
     // Let's check the folder for <registry.url>.png
     const iconLocation = imagePath.concat(registry.url, imageExtension);
 
@@ -36,7 +36,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
     // Suggest it to the registry
     extensionApi.registry.suggestRegistry(registry);
-  });
+  }
 }
 
 export function deactivate(): void {

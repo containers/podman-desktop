@@ -17,8 +17,14 @@
 }
 .tooltip.right {
   right: 0;
-  transform: translateX(100%);
+  transform: translate(100%, -50%);
+  margin-top: -10px;
   margin-right: -8px;
+}
+.tooltip.top-left {
+  left: 0;
+  transform: translate(-80%, -100%);
+  margin-top: -8px;
 }
 .tooltip-slot:hover + .tooltip {
   opacity: 1;
@@ -29,23 +35,25 @@
 <script>
 export let tip = '';
 export let top = false;
+export let topLeft = false;
 export let right = false;
 export let bottom = false;
 export let left = false;
 </script>
 
-<div class="relative inline-block">
+<div class="relative inline-block z-[10]">
   <span class="group tooltip-slot">
     <slot />
   </span>
   <div
-    class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out"
+    class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out pointer-events-none"
     class:left="{left}"
     class:right="{right}"
     class:bottom="{bottom}"
-    class:top="{top}">
+    class:top="{top}"
+    class:top-left="{topLeft}">
     {#if tip}
-      <div class="inline-block py-2 px-4 rounded-md bg-zinc-900 text-xs">{tip}</div>
+      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs" aria-label="tooltip">{tip}</div>
     {/if}
   </div>
 </div>
