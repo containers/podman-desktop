@@ -31,7 +31,7 @@ async function updateProxySettings() {
   let message = 'Proxy settings have been applied.';
   let type = 'info';
   if (runningProviders) {
-    message += ' You may need to restart running container engines for the changes to take effect.';
+    message += ' You might need to restart running container engines for the changes to take effect.';
     type = 'warning';
   }
 
