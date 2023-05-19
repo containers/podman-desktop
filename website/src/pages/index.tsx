@@ -120,7 +120,7 @@ function Hero() {
           <img
             className="sm:w-full md:w-full lg:w-10/12"
             alt="Podman Desktop home page"
-            src="img/features/homepage.png"
+            src="img/features/homepage.webp"
           />
         </div>
       </div>
