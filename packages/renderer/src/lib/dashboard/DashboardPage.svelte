@@ -10,6 +10,7 @@ import ProviderStopped from './ProviderStopped.svelte';
 import ProviderStarting from './ProviderStarting.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import type { InitializationMode } from './ProviderInitUtils';
+import FeaturedExtensions from '/@/lib/featured/FeaturedExtensions.svelte';
 
 const providerInitMode = new Map<string, InitializationMode>();
 
@@ -26,7 +27,7 @@ function updateInitializationMode(id: string, mode: InitializationMode) {
 </script>
 
 <NavPage searchEnabled="{false}" title="Dashboard">
-  <div slot="empty" class="flex flex-col min-h-full bg-zinc-700">
+  <div slot="empty" class="flex flex-col min-h-full bg-charcoal-700 shadow-nav">
     <div class="min-w-full flex-1">
       <div class="pt-5 px-5 space-y-5">
         <!-- Provider is ready display a box to indicate some information -->
@@ -74,6 +75,8 @@ function updateInitializationMode(id: string, mode: InitializationMode) {
             <ProviderStopped provider="{providerStopped}" />
           {/each}
         {/if}
+
+        <FeaturedExtensions />
       </div>
     </div>
   </div>

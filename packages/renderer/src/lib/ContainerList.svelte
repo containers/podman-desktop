@@ -4,10 +4,10 @@ import { filtered, searchPattern, containersInfos } from '../stores/containers';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import ContainerIcon from './images/ContainerIcon.svelte';
-import ContainerGroupIcon from './container/ContainerGroupIcon.svelte';
+import PodIcon from './images/PodIcon.svelte';
 import StatusIcon from './images/StatusIcon.svelte';
 import { router } from 'tinro';
-import { ContainerGroupInfoTypeUI, ContainerGroupInfoUI, ContainerInfoUI } from './container/ContainerInfoUI';
+import { ContainerGroupInfoTypeUI, type ContainerGroupInfoUI, type ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
 import PodActions from './pod/PodActions.svelte';
 import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';
@@ -16,7 +16,7 @@ import { ContainerUtils } from './container/container-utils';
 import { providerInfos } from '../stores/providers';
 import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
 import moment from 'moment';
-import type { Unsubscriber } from 'svelte/store';
+import { get, type Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
@@ -25,6 +25,7 @@ import { podCreationHolder } from '../stores/creation-from-containers-store';
 import KubePlayButton from './kube/KubePlayButton.svelte';
 import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
+import { containerGroupsInfo } from '../stores/containerGroups';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -169,7 +170,7 @@ function createPodFromContainers() {
   const podCreation = {
     name: 'my-pod',
     containers: selectedContainers.map(container => {
-      return { id: container.id, name: container.name, engineId: container.engineId, ports: container.port };
+      return { id: container.id, name: container.name, engineId: container.engineId, ports: container.ports };
     }),
   };
 
@@ -182,6 +183,9 @@ function createPodFromContainers() {
 
 let containersUnsubscribe: Unsubscriber;
 onMount(async () => {
+  // grab previous groups
+  containerGroups = get(containerGroupsInfo);
+
   containersUnsubscribe = filtered.subscribe(value => {
     const currentContainers = value.map((containerInfo: ContainerInfo) => {
       return containerUtils.getContainerInfoUI(containerInfo);
@@ -240,6 +244,9 @@ onMount(async () => {
 });
 
 onDestroy(() => {
+  // store current groups for later
+  containerGroupsInfo.set(containerGroups);
+
   // kill timers
   refreshTimeouts.forEach(timeout => clearTimeout(timeout));
   refreshTimeouts.length = 0;
@@ -370,7 +377,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     <table class="mx-5 w-full" class:hidden="{containerGroups.length === 0}">
       <!-- title -->
       <thead>
-        <tr class="h-7 uppercase text-xs text-gray-500">
+        <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5"
             ><input
@@ -391,14 +398,14 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       {#each containerGroups as containerGroup}
         <tbody>
           {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE || containerGroup.type === ContainerGroupInfoTypeUI.POD}
-            <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+            <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
               <td
-                class="bg-zinc-900 group-hover:bg-zinc-700 pl-2 w-3 rounded-tl-lg"
+                class="bg-charcoal-800 group-hover:bg-zinc-700 pl-2 w-3 rounded-tl-lg"
                 class:rounded-bl-lg="{!containerGroup.expanded}"
                 on:click="{() => toggleContainerGroup(containerGroup)}">
                 <Fa
                   size="12"
-                  class="text-gray-400 cursor-pointer"
+                  class="text-gray-700 cursor-pointer"
                   icon="{containerGroup.expanded ? faChevronDown : faChevronRight}" />
               </td>
               <td class="px-2">
@@ -410,19 +417,19 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               </td>
               <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
                 <div class="grid place-content-center ml-3 mr-4">
-                  <ContainerGroupIcon containers="{containerGroup.containers}" />
+                  <StatusIcon icon="{PodIcon}" status="{containerGroup.status}" />
                 </div>
               </td>
               <td class="whitespace-nowrap hover:cursor-pointer">
-                <div class="flex items-center text-sm text-gray-200 overflow-hidden text-ellipsis">
+                <div class="flex items-center text-sm text-gray-300 overflow-hidden text-ellipsis">
                   <div class="flex flex-col flex-nowrap">
                     <div
-                      class="text-sm text-gray-200 overflow-hidden text-ellipsis"
+                      class="text-sm text-gray-300 overflow-hidden text-ellipsis"
                       title="{containerGroup.type}"
                       on:click="{() => openGroupDetails(containerGroup)}">
                       {containerGroup.name} ({containerGroup.type})
                     </div>
-                    <div class="text-xs font-extra-light text-gray-500">
+                    <div class="text-xs font-extra-light text-gray-900">
                       {containerGroup.containers.length} container{containerGroup.containers.length > 1 ? 's' : ''}
                     </div>
                   </div>
@@ -430,12 +437,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               </td>
               <td class="px-6 py-2 whitespace-nowrap w-10">
                 <div class="flex items-center">
-                  <div class="ml-2 text-sm text-gray-400"></div>
+                  <div class="ml-2 text-sm text-gray-700"></div>
                 </div>
               </td>
               <td class="whitespace-nowrap pl-4">
                 <div class="flex items-center">
-                  <div class="text-sm text-gray-400"></div>
+                  <div class="text-sm text-gray-700"></div>
                 </div>
               </td>
               <td
@@ -465,7 +472,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
           <!-- Display each container of this group -->
           {#if containerGroup.expanded}
             {#each containerGroup.containers as container, index}
-              <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+              <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
                 <td
                   class="{containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE ? 'rounded-tl-lg' : ''} {index ===
                   containerGroup.containers.length - 1
@@ -490,12 +497,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     <div class="">
                       <div class="flex flex-nowrap">
                         <div
-                          class="text-sm text-gray-200 overflow-hidden text-ellipsis group-hover:text-violet-400"
+                          class="text-sm text-gray-300 overflow-hidden text-ellipsis group-hover:text-violet-400"
                           title="{container.name}">
                           {container.name}
                         </div>
                       </div>
-                      <div class="flex flex-row text-xs font-extra-light text-gray-500">
+                      <div class="flex flex-row text-xs font-extra-light text-gray-900">
                         <div>{container.state}</div>
                         <!-- Hide in case of single engines-->
                         {#if multipleEngines}
@@ -514,13 +521,13 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                   class="whitespace-nowrap hover:cursor-pointer group"
                   on:click="{() => openDetailsContainer(container)}">
                   <div class="flex items-center">
-                    <div class="text-sm text-gray-400 overflow-hidden text-ellipsis" title="{container.image}">
-                      {container.image}
+                    <div class="text-sm text-gray-700 overflow-hidden text-ellipsis" title="{container.image}">
+                      {container.shortImage}
                     </div>
                   </div></td>
                 <td class="whitespace-nowrap pl-4">
                   <div class="flex items-center">
-                    <div class="text-sm text-gray-400">{container.uptime}</div>
+                    <div class="text-sm text-gray-700">{container.uptime}</div>
                   </div>
                 </td>
                 <td
@@ -529,21 +536,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     : ''} {index === containerGroup.containers.length - 1 ? 'rounded-br-lg' : ''}">
                   <div class="flex w-full">
                     <div class="flex items-center w-5">
-                      {#if container.actionInProgress}
-                        <svg
-                          class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
-                          ></circle>
-                          <path
-                            class="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                      {:else if container.actionError}
+                      {#if container.actionError}
                         <ErrorMessage error="{container.actionError}" icon />
                       {:else}
                         <div>&nbsp;</div>
@@ -582,16 +575,16 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       openChoiceModal = false;
     }}">
     <div
-      class="inline-block w-full overflow-hidden text-left transition-all transform bg-zinc-800 z-50 h-[200px] rounded-xl shadow-xl shadow-neutral-900"
+      class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 h-[200px] rounded-xl shadow-xl shadow-neutral-900"
       on:keydown="{keydownChoice}">
       <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
         <h1 class="text-xl font-bold">Create a new container</h1>
 
-        <button class="hover:text-gray-200 px-2 py-1" on:click="{() => toggleCreateContainer()}">
+        <button class="hover:text-gray-300 px-2 py-1" on:click="{() => toggleCreateContainer()}">
           <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </div>
-      <div class="bg-zinc-800 p-5 h-full flex flex-col justify-items-center">
+      <div class="bg-charcoal-600 p-5 h-full flex flex-col justify-items-center">
         <span class="pb-3">Choose the following:</span>
         <ul class="list-disc ml-8 space-y-2">
           <li>Create a container from a Containerfile</li>

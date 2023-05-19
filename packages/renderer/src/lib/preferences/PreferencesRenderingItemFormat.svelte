@@ -4,6 +4,9 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Markdown from '../markdown/Markdown.svelte';
+import { getNormalizedDefaultNumberValue } from './Util';
+import Tooltip from '../ui/Tooltip.svelte';
 
 let invalidEntry = false;
 let invalidText = undefined;
@@ -26,7 +29,7 @@ $: recordValue;
 $: updateResetButtonVisibility && updateResetButtonVisibility(recordValue);
 let checkboxValue: boolean = false;
 $: if (resetToDefault) {
-  recordValue = record.default;
+  recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
   if (typeof recordValue === 'boolean') {
     checkboxValue = recordValue;
   }
@@ -44,7 +47,7 @@ $: if (currentRecord !== record) {
       }
     });
   } else if (record.default !== undefined) {
-    recordValue = record.default;
+    recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
     if (record.type === 'boolean') {
       checkboxValue = recordValue;
     }
@@ -141,6 +144,7 @@ function decrement(
     recordValue = value;
     autoSave();
   }
+  assertNumericValueIsValid(value);
   e.preventDefault();
 }
 
@@ -158,6 +162,7 @@ function increment(
     recordValue = value;
     autoSave();
   }
+  assertNumericValueIsValid(value);
   e.preventDefault();
 }
 
@@ -169,7 +174,7 @@ function autoSave() {
 
 function getCurrentNumericInputElement(e: HTMLButtonElement) {
   const btn = e.parentNode.parentElement.querySelector('button[data-action="decrement"]');
-  return btn.nextElementSibling as unknown as HTMLInputElement;
+  return btn.nextElementSibling.firstElementChild.firstElementChild as unknown as HTMLInputElement;
 }
 
 function canDecrement(value: number | string, minimumValue?: number) {
@@ -198,13 +203,57 @@ function handleCleanValue(
   recordValue = '';
   event.preventDefault();
 }
+
+let numberInputInvalid = false;
+let numberInputErrorMessage = '';
+function onNumberInputKeyPress(event: any) {
+  // if the key is not a number skip it
+  if (isNaN(Number(event.key))) {
+    event.preventDefault();
+    return;
+  }
+}
+
+function onNumberInputChange(event: any) {
+  if (event.target.value === '') {
+    numberInputInvalid = true;
+    numberInputErrorMessage = `The value cannot be less than ${record.minimum}${
+      record.maximum ? ` or greater than ${record.maximum}` : ''
+    }`;
+    clearTimeout(recordUpdateTimeout);
+    return;
+  }
+  // if the resulting value is greater than the maximum or less than the minimum skip it
+  const resultingValue = Number(event.target.value);
+  if (assertNumericValueIsValid(resultingValue)) {
+    autoSave();
+  }
+}
+
+function assertNumericValueIsValid(value: number) {
+  if (record.maximum && typeof record.maximum === 'number' && value > record.maximum) {
+    numberInputInvalid = true;
+    numberInputErrorMessage = `The value cannot be greater than ${record.maximum}`;
+    clearTimeout(recordUpdateTimeout);
+    return false;
+  }
+  if (record.minimum && typeof record.minimum === 'number' && value < record.minimum) {
+    numberInputInvalid = true;
+    numberInputErrorMessage = `The value cannot be less than ${record.minimum}`;
+    clearTimeout(recordUpdateTimeout);
+    return false;
+  }
+  numberInputErrorMessage = '';
+  numberInputInvalid = false;
+  return true;
+}
 </script>
 
 <div class="flex flex-row mb-1 pt-2">
   <div class="flex flex-col mx-2 text-start w-full justify-center items-start pf-c-form__group-control">
     {#if record.type === 'boolean'}
       <label class="relative inline-flex items-center cursor-pointer">
-        <span class="text-xs {checkboxValue ? 'text-white' : 'text-gray-400'} mr-3"
+        <span class="text-xs {checkboxValue ? 'text-white' : 'text-gray-700'} mr-3"
           >{checkboxValue ? 'Enabled' : 'Disabled'}</span>
         <input
           on:input="{event => {
@@ -218,46 +267,53 @@ function handleCleanValue(
           readonly="{!!record.readonly}"
           id="input-standard-{record.id}"
           aria-invalid="{invalidEntry}"
-          aria-label="{record.description}" />
+          aria-label="{record.description || record.markdownDescription}" />
         <div
-          class="w-8 h-[20px] bg-gray-500 rounded-full peer peer-checked:after:translate-x-full after:bg-zinc-800 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
+          class="w-8 h-[20px] bg-gray-900 rounded-full peer peer-checked:after:translate-x-full after:bg-charcoal-600 after:content-[''] after:absolute after:top-[4px] after:left-[61px] after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600">
         </div>
       </label>
     {:else if enableSlider && record.type === 'number' && typeof record.maximum === 'number'}
       <input
         id="input-slider-{record.id}"
         type="range"
+        name="{record.id}"
         min="{record.minimum}"
         max="{record.maximum}"
-        value="{record.default}"
+        value="{getNormalizedDefaultNumberValue(record)}"
         aria-label="{record.description}"
         on:input="{event => handleRangeValue(record.id, event.currentTarget)}"
-        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs" />
+        class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs mt-2" />
     {:else if record.type === 'number'}
       <div
-        class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-zinc-900 w-24 border-b border-violet-500">
+        class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-charcoal-800 w-24 border-b"
+        class:border-violet-500="{!numberInputInvalid}"
+        class:border-red-500="{numberInputInvalid}">
         <button
           data-action="decrement"
           on:click="{e => decrement(e, record)}"
           disabled="{!canDecrement(recordValue, record.minimum)}"
           class="w-11 text-white {!canDecrement(recordValue, record.minimum)
-            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
-            : 'hover:text-gray-700 hover:bg-gray-400'} cursor-pointer outline-none">
+            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
+            : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
           <span class="m-auto font-thin">−</span>
         </button>
-        <input
-          type="text"
-          readonly
-          class="w-full outline-none focus:outline-none text-center text-white text-sm py-0.5"
-          value="{recordValue}"
-          aria-label="{record.description}" />
+        <Tooltip topLeft tip="{numberInputErrorMessage}">
+          <input
+            type="text"
+            class="w-[50px] outline-none focus:outline-none text-center text-white text-sm py-0.5"
+            name="{record.id}"
+            bind:value="{recordValue}"
+            on:keypress="{event => onNumberInputKeyPress(event)}"
+            on:input="{event => onNumberInputChange(event)}"
+            aria-label="{record.description}" />
+        </Tooltip>
         <button
           data-action="increment"
           on:click="{e => increment(e, record)}"
           disabled="{!canIncrement(recordValue, record.maximum)}"
           class="w-11 text-white {!canIncrement(recordValue, record.maximum)
-            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-zinc-900'
-            : 'hover:text-gray-700 hover:bg-gray-400'} cursor-pointer outline-none">
+            ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
+            : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
           <span class="m-auto font-thin">+</span>
         </button>
       </div>
@@ -280,7 +336,6 @@ function handleCleanValue(
           <Fa icon="{faXmark}" />
         </button>
         <input
-          name="{record.id}"
           on:click="{() => selectFilePath()}"
           id="rendering.FilePath.{record.id}"
           readonly
@@ -303,6 +358,10 @@ function handleCleanValue(
           <option value="{recordEnum}">{recordEnum}</option>
         {/each}
       </select>
+    {:else if record.type === 'markdown'}
+      <div class="text-sm">
+        <Markdown>{record.markdownDescription}</Markdown>
+      </div>
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"

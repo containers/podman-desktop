@@ -3,11 +3,11 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import Logger from './Logger.svelte';
-import { writeToTerminal } from './Util';
+import { getNormalizedDefaultNumberValue, writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
   clearCreateTask,
-  ConnectionCallback,
+  type ConnectionCallback,
   disconnectUI,
   eventCollect,
   reconnectUI,
@@ -20,6 +20,7 @@ import { filesize } from 'filesize';
 import { router } from 'tinro';
 import LinearProgress from '../ui/LinearProgress.svelte';
 import Spinner from '../ui/Spinner.svelte';
+import Markdown from '../markdown/Markdown.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
@@ -31,6 +32,7 @@ export let callback: (
   collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
   tokenId?: number,
 ) => Promise<void>;
+export let taskId: number = undefined;
 
 $: configurationValues = new Map<string, string>();
 let creationInProgress = false;
@@ -61,7 +63,6 @@ $: if (logsTerminal) {
 }
 
 onMount(async () => {
-  cleanup();
   osMemory = await window.getOsMemory();
   osCpu = await window.getOsCpu();
   osFreeDisk = await window.getOsFreeDiskSize();
@@ -97,9 +98,10 @@ onMount(async () => {
   pageIsLoading = false;
 
   // check if we have an existing create action
-  const value = get(createConnectionsInfo);
+  const createConnectionInfoMap = get(createConnectionsInfo);
 
-  if (value) {
+  if (taskId && createConnectionInfoMap && createConnectionInfoMap.has(taskId)) {
+    const value = createConnectionInfoMap.get(taskId);
     loggerHandlerKey = value.createKey;
     providerInfo = value.providerInfo;
     properties = value.properties;
@@ -110,6 +112,10 @@ onMount(async () => {
     creationStarted = value.creationStarted;
     errorMessage = value.errorMessage;
     creationSuccessful = value.creationSuccessful;
+    tokenId = value.tokenId;
+  }
+  if (taskId === undefined) {
+    taskId = createConnectionInfoMap.size + 1;
   }
 });
 
@@ -134,9 +140,9 @@ function setConfigurationValue(id: string, value: string) {
 
 function getDisplayConfigurationValue(configurationKey: IConfigurationPropertyRecordedSchema, value?: any) {
   if (configurationKey.format === 'memory' || configurationKey.format === 'diskSize') {
-    return value ? filesize(value) : filesize(configurationKey.default);
+    return value ? filesize(value) : filesize(getNormalizedDefaultNumberValue(configurationKey));
   } else if (configurationKey.format === 'cpu') {
-    return value ? value : configurationKey.default;
+    return value ? value : getNormalizedDefaultNumberValue(configurationKey);
   } else {
     return '';
   }
@@ -179,7 +185,6 @@ async function cleanup() {
     clearCreateTask(loggerHandlerKey);
     loggerHandlerKey = undefined;
   }
-
   errorMessage = undefined;
   showLogs = false;
   creationInProgress = false;
@@ -193,15 +198,19 @@ async function cleanup() {
 
 // store the key
 function updateStore() {
-  createConnectionsInfo.set({
-    createKey: loggerHandlerKey,
-    providerInfo,
-    properties,
-    propertyScope,
-    creationInProgress,
-    creationSuccessful,
-    creationStarted,
-    errorMessage,
+  createConnectionsInfo.update(map => {
+    map.set(taskId, {
+      createKey: loggerHandlerKey,
+      providerInfo,
+      properties,
+      propertyScope,
+      creationInProgress,
+      creationSuccessful,
+      creationStarted,
+      errorMessage,
+      tokenId,
+    });
+    return map;
   });
 }
 
@@ -227,7 +236,7 @@ async function handleOnSubmit(e) {
     logsTerminal?.clear();
     loggerHandlerKey = startTask(
       `Creating a ${providerInfo.name} provider`,
-      `/preferences/provider/${providerInfo.internalId}`,
+      `/preferences/provider-task/${providerInfo.internalId}/${taskId}`,
       getLoggerHandler(),
     );
     updateStore();
@@ -343,9 +352,13 @@ async function close() {
       <div class="p-3 mt-4 w-4/5 {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
         <form novalidate class="pf-c-form p-2" on:submit|preventDefault="{handleOnSubmit}">
           {#each configurationKeys as configurationKey}
-            <div class="mb-3">
-              <div class="font-semibold text-xs mb-2">
-                {configurationKey.description}:
+            <div class="mb-2.5">
+              <div class="font-semibold text-xs">
+                {#if configurationKey.description}
+                  {configurationKey.description}:
+                {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
+                  <Markdown>{configurationKey.markdownDescription}:</Markdown>
+                {/if}
                 {#if configurationValues.has(configurationKey.id)}
                   {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
                 {:else}
@@ -363,7 +376,7 @@ async function close() {
           <div class="w-full">
             <div class="float-right">
               <button
-                class="pf-c-button underline hover:text-gray-400"
+                class="pf-c-button underline hover:text-gray-700"
                 on:click="{() => router.goto('/preferences/resources')}">
                 Close
               </button>

@@ -20,9 +20,17 @@ import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
 import type { VolumeListInfo } from '../../../main/src/plugin/api/volume-info';
 import { findMatchInLeaves } from './search-util';
+
+let readyToUpdate = false;
+export let volumesInitialized = false;
+
 export async function fetchVolumes() {
+  if (!readyToUpdate) {
+    return;
+  }
   const result = await window.listVolumes();
   volumeListInfos.set(result);
+  volumesInitialized = true;
 }
 
 export const volumeListInfos: Writable<VolumeListInfo[]> = writable([]);
@@ -37,49 +45,59 @@ export const filtered = derived([searchPattern, volumeListInfos], ([$searchPatte
       findMatchInLeaves(volume, $searchPattern.toLowerCase()),
     );
 
-    const updatedVolumeInfo = {
+    return {
       ...volumeInfo,
       Volumes: filteredVolumes,
     };
-    return updatedVolumeInfo;
   });
 });
 
-// need to refresh when extension is started or stopped
-window.addEventListener('extension-started', async () => {
-  await fetchVolumes();
-});
-window.addEventListener('extension-stopped', async () => {
-  await fetchVolumes();
-});
+export function initWindowFetchVolumes() {
+  // need to refresh when extension is started or stopped
+  window?.events?.receive('extension-started', async () => {
+    await fetchVolumes();
+  });
+  window?.events?.receive('extension-stopped', async () => {
+    await fetchVolumes();
+  });
 
-window?.events.receive('provider-change', async () => {
-  await fetchVolumes();
-});
-window.addEventListener('system-ready', async () => {
-  await fetchVolumes();
-});
+  window?.events?.receive('provider-change', async () => {
+    await fetchVolumes();
+  });
 
-window.events?.receive('container-stopped-event', async () => {
-  await fetchVolumes();
-});
+  window?.events?.receive('container-stopped-event', async () => {
+    await fetchVolumes();
+  });
 
-window.events?.receive('container-die-event', async () => {
-  await fetchVolumes();
-});
+  window?.events?.receive('container-die-event', async () => {
+    await fetchVolumes();
+  });
 
-window.events?.receive('container-kill-event', async () => {
-  await fetchVolumes();
-});
+  window?.events?.receive('container-kill-event', async () => {
+    await fetchVolumes();
+  });
 
-window.events?.receive('container-started-event', async () => {
-  await fetchVolumes();
-});
+  window?.events?.receive('container-started-event', async () => {
+    await fetchVolumes();
+  });
 
-window.events?.receive('container-removed-event', async () => {
-  await fetchVolumes();
-});
+  window?.events?.receive('container-removed-event', async () => {
+    await fetchVolumes();
+  });
 
-window.events?.receive('volume-event', async () => {
-  await fetchVolumes();
-});
+  window?.events?.receive('volume-event', async () => {
+    await fetchVolumes();
+  });
+
+  window?.events?.receive('extensions-started', async () => {
+    // make it ready to update
+    readyToUpdate = true;
+  });
+
+  window.addEventListener('extensions-already-started', () => {
+    // make it ready to update
+    readyToUpdate = true;
+  });
+}
+
+initWindowFetchVolumes();

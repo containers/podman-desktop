@@ -52,8 +52,8 @@ onMount(() => {
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/images" title="Go back to images list"
                 >Images</a>
-              <div class="text-xl mx-2 text-gray-400">></div>
-              <div class="text-sm font-extralight text-gray-400">Image Details</div>
+              <div class="text-xl mx-2 text-gray-700">></div>
+              <div class="text-sm font-extralight text-gray-700">Image Details</div>
             </div>
             <div class="flex flex-row items-start pt-1">
               <div class="pr-3 pt-1">
@@ -64,7 +64,7 @@ onMount(() => {
                   <div class="mr-2">{image.name}</div>
                   <div class="text-base text-violet-400">{image.shortId}</div>
                 </div>
-                <div class="mr-2 pb-4 text-small text-gray-500">{image.tag}</div>
+                <div class="mr-2 pb-4 text-small text-gray-900">{image.tag}</div>
               </div>
             </div>
 
@@ -80,7 +80,7 @@ onMount(() => {
               </div>
             </section>
           </div>
-          <div class="flex flex-col w-full px-5 pt-5">
+          <div class="flex flex-col px-5 pt-5">
             <div class="flex justify-end">
               <ImageActions
                 image="{image}"
@@ -89,18 +89,20 @@ onMount(() => {
                 dropdownMenu="{false}" />
             </div>
           </div>
-          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
+          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/history" breadcrumb="History">
-          <ImageDetailsHistory image="{image}" />
-        </Route>
-        <Route path="/inspect" breadcrumb="Inspect">
-          <ImageDetailsInspect image="{image}" />
-        </Route>
-        <Route path="/summary" breadcrumb="Summary">
-          <ImageDetailsSummary image="{image}" />
-        </Route>
+        <div class="h-full bg-charcoal-900">
+          <Route path="/history" breadcrumb="History">
+            <ImageDetailsHistory image="{image}" />
+          </Route>
+          <Route path="/inspect" breadcrumb="Inspect">
+            <ImageDetailsInspect image="{image}" />
+          </Route>
+          <Route path="/summary" breadcrumb="Summary">
+            <ImageDetailsSummary image="{image}" />
+          </Route>
+        </div>
       </div>
     </div>
   </Route>

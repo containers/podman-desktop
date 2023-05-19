@@ -159,11 +159,13 @@ export class ContainerProviderRegistry {
     const providerName = containerProviderConnection.name;
     const id = `${provider.id}.${providerName}`;
     this.containerProviders.set(id, containerProviderConnection);
-    this.telemetryService.track('registerContainerProviderConnection', {
-      name: containerProviderConnection.name,
-      type: containerProviderConnection.type,
-      total: this.containerProviders.size,
-    });
+    this.telemetryService
+      .track('registerContainerProviderConnection', {
+        name: containerProviderConnection.name,
+        type: containerProviderConnection.type,
+        total: this.containerProviders.size,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     const internalProvider: InternalContainerProvider = {
       id,
@@ -181,7 +183,7 @@ export class ContainerProviderRegistry {
     }
 
     // track the status of the provider
-    const timer = setInterval(async () => {
+    const timer = setInterval(() => {
       const newStatus = containerProviderConnection.status();
       if (newStatus !== previousStatus) {
         if (newStatus === 'stopped') {
@@ -217,6 +219,7 @@ export class ContainerProviderRegistry {
 
   // do not use inspect information
   async listSimpleContainers(): Promise<SimpleContainerInfo[]> {
+    let telemetryOptions = {};
     const containers = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
         try {
@@ -239,16 +242,20 @@ export class ContainerProviderRegistry {
           );
         } catch (error) {
           console.log('error in engine', provider.name, error);
+          telemetryOptions = { error: error };
           return [];
         }
       }),
     );
     const flatttenedContainers = containers.flat();
-    this.telemetryService.track('listSimpleContainers', { total: flatttenedContainers.length });
+    this.telemetryService
+      .track('listSimpleContainers', Object.assign({ total: flatttenedContainers.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
     return flatttenedContainers;
   }
 
   async listContainers(): Promise<ContainerInfo[]> {
+    let telemetryOptions = {};
     const containers = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
         try {
@@ -289,6 +296,7 @@ export class ContainerProviderRegistry {
                 } catch (error) {
                   console.debug('Unable to get container, probably container is gone due to a short TTL', error);
                   StartedAt = '';
+                  telemetryOptions = { error: error };
                 }
               } else {
                 StartedAt = '';
@@ -320,16 +328,20 @@ export class ContainerProviderRegistry {
           );
         } catch (error) {
           console.log('error in engine', provider.name, error);
+          telemetryOptions = { error: error };
           return [];
         }
       }),
     );
     const flatttenedContainers = containers.flat();
-    this.telemetryService.track('listContainers', { total: flatttenedContainers.length });
+    this.telemetryService
+      .track('listContainers', Object.assign({ total: flatttenedContainers.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
     return flatttenedContainers;
   }
 
   async listImages(): Promise<ImageInfo[]> {
+    let telemetryOptions = {};
     const images = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
         try {
@@ -343,18 +355,20 @@ export class ContainerProviderRegistry {
           });
         } catch (error) {
           console.log('error in engine', provider.name, error);
+          telemetryOptions = { error: error };
           return [];
         }
       }),
     );
     const flatttenedImages = images.flat();
-    this.telemetryService.track('listImages', { total: flatttenedImages.length });
+    this.telemetryService
+      .track('listImages', Object.assign({ total: flatttenedImages.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     return flatttenedImages;
   }
 
   async pruneImages(engineId: string): Promise<void> {
-    this.telemetryService.track('pruneImages');
     // We have to use two different API calls for pruning images, because the Podman API does not respect the 'dangling' filter
     // and instead uses 'all' and 'external'. See: https://github.com/containers/podman/issues/11576
     // so for Dockerode we'll have to call pruneImages with the 'dangling' filter, and for Podman we'll have to call pruneImages
@@ -362,17 +376,29 @@ export class ContainerProviderRegistry {
     // PODMAN:
     // Have to use podman API directly for pruning images
     // TODO: Remove this once the Podman API respects the 'dangling' filter: https://github.com/containers/podman/issues/17614
-    const provider = this.internalProviders.get(engineId);
-    if (provider?.libpodApi) {
-      return this.getMatchingPodmanEngine(engineId).pruneAllImages(true);
-    }
+    let telemetryOptions = {};
+    try {
+      const provider = this.internalProviders.get(engineId);
+      if (provider?.libpodApi) {
+        await this.getMatchingPodmanEngine(engineId).pruneAllImages(true);
+        return;
+      }
 
-    // DOCKER:
-    // Return Promise<void> for this call, because Dockerode does not return anything
-    await this.getMatchingEngine(engineId).pruneImages({ filters: { dangling: { false: true } } });
+      // DOCKER:
+      // Return Promise<void> for this call, because Dockerode does not return anything
+      await this.getMatchingEngine(engineId).pruneImages({ filters: { dangling: { false: true } } });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('pruneImages', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async listPods(): Promise<PodInfo[]> {
+    let telemetryOptions = {};
     const pods = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
         try {
@@ -386,17 +412,21 @@ export class ContainerProviderRegistry {
           });
         } catch (error) {
           console.log('error in engine', provider.name, error);
+          telemetryOptions = { error: error };
           return [];
         }
       }),
     );
     const flatttenedPods = pods.flat();
-    this.telemetryService.track('listPods', { total: flatttenedPods.length });
+    this.telemetryService
+      .track('listPods', Object.assign({ total: flatttenedPods.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     return flatttenedPods;
   }
 
   async listNetworks(): Promise<NetworkInspectInfo[]> {
+    let telemetryOptions = {};
     const networks = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
         try {
@@ -410,17 +440,21 @@ export class ContainerProviderRegistry {
           });
         } catch (error) {
           console.log('error in engine when listing networks', provider.name, error);
+          telemetryOptions = { error: error };
           return [];
         }
       }),
     );
     const flatttenedNetworks = networks.flat();
-    this.telemetryService.track('listNetworks', { total: flatttenedNetworks.length });
+    this.telemetryService
+      .track('listNetworks', Object.assign({ total: flatttenedNetworks.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
 
     return flatttenedNetworks;
   }
 
   async listVolumes(): Promise<VolumeListInfo[]> {
+    let telemetryOptions = {};
     const volumes = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
         try {
@@ -470,37 +504,58 @@ export class ContainerProviderRegistry {
           return { Volumes: volumeInfos, Warnings: volumeListInfo.Warnings, engineName, engineId };
         } catch (error) {
           console.log('error in engine', provider.name, error);
+          telemetryOptions = { error: error };
           return [];
         }
       }),
     );
     const flatttenedVolumes: VolumeListInfo[] = volumes.flat();
-    this.telemetryService.track('listVolumes', { total: flatttenedVolumes.length });
+    this.telemetryService
+      .track('listVolumes', Object.assign({ total: flatttenedVolumes.length }, telemetryOptions))
+      .catch((err: unknown) => console.error('Unable to track', err));
     return flatttenedVolumes;
   }
 
   async getVolumeInspect(engineId: string, volumeName: string): Promise<VolumeInspectInfo> {
-    this.telemetryService.track('volumeInspect');
-    // need to find the container engine of the container
-    const provider = this.internalProviders.get(engineId);
-    if (!provider) {
-      throw new Error('no engine matching this container');
+    let telemetryOptions = {};
+    try {
+      // need to find the container engine of the container
+      const provider = this.internalProviders.get(engineId);
+      if (!provider) {
+        throw new Error('no engine matching this container');
+      }
+      if (!provider.api) {
+        throw new Error('no running provider for the matching container');
+      }
+      const volumeObject = provider.api.getVolume(volumeName);
+      const volumeInspect = await volumeObject.inspect();
+      return {
+        engineName: provider.name,
+        engineId: provider.id,
+        ...volumeInspect,
+      };
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('volumeInspect', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-    if (!provider.api) {
-      throw new Error('no running provider for the matching container');
-    }
-    const volumeObject = provider.api.getVolume(volumeName);
-    const volumeInspect = await volumeObject.inspect();
-    return {
-      engineName: provider.name,
-      engineId: provider.id,
-      ...volumeInspect,
-    };
   }
 
   async removeVolume(engineId: string, volumeName: string): Promise<void> {
-    this.telemetryService.track('removeVolume');
-    return this.getMatchingEngine(engineId).getVolume(volumeName).remove();
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingEngine(engineId).getVolume(volumeName).remove();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('removeVolume', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   protected getMatchingEngine(engineId: string): Dockerode {
@@ -567,12 +622,10 @@ export class ContainerProviderRegistry {
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
       containerProvider =>
-        containerProvider.connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath,
+        containerProvider.connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath &&
+        containerProvider.connection.name === providerContainerConnectionInfo.name,
     );
-    if (!matchingContainerProvider || !matchingContainerProvider.api) {
-      throw new Error('No provider with a running engine');
-    }
-    if (!matchingContainerProvider.api) {
+    if (!matchingContainerProvider?.api) {
       throw new Error('no running provider for the matching container');
     }
     return matchingContainerProvider.api;
@@ -587,14 +640,32 @@ export class ContainerProviderRegistry {
   }
 
   async stopContainer(engineId: string, id: string): Promise<void> {
-    this.telemetryService.track('stopContainer');
-    return this.getMatchingContainer(engineId, id).stop();
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingContainer(engineId, id).stop();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('stopContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async deleteImage(engineId: string, id: string): Promise<void> {
-    this.telemetryService.track('deleteImage');
-    // use force to delete it even it is running
-    return this.getMatchingImage(engineId, id).remove({ force: true });
+    let telemetryOptions = {};
+    try {
+      // use force to delete it even it is running
+      return this.getMatchingImage(engineId, id).remove({ force: true });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('deleteImage', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   getImageName(inspectInfo: Dockerode.ImageInspectInfo) {
@@ -607,57 +678,75 @@ export class ContainerProviderRegistry {
   }
 
   async pushImage(engineId: string, imageTag: string, callback: (name: string, data: string) => void): Promise<void> {
-    const engine = this.getMatchingEngine(engineId);
-    const image = await engine.getImage(imageTag);
-    this.telemetryService.track('pushImage', { imageName: this.getImageHash(imageTag) });
-    const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
-    const pushStream = await image.push({ authconfig });
-    pushStream.on('end', () => {
-      callback('end', '');
-    });
-    let firstMessage = true;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pushStream.on('data', (chunk: any) => {
-      if (firstMessage) {
-        firstMessage = false;
-        callback('first-message', '');
-      }
-      callback('data', chunk.toString('utf-8'));
-    });
+    let telemetryOptions = {};
+    try {
+      const engine = this.getMatchingEngine(engineId);
+      const image = engine.getImage(imageTag);
+      const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
+      const pushStream = await image.push({ authconfig });
+      pushStream.on('end', () => {
+        callback('end', '');
+      });
+      let firstMessage = true;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pushStream.on('data', (chunk: any) => {
+        if (firstMessage) {
+          firstMessage = false;
+          callback('first-message', '');
+        }
+        callback('data', chunk.toString('utf-8'));
+      });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('pushImage', Object.assign({ imageName: this.getImageHash(imageTag) }, telemetryOptions))
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
   async pullImage(
     providerContainerConnectionInfo: ProviderContainerConnectionInfo,
     imageName: string,
     callback: (event: PullEvent) => void,
   ): Promise<void> {
-    this.telemetryService.track('pullImage', { imageName: this.getImageHash(imageName) });
-    const authconfig = this.imageRegistry.getAuthconfigForImage(imageName);
-    const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
-    const pullStream = await matchingEngine.pull(imageName, {
-      authconfig,
-    });
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    let resolve: () => void;
-    let reject: (err: Error) => void;
-    const promise = new Promise<void>((res, rej) => {
-      resolve = res;
-      reject = rej;
-    });
+    let telemetryOptions = {};
+    try {
+      const authconfig = this.imageRegistry.getAuthconfigForImage(imageName);
+      const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
+      const pullStream = await matchingEngine.pull(imageName, {
+        authconfig,
+      });
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      let resolve: () => void;
+      let reject: (err: Error) => void;
+      const promise = new Promise<void>((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
 
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    function onFinished(err: Error | null) {
-      if (err) {
-        return reject(err);
-      }
-      resolve();
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      const onFinished = (err: Error | null) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      };
+
+      const onProgress = (event: PullEvent) => {
+        callback(event);
+      };
+      matchingEngine.modem.followProgress(pullStream, onFinished, onProgress);
+
+      return promise;
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('pullImage', Object.assign({ imageName: this.getImageHash(imageName) }, telemetryOptions))
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-
-    function onProgress(event: PullEvent) {
-      callback(event);
-    }
-    matchingEngine.modem.followProgress(pullStream, onFinished, onProgress);
-
-    return promise;
   }
 
   getImageHash(imageName: string): string {
@@ -665,45 +754,101 @@ export class ContainerProviderRegistry {
   }
 
   async deleteContainer(engineId: string, id: string): Promise<void> {
-    this.telemetryService.track('deleteContainer');
-    // use force to delete it even it is running
-    return this.getMatchingContainer(engineId, id).remove({ force: true });
+    let telemetryOptions = {};
+    try {
+      // use force to delete it even it is running
+      return this.getMatchingContainer(engineId, id).remove({ force: true });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('deleteContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async startContainer(engineId: string, id: string): Promise<void> {
-    this.telemetryService.track('startContainer');
-    return this.getMatchingContainer(engineId, id).start();
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingContainer(engineId, id).start();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('startContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async generatePodmanKube(engineId: string, names: string[]): Promise<string> {
-    this.telemetryService.track('generatePodmanKube');
-    return this.getMatchingPodmanEngine(engineId).generateKube(names);
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingPodmanEngine(engineId).generateKube(names);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('generatePodmanKube', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async startPod(engineId: string, podId: string): Promise<void> {
-    this.telemetryService.track('startPod');
-    return this.getMatchingPodmanEngine(engineId).startPod(podId);
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingPodmanEngine(engineId).startPod(podId);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('startPod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async createPod(
     selectedProvider: ProviderContainerConnectionInfo,
     podOptions: PodCreateOptions,
   ): Promise<{ engineId: string; Id: string }> {
-    this.telemetryService.track('createPod');
-    // grab all connections
-    const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-      containerProvider => containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath,
-    );
-    if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
-      throw new Error('No provider with a running engine');
+    let telemetryOptions = {};
+    try {
+      // grab all connections
+      const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+        containerProvider =>
+          containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+          containerProvider.connection.name === selectedProvider.name,
+      );
+      if (!matchingContainerProvider?.libpodApi) {
+        throw new Error('No provider with a running engine');
+      }
+      const result = await matchingContainerProvider.libpodApi.createPod(podOptions);
+      return { Id: result.Id, engineId: matchingContainerProvider.id };
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('createPod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-    const result = await matchingContainerProvider.libpodApi.createPod(podOptions);
-    return { Id: result.Id, engineId: matchingContainerProvider.id };
   }
 
   async restartPod(engineId: string, podId: string): Promise<void> {
-    this.telemetryService.track('restartPod');
-    return this.getMatchingPodmanEngine(engineId).restartPod(podId);
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingPodmanEngine(engineId).restartPod(podId);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('restartPod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async replicatePodmanContainer(
@@ -711,88 +856,159 @@ export class ContainerProviderRegistry {
     target: { engineId: string },
     overrideParameters: PodmanContainerCreateOptions,
   ): Promise<{ Id: string; Warnings: string[] }> {
-    this.telemetryService.track('replicatePodmanContainer');
+    let telemetryOptions = {};
+    try {
+      // will publish in the target engine
+      const libPod = this.getMatchingPodmanEngine(target.engineId);
 
-    // will publish in the target engine
-    const libPod = this.getMatchingPodmanEngine(target.engineId);
+      // grab content of the current container to replicate
+      const containerToReplicate = await this.getContainerInspect(source.engineId, source.id);
 
-    // grab content of the current container to replicate
-    const containerToReplicate = await this.getContainerInspect(source.engineId, source.id);
+      // convert env from array of string to an object with key being the env name
+      const updatedEnv = containerToReplicate.Config.Env.reduce((acc: { [key: string]: string }, env) => {
+        const [key, value] = env.split('=');
+        acc[key] = value;
+        return acc;
+      }, {});
 
-    // convert env from array of string to an object with key being the env name
-    const updatedEnv = containerToReplicate.Config.Env.reduce((acc: { [key: string]: string }, env) => {
-      const [key, value] = env.split('=');
-      acc[key] = value;
-      return acc;
-    }, {});
+      // build create container configuration
+      const originalConfiguration = {
+        command: containerToReplicate.Config.Cmd,
+        entrypoint: containerToReplicate.Config.Entrypoint,
+        env: updatedEnv,
+        image: containerToReplicate.Config.Image,
+      };
 
-    // build create container configuration
-    const originalConfiguration = {
-      command: containerToReplicate.Config.Cmd,
-      entrypoint: containerToReplicate.Config.Entrypoint,
-      env: updatedEnv,
-      image: containerToReplicate.Config.Image,
-    };
-
-    // add extra information
-    const configuration = {
-      ...originalConfiguration,
-      ...overrideParameters,
-    };
-    return libPod.createPodmanContainer(configuration);
+      // add extra information
+      const configuration = {
+        ...originalConfiguration,
+        ...overrideParameters,
+      };
+      return libPod.createPodmanContainer(configuration);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('replicatePodmanContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async stopPod(engineId: string, podId: string): Promise<void> {
-    this.telemetryService.track('stopPod');
-    return this.getMatchingPodmanEngine(engineId).stopPod(podId);
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingPodmanEngine(engineId).stopPod(podId);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('stopPod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async removePod(engineId: string, podId: string): Promise<void> {
-    this.telemetryService.track('removePod');
-    return this.getMatchingPodmanEngine(engineId).removePod(podId);
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingPodmanEngine(engineId).removePod(podId);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('removePod', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async prunePods(engineId: string): Promise<void> {
-    this.telemetryService.track('prunePods');
-    return this.getMatchingPodmanEngine(engineId).prunePods();
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingPodmanEngine(engineId).prunePods();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('prunePods', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async pruneContainers(engineId: string): Promise<Dockerode.PruneContainersInfo> {
-    this.telemetryService.track('pruneContainers');
-    return this.getMatchingEngine(engineId).pruneContainers();
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingEngine(engineId).pruneContainers();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('pruneContainers', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async pruneVolumes(engineId: string): Promise<Dockerode.PruneVolumesInfo> {
-    this.telemetryService.track('pruneVolumes');
-    return this.getMatchingEngine(engineId).pruneVolumes();
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingEngine(engineId).pruneVolumes();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('pruneVolumes', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async restartContainer(engineId: string, id: string): Promise<void> {
-    this.telemetryService.track('restartContainer');
-    return this.getMatchingContainer(engineId, id).restart();
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingContainer(engineId, id).restart();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('restartContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void): Promise<void> {
-    this.telemetryService.track('logsContainer');
-    let firstMessage = true;
-    const container = this.getMatchingContainer(engineId, id);
-    const containerStream = await container.logs({
-      follow: true,
-      stdout: true,
-      stderr: true,
-    });
+    let telemetryOptions = {};
+    try {
+      let firstMessage = true;
+      const container = this.getMatchingContainer(engineId, id);
+      const containerStream = await container.logs({
+        follow: true,
+        stdout: true,
+        stderr: true,
+      });
 
-    containerStream.on('end', () => {
-      callback('end', '');
-    });
+      containerStream.on('end', () => {
+        callback('end', '');
+      });
 
-    containerStream.on('data', chunk => {
-      if (firstMessage) {
-        firstMessage = false;
-        callback('first-message', '');
-      }
-      callback('data', chunk.toString('utf-8'));
-    });
+      containerStream.on('data', chunk => {
+        if (firstMessage) {
+          firstMessage = false;
+          callback('first-message', '');
+        }
+        callback('data', chunk.toString('utf-8'));
+      });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('logsContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async shellInContainer(
@@ -800,134 +1016,195 @@ export class ContainerProviderRegistry {
     id: string,
     onData: (data: Buffer) => void,
   ): Promise<(param: string) => void> {
-    this.telemetryService.track('shellInContainer');
-    const exec = await this.getMatchingContainer(engineId, id).exec({
-      AttachStdin: true,
-      AttachStdout: true,
-      AttachStderr: true,
-      Cmd: ['/bin/sh'],
-      Tty: true,
-    });
+    let telemetryOptions = {};
+    try {
+      const exec = await this.getMatchingContainer(engineId, id).exec({
+        AttachStdin: true,
+        AttachStdout: true,
+        AttachStderr: true,
+        Cmd: ['/bin/sh'],
+        Tty: true,
+      });
 
-    const execStream = await exec.start({
-      Tty: true,
-      stdin: true,
-      hijack: true,
-    });
+      const execStream = await exec.start({
+        Tty: true,
+        stdin: true,
+        hijack: true,
+      });
 
-    execStream.on('data', chunk => {
-      onData(chunk.toString('utf-8'));
-    });
+      execStream.on('data', chunk => {
+        onData(chunk.toString('utf-8'));
+      });
 
-    const writeFunction = (param: string) => {
-      execStream.write(param);
-    };
-
-    return writeFunction;
+      return (param: string) => {
+        execStream.write(param);
+      };
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('shellInContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async createAndStartContainer(engineId: string, options: ContainerCreateOptions): Promise<void> {
-    // need to find the container engine of the container
-    const engine = this.internalProviders.get(engineId);
-    if (!engine) {
-      throw new Error('no engine matching this container');
+    let telemetryOptions = {};
+    try {
+      // need to find the container engine of the container
+      const engine = this.internalProviders.get(engineId);
+      if (!engine) {
+        throw new Error('no engine matching this container');
+      }
+      if (!engine.api) {
+        throw new Error('no running provider for the matching container');
+      }
+      const container = await engine.api.createContainer(options);
+      return container.start();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('createAndStartContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-    if (!engine.api) {
-      throw new Error('no running provider for the matching container');
-    }
-    this.telemetryService.track('createAndStartContainer');
-    const container = await engine.api.createContainer(options);
-    return container.start();
   }
 
   async getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo> {
-    this.telemetryService.track('imageInspect');
-    // need to find the container engine of the container
-    const provider = this.internalProviders.get(engineId);
-    if (!provider) {
-      throw new Error('no engine matching this container');
+    let telemetryOptions = {};
+    try {
+      // need to find the container engine of the container
+      const provider = this.internalProviders.get(engineId);
+      if (!provider) {
+        throw new Error('no engine matching this container');
+      }
+      if (!provider.api) {
+        throw new Error('no running provider for the matching container');
+      }
+      const imageObject = provider.api.getImage(id);
+      const imageInspect = await imageObject.inspect();
+      return {
+        engineName: provider.name,
+        engineId: provider.id,
+        ...imageInspect,
+      };
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('imageInspect', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-    if (!provider.api) {
-      throw new Error('no running provider for the matching container');
-    }
-    const imageObject = provider.api.getImage(id);
-    const imageInspect = await imageObject.inspect();
-    return {
-      engineName: provider.name,
-      engineId: provider.id,
-      ...imageInspect,
-    };
   }
 
   async getImageHistory(engineId: string, id: string): Promise<HistoryInfo[]> {
-    this.telemetryService.track('imageHistory');
-    // need to find the container engine of the container
-    const provider = this.internalProviders.get(engineId);
-    if (!provider) {
-      throw new Error('no engine matching this container');
+    let telemetryOptions = {};
+    try {
+      // need to find the container engine of the container
+      const provider = this.internalProviders.get(engineId);
+      if (!provider) {
+        throw new Error('no engine matching this container');
+      }
+      if (!provider.api) {
+        throw new Error('no running provider for the matching container');
+      }
+      const imageObject = provider.api.getImage(id);
+      return imageObject.history();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('imageHistory', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-    if (!provider.api) {
-      throw new Error('no running provider for the matching container');
-    }
-    const imageObject = provider.api.getImage(id);
-    return imageObject.history();
   }
 
   async getContainerInspect(engineId: string, id: string): Promise<ContainerInspectInfo> {
-    this.telemetryService.track('containerInspect');
-    // need to find the container engine of the container
-    const provider = this.internalProviders.get(engineId);
-    if (!provider) {
-      throw new Error('no engine matching this container');
-    }
-    if (!provider.api) {
-      throw new Error('no running provider for the matching container');
-    }
+    let telemetryOptions = {};
+    try {
+      // need to find the container engine of the container
+      const provider = this.internalProviders.get(engineId);
+      if (!provider) {
+        throw new Error('no engine matching this container');
+      }
+      if (!provider.api) {
+        throw new Error('no running provider for the matching container');
+      }
 
-    const containerObject = provider.api.getContainer(id);
-    const containerInspect = await containerObject.inspect();
-    return {
-      engineName: provider.name,
-      engineId: provider.id,
-      ...containerInspect,
-    };
+      const containerObject = provider.api.getContainer(id);
+      const containerInspect = await containerObject.inspect();
+      return {
+        engineName: provider.name,
+        engineId: provider.id,
+        ...containerInspect,
+      };
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('containerInspect', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async saveImage(engineId: string, id: string, filename: string): Promise<void> {
-    this.telemetryService.track('imageSave');
-    // need to find the container engine of the container
-    const provider = this.internalProviders.get(engineId);
-    if (!provider) {
-      throw new Error('no engine matching this container');
-    }
-    if (!provider.api) {
-      throw new Error('no running provider for the matching container');
-    }
+    let telemetryOptions = {};
+    try {
+      // need to find the container engine of the container
+      const provider = this.internalProviders.get(engineId);
+      if (!provider) {
+        throw new Error('no engine matching this container');
+      }
+      if (!provider.api) {
+        throw new Error('no running provider for the matching container');
+      }
 
-    const imageObject = provider.api.getImage(id);
-    if (imageObject) {
-      const imageStream = await imageObject.get();
-      return pipeline(imageStream, fs.createWriteStream(filename));
+      const imageObject = provider.api.getImage(id);
+      if (imageObject) {
+        const imageStream = await imageObject.get();
+        return pipeline(imageStream, fs.createWriteStream(filename));
+      }
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('imageSave', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
 
   async getPodInspect(engineId: string, id: string): Promise<PodInspectInfo> {
-    this.telemetryService.track('podInspect');
-    // need to find the container engine of the container
-    const provider = this.internalProviders.get(engineId);
-    if (!provider) {
-      throw new Error('no engine matching this container');
-    }
-    if (!provider.libpodApi) {
-      throw new Error('no running provider for the matching container');
-    }
+    let telemetryOptions = {};
+    try {
+      // need to find the container engine of the container
+      const provider = this.internalProviders.get(engineId);
+      if (!provider) {
+        throw new Error('no engine matching this container');
+      }
+      if (!provider.libpodApi) {
+        throw new Error('no running provider for the matching container');
+      }
 
-    const containerInspect = await provider.libpodApi.getPodInspect(id);
-    return {
-      engineName: provider.name,
-      engineId: provider.id,
-      ...containerInspect,
-    };
+      const containerInspect = await provider.libpodApi.getPodInspect(id);
+      return {
+        engineName: provider.name,
+        engineId: provider.id,
+        ...containerInspect,
+      };
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('podInspect', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   private statsConsumerId = 0;
@@ -947,67 +1224,96 @@ export class ContainerProviderRegistry {
     id: string,
     callback: (stats: ContainerStatsInfo) => void,
   ): Promise<number> {
-    this.telemetryService.track('containerStats');
-    // need to find the container engine of the container
-    const provider = this.internalProviders.get(engineId);
-    if (!provider) {
-      throw new Error('no engine matching this container');
-    }
-    if (!provider.api) {
-      throw new Error('no running provider for the matching container');
-    }
-
-    const containerObject = provider.api.getContainer(id);
-    this.statsConsumerId++;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let stream: any;
+    let telemetryOptions = {};
     try {
-      stream = (await containerObject.stats({ stream: true })) as unknown as NodeJS.ReadableStream;
-      this.statsConsumer.set(this.statsConsumerId, stream);
+      // need to find the container engine of the container
+      const provider = this.internalProviders.get(engineId);
+      if (!provider) {
+        throw new Error('no engine matching this container');
+      }
+      if (!provider.api) {
+        throw new Error('no running provider for the matching container');
+      }
 
-      const pipeline = stream?.pipe(StreamValues.withParser());
+      const containerObject = provider.api.getContainer(id);
+      this.statsConsumerId++;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      pipeline?.on('error', (error: any) => {
-        console.error('Error while grabbing stats', error);
-        try {
-          stream?.destroy();
-          this.statsConsumer.delete(this.statsConsumerId);
-        } catch (error) {
-          console.error('Error while destroying stream', error);
-        }
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      pipeline?.on('data', (data: any) => {
-        if (data?.value) {
-          callback({
-            engineName: provider.name,
-            engineId: provider.id,
-            ...data.value,
-          });
-        }
-      });
+      let stream: any;
+      try {
+        stream = (await containerObject.stats({ stream: true })) as unknown as NodeJS.ReadableStream;
+        this.statsConsumer.set(this.statsConsumerId, stream);
+
+        const pipeline = stream?.pipe(StreamValues.withParser());
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        pipeline?.on('error', (error: any) => {
+          console.error('Error while grabbing stats', error);
+          try {
+            stream?.destroy();
+            this.statsConsumer.delete(this.statsConsumerId);
+          } catch (error) {
+            console.error('Error while destroying stream', error);
+          }
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        pipeline?.on('data', (data: any) => {
+          if (data?.value) {
+            callback({
+              engineName: provider.name,
+              engineId: provider.id,
+              ...data.value,
+            });
+          }
+        });
+      } catch (error) {
+        // try to destroy the stream
+        stream?.destroy();
+        this.statsConsumer.delete(this.statsConsumerId);
+      }
+
+      return this.statsConsumerId;
     } catch (error) {
-      // try to destroy the stream
-      stream?.destroy();
-      this.statsConsumer.delete(this.statsConsumerId);
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('containerStats', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-
-    return this.statsConsumerId;
   }
 
   async playKube(
     kubernetesYamlFilePath: string,
     selectedProvider: ProviderContainerConnectionInfo,
   ): Promise<PlayKubeInfo> {
-    this.telemetryService.track('playKube');
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-      containerProvider => containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath,
+      containerProvider =>
+        containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+        containerProvider.name === selectedProvider.name,
     );
-    if (!matchingContainerProvider || !matchingContainerProvider.libpodApi) {
+    if (!matchingContainerProvider?.libpodApi) {
       throw new Error('No provider with a running engine');
     }
-    return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath);
+    let telemetryOptions = {};
+    try {
+      // grab all connections
+      const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+        containerProvider =>
+          containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+          containerProvider.name === selectedProvider.name,
+      );
+      if (!matchingContainerProvider?.libpodApi) {
+        throw new Error('No provider with a running engine');
+      }
+      return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('playKube', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async buildImage(
@@ -1017,71 +1323,81 @@ export class ContainerProviderRegistry {
     selectedProvider: ProviderContainerConnectionInfo,
     eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
   ): Promise<unknown> {
-    this.telemetryService.track('buildImage');
-    // grab all connections
-    const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-      containerProvider =>
-        containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
-        selectedProvider.status === 'started',
-    );
-    if (!matchingContainerProvider || !matchingContainerProvider.api) {
-      throw new Error('No provider with a running engine');
-    }
-
-    // grab auth for all registries
-    const registryconfig = this.imageRegistry.getRegistryConfig();
-    eventCollect(
-      'stream',
-      `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
-    );
-    const tarStream = tar.pack(containerBuildContextDirectory);
-    let streamingPromise;
+    let telemetryOptions = {};
     try {
-      streamingPromise = await matchingContainerProvider.api.buildImage(tarStream, {
-        registryconfig,
-        dockerfile: relativeContainerfilePath,
-        t: imageName,
+      // grab all connections
+      const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+        containerProvider =>
+          containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+          containerProvider.connection.name === selectedProvider.name &&
+          selectedProvider.status === 'started',
+      );
+      if (!matchingContainerProvider?.api) {
+        throw new Error('No provider with a running engine');
+      }
+
+      // grab auth for all registries
+      const registryconfig = this.imageRegistry.getRegistryConfig();
+      eventCollect(
+        'stream',
+        `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
+      );
+      const tarStream = tar.pack(containerBuildContextDirectory);
+      let streamingPromise;
+      try {
+        streamingPromise = await matchingContainerProvider.api.buildImage(tarStream, {
+          registryconfig,
+          dockerfile: relativeContainerfilePath,
+          t: imageName,
+        });
+      } catch (error: unknown) {
+        console.log('error in buildImage', error);
+        const errorMessage = error instanceof Error ? error.message : '' + error;
+        eventCollect('error', errorMessage);
+        throw error;
+      }
+      eventCollect('stream', `Building ${imageName}...\r\n`);
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      let resolve: (output: {}) => void;
+      let reject: (err: Error) => void;
+      const promise = new Promise((res, rej) => {
+        resolve = res;
+        reject = rej;
       });
-    } catch (error: unknown) {
-      console.log('error in buildImage', error);
-      const errorMessage = error instanceof Error ? error.message : '' + error;
-      eventCollect('error', errorMessage);
+
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      const onFinished = (err: Error | null, output: {}) => {
+        if (err) {
+          eventCollect('finish', err.message);
+          return reject(err);
+        }
+        eventCollect('finish', '');
+        resolve(output);
+      };
+
+      const onProgress = (event: {
+        stream?: string;
+        status?: string;
+        progress?: string;
+        error?: string;
+        errorDetails?: { message?: string };
+      }) => {
+        if (event.stream) {
+          eventCollect('stream', event.stream);
+        } else if (event.error) {
+          eventCollect('error', event.error);
+        }
+      };
+
+      matchingContainerProvider.api.modem.followProgress(streamingPromise, onFinished, onProgress);
+      return promise;
+    } catch (error) {
+      telemetryOptions = { error: error };
       throw error;
+    } finally {
+      this.telemetryService
+        .track('buildImage', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-    eventCollect('stream', `Building ${imageName}...\r\n`);
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    let resolve: (output: {}) => void;
-    let reject: (err: Error) => void;
-    const promise = new Promise((res, rej) => {
-      resolve = res;
-      reject = rej;
-    });
-
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    function onFinished(err: Error | null, output: {}) {
-      if (err) {
-        eventCollect('finish', err.message);
-        return reject(err);
-      }
-      eventCollect('finish', '');
-      resolve(output);
-    }
-
-    function onProgress(event: {
-      stream?: string;
-      status?: string;
-      progress?: string;
-      error?: string;
-      errorDetails?: { message?: string };
-    }) {
-      if (event.stream) {
-        eventCollect('stream', event.stream);
-      } else if (event.error) {
-        eventCollect('error', event.error);
-      }
-    }
-
-    matchingContainerProvider.api.modem.followProgress(streamingPromise, onFinished, onProgress);
-    return promise;
   }
 }

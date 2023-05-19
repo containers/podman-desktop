@@ -3,6 +3,7 @@ import { afterUpdate } from 'svelte';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
+import Markdown from '../markdown/Markdown.svelte';
 
 export let record: IConfigurationPropertyRecordedSchema;
 
@@ -10,6 +11,7 @@ let recordUI: {
   title: string;
   breadCrumb: string;
   description: string;
+  markdownDescription: string;
   original: IConfigurationPropertyRecordedSchema;
 };
 
@@ -37,6 +39,7 @@ function update() {
     title: startCase(key),
     breadCrumb: breadCrumbUI,
     description: record.description,
+    markdownDescription: record.markdownDescription,
     original: record,
   };
 }
@@ -73,7 +76,13 @@ $: resetToDefault = false;
         </div>
       {/if}
     </div>
-    <div class="pt-1 text-gray-400 text-xs pr-2">{recordUI.description}</div>
+    {#if recordUI.markdownDescription}
+      <div class="pt-1 text-gray-700 text-xs pr-2">
+        <Markdown>{recordUI.markdownDescription}</Markdown>
+      </div>
+    {:else}
+      <div class="pt-1 text-gray-700 text-xs pr-2">{recordUI.description}</div>
+    {/if}
     {#if recordUI.original.type === 'string' && (!recordUI.original.enum || recordUI.original.enum.length === 0)}
       <PreferencesRenderingItemFormat
         showUpdate="{false}"

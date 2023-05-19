@@ -2,8 +2,9 @@
 import { faClose, faInfoCircle, faSquareCheck, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { createEventDispatcher, onMount } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
-import { TaskManager, TaskUI } from './task-manager';
-import { removeTask, Task } from '/@/stores/tasks';
+import { TaskManager, type TaskUI } from './task-manager';
+import { removeTask } from '/@/stores/tasks';
+import type { Task } from '../../../../main/src/plugin/api/task';
 
 export let task: Task;
 
@@ -58,7 +59,7 @@ function gotoTask(taskUI: TaskUI) {
         {#if taskUI.state === 'completed'}
           <button
             title="Clear notification"
-            class="hover:bg-zinc-900 hover:text-purple-500"
+            class="hover:bg-charcoal-800 hover:text-purple-500"
             on:click="{() => closeCompleted(taskUI)}"><Fa size="12" icon="{faClose}" /></button>
         {/if}
       </div>
@@ -67,14 +68,14 @@ function gotoTask(taskUI: TaskUI) {
       <div class:hidden="{!showError}" class="text-xs my-2 break-words">{taskUI.error}</div>
     {/if}
     <!-- age -->
-    <div class="text-gray-400 text-xs">{taskUI.age}</div>
+    <div class="text-gray-700 text-xs">{taskUI.age}</div>
 
     <!-- if in-progress task, display a link to resume-->
     {#if taskUI.status === 'in-progress'}
       <div class="flex flex-row w-full">
         {#if taskUI.progress >= 0}
           <div class="w-32">
-            <div class="w-full h-4 mb-4 rounded-full bg-gray-600">
+            <div class="w-full h-4 mb-4 rounded-full bg-gray-900">
               <div class="h-4 bg-purple-500 rounded-full" style="width: {taskUI.progress}%"></div>
             </div>
           </div>
@@ -91,7 +92,7 @@ function gotoTask(taskUI: TaskUI) {
     <!-- if failed task, display the error-->
     {#if taskUI.status === 'failure'}
       <div class="flex flex-col w-full items-end">
-        <button on:click="{() => (showError = !showError)}" class="text-purple-300 text-xs">
+        <button on:click="{() => (showError = !showError)}" class="text-purple-200 text-xs">
           View Error
           {#if showError}
             <i class="fas fa-chevron-up"></i>

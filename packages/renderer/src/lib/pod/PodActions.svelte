@@ -23,7 +23,7 @@ async function startPod(podInfoUI: PodInfoUI) {
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false);
+    inProgressCallback(false, 'RUNNING');
   }
 }
 
@@ -39,18 +39,18 @@ async function restartPod(podInfoUI: PodInfoUI) {
 }
 
 async function stopPod(podInfoUI: PodInfoUI) {
-  inProgressCallback(true);
+  inProgressCallback(true, 'STOPPING');
   try {
     await window.stopPod(podInfoUI.engineId, podInfoUI.id);
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false);
+    inProgressCallback(false, 'STOPPED');
   }
 }
 
-async function removePod(podInfoUI: PodInfoUI): Promise<void> {
-  inProgressCallback(true, 'REMOVING');
+async function deletePod(podInfoUI: PodInfoUI): Promise<void> {
+  inProgressCallback(true, 'DELETING');
   try {
     if (pod.kind === 'podman') {
       await window.removePod(podInfoUI.engineId, podInfoUI.id);
@@ -86,17 +86,25 @@ if (dropdownMenu) {
   <ListItemButtonIcon
     title="Start Pod"
     onClick="{() => startPod(pod)}"
-    hidden="{pod.status === 'RUNNING'}"
+    hidden="{pod.status === 'RUNNING' || pod.status === 'STOPPING'}"
     detailed="{detailed}"
-    icon="{faPlay}" />
+    inProgress="{pod.actionInProgress && pod.status === 'STARTING'}"
+    icon="{faPlay}"
+    iconOffset="pl-[0.15rem]" />
   <ListItemButtonIcon
     title="Stop Pod"
     onClick="{() => stopPod(pod)}"
-    hidden="{!(pod.status === 'RUNNING')}"
+    hidden="{!(pod.status === 'RUNNING' || pod.status === 'STOPPING')}"
     detailed="{detailed}"
+    inProgress="{pod.actionInProgress && pod.status === 'STOPPING'}"
     icon="{faStop}" />
 {/if}
-<ListItemButtonIcon title="Delete Pod" onClick="{() => removePod(pod)}" icon="{faTrash}" detailed="{detailed}" />
+<ListItemButtonIcon
+  title="Delete Pod"
+  onClick="{() => deletePod(pod)}"
+  icon="{faTrash}"
+  detailed="{detailed}"
+  inProgress="{pod.actionInProgress && pod.status === 'DELETING'}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
@@ -115,11 +123,11 @@ if (dropdownMenu) {
       menu="{dropdownMenu}"
       detailed="{detailed}"
       icon="{faRocket}" />
+    <ListItemButtonIcon
+      title="Restart Pod"
+      onClick="{() => restartPod(pod)}"
+      menu="{dropdownMenu}"
+      detailed="{detailed}"
+      icon="{faArrowsRotate}" />
   {/if}
-  <ListItemButtonIcon
-    title="Restart Pod"
-    onClick="{() => restartPod(pod)}"
-    menu="{dropdownMenu}"
-    detailed="{detailed}"
-    icon="{faArrowsRotate}" />
 </svelte:component>

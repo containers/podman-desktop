@@ -18,16 +18,38 @@
 import type * as extensionApi from '@podman-desktop/api';
 import { findWindow } from '../util';
 import { CancellationTokenImpl } from './cancellation-token';
+import type { TaskManager } from '/@/plugin/task-manager';
 
 export enum ProgressLocation {
   /**
    * Show progress bar under app icon in launcher bar.
    */
   APP_ICON = 1,
+
+  /**
+   * Show progress in the task manager widget
+   */
+  TASK_WIDGET = 2,
 }
 
 export class ProgressImpl {
+  constructor(private taskManager: TaskManager) {}
+
   withProgress<R>(
+    options: extensionApi.ProgressOptions,
+    task: (
+      progress: extensionApi.Progress<{ message?: string; increment?: number }>,
+      token: extensionApi.CancellationToken,
+    ) => Promise<R>,
+  ): Promise<R> {
+    if (options.location == ProgressLocation.APP_ICON) {
+      return this.withApplicationIcon(options, task);
+    } else {
+      return this.withWidget(options, task);
+    }
+  }
+
+  withApplicationIcon<R>(
     options: extensionApi.ProgressOptions,
     task: (
       progress: extensionApi.Progress<{ message?: string; increment?: number }>,
@@ -45,5 +67,42 @@ export class ProgressImpl {
       },
       new CancellationTokenImpl(),
     );
+  }
+
+  async withWidget<R>(
+    options: extensionApi.ProgressOptions,
+    task: (
+      progress: extensionApi.Progress<{ message?: string; increment?: number }>,
+      token: extensionApi.CancellationToken,
+    ) => Promise<R>,
+  ): Promise<R> {
+    const t = this.taskManager.createTask(options.title);
+    const task_ = task(
+      {
+        report: value => {
+          if (value.message) {
+            t.error = value.message;
+          }
+          if (value.increment) {
+            t.progress = value.increment;
+          }
+          this.taskManager.updateTask(t);
+        },
+      },
+      new CancellationTokenImpl(),
+    );
+    await task_.then(async () => {
+      t.status = 'success';
+      t.state = 'completed';
+      this.taskManager.updateTask(t);
+    });
+
+    task_.catch((err: unknown) => {
+      t.status = 'failure';
+      t.state = 'completed';
+      t.error = String(err);
+      this.taskManager.updateTask(t);
+    });
+    return task_;
   }
 }

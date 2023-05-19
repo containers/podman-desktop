@@ -89,11 +89,11 @@ Discussions are done using [Github Discussions](https://github.com/containers/po
 
 General questions & development:
 
-* [#general on Discord](https://discordapp.com/invite/TCTB38RWpf)
+* [#podman-desktop on the Podman Discord](https://discord.com/invite/x5GzFF6QH4)
 * [#podman-desktop@libera.chat on IRC](https://libera.chat/)
 * [#podman-desktop@fedora.im on Matrix](https://chat.fedoraproject.org/#/room/#podman-desktop:fedora.im)
 
-Note: All channels are bridged. Chat on either: Discord, IRC or Matrix!
+Note: All channels are bridged. Chat on either: Discord, IRC or Matrix and it'll appear on all three!
 
 Kubernetes questions & development:
 

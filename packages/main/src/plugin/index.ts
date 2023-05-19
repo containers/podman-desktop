@@ -40,18 +40,17 @@ import type {
   ProviderKubernetesConnectionInfo,
 } from './api/provider-info';
 import type { WebContents } from 'electron';
-import { app } from 'electron';
-import { ipcMain, BrowserWindow, dialog } from 'electron';
+import { app, ipcMain, BrowserWindow, shell, clipboard } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { PullEvent } from './api/pull-event';
 import type { ExtensionInfo } from './api/extension-info';
-import { shell } from 'electron';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
 import { isLinux, isMac } from '../util';
-import { Dialogs } from './dialog-impl';
+import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box';
+import { MessageBox } from './message-box';
 import { ProgressImpl } from './progress-impl';
 import type { ContributionInfo } from './api/contribution-info';
 import { ContributionManager } from './contribution-manager';
@@ -77,7 +76,7 @@ import { AutostartEngine } from './autostart-engine';
 import { CloseBehavior } from './close-behavior';
 import { TrayIconColor } from './tray-icon-color';
 import { KubernetesClient } from './kubernetes-client';
-import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service } from '@kubernetes/client-node';
+import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service, V1Ingress } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types';
 import type { NetworkInspectInfo } from './api/network-info';
 import { FilesystemMonitoring } from './filesystem-monitoring';
@@ -92,11 +91,15 @@ import { MenuRegistry } from '/@/plugin/menu-registry';
 import { CancellationTokenRegistry } from './cancellation-token-registry';
 import type { UpdateCheckResult } from 'electron-updater';
 import { autoUpdater } from 'electron-updater';
-import { clipboard } from 'electron';
 import type { ApiSenderType } from './api';
 import type { AuthenticationProviderInfo } from './authentication';
 import { AuthenticationImpl } from './authentication';
 import checkDiskSpace from 'check-disk-space';
+import { TaskManager } from '/@/plugin/task-manager';
+import { Featured } from './featured/featured';
+import type { FeaturedExtension } from './featured/featured-api';
+import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog';
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -111,14 +114,24 @@ export class PluginSystem {
   // ready is when we've finished to initialize extension system
   private isReady = false;
 
+  // ready when all extensions have been started
+  private isExtensionsStarted = false;
+
   // notified when UI is dom-ready
   private uiReady = false;
+
+  // true if the application is quitting
+  private isQuitting = false;
 
   // The yet to be init ExtensionLoader
   private extensionLoader!: ExtensionLoader;
   private validExtList!: ExtensionInfo[];
 
-  constructor(private trayMenu: TrayMenu) {}
+  constructor(private trayMenu: TrayMenu) {
+    app.on('before-quit', () => {
+      this.isQuitting = true;
+    });
+  }
 
   getWebContentsSender(): WebContents {
     const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
@@ -187,7 +200,6 @@ export class PluginSystem {
 
       if (toAppend != '') return `[${toAppend}]`;
     }
-    return;
   }
 
   // log locally and also send it to the renderer process
@@ -195,20 +207,26 @@ export class PluginSystem {
   redirectConsole(logType: LogType): void {
     // keep original method
     const originalConsoleMethod = console[logType];
-    console[logType] = async (...args) => {
-      const extName = await this.getExtName();
+    console[logType] = (...args) => {
+      this.getExtName()
+        .then(extName => {
+          if (extName) args.unshift(extName);
 
-      if (extName) args.unshift(extName);
+          // still display as before by invoking original method
+          originalConsoleMethod(...args);
 
-      // still display as before by invoking original method
-      originalConsoleMethod(...args);
-
-      // but also send the content remotely
-      try {
-        this.getWebContentsSender().send('console:output', logType, ...args);
-      } catch (err) {
-        originalConsoleMethod(err);
-      }
+          // but also send the content remotely
+          if (!this.isQuitting) {
+            try {
+              this.getWebContentsSender().send('console:output', logType, ...args);
+            } catch (err) {
+              originalConsoleMethod(err);
+            }
+          }
+        })
+        .catch((err: unknown) => {
+          console.error('Error in redirectConsole', err);
+        });
     };
   }
 
@@ -222,15 +240,13 @@ export class PluginSystem {
     const queuedEvents: { channel: string; data: string }[] = [];
 
     const flushQueuedEvents = () => {
-      if (this.uiReady && this.isReady) {
-        // flush queued events ?
-        if (queuedEvents.length > 0) {
-          console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
-          queuedEvents.forEach(({ channel, data }) => {
-            webContents.send('api-sender', channel, data);
-          });
-          queuedEvents.length = 0;
-        }
+      // flush queued events ?
+      if (this.uiReady && this.isReady && queuedEvents.length > 0) {
+        console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
+        queuedEvents.forEach(({ channel, data }) => {
+          webContents.send('api-sender', channel, data);
+        });
+        queuedEvents.length = 0;
       }
     };
 
@@ -262,12 +278,56 @@ export class PluginSystem {
     };
   }
 
+  async setupSecurityRestrictionsOnLinks(messageBox: MessageBox) {
+    // external URLs should be validated by the user
+    securityRestrictionCurrentHandler.handler = async (url: string) => {
+      if (!url) {
+        return false;
+      }
+
+      // if url is a known domain, open it directly
+      const urlObject = new URL(url);
+      const validDomains = ['podman-desktop.io', 'podman.io'];
+      const skipConfirmationUrl = validDomains.some(
+        domain => urlObject.hostname.endsWith(domain) || urlObject.hostname === domain,
+      );
+
+      if (skipConfirmationUrl) {
+        await shell.openExternal(url);
+        return true;
+      }
+
+      const result = await messageBox.showMessageBox({
+        title: 'Open External Website',
+        message: 'Are you sure you want to open the external website ?',
+        detail: url,
+        type: 'question',
+        buttons: ['Yes', 'Copy link', 'Cancel'],
+        cancelId: 2,
+      });
+
+      if (result.response === 0) {
+        // open externally the URL
+        await shell.openExternal(url);
+        return true;
+      } else if (result.response === 1) {
+        // copy to clipboard
+        clipboard.writeText(url);
+      }
+      return false;
+    };
+  }
+
   // initialize extension loader mechanism
   async initExtensions(): Promise<ExtensionLoader> {
     this.isReady = false;
     this.uiReady = false;
     this.ipcHandle('extension-system:isReady', async (): Promise<boolean> => {
       return this.isReady;
+    });
+
+    this.ipcHandle('extension-system:isExtensionsStarted', async (): Promise<boolean> => {
+      return this.isExtensionsStarted;
     });
 
     // redirect main process logs to the extension loader
@@ -285,7 +345,7 @@ export class PluginSystem {
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
 
-    const commandRegistry = new CommandRegistry();
+    const commandRegistry = new CommandRegistry(telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const certificates = new Certificates();
     await certificates.init();
@@ -298,7 +358,7 @@ export class PluginSystem {
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
 
-    const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring);
+    const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
@@ -325,7 +385,7 @@ export class PluginSystem {
       false,
       0,
       undefined,
-      'tasks',
+      'Tasks',
       'fa fa-bell',
       true,
       'show-task-manager',
@@ -374,8 +434,8 @@ export class PluginSystem {
 
     // Register command 'version' that will display the current version and say that no update is available.
     // Only show the "no update available" command for macOS and Windows users, not linux users.
-    commandRegistry.registerCommand('version', () => {
-      dialog.showMessageBox({
+    commandRegistry.registerCommand('version', async () => {
+      await messageBox.showMessageBox({
         type: 'info',
         title: 'Version',
         message: `Using version ${currentVersion}`,
@@ -419,19 +479,25 @@ export class PluginSystem {
         defaultVersionEntry();
       });
 
-      autoUpdater.on('update-downloaded', async () => {
+      autoUpdater.on('update-downloaded', () => {
         updateAlreadyDownloaded = true;
         updateInProgress = false;
-        const result = await dialog.showMessageBox({
-          title: 'Update Downloaded',
-          message: 'Update downloaded, Do you want to restart Podman Desktop ?',
-          cancelId: 1,
-          type: 'info',
-          buttons: ['Restart', 'Cancel'],
-        });
-        if (result.response === 0) {
-          setImmediate(() => autoUpdater.quitAndInstall());
-        }
+        messageBox
+          .showMessageBox({
+            title: 'Update Downloaded',
+            message: 'Update downloaded, Do you want to restart Podman Desktop ?',
+            cancelId: 1,
+            type: 'info',
+            buttons: ['Restart', 'Cancel'],
+          })
+          .then(result => {
+            if (result.response === 0) {
+              setImmediate(() => autoUpdater.quitAndInstall());
+            }
+          })
+          .catch((error: unknown) => {
+            console.error('unable to show message box', error);
+          });
       });
 
       autoUpdater.on('error', error => {
@@ -443,7 +509,6 @@ export class PluginSystem {
           return;
         }
         console.error('unable to check for updates', error);
-        dialog.showErrorBox('Error: ', error == null ? 'unknown' : (error.stack || error).toString());
       });
 
       // check for updates now
@@ -456,18 +521,19 @@ export class PluginSystem {
       }
 
       // Create an interval to check for updates every 12 hours
-      setInterval(async () => {
-        try {
-          updateCheckResult = await autoUpdater.checkForUpdates();
-        } catch (error) {
-          console.log('unable to check for updates', error);
-        }
+      setInterval(() => {
+        autoUpdater
+          .checkForUpdates()
+          .then(result => (updateCheckResult = result))
+          .catch((error: unknown) => {
+            console.log('unable to check for updates', error);
+          });
       }, 1000 * 60 * 60 * 12);
 
-      // Update will create the standard "autoUpdater" dialog / update process that Electron provides
+      // Update will create a standard "autoUpdater" dialog / update process
       commandRegistry.registerCommand('update', async () => {
         if (updateAlreadyDownloaded) {
-          const result = await dialog.showMessageBox({
+          const result = await messageBox.showMessageBox({
             type: 'info',
             title: 'Update',
             message: 'There is already an update downloaded. Please Restart Podman Desktop.',
@@ -481,7 +547,7 @@ export class PluginSystem {
         }
 
         if (updateInProgress) {
-          await dialog.showMessageBox({
+          await messageBox.showMessageBox({
             type: 'info',
             title: 'Update',
             message: 'There is already an update in progress. Please wait until it is downloaded',
@@ -493,7 +559,7 @@ export class PluginSystem {
         // Get the version of the update
         const updateVersion = updateCheckResult?.updateInfo.version ? `v${updateCheckResult?.updateInfo.version}` : '';
 
-        const result = await dialog.showMessageBox({
+        const result = await messageBox.showMessageBox({
           type: 'info',
           title: 'Update Available',
           message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${currentVersion}?`,
@@ -509,7 +575,7 @@ export class PluginSystem {
             await autoUpdater.downloadUpdate();
           } catch (error) {
             console.error('Update error: ', error);
-            dialog.showMessageBox({
+            await messageBox.showMessageBox({
               type: 'error',
               title: 'Update Failed',
               message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,
@@ -539,9 +605,11 @@ export class PluginSystem {
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
 
-    const dialogs = new Dialogs();
+    const messageBox = new MessageBox(apiSender);
 
-    const authentication = new AuthenticationImpl(apiSender, dialogs);
+    const authentication = new AuthenticationImpl(apiSender);
+
+    const taskManager = new TaskManager(apiSender);
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
@@ -551,8 +619,8 @@ export class PluginSystem {
       imageRegistry,
       apiSender,
       trayMenuRegistry,
-      dialogs,
-      new ProgressImpl(),
+      messageBox,
+      new ProgressImpl(taskManager),
       new NotificationImpl(),
       statusBarRegistry,
       kubernetesClient,
@@ -564,6 +632,16 @@ export class PluginSystem {
       telemetry,
     );
     await this.extensionLoader.init();
+
+    const extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
+    const featured = new Featured(this.extensionLoader, extensionsCatalog);
+    // do not wait
+    featured.init().catch((e: unknown) => {
+      console.error('Unable to initialized the featured extensions', e);
+    });
+
+    // setup security restrictions on links
+    await this.setupSecurityRestrictionsOnLinks(messageBox);
 
     const contributionManager = new ContributionManager(apiSender);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
@@ -1029,6 +1107,14 @@ export class PluginSystem {
       return inputQuickPickRegistry.onDidSelectQuickPickItem(id, selectedId);
     });
 
+    this.ipcHandle('showMessageBox', async (_listener, options: MessageBoxOptions): Promise<MessageBoxReturnValue> => {
+      return messageBox.showMessageBox(options);
+    });
+
+    this.ipcHandle('showMessageBox:onSelect', async (_listener, id: number, index: number): Promise<void> => {
+      return messageBox.onDidSelectButton(id, index);
+    });
+
     this.ipcHandle('image-registry:getRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
       return imageRegistry.getRegistries();
     });
@@ -1097,6 +1183,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'authentication-provider-registry:requestAuthenticationProviderSignIn',
+      async (_listener, requestId: string): Promise<void> => {
+        return authentication.executeSessionRequest(requestId);
+      },
+    );
+
+    this.ipcHandle(
       'configuration-registry:getConfigurationProperties',
       async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
         return configurationRegistry.getConfigurationProperties();
@@ -1137,6 +1230,10 @@ export class PluginSystem {
       return this.extensionLoader.listExtensions();
     });
 
+    this.ipcHandle('featured:getFeaturedExtensions', async (): Promise<FeaturedExtension[]> => {
+      return featured.getFeaturedExtensions();
+    });
+
     this.ipcHandle(
       'extension-loader:deactivateExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
@@ -1159,7 +1256,11 @@ export class PluginSystem {
     this.ipcHandle(
       'shell:openExternal',
       async (_listener: Electron.IpcMainInvokeEvent, link: string): Promise<void> => {
-        shell.openExternal(link);
+        if (securityRestrictionCurrentHandler.handler) {
+          await securityRestrictionCurrentHandler.handler(link);
+        } else {
+          await shell.openExternal(link);
+        }
       },
     );
 
@@ -1277,6 +1378,9 @@ export class PluginSystem {
         }
         try {
           await providerRegistry.createContainerProviderConnection(internalProviderId, params, logger, token);
+        } catch (error) {
+          logger.error(error);
+          throw error;
         } finally {
           logger.onEnd();
         }
@@ -1300,6 +1404,9 @@ export class PluginSystem {
         }
         try {
           await providerRegistry.createKubernetesProviderConnection(internalProviderId, params, logger, token);
+        } catch (error) {
+          logger.error(error);
+          throw error;
         } finally {
           logger.onEnd();
         }
@@ -1314,6 +1421,13 @@ export class PluginSystem {
       'kubernetes-client:createService',
       async (_listener, namespace: string, service: V1Service): Promise<V1Service> => {
         return kubernetesClient.createService(namespace, service);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:createIngress',
+      async (_listener, namespace: string, ingress: V1Ingress): Promise<V1Ingress> => {
+        return kubernetesClient.createIngress(namespace, ingress);
       },
     );
 
@@ -1333,6 +1447,14 @@ export class PluginSystem {
     this.ipcHandle('kubernetes-client:deletePod', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deletePod(name);
     });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.ipcHandle(
+      'kubernetes-client:createResourcesFromFile',
+      async (_listener, context: string, file: string, namespace: string): Promise<void> => {
+        return kubernetesClient.createResourcesFromFile(context, file, namespace);
+      },
+    );
 
     this.ipcHandle(
       'openshift-client:createRoute',
@@ -1365,6 +1487,10 @@ export class PluginSystem {
         return kubernetesClient.readNamespacedConfigMap(name, namespace);
       },
     );
+
+    this.ipcHandle('kubernetes-client:isAPIGroupSupported', async (_listener, group): Promise<boolean> => {
+      return kubernetesClient.isAPIGroupSupported(group);
+    });
 
     this.ipcHandle('kubernetes-client:getCurrentContextName', async (): Promise<string | undefined> => {
       return kubernetesClient.getCurrentContextName();
@@ -1402,6 +1528,38 @@ export class PluginSystem {
       return telemetry.configureTelemetry();
     });
 
+    this.ipcHandle('app:getVersion', async (): Promise<string> => {
+      return app.getVersion();
+    });
+
+    this.ipcHandle('window:minimize', async (): Promise<void> => {
+      const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (!window) {
+        return;
+      }
+      window.minimize();
+    });
+
+    this.ipcHandle('window:maximize', async (): Promise<void> => {
+      const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (!window) {
+        return;
+      }
+      if (window.isMaximized()) {
+        window.unmaximize();
+        return;
+      }
+      window.maximize();
+    });
+
+    this.ipcHandle('window:close', async (): Promise<void> => {
+      const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (!window) {
+        return;
+      }
+      window.close();
+    });
+
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,
@@ -1412,7 +1570,7 @@ export class PluginSystem {
     const dockerExtensionAdapter = new DockerPluginAdapter(contributionManager);
     dockerExtensionAdapter.init();
 
-    const extensionInstaller = new ExtensionInstaller(apiSender, containerProviderRegistry, this.extensionLoader);
+    const extensionInstaller = new ExtensionInstaller(apiSender, this.extensionLoader, imageRegistry);
     await extensionInstaller.init();
 
     await contributionManager.init();
@@ -1421,10 +1579,19 @@ export class PluginSystem {
 
     apiSender.send('starting-extensions', `${this.isReady}`);
     console.log('System ready. Loading extensions...');
-    await this.extensionLoader.start();
-    console.log('PluginSystem: initialization done.');
-    autoStartConfiguration.start();
+    try {
+      await this.extensionLoader.start();
+      console.log('PluginSystem: initialization done.');
+    } finally {
+      apiSender.send('extensions-started');
+      this.markAsExtensionsStarted();
+    }
+    autoStartConfiguration.start().catch((err: unknown) => console.error('Unable to perform autostart', err));
     return this.extensionLoader;
+  }
+
+  markAsExtensionsStarted(): void {
+    this.isExtensionsStarted = true;
   }
 
   markAsReady(): void {

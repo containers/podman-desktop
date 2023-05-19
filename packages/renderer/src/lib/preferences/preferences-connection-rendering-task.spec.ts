@@ -19,9 +19,13 @@
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 import type { ConnectionCallback } from './preferences-connection-rendering-task';
-import { startTask } from './preferences-connection-rendering-task';
-import { disconnectUI, eventCollect, reconnectUI } from './preferences-connection-rendering-task';
-import { clearCreateTask } from './preferences-connection-rendering-task';
+import {
+  startTask,
+  disconnectUI,
+  eventCollect,
+  reconnectUI,
+  clearCreateTask,
+} from './preferences-connection-rendering-task';
 import { tasksInfo } from '/@/stores/tasks';
 
 const dummyCallback: ConnectionCallback = {
@@ -43,7 +47,7 @@ beforeEach(() => {
 });
 
 test('check start build', async () => {
-  const id = '1';
+  const id = 'ui-1';
   const key = startTask('foo', id, dummyCallback);
   expect(key).toBeDefined();
   const allTasks = get(tasksInfo);

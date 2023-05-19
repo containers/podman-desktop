@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,25 +22,33 @@ import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info'
 
 export async function fetchExtensions() {
   const result = await window.listExtensions();
+  result.sort((a, b) => a.displayName.localeCompare(b.displayName));
   extensionInfos.set(result);
 }
 
 export const extensionInfos: Writable<ExtensionInfo[]> = writable([]);
 
 // need to refresh when extension is started or stopped
-window.addEventListener('extension-started', () => {
-  fetchExtensions();
+window?.events?.receive('extension-starting', async () => {
+  await fetchExtensions();
 });
-window.addEventListener('extension-stopped', () => {
-  fetchExtensions();
+window?.events?.receive('extension-started', async () => {
+  await fetchExtensions();
 });
-window.addEventListener('extension-removed', () => {
-  fetchExtensions();
+window?.events?.receive('extension-stopping', async () => {
+  await fetchExtensions();
 });
-
-window?.events.receive('extension-started', () => {
-  fetchExtensions();
+window?.events?.receive('extension-stopped', async () => {
+  await fetchExtensions();
+});
+window?.events?.receive('extension-removed', async () => {
+  await fetchExtensions();
+});
+window?.events?.receive('extensions-started', async () => {
+  await fetchExtensions();
 });
 window.addEventListener('system-ready', () => {
-  fetchExtensions();
+  fetchExtensions().catch((error: unknown) => {
+    console.error('Failed to fetch extensions', error);
+  });
 });

@@ -6,6 +6,8 @@ import * as jsYaml from 'js-yaml';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
+import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
 
 export let resourceId: string;
 export let engineId: string;
@@ -18,13 +20,20 @@ let allNamespaces: V1NamespaceList;
 let deployStarted = false;
 let deployFinished = false;
 let deployError = '';
+let deployWarning = '';
 let updatePodInterval: NodeJS.Timeout;
 let openshiftConsoleURL: string;
+let openshiftRouteGroupSupported = false;
 
 let deployUsingServices = true;
 let deployUsingRoutes = true;
+let deployUsingRestrictedSecurityContext = false;
 let createdPod = undefined;
 let bodyPod;
+
+let createIngress = false;
+let ingressPort: number;
+let containerPortArray: string[] = [];
 
 let createdRoutes: V1Route[] = [];
 
@@ -56,6 +65,7 @@ onMount(async () => {
 
   // check if there is OpenShift and then grab openshift console URL
   try {
+    openshiftRouteGroupSupported = await window.kubernetesIsAPIGroupSupported('route.openshift.io');
     const openshiftConfigMap = await window.kubernetesReadNamespacedConfigMap(
       'console-public',
       'openshift-config-managed',
@@ -65,6 +75,13 @@ onMount(async () => {
     // probably not OpenShift cluster, ignoring
     console.debug('Probably not an OpenShift cluster, so ignoring the error to grab console link', error);
   }
+
+  // Go through bodyPod.spec.containers and create a string array of port that we'll be exposing
+  bodyPod.spec.containers.forEach((container: any) => {
+    container.ports?.forEach((port: any) => {
+      containerPortArray.push(port.hostPort);
+    });
+  });
 });
 
 function openOpenshiftConsole() {
@@ -80,6 +97,10 @@ async function updatePod() {
   if (createdPod.status?.phase === 'Running') {
     clearInterval(updatePodInterval);
     deployFinished = true;
+    window.telemetryTrack('deployToKube.running', {
+      useServices: deployUsingServices,
+      useRoutes: deployUsingRoutes,
+    });
   }
 }
 
@@ -100,6 +121,7 @@ async function deployToKube() {
   deployStarted = true;
   deployFinished = false;
   deployError = '';
+  deployWarning = '';
   createdPod = undefined;
   // reset any timeout
   clearInterval(updatePodInterval);
@@ -107,33 +129,27 @@ async function deployToKube() {
   createdRoutes = [];
   let servicesToCreate: any[] = [];
   let routesToCreate: any[] = [];
-
-  if (bodyPod?.spec?.volumes) {
-    delete bodyPod.spec.volumes;
-  }
+  let ingressesToCreate: any[] = [];
 
   // if we deploy using services, we need to get rid of .hostPort and generate kubernetes services object
   if (deployUsingServices) {
     // collect all ports
     bodyPod.spec?.containers?.forEach((container: any) => {
-      if (container.volumeMounts) {
-        delete container.volumeMounts;
-      }
-
       container?.ports?.forEach((port: any) => {
+        let portName = `${bodyPod.metadata.name}-${port.hostPort}`;
         if (port.hostPort) {
           // create service
           const service = {
             apiVersion: 'v1',
             kind: 'Service',
             metadata: {
-              name: `${bodyPod.metadata.name}-${port.hostPort}`,
+              name: portName,
               namespace: currentNamespace,
             },
             spec: {
               ports: [
                 {
-                  name: port.name,
+                  name: portName,
                   port: port.hostPort,
                   protocol: port.protocol || 'TCP',
                   targetPort: port.containerPort,
@@ -146,7 +162,7 @@ async function deployToKube() {
           };
           servicesToCreate.push(service);
 
-          if (openshiftConsoleURL && deployUsingRoutes) {
+          if (openshiftRouteGroupSupported && deployUsingRoutes) {
             // Create OpenShift route object
             const route = {
               apiVersion: 'route.openshift.io/v1',
@@ -167,11 +183,65 @@ async function deployToKube() {
             };
             routesToCreate.push(route);
           }
-          // delete
-          delete port.hostPort;
         }
       });
     });
+  }
+
+  // Check if we are deploying an ingress, if so, we need to create an ingress object using ingressPath and ingressDomain.
+  if (createIngress) {
+    let serviceName: string;
+    let servicePort: number;
+
+    // Check that there are services (servicesToCreate), if there aren't. Warn that we can't create an ingress.
+    // All services are always created with one port (the first one), so we can use that port to create the ingress.
+    // Must be a number
+    if (servicesToCreate.length == 0) {
+      deployWarning = 'You need to deploy using services to create an ingress.';
+      deployStarted = false;
+      return;
+    } else if (servicesToCreate.length == 1) {
+      serviceName = servicesToCreate[0].metadata.name;
+      servicePort = servicesToCreate[0].spec.ports[0].port;
+    } else if (servicesToCreate.length > 1) {
+      // If there was more than one service being created, the user would of had a dialog to pick which port to use
+      // warn out if the user did not pick anything (we do not do form validation for this as we're using svelte for the form)
+      if (!ingressPort) {
+        deployWarning = 'You need to specify a port to create an ingress.';
+        deployStarted = false;
+        return;
+      }
+      const matchingService = servicesToCreate.find(service => service.spec.ports[0].port == ingressPort);
+      if (matchingService) {
+        serviceName = matchingService.metadata.name;
+        servicePort = matchingService.spec.ports[0].port;
+      } else {
+        deployError = 'Unable to find the service that matches the port you want to expose.';
+        return;
+      }
+    }
+
+    const ingress = {
+      apiVersion: 'networking.k8s.io/v1',
+      kind: 'Ingress',
+      metadata: {
+        name: bodyPod.metadata.name,
+        namespace: currentNamespace,
+      },
+      spec: {
+        defaultBackend: {
+          service: {
+            name: serviceName,
+            port: {
+              number: servicePort,
+            },
+          },
+        },
+      },
+    };
+
+    // Support for multiple ingress creation in the future
+    ingressesToCreate.push(ingress);
   }
 
   // https://github.com/kubernetes-client/javascript/issues/487
@@ -179,7 +249,47 @@ async function deployToKube() {
     bodyPod.metadata.creationTimestamp = new Date(bodyPod.metadata.creationTimestamp);
   }
 
+  const eventProperties = {
+    useServices: deployUsingServices,
+    useRoutes: deployUsingRoutes,
+    createIngress: createIngress,
+  };
+  if (openshiftRouteGroupSupported) {
+    eventProperties['isOpenshift'] = true;
+  }
+
+  let previousPod = bodyPod;
+
   try {
+    // In order to deploy to Kubernetes, we must remove volumes for the pod as we do not support them
+    // if we are deploying using services, remove the hostPort as well as volumeMounts from the container
+    if (bodyPod?.spec?.volumes) {
+      delete bodyPod.spec.volumes;
+    }
+
+    if (deployUsingServices) {
+      bodyPod.spec?.containers?.forEach((container: any) => {
+        // UNUSED
+        // Delete all volume mounts
+        if (container.volumeMounts) {
+          delete container.volumeMounts;
+        }
+
+        // UNUSED
+        // Delete all hostPorts
+        if (container.ports) {
+          container.ports.forEach((port: any) => {
+            delete port.hostPort;
+          });
+        }
+      });
+    }
+
+    if (deployUsingRestrictedSecurityContext) {
+      ensureRestrictedSecurityContext(bodyPod);
+    }
+
+    // create pod
     createdPod = await window.kubernetesCreatePod(currentNamespace, bodyPod);
 
     // create services
@@ -193,16 +303,37 @@ async function deployToKube() {
       createdRoutes = [...createdRoutes, createdRoute];
     }
 
+    // Create ingresses
+    for (const ingress of ingressesToCreate) {
+      await window.kubernetesCreateIngress(currentNamespace, ingress);
+    }
+
+    // Telemetry
+    window.telemetryTrack('deployToKube', eventProperties);
+
     // update status
     updatePodInterval = setInterval(updatePod, 2000);
   } catch (error) {
+    // Revert back to the previous bodyPod so the user can hit deploy again
+    // we only update the bodyPod if we successfully create the pod.
+    bodyPod = previousPod;
+    window.telemetryTrack('deployToKube', { ...eventProperties, errorMessage: error.message });
     deployError = error;
     deployStarted = false;
     deployFinished = false;
+    return;
   }
 }
 
 $: bodyPod && updateKubeResult();
+
+// Update bodyPod.metadata.labels.app to be the same as bodyPod.metadata.name
+// If statement required as bodyPod.metadata is undefined when bodyPod is undefined
+$: {
+  if (bodyPod && bodyPod.metadata && bodyPod.metadata.labels) {
+    bodyPod.metadata.labels.app = bodyPod.metadata.name;
+  }
+}
 
 function updateKubeResult() {
   kubeDetails = jsYaml.dump(bodyPod, { noArrayIndent: true, quotingType: '"', lineWidth: -1 });
@@ -211,7 +342,7 @@ function updateKubeResult() {
 
 <NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
   <div slot="empty" class="p-5 bg-zinc-700 h-full">
-    <div class="bg-zinc-800 h-full p-5">
+    <div class="bg-charcoal-600 h-full p-5">
       {#if kubeDetails}
         <p>Generated pod to deploy to Kubernetes:</p>
         <div class="h-1/3 pt-2">
@@ -221,18 +352,18 @@ function updateKubeResult() {
 
       {#if bodyPod}
         <div class="pt-2 pb-4">
-          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-300">Pod Name:</label>
+          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Pod Name:</label>
           <input
             type="text"
             bind:value="{bodyPod.metadata.name}"
             name="podName"
             id="podName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
 
-      <div class="pt-2 m-2">
+      <div class="pt-2 pb-4">
         <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Use Kubernetes Services:</label>
         <input
           type="checkbox"
@@ -241,40 +372,96 @@ function updateKubeResult() {
           id="useServices"
           class=""
           required />
-        <span class="text-gray-300 text-sm ml-1"
+        <span class="text-gray-400 text-sm ml-1"
           >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster
           policy may prevent to use hostPort.</span>
       </div>
 
-      <!-- Allow to create routes for OpenShift clusters -->
-      {#if openshiftConsoleURL}
-        <div class="pt-2 m-2">
-          <label for="routes" class="block mb-1 text-sm font-medium text-gray-300">Create OpenShift routes:</label>
-          <input type="checkbox" bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" class="" required />
+      <div class="pt-2 pb-4">
+        <label for="useRestricted" class="block mb-1 text-sm font-medium text-gray-300"
+          >Use restricted security context</label>
+        <input
+          type="checkbox"
+          bind:checked="{deployUsingRestrictedSecurityContext}"
+          name="useRestricted"
+          id="useRestricted"
+          data-testid="useRestricted"
+          class=""
+          required />
+        <span class="text-gray-400 text-sm ml-1"
+          >Update Kubernetes manifest to respect the Pod security <a
+            href="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted">restricted profile</a
+          >.</span>
+      </div>
+
+      <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
+      {#if !openshiftRouteGroupSupported && deployUsingServices}
+        <div class="pt-2 pb-4">
+          <label for="createIngress" class="block mb-1 text-sm font-medium text-gray-300"
+            >Expose service locally using Kubernetes Ingress:</label>
+          <input
+            type="checkbox"
+            bind:checked="{createIngress}"
+            name="createIngress"
+            id="createIngress"
+            class=""
+            required />
+          <span class="text-gray-300 text-sm ml-1">
+            Create an Ingress to get access to the local ports exposed, at the default Ingress Controller location.
+            Example: On default kind cluster created with Podman Desktop, it will be accessible at 'localhost:9090'.
+            Requirements: Your cluster must have an Ingress Controller.</span>
+        </div>
+      {/if}
+
+      {#if createIngress && containerPortArray.length > 1}
+        <div class="pt-2 pb-4">
+          <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300">Ingress Host Port:</label>
+          <select
+            bind:value="{ingressPort}"
+            name="serviceName"
+            id="serviceName"
+            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"
+            required>
+            <option value="" disabled selected>Select a port</option>
+            {#each containerPortArray as port}
+              <option value="{port}">{port}</option>
+            {/each}
+          </select>
           <span class="text-gray-300 text-sm ml-1"
+            >There are multiple exposed ports available. Select the one you want to expose to '/' with the Ingress.
+          </span>
+        </div>
+      {/if}
+
+      <!-- Allow to create routes for OpenShift clusters -->
+      {#if openshiftRouteGroupSupported}
+        <div class="pt-2 m-2">
+          <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
+          <input type="checkbox" bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" class="" required />
+          <span class="text-gray-400 text-sm ml-1"
             >Create OpenShift routes to get access to the exposed ports of this pod.</span>
         </div>
       {/if}
 
       {#if defaultContextName}
         <div class="pt-2">
-          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes Context:</label>
+          <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Context:</label>
           <input
             type="text"
             bind:value="{defaultContextName}"
             name="defaultContextName"
             id="defaultContextName"
             readonly
-            class="cursor-default w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            class="cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             required />
         </div>
       {/if}
 
       {#if allNamespaces}
         <div class="pt-2">
-          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes namespace:</label>
+          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes namespace:</label>
           <select
-            class="w-full p-2 outline-none text-sm bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400"
+            class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             name="namespaceChoice"
             bind:value="{currentNamespace}">
             {#each allNamespaces.items as namespace}
@@ -284,6 +471,13 @@ function updateKubeResult() {
             {/each}
           </select>
         </div>
+      {/if}
+
+      {#if deployWarning}
+        <WarningMessage class="text-sm" error="{deployWarning}" />
+      {/if}
+      {#if deployError}
+        <ErrorMessage class="text-sm" error="{deployError}" />
       {/if}
 
       {#if !deployStarted}
@@ -300,10 +494,9 @@ function updateKubeResult() {
           </button>
         </div>
       {/if}
-      <ErrorMessage class="text-sm" error="{deployError}" />
 
       {#if createdPod}
-        <div class="h-1/3 bg-zinc-900 p-5 my-4">
+        <div class="bg-charcoal-800 p-5 my-4">
           <div class="flex flex-row items-center">
             <div>Created pod:</div>
             {#if openshiftConsoleURL && createdPod?.metadata?.name}
@@ -317,7 +510,7 @@ function updateKubeResult() {
               </div>
             {/if}
           </div>
-          <div class="text-gray-400">
+          <div class="text-gray-700">
             {#if createdPod.metadata?.name}
               <p class="pt-2">Name: {createdPod.metadata.name}</p>
             {/if}
@@ -332,7 +525,7 @@ function updateKubeResult() {
                   <li class="pt-2">
                     {containerStatus.name}
                     {#if containerStatus.ready}
-                      <span class="text-gray-500">Ready</span>
+                      <span class="text-gray-900">Ready</span>
                     {/if}
                     {#if containerStatus.state?.running}
                       <span class="text-green-400">(Running)</span>
@@ -341,9 +534,9 @@ function updateKubeResult() {
                       <span class="text-red-500">(Terminated)</span>
                     {/if}
                     {#if containerStatus.state?.waiting}
-                      <span class="text-yellow-500">(Waiting)</span>
+                      <span class="text-amber-500">(Waiting)</span>
                       {#if containerStatus.state.waiting.reason}
-                        <span class="text-yellow-500">[{containerStatus.state.waiting.reason}]</span>
+                        <span class="text-amber-500">[{containerStatus.state.waiting.reason}]</span>
                       {/if}
                     {/if}
                   </li>

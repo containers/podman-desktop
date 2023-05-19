@@ -34,7 +34,10 @@ import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
+import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
+
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
+import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
 import type {
   PreflightCheckEvent,
   PreflightChecksCallback,
@@ -51,8 +54,9 @@ import type {
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
-import type { V1ConfigMap, V1NamespaceList, V1Pod, V1PodList, V1Service } from '@kubernetes/client-node';
+import type { V1ConfigMap, V1Ingress, V1NamespaceList, V1Pod, V1PodList, V1Service } from '@kubernetes/client-node';
 import type { Menu } from '../../main/src/plugin/menu-registry';
+import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -132,6 +136,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('extensionSystemIsReady', async (): Promise<boolean> => {
     return ipcInvoke('extension-system:isReady');
+  });
+
+  contextBridge.exposeInMainWorld('extensionSystemIsExtensionsStarted', async (): Promise<boolean> => {
+    return ipcInvoke('extension-system:isExtensionsStarted');
   });
 
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
@@ -779,6 +787,24 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'getAuthenticationProvidersInfo',
+    async (): Promise<readonly AuthenticationProviderInfo[]> => {
+      return ipcInvoke('authentication-provider-registry:getAuthenticationProvidersInfo');
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'requestAuthenticationProviderSignOut',
+    async (providerId: string, sessionId: string): Promise<void> => {
+      return ipcInvoke('authentication-provider-registry:requestAuthenticationProviderSignOut', providerId, sessionId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('requestAuthenticationProviderSignIn', async (requestId: string): Promise<void> => {
+    return ipcInvoke('authentication-provider-registry:requestAuthenticationProviderSignIn', requestId);
+  });
+
+  contextBridge.exposeInMainWorld(
     'getConfigurationProperties',
     async (): Promise<Record<string, IConfigurationPropertyRecordedSchema>> => {
       return ipcInvoke('configuration-registry:getConfigurationProperties');
@@ -801,6 +827,10 @@ function initExposure(): void {
       return ipcInvoke('configuration-registry:updateConfigurationValue', key, value, scope);
     },
   );
+
+  contextBridge.exposeInMainWorld('getFeaturedExtensions', async (): Promise<FeaturedExtension[]> => {
+    return ipcInvoke('featured:getFeaturedExtensions');
+  });
 
   contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
     return ipcInvoke('extension-loader:listExtensions');
@@ -991,6 +1021,19 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld(
+    'showMessageBox',
+    async (messageBoxOptions: MessageBoxOptions): Promise<MessageBoxReturnValue> => {
+      return ipcInvoke('showMessageBox', messageBoxOptions);
+    },
+  );
+  contextBridge.exposeInMainWorld(
+    'sendShowMessageBoxOnSelect',
+    async (messageBoxId: number, selectedIndex: number): Promise<void> => {
+      return ipcInvoke('showMessageBox:onSelect', messageBoxId, selectedIndex);
+    },
+  );
+
   let onDataCallbacksShellInContainerDDExtensionInstallId = 0;
   const onDataCallbacksShellInContainerDDExtension = new Map<number, (data: string) => void>();
   const onDataCallbacksShellInContainerDDExtensionError = new Map<number, (data: string) => void>();
@@ -1085,6 +1128,10 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('kubernetesIsAPIGroupSupported', async (group: string): Promise<boolean> => {
+    return ipcInvoke('kubernetes-client:isAPIGroupSupported', group);
+  });
+
   contextBridge.exposeInMainWorld('kubernetesCreatePod', async (namespace: string, pod: V1Pod): Promise<V1Pod> => {
     return ipcInvoke('kubernetes-client:createPod', namespace, pod);
   });
@@ -1093,6 +1140,13 @@ function initExposure(): void {
     'kubernetesCreateService',
     async (namespace: string, service: V1Service): Promise<V1Service> => {
       return ipcInvoke('kubernetes-client:createService', namespace, service);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesCreateIngress',
+    async (namespace: string, ingress: V1Ingress): Promise<V1Ingress> => {
+      return ipcInvoke('kubernetes-client:createIngress', namespace, ingress);
     },
   );
 
@@ -1123,6 +1177,13 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('kubernetesDeletePod', async (name: string): Promise<void> => {
     return ipcInvoke('kubernetes-client:deletePod', name);
   });
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesCreateResourcesFromFile',
+    async (context: string, file: string, namespace: string): Promise<void> => {
+      return ipcInvoke('kubernetes-client:createResourcesFromFile', context, file, namespace);
+    },
+  );
 
   contextBridge.exposeInMainWorld(
     'openshiftCreateRoute',
@@ -1245,6 +1306,20 @@ function initExposure(): void {
     if (resolveCallback) {
       resolveCallback();
     }
+  });
+
+  contextBridge.exposeInMainWorld('getPodmanDesktopVersion', async (): Promise<string> => {
+    return ipcInvoke('app:getVersion');
+  });
+
+  contextBridge.exposeInMainWorld('windowMinimize', async (): Promise<void> => {
+    return ipcInvoke('window:minimize');
+  });
+  contextBridge.exposeInMainWorld('windowMaximize', async (): Promise<void> => {
+    return ipcInvoke('window:maximize');
+  });
+  contextBridge.exposeInMainWorld('windowClose', async (): Promise<void> => {
+    return ipcInvoke('window:close');
   });
 }
 

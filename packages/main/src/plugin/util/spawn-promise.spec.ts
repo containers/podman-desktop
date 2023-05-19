@@ -39,7 +39,7 @@ test('expect correct parsing', async () => {
   const command = '/bin/foo';
   const commandArgs = ['bar', 'baz'];
 
-  const on: any = vi.fn().mockImplementationOnce((event: string, cb: (string) => string) => {
+  const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
     if (event === 'data') {
       cb(stdoutOutput);
     }
@@ -47,7 +47,7 @@ test('expect correct parsing', async () => {
 
   vi.mocked(spawn).mockReturnValue({
     stdout: { on, setEncoding: vi.fn() },
-    on: vi.fn().mockImplementation((event: string, cb: (number) => void) => {
+    on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
       if (event === 'exit') {
         cb(0);
       }
@@ -64,7 +64,7 @@ test('expect correct parsing', async () => {
 test('expect do not fail if error', async () => {
   const stdoutOutput = 'foo';
 
-  const on: any = vi.fn().mockImplementationOnce((event: string, cb: (string) => string) => {
+  const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
     if (event === 'data') {
       cb(stdoutOutput);
     }
@@ -72,7 +72,7 @@ test('expect do not fail if error', async () => {
 
   vi.mocked(spawn).mockReturnValue({
     stdout: { on, setEncoding: vi.fn() },
-    on: vi.fn().mockImplementation((event: string, cb: (number) => void) => {
+    on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
       if (event === 'exit') {
         cb(1);
       }

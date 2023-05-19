@@ -4,7 +4,7 @@ import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
 import type { VolumeInfoUI } from './VolumeInfoUI';
-import { filtered, searchPattern, volumeListInfos } from '../../stores/volumes';
+import { fetchVolumes, filtered, searchPattern, volumeListInfos, volumesInitialized } from '../../stores/volumes';
 import { providerInfos } from '../../stores/providers';
 import NavPage from '../ui/NavPage.svelte';
 import { VolumeUtils } from './volume-utils';
@@ -16,6 +16,7 @@ import StatusIcon from '../images/StatusIcon.svelte';
 import Prune from '../engine/Prune.svelte';
 import moment from 'moment';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -39,8 +40,24 @@ let allChecked = false;
 
 const volumeUtils = new VolumeUtils();
 
+let fetchingInProgress = false;
+
 let volumesUnsubscribe: Unsubscriber;
 onMount(async () => {
+  if (!volumesInitialized) {
+    fetchingInProgress = true;
+    try {
+      await fetchVolumes();
+    } finally {
+      fetchingInProgress = false;
+    }
+  } else {
+    // fetch in background
+    fetchVolumes().catch(error => {
+      console.error('unable to fetch the volumes', error);
+    });
+  }
+
   volumesUnsubscribe = filtered.subscribe(value => {
     // keep warnings
     const warningsPerEngine = new Map<string, string[]>();
@@ -214,7 +231,7 @@ function computeInterval(): number {
     <table class="mx-5 w-full" class:hidden="{volumes.length === 0}">
       <!-- title -->
       <thead>
-        <tr class="h-7 uppercase text-xs text-gray-500">
+        <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5"
             ><input
@@ -232,7 +249,7 @@ function computeInterval(): number {
       </thead>
       <tbody class="">
         {#each volumes as volume}
-          <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+          <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
               <input
@@ -245,7 +262,7 @@ function computeInterval(): number {
                 title="{volume.inUse ? 'Volume is used by a container' : ''}"
                 class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
             </td>
-            <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
+            <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
                 <StatusIcon icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
               </div>
@@ -254,9 +271,9 @@ function computeInterval(): number {
               <div class="flex items-center">
                 <div class="">
                   <div class="flex flex-row items-center">
-                    <div class="text-sm text-gray-200">{volume.shortName}</div>
+                    <div class="text-sm text-gray-300">{volume.shortName}</div>
                   </div>
-                  <div class="flex flex-row text-xs font-extra-light text-gray-500">
+                  <div class="flex flex-row text-xs font-extra-light text-gray-900">
                     <!-- Hide in case of single engine-->
                     {#if multipleEngines}
                       <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
@@ -269,12 +286,12 @@ function computeInterval(): number {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-400">{volume.age}</div>
+                <div class="text-sm text-gray-700">{volume.age}</div>
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex">
-                <div class="w-full text-right text-sm text-gray-400">{volume.humanSize}</div>
+                <div class="w-full text-right text-sm text-gray-700">{volume.humanSize}</div>
               </div>
             </td>
             <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
@@ -289,6 +306,11 @@ function computeInterval(): number {
   <div slot="empty" class="min-h-full">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
+    {:else if fetchingInProgress}
+      <EmptyScreen
+        icon="{VolumeIcon}"
+        title="Fetching volumes..."
+        message="Grabbing volumes from your container engine(s)." />
     {:else if $filtered.map(volumeInfo => volumeInfo.Volumes).flat().length === 0}
       <VolumeEmptyScreen />
     {/if}

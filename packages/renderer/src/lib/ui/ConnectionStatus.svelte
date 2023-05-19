@@ -29,8 +29,8 @@ const statusesStyle = new Map<string, connectionStatusStyle>([
   [
     'stopped',
     {
-      bgColor: 'bg-gray-500',
-      txtColor: 'text-gray-500',
+      bgColor: 'bg-gray-900',
+      txtColor: 'text-gray-900',
       label: 'OFF',
     },
   ],
@@ -42,10 +42,18 @@ const statusesStyle = new Map<string, connectionStatusStyle>([
       label: 'STOPPING',
     },
   ],
+  [
+    'failed',
+    {
+      bgColor: 'bg-red-500',
+      txtColor: 'text-red-500',
+      label: 'FAILED',
+    },
+  ],
 ]);
 $: statusStyle = statusesStyle.get(status) || {
-  bgColor: 'bg-gray-500',
-  txtColor: 'text-gray-500',
+  bgColor: 'bg-gray-900',
+  txtColor: 'text-gray-900',
   label: status.toUpperCase(),
 };
 </script>

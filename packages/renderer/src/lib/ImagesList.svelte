@@ -65,7 +65,7 @@ function updateImages() {
       image.selected = matchingImage.selected;
     }
   });
-  images = computedImages;
+  images = computedImages.sort((first, second) => second.createdAt - first.createdAt);
 
   // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
   const engines = images.map(container => {
@@ -265,7 +265,7 @@ function computeInterval(): number {
     <table class="mx-5 w-full" class:hidden="{images.length === 0}">
       <!-- title -->
       <thead>
-        <tr class="h-7 uppercase text-xs text-gray-500">
+        <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <input
@@ -283,7 +283,7 @@ function computeInterval(): number {
       </thead>
       <tbody class="">
         {#each images as image}
-          <tr class="group h-12 bg-zinc-900 hover:bg-zinc-700">
+          <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
               <input
@@ -296,7 +296,7 @@ function computeInterval(): number {
                 title="{image.inUse ? 'Image is used by a container' : ''}"
                 class=" invert hue-rotate-[218deg] brightness-75" />
             </td>
-            <td class="bg-zinc-900 group-hover:bg-zinc-700 flex flex-row justify-center content-center h-12">
+            <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center content-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
                 <StatusIcon icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
               </div>
@@ -305,13 +305,13 @@ function computeInterval(): number {
               <div class="flex items-center">
                 <div class="">
                   <div class="flex flex-row items-center">
-                    <div class="text-sm text-gray-200">{image.name}</div>
+                    <div class="text-sm text-gray-300">{image.name}</div>
                   </div>
                   <div class="flex flex-row items-center">
                     <div class="text-xs text-violet-400">{image.shortId}</div>
-                    <div class="ml-1 text-xs font-extra-light text-gray-300">{image.tag}</div>
+                    <div class="ml-1 text-xs font-extra-light text-gray-400">{image.tag}</div>
                   </div>
-                  <div class="flex flex-row text-xs font-extra-light text-gray-500">
+                  <div class="flex flex-row text-xs font-extra-light text-gray-900">
                     <!-- Hide in case of single engine-->
                     {#if multipleEngines}
                       <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
@@ -324,12 +324,12 @@ function computeInterval(): number {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-400">{image.age}</div>
+                <div class="text-sm text-gray-700">{image.age}</div>
               </div>
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex">
-                <div class="w-full text-right text-sm text-gray-400">{image.humanSize}</div>
+                <div class="w-full text-right text-sm text-gray-700">{image.humanSize}</div>
               </div>
             </td>
             <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">

@@ -10,13 +10,16 @@ tags: [migrating-to-kubernetes, kind]
 
 #### Prerequisites
 
-* [You configured Podman](creating-a-kind-cluster.md).
-* [You installed Kind](https://kind.sigs.k8s.io/).
+- [You configured Podman](creating-a-kind-cluster.md).
+- [You installed Kind](https://kind.sigs.k8s.io/).
 
 #### Procedure
 
-* Delete the Kind cluster
+1. Open **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**.
+1. Find the Kind cluster to delete.
+1. Click <icon icon="fa-solid fa-stop" size="lg" /> to stop the cluster.
+1. Once the cluster is stopped, click <icon icon="fa-solid fa-trash" size="lg" /> to delete it.
 
-   ```shell-session
-   $ kind delete cluster
-   ```
+#### Verification
+
+1. In **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**, the deleted Kind cluster is not visible.

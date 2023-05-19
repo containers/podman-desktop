@@ -18,10 +18,7 @@ let logsPull;
 let pullError = '';
 let pullInProgress = false;
 let pullFinished = false;
-let imageToPull = {
-  name: undefined,
-  registryServerUrl: undefined,
-};
+export let imageToPull: string = undefined;
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
@@ -124,7 +121,7 @@ async function pullImage() {
 
   pullInProgress = true;
   try {
-    await window.pullImage(selectedProviderConnection, imageToPull.name, callback);
+    await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback);
     pullInProgress = false;
     pullFinished = true;
   } catch (error) {
@@ -153,10 +150,10 @@ onMount(() => {
   }
 });
 
-let imageNameInvalid = 'Please enter a value';
-function validateImageName(event: any): void {
-  const userValue = event.target.value;
-  if (userValue === '' || userValue === undefined) {
+let imageNameInvalid = undefined;
+function validateImageName(event): void {
+  imageToPull = event.target.value;
+  if (imageToPull === undefined || imageToPull.trim() === '') {
     imageNameInvalid = 'Please enter a value';
   } else {
     imageNameInvalid = '';
@@ -169,7 +166,7 @@ function validateImageName(event: any): void {
 {/if}
 
 {#if providerConnections.length > 0}
-  <div class="flex p-4 space-x-2">
+  <div class="flex p-4 gap-x-2 flex-row-reverse">
     <button on:click="{() => toggleAddARegistry()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-id-badge" aria-hidden="true"></i>
@@ -184,93 +181,97 @@ function validateImageName(event: any): void {
       Manage registries
     </button>
   </div>
-  <hr />
 
   <div class="px-6 pt-2 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
     <h3 class="text-xl font-medium :text-white">Pull Image From a Registry</h3>
 
-    <form novalidate class="pf-c-form pf-m-horizontal-on-sm">
-      <div class="pf-c-form__group">
-        <div class="pf-c-form__group-label">
-          <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name">
-            <span class="pf-c-form__label-text">Image to Pull:</span>
-            <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
-          </label>
-        </div>
-        <div class="pf-c-form__group-control">
-          <input
-            class="pf-c-form-control"
-            type="text"
-            name="serverUrl"
-            disabled="{pullFinished || pullInProgress}"
-            on:input="{event => validateImageName(event)}"
-            bind:value="{imageToPull.name}"
-            aria-invalid="{!!imageNameInvalid}"
-            required />
-          {#if imageNameInvalid}
-            <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
-              {imageNameInvalid}
-            </p>
-          {/if}
-        </div>
+    <div class="bg-charcoal-800 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
+      <form novalidate class="pf-c-form pf-m-horizontal-on-sm w-full">
+        <div class="pf-c-form__group w-full">
+          <div class="pf-c-form__group-label w-full">
+            <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name w-full">
+              <span class="pf-c-form__label-text">Image to Pull:</span>
+              <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+            </label>
+          </div>
+          <div class="pf-c-form__group-control">
+            <input
+              class="pf-c-form-control outline-none"
+              type="text"
+              name="serverUrl"
+              disabled="{pullFinished || pullInProgress}"
+              on:input="{event => validateImageName(event)}"
+              bind:value="{imageToPull}"
+              aria-invalid="{imageNameInvalid && imageNameInvalid !== ''}"
+              placeholder="Image name"
+              aria-label="imageName"
+              required />
+            {#if imageNameInvalid}
+              <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
+                {imageNameInvalid}
+              </p>
+            {/if}
+          </div>
 
-        {#if providerConnections.length > 1}
-          <div class="pt-4">
-            <div class="pf-c-form__group">
-              <div class="pf-c-form__group-label">
-                <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name">
-                  <span class="pf-c-form__label-text">Container Engine:</span>
-                  <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
-                </label>
-              </div>
-              <div class="pf-c-form__group-control">
-                <div class="flex w-full">
-                  <select
-                    class="w-auto border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
-                    name="providerChoice"
-                    bind:value="{selectedProviderConnection}">
-                    {#each providerConnections as providerConnection}
-                      <option value="{providerConnection}">{providerConnection.name}</option>
-                    {/each}
-                  </select>
+          {#if providerConnections.length > 1}
+            <div class="pt-4">
+              <div class="pf-c-form__group">
+                <div class="pf-c-form__group-label">
+                  <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name">
+                    <span class="pf-c-form__label-text">Container Engine:</span>
+                    <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+                  </label>
+                </div>
+                <div class="pf-c-form__group-control">
+                  <div class="flex w-full">
+                    <select
+                      class="w-auto border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
+                      name="providerChoice"
+                      bind:value="{selectedProviderConnection}">
+                      {#each providerConnections as providerConnection}
+                        <option value="{providerConnection}">{providerConnection.name}</option>
+                      {/each}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        {/if}
-        {#if providerConnections.length == 1}
-          <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection}" />
-        {/if}
-      </div>
-      <footer class="pf-c-modal-box__footer">
-        <div class="w-full flex flex-col justify-end">
-          {#if !pullFinished}
-            <button
-              class="pf-c-button pf-m-primary"
-              disabled="{!!imageNameInvalid || pullInProgress}"
-              type="button"
-              on:click="{() => pullImage()}">
-              {#if pullInProgress === true}
-                <i class="pf-c-button__progress">
-                  <span class="pf-c-spinner pf-m-md" role="progressbar">
-                    <span class="pf-c-spinner__clipper"></span>
-                    <span class="pf-c-spinner__lead-ball"></span>
-                    <span class="pf-c-spinner__tail-ball"></span>
-                  </span>
-                </i>
-              {/if}
-              Pull image</button>
-          {:else}
-            <button class="pf-c-button pf-m-primary" type="button" on:click="{() => pullImageFinished()}"> Done</button>
           {/if}
-          {#if pullError}
-            <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
-              {pullError}
-            </p>
+          {#if providerConnections.length == 1}
+            <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection}" />
           {/if}
         </div>
-      </footer>
-    </form>
+        <footer class="pf-c-modal-box__footer">
+          <div class="w-full flex flex-col justify-end">
+            {#if !pullFinished}
+              <button
+                class="pf-c-button pf-m-primary"
+                disabled="{!imageToPull || imageToPull.trim() === '' || pullInProgress}"
+                type="submit"
+                on:click="{() => pullImage()}">
+                {#if pullInProgress === true}
+                  <i class="pf-c-button__progress">
+                    <span class="pf-c-spinner pf-m-md" role="progressbar">
+                      <span class="pf-c-spinner__clipper"></span>
+                      <span class="pf-c-spinner__lead-ball"></span>
+                      <span class="pf-c-spinner__tail-ball"></span>
+                    </span>
+                  </i>
+                {/if}
+                Pull image</button>
+            {:else}
+              <button class="pf-c-button pf-m-primary" type="button" on:click="{() => pullImageFinished()}">
+                Done</button>
+            {/if}
+            {#if pullError}
+              <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
+                {pullError}
+              </p>
+            {/if}
+          </div>
+        </footer>
+      </form>
+    </div>
   </div>
   <div bind:this="{pullLogsXtermDiv}"></div>
 {/if}

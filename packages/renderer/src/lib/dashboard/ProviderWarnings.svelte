@@ -18,9 +18,9 @@ $: {
     {#each providerInfo.warnings as warn}
       <div class="flex-row items-center align-middle mt-0.5">
         <!-- Make line height center-->
-        <span class="ml-1 text-md text-gray-400">⚠</span>
-        <span class="ml-1 text-sm text-gray-400">{warn.name}:</span>
-        <span class="ml-1 text-sm text-gray-400">{warn.details}</span>
+        <span class="ml-1 text-md text-gray-700">⚠</span>
+        <span class="ml-1 text-sm text-gray-700">{warn.name}:</span>
+        <span class="ml-1 text-sm text-gray-700">{warn.details}</span>
       </div>
     {/each}
   {/if}

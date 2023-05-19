@@ -22,7 +22,6 @@ import { beforeAll, beforeEach, test, expect, vi } from 'vitest';
 import type { CommandRegistry } from './command-registry';
 import type { ConfigurationRegistry } from './configuration-registry';
 import type { ContainerProviderRegistry } from './container-registry';
-import type { Dialogs } from './dialog-impl';
 import { ExtensionLoader } from './extension-loader';
 import type { FilesystemMonitoring } from './filesystem-monitoring';
 import type { ImageRegistry } from './image-registry';
@@ -39,6 +38,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { ApiSenderType } from './api';
 import type { AuthenticationImpl } from './authentication';
+import type { MessageBox } from './message-box';
+import type { Telemetry } from './telemetry/telemetry';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -51,6 +53,10 @@ class TestExtensionLoader extends ExtensionLoader {
 
   setWatchTimeout(timeout: number): void {
     this.watchTimeout = timeout;
+  }
+
+  getExtensionState() {
+    return this.extensionState;
   }
 }
 
@@ -66,11 +72,11 @@ const configurationRegistry: ConfigurationRegistry = {} as unknown as Configurat
 
 const imageRegistry: ImageRegistry = {} as unknown as ImageRegistry;
 
-const apiSender: ApiSenderType = {} as unknown as ApiSenderType;
+const apiSender: ApiSenderType = { send: vi.fn() } as unknown as ApiSenderType;
 
 const trayMenuRegistry: TrayMenuRegistry = {} as unknown as TrayMenuRegistry;
 
-const dialogs: Dialogs = {} as unknown as Dialogs;
+const messageBox: MessageBox = {} as MessageBox;
 
 const progress: ProgressImpl = {} as ProgressImpl;
 
@@ -90,6 +96,9 @@ const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQui
 
 const authenticationProviderRegistry: AuthenticationImpl = {} as unknown as AuthenticationImpl;
 
+const telemetryTrackMock = vi.fn();
+const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
   extensionLoader = new TestExtensionLoader(
@@ -100,7 +109,7 @@ beforeAll(() => {
     imageRegistry,
     apiSender,
     trayMenuRegistry,
-    dialogs,
+    messageBox,
     progress,
     notifications,
     statusBarRegistry,
@@ -110,10 +119,12 @@ beforeAll(() => {
     containerProviderRegistry,
     inputQuickPickRegistry,
     authenticationProviderRegistry,
+    telemetry,
   );
 });
 
 beforeEach(() => {
+  telemetryTrackMock.mockImplementation(() => Promise.resolve());
   vi.clearAllMocks();
 });
 
@@ -225,4 +236,24 @@ test('Should load file from watching scanning folder', async () => {
 
   // expect to load only one file (other are invalid files/folder)
   expect(loadPackagedFileMock).toBeCalledWith(path.resolve(rootedFakeDirectory, 'watch.cdix'));
+});
+
+test('Verify extension error leads to failed state', async () => {
+  const id = 'extension.id';
+  await extensionLoader.activateExtension(
+    {
+      id: id,
+      path: 'dummy',
+      api: {} as typeof containerDesktopAPI,
+      mainPath: '',
+      removable: false,
+      manifest: {},
+    },
+    {
+      activate: () => {
+        throw Error('Failed');
+      },
+    },
+  );
+  expect(extensionLoader.getExtensionState().get(id)).toBe('failed');
 });

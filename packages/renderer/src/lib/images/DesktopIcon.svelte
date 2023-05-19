@@ -1,17 +1,20 @@
 <script lang="ts">
 import logoImage from './logo.png';
+export let size = '104';
 </script>
 
 <svg
   xmlns:xlink="http://www.w3.org/1999/xlink"
   fill="none"
-  width="104"
+  width="{size}"
   xmlns="http://www.w3.org/2000/svg"
   style="-webkit-print-color-adjust:exact"
   id="screenshot-e650771e-cad3-803e-8002-18717ff8190b"
   version="1.1"
   viewBox="-2898.5 132 104 104"
-  height="104">
+  aria-hidden="true"
+  role="img"
+  height="{size}">
   <g id="shape-e650771e-cad3-803e-8002-18717ff8190b">
     <defs>
       <pattern

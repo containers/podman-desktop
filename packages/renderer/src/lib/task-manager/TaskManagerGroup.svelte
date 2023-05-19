@@ -1,7 +1,8 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
 import TaskManagerItem from './TaskManagerItem.svelte';
-import type { Task } from '/@/stores/tasks';
+
+import type { Task } from '../../../../main/src/plugin/api/task';
 
 export let icon;
 export let tasks: Task[];
@@ -17,7 +18,7 @@ let lastItem = (a: unknown[], i: number) => i == a.length - 1;
   <div class="flex flex-row items-center w-full flex-nowrap">
     <hr class="w-3 h-[2px] my-3 {lineColor} border-0" />
     <div class="flex mx-2 flex-row items-center">
-      <Fa class="mr-1 text-purple-300" size="7" icon="{icon}" />
+      <Fa class="mr-1 text-purple-200" size="7" icon="{icon}" />
       <div class="flex-nowrap uppercase font-bold text-xs">{title} ({tasks.length})</div>
     </div>
     <hr class="flex-grow flex w-max h-[2px] {lineColor} border-0" />

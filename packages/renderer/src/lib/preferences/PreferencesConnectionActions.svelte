@@ -6,17 +6,18 @@ import type {
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
-import { ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
-import { getProviderConnectionName, IConnectionRestart, IConnectionStatus } from './Util';
+import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
+import { getProviderConnectionName, type IConnectionRestart, type IConnectionStatus } from './Util';
 
 export let connectionStatuses: Map<string, IConnectionStatus>;
 export let provider: ProviderInfo;
-export let container: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo;
+export let connection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo;
 export let updateConnectionStatus: (
   provider: ProviderInfo,
   providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   action?: string,
   error?: string,
+  inProgress?: boolean,
 ) => void;
 export let addConnectionToRestartingQueue: (connection: IConnectionRestart) => void;
 $: connectionStatus = connectionStatuses;
@@ -115,8 +116,10 @@ async function deleteConnectionProvider(
         loggerHandlerKey,
         eventCollect,
       );
+      updateConnectionStatus(provider, providerConnectionInfo, 'delete', undefined, false);
     }
   } catch (e) {
+    updateConnectionStatus(provider, providerConnectionInfo, 'delete', e);
     console.error(e);
   }
 }
@@ -136,42 +139,42 @@ function getLoggerHandler(
 }
 </script>
 
-{#if connectionStatus.has(getProviderConnectionName(provider, container))}
-  {@const state = connectionStatus.get(getProviderConnectionName(provider, container))}
-  {#if container.lifecycleMethods && container.lifecycleMethods.length > 0}
+{#if connectionStatus.has(getProviderConnectionName(provider, connection))}
+  {@const state = connectionStatus.get(getProviderConnectionName(provider, connection))}
+  {#if connection.lifecycleMethods && connection.lifecycleMethods.length > 0}
     <div class="mt-2 relative">
       <!-- TODO: see action available like machine infos -->
-      <div class="flex bg-zinc-900 w-fit rounded-lg m-auto">
-        {#if container.lifecycleMethods.includes('start')}
+      <div class="flex bg-charcoal-800 w-fit rounded-lg m-auto">
+        {#if connection.lifecycleMethods.includes('start')}
           <div class="ml-2">
             <LoadingIconButton
-              clickAction="{() => startConnectionProvider(provider, container)}"
+              clickAction="{() => startConnectionProvider(provider, connection)}"
               action="start"
               icon="{faPlay}"
               state="{state}"
               leftPosition="left-[0.15rem]" />
           </div>
         {/if}
-        {#if container.lifecycleMethods.includes('start') && container.lifecycleMethods.includes('stop')}
+        {#if connection.lifecycleMethods.includes('start') && connection.lifecycleMethods.includes('stop')}
           <LoadingIconButton
-            clickAction="{() => restartConnectionProvider(provider, container)}"
+            clickAction="{() => restartConnectionProvider(provider, connection)}"
             action="restart"
             icon="{faRotateRight}"
             state="{state}"
             leftPosition="left-1.5" />
         {/if}
-        {#if container.lifecycleMethods.includes('stop')}
+        {#if connection.lifecycleMethods.includes('stop')}
           <LoadingIconButton
-            clickAction="{() => stopConnectionProvider(provider, container)}"
+            clickAction="{() => stopConnectionProvider(provider, connection)}"
             action="stop"
             icon="{faStop}"
             state="{state}"
             leftPosition="left-[0.22rem]" />
         {/if}
-        {#if container.lifecycleMethods.includes('delete')}
+        {#if connection.lifecycleMethods.includes('delete')}
           <div class="mr-2 text-sm">
             <LoadingIconButton
-              clickAction="{() => deleteConnectionProvider(provider, container)}"
+              clickAction="{() => deleteConnectionProvider(provider, connection)}"
               action="delete"
               icon="{faTrash}"
               state="{state}"

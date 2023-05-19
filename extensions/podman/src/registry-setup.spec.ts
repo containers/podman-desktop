@@ -17,8 +17,7 @@
  ***********************************************************************/
 
 import type { MockedFunction } from 'vitest';
-import { afterEach, beforeEach } from 'vitest';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, beforeAll, expect, test, vi } from 'vitest';
 import type { ContainersAuthConfigFile } from './registry-setup';
 import { RegistrySetup } from './registry-setup';
 import * as fs from 'node:fs';

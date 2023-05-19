@@ -41,16 +41,16 @@ onMount(() => {
             <div class="flex flew-row items-center">
               <a class="text-violet-400 text-base hover:no-underline" href="/volumes" title="Go back to volumes list"
                 >Volumes</a>
-              <div class="text-xl mx-2 text-gray-400">></div>
-              <div class="text-sm font-extralight text-gray-400">Volume Details</div>
+              <div class="text-xl mx-2 text-gray-700">></div>
+              <div class="text-sm font-extralight text-gray-700">Volume Details</div>
             </div>
             <div class="text-lg flex flex-row items-start pt-1">
               <div class="pr-3 pt-1">
                 <StatusIcon icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
               </div>
               <div class="text-lg flex flex-col">
-                <div class="mr-2">{volume.name}</div>
-                <div class="mr-2 pb-4 text-small text-gray-500">{volume.humanSize}</div>
+                <div class="mr-2">{volume.shortName}</div>
+                <div class="mr-2 pb-4 text-small text-gray-900">{volume.humanSize}</div>
               </div>
             </div>
 
@@ -65,20 +65,22 @@ onMount(() => {
               </div>
             </section>
           </div>
-          <div class="flex flex-col w-full px-5 pt-5">
+          <div class="flex flex-col px-5 pt-5">
             <div class="flex justify-end">
               <VolumeActions volume="{volume}" detailed="{true}" />
             </div>
           </div>
-          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-500"
+          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
             ><i class="fas fa-times" aria-hidden="true"></i></a>
         </div>
-        <Route path="/summary" breadcrumb="Summary">
-          <VolumeDetailsSummary volume="{volume}" />
-        </Route>
-        <Route path="/inspect" breadcrumb="Inspect">
-          <VolumeDetailsInspect volume="{volume}" />
-        </Route>
+        <div class="h-full bg-charcoal-900">
+          <Route path="/summary" breadcrumb="Summary">
+            <VolumeDetailsSummary volume="{volume}" />
+          </Route>
+          <Route path="/inspect" breadcrumb="Inspect">
+            <VolumeDetailsInspect volume="{volume}" />
+          </Route>
+        </div>
       </div>
     </div>
   </Route>

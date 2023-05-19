@@ -1,2 +1,10 @@
 website/build
-
+test-resources
+packages/*/*.config.js
+*.config.js
+scripts
+extensions/*/builtin/**
+extensions/*/scripts/**
+extensions/*.ts
+__mocks__
+coverage

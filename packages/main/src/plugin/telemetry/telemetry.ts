@@ -24,10 +24,10 @@ import type { LinuxOs } from 'getos';
 import getos from 'getos';
 import * as osLocale from 'os-locale';
 import { promisify } from 'node:util';
-import type { ConfigurationRegistry, IConfigurationNode } from '/@/plugin/configuration-registry';
+import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry';
 import { TelemetrySettings } from './telemetry-settings';
-import type { Event } from '/@/plugin/events/emitter';
-import { Emitter } from '/@/plugin/events/emitter';
+import type { Event } from '../events/emitter';
+import { Emitter } from '../events/emitter';
 import type {
   TelemetryLogger,
   TelemetryLoggerOptions,
@@ -35,6 +35,7 @@ import type {
   TelemetryTrustedValue,
 } from '@podman-desktop/api';
 import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry';
+import { stoppedExtensions } from '../../util';
 
 export const TRACK_EVENT_TYPE = 'track';
 export const PAGE_EVENT_TYPE = 'page';
@@ -87,8 +88,8 @@ export class Telemetry {
       type: 'object',
       properties: {
         [TelemetrySettings.SectionName + '.' + TelemetrySettings.Enabled]: {
-          description:
-            'Help Red Hat improve Podman Desktop by allowing anonymous usage data to be collected. Privacy statement at https://developers.redhat.com/article/tool-data-collection',
+          markdownDescription:
+            'Help improve Podman Desktop by allowing anonymous usage data to be sent to Red Hat. Read our [Privacy statement](https://developers.redhat.com/article/tool-data-collection)',
           type: 'boolean',
           default: true,
         },
@@ -111,7 +112,11 @@ export class Telemetry {
     this.listenForTelemetryUpdates();
 
     // initalize objects
-    this.analytics = new Analytics(Telemetry.SEGMENT_KEY);
+    this.analytics = new Analytics(Telemetry.SEGMENT_KEY, {
+      errorHandler: err => {
+        console.log(`Telemetry request error: ${err}`);
+      },
+    });
 
     // needs to prompt the user for the first time he launches the app
     if (check) {
@@ -154,13 +159,17 @@ export class Telemetry {
     return {
       // prefix with extension id the event
       sendEventData(eventName: string, data?: Record<string, unknown>): void {
-        thisArg.track.apply(thisArg, [`${extensionInfo.id}.${eventName}`, data]);
+        thisArg.track.apply(thisArg, [`${extensionInfo.id}.${eventName}`, data]).catch((err: unknown) => {
+          console.log(`Error sending event ${eventName}: ${err}`);
+        });
       },
       // report using the id of the extension suffixed by error
       sendErrorData(error: Error, data?: Record<string, unknown>): void {
         data = data || {};
         data.sourceError = error.message;
-        thisArg.track.apply(thisArg, [`${extensionInfo.id}.error`, data]);
+        thisArg.track.apply(thisArg, [`${extensionInfo.id}.error`, data]).catch((err: unknown) => {
+          console.log(`Error sending error event: ${err}`);
+        });
       },
       async flush(): Promise<void> {
         await instanceFlush?.();
@@ -170,8 +179,8 @@ export class Telemetry {
 
   createTelemetryLogger(
     extensionInfo: { id: string; name: string; publisher: string; version: string },
-    sender?: TelemetrySender | undefined,
-    options?: TelemetryLoggerOptions | undefined,
+    sender?: TelemetrySender,
+    options?: TelemetryLoggerOptions,
   ): TelemetryLogger {
     // if no sender, use the built-in
     if (!sender) {
@@ -198,14 +207,24 @@ export class Telemetry {
 
     await this.initTelemetry();
 
-    this.internalTrack(STARTUP_EVENT_TYPE);
+    this.internalTrack(STARTUP_EVENT_TYPE).catch((err: unknown) => {
+      console.log(`Error sending startup event: ${err}`);
+    });
     let sendShutdownAnalytics = false;
 
-    app.on('before-quit', async e => {
-      if (!sendShutdownAnalytics) {
+    app.on('before-quit', e => {
+      if (!sendShutdownAnalytics && stoppedExtensions.val) {
         e.preventDefault();
-        await this.internalTrack(SHUTDOWN_EVENT_TYPE);
-        await this.analytics?.flush();
+        try {
+          this.internalTrack(SHUTDOWN_EVENT_TYPE).catch((err: unknown) => {
+            console.log(`Error sending shutdown event: ${err}`);
+          });
+          this.analytics?.flush().catch((err: unknown) => {
+            console.log(`Error flushing analytics: ${err}`);
+          });
+        } catch (err) {
+          console.log(`Telemetry error on shutdown: ${err}`);
+        }
         sendShutdownAnalytics = true;
         app.quit();
       }
@@ -213,7 +232,9 @@ export class Telemetry {
 
     // send all pending items
     this.pendingItems.forEach(item => {
-      this.internalTrack(item.eventName, item.properties);
+      this.internalTrack(item.eventName, item.properties).catch((err: unknown) => {
+        console.log(`Error sending pending event: ${err}`);
+      });
     });
     this.pendingItems.length = 0;
     this.telemetryConfigured = true;
@@ -285,14 +306,18 @@ export class Telemetry {
     if (!this.telemetryEnabled) {
       return;
     }
-    this.internalTrack(event, eventProperties);
+    this.internalTrack(event, eventProperties).catch((err: unknown) => {
+      console.log(`Error sending event: ${event}`, err);
+    });
   }
 
   async sendFeedback(feedbackProperties: unknown): Promise<void> {
     if (!this.telemetryConfigured) {
       await this.initTelemetry();
     }
-    this.internalTrack('feedback', feedbackProperties);
+    this.internalTrack('feedback', feedbackProperties).catch((err: unknown) => {
+      console.log(`Error sending feedback event: ${err}`);
+    });
   }
 
   protected async getLocale(): Promise<string> {

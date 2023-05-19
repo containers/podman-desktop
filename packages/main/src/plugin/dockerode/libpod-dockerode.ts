@@ -259,11 +259,9 @@ export class LibpodDockerode {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.modem.dial(optsf, (err: any, data: unknown) => {
           if (err) {
-            if (err?.statusCode === 409 && err?.json) {
-              // check that err.json is a JSON
-              if (err.json.Errs) {
-                return reject(err.json.Errs.join(' '));
-              }
+            // check that err.json is a JSON
+            if (err?.statusCode === 409 && err?.json && err.json.Errs) {
+              return reject(err.json.Errs.join(' '));
             }
 
             return reject(err);

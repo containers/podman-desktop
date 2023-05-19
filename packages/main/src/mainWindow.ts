@@ -17,15 +17,13 @@
  ***********************************************************************/
 
 import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
-import { autoUpdater } from 'electron';
-import { Menu } from 'electron';
-import { BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
+import { autoUpdater, Menu, BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
 import contextMenu from 'electron-context-menu';
 const { aboutMenuItem } = require('electron-util');
 import { join } from 'path';
 import { URL } from 'url';
 import type { ConfigurationRegistry } from './plugin/configuration-registry';
-import { isLinux, isMac } from './util';
+import { isLinux, isMac, stoppedExtensions } from './util';
 
 async function createWindow() {
   const INITIAL_APP_WIDTH = 1050;
@@ -54,9 +52,16 @@ async function createWindow() {
     },
   };
 
+  // frameless window
+  if (isLinux()) {
+    browserWindowConstructorOptions.frame = false;
+  } else {
+    browserWindowConstructorOptions.titleBarStyle = 'hidden';
+  }
+
   if (isMac()) {
-    // This property is not available on Linux.
-    browserWindowConstructorOptions.titleBarStyle = 'hiddenInset';
+    // change position of traffic light buttons
+    browserWindowConstructorOptions.trafficLightPosition = { x: 20, y: 13 };
   }
 
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
@@ -95,24 +100,36 @@ async function createWindow() {
   });
 
   // select a file using native widget
-  ipcMain.on('dialog:openFile', async (_, param: { dialogId: string; message: string; filter: FileFilter }) => {
-    const response = await dialog.showOpenDialog(browserWindow, {
-      properties: ['openFile'],
-      filters: [param.filter],
-      message: param.message,
-    });
-    // send the response back
-    browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
+  ipcMain.on('dialog:openFile', (_, param: { dialogId: string; message: string; filter: FileFilter }) => {
+    dialog
+      .showOpenDialog(browserWindow, {
+        properties: ['openFile'],
+        filters: [param.filter],
+        message: param.message,
+      })
+      .then(response => {
+        // send the response back
+        browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
+      })
+      .catch((err: unknown) => {
+        console.error('Error opening file', err);
+      });
   });
 
   // select a folder using native widget
-  ipcMain.on('dialog:openFolder', async (_, param: { dialogId: string; message: string }) => {
-    const response = await dialog.showOpenDialog(browserWindow, {
-      properties: ['openDirectory'],
-      message: param.message,
-    });
-    // send the response back
-    browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
+  ipcMain.on('dialog:openFolder', (_, param: { dialogId: string; message: string }) => {
+    dialog
+      .showOpenDialog(browserWindow, {
+        properties: ['openDirectory'],
+        message: param.message,
+      })
+      .then(response => {
+        // send the response back
+        browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
+      })
+      .catch((err: unknown) => {
+        console.error('Error opening folder', err);
+      });
   });
 
   let configurationRegistry: ConfigurationRegistry;
@@ -137,7 +154,7 @@ async function createWindow() {
     const closeBehaviorConfiguration = configurationRegistry?.getConfiguration('preferences');
     let exitonclose = isLinux(); // default value, which we will use unless the user preference is available.
     if (closeBehaviorConfiguration) {
-      exitonclose = closeBehaviorConfiguration.get<boolean>('ExitOnClose') == true;
+      exitonclose = closeBehaviorConfiguration.get<boolean>('ExitOnClose') === true;
     }
 
     if (!exitonclose) {
@@ -152,8 +169,13 @@ async function createWindow() {
     }
   });
 
+  let destroyed = false;
   app.on('before-quit', () => {
+    if (destroyed || !stoppedExtensions.val) {
+      return;
+    }
     browserWindow.destroy();
+    destroyed = true;
   });
 
   contextMenu({
@@ -171,7 +193,7 @@ async function createWindow() {
       // In development mode, show the "Open DevTools of Extension" menu item
       if (import.meta.env.DEV) {
         let extensionId = '';
-        if (parameters.linkURL && parameters.linkURL.includes('/contribs')) {
+        if (parameters?.linkURL?.includes('/contribs')) {
           extensionId = parameters.linkURL.split('/contribs/')[1];
         }
         return [

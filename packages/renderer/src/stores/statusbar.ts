@@ -32,5 +32,7 @@ window.events?.receive(STATUS_BAR_UPDATED_EVENT_NAME, async () => {
   await fetchRenderModel();
 });
 window.addEventListener('system-ready', () => {
-  fetchRenderModel();
+  fetchRenderModel().catch((error: unknown) => {
+    console.error('Failed to fetch status bar entries', error);
+  });
 });

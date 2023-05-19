@@ -5,7 +5,7 @@ import { contributions } from '../../stores/contribs';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 
-let ociImage: string;
+export let ociImage: string = undefined;
 
 let installInProgress: boolean = false;
 let errorInstall: string = '';
@@ -14,6 +14,7 @@ let logs: string[] = [];
 let logElement;
 
 async function installDDExtensionFromImage() {
+  errorInstall = '';
   logs.length = 0;
   installInProgress = true;
 
@@ -37,7 +38,9 @@ async function installDDExtensionFromImage() {
 }
 
 afterUpdate(() => {
-  logElement.scroll({ top: logElement.scrollHeight, behavior: 'smooth' });
+  if (logElement.scroll) {
+    logElement.scroll({ top: logElement.scrollHeight, behavior: 'smooth' });
+  }
 });
 
 function deleteContribution(extensionName: string) {
@@ -46,7 +49,7 @@ function deleteContribution(extensionName: string) {
 </script>
 
 <SettingsPage title="Docker Desktop Extensions">
-  <div class="bg-zinc-800 mt-5 rounded-md p-3">
+  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
     <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
     <p class="text-xs italic">
       Not all are guaranteed to work but you can add their OCI Image below to try and load them.
@@ -58,20 +61,20 @@ function deleteContribution(extensionName: string) {
 
     <div class="container mx-auto w-full mt-4 flex-col">
       <div class="flex flex-col mb-4">
-        <label for="ociImage" class="block mb-2 text-sm font-medium text-gray-300">Image name:</label>
+        <label for="ociImage" class="block mb-2 text-sm font-medium text-gray-400">Image name:</label>
         <input
           name="ociImage"
           id="ociImage"
           bind:value="{ociImage}"
           placeholder="Name of the Image"
-          class="text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+          class="text-sm rounded-sm focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-charcoal-800 border-gray-900 placeholder-gray-400 text-white"
           required />
       </div>
     </div>
 
     <button
       on:click="{() => installDDExtensionFromImage()}"
-      disabled="{ociImage === undefined || ociImage === '' || installInProgress}"
+      disabled="{ociImage === undefined || ociImage.trim() === '' || installInProgress}"
       class="pf-c-button pf-m-primary"
       type="button">
       {#if installInProgress}
@@ -92,7 +95,7 @@ function deleteContribution(extensionName: string) {
     <div
       class:opacity-0="{logs.length === 0}"
       bind:this="{logElement}"
-      class="bg-zinc-700 text-gray-200 mt-2 h-16 p-1 overflow-y-auto">
+      class="bg-zinc-700 text-gray-300 mt-2 h-16 p-1 overflow-y-auto">
       {#each logs as log}
         <p class="font-light text-sm">{log}</p>
       {/each}
@@ -106,10 +109,10 @@ function deleteContribution(extensionName: string) {
       <p>Installed extensions:</p>
       <div class="grid gap-4 grid-cols-4 py-4">
         {#each $contributions as contribution, index}
-          <div class="flex flex-col bg-purple-700 h-[100px]">
+          <div class="flex flex-col bg-purple-600 h-[100px]">
             <div class="flex justify-end flex-wrap">
               <button
-                class="inline-block text-gray-100 dark:text-gray-100 hover:text-gray-400 dark:hover:text-gray-400 focus:outline-none rounded-lg text-sm p-1.5"
+                class="inline-block text-gray-100 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-700 focus:outline-none rounded-lg text-sm p-1.5"
                 type="button">
                 <i
                   class="fas fa-times"

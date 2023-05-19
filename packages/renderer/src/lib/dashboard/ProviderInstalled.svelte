@@ -11,7 +11,7 @@ import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
 import {
-  InitializationMode,
+  type InitializationMode,
   InitializationSteps,
   InitializeAndStartMode,
   InitializeOnlyMode,
@@ -38,6 +38,10 @@ let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
 let installationOptionsMenuVisible = false;
 let installationOptionSelected = InitializeAndStartMode;
+
+// no initialize support, hide the button
+$: initializationButtonVisible =
+  provider.containerProviderConnectionInitialization || provider.kubernetesProviderConnectionInitialization;
 
 async function initializeProvider() {
   initalizeError = undefined;
@@ -108,11 +112,6 @@ onMount(async () => {
 
   // Observe the terminal div
   resizeObserver.observe(logsXtermDiv);
-
-  // no initialize support, hide the button
-  if (!provider.containerProviderConnectionInitialization && !provider.kubernetesProviderConnectionInitialization) {
-    initializationButtonVisible = false;
-  }
 });
 
 onDestroy(() => {
@@ -132,17 +131,17 @@ function onInstallationClick() {
 }
 </script>
 
-<div class="p-2 flex flex-col bg-zinc-800 rounded-lg">
+<div class="p-2 flex flex-col bg-charcoal-800 rounded-lg">
   <ProviderLogo provider="{provider}" />
   <div class="flex flex-col items-center text-center">
-    <p class="text-xl text-gray-300">
+    <p class="text-xl text-gray-400">
       {provider.name}
       {#if provider.version}
         v{provider.version}
       {/if}
       is installed but not ready
     </p>
-    <p class="text-base text-gray-400">
+    <p class="text-base text-gray-700">
       To start working with containers, {provider.name} needs to be initialized.
     </p>
 
@@ -160,12 +159,12 @@ function onInstallationClick() {
         </button>
       </div>
       <div class="-z-1 min-w-[130px] m-auto bg-primary text-[13px]" class:hidden="{!installationOptionsMenuVisible}">
-        <ul class="w-full outline-none bg-zinc-900 rounded-sm text-gray-400 placeholder-gray-400">
+        <ul class="w-full outline-none bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700">
           <li>
             <button
               class="w-full p-2 {installationOptionSelected === InitializeOnlyMode
                 ? 'bg-[#ffffff33]'
-                : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
+                : ''} hover:text-gray-400 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
               on:click="{() => {
                 installationOptionSelected = InitializeOnlyMode;
                 installationOptionsMenuVisible = false;
@@ -178,7 +177,7 @@ function onInstallationClick() {
             <button
               class="w-full p-2 {installationOptionSelected === InitializeAndStartMode
                 ? 'bg-[#ffffff33]'
-                : ''} hover:text-gray-300 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
+                : ''} hover:text-gray-400 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
               on:click="{() => {
                 installationOptionSelected = InitializeAndStartMode;
                 installationOptionsMenuVisible = false;
@@ -201,7 +200,7 @@ function onInstallationClick() {
           current="{0}"
           clickable="{false}" />
       {/if}
-      <div class="flex flex-col text-gray-400">
+      <div class="flex flex-col text-gray-700">
         <div>Initializing</div>
         <div class="my-2 pr-5">
           <i class="pf-c-button__progress">

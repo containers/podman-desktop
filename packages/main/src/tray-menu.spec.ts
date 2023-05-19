@@ -17,18 +17,19 @@
  ***********************************************************************/
 
 import type { MenuItemConstructorOptions, Tray } from 'electron';
-import { Menu } from 'electron';
-import { ipcMain } from 'electron';
+import { nativeImage, Menu, ipcMain } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import type { ProviderInfo } from './plugin/api/provider-info';
 import type { AnimatedTray } from './tray-animate-icon';
 import { TrayMenu } from './tray-menu';
+import statusStopped from './assets/status-stopped.png';
 
 let trayMenu: TrayMenu;
-let tray;
-let animatedTray;
+let tray: Tray;
+let animatedTray: AnimatedTray;
 vi.mock('electron', async () => {
-  const Menu = vi.fn();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Menu = {} as unknown as any;
   Menu['buildFromTemplate'] = vi.fn();
   return {
     Menu,
@@ -108,4 +109,40 @@ test('Tray update provider not delete provider items', () => {
       it => it.label === 'SomeLabel',
     ),
   ).to.be.not.empty;
+});
+
+test('Tray provider configured state same as stopped', () => {
+  const menuBuild = vi.spyOn(Menu, 'buildFromTemplate');
+
+  trayMenu = new TrayMenu(tray, animatedTray);
+
+  trayMenu.addProviderItems({
+    id: 'testId',
+    name: 'TestProv',
+    internalId: 'internalId',
+    status: 'configured',
+  } as ProviderInfo);
+
+  expect((menuBuild.mock.lastCall?.[0][0] as MenuItemConstructorOptions).icon).eql(
+    nativeImage.createFromDataURL(statusStopped),
+  );
+});
+
+test('Tray provider start enabled when configured state', () => {
+  const menuBuild = vi.spyOn(Menu, 'buildFromTemplate');
+
+  trayMenu = new TrayMenu(tray, animatedTray);
+
+  trayMenu.addProviderItems({
+    id: 'testId',
+    name: 'TestProv',
+    internalId: 'internalId',
+    status: 'configured',
+  } as ProviderInfo);
+
+  const startItem = (menuBuild.mock.lastCall?.[0][0].submenu as Array<MenuItemConstructorOptions>)?.find(
+    it => it.label === 'Start',
+  );
+  expect(startItem).to.be.not.undefined;
+  expect(startItem?.enabled).to.be.true;
 });

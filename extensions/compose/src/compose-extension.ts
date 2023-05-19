@@ -116,12 +116,12 @@ export class ComposeExtension {
       this.statusBarItem.command = statusBarChangesToApply.command;
     }
 
-    this.notifyOnChecks(firstCheck);
+    await this.notifyOnChecks(firstCheck);
   }
 
-  protected notifyOnChecks(firstCheck: boolean): void {
+  protected async notifyOnChecks(firstCheck: boolean): Promise<void> {
     if (this.currentInformation && !firstCheck) {
-      this.showCurrentInformation();
+      await this.showCurrentInformation();
     }
   }
 
@@ -148,54 +148,61 @@ export class ComposeExtension {
   }
 
   async installDockerCompose(): Promise<void> {
-    // grab latest assets metadata
-    const lastReleasesMetadata = await this.composeGitHubReleases.grabLatestsReleasesMetadata();
+    const telemetryLogger = extensionApi.env.createTelemetryLogger();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const telemetryOptions: Record<string, any> = {};
+    try {
+      // grab latest assets metadata
+      const lastReleasesMetadata = await this.composeGitHubReleases.grabLatestsReleasesMetadata();
 
-    // display a choice to the user with quickpick
-    let selectedRelease = await extensionApi.window.showQuickPick(lastReleasesMetadata, {
-      placeHolder: 'Select docker compose version to install',
-    });
-    if (!selectedRelease) {
-      // user cancelled
-      selectedRelease = lastReleasesMetadata[0];
+      // display a choice to the user with quickpick
+      const selectedRelease = await extensionApi.window.showQuickPick(lastReleasesMetadata, {
+        placeHolder: 'Select docker compose version to install',
+      });
+      if (selectedRelease) {
+        // get asset id
+        const assetId = await this.composeGitHubReleases.getReleaseAssetId(selectedRelease.id, platform(), arch());
+
+        // get storage data
+        const storageData = this.extensionContext.storagePath;
+        const storageBinFolder = path.resolve(storageData, 'bin');
+        if (!existsSync(storageBinFolder)) {
+          // create the folder
+          await promises.mkdir(storageBinFolder, { recursive: true });
+        }
+
+        // append file extension
+        let fileExtension = '';
+        if (this.os.isWindows()) {
+          fileExtension = '.exe';
+        }
+
+        // path
+        const dockerComposeDownloadLocation = path.resolve(storageBinFolder, `docker-compose${fileExtension}`);
+
+        // download the asset
+        await this.composeGitHubReleases.downloadReleaseAsset(assetId, dockerComposeDownloadLocation);
+
+        // make it executable
+        await this.makeExecutable(dockerComposeDownloadLocation);
+
+        await extensionApi.window.showInformationMessage(`Docker Compose ${selectedRelease.label} installed`);
+
+        // update checks
+        await this.runChecks(false);
+      } else {
+        telemetryOptions.skip = true;
+      }
+      telemetryLogger.logUsage('install', telemetryOptions);
+    } catch (err) {
+      telemetryLogger.logError('install', { error: err });
     }
-
-    // get asset id
-    const assetId = await this.composeGitHubReleases.getReleaseAssetId(selectedRelease.id, platform(), arch());
-
-    // get storage data
-    const storageData = await this.extensionContext.storagePath;
-    const storageBinFolder = path.resolve(storageData, 'bin');
-    if (!existsSync(storageBinFolder)) {
-      // create the folder
-      await promises.mkdir(storageBinFolder, { recursive: true });
-    }
-
-    // append file extension
-    let fileExtension = '';
-    if (this.os.isWindows()) {
-      fileExtension = '.exe';
-    }
-
-    // path
-    const dockerComposeDownloadLocation = path.resolve(storageBinFolder, `docker-compose${fileExtension}`);
-
-    // download the asset
-    await this.composeGitHubReleases.downloadReleaseAsset(assetId, dockerComposeDownloadLocation);
-
-    // make it executable
-    await this.makeExecutable(dockerComposeDownloadLocation);
-
-    extensionApi.window.showInformationMessage(`Docker Compose ${selectedRelease.label} installed`);
-
-    // update checks
-    this.runChecks(false);
   }
 
   // add script that is redirecting to docker-compose and configuring the socket using DOCKER_HOST
   async addComposeWrapper(connection: extensionApi.ProviderContainerConnection): Promise<void> {
     // get storage data
-    const storageData = await this.extensionContext.storagePath;
+    const storageData = this.extensionContext.storagePath;
     const storageBinFolder = path.resolve(storageData, 'bin');
 
     if (!existsSync(storageBinFolder)) {
@@ -218,9 +225,9 @@ export class ComposeExtension {
     await this.makeExecutable(composeWrapperScript);
   }
 
-  showCurrentInformation(): void {
+  async showCurrentInformation(): Promise<void> {
     if (this.currentInformation) {
-      extensionApi.window.showInformationMessage(this.currentInformation);
+      await extensionApi.window.showInformationMessage(this.currentInformation);
     }
   }
 

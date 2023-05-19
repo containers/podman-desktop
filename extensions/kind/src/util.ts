@@ -20,9 +20,9 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import type { ChildProcess } from 'node:child_process';
 import { spawn } from 'node:child_process';
+import * as sudo from 'sudo-prompt';
 import type * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
-import type { CancellationToken } from '@podman-desktop/api';
 
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
@@ -38,7 +38,6 @@ export function isLinux(): boolean {
 }
 
 export interface SpawnResult {
-  exitCode: number;
   stdOut: string;
   stdErr: string;
   error: undefined | string;
@@ -49,7 +48,7 @@ export interface RunOptions {
   logger?: extensionApi.Logger;
 }
 
-const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
+const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
 export function getKindPath(): string {
   const env = process.env;
@@ -66,18 +65,22 @@ export function getKindPath(): string {
 
 // search if kind is available in the path
 export async function detectKind(pathAddition: string, installer: KindInstaller): Promise<string> {
-  let result = await runCliCommand('kind', ['--version'], { env: { PATH: getKindPath() } });
-  if (result.exitCode === 0) {
+  try {
+    await runCliCommand('kind', ['--version'], { env: { PATH: getKindPath() } });
     return 'kind';
-  } else {
-    const assetInfo = await installer.getAssetInfo();
-    if (assetInfo) {
-      result = await runCliCommand(assetInfo.name, ['--version'], {
+  } catch (e) {
+    // ignore and try another way
+  }
+
+  const assetInfo = await installer.getAssetInfo();
+  if (assetInfo) {
+    try {
+      await runCliCommand(assetInfo.name, ['--version'], {
         env: { PATH: getKindPath().concat(path.delimiter).concat(pathAddition) },
       });
-      if (result.exitCode === 0) {
-        return pathAddition.concat(path.sep).concat(isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
-      }
+      return pathAddition.concat(path.sep).concat(isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
+    } catch (e) {
+      console.error(e);
     }
   }
   return undefined;
@@ -87,7 +90,7 @@ export function runCliCommand(
   command: string,
   args: string[],
   options?: RunOptions,
-  token?: CancellationToken,
+  token?: extensionApi.CancellationToken,
 ): Promise<SpawnResult> {
   return new Promise((resolve, reject) => {
     let stdOut = '';
@@ -139,21 +142,93 @@ export function runCliCommand(
     });
     spawnProcess.stderr.setEncoding('utf8');
     spawnProcess.stderr.on('data', data => {
-      if (options?.logger) {
-        // log create to stdout instead of stderr
-        if (args?.[0] === 'create') {
+      if (args?.[0] === 'create' || args?.[0] === 'delete') {
+        if (options?.logger) {
           options.logger.log(data);
-        } else {
-          options.logger.error(data);
         }
+        if (typeof data === 'string' && data.indexOf('error') >= 0) {
+          stdErr += data;
+        } else {
+          stdOut += data;
+        }
+      } else {
+        stdErr += data;
       }
-      stdErr += data;
     });
 
     spawnProcess.on('close', exitCode => {
-      resolve({ exitCode, stdOut, stdErr, error: err });
+      if (exitCode == 0) {
+        resolve({ stdOut, stdErr, error: err });
+      } else {
+        if (options?.logger) {
+          options.logger.error(stdErr);
+        }
+        reject(new Error(stdErr));
+      }
     });
   });
+}
+
+// Takes a binary path (e.g. /tmp/kind) and installs it to the system. Renames it based on binaryName
+// supports Windows, Linux and macOS
+// If using Windows or Mac, we will use sudo-prompt in order to elevate the privileges
+// If using Linux, we'll use pkexec and polkit support to ask for privileges.
+// When running in a flatpak, we'll use flatpak-spawn to execute the command on the host
+export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<void> {
+  const system = process.platform;
+
+  // Before copying the file, make sure it's executable (chmod +x) for Linux and Mac
+  if (system === 'linux' || system === 'darwin') {
+    try {
+      await runCliCommand('chmod', ['+x', binaryPath]);
+      console.log(`Made ${binaryPath} executable`);
+    } catch (error) {
+      throw new Error(`Error making binary executable: ${error}`);
+    }
+  }
+
+  // Create the appropriate destination path (Windows uses AppData/Local, Linux and Mac use /usr/local/bin)
+  // and the appropriate command to move the binary to the destination path
+  let destinationPath: string;
+  let command: string[];
+  if (system == 'win32') {
+    destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
+    command = ['copy', binaryPath, destinationPath];
+  } else {
+    destinationPath = path.join('/usr/local/bin', binaryName);
+    command = ['cp', binaryPath, destinationPath];
+  }
+
+  // If windows or mac, use sudo-prompt to elevate the privileges
+  // if Linux, use sudo and polkit support
+  if (system === 'win32' || system === 'darwin') {
+    return new Promise<void>((resolve, reject) => {
+      // Convert the command array to a string for sudo prompt
+      // the name is used for the prompt
+      const sudoOptions = {
+        name: `${binaryName} Binary Installation`,
+      };
+      const sudoCommand = command.join(' ');
+      sudo.exec(sudoCommand, sudoOptions, error => {
+        if (error) {
+          console.error(`Failed to install '${binaryName}' binary: ${error}`);
+          reject(error);
+        } else {
+          console.log(`Successfully installed '${binaryName}' binary.`);
+          resolve();
+        }
+      });
+    });
+  } else {
+    try {
+      // Use pkexec in order to elevate the prileges / ask for password for copying to /usr/local/bin
+      await runCliCommand('pkexec', command);
+      console.log(`Successfully installed '${binaryName}' binary.`);
+    } catch (error) {
+      console.error(`Failed to install '${binaryName}' binary: ${error}`);
+      throw error;
+    }
+  }
 }
 
 function killProcess(spawnProcess: ChildProcess) {

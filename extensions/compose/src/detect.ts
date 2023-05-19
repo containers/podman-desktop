@@ -31,10 +31,7 @@ export class Detect {
   // search if docker-compose is available in the path (+ include storage/bin folder)
   async checkForDockerCompose(): Promise<boolean> {
     const result = await this.cliRun.runCommand('docker-compose', ['--version']);
-    if (result.exitCode === 0) {
-      return true;
-    }
-    return false;
+    return result.exitCode === 0;
   }
 
   // search if the podman-compose is available in the storage/bin path
@@ -44,11 +41,7 @@ export class Detect {
 
     // grab current path
     const currentPath = await shellPath();
-    if (currentPath.includes(extensionBinPath)) {
-      return true;
-    }
-
-    return false;
+    return currentPath.includes(extensionBinPath);
   }
 
   // Async function that checks to see if the current Docker socket is a disguised Podman socket

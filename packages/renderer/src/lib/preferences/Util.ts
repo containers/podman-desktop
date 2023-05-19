@@ -21,6 +21,7 @@ import type {
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
 export interface IConnectionStatus {
   status: string;
@@ -48,7 +49,7 @@ export function writeToTerminal(xterm: any, data: string[], colorPrefix: string)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function writeMultilineString(xterm: any, data: string, colorPrefix: string): void {
-  if (data.includes('\n')) {
+  if (data?.includes?.('\n')) {
     const toWrite = data.split('\n');
     for (const s of toWrite) {
       xterm.write(colorPrefix + s + '\n\r');
@@ -63,4 +64,15 @@ export function getProviderConnectionName(
   providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
 ): string {
   return `${provider.name}-${providerConnectionInfo.name}`;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getNormalizedDefaultNumberValue(configurationKey: IConfigurationPropertyRecordedSchema): any {
+  if (!configurationKey.maximum || typeof configurationKey.maximum !== 'number') {
+    return configurationKey.default;
+  }
+  if (configurationKey.maximum > configurationKey.default) {
+    return configurationKey.default;
+  }
+  return configurationKey.maximum;
 }

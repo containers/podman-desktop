@@ -12,14 +12,14 @@ To enable users to install your extension, consider publishing your extension to
 
 #### Prerequisites
 
-* The extension builds successfully.
-See [Writing a Podman Desktop extension](write).
+- The extension builds successfully.
+  See [Writing a Podman Desktop extension](write).
 
-* All runtime dependencies are inside the final binary.
+- All runtime dependencies are inside the final binary.
 
-* An OCI image registry to publish to, such as `quay.io/fbenoit/my-first-extension`. 
+- An OCI image registry to publish to, such as `quay.io/fbenoit/my-first-extension`.
 
-* (Optional) The OCI image registry is public to enable anybody to fetch the image.
+- (Optional) The OCI image registry is public to enable anybody to fetch the image.
 
 #### Procedure
 
@@ -65,4 +65,4 @@ See [Writing a Podman Desktop extension](write).
 
 #### Next steps
 
-* [Installing a Podman Desktop extension](install)
+- [Installing a Podman Desktop extension](install)

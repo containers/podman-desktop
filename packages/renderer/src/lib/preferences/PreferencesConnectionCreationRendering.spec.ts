@@ -32,6 +32,7 @@ import { createConnectionsInfo } from '/@/stores/create-connections';
 const properties: IConfigurationPropertyRecordedSchema[] = [];
 const providerInfo: ProviderInfo = {
   id: 'test',
+  name: 'test',
 } as unknown as ProviderInfo;
 const propertyScope = 'FOO';
 
@@ -56,7 +57,7 @@ beforeAll(() => {
 
 test('Expect that the create button is available', async () => {
   const callback = vi.fn();
-  await render(PreferencesConnectionCreationRendering, {
+  render(PreferencesConnectionCreationRendering, {
     properties,
     providerInfo,
     propertyScope,
@@ -82,6 +83,7 @@ test('Expect create connection successfully', async () => {
     providedKeyLogger = keyLogger;
   });
 
+  // eslint-disable-next-line @typescript-eslint/await-thenable
   await render(PreferencesConnectionCreationRendering, {
     properties,
     providerInfo,
@@ -95,9 +97,9 @@ test('Expect create connection successfully', async () => {
   await fireEvent.click(createButton);
 
   // do we have a task
-  const currentConnectionInfo = get(createConnectionsInfo);
-
-  expect(currentConnectionInfo).toBeDefined();
+  const currentConnectionInfoMap = get(createConnectionsInfo);
+  expect(currentConnectionInfoMap).toBeDefined();
+  const currentConnectionInfo = currentConnectionInfoMap.values().next().value;
   expect(currentConnectionInfo.creationInProgress).toBeTruthy();
   expect(currentConnectionInfo.creationStarted).toBeTruthy();
   expect(currentConnectionInfo.creationSuccessful).toBeFalsy();
@@ -118,7 +120,10 @@ test('Expect create connection successfully', async () => {
   providedKeyLogger(currentConnectionInfo.createKey, 'finish', []);
 
   // expect it is sucessful
-  const currentConnectionInfoAfter = get(createConnectionsInfo);
+  const currentConnectionInfoAfterMap = get(createConnectionsInfo);
+  expect(currentConnectionInfoAfterMap).toBeDefined();
+  const currentConnectionInfoAfter = currentConnectionInfoAfterMap.get(2);
+
   expect(currentConnectionInfoAfter.creationInProgress).toBeFalsy();
   expect(currentConnectionInfoAfter.creationStarted).toBeTruthy();
   expect(currentConnectionInfoAfter.creationSuccessful).toBeTruthy();
@@ -140,7 +145,7 @@ test('Expect cancelling the creation, trigger the cancellation token', async () 
     providedKeyLogger = keyLogger;
   });
 
-  await render(PreferencesConnectionCreationRendering, {
+  render(PreferencesConnectionCreationRendering, {
     properties,
     providerInfo,
     propertyScope,
@@ -153,7 +158,10 @@ test('Expect cancelling the creation, trigger the cancellation token', async () 
   await fireEvent.click(createButton);
 
   // do we have a task
-  const currentConnectionInfo = get(createConnectionsInfo);
+  const currentConnectionInfoMap = get(createConnectionsInfo);
+
+  expect(currentConnectionInfoMap).toBeDefined();
+  const currentConnectionInfo = currentConnectionInfoMap.values().next().value;
 
   expect(currentConnectionInfo).toBeDefined();
   expect(currentConnectionInfo.creationInProgress).toBeTruthy();

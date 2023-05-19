@@ -27,7 +27,7 @@ export enum MenuContext {
 }
 
 export class MenuRegistry {
-  private menus = new Map<string, Menu[]>();
+  private menus = new Map<string, Map<string, Menu>>();
 
   constructor(private commandRegisty: CommandRegistry) {}
 
@@ -38,16 +38,32 @@ export class MenuRegistry {
     }
   }
 
+  unregisterMenus(menus: { [key: string]: Menu[] }): void {
+    for (const name in menus) {
+      const contextMenus = menus[name];
+      contextMenus.forEach(menu => this.unregisterMenu(name, menu));
+    }
+  }
+
   registerMenu(context: string, menu: Menu): void {
     let contextMenus = this.menus.get(context);
     if (!contextMenus) {
-      contextMenus = [];
+      contextMenus = new Map<string, Menu>();
       this.menus.set(context, contextMenus);
     }
-    contextMenus.push(menu);
+    contextMenus.set(menu.command, menu);
+  }
+
+  unregisterMenu(context: string, menu: Menu): void {
+    const contextMenus = this.menus.get(context);
+    contextMenus?.delete(menu.command);
   }
 
   getContributedMenus(context: string): Menu[] {
-    return this.menus.get(context)?.filter(menu => this.commandRegisty.hasCommand(menu.command)) || [];
+    const menus = this.menus.get(context);
+    if (menus) {
+      return Array.from(menus?.values()).filter(menu => this.commandRegisty.hasCommand(menu.command)) || [];
+    }
+    return [];
   }
 }

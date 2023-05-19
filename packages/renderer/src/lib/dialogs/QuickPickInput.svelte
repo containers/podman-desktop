@@ -1,13 +1,16 @@
 <script lang="ts">
 import { onDestroy, onMount, tick } from 'svelte';
 import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
+import Markdown from '/@/lib/markdown/Markdown.svelte';
 
 const DEFAULT_PROMPT = "Press 'Enter' to confirm your input or 'Escape' to cancel";
 let inputValue = '';
 let placeHolder = '';
 let prompt = '';
+let markdownDescription = '';
 let currentId = 0;
 let title = '';
+let multiline = false;
 
 let validationEnabled = false;
 let validationError = '';
@@ -23,7 +26,7 @@ let quickPickSelectedIndex = 0;
 let quickPickSelectedFilteredIndex = 0;
 let quickPickCanPickMany = false;
 
-let inputElement: HTMLInputElement = undefined;
+let inputElement: HTMLInputElement | HTMLTextAreaElement = undefined;
 
 const showInputCallback = async (options?: InputBoxOptions) => {
   mode = 'InputBox';
@@ -36,6 +39,8 @@ const showInputCallback = async (options?: InputBoxOptions) => {
   } else {
     prompt = DEFAULT_PROMPT;
   }
+  markdownDescription = options.markdownDescription;
+  multiline = options.multiline;
 
   validationEnabled = options.validate;
   display = true;
@@ -253,49 +258,67 @@ function handleKeydown(e: KeyboardEvent) {
   <div class="absolute m-auto left-0 right-0 z-50">
     <div class=" flex justify-center items-center mt-1">
       <div
-        class="bg-zinc-900 w-[700px] {mode === 'InputBox' ? 'h-16' : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
+        class="bg-charcoal-800 w-[700px] {mode === 'InputBox'
+          ? 'h-fit'
+          : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
         {#if title}
           <div
             aria-label="title"
-            class="w-full bg-zinc-800 rounded-sm text-center max-w-[700px] truncate cursor-default">
+            class="w-full bg-charcoal-600 rounded-sm text-center max-w-[700px] truncate cursor-default">
             {title}
           </div>
         {/if}
         <div class="w-full flex flex-row">
-          <input
-            bind:this="{inputElement}"
-            on:input="{event => onInputChange(event)}"
-            type="text"
-            bind:value="{inputValue}"
-            class="px-1 w-full text-gray-300 bg-zinc-700 border {validationError
-              ? 'border-red-700'
-              : 'border-zinc-800'} focus:outline-none"
-            placeholder="{placeHolder}" />
+          {#if multiline}
+            <textarea
+              bind:this="{inputElement}"
+              on:input="{event => onInputChange(event)}"
+              bind:value="{inputValue}"
+              class="px-1 w-full h-20 text-gray-400 bg-zinc-700 border {validationError
+                ? 'border-red-700'
+                : 'border-charcoal-600'} focus:outline-none"
+              placeholder="{placeHolder}"></textarea>
+          {:else}
+            <input
+              bind:this="{inputElement}"
+              on:input="{event => onInputChange(event)}"
+              type="text"
+              bind:value="{inputValue}"
+              class="px-1 w-full text-gray-400 bg-zinc-700 border {validationError
+                ? 'border-red-700'
+                : 'border-charcoal-600'} focus:outline-none"
+              placeholder="{placeHolder}" />
+          {/if}
           {#if quickPickCanPickMany}
             <button
               on:click="{() => validateQuickPick()}"
-              class="text-gray-300 bg-violet-600 border border-zinc-800 focus:outline-none px-1">OK</button>
+              class="text-gray-400 bg-violet-600 border border-charcoal-600 focus:outline-none px-1">OK</button>
           {/if}
         </div>
 
         {#if mode === 'InputBox'}
           {#if validationError}
-            <div class="text-gray-300 border border-red-700 relative w-full bg-red-700 px-1">{validationError}</div>
+            <div class="text-gray-400 border border-red-700 relative w-full bg-red-700 px-1">{validationError}</div>
           {:else}
-            <div class="relative text-gray-300 pt-2 px-1 h-6 overflow-y-auto">{prompt}</div>
+            <div class="relative text-gray-400 pt-2 px-1 h-7 overflow-y-auto">{prompt}</div>
+            {#if markdownDescription?.length > 0}
+              <div class="relative text-gray-400 pt-2 px-1 h-fit overflow-y-auto">
+                <Markdown>{markdownDescription}</Markdown>
+              </div>
+            {/if}
           {/if}
         {:else if mode === 'QuickPick'}
           {#each quickPickFilteredItems as item, i}
             <div
               class="flex w-full flex-row {i === quickPickSelectedFilteredIndex
                 ? 'bg-violet-500'
-                : 'hover:bg-zinc-800'} ">
+                : 'hover:bg-charcoal-600'} ">
               {#if quickPickCanPickMany}
                 <input type="checkbox" class="mx-1 outline-none" bind:checked="{item.checkbox}" />
               {/if}
               <button
                 on:click="{() => clickQuickPickItem(item, i)}"
-                class="text-gray-300 text-left relative my-1 w-full {i === quickPickSelectedFilteredIndex
+                class="text-gray-400 text-left relative my-1 w-full {i === quickPickSelectedFilteredIndex
                   ? 'bg-violet-500'
                   : ''} px-1">
                 <div class="flex flex-col w-full">
@@ -303,12 +326,12 @@ function handleKeydown(e: KeyboardEvent) {
                   <div class="flex flex-row w-full max-w-[700px] truncate">
                     <div class="font-bold">{item.value}</div>
                     {#if item.description}
-                      <div class="text-gray-300 text-xs ml-2">{item.description}</div>
+                      <div class="text-gray-400 text-xs ml-2">{item.description}</div>
                     {/if}
                   </div>
                   <!-- second row is optional detail -->
                   {#if item.detail}
-                    <div class="w-full max-w-[700px] truncate text-gray-300 text-xs">{item.detail}</div>
+                    <div class="w-full max-w-[700px] truncate text-gray-400 text-xs">{item.detail}</div>
                   {/if}
                 </div>
               </button>

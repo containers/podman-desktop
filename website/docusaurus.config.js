@@ -61,7 +61,7 @@ const config = {
       colorMode: {
         defaultMode: 'dark',
         disableSwitch: false,
-        respectPrefersColorScheme: false,
+        respectPrefersColorScheme: true,
       },
       docs: {
         sidebar: {
@@ -138,8 +138,8 @@ const config = {
                 href: 'https://github.com/containers/podman-desktop',
               },
               {
-                label: 'General chat (bridged): #general on Discord',
-                href: 'https://discordapp.com/invite/TCTB38RWpf',
+                label: 'General chat (bridged): #podman-desktop on Discord',
+                href: 'https://discord.com/invite/x5GzFF6QH4',
               },
               {
                 label: 'General chat (bridged): #podman-desktop@libera.chat on IRC',

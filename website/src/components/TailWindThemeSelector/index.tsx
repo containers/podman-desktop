@@ -1,10 +1,9 @@
-import React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
 
 function TailWindThemeSelector(): JSX.Element {
   function updadeTailwindDarkTheme() {
-    if (!document || !document.documentElement) {
+    if (!document?.documentElement) {
       return;
     }
 
@@ -35,9 +34,10 @@ function TailWindThemeSelector(): JSX.Element {
     }
     const mutationObserver = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
-        if (mutation.attributeName === 'data-rh' && mutation.type == 'attributes') {
-          updadeTailwindDarkTheme();
-        } else if (mutation.attributeName === 'data-theme' && mutation.type == 'attributes') {
+        if (
+          mutation.type == 'attributes' &&
+          (mutation.attributeName === 'data-rh' || mutation.attributeName === 'data-theme')
+        ) {
           updadeTailwindDarkTheme();
         }
       });

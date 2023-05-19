@@ -88,15 +88,16 @@ export class ProviderImpl implements Provider, IDisposable {
     this._warnings = providerOptions.warnings || [];
 
     // monitor connection statuses
-    setInterval(async () => {
-      this.containerProviderConnections.forEach(providerConnection => {
+    setInterval(() => {
+      for (const providerConnection of this.containerProviderConnections) {
         const status = providerConnection.status();
-        const key = providerConnection.endpoint.socketPath;
+        // key can't be socket path as for some providers it can be the same
+        const key = `${providerConnection.name}.${providerConnection.endpoint.socketPath}`;
         if (status !== this.containerProviderConnectionsStatuses.get(key)) {
           this.providerRegistry.onDidChangeContainerProviderConnectionStatus(this, providerConnection);
           this.containerProviderConnectionsStatuses.set(key, status);
         }
-      });
+      }
     }, 2000);
   }
 
@@ -110,6 +111,10 @@ export class ProviderImpl implements Provider, IDisposable {
 
   get name(): string {
     return this.providerOptions.name;
+  }
+
+  get emptyConnectionMarkdownDescription(): string | undefined {
+    return this.providerOptions.emptyConnectionMarkdownDescription;
   }
 
   get version(): string | undefined {

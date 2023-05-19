@@ -12,8 +12,9 @@ import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelt
 import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
 import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
 import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
-import ExtensionList from '../ExtensionList.svelte';
+import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
+import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 
 let properties: IConfigurationPropertyRecordedSchema[];
 let defaultPrefPageId: string;
@@ -34,7 +35,7 @@ onMount(async () => {
 });
 </script>
 
-<div class="flex flex-col h-full bg-zinc-900">
+<div class="flex flex-col h-full px-5">
   <Route path="/*" breadcrumb="Preferences">
     {#if defaultPrefPageId !== undefined}
       <PreferencesRendering key="{defaultPrefPageId}" properties="{properties}" />
@@ -54,17 +55,26 @@ onMount(async () => {
   <Route path="/provider/:providerInternalId/*" breadcrumb="Resources" let:meta>
     <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
   </Route>
-  <Route path="/resources" breadcrumb="Resources">
+  <Route path="/provider-task/:providerInternalId/:taskId/*" breadcrumb="Resources" let:meta>
+    <PreferencesProviderRendering
+      providerInternalId="{meta.params.providerInternalId}"
+      properties="{properties}"
+      taskId="{+meta.params.taskId}" />
+  </Route>
+  <Route path="/resources/*" breadcrumb="Resources">
     <PreferencesResourcesRendering />
   </Route>
   <Route path="/registries" breadcrumb="Registries">
     <PreferencesRegistriesEditing />
   </Route>
+  <Route path="/authentication-providers">
+    <PreferencesAuthenticationProvidersRendering />
+  </Route>
   <Route path="/proxies" breadcrumb="Proxy">
     <PreferencesProxiesRendering />
   </Route>
   <Route path="/extensions" breadcrumb="Extensions">
-    <ExtensionList />
+    <PreferencesExtensionList />
   </Route>
 
   <Route path="/container-connection/:provider/:connection/*" breadcrumb="Container Engine" let:meta>

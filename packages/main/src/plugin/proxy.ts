@@ -97,7 +97,7 @@ export class Proxy {
     this.proxyState = isEnabled;
   }
 
-  setProxy(proxy: ProxySettings): void {
+  async setProxy(proxy: ProxySettings): Promise<void> {
     // notify
     this._onDidUpdateProxy.fire(proxy);
 
@@ -106,9 +106,9 @@ export class Proxy {
 
     // update configuration
     const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
-    proxyConfiguration.update('http', proxy.httpProxy);
-    proxyConfiguration.update('https', proxy.httpsProxy);
-    proxyConfiguration.update('no', proxy.noProxy);
+    await proxyConfiguration.update('http', proxy.httpProxy);
+    await proxyConfiguration.update('https', proxy.httpsProxy);
+    await proxyConfiguration.update('no', proxy.noProxy);
   }
 
   get proxy(): ProxySettings | undefined {
@@ -124,7 +124,9 @@ export class Proxy {
 
     // update configuration
     const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
-    proxyConfiguration.update('enabled', state);
+    proxyConfiguration.update('enabled', state).catch((err: unknown) => {
+      console.error('Error updating proxy state', err);
+    });
 
     // notify
     this._onDidStateChange.fire(this.proxyState);

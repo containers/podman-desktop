@@ -179,6 +179,9 @@ declare module '@podman-desktop/api' {
 
     // Provide way to add additional warnings to the provider
     warnings?: ProviderInformation[];
+
+    // Provide the message to display when the provider has no connections
+    emptyConnectionMarkdownDescription?: string;
   }
 
   export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
@@ -231,6 +234,9 @@ declare module '@podman-desktop/api' {
 
     // Optional display name when creating the provider. For example 'Podman Machine' or 'Kind Cluster', etc.
     creationDisplayName?: string;
+
+    // Optional button title when creating the provider. Default is 'Create new'.
+    creationButtonTitle?: string;
   }
 
   // create programmatically a ContainerProviderConnection
@@ -248,6 +254,7 @@ declare module '@podman-desktop/api' {
   export interface Link {
     title: string;
     url: string;
+    group?: string;
   }
   export type CheckResultLink = Link;
 
@@ -357,6 +364,18 @@ declare module '@podman-desktop/api' {
     status: ProviderStatus;
   }
 
+  export interface UpdateContainerConnectionEvent {
+    providerId: string;
+    connection: ContainerProviderConnection;
+    status: ProviderConnectionStatus;
+  }
+
+  export interface UpdateKubernetesConnectionEvent {
+    providerId: string;
+    connection: KubernetesProviderConnection;
+    status: ProviderConnectionStatus;
+  }
+
   export interface UnregisterContainerConnectionEvent {
     providerId: string;
   }
@@ -378,6 +397,8 @@ declare module '@podman-desktop/api' {
   export namespace provider {
     export function createProvider(provider: ProviderOptions): Provider;
     export const onDidUpdateProvider: Event<ProviderEvent>;
+    export const onDidUpdateContainerConnection: Event<UpdateContainerConnectionEvent>;
+    export const onDidUpdateKubernetesConnection: Event<UpdateKubernetesConnectionEvent>;
     export const onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent>;
     export const onDidRegisterContainerConnection: Event<RegisterContainerConnectionEvent>;
     export function getContainerConnections(): ProviderContainerConnection[];
@@ -391,7 +412,7 @@ declare module '@podman-desktop/api' {
 
   export namespace proxy {
     export function getProxySettings(): ProxySettings | undefined;
-    export function setProxy(proxySettings: ProxySettings): void;
+    export function setProxy(proxySettings: ProxySettings): Promise<void>;
     // Podman Desktop has updated the settings, propagates the changes to the provider.
     export const onDidUpdateProxy: Event<ProxySettings>;
 
@@ -509,7 +530,7 @@ declare module '@podman-desktop/api' {
      * Update a configuration value. The updated configuration values are persisted.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    update(section: string, value: any): PromiseLike<void>;
+    update(section: string, value: any): Promise<void>;
 
     /**
      * Readable dictionary that backs this configuration.
@@ -552,8 +573,17 @@ declare module '@podman-desktop/api' {
   export enum ProgressLocation {
     /**
      * Show progress bar under app icon in launcher bar.
+     *
+     * @deprecated This value is deprecated as it does not render equally on various supported platforms. It will be
+     * removed in future versions of Podman Desktop. We strongly encourage to use TASK_WIDGET instead.
+     * @see TASK_WIDGET
      */
     APP_ICON = 1,
+
+    /**
+     * Show progress in the task manager widget
+     */
+    TASK_WIDGET = 2,
   }
 
   /**
@@ -668,6 +698,11 @@ declare module '@podman-desktop/api' {
     prompt?: string;
 
     /**
+     * A description of the field to be show (Markdown format)
+     */
+    markdownDescription?;
+
+    /**
      * An optional string to show as placeholder in the input box to guide the user what to type.
      */
     placeHolder?: string;
@@ -682,6 +717,11 @@ declare module '@podman-desktop/api' {
      * This setting is ignored on iPad and is always false.
      */
     ignoreFocusOut?: boolean;
+
+    /**
+     * Set to `true` when value represents a multi line content.
+     */
+    multiline?: boolean;
 
     /**
      * An optional function that will be called to validate input and to give a hint
@@ -728,7 +768,7 @@ declare module '@podman-desktop/api' {
     /**
      * An optional tooltip.
      */
-    readonly tooltip?: string | undefined;
+    readonly tooltip?: string;
   }
 
   /**
@@ -932,11 +972,64 @@ declare module '@podman-desktop/api' {
    * Resource identifier for a resource
    */
   export class Uri {
-    private constructor(scheme: string, authority: string, path: string);
+    /**
+     * Create an URI from a string, e.g. `http://www.example.com/some/path`,
+     * `file:///usr/home`, or `scheme:with/path`.
+     *
+     * *Note* that for a while uris without a `scheme` were accepted. That is not correct
+     * as all uris should have a scheme. To avoid breakage of existing code the optional
+     * `strict`-argument has been added. We *strongly* advise to use it, e.g. `Uri.parse('my:uri', true)`
+     *
+     * @see {@link Uri.toString}
+     * @param value The string value of an Uri.
+     * @param strict Throw an error when `value` is empty or when no `scheme` can be parsed.
+     * @return A new Uri instance.
+     */
+    static parse(value: string, strict?: boolean): Uri;
+
+    /**
+     * Create an URI from a file system path. The {@link Uri.scheme scheme}
+     * will be `file`.
+     */
     static file(path: string): Uri;
-    readonly fsPath: string;
-    readonly authority: string;
+
+    /**
+     * Use the `file` and `parse` factory functions to create new `Uri` objects.
+     */
+    private constructor(scheme: string, authority: string, path: string, query: string, fragment: string);
+
+    /**
+     * Scheme is the `http` part of `http://www.example.com/some/path?query#fragment`.
+     * The part before the first colon.
+     */
     readonly scheme: string;
+
+    /**
+     * Authority is the `www.example.com` part of `http://www.example.com/some/path?query#fragment`.
+     * The part between the first double slashes and the next slash.
+     */
+    readonly authority: string;
+
+    /**
+     * Path is the `/some/path` part of `http://www.example.com/some/path?query#fragment`.
+     */
+    readonly path: string;
+
+    /**
+     * The string representing the corresponding file system path of this Uri.
+     */
+    readonly fsPath: string;
+
+    /**
+     * Query is the `query` part of `http://www.example.com/some/path?query#fragment`.
+     */
+    readonly query: string;
+
+    /**
+     * Fragment is the `fragment` part of `http://www.example.com/some/path?query#fragment`.
+     */
+    readonly fragment: string;
+
     toString(): string;
   }
 
@@ -1117,11 +1210,11 @@ declare module '@podman-desktop/api' {
       Networks: { [networkType: string]: NetworkInfo };
     };
     Mounts: Array<{
-      Name?: string | undefined;
+      Name?: string;
       Type: string;
       Source: string;
       Destination: string;
-      Driver?: string | undefined;
+      Driver?: string;
       Mode: string;
       RW: boolean;
       Propagation: string;
@@ -1154,7 +1247,7 @@ declare module '@podman-desktop/api' {
     username: string;
     password: string;
     serveraddress: string;
-    email?: string | undefined;
+    email?: string;
   }
 
   interface RegistryConfig {
@@ -1165,8 +1258,8 @@ declare module '@podman-desktop/api' {
   }
 
   interface PortBinding {
-    HostIp?: string | undefined;
-    HostPort?: string | undefined;
+    HostIp?: string;
+    HostPort?: string;
   }
 
   interface PortMap {
@@ -1175,82 +1268,80 @@ declare module '@podman-desktop/api' {
 
   interface HostRestartPolicy {
     Name: string;
-    MaximumRetryCount?: number | undefined;
+    MaximumRetryCount?: number;
   }
 
   interface HostConfig {
-    AutoRemove?: boolean | undefined;
-    Binds?: string[] | undefined;
-    ContainerIDFile?: string | undefined;
-    LogConfig?:
-      | {
-          Type: string;
-          Config: unknown;
-        }
-      | undefined;
-    NetworkMode?: string | undefined;
+    AutoRemove?: boolean;
+    Binds?: string[];
+    ContainerIDFile?: string;
+    LogConfig?: {
+      Type: string;
+      Config: unknown;
+    };
+    NetworkMode?: string;
     PortBindings?: unknown;
-    RestartPolicy?: HostRestartPolicy | undefined;
-    VolumeDriver?: string | undefined;
+    RestartPolicy?: HostRestartPolicy;
+    VolumeDriver?: string;
     VolumesFrom?: unknown;
-    Mounts?: MountConfig | undefined;
+    Mounts?: MountConfig;
     CapAdd?: unknown;
     CapDrop?: unknown;
-    Dns?: unknown[] | undefined;
-    DnsOptions?: unknown[] | undefined;
-    DnsSearch?: string[] | undefined;
+    Dns?: unknown[];
+    DnsOptions?: unknown[];
+    DnsSearch?: string[];
     ExtraHosts?: unknown;
-    GroupAdd?: string[] | undefined;
-    IpcMode?: string | undefined;
-    Cgroup?: string | undefined;
+    GroupAdd?: string[];
+    IpcMode?: string;
+    Cgroup?: string;
     Links?: unknown;
-    OomScoreAdj?: number | undefined;
-    PidMode?: string | undefined;
-    Privileged?: boolean | undefined;
-    PublishAllPorts?: boolean | undefined;
-    ReadonlyRootfs?: boolean | undefined;
+    OomScoreAdj?: number;
+    PidMode?: string;
+    Privileged?: boolean;
+    PublishAllPorts?: boolean;
+    ReadonlyRootfs?: boolean;
     SecurityOpt?: unknown;
-    StorageOpt?: { [option: string]: string } | undefined;
-    Tmpfs?: { [dir: string]: string } | undefined;
-    UTSMode?: string | undefined;
-    UsernsMode?: string | undefined;
-    ShmSize?: number | undefined;
-    Sysctls?: { [index: string]: string } | undefined;
-    Runtime?: string | undefined;
-    ConsoleSize?: number[] | undefined;
-    Isolation?: string | undefined;
-    MaskedPaths?: string[] | undefined;
-    ReadonlyPaths?: string[] | undefined;
-    CpuShares?: number | undefined;
-    CgroupParent?: string | undefined;
-    BlkioWeight?: number | undefined;
+    StorageOpt?: { [option: string]: string };
+    Tmpfs?: { [dir: string]: string };
+    UTSMode?: string;
+    UsernsMode?: string;
+    ShmSize?: number;
+    Sysctls?: { [index: string]: string };
+    Runtime?: string;
+    ConsoleSize?: number[];
+    Isolation?: string;
+    MaskedPaths?: string[];
+    ReadonlyPaths?: string[];
+    CpuShares?: number;
+    CgroupParent?: string;
+    BlkioWeight?: number;
     BlkioWeightDevice?: unknown;
     BlkioDeviceReadBps?: unknown;
     BlkioDeviceWriteBps?: unknown;
     BlkioDeviceReadIOps?: unknown;
     BlkioDeviceWriteIOps?: unknown;
-    CpuPeriod?: number | undefined;
-    CpuQuota?: number | undefined;
-    CpusetCpus?: string | undefined;
-    CpusetMems?: string | undefined;
+    CpuPeriod?: number;
+    CpuQuota?: number;
+    CpusetCpus?: string;
+    CpusetMems?: string;
     Devices?: unknown;
-    DeviceCgroupRules?: string[] | undefined;
-    DeviceRequests?: DeviceRequest[] | undefined;
-    DiskQuota?: number | undefined;
-    KernelMemory?: number | undefined;
-    Memory?: number | undefined;
-    MemoryReservation?: number | undefined;
-    MemorySwap?: number | undefined;
-    MemorySwappiness?: number | undefined;
-    NanoCpus?: number | undefined;
-    OomKillDisable?: boolean | undefined;
-    Init?: boolean | undefined;
-    PidsLimit?: number | undefined;
+    DeviceCgroupRules?: string[];
+    DeviceRequests?: DeviceRequest[];
+    DiskQuota?: number;
+    KernelMemory?: number;
+    Memory?: number;
+    MemoryReservation?: number;
+    MemorySwap?: number;
+    MemorySwappiness?: number;
+    NanoCpus?: number;
+    OomKillDisable?: boolean;
+    Init?: boolean;
+    PidsLimit?: number;
     Ulimits?: unknown;
-    CpuCount?: number | undefined;
-    CpuPercent?: number | undefined;
-    CpuRealtimePeriod?: number | undefined;
-    CpuRealtimeRuntime?: number | undefined;
+    CpuCount?: number;
+    CpuPercent?: number;
+    CpuRealtimePeriod?: number;
+    CpuRealtimeRuntime?: number;
   }
 
   export interface ContainerInspectInfo {
@@ -1272,18 +1363,16 @@ declare module '@podman-desktop/api' {
       Error: string;
       StartedAt: string;
       FinishedAt: string;
-      Health?:
-        | {
-            Status: string;
-            FailingStreak: number;
-            Log: Array<{
-              Start: string;
-              End: string;
-              ExitCode: number;
-              Output: string;
-            }>;
-          }
-        | undefined;
+      Health?: {
+        Status: string;
+        FailingStreak: number;
+        Log: Array<{
+          Start: string;
+          End: string;
+          ExitCode: number;
+          Output: string;
+        }>;
+      };
     };
     Image: string;
     ResolvConfPath: string;
@@ -1297,7 +1386,7 @@ declare module '@podman-desktop/api' {
     MountLabel: string;
     ProcessLabel: string;
     AppArmorProfile: string;
-    ExecIDs?: string[] | undefined;
+    ExecIDs?: string[];
     HostConfig: HostConfig;
     GraphDriver: {
       Name: string;
@@ -1308,7 +1397,7 @@ declare module '@podman-desktop/api' {
       };
     };
     Mounts: Array<{
-      Name?: string | undefined;
+      Name?: string;
       Source: string;
       Destination: string;
       Mode: string;
@@ -1331,7 +1420,7 @@ declare module '@podman-desktop/api' {
       Image: string;
       Volumes: { [volume: string]: unknown };
       WorkingDir: string;
-      Entrypoint?: string | string[] | undefined;
+      Entrypoint?: string | string[];
       OnBuild?: unknown;
       Labels: { [label: string]: string };
     };
@@ -1374,17 +1463,15 @@ declare module '@podman-desktop/api' {
           MacAddress: string;
         };
       };
-      Node?:
-        | {
-            ID: string;
-            IP: string;
-            Addr: string;
-            Name: string;
-            Cpus: number;
-            Memory: number;
-            Labels: unknown;
-          }
-        | undefined;
+      Node?: {
+        ID: string;
+        IP: string;
+        Addr: string;
+        Name: string;
+        Cpus: number;
+        Memory: number;
+        Labels: unknown;
+      };
     };
   }
 
@@ -1398,6 +1485,8 @@ declare module '@podman-desktop/api' {
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
+    export function startContainer(engineId: string, id: string): Promise<void>;
+    export function stopContainer(engineId: string, id: string): Promise<void>;
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
     export const onEvent: Event<ContainerJSONEvent>;
   }
@@ -1532,6 +1621,8 @@ declare module '@podman-desktop/api' {
      * If not specified, will default to false.
      */
     readonly supportsMultipleAccounts?: boolean;
+
+    readonly images?: ProviderImages;
   }
 
   /**
@@ -1685,6 +1776,14 @@ declare module '@podman-desktop/api' {
     export const onDidChangeTelemetryEnabled: Event<boolean>;
 
     /**
+     * Opens a link externally using the default application. Depending on the
+     *
+     * @param target The uri that should be opened.
+     * @returns A promise indicating if open was successful.
+     */
+    export function openExternal(uri: Uri): Promise<boolean>;
+
+    /**
      * Creates a new {@link TelemetryLogger telemetry logger}.
      *
      * @param sender The telemetry sender that is used by the telemetry logger.
@@ -1692,6 +1791,11 @@ declare module '@podman-desktop/api' {
      * @returns A new telemetry logger
      */
     export function createTelemetryLogger(sender?: TelemetrySender, options?: TelemetryLoggerOptions): TelemetryLogger;
+
+    /**
+     * The system clipboard.
+     */
+    export const clipboard: Clipboard;
   }
 
   /**
@@ -1821,5 +1925,22 @@ declare module '@podman-desktop/api' {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly additionalCommonProperties?: Record<string, any>;
+  }
+
+  /**
+   * The clipboard provides read and write access to the system's clipboard.
+   */
+  export interface Clipboard {
+    /**
+     * Read the current clipboard contents as text.
+     * @returns A Promise that resolves to a string.
+     */
+    readText(): Promise<string>;
+
+    /**
+     * Writes text into the clipboard.
+     * @returns A Promise that resolves when writing happened.
+     */
+    writeText(value: string): Promise<void>;
   }
 }

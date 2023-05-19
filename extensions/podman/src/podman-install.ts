@@ -24,8 +24,7 @@ import { compare } from 'compare-versions';
 
 import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
-import { execPromise } from './podman-cli';
-import { getPodmanInstallation } from './podman-cli';
+import { execPromise, getPodmanInstallation } from './podman-cli';
 import { getAssetsFolder, runCliCommand } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
@@ -54,7 +53,7 @@ export class PodmanInfoImpl implements PodmanInfo {
   set podmanVersion(version: string) {
     if (this.podmanInfo.podmanVersion !== version) {
       this.podmanInfo.podmanVersion = version;
-      this.writeInfo();
+      this.writeInfo().catch((err: unknown) => console.error('Unable to write Podman Version', err));
     }
   }
 
@@ -65,7 +64,7 @@ export class PodmanInfoImpl implements PodmanInfo {
   set lastUpdateCheck(lastCheck: number) {
     if (this.podmanInfo.lastUpdateCheck !== lastCheck) {
       this.podmanInfo.lastUpdateCheck = lastCheck;
-      this.writeInfo();
+      this.writeInfo().catch((err: unknown) => console.error('Unable to write Podman Version', err));
     }
   }
 
@@ -80,7 +79,7 @@ export class PodmanInfoImpl implements PodmanInfo {
   set ignoreVersionUpdate(version: string) {
     if (this.podmanInfo.ignoreVersionUpdate !== version) {
       this.podmanInfo.ignoreVersionUpdate = version;
-      this.writeInfo();
+      this.writeInfo().catch((err: unknown) => console.error('Unable to write Podman Version', err));
     }
   }
 
@@ -150,11 +149,7 @@ export class PodmanInstall {
     const installer = this.getInstaller();
     const bundledVersion = getBundledPodmanVersion();
 
-    if (
-      installer &&
-      installer.requireUpdate(installedVersion) &&
-      this.podmanInfo.ignoreVersionUpdate !== bundledVersion
-    ) {
+    if (installer?.requireUpdate(installedVersion) && this.podmanInfo.ignoreVersionUpdate !== bundledVersion) {
       return { installedVersion, hasUpdate: true, bundledVersion };
     }
     return { installedVersion, hasUpdate: false, bundledVersion };
@@ -270,7 +265,6 @@ class WinInstaller extends BaseInstaller {
   update(): Promise<boolean> {
     return this.install();
   }
-  // `podman-${tagVersion}-setup.exe`
   install(): Promise<boolean> {
     return extensionApi.window.withProgress({ location: extensionApi.ProgressLocation.APP_ICON }, async progress => {
       progress.report({ increment: 5 });
@@ -479,21 +473,14 @@ class WSL2Check extends BaseCheck {
     const res = await execPromise('powershell.exe', [
       '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
     ]);
-    if (res.trim() === 'True') {
-      return true;
-    }
-
-    return false;
+    return res.trim() === 'True';
   }
 
   private async isWSLPresent(): Promise<boolean> {
     try {
       const res = await execPromise('wsl', ['--set-default-version', '2'], { env: { WSL_UTF8: '1' } });
       const output = this.normalizeOutput(res);
-      if (!output) {
-        return false;
-      }
-      return true;
+      return !!output;
     } catch (error) {
       return false;
     }
