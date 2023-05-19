@@ -22,6 +22,7 @@ import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { expect, test, vi } from 'vitest';
 import type { VolumeInspectInfo } from '../../../main/src/plugin/api/volume-info';
+import { fetchVolumes, initWindowFetchVolumes, volumeListInfos } from './volumes';
 
 // first, path window object
 const callbacks = new Map<string, any>();
@@ -44,11 +45,13 @@ Object.defineProperty(global, 'window', {
   writable: true,
 });
 
-// do the import now to make sure the window object is initialized before
-import { volumeListInfos } from './volumes';
-
 beforeAll(() => {
   vi.clearAllMocks();
+});
+
+beforeEach(() => {
+  // init the store
+  initWindowFetchVolumes();
 });
 
 test('volumes should be updated in case of a container is removed', async () => {
@@ -65,10 +68,15 @@ test('volumes should be updated in case of a container is removed', async () => 
     } as unknown as VolumeInspectInfo,
   ]);
 
-  const callback = callbacks.get('system-ready');
-  // send 'system-ready' event
+  const callback = callbacks.get('extensions-already-started');
+  // send 'extensions-already-started' event
   expect(callback).toBeDefined();
   await callback();
+
+  // now ready to fetch volumes
+  await fetchVolumes();
+
+  // now get list
   const volumes = get(volumeListInfos);
   expect(volumes.length).toBe(1);
   expect(volumes[0].Volumes.length).toBe(1);

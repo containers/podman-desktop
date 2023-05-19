@@ -247,7 +247,7 @@ function validateImageName(event): void {
               <button
                 class="pf-c-button pf-m-primary"
                 disabled="{!imageToPull || imageToPull.trim() === '' || pullInProgress}"
-                type="button"
+                type="submit"
                 on:click="{() => pullImage()}">
                 {#if pullInProgress === true}
                   <i class="pf-c-button__progress">

@@ -130,54 +130,6 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
           </button>
         </div>
 
-        <div class="py-2 flex flex:row">
-          <!-- start is enabled only in stopped mode-->
-          {#if providerInfo?.lifecycleMethods.includes('start')}
-            <div class="px-2 text-sm italic text-gray-700">
-              <button
-                disabled="{providerInfo.status !== 'stopped'}"
-                on:click="{() => startProvider()}"
-                class="pf-c-button pf-m-primary"
-                type="button">
-                <span class="pf-c-button__icon pf-m-start">
-                  <i class="fas fa-play" aria-hidden="true"></i>
-                </span>
-                Start
-              </button>
-            </div>
-          {/if}
-
-          <!-- stop is enabled only in started mode-->
-          {#if providerInfo.lifecycleMethods.includes('stop')}
-            <div class="px-2 text-sm italic text-gray-700">
-              <button
-                disabled="{providerInfo.status !== 'started'}"
-                on:click="{() => stopProvider()}"
-                class="pf-c-button pf-m-primary"
-                type="button">
-                <span class="pf-c-button__icon pf-m-start">
-                  <i class="fas fa-stop" aria-hidden="true"></i>
-                </span>
-                Stop
-              </button>
-            </div>
-          {/if}
-          <div class="px-2 text-sm italic text-gray-700">
-            <button
-              type="button"
-              on:click="{() => {
-                showModal = providerInfo;
-                // startReceivinLogs(providerInfo);
-              }}"
-              class="pf-c-button pf-m-secondary">
-              <span class="pf-c-button__icon pf-m-start">
-                <i class="fas fa-history" aria-hidden="true"></i>
-              </span>
-              Show Logs
-            </button>
-          </div>
-        </div>
-
         {#if providerLifecycleError}
           <ErrorMessage error="{providerLifecycleError}" />
         {/if}

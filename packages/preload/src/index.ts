@@ -138,6 +138,10 @@ function initExposure(): void {
     return ipcInvoke('extension-system:isReady');
   });
 
+  contextBridge.exposeInMainWorld('extensionSystemIsExtensionsStarted', async (): Promise<boolean> => {
+    return ipcInvoke('extension-system:isExtensionsStarted');
+  });
+
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
     return ipcInvoke('container-provider-registry:listContainers');
   });

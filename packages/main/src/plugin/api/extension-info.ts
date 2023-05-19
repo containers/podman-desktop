@@ -16,6 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export interface ExtensionError {
+  message: string;
+  stack?: string;
+}
+
 export interface ExtensionInfo {
   id: string;
   name: string;
@@ -25,5 +30,6 @@ export interface ExtensionInfo {
   removable: boolean;
   version: string;
   state: string;
+  error?: ExtensionError;
   path: string;
 }

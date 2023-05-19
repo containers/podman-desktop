@@ -30,7 +30,7 @@ Consider importing saved containers to continue using familiar containers.
     <TabItem value="docker" label="Docker">
 
   ```shell-session
-  $ docker save <your_container> > <your_container_archive>.tar
+  $ docker export <your_container> > <your_container_archive>.tar
   ```
 
     </TabItem>

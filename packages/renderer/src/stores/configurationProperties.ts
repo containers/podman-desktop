@@ -31,15 +31,17 @@ export async function fetchConfigurationProperties() {
 
 export const configurationProperties: Writable<IConfigurationPropertyRecordedSchema[]> = writable([]);
 
-window.events?.receive('extensions-started', () => {
-  fetchConfigurationProperties();
+window.events?.receive('extensions-started', async () => {
+  await fetchConfigurationProperties();
 });
-window.events?.receive('extension-started', () => {
-  fetchConfigurationProperties();
+window.events?.receive('extension-started', async () => {
+  await fetchConfigurationProperties();
 });
-window.events?.receive('extension-stopped', () => {
-  fetchConfigurationProperties();
+window.events?.receive('extension-stopped', async () => {
+  await fetchConfigurationProperties();
 });
 window.addEventListener('system-ready', () => {
-  fetchConfigurationProperties();
+  fetchConfigurationProperties().catch((error: unknown) => {
+    console.error('Failed to fetch configuration properties', error);
+  });
 });

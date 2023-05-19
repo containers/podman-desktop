@@ -57,7 +57,7 @@ beforeAll(() => {
 
 test('Expect that the create button is available', async () => {
   const callback = vi.fn();
-  await render(PreferencesConnectionCreationRendering, {
+  render(PreferencesConnectionCreationRendering, {
     properties,
     providerInfo,
     propertyScope,
@@ -83,6 +83,7 @@ test('Expect create connection successfully', async () => {
     providedKeyLogger = keyLogger;
   });
 
+  // eslint-disable-next-line @typescript-eslint/await-thenable
   await render(PreferencesConnectionCreationRendering, {
     properties,
     providerInfo,
@@ -144,7 +145,7 @@ test('Expect cancelling the creation, trigger the cancellation token', async () 
     providedKeyLogger = keyLogger;
   });
 
-  await render(PreferencesConnectionCreationRendering, {
+  render(PreferencesConnectionCreationRendering, {
     properties,
     providerInfo,
     propertyScope,

@@ -8,7 +8,7 @@ export let searchEnabled: boolean = true;
   <div class="min-w-full pt-4" class:pb-4="{!searchEnabled}">
     <div class="flex">
       <div class="px-5">
-        <p class="text-xl first-letter:uppercase">{title}</p>
+        <h1 aria-label="{title}" class="text-xl first-letter:uppercase">{title}</h1>
       </div>
       <div class="flex flex-1 justify-end">
         <div class="px-5">

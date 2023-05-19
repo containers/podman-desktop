@@ -25,7 +25,7 @@
       "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAXCAYAAACBMvbiAAAAAXNSR0IArs4c6QAAA4dJREFUSInVlj1MG2cYx3+POWRTjAtS76Ii1OB4iORQQZQBhkoBQVFV4eSG7KFVOxuvZeqQjDm6I5UuZQwNHSo+BGzOBFUJUiMZDKJUsivxUaxi2eHJYO5wDiclUlypz3R3z/ve+3v/z//9EOocI/NOvyj3Veh0v4mSLTXy7S8DqWx1W6kHgL3ktJZLel+QMaogLoTyxexwaqouMJ/POT0NkESwgdbL9FEY+PnT1DKA4U/aS05r6YXeDZxKvyutKFkVsqK6XGqUbVdee8lpfVHSbhXpR7FF6HnbCYjyPRAFnzKJBcfmFOeN0tYhXHUCHsi846A8/q9BAER1FM7KlJhzRoExf6Px7gTvGUG+ezZH7uSonjydAAF7yWlFcPzZaNik14xxpSlC7uSIXjNGMj5MsxGsG1GgVGaUGs4fbI8DkM5lABhqjzPYHscKReoGYwRUbeTiCu+zYhWYfAXmp51VFvY22DrO09XWQaFUpFAuYoVaWD/4AysU8Z7daDaCRMMfsHX8lzeJreN8LY4s1FjawNmPIxTKRdb3d+k1Y4x3J5h8voIVivDw1j0K5aJXsnQ+Q59ZgZ/eTDO9mWbwwzhfXb9NsxFk8+8811pMnuYzPPh1tsaIsgwQqJG5oIr3nsu8klv8cwOAK00RJp+vAHCtxcQKRUjeGPbgwo1Br78/FD1saGTm9TDm+eDue+7kiNzJkeelyd9XKJSKAPyYSXvPv+3vcuejmwBMPJtjejNN7p8jL9drxny+k4mZgdRBBUY48MN0tXUAsL6/S/JGZQWlcxmiYZNouCJ3oVykz4pRKBd5ms8QbTEvqFcoF4mGTbraOtg6ztNsBPn6+m1vm1B02zCYcMc1UJlBuFsN4/ph8pMvPV/0WrFXVpjrq+pSAXzTnfD6PLx1z/unFYow3pPgwdq5Z05VbFcVODsORuYfZQW5Wq2MW5rFvQ0G2+NEW0xP7ic7q1ihCH1WjHQuw9ZxnmjY5M7Vm6RzGdb3d71tYHFvA6spwsdtHTzZWT3fPH0ntgeTWHBslMf+ctUjFD0Esd2TujoCALNDqRlUf6g/ia6UDempBQK+U3tk7tGEiCTfOQN6KCpj/rK8EQYqJVPVKUHefwcQ24pMNBpMVRv10jBwdsEqMyroWLWxLwlwKLCMyNTsUGrmbfr+67XzsyWns6GMHVDtgdp3HYU1FckKrL3OD/+7eAnqDndgp5Fs2AAAAABJRU5ErkJggg=="
     },
     {
-      "extensionId": "crc-org.openshift-local",
+      "extensionId": "redhat.openshift-local",
       "displayName": "OpenShift Local",
       "shortDescription": "Run a local Red Hat OpenShift environment on your machine",
       "categories": ["Kubernetes"],

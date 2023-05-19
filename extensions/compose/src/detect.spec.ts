@@ -97,7 +97,7 @@ describe('Check default socket path', async () => {
     (osMock.isLinux as Mock).mockReturnValue(true);
     (osMock.isMac as Mock).mockReturnValue(false);
     (osMock.isWindows as Mock).mockReturnValue(false);
-    const result = await detect.getSocketPath();
+    const result = detect.getSocketPath();
     expect(result).toBe('/var/run/docker.sock');
   });
 
@@ -105,7 +105,7 @@ describe('Check default socket path', async () => {
     (osMock.isLinux as Mock).mockReturnValue(false);
     (osMock.isMac as Mock).mockReturnValue(true);
     (osMock.isWindows as Mock).mockReturnValue(false);
-    const result = await detect.getSocketPath();
+    const result = detect.getSocketPath();
     expect(result).toBe('/var/run/docker.sock');
   });
 
@@ -113,7 +113,7 @@ describe('Check default socket path', async () => {
     (osMock.isLinux as Mock).mockReturnValue(false);
     (osMock.isMac as Mock).mockReturnValue(false);
     (osMock.isWindows as Mock).mockReturnValue(true);
-    const result = await detect.getSocketPath();
+    const result = detect.getSocketPath();
     expect(result).toBe('//./pipe/docker_engine');
   });
 });

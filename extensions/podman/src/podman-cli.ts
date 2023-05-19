@@ -58,7 +58,7 @@ export function getCustomBinaryPath(): string | undefined {
 
 export interface ExecOptions {
   logger?: Logger;
-  env?: NodeJS.ProcessEnv | undefined;
+  env?: NodeJS.ProcessEnv;
 }
 
 export function execPromise(

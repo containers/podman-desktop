@@ -21,6 +21,31 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
       <!-- Registered Authentication Provider row start -->
       <div class="flex flex-col w-full">
         <div class="flex rounded-md border-0" style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))">
+          <div class="ml-4 flex items-center">
+            <div class="flex">
+              {#if provider?.images?.icon}
+                {#if typeof provider.images.icon === 'string'}
+                  <img
+                    src="{provider.images.icon}"
+                    alt="{provider.displayName}"
+                    aria-label="Icon for {provider.displayName} provider"
+                    class="max-w-[40px] h-full" />
+                  <!-- TODO check theme used for image, now use dark by default -->
+                {:else}
+                  <img
+                    src="{provider.images.icon.dark}"
+                    alt="Dark color theme icon for {provider.displayName} provider"
+                    class="max-w-[40px]" />
+                {/if}
+              {:else}
+                <svelte:component
+                  this="{KeyIcon}"
+                  size="40"
+                  alt="{provider.displayName}"
+                  aria-label="Default icon for {provider.displayName} provider" />
+              {/if}
+            </div>
+          </div>
           <!-- Authentication Provider name and status item start -->
           <div class="px-5 py-2 text-sm w-1/3 m-auto">
             <div class="flex flex-col">

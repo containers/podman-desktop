@@ -17,7 +17,8 @@
 }
 .tooltip.right {
   right: 0;
-  transform: translateX(100%);
+  transform: translate(100%, -50%);
+  margin-top: -10px;
   margin-right: -8px;
 }
 .tooltip.top-left {
@@ -40,12 +41,12 @@ export let bottom = false;
 export let left = false;
 </script>
 
-<div class="relative inline-block">
+<div class="relative inline-block z-[10]">
   <span class="group tooltip-slot">
     <slot />
   </span>
   <div
-    class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out"
+    class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out pointer-events-none"
     class:left="{left}"
     class:right="{right}"
     class:bottom="{bottom}"

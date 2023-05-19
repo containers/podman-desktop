@@ -23,8 +23,7 @@ import type * as Dockerode from 'dockerode';
 import type { Telemetry } from './telemetry/telemetry';
 import * as crypto from 'node:crypto';
 import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
-import got, { HTTPError } from 'got';
-import { RequestError } from 'got';
+import got, { HTTPError, RequestError } from 'got';
 import validator from 'validator';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import type { Certificates } from './certificates';
@@ -143,10 +142,12 @@ export class ImageRegistry {
 
   registerRegistry(registry: containerDesktopAPI.Registry): Disposable {
     this.registries = [...this.registries, registry];
-    this.telemetryService.track('registerRegistry', {
-      serverUrl: this.getRegistryHash(registry),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('registerRegistry', {
+        serverUrl: this.getRegistryHash(registry),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     this.apiSender.send('registry-register', registry);
     this._onDidRegisterRegistry.fire(Object.freeze({ ...registry }));
     return Disposable.create(() => {
@@ -194,10 +195,12 @@ export class ImageRegistry {
       this.registries = filtered;
       this.apiSender.send('registry-unregister', registry);
     }
-    this.telemetryService.track('unregisterRegistry', {
-      serverUrl: this.getRegistryHash(registry),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('unregisterRegistry', {
+        serverUrl: this.getRegistryHash(registry),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
   }
 
   getRegistries(): readonly containerDesktopAPI.Registry[] {
@@ -223,28 +226,43 @@ export class ImageRegistry {
     providerName: string,
     registryCreateOptions: containerDesktopAPI.RegistryCreateOptions,
   ): Promise<Disposable> {
-    const provider = this.providers.get(providerName);
-    if (!provider) {
-      throw new Error(`Provider ${providerName} not found`);
-    }
+    let telemetryOptions = {};
+    try {
+      const provider = this.providers.get(providerName);
+      if (!provider) {
+        throw new Error(`Provider ${providerName} not found`);
+      }
 
-    const exists = this.registries.find(
-      registry => registry.serverUrl === registryCreateOptions.serverUrl && registry.source === providerName,
-    );
-    if (exists) {
-      throw new Error(`Registry ${registryCreateOptions.serverUrl} already exists`);
+      const exists = this.registries.find(
+        registry => registry.serverUrl === registryCreateOptions.serverUrl && registry.source === providerName,
+      );
+      if (exists) {
+        throw new Error(`Registry ${registryCreateOptions.serverUrl} already exists`);
+      }
+      await this.checkCredentials(
+        registryCreateOptions.serverUrl,
+        registryCreateOptions.username,
+        registryCreateOptions.secret,
+      );
+      const registry = provider.create(registryCreateOptions);
+      return this.registerRegistry(registry);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track(
+          'createRegistry',
+          Object.assign(
+            {
+              serverUrlHash: this.getRegistryHash(registryCreateOptions),
+              total: this.registries.length,
+            },
+            telemetryOptions,
+          ),
+        )
+        .catch((err: unknown) => console.error('Unable to track', err));
     }
-    await this.checkCredentials(
-      registryCreateOptions.serverUrl,
-      registryCreateOptions.username,
-      registryCreateOptions.secret,
-    );
-    const registry = provider.create(registryCreateOptions);
-    this.telemetryService.track('createRegistry', {
-      serverUrlHash: this.getRegistryHash(registryCreateOptions),
-      total: this.registries.length,
-    });
-    return this.registerRegistry(registry);
   }
 
   async updateRegistry(registry: containerDesktopAPI.Registry): Promise<void> {
@@ -260,10 +278,12 @@ export class ImageRegistry {
     }
     matchingRegistry.username = registry.username;
     matchingRegistry.secret = registry.secret;
-    this.telemetryService.track('updateRegistry', {
-      serverUrl: this.getRegistryHash(matchingRegistry),
-      total: this.registries.length,
-    });
+    this.telemetryService
+      .track('updateRegistry', {
+        serverUrl: this.getRegistryHash(matchingRegistry),
+        total: this.registries.length,
+      })
+      .catch((err: unknown) => console.error('Unable to track', err));
     this.apiSender.send('registry-update', registry);
     this._onDidUpdateRegistry.fire(Object.freeze(registry));
   }
@@ -278,7 +298,7 @@ export class ImageRegistry {
       /(?<scheme>Bearer|Basic) realm="(?<realm>[^"]+)"(,service="(?<service>[^"]+)")?(,scope="(?<scope>[^"]+)")?/;
 
     const parsed = WWW_AUTH_REGEXP.exec(wwwAuthenticate);
-    if (parsed && parsed.groups) {
+    if (parsed?.groups) {
       const { realm, service, scope, scheme } = parsed.groups;
       return { authUrl: realm, service, scope, scheme };
     }
@@ -298,8 +318,8 @@ export class ImageRegistry {
     if (this.proxyEnabled) {
       // use proxy when performing got request
       const proxy = this.proxySettings;
-      const httpProxyUrl = proxy && proxy.httpProxy;
-      const httpsProxyUrl = proxy && proxy.httpsProxy;
+      const httpProxyUrl = proxy?.httpProxy;
+      const httpsProxyUrl = proxy?.httpsProxy;
 
       if (httpProxyUrl) {
         if (!options.agent) {
@@ -401,7 +421,7 @@ export class ImageRegistry {
 
   // Fetch the image Labels from the registry for a given image URL
   async getImageConfigLabels(imageName: string): Promise<{ [key: string]: unknown }> {
-    const imageData = await this.extractImageDataFromImageName(imageName);
+    const imageData = this.extractImageDataFromImageName(imageName);
 
     // grab auth info from the registry
     const authInfo = await this.getAuthInfo(imageData.registry);
@@ -421,7 +441,11 @@ export class ImageRegistry {
     if (!configManifest.digest) {
       throw new Error(`No digest found for config manifest for ${imageName}`);
     }
-    if (configManifest.mediaType !== 'application/vnd.oci.image.config.v1+json') {
+    // check the media type
+    if (
+      configManifest.mediaType !== 'application/vnd.oci.image.config.v1+json' &&
+      configManifest.mediaType !== 'application/vnd.docker.container.image.v1+json'
+    ) {
       throw new Error(`Invalid media type for config manifest for ${imageName}`);
     }
 
@@ -437,7 +461,7 @@ export class ImageRegistry {
     destFolder: string,
     logger: (message: string) => void,
   ): Promise<void> {
-    const imageData = await this.extractImageDataFromImageName(imageName);
+    const imageData = this.extractImageDataFromImageName(imageName);
 
     // grab auth info from the registry
     const authInfo = await this.getAuthInfo(imageData.registry);
@@ -452,7 +476,9 @@ export class ImageRegistry {
     // now, get all layers 'application/vnd.oci.image.layer.v1.tar+gzip' and download and expand them
     const layers = manifest.layers.filter(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (layer: any) => layer.mediaType === 'application/vnd.oci.image.layer.v1.tar+gzip',
+      (layer: any) =>
+        layer.mediaType === 'application/vnd.oci.image.layer.v1.tar+gzip' ||
+        layer.mediaType === 'application/vnd.docker.image.rootfs.diff.tar.gzip',
     );
 
     // total size of all layers
@@ -608,8 +634,7 @@ export class ImageRegistry {
         const matchedManifestDigest = matchedManifest.digest;
         // now, grab the manifest corresponding to the digest
         const manifestURL = `${imageData.registryURL}/${imageData.name}/manifests/${matchedManifestDigest}`;
-        const manifestResponse = await this.getManifestFromURL(manifestURL, imageData, token);
-        return manifestResponse;
+        return this.getManifestFromURL(manifestURL, imageData, token);
       }
       throw new Error('Unable to find a manifest corresponding to the platform/architecture');
     }
@@ -702,8 +727,14 @@ export class ImageRegistry {
     const options = this.getOptions();
 
     // need to replace repository%3Auser with repository:user coming from imageData
-    const tokenUrl = authInfo.authUrl.replace('user%2Fimage', imageData.name.replaceAll('/', '%2F'));
+    let tokenUrl = authInfo.authUrl.replace('user%2Fimage', imageData.name.replaceAll('/', '%2F'));
 
+    // no scope ? we add it
+    if (!tokenUrl.includes('scope')) {
+      const url = new URL(tokenUrl);
+      url.searchParams.set('scope', `repository:${imageData.name}:pull`);
+      tokenUrl = url.toString();
+    }
     try {
       const { body } = await got.get(tokenUrl, options);
       rawResponse = body;

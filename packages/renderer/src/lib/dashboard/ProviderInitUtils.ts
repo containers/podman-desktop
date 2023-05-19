@@ -15,8 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { faPlay } from '@fortawesome/free-solid-svg-icons';
-import { faWrench } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faWrench } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 
 export const InitializeOnlyMode = 'Initialize';

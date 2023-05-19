@@ -96,8 +96,13 @@ async function monitorDaemon(extensionContext: extensionApi.ExtensionContext): P
       // ignore the update of machines
     }
     await timeout(5000);
-    monitorDaemon(extensionContext).catch(err => {
+    monitorDaemon(extensionContext).catch((err: unknown) => {
       console.error('Error while monitoring docker daemon', err);
+      if (err instanceof Error) {
+        extensionApi.env.createTelemetryLogger().logError(err);
+      } else {
+        extensionApi.env.createTelemetryLogger().logError(err.toString());
+      }
     });
   }
 }
@@ -146,8 +151,13 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }
 
   // monitor daemon
-  monitorDaemon(extensionContext).catch(err => {
+  monitorDaemon(extensionContext).catch((err: unknown) => {
     console.error('Error while monitoring docker daemon', err);
+    if (err instanceof Error) {
+      extensionApi.env.createTelemetryLogger().logError(err);
+    } else {
+      extensionApi.env.createTelemetryLogger().logError(err.toString());
+    }
   });
 }
 

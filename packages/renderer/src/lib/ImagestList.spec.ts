@@ -34,10 +34,13 @@ beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
   (window as any).updateConfigurationValue = vi.fn();
   (window as any).getContributedMenus = vi.fn();
-  (window as any).onDidUpdateProviderStatus = vi.fn();
+  const onDidUpdateProviderStatusMock = vi.fn();
+  (window as any).onDidUpdateProviderStatus = onDidUpdateProviderStatusMock;
+  onDidUpdateProviderStatusMock.mockImplementation(() => Promise.resolve());
   (window as any).hasAuthconfigForImage = vi.fn();
   (window as any).hasAuthconfigForImage.mockImplementation(() => Promise.resolve(false));
 
+  (window as any).listContainers = vi.fn();
   (window as any).listImages = listImagesMock;
   (window as any).getProviderInfos = getProviderInfosMock;
 
@@ -57,7 +60,7 @@ async function waitRender(customProperties: object): Promise<void> {
 }
 
 test('Expect no container engines being displayed', async () => {
-  await render(ImagesList);
+  render(ImagesList);
   const noEngine = screen.getByRole('heading', { name: 'No Container Engine' });
   expect(noEngine).toBeInTheDocument();
 });
@@ -107,6 +110,7 @@ test('Expect images being ordered by newest first', async () => {
     },
   ]);
 
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('image-build'));
 

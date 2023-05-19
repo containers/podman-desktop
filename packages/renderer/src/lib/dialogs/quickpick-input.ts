@@ -36,6 +36,8 @@ export interface InputBoxOptions {
   // if true, the input box will be validated on each keystroke
   validate: boolean;
   prompt: string;
+  markdownDescription?: string;
+  multiline: boolean;
   id: number;
   title?: string;
 }

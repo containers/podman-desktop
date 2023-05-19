@@ -30,10 +30,13 @@ async function grabfilenameforMac(
   const universalMacAirgapDmgAssets = assets.filter(
     asset => (asset.name as string).endsWith('universal.dmg') && asset.name.includes('airgap'),
   );
+  // temporary fix to restore regular Mac downloads even if airgap is not available
+  let universalMacAirgapDmgAsset;
   if (universalMacAirgapDmgAssets.length !== 1) {
-    throw new Error('Unable to find Apple Disk Image for restricted environments');
+    console.log('Error: Unable to find Apple Disk Image for restricted environments');
+  } else {
+    universalMacAirgapDmgAsset = universalMacAirgapDmgAssets[0];
   }
-  const universalMacAirgapDmgAsset = universalMacAirgapDmgAssets[0];
 
   const universalMacDmgResults = assets.filter(
     asset =>
@@ -51,7 +54,7 @@ async function grabfilenameforMac(
     universal: unifiedMacLinj.browser_download_url,
     x64: intelLink.browser_download_url,
     arm64: armLink.browser_download_url,
-    airgapsetup: universalMacAirgapDmgAsset.browser_download_url,
+    airgapsetup: universalMacAirgapDmgAsset?.browser_download_url,
   };
   setDownloadData(data);
 }
@@ -62,6 +65,7 @@ export function MacOSDownloads(): JSX.Element {
     universal: '',
     x64: '',
     arm64: '',
+    airgapsetup: '',
   });
 
   const copyBrewInstructions = async () => {
@@ -69,7 +73,7 @@ export function MacOSDownloads(): JSX.Element {
   };
 
   useEffect(() => {
-    grabfilenameforMac(setDownloadData).catch(err => {
+    grabfilenameforMac(setDownloadData).catch((err: unknown) => {
       console.error(err);
     });
   }, []);
@@ -131,7 +135,11 @@ export function MacOSDownloads(): JSX.Element {
                         size="xs"
                         icon={faPaste}
                         className="ml-3  cursor-pointer text-xl  text-white-500"
-                        onClick={() => copyBrewInstructions()}
+                        onClick={() => {
+                          copyBrewInstructions().catch((err: unknown) => {
+                            console.error('unable to copy instructions', err);
+                          });
+                        }}
                       />
                     </button>
                   </p>

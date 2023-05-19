@@ -71,7 +71,7 @@ app.on('web-contents-created', (_, contents) => {
    *
    * @see https://www.electronjs.org/docs/latest/tutorial/security#13-disable-or-limit-navigation
    */
-  contents.on('will-navigate', async (event, url) => {
+  contents.on('will-navigate', (event, url) => {
     const { origin } = new URL(url);
     if (ALLOWED_ORIGINS_AND_PERMISSIONS.has(origin)) {
       return;
@@ -84,7 +84,9 @@ app.on('web-contents-created', (_, contents) => {
 
     // handled
     if (handler) {
-      await securityRestrictionCurrentHandler.handler?.(url);
+      securityRestrictionCurrentHandler.handler?.(url).catch((error: unknown) => {
+        console.error('Error in security restriction handler:', error);
+      });
       return;
     }
 
@@ -134,31 +136,4 @@ app.on('web-contents-created', (_, contents) => {
     // Prevent creating new window in application
     return { action: 'deny' };
   });
-
-  /**
-   * Verify webview options before creation
-   *
-   * Strip away preload scripts, disable Node.js integration, and ensure origins are on the allowlist.
-   *
-   * @see https://www.electronjs.org/docs/latest/tutorial/security#12-verify-webview-options-before-creation
-   */
-  // contents.on('will-attach-webview', (event, webPreferences, params) => {
-  //   const { origin } = new URL(params.src);
-  //   if (!ALLOWED_ORIGINS_AND_PERMISSIONS.has(origin)) {
-  //     if (import.meta.env.DEV) {
-  //       console.warn(`A webview tried to attach ${params.src}, but was blocked.`);
-  //     }
-
-  //     //event.preventDefault();
-  //     // return;
-  //   }
-
-  //   // Strip away preload scripts if unused or verify their location is legitimate
-  //   delete webPreferences.preload;
-  //   // @ts-expect-error `preloadURL` exists - see https://www.electronjs.org/docs/latest/api/web-contents#event-will-attach-webview
-  //   delete webPreferences.preloadURL;
-
-  //   // Disable Node.js integration
-  //   webPreferences.nodeIntegration = false;
-  // });
 });

@@ -95,18 +95,19 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     // Find the podman-mac-helper binary
     const podmanHelperBinary = this.findPodmanHelper();
     if (podmanHelperBinary === '') {
-      extensionApi.window.showErrorMessage('podman-mac-helper binary not found.', 'OK');
+      await extensionApi.window.showErrorMessage('podman-mac-helper binary not found.', 'OK');
       return;
     }
 
     const fullCommand = `${podmanHelperBinary} ${command}`;
     try {
       await this.runSudoMacHelperCommand(fullCommand);
-      extensionApi.window.showInformationMessage(`Docker socket compatibility mode for Podman has been ${description}.
+      await extensionApi.window
+        .showInformationMessage(`Docker socket compatibility mode for Podman has been ${description}.
       Restart your Podman machine to apply the changes.`);
     } catch (error) {
       console.error(`Error running podman-mac-helper: ${error}`);
-      extensionApi.window.showErrorMessage(`Error running podman-mac-helper: ${error}`, 'OK');
+      await extensionApi.window.showErrorMessage(`Error running podman-mac-helper: ${error}`, 'OK');
     }
   }
 

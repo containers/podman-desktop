@@ -69,7 +69,7 @@ test('darwin: DarwinSocketCompatibility class, test runSudoMacHelperCommand ran 
   });
 
   // Run the command
-  socketCompatClass.runCommand('enable', 'enabled');
+  await socketCompatClass.runCommand('enable', 'enabled');
 
   // Expect that mac helper command was ran
   expect(spyMacHelperCommand).toHaveBeenCalled();
@@ -87,10 +87,7 @@ test('darwin: mock fs.existsSync returns /usr/local/bin/podman-mac-helper', asyn
   vi.mock('fs', () => {
     return {
       existsSync: (path: string) => {
-        if (path === '/usr/local/bin/podman-mac-helper') {
-          return true;
-        }
-        return false;
+        return path === '/usr/local/bin/podman-mac-helper';
       },
     };
   });

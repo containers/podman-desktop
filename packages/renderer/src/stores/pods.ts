@@ -20,7 +20,14 @@ import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
 import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { findMatchInLeaves } from './search-util';
+
+let readyToUpdate = false;
+
 export async function fetchPods() {
+  // do not fetch until extensions are all started
+  if (!readyToUpdate) {
+    return;
+  }
   let result = await window.listPods();
   try {
     const pods = await window.kubernetesListPods();
@@ -39,36 +46,46 @@ export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $i
 });
 
 // need to refresh when extension is started or stopped
-window.events?.receive('extension-started', () => {
-  fetchPods();
+window.events?.receive('extension-started', async () => {
+  await fetchPods();
 });
-window.events?.receive('extension-stopped', () => {
-  fetchPods();
-});
-
-window.events?.receive('container-stopped-event', () => {
-  fetchPods();
+window.events?.receive('extension-stopped', async () => {
+  await fetchPods();
 });
 
-window.events?.receive('container-die-event', () => {
-  fetchPods();
+window.events?.receive('container-stopped-event', async () => {
+  await fetchPods();
 });
 
-window.events?.receive('container-kill-event', () => {
-  fetchPods();
+window.events?.receive('container-die-event', async () => {
+  await fetchPods();
 });
 
-window.events?.receive('container-started-event', () => {
-  fetchPods();
+window.events?.receive('container-kill-event', async () => {
+  await fetchPods();
 });
 
-window.events?.receive('provider-change', () => {
-  fetchPods();
+window.events?.receive('container-started-event', async () => {
+  await fetchPods();
 });
 
-window.events?.receive('pod-event', () => {
-  fetchPods();
+window.events?.receive('provider-change', async () => {
+  await fetchPods();
 });
-window.addEventListener('system-ready', () => {
-  fetchPods();
+
+window.events?.receive('pod-event', async () => {
+  await fetchPods();
+});
+
+window?.events?.receive('extensions-started', async () => {
+  readyToUpdate = true;
+  await fetchPods();
+});
+
+// if client is doing a refresh, we will receive this event and we need to update the data
+window.addEventListener('extensions-already-started', () => {
+  readyToUpdate = true;
+  fetchPods().catch((error: unknown) => {
+    console.error('Failed to fetch pods', error);
+  });
 });

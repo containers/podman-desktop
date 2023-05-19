@@ -69,7 +69,7 @@ export class ProgressImpl {
     );
   }
 
-  withWidget<R>(
+  async withWidget<R>(
     options: extensionApi.ProgressOptions,
     task: (
       progress: extensionApi.Progress<{ message?: string; increment?: number }>,
@@ -91,15 +91,16 @@ export class ProgressImpl {
       },
       new CancellationTokenImpl(),
     );
-    task_.then(() => {
+    await task_.then(async () => {
       t.status = 'success';
       t.state = 'completed';
       this.taskManager.updateTask(t);
     });
-    task_.catch(err => {
+
+    task_.catch((err: unknown) => {
       t.status = 'failure';
       t.state = 'completed';
-      t.error = err.toString();
+      t.error = String(err);
       this.taskManager.updateTask(t);
     });
     return task_;

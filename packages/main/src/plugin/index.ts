@@ -40,13 +40,11 @@ import type {
   ProviderKubernetesConnectionInfo,
 } from './api/provider-info';
 import type { WebContents } from 'electron';
-import { app } from 'electron';
-import { ipcMain, BrowserWindow } from 'electron';
+import { app, ipcMain, BrowserWindow, shell, clipboard } from 'electron';
 import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
 import type { ImageInfo } from './api/image-info';
 import type { PullEvent } from './api/pull-event';
 import type { ExtensionInfo } from './api/extension-info';
-import { shell } from 'electron';
 import type { ImageInspectInfo } from './api/image-inspect-info';
 import type { TrayMenu } from '../tray-menu';
 import { getFreePort } from './util/port';
@@ -93,7 +91,6 @@ import { MenuRegistry } from '/@/plugin/menu-registry';
 import { CancellationTokenRegistry } from './cancellation-token-registry';
 import type { UpdateCheckResult } from 'electron-updater';
 import { autoUpdater } from 'electron-updater';
-import { clipboard } from 'electron';
 import type { ApiSenderType } from './api';
 import type { AuthenticationProviderInfo } from './authentication';
 import { AuthenticationImpl } from './authentication';
@@ -116,6 +113,9 @@ export interface LoggerWithEnd extends containerDesktopAPI.Logger {
 export class PluginSystem {
   // ready is when we've finished to initialize extension system
   private isReady = false;
+
+  // ready when all extensions have been started
+  private isExtensionsStarted = false;
 
   // notified when UI is dom-ready
   private uiReady = false;
@@ -200,7 +200,6 @@ export class PluginSystem {
 
       if (toAppend != '') return `[${toAppend}]`;
     }
-    return;
   }
 
   // log locally and also send it to the renderer process
@@ -208,22 +207,26 @@ export class PluginSystem {
   redirectConsole(logType: LogType): void {
     // keep original method
     const originalConsoleMethod = console[logType];
-    console[logType] = async (...args) => {
-      const extName = await this.getExtName();
+    console[logType] = (...args) => {
+      this.getExtName()
+        .then(extName => {
+          if (extName) args.unshift(extName);
 
-      if (extName) args.unshift(extName);
+          // still display as before by invoking original method
+          originalConsoleMethod(...args);
 
-      // still display as before by invoking original method
-      originalConsoleMethod(...args);
-
-      // but also send the content remotely
-      if (!this.isQuitting) {
-        try {
-          this.getWebContentsSender().send('console:output', logType, ...args);
-        } catch (err) {
-          originalConsoleMethod(err);
-        }
-      }
+          // but also send the content remotely
+          if (!this.isQuitting) {
+            try {
+              this.getWebContentsSender().send('console:output', logType, ...args);
+            } catch (err) {
+              originalConsoleMethod(err);
+            }
+          }
+        })
+        .catch((err: unknown) => {
+          console.error('Error in redirectConsole', err);
+        });
     };
   }
 
@@ -237,15 +240,13 @@ export class PluginSystem {
     const queuedEvents: { channel: string; data: string }[] = [];
 
     const flushQueuedEvents = () => {
-      if (this.uiReady && this.isReady) {
-        // flush queued events ?
-        if (queuedEvents.length > 0) {
-          console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
-          queuedEvents.forEach(({ channel, data }) => {
-            webContents.send('api-sender', channel, data);
-          });
-          queuedEvents.length = 0;
-        }
+      // flush queued events ?
+      if (this.uiReady && this.isReady && queuedEvents.length > 0) {
+        console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
+        queuedEvents.forEach(({ channel, data }) => {
+          webContents.send('api-sender', channel, data);
+        });
+        queuedEvents.length = 0;
       }
     };
 
@@ -292,7 +293,7 @@ export class PluginSystem {
       );
 
       if (skipConfirmationUrl) {
-        shell.openExternal(url);
+        await shell.openExternal(url);
         return true;
       }
 
@@ -307,7 +308,7 @@ export class PluginSystem {
 
       if (result.response === 0) {
         // open externally the URL
-        shell.openExternal(url);
+        await shell.openExternal(url);
         return true;
       } else if (result.response === 1) {
         // copy to clipboard
@@ -325,6 +326,10 @@ export class PluginSystem {
       return this.isReady;
     });
 
+    this.ipcHandle('extension-system:isExtensionsStarted', async (): Promise<boolean> => {
+      return this.isExtensionsStarted;
+    });
+
     // redirect main process logs to the extension loader
     this.redirectLogging();
 
@@ -340,7 +345,7 @@ export class PluginSystem {
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
 
-    const commandRegistry = new CommandRegistry();
+    const commandRegistry = new CommandRegistry(telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const certificates = new Certificates();
     await certificates.init();
@@ -353,7 +358,7 @@ export class PluginSystem {
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
 
-    const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring);
+    const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
@@ -429,8 +434,8 @@ export class PluginSystem {
 
     // Register command 'version' that will display the current version and say that no update is available.
     // Only show the "no update available" command for macOS and Windows users, not linux users.
-    commandRegistry.registerCommand('version', () => {
-      messageBox.showMessageBox({
+    commandRegistry.registerCommand('version', async () => {
+      await messageBox.showMessageBox({
         type: 'info',
         title: 'Version',
         message: `Using version ${currentVersion}`,
@@ -474,19 +479,25 @@ export class PluginSystem {
         defaultVersionEntry();
       });
 
-      autoUpdater.on('update-downloaded', async () => {
+      autoUpdater.on('update-downloaded', () => {
         updateAlreadyDownloaded = true;
         updateInProgress = false;
-        const result = await messageBox.showMessageBox({
-          title: 'Update Downloaded',
-          message: 'Update downloaded, Do you want to restart Podman Desktop ?',
-          cancelId: 1,
-          type: 'info',
-          buttons: ['Restart', 'Cancel'],
-        });
-        if (result.response === 0) {
-          setImmediate(() => autoUpdater.quitAndInstall());
-        }
+        messageBox
+          .showMessageBox({
+            title: 'Update Downloaded',
+            message: 'Update downloaded, Do you want to restart Podman Desktop ?',
+            cancelId: 1,
+            type: 'info',
+            buttons: ['Restart', 'Cancel'],
+          })
+          .then(result => {
+            if (result.response === 0) {
+              setImmediate(() => autoUpdater.quitAndInstall());
+            }
+          })
+          .catch((error: unknown) => {
+            console.error('unable to show message box', error);
+          });
       });
 
       autoUpdater.on('error', error => {
@@ -510,12 +521,13 @@ export class PluginSystem {
       }
 
       // Create an interval to check for updates every 12 hours
-      setInterval(async () => {
-        try {
-          updateCheckResult = await autoUpdater.checkForUpdates();
-        } catch (error) {
-          console.log('unable to check for updates', error);
-        }
+      setInterval(() => {
+        autoUpdater
+          .checkForUpdates()
+          .then(result => (updateCheckResult = result))
+          .catch((error: unknown) => {
+            console.log('unable to check for updates', error);
+          });
       }, 1000 * 60 * 60 * 12);
 
       // Update will create a standard "autoUpdater" dialog / update process
@@ -563,7 +575,7 @@ export class PluginSystem {
             await autoUpdater.downloadUpdate();
           } catch (error) {
             console.error('Update error: ', error);
-            messageBox.showMessageBox({
+            await messageBox.showMessageBox({
               type: 'error',
               title: 'Update Failed',
               message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,
@@ -624,7 +636,7 @@ export class PluginSystem {
     const extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
     const featured = new Featured(this.extensionLoader, extensionsCatalog);
     // do not wait
-    featured.init().catch(e => {
+    featured.init().catch((e: unknown) => {
       console.error('Unable to initialized the featured extensions', e);
     });
 
@@ -1247,7 +1259,7 @@ export class PluginSystem {
         if (securityRestrictionCurrentHandler.handler) {
           await securityRestrictionCurrentHandler.handler(link);
         } else {
-          shell.openExternal(link);
+          await shell.openExternal(link);
         }
       },
     );
@@ -1567,11 +1579,19 @@ export class PluginSystem {
 
     apiSender.send('starting-extensions', `${this.isReady}`);
     console.log('System ready. Loading extensions...');
-    await this.extensionLoader.start();
-    console.log('PluginSystem: initialization done.');
-    apiSender.send('extensions-started');
-    autoStartConfiguration.start();
+    try {
+      await this.extensionLoader.start();
+      console.log('PluginSystem: initialization done.');
+    } finally {
+      apiSender.send('extensions-started');
+      this.markAsExtensionsStarted();
+    }
+    autoStartConfiguration.start().catch((err: unknown) => console.error('Unable to perform autostart', err));
     return this.extensionLoader;
+  }
+
+  markAsExtensionsStarted(): void {
+    this.isExtensionsStarted = true;
   }
 
   markAsReady(): void {

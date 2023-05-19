@@ -22,9 +22,5 @@
     "src/**/*.ts",
     "exposedInDockerExtension.d.ts",
     "../../types/**/*.d.ts"
-  ],
-  "exclude": [
-    "**/*.spec.ts",
-    "**/*.test.ts"
   ]
 }

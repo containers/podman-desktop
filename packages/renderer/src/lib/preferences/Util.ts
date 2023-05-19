@@ -49,7 +49,7 @@ export function writeToTerminal(xterm: any, data: string[], colorPrefix: string)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function writeMultilineString(xterm: any, data: string, colorPrefix: string): void {
-  if (data && data.includes && data.includes('\n')) {
+  if (data?.includes?.('\n')) {
     const toWrite = data.split('\n');
     for (const s of toWrite) {
       xterm.write(colorPrefix + s + '\n\r');

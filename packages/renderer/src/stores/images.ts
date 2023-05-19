@@ -20,7 +20,14 @@ import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
 import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
 import { findMatchInLeaves } from './search-util';
+
+let readyToUpdate = false;
+
 export async function fetchImages() {
+  // do not fetch until extensions are all started
+  if (!readyToUpdate) {
+    return;
+  }
   const result = await window.listImages();
   imagesInfos.set(result);
 }
@@ -34,45 +41,57 @@ export const filtered = derived([searchPattern, imagesInfos], ([$searchPattern, 
 );
 
 // need to refresh when extension is started or stopped
-window?.events?.receive('extension-started', () => {
-  fetchImages();
+window?.events?.receive('extension-started', async () => {
+  await fetchImages();
 });
-window?.events?.receive('extension-stopped', () => {
-  fetchImages();
+window?.events?.receive('extension-stopped', async () => {
+  await fetchImages();
 });
 
 window.addEventListener('image-build', () => {
-  fetchImages();
-});
-window.addEventListener('system-ready', () => {
-  fetchImages();
-});
-
-window?.events?.receive('provider-change', () => {
-  fetchImages();
+  fetchImages().catch((error: unknown) => {
+    console.error('Failed to fetch images', error);
+  });
 });
 
-window.events?.receive('image-pull-event', () => {
-  fetchImages();
-});
-window.events?.receive('image-remove-event', () => {
-  fetchImages();
-});
-window.events?.receive('image-build-event', () => {
-  fetchImages();
-});
-window.events?.receive('registry-register', () => {
-  fetchImages();
+window?.events?.receive('provider-change', async () => {
+  await fetchImages();
 });
 
-window.events?.receive('registry-unregister', () => {
-  fetchImages();
+window.events?.receive('image-pull-event', async () => {
+  await fetchImages();
+});
+window.events?.receive('image-remove-event', async () => {
+  await fetchImages();
+});
+window.events?.receive('image-build-event', async () => {
+  await fetchImages();
+});
+window.events?.receive('registry-register', async () => {
+  await fetchImages();
 });
 
-window.events?.receive('image-tag-event', () => {
-  fetchImages();
+window.events?.receive('registry-unregister', async () => {
+  await fetchImages();
 });
 
-window.events?.receive('image-untag-event', () => {
-  fetchImages();
+window.events?.receive('image-tag-event', async () => {
+  await fetchImages();
+});
+
+window.events?.receive('image-untag-event', async () => {
+  await fetchImages();
+});
+
+window?.events?.receive('extensions-started', async () => {
+  readyToUpdate = true;
+  await fetchImages();
+});
+
+// if client is doing a refresh, we will receive this event and we need to update the data
+window.addEventListener('extensions-already-started', () => {
+  readyToUpdate = true;
+  fetchImages().catch((error: unknown) => {
+    console.error('Failed to fetch images', error);
+  });
 });

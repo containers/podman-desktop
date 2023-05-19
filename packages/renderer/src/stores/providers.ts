@@ -26,9 +26,15 @@ export async function fetchProviders() {
   result.forEach(providerInfo => {
     // register only if none for this provider id
     if (!updateProviderCallbacks.includes(providerInfo.internalId)) {
-      window.onDidUpdateProviderStatus(providerInfo.internalId, () => {
-        fetchProviders();
-      });
+      window
+        .onDidUpdateProviderStatus(providerInfo.internalId, () => {
+          fetchProviders().catch((error: unknown) => {
+            console.error('Failed to fetch providers', error);
+          });
+        })
+        .catch((err: unknown) => {
+          console.error('Failed to register onDidUpdateProviderStatus callback', err);
+        });
       updateProviderCallbacks.push(providerInfo.internalId);
     }
   });
@@ -37,48 +43,52 @@ export async function fetchProviders() {
 export const providerInfos: Writable<ProviderInfo[]> = writable([]);
 
 // need to refresh when extension is started or stopped
-window?.events?.receive('extension-started', () => {
-  fetchProviders();
+window?.events?.receive('extension-started', async () => {
+  await fetchProviders();
 });
-window?.events?.receive('extension-stopped', () => {
-  fetchProviders();
+window?.events?.receive('extension-stopped', async () => {
+  await fetchProviders();
 });
 
 window.addEventListener('provider-lifecycle-change', () => {
-  fetchProviders();
+  fetchProviders().catch((error: unknown) => {
+    console.error('Failed to fetch providers', error);
+  });
 });
 
-window?.events?.receive('provider-lifecycle-change', () => {
-  fetchProviders();
+window?.events?.receive('provider-lifecycle-change', async () => {
+  await fetchProviders();
 });
 
-window?.events?.receive('provider-change', () => {
-  fetchProviders();
+window?.events?.receive('provider-change', async () => {
+  await fetchProviders();
 });
-window?.events?.receive('provider-create', () => {
-  fetchProviders();
+window?.events?.receive('provider-create', async () => {
+  await fetchProviders();
 });
-window?.events?.receive('provider-delete', () => {
-  fetchProviders();
+window?.events?.receive('provider-delete', async () => {
+  await fetchProviders();
 });
-window?.events?.receive('provider:update-status', () => {
-  fetchProviders();
+window?.events?.receive('provider:update-status', async () => {
+  await fetchProviders();
 });
-window?.events?.receive('provider:update-warnings', () => {
-  fetchProviders();
+window?.events?.receive('provider:update-warnings', async () => {
+  await fetchProviders();
 });
-window?.events?.receive('provider:update-version', () => {
-  fetchProviders();
+window?.events?.receive('provider:update-version', async () => {
+  await fetchProviders();
 });
 window.addEventListener('system-ready', () => {
-  fetchProviders();
+  fetchProviders().catch((error: unknown) => {
+    console.error('Failed to fetch providers', error);
+  });
 });
-window?.events?.receive('provider-register-kubernetes-connection', () => {
-  fetchProviders();
+window?.events?.receive('provider-register-kubernetes-connection', async () => {
+  await fetchProviders();
 });
-window?.events?.receive('provider-unregister-kubernetes-connection', () => {
-  fetchProviders();
+window?.events?.receive('provider-unregister-kubernetes-connection', async () => {
+  await fetchProviders();
 });
-window.events?.receive('extensions-started', () => {
-  fetchProviders();
+window.events?.receive('extensions-started', async () => {
+  await fetchProviders();
 });

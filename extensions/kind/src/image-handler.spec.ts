@@ -21,6 +21,7 @@ import type { Mock } from 'vitest';
 import { ImageHandler } from './image-handler';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
+import { getKindPath, runCliCommand } from './util';
 
 let imageHandler: ImageHandler;
 vi.mock('@podman-desktop/api', async () => {
@@ -38,6 +39,7 @@ vi.mock('@podman-desktop/api', async () => {
 vi.mock('./util', async () => {
   return {
     runCliCommand: vi.fn().mockReturnValue({ exitCode: 0 }),
+    getKindPath: vi.fn(),
   };
 });
 
@@ -101,4 +103,27 @@ test('expect image name and tag to be given', async () => {
     undefined,
   );
   expect(extensionApi.containerEngine.saveImage).toBeCalledWith('dummy', 'myimage:1.0', expect.anything());
+});
+
+test('expect cli is called with right PATH', async () => {
+  (extensionApi.containerEngine.saveImage as Mock).mockImplementation(
+    (engineId: string, id: string, filename: string) => fs.promises.open(filename, 'w'),
+  );
+
+  (getKindPath as Mock).mockReturnValue('my-custom-path');
+
+  await imageHandler.moveImage(
+    { engineId: 'dummy', name: 'myimage' },
+    [{ name: 'c1', engineType: 'podman', status: 'started', apiPort: 9443 }],
+    undefined,
+  );
+  expect(getKindPath).toBeCalled();
+
+  expect(runCliCommand).toBeCalledTimes(1);
+  // grab the env parameter of the first call to runCliCommand
+  const props = (runCliCommand as Mock).mock.calls[0][2];
+  expect(props).to.have.property('env');
+  const env = props.env;
+  expect(env).to.have.property('PATH');
+  expect(env.PATH).toBe('my-custom-path');
 });

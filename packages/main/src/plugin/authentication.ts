@@ -25,8 +25,8 @@ import type {
   AuthenticationSessionAccountInformation,
   AuthenticationProviderOptions,
   Disposable,
+  ProviderImages,
 } from '@podman-desktop/api';
-// import { window } from '@podman-desktop/api';
 import { Emitter } from './events/emitter';
 import type { ApiSenderType } from './api';
 
@@ -46,6 +46,7 @@ export interface AuthenticationProviderInfo {
   displayName: string;
   accounts: AuthenticationSessionAccountInformation[];
   sessionRequests?: SessionRequestInfo[];
+  images?: ProviderImages;
 }
 
 export interface ExtensionInfo {
@@ -92,6 +93,7 @@ export class AuthenticationImpl {
           displayName: meta.label,
           accounts: sessions.map(session => ({ id: session.id, label: session.account.label })),
           sessionRequests,
+          images: meta.options.images,
         };
       });
     });
@@ -99,8 +101,8 @@ export class AuthenticationImpl {
     return await Promise.all(providers);
   }
 
-  public async signOut(providerId: string, sessionId: string) {
-    this.removeSession(providerId, sessionId);
+  public async signOut(providerId: string, sessionId: string): Promise<void> {
+    await this.removeSession(providerId, sessionId);
   }
 
   registerAuthenticationProvider(
@@ -213,10 +215,7 @@ export class AuthenticationImpl {
     if (!options.silent) {
       const providerRequests = this._signInRequests.get(providerId);
       const scopesList = sortedScopes.join(' ');
-      const extHasRequests =
-        providerRequests &&
-        providerRequests[scopesList] &&
-        providerRequests[scopesList].includes(requestingExtension.id);
+      const extHasRequests = providerRequests?.[scopesList]?.includes(requestingExtension.id);
       if (extHasRequests) {
         // request was added already by this extension
         return;

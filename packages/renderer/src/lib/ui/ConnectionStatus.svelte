@@ -42,6 +42,14 @@ const statusesStyle = new Map<string, connectionStatusStyle>([
       label: 'STOPPING',
     },
   ],
+  [
+    'failed',
+    {
+      bgColor: 'bg-red-500',
+      txtColor: 'text-red-500',
+      label: 'FAILED',
+    },
+  ],
 ]);
 $: statusStyle = statusesStyle.get(status) || {
   bgColor: 'bg-gray-900',

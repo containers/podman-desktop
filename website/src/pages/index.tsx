@@ -94,7 +94,6 @@ function DownloadGenericLinks() {
 }
 
 function Hero() {
-  // const { siteConfig } = useDocusaurusContext();
   return (
     <section className="text-gray-900 dark:text-gray-400 body-font">
       <div className="container mx-auto flex px-5 pb-24 pt-4 items-center justify-center flex-col">
@@ -428,7 +427,11 @@ function RunAnywhere() {
                       size="1x"
                       icon={faPaste}
                       className="ml-3  cursor-pointer text-3xl  text-white-500"
-                      onClick={() => copyBrewInstructions()}
+                      onClick={() => {
+                        copyBrewInstructions().catch((err: unknown) => {
+                          console.error('unable to copy instructions', err);
+                        });
+                      }}
                     />
                   </button>
                 </p>
