@@ -15,16 +15,9 @@ async function updateProxySettings() {
   await window.updateProxySettings(proxySettings);
 
   // loop over all providers and container connections to see if there are any running engines
-  let runningProviders = false;
   const providerInfos = await window.getProviderInfos();
-  providerInfos.forEach(async provider => {
-    let connections = provider.containerConnections;
-    connections.forEach(async connection => {
-      if (connection.status !== 'stopped') {
-        runningProviders = true;
-      }
-    });
-  });
+  const runningProviders =
+    providerInfos.filter(p => p.containerConnections.filter(c => c.status !== 'stopped').length > 0).length > 0;
 
   // show a simple message to confirm that the settings are applied,
   // or a longer warning if the user may need to take action
@@ -39,7 +32,7 @@ async function updateProxySettings() {
     title: 'Proxy Settings',
     type: type,
     message: message,
-    buttons: ['Ok'],
+    buttons: ['OK'],
   });
 }
 
