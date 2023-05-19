@@ -12,30 +12,30 @@ You can configure your Podman machine to use a proxy for your containers.
 
 #### Prerequisites
 
-* `<your.proxy.tld:port>`: Your proxy URL.
+- `<your.proxy.tld:port>`: Your proxy URL.
 
 #### Procedure
 
 1. Open a shell prompt on the Podman machine:
 
-    ```shell-session
-    $ podman machine ssh
-    ```
+   ```shell-session
+   $ podman machine ssh
+   ```
 
 1. Edit the `containers.conf` file to pass the proxy environment variables to Podman CLI.
 
    The file location depends on your connection mode:
 
-   * `rootless`: `$HOME/.config/containers/containers.conf`
+   - `rootless`: `$HOME/.config/containers/containers.conf`
 
-   * `rootful`: `/etc/containers/containers.conf`
+   - `rootful`: `/etc/containers/containers.conf`
 
 1. Set the proxy environment variables to pass into the containers:
 
-      ```toml
-      [containers]
-      http_proxy = true
-      env = ["http_proxy=<your.proxy.tld:port>", "https_proxy=<your.proxy.tld:port>"] 
-      ```
+   ```toml
+   [containers]
+   http_proxy = true
+   env = ["http_proxy=<your.proxy.tld:port>", "https_proxy=<your.proxy.tld:port>"]
+   ```
 
 1. Go to **Settings > Resources** and restart the Podman machine.

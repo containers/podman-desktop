@@ -13,8 +13,8 @@ The configuration applies to the Podman engine, but not to your containers.
 
 #### Prerequisites
 
-* Your proxy URL: `<your.proxy.tld:port>`
-* Your proxy Certificate Authorities (CA) is stored in your home directory, in the `proxy_ca.pem` file, in Privacy-Enhanced Mail (PEM) format.
+- Your proxy URL: `<your.proxy.tld:port>`
+- Your proxy Certificate Authorities (CA) is stored in your home directory, in the `proxy_ca.pem` file, in Privacy-Enhanced Mail (PEM) format.
 
 #### Procedure
 
@@ -27,21 +27,21 @@ The configuration applies to the Podman engine, but not to your containers.
 
 1. Copy the certificate to the Podman machine:
 
-    ```shell-session
-    $ cat proxy_ca.pem | podman machine ssh podman-machine-default "cat > proxy_ca.pem"
-    ```
+   ```shell-session
+   $ cat proxy_ca.pem | podman machine ssh podman-machine-default "cat > proxy_ca.pem"
+   ```
 
 1. Open a shell prompt on the Podman machine:
 
-    ```shell-session
-    $ podman machine ssh podman-machine-default
-    ```
+   ```shell-session
+   $ podman machine ssh podman-machine-default
+   ```
 
 1. Add the custom Certificate Authorities (CA) for your proxy:
 
-    ```shell-session
-    $ sudo cp proxy_ca.pem /etc/pki/ca-trust/source/anchors/
-    $ sudo update-ca-trust
+   ```shell-session
+   $ sudo cp proxy_ca.pem /etc/pki/ca-trust/source/anchors/
+   $ sudo update-ca-trust
    ```
 
 1. Go to **Settings > Resources** and restart the Podman machine.
