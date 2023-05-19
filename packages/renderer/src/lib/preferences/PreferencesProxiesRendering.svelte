@@ -13,6 +13,34 @@ onMount(async () => {
 
 async function updateProxySettings() {
   await window.updateProxySettings(proxySettings);
+
+  // loop over all providers and container connections to see if there are any running engines
+  let runningProviders = false;
+  const providerInfos = await window.getProviderInfos();
+  providerInfos.forEach(async provider => {
+    let connections = provider.containerConnections;
+    connections.forEach(async connection => {
+      if (connection.status !== 'stopped') {
+        runningProviders = true;
+      }
+    });
+  });
+
+  // show a simple message to confirm that the settings are applied,
+  // or a longer warning if the user may need to take action
+  let message = 'Proxy settings have been applied.';
+  let type = 'info';
+  if (runningProviders) {
+    message += ' You may need to restart running container engines for the changes to take effect.';
+    type = 'warning';
+  }
+
+  window.showMessageBox({
+    title: 'Proxy Settings',
+    type: type,
+    message: message,
+    buttons: ['Ok'],
+  });
 }
 
 async function updateProxyState() {
@@ -50,7 +78,7 @@ async function updateProxyState() {
           id="httpProxy"
           disabled="{!proxyState}"
           bind:value="{proxySettings.httpProxy}"
-          class="w-full outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           required />
       </div>
       <div>
@@ -79,19 +107,21 @@ async function updateProxyState() {
           disabled="{!proxyState}"
           bind:value="{proxySettings.noProxy}"
           placeholder="Example: *.domain.com, 192.168.*.*"
-          class="w-full outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           required />
       </div>
-      {#if proxyState}
-        <div class="my-2">
-          <button on:click="{() => updateProxySettings()}" class="w-full pf-c-button pf-m-primary" type="button">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-pen" aria-hidden="true"></i>
-            </span>
-            Update
-          </button>
-        </div>
-      {/if}
+      <div class="my-2 pt-4">
+        <button
+          on:click="{() => updateProxySettings()}"
+          disabled="{!proxyState}"
+          class="w-full pf-c-button pf-m-primary"
+          type="button">
+          <span class="pf-c-button__icon pf-m-start">
+            <i class="fas fa-pen" aria-hidden="true"></i>
+          </span>
+          Update
+        </button>
+      </div>
     {/if}
   </div>
 </SettingsPage>
