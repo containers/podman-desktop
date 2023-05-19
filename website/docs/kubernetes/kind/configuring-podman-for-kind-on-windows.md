@@ -8,28 +8,30 @@ tags: [migrating-to-kubernetes, kind]
 
 # Configuring Podman for Kind on Windows Subsystem for Linux (WSL)
 
-When you create a Podman machine, Podman creates two system connections:
-
-- The default rootless connection.
-- A rootful connection, which has a `-root` suffix.
+When you create a Podman machine, Podman creates the machine in rootless mode.
 
 With a Podman machine running on WSL, Kind:
 
-- Uses the default Podman connection.
-- Requires the rootful connection.
+- Requires the rootful machine.
 
-Therefore, set the Podman machine default connection to rootful.
+Therefore, set the Podman machine to rootful mode.
 
 #### Procedure
 
-1. List the Podman system connections:
+1. Stop the Podman machine:
 
    ```shell-session
-   $ podman system connection ls
+   $ podman machine stop
    ```
 
-2. Set the Podman system default connection to connection that has the `-root` suffix:
+2. Set the Podman machine in rooful mode:
 
    ```shell-session
-   $ podman system connection default podman-machine-default-root
+   $ podman machine set --rootful
+   ```
+
+3. Start the Podman machine:
+
+   ```shell-session
+   $ podman machine start
    ```
