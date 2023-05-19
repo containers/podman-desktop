@@ -30,10 +30,13 @@ async function grabfilenameforMac(
   const universalMacAirgapDmgAssets = assets.filter(
     asset => (asset.name as string).endsWith('universal.dmg') && asset.name.includes('airgap'),
   );
+  // temporary fix to restore regular Mac downloads even if airgap is not available
+  let universalMacAirgapDmgAsset;
   if (universalMacAirgapDmgAssets.length !== 1) {
-    throw new Error('Unable to find Apple Disk Image for restricted environments');
+    console.log('Error: Unable to find Apple Disk Image for restricted environments');
+  } else {
+    universalMacAirgapDmgAsset = universalMacAirgapDmgAssets[0];
   }
-  const universalMacAirgapDmgAsset = universalMacAirgapDmgAssets[0];
 
   const universalMacDmgResults = assets.filter(
     asset =>
@@ -51,7 +54,7 @@ async function grabfilenameforMac(
     universal: unifiedMacLinj.browser_download_url,
     x64: intelLink.browser_download_url,
     arm64: armLink.browser_download_url,
-    airgapsetup: universalMacAirgapDmgAsset.browser_download_url,
+    airgapsetup: universalMacAirgapDmgAsset?.browser_download_url,
   };
   setDownloadData(data);
 }
