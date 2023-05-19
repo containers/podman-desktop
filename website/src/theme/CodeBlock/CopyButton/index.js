@@ -24,7 +24,9 @@ export default function CopyButtonWrapper(props) {
   const updatedProps = { ...props };
   if (
     updatedProps?.code?.length > 2 &&
-    (updatedProps.code.substring(0, 2) === '$ ' || updatedProps.code.substring(0, 2) === '# ')
+    (updatedProps.code.substring(0, 2) === '$ ' ||
+      updatedProps.code.substring(0, 2) === '# ' ||
+      updatedProps.code.substring(0, 2) === '# ')
   ) {
     updatedProps.code = updatedProps.code.substring(2);
   }
