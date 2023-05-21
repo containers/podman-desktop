@@ -26,16 +26,17 @@ function registerProvider(
   provider: extensionApi.Provider,
   providerSocketPath: string,
 ): void {
-  const containerProviderConnection: extensionApi.ContainerProviderConnection = {
+  let providerState: extensionApi.ProviderConnectionStatus = 'unknown';
+  let containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: 'Lima',
     type: 'podman',
-    status: () => 'unknown',
+    status: () => providerState,
     endpoint: {
       socketPath: providerSocketPath,
     },
   };
-
-  const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
+  providerState = 'started';
+  let disposable = provider.registerContainerProviderConnection(containerProviderConnection);
   provider.updateStatus('started');
   extensionContext.subscriptions.push(disposable);
   console.log('Lima extension is active');
