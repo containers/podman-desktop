@@ -19,7 +19,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom';
-import { beforeAll, test, expect, vi } from 'vitest';
+import { beforeAll, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import ProviderInstalled from '/@/lib/dashboard/ProviderInstalled.svelte';
 import type {ProviderInfo} from '../../../../main/src/plugin/api/provider-info';
@@ -50,11 +50,12 @@ test('Expect installed provider shows button', async () => {
     links: [],
     name: 'Provider',
     status: 'installed',
-    warnings: []
+    warnings: [],
   };
 
+  //eslint-disable-next-line @typescript-eslint/no-empty-function
   render(ProviderInstalled, { provider: provider, updateInitializationMode: () => {}});
-  
+
   // get by title
   const firstExtension = screen.getByTitle('This is FooBar description');
   expect(firstExtension).toBeInTheDocument();
