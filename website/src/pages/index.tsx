@@ -102,10 +102,12 @@ function Hero() {
             <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white">
               Containers and Kubernetes for application developers
             </h1>
-            <p className="text-base md:text-lg">
-              Podman Desktop is an open source graphical tool enabling you to seamlessly work with containers and
-              Kubernetes from your local environment.
-            </p>
+            <p className="text-base md:text-lg">Your simplistic onboarding to go from containers up to Kubernetes.</p>
+            <p>Open source</p>
+            <p>Graphical user interface</p>
+            <p>On your developer environment</p>
+            <p>To work with containers and Kubernetes</p>
+            <p>Abstracting away container and Kubernetes tooling configuration</p>
             <div className="flex-none">
               {/* With client mode, provides the link to the client browser */}
               <BrowserOnly fallback={<DownloadGenericLinks></DownloadGenericLinks>}>
@@ -200,7 +202,7 @@ function Extensibility() {
 
           <ul className="list-disc list-inside text-center">
             <li>Container engines are plugged through extension points</li>
-            <li>JavaScript extensions can contribute new behaviour</li>
+            <li>JavaScript extensions can contribute new behavior</li>
             <li>Reuse existing extensions such as Trivy and OpenShift directly in Podman Desktop</li>
           </ul>
 
