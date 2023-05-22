@@ -1285,22 +1285,13 @@ export class ContainerProviderRegistry {
     kubernetesYamlFilePath: string,
     selectedProvider: ProviderContainerConnectionInfo,
   ): Promise<PlayKubeInfo> {
-    // grab all connections
-    const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-      containerProvider =>
-        containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
-        containerProvider.name === selectedProvider.name,
-    );
-    if (!matchingContainerProvider?.libpodApi) {
-      throw new Error('No provider with a running engine');
-    }
     let telemetryOptions = {};
     try {
       // grab all connections
       const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
         containerProvider =>
           containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
-          containerProvider.name === selectedProvider.name,
+          containerProvider.connection.name === selectedProvider.name,
       );
       if (!matchingContainerProvider?.libpodApi) {
         throw new Error('No provider with a running engine');
