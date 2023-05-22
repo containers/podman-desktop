@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faArrowUp, faEllipsisVertical, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faEllipsisVertical, faLayerGroup, faPlay, faTrash, faEdit} from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -81,6 +81,13 @@ if (dropdownMenu) {
       detailed="{detailed}"
       icon="{faArrowUp}" />
   {/if}
+
+  <ListItemButtonIcon
+    title="Rename Image"
+    onClick="{() => console.log('Rename Image')}"
+    menu="{dropdownMenu}"
+    detailed="{detailed}"
+    icon="{faEdit}" />
 
   {#if !detailed}
     <ListItemButtonIcon
