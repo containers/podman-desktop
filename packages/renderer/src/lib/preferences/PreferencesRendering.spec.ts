@@ -29,7 +29,7 @@ import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configu
 
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn().mockResolvedValue(true);
-  (window as any).telemetryPage = vi.fn();
+  (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
 });
 
 const record: IConfigurationPropertyRecordedSchema = {
