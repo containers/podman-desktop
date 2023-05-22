@@ -461,6 +461,7 @@ export class ProviderRegistry {
   async initializeProvider(providerInternalId: string): Promise<void> {
     const provider = this.getMatchingProvider(providerInternalId);
 
+    provider.updateStatus('configuring');
     // do we have a lifecycle attached to the provider ?
     if (
       this.providerLifecycles.has(providerInternalId) &&

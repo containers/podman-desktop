@@ -22,9 +22,9 @@ export let provider: ProviderInfo;
 export let updateInitializationMode: (string, InitializationMode) => void;
 
 let initializationButtonVisible = true;
-let initializeInProgress = false;
+let initializeInProgress = provider.status === 'configuring';
 
-let initalizeError: string | undefined = undefined;
+let initializeError: string | undefined = undefined;
 
 let preflightChecks: CheckStatus[] = [];
 
@@ -41,10 +41,11 @@ let installationOptionSelected = InitializeAndStartMode;
 
 // no initialize support, hide the button
 $: initializationButtonVisible =
-  provider.containerProviderConnectionInitialization || provider.kubernetesProviderConnectionInitialization;
+  provider.status !== 'configuring' &&
+  (provider.containerProviderConnectionInitialization || provider.kubernetesProviderConnectionInitialization);
 
 async function initializeProvider() {
-  initalizeError = undefined;
+  initializeError = undefined;
   logsTerminal.clear();
   initializeInProgress = true;
   try {
@@ -56,7 +57,7 @@ async function initializeProvider() {
       });
     });
   } catch (error) {
-    initalizeError = error;
+    initializeError = error;
     initializationButtonVisible = true;
     logsTerminal.write(error + '\r');
     console.error('Error while initializing the provider', error);
@@ -216,7 +217,7 @@ function onInstallationClick() {
 
     <div
       class=""
-      style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initalizeError
+      style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initializeError
         ? 'block'
         : 'none'}"
       class:h-full="{noErrors === false}"

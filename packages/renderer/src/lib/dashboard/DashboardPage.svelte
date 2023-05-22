@@ -15,7 +15,9 @@ import FeaturedExtensions from '/@/lib/featured/FeaturedExtensions.svelte';
 const providerInitMode = new Map<string, InitializationMode>();
 
 $: providersNotInstalled = $providerInfos.filter(provider => provider.status === 'not-installed');
-$: providersInstalled = $providerInfos.filter(provider => provider.status === 'installed');
+$: providersInstalled = $providerInfos.filter(
+  provider => provider.status === 'installed' || provider.status === 'configuring',
+);
 $: providersConfigured = $providerInfos.filter(provider => provider.status === 'configured');
 $: providersReady = $providerInfos.filter(provider => provider.status === 'ready' || provider.status === 'started');
 $: providersStarting = $providerInfos.filter(provider => provider.status === 'starting');

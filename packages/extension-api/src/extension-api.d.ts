@@ -139,6 +139,7 @@ declare module '@podman-desktop/api' {
   export type ProviderStatus =
     | 'not-installed'
     | 'installed'
+    | 'configuring'
     | 'configured'
     | 'ready'
     | 'started'
