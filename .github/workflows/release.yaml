@@ -129,6 +129,8 @@ jobs:
           - os: "windows-2022"
             airgap: "true"
           - os: "macos-11"
+          - os: "macos-11"
+            airgap: "true"
           - os: "ubuntu-20.04"
     timeout-minutes: 60
     env:

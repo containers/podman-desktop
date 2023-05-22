@@ -26,15 +26,16 @@ function registerProvider(
   provider: extensionApi.Provider,
   providerSocketPath: string,
 ): void {
+  let providerState: extensionApi.ProviderConnectionStatus = 'unknown';
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: 'Lima',
     type: 'podman',
-    status: () => 'unknown',
+    status: () => providerState,
     endpoint: {
       socketPath: providerSocketPath,
     },
   };
-
+  providerState = 'started';
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
   provider.updateStatus('started');
   extensionContext.subscriptions.push(disposable);
@@ -42,11 +43,10 @@ function registerProvider(
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const socketPath = path.resolve(os.homedir(), '.lima/podman-lima/sock/podman.sock');
-  const socketAlternativePath = path.resolve(os.homedir(), '.lima/podman-lima/sock/podman.sock');
+  const socketPath = path.resolve(os.homedir(), '.lima/podman/sock/podman.sock');
 
   let provider;
-  if (fs.existsSync(socketPath) || fs.existsSync(socketAlternativePath)) {
+  if (fs.existsSync(socketPath)) {
     provider = extensionApi.provider.createProvider({
       name: 'Lima',
       id: 'lima',
@@ -64,10 +64,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   if (fs.existsSync(socketPath)) {
     registerProvider(extensionContext, provider, socketPath);
-  } else if (fs.existsSync(socketAlternativePath)) {
-    registerProvider(extensionContext, provider, socketAlternativePath);
   } else {
-    console.error(`Could not find podman socket at ${socketPath} nor ${socketAlternativePath}`);
+    console.error(`Could not find podman socket at ${socketPath}`);
   }
 }
 

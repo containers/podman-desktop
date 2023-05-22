@@ -35,7 +35,7 @@
     "svelte-fa": "^3.0.3",
     "svelte-preprocess": "^5.0.3",
     "tailwindcss": "^3.3.2",
-    "tslib": "^2.5.1",
+    "tslib": "^2.5.2",
     "typescript": "^5.0.4",
     "vite": "^4.3.8",
     "xterm": "^5.1.0",
