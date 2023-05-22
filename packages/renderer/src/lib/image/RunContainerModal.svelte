@@ -73,7 +73,7 @@ async function startContainer() {
     ExposedPorts[port] = {};
   });
 
-  const Image = image.id;
+  const Image = image.tag ? `${image.name}:${image.tag}` : image.id;
 
   const HostConfig = {
     PortBindings,

@@ -120,7 +120,7 @@ function Hero() {
           <img
             className="sm:w-full md:w-full lg:w-10/12"
             alt="Podman Desktop home page"
-            src="img/features/homepage.png"
+            src="img/features/homepage.webp"
           />
         </div>
       </div>
@@ -584,11 +584,11 @@ function Pods() {
               </div>
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">
-                  Create and "Podify"
+                  Working with pods
                 </h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faDiagramProject} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  Create Pods from existing containers
+                  <a href="docs/getting-started/creating-a-pod">Create Pods from existing containers</a>
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
@@ -601,7 +601,9 @@ function Pods() {
                 <FontAwesomeIcon size="2x" icon={faGaugeHigh} className="w-6 h-6 " />
               </div>
               <div className="flex-grow pl-6">
-                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Kubernetes</h2>
+                <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">
+                  Working with Kubernetes
+                </h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
                   Play Kubernetes YAML directly with Podman Engine
@@ -612,7 +614,11 @@ function Pods() {
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  Deploy to existing Kubernetes environments
+                  <a href="docs/kubernetes/deploying-a-pod-to-kubernetes">Deploy to existing Kubernetes environments</a>
+                </p>
+                <p className="leading-relaxed text-base list-disc">
+                  <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
+                  <a href="docs/kubernetes/kind">Running Kubernetes on your workstation with Kind and Podman</a>
                 </p>
               </div>
             </div>

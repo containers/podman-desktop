@@ -24,8 +24,8 @@ function FeatureManageContainers() {
               className="py-4"
               alt="Manage containers"
               sources={{
-                light: useBaseUrl('img/features/manage-containers.png'),
-                dark: useBaseUrl('img/features/manage-containers.png'),
+                light: useBaseUrl('img/features/manage-containers.webp'),
+                dark: useBaseUrl('img/features/manage-containers.webp'),
               }}
             />
           </div>
@@ -44,8 +44,8 @@ function FeatureManageImages() {
             className="py-4"
             alt="Pull image and manage registries"
             sources={{
-              light: useBaseUrl('img/features/pull-image.png'),
-              dark: useBaseUrl('img/features/pull-image.png'),
+              light: useBaseUrl('img/features/images.webp'),
+              dark: useBaseUrl('img/features/images.webp'),
             }}
           />
         </div>
@@ -111,8 +111,8 @@ function FeatureManageResources() {
               className="py-4"
               alt="Manage Podman Machine"
               sources={{
-                light: useBaseUrl('img/features/manage-podman-machine.png'),
-                dark: useBaseUrl('img/features/manage-podman-machine.png'),
+                light: useBaseUrl('img/features/manage-podman-machine.webp'),
+                dark: useBaseUrl('img/features/manage-podman-machine.webp'),
               }}
             />
           </div>
@@ -157,8 +157,8 @@ function FeatureManagePods() {
               className="py-4"
               alt="Manage Pods"
               sources={{
-                light: useBaseUrl('img/features/manage-pods.png'),
-                dark: useBaseUrl('img/features/manage-pods.png'),
+                light: useBaseUrl('img/features/manage-pods.webp'),
+                dark: useBaseUrl('img/features/manage-pods.webp'),
               }}
             />
           </div>
