@@ -10,6 +10,7 @@ import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
 import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
 import { providerInfos } from '../stores/providers';
 import PushImageModal from './image/PushImageModal.svelte';
+import RenameImageModal from './image/RenameImageModal.svelte';
 import { ImageUtils } from './image/image-utils';
 import NavPage from './ui/NavPage.svelte';
 import ImageIcon from './images/ImageIcon.svelte';
@@ -36,6 +37,13 @@ let pushImageModalImageInfo = undefined;
 function handlePushImageModal(imageInfo: ImageInfoUI) {
   pushImageModalImageInfo = imageInfo;
   pushImageModal = true;
+}
+
+let renameImageModal = false;
+let renameImageModalImageInfo = undefined;
+function handleRenameImageModal(imageInfo: ImageInfoUI) {
+  renameImageModalImageInfo = imageInfo;
+  renameImageModal = true;
 }
 
 $: providerConnections = $providerInfos
@@ -128,6 +136,7 @@ onDestroy(() => {
 
 function closeModals() {
   pushImageModal = false;
+  renameImageModal = false;
 }
 
 function gotoBuildImage(): void {
@@ -338,6 +347,7 @@ function computeInterval(): number {
               <ImageActions
                 image="{image}"
                 onPushImage="{handlePushImageModal}"
+                onRenameImage="{handleRenameImageModal}"
                 dropdownMenu="{true}"
                 contributions="{contributedMenus}" />
             </td>
@@ -357,6 +367,13 @@ function computeInterval(): number {
     {#if pushImageModal}
       <PushImageModal
         imageInfoToPush="{pushImageModalImageInfo}"
+        closeCallback="{() => {
+          closeModals();
+        }}" />
+    {/if}
+    {#if renameImageModal}
+      <RenameImageModal
+        imageInfoToRename="{renameImageModalImageInfo}"
         closeCallback="{() => {
           closeModals();
         }}" />

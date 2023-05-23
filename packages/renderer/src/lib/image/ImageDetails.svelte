@@ -11,6 +11,7 @@ import ImageDetailsInspect from './ImageDetailsInspect.svelte';
 import ImageDetailsHistory from './ImageDetailsHistory.svelte';
 import ImageDetailsSummary from './ImageDetailsSummary.svelte';
 import PushImageModal from './PushImageModal.svelte';
+import RenameImageModal from './RenameImageModal.svelte';
 import DetailsTab from '../ui/DetailsTab.svelte';
 
 export let imageID: string;
@@ -22,8 +23,15 @@ function handlePushImageModal() {
   pushImageModal = true;
 }
 
+let renameImageModal = false;
+function handleRenameImageModal() {
+  renameImageModal = true;
+}
+
+
 function closeModals() {
   pushImageModal = false;
+  renameImageModal = false;
 }
 
 let image: ImageInfoUI;
@@ -85,6 +93,7 @@ onMount(() => {
               <ImageActions
                 image="{image}"
                 onPushImage="{handlePushImageModal}"
+                onRenameImage="{handleRenameImageModal}"
                 detailed="{true}"
                 dropdownMenu="{false}" />
             </div>
@@ -111,6 +120,13 @@ onMount(() => {
 {#if pushImageModal}
   <PushImageModal
     imageInfoToPush="{image}"
+    closeCallback="{() => {
+      closeModals();
+    }}" />
+{/if}
+{#if renameImageModal}
+  <RenameImageModal
+    imageInfoToRename="{image}"
     closeCallback="{() => {
       closeModals();
     }}" />

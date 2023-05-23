@@ -9,6 +9,7 @@ import { runImageInfo } from '../../stores/run-image-store';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
+export let onRenameImage: (imageInfo: ImageInfoUI) => void;
 export let image: ImageInfoUI;
 export let dropdownMenu: boolean = false;
 export let detailed: boolean = false;
@@ -33,6 +34,10 @@ async function deleteImage(): Promise<void> {
     errorTitle = 'Error while deleting image';
     errorMessage = error;
   }
+}
+
+async function renameImage(imageInfo: ImageInfoUI): Promise<void> {
+  onRenameImage(imageInfo);
 }
 
 async function pushImage(imageInfo: ImageInfoUI): Promise<void> {
@@ -84,7 +89,7 @@ if (dropdownMenu) {
 
   <ListItemButtonIcon
     title="Rename Image"
-    onClick="{() => console.log('Rename Image')}"
+    onClick="{() => renameImage(image)}"
     menu="{dropdownMenu}"
     detailed="{detailed}"
     icon="{faEdit}" />
