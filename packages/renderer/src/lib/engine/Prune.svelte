@@ -73,7 +73,11 @@ async function prune(type: string) {
 }
 </script>
 
-<button on:click="{() => openPruneDialog()}" class="pf-c-button pf-m-primary" type="button" title="Prune {type}">
+<button
+  on:click="{() => openPruneDialog()}"
+  class="pf-c-button pf-m-primary"
+  type="button"
+  title="Remove unused images">
   <span class="pf-c-button__icon pf-m-start">
     <i class="fas fa-trash" aria-hidden="true"></i>
   </span>
