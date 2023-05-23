@@ -42,7 +42,7 @@ export function LinuxDownloads(): JSX.Element {
   });
 
   const copyFlathubInstructions = async () => {
-    await navigator.clipboard.writeText('flatpak install --user flathub io.podman_desktop.PodmanDesktop');
+    await navigator.clipboard.writeText('flatpak install flathub io.podman_desktop.PodmanDesktop');
   };
 
   useEffect(() => {
