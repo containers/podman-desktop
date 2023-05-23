@@ -16,7 +16,7 @@ import {
   InitializeAndStartMode,
   InitializeOnlyMode,
 } from './ProviderInitUtils';
-import { Steps } from 'svelte-steps';
+import Steps from 'svelte-steps/Steps.svelte';
 
 export let provider: ProviderInfo;
 export let initializationContext: InitializationContext;
