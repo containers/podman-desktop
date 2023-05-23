@@ -29,6 +29,16 @@ const config = {
         },
       };
     },
+    [
+      'posthog-docusaurus',
+      {
+        apiKey: 'phc_TYXtFXLwMzjbjRaF0CLJk3mgUBDKiYRvh4N5Kv1okEg',
+        api_host: 'https://app.posthog.com',
+        enableInDevelopment: false, // optional
+        // other options are passed to posthog-js init as is
+        persistence: 'memory',
+      },
+    ],
   ],
   presets: [
     [
