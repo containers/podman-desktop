@@ -99,7 +99,7 @@ onMount(async () => {
 
   await initTerminal();
 
-  // check if we have an existing buil info
+  // check if we have an existing build info
   const value = get(buildImagesInfo);
   if (value) {
     buildImageKey = value.buildImageKey;
@@ -164,13 +164,11 @@ async function initTerminal() {
 }
 </script>
 
-{#if providerConnections.length === 0}
-  <NoContainerEngineEmptyScreen />
-{/if}
-
-{#if providerConnections.length > 0}
-  <NavPage title="Build Image from Containerfile" searchEnabled="{false}">
-    <div slot="empty" class="p-5 bg-charcoal-700">
+<NavPage title="Build Image from Containerfile" searchEnabled="{false}">
+  <div slot="empty" class="p-5">
+    {#if providerConnections.length === 0}
+      <NoContainerEngineEmptyScreen />
+    {:else}
       <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div hidden="{buildStarted}">
           <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile path</label>
@@ -247,6 +245,6 @@ async function initTerminal() {
 
         <div bind:this="{logsXtermDiv}"></div>
       </div>
-    </div>
-  </NavPage>
-{/if}
+    {/if}
+  </div>
+</NavPage>
