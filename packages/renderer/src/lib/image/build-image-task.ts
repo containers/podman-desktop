@@ -64,7 +64,7 @@ export function startBuild(imageName: string, buildImageCallback: BuildImageCall
   buildCallbacks.set(key, buildImageCallback);
 
   // start a task
-  const task = createTask('Build ' + imageName);
+  const task = createTask(`Build ${imageName}`);
 
   // go to the images build
   task.gotoTask = () => {
