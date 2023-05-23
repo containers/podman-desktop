@@ -32,7 +32,7 @@ async function startConnectionProvider(
       if (!loggerHandlerKey) {
         updateConnectionStatus(provider, providerConnectionInfo, 'start');
         loggerHandlerKey = startTask(
-          `Start ${provider.name} ${providerConnectionInfo.name}`,
+          `Start ${providerConnectionInfo.name}`,
           `/preferences/resources`,
           getLoggerHandler(provider, providerConnectionInfo),
         );
@@ -56,7 +56,7 @@ async function restartConnectionProvider(
   if (providerConnectionInfo.status === 'started') {
     updateConnectionStatus(provider, providerConnectionInfo, 'restart');
     const loggerHandlerKey = startTask(
-      `Restart ${provider.name} ${providerConnectionInfo.name}`,
+      `Restart ${providerConnectionInfo.name}`,
       `/preferences/resources`,
       getLoggerHandler(provider, providerConnectionInfo),
     );
@@ -82,7 +82,7 @@ async function stopConnectionProvider(
     if (providerConnectionInfo.status === 'started') {
       updateConnectionStatus(provider, providerConnectionInfo, 'stop');
       const loggerHandlerKey = startTask(
-        `Stop ${provider.name} ${providerConnectionInfo.name}`,
+        `Stop ${providerConnectionInfo.name}`,
         `/preferences/resources`,
         getLoggerHandler(provider, providerConnectionInfo),
       );
@@ -106,7 +106,7 @@ async function deleteConnectionProvider(
     if (providerConnectionInfo.status === 'stopped' || providerConnectionInfo.status === 'unknown') {
       updateConnectionStatus(provider, providerConnectionInfo, 'delete');
       const loggerHandlerKey = startTask(
-        `Delete ${provider.name} ${providerConnectionInfo.name}`,
+        `Delete ${providerConnectionInfo.name}`,
         `/preferences/resources`,
         getLoggerHandler(provider, providerConnectionInfo),
       );
