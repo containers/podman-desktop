@@ -13,6 +13,7 @@ import { providerInfos } from '../../stores/providers';
 import Modal from '../dialogs/Modal.svelte';
 import PreferencesRegistriesEditCreateRegistryModal from '../preferences/PreferencesRegistriesEditCreateRegistryModal.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
+import NavPage from '../ui/NavPage.svelte';
 
 let logsPull;
 let pullError = '';
@@ -161,30 +162,24 @@ function validateImageName(event): void {
 }
 </script>
 
-{#if providerConnections.length === 0}
-  <NoContainerEngineEmptyScreen />
-{/if}
-
-{#if providerConnections.length > 0}
-  <div class="flex p-4 gap-x-2 flex-row-reverse">
-    <button on:click="{() => toggleAddARegistry()}" class="pf-c-button pf-m-primary" type="button">
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-id-badge" aria-hidden="true"></i>
-      </span>
-      Login to a Registry
-    </button>
-
+<NavPage title="Pull Image From a Registry" searchEnabled="{false}">
+  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     <button on:click="{() => gotoManageRegistries()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-cog" aria-hidden="true"></i>
       </span>
       Manage registries
     </button>
+
+    <button on:click="{() => toggleAddARegistry()}" class="pf-c-button pf-m-primary" type="button">
+      <span class="pf-c-button__icon pf-m-start">
+        <i class="fas fa-id-badge" aria-hidden="true"></i>
+      </span>
+      Login to a Registry
+    </button>
   </div>
 
-  <div class="px-6 pt-2 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
-    <h3 class="text-xl font-medium :text-white">Pull Image From a Registry</h3>
-
+  <div slot="table" class="p-5" class:hidden="{providerConnections.length === 0}">
     <div class="bg-charcoal-800 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
       <form novalidate class="pf-c-form pf-m-horizontal-on-sm w-full">
         <div class="pf-c-form__group w-full">
@@ -271,10 +266,15 @@ function validateImageName(event): void {
           </div>
         </footer>
       </form>
+      <div bind:this="{pullLogsXtermDiv}"></div>
     </div>
   </div>
-  <div bind:this="{pullLogsXtermDiv}"></div>
-{/if}
+  <div slot="empty" class="min-h-full">
+    {#if providerConnections.length === 0}
+      <NoContainerEngineEmptyScreen />
+    {/if}
+  </div>
+</NavPage>
 
 {#if showAddRegistryModal}
   <Modal
