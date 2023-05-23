@@ -63,13 +63,6 @@ nav .pf-c-badge.pf-m-read {
   --pf-c-badge--BackgroundColor: #8b5cf6;
 }
 
-.pf-c-tree-view {
-  --pf-c-tree-view__node--PaddingTop--base: 0.3rem;
-  --pf-c-tree-view__node--PaddingTop: 0.2rem;
-  --pf-c-tree-view__node--PaddingBottom: 0.2rem;
-  --pf-c-tree-view__node--indent--base: calc(0.6rem * 2 + var(--pf-c-tree-view__node-toggle-icon--MinWidth));
-}
-
 .pf-c-form {
   --pf-c-form--GridGap: 1rem;
   overflow-y: hidden;
