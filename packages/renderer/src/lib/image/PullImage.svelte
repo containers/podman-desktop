@@ -1,11 +1,9 @@
 <script lang="ts">
-import type { Registry } from '@podman-desktop/api';
-
 import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import type { PullEvent } from '../../../../main/src/plugin/api/pull-event';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
@@ -14,6 +12,7 @@ import Modal from '../dialogs/Modal.svelte';
 import PreferencesRegistriesEditCreateRegistryModal from '../preferences/PreferencesRegistriesEditCreateRegistryModal.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 let logsPull;
 let pullError = '';
@@ -32,7 +31,7 @@ $: initTerminal();
 const lineNumberPerId = new Map<string, number>();
 let lineIndex = 0;
 
-let terminalIntialized = false;
+export let terminalIntialized = false;
 
 function callback(event: PullEvent) {
   let lineIndexToWrite;
@@ -184,92 +183,72 @@ function validateImageName(event): void {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else}
-      <div class="bg-charcoal-800 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
-        <form novalidate class="pf-c-form pf-m-horizontal-on-sm w-full">
-          <div class="pf-c-form__group w-full">
-            <div class="pf-c-form__group-label w-full">
-              <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name w-full">
-                <span class="pf-c-form__label-text">Image to Pull:</span>
-                <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
-              </label>
-            </div>
-            <div class="pf-c-form__group-control">
-              <input
-                class="pf-c-form-control outline-none"
-                type="text"
-                name="serverUrl"
-                disabled="{pullFinished || pullInProgress}"
-                on:input="{event => validateImageName(event)}"
-                bind:value="{imageToPull}"
-                aria-invalid="{imageNameInvalid && imageNameInvalid !== ''}"
-                placeholder="Image name"
-                aria-label="imageName"
-                required />
-              {#if imageNameInvalid}
-                <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
-                  {imageNameInvalid}
-                </p>
-              {/if}
-            </div>
+      <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
+        <div class="w-full">
+          <label for="imageName" class="block mb-2 text-sm font-bold text-gray-400">Image to Pull</label>
+          <input
+            id="imageName"
+            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+            type="text"
+            name="serverUrl"
+            disabled="{pullFinished || pullInProgress}"
+            on:input="{event => validateImageName(event)}"
+            bind:value="{imageToPull}"
+            aria-invalid="{imageNameInvalid && imageNameInvalid !== ''}"
+            placeholder="Image name"
+            aria-label="imageName"
+            required />
+          {#if imageNameInvalid}
+            <ErrorMessage error="{imageNameInvalid}" />
+          {/if}
 
-            {#if providerConnections.length > 1}
-              <div class="pt-4">
-                <div class="pf-c-form__group">
-                  <div class="pf-c-form__group-label">
-                    <label class="pf-c-form__label" for="form-horizontal-custom-breakpoint-name">
-                      <span class="pf-c-form__label-text">Container Engine:</span>
-                      <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
-                    </label>
-                  </div>
-                  <div class="pf-c-form__group-control">
-                    <div class="flex w-full">
-                      <select
-                        class="w-auto border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
-                        name="providerChoice"
-                        bind:value="{selectedProviderConnection}">
-                        {#each providerConnections as providerConnection}
-                          <option value="{providerConnection}">{providerConnection.name}</option>
-                        {/each}
-                      </select>
-                    </div>
-                  </div>
-                </div>
+          {#if providerConnections.length > 1}
+            <div class="pt-4">
+              <div class="block mb-2 text-sm font-bold text-gray-400">
+                <label for="providerChoice">Container Engine:</label>
+                <select
+                  id="providerChoice"
+                  class="w-auto border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
+                  name="providerChoice"
+                  bind:value="{selectedProviderConnection}">
+                  {#each providerConnections as providerConnection}
+                    <option value="{providerConnection}">{providerConnection.name}</option>
+                  {/each}
+                </select>
               </div>
+            </div>
+          {/if}
+          {#if providerConnections.length == 1}
+            <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection}" />
+          {/if}
+        </div>
+        <footer>
+          <div class="w-full flex flex-col justify-end">
+            {#if !pullFinished}
+              <button
+                class="pf-c-button pf-m-primary"
+                disabled="{!imageToPull || imageToPull.trim() === '' || pullInProgress}"
+                type="submit"
+                on:click="{() => pullImage()}">
+                {#if pullInProgress === true}
+                  <i class="pf-c-button__progress">
+                    <span class="pf-c-spinner pf-m-md" role="progressbar">
+                      <span class="pf-c-spinner__clipper"></span>
+                      <span class="pf-c-spinner__lead-ball"></span>
+                      <span class="pf-c-spinner__tail-ball"></span>
+                    </span>
+                  </i>
+                {/if}
+                Pull image</button>
+            {:else}
+              <button class="pf-c-button pf-m-primary" type="button" on:click="{() => pullImageFinished()}">
+                Done</button>
             {/if}
-            {#if providerConnections.length == 1}
-              <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection}" />
+            {#if pullError}
+              <ErrorMessage error="{pullError}" />
             {/if}
           </div>
-          <footer class="pf-c-modal-box__footer">
-            <div class="w-full flex flex-col justify-end">
-              {#if !pullFinished}
-                <button
-                  class="pf-c-button pf-m-primary"
-                  disabled="{!imageToPull || imageToPull.trim() === '' || pullInProgress}"
-                  type="submit"
-                  on:click="{() => pullImage()}">
-                  {#if pullInProgress === true}
-                    <i class="pf-c-button__progress">
-                      <span class="pf-c-spinner pf-m-md" role="progressbar">
-                        <span class="pf-c-spinner__clipper"></span>
-                        <span class="pf-c-spinner__lead-ball"></span>
-                        <span class="pf-c-spinner__tail-ball"></span>
-                      </span>
-                    </i>
-                  {/if}
-                  Pull image</button>
-              {:else}
-                <button class="pf-c-button pf-m-primary" type="button" on:click="{() => pullImageFinished()}">
-                  Done</button>
-              {/if}
-              {#if pullError}
-                <p class="pf-c-form__helper-text pf-m-error" id="form-help-text-address-helper" aria-live="polite">
-                  {pullError}
-                </p>
-              {/if}
-            </div>
-          </footer>
-        </form>
+        </footer>
         <div bind:this="{pullLogsXtermDiv}"></div>
       </div>
     {/if}
