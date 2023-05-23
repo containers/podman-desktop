@@ -12,7 +12,6 @@ onMount(async () => {
 
   imageTags = inspectInfo.RepoTags;
 });
-
 </script>
 
 <Modal

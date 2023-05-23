@@ -28,7 +28,6 @@ function handleRenameImageModal() {
   renameImageModal = true;
 }
 
-
 function closeModals() {
   pushImageModal = false;
   renameImageModal = false;

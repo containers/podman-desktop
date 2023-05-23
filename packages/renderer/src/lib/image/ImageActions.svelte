@@ -1,5 +1,12 @@
 <script lang="ts">
-import { faArrowUp, faEllipsisVertical, faLayerGroup, faPlay, faTrash, faEdit} from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowUp,
+  faEllipsisVertical,
+  faLayerGroup,
+  faPlay,
+  faTrash,
+  faEdit,
+} from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
