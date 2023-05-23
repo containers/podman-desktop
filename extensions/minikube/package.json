@@ -1,0 +1,73 @@
+{
+  "name": "minikube",
+  "displayName": "Minikube",
+  "description": "Integration for minikube: a tool that makes it easy to run Kubernetes locally",
+  "version": "0.0.1",
+  "icon": "icon.png",
+  "publisher": "podman-desktop",
+  "license": "Apache-2.0",
+  "engines": {
+    "podman-desktop": "^0.0.1"
+  },
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Minikube",
+      "properties": {
+        "minikube.cluster.creation.name": {
+          "type": "string",
+          "default": "minikube",
+          "scope": "KubernetesProviderConnectionFactory",
+          "description": "Name"
+        },
+        "minikube.cluster.creation.driver": {
+          "type": "string",
+          "default": "podman",
+          "enum": [
+            "podman",
+            "docker"
+          ],
+          "scope": "KubernetesProviderConnectionFactory",
+          "description": "Driver"
+        },
+        "minikube.cluster.creation.runtime": {
+          "type": "string",
+          "default": "cri-o",
+          "enum": [
+            "cri-o",
+            "containerd",
+            "docker"
+          ],
+          "scope": "KubernetesProviderConnectionFactory",
+          "description": "Container Runtime"
+        }
+      }
+    },
+    "menus": {
+      "dashboard/image": [
+        {
+          "command": "minikube.image.move",
+          "title": "Push image to minikube cluster"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "npx ts-node ./scripts/download.ts && vite build && node ./scripts/build.js",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch --coverage",
+    "watch": "vite build -w"
+  },
+  "dependencies": {
+    "@octokit/rest": "^19.0.11",
+    "@podman-desktop/api": "^0.0.1",
+    "mustache": "^4.2.0",
+    "sudo-prompt": "^9.2.1"
+  },
+  "devDependencies": {
+    "7zip-min": "^1.4.4",
+    "mkdirp": "^2.1.6",
+    "vite": "^4.3.8",
+    "zip-local": "^0.3.5"
+  }
+}

@@ -183,6 +183,7 @@ const setupBuiltinExtensionApiWatcher = name => {
     setupBuiltinExtensionApiWatcher('lima');
     setupBuiltinExtensionApiWatcher('podman');
     setupBuiltinExtensionApiWatcher('kind');
+    setupBuiltinExtensionApiWatcher('minikube');
     setupBuiltinExtensionApiWatcher('registries');
     for (const extension of extensions) {
       setupExtensionApiWatcher(extension);
