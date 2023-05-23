@@ -220,13 +220,21 @@ function computeInterval(): number {
     {#if $imagesInfos.length > 0}
       <Prune type="images" engines="{enginesList}" />
     {/if}
-    <button on:click="{() => gotoPullImage()}" class="pf-c-button pf-m-primary" type="button">
+    <button
+      on:click="{() => gotoPullImage()}"
+      class="pf-c-button pf-m-primary"
+      type="button"
+      title="Pull Image From a Registry">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
       </span>
       Pull an image
     </button>
-    <button on:click="{() => gotoBuildImage()}" class="pf-c-button pf-m-primary" type="button">
+    <button
+      on:click="{() => gotoBuildImage()}"
+      class="pf-c-button pf-m-primary"
+      type="button"
+      title="Build Image from Containerfile">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-cube" aria-hidden="true"></i>
       </span>
