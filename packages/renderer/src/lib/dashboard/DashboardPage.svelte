@@ -1,7 +1,5 @@
 <script lang="ts">
 import { providerInfos } from '../../stores/providers';
-import { onMount } from 'svelte';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import ProviderNotInstalled from './ProviderNotInstalled.svelte';
 import ProviderReady from './ProviderReady.svelte';
 import ProviderInstalled from './ProviderInstalled.svelte';
@@ -9,22 +7,31 @@ import ProviderConfigured from './ProviderConfigured.svelte';
 import ProviderStopped from './ProviderStopped.svelte';
 import ProviderStarting from './ProviderStarting.svelte';
 import NavPage from '../ui/NavPage.svelte';
-import type { InitializationMode } from './ProviderInitUtils';
+import type { InitializationContext } from './ProviderInitUtils';
+import { InitializeAndStartMode } from './ProviderInitUtils';
 import FeaturedExtensions from '/@/lib/featured/FeaturedExtensions.svelte';
+import ProviderConfiguring from '/@/lib/dashboard/ProviderConfiguring.svelte';
 
-const providerInitMode = new Map<string, InitializationMode>();
+const providerInitContexts = new Map<string, InitializationContext>();
 
 $: providersNotInstalled = $providerInfos.filter(provider => provider.status === 'not-installed');
-$: providersInstalled = $providerInfos.filter(
-  provider => provider.status === 'installed' || provider.status === 'configuring',
-);
+$: providersInstalled = $providerInfos.filter(provider => provider.status === 'installed');
+$: providersConfiguring = $providerInfos.filter(provider => provider.status === 'configuring');
 $: providersConfigured = $providerInfos.filter(provider => provider.status === 'configured');
 $: providersReady = $providerInfos.filter(provider => provider.status === 'ready' || provider.status === 'started');
 $: providersStarting = $providerInfos.filter(provider => provider.status === 'starting');
 $: providersStopped = $providerInfos.filter(provider => provider.status === 'stopped');
 
-function updateInitializationMode(id: string, mode: InitializationMode) {
-  providerInitMode.set(id, mode);
+function getInitializationContext(id: string) {
+  let context: InitializationContext;
+
+  if (providerInitContexts.has(id)) {
+    context = providerInitContexts.get(id);
+  } else {
+    context = { mode: InitializeAndStartMode };
+    providerInitContexts.set(id, context);
+  }
+  return context;
 }
 </script>
 
@@ -50,7 +57,18 @@ function updateInitializationMode(id: string, mode: InitializationMode) {
           display a box to indicate how to make the provider ready -->
         {#if providersInstalled.length > 0}
           {#each providersInstalled as providerInstalled}
-            <ProviderInstalled provider="{providerInstalled}" updateInitializationMode="{updateInitializationMode}" />
+            <ProviderInstalled
+              provider="{providerInstalled}"
+              initializationContext="{getInitializationContext(providerInstalled.internalId)}" />
+          {/each}
+        {/if}
+
+        <!-- Provider is configuring -->
+        {#if providersConfiguring.length > 0}
+          {#each providersConfiguring as providerConfiguring}
+            <ProviderConfiguring
+              provider="{providerConfiguring}"
+              initializationContext="{getInitializationContext(providerConfiguring.internalId)}" />
           {/each}
         {/if}
 
@@ -60,7 +78,7 @@ function updateInitializationMode(id: string, mode: InitializationMode) {
           {#each providersConfigured as providerConfigured}
             <ProviderConfigured
               provider="{providerConfigured}"
-              initializationMode="{providerInitMode.get(providerConfigured.internalId)}" />
+              initializationContext="{getInitializationContext(providerConfigured.internalId)}" />
           {/each}
         {/if}
 
