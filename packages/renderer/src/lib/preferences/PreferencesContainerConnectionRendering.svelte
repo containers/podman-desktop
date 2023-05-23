@@ -98,7 +98,7 @@ async function startConnection() {
   lifecycleError = undefined;
   try {
     const loggerHandlerKey = startTask(
-      `Start ${providerInfo.name} ${containerConnectionInfo.name}`,
+      `Start ${containerConnectionInfo.name}`,
       `/preferences/resources`,
       getLoggerHandler(),
     );
@@ -116,7 +116,7 @@ async function startConnection() {
 async function stopConnection() {
   lifecycleError = undefined;
   const loggerHandlerKey = startTask(
-    `Stop ${providerInfo.name} ${containerConnectionInfo.name}`,
+    `Stop ${containerConnectionInfo.name}`,
     `/preferences/resources`,
     getLoggerHandler(),
   );
@@ -131,7 +131,7 @@ async function stopConnection() {
 async function deleteConnection() {
   lifecycleError = undefined;
   const loggerHandlerKey = startTask(
-    `Delete ${providerInfo.name} ${containerConnectionInfo.name}`,
+    `Delete ${containerConnectionInfo.name}`,
     `/preferences/resources`,
     getLoggerHandler(),
   );
