@@ -45,11 +45,11 @@ let showLogs = false;
 let tokenId: number;
 
 const providerDisplayName =
-      (providerInfo.containerProviderConnectionCreation
-        ? providerInfo.containerProviderConnectionCreationDisplayName || undefined
-        : providerInfo.kubernetesProviderConnectionCreation
-        ? providerInfo.kubernetesProviderConnectionCreationDisplayName
-        : undefined) || providerInfo.name;
+  (providerInfo.containerProviderConnectionCreation
+    ? providerInfo.containerProviderConnectionCreationDisplayName || undefined
+    : providerInfo.kubernetesProviderConnectionCreation
+    ? providerInfo.kubernetesProviderConnectionCreationDisplayName
+    : undefined) || providerInfo.name;
 
 let osMemory, osCpu, osFreeDisk;
 // get only ContainerProviderConnectionFactory scope fields that are starting by the provider id
@@ -241,7 +241,8 @@ async function handleOnSubmit(e) {
     tokenId = await window.getCancellableTokenSource();
     // clear terminal
     logsTerminal?.clear();
-    loggerHandlerKey = startTask(`Create ${providerDisplayName}`,
+    loggerHandlerKey = startTask(
+      `Create ${providerDisplayName}`,
       `/preferences/provider-task/${providerInfo.internalId}/${taskId}`,
       getLoggerHandler(),
     );
