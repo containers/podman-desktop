@@ -1,6 +1,6 @@
 ---
-sidebar_position: 10
-title: Kubernetes context
+sidebar_position: 2
+title: Selecting a context
 description: Viewing and selecting the current Kubernetes context
 keywords: [podman desktop, podman, containers, pods, migrating, kubernetes]
 tags: [migrating-to-kubernetes]
