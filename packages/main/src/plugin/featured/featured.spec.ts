@@ -87,7 +87,7 @@ test('getFeaturedExtensions should check installable extensions', async () => {
   listExtensionsMock.mockReturnValue([
     {
       publisher: 'podman-desktop',
-      id: 'podman',
+      id: 'podman-desktop.podman',
       // make it a built-in extension (cannot be removed, just disabled)
       removable: false,
     },

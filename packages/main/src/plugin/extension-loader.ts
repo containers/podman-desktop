@@ -63,6 +63,7 @@ import { securityRestrictionCurrentHandler } from '../security-restrictions-hand
 
 export interface AnalyzedExtension {
   id: string;
+  name: string;
   // root folder (where is package.json)
   path: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -360,7 +361,8 @@ export class ExtensionLoader {
     const api = this.createApi(extensionPath, manifest);
 
     const extension: AnalyzedExtension = {
-      id: manifest.name,
+      id: `${manifest.publisher}.${manifest.name}`,
+      name: manifest.name,
       manifest,
       path: extensionPath,
       mainPath: path.resolve(extensionPath, manifest.main),
@@ -808,9 +810,17 @@ export class ExtensionLoader {
 
     const subscriptions: containerDesktopAPI.Disposable[] = [];
 
+    const storagePath = path.resolve(this.extensionsStorageDirectory, extension.id);
+    const oldStoragePath = path.resolve(this.extensionsStorageDirectory, extension.name);
+
+    // Migrate old storage path to new storage path
+    if (fs.existsSync(oldStoragePath)) {
+      await fs.promises.rename(oldStoragePath, storagePath);
+    }
+
     const extensionContext: containerDesktopAPI.ExtensionContext = {
       subscriptions,
-      storagePath: path.resolve(this.extensionsStorageDirectory, extension.id),
+      storagePath,
     };
     let deactivateFunction = undefined;
     if (typeof extensionMain['deactivate'] === 'function') {

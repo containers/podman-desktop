@@ -131,9 +131,9 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
       <section class="pf-c-nav__subnav {addSectionHiddenClass('extensionsCatalog')}">
         <ul class="pf-c-nav__list">
           {#each $extensionInfos as extension}
-            <li class="pf-c-nav__item {addCurrentClass(`/preferences/extension/${extension.name}`)}">
+            <li class="pf-c-nav__item {addCurrentClass(`/preferences/extension/${extension.id}`)}">
               <a
-                href="/preferences/extension/{extension.name}"
+                href="/preferences/extension/{extension.id}"
                 id="configuration-section-extensions-catalog-{extension.name.toLowerCase()}"
                 class="pf-c-nav__link"
                 style="font-weight: 200">{extension.displayName}</a>
