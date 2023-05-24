@@ -12,6 +12,7 @@ import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings'
 import { getPanelDetailColor } from '../color/color';
 import {
   type InitializationContext,
+  type InitializationMode,
   InitializationSteps,
   InitializeAndStartMode,
   InitializeOnlyMode,
@@ -119,7 +120,7 @@ function updateOptionsMenu(visible: boolean) {
 function onInstallationClick() {
   initializeInProgress = true;
   initializationButtonVisible = false;
-  initializationContext.mode = installationOptionSelected;
+  initializationContext.mode = installationOptionSelected as InitializationMode;
   initializeProvider();
 }
 </script>

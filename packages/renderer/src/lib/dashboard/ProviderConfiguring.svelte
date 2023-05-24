@@ -107,7 +107,7 @@ onDestroy(() => {
     </p>
 
     <div class="mt-5">
-      {#if initializationContext === InitializeAndStartMode}
+      {#if initializationContext.mode === InitializeAndStartMode}
         <Steps
           steps="{InitializationSteps}"
           primary="var(--pf-global--primary-color--300)"
