@@ -25,6 +25,7 @@ import ProviderInstalled from '/@/lib/dashboard/ProviderInstalled.svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
 import userEvent from '@testing-library/user-event';
+import { verifyStatus } from './ProviderStatusTestHelper';
 
 vi.mock('xterm', () => {
   return {
@@ -79,4 +80,12 @@ test('Expect installed provider shows button', async () => {
 
   expect((initializationContext as any).promise).toBeDefined();
   expect(window.initializeProvider).toHaveBeenCalled();
+});
+
+test('Expect installed provider shows update button', async () => {
+  verifyStatus(ProviderInstalled, 'installed', false);
+});
+
+test('Expect installed provider does not show update button if version same', async () => {
+  verifyStatus(ProviderInstalled, 'installed', true);
 });
