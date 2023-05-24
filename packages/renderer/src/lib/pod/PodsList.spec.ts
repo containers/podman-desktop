@@ -27,7 +27,6 @@ import { get } from 'svelte/store';
 import { providerInfos } from '/@/stores/providers';
 import { podsInfos } from '/@/stores/pods';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
-import ImagesList from '/@/lib/ImagesList.svelte';
 
 const getProvidersInfoMock = vi.fn();
 const listPodsMock = vi.fn();
