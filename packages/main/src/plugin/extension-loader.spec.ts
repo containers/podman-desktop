@@ -243,6 +243,7 @@ test('Verify extension error leads to failed state', async () => {
   await extensionLoader.activateExtension(
     {
       id: id,
+      name: 'id',
       path: 'dummy',
       api: {} as typeof containerDesktopAPI,
       mainPath: '',
