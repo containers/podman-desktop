@@ -1,17 +1,17 @@
 import type { BrowserWindow } from 'electron';
-import type { ElectronApplication, JSHandle, Locator, Page } from 'playwright';
+import type { ElectronApplication, JSHandle, Page } from 'playwright';
 import { _electron as electron } from 'playwright';
 import { afterAll, beforeAll, expect, test } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
-import * as os from 'node:os'
+import * as os from 'node:os';
 import * as path from 'node:path';
 
 let electronApp: ElectronApplication;
 
 let page: Page;
-let userHome = os.homedir();
+const userHome = os.homedir();
 const navBarItems = ['Dashboard', 'Containers', 'Images', 'Pods', 'Volumes', 'Settings'];
 
 beforeAll(async () => {
@@ -20,8 +20,16 @@ beforeAll(async () => {
     console.log('Cleaning up output folder...');
     await rm('tests/output', { recursive: true, force: true });
   }
-  
-  const settingsPath = path.join(userHome, '.local', 'share', 'containers', 'podman-desktop', 'configuration', 'settings.json');
+
+  const settingsPath = path.join(
+    userHome,
+    '.local',
+    'share',
+    'containers',
+    'podman-desktop',
+    'configuration',
+    'settings.json',
+  );
   // clean up settings to show initial welcome screen
   if (existsSync(settingsPath)) {
     console.log('Removing settings.json to get initial state');
@@ -52,26 +60,24 @@ test('Check the Welcome page is displayed', async () => {
 
   const window: JSHandle<BrowserWindow> = await electronApp.browserWindow(page);
 
-  const windowState = await window.evaluate(
-    (mainWindow): Promise<{ isVisible: boolean; isCrashed: boolean }> => {
-      const getState = () => ({
-        isVisible: mainWindow.isVisible(),
-        isCrashed: mainWindow.webContents.isCrashed(),
-      });
+  const windowState = await window.evaluate((mainWindow): Promise<{ isVisible: boolean; isCrashed: boolean }> => {
+    const getState = () => ({
+      isVisible: mainWindow.isVisible(),
+      isCrashed: mainWindow.webContents.isCrashed(),
+    });
 
-      return new Promise(resolve => {
-        /**
-         * The main window is created hidden, and is shown only when it is ready.
-         * See {@link ../packages/main/src/mainWindow.ts} function
-         */
+    return new Promise(resolve => {
+      /**
+       * The main window is created hidden, and is shown only when it is ready.
+       * See {@link ../packages/main/src/mainWindow.ts} function
+       */
 
-        mainWindow.webContents.closeDevTools();
-        if (mainWindow.isVisible()) {
-          resolve(getState());
-        } else mainWindow.once('ready-to-show', () => resolve(getState()));
-      });
-    },
-  );
+      mainWindow.webContents.closeDevTools();
+      if (mainWindow.isVisible()) {
+        resolve(getState());
+      } else mainWindow.once('ready-to-show', () => resolve(getState()));
+    });
+  });
   expect(windowState.isCrashed, 'The app has crashed').toBeFalsy();
   expect(windowState.isVisible, 'The main window was not visible').toBeTruthy();
 
@@ -82,7 +88,6 @@ test('Check the Welcome page is displayed', async () => {
 });
 
 test('Telemetry checkbox is present, set to true, consent can be changed', async () => {
-
   // wait for the initial screen to be loaded
   const telemetryConsent = page.getByText('Telemetry');
   expect(telemetryConsent).not.undefined;
@@ -93,7 +98,6 @@ test('Telemetry checkbox is present, set to true, consent can be changed', async
 });
 
 test('Redirection from Welcome page to Dashboard works', async () => {
-  
   const goToPodmanDesktopButton = page.locator('button:text("Go to Podman Desktop")');
   // wait for visibility
   await goToPodmanDesktopButton.waitFor({ state: 'visible' });
@@ -117,23 +121,23 @@ test('Verify main UI elements are present - Application tray', async () => {
   const appTray = page.locator('.place-self-end');
   expect(appTray).not.undefined;
   const help = appTray.getByTitle('Help');
-  playExpect(help).toBeVisible();
+  await playExpect(help).toBeVisible();
   const tasks = appTray.getByTitle('Tasks');
-  playExpect(tasks).toBeVisible();
+  await playExpect(tasks).toBeVisible();
   const feedback = appTray.getByTitle('Share your feedback');
-  playExpect(feedback).toBeVisible();
+  await playExpect(feedback).toBeVisible();
   const version = appTray.getByTitle(/Using version .*/);
   console.log(`version: ${await version.innerText()}`);
-  playExpect(version).toBeVisible();
+  await playExpect(version).toBeVisible();
 });
 
 test('Verify main UI elements are present - Kind and Compose installation', async () => {
   const appTray = page.locator('.place-self-end').locator('xpath=..');
   expect(appTray).not.undefined;
   const kind = appTray.getByText('Kind');
-  playExpect(kind).toBeVisible();
+  await playExpect(kind).toBeVisible();
   const compose = appTray.getByText('Compose');
-  playExpect(compose).toBeVisible();
+  await playExpect(compose).toBeVisible();
 });
 
 test('Verify main UI elements are present - Navigation Bar items', async () => {
