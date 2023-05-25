@@ -68,7 +68,7 @@ function toContainerStatus(state: V1ContainerState | undefined): string {
   return 'Unknown';
 }
 
-function toPodInfo(pod: V1Pod, contextName: string | undefined): PodInfo {
+function toPodInfo(pod: V1Pod, contextName?: string): PodInfo {
   const containers =
     pod.status?.containerStatuses?.map(status => {
       return {
@@ -88,7 +88,7 @@ function toPodInfo(pod: V1Pod, contextName: string | undefined): PodInfo {
     Namespace: pod.metadata?.namespace || '',
     Networks: [],
     Status: pod.status?.phase || '',
-    engineId: contextName || 'kubernetes',
+    engineId: contextName ?? 'kubernetes',
     engineName: 'Kubernetes',
     kind: 'kubernetes',
   };
