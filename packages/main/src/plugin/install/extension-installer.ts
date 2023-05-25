@@ -92,108 +92,101 @@ export class ExtensionInstaller {
     });
   }
 
+  async installFromImage(
+    sendLog: (message: string) => void,
+    sendError: (message: string) => void,
+    sendEnd: (message: string) => void,
+    imageName: string,
+  ): Promise<void> {
+    imageName = imageName.trim();
+    sendLog(`Analyzing image ${imageName}...`);
+    let imageConfigLabels;
+    try {
+      imageConfigLabels = await this.imageRegistry.getImageConfigLabels(imageName);
+    } catch (error) {
+      sendError('Error while analyzing image: ' + error);
+      return;
+    }
+
+    if (!imageConfigLabels) {
+      sendError(`Image ${imageName} is not a Podman Desktop Extension. Unable to grab image config labels.`);
+      return;
+    }
+
+    const titleLabel = imageConfigLabels['org.opencontainers.image.title'];
+    const descriptionLabel = imageConfigLabels['org.opencontainers.image.description'];
+    const vendorLabel = imageConfigLabels['org.opencontainers.image.vendor'];
+    const apiVersion = imageConfigLabels['io.podman-desktop.api.version'];
+
+    if (!titleLabel || !descriptionLabel || !vendorLabel || !apiVersion) {
+      sendError(`Image ${imageName} is not a Podman Desktop Extension`);
+      return;
+    }
+
+    // strip the tag (ending with :something) from the image name if any
+    let imageNameWithoutTag: string;
+    if (imageName.includes(':')) {
+      imageNameWithoutTag = imageName.split(':')[0];
+    } else {
+      imageNameWithoutTag = imageName;
+    }
+
+    // remove all special characters from the image name
+    const imageNameWithoutSpecialChars = imageNameWithoutTag.replace(/[^a-zA-Z0-9]/g, '');
+
+    // tmp folder
+    const tmpFolderPath = path.join(os.tmpdir(), `/tmp/${imageNameWithoutSpecialChars}-tmp`);
+
+    // final folder
+    const finalFolderPath = path.join(this.extensionLoader.getPluginsDirectory(), imageNameWithoutSpecialChars);
+
+    // grab all extensions
+    const extensions = await this.extensionLoader.listExtensions();
+
+    // check if the extension is already installed for that path
+    const alreadyInstalledExtension = extensions.find(extension => extension.path === finalFolderPath);
+
+    if (alreadyInstalledExtension) {
+      sendError(`Extension ${alreadyInstalledExtension.name} is already installed`);
+      return;
+    }
+
+    sendLog('Downloading and extract layers...');
+    await this.imageRegistry.downloadAndExtractImage(imageName, tmpFolderPath, sendLog);
+
+    sendLog('Filtering image content...');
+    await this.extractExtensionFiles(tmpFolderPath, finalFolderPath, sendLog);
+
+    // refresh contributions
+    try {
+      await this.extensionLoader.loadExtension(finalFolderPath, true);
+    } catch (error) {
+      sendError('Error while loading the extension ' + error);
+      return;
+    }
+
+    sendEnd('Extension Successfully installed.');
+    this.apiSender.send('extension-started', {});
+  }
+
   async init(): Promise<void> {
     ipcMain.on(
       'extension-installer:install-from-image',
       (event: IpcMainEvent, imageName: string, logCallbackId: number): void => {
-        const reportLog = (message: string): void => {
+        const sendLog = (message: string): void => {
           event.reply('extension-installer:install-from-image-log', logCallbackId, message);
         };
 
-        const handler = async (): Promise<void> => {
-          imageName = imageName.trim();
-          reportLog(`Analyzing image ${imageName}...`);
-          let imageConfigLabels;
-          try {
-            imageConfigLabels = await this.imageRegistry.getImageConfigLabels(imageName);
-          } catch (error) {
-            event.reply(
-              'extension-installer:install-from-image-error',
-              logCallbackId,
-              'Error while analyzing image: ' + error,
-            );
-            return;
-          }
-
-          if (!imageConfigLabels) {
-            event.reply(
-              'extension-installer:install-from-image-error',
-              logCallbackId,
-              `Image ${imageName} is not a Podman Desktop Extension. Unable to grab image config labels.`,
-            );
-            return;
-          }
-
-          const titleLabel = imageConfigLabels['org.opencontainers.image.title'];
-          const descriptionLabel = imageConfigLabels['org.opencontainers.image.description'];
-          const vendorLabel = imageConfigLabels['org.opencontainers.image.vendor'];
-          const apiVersion = imageConfigLabels['io.podman-desktop.api.version'];
-
-          if (!titleLabel || !descriptionLabel || !vendorLabel || !apiVersion) {
-            event.reply(
-              'extension-installer:install-from-image-error',
-              logCallbackId,
-              `Image ${imageName} is not a Podman Desktop Extension`,
-            );
-            return;
-          }
-
-          // strip the tag (ending with :something) from the image name if any
-          let imageNameWithoutTag: string;
-          if (imageName.includes(':')) {
-            imageNameWithoutTag = imageName.split(':')[0];
-          } else {
-            imageNameWithoutTag = imageName;
-          }
-
-          // remove all special characters from the image name
-          const imageNameWithoutSpecialChars = imageNameWithoutTag.replace(/[^a-zA-Z0-9]/g, '');
-
-          // tmp folder
-          const tmpFolderPath = path.join(os.tmpdir(), `/tmp/${imageNameWithoutSpecialChars}-tmp`);
-
-          // final folder
-          const finalFolderPath = path.join(this.extensionLoader.getPluginsDirectory(), imageNameWithoutSpecialChars);
-
-          // grab all extensions
-          const extensions = await this.extensionLoader.listExtensions();
-
-          // check if the extension is already installed for that path
-          const alreadyInstalledExtension = extensions.find(extension => extension.path === finalFolderPath);
-
-          if (alreadyInstalledExtension) {
-            event.reply(
-              'extension-installer:install-from-image-error',
-              logCallbackId,
-              `Extension ${alreadyInstalledExtension.name} is already installed`,
-            );
-            return;
-          }
-
-          reportLog('Downloading and extract layers...');
-          await this.imageRegistry.downloadAndExtractImage(imageName, tmpFolderPath, reportLog);
-
-          event.reply('extension-installer:install-from-image-log', logCallbackId, 'Filtering image content...');
-          await this.extractExtensionFiles(tmpFolderPath, finalFolderPath, reportLog);
-
-          // refresh contributions
-          try {
-            await this.extensionLoader.loadExtension(finalFolderPath, true);
-          } catch (error) {
-            event.reply(
-              'extension-installer:install-from-image-error',
-              logCallbackId,
-              'Error while loading the extension ' + error,
-            );
-            return;
-          }
-
-          event.reply('extension-installer:install-from-image-end', logCallbackId, 'Extension Successfully installed.');
-          this.apiSender.send('extension-started', {});
+        const sendError = (message: string): void => {
+          event.reply('extension-installer:install-from-image-error', logCallbackId, message);
         };
 
-        handler().catch((error: unknown) => {
-          event.reply('extension-installer:install-from-image-error', logCallbackId, error);
+        const sendEnd = (message: string): void => {
+          event.reply('extension-installer:install-from-image-end', logCallbackId, message);
+        };
+
+        this.installFromImage(sendLog, sendError, sendEnd, imageName).catch((error: unknown) => {
+          reportError('' + error);
         });
       },
     );
