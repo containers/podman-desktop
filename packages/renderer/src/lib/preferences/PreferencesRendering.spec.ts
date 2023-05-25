@@ -71,3 +71,9 @@ test('Expect to see one record when filtering with unknown keyword', async () =>
   const noSettingsDiv = screen.getAllByText('No Settings Found');
   expect(noSettingsDiv.length > 0).toBe(true);
 });
+
+test('Expect extension title used a section name', async () => {
+  render(PreferencesRendering, { properties: records, key: 'key' });
+  const sectionName = screen.getAllByText('my boolean property');
+  expect(sectionName.length > 0).toBe(true);
+});
