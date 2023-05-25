@@ -101,7 +101,7 @@ const kubepod1: PodInfo = {
   Networks: [],
   Status: 'running',
   engineId: 'context1',
-  engineName: 'Kubernetes',
+  engineName: 'k8s',
   kind: 'kubernetes',
 };
 
@@ -117,7 +117,7 @@ const kubepod2: PodInfo = {
   Networks: [],
   Status: 'running',
   engineId: 'context2',
-  engineName: 'Kubernetes',
+  engineName: 'k8s',
   kind: 'kubernetes',
 };
 
@@ -205,7 +205,7 @@ test('Expect single kubernetes pod being displayed', async () => {
   }
 
   render(PodsList);
-  const pod1Details = screen.getByRole('cell', { name: 'kubepod1 beab2512 0 container Kubernetes context1 tooltip' });
+  const pod1Details = screen.getByRole('cell', { name: 'kubepod1 beab2512 0 container k8s context1 tooltip' });
   expect(pod1Details).toBeInTheDocument();
 });
 
@@ -225,8 +225,8 @@ test('Expect 2 kubernetes pods being displayed', async () => {
   }
 
   render(PodsList);
-  const pod1Details = screen.getByRole('cell', { name: 'kubepod1 beab2512 0 container Kubernetes context1 tooltip' });
+  const pod1Details = screen.getByRole('cell', { name: 'kubepod1 beab2512 0 container k8s context1 tooltip' });
   expect(pod1Details).toBeInTheDocument();
-  const pod2Details = screen.getByRole('cell', { name: 'kubepod2 e8129c57 0 container Kubernetes context2 tooltip' });
+  const pod2Details = screen.getByRole('cell', { name: 'kubepod2 e8129c57 0 container k8s context2 tooltip' });
   expect(pod2Details).toBeInTheDocument();
 });

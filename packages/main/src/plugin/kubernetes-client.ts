@@ -89,7 +89,7 @@ function toPodInfo(pod: V1Pod, contextName?: string): PodInfo {
     Networks: [],
     Status: pod.status?.phase || '',
     engineId: contextName ?? 'kubernetes',
-    engineName: 'Kubernetes',
+    engineName: 'k8s',
     kind: 'kubernetes',
   };
 }
