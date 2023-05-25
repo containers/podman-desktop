@@ -286,7 +286,9 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-900">
                     <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
-                      {pod.engineName}
+                      {pod.engineName}{#if pod.kind === 'kubernetes'}<div class="ml-1">
+                          <Tooltip tip="{pod.engineId}" top>{pod.engineId.substring(0, 16)}</Tooltip>
+                        </div>{/if}
                     </div>
                   </div>
                 </div>
