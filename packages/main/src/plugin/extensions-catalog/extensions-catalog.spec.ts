@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import nock from 'nock';
 import { ExtensionsCatalog } from './extensions-catalog';
@@ -39,6 +39,7 @@ const fakePublishedExtension1 = {
   versions: [
     {
       version: '1.0.0',
+      preview: false,
       lastUpdated: '2021-01-01T00:00:00.000Z',
       ociUri: 'oci-registry.foo/foo/bar',
     },
@@ -58,12 +59,9 @@ const proxy: Proxy = {
   isEnabled: isEnabledProxyMock,
 } as unknown as Proxy;
 
-beforeAll(async () => {
-  extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
-});
-
 const originalConsoleError = console.error;
 beforeEach(() => {
+  extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
   vi.clearAllMocks();
   console.error = vi.fn();
 });
@@ -136,4 +134,33 @@ test('check getHttpOptions with Proxy', async () => {
   // certificates should be 1, 2, 3
   expect(options.https?.certificateAuthority).toBeDefined();
   expect(options.https?.certificateAuthority?.length).toBe(3);
+});
+
+test('should get all extensions', async () => {
+  const url = new URL(ExtensionsCatalog.ALL_EXTENSIONS_URL);
+  const host = url.origin;
+  const pathname = url.pathname;
+  nock(host)
+    .get(pathname)
+    .reply(200, {
+      extensions: [fakePublishedExtension1],
+    });
+
+  const allExtensions = await extensionsCatalog.getExtensions();
+  expect(allExtensions).toBeDefined();
+  expect(allExtensions.length).toBe(1);
+
+  // check data
+  const extension = allExtensions[0];
+  expect(extension.id).toBe('foo.fooName');
+  expect(extension.publisherName).toBe('foo');
+  expect(extension.displayName).toBe(fakePublishedExtension1.displayName);
+  expect(extension.versions.length).toBe(1);
+  expect(extension.versions[0]).toStrictEqual({
+    ociUri: 'oci-registry.foo/foo/bar',
+    preview: false,
+    version: '1.0.0',
+  });
+  // no error
+  expect(console.error).not.toBeCalled();
 });
