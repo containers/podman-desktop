@@ -8,12 +8,12 @@ import ProviderUpdateButton from './ProviderUpdateButton.svelte';
 import { Steps } from 'svelte-steps';
 
 import { onMount } from 'svelte';
-import { type InitializationMode, InitializeAndStartMode, InitializationSteps } from './ProviderInitUtils';
+import { InitializeAndStartMode, InitializationSteps, type InitializationContext } from './ProviderInitUtils';
 
 export let provider: ProviderInfo;
-export let initializationMode: InitializationMode;
+export let initializationContext: InitializationContext;
 
-let runAtStart = initializationMode === InitializeAndStartMode;
+let runAtStart = initializationContext.mode === InitializeAndStartMode;
 let runInProgress = false;
 
 let runError: string | undefined = undefined;
@@ -72,7 +72,7 @@ onMount(() => {
     {/if}
     {#if runAtStart || runInProgress}
       <div class="mt-5">
-        {#if initializationMode === InitializeAndStartMode}
+        {#if initializationContext.mode === InitializeAndStartMode}
           <Steps
             steps="{InitializationSteps}"
             primary="var(--pf-global--primary-color--300)"
