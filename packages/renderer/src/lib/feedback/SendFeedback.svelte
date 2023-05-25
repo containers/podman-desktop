@@ -99,7 +99,6 @@ async function sendFeedback(): Promise<void> {
           name="tellUsWhyFeedback"
           id="tellUsWhyFeedback"
           bind:value="{tellUsWhyFeedback}"
-          placeholder="Leave blank to generate a name"
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
         ></textarea>
 
