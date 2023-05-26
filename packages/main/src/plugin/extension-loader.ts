@@ -820,7 +820,7 @@ export class ExtensionLoader {
     const oldStoragePath = path.resolve(this.extensionsStorageDirectory, extension.name);
 
     // Migrate old storage path to new storage path
-    if (fs.existsSync(oldStoragePath)) {
+    if (fs.existsSync(oldStoragePath) && !fs.existsSync(storagePath)) {
       await fs.promises.rename(oldStoragePath, storagePath);
     }
 
