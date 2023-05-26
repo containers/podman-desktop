@@ -5,7 +5,7 @@ import PreflightChecks from './PreflightChecks.svelte';
 import ProviderLinks from './ProviderLinks.svelte';
 import ProviderLogo from './ProviderLogo.svelte';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
-import { Steps } from 'svelte-steps';
+import Steps from 'svelte-steps/Steps.svelte';
 
 import { onMount } from 'svelte';
 import { InitializeAndStartMode, InitializationSteps, type InitializationContext } from './ProviderInitUtils';
@@ -100,7 +100,7 @@ onMount(() => {
       <ErrorMessage class="flex flex-col mt-2 my-2 text-sm" error="{runError}" />
     {/if}
   </div>
-  {#if provider.updateInfo}
+  {#if provider.version !== provider.updateInfo?.version}
     <div class="mt-10 mb-1 w-full flex justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>
