@@ -395,6 +395,7 @@ async function monitorProvider(provider: extensionApi.Provider) {
         // update provider status if someone has installed podman externally
         if (provider.status === 'not-installed') {
           provider.updateStatus('installed');
+          registerContainerConnectionFactory(provider);
         }
       }
     } catch (error) {
