@@ -7,6 +7,7 @@ export let closeCallback: () => void;
 export let imageInfoToRename: ImageInfoUI;
 
 let selectedImageTag = '';
+let newImageTag = '';
 let imageTags: string[] = [];
 onMount(async () => {
   const inspectInfo = await window.getImageInspect(imageInfoToRename.engineId, imageInfoToRename.id);
@@ -16,6 +17,9 @@ onMount(async () => {
     selectedImageTag = imageTags[0];
   }
 });
+async function renameImage(imageTag: string, newImageTag: string) {
+  await window.addImageTag(imageInfoToRename.engineId, imageTag, "new-image-tag")
+}
 </script>
 
 <Modal
@@ -46,12 +50,20 @@ onMount(async () => {
           <label for="newImageTag" class="block my-2 text-sm font-bold text-gray-400">New Image Tag</label>
           <input
             type="text"
-            value="{selectedImageTag}"
+            bind:value="{newImageTag}"
             name="newImageTag"
             id="newImageTag"
             placeholder="Enter new image tag (e.g. quay.io/namespace/my-custom-image:latest)"
             class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
             required />
+          <button
+            class="pf-c-button pf-m-primary"
+            type="button"
+            on:click="{() => {
+              renameImage(selectedImageTag, newImageTag);
+            }}">
+          Add Image Tag</button>
+
       </div>
 
     </div>

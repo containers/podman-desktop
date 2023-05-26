@@ -273,6 +273,10 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('addImageTag', async (engine: string, imageId: string, newImageTag: string): Promise<void> => {
+    return ipcInvoke('container-provider-registry:addImageTag', engine, imageId, newImageTag);
+  });
+
   contextBridge.exposeInMainWorld('restartContainer', async (engine: string, containerId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:restartContainer', engine, containerId);
   });
