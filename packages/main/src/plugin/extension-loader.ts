@@ -21,7 +21,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import type { CommandRegistry } from './command-registry';
-import type { ExtensionError, ExtensionInfo } from './api/extension-info';
+import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info';
 import * as zipper from 'zip-local';
 import type { TrayMenuRegistry } from './tray-menu-registry';
 import { Disposable } from './types/disposable';
@@ -72,6 +72,11 @@ export interface AnalyzedExtension {
   mainPath: string;
   api: typeof containerDesktopAPI;
   removable: boolean;
+
+  update?: {
+    version: string;
+    ociUri: string;
+  };
 }
 
 export interface ActivatedExtension {
@@ -147,6 +152,7 @@ export class ExtensionLoader {
       id: extension.id,
       path: extension.path,
       removable: extension.removable,
+      update: extension.update,
     }));
   }
 
@@ -939,5 +945,21 @@ export class ExtensionLoader {
 
   getPluginsDirectory(): string {
     return this.pluginsDirectory;
+  }
+
+  setExtensionsUpdates(extensionsToUpdate: ExtensionUpdateInfo[]): void {
+    // loop existing extensions and add the data
+    for (const extensionToUpdate of extensionsToUpdate) {
+      const existingExtension = this.analyzedExtensions.get(extensionToUpdate.id);
+      if (existingExtension) {
+        existingExtension.update = {
+          version: extensionToUpdate.version,
+          ociUri: extensionToUpdate.ociUri,
+        };
+      }
+    }
+
+    // ask to refresh
+    this.apiSender.send('extensions-updated');
   }
 }
