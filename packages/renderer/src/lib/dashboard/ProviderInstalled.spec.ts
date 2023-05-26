@@ -25,7 +25,7 @@ import ProviderInstalled from '/@/lib/dashboard/ProviderInstalled.svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
 import userEvent from '@testing-library/user-event';
-import { verifyStatus } from './ProviderStatusTestHelper';
+import { verifyStatus } from './ProviderStatusTestHelper.spec';
 
 vi.mock('xterm', () => {
   return {

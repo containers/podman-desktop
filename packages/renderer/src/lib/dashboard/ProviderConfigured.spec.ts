@@ -19,12 +19,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom';
-import { beforeAll, test } from 'vitest';
-import { verifyStatus } from './ProviderStatusTestHelper';
+import { beforeAll, test, vi } from 'vitest';
+import { verifyStatus } from './ProviderStatusTestHelper.spec';
 import ProviderConfigured from '/@/lib/dashboard/ProviderConfigured.svelte';
 
 // fake the window.events object
 beforeAll(() => {
+  (window as any).startProvider = vi.fn();
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
       func();

@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom';
 import { beforeAll, test } from 'vitest';
-import { verifyStatus } from './ProviderStatusTestHelper';
+import { verifyStatus } from './ProviderStatusTestHelper.spec';
 import ProviderReady from '/@/lib/dashboard/ProviderReady.svelte';
 
 // fake the window.events object

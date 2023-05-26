@@ -70,3 +70,7 @@ export function verifyStatus<C extends SvelteComponent>(
     expect(updateButton).toBeInTheDocument();
   }
 }
+
+test('vitest does not accept helper files without a test', () => {
+  expect(true).toBeTruthy();
+});
