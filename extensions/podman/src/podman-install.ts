@@ -29,6 +29,7 @@ import { getAssetsFolder, runCliCommand } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
+import { registerContainerConnectionFactory } from './extension';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -128,6 +129,7 @@ export class PodmanInstall {
       // write podman version
       if (newInstalledPodman) {
         this.podmanInfo.podmanVersion = newInstalledPodman.version;
+        registerContainerConnectionFactory(provider);
       }
       // update detections checks
       provider.updateDetectionChecks(getDetectionChecks(newInstalledPodman));

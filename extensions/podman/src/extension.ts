@@ -558,6 +558,14 @@ async function registerUpdatesIfAny(
   }
 }
 
+export function registerContainerConnectionFactory(provider: extensionApi.Provider) {
+  provider.setContainerProviderConnectionFactory({
+    initialize: () => createMachine({}, undefined),
+    create: createMachine,
+    creationDisplayName: 'Podman machine',
+  });
+}
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   storedExtensionContext = extensionContext;
   const podmanInstall = new PodmanInstall(extensionContext.storagePath);
@@ -742,12 +750,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   extensionContext.subscriptions.push(provider);
 
   // allows to create machines
-  if (isMac() || isWindows()) {
-    provider.setContainerProviderConnectionFactory({
-      initialize: () => createMachine({}, undefined),
-      create: createMachine,
-      creationDisplayName: 'Podman machine',
-    });
+  if (status == 'installed' && (isMac() || isWindows())) {
+    registerContainerConnectionFactory(provider);
   }
 
   // no podman for now, skip
@@ -948,7 +952,7 @@ function setupDisguisedPodmanSocketWatcher(
   });
 
   let socketWatcher: extensionApi.FileSystemWatcher;
-  if (isLinux) {
+  if (isLinux()) {
     socketWatcher = extensionApi.fs.createFileSystemWatcher(socketFile);
   } else {
     // watch parent directory
