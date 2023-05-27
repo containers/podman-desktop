@@ -335,7 +335,7 @@ export class ImageRegistry {
             proxy: httpProxyUrl,
           });
         } catch (error) {
-          throw new Error(`Failed to create https proxy agent from ${httpProxyUrl}: ${error}`);
+          throw new Error(`Failed to create http proxy agent from ${httpProxyUrl}: ${error}`);
         }
       }
       if (httpsProxyUrl) {
