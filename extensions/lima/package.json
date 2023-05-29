@@ -16,7 +16,26 @@
         "command": "docker.info",
         "title": "Lima: Specific info about Lima"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Lima",
+      "properties": {
+        "lima.type": {
+          "type": "string",
+          "default": "podman",
+          "enum": [
+            "podman",
+            "docker"
+          ],
+          "description": "Engine type (requires restart of extension)"
+        },
+        "lima.name": {
+          "type": "string",
+          "default": "",
+          "description": "Instance name (default is same name as type)"
+        }
+      }
+    }
   },
   "scripts": {
     "build": "tsc && node ./scripts/build.js",
