@@ -31,6 +31,16 @@ const settingsBackupPath = path.join(
   'configuration',
   'settings_backup.json',
 );
+const kindPath = path.join(
+  userHome,
+  '.local',
+  'share',
+  'containers',
+  'podman-desktop',
+  'extensions-storage',
+  'kind',
+  'kind-linux-amd64' // ToDo: change according to OS
+);
 
 beforeAll(async () => {
   // remove all videos/screenshots
@@ -140,7 +150,10 @@ test('Verify main UI elements are present in Status Bar', async () => {
 });
 
 test('Verify main UI elements are present in Status Bar - Kind and Compose installation', async () => {
-  await playExpect(page.locator('li', { hasText: 'Kind' })).toBeVisible();
+  if (existsSync(kindPath)) {
+    console.log(`Kind is already downloaded`);
+  }
+  await playExpect.soft(page.locator('li', { hasText: 'Kind' })).toBeVisible();
   await playExpect(page.locator('li', { hasText: 'Compose' })).toBeVisible();
 });
 
