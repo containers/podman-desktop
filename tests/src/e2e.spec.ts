@@ -43,7 +43,7 @@ beforeAll(async () => {
   if (existsSync(settingsPath)) {
     console.log('Removing settings.json to get initial state');
     copyFileSync(settingsPath, settingsBackupPath);
-    await rm(settingsPath, {force: true});
+    await rm(settingsPath, { force: true });
   }
 
   electronApp = await electron.launch({
@@ -64,7 +64,7 @@ afterAll(async () => {
   await electronApp.close();
   // restore backupe settings.json file
   if (existsSync(settingsBackupPath)) {
-    await rm(settingsPath, {force: true});
+    await rm(settingsPath, { force: true });
     renameSync(settingsBackupPath, settingsPath);
   }
 });
@@ -140,8 +140,8 @@ test('Verify main UI elements are present in Status Bar', async () => {
 });
 
 test('Verify main UI elements are present in Status Bar - Kind and Compose installation', async () => {
-  await playExpect(page.locator('li', { hasText: 'Kind'})).toBeVisible();
-  await playExpect(page.locator('li', { hasText: 'Compose'})).toBeVisible();
+  await playExpect(page.locator('li', { hasText: 'Kind' })).toBeVisible();
+  await playExpect(page.locator('li', { hasText: 'Compose' })).toBeVisible();
 });
 
 test('Verify main UI elements are present in Navigation Bar', async () => {
