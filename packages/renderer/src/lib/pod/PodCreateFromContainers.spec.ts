@@ -62,7 +62,45 @@ const podCreation: PodCreation = {
       engineId: 'podman',
       id: 'id',
       name: 'cont_1',
-      ports: [9090, 8080],
+      ports: [
+        {
+          PublicPort: 9090,
+          IP: 'ip',
+          PrivatePort: 80,
+          Type: 'type',
+        },
+        {
+          PublicPort: 8080,
+          IP: 'ip',
+          PrivatePort: 81,
+          Type: 'type',
+        },
+      ],
+    },
+  ],
+  name: 'pod',
+};
+
+const podCreationSamePortContainers: PodCreation = {
+  containers: [
+    {
+      engineId: 'podman',
+      id: 'id',
+      name: 'cont_1',
+      ports: [
+        {
+          PublicPort: 9090,
+          IP: 'ip',
+          PrivatePort: 80,
+          Type: 'type',
+        },
+        {
+          PublicPort: 8080,
+          IP: 'ip',
+          PrivatePort: 80,
+          Type: 'type',
+        },
+      ],
     },
   ],
   name: 'pod',
@@ -204,4 +242,13 @@ test('Show error if pod creation fails', async () => {
 
   const exposedPortsLabel = await screen.findByText('error create pod');
   expect(exposedPortsLabel).toBeInTheDocument();
+});
+
+test('Show warning if multiple containers use the same port', async () => {
+  providerInfos.set([providerInfo]);
+  podCreationHolder.set(podCreationSamePortContainers);
+
+  render(PodCreateFromContainers, {});
+  const warningLabel = await screen.findByLabelText('warning');
+  expect(warningLabel).toBeInTheDocument();
 });

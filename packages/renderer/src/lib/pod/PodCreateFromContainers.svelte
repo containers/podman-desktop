@@ -14,6 +14,7 @@ let podCreation: PodCreation;
 let createInProgress = false;
 let createError = undefined;
 $: mapPortExposed = new Map<number, { exposed: boolean; container: string }>();
+$: mapPortPrivate = new Map<number, string[]>();
 
 let providers: ProviderInfo[] = [];
 $: providerConnections = providers
@@ -118,11 +119,17 @@ onMount(() => {
     podCreation = value;
     podCreation.containers.forEach(container => {
       container.ports.forEach(port => {
-        mapPortExposed.set(port, {
+        mapPortExposed.set(port.PublicPort, {
           exposed: true,
           container: container.name,
         });
+        mapPortPrivate.set(port.PrivatePort, [...(mapPortPrivate.get(port.PrivatePort) || []), container.name]);
       });
+    });
+    mapPortPrivate.forEach((value, key) => {
+      if (value.length < 2) {
+        mapPortPrivate.delete(key);
+      }
     });
   });
 });
@@ -155,6 +162,29 @@ function updatePortExposure(port: number, checked: boolean) {
     <div class="m-5 p-6 h-full bg-charcoal-800 rounded-sm text-gray-700">
       <div class="w-4/5 min-w-[500px]">
         {#if podCreation}
+          {#if mapPortPrivate.size > 0}
+            <div
+              class="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-2"
+              role="alert"
+              aria-label="warning">
+              <div class="font-bold">Possible Runtime Error</div>
+              <div class="mt-1 text-sm">
+                {#each [...mapPortPrivate] as [port, containers]}
+                  Containers
+                  {#each containers as container, index}
+                    {container}
+                    {#if index === containers.length - 2}
+                      and
+                    {:else if index < containers.length - 1}
+                      ,
+                    {/if}
+                    {' '}
+                  {/each}
+                  use the same port {port}.
+                {/each}
+              </div>
+            </div>
+          {/if}
           <div class="mb-2">
             <span class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400">Name of the pod:</span>
           </div>
