@@ -3,7 +3,7 @@ import type { ElectronApplication, JSHandle, Page } from 'playwright';
 import { _electron as electron } from 'playwright';
 import { afterAll, beforeAll, expect, test } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { existsSync } from 'node:fs';
+import { existsSync, copyFileSync, renameSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -13,6 +13,24 @@ let electronApp: ElectronApplication;
 let page: Page;
 const userHome = os.homedir();
 const navBarItems = ['Dashboard', 'Containers', 'Images', 'Pods', 'Volumes', 'Settings'];
+const settingsPath = path.join(
+  userHome,
+  '.local',
+  'share',
+  'containers',
+  'podman-desktop',
+  'configuration',
+  'settings.json',
+);
+const settingsBackupPath = path.join(
+  userHome,
+  '.local',
+  'share',
+  'containers',
+  'podman-desktop',
+  'configuration',
+  'settings_backup.json',
+);
 
 beforeAll(async () => {
   // remove all videos/screenshots
@@ -21,19 +39,11 @@ beforeAll(async () => {
     await rm('tests/output', { recursive: true, force: true });
   }
 
-  const settingsPath = path.join(
-    userHome,
-    '.local',
-    'share',
-    'containers',
-    'podman-desktop',
-    'configuration',
-    'settings.json',
-  );
-  // clean up settings to show initial welcome screen
+  // clean up settings to show initial welcome screen and telemetry, create settings backup
   if (existsSync(settingsPath)) {
     console.log('Removing settings.json to get initial state');
-    await rm(settingsPath, {});
+    copyFileSync(settingsPath, settingsBackupPath);
+    await rm(settingsPath, {force: true});
   }
 
   electronApp = await electron.launch({
@@ -52,11 +62,16 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await electronApp.close();
+  // restore backupe settings.json file
+  if (existsSync(settingsBackupPath)) {
+    await rm(settingsPath, {force: true});
+    renameSync(settingsBackupPath, settingsPath);
+  }
 });
 
 test('Check the Welcome page is displayed', async () => {
   // Direct Electron console to Node terminal.
-  // page.on('console', console.log);
+  page.on('console', console.log);
 
   const window: JSHandle<BrowserWindow> = await electronApp.browserWindow(page);
 
@@ -117,34 +132,21 @@ test('Redirection from Welcome page to Dashboard works', async () => {
   await playExpect(dashboardTitle).toBeVisible();
 });
 
-test('Verify main UI elements are present - Application tray', async () => {
-  const appTray = page.locator('.place-self-end');
-  expect(appTray).not.undefined;
-  const help = appTray.getByTitle('Help');
-  await playExpect(help).toBeVisible();
-  const tasks = appTray.getByTitle('Tasks');
-  await playExpect(tasks).toBeVisible();
-  const feedback = appTray.getByTitle('Share your feedback');
-  await playExpect(feedback).toBeVisible();
-  const version = appTray.getByTitle(/Using version .*/);
-  console.log(`version: ${await version.innerText()}`);
-  await playExpect(version).toBeVisible();
+test('Verify main UI elements are present in Status Bar', async () => {
+  await playExpect(page.locator('xpath=.//li//div[@title="Help"]')).toBeVisible();
+  await playExpect(page.locator('xpath=.//li//div[@title="Tasks"]')).toBeVisible();
+  await playExpect(page.locator('xpath=.//li//div[@title="Share your feedback"]')).toBeVisible();
+  await playExpect(page.locator('xpath=.//li//div[starts-with(@title, "Using version")]')).toBeVisible();
 });
 
-test('Verify main UI elements are present - Kind and Compose installation', async () => {
-  const appTray = page.locator('.place-self-end').locator('xpath=..');
-  expect(appTray).not.undefined;
-  const kind = appTray.getByText('Kind');
-  await playExpect(kind).toBeVisible();
-  const compose = appTray.getByText('Compose');
-  await playExpect(compose).toBeVisible();
+test('Verify main UI elements are present in Status Bar - Kind and Compose installation', async () => {
+  await playExpect(page.locator('li', { hasText: 'Kind'})).toBeVisible();
+  await playExpect(page.locator('li', { hasText: 'Compose'})).toBeVisible();
 });
 
-test('Verify main UI elements are present - Navigation Bar items', async () => {
-  const navBar = page.getByLabel('Global');
-  expect(navBar).not.undefined;
+test('Verify main UI elements are present in Navigation Bar', async () => {
   for (const item of navBarItems) {
-    const locator = navBar.getByText(new RegExp(item));
+    const locator = page.getByRole('navigation').getByText(new RegExp(item));
     expect(locator).toBeDefined();
   }
 });
