@@ -28,7 +28,7 @@
     "micromark-extension-directive": "^2.2.0",
     "moment": "^2.29.4",
     "monaco-editor": "^0.38.0",
-    "postcss": "^8.4.23",
+    "postcss": "^8.4.24",
     "postcss-load-config": "^4.0.1",
     "svelte": "3.59.1",
     "svelte-check": "^3.3.2",
