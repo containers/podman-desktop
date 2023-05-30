@@ -2,7 +2,7 @@ Podman Desktop - A graphical tool for developing on containers and Kubernetes
 ---
 
 <p align="center">
-  <img alt="Podman Desktop" src="/website/static/img/features/manage-containers.png">
+  <img alt="Podman Desktop" src="/website/static/img/features/manage-containers.webp">
 </p>
 
 ## Documentation
