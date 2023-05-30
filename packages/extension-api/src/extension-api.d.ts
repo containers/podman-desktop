@@ -157,8 +157,10 @@ declare module '@podman-desktop/api' {
   }
 
   // For displaying essential information to the user
+  // "symbol" for the symbol to precede the message, like warning or information
   // "name" of the warning / title and a "details" field for more information
   export interface ProviderInformation {
+    symbol?: string;
     name: string;
     details?: string;
   }

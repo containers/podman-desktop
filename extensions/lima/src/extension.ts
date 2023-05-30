@@ -70,8 +70,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   if (fs.existsSync(socketPath)) {
     registerProvider(extensionContext, provider, socketPath);
+    const information: extensionApi.ProviderInformation = {
+      symbol: '🛈',
+      name: 'Instance name',
+      details: instanceName as string,
+    };
+    provider.updateWarnings([information]);
   } else {
-    console.error(`Could not find podman socket at ${socketPath}`);
+    console.error(`Could not find ${engineType} socket at ${socketPath}`);
   }
 }
 
