@@ -27,7 +27,6 @@ let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let pods: PodInfoUI[] = [];
-let multipleEngines = false;
 let enginesList: EngineInfoUI[];
 
 $: providerConnections = $providerInfos
@@ -66,18 +65,8 @@ onMount(async () => {
     });
 
     // Remove duplicates from engines by name
-    const uniqueEngines = engines.filter(
-      (engine, index, self) => index === self.findIndex(t => t.name === engine.name),
-    );
-
-    if (uniqueEngines.length > 1) {
-      multipleEngines = true;
-    } else {
-      multipleEngines = false;
-    }
-
     // Set the engines to the global variable for the Prune functionality button
-    enginesList = uniqueEngines;
+    enginesList = engines.filter((engine, index, self) => index === self.findIndex(t => t.name === engine.name));
 
     // update selected items based on current selected items
     computedPods.forEach(pod => {
@@ -296,12 +285,11 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                     </div>
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-900">
-                    <!-- Hide in case of single engine-->
-                    {#if multipleEngines}
-                      <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
-                        {pod.engineName}
-                      </div>
-                    {/if}
+                    <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
+                      {pod.engineName}{#if pod.kind === 'kubernetes'}<div class="ml-1">
+                          <Tooltip tip="{pod.engineId}" top>{pod.engineId.substring(0, 16)}</Tooltip>
+                        </div>{/if}
+                    </div>
                   </div>
                 </div>
               </div>

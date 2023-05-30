@@ -63,9 +63,7 @@ export class Featured {
       };
 
       // check if the extension is installed
-      const extensionInfo = extensionInfos.find(
-        extensionInfo => `${extensionInfo.publisher}.${extensionInfo.id}` === extensionToCheck.extensionId,
-      );
+      const extensionInfo = extensionInfos.find(extensionInfo => extensionInfo.id === extensionToCheck.extensionId);
       if (extensionInfo) {
         // found it so we can flag them as installed/fetched
         featuredExtension.installed = true;

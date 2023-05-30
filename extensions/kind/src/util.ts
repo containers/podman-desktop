@@ -193,7 +193,7 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
   let command: string[];
   if (system == 'win32') {
     destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
-    command = ['copy', binaryPath, destinationPath];
+    command = ['copy', `"${binaryPath}"`, `"${destinationPath}"`];
   } else {
     destinationPath = path.join('/usr/local/bin', binaryName);
     command = ['cp', binaryPath, destinationPath];

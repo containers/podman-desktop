@@ -48,6 +48,7 @@ onMount(async () => {
     readOnly: true,
     theme: 'podmanDesktopTheme',
     automaticLayout: true,
+    scrollBeyondLastLine: false,
   });
 
   return () => {

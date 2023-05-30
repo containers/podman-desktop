@@ -191,7 +191,7 @@ async function startContainer() {
     // no value, use empty string
     .map(env => `${env.key}=${env.value || ''}`);
 
-  const Image = image.id;
+  const Image = image.tag ? `${image.name}:${image.tag}` : image.id;
 
   const RestartPolicy: { Name: string; MaximumRetryCount?: number } = {
     Name: restartPolicyName,

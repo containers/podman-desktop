@@ -68,7 +68,7 @@ function toContainerStatus(state: V1ContainerState | undefined): string {
   return 'Unknown';
 }
 
-function toPodInfo(pod: V1Pod): PodInfo {
+function toPodInfo(pod: V1Pod, contextName?: string): PodInfo {
   const containers =
     pod.status?.containerStatuses?.map(status => {
       return {
@@ -88,8 +88,8 @@ function toPodInfo(pod: V1Pod): PodInfo {
     Namespace: pod.metadata?.namespace || '',
     Networks: [],
     Status: pod.status?.phase || '',
-    engineId: 'kubernetes',
-    engineName: 'Kubernetes',
+    engineId: contextName ?? 'kubernetes',
+    engineName: 'k8s',
     kind: 'kubernetes',
   };
 }
@@ -435,7 +435,7 @@ export class KubernetesClient {
     const connected = await this.checkConnection();
     if (ns && connected) {
       const pods = await this.listNamespacedPod(ns);
-      return pods.items.map(pod => toPodInfo(pod));
+      return pods.items.map(pod => toPodInfo(pod, this.getCurrentContextName()));
     }
     return [];
   }

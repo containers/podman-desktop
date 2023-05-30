@@ -29,7 +29,7 @@ import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configu
 
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn().mockResolvedValue(true);
-  (window as any).telemetryPage = vi.fn();
+  (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
 });
 
 const record: IConfigurationPropertyRecordedSchema = {
@@ -70,4 +70,10 @@ test('Expect to see one record when filtering with unknown keyword', async () =>
   render(PreferencesRendering, { properties: records, key: 'key', searchValue: 'unknwon' });
   const noSettingsDiv = screen.getAllByText('No Settings Found');
   expect(noSettingsDiv.length > 0).toBe(true);
+});
+
+test('Expect extension title used a section name', async () => {
+  render(PreferencesRendering, { properties: records, key: 'key' });
+  const sectionName = screen.getAllByText('my boolean property');
+  expect(sectionName.length > 0).toBe(true);
 });

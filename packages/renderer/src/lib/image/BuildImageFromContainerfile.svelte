@@ -205,7 +205,7 @@ async function initTerminal() {
             bind:value="{containerImageName}"
             name="containerImageName"
             id="containerImageName"
-            placeholder="Enter image name"
+            placeholder="Enter image name (e.g. quay.io/namespace/my-custom-image)"
             class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
             required />
           {#if providerConnections.length > 1}

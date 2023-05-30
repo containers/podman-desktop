@@ -179,7 +179,9 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
 
   // no machine, it's installed
   if (machines.length === 0) {
-    provider.updateStatus('installed');
+    if (provider.status !== 'configuring') {
+      provider.updateStatus('installed');
+    }
   } else {
     const atLeastOneMachineRunning = machines.some(machine => machine.Running);
     const atLeastOneMachineStarting = machines.some(machine => machine.Starting);
