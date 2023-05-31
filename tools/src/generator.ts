@@ -17,7 +17,7 @@
  ***********************************************************************/
 import { graphql } from '@octokit/graphql';
 
-const RELEASE_NOTES_SECTION_TAG = '// release-notes';
+export const RELEASE_NOTES_SECTION_TAG = '// release-notes';
 
 const DEFAULT_MAPPINGS = new Map<string, string>([
   ['feat', 'Features'],
@@ -34,7 +34,7 @@ interface PullRequestInfo {
   number: number;
   sections: string[];
 }
-class Generator {
+export class Generator {
   private client;
   constructor(
     private token: string,
@@ -195,45 +195,3 @@ class Generator {
     }
   }
 }
-
-async function run() {
-  let token = process.env.GITHUB_TOKEN;
-  if (!token) {
-    token = process.env.GH_TOKEN;
-  }
-  const args = process.argv.slice(2);
-  let organization = 'containers';
-  let repo = 'podman-desktop';
-  let isUser = false;
-  let milestone = undefined;
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--token') {
-      token = args[++i];
-    } else if (args[i] === '--org') {
-      organization = args[++i];
-    } else if (args[i] === '--user') {
-      organization = args[++i];
-      isUser = true;
-    } else if (args[i] === '--repo') {
-      repo = args[++i];
-    } else if (args[i] === '--milestone') {
-      milestone = args[++i];
-    }
-  }
-  if (token) {
-    const rn = await new Generator(token, organization, repo, isUser, milestone).generate();
-
-    console.log(`${rn}`);
-  } else {
-    console.log('No token found use either GITHUB_TOKEN or pass it as an argument');
-  }
-}
-
-run()
-  .then(() => {
-    process.exit(0);
-  })
-  .catch((err: unknown) => {
-    console.error(err);
-    process.exit(1);
-  });
