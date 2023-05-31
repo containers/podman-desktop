@@ -95,7 +95,7 @@ class Generator {
       return (result as any).user?.repository?.milestones?.nodes[0].pullRequests;
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (result as any).organization?.repository?.milestones?.nodes[0].pullRequests;
+      return (result as any).organization?.repository?.milestones?.nodes[0].pullRequests;
     }
   }
 
