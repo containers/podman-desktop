@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "node16",
     "lib": [
       "ES2017",
     ],
@@ -8,7 +8,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "target": "esnext",
-    "moduleResolution": "Node",
+    "moduleResolution": "node16",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "types": [

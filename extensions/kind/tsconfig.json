@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "Node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "resolveJsonModule": true,
     "lib": [
         "ES2017",
