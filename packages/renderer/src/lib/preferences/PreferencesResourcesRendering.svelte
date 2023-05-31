@@ -48,9 +48,11 @@ onMount(() => {
 
   providersUnsubscribe = providerInfos.subscribe(providerInfosValue => {
     providers = providerInfosValue;
+    const connectionNames = [];
     providers.forEach(provider => {
       provider.containerConnections.forEach(container => {
         const containerConnectionName = getProviderConnectionName(provider, container);
+        connectionNames.push(containerConnectionName);
         // update the map only if the container state is different from last time
         if (
           !containerConnectionStatus.has(containerConnectionName) ||
@@ -76,6 +78,7 @@ onMount(() => {
       });
       provider.kubernetesConnections.forEach(connection => {
         const containerConnectionName = getProviderConnectionName(provider, connection);
+        connectionNames.push(containerConnectionName);
         // update the map only if the container state is different from last time
         if (
           !containerConnectionStatus.has(containerConnectionName) ||
@@ -99,6 +102,12 @@ onMount(() => {
           }
         }
       });
+    });
+    // if a machine has been deleted we need to clean its old stored status
+    containerConnectionStatus.forEach((v, k) => {
+      if (!connectionNames.find(name => name === k)) {
+        containerConnectionStatus.delete(k);
+      }
     });
     if (isStatusUpdated) {
       isStatusUpdated = false;

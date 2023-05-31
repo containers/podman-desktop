@@ -423,15 +423,7 @@ function prettyMachineName(machineName: string): string {
 async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (context, logger): Promise<void> => {
-      try {
-        // start the machine
-        await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], { logger });
-        provider.updateStatus('started');
-      } catch (err) {
-        console.error(err);
-        // propagate the error
-        throw err;
-      }
+      await startMachine(provider, machineInfo, logger);
     },
     stop: async (context, logger): Promise<void> => {
       await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], { logger });
@@ -470,6 +462,85 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
 
   currentConnections.set(machineInfo.name, disposable);
   storedExtensionContext.subscriptions.push(disposable);
+}
+
+async function startMachine(
+  provider: extensionApi.Provider,
+  machineInfo: MachineInfo,
+  logger?: extensionApi.Logger,
+  skipHandleError?: boolean,
+): Promise<void> {
+  try {
+    // start the machine
+    await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], { logger });
+    provider.updateStatus('started');
+  } catch (err) {
+    if (skipHandleError) {
+      console.error(err);
+      // propagate the error
+      throw err;
+    }
+
+    await doHandleError(provider, machineInfo, err);
+  }
+}
+
+async function doHandleError(
+  provider: extensionApi.Provider,
+  machineInfo: MachineInfo,
+  error: string | Error,
+): Promise<void> {
+  const errText = error instanceof Error ? error.message : error;
+  if (errText.toLowerCase().includes('wsl bootstrap script failed: exit status 0xffffffff')) {
+    const handled = await doHandleWSLDistroNotFoundError(provider, machineInfo);
+    if (handled) {
+      return;
+    }
+  }
+
+  console.error(error);
+  // propagate the error
+  throw error;
+}
+
+async function doHandleWSLDistroNotFoundError(
+  provider: extensionApi.Provider,
+  machineInfo: MachineInfo,
+): Promise<boolean> {
+  const result = await extensionApi.window.showInformationMessage(
+    `Error while starting Podman Machine '${machineInfo.name}'. The WSL bootstrap script failed: exist status 0xffffffff. The machine is probably broken and should be deleted and reinitialized. Do you want to recreate it?`,
+    'Yes',
+    'Cancel',
+  );
+  if (result === 'Yes') {
+    return await extensionApi.window.withProgress(
+      { location: extensionApi.ProgressLocation.TASK_WIDGET, title: `Initializing ${machineInfo.name}` },
+      async progress => {
+        progress.report({ increment: 5 });
+        try {
+          provider.updateStatus('configuring');
+          await execPromise(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name]);
+          progress.report({ increment: 40 });
+          await createMachine(
+            {
+              'podman.factory.machine.name': machineInfo.name,
+              'podman.factory.machine.cpus': machineInfo.cpus,
+              'podman.factory.machine.memory': machineInfo.memory,
+              'podman.factory.machine.diskSize': machineInfo.diskSize,
+            },
+            undefined,
+          ); // add machine name
+        } catch (error) {
+          console.error(error);
+        } finally {
+          progress.report({ increment: -1 });
+        }
+        return true;
+      },
+    );
+  }
+
+  return false;
 }
 
 async function registerUpdatesIfAny(
@@ -654,10 +725,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         const machines = Array.from(podmanMachinesStatuses.entries());
         if (machines.length > 0) {
           const [machineName] = machines[0];
-          console.log('Podman extension:', 'Autostarting machine', machineName);
-          await execPromise(getPodmanCli(), ['machine', 'start', machineName], { logger });
-          autoMachineStarted = true;
-          autoMachineName = machineName;
+          if (!podmanMachinesInfo.has(machineName)) {
+            console.error('Unable to retrieve machine infos to be autostarted', machineName);
+          } else {
+            console.log('Podman extension:', 'Autostarting machine', machineName);
+            const machineInfo = podmanMachinesInfo.get(machineName);
+            await startMachine(provider, machineInfo, logger);
+            autoMachineStarted = true;
+            autoMachineName = machineName;
+          }
         }
       },
     });
