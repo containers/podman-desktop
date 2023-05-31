@@ -70,7 +70,7 @@ export type MachineJSON = {
   Default: boolean;
 };
 
-type MachineInfo = {
+export type MachineInfo = {
   name: string;
   cpus: number;
   memory: number;
@@ -464,7 +464,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   storedExtensionContext.subscriptions.push(disposable);
 }
 
-async function startMachine(
+export async function startMachine(
   provider: extensionApi.Provider,
   machineInfo: MachineInfo,
   logger?: extensionApi.Logger,
@@ -529,7 +529,7 @@ async function doHandleWSLDistroNotFoundError(
               'podman.factory.machine.diskSize': machineInfo.diskSize,
             },
             undefined,
-          ); // add machine name
+          );
         } catch (error) {
           console.error(error);
         } finally {
