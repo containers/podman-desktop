@@ -79,8 +79,10 @@ class Generator {
     const query = this.getMilestoneQuery();
     const result = await this.client(query);
     if (this.isUser) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (result as any).user?.repository?.milestones?.nodes[0];
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (result as any).organization?.repository?.milestones?.nodes[0];
     }
   }
@@ -89,8 +91,10 @@ class Generator {
     const query = this.getPullRequestsQuery(milestone, latestPr);
     const result = await this.client(query);
     if (this.isUser) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (result as any).user?.repository?.milestones?.nodes[0].pullRequests;
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (result as any).organization?.repository?.milestones?.nodes[0].pullRequests;
     }
   }
@@ -141,7 +145,7 @@ class Generator {
         const pullRequests = await this.getPullRequests(milestone.title, latestPR);
         latestPR = pullRequests?.pageInfo?.endCursor;
         if (pullRequests?.nodes?.length) {
-          for (const pr of pullRequests?.nodes) {
+          for (const pr of pullRequests.nodes) {
             if (pr.body && pr.title) {
               const sections = this.getReleaseNotesSections(pr.body);
               if (sections.length > 0) {
@@ -170,7 +174,7 @@ class Generator {
       });
       return content;
     } else {
-      throw new Error(`${this.milestone ? `Milestone ${this.milestone} not found` : `no milestone found`}`);
+      throw new Error(this.milestone ? `Milestone ${this.milestone} not found` : 'no milestone found');
     }
   }
 }
@@ -185,7 +189,7 @@ async function run() {
   let repo = 'podman-desktop';
   let isUser = false;
   let milestone = undefined;
-  for (var i = 0; i < args.length; i++) {
+  for (let i = 0; i < args.length; i++) {
     if (args[i] === '--token') {
       token = args[++i];
     } else if (args[i] === '--org') {
@@ -212,7 +216,7 @@ run()
   .then(() => {
     process.exit(0);
   })
-  .catch(err => {
+  .catch((err: unknown) => {
     console.error(err);
     process.exit(1);
   });
