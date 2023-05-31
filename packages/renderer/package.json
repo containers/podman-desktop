@@ -24,7 +24,7 @@
     "filesize": "^10.0.7",
     "humanize-duration": "^3.28.0",
     "jsdom": "^22.1.0",
-    "micromark": "^3.1.0",
+    "micromark": "^3.2.0",
     "micromark-extension-directive": "^2.2.1",
     "moment": "^2.29.4",
     "monaco-editor": "^0.38.0",
