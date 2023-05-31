@@ -9,12 +9,15 @@ import type { Unsubscriber } from 'svelte/store';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import ContainerIcon from '../images/ContainerIcon.svelte';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa/src/fa.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
 let createError = undefined;
 $: mapPortExposed = new Map<number, { exposed: boolean; container: string }>();
-$: mapPortPrivate = new Map<number, string[]>();
+let containersPorts: { containers: string[]; ports: number[] }[];
+$: containersPorts = [];
 
 let providers: ProviderInfo[] = [];
 $: providerConnections = providers
@@ -117,6 +120,7 @@ onMount(() => {
 
   podCreationUnsubscribe = podCreationHolder.subscribe(value => {
     podCreation = value;
+    const mapPortPrivate = new Map<number, string[]>();
     podCreation.containers.forEach(container => {
       container.ports.forEach(port => {
         mapPortExposed.set(port.PublicPort, {
@@ -130,9 +134,32 @@ onMount(() => {
       if (value.length < 2) {
         mapPortPrivate.delete(key);
       }
+      const indexContainersItem = getIndexSameContainersItems(value);
+      if (indexContainersItem !== undefined) {
+        containersPorts[indexContainersItem].ports.push(key);
+      } else {
+        containersPorts.push({
+          containers: value,
+          ports: [key],
+        });
+      }
     });
   });
 });
+
+function getIndexSameContainersItems(containers: string[]): number | undefined {
+  let index = 0;
+  for (const entry of containersPorts) {
+    const isDiff =
+      containers.filter(arr1Item => !entry.containers.includes(arr1Item)).length > 0 ||
+      entry.containers.filter(arr1Item => !containers.includes(arr1Item)).length > 0;
+    if (!isDiff) {
+      return index;
+    }
+    index++;
+  }
+  return undefined;
+}
 
 onDestroy(() => {
   if (providersUnsubscribe) {
@@ -162,26 +189,30 @@ function updatePortExposure(port: number, checked: boolean) {
     <div class="m-5 p-6 h-full bg-charcoal-800 rounded-sm text-gray-700">
       <div class="w-4/5 min-w-[500px]">
         {#if podCreation}
-          {#if mapPortPrivate.size > 0}
-            <div
-              class="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-2"
-              role="alert"
-              aria-label="warning">
-              <div class="font-bold">Possible Runtime Error</div>
-              <div class="mt-1 text-sm">
-                {#each [...mapPortPrivate] as [port, containers]}
-                  Containers
-                  {#each containers as container, index}
-                    {container}
-                    {#if index === containers.length - 2}
-                      and
-                    {:else if index < containers.length - 1}
-                      ,
-                    {/if}
-                    {' '}
+          {#if containersPorts.length > 0}
+            <div class="bg-charcoal-600 border-t-2 border-amber-500 p-4 mb-2" role="alert" aria-label="warning">
+              <div class="flex flex-row">
+                <div class="mr-3">
+                  <Fa size="18" class="text-amber-400" icon="{faTriangleExclamation}" />
+                </div>
+                <div class="flex flex-col">
+                  <div class="text-sm text-amber-400">Possible runtime error</div>
+                  {#each containersPorts as { containers, ports }}
+                    <div class="mt-1 text-sm text-white">
+                      Containers
+                      {#each containers as container, index}
+                        <span class="font-bold">{container}</span>
+                        {#if index === containers.length - 2}
+                          and
+                        {:else if index < containers.length - 1}
+                          ,
+                        {/if}
+                        {' '}
+                      {/each}
+                      use same <span class="font-bold">{ports.length > 1 ? 'ports' : 'port'} {ports.join(', ')}</span>.
+                    </div>
                   {/each}
-                  use the same port {port}.
-                {/each}
+                </div>
               </div>
             </div>
           {/if}
