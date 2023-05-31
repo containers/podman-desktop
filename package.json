@@ -15,7 +15,8 @@
     "packages": [
       "packages/*",
       "extensions/*",
-      "website"
+      "website",
+      "tools"
     ]
   },
   "scripts": {

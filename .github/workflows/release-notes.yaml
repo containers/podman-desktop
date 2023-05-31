@@ -30,7 +30,7 @@ jobs:
 
   build:
     name: Generate release notes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -62,11 +62,11 @@ jobs:
 
       - name: Generate the release notes document
         run: |
-          node tools/dist/release-notes-generator.js --milestone ${{ github.event.inputs.milestone }} >rn.md
+          node tools/dist/release-notes-generator.js --milestone ${{ github.event.inputs.milestone }} >release-notes.md
 
       - name: Archive the generated release notes
         uses: actions/upload-artifact@v3
         with:
           name: release-notes
-          path: rn.md
+          path: release-notes.md
 
