@@ -81,6 +81,7 @@ onMount(async () => {
     container.ports?.forEach((port: any) => {
       containerPortArray.push(port.hostPort);
     });
+    container.imagePullPolicy = 'IfNotPresent';
   });
 });
 
