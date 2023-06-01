@@ -133,6 +133,7 @@ onMount(() => {
     mapPortPrivate.forEach((value, key) => {
       if (value.length < 2) {
         mapPortPrivate.delete(key);
+        return;
       }
       const indexContainersItem = getIndexSameContainersItems(value);
       if (indexContainersItem !== undefined) {
