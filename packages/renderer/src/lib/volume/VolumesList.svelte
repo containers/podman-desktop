@@ -17,6 +17,7 @@ import Prune from '../engine/Prune.svelte';
 import moment from 'moment';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
+import Checkbox from '../ui/Checkbox.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -233,13 +234,12 @@ function computeInterval(): number {
       <thead>
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5"
-            ><input
-              type="checkbox"
+          <th class="px-2 w-5">
+            <Checkbox
+              bind:selected="{allChecked}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              bind:checked="{allChecked}"
-              on:click="{event => toggleAllVolumes(event.currentTarget.checked)}"
-              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
+              on:click="{event => toggleAllVolumes(event.currentTarget.checked)}" />
+          </th>
           <th class="text-center font-extrabold w-10 px-2">status</th>
           <th class="w-10">Name</th>
           <th class="px-6 whitespace-nowrap">age</th>
@@ -252,15 +252,10 @@ function computeInterval(): number {
           <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
-              <input
-                type="checkbox"
-                bind:checked="{volume.selected}"
+              <Checkbox
+                bind:selected="{volume.selected}"
                 disabled="{volume.inUse}"
-                class:cursor-pointer="{!volume.inUse}"
-                class:cursor-not-allowed="{volume.inUse}"
-                class:opacity-10="{volume.inUse}"
-                title="{volume.inUse ? 'Volume is used by a container' : ''}"
-                class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+                disabledTooltip="Volume is used by a container" />
             </td>
             <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
