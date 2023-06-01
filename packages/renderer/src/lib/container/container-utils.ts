@@ -22,6 +22,7 @@ import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
 import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import { filesize } from 'filesize';
+import type { Port } from '@podman-desktop/api';
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {
     // part of a compose ?
@@ -77,12 +78,12 @@ export class ContainerUtils {
     return image;
   }
 
-  getPorts(containerInfo: ContainerInfo): number[] {
-    return containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort) || [];
+  getPorts(containerInfo: ContainerInfo): Port[] {
+    return containerInfo.Ports?.filter(port => port.PublicPort).map(port => port) || [];
   }
 
   getDisplayPort(containerInfo: ContainerInfo): string {
-    const ports = this.getPorts(containerInfo);
+    const ports = this.getPorts(containerInfo).map(port => port.PublicPort);
     if (ports.length === 0) {
       return '';
     }
@@ -208,7 +209,7 @@ export class ContainerUtils {
   }
 
   getPortsAsString(containerInfo: ContainerInfo): string {
-    const ports = this.getPorts(containerInfo);
+    const ports = this.getPorts(containerInfo).map(port => port.PublicPort);
     if (ports.length > 1) {
       return `${ports.join(', ')}`;
     } else if (ports.length === 1) {
