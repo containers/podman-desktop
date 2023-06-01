@@ -22,6 +22,7 @@ import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
 import type { Menu } from '../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../main/src/plugin/menu-registry';
+import Checkbox from './ui/Checkbox.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -46,7 +47,7 @@ $: providerConnections = $providerInfos
 $: selectedItemsNumber = images.filter(image => image.selected).length;
 
 // do we need to unselect all checkboxes if we don't have all items being selected ?
-$: selectedAllCheckboxes = images.filter(image => !image.inUse).every(image => image.selected);
+$: selectedAllCheckboxes = images.every(image => image.selected);
 
 let allChecked = false;
 const imageUtils = new ImageUtils();
@@ -276,12 +277,11 @@ function computeInterval(): number {
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
-            <input
-              type="checkbox"
+            <Checkbox
+              bind:selected="{allChecked}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              bind:checked="{allChecked}"
-              on:click="{event => toggleAllImages(event.currentTarget.checked)}"
-              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
+              on:click="{event => toggleAllImages(event.currentTarget.checked)}" />
+          </th>
           <th class="text-center font-extrabold w-10 px-2">status</th>
           <th class="w-10">Name</th>
           <th class="px-6 whitespace-nowrap w-10">age</th>
@@ -294,15 +294,10 @@ function computeInterval(): number {
           <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
-              <input
-                type="checkbox"
-                bind:checked="{image.selected}"
+              <Checkbox
+                bind:selected="{image.selected}"
                 disabled="{image.inUse}"
-                class:cursor-pointer="{!image.inUse}"
-                class:cursor-not-allowed="{image.inUse}"
-                class:opacity-10="{image.inUse}"
-                title="{image.inUse ? 'Image is used by a container' : ''}"
-                class=" invert hue-rotate-[218deg] brightness-75" />
+                disabledTooltip="Image is used by a container" />
             </td>
             <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center content-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
