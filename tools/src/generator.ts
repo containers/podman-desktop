@@ -23,7 +23,7 @@ const DEFAULT_MAPPINGS = new Map<string, string>([
   ['feat', 'Features'],
   ['fix', 'Bug Fixes'],
   ['docs', 'Documentation'],
-  ['chore', 'Other'],
+  ['chore', 'Chore'],
 ]);
 
 const DEFAULT_CATEGORY = 'Other';

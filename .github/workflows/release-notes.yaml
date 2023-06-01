@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
     inputs:
       milestone:
-        description: 'Milestone to generate release notes from'
+        description: 'Milestone to generate release notes from (title of the milestone eg 1.0.0)'
         required: true
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
 
       - name: Get yarn cache directory path (mac/Linux)
         id: yarn-cache-dir-path-unix
