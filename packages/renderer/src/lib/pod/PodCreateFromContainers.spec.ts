@@ -252,3 +252,12 @@ test('Show warning if multiple containers use the same port', async () => {
   const warningLabel = await screen.findByLabelText('warning');
   expect(warningLabel).toBeInTheDocument();
 });
+
+test('Do not show warning if multiple containers use different ports', async () => {
+  providerInfos.set([providerInfo]);
+  podCreationHolder.set(podCreation);
+
+  render(PodCreateFromContainers, {});
+  const warningLabel = screen.queryByLabelText('warning');
+  expect(warningLabel).not.toBeInTheDocument();
+});
