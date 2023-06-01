@@ -211,7 +211,7 @@ test('if a machine failed to start with a wsl distro not found error, the user i
     await extension.startMachine(provider, machineInfo);
   } catch (e) {
     expect(extensionApi.window.showInformationMessage).toBeCalledWith(
-      "Error while starting Podman Machine 'name'. The WSL bootstrap script failed: exist status 0xffffffff. The machine is probably broken and should be deleted and reinitialized. Do you want to recreate it?",
+      `Error while starting Podman Machine '${machineInfo.name}'. The WSL bootstrap script failed: exist status 0xffffffff. The machine is probably broken and should be deleted and reinitialized. Do you want to recreate it?`,
       'Yes',
       'Cancel',
     );
