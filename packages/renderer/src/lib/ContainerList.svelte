@@ -130,10 +130,9 @@ function computeInterval(): number {
   return 60 * 60 * 24 * SECOND;
 }
 
-function toggleCheckboxContainerGroup(target: EventTarget, containerGroup: ContainerGroupInfoUI) {
-  const value = (<HTMLInputElement>target).checked;
+function toggleCheckboxContainerGroup(checked: boolean, containerGroup: ContainerGroupInfoUI) {
   // need to apply that on all containers
-  containerGroup.containers.forEach(container => (container.selected = value));
+  containerGroup.containers.forEach(container => (container.selected = checked));
 }
 
 // delete the items selected in the list
@@ -295,13 +294,12 @@ function toggleContainerGroup(containerGroup: ContainerGroupInfoUI) {
   containerGroups = containerGroups.map(group => (group.name === containerGroup.name ? containerGroup : group));
 }
 
-function toggleAllContainerGroups(target: EventTarget) {
-  const value = (<HTMLInputElement>target).checked;
+function toggleAllContainerGroups(checked: boolean) {
   const toggleContainers = containerGroups;
   toggleContainers
     .filter(group => group.type !== ContainerGroupInfoTypeUI.STANDALONE)
-    .forEach(group => (group.selected = value));
-  toggleContainers.forEach(group => group.containers.forEach(container => (container.selected = value)));
+    .forEach(group => (group.selected = checked));
+  toggleContainers.forEach(group => group.containers.forEach(container => (container.selected = checked)));
   containerGroups = toggleContainers;
 }
 
@@ -386,7 +384,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
             <Checkbox
               bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              on:click="{event => toggleAllContainerGroups(event.currentTarget)}" />
+              on:click="{event => toggleAllContainerGroups(event.detail)}" />
           </th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th class="w-10">Name</th>
@@ -413,7 +411,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               <td class="px-2">
                 <Checkbox
                   bind:checked="{containerGroup.selected}"
-                  on:click="{event => toggleCheckboxContainerGroup(event.currentTarget, containerGroup)}" />
+                  on:click="{event => toggleCheckboxContainerGroup(event.detail, containerGroup)}" />
               </td>
               <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
                 <div class="grid place-content-center ml-3 mr-4">
