@@ -21,15 +21,18 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 
+import { configuration } from '@podman-desktop/api';
+
 function registerProvider(
   extensionContext: extensionApi.ExtensionContext,
   provider: extensionApi.Provider,
   providerSocketPath: string,
 ): void {
   let providerState: extensionApi.ProviderConnectionStatus = 'unknown';
+  const providerType: 'docker' | 'podman' = configuration.getConfiguration('lima').get('type');
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: 'Lima',
-    type: 'podman',
+    type: providerType,
     status: () => providerState,
     endpoint: {
       socketPath: providerSocketPath,
@@ -43,7 +46,10 @@ function registerProvider(
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const socketPath = path.resolve(os.homedir(), '.lima/podman/sock/podman.sock');
+  const engineType = configuration.getConfiguration('lima').get('type') || 'podman';
+  const instanceName = configuration.getConfiguration('lima').get('name') || engineType;
+  const limaHome = os.homedir(); // TODO: look for the LIMA_HOME environment variable
+  const socketPath = path.resolve(limaHome, '.lima/' + instanceName + '/sock/' + engineType + '.sock');
 
   let provider;
   if (fs.existsSync(socketPath)) {

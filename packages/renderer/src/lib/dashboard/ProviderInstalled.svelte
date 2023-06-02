@@ -11,20 +11,21 @@ import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
 import {
+  type InitializationContext,
   type InitializationMode,
   InitializationSteps,
   InitializeAndStartMode,
   InitializeOnlyMode,
 } from './ProviderInitUtils';
-import { Steps } from 'svelte-steps';
+import Steps from 'svelte-steps/Steps.svelte';
 
 export let provider: ProviderInfo;
-export let updateInitializationMode: (string, InitializationMode) => void;
+export let initializationContext: InitializationContext;
 
 let initializationButtonVisible = true;
 let initializeInProgress = false;
 
-let initalizeError: string | undefined = undefined;
+let initializeError: string | undefined = undefined;
 
 let preflightChecks: CheckStatus[] = [];
 
@@ -44,23 +45,16 @@ $: initializationButtonVisible =
   provider.containerProviderConnectionInitialization || provider.kubernetesProviderConnectionInitialization;
 
 async function initializeProvider() {
-  initalizeError = undefined;
+  initializeError = undefined;
   logsTerminal.clear();
   initializeInProgress = true;
-  try {
-    await window.initializeProvider(provider.internalId);
-    // wait that status is updated
-    await new Promise<void>(resolve => {
-      window.events.receive('provider-change', () => {
-        resolve();
-      });
-    });
-  } catch (error) {
-    initalizeError = error;
+  initializationContext.promise = window.initializeProvider(provider.internalId);
+  initializationContext.promise.catch(error => {
+    initializeError = error;
     initializationButtonVisible = true;
     logsTerminal.write(error + '\r');
     console.error('Error while initializing the provider', error);
-  }
+  });
   initializeInProgress = false;
 }
 
@@ -126,7 +120,7 @@ function updateOptionsMenu(visible: boolean) {
 function onInstallationClick() {
   initializeInProgress = true;
   initializationButtonVisible = false;
-  updateInitializationMode(provider.internalId, installationOptionSelected);
+  initializationContext.mode = installationOptionSelected as InitializationMode;
   initializeProvider();
 }
 </script>
@@ -216,7 +210,7 @@ function onInstallationClick() {
 
     <div
       class=""
-      style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initalizeError
+      style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initializeError
         ? 'block'
         : 'none'}"
       class:h-full="{noErrors === false}"
@@ -225,7 +219,7 @@ function onInstallationClick() {
     </div>
   </div>
 
-  {#if provider.updateInfo}
+  {#if provider.version !== provider.updateInfo?.version}
     <div class="mt-10 mb-1 w-full flex justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>

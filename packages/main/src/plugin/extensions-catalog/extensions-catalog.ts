@@ -22,7 +22,7 @@ import got from 'got';
 import type { Certificates } from '/@/plugin/certificates';
 import type { Proxy } from '/@/plugin/proxy';
 import type * as podmanDesktopAPI from '@podman-desktop/api';
-import type { CatalogFetchableExtension } from '/@/plugin/extensions-catalog/extensions-catalog-api';
+import type { CatalogExtension, CatalogFetchableExtension } from '/@/plugin/extensions-catalog/extensions-catalog-api';
 
 /**
  * Allow to grab content from the online extensions catalog.
@@ -32,6 +32,10 @@ export class ExtensionsCatalog {
 
   private proxySettings: podmanDesktopAPI.ProxySettings | undefined;
   private proxyEnabled: boolean;
+
+  private lastFetchTime = 0;
+  private cachedCatalog: InternalCatalogJSON | undefined;
+  static readonly CACHE_TIMEOUT = 1000 * 60 * 60 * 4; // 4 hours
 
   constructor(private certificates: Certificates, private proxy: Proxy) {
     this.proxy.onDidUpdateProxy(settings => {
@@ -45,32 +49,23 @@ export class ExtensionsCatalog {
     this.proxyEnabled = this.proxy.isEnabled();
   }
 
-  // get the list of fetchable extensions
-  async getFetchableExtensions(): Promise<CatalogFetchableExtension[]> {
+  // internal method, not exposed
+  protected async getCatalogJson(): Promise<InternalCatalogJSON | undefined> {
+    // return the cache version if cache is not reached and we have a cached version
+    if (this.lastFetchTime + ExtensionsCatalog.CACHE_TIMEOUT < Date.now() && this.cachedCatalog) {
+      return this.cachedCatalog;
+    }
+
     // try to fetch a file online
     // use also the proxy if defined
     // current time
     const startTime = performance.now();
-
-    const fetchableExtensions: CatalogFetchableExtension[] = [];
-
     try {
       const response = await got.get(ExtensionsCatalog.ALL_EXTENSIONS_URL, this.getHttpOptions());
-      const catalogJSON: CatalogJSON = JSON.parse(response.body) as CatalogJSON;
-      if (catalogJSON?.extensions) {
-        // we have a list of extensions
-        catalogJSON.extensions.forEach(extension => {
-          const notPreviewVersions = extension.versions.filter(v => v.preview !== true);
-          if (notPreviewVersions.length > 0) {
-            // take the first version
-            fetchableExtensions.push({
-              extensionId: `${extension.publisher.publisherName}.${extension.extensionName}`,
-              link: notPreviewVersions[0].ociUri,
-              version: notPreviewVersions[0].version,
-            });
-          }
-        });
-      }
+      this.cachedCatalog = JSON.parse(response.body) as InternalCatalogJSON;
+      const endTime = performance.now();
+      console.log(`Fetched ${ExtensionsCatalog.ALL_EXTENSIONS_URL} in ${endTime - startTime}ms`);
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (requestErr: any) {
       // unable to fetch the extensions
@@ -81,8 +76,56 @@ export class ExtensionsCatalog {
         console.error('Unable to fetch the available extensions', requestErr.message);
       }
     }
-    const endTime = performance.now();
-    console.log(`Retrieved fetchable extensions in ${endTime - startTime}ms`);
+    // update the last fetch time
+    this.lastFetchTime = Date.now();
+
+    return this.cachedCatalog;
+  }
+
+  // get the list of extensions
+  async getExtensions(): Promise<CatalogExtension[]> {
+    const catalogJSON = await this.getCatalogJson();
+    if (catalogJSON?.extensions) {
+      // we have a list of extensions
+      return catalogJSON.extensions.map(extension => {
+        return {
+          id: `${extension.publisher.publisherName}.${extension.extensionName}`,
+          publisherName: extension.publisher.publisherName,
+          extensionName: extension.extensionName,
+          displayName: extension.displayName,
+          versions: extension.versions.map(version => {
+            return {
+              version: version.version,
+              preview: version.preview,
+              ociUri: version.ociUri,
+            };
+          }),
+        };
+      });
+    }
+    return [];
+  }
+
+  // get the list of fetchable extensions
+  async getFetchableExtensions(): Promise<CatalogFetchableExtension[]> {
+    const fetchableExtensions: CatalogFetchableExtension[] = [];
+
+    const catalogJSON = await this.getCatalogJson();
+    if (catalogJSON?.extensions) {
+      // we have a list of extensions
+      catalogJSON.extensions.forEach(extension => {
+        const notPreviewVersions = extension.versions.filter(v => v.preview !== true);
+        if (notPreviewVersions.length > 0) {
+          // take the first version
+          fetchableExtensions.push({
+            extensionId: `${extension.publisher.publisherName}.${extension.extensionName}`,
+            link: notPreviewVersions[0].ociUri,
+            version: notPreviewVersions[0].version,
+          });
+        }
+      });
+    }
+
     return fetchableExtensions;
   }
 
@@ -152,24 +195,24 @@ export class ExtensionsCatalog {
 }
 
 // internal JSON format, not exposed to the outside
-interface CatalogExtensionPublisherJSON {
+interface InternalCatalogExtensionPublisherJSON {
   publisherName: string;
   displayName: string;
 }
 
-interface CatalogExtensionJSON {
-  publisher: CatalogExtensionPublisherJSON;
+interface InternalCatalogExtensionJSON {
+  publisher: InternalCatalogExtensionPublisherJSON;
   extensionName: string;
   displayName: string;
-  versions: CatalogExtensionVersionJSON[];
+  versions: InternalCatalogExtensionVersionJSON[];
 }
 
-interface CatalogExtensionVersionJSON {
+interface InternalCatalogExtensionVersionJSON {
   version: string;
   ociUri: string;
   preview: boolean;
 }
 
-interface CatalogJSON {
-  extensions: CatalogExtensionJSON[];
+interface InternalCatalogJSON {
+  extensions: InternalCatalogExtensionJSON[];
 }

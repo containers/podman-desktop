@@ -22,12 +22,12 @@ import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import Prune from '../engine/Prune.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Checkbox from '../ui/Checkbox.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let pods: PodInfoUI[] = [];
-let multipleEngines = false;
 let enginesList: EngineInfoUI[];
 
 $: providerConnections = $providerInfos
@@ -48,8 +48,6 @@ $: selectedItemsNumber = pods.filter(pod => pod.selected).length;
 // do we need to unselect all checkboxes if we don't have all items being selected ?
 $: selectedAllCheckboxes = pods.every(pod => pod.selected);
 
-let allChecked = false;
-
 const podUtils = new PodUtils();
 
 let podsUnsubscribe: Unsubscriber;
@@ -66,18 +64,8 @@ onMount(async () => {
     });
 
     // Remove duplicates from engines by name
-    const uniqueEngines = engines.filter(
-      (engine, index, self) => index === self.findIndex(t => t.name === engine.name),
-    );
-
-    if (uniqueEngines.length > 1) {
-      multipleEngines = true;
-    } else {
-      multipleEngines = false;
-    }
-
     // Set the engines to the global variable for the Prune functionality button
-    enginesList = uniqueEngines;
+    enginesList = engines.filter((engine, index, self) => index === self.findIndex(t => t.name === engine.name));
 
     // update selected items based on current selected items
     computedPods.forEach(pod => {
@@ -105,10 +93,9 @@ onDestroy(() => {
   }
 });
 
-function toggleAllPods(value: boolean) {
+function toggleAllPods(checked: boolean) {
   const togglePods = pods;
-  // filter out all images used by a container
-  togglePods.forEach(pod => (pod.selected = value));
+  togglePods.forEach(pod => (pod.selected = checked));
   pods = togglePods;
 }
 
@@ -252,13 +239,12 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
       <thead>
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5"
-            ><input
-              type="checkbox"
+          <th class="px-2 w-5">
+            <Checkbox
+              bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              bind:checked="{allChecked}"
-              on:click="{event => toggleAllPods(event.currentTarget.checked)}"
-              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
+              on:click="{checked => toggleAllPods(checked.detail)}" />
+          </th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
           <th class="whitespace-nowrap px-6">age</th>
@@ -270,10 +256,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
           <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
-              <input
-                type="checkbox"
-                bind:checked="{pod.selected}"
-                class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+              <Checkbox bind:checked="{pod.selected}" />
             </td>
             <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
@@ -296,12 +279,11 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                     </div>
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-900">
-                    <!-- Hide in case of single engine-->
-                    {#if multipleEngines}
-                      <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
-                        {pod.engineName}
-                      </div>
-                    {/if}
+                    <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
+                      {pod.engineName}{#if pod.kind === 'kubernetes'}<div class="ml-1">
+                          <Tooltip tip="{pod.engineId}" top>{pod.engineId.substring(0, 16)}</Tooltip>
+                        </div>{/if}
+                    </div>
                   </div>
                 </div>
               </div>

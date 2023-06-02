@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface TreeViewDataItem {
-  id: string;
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-  name: string;
+import '@testing-library/jest-dom';
+import { beforeAll, test } from 'vitest';
+import { verifyStatus } from './ProviderStatusTestHelper.spec';
+import ProviderReady from '/@/lib/dashboard/ProviderReady.svelte';
 
-  /** Child nodes of a tree view item */
-  children?: TreeViewDataItem[];
+// fake the window.events object
+beforeAll(() => {
+  (window.events as unknown) = {
+    receive: (_channel: string, func: any) => {
+      func();
+    },
+  };
+});
 
-  /** Flag indicating if node is expanded by default */
-  defaultExpanded?: boolean;
-}
+test('Expect ready provider shows update button', async () => {
+  verifyStatus(ProviderReady, 'ready', false);
+});
+
+test('Expect ready provider does not show update button if version same', async () => {
+  verifyStatus(ProviderReady, 'ready', true);
+});

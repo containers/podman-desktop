@@ -190,6 +190,7 @@ test('When deploying a pod, volumes should not be added (they are deleted by pod
           {
             name: 'hello',
             image: 'hello-world',
+            imagePullPolicy: 'IfNotPresent',
           },
         ],
       },
@@ -216,6 +217,7 @@ test('When modifying the pod name, metadata.apps.label should also have been cha
           {
             name: 'hello',
             image: 'hello-world',
+            imagePullPolicy: 'IfNotPresent',
           },
         ],
       },
@@ -245,6 +247,7 @@ test('When deploying a pod, restricted security context is added', async () => {
           {
             name: 'hello',
             image: 'hello-world',
+            imagePullPolicy: 'IfNotPresent',
             securityContext: {
               allowPrivilegeEscalation: false,
               capabilities: {

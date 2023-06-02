@@ -26,6 +26,7 @@ import KubePlayButton from './kube/KubePlayButton.svelte';
 import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
 import { containerGroupsInfo } from '../stores/containerGroups';
+import Checkbox from './ui/Checkbox.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -129,9 +130,9 @@ function computeInterval(): number {
   return 60 * 60 * 24 * SECOND;
 }
 
-function toggleCheckboxContainerGroup(value: boolean, containerGroup: ContainerGroupInfoUI) {
+function toggleCheckboxContainerGroup(checked: boolean, containerGroup: ContainerGroupInfoUI) {
   // need to apply that on all containers
-  containerGroup.containers.forEach(container => (container.selected = value));
+  containerGroup.containers.forEach(container => (container.selected = checked));
 }
 
 // delete the items selected in the list
@@ -293,12 +294,12 @@ function toggleContainerGroup(containerGroup: ContainerGroupInfoUI) {
   containerGroups = containerGroups.map(group => (group.name === containerGroup.name ? containerGroup : group));
 }
 
-function toggleAllContainerGroups(value: boolean) {
+function toggleAllContainerGroups(checked: boolean) {
   const toggleContainers = containerGroups;
   toggleContainers
     .filter(group => group.type !== ContainerGroupInfoTypeUI.STANDALONE)
-    .forEach(group => (group.selected = value));
-  toggleContainers.forEach(group => group.containers.forEach(container => (container.selected = value)));
+    .forEach(group => (group.selected = checked));
+  toggleContainers.forEach(group => group.containers.forEach(container => (container.selected = checked)));
   containerGroups = toggleContainers;
 }
 
@@ -379,13 +380,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       <thead>
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5"
-            ><input
-              type="checkbox"
-              indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
+          <th class="px-2 w-5">
+            <Checkbox
               bind:checked="{selectedAllCheckboxes}"
-              on:click="{event => toggleAllContainerGroups(event.currentTarget.checked)}"
-              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
+              indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
+              on:click="{event => toggleAllContainerGroups(event.detail)}" />
+          </th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th class="w-10">Name</th>
           <th>Image</th>
@@ -409,11 +409,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                   icon="{containerGroup.expanded ? faChevronDown : faChevronRight}" />
               </td>
               <td class="px-2">
-                <input
-                  type="checkbox"
-                  on:click="{event => toggleCheckboxContainerGroup(event.currentTarget.checked, containerGroup)}"
+                <Checkbox
                   bind:checked="{containerGroup.selected}"
-                  class=" cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+                  on:click="{event => toggleCheckboxContainerGroup(event.detail, containerGroup)}" />
               </td>
               <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
                 <div class="grid place-content-center ml-3 mr-4">
@@ -480,10 +478,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     : ''}">
                 </td>
                 <td class="px-2">
-                  <input
-                    type="checkbox"
-                    bind:checked="{container.selected}"
-                    class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+                  <Checkbox bind:checked="{container.selected}" />
                 </td>
                 <td class="flex flex-row justify-center h-12">
                   <div class="grid place-content-center ml-3 mr-4">

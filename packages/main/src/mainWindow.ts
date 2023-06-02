@@ -19,13 +19,13 @@
 import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
 import { autoUpdater, Menu, BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
 import contextMenu from 'electron-context-menu';
-const { aboutMenuItem } = require('electron-util');
+import { aboutMenuItem } from 'electron-util';
 import { join } from 'path';
 import { URL } from 'url';
 import type { ConfigurationRegistry } from './plugin/configuration-registry';
 import { isLinux, isMac, stoppedExtensions } from './util';
 
-async function createWindow() {
+async function createWindow(): Promise<BrowserWindow> {
   const INITIAL_APP_WIDTH = 1050;
   const INITIAL_APP_MIN_WIDTH = 640;
   const INITIAL_APP_HEIGHT = 700;
@@ -252,12 +252,13 @@ async function createWindow() {
 }
 
 // Create a new window if there is no existing window
-export async function createNewWindow() {
+export async function createNewWindow(): Promise<BrowserWindow> {
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   if (window === undefined) {
     window = await createWindow();
   }
+  return window;
 }
 
 // Restore the window if it is minimized / not shown / there is already another instance running

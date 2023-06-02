@@ -17,6 +17,7 @@ import Prune from '../engine/Prune.svelte';
 import moment from 'moment';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
+import Checkbox from '../ui/Checkbox.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -31,12 +32,10 @@ $: providerConnections = $providerInfos
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 // number of selected items in the list
-$: selectedItemsNumber = volumes.filter(volume => volume.selected).length;
+$: selectedItemsNumber = volumes.filter(volume => !volume.inUse).filter(volume => volume.selected).length;
 
 // do we need to unselect all checkboxes if we don't have all items being selected ?
-$: selectedAllCheckboxes = volumes.every(volume => volume.selected);
-
-let allChecked = false;
+$: selectedAllCheckboxes = volumes.filter(volume => !volume.inUse).every(volume => volume.selected);
 
 const volumeUtils = new VolumeUtils();
 
@@ -116,10 +115,10 @@ onDestroy(() => {
   }
 });
 
-function toggleAllVolumes(value: boolean) {
+function toggleAllVolumes(checked: boolean) {
   const toggleVolumes = volumes;
   // filter out all volumes used by a container
-  toggleVolumes.filter(volume => !volume.inUse).forEach(volume => (volume.selected = value));
+  toggleVolumes.filter(volume => !volume.inUse).forEach(volume => (volume.selected = checked));
   volumes = toggleVolumes;
 }
 
@@ -233,13 +232,12 @@ function computeInterval(): number {
       <thead>
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5"
-            ><input
-              type="checkbox"
+          <th class="px-2 w-5">
+            <Checkbox
+              bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              bind:checked="{allChecked}"
-              on:click="{event => toggleAllVolumes(event.currentTarget.checked)}"
-              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
+              on:click="{event => toggleAllVolumes(event.detail)}" />
+          </th>
           <th class="text-center font-extrabold w-10 px-2">status</th>
           <th class="w-10">Name</th>
           <th class="px-6 whitespace-nowrap">age</th>
@@ -252,15 +250,10 @@ function computeInterval(): number {
           <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 bind:checked="{volume.selected}"
                 disabled="{volume.inUse}"
-                class:cursor-pointer="{!volume.inUse}"
-                class:cursor-not-allowed="{volume.inUse}"
-                class:opacity-10="{volume.inUse}"
-                title="{volume.inUse ? 'Volume is used by a container' : ''}"
-                class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+                disabledTooltip="Volume is used by a container" />
             </td>
             <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">

@@ -31,6 +31,40 @@ const config: Configuration = {
   update: () => Promise.resolve(),
 };
 
+const provider: extensionApi.Provider = {
+  setContainerProviderConnectionFactory: vi.fn(),
+  setKubernetesProviderConnectionFactory: vi.fn(),
+  registerContainerProviderConnection: vi.fn(),
+  registerKubernetesProviderConnection: vi.fn(),
+  registerLifecycle: vi.fn(),
+  registerInstallation: vi.fn(),
+  registerUpdate: vi.fn(),
+  registerAutostart: vi.fn(),
+  dispose: vi.fn(),
+  name: '',
+  id: '',
+  status: 'started',
+  updateStatus: vi.fn(),
+  onDidUpdateStatus: undefined,
+  version: '',
+  updateVersion: vi.fn(),
+  onDidUpdateVersion: undefined,
+  images: undefined,
+  links: [],
+  detectionChecks: [],
+  updateDetectionChecks: vi.fn(),
+  warnings: [],
+  updateWarnings: vi.fn(),
+  onDidUpdateDetectionChecks: undefined,
+};
+
+const machineInfo: extension.MachineInfo = {
+  cpus: 1,
+  diskSize: 1000000,
+  memory: 10000000,
+  name: 'name',
+};
+
 vi.mock('@podman-desktop/api', async () => {
   return {
     configuration: {
@@ -135,4 +169,65 @@ test('checkDefaultMachine: do not prompt if the running machine is already the d
 
   await extension.checkDefaultMachine(fakeJSON);
   expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
+});
+
+test('if a machine is successfully started it changes its state to started', async () => {
+  const spyUpdateStatus = vi.spyOn(provider, 'updateStatus');
+  spyUpdateStatus.mockImplementation(() => {
+    return;
+  });
+
+  const spyExecPromise = vi.spyOn(podmanCli, 'execPromise');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.resolve('');
+  });
+  await extension.startMachine(provider, machineInfo);
+
+  expect(spyExecPromise).toBeCalledWith(getPodmanCli(), ['machine', 'start', 'name'], {
+    logger: undefined,
+  });
+
+  expect(spyUpdateStatus).toBeCalledWith('started');
+});
+
+test('if a machine failed to start with a generic error, this is thrown', async () => {
+  const spyExecPromise = vi.spyOn(podmanCli, 'execPromise');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.reject(new Error('generic error'));
+  });
+  try {
+    await extension.startMachine(provider, machineInfo);
+  } catch (e) {
+    expect(e.message).equal('generic error');
+  }
+});
+
+test('if a machine failed to start with a wsl distro not found error, the user is asked what to do', async () => {
+  const spyExecPromise = vi.spyOn(podmanCli, 'execPromise');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
+  });
+  try {
+    await extension.startMachine(provider, machineInfo);
+  } catch (e) {
+    expect(extensionApi.window.showInformationMessage).toBeCalledWith(
+      `Error while starting Podman Machine '${machineInfo.name}'. The WSL bootstrap script failed: exist status 0xffffffff. The machine is probably broken and should be deleted and reinitialized. Do you want to recreate it?`,
+      'Yes',
+      'Cancel',
+    );
+    expect(e.message).equal('wsl bootstrap script failed: exit status 0xffffffff');
+  }
+});
+
+test('if a machine failed to start with a wsl distro not found error but the skipHandleError is false, the error is thrown', async () => {
+  const spyExecPromise = vi.spyOn(podmanCli, 'execPromise');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
+  });
+  try {
+    await extension.startMachine(provider, machineInfo, undefined, true);
+  } catch (e) {
+    expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
+    expect(e.message).equal('wsl bootstrap script failed: exit status 0xffffffff');
+  }
 });

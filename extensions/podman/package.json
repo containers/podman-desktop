@@ -105,14 +105,14 @@
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
     "@podman-desktop/api": "^0.0.1",
-    "compare-versions": "^5.0.3",
+    "compare-versions": "^6.0.0-rc.1",
     "sudo-prompt": "^9.2.1"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
     "hasha": "^5.2.2",
     "mkdirp": "^2.1.6",
-    "octokit": "^2.0.18",
+    "octokit": "^2.0.19",
     "ts-node": "^10.9.1",
     "zip-local": "^0.3.5"
   }

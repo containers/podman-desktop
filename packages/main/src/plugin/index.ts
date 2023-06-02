@@ -100,6 +100,7 @@ import { Featured } from './featured/featured';
 import type { FeaturedExtension } from './featured/featured-api';
 import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
+import { ExtensionsUpdater } from './extensions-updater/extensions-updater';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -1247,6 +1248,12 @@ export class PluginSystem {
       },
     );
     this.ipcHandle(
+      'extension-updater:updateExtension',
+      async (_listener: Electron.IpcMainInvokeEvent, extensionId: string, ociUri: string): Promise<void> => {
+        return extensionsUpdater.updateExtension(extensionId, ociUri);
+      },
+    );
+    this.ipcHandle(
       'extension-loader:removeExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
         return this.extensionLoader.removeExtension(extensionId);
@@ -1573,6 +1580,15 @@ export class PluginSystem {
     const extensionInstaller = new ExtensionInstaller(apiSender, this.extensionLoader, imageRegistry);
     await extensionInstaller.init();
 
+    // launch the updater
+    const extensionsUpdater = new ExtensionsUpdater(
+      extensionsCatalog,
+      this.extensionLoader,
+      configurationRegistry,
+      extensionInstaller,
+      telemetry,
+    );
+
     await contributionManager.init();
 
     this.markAsReady();
@@ -1586,6 +1602,7 @@ export class PluginSystem {
       apiSender.send('extensions-started');
       this.markAsExtensionsStarted();
     }
+    extensionsUpdater.init().catch((err: unknown) => console.error('Unable to perform extension updates', err));
     autoStartConfiguration.start().catch((err: unknown) => console.error('Unable to perform autostart', err));
     return this.extensionLoader;
   }

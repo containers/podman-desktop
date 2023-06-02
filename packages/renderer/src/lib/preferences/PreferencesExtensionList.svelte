@@ -63,6 +63,10 @@ async function startExtension(extension: ExtensionInfo) {
 async function removeExtension(extension: ExtensionInfo) {
   await window.removeExtension(extension.id);
 }
+
+async function updateExtension(extension: ExtensionInfo, ociUri: string) {
+  await window.updateExtension(extension.id, ociUri);
+}
 </script>
 
 <SettingsPage title="Extensions">
@@ -140,6 +144,13 @@ async function removeExtension(extension: ExtensionInfo) {
                         {extension.displayName}
                         {extension.removable ? '(user)' : '(default extension)'}
                         <span class="text-xs font-extra-light text-gray-900">v{extension.version}</span>
+                        {#if extension.update}
+                          <button
+                            class="mx-2 px-2 text-xs font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700"
+                            title="Update to {extension.update.version}"
+                            on:click="{() => updateExtension(extension, extension.update.ociUri)}">
+                            Update</button>
+                        {/if}
                       </div>
                     </div>
                     <div class="flex flex-row">

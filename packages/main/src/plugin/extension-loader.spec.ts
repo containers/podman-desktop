@@ -22,6 +22,7 @@ import { beforeAll, beforeEach, test, expect, vi } from 'vitest';
 import type { CommandRegistry } from './command-registry';
 import type { ConfigurationRegistry } from './configuration-registry';
 import type { ContainerProviderRegistry } from './container-registry';
+import type { AnalyzedExtension } from './extension-loader';
 import { ExtensionLoader } from './extension-loader';
 import type { FilesystemMonitoring } from './filesystem-monitoring';
 import type { ImageRegistry } from './image-registry';
@@ -243,6 +244,7 @@ test('Verify extension error leads to failed state', async () => {
   await extensionLoader.activateExtension(
     {
       id: id,
+      name: 'id',
       path: 'dummy',
       api: {} as typeof containerDesktopAPI,
       mainPath: '',
@@ -256,4 +258,57 @@ test('Verify extension error leads to failed state', async () => {
     },
   );
   expect(extensionLoader.getExtensionState().get(id)).toBe('failed');
+});
+
+test('Verify setExtensionsUpdates', async () => {
+  // set the private field analyzedExtensions of extensionLoader
+  const analyzedExtensions = new Map<string, AnalyzedExtension>();
+
+  const extensionId = 'my.foo.extension';
+
+  const analyzedExtension: AnalyzedExtension = {
+    id: extensionId,
+    manifest: {
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+  analyzedExtensions.set(extensionId, analyzedExtension);
+
+  extensionLoader['analyzedExtensions'] = analyzedExtensions;
+
+  // get list of extensions
+  const extensions = await extensionLoader.listExtensions();
+
+  // check we have our extension
+  expect(extensions.length).toBe(1);
+  expect(extensions[0].id).toBe(extensionId);
+
+  // check that update field is empty
+  expect(extensions[0].update).toBeUndefined();
+
+  // now call the update
+
+  const ociUri = 'quay.io/extension';
+  const newVersion = '2.0.0';
+  extensionLoader.setExtensionsUpdates([
+    {
+      id: extensionId,
+      version: newVersion,
+      ociUri,
+    },
+  ]);
+
+  // get list of extensions
+  const extensionsAfterUpdate = await extensionLoader.listExtensions();
+  // check we have our extension
+  expect(extensionsAfterUpdate.length).toBe(1);
+  expect(extensionsAfterUpdate[0].id).toBe(extensionId);
+
+  // check that update field is set
+  expect(extensionsAfterUpdate[0].update).toStrictEqual({
+    ociUri: 'quay.io/extension',
+    version: newVersion,
+  });
+
+  expect(apiSender.send).toBeCalledWith('extensions-updated');
 });

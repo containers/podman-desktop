@@ -79,7 +79,7 @@ function updateSearchValue(event: any) {
       {:else}
         {#each [...matchingRecords.keys()].sort((a, b) => a.localeCompare(b)) as configSection}
           <div class="mt-5">
-            <div class="first-letter:uppercase">{configSection.replace('preferences.', '').replace('.', ' ')}</div>
+            <div class="first-letter:uppercase">{matchingRecords.get(configSection).at(0).title}</div>
             {#each matchingRecords.get(configSection) as configItem}
               <div class="bg-charcoal-600 rounded-md mt-2 ml-2">
                 <PreferencesRenderingItem record="{configItem}" />

@@ -17,11 +17,17 @@
  ***********************************************************************/
 import { faPlay, faWrench } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
+import type { ProviderDetectionCheck } from '@podman-desktop/api';
 
 export const InitializeOnlyMode = 'Initialize';
 export const InitializeAndStartMode = 'Initialize and start';
 
 export type InitializationMode = typeof InitializeOnlyMode | typeof InitializeAndStartMode;
+
+export interface InitializationContext {
+  mode: InitializationMode;
+  promise?: Promise<ProviderDetectionCheck[]>;
+}
 
 export const InitializationSteps = [
   { icon: Fa, iconProps: { icon: faWrench } },

@@ -44,6 +44,13 @@ export let pageIsLoading = true;
 let showLogs = false;
 let tokenId: number;
 
+const providerDisplayName =
+  (providerInfo.containerProviderConnectionCreation
+    ? providerInfo.containerProviderConnectionCreationDisplayName || undefined
+    : providerInfo.kubernetesProviderConnectionCreation
+    ? providerInfo.kubernetesProviderConnectionCreationDisplayName
+    : undefined) || providerInfo.name;
+
 let osMemory, osCpu, osFreeDisk;
 // get only ContainerProviderConnectionFactory scope fields that are starting by the provider id
 let configurationKeys: IConfigurationPropertyRecordedSchema[] = [];
@@ -235,7 +242,7 @@ async function handleOnSubmit(e) {
     // clear terminal
     logsTerminal?.clear();
     loggerHandlerKey = startTask(
-      `Creating a ${providerInfo.name} provider`,
+      `Create ${providerDisplayName}`,
       `/preferences/provider-task/${providerInfo.internalId}/${taskId}`,
       getLoggerHandler(),
     );
@@ -295,12 +302,6 @@ async function close() {
         {/if}
       {/if}
     </div>
-    {@const providerDisplayName =
-      (providerInfo.containerProviderConnectionCreation
-        ? providerInfo.containerProviderConnectionCreationDisplayName || undefined
-        : providerInfo.kubernetesProviderConnectionCreation
-        ? providerInfo.kubernetesProviderConnectionCreationDisplayName
-        : undefined) || providerInfo.name}
     <h1 class="font-semibold">
       {creationInProgress ? 'Creating' : 'Create a'}
       {providerDisplayName}
