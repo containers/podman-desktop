@@ -44,12 +44,11 @@ $: providerConnections = $providerInfos
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 // number of selected items in the list
-$: selectedItemsNumber = images.filter(image => image.selected).length;
+$: selectedItemsNumber = images.filter(image => !image.inUse).filter(image => image.selected).length;
 
 // do we need to unselect all checkboxes if we don't have all items being selected ?
-$: selectedAllCheckboxes = images.every(image => image.selected);
+$: selectedAllCheckboxes = images.filter(image => !image.inUse).every(image => image.selected);
 
-let allChecked = false;
 const imageUtils = new ImageUtils();
 
 function updateImages() {
@@ -279,7 +278,7 @@ function computeInterval(): number {
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <Checkbox
-              bind:checked="{allChecked}"
+              bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
               on:click="{event => toggleAllImages(event.currentTarget)}" />
           </th>

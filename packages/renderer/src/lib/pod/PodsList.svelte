@@ -48,8 +48,6 @@ $: selectedItemsNumber = pods.filter(pod => pod.selected).length;
 // do we need to unselect all checkboxes if we don't have all items being selected ?
 $: selectedAllCheckboxes = pods.every(pod => pod.selected);
 
-let allChecked = false;
-
 const podUtils = new PodUtils();
 
 let podsUnsubscribe: Unsubscriber;
@@ -244,7 +242,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <Checkbox
-              bind:checked="{allChecked}"
+              bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
               on:click="{event => toggleAllPods(event.currentTarget)}" />
           </th>

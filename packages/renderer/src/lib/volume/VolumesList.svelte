@@ -32,12 +32,10 @@ $: providerConnections = $providerInfos
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 // number of selected items in the list
-$: selectedItemsNumber = volumes.filter(volume => volume.selected).length;
+$: selectedItemsNumber = volumes.filter(volume => !volume.inUse).filter(volume => volume.selected).length;
 
 // do we need to unselect all checkboxes if we don't have all items being selected ?
-$: selectedAllCheckboxes = volumes.every(volume => volume.selected);
-
-let allChecked = false;
+$: selectedAllCheckboxes = volumes.filter(volume => !volume.inUse).every(volume => volume.selected);
 
 const volumeUtils = new VolumeUtils();
 
@@ -237,7 +235,7 @@ function computeInterval(): number {
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <Checkbox
-              bind:checked="{allChecked}"
+              bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
               on:click="{event => toggleAllVolumes(event.currentTarget)}" />
           </th>
