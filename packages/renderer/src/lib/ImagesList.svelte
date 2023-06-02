@@ -278,7 +278,7 @@ function computeInterval(): number {
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <Checkbox
-              bind:selected="{allChecked}"
+              bind:checked="{allChecked}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
               on:click="{event => toggleAllImages(event.currentTarget.checked)}" />
           </th>
@@ -295,7 +295,7 @@ function computeInterval(): number {
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
               <Checkbox
-                bind:selected="{image.selected}"
+                bind:checked="{image.selected}"
                 disabled="{image.inUse}"
                 disabledTooltip="Image is used by a container" />
             </td>

@@ -382,7 +382,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <Checkbox
-              bind:selected="{selectedAllCheckboxes}"
+              bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
               on:click="{event => toggleAllContainerGroups(event.currentTarget.checked)}" />
           </th>
@@ -410,7 +410,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               </td>
               <td class="px-2">
                 <Checkbox
-                  bind:selected="{containerGroup.selected}"
+                  bind:checked="{containerGroup.selected}"
                   on:click="{event => toggleCheckboxContainerGroup(event.currentTarget.checked, containerGroup)}" />
               </td>
               <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
@@ -478,7 +478,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     : ''}">
                 </td>
                 <td class="px-2">
-                  <Checkbox bind:selected="{container.selected}" />
+                  <Checkbox bind:checked="{container.selected}" />
                 </td>
                 <td class="flex flex-row justify-center h-12">
                   <div class="grid place-content-center ml-3 mr-4">

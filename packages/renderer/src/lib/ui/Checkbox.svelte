@@ -3,7 +3,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faCheckSquare, faMinusSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { faSquare as faOutlineSquare } from '@fortawesome/free-regular-svg-icons';
 
-export let selected: boolean = false;
+export let checked: boolean = false;
 export let disabled: boolean = false;
 export let indeterminate: boolean = false;
 export let disabledTooltip: string = '';
@@ -12,7 +12,7 @@ export let disabledTooltip: string = '';
 <label>
   <input
     type="checkbox"
-    bind:checked="{selected}"
+    bind:checked="{checked}"
     disabled="{disabled}"
     indeterminate="{indeterminate}"
     class="sr-only"
@@ -26,7 +26,7 @@ export let disabledTooltip: string = '';
       <Fa size="18" icon="{faSquare}" class="text-charcoal-300" />
     {:else if indeterminate}
       <Fa size="18" icon="{faMinusSquare}" class="text-dustypurple-500" />
-    {:else if selected}
+    {:else if checked}
       <Fa size="18" icon="{faCheckSquare}" class="text-purple-500" />
     {:else}
       <Fa size="18" icon="{faOutlineSquare}" class="text-gray-400" />

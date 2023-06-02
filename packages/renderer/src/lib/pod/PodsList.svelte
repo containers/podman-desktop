@@ -244,7 +244,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <Checkbox
-              bind:selected="{allChecked}"
+              bind:checked="{allChecked}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
               on:click="{event => toggleAllPods(event.currentTarget.checked)}" />
           </th>
@@ -259,7 +259,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
           <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
-              <Checkbox bind:selected="{pod.selected}" />
+              <Checkbox bind:checked="{pod.selected}" />
             </td>
             <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
