@@ -27,6 +27,11 @@ import type { ProxySettings } from '@podman-desktop/api';
 
 let extensionsCatalog: ExtensionsCatalog;
 
+const fooAssetIcon = {
+  assetType: 'icon',
+  data: 'fooIcon',
+};
+
 const fakePublishedExtension1 = {
   publisher: {
     publisherName: 'foo',
@@ -42,6 +47,7 @@ const fakePublishedExtension1 = {
       preview: false,
       lastUpdated: '2021-01-01T00:00:00.000Z',
       ociUri: 'oci-registry.foo/foo/bar',
+      files: [fooAssetIcon],
     },
   ],
 };
@@ -160,6 +166,7 @@ test('should get all extensions', async () => {
     ociUri: 'oci-registry.foo/foo/bar',
     preview: false,
     version: '1.0.0',
+    files: [fooAssetIcon],
   });
   // no error
   expect(console.error).not.toBeCalled();

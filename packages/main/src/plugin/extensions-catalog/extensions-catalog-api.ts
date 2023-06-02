@@ -40,4 +40,10 @@ interface CatalogExtensionVersion {
   version: string;
   ociUri: string;
   preview: boolean;
+  files: CatalogExtensionVersionFile[];
+}
+
+interface CatalogExtensionVersionFile {
+  assetType: 'icon' | 'LICENSE' | 'README';
+  data: string;
 }

@@ -40,6 +40,7 @@ const catalogExtension1: CatalogExtension = {
       version: '2.0.0',
       preview: false,
       ociUri: 'oci-registry.foo/foo/bar1',
+      files: [],
     },
   ],
 };
@@ -54,6 +55,7 @@ const catalogExtension2: CatalogExtension = {
       version: '4.0.0',
       preview: false,
       ociUri: 'oci-registry.foo/foo/bar2',
+      files: [],
     },
   ],
 };
