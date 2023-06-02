@@ -95,10 +95,10 @@ onDestroy(() => {
   }
 });
 
-function toggleAllPods(value: boolean) {
+function toggleAllPods(target: EventTarget) {
+  const checked = (<HTMLInputElement>target).checked;
   const togglePods = pods;
-  // filter out all images used by a container
-  togglePods.forEach(pod => (pod.selected = value));
+  togglePods.forEach(pod => (pod.selected = checked));
   pods = togglePods;
 }
 
@@ -246,7 +246,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
             <Checkbox
               bind:checked="{allChecked}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              on:click="{event => toggleAllPods(event.currentTarget.checked)}" />
+              on:click="{event => toggleAllPods(event.currentTarget)}" />
           </th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
