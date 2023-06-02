@@ -143,7 +143,8 @@ function openDetailsImage(image: ImageInfoUI) {
   router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/summary`);
 }
 
-function toggleAllImages(value: boolean) {
+function toggleAllImages(target: EventTarget) {
+  const value = (<HTMLInputElement>target).checked;
   const toggleImages = images;
   // filter out all images used by a container
   toggleImages.filter(image => !image.inUse).forEach(image => (image.selected = value));
@@ -280,7 +281,7 @@ function computeInterval(): number {
             <Checkbox
               bind:checked="{allChecked}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              on:click="{event => toggleAllImages(event.currentTarget.checked)}" />
+              on:click="{event => toggleAllImages(event.currentTarget)}" />
           </th>
           <th class="text-center font-extrabold w-10 px-2">status</th>
           <th class="w-10">Name</th>
