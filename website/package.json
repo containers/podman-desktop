@@ -36,7 +36,7 @@
     "@docusaurus/module-type-aliases": "2.4.1",
     "@tsconfig/docusaurus": "^1.0.7",
     "autoprefixer": "^10.4.14",
-    "markdownlint": "^0.28.2",
+    "markdownlint": "^0.29.0",
     "markdownlint-cli2": "^0.7.1",
     "postcss": "^8.4.24",
     "tailwindcss": "^3.3.2",
