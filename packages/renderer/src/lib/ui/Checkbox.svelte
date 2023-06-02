@@ -1,5 +1,6 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
+import { createEventDispatcher } from 'svelte';
 import { faCheckSquare, faMinusSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { faSquare as faOutlineSquare } from '@fortawesome/free-regular-svg-icons';
 
@@ -7,6 +8,12 @@ export let checked: boolean = false;
 export let disabled: boolean = false;
 export let indeterminate: boolean = false;
 export let disabledTooltip: string = '';
+
+const dispatch = createEventDispatcher<{ click: boolean }>();
+
+function onClick(checked: boolean) {
+  dispatch('click', checked);
+}
 </script>
 
 <label>
@@ -16,7 +23,7 @@ export let disabledTooltip: string = '';
     disabled="{disabled}"
     indeterminate="{indeterminate}"
     class="sr-only"
-    on:click />
+    on:click="{event => onClick(event.currentTarget.checked)}" />
   <div
     class="grid place-content-center"
     title="{disabled ? disabledTooltip : ''}"

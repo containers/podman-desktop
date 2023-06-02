@@ -115,11 +115,10 @@ onDestroy(() => {
   }
 });
 
-function toggleAllVolumes(target: EventTarget) {
-  const value = (<HTMLInputElement>target).checked;
+function toggleAllVolumes(checked: boolean) {
   const toggleVolumes = volumes;
   // filter out all volumes used by a container
-  toggleVolumes.filter(volume => !volume.inUse).forEach(volume => (volume.selected = value));
+  toggleVolumes.filter(volume => !volume.inUse).forEach(volume => (volume.selected = checked));
   volumes = toggleVolumes;
 }
 
@@ -237,7 +236,7 @@ function computeInterval(): number {
             <Checkbox
               bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              on:click="{event => toggleAllVolumes(event.currentTarget)}" />
+              on:click="{event => toggleAllVolumes(event.detail)}" />
           </th>
           <th class="text-center font-extrabold w-10 px-2">status</th>
           <th class="w-10">Name</th>

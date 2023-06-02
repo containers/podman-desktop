@@ -93,8 +93,7 @@ onDestroy(() => {
   }
 });
 
-function toggleAllPods(target: EventTarget) {
-  const checked = (<HTMLInputElement>target).checked;
+function toggleAllPods(checked: boolean) {
   const togglePods = pods;
   togglePods.forEach(pod => (pod.selected = checked));
   pods = togglePods;
@@ -244,7 +243,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
             <Checkbox
               bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              on:click="{event => toggleAllPods(event.currentTarget)}" />
+              on:click="{checked => toggleAllPods(checked.detail)}" />
           </th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
