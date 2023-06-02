@@ -138,10 +138,6 @@ function SectionTitle(props) {
   );
 }
 
-function WorkInProgress() {
-  return <div className="text-sm font-extralight text-purple-800 dark:text-purple-200">Work in progress</div>;
-}
-
 function KeepUpToDate() {
   return (
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-800 bg-zinc-100 body-font">
@@ -278,7 +274,7 @@ function Configure() {
               </div>
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Proxy</h2>
-                <p className="leading-relaxed text-base">Configure your proxy settings (in progress..).</p>
+                <p className="leading-relaxed text-base">Configure your proxy settings.</p>
               </div>
             </div>
 
@@ -290,9 +286,7 @@ function Configure() {
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">
                   Resources Utilization
                 </h2>
-                <p className="leading-relaxed text-base">
-                  Configure CPU/Memory/Disk of Podman machines (work in progress)
-                </p>
+                <p className="leading-relaxed text-base">Configure CPU/Memory/Disk of Podman machines.</p>
               </div>
             </div>
 
@@ -325,7 +319,6 @@ function EnterpriseReady() {
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
             Enterprise ready
-            <WorkInProgress />
           </h2>
         </div>
         <div className="container px-5 pb-5 mx-auto">
