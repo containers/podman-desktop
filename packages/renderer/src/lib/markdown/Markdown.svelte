@@ -1,6 +1,27 @@
 <style>
 .markdown > :global(p) {
+  line-height: revert;
   padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.markdown > :global(h1),
+:global(h2),
+:global(h3),
+:global(h4),
+:global(h5) {
+  font-size: revert;
+  line-height: normal;
+  font-weight: revert;
+  border-bottom: 1px solid #444;
+  margin-bottom: 20px;
+}
+
+.markdown > :global(ul) {
+  line-height: normal;
+  list-style: revert;
+  margin: revert;
+  padding: revert;
 }
 </style>
 
@@ -16,6 +37,14 @@ let html;
 // Optional attribute to specify the markdown to use
 // the user can use: <Markdown>**bold</Markdown> or <Markdown markdown="**bold**" /> syntax
 export let markdown = '';
+
+$: markdown
+  ? (html = micromark(markdown, {
+      extensions: [directive()],
+      htmlExtensions: [directiveHtml({ button })],
+    }))
+  : undefined;
+
 onMount(() => {
   if (markdown) {
     text = markdown;
