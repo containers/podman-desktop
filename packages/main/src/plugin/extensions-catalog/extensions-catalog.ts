@@ -98,6 +98,7 @@ export class ExtensionsCatalog {
               version: version.version,
               preview: version.preview,
               ociUri: version.ociUri,
+              files: version.files,
             };
           }),
         };
@@ -211,6 +212,12 @@ interface InternalCatalogExtensionVersionJSON {
   version: string;
   ociUri: string;
   preview: boolean;
+  files: InternalCatalogExtensionVersionFileJSON[];
+}
+
+interface InternalCatalogExtensionVersionFileJSON {
+  assetType: 'icon' | 'LICENSE' | 'README';
+  data: string;
 }
 
 interface InternalCatalogJSON {
