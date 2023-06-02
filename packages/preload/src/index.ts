@@ -35,6 +35,7 @@ import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-i
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
+import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
@@ -830,6 +831,9 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('getFeaturedExtensions', async (): Promise<FeaturedExtension[]> => {
     return ipcInvoke('featured:getFeaturedExtensions');
+  });
+  contextBridge.exposeInMainWorld('getCatalogExtensions', async (): Promise<CatalogExtension[]> => {
+    return ipcInvoke('catalog:getExtensions');
   });
 
   contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
