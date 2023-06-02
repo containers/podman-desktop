@@ -31,7 +31,7 @@ $: initTerminal();
 const lineNumberPerId = new Map<string, number>();
 let lineIndex = 0;
 
-export let terminalIntialized = false;
+export let terminalInitialized = false;
 
 function callback(event: PullEvent) {
   let lineIndexToWrite;
@@ -79,7 +79,7 @@ let pullLogsXtermDiv: HTMLDivElement;
 
 async function initTerminal() {
   await tick();
-  if (terminalIntialized) {
+  if (terminalInitialized) {
     return;
   }
 
@@ -109,7 +109,7 @@ async function initTerminal() {
     fitAddon.fit();
   });
   fitAddon.fit();
-  terminalIntialized = true;
+  terminalInitialized = true;
 }
 
 async function pullImage() {
