@@ -101,6 +101,7 @@ import type { FeaturedExtension } from './featured/featured-api';
 import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
 import { ExtensionsUpdater } from './extensions-updater/extensions-updater';
+import type { CatalogExtension } from './extensions-catalog/extensions-catalog-api';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -1233,6 +1234,10 @@ export class PluginSystem {
 
     this.ipcHandle('featured:getFeaturedExtensions', async (): Promise<FeaturedExtension[]> => {
       return featured.getFeaturedExtensions();
+    });
+
+    this.ipcHandle('catalog:getExtensions', async (): Promise<CatalogExtension[]> => {
+      return extensionsCatalog.getExtensions();
     });
 
     this.ipcHandle(
