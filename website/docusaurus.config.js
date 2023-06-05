@@ -29,6 +29,7 @@ const config = {
         },
       };
     },
+    'docusaurus-plugin-goatcounter',
   ],
   presets: [
     [
@@ -182,6 +183,9 @@ const config = {
 
         // Optional
         searchPagePath: 'search',
+      },
+      goatcounter: {
+        code: 'podman-desktop-website',
       },
     }),
 };

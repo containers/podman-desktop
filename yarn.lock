@@ -5960,6 +5960,11 @@ doctrine@^3.0.0:
   dependencies:
     esutils "^2.0.2"
 
+docusaurus-plugin-goatcounter@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-goatcounter/-/docusaurus-plugin-goatcounter-2.0.1.tgz#f3d240fd445d39b08d8405553a30e9ce1a916979"
+  integrity sha512-0KcS2fbpV2sDmeDheR/vyH9YkJg8+y7pcGq9PtrQbyDAsISnYCI+pvwlNZIHikn9Z+W+9mGLxYaHWQwlUc5/lA==
+
 dom-accessibility-api@^0.5.6, dom-accessibility-api@^0.5.9:
   version "0.5.16"
   resolved "https://registry.yarnpkg.com/dom-accessibility-api/-/dom-accessibility-api-0.5.16.tgz#5a7429e6066eb3664d911e33fb0e45de8eb08453"
