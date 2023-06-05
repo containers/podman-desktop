@@ -13,34 +13,23 @@ beforeAll(() => {
   };
 });
 
-async function waitRender(customProperties: object): Promise<void> {
-  const result = render(AppNavigation, { ...customProperties });
-  // wait that result.component.$$.ctx[2] is set
-  while (result.component.$$.ctx[2] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-}
-
-describe('AppNavigation testing suite', async () => {
-  test('Test rendering of the navigation bar with empty items', async () => {
-    await waitRender({
-      exitSettingsCallback: () => {},
-      meta: {
-        url: '/',
-      },
-    });
-
-    const dasboard = screen.getByRole('link', { name: 'Dashboard' });
-    expect(dasboard).toBeInTheDocument();
-    const containers = screen.getByRole('link', { name: 'Containers' });
-    expect(containers).toBeInTheDocument();
-    const pods = screen.getByRole('link', { name: 'Pods' });
-    expect(pods).toBeInTheDocument();
-    const images = screen.getByRole('link', { name: 'Images' });
-    expect(images).toBeInTheDocument();
-    const volumes = screen.getByRole('link', { name: 'Volumes' });
-    expect(volumes).toBeInTheDocument();
-    const settings = screen.getByRole('link', { name: 'Settings' });
-    expect(settings).toBeInTheDocument();
+test('Test rendering of the navigation bar with empty items', () => {
+  render(AppNavigation, {
+    meta: {
+      url: '/',
+    },
   });
+
+  const dasboard = screen.getByRole('link', { name: 'Dashboard' });
+  expect(dasboard).toBeInTheDocument();
+  const containers = screen.getByRole('link', { name: 'Containers' });
+  expect(containers).toBeInTheDocument();
+  const pods = screen.getByRole('link', { name: 'Pods' });
+  expect(pods).toBeInTheDocument();
+  const images = screen.getByRole('link', { name: 'Images' });
+  expect(images).toBeInTheDocument();
+  const volumes = screen.getByRole('link', { name: 'Volumes' });
+  expect(volumes).toBeInTheDocument();
+  const settings = screen.getByRole('link', { name: 'Settings' });
+  expect(settings).toBeInTheDocument();
 });
