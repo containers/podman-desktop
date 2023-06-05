@@ -74,7 +74,7 @@ function setup() {
 describe('PullImage', () => {
   test('Expect that textbox is available and button is displayed', async () => {
     setup();
-    render(PullImage, { terminalIntialized: true });
+    render(PullImage, { terminalInitialized: true });
 
     const entry = screen.getByPlaceholderText('Image name');
     expect(entry).toBeInTheDocument();
@@ -85,7 +85,7 @@ describe('PullImage', () => {
 
   test('Expect that whitespace does not enable button', async () => {
     setup();
-    render(PullImage, { imageToPull: '   ', terminalIntialized: true });
+    render(PullImage, { imageToPull: '   ', terminalInitialized: true });
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
@@ -94,7 +94,7 @@ describe('PullImage', () => {
 
   test('Expect that valid entry enables button', async () => {
     setup();
-    render(PullImage, { imageToPull: 'some-valid-image', terminalIntialized: true });
+    render(PullImage, { imageToPull: 'some-valid-image', terminalInitialized: true });
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
@@ -103,7 +103,7 @@ describe('PullImage', () => {
 
   test('Expect that valid entry enables button', async () => {
     setup();
-    render(PullImage, { terminalIntialized: true });
+    render(PullImage, { terminalInitialized: true });
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
