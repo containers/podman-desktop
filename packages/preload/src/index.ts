@@ -135,6 +135,11 @@ function initExposure(): void {
     }
   });
 
+  // Handle protocol to install extensions by delegating to the renderer process
+  ipcRenderer.on('podman-desktop-protocol:install-extension', (_, extensionId: string) => {
+    apiSender.send('install-extension:from-id', extensionId);
+  });
+
   contextBridge.exposeInMainWorld('extensionSystemIsReady', async (): Promise<boolean> => {
     return ipcInvoke('extension-system:isReady');
   });
