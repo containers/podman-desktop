@@ -11,7 +11,7 @@ import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
 import { type InitializationContext, InitializationSteps, InitializeAndStartMode } from './ProviderInitUtils';
-import { Steps } from 'svelte-steps';
+import Steps from 'svelte-steps/Steps.svelte';
 
 export let provider: ProviderInfo;
 export let initializationContext: InitializationContext;
