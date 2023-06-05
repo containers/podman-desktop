@@ -18,7 +18,13 @@ import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
-import { getProviderConnectionName, type IConnectionRestart, type IConnectionStatus } from './Util';
+import {
+  canCreateKubernetesConnection,
+  canCreateContainerConnection,
+  getProviderConnectionName,
+  type IConnectionRestart,
+  type IConnectionStatus,
+} from './Util';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
@@ -247,7 +253,7 @@ async function startConnectionProvider(
                 <span class="my-auto text-gray-400 ml-3 break-words">{provider.name}</span>
               </div>
               <div class="text-center mt-10">
-                {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
+                {#if canCreateContainerConnection(provider) || canCreateKubernetesConnection(provider)}
                   {@const providerDisplayName =
                     (provider.containerProviderConnectionCreation
                       ? provider.containerProviderConnectionCreationDisplayName || undefined

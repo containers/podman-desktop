@@ -76,3 +76,19 @@ export function getNormalizedDefaultNumberValue(configurationKey: IConfiguration
   }
   return configurationKey.maximum;
 }
+
+export function canCreateContainerConnection(providerInfo: ProviderInfo): boolean {
+  return (
+    providerInfo.containerProviderConnectionCreation &&
+    providerInfo.status != 'not-installed' &&
+    providerInfo.status != 'error'
+  );
+}
+
+export function canCreateKubernetesConnection(providerInfo: ProviderInfo): boolean {
+  return (
+    providerInfo.kubernetesProviderConnectionCreation &&
+    providerInfo.status != 'not-installed' &&
+    providerInfo.status != 'error'
+  );
+}
