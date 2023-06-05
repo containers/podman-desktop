@@ -98,7 +98,7 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/'
         ? 'pf-m-current'
         : ''} hover:text-gray-400 cursor-pointer items-center mb-6">
-      <a href="/" class="pf-c-nav__link flex">
+      <a href="/" class="pf-c-nav__link flex" aria-label="Dashboard">
         <Tooltip tip="Dashboard" right>
           <div class="flex items-center w-full h-full">
             <svg
@@ -127,7 +127,7 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url.startsWith('/containers')
         ? 'pf-m-current'
         : ''} hover:text-gray-400 cursor-pointer items-center mb-6">
-      <a href="/containers" class="pf-c-nav__link">
+      <a href="/containers" class="pf-c-nav__link" aria-label="Containers">
         <Tooltip tip="Containers{containerCount}" right>
           <div class="flex items-center w-full h-full">
             <ContainerIcon size="24" />
@@ -139,7 +139,7 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/pods'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-700'} hover:text-gray-400 cursor-pointer items-center mb-6">
-      <a href="/pods" class="pf-c-nav__link">
+      <a href="/pods" class="pf-c-nav__link" aria-label="Pods">
         <Tooltip tip="Pods{podCount}" right>
           <div class="flex items-center w-full h-full">
             <PodIcon size="24" />
@@ -151,7 +151,7 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/images'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-700'} hover:text-gray-400 cursor-pointer items-center mb-6">
-      <a href="/images" class="pf-c-nav__link">
+      <a href="/images" class="pf-c-nav__link" aria-label="Images">
         <Tooltip tip="Images{imageCount}" right>
           <div class="flex items-center w-full h-full">
             <ImageIcon size="24" />
@@ -163,7 +163,7 @@ export let meta;
       class="pf-c-nav__item flex w-full justify-between {meta.url === '/volumes'
         ? 'dark:text-white pf-m-current'
         : 'dark:text-gray-700'} hover:text-gray-400 cursor-pointer items-center mb-6">
-      <a href="/volumes" class="pf-c-nav__link flex">
+      <a href="/volumes" class="pf-c-nav__link flex" aria-label="Volumes">
         <Tooltip tip="Volumes{volumeCount}" right>
           <div class="flex items-center w-full h-full">
             <VolumeIcon size="24" />
@@ -179,7 +179,7 @@ export let meta;
         class="pf-c-nav__item flex w-full justify-between {meta.url === '/contribs/{contribution.name}'
           ? 'dark:text-white pf-m-current'
           : 'dark:text-gray-700'} hover:text-gray-400 cursor-pointer items-center mb-6">
-        <a href="/contribs/{contribution.name}" class="pf-c-nav__link">
+        <a href="/contribs/{contribution.name}" class="pf-c-nav__link" aria-label="{contribution.name}">
           <Tooltip tip="{contribution.name}" right>
             <div class="flex items-center w-full h-full">
               <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
@@ -198,7 +198,8 @@ export let meta;
       <a
         href="#top"
         class="pf-c-nav__link"
-        on:click|preventDefault="{() => clickSettings(meta.url.startsWith('/preferences'))}">
+        on:click|preventDefault="{() => clickSettings(meta.url.startsWith('/preferences'))}"
+        aria-label="Settings">
         <Tooltip tip="Settings" right>
           <div class="flex items-center w-full h-full">
             <svg
