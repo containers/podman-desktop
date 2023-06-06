@@ -200,6 +200,9 @@ jobs:
       - name: Run formatter
         run: yarn format:check
 
+      - name: Run build
+        run: yarn build
+
       - name: Run unit tests
         run: yarn test
 
