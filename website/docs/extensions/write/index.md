@@ -152,19 +152,19 @@ Write the extension features.
    import * as podmanDesktopAPI from '@podman-desktop/api';
    export async function activate(extensionContext: podmanDesktopAPI.ExtensionContext): Promise<void> {
      // register the command referenced in package.json file
-     const myFirstCommand = extensionApi.commands.registerCommand('my.first.command', async () => {
+     const myFirstCommand = podmanDesktopAPI.commands.registerCommand('my.first.command', async () => {
        // display a choice to the user for selecting some values
-       const result = await extensionApi.window.showQuickPick(['un', 'deux', 'trois'], {
+       const result = await podmanDesktopAPI.window.showQuickPick(['un', 'deux', 'trois'], {
          canPickMany: true, // user can select more than one choice
        });
 
        // display an information message with the user choice
-       await extensionApi.window.showInformationMessage(`The choice was: ${result}`);
+       await podmanDesktopAPI.window.showInformationMessage(`The choice was: ${result}`);
      });
 
      // create an item in the status bar to run our command
      // it will stick on the left of the status bar
-     const item = extensionApi.window.createStatusBarItem(extensionApi.StatusBarAlignLeft, 100);
+     const item = podmanDesktopAPI.window.createStatusBarItem(podmanDesktopAPI.StatusBarAlignLeft, 100);
      item.text = 'My first command';
      item.command = 'my.first.command';
      item.show();
