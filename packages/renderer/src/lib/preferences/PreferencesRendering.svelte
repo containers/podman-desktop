@@ -50,7 +50,7 @@ function updateSearchValue(event: any) {
   <SettingsPage title="Preferences">
     <div class="bg-charcoal-900">
       <div
-        class="flex items-center text-gray-700 rounded-sm rounded-lg focus-within:border-2 focus-within:border-violet-500">
+        class="flex items-center text-gray-700 rounded-sm rounded-lg border-2 border-charcoal-900 focus-within:border-violet-500">
         <input
           on:input="{e => updateSearchValue(e)}"
           class="w-full bg-charcoal-900 py-1 px-3 outline-0 text-sm"

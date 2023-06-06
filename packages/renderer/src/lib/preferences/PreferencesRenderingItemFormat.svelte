@@ -250,7 +250,7 @@ function assertNumericValueIsValid(value: number) {
 </script>
 
 <div class="flex flex-row mb-1 pt-2">
-  <div class="flex flex-col mx-2 text-start w-full justify-center items-start pf-c-form__group-control">
+  <div class="flex flex-col text-start w-full justify-center items-start">
     {#if record.type === 'boolean'}
       <label class="relative inline-flex items-center cursor-pointer">
         <span class="text-xs {checkboxValue ? 'text-white' : 'text-gray-700'} mr-3"
@@ -365,7 +365,7 @@ function assertNumericValueIsValid(value: number) {
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"
-        class="pf-c-form-control outline-0"
+        class="grow py-1 px-2 w-full outline-0 border-b-2 border-gray-800 hover:border-violet-500 focus:border-violet-500"
         name="{record.id}"
         type="text"
         bind:value="{recordValue}"

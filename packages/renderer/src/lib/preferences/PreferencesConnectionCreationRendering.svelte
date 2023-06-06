@@ -351,7 +351,7 @@ async function close() {
       {/if}
 
       <div class="p-3 mt-4 w-4/5 {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
-        <form novalidate class="pf-c-form p-2" on:submit|preventDefault="{handleOnSubmit}">
+        <form novalidate class="p-2 space-y-7" on:submit|preventDefault="{handleOnSubmit}">
           {#each configurationKeys as configurationKey}
             <div class="mb-2.5">
               <div class="font-semibold text-xs">
