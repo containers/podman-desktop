@@ -13,8 +13,6 @@
 
   --pf-global--BackgroundColor--300: #222222; /*charcoal-700*/
 
-  --pf-c-form__helper-text--m-error--Color: #ff0000;
-
   --pf-global--LineHeight--md: 0.9rem;
   --pf-global--FontWeight--normal: 100;
   --pf-c-nav__link--after--BorderColor: #7c3aed;
@@ -25,7 +23,6 @@
   --pf-c-nav__link--before--BorderBottomWidth: 0;
   --pf-c-nav__link--FontWeight: 600;
   --pf-c-nav__link--m-current--BackgroundColor: #36363d; /*charcoal-500*/
-
 
   --pf-c-nav__link--PaddingTop: 13px;
   --pf-c-nav__link--PaddingBottom: 13px;
@@ -47,7 +44,6 @@
   --pf-c-tabs__link--m-current--after--BorderColor: #8b5cf6;
  }
 
-
 .pf-c-button {
   --pf-c-button--FontSize: 13px;
 }
@@ -56,23 +52,4 @@
   --pf-c-button--m-secondary--Color: #ddd;
   --pf-c-button--m-secondary--BackgroundColor: transparent;
   --pf-c-button--after--BorderColor: rgb(229,231,235);
-}
-
-nav .pf-c-badge.pf-m-read {
-  --pf-c-badge--Color: #fff;
-  --pf-c-badge--BackgroundColor: #8b5cf6;
-}
-
-.pf-c-form {
-  --pf-c-form--GridGap: 1rem;
-  overflow-y: hidden;
-}
-
-.pf-c-form .pf-u-min-height {
-  --pf-u-min-height--MinHeight: 3.3rem;
-}
-
-.pf-c-modal-box {
-  --pf-c-modal-box__body--PaddingTop: 3.5rem;
-  --pf-c-modal-box__header--body--PaddingTop: 1.5rem;
 }
