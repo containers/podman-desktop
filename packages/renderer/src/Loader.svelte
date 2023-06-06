@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-
 import App from './App.svelte';
+import SealRocket from './lib/images/SealRocket.svelte';
 
 let systemReady: boolean = false;
 
@@ -49,11 +49,7 @@ window.events.receive('starting-extensions', (value: string) => {
     <div class="min-h-full min-w-full flex flex-col">
       <div class="pf-c-empty-state h-full">
         <div class="pf-c-empty-state__content">
-          <i
-            class:text-zinc-700="{toggle}"
-            class:text-zinc-600="{!toggle}"
-            class="fas fa-layer-group m-4 text-8xl"
-            aria-hidden="true"></i>
+          <SealRocket />
           <h1 class="pf-c-title pf-m-lg">Initializing...</h1>
         </div>
       </div>
