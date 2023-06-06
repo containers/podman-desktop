@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { Generator } from './generator';
+import { Generator } from './generator.js';
 
 async function run() {
   let token = process.env.GITHUB_TOKEN;

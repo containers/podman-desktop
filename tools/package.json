@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Generates release notes",
   "main": "index.js",
+  "type": "module",
   "author": "The Podman Desktop team",
   "license": "MIT",
   "scripts": {
