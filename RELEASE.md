@@ -5,7 +5,7 @@ Release process for Podman Desktop
 
 - Make sure everything that needs to be in the release is there
 - Notify main contributors
-- Check that the PR for Release Notes is almost completed by PM
+- Check that the PR for Release Notes is almost completed by PM. You can generate a draft release notes using this [workflow](actions/workflows/release-notes.yaml)
 
 In the below example, we will pretend that we're upgrading from `0.11.0` to `0.12.0`.
 

@@ -2462,6 +2462,15 @@
     "@octokit/types" "^8.0.0"
     universal-user-agent "^6.0.0"
 
+"@octokit/graphql@^5.0.6":
+  version "5.0.6"
+  resolved "https://registry.yarnpkg.com/@octokit/graphql/-/graphql-5.0.6.tgz#9eac411ac4353ccc5d3fca7d76736e6888c5d248"
+  integrity sha512-Fxyxdy/JH0MnIB5h+UQ3yCoh1FG4kWXfFKkpWqjZHw/p+Kc8Y44Hu/kCgNBT6nU1shNumEchmW/sUO1JuQnPcw==
+  dependencies:
+    "@octokit/request" "^6.0.0"
+    "@octokit/types" "^9.0.0"
+    universal-user-agent "^6.0.0"
+
 "@octokit/oauth-app@^4.0.7", "@octokit/oauth-app@^4.2.1":
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/@octokit/oauth-app/-/oauth-app-4.2.2.tgz#41ff9e672f3d486f18e97d2e4fd00589b1fb928b"

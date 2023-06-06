@@ -22,7 +22,8 @@
       "packages/*/tsconfig.json",
       "./website/tsconfig.json",
       "./extensions/*/tsconfig.json",
-      "./tests/tsconfig.json"
+      "./tests/tsconfig.json",
+      "./tools/tsconfig.json"
     ]
   },
   "settings": {

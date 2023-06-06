@@ -1,0 +1,17 @@
+{
+  "name": "release-notes-generator",
+  "version": "1.0.0",
+  "description": "Generates release notes",
+  "main": "index.js",
+  "author": "The Podman Desktop team",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@octokit/graphql": "^5.0.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
+}
