@@ -27,6 +27,7 @@ let quickPickSelectedFilteredIndex = 0;
 let quickPickCanPickMany = false;
 
 let inputElement: HTMLInputElement | HTMLTextAreaElement = undefined;
+let comp;
 
 const showInputCallback = async (options?: InputBoxOptions) => {
   mode = 'InputBox';
@@ -247,17 +248,24 @@ function handleKeydown(e: KeyboardEvent) {
     }
   }
 }
+
+function handleMousedown(e: MouseEvent) {
+  if (comp && !comp.contains(e.target) && !e.defaultPrevented) {
+    window.sendShowQuickPickValues(currentId, []);
+    cleanup();
+  }
+}
 </script>
 
-<svelte:window on:keydown="{handleKeydown}" />
+<svelte:window on:keydown="{handleKeydown}" on:mousedown="{handleMousedown}"/>
 
 {#if display}
   <!-- Create overlay-->
   <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 h-full z-40"></div>
 
   <div class="absolute m-auto left-0 right-0 z-50">
-    <div class=" flex justify-center items-center mt-1">
-      <div
+    <div class="flex justify-center items-center mt-1">
+      <div bind:this={comp}
         class="bg-charcoal-800 w-[700px] {mode === 'InputBox'
           ? 'h-fit'
           : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
