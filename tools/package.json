@@ -7,7 +7,7 @@
   "author": "The Podman Desktop team",
   "license": "MIT",
   "scripts": {
-    "build": "tsc"
+    "build": "vite build"
   },
   "dependencies": {
     "@octokit/graphql": "^5.0.6"
