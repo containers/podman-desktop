@@ -37,6 +37,7 @@ vi.mock('./util', async () => {
   return {
     getAssetsFolder: vi.fn().mockReturnValue(''),
     runCliCommand: vi.fn(),
+    appHomeDir: vi.fn().mockReturnValue(''),
   };
 });
 

@@ -202,6 +202,14 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   await checkDefaultMachine(machines);
 }
 
+function cleanupMachines(): void {
+  currentConnections.forEach(disposable => disposable.dispose());
+  currentConnections.clear();
+  containerProviderConnections.clear();
+  podmanMachinesInfo.clear();
+  podmanMachinesStatuses.clear();
+}
+
 export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void> {
   // As a last check, let's see if the machine that is running is set by default or not on the CLI.
   // if it isn't, we should prompt the user to set it as default, or else podman CLI commands will not work
@@ -390,6 +398,7 @@ async function monitorProvider(provider: extensionApi.Provider) {
       // update version
       if (!installedPodman) {
         provider.updateStatus('not-installed');
+        cleanupMachines();
       } else if (installedPodman.version) {
         provider.updateVersion(installedPodman.version);
         // update provider status if someone has installed podman externally
