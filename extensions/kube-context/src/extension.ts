@@ -128,7 +128,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     statusBarItem.text = 'No context';
     statusBarItem.command = 'kubecontext.quickpick';
     statusBarItem.tooltip = 'Current Kubernetes context';
-    statusBarItem.iconClass = 'fa fa-cog';
+    statusBarItem.iconClass = 'fa fa-server';
     statusBarItem.show();
     extensionContext.subscriptions.push(statusBarItem);
   }
