@@ -2,7 +2,7 @@
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
-import type {ImageInfoUI} from './ImageInfoUI';
+import type { ImageInfoUI } from './ImageInfoUI';
 
 export let closeCallback: () => void;
 export let imageInfoToRename: ImageInfoUI;
@@ -21,7 +21,7 @@ onMount(async () => {
 });
 
 async function renameImage(imageTag: string, newImageTag: string) {
-  await window.addImageTag(imageInfoToRename.engineId, imageTag, newImageTag, callback)
+  await window.addImageTag(imageInfoToRename.engineId, imageTag, newImageTag, callback);
 }
 
 async function renameImageFinished() {
@@ -32,7 +32,6 @@ async function renameImageFinished() {
 function callback() {
   renameComplete = true;
 }
-
 </script>
 
 <Modal
@@ -60,29 +59,27 @@ function callback() {
           {/each}
         </select>
 
-          <label for="newImageTag" class="block my-2 text-sm font-bold text-gray-400">New Image Tag</label>
-          <input
-            type="text"
-            bind:value="{newImageTag}"
-            name="newImageTag"
-            id="newImageTag"
-            placeholder="Enter new image tag (e.g. quay.io/namespace/my-custom-image:latest)"
-            class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
-            required />
-          {#if !renameComplete }
-            <button
-              class="pf-c-button pf-m-primary"
-              type="button"
-              on:click="{() => {
-                renameImage(selectedImageTag, newImageTag);
-              }}">
+        <label for="newImageTag" class="block my-2 text-sm font-bold text-gray-400">New Image Tag</label>
+        <input
+          type="text"
+          bind:value="{newImageTag}"
+          name="newImageTag"
+          id="newImageTag"
+          placeholder="Enter new image tag (e.g. quay.io/namespace/my-custom-image:latest)"
+          class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+          required />
+        {#if !renameComplete}
+          <button
+            class="pf-c-button pf-m-primary"
+            type="button"
+            on:click="{() => {
+              renameImage(selectedImageTag, newImageTag);
+            }}">
             Add Image Tag</button>
-          {:else}
-            <button class="pf-c-button pf-m-primary" type="button" on:click="{() => renameImageFinished()}"> Done</button>
+        {:else}
+          <button class="pf-c-button pf-m-primary" type="button" on:click="{() => renameImageFinished()}"> Done</button>
         {/if}
-
       </div>
-
     </div>
   </div>
 </Modal>
