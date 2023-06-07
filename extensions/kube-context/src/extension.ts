@@ -35,6 +35,10 @@ async function deleteContext(): Promise<void> {
   menuItemsRegistered.forEach(item => {
     item.dispose();
   });
+
+  if (statusBarItem) {
+    statusBarItem.dispose();
+  }
 }
 
 async function updateContext(extensionContext: extensionApi.ExtensionContext, kubeconfigFile: string): Promise<void> {
@@ -75,6 +79,16 @@ async function updateContext(extensionContext: extensionApi.ExtensionContext, ku
   const subscription = extensionApi.tray.registerMenuItem(item);
   menuItemsRegistered.push(subscription);
   extensionContext.subscriptions.push(subscription);
+
+  // create a status bar item to show the current context and allow switching
+  if (!statusBarItem) {
+    statusBarItem = extensionApi.window.createStatusBarItem();
+    statusBarItem.command = 'kubecontext.quickpick';
+    statusBarItem.tooltip = 'Current Kubernetes context';
+    statusBarItem.iconClass = 'fa fa-server';
+    statusBarItem.show();
+    extensionContext.subscriptions.push(statusBarItem);
+  }
 
   if (currentContext) {
     if (currentContext.length <= 20)
@@ -121,17 +135,6 @@ async function setContext(newContext: string) {
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   console.log('starting extension kube-context');
-
-  // create a status bar item to show the current context and allow switching
-  if (!statusBarItem) {
-    statusBarItem = extensionApi.window.createStatusBarItem();
-    statusBarItem.text = 'No context';
-    statusBarItem.command = 'kubecontext.quickpick';
-    statusBarItem.tooltip = 'Current Kubernetes context';
-    statusBarItem.iconClass = 'fa fa-server';
-    statusBarItem.show();
-    extensionContext.subscriptions.push(statusBarItem);
-  }
 
   // grab current file
   const kubeconfigUri = extensionApi.kubernetes.getKubeconfig();
