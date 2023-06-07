@@ -76,7 +76,7 @@ export class Certificates {
   async retrieveWindowsCertificates(): Promise<string[]> {
     // delegate to the win-ca module
     const winCaRetrieval = new Promise<string[]>(resolve => {
-      const CAs: string[] = [];
+      const CAs: string[] = [...tls.rootCertificates];
 
       if (import.meta.env.PROD) {
         const rootExePath = path.join(process.resourcesPath, 'win-ca', 'roots.exe');
