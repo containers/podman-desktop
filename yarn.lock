@@ -3721,10 +3721,10 @@
     "@typescript-eslint/types" "5.59.9"
     eslint-visitor-keys "^3.3.0"
 
-"@vitest/coverage-c8@0.31.4":
-  version "0.31.4"
-  resolved "https://registry.yarnpkg.com/@vitest/coverage-c8/-/coverage-c8-0.31.4.tgz#5628e415fd9bea99ee12127e0524b9d267a33e17"
-  integrity sha512-VPx368m4DTcpA/P0v3YdVxl4QOSh1DbUcXURLRvDShrIB5KxOgfzw4Bn2R8AhAe/GyiWW/FIsJ/OJdYXCCiC1w==
+"@vitest/coverage-c8@0.32.0":
+  version "0.32.0"
+  resolved "https://registry.yarnpkg.com/@vitest/coverage-c8/-/coverage-c8-0.32.0.tgz#945f8f32ddc42af780feeea193698e5c27e5f322"
+  integrity sha512-FeTzRN5VCL7B6YTRK5ZPQO2iwJzl2x7/mTQ/2uEeKZatAYBtvczeAYnzSUhCPev7p99+5skxMQZwqVcFTrVCdg==
   dependencies:
     "@ampproject/remapping" "^2.2.1"
     c8 "^7.13.0"
