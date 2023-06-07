@@ -749,12 +749,18 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async addImageTag(engineId: string, imageTag: string, newImageTag: string, callback: () => void): Promise<void> {
+  async addImageTag(
+    engineId: string,
+    imageTag: string,
+    newImageName: string,
+    newImageTag: string,
+    callback: () => void,
+  ): Promise<void> {
     let telemetryOptions = {};
     try {
       const engine = this.getMatchingEngine(engineId);
       const image = engine.getImage(imageTag);
-      await image.tag({ name: imageTag, repo: newImageTag });
+      await image.tag({ name: imageTag, repo: newImageName, tag: newImageTag });
       callback();
     } catch (error) {
       telemetryOptions = { error: error };

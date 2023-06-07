@@ -8,7 +8,8 @@ export let closeCallback: () => void;
 export let imageInfoToRename: ImageInfoUI;
 
 let selectedImageTag = '';
-let newImageTag = '';
+let newImageName = '';
+let newImageTag = 'latest';
 let imageTags: string[] = [];
 let renameComplete = false;
 onMount(async () => {
@@ -20,8 +21,8 @@ onMount(async () => {
   }
 });
 
-async function renameImage(imageTag: string, newImageTag: string) {
-  await window.addImageTag(imageInfoToRename.engineId, imageTag, newImageTag, callback);
+async function renameImage(imageTag: string, newImageName: string, newImageTag: string) {
+  await window.addImageTag(imageInfoToRename.engineId, imageTag, newImageName, newImageTag, callback);
 }
 
 async function renameImageFinished() {
@@ -59,13 +60,23 @@ function callback() {
           {/each}
         </select>
 
+        <label for="newImageName" class="block my-2 text-sm font-bold text-gray-400">New Image Name</label>
+        <input
+          type="text"
+          bind:value="{newImageName}"
+          name="newImageName"
+          id="newImageName"
+          placeholder="Enter new image name (e.g. quay.io/namespace/my-custom-image)"
+          class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+          required />
+
         <label for="newImageTag" class="block my-2 text-sm font-bold text-gray-400">New Image Tag</label>
         <input
           type="text"
           bind:value="{newImageTag}"
           name="newImageTag"
           id="newImageTag"
-          placeholder="Enter new image tag (e.g. quay.io/namespace/my-custom-image:latest)"
+          placeholder="Enter new tag (e.g. latest or v2)"
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           required />
         {#if !renameComplete}
@@ -73,7 +84,7 @@ function callback() {
             class="pf-c-button pf-m-primary"
             type="button"
             on:click="{() => {
-              renameImage(selectedImageTag, newImageTag);
+              renameImage(selectedImageTag, newImageName, newImageTag);
             }}">
             Add Image Tag</button>
         {:else}

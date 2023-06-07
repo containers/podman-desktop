@@ -277,13 +277,20 @@ function initExposure(): void {
   const onDataCallbacksAddImageTag = new Map<number, () => void>();
   contextBridge.exposeInMainWorld(
     'addImageTag',
-    async (engine: string, imageId: string, newImageTag: string, callback: () => void): Promise<void> => {
+    async (
+      engine: string,
+      imageId: string,
+      newImageName: string,
+      newImageTag: string,
+      callback: () => void,
+    ): Promise<void> => {
       onDataCallbacksAddImageTagId++;
       onDataCallbacksAddImageTag.set(onDataCallbacksAddImageTagId, callback);
       return ipcInvoke(
         'container-provider-registry:addImageTag',
         engine,
         imageId,
+        newImageName,
         newImageTag,
         onDataCallbacksAddImageTagId,
       );

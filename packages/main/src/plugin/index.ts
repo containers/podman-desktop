@@ -862,8 +862,15 @@ export class PluginSystem {
     );
     this.ipcHandle(
       'container-provider-registry:addImageTag',
-      async (_listener, engine: string, imageId: string, newImageTag: string, callbackId: number): Promise<void> => {
-        return containerProviderRegistry.addImageTag(engine, imageId, newImageTag, () => {
+      async (
+        _listener,
+        engine: string,
+        imageId: string,
+        newImageName: string,
+        newImageTag: string,
+        callbackId: number,
+      ): Promise<void> => {
+        return containerProviderRegistry.addImageTag(engine, imageId, newImageName, newImageTag, () => {
           this.getWebContentsSender().send('container-provider-registry:addImageTag-onData', callbackId);
         });
       },
