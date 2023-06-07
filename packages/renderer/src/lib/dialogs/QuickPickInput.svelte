@@ -27,7 +27,7 @@ let quickPickSelectedFilteredIndex = 0;
 let quickPickCanPickMany = false;
 
 let inputElement: HTMLInputElement | HTMLTextAreaElement = undefined;
-let comp;
+let outerDiv: HTMLDivElement = undefined;
 
 const showInputCallback = async (options?: InputBoxOptions) => {
   mode = 'InputBox';
@@ -250,7 +250,7 @@ function handleKeydown(e: KeyboardEvent) {
 }
 
 function handleMousedown(e: MouseEvent) {
-  if (comp && !comp.contains(e.target) && !e.defaultPrevented) {
+  if (outerDiv && !e.defaultPrevented && e.target instanceof Node && !outerDiv.contains(e.target)) {
     window.sendShowQuickPickValues(currentId, []);
     cleanup();
   }
@@ -265,7 +265,7 @@ function handleMousedown(e: MouseEvent) {
 
   <div class="absolute m-auto left-0 right-0 z-50">
     <div class="flex justify-center items-center mt-1">
-      <div bind:this={comp}
+      <div bind:this={outerDiv}
         class="bg-charcoal-800 w-[700px] {mode === 'InputBox'
           ? 'h-fit'
           : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
