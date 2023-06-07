@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from 'svelte';
+import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import type {ImageInfoUI} from './ImageInfoUI';
 
@@ -9,6 +10,7 @@ export let imageInfoToRename: ImageInfoUI;
 let selectedImageTag = '';
 let newImageTag = '';
 let imageTags: string[] = [];
+let renameComplete = false;
 onMount(async () => {
   const inspectInfo = await window.getImageInspect(imageInfoToRename.engineId, imageInfoToRename.id);
 
@@ -17,9 +19,20 @@ onMount(async () => {
     selectedImageTag = imageTags[0];
   }
 });
+
 async function renameImage(imageTag: string, newImageTag: string) {
-  await window.addImageTag(imageInfoToRename.engineId, imageTag, "new-image-tag")
+  await window.addImageTag(imageInfoToRename.engineId, imageTag, newImageTag, callback)
 }
+
+async function renameImageFinished() {
+  closeCallback();
+  router.goto('/images');
+}
+
+function callback() {
+  renameComplete = true;
+}
+
 </script>
 
 <Modal
@@ -54,15 +67,19 @@ async function renameImage(imageTag: string, newImageTag: string) {
             name="newImageTag"
             id="newImageTag"
             placeholder="Enter new image tag (e.g. quay.io/namespace/my-custom-image:latest)"
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
             required />
-          <button
-            class="pf-c-button pf-m-primary"
-            type="button"
-            on:click="{() => {
-              renameImage(selectedImageTag, newImageTag);
-            }}">
-          Add Image Tag</button>
+          {#if !renameComplete }
+            <button
+              class="pf-c-button pf-m-primary"
+              type="button"
+              on:click="{() => {
+                renameImage(selectedImageTag, newImageTag);
+              }}">
+            Add Image Tag</button>
+          {:else}
+            <button class="pf-c-button pf-m-primary" type="button" on:click="{() => renameImageFinished()}"> Done</button>
+        {/if}
 
       </div>
 

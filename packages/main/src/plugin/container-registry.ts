@@ -749,19 +749,22 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async addImageTag(engineId: string, imageTag: string, newImageTag: string): Promise<void> {
+  async addImageTag(engineId: string, imageTag: string, newImageTag: string, callback: () => void): Promise<void> {
     let telemetryOptions = {};
-    console.log({ engineId, imageTag, newImageTag });
     try {
       const engine = this.getMatchingEngine(engineId);
       const image = engine.getImage(imageTag);
-      await image.tag({name: imageTag, repo: newImageTag});
+      await image.tag({ name: imageTag, repo: newImageTag });
+      callback();
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
     } finally {
       this.telemetryService
-        .track('addImageTag', Object.assign({ imageName: this.getImageHash(imageTag), newImageTag: newImageTag }, telemetryOptions))
+        .track(
+          'addImageTag',
+          Object.assign({ imageName: this.getImageHash(imageTag), newImageTag: newImageTag }, telemetryOptions),
+        )
         .catch((err: unknown) => console.error('Unable to track', err));
     }
   }

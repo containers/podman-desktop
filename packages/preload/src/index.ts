@@ -273,8 +273,29 @@ function initExposure(): void {
     },
   );
 
-  contextBridge.exposeInMainWorld('addImageTag', async (engine: string, imageId: string, newImageTag: string): Promise<void> => {
-    return ipcInvoke('container-provider-registry:addImageTag', engine, imageId, newImageTag);
+  let onDataCallbacksAddImageTagId = 0;
+  const onDataCallbacksAddImageTag = new Map<number, () => void>();
+  contextBridge.exposeInMainWorld(
+    'addImageTag',
+    async (engine: string, imageId: string, newImageTag: string, callback: () => void): Promise<void> => {
+      onDataCallbacksAddImageTagId++;
+      onDataCallbacksAddImageTag.set(onDataCallbacksAddImageTagId, callback);
+      return ipcInvoke(
+        'container-provider-registry:addImageTag',
+        engine,
+        imageId,
+        newImageTag,
+        onDataCallbacksAddImageTagId,
+      );
+    },
+  );
+  ipcRenderer.on('container-provider-registry:addImageTag-onData', (_, onDataCallbacksAddImageTagId: number) => {
+    // grab callback from the map
+    const callback = onDataCallbacksAddImageTag.get(onDataCallbacksAddImageTagId);
+
+    if (callback) {
+      callback();
+    }
   });
 
   contextBridge.exposeInMainWorld('restartContainer', async (engine: string, containerId: string): Promise<void> => {
