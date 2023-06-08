@@ -136,11 +136,13 @@ function handleKeydown(e: KeyboardEvent) {
         </button>
       </div>
 
-      <div class="px-10 py-4 text-sm text-gray-500 leading-5">{message}</div>
+      <div class="max-h-80 overflow-auto">
+        <div class="px-10 py-4 text-sm text-gray-500 leading-5">{message}</div>
 
-      {#if detail}
-        <div class="px-10 pb-4 text-sm text-gray-500 leading-5">{detail}</div>
-      {/if}
+        {#if detail}
+          <div class="px-10 pb-4 text-sm text-gray-500 leading-5">{detail}</div>
+        {/if}
+      </div>
 
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
         {#each buttonOrder as i}
