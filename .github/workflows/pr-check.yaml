@@ -203,6 +203,9 @@ jobs:
       - name: Run unit tests
         run: yarn test:unit
 
+      - name: Run E2E smoke tests
+        run: yarn test:e2e:smoke
+
       - name: Run typecheck
         run: yarn typecheck
 
