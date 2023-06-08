@@ -77,6 +77,7 @@ window.events?.receive('display-help', () => {
 
     <div class="overflow-x-hidden flex flex-1">
       <MessageBox />
+      <QuickPickInput />
       <AppNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
       {#if meta.url.startsWith('/preferences')}
         <PreferencesNavigation meta="{meta}" />
@@ -89,7 +90,6 @@ window.events?.receive('display-help', () => {
         <TaskManager />
         <SendFeedback />
         <ToastHandler />
-        <QuickPickInput />
         <Route path="/" breadcrumb="Dashboard Page">
           <DashboardPage />
         </Route>
