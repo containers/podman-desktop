@@ -91,12 +91,14 @@ async function updateContext(extensionContext: extensionApi.ExtensionContext, ku
   }
 
   if (currentContext) {
-    if (currentContext.length <= 20)
+    if (currentContext.length <= 20) {
       statusBarItem.text = currentContext;
-    else
+    } else {
       statusBarItem.text = currentContext.substring(0, 20) + '...';
-  } else
+    }
+  } else {
     statusBarItem.text = 'No context';
+  }
 
   quickPicks = contexts.map(context => {
     return {
@@ -164,12 +166,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   extensionContext.subscriptions.push(switchCommand);
 
   const quickPickCommand = extensionApi.commands.registerCommand('kubecontext.quickpick', async () => {
-      const selectedContext = await extensionApi.window.showQuickPick(quickPicks, {
-        placeHolder: 'Select a Kubernetes context',
-      });
-      if (selectedContext) {
-        await setContext(selectedContext.label);
-      }
+    const selectedContext = await extensionApi.window.showQuickPick(quickPicks, {
+      placeHolder: 'Select a Kubernetes context',
+    });
+    if (selectedContext) {
+      await setContext(selectedContext.label);
+    }
   });
   extensionContext.subscriptions.push(quickPickCommand);
 }
