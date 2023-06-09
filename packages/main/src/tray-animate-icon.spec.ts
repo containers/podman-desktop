@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { AnimatedTray } from './tray-animate-icon';
+import { AnimatedTray } from './tray-animate-icon.js';
 import * as path from 'path';
 import { app } from 'electron';
 

@@ -19,10 +19,10 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import nock from 'nock';
-import { ExtensionsCatalog } from './extensions-catalog';
-import type { Certificates } from '../certificates';
-import type { Proxy } from '../proxy';
-import { Emitter } from '../events/emitter';
+import { ExtensionsCatalog } from './extensions-catalog.js';
+import type { Certificates } from '../certificates.js';
+import type { Proxy } from '../proxy.js';
+import { Emitter } from '../events/emitter.js';
 import type { ProxySettings } from '@podman-desktop/api';
 
 let extensionsCatalog: ExtensionsCatalog;

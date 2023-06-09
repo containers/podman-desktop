@@ -18,13 +18,13 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import type { TrayMenu } from '../tray-menu';
+import type { TrayMenu } from '../tray-menu.js';
 import { EventEmitter } from 'node:events';
-import { PluginSystem } from './index';
+import { PluginSystem } from './index.js';
 import type { WebContents } from 'electron';
 import { shell, clipboard } from 'electron';
-import type { MessageBox } from './message-box';
-import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
+import type { MessageBox } from './message-box.js';
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 
 let pluginSystem: PluginSystem;
 

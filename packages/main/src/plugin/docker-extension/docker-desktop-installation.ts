@@ -18,16 +18,16 @@
 
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { ipcMain } from 'electron';
-import type { ContainerProviderRegistry } from '../container-registry';
+import type { ContainerProviderRegistry } from '../container-registry.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { readFile, cp } from 'node:fs/promises';
 import * as tarFs from 'tar-fs';
 import type Dockerode from 'dockerode';
-import type { PullEvent } from '../api/pull-event';
-import type { ContributionManager } from '../contribution-manager';
-import type { ApiSenderType } from '../api';
+import type { PullEvent } from '../api/pull-event.js';
+import type { ContributionManager } from '../contribution-manager.js';
+import type { ApiSenderType } from '../api.js';
 
 export class DockerDesktopInstallation {
   constructor(

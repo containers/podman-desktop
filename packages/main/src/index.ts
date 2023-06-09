@@ -19,15 +19,15 @@
 import type { BrowserWindow } from 'electron';
 import { app, ipcMain, Tray } from 'electron';
 import './security-restrictions';
-import { createNewWindow, restoreWindow } from '/@/mainWindow';
-import { TrayMenu } from './tray-menu';
-import { isMac, isWindows, stoppedExtensions } from './util';
-import { AnimatedTray } from './tray-animate-icon';
-import { PluginSystem } from './plugin';
-import { StartupInstall } from './system/startup-install';
-import type { ExtensionLoader } from './plugin/extension-loader';
+import { createNewWindow, restoreWindow } from '/@/mainWindow.js';
+import { TrayMenu } from './tray-menu.js';
+import { isMac, isWindows, stoppedExtensions } from './util.js';
+import { AnimatedTray } from './tray-animate-icon.js';
+import { PluginSystem } from './plugin/index.js';
+import { StartupInstall } from './system/startup-install.js';
+import type { ExtensionLoader } from './plugin/extension-loader.js';
 import dns from 'node:dns';
-import { Deferred } from './plugin/util/deferred';
+import { Deferred } from './plugin/util/deferred.js';
 
 let extensionLoader: ExtensionLoader | undefined;
 

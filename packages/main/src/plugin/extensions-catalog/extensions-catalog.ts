@@ -19,10 +19,13 @@
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
 import got from 'got';
-import type { Certificates } from '/@/plugin/certificates';
-import type { Proxy } from '/@/plugin/proxy';
+import type { Certificates } from '/@/plugin/certificates.js';
+import type { Proxy } from '/@/plugin/proxy.js';
 import type * as podmanDesktopAPI from '@podman-desktop/api';
-import type { CatalogExtension, CatalogFetchableExtension } from '/@/plugin/extensions-catalog/extensions-catalog-api';
+import type {
+  CatalogExtension,
+  CatalogFetchableExtension,
+} from '/@/plugin/extensions-catalog/extensions-catalog-api.js';
 
 /**
  * Allow to grab content from the online extensions catalog.

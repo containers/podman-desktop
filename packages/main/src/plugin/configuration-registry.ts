@@ -20,11 +20,11 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { ConfigurationImpl } from './configuration-impl';
-import type { Event } from './events/emitter';
-import { Emitter } from './events/emitter';
-import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants';
-import { desktopAppHomeDir } from '../util';
+import { ConfigurationImpl } from './configuration-impl.js';
+import type { Event } from './events/emitter.js';
+import { Emitter } from './events/emitter.js';
+import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
+import { desktopAppHomeDir } from '../util.js';
 
 export type IConfigurationPropertySchemaType =
   | 'markdown'

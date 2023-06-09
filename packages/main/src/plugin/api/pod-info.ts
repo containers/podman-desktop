@@ -16,7 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { PodInfo as LibPodPodInfo, PodInspectInfo as LibPodPodInspectInfo } from '../dockerode/libpod-dockerode';
+import type {
+  PodInfo as LibPodPodInfo,
+  PodInspectInfo as LibPodPodInspectInfo,
+} from '../dockerode/libpod-dockerode.js';
 
 export interface PodInfo extends LibPodPodInfo {
   engineId: string;

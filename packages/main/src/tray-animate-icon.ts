@@ -19,7 +19,7 @@
 import type { Tray } from 'electron';
 import { app, nativeTheme } from 'electron';
 import * as path from 'path';
-import { isLinux, isMac } from './util';
+import { isLinux, isMac } from './util.js';
 export type TrayIconStatus = 'initialized' | 'updating' | 'error' | 'ready';
 
 export class AnimatedTray {
