@@ -215,7 +215,7 @@ jobs:
           name: tests
           path: ./tests/output/
 
-  e2e-tests:
+  smoke-e2e-tests:
     name: smoke e2e tests
     runs-on: ubuntu-22.04
     steps:
