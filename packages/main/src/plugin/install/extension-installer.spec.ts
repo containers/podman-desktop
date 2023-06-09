@@ -36,10 +36,12 @@ getPluginsDirectoryMock.mockReturnValue('/fake/plugins/directory');
 
 const listExtensionsMock = vi.fn();
 const loadExtensionMock = vi.fn();
+const analyzeExtensionMock = vi.fn();
 const extensionLoader: ExtensionLoader = {
   getPluginsDirectory: getPluginsDirectoryMock,
   listExtensions: listExtensionsMock,
   loadExtension: loadExtensionMock,
+  analyzeExtension: analyzeExtensionMock,
 } as unknown as ExtensionLoader;
 
 const getImageConfigLabelsMock = vi.fn();

@@ -159,7 +159,10 @@ export class ExtensionInstaller {
 
     // refresh contributions
     try {
-      await this.extensionLoader.loadExtension(finalFolderPath, true);
+      const analyzedExtension = await this.extensionLoader.analyzeExtension(finalFolderPath, true);
+      if (analyzedExtension) {
+        await this.extensionLoader.loadExtension(analyzedExtension);
+      }
     } catch (error) {
       sendError('Error while loading the extension ' + error);
       return;
