@@ -40,20 +40,20 @@ import {
   Watch,
   VersionApi,
 } from '@kubernetes/client-node';
-import type { V1Route } from './api/openshift-types';
+import type { V1Route } from './api/openshift-types.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Emitter } from './events/emitter';
-import { Uri } from './types/uri';
+import { Emitter } from './events/emitter.js';
+import { Uri } from './types/uri.js';
 import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
-import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
-import type { FilesystemMonitoring } from './filesystem-monitoring';
-import type { PodInfo } from './api/pod-info';
+import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
+import type { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { PodInfo } from './api/pod-info.js';
 import { PassThrough } from 'node:stream';
-import type { ApiSenderType } from './api';
+import type { ApiSenderType } from './api.js';
 import { parseAllDocuments } from 'yaml';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {

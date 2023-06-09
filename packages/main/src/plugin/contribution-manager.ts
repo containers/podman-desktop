@@ -19,9 +19,9 @@
 import * as path from 'node:path';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
-import type { ContributionInfo } from './api/contribution-info';
-import { desktopAppHomeDir } from '../util';
-import type { ApiSenderType } from './api';
+import type { ContributionInfo } from './api/contribution-info.js';
+import { desktopAppHomeDir } from '../util.js';
+import type { ApiSenderType } from './api.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions

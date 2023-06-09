@@ -23,9 +23,9 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { cp } from 'node:fs/promises';
 import * as tarFs from 'tar-fs';
-import type { ExtensionLoader } from '../extension-loader';
-import type { ApiSenderType } from '../api';
-import type { ImageRegistry } from '../image-registry';
+import type { ExtensionLoader } from '../extension-loader.js';
+import type { ApiSenderType } from '../api.js';
+import type { ImageRegistry } from '../image-registry.js';
 
 export class ExtensionInstaller {
   constructor(

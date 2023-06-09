@@ -46,15 +46,15 @@ import type {
   ProviderKubernetesConnectionInfo,
   LifecycleMethod,
   PreflightChecksCallback,
-} from './api/provider-info';
-import type { ContainerProviderRegistry } from './container-registry';
-import type { Event } from './events/emitter';
-import { Emitter } from './events/emitter';
-import { LifecycleContextImpl, LoggerImpl } from './lifecycle-context';
-import { ProviderImpl } from './provider-impl';
-import type { Telemetry } from './telemetry/telemetry';
-import { Disposable } from './types/disposable';
-import type { ApiSenderType } from './api';
+} from './api/provider-info.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
+import type { Event } from './events/emitter.js';
+import { Emitter } from './events/emitter.js';
+import { LifecycleContextImpl, LoggerImpl } from './lifecycle-context.js';
+import { ProviderImpl } from './provider-impl.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import { Disposable } from './types/disposable.js';
+import type { ApiSenderType } from './api.js';
 
 export type ProviderEventListener = (name: string, providerInfo: ProviderInfo) => void;
 export type ProviderLifecycleListener = (

@@ -19,7 +19,7 @@
 import { app } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { ConfigurationRegistry } from '../plugin/configuration-registry';
+import type { ConfigurationRegistry } from '../plugin/configuration-registry.js';
 
 /**
  * On macOS, startup on login is done via a plist file

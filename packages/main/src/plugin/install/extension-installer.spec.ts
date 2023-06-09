@@ -18,10 +18,10 @@
 
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import { ExtensionInstaller } from './extension-installer';
-import type { ApiSenderType } from '../api';
-import type { ExtensionLoader } from '../extension-loader';
-import type { ImageRegistry } from '../image-registry';
+import { ExtensionInstaller } from './extension-installer.js';
+import type { ApiSenderType } from '../api.js';
+import type { ExtensionLoader } from '../extension-loader.js';
+import type { ImageRegistry } from '../image-registry.js';
 import * as path from 'node:path';
 
 let extensionInstaller: ExtensionInstaller;

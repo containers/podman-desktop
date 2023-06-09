@@ -19,13 +19,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import type { ConfigurationRegistry } from '../configuration-registry';
+import type { ConfigurationRegistry } from '../configuration-registry.js';
 
-import { Telemetry, TelemetryLoggerImpl } from './telemetry';
-import { TelemetrySettings } from './telemetry-settings';
-import type { ExtensionInfo } from '../api/extension-info';
+import { Telemetry, TelemetryLoggerImpl } from './telemetry.js';
+import { TelemetrySettings } from './telemetry-settings.js';
+import type { ExtensionInfo } from '../api/extension-info.js';
 import type { TelemetrySender } from '@podman-desktop/api';
-import { TelemetryTrustedValue } from '../types/telemetry';
+import { TelemetryTrustedValue } from '../types/telemetry.js';
 
 const getConfigurationMock = vi.fn();
 const onDidChangeConfigurationMock = vi.fn();

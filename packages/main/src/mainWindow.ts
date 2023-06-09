@@ -22,8 +22,8 @@ import contextMenu from 'electron-context-menu';
 import { aboutMenuItem } from 'electron-util';
 import { join } from 'path';
 import { URL } from 'url';
-import type { ConfigurationRegistry } from './plugin/configuration-registry';
-import { isLinux, isMac, stoppedExtensions } from './util';
+import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
+import { isLinux, isMac, stoppedExtensions } from './util.js';
 
 async function createWindow(): Promise<BrowserWindow> {
   const INITIAL_APP_WIDTH = 1050;

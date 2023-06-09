@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { CommandRegistry } from './command-registry';
+import type { CommandRegistry } from './command-registry.js';
 
 export interface Menu {
   command: string;

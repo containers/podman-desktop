@@ -18,15 +18,15 @@
 
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
-import { ExtensionsUpdater } from './extensions-updater';
+import { ExtensionsUpdater } from './extensions-updater.js';
 
-import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog';
-import type { ExtensionLoader } from '../extension-loader';
-import type { ConfigurationRegistry } from '../configuration-registry';
-import type { ExtensionInstaller } from '../install/extension-installer';
-import type { Telemetry } from '../telemetry/telemetry';
-import type { CatalogExtension } from '../extensions-catalog/extensions-catalog-api';
-import type { ExtensionInfo } from '../api/extension-info';
+import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
+import type { ExtensionLoader } from '../extension-loader.js';
+import type { ConfigurationRegistry } from '../configuration-registry.js';
+import type { ExtensionInstaller } from '../install/extension-installer.js';
+import type { Telemetry } from '../telemetry/telemetry.js';
+import type { CatalogExtension } from '../extensions-catalog/extensions-catalog-api.js';
+import type { ExtensionInfo } from '../api/extension-info.js';
 
 let extensionsUpdater: ExtensionsUpdater;
 

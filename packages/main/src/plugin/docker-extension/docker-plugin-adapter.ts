@@ -3,7 +3,7 @@ import { ipcMain } from 'electron';
 
 import * as os from 'node:os';
 import { spawn } from 'child_process';
-import type { ContributionManager } from '../contribution-manager';
+import type { ContributionManager } from '../contribution-manager.js';
 
 export interface RawExecResult {
   cmd?: string;

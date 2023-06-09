@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-types */
-import type { IDisposable } from '../types/disposable';
+import type { IDisposable } from '../types/disposable.js';
 
 export type DisposableGroup = { push(disposable: IDisposable): void } | { add(disposable: IDisposable): void };
 

@@ -17,12 +17,12 @@
  ***********************************************************************/
 
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import type { ApiSenderType } from './api';
+import type { ApiSenderType } from './api.js';
 
-import { ImageRegistry } from './image-registry';
-import type { Proxy } from './proxy';
-import type { Telemetry } from './telemetry/telemetry';
-import type { Certificates } from './certificates';
+import { ImageRegistry } from './image-registry.js';
+import type { Proxy } from './proxy.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import type { Certificates } from './certificates.js';
 import nock from 'nock';
 import * as imageRegistryManifestMultiArchJson from '../../tests/resources/data/plugin/image-registry-manifest-multi-arch-index.json';
 import * as imageRegistryManifestJson from '../../tests/resources/data/plugin/image-registry-manifest-index.json';
@@ -368,4 +368,32 @@ test('expect downloadAndExtractImage works', async () => {
     await fs.promises.rm(tmpTarFolder, { recursive: true });
     await fs.promises.rm(destFolder, { recursive: true });
   }
+});
+
+describe('expect checkCredentials', async () => {
+  test('expect checkCredentials works', async () => {
+    const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
+    spyGetAuthInfo.mockResolvedValue({ authUrl: 'foo', scheme: 'bearer' });
+
+    const spydoCheckCredentials = vi.spyOn(imageRegistry, 'doCheckCredentials');
+    spydoCheckCredentials.mockResolvedValue();
+
+    await imageRegistry.checkCredentials(
+      'my-podman-desktop-fake-registry.io/my/extension',
+      'my-username',
+      'my-password',
+    );
+  });
+
+  test('expect checkCredentials fails', async () => {
+    const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
+    spyGetAuthInfo.mockResolvedValue({ authUrl: 'foo', scheme: 'bearer' });
+
+    const spydoCheckCredentials = vi.spyOn(imageRegistry, 'doCheckCredentials');
+    spydoCheckCredentials.mockResolvedValue();
+
+    await expect(imageRegistry.checkCredentials('----', 'my-username', 'my-password')).rejects.toThrow(
+      'The format of the Registry Location is incorrect.',
+    );
+  });
 });

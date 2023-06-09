@@ -27,8 +27,8 @@ import type {
   Disposable,
   ProviderImages,
 } from '@podman-desktop/api';
-import { Emitter } from './events/emitter';
-import type { ApiSenderType } from './api';
+import { Emitter } from './events/emitter.js';
+import type { ApiSenderType } from './api.js';
 
 /**
  * Structure to save authentication provider information

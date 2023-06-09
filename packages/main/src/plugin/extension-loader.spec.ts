@@ -19,28 +19,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { beforeAll, beforeEach, test, expect, vi } from 'vitest';
-import type { CommandRegistry } from './command-registry';
-import type { ConfigurationRegistry } from './configuration-registry';
-import type { ContainerProviderRegistry } from './container-registry';
-import type { AnalyzedExtension } from './extension-loader';
-import { ExtensionLoader } from './extension-loader';
-import type { FilesystemMonitoring } from './filesystem-monitoring';
-import type { ImageRegistry } from './image-registry';
-import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
-import type { KubernetesClient } from './kubernetes-client';
-import type { MenuRegistry } from './menu-registry';
-import type { NotificationImpl } from './notification-impl';
-import type { ProgressImpl } from './progress-impl';
-import type { ProviderRegistry } from './provider-registry';
-import type { Proxy } from './proxy';
-import type { StatusBarRegistry } from './statusbar/statusbar-registry';
-import type { TrayMenuRegistry } from './tray-menu-registry';
+import type { CommandRegistry } from './command-registry.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
+import type { AnalyzedExtension } from './extension-loader.js';
+import { ExtensionLoader } from './extension-loader.js';
+import type { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { ImageRegistry } from './image-registry.js';
+import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
+import type { KubernetesClient } from './kubernetes-client.js';
+import type { MenuRegistry } from './menu-registry.js';
+import type { NotificationImpl } from './notification-impl.js';
+import type { ProgressImpl } from './progress-impl.js';
+import type { ProviderRegistry } from './provider-registry.js';
+import type { Proxy } from './proxy.js';
+import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
+import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { ApiSenderType } from './api';
-import type { AuthenticationImpl } from './authentication';
-import type { MessageBox } from './message-box';
-import type { Telemetry } from './telemetry/telemetry';
+import type { ApiSenderType } from './api.js';
+import type { AuthenticationImpl } from './authentication.js';
+import type { MessageBox } from './message-box.js';
+import type { Telemetry } from './telemetry/telemetry.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 
 class TestExtensionLoader extends ExtensionLoader {

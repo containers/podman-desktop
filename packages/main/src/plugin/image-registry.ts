@@ -16,19 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Disposable } from './types/disposable';
+import { Disposable } from './types/disposable.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Emitter } from './events/emitter';
+import { Emitter } from './events/emitter.js';
 import type * as Dockerode from 'dockerode';
-import type { Telemetry } from './telemetry/telemetry';
+import type { Telemetry } from './telemetry/telemetry.js';
 import * as crypto from 'node:crypto';
 import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
 import got, { HTTPError, RequestError } from 'got';
-import validator from 'validator';
+import validatorPkg from 'validator';
+// workaround for ESM
+const validator: { isURL: (url: string) => boolean } = validatorPkg as unknown as { isURL: (url: string) => boolean };
+
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
-import type { Certificates } from './certificates';
-import type { Proxy } from './proxy';
-import type { ApiSenderType } from './api';
+import type { Certificates } from './certificates.js';
+import type { Proxy } from './proxy.js';
+import type { ApiSenderType } from './api.js';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import * as fs from 'node:fs';

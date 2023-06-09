@@ -17,12 +17,12 @@
  ***********************************************************************/
 
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { KubernetesClient } from './kubernetes-client';
-import type { ApiSenderType } from './api';
-import type { ConfigurationRegistry } from './configuration-registry';
-import { FilesystemMonitoring } from './filesystem-monitoring';
+import { KubernetesClient } from './kubernetes-client.js';
+import type { ApiSenderType } from './api.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import { FilesystemMonitoring } from './filesystem-monitoring.js';
 import { KubeConfig } from '@kubernetes/client-node';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();

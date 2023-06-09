@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { handleOpenUrl, mainWindowDeferred } from './index';
+import { handleOpenUrl, mainWindowDeferred } from './index.js';
 import type { BrowserWindow } from 'electron';
-import { Deferred } from './plugin/util/deferred';
+import { Deferred } from './plugin/util/deferred.js';
 const consoleLogMock = vi.fn();
 const originalConsoleLog = console.log;
 

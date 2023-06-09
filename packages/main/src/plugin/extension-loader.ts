@@ -20,42 +20,42 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
-import type { CommandRegistry } from './command-registry';
-import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info';
+import type { CommandRegistry } from './command-registry.js';
+import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info.js';
 import * as zipper from 'zip-local';
-import type { TrayMenuRegistry } from './tray-menu-registry';
-import { Disposable } from './types/disposable';
-import type { ProviderRegistry } from './provider-registry';
-import type { ConfigurationRegistry } from './configuration-registry';
-import type { ImageRegistry } from './image-registry';
-import type { MessageBox } from './message-box';
-import type { ProgressImpl } from './progress-impl';
-import { ProgressLocation } from './progress-impl';
-import type { NotificationImpl } from './notification-impl';
+import type { TrayMenuRegistry } from './tray-menu-registry.js';
+import { Disposable } from './types/disposable.js';
+import type { ProviderRegistry } from './provider-registry.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import type { ImageRegistry } from './image-registry.js';
+import type { MessageBox } from './message-box.js';
+import type { ProgressImpl } from './progress-impl.js';
+import { ProgressLocation } from './progress-impl.js';
+import type { NotificationImpl } from './notification-impl.js';
 import {
   StatusBarItemImpl,
   StatusBarAlignLeft,
   StatusBarAlignRight,
   StatusBarItemDefaultPriority,
-} from './statusbar/statusbar-item';
-import type { StatusBarRegistry } from './statusbar/statusbar-registry';
-import type { FilesystemMonitoring } from './filesystem-monitoring';
-import { Uri } from './types/uri';
-import type { KubernetesClient } from './kubernetes-client';
-import type { Proxy } from './proxy';
-import type { ContainerProviderRegistry } from './container-registry';
-import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
-import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry';
-import type { MenuRegistry } from '/@/plugin/menu-registry';
-import { desktopAppHomeDir } from '../util';
-import { Emitter } from './events/emitter';
-import { CancellationTokenSource } from './cancellation-token';
-import type { ApiSenderType } from './api';
-import type { AuthenticationImpl } from './authentication';
-import type { Telemetry } from './telemetry/telemetry';
-import { TelemetryTrustedValue } from './types/telemetry';
+} from './statusbar/statusbar-item.js';
+import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
+import type { FilesystemMonitoring } from './filesystem-monitoring.js';
+import { Uri } from './types/uri.js';
+import type { KubernetesClient } from './kubernetes-client.js';
+import type { Proxy } from './proxy.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
+import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
+import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry.js';
+import type { MenuRegistry } from '/@/plugin/menu-registry.js';
+import { desktopAppHomeDir } from '../util.js';
+import { Emitter } from './events/emitter.js';
+import { CancellationTokenSource } from './cancellation-token.js';
+import type { ApiSenderType } from './api.js';
+import type { AuthenticationImpl } from './authentication.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import { TelemetryTrustedValue } from './types/telemetry.js';
 import { clipboard as electronClipboard } from 'electron';
-import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 
 /**
  * Handle the loading of an extension
