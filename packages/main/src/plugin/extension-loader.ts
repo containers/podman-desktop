@@ -56,6 +56,9 @@ import type { Telemetry } from './telemetry/telemetry';
 import { TelemetryTrustedValue } from './types/telemetry';
 import { clipboard as electronClipboard } from 'electron';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
+import { createPatchedModules } from './proxy-resolver';
+import * as http from 'http';
+import * as https from 'https';
 
 /**
  * Handle the loading of an extension
@@ -156,7 +159,9 @@ export class ExtensionLoader {
     }));
   }
 
-  protected overrideRequire() {
+  private moduleCache = new Map<string, { http?: typeof http; https?: typeof https }>();
+
+  protected overrideRequire(lookup: ReturnType<typeof createPatchedModules>) {
     if (!this.overrideRequireDone) {
       this.overrideRequireDone = true;
       const module = require('module');
@@ -166,19 +171,35 @@ export class ExtensionLoader {
 
       // if we try to resolve theia module, return the filename entry to use cache.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const classModuleCache = this.moduleCache;
       module._load = function (request: string, parent: any): any {
-        if (request !== '@podman-desktop/api') {
+        if (request !== '@podman-desktop/api'  && request !== 'http' && request !== 'https') {
           // eslint-disable-next-line prefer-rest-params
           return internalLoad.apply(this, arguments);
         }
+
         const extension = Array.from(analyzedExtensions.values()).find(extension =>
           path.normalize(parent.filename).startsWith(path.normalize(extension.path)),
         );
-        if (extension?.api) {
-          return extension.api;
+
+        if (!extension) {
+          throw new Error(`Unable to find extension for ${parent.filename}`);
         }
-        throw new Error('Unable to find extension API');
-      };
+
+        if (request === '@podman-desktop/api') {
+            return extension.api;
+        }
+        // override http/https here
+        const httpOrHttps = lookup[request]; 
+        let cache = classModuleCache.get(extension.path)
+        if (!cache) {
+          classModuleCache.set(extension.path, cache = {});
+        }
+        if (!cache[request]) {
+          cache[request] = <any>{...httpOrHttps};
+        }
+        return cache[request];
+      }
     }
   }
 
@@ -361,7 +382,9 @@ export class ExtensionLoader {
 
     // load manifest
     const manifest = await this.loadManifest(extensionPath);
-    this.overrideRequire();
+    // load patched http and https
+    const lookup = createPatchedModules(this.proxy);
+    this.overrideRequire(lookup);
 
     // create api object
     const api = this.createApi(extensionPath, manifest);
