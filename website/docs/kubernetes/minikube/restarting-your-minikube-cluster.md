@@ -27,7 +27,7 @@ With Podman Desktop, you can restart your local Minikube-powered Kubernetes clus
 #### Workaround
 
 Minikube has no command to restart a cluster.
-Therefore, Podman Desktop stops the Minikube cluster, starts it again, and hopes for the best.
+Therefore, Podman Desktop stops the Minikube cluster, and starts it again.
 The Minikube cluster might not restart successfully.
 In that case:
 

@@ -12,7 +12,7 @@ When you create a Podman machine, Podman creates the machine in rootless mode.
 
 With a Podman machine running on WSL, Minikube:
 
-- Requires the rootful machine.
+- Requires a rootful machine.
 
 Therefore, set the Podman machine to rootful mode.
 
