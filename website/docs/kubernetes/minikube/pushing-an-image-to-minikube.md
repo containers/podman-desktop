@@ -30,7 +30,7 @@ Minikube enables you to list loaded images, using:
 $ minikube image list
 ```
 
-You can also create a Pod that uses the loaded image.
+You can also create a Pod that uses the loaded image:
 
 1. Create a `verify_my_image.yaml` Kubernetes YAML file on your workstation.
    Replace the placeholders:
