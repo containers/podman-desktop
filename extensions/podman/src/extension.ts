@@ -665,7 +665,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       // We use isEnabled() as we do not want to "renable" again if the user has already enabled it.
       if (!isDisguisedPodmanSocket && !socketCompatibilityMode.isEnabled()) {
         const result = await extensionApi.window.showInformationMessage(
-          `Do you want to automatically enable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
+          `Do you want to enable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
           'Enable',
           'Cancel',
         );
@@ -675,7 +675,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         }
       } else {
         const result = await extensionApi.window.showInformationMessage(
-          `Do you want to automatically disable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
+          `Do you want to disable Docker socket compatibility mode for Podman?\n\n${socketCompatibilityMode.details}`,
           'Disable',
           'Cancel',
         );
