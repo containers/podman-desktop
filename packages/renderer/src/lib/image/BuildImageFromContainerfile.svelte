@@ -17,9 +17,8 @@ import {
   reconnectUI,
   startBuild,
 } from './build-image-task';
-import { buildImagesInfo } from '/@/stores/build-images';
+import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
 
-let buildStarted = false;
 let buildFinished = false;
 let containerImageName = 'my-custom-image';
 let containerFilePath = undefined;
@@ -29,7 +28,7 @@ let hasInvalidFields = true;
 let logsXtermDiv: HTMLDivElement;
 let logsTerminal: Terminal;
 
-let buildImageKey: symbol | undefined = undefined;
+let buildImageInfo: BuildImageInfo | undefined = undefined;
 let providers: ProviderInfo[] = [];
 let providerConnections: ProviderContainerConnectionInfo[] = [];
 let selectedProvider: ProviderContainerConnectionInfo = undefined;
@@ -51,36 +50,38 @@ function getTerminalCallback(): BuildImageCallback {
 }
 
 async function buildContainerImage(): Promise<void> {
-  buildStarted = true;
   buildFinished = false;
 
   if (containerFilePath) {
     // extract the relative path from the containerFilePath and containerBuildContextDirectory
     const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
 
-    buildImageKey = startBuild(containerImageName, getTerminalCallback());
+    buildImageInfo = startBuild(containerImageName, getTerminalCallback());
     // store the key
-    buildImagesInfo.set({ buildImageKey: buildImageKey });
+    buildImagesInfo.set(buildImageInfo);
     try {
       await window.buildImage(
         containerBuildContextDirectory,
         relativeContainerfilePath,
         containerImageName,
         selectedProvider,
-        buildImageKey,
+        buildImageInfo.buildImageKey,
         eventCollect,
       );
     } catch (error) {
       logsTerminal.write('Error:' + error + '\r');
+    } finally {
+      buildImageInfo.buildRunning = false;
+      buildFinished = true;
     }
   }
 }
 
 function cleanupBuild(): void {
   // clear
-  if (buildImageKey) {
-    clearBuildTask(buildImageKey);
-    buildImageKey = undefined;
+  if (buildImageInfo) {
+    clearBuildTask(buildImageInfo);
+    buildImageInfo = undefined;
   }
 
   // redirect to the imlage list
@@ -100,17 +101,15 @@ onMount(async () => {
   await initTerminal();
 
   // check if we have an existing build info
-  const value = get(buildImagesInfo);
-  if (value) {
-    buildImageKey = value.buildImageKey;
-    buildStarted = true;
-    reconnectUI(buildImageKey, getTerminalCallback());
+  buildImageInfo = get(buildImagesInfo);
+  if (buildImageInfo) {
+    reconnectUI(buildImageInfo.buildImageKey, getTerminalCallback());
   }
 });
 
 onDestroy(() => {
-  if (buildImageKey) {
-    disconnectUI(buildImageKey);
+  if (buildImageInfo) {
+    disconnectUI(buildImageInfo.buildImageKey);
   }
 });
 
@@ -170,7 +169,7 @@ async function initTerminal() {
       <NoContainerEngineEmptyScreen />
     {:else}
       <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
-        <div hidden="{buildStarted}">
+        <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile path</label>
           <input
             on:click="{() => getContainerfileLocation()}"
@@ -183,7 +182,7 @@ async function initTerminal() {
             required />
         </div>
 
-        <div hidden="{!containerFilePath || buildStarted}">
+        <div hidden="{!containerFilePath || buildImageInfo?.buildRunning}">
           <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-gray-400"
             >Build context directory</label>
           <input
@@ -196,7 +195,7 @@ async function initTerminal() {
             required />
         </div>
 
-        <div hidden="{buildStarted}">
+        <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerImageName" class="block mb-2 text-sm font-bold text-gray-400">Image Name</label>
           <input
             type="text"
@@ -207,13 +206,12 @@ async function initTerminal() {
             class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
             required />
           {#if providerConnections.length > 1}
-            <label
-              for="providerConnectionName"
-              class="py-6 block mb-2 text-sm font-bold text-gray-400 dark:text-gray-400"
+            <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-gray-400 dark:text-gray-400"
               >Container Engine
               <select
                 class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
                 name="providerChoice"
+                id="providerChoice"
                 bind:value="{selectedProvider}">
                 {#each providerConnections as providerConnection}
                   <option value="{providerConnection}">{providerConnection.name}</option>
@@ -226,22 +224,24 @@ async function initTerminal() {
           {/if}
         </div>
 
-        {#if !buildStarted}
-          <button
-            on:click="{() => buildContainerImage()}"
-            disabled="{hasInvalidFields}"
-            class="w-full pf-c-button pf-m-primary"
-            type="button">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-cube" aria-hidden="true"></i>
-            </span>
-            Build
-          </button>
-        {/if}
+        <div class="w-full flex flex-row space-x-4">
+          {#if !buildImageInfo?.buildRunning}
+            <button
+              on:click="{() => buildContainerImage()}"
+              disabled="{hasInvalidFields}"
+              class="w-full pf-c-button pf-m-primary"
+              type="button">
+              <span class="pf-c-button__icon pf-m-start">
+                <i class="fas fa-cube" aria-hidden="true"></i>
+              </span>
+              Build
+            </button>
+          {/if}
 
-        {#if buildFinished}
-          <button on:click="{() => cleanupBuild()}" class="w-full pf-c-button pf-m-primary">Done</button>
-        {/if}
+          {#if buildFinished}
+            <button on:click="{() => cleanupBuild()}" class="w-full pf-c-button pf-m-primary">Done</button>
+          {/if}
+        </div>
 
         <div bind:this="{logsXtermDiv}"></div>
       </div>
