@@ -8,9 +8,10 @@ import { onMount } from 'svelte';
 import type { ProviderInfo, ProviderKubernetesConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
-import Logger from './Logger.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
+import type { Terminal } from 'xterm';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -102,7 +103,7 @@ async function deleteConnection() {
 
 let showModal: ProviderInfo = undefined;
 
-let logsTerminal;
+let logsTerminal: Terminal;
 
 async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
   // await window.stopReceiveLogs(provider.internalId, kubernetesConnectionInfo);
@@ -228,7 +229,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px; width: 650px;">
       <div style="width:100%; height:100%;">
-        <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
+        <TerminalWindow bind:terminal="{logsTerminal}" />
       </div>
     </div>
   </Modal>

@@ -1,22 +1,16 @@
-<style>
-:global(#logger-component .xterm) {
-  padding-left: 8px;
-  padding-right: 8px;
-}
-</style>
-
 <script lang="ts">
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import { onMount, onDestroy } from 'svelte';
+import { onMount, onDestroy, createEventDispatcher } from 'svelte';
 import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
-export let logsTerminal;
-export let onInit: () => void;
-let logsXtermDiv: HTMLDivElement;
+export let terminal: Terminal;
 
+let logsXtermDiv: HTMLDivElement;
 let resizeHandler;
+
+const dispatch = createEventDispatcher<{ init }>();
 
 async function refreshTerminal() {
   // missing element, return
@@ -31,28 +25,26 @@ async function refreshTerminal() {
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
 
-  logsTerminal = new Terminal({ fontSize, lineHeight, disableStdin: true });
+  terminal = new Terminal({ fontSize, lineHeight, disableStdin: true });
   const fitAddon = new FitAddon();
-  logsTerminal.loadAddon(fitAddon);
+  terminal.loadAddon(fitAddon);
 
-  logsTerminal.open(logsXtermDiv);
+  terminal.open(logsXtermDiv);
   // disable cursor
-  logsTerminal.write('\x1b[?25l');
+  terminal.write('\x1b[?25l');
 
-  logsTerminal.write('\n\r');
-
+  // call fit addon each time we resize the window
   resizeHandler = () => {
     fitAddon.fit();
   };
-  // call fit addon each time we resize the window
   window.addEventListener('resize', resizeHandler);
+
   fitAddon.fit();
 }
+
 onMount(async () => {
   await refreshTerminal();
-  if (onInit) {
-    onInit();
-  }
+  dispatch('init');
 });
 
 onDestroy(() => {
@@ -60,4 +52,4 @@ onDestroy(() => {
 });
 </script>
 
-<div id="logger-component" style="width:100%; height:100%;" bind:this="{logsXtermDiv}"></div>
+<div class="{$$props.class}" bind:this="{logsXtermDiv}"></div>
