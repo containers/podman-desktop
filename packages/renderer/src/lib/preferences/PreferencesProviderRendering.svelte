@@ -6,13 +6,14 @@ import { onMount } from 'svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
-import Logger from './Logger.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import { writeToTerminal } from './Util';
 import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
+import type { Terminal } from 'xterm';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -37,7 +38,7 @@ let providerInfo: ProviderInfo;
 $: providerInfo = providers.filter(provider => provider.internalId === providerInternalId)[0];
 let waiting = false;
 
-let logsTerminal;
+let logsTerminal: Terminal;
 
 async function startProvider(): Promise<void> {
   waiting = true;
@@ -53,7 +54,7 @@ async function stopProvider(): Promise<void> {
   waiting = false;
 }
 
-async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
+async function startReceivingLogs(provider: ProviderInfo): Promise<void> {
   const logHandler = (newContent: any[]) => {
     writeToTerminal(logsTerminal, newContent, '\x1b[37m');
   };
@@ -166,7 +167,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px; width: 647px;">
       <div style="width:100%; height:100%; flexDirection: column;">
-        <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => startReceivinLogs(showModal)}" />
+        <TerminalWindow bind:terminal="{logsTerminal}" on:init="{() => startReceivingLogs(showModal)}" />
       </div>
     </div>
   </Modal>

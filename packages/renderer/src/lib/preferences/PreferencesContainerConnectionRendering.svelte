@@ -8,12 +8,13 @@ import { beforeUpdate, onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
-import Logger from './Logger.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import { writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
 import { filesize } from 'filesize';
 import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
+import type { Terminal } from 'xterm';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -146,9 +147,9 @@ async function deleteConnection() {
 
 let showModal: ProviderInfo = undefined;
 
-let logsTerminal;
+let logsTerminal: Terminal;
 
-async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
+async function startReceivingLogs(provider: ProviderInfo): Promise<void> {
   const logHandler = (newContent: any[], colorPrefix: string) => {
     writeToTerminal(logsTerminal, newContent, colorPrefix);
   };
@@ -295,7 +296,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px; width: 650px;">
       <div style="width:100%; height:100%;">
-        <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => startReceivinLogs(showModal)}" />
+        <TerminalWindow bind:terminal="{logsTerminal}" on:init="{() => startReceivingLogs(showModal)}" />
       </div>
     </div>
   </Modal>

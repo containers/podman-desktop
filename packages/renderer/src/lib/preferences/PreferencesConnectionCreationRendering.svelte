@@ -2,7 +2,7 @@
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
-import Logger from './Logger.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import { getNormalizedDefaultNumberValue, writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
@@ -21,6 +21,7 @@ import { router } from 'tinro';
 import LinearProgress from '../ui/LinearProgress.svelte';
 import Spinner from '../ui/Spinner.svelte';
 import Markdown from '../markdown/Markdown.svelte';
+import type { Terminal } from 'xterm';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
@@ -155,7 +156,7 @@ function getDisplayConfigurationValue(configurationKey: IConfigurationPropertyRe
   }
 }
 
-let logsTerminal;
+let logsTerminal: Terminal;
 let loggerHandlerKey: symbol | undefined = undefined;
 
 function getLoggerHandler(): ConnectionCallback {
@@ -339,7 +340,7 @@ async function close() {
           </div>
           <div id="log" class="pt-2 h-80 {showLogs ? '' : 'hidden'}">
             <div class="w-full h-full">
-              <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
+              <TerminalWindow bind:terminal="{logsTerminal}" />
             </div>
           </div>
         </div>
