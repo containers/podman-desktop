@@ -91,6 +91,7 @@
     "sonarjs/no-small-switch": "off",
     "etc/no-commented-out-code": "error",
     "etc/no-deprecated": "off",
-    "redundant-undefined/redundant-undefined": "error"
+    "redundant-undefined/redundant-undefined": "error",
+    "import/no-extraneous-dependencies": "error"
   }
 }
