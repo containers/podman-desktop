@@ -49,8 +49,8 @@ async function initializeProvider() {
   logsTerminal.clear();
   initializeInProgress = true;
   initializationContext.promise = window.initializeProvider(provider.internalId);
-  initializationContext.promise.catch(error => {
-    initializeError = error;
+  initializationContext.promise.catch((error: unknown) => {
+    initializeError = String(error);
     initializationButtonVisible = true;
     logsTerminal.write(error + '\r');
     console.error('Error while initializing the provider', error);

@@ -52,7 +52,7 @@ onMount(async () => {
     }
   } else {
     // fetch in background
-    fetchVolumes().catch(error => {
+    fetchVolumes().catch((error: unknown) => {
       console.error('unable to fetch the volumes', error);
     });
   }
