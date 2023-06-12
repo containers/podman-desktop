@@ -62,7 +62,7 @@ jobs:
 
       - name: Generate the release notes document
         run: |
-          node tools/dist/release-notes-generator.js --milestone ${{ github.event.inputs.milestone }} >release-notes.md
+          node tools/dist/release-notes-generator.cjs --milestone ${{ github.event.inputs.milestone }} >release-notes.md
 
       - name: Archive the generated release notes
         uses: actions/upload-artifact@v3
