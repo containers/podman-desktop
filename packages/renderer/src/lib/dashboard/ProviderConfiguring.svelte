@@ -32,8 +32,8 @@ let termFit: FitAddon;
 async function initializeProvider() {
   initializeError = undefined;
   logsTerminal.clear();
-  initializationContext.promise?.catch(error => {
-    initializeError = error;
+  initializationContext.promise?.catch((error: unknown) => {
+    initializeError = String(error);
     logsTerminal.write(error + '\r');
     console.error('Error while initializing the provider', error);
   });

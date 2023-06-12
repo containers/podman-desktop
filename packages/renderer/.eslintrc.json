@@ -28,7 +28,6 @@
     "sonarjs/no-redundant-boolean": "off",
     "import/no-duplicates": "off",
     "@typescript-eslint/no-inferrable-types": "off",
-    "quotes": "off",
-    "etc/no-implicit-any-catch": "off"
+    "quotes": "off"
   }
 }
