@@ -1,8 +1,9 @@
 <script lang="ts">
-import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { providerInfos } from '../../stores/providers';
 import type {
+  CheckStatus,
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
@@ -10,7 +11,7 @@ import type {
 import { onDestroy, onMount } from 'svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '../../stores/configurationProperties';
-import type { ContainerProviderConnection, provider } from '@podman-desktop/api';
+import type { ContainerProviderConnection, ProviderDetectionCheck, provider } from '@podman-desktop/api';
 import type { Unsubscriber } from 'svelte/store';
 import Tooltip from '../ui/Tooltip.svelte';
 import { filesize } from 'filesize';
@@ -23,6 +24,9 @@ import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
+import Modal from '../dialogs/Modal.svelte';
+import ProviderLogo from '../dashboard/ProviderLogo.svelte';
+import PreflightChecks from '../dashboard/PreflightChecks.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   value?: any;
@@ -33,8 +37,13 @@ interface IProviderContainerConfigurationPropertyRecorded extends IConfiguration
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();
+$: providerInstallationInProgress = new Map<string, boolean>();
 
 let isStatusUpdated = false;
+let displayInstallModal = false;
+let installModalProvider: ProviderInfo;
+let doExecuteAfterInstallation: () => void;
+$: preflightChecks = [];
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 let restartingQueue: IConnectionRestart[] = [];
@@ -50,6 +59,14 @@ onMount(() => {
     providers = providerInfosValue;
     const connectionNames = [];
     providers.forEach(provider => {
+      if (installModalProvider 
+          && doExecuteAfterInstallation 
+          && provider.name === installModalProvider.name 
+          && (provider.status === 'ready' || provider.status === 'installed')) {
+        installModalProvider = undefined;
+        doExecuteAfterInstallation();
+      }
+
       provider.containerConnections.forEach(container => {
         const containerConnectionName = getProviderConnectionName(provider, container);
         connectionNames.push(containerConnectionName);
@@ -212,6 +229,57 @@ async function startConnectionProvider(
     eventCollect,
   );
 }
+
+async function doCreateNew(provider: ProviderInfo) {
+  displayInstallModal = false;
+  if (provider.status == 'not-installed') {
+    providerInstallationInProgress.set(provider.name, true);
+    providerInstallationInProgress = providerInstallationInProgress;
+    installModalProvider = provider;
+    doExecuteAfterInstallation = () => router.goto(`/preferences/provider/${provider.internalId}`);
+    performInstallation(provider);
+  } else {
+    router.goto(`/preferences/provider/${provider.internalId}`);
+  }
+}
+
+async function performInstallation(provider: ProviderInfo) {
+  const checksStatus = [];
+  let checkSuccess = false;
+  let currentCheck: CheckStatus;
+  try {
+    checkSuccess = await window.runInstallPreflightChecks(provider.internalId, {
+      endCheck: status => {
+        if (currentCheck) {
+          currentCheck = status;
+        } else {
+          return;
+        }
+        checksStatus.push(currentCheck);
+        preflightChecks = checksStatus;
+      },
+      startCheck: status => {
+        currentCheck = status;
+        preflightChecks = [...checksStatus, currentCheck];
+      },
+    });
+  } catch (err) {
+    console.error(err);
+  }
+  if (checkSuccess) {
+    await window.installProvider(provider.internalId);
+    // reset checks
+    preflightChecks = [];
+  } else {
+    displayInstallModal = true;
+  }
+  providerInstallationInProgress.set(provider.name, false);
+  providerInstallationInProgress = providerInstallationInProgress;
+}
+
+function hideInstallModal() {
+  displayInstallModal = false;
+}
 </script>
 
 <SettingsPage title="Resources">
@@ -266,7 +334,16 @@ async function startConnectionProvider(
                       class="pf-c-button pf-m-primary"
                       aria-label="Create new {providerDisplayName}"
                       type="button"
-                      on:click="{() => router.goto(`/preferences/provider/${provider.internalId}`)}">
+                      on:click="{() => doCreateNew(provider)}">                      
+                        {#if providerInstallationInProgress.get(provider.name) === true}                        
+                          <i class="pf-c-button__progress">
+                            <span class="pf-c-spinner pf-m-md" role="progressbar">
+                              <span class="pf-c-spinner__clipper"></span>
+                              <span class="pf-c-spinner__lead-ball"></span>
+                              <span class="pf-c-spinner__tail-ball"></span>
+                            </span>
+                          </i>
+                        {/if}                      
                       {buttonTitle} ...
                     </button>
                   </Tooltip>
@@ -360,4 +437,45 @@ async function startConnectionProvider(
       {/each}
     {/if}
   </div>
+  {#if displayInstallModal && installModalProvider}
+  <Modal on:close="{() => hideInstallModal()}">
+    <div
+      class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 rounded-xl shadow-xl shadow-neutral-900">
+      <div class="flex flex-row-reverse">
+        <button class="hover:text-gray-300 p-4" on:click="{() => hideInstallModal()}">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="overflow-y-auto px-4 pb-4">        
+        <div class="p-2 flex flex-col rounded-lg">
+          <div class="mx-auto max-w-[250px] mb-5">
+            <ProviderLogo provider="{installModalProvider}" />
+          </div>
+          <div class="flex flex-row mx-auto text-lg text-gray-400">
+            <div class="mr-2 pt-1">
+              <Fa size="18" class="text-amber-400" icon="{faTriangleExclamation}" />
+            </div>
+            <span>
+              We couldn't find {installModalProvider.name}. Let's install it.
+            </span>
+          </div>
+          <div class="text-md text-gray-400 mt-2  text-center">
+            Be sure that your system fulfills all the prerequisites below before proceeding
+          </div>
+          <PreflightChecks preflightChecks="{preflightChecks}" />
+          <div class="flex flex-row justify-end w-full pt-2">
+            <button aria-label="Cancel" class="text-xs hover:underline mr-3" on:click="{() => hideInstallModal()}"
+              >Cancel</button>
+            <button
+              class="pf-c-button pf-m-primary"
+              type="button"
+              on:click="{() => doCreateNew(installModalProvider)}">Next</button>
+          </div>
+        </div>        
+      </div>
+    </div>
+  </Modal>
+  {/if}
+
 </SettingsPage>
