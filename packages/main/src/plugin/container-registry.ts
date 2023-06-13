@@ -912,7 +912,7 @@ export class ContainerProviderRegistry {
   async removePod(engineId: string, podId: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingPodmanEngine(engineId).removePod(podId);
+      return this.getMatchingPodmanEngine(engineId).removePod(podId, { force: true });
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
