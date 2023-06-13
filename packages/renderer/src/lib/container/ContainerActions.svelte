@@ -1,9 +1,15 @@
 <script lang="ts">
-import { faAlignLeft, faFileCode, faPlay, faRocket, faTerminal } from '@fortawesome/free-solid-svg-icons';
-import { faStop } from '@fortawesome/free-solid-svg-icons';
-import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faAlignLeft,
+  faFileCode,
+  faPlay,
+  faRocket,
+  faTerminal,
+  faStop,
+  faArrowsRotate,
+  faTrash,
+  faExternalLinkSquareAlt,
+} from '@fortawesome/free-solid-svg-icons';
 import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
 
 import { router } from 'tinro';

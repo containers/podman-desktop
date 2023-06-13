@@ -1,8 +1,5 @@
 <script lang="ts">
-import { faFileCode, faPlay, faRocket } from '@fortawesome/free-solid-svg-icons';
-import { faStop } from '@fortawesome/free-solid-svg-icons';
-import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faFileCode, faPlay, faRocket, faStop, faArrowsRotate, faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { PodInfoUI } from './PodInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';

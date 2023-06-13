@@ -4,9 +4,7 @@ import { onMount } from 'svelte';
 import { registriesInfos, registriesSuggestedInfos } from '../../stores/registries';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
-import { faUserPen } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faUser, faUserPen } from '@fortawesome/free-solid-svg-icons';
 import SettingsPage from './SettingsPage.svelte';
 
 // contains the original instances of registries when user clicks on `Edit password` menu item

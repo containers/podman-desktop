@@ -1,8 +1,6 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faPuzzlePiece, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faPlay } from '@fortawesome/free-solid-svg-icons';
-import { faStop } from '@fortawesome/free-solid-svg-icons';
+import { faPuzzlePiece, faTrash, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import { afterUpdate } from 'svelte';
 import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
