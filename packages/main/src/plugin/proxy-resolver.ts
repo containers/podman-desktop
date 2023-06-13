@@ -19,135 +19,117 @@
 import * as http from 'http';
 import * as https from 'https';
 import * as nodeurl from 'url';
+import type { HttpProxyAgentOptions, HttpsProxyAgentOptions } from 'hpagent';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
-import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
-import { Certificates } from './certificates';
-import type { Proxy } from './proxy';
+import type { Proxy } from './proxy.js';
 
-const certificates = new Certificates()
-const certificatesLoaded = false;
+// Agents usage table
+// ------------------------------------
+// | Type            | Proxy | Server |
+// ------------------------------------
+// | HttpProxyAgent  | HTTP  | HTTP   |
+// ------------------------------------
+// | HttpProxyAgent  | HTTPS | HTTP   |
+// ------------------------------------
+// | HttpsProxyAgent | HTTP  | HTTPS  |
+// ------------------------------------
+// | HttpsProxyAgent | HTTPS | HTTPS  |
+// ------------------------------------
+// Source - https://github.com/delvedor/hpagent/tree/main#usage
 
-export function getOptions(proxy: Proxy): OptionsOfTextResponseBody {
-  const httpsOptions: HttpsOptions = {};
-  const options: OptionsOfTextResponseBody = {
-    https: httpsOptions,
+function createProxyAgent(secure: boolean, proxyUrl: string | undefined) {
+  if (!proxyUrl) return;
+  const options = {
+    keepAlive: true,
+    keepAliveMsecs: 1000,
+    maxSockets: 256,
+    maxFreeSockets: 256,
+    scheduling: 'lifo',
+    proxy: proxyUrl,
   };
+  return secure
+    ? new HttpsProxyAgent(options as HttpProxyAgentOptions)
+    : new HttpProxyAgent(options as HttpsProxyAgentOptions);
+}
 
-  if (options.https) {
-    if (!certificatesLoaded) {
-      certificates.init();
-    }
-    options.https.certificateAuthority = certificates.getAllCertificates();
-  }
-
+function getProxyUrl(proxy: Proxy): string | undefined {
   if (proxy.isEnabled()) {
-    // use proxy when performing got request
-    const httpProxyUrl = proxy.proxy?.httpProxy;
-    const httpsProxyUrl = proxy.proxy?.httpsProxy;
-
-    if (httpProxyUrl) {
-      if (!options.agent) {
-        options.agent = {};
-      }
-      try {
-        options.agent.http = new HttpProxyAgent({
-          keepAlive: true,
-          keepAliveMsecs: 1000,
-          maxSockets: 256,
-          maxFreeSockets: 256,
-          scheduling: 'lifo',
-          proxy: httpProxyUrl,
-        });
-      } catch (error) {
-        throw new Error(`Failed to create http proxy agent from ${httpProxyUrl}: ${error}`);
-      }
-    }
-    if (httpsProxyUrl) {
-      if (!options.agent) {
-        options.agent = {};
-      }
-      try {
-        options.agent.https = new HttpsProxyAgent({
-          keepAlive: true,
-          keepAliveMsecs: 1000,
-          maxSockets: 256,
-          maxFreeSockets: 256,
-          scheduling: 'lifo',
-          proxy: httpsProxyUrl,
-        });
-      } catch (error) {
-        throw new Error(`Failed to create https proxy agent from ${httpsProxyUrl}: ${error}`);
-      }
-    }
+    return proxy.proxy?.httpsProxy ? proxy.proxy?.httpsProxy : proxy.proxy?.httpProxy;
   }
-  return options;
+}
+
+export function getOptions(proxy: Proxy, secure: boolean): { agent?: http.Agent | https.Agent } {
+  const agent = createProxyAgent(secure, getProxyUrl(proxy));
+  return agent ? { agent } : {};
 }
 
 export function createHttpPatch(originals: typeof http | typeof https, proxy: Proxy) {
-	return {
-		get: patch(originals.get),
-		request: patch(originals.request)
-	};
+  return {
+    get: patch(originals.get),
+    request: patch(originals.request),
+  };
 
-	function patch(original: typeof http.get) {
-		function patched(url?: string | nodeurl.URL | null, options?: http.RequestOptions | null, callback?: (res: http.IncomingMessage) => void): http.ClientRequest {
-			
-      console.log("patched!");
-      if (typeof url !== 'string' && !(url && (<any>url).searchParams)) {
-				callback = <any>options;
-				options = url;
-				url = null;
-			}
-			if (typeof options === 'function') {
-				callback = options;
-				options = null;
-			}
-			options = options || {};
+  function patch(original: typeof http.get) {
+    function patched(
+      url?: string | nodeurl.URL | null,
+      options?: http.RequestOptions | null,
+      callback?: (res: http.IncomingMessage) => void,
+    ): http.ClientRequest {
+      if (typeof url !== 'string' && !url?.searchParams) {
+        callback = <any>options; // eslint-disable-line @typescript-eslint/no-explicit-any
+        options = url;
+        url = undefined;
+      }
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+      options = options || {};
 
-			if (options.socketPath) {
-				return original.apply(null, arguments as any);
-			}
+      if (options.socketPath) {
+        return original(options, callback);
+      }
 
-			const originalAgent = options.agent;
-			if (originalAgent === true) {
-				throw new Error('Unexpected agent option: true');
-			}
+      const originalAgent = options.agent;
+      if (originalAgent === true) {
+        throw new Error('Unexpected agent option: true');
+      }
 
-			if (proxy?.isEnabled()) {
-				if (url) {
-					const parsed = typeof url === 'string' ? new nodeurl.URL(url) : url;
-					const urlOptions = {
-						protocol: parsed.protocol,
-						hostname: parsed.hostname.lastIndexOf('[', 0) === 0 ? parsed.hostname.slice(1, -1) : parsed.hostname,
-						port: parsed.port,
-						path: `${parsed.pathname}${parsed.search}`
-					};
-					if (parsed.username || parsed.password) {
-						options.auth = `${parsed.username}:${parsed.password}`;
-					}
-					options = { ...urlOptions, ...options };
-				} else {
-					options = { ...options };
-				}
-
-				const host = options.hostname || options.host;
-				const isLocalhost = !host || host === 'localhost' || host === '127.0.0.1'; // Avoiding https://github.com/microsoft/vscode/issues/120354
-				if (!isLocalhost) {
-          options = Object.assign({}, options, getOptions(proxy))
+      if (proxy?.isEnabled()) {
+        if (url) {
+          const parsed = typeof url === 'string' ? new nodeurl.URL(url) : url;
+          const urlOptions = {
+            protocol: parsed.protocol,
+            hostname: parsed.hostname.lastIndexOf('[', 0) === 0 ? parsed.hostname.slice(1, -1) : parsed.hostname,
+            port: parsed.port,
+            path: `${parsed.pathname}${parsed.search}`,
+          };
+          if (parsed.username || parsed.password) {
+            options.auth = `${parsed.username}:${parsed.password}`;
+          }
+          options = { ...urlOptions, ...options };
+        } else {
+          options = { ...options };
         }
-        
-				return original(options, callback);
-			}
 
-			return original.apply(null, arguments as any);
-		}
-		return patched;
-	}
+        const host = options.hostname || options.host;
+        const isLocalhost = !host || host === 'localhost' || host === '127.0.0.1'; // Avoiding https://github.com/microsoft/vscode/issues/120354
+        if (!isLocalhost) {
+          options = Object.assign({}, options, getOptions(proxy, options.protocol === 'https'));
+        }
+
+        return original(options, callback);
+      }
+      return original.apply(null, arguments as any); // eslint-disable-line
+    }
+    return patched;
+  }
 }
 
-export function createPatchedModules(proxy: Proxy) {
-	return {
-		http: Object.assign({}, http, createHttpPatch(http, proxy)),
-		https: Object.assign({}, https, createHttpPatch(https, proxy)),
-	};
+export function createHttpPatchedModules(proxy: Proxy) {
+  const res = {
+    http: Object.assign({}, http, createHttpPatch(http, proxy)),
+    https: Object.assign({}, https, createHttpPatch(https, proxy)),
+  };
+  return { ...res, 'node:https': res.https, 'node:http': res.http };
 }

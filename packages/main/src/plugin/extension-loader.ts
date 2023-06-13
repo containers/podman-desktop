@@ -63,7 +63,8 @@ import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo 
 import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
-import { createPatchedModules } from './proxy-resolver.js';
+import { createHttpPatchedModules } from './proxy-resolver.js';
+import * as ModuleLoader from './module-loader.js';
 
 /**
  * Handle the loading of an extension
@@ -177,50 +178,6 @@ export class ExtensionLoader {
     }));
   }
 
-  private moduleCache = new Map<string, { http?: typeof http; https?: typeof https }>();
-
-  protected overrideRequire(lookup: ReturnType<typeof createPatchedModules>) {
-    if (!this.overrideRequireDone) {
-      this.overrideRequireDone = true;
-      const module = require('module');
-      // save original load method
-      const internalLoad = module._load;
-      const analyzedExtensions = this.analyzedExtensions;
-
-      // if we try to resolve theia module, return the filename entry to use cache.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const classModuleCache = this.moduleCache;
-      module._load = function (request: string, parent: any): any {
-        if (request !== '@podman-desktop/api'  && request !== 'http' && request !== 'https') {
-          // eslint-disable-next-line prefer-rest-params
-          return internalLoad.apply(this, arguments);
-        }
-
-        const extension = Array.from(analyzedExtensions.values()).find(extension =>
-          path.normalize(parent.filename).startsWith(path.normalize(extension.path)),
-        );
-
-        if (!extension) {
-          throw new Error(`Unable to find extension for ${parent.filename}`);
-        }
-
-        if (request === '@podman-desktop/api') {
-            return extension.api;
-        }
-        // override http/https here
-        const httpOrHttps = lookup[request]; 
-        let cache = classModuleCache.get(extension.path)
-        if (!cache) {
-          classModuleCache.set(extension.path, cache = {});
-        }
-        if (!cache[request]) {
-          cache[request] = <any>{...httpOrHttps};
-        }
-        return cache[request];
-      }
-    }
-  }
-
   async loadPackagedFile(filePath: string): Promise<void> {
     // need to unpack the file before load it
     const filename = path.basename(filePath);
@@ -248,7 +205,10 @@ export class ExtensionLoader {
       fs.mkdirSync(this.pluginsScanDirectory, { recursive: true });
     }
 
-    this.overrideRequire();
+    ModuleLoader.addOverride(createHttpPatchedModules(this.proxy)); // add patched http and https
+    ModuleLoader.addOverride({ '@podman-desktop/api': ext => ext.api }); // add podman desktop API
+
+    ModuleLoader.overrideRequire(this.analyzedExtensions);
   }
 
   protected async setupScanningDirectory(): Promise<void> {
