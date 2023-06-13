@@ -100,7 +100,7 @@ async function startConnection() {
   try {
     const loggerHandlerKey = startTask(
       `Start ${containerConnectionInfo.name}`,
-      `/preferences/resources`,
+      '/preferences/resources',
       getLoggerHandler(),
     );
     await window.startProviderConnectionLifecycle(
@@ -118,7 +118,7 @@ async function stopConnection() {
   lifecycleError = undefined;
   const loggerHandlerKey = startTask(
     `Stop ${containerConnectionInfo.name}`,
-    `/preferences/resources`,
+    '/preferences/resources',
     getLoggerHandler(),
   );
   await window.stopProviderConnectionLifecycle(
@@ -133,7 +133,7 @@ async function deleteConnection() {
   lifecycleError = undefined;
   const loggerHandlerKey = startTask(
     `Delete ${containerConnectionInfo.name}`,
-    `/preferences/resources`,
+    '/preferences/resources',
     getLoggerHandler(),
   );
   await window.deleteProviderConnectionLifecycle(

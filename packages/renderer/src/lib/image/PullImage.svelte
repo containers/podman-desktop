@@ -57,7 +57,7 @@ function callback(event: PullEvent) {
     // move cursor to the home
     logsPull.write(`\u001b[${lineIndexToWrite};0H`);
     // erase the line
-    logsPull.write(`\u001B[2K`);
+    logsPull.write('\u001B[2K');
     // do we have id ?
     if (event.id) {
       logsPull.write(`${event.id}: `);
@@ -70,7 +70,7 @@ function callback(event: PullEvent) {
       logsPull.write(` ${Math.round((event.progressDetail.current / event.progressDetail.total) * 100)}%`);
     }
     // write end of line
-    logsPull.write(`\n\r`);
+    logsPull.write('\n\r');
   } else if (event.error) {
     logsPull.write(event.error.replaceAll('\n', '\n\r') + '\n\r');
   }
