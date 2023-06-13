@@ -467,7 +467,7 @@ function openLink(e: MouseEvent, url: string): void {
           <div class="flex flex-row mx-auto text-md">
             Some system requirements are missing.
           </div>
-          <div class="flex flex-col min-w-[500px] min-h-[150px] mt-5 mx-auto p-4 rounded-md bg-charcoal-800">
+          <div class="flex flex-col min-h-[150px] mt-5 mx-auto py-4 px-10 rounded-md bg-charcoal-800">
             {#each preflightChecks as preCheck}
               <div class="flex flex-row mb-2 mx-auto">
                 <Fa icon="{faCircleXmark}" class="text-red-500 mt-0.5" />
