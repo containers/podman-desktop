@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as extension from './extension';
 import * as podmanCli from './podman-cli';
 import { getPodmanCli } from './podman-cli';
@@ -65,6 +65,9 @@ const machineInfo: extension.MachineInfo = {
   name: 'name',
 };
 
+const originalConsoleError = console.error;
+const consoleErrorMock = vi.fn();
+
 vi.mock('@podman-desktop/api', async () => {
   return {
     configuration: {
@@ -81,6 +84,12 @@ vi.mock('@podman-desktop/api', async () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.resetAllMocks();
+  console.error = consoleErrorMock;
+});
+
+afterEach(() => {
+  console.error = originalConsoleError;
 });
 
 test('verify create command called with correct values', async () => {
@@ -106,6 +115,7 @@ test('verify create command called with correct values', async () => {
     },
     undefined,
   );
+  expect(console.error).not.toBeCalled();
 });
 
 test('test checkDefaultMachine, if the machine running is not default, the function will prompt', async () => {
@@ -195,11 +205,9 @@ test('if a machine failed to start with a generic error, this is thrown', async 
   spyExecPromise.mockImplementation(() => {
     return Promise.reject(new Error('generic error'));
   });
-  try {
-    await extension.startMachine(provider, machineInfo);
-  } catch (e) {
-    expect(e.message).equal('generic error');
-  }
+
+  await expect(extension.startMachine(provider, machineInfo)).rejects.toThrow('generic error');
+  expect(console.error).toBeCalled();
 });
 
 test('if a machine failed to start with a wsl distro not found error, the user is asked what to do', async () => {
@@ -207,16 +215,16 @@ test('if a machine failed to start with a wsl distro not found error, the user i
   spyExecPromise.mockImplementation(() => {
     return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
   });
-  try {
-    await extension.startMachine(provider, machineInfo);
-  } catch (e) {
-    expect(extensionApi.window.showInformationMessage).toBeCalledWith(
-      `Error while starting Podman Machine '${machineInfo.name}'. The WSL bootstrap script failed: exist status 0xffffffff. The machine is probably broken and should be deleted and reinitialized. Do you want to recreate it?`,
-      'Yes',
-      'Cancel',
-    );
-    expect(e.message).equal('wsl bootstrap script failed: exit status 0xffffffff');
-  }
+
+  await expect(extension.startMachine(provider, machineInfo)).rejects.toThrow(
+    'wsl bootstrap script failed: exit status 0xffffffff',
+  );
+  expect(extensionApi.window.showInformationMessage).toBeCalledWith(
+    `Error while starting Podman Machine '${machineInfo.name}'. The WSL bootstrap script failed: exist status 0xffffffff. The machine is probably broken and should be deleted and reinitialized. Do you want to recreate it?`,
+    'Yes',
+    'Cancel',
+  );
+  expect(console.error).toBeCalled();
 });
 
 test('if a machine failed to start with a wsl distro not found error but the skipHandleError is false, the error is thrown', async () => {
@@ -224,10 +232,9 @@ test('if a machine failed to start with a wsl distro not found error but the ski
   spyExecPromise.mockImplementation(() => {
     return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
   });
-  try {
-    await extension.startMachine(provider, machineInfo, undefined, true);
-  } catch (e) {
-    expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
-    expect(e.message).equal('wsl bootstrap script failed: exit status 0xffffffff');
-  }
+  await expect(extension.startMachine(provider, machineInfo, undefined, true)).rejects.toThrow(
+    'wsl bootstrap script failed: exit status 0xffffffff',
+  );
+  expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
+  expect(console.error).toBeCalled();
 });
