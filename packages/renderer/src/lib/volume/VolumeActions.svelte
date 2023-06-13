@@ -8,7 +8,7 @@ import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 
 export let volume: VolumeInfoUI;
-export let detailed: boolean = false;
+export let detailed = false;
 
 async function removeVolume(): Promise<void> {
   await window.removeVolume(volume.engineId, volume.name);

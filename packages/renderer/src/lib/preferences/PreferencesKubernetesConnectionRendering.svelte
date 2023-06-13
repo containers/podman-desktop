@@ -15,7 +15,7 @@ import type { Terminal } from 'xterm';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
-export let apiUrlBase64: string = '';
+export let apiUrlBase64 = '';
 
 let scope: KubernetesProviderConnection;
 let providers: ProviderInfo[] = [];

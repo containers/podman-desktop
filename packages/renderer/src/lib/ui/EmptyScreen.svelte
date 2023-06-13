@@ -4,10 +4,10 @@ import { faPaste } from '@fortawesome/free-solid-svg-icons';
 import { onMount, SvelteComponent } from 'svelte';
 
 export let icon: any;
-export let title: string = 'No title';
-export let message: string = 'Message';
-export let commandline: string = '';
-export let hidden: boolean = false;
+export let title = 'No title';
+export let message = 'Message';
+export let commandline = '';
+export let hidden = false;
 
 let fontAwesomeIcon = false;
 let processed = false;

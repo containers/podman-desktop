@@ -7,8 +7,8 @@ import SettingsPage from '../preferences/SettingsPage.svelte';
 
 export let ociImage: string = undefined;
 
-let installInProgress: boolean = false;
-let errorInstall: string = '';
+let installInProgress = false;
+let errorInstall = '';
 let logs: string[] = [];
 
 let logElement;

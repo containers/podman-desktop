@@ -26,7 +26,6 @@
     "sonarjs/no-ignored-return": "off",
     "sonarjs/prefer-immediate-return": "off",
     "sonarjs/no-redundant-boolean": "off",
-    "import/no-duplicates": "off",
-    "@typescript-eslint/no-inferrable-types": "off"
+    "import/no-duplicates": "off"
   }
 }

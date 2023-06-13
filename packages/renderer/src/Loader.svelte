@@ -4,9 +4,9 @@ import { router } from 'tinro';
 import App from './App.svelte';
 import SealRocket from './lib/images/SealRocket.svelte';
 
-let systemReady: boolean = false;
+let systemReady = false;
 
-let toggle: boolean = false;
+let toggle = false;
 
 let loadingSequence;
 

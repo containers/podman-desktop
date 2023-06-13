@@ -32,7 +32,7 @@ $: {
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
 let currentRouterPath: string;
-let logsRouterPath: string = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
+let logsRouterPath = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
 
 // An array of readable ANSI escape sequence colours against a black terminal background
 // these are the most "readable" colours against a black background
