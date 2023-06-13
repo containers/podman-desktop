@@ -36,7 +36,8 @@ abstract class SocketCompatibility {
 
 export class DarwinSocketCompatibility extends SocketCompatibility {
   // Shows the details of the compatibility mode on what we do.
-  details = 'The podman-mac-helper binary will be ran. This requires administrative privileges.';
+  details =
+    'The podman-mac-helper binary will be run, linking the Docker socket to Podman. This requires administrative privileges.';
 
   // This will show the "opposite" of what the current state is
   // "Enable" if it's currently disabled, "Disable" if it's currently enabled

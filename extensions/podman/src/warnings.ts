@@ -21,7 +21,7 @@ import * as os from 'node:os';
 import * as http from 'node:http';
 
 // Explanations
-const detailsExplanation = 'Docker-specific tools may not work.';
+const detailsExplanation = 'Docker socket is not reachable. Docker specific tools may not work.';
 
 // Default socket paths
 const windowsSocketPath = '//./pipe/docker_engine';
