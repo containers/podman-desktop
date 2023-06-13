@@ -36,6 +36,10 @@ beforeAll(() => {
     },
   };
   (window as any).telemetryPage = vi.fn();
+  (window as any).getConfigurationValue = vi.fn();
+  (window as any).matchMedia = vi.fn().mockReturnValue({
+    addListener: vi.fn(),
+  });
 });
 
 const buttonText = 'Pull image';
