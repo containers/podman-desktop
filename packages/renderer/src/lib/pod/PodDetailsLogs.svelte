@@ -38,16 +38,16 @@ let logsRouterPath: string = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)
 // these are the most "readable" colours against a black background
 // No colours like grey, normal blue (cyan instead) or red, since they don't appear very well.
 const ansi256Colors = [
-  `\u001b[36m`, // cyan
-  `\u001b[33m`, // yellow
-  `\u001b[32m`, // green
-  `\u001b[35m`, // magenta
-  `\u001b[34m`, // blue
-  `\u001b[36;1m`, // bright cyan
-  `\u001b[33;1m`, // bright yellow
-  `\u001b[32;1m`, // bright green
-  `\u001b[35;1m`, // bright magenta
-  `\u001b[34;1m`, // bright blue
+  '\u001b[36m', // cyan
+  '\u001b[33m', // yellow
+  '\u001b[32m', // green
+  '\u001b[35m', // magenta
+  '\u001b[34m', // blue
+  '\u001b[36;1m', // bright cyan
+  '\u001b[33;1m', // bright yellow
+  '\u001b[32;1m', // bright green
+  '\u001b[35;1m', // bright magenta
+  '\u001b[34;1m', // bright blue
 ];
 
 // Create a map that will store the ANSI 256 colour for each container name

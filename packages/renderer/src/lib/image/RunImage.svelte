@@ -394,7 +394,7 @@ function checkContainerName(event: any) {
             <div class="pf-c-page__main-body">
               <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
                 <ul class="pf-c-tabs__list">
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/basic`}">
+                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/basic'}">
                     <a
                       href="/images/run/basic"
                       class="pf-c-tabs__link"
@@ -403,7 +403,7 @@ function checkContainerName(event: any) {
                       <span class="pf-c-tabs__item-text">Basic</span>
                     </a>
                   </li>
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/advanced`}">
+                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/advanced'}">
                     <a
                       href="/images/run/advanced"
                       class="pf-c-tabs__link"
@@ -412,7 +412,7 @@ function checkContainerName(event: any) {
                       <span class="pf-c-tabs__item-text">Advanced</span>
                     </a>
                   </li>
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/networking`}">
+                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/networking'}">
                     <a
                       href="/images/run/networking"
                       class="pf-c-tabs__link"
@@ -421,7 +421,7 @@ function checkContainerName(event: any) {
                       <span class="pf-c-tabs__item-text">Networking</span>
                     </a>
                   </li>
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/security`}">
+                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/security'}">
                     <a
                       href="/images/run/security"
                       class="pf-c-tabs__link"

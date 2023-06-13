@@ -74,7 +74,7 @@ function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
     const numberValue = parseFloat(userValue);
     if (userValue === '') {
       invalidEntry = true;
-      invalidText = `Expecting a number`;
+      invalidText = 'Expecting a number';
       return invalid();
     }
     if (isNaN(numberValue)) {

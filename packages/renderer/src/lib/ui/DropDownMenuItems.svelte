@@ -15,7 +15,7 @@ onMount(() => {
   if (innerHeight - clientY - STATUS_BAR_HEIGHT < dropDownHeight) {
     dropDownElement.style.top = `-${dropDownHeight}px`;
   } else {
-    dropDownElement.style.top = `20px`;
+    dropDownElement.style.top = '20px';
   }
 });
 </script>

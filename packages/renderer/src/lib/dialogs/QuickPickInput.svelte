@@ -3,7 +3,9 @@ import { onDestroy, onMount, tick } from 'svelte';
 import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 import Markdown from '/@/lib/markdown/Markdown.svelte';
 
-const DEFAULT_PROMPT = "Press 'Enter' to confirm your input or 'Escape' to cancel";
+const ENTER = 'Enter';
+const ESCAPE = 'Escape';
+const DEFAULT_PROMPT = `Press '${ENTER}' to confirm your input or '${ESCAPE}' to cancel`;
 let inputValue = '';
 let placeHolder = '';
 let prompt = '';
