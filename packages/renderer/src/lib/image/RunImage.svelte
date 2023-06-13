@@ -35,13 +35,13 @@ let volumeMounts: { source: string; target: string }[] = [{ source: '', target: 
 let hostContainerPortMappings: { hostPort: string; containerPort: string }[] = [];
 
 // auto remove the container on exit
-let autoRemove: boolean = false;
+let autoRemove = false;
 
 // privileged moade
-let privileged: boolean = false;
+let privileged = false;
 
 // read-only moade
-let readOnly: boolean = false;
+let readOnly = false;
 
 // security options
 let securityOpts: string[] = [''];
@@ -70,7 +70,7 @@ let networkingModeUserNetwork = '';
 let networkingModeUserContainer = '';
 
 // tty
-let useTty: boolean = true;
+let useTty = true;
 
 let runUser: string | undefined = undefined;
 let dataReady = false;

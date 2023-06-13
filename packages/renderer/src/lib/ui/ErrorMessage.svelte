@@ -4,7 +4,7 @@ import { faChevronDown, faChevronRight, faExclamationCircle } from '@fortawesome
 import Tooltip from './Tooltip.svelte';
 
 export let error: string;
-export let icon: boolean = false;
+export let icon = false;
 </script>
 
 {#if icon}

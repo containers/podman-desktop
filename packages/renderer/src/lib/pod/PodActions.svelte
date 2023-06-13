@@ -10,8 +10,8 @@ import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 
 export let pod: PodInfoUI;
-export let dropdownMenu: boolean = false;
-export let detailed: boolean = false;
+export let dropdownMenu = false;
+export let detailed = false;
 
 export let inProgressCallback: (inProgress: boolean, state?: string) => void = () => {};
 export let errorCallback: (erroMessage: string) => void = () => {};

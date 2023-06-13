@@ -13,13 +13,13 @@ import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
 
 export let ociImage: string = undefined;
 
-let installInProgress: boolean = false;
-let errorInstall: string = '';
+let installInProgress = false;
+let errorInstall = '';
 let logs: string[] = [];
 
 let logElement;
 
-const buttonClass: string =
+const buttonClass =
   'm-0.5 text-gray-400 hover:bg-charcoal-600 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 
 async function installExtensionFromImage() {

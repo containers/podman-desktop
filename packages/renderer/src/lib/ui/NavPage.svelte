@@ -1,7 +1,7 @@
 <script lang="ts">
 export let title: string;
 export let searchTerm = '';
-export let searchEnabled: boolean = true;
+export let searchEnabled = true;
 </script>
 
 <div class="flex flex-col min-h-full min-w-fit w-full shadow-pageheader">

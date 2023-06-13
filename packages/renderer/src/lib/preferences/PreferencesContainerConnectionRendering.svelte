@@ -20,7 +20,7 @@ export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
 export let connection: string = undefined;
 
-let socketPath: string = '';
+let socketPath = '';
 let scope: ContainerProviderConnection;
 let providers: ProviderInfo[] = [];
 onMount(() => {
