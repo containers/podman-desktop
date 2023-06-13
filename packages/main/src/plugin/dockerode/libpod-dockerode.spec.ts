@@ -16,42 +16,30 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach, beforeAll, beforeEach, test } from 'vitest';
+import { beforeAll, test } from 'vitest';
 import { type LibPod, LibpodDockerode } from '/@/plugin/dockerode/libpod-dockerode.js';
 import Dockerode from 'dockerode';
-import { rest } from 'msw';
-import { type SetupServer, setupServer } from 'msw/node';
+import nock from 'nock';
 
 beforeAll(() => {
   const libpod = new LibpodDockerode();
   libpod.enhancePrototypeWithLibPod();
 });
 
-let server: SetupServer;
-
-beforeEach(() => {
-  server = setupServer();
-  server.listen();
-});
-
-afterEach(() => server.close());
-
 test('Check force is not given with default remove pod options', async () => {
-  server.use(
-    rest.delete('http://localhost/v4.2.0/libpod/pods/dummy', (req, res, ctx) => {
-      return res(ctx.status(req.url.searchParams.has('force') ? 500 : 200));
-    }),
-  );
+  nock('http://localhost')
+    .delete('/v4.2.0/libpod/pods/dummy')
+    .query(query => !query.force)
+    .reply(200);
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   await (api as unknown as LibPod).removePod('dummy');
 });
 
 test('Check force is given with remove pod options', async () => {
-  server.use(
-    rest.delete('http://localhost/v4.2.0/libpod/pods/dummy', (req, res, ctx) => {
-      return res(ctx.status(req.url.searchParams.has('force') ? 200 : 500));
-    }),
-  );
+  nock('http://localhost')
+    .delete('/v4.2.0/libpod/pods/dummy')
+    .query(query => query.force === 'true')
+    .reply(200);
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   await (api as unknown as LibPod).removePod('dummy', { force: true });
 });
