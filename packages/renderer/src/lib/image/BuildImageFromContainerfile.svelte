@@ -1,10 +1,7 @@
 <script lang="ts">
-import { onMount, tick, onDestroy } from 'svelte';
+import { onMount, onDestroy } from 'svelte';
 import { get } from 'svelte/store';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
 import { providerInfos } from '../../stores/providers';
 import NavPage from '../ui/NavPage.svelte';
@@ -18,6 +15,8 @@ import {
   startBuild,
 } from './build-image-task';
 import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
+import type { Terminal } from 'xterm';
 
 let buildFinished = false;
 let containerImageName = 'my-custom-image';
@@ -25,14 +24,12 @@ let containerFilePath = undefined;
 let containerBuildContextDirectory = undefined;
 let hasInvalidFields = true;
 
-let logsXtermDiv: HTMLDivElement;
-let logsTerminal: Terminal;
-
 let buildImageInfo: BuildImageInfo | undefined = undefined;
 let providers: ProviderInfo[] = [];
 let providerConnections: ProviderContainerConnectionInfo[] = [];
 let selectedProvider: ProviderContainerConnectionInfo = undefined;
 let selectedProviderConnection: ProviderContainerConnectionInfo = undefined;
+let logsTerminal: Terminal;
 
 function getTerminalCallback(): BuildImageCallback {
   return {
@@ -98,8 +95,6 @@ onMount(async () => {
   const selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
   selectedProvider = !selectedProvider && selectedProviderConnection ? selectedProviderConnection : selectedProvider;
 
-  await initTerminal();
-
   // check if we have an existing build info
   buildImageInfo = get(buildImagesInfo);
   if (buildImageInfo) {
@@ -131,35 +126,6 @@ async function getContainerBuildContextDirectory() {
   if (!result.canceled && result.filePaths.length === 1) {
     containerBuildContextDirectory = result.filePaths[0];
   }
-}
-
-async function initTerminal() {
-  await tick();
-  // missing element, return
-  if (!logsXtermDiv) {
-    return;
-  }
-  // grab font size
-  const fontSize = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
-  );
-  const lineHeight = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
-  );
-
-  logsTerminal = new Terminal({ fontSize, lineHeight, disableStdin: true });
-  const fitAddon = new FitAddon();
-  logsTerminal.loadAddon(fitAddon);
-
-  logsTerminal.open(logsXtermDiv);
-  // disable cursor
-  logsTerminal.write('\x1b[?25l');
-
-  // call fit addon each time we resize the window
-  window.addEventListener('resize', () => {
-    fitAddon.fit();
-  });
-  fitAddon.fit();
 }
 </script>
 
@@ -243,7 +209,7 @@ async function initTerminal() {
           {/if}
         </div>
 
-        <div bind:this="{logsXtermDiv}"></div>
+        <TerminalWindow bind:terminal="{logsTerminal}" />
       </div>
     {/if}
   </div>

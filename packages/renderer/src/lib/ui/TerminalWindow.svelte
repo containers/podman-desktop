@@ -14,7 +14,7 @@ const dispatch = createEventDispatcher<{ init }>();
 
 async function refreshTerminal() {
   // missing element, return
-  if (!logsXtermDiv) {
+  if (!logsXtermDiv || !window.getConfigurationValue) {
     return;
   }
   // grab font size
