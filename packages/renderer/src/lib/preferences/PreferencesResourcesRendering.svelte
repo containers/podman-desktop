@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faArrowUpRightFromSquare, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { providerInfos } from '../../stores/providers';
 import type {
@@ -41,7 +41,7 @@ $: providerInstallationInProgress = new Map<string, boolean>();
 
 let isStatusUpdated = false;
 let displayInstallModal = false;
-let installModalProvider: ProviderInfo;
+let installModalProvider: { provider: ProviderInfo, displayName: string };
 let doExecuteAfterInstallation: () => void;
 $: preflightChecks = [];
 
@@ -61,7 +61,7 @@ onMount(() => {
     providers.forEach(provider => {
       if (installModalProvider 
           && doExecuteAfterInstallation 
-          && provider.name === installModalProvider.name 
+          && provider.name === installModalProvider.provider.name 
           && (provider.status === 'ready' || provider.status === 'installed')) {
         installModalProvider = undefined;
         doExecuteAfterInstallation();
@@ -230,12 +230,12 @@ async function startConnectionProvider(
   );
 }
 
-async function doCreateNew(provider: ProviderInfo) {
+async function doCreateNew(provider: ProviderInfo, displayName: string) {
   displayInstallModal = false;
   if (provider.status == 'not-installed') {
     providerInstallationInProgress.set(provider.name, true);
     providerInstallationInProgress = providerInstallationInProgress;
-    installModalProvider = provider;
+    installModalProvider = { provider, displayName };
     doExecuteAfterInstallation = () => router.goto(`/preferences/provider/${provider.internalId}`);
     performInstallation(provider);
   } else {
@@ -255,12 +255,16 @@ async function performInstallation(provider: ProviderInfo) {
         } else {
           return;
         }
-        checksStatus.push(currentCheck);
-        preflightChecks = checksStatus;
+        if (currentCheck.successful === false) {
+          checksStatus.push(currentCheck);
+          preflightChecks = checksStatus;
+        }
       },
       startCheck: status => {
         currentCheck = status;
-        preflightChecks = [...checksStatus, currentCheck];
+        if (currentCheck.successful === false) {
+          preflightChecks = [...checksStatus, currentCheck];
+        }        
       },
     });
   } catch (err) {
@@ -279,6 +283,12 @@ async function performInstallation(provider: ProviderInfo) {
 
 function hideInstallModal() {
   displayInstallModal = false;
+}
+
+function openLink(e: MouseEvent, url: string): void {
+  e.preventDefault();
+  e.stopPropagation();
+  window.openExternal(url);
 }
 </script>
 
@@ -334,7 +344,7 @@ function hideInstallModal() {
                       class="pf-c-button pf-m-primary"
                       aria-label="Create new {providerDisplayName}"
                       type="button"
-                      on:click="{() => doCreateNew(provider)}">                      
+                      on:click="{() => doCreateNew(provider, providerDisplayName)}">                      
                         {#if providerInstallationInProgress.get(provider.name) === true}                        
                           <i class="pf-c-button__progress">
                             <span class="pf-c-spinner pf-m-md" role="progressbar">
@@ -441,36 +451,57 @@ function hideInstallModal() {
   <Modal on:close="{() => hideInstallModal()}">
     <div
       class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 rounded-xl shadow-xl shadow-neutral-900">
-      <div class="flex flex-row-reverse">
-        <button class="hover:text-gray-300 p-4" on:click="{() => hideInstallModal()}">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
-      </div>
-
+      
+        <div class="flex items-center justify-between px-5 py-4 mb-4">
+          <h1 class="text-md font-semibold">Create a new {installModalProvider.displayName}</h1>
+  
+          <button class="hover:text-gray-300 px-2 py-1" on:click="{() => hideInstallModal()}">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
       <div class="overflow-y-auto px-4 pb-4">        
-        <div class="p-2 flex flex-col rounded-lg">
+        <div class="flex flex-col rounded-lg">
           <div class="mx-auto max-w-[250px] mb-5">
-            <ProviderLogo provider="{installModalProvider}" />
+            <ProviderLogo provider="{installModalProvider.provider}" />
           </div>
-          <div class="flex flex-row mx-auto text-lg text-gray-400">
-            <div class="mr-2 pt-1">
-              <Fa size="18" class="text-amber-400" icon="{faTriangleExclamation}" />
-            </div>
-            <span>
-              We couldn't find {installModalProvider.name}. Let's install it.
-            </span>
+          <div class="flex flex-row mx-auto text-md">
+            Some system requirements are missing.
           </div>
-          <div class="text-md text-gray-400 mt-2  text-center">
-            Be sure that your system fulfills all the prerequisites below before proceeding
+          <div class="flex flex-col min-w-[500px] min-h-[150px] mt-5 mx-auto p-4 rounded-md bg-charcoal-800">
+            {#each preflightChecks as preCheck}
+              <div class="flex flex-row mb-2 mx-auto">
+                <Fa icon="{faCircleXmark}" class="text-red-500 mt-0.5" />
+                <div class="flex flex-col ml-1 text-sm">
+                  {#if preCheck.description}                  
+                    <span class="w-full">{preCheck.description}</span>
+                    {#if preCheck.docLinks}
+                      <div class="flex flex-row mt-0.5">
+                        <span class="mr-1">See:</span>
+                        {#each preCheck.docLinks as link}
+                          <a href="{link.url}" target="_blank" class="mr-1" on:click="{e => openLink(e, link.url)}">{link.title}</a>
+                        {/each}
+                      </div>              
+                    {/if}
+                  
+                  {:else}
+                    {preCheck.name}          
+                {/if}
+
+                </div>
+                
+              </div>
+            {/each}
           </div>
-          <PreflightChecks preflightChecks="{preflightChecks}" />
+          <div class="text-xs text-gray-800 mt-2  text-center">
+            Be sure that your system fulfills all the requirements above before proceeding
+          </div>
           <div class="flex flex-row justify-end w-full pt-2">
             <button aria-label="Cancel" class="text-xs hover:underline mr-3" on:click="{() => hideInstallModal()}"
               >Cancel</button>
             <button
               class="pf-c-button pf-m-primary"
               type="button"
-              on:click="{() => doCreateNew(installModalProvider)}">Next</button>
+              on:click="{() => doCreateNew(installModalProvider.provider, installModalProvider.displayName)}">Next</button>
           </div>
         </div>        
       </div>
