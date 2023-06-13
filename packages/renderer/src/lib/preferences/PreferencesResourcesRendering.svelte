@@ -26,7 +26,6 @@ import PreferencesConnectionActions from './PreferencesConnectionActions.svelte'
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
 import Modal from '../dialogs/Modal.svelte';
 import ProviderLogo from '../dashboard/ProviderLogo.svelte';
-import PreflightChecks from '../dashboard/PreflightChecks.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   value?: any;
