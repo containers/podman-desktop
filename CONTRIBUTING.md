@@ -107,7 +107,7 @@ The dev environment will track all files changes and reload the application resp
 
 Write tests! Please try to write some unit tests when submitting your PR.
 
-Run the tests using `yarn`:
+Run the unit and component tests using `yarn`:
 
 ```sh
 yarn test:unit
@@ -316,6 +316,7 @@ Within Podman Desktop, we use the following frameworks and tools to build the de
 ### Testing
 
 Within Podman Desktop, we use the following for testing:
+
 - [Vitest](https://vitest.dev/): Unit tests - Written as `spec.ts` files.
 - [Testing Library](https://testing-library.com/): Component tests - Utilities and best practices for writing component tests.
 - [Playwright](https://playwright.dev/): Integration and E2E tests.
