@@ -22,7 +22,7 @@ export let taskId: number = undefined;
 let showModal: ProviderInfo = undefined;
 
 let providerLifecycleError = '';
-router.subscribe(() => {
+router.subscribe(async route => {
   providerLifecycleError = '';
 });
 
@@ -36,17 +36,22 @@ onMount(() => {
 
 let providerInfo: ProviderInfo;
 $: providerInfo = providers.filter(provider => provider.internalId === providerInternalId)[0];
+let waiting = false;
 
 let logsTerminal: Terminal;
 
 async function startProvider(): Promise<void> {
+  waiting = true;
   await window.startProviderLifecycle(providerInfo.internalId);
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  waiting = false;
 }
 
 async function stopProvider(): Promise<void> {
+  waiting = true;
   await window.stopProviderLifecycle(providerInfo.internalId);
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  waiting = false;
 }
 
 async function startReceivingLogs(provider: ProviderInfo): Promise<void> {
@@ -61,9 +66,9 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 }
 </script>
 
-<Route path="/*" breadcrumb="{providerInfo?.name}">
-  <div class="flex flex-1 flex-col bg-charcoal-800 px-6 py-1">
-    <div>
+<Route path="/*" breadcrumb="{providerInfo?.name}" let:meta>
+  <div class="flex flex-1 flex-col bg-charcoal-800 py-1 h-full">
+    <div class="px-6">
       <button
         aria-label="Close"
         class="hover:text-gray-700 float-right text-lg"
@@ -71,15 +76,15 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
         <Fa icon="{faXmark}" />
       </button>
     </div>
-    <h1 class="capitalize text-sm">Resources > {providerInfo?.name}</h1>
+    <h1 class="capitalize text-sm px-6">Resources > {providerInfo?.name}</h1>
     <!-- Manage lifecycle-->
     {#if providerInfo?.lifecycleMethods}
-      <div class="pl-1 py-2">
+      <div class="pl-1 py-2 px-6">
         <div class="text-sm italic text-gray-700">Status</div>
         <div class="pl-3">{providerInfo.status}</div>
       </div>
 
-      <div class="py-2 flex flex:row">
+      <div class="py-2 px-6 flex flex:row">
         <!-- start is enabled only in stopped mode-->
         {#if providerInfo?.lifecycleMethods.includes('start')}
           <div class="px-2 text-sm italic text-gray-700">

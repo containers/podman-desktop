@@ -231,10 +231,10 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
     {/if}
   </div>
 
-  <div class="min-w-full flex" slot="table">
-    <table class="mx-5 w-full" class:hidden="{pods.length === 0}">
+  <div class="flex min-w-full h-full overflow-auto" class:hidden="{pods.length === 0}" slot="table">
+    <table class="mx-5 w-full h-fit">
       <!-- title -->
-      <thead>
+      <thead class="sticky top-0 bg-charcoal-700 z-[2]">
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
@@ -249,7 +249,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
           <th class="text-right pr-2">Actions</th>
         </tr>
       </thead>
-      <tbody class="">
+      <tbody>
         {#each pods as pod}
           <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
@@ -315,8 +315,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
         {/each}
       </tbody>
     </table>
-  </div>
-  <div slot="empty" class="min-h-full">
+
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}

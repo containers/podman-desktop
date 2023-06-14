@@ -4,8 +4,8 @@ export let searchTerm = '';
 export let searchEnabled = true;
 </script>
 
-<div class="flex flex-col min-h-full min-w-fit w-full shadow-pageheader">
-  <div class="min-w-full pt-4" class:pb-4="{!searchEnabled}">
+<div class="flex flex-col w-full h-full shadow-pageheader">
+  <div class="flex flex-col w-full h-full pt-4">
     <div class="flex">
       <div class="px-5">
         <h1 aria-label="{title}" class="text-xl first-letter:uppercase">{title}</h1>
@@ -47,9 +47,7 @@ export let searchEnabled = true;
     {/if}
 
     <slot name="table" />
-  </div>
 
-  <div class="flex flex-col container flex-1 min-w-full">
     <slot name="empty" />
   </div>
 </div>

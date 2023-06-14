@@ -274,7 +274,7 @@ async function close() {
 }
 </script>
 
-<div class="flex flex-1 flex-col">
+<div class="flex flex-1 flex-col h-full px-6 overflow-auto">
   {#if creationSuccessful}
     <div class="pf-c-empty-state h-full">
       <div class="pf-c-empty-state__content">

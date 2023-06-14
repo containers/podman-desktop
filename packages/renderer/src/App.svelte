@@ -55,12 +55,12 @@ window.events?.receive('display-help', () => {
 </script>
 
 <Route path="/*" breadcrumb="Home" let:meta>
-  <main class="min-h-screen flex flex-col h-screen bg-charcoal-800">
+  <main class="flex flex-col w-screen h-screen overflow-hidden bg-charcoal-800">
     <TitleBar />
 
     <WelcomePage />
 
-    <div class="overflow-x-hidden flex flex-1">
+    <div class="flex flex-row w-full h-full overflow-hidden">
       <MessageBox />
       <QuickPickInput />
       <AppNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
@@ -69,7 +69,7 @@ window.events?.receive('display-help', () => {
       {/if}
 
       <div
-        class="z-0 w-full h-full min-h-fit flex flex-col overflow-y-scroll"
+        class="flex flex-col w-full h-full overflow-hidden"
         class:bg-charcoal-700="{!meta.url.startsWith('/preferences')}"
         class:bg-charcoal-800="{meta.url.startsWith('/preferences')}">
         <TaskManager />

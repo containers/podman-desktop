@@ -68,8 +68,8 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
 </script>
 
 <SettingsPage title="Extensions">
-  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
-    <div class="bg-charcoal-700 rounded-md p-3">
+  <div class="bg-charcoal-600 rounded-md p-3">
+    <div class="bg-charcoal-700 mb-4 rounded-md p-3">
       <FeaturedExtensions />
     </div>
 

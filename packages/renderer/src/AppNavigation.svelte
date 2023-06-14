@@ -90,12 +90,11 @@ export let meta;
 
 <svelte:window />
 <nav
-  class="pf-c-nav z-[9] group w-[54px] min-w-[54px] flex flex-col justify-between hover:overflow-y-none top-0"
-  style="position: sticky"
+  class="pf-c-nav group w-[54px] min-w-[54px] flex flex-col justify-between hover:overflow-y-none"
   aria-label="Global">
   <ul class="pf-c-nav__list">
     <li
-      class="pf-c-nav__item flex w-full justify-between {meta.url === '/'
+      class="pf-c-nav__item flex w-full {meta.url === '/'
         ? 'pf-m-current'
         : ''} hover:text-gray-400 cursor-pointer items-center mb-6">
       <a href="/" class="pf-c-nav__link flex" aria-label="Dashboard">

@@ -370,10 +370,10 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     {/if}
   </div>
 
-  <div class="min-w-full flex" slot="table">
-    <table class="mx-5 w-full" class:hidden="{containerGroups.length === 0}">
+  <div class="flex min-w-full h-full overflow-auto" class:hidden="{containerGroups.length === 0}" slot="table">
+    <table class="mx-5 w-full h-fit">
       <!-- title -->
-      <thead>
+      <thead class="sticky top-0 bg-charcoal-700 z-[2]">
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
@@ -549,9 +549,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         <tr><td class="leading-[8px]">&nbsp;</td></tr>
       {/each}
     </table>
-  </div>
 
-  <div slot="empty" class="min-h-full">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
