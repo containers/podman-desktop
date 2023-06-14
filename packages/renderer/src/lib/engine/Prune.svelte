@@ -31,40 +31,40 @@ async function openPruneDialog(): Promise<void> {
 async function prune(type: string) {
   switch (type) {
     case 'containers':
-      engines.forEach(async engine => {
+      for (let engine of engines) {
         try {
           await window.pruneContainers(engine.id);
         } catch (error) {
           console.error(error);
         }
-      });
+      }
       break;
     case 'pods':
-      engines.forEach(async engine => {
+      for (let engine of engines) {
         try {
           await window.prunePods(engine.id);
         } catch (error) {
           console.error(error);
         }
-      });
+      }
       break;
     case 'volumes':
-      engines.forEach(async engine => {
+      for (let engine of engines) {
         try {
           await window.pruneVolumes(engine.id);
         } catch (error) {
           console.error(error);
         }
-      });
+      }
       break;
     case 'images':
-      engines.forEach(async engine => {
+      for (let engine of engines) {
         try {
           await window.pruneImages(engine.id);
         } catch (error) {
           console.error(error);
         }
-      });
+      }
       break;
     default:
       console.error('Prune type not found');

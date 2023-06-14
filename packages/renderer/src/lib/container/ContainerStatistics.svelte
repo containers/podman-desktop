@@ -74,7 +74,9 @@ onMount(async () => {
     return;
   }
   // grab stats result from the container
-  fetchStatsId = await window.getContainerStats(container.engineId, container.id, updateStatistics);
+  fetchStatsId = await window.getContainerStats(container.engineId, container.id, containerStats => {
+    updateStatistics(containerStats);
+  });
 });
 
 onDestroy(async () => {

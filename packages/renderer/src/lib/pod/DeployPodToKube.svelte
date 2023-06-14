@@ -313,7 +313,9 @@ async function deployToKube() {
     window.telemetryTrack('deployToKube', eventProperties);
 
     // update status
-    updatePodInterval = setInterval(updatePod, 2000);
+    updatePodInterval = setInterval(() => {
+      updatePod();
+    }, 2000);
   } catch (error) {
     // Revert back to the previous bodyPod so the user can hit deploy again
     // we only update the bodyPod if we successfully create the pod.

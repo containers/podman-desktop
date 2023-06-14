@@ -82,7 +82,7 @@ function createNewConnection(providerId: string) {
 }
 
 let lifecycleError = '';
-router.subscribe(async route => {
+router.subscribe(() => {
   lifecycleError = '';
 });
 
