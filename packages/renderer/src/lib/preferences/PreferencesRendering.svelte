@@ -46,7 +46,7 @@ function updateSearchValue(event: any) {
 }
 </script>
 
-<Route path="/" breadcrumb="{key}">
+<Route path="/" breadcrumb="{key}" let:meta>
   <SettingsPage title="Preferences">
     <div class="bg-charcoal-900">
       <div
@@ -73,8 +73,8 @@ function updateSearchValue(event: any) {
         </svg>
       </div>
     </div>
-    <div class="flex flex-col min-w-full rounded-md px-3">
-      {#if matchingRecords.size === 0}
+    <div class="flex flex-col min-w-full rounded-md">
+      {#if matchingRecords.size == 0}
         <div class="mt-5">No Settings Found</div>
       {:else}
         {#each [...matchingRecords.keys()].sort((a, b) => a.localeCompare(b)) as configSection}
