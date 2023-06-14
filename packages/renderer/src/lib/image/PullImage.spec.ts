@@ -36,6 +36,10 @@ beforeAll(() => {
     },
   };
   (window as any).telemetryPage = vi.fn();
+  (window as any).getConfigurationValue = vi.fn();
+  (window as any).matchMedia = vi.fn().mockReturnValue({
+    addListener: vi.fn(),
+  });
 });
 
 const buttonText = 'Pull image';
@@ -74,7 +78,7 @@ function setup() {
 describe('PullImage', () => {
   test('Expect that textbox is available and button is displayed', async () => {
     setup();
-    render(PullImage, { terminalInitialized: true });
+    render(PullImage);
 
     const entry = screen.getByPlaceholderText('Image name');
     expect(entry).toBeInTheDocument();
@@ -85,7 +89,7 @@ describe('PullImage', () => {
 
   test('Expect that whitespace does not enable button', async () => {
     setup();
-    render(PullImage, { imageToPull: '   ', terminalInitialized: true });
+    render(PullImage, { imageToPull: '   ' });
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
@@ -94,7 +98,7 @@ describe('PullImage', () => {
 
   test('Expect that valid entry enables button', async () => {
     setup();
-    render(PullImage, { imageToPull: 'some-valid-image', terminalInitialized: true });
+    render(PullImage, { imageToPull: 'some-valid-image' });
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
@@ -103,7 +107,7 @@ describe('PullImage', () => {
 
   test('Expect that valid entry enables button', async () => {
     setup();
-    render(PullImage, { terminalInitialized: true });
+    render(PullImage);
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();

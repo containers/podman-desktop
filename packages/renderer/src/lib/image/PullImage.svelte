@@ -1,11 +1,8 @@
 <script lang="ts">
 import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import type { PullEvent } from '../../../../main/src/plugin/api/pull-event';
-import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
 import { providerInfos } from '../../stores/providers';
 import Modal from '../dialogs/Modal.svelte';
@@ -13,8 +10,10 @@ import PreferencesRegistriesEditCreateRegistryModal from '../preferences/Prefere
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
+import type { Terminal } from 'xterm';
 
-let logsPull;
+let logsPull: Terminal;
 let pullError = '';
 let pullInProgress = false;
 let pullFinished = false;
@@ -26,12 +25,9 @@ $: providerConnections = $providerInfos
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 let selectedProviderConnection: ProviderContainerConnectionInfo;
-$: initTerminal();
 
 const lineNumberPerId = new Map<string, number>();
 let lineIndex = 0;
-
-export let terminalInitialized = false;
 
 function callback(event: PullEvent) {
   let lineIndexToWrite;
@@ -75,48 +71,10 @@ function callback(event: PullEvent) {
     logsPull.write(event.error.replaceAll('\n', '\n\r') + '\n\r');
   }
 }
-let pullLogsXtermDiv: HTMLDivElement;
-
-async function initTerminal() {
-  await tick();
-  if (terminalInitialized) {
-    return;
-  }
-
-  // missing element, return
-  if (!pullLogsXtermDiv) {
-    return;
-  }
-
-  // grab font size
-  const fontSize = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
-  );
-  const lineHeight = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
-  );
-
-  logsPull = new Terminal({ fontSize, lineHeight, disableStdin: true });
-  const fitAddon = new FitAddon();
-  logsPull.loadAddon(fitAddon);
-
-  logsPull.open(pullLogsXtermDiv);
-  // disable cursor
-  logsPull.write('\x1b[?25l');
-
-  // call fit addon each time we resize the window
-  window.addEventListener('resize', () => {
-    fitAddon.fit();
-  });
-  fitAddon.fit();
-  terminalInitialized = true;
-}
 
 async function pullImage() {
   lineNumberPerId.clear();
   lineIndex = 0;
-  await tick();
-  initTerminal();
   await tick();
   logsPull?.reset();
 
@@ -249,7 +207,7 @@ function validateImageName(event): void {
             {/if}
           </div>
         </footer>
-        <div bind:this="{pullLogsXtermDiv}"></div>
+        <TerminalWindow bind:terminal="{logsPull}" />
       </div>
     {/if}
   </div>
