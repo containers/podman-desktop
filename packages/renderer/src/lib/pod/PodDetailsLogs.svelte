@@ -93,7 +93,7 @@ async function fetchPodLogs() {
   // before each log output.
   //
   // NOTE: Podman API returns 'Names' despite being a singular name for the container.
-  pod.containers.forEach(async container => {
+  for (let container of pod.containers) {
     // Set a customer callback that will add the container name and padding
     const logsCallback = (name: string, data: string) => {
       const padding = ' '.repeat(maxNameLength - container.Names.length);
@@ -115,7 +115,7 @@ async function fetchPodLogs() {
     } else {
       await window.kubernetesReadPodLog(pod.name, container.Names, logsCallback);
     }
-  });
+  }
 }
 
 async function refreshTerminal() {

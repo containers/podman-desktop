@@ -22,7 +22,7 @@ export let taskId: number = undefined;
 let showModal: ProviderInfo = undefined;
 
 let providerLifecycleError = '';
-router.subscribe(async route => {
+router.subscribe(() => {
   providerLifecycleError = '';
 });
 
