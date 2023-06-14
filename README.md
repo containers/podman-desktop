@@ -1,5 +1,4 @@
-Podman Desktop - A graphical tool for developing on containers and Kubernetes
----
+# Podman Desktop - A graphical tool for developing on containers and Kubernetes
 
 <p align="center">
   <img alt="Podman Desktop" src="/website/static/img/features/manage-containers.webp">
@@ -32,31 +31,37 @@ Check the downloads page on [podman-desktop.io/downloads](https://podman-desktop
 ## Features
 
 #### Containers and pods dashboard
-* Build, run, manage, and debug both containers and pods
-* Run Pods on your container engine or with Kubernetes
-* Convert your Pods to be running on Kubernetes
-* Manage multiple container engines
+
+- Build, run, manage, and debug both containers and pods
+- Run Pods on your container engine or with Kubernetes
+- Convert your Pods to be running on Kubernetes
+- Manage multiple container engines
 
 #### Multiple container engine support
-* [Podman container engine](https://github.com/containers/podman) 
-* [crc](https://github.com/code-ready/crc)
-* [Podman Lima machines](https://github.com/lima-vm/lima)
-* [Docker](https://github.com/moby/moby)
+
+- [Podman container engine](https://github.com/containers/podman)
+- [crc](https://github.com/code-ready/crc)
+- [Podman Lima machines](https://github.com/lima-vm/lima)
+- [Docker](https://github.com/moby/moby)
 
 #### Podman engine update support
-* Keep `podman` up-to-date on your PC by having Podman Desktop automatically install the newest version
+
+- Keep `podman` up-to-date on your PC by having Podman Desktop automatically install the newest version
 
 #### System tray support
-* Manage your Container engine
-* Define your Kubernetes context
+
+- Manage your Container engine
+- Define your Kubernetes context
 
 #### Enterprise capabilities
-* Proxy Support
-* OCI Image registries management
+
+- Proxy Support
+- OCI Image registries management
 
 #### Bridge between local and remote environments
-* Connect and deploy to both local or remote Kubernetes environments
-* Change your Kubernetes context and pick your deployment environment
+
+- Connect and deploy to both local or remote Kubernetes environments
+- Change your Kubernetes context and pick your deployment environment
 
 ## Join our early adopter program! (optional)
 
@@ -64,7 +69,7 @@ We are seeking developers who are interested in improving Podman Desktop!
 
 Register your interest to join our Early Adopter Program by filling <a href="https://forms.gle/ow73dV7Ce3YLzoXH7" target="_blank">this form</a>.
 
-This is totally *optional* and does not change any Podman Desktop features.
+This is totally _optional_ and does not change any Podman Desktop features.
 
 ## Roadmap
 
@@ -75,6 +80,7 @@ Check out all our [future features!](https://github.com/containers/podman-deskto
 ## Contributing
 
 Interested in fixing issues or contributing to Podman Desktop?
+
 - :bug: [File bugs or feature requests on GitHub](https://github.com/containers/podman-desktop/issues/new/choose)
 - :checkered_flag: [Read our contributing guide](./CONTRIBUTING.md)
 - :ok_hand: [Review or contribute a pull request](https://github.com/containers/podman-desktop/pulls)
@@ -89,15 +95,15 @@ Discussions are done using [Github Discussions](https://github.com/containers/po
 
 General questions & development:
 
-* [#podman-desktop on the Podman Discord](https://discord.com/invite/x5GzFF6QH4)
-* [#podman-desktop@libera.chat on IRC](https://libera.chat/)
-* [#podman-desktop@fedora.im on Matrix](https://chat.fedoraproject.org/#/room/#podman-desktop:fedora.im)
+- [#podman-desktop on the Podman Discord](https://discord.com/invite/x5GzFF6QH4)
+- [#podman-desktop@libera.chat on IRC](https://libera.chat/)
+- [#podman-desktop@fedora.im on Matrix](https://chat.fedoraproject.org/#/room/#podman-desktop:fedora.im)
 
 Note: All channels are bridged. Chat on either: Discord, IRC or Matrix and it'll appear on all three!
 
 Kubernetes questions & development:
 
-* [#podman-desktop](https://app.slack.com/client/T09NY5SBT/C04A0L7LUFM) on the [Kubernetes Slack](https://slack.k8s.io/)
+- [#podman-desktop](https://app.slack.com/client/T09NY5SBT/C04A0L7LUFM) on the [Kubernetes Slack](https://slack.k8s.io/)
 
 ## Code of Conduct
 

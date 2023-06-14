@@ -1,5 +1,4 @@
-Release process for Podman Desktop
----
+# Release process for Podman Desktop
 
 ## Pre-requisites
 
@@ -26,23 +25,25 @@ In the below example, we will pretend that we're upgrading from `0.11.0` to `0.1
 ## Package manager workflow
 
 Pre-requisites:
+
 - Ensure the release is OK (green workflow, artifacts are there https://github.com/containers/podman-desktop/releases)
 
 #### Brew
 
 Publish to brew. The workflow will create an automated PR to the brew cask repository https://github.com/Homebrew/homebrew-cask/
+
 1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-to-brew.yaml
 1. Click on the top right drop-down `Run workflow`
 1. Select the release (under tags), which would be `v0.12.0`
 1. Enter the release version `0.12.0`. DO NOT add the `v`
 1. Click `Run workflow`
 
-You can view the PR at: https://github.com/Homebrew/homebrew-cask/pulls?q=is%3Apr+podman-desktop 
-
+You can view the PR at: https://github.com/Homebrew/homebrew-cask/pulls?q=is%3Apr+podman-desktop
 
 #### Winget
 
 Publish to winget. The workflow will create an automated PR to the Winget pkgs repository https://github.com/microsoft/winget-pkgs/
+
 1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-to-winget.yaml
 1. Click on the top right drop-down `Run workflow`
 1. Select the release (under tags), which would be `v0.12.0`
@@ -54,6 +55,7 @@ You can view the PR at: https://github.com/microsoft/winget-pkgs/pulls?q=is%3Apr
 #### Chocolatey
 
 Publish to chocolatey. The workflow will create an automatic submission to the chocolatey site at https://community.chocolatey.org/packages/podman-desktop/#versionhistory
+
 1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-to-chocolatey.yaml
 1. Click on the top right drop-down `Run workflow`
 1. Select the release (under tags), which would be `v0.12.0`
@@ -61,7 +63,8 @@ Publish to chocolatey. The workflow will create an automatic submission to the c
 1. Click `Run workflow`
 
 Afterwards, you'll have to:
-* Approve the PR with title `chore: Update Chocolatey package to 0.12.0` at https://github.com/containers/podman-desktop/pulls?q=is%3Apr+Update+Chocolatey
+
+- Approve the PR with title `chore: Update Chocolatey package to 0.12.0` at https://github.com/containers/podman-desktop/pulls?q=is%3Apr+Update+Chocolatey
 
 You can view the progress at: https://community.chocolatey.org/packages/podman-desktop/0.12.0
 
@@ -80,8 +83,10 @@ You can view the progress at: https://community.chocolatey.org/packages/podman-d
    ```
 1. Copy the file `$(pwd)/podman-desktop-0.12.0/generated-sources.json` to `generated-sources.json`
 1. Only commit the files:
-* `generated-sources.json`
-* `io.podman_desktop.PodmanDesktop.yml`
+
+- `generated-sources.json`
+- `io.podman_desktop.PodmanDesktop.yml`
+
 1. Create a PR to the repository with a title like `feat: bump to v0.11.0`
 1. If the PR passes all tests, merge the PR
 
@@ -96,6 +101,7 @@ You can view the progress at: https://community.chocolatey.org/packages/podman-d
 
 1. Create a new announcement at https://github.com/containers/podman-desktop/discussions
 1. Example template:
+
 ```
 Hello,
 
