@@ -37,12 +37,12 @@
 .pf-c-nav__link::after {
   --pf-c-nav__link--after--BorderColor: #8b5cf6;
   --pf-c-nav__link--m-current--after--BorderColor: #8b5cf6;
- }
+}
 
- .pf-c-tabs__link::after {
+.pf-c-tabs__link::after {
   --pf-c-tabs__link--after--BorderColor: #8b5cf6;
   --pf-c-tabs__link--m-current--after--BorderColor: #8b5cf6;
- }
+}
 
 .pf-c-button {
   --pf-c-button--FontSize: 13px;
@@ -51,5 +51,5 @@
 .pf-c-button.pf-m-secondary {
   --pf-c-button--m-secondary--Color: #ddd;
   --pf-c-button--m-secondary--BackgroundColor: transparent;
-  --pf-c-button--after--BorderColor: rgb(229,231,235);
+  --pf-c-button--after--BorderColor: rgb(229, 231, 235);
 }

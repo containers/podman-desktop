@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
- /* Disable dragging links elements */
+/* Disable dragging links elements */
 a {
-	-webkit-user-select: none;
-	user-select: none;
-	-webkit-user-drag: none;
-	-webkit-app-region: no-drag;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-app-region: no-drag;
 }

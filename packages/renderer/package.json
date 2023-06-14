@@ -47,7 +47,6 @@
     "xterm": "^5.2.1",
     "xterm-addon-fit": "^0.7.0",
     "yaml": "^2.3.1"
-
   },
   "dependencies": {
     "@zerodevx/svelte-toast": "^0.9.3",
