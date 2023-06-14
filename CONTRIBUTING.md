@@ -107,10 +107,10 @@ The dev environment will track all files changes and reload the application resp
 
 Write tests! Please try to write some unit tests when submitting your PR.
 
-Run the tests using `yarn`:
+Run the unit and component tests using `yarn`:
 
 ```sh
-yarn test
+yarn test:unit
 ```
 
 Depending on to what part of project you contribute to, you can specify to run tests for the given module only, ie., if you are working on extensions, you can run the tests for extensions and have faster feedback:
@@ -142,7 +142,17 @@ This will show a test results for restricted amount of tests:
 
 Check the npm script tasks in our `package.json` for more options.
 
-### Step 5. Code coverage
+### Step 5. Run E2E tests
+
+In case of adding new feature, it is always suitable to make sure we do not bring any new regression. For this purpose we are using the E2E tests. They can be run using `yarn`:
+```sh
+yarn test:e2e:smoke
+```
+
+Although, there are requirements that need to be fulfilled before running the tests in order to make them pass:
+- remove `settings.json` from `~/.local/share/containers/podman-desktop/configuration/` or if you do not want to lose your settings, remove the objects from the file with keys `"welcome.version"` and `"telemetry.*"`
+
+### Step 6. Code coverage
 
 Part of every test is also a code coverage report which can be obtain from the test run output (using simple text reporter)
 found in project root `./test-resources/coverage/*`. Depending if you have run all or just a part of the tests, you will have partial test coverage report generated, example:
@@ -167,8 +177,7 @@ For a detailed information about the code coverage you can search the mentioned 
 `test-resources/coverage/extensions/compose/lcov-report/index.html`
 
 When contribuing the new code, you should consider not lowering overall code coverage.
-
-### Step 6. Code formatter / linter
+### Step 7. Code formatter / linter
 
 We use `prettier` as a formatter and `eslint` for linting.
 
@@ -186,7 +195,7 @@ Fix:
 yarn lint:fix && yarn format:fix
 ```
 
-### Step 7. Compile production binaries (optional)
+### Step 8. Compile production binaries (optional)
 
 You may want to test the binary against your local system before pushing a PR, you can do so by running the following command:
 
@@ -280,6 +289,8 @@ All pull requests and branch-merges automatically run:
 
 - Format and lint checking
 - Cross-platform builds (Windows, macOS, Linux)
+- Unit test (Linux)
+- E2E tests (Linux, triggered by PR check, do not prevent merging of the PR in case of instability)
 
 You can follow these jobs in Github Actions https://github.com/containers/podman-desktop/actions
 
@@ -308,7 +319,7 @@ Within Podman Desktop, we use the following for testing:
 
 - [Vitest](https://vitest.dev/): Unit tests - Written as `spec.ts` files.
 - [Testing Library](https://testing-library.com/): Component tests - Utilities and best practices for writing component tests.
-- [Playwright](https://playwright.dev/): Integration tests.
+- [Playwright](https://playwright.dev/): Integration and E2E tests.
 
 ### Folders
 
