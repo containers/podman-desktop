@@ -342,115 +342,6 @@ function hideInstallModal() {
               {/if}
             </div>
           </div>
-          <!-- providers columns -->
-          <div class="grow flex flex-wrap divide-gray-900 ml-2">
-            <PreferencesConnectionsEmptyRendering
-              message="{provider.emptyConnectionMarkdownDescription}"
-              hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
-            {#each provider.containerConnections as container}
-              <div class="px-5 py-2 w-[240px]">
-                <div class="float-right">
-                  <Tooltip tip="{provider.name} details" bottom>
-                    <button
-                      aria-label="{provider.name} details"
-                      type="button"
-                      on:click="{() =>
-                        router.goto(
-                          `/preferences/container-connection/${provider.internalId}/${Buffer.from(
-                            container.endpoint.socketPath,
-                          ).toString('base64')}/summary`,
-                        )}">
-                      <Fa icon="{faArrowUpRightFromSquare}" />
-                    </button>
-                  </Tooltip>
-                </div>
-                <div class="{container.status !== 'started' ? 'text-gray-900' : ''} text-sm">
-                  {container.name}
-                </div>
-                <div class="flex">
-                  <ConnectionStatus status="{container.status}" />
-                  {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
-                    {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
-                    {#if status.error}
-                      <button
-                        class="ml-3 text-[9px] text-red-500 underline"
-                        on:click="{() => window.events?.send('toggle-task-manager', '')}"
-                        >{status.action} failed</button>
-                    {/if}
-                  {/if}
-                </div>
-
-                {#if providerContainerConfiguration.has(provider.internalId)}
-                  <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}">
-                    {#each providerContainerConfiguration
-                      .get(provider.internalId)
-                      .filter(conf => conf.connection === container.name) as connectionSetting}
-                      {#if connectionSetting.format === 'cpu'}
-                        <div class="mr-4">
-                          <div class="text-[9px]">{connectionSetting.description}</div>
-                          <div class="text-xs">{connectionSetting.value}</div>
-                        </div>
-                      {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
-                        <div class="mr-4">
-                          <div class="text-[9px]">{connectionSetting.description}</div>
-                          <div class="text-xs">{filesize(connectionSetting.value)}</div>
-                        </div>
-                      {:else}
-                        {connectionSetting.description}: {connectionSetting.value}
-                      {/if}
-                    {/each}
-                  </div>
-                {/if}
-                <PreferencesConnectionActions
-                  provider="{provider}"
-                  connection="{container}"
-                  connectionStatuses="{containerConnectionStatus}"
-                  updateConnectionStatus="{updateContainerStatus}"
-                  addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
-                <div class="mt-1.5 text-gray-900 text-[9px]">
-                  <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
-                </div>
-              </div>
-            {/each}
-            {#each provider.kubernetesConnections as kubeConnection}
-              <div class="px-5 py-2 w-[240px]">
-                <div class="float-right">
-                  <Tooltip tip="{provider.name} details" bottom>
-                    <button
-                      aria-label="{provider.name} details"
-                      type="button"
-                      on:click="{() =>
-                        router.goto(
-                          `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
-                            kubeConnection.endpoint.apiURL,
-                          ).toString('base64')}/summary`,
-                        )}">
-                      <Fa icon="{faArrowUpRightFromSquare}" />
-                    </button>
-                  </Tooltip>
-                </div>
-                <div class="text-sm">
-                  {kubeConnection.name}
-                </div>
-                <div class="flex mt-1">
-                  <ConnectionStatus status="{kubeConnection.status}" />
-                </div>
-                <div class="mt-2">
-                  <div class="text-gray-700 text-xs">Kubernetes endpoint</div>
-                  <div class="mt-1">
-                    <span class="my-auto text-xs" class:text-gray-900="{kubeConnection.status !== 'started'}"
-                      >{kubeConnection.endpoint.apiURL}</span>
-                  </div>
-                </div>
-                <PreferencesConnectionActions
-                  provider="{provider}"
-                  connection="{kubeConnection}"
-                  connectionStatuses="{containerConnectionStatus}"
-                  updateConnectionStatus="{updateContainerStatus}"
-                  addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
-              </div>
-            {/each}
-          </div>
         </div>
         <!-- providers columns -->
         <div class="grow flex flex-wrap divide-gray-900 ml-2">
@@ -459,8 +350,20 @@ function hideInstallModal() {
             hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
           {#each provider.containerConnections as container}
             <div class="px-5 py-2 w-[240px]">
-              <div class="float-right text-gray-900 cursor-not-allowed">
-                <Fa icon="{faArrowUpRightFromSquare}" />
+              <div class="float-right">
+                <Tooltip tip="{provider.name} details" bottom>
+                  <button
+                    aria-label="{provider.name} details"
+                    type="button"
+                    on:click="{() =>
+                      router.goto(
+                        `/preferences/container-connection/${provider.internalId}/${Buffer.from(
+                          container.endpoint.socketPath,
+                        ).toString('base64')}/summary`,
+                      )}">
+                    <Fa icon="{faArrowUpRightFromSquare}" />
+                  </button>
+                </Tooltip>
               </div>
               <div class="{container.status !== 'started' ? 'text-gray-900' : ''} text-sm">
                 {container.name}
@@ -511,6 +414,21 @@ function hideInstallModal() {
           {/each}
           {#each provider.kubernetesConnections as kubeConnection}
             <div class="px-5 py-2 w-[240px]">
+              <div class="float-right">
+                <Tooltip tip="{provider.name} details" bottom>
+                  <button
+                    aria-label="{provider.name} details"
+                    type="button"
+                    on:click="{() =>
+                      router.goto(
+                        `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
+                          kubeConnection.endpoint.apiURL,
+                        ).toString('base64')}/summary`,
+                      )}">
+                    <Fa icon="{faArrowUpRightFromSquare}" />
+                  </button>
+                </Tooltip>
+              </div>
               <div class="text-sm">
                 {kubeConnection.name}
               </div>
