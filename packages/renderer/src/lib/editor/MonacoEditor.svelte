@@ -15,7 +15,6 @@ export let content = '';
 export let language = 'json';
 
 onMount(async () => {
-  // @ts-ignore
   self.MonacoEnvironment = {
     getWorker: function (_moduleId: any, label: string) {
       if (label === 'json') {
@@ -23,6 +22,7 @@ onMount(async () => {
       }
       return new editorWorker();
     },
+    createTrustedTypesPolicy: () => undefined,
   };
 
   Monaco = await import('monaco-editor');
