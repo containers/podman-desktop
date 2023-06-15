@@ -180,7 +180,7 @@ async function startContainer() {
 
   hostContainerPortMappings
     .filter(pair => pair.hostPort && pair.containerPort)
-    .map(pair => {
+    .forEach(pair => {
       PortBindings[pair.containerPort] = [{ HostPort: pair.hostPort }];
       ExposedPorts[pair.containerPort] = {};
     });
