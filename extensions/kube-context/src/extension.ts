@@ -41,9 +41,17 @@ async function deleteContext(): Promise<void> {
   }
 }
 
-async function updateContext(extensionContext: extensionApi.ExtensionContext, kubeconfigFile: string): Promise<void> {
+export async function updateContext(
+  extensionContext: extensionApi.ExtensionContext,
+  kubeconfigFile: string,
+): Promise<void> {
   // read the kubeconfig file using fs
   const kubeConfigRawContent = await fs.promises.readFile(kubeconfigFile, 'utf-8');
+
+  if (kubeConfigRawContent.length === 0) {
+    console.error(`Kubeconfig file at '${kubeconfigFile}' is empty. Skipping.`);
+    return;
+  }
 
   // parse the content using jsYaml
   const kubeConfig = jsYaml.load(kubeConfigRawContent);
