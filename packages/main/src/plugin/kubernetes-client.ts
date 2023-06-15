@@ -298,6 +298,13 @@ export class KubernetesClient {
   }
 
   async refresh() {
+    // check the file is empty
+    const fileContent = await fs.promises.readFile(this.kubeconfigPath);
+    if (fileContent.length === 0) {
+      console.error(`Kubeconfig file at ${this.kubeconfigPath} is empty. Skipping.`);
+      return;
+    }
+
     // perform it under a try/catch block as the file may not be valid for the kubernetes-javascript client library
     try {
       this.kubeConfig.loadFromFile(this.kubeconfigPath);
