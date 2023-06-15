@@ -68,7 +68,7 @@ function openLink(e: MouseEvent, url: string): void {
               type="button"
               aria-label="Next"
               on:click="{() => doCreateNew(providerToBeInstalled.provider, providerToBeInstalled.displayName)}"
-              >Next</button>
+              >Retry</button>
           </div>
         </div>
       </div>
