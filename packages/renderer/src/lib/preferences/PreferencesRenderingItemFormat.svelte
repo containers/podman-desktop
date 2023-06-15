@@ -210,7 +210,6 @@ function onNumberInputKeyPress(event: any) {
   // if the key is not a number skip it
   if (isNaN(Number(event.key))) {
     event.preventDefault();
-    return;
   }
 }
 

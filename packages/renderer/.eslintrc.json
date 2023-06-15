@@ -18,7 +18,6 @@
     "svelte/no-at-html-tags": "off",
     "no-useless-escape": "off",
     "no-empty": "off",
-    "etc/no-assign-mutated-array": "off",
-    "sonarjs/no-redundant-jump": "off"
+    "etc/no-assign-mutated-array": "off"
     }
 }

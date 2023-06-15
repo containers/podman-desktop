@@ -103,7 +103,6 @@ function handleKeydown(e: KeyboardEvent) {
     window.sendShowMessageBoxOnSelect(currentId, cancelId >= 0 ? cancelId : undefined);
     cleanup();
     e.preventDefault();
-    return;
   }
 }
 </script>
