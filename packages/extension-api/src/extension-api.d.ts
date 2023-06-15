@@ -1483,12 +1483,26 @@ declare module '@podman-desktop/api' {
     Type?: string;
   }
 
+  interface ContainerAuthInfo {
+    username: string;
+    password: string;
+    serveraddress: string;
+    email?: string;
+  }
+
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
     export function startContainer(engineId: string, id: string): Promise<void>;
     export function stopContainer(engineId: string, id: string): Promise<void>;
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
+    export function tagImage(engineId: string, imageId: string, repo: string, tag?: string): Promise<void>;
+    export function pushImage(
+      engineId: string,
+      imageId: string,
+      callback: (name: string, data: string) => void,
+      authInfo?: ContainerAuthInfo,
+    ): Promise<void>;
     export const onEvent: Event<ContainerJSONEvent>;
   }
 
