@@ -148,7 +148,7 @@ test('Expect to be start, delete actions disabled and stop, restart enabled when
 test('Expect to see the no resource message when there is no providers', async () => {
   providerInfos.set([]);
   render(PreferencesResourcesRendering, {});
-  const panel = screen.getByLabelText('no-resource-panel');
+  const panel = screen.getByText('No resources found');
   expect(panel).toBeInTheDocument();
 });
 
