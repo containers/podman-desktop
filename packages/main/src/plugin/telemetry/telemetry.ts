@@ -118,10 +118,12 @@ export class Telemetry {
       },
     });
 
-    // needs to prompt the user for the first time he launches the app
     if (check) {
+      // the user has been prompted, either configure the telemetry system or disable it based on their preference
       if (this.isTelemetryEnabled()) {
-        await this.configureTelemetry();
+        this.configureTelemetry().catch((err: unknown) => {
+          console.log(`Error initializing telemetry: ${err}`);
+        });
       } else {
         this.telemetryInitialized = true;
 
