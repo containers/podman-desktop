@@ -27,7 +27,7 @@ function copyRunInstructionToClipboard() {
 let copyTextDivElement: HTMLDivElement;
 </script>
 
-<div class="h-full min-w-full flex flex-col ${$$props.class || ''}" class:hidden="{hidden}" style="{$$props.style}">
+<div class="h-full min-w-full flex flex-col {$$props.class || ''}" class:hidden="{hidden}" style="{$$props.style}" aria-label="{$$props['aria-label']}">
   <div class="pf-c-empty-state h-full">
     <div class="pf-c-empty-state__content">
       <p class="pf-c-empty-state__body">
