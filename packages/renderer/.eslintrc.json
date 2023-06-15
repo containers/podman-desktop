@@ -22,7 +22,6 @@
     "sonarjs/no-redundant-jump": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "sonarjs/no-ignored-return": "off",
-    "sonarjs/prefer-immediate-return": "off",
-    "sonarjs/no-redundant-boolean": "off"
+    "sonarjs/prefer-immediate-return": "off"
     }
 }
