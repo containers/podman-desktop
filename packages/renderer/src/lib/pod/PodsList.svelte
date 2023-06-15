@@ -231,8 +231,8 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
     {/if}
   </div>
 
-  <div class="flex min-w-full h-full overflow-auto" class:hidden="{pods.length === 0}" slot="table">
-    <table class="mx-5 w-full h-fit">
+  <div class="flex min-w-full h-full overflow-auto" slot="table">
+    <table class="mx-5 w-full h-fit" class:hidden="{pods.length === 0}">
       <!-- title -->
       <thead class="sticky top-0 bg-charcoal-700 z-[2]">
         <tr class="h-7 uppercase text-xs text-gray-600">
