@@ -17,7 +17,6 @@
     "@typescript-eslint/prefer-optional-chain": "off",
     "svelte/no-at-html-tags": "off",
     "no-useless-escape": "off",
-    "no-empty": "off",
-    "etc/no-assign-mutated-array": "off"
+    "no-empty": "off"
     }
 }
