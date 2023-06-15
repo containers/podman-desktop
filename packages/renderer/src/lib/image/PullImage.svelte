@@ -5,8 +5,6 @@ import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugi
 import type { PullEvent } from '../../../../main/src/plugin/api/pull-event';
 
 import { providerInfos } from '../../stores/providers';
-import Modal from '../dialogs/Modal.svelte';
-import PreferencesRegistriesEditCreateRegistryModal from '../preferences/PreferencesRegistriesEditCreateRegistryModal.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
@@ -98,11 +96,6 @@ async function gotoManageRegistries() {
   router.goto('/preferences/registries');
 }
 
-let showAddRegistryModal = false;
-async function toggleAddARegistry() {
-  showAddRegistryModal = true;
-}
-
 onMount(() => {
   if (!selectedProviderConnection) {
     selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
@@ -127,13 +120,6 @@ function validateImageName(event): void {
         <i class="fas fa-cog" aria-hidden="true"></i>
       </span>
       Manage registries
-    </button>
-
-    <button on:click="{() => toggleAddARegistry()}" class="pf-c-button pf-m-primary" type="button">
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-id-badge" aria-hidden="true"></i>
-      </span>
-      Login to a Registry
     </button>
   </div>
 
@@ -212,16 +198,3 @@ function validateImageName(event): void {
     {/if}
   </div>
 </NavPage>
-
-{#if showAddRegistryModal}
-  <Modal
-    on:close="{() => {
-      showAddRegistryModal = false;
-    }}">
-    <PreferencesRegistriesEditCreateRegistryModal
-      mode="create"
-      toggleCallback="{() => {
-        showAddRegistryModal = false;
-      }}" />
-  </Modal>
-{/if}
