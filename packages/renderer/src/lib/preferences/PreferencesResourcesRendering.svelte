@@ -221,7 +221,7 @@ async function startConnectionProvider(
       class="text-gray-700 underline underline-offset-2">Extensions</a>
   </span>
   <div class="w-full h-full">
-    <EmptyScreen
+    <EmptyScreen aria-label="no-resource-panel" 
       icon="{EngineIcon}"
       title="No resources found"
       message="Start an extension that manages containers or Kubernetes engines"
