@@ -170,7 +170,7 @@ export class KubernetesClient {
         this.kubeconfigPath = userKubeconfigPath;
         this.refresh()
           .then(() => console.log('Refresh of kube resources on startup complete'))
-          .catch(() => console.log('Refresh of kube resources on startup failed'));
+          .catch(() => console.error('Refresh of kube resources on startup failed'));
       } else {
         console.error(`Kubeconfig path ${userKubeconfigPath} provided does not exist. Skipping.`);
       }
