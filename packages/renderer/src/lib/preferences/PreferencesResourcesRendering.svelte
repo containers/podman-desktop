@@ -142,7 +142,7 @@ $: Promise.all(
   providers.map(async provider => {
     const providerContainer = await Promise.all(
       provider.containerConnections.map(async container => {
-        const containerConfigurations = await Promise.all(
+        return await Promise.all(
           configurationKeys.map(async configurationKey => {
             return {
               ...configurationKey,
@@ -155,7 +155,6 @@ $: Promise.all(
             };
           }),
         );
-        return containerConfigurations;
       }),
     );
     return providerContainer.flat();

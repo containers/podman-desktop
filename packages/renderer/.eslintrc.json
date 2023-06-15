@@ -20,8 +20,6 @@
     "no-empty": "off",
     "etc/no-assign-mutated-array": "off",
     "sonarjs/no-redundant-jump": "off",
-    "@typescript-eslint/ban-ts-comment": "off",
-    "sonarjs/no-ignored-return": "off",
-    "sonarjs/prefer-immediate-return": "off"
+    "@typescript-eslint/ban-ts-comment": "off"
     }
 }
