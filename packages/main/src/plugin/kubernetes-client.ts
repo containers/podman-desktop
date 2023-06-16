@@ -168,7 +168,7 @@ export class KubernetesClient {
       // check if path exists
       if (existsSync(userKubeconfigPath)) {
         this.kubeconfigPath = userKubeconfigPath;
-        await this.refresh();
+        this.refresh().catch(() => console.error('Refresh of kube resources on startup failed'));
       } else {
         console.error(`Kubeconfig path ${userKubeconfigPath} provided does not exist. Skipping.`);
       }
