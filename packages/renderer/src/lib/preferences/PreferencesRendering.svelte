@@ -48,7 +48,7 @@ function updateSearchValue(event: any) {
 
 <Route path="/" breadcrumb="{key}">
   <SettingsPage title="Preferences">
-    <div class="bg-charcoal-900">
+    <div class="mt-4" slot="header">
       <div
         class="flex items-center text-gray-700 rounded-sm rounded-lg border-2 border-charcoal-900 focus-within:border-violet-500">
         <input
@@ -73,12 +73,12 @@ function updateSearchValue(event: any) {
         </svg>
       </div>
     </div>
-    <div class="flex flex-col min-w-full rounded-md">
+    <div class="flex flex-col min-w-full rounded-md space-y-5">
       {#if matchingRecords.size === 0}
-        <div class="mt-5">No Settings Found</div>
+        <div>No Settings Found</div>
       {:else}
         {#each [...matchingRecords.keys()].sort((a, b) => a.localeCompare(b)) as configSection}
-          <div class="mt-5">
+          <div>
             <div class="first-letter:uppercase">{matchingRecords.get(configSection).at(0).title}</div>
             {#each matchingRecords.get(configSection) as configItem}
               <div class="bg-charcoal-600 rounded-md mt-2 ml-2">
