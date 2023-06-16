@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faPlay, faStop, faArrowsRotate, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { VolumeInfoUI } from './VolumeInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';

@@ -17,8 +17,6 @@ import PodActions from './PodActions.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
 import moment from 'moment';
 import Tooltip from '../ui/Tooltip.svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import Prune from '../engine/Prune.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import ErrorMessage from '../ui/ErrorMessage.svelte';

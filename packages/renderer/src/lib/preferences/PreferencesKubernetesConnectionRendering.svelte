@@ -105,12 +105,12 @@ let showModal: ProviderInfo = undefined;
 
 let logsTerminal: Terminal;
 
-async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
+async function stopReceivingLogs(_provider: ProviderInfo): Promise<void> {
   // await window.stopReceiveLogs(provider.internalId, kubernetesConnectionInfo);
 }
 </script>
 
-<Route path="/*" breadcrumb="{connectionName} Settings" let:meta>
+<Route path="/*" breadcrumb="{connectionName} Settings">
   <div class="flex flex-1 flex-col bg-charcoal-600 px-2">
     <div class="flex flex-row align-middle my-4">
       <div class="capitalize text-xl">{connectionName}</div>

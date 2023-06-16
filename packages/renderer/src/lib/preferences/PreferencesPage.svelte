@@ -47,7 +47,7 @@ onMount(async () => {
   <Route path="/default/:key/*" breadcrumb="Preferences" let:meta>
     <PreferencesRendering key="{meta.params.key}" properties="{properties}" />
   </Route>
-  <Route path="/ddExtensions" breadcrumb="Docker Desktop Extensions" let:meta>
+  <Route path="/ddExtensions" breadcrumb="Docker Desktop Extensions">
     <PreferencesPageDockerExtensions />
   </Route>
   <Route path="/extension/:extensionId/*" breadcrumb="Extensions" let:meta>

@@ -279,10 +279,6 @@ function toggleCreateContainer(): void {
   openChoiceModal = !openChoiceModal;
 }
 
-function runContainerYaml(): void {
-  router.goto('/containers/play');
-}
-
 function fromDockerfile(): void {
   openChoiceModal = false;
   router.goto('/images/build');

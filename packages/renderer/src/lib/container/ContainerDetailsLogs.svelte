@@ -104,7 +104,7 @@ onMount(async () => {
   await refreshTerminal();
   fetchContainerLogs();
   // Resize the terminal each time we change the div size
-  resizeObserver = new ResizeObserver(entries => {
+  resizeObserver = new ResizeObserver(() => {
     termFit?.fit();
   });
 

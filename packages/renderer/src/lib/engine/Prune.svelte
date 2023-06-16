@@ -1,6 +1,5 @@
 <script lang="ts">
 import type { EngineInfoUI } from './EngineInfoUI';
-import type { MessageBoxReturnValue } from '../../../../main/src/plugin/message-box';
 
 // Imported type for prune (containers, images, pods, volumes)
 export let type: string;

@@ -4,7 +4,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import { Buffer } from 'buffer';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
 import { providerInfos } from '../../stores/providers';
-import { beforeUpdate, onMount } from 'svelte';
+import { onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
@@ -167,7 +167,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 }
 </script>
 
-<Route path="/*" breadcrumb="{connectionName} Settings" let:meta>
+<Route path="/*" breadcrumb="{connectionName} Settings">
   <div class="flex flex-1 flex-col bg-charcoal-600 px-2">
     <div class="flex flex-row align-middle my-4">
       <div class="capitalize text-xl">{connectionName} settings</div>
