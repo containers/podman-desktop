@@ -70,9 +70,19 @@
     "typecheck:renderer": "npm run build:preload:types && tsc --noEmit -p packages/renderer/tsconfig.json",
     "typecheck": "npm run typecheck:main && npm run typecheck:preload && npm run typecheck:renderer && npm run typecheck:preload-dd-extension",
     "website:build": "cd website && yarn run docusaurus build",
-    "website:dev": "cd website && yarn run docusaurus start"
+    "website:dev": "cd website && yarn run docusaurus start",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,svelte}": [
+      "eslint --cache --fix",
+      "prettier --write"
+    ],
+    "*.{md,css,json}": "prettier --write"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.6.5",
+    "@commitlint/config-conventional": "^17.6.5",
     "@playwright/test": "^1.35.0",
     "@rollup/plugin-commonjs": "^25.0.1",
     "@rollup/plugin-json": "^6.0.0",
@@ -100,6 +110,8 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-redundant-undefined": "^0.4.0",
     "eslint-plugin-sonarjs": "^0.19.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^13.2.2",
     "nock": "^13.3.1",
     "playwright": "1.35.0",
     "postcss-import": "^15.1.0",
