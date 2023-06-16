@@ -83,7 +83,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.6.5",
     "@commitlint/config-conventional": "^17.6.5",
-    "@playwright/test": "^1.35.0",
+    "@playwright/test": "^1.35.1",
     "@rollup/plugin-commonjs": "^25.0.1",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.1.0",
