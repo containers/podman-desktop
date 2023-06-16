@@ -4,6 +4,7 @@ import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
+import { router } from 'tinro';
 
 export let extensionId: string = undefined;
 
@@ -81,6 +82,18 @@ async function removeExtension() {
           {:else}
             <div class="text-gray-900 items-center px-2 text-sm">Default extension, cannot be removed</div>
           {/if}
+
+          <div class="px-2 text-sm italic text-gray-700">
+            <button
+              on:click="{() => router.goto(`/preferences/walkthrough/${extensionInfo.id}`)}"
+              class="pf-c-button pf-m-primary"
+              type="button">
+              <span class="pf-c-button__icon pf-m-start">
+                <i class="fas fa-play" aria-hidden="true"></i>
+              </span>
+              Walkthrough
+            </button>
+          </div>
         </div>
         {#if extensionInfo.error}
           <div class="flex flex-col">

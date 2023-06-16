@@ -36,6 +36,7 @@ import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-sta
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
+import type { ActiveOnboarding } from '../../main/src/plugin/api/onboarding';
 
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
@@ -1255,6 +1256,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('sendFeedback', async (feedback: FeedbackProperties): Promise<void> => {
     return ipcInvoke('feedback:send', feedback);
+  });
+
+  contextBridge.exposeInMainWorld('getOnboardingStep', async (extension: string): Promise<ActiveOnboarding> => {
+    return ipcInvoke('onboarding:getOnboardingStep', extension);
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

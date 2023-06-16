@@ -56,6 +56,7 @@ import type { Telemetry } from './telemetry/telemetry.js';
 import { TelemetryTrustedValue } from './types/telemetry.js';
 import { clipboard as electronClipboard } from 'electron';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
+import { OnboardingRegistry } from './onboarding-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -129,6 +130,7 @@ export class ExtensionLoader {
     private inputQuickPickRegistry: InputQuickPickRegistry,
     private authenticationProviderRegistry: AuthenticationImpl,
     private telemetry: Telemetry,
+    private onboardingRegistry: OnboardingRegistry,
   ) {}
 
   mapError(err: unknown): ExtensionError | undefined {
@@ -514,6 +516,11 @@ export class ExtensionLoader {
     const menus = extension.manifest?.contributes?.menus;
     if (menus) {
       this.menuRegistry.registerMenus(menus);
+    }
+
+    const onboarding = extension.manifest?.contributes?.onboarding;
+    if (onboarding) {
+      this.onboardingRegistry.registerOnboarding(extension.id, onboarding);
     }
 
     this.analyzedExtensions.set(extension.id, extension);

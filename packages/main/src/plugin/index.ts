@@ -106,6 +106,8 @@ import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog.js';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import { ExtensionsUpdater } from './extensions-updater/extensions-updater.js';
 import type { CatalogExtension } from './extensions-catalog/extensions-catalog-api.js';
+import { ActiveOnboarding } from './api/onboarding.js';
+import { OnboardingRegistry } from './onboarding-registry.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -363,6 +365,7 @@ export class PluginSystem {
     const statusBarRegistry = new StatusBarRegistry(apiSender);
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
+    const onboardingRegistry = new OnboardingRegistry(commandRegistry);
 
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
@@ -636,6 +639,7 @@ export class PluginSystem {
       inputQuickPickRegistry,
       authentication,
       telemetry,
+      onboardingRegistry,
     );
     await this.extensionLoader.init();
 
@@ -1529,6 +1533,10 @@ export class PluginSystem {
       if (!tokenSource?.token.isCancellationRequested) {
         tokenSource?.dispose(true);
       }
+    });
+
+    this.ipcHandle('onboarding:getOnboardingStep', async (_listener, extension: string): Promise<ActiveOnboarding> => {
+      return onboardingRegistry.getOnboardingStep(extension);
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

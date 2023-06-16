@@ -16,6 +16,7 @@ import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
+import PreferencesExtensionWalkthrough from './PreferencesExtensionWalkthrough.svelte';
 
 let properties: IConfigurationPropertyRecordedSchema[];
 let defaultPrefPageId: string;
@@ -53,6 +54,7 @@ onMount(async () => {
   <Route path="/extension/:extensionId/*" breadcrumb="Extensions" let:meta>
     <PreferencesExtensionRendering extensionId="{meta.params.extensionId}" />
   </Route>
+  
   <Route path="/provider/:providerInternalId/*" breadcrumb="Resources" let:meta>
     <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
   </Route>
@@ -81,6 +83,9 @@ onMount(async () => {
   <Route path="/extensions/install-from-id/:extensionId" breadcrumb="Install Extension from id" let:meta>
     <PreferencesInstallExtensionFromId extensionId="{meta.params.extensionId}" />
   </Route>
+  <Route path="/walkthrough/:extensionId" breadcrumb="Extension Walkthrough" let:meta>
+    <PreferencesExtensionWalkthrough extensionId="{meta.params.extensionId}" />
+  </Route> 
 
   <Route path="/container-connection/:provider/:connection/*" breadcrumb="Container Engine" let:meta>
     <PreferencesContainerConnectionRendering
