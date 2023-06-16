@@ -274,9 +274,9 @@ async function close() {
 }
 </script>
 
-<div class="flex flex-1 flex-col h-full px-6 overflow-auto">
+<div class="flex flex-col w-full h-full overflow-hidden">
   {#if creationSuccessful}
-    <div class="pf-c-empty-state h-full">
+    <div class="pf-c-empty-state h-full px-6">
       <div class="pf-c-empty-state__content">
         <i class="fas fa-cubes pf-c-empty-state__icon" aria-hidden="true"></i>
         <h1 class="pf-c-title pf-m-lg">Creation</h1>
@@ -293,7 +293,7 @@ async function close() {
       </div>
     </div>
   {:else}
-    <div class="my-2">
+    <div class="my-2 px-6">
       {#if providerInfo.images && providerInfo.images.icon}
         {#if typeof providerInfo.images.icon === 'string'}
           <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
@@ -303,103 +303,106 @@ async function close() {
         {/if}
       {/if}
     </div>
-    <h1 class="font-semibold">
+    <h1 class="font-semibold px-6 pb-2">
       {creationInProgress ? 'Creating' : 'Create a'}
       {providerDisplayName}
       {creationInProgress ? '...' : ''}
     </h1>
-    {#if pageIsLoading}
-      <div class="text-center mt-16">
-        <div role="status">
-          <Spinner />
-        </div>
-      </div>
-    {:else}
-      {#if creationStarted}
-        <div class="w-4/5 mt-2">
-          <div class="mt-2 mb-8">
-            {#if creationInProgress}
-              <LinearProgress />
-            {/if}
-            <div class="mt-2 float-right">
-              <button
-                aria-label="Show Logs"
-                class="text-xs mr-3 hover:underline"
-                on:click="{() => (showLogs = !showLogs)}"
-                >Show Logs <i class="fas {showLogs ? 'fa-angle-up' : 'fa-angle-down'}" aria-hidden="true"></i></button>
-              <button
-                aria-label="Cancel creation"
-                class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
-                disabled="{!tokenId}"
-                on:click="{cancel}">Cancel</button>
-              <button
-                class="text-xs hover:underline {creationInProgress ? 'hidden' : ''}"
-                aria-label="Close panel"
-                on:click="{close}">Close</button>
-            </div>
-          </div>
-          <div id="log" class="pt-2 h-80 {showLogs ? '' : 'hidden'}">
-            <div class="w-full h-full">
-              <TerminalWindow bind:terminal="{logsTerminal}" />
-            </div>
+    <div class="flex flex-col px-6 w-full h-full overflow-auto">
+      {#if pageIsLoading}
+        <div class="text-center mt-16">
+          <div role="status">
+            <Spinner />
           </div>
         </div>
-      {/if}
-      {#if errorMessage}
-        <div class="w-4/5 mt-2">
-          <ErrorMessage error="{errorMessage}" />
-        </div>
-      {/if}
-
-      <div class="p-3 mt-4 w-4/5 {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
-        <form novalidate class="p-2 space-y-7" on:submit|preventDefault="{handleOnSubmit}">
-          {#each configurationKeys as configurationKey}
-            <div class="mb-2.5">
-              <div class="font-semibold text-xs">
-                {#if configurationKey.description}
-                  {configurationKey.description}:
-                {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
-                  <Markdown>{configurationKey.markdownDescription}:</Markdown>
-                {/if}
-                {#if configurationValues.has(configurationKey.id)}
-                  {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
-                {:else}
-                  {getDisplayConfigurationValue(configurationKey)}
-                {/if}
+      {:else}
+        {#if creationStarted}
+          <div class="w-4/5">
+            <div class="mt-2 mb-8">
+              {#if creationInProgress}
+                <LinearProgress />
+              {/if}
+              <div class="mt-2 float-right">
+                <button
+                  aria-label="Show Logs"
+                  class="text-xs mr-3 hover:underline"
+                  on:click="{() => (showLogs = !showLogs)}"
+                  >Show Logs <i class="fas {showLogs ? 'fa-angle-up' : 'fa-angle-down'}" aria-hidden="true"></i
+                  ></button>
+                <button
+                  aria-label="Cancel creation"
+                  class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
+                  disabled="{!tokenId}"
+                  on:click="{cancel}">Cancel</button>
+                <button
+                  class="text-xs hover:underline {creationInProgress ? 'hidden' : ''}"
+                  aria-label="Close panel"
+                  on:click="{close}">Close</button>
               </div>
-              <PreferencesRenderingItemFormat
-                invalidRecord="{handleInvalidComponent}"
-                validRecord="{handleValidComponent}"
-                record="{configurationKey}"
-                setRecordValue="{setConfigurationValue}"
-                enableSlider="{true}" />
             </div>
-          {/each}
-          <div class="w-full">
-            <div class="float-right">
-              <button
-                class="pf-c-button underline hover:text-gray-700"
-                on:click="{() => router.goto('/preferences/resources')}">
-                Close
-              </button>
-              <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
-                <div class="mr-24">
-                  {#if creationInProgress === true}
-                    <i class="pf-c-button__progress">
-                      <span class="pf-c-spinner pf-m-md" role="progressbar">
-                        <span class="pf-c-spinner__clipper"></span>
-                        <span class="pf-c-spinner__lead-ball"></span>
-                        <span class="pf-c-spinner__tail-ball"></span>
-                      </span>
-                    </i>
+            <div id="log" class="pt-2 h-80 {showLogs ? '' : 'hidden'}">
+              <div class="w-full h-full">
+                <TerminalWindow bind:terminal="{logsTerminal}" />
+              </div>
+            </div>
+          </div>
+        {/if}
+        {#if errorMessage}
+          <div class="w-4/5 mt-2">
+            <ErrorMessage error="{errorMessage}" />
+          </div>
+        {/if}
+
+        <div class="p-3 mt-2 w-4/5 h-fit {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
+          <form novalidate class="p-2 space-y-7 h-fit" on:submit|preventDefault="{handleOnSubmit}">
+            {#each configurationKeys as configurationKey}
+              <div class="mb-2.5">
+                <div class="font-semibold text-xs">
+                  {#if configurationKey.description}
+                    {configurationKey.description}:
+                  {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
+                    <Markdown>{configurationKey.markdownDescription}:</Markdown>
+                  {/if}
+                  {#if configurationValues.has(configurationKey.id)}
+                    {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
+                  {:else}
+                    {getDisplayConfigurationValue(configurationKey)}
                   {/if}
                 </div>
-                Create
-              </button>
+                <PreferencesRenderingItemFormat
+                  invalidRecord="{handleInvalidComponent}"
+                  validRecord="{handleValidComponent}"
+                  record="{configurationKey}"
+                  setRecordValue="{setConfigurationValue}"
+                  enableSlider="{true}" />
+              </div>
+            {/each}
+            <div class="w-full">
+              <div class="float-right">
+                <button
+                  class="pf-c-button underline hover:text-gray-700"
+                  on:click="{() => router.goto('/preferences/resources')}">
+                  Close
+                </button>
+                <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
+                  <div class="mr-24">
+                    {#if creationInProgress === true}
+                      <i class="pf-c-button__progress">
+                        <span class="pf-c-spinner pf-m-md" role="progressbar">
+                          <span class="pf-c-spinner__clipper"></span>
+                          <span class="pf-c-spinner__lead-ball"></span>
+                          <span class="pf-c-spinner__tail-ball"></span>
+                        </span>
+                      </i>
+                    {/if}
+                  </div>
+                  Create
+                </button>
+              </div>
             </div>
-          </div>
-        </form>
-      </div>
-    {/if}
+          </form>
+        </div>
+      {/if}
+    </div>
   {/if}
 </div>
