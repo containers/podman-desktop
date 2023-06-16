@@ -122,7 +122,7 @@ export class Telemetry {
       // the user has been prompted, either configure the telemetry system or disable it based on their preference
       if (this.isTelemetryEnabled()) {
         this.configureTelemetry().catch((err: unknown) => {
-          console.log(`Error initializing telemetry: ${err}`);
+          console.error(`Error initializing telemetry: ${err}`);
         });
       } else {
         this.telemetryInitialized = true;
