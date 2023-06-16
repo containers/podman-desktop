@@ -17,6 +17,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+. "$(dirname -- "$0")/_/husky.sh"
+
 set -u
 
 # avoid [[ which is not POSIX sh.
