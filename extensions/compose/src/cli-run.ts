@@ -142,7 +142,7 @@ export class CliRun {
     // and the appropriate command to move the binary to the destination path
     let destinationPath: string;
     let command: string[];
-    if (system == 'win32') {
+    if (system === 'win32') {
       destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
       command = ['copy', `"${binaryPath}"`, `"${destinationPath}"`];
     } else {

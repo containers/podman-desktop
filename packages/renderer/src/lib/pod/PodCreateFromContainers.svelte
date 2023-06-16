@@ -286,7 +286,7 @@ function updatePortExposure(port: number, checked: boolean) {
               </select>
             </label>
           {/if}
-          {#if providerConnections.length == 1}
+          {#if providerConnections.length === 1}
             <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
           {/if}
         </div>

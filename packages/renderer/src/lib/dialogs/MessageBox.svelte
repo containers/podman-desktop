@@ -50,7 +50,7 @@ const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
   if (options.defaultId) {
     defaultId = options.defaultId;
   } else {
-    if (cancelId == 0) {
+    if (cancelId === 0) {
       defaultId = 1;
     } else {
       defaultId = 0;
@@ -59,9 +59,9 @@ const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
 
   // move cancel button to the start/left and default button to the end/right
   buttonOrder.sort((a, b) => {
-    if (a == cancelId || b == defaultId) {
+    if (a === cancelId || b === defaultId) {
       return -1;
-    } else if (a == defaultId || b == cancelId) {
+    } else if (a === defaultId || b === cancelId) {
       return 1;
     } else {
       return a - b;
@@ -145,14 +145,14 @@ function handleKeydown(e: KeyboardEvent) {
 
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
         {#each buttonOrder as i}
-          {#if i == cancelId}
+          {#if i === cancelId}
             <button aria-label="Cancel" class="text-xs hover:underline" on:click="{() => clickButton(i)}"
               >Cancel</button>
           {:else}
             <button
               class="pf-c-button transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center pb-1"
-              class:pf-m-primary="{defaultId == i}"
-              class:pf-m-secondary="{defaultId != i}"
+              class:pf-m-primary="{defaultId === i}"
+              class:pf-m-secondary="{defaultId !== i}"
               on:click="{() => clickButton(i)}">{buttons[i]}</button>
           {/if}
         {/each}

@@ -42,7 +42,7 @@ export class ProgressImpl {
       token: extensionApi.CancellationToken,
     ) => Promise<R>,
   ): Promise<R> {
-    if (options.location == ProgressLocation.APP_ICON) {
+    if (options.location === ProgressLocation.APP_ICON) {
       return this.withApplicationIcon(options, task);
     } else {
       return this.withWidget(options, task);

@@ -188,7 +188,7 @@ export class PluginSystem {
     const currentExtList = await this.extensionLoader.listExtensions();
 
     //Only loop through if list of extensions is different than last time
-    if (this.validExtList != currentExtList) {
+    if (this.validExtList !== currentExtList) {
       this.validExtList = currentExtList;
       //start setting path => name
       this.validExtList.forEach((extInfo: ExtensionInfo) => {
@@ -204,7 +204,7 @@ export class PluginSystem {
         if (stack.includes(extPath)) toAppend = name;
       });
 
-      if (toAppend != '') return `[${toAppend}]`;
+      if (toAppend !== '') return `[${toAppend}]`;
     }
   }
 

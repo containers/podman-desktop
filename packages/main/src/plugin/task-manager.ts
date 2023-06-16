@@ -45,7 +45,7 @@ export class TaskManager {
 
   public updateTask(task: Task) {
     this.apiSender.send('task-updated', task);
-    if (task.state == 'completed') {
+    if (task.state === 'completed') {
       this.tasks.delete(task.id);
     }
   }

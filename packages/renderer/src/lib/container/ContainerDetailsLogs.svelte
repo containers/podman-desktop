@@ -27,7 +27,7 @@ let termFit: FitAddon;
 $: {
   if (
     refContainer &&
-    (refContainer.id !== container.id || (refContainer.state != container.state && container.state !== 'EXITED'))
+    (refContainer.id !== container.id || (refContainer.state !== container.state && container.state !== 'EXITED'))
   ) {
     logsTerminal?.clear();
     fetchContainerLogs();

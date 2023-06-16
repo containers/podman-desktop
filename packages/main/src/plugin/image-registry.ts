@@ -88,7 +88,7 @@ export class ImageRegistry {
     const splitParts = imageName.split('/');
     if (
       splitParts.length === 1 ||
-      (!splitParts[0].includes('.') && !splitParts[0].includes(':') && splitParts[0] != 'localhost')
+      (!splitParts[0].includes('.') && !splitParts[0].includes(':') && splitParts[0] !== 'localhost')
     ) {
       return 'docker.io';
     } else {

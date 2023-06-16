@@ -38,9 +38,9 @@ export class ImageHandler {
 
     // Throw an error if there is no clusters,
     // but if there are multiple ones, prompt the user to select one
-    if (clusters.length == 0) {
+    if (clusters.length === 0) {
       throw new Error('No Kind clusters to push to');
-    } else if (clusters.length == 1) {
+    } else if (clusters.length === 1) {
       selectedCluster = { label: clusters[0].name, engineType: clusters[0].engineType };
     } else {
       selectedCluster = await extensionApi.window.showQuickPick(

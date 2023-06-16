@@ -58,9 +58,9 @@ test('Ensure error is returned if no milestone', async () => {
 test('Ensure empty if no pull requests', async () => {
   let index = 0;
   (graphql as unknown as Mock).mockImplementation(async () => {
-    if (++index == 1) {
+    if (++index === 1) {
       return { organization: { repository: { milestones: { nodes: [{ title: '1.0' }] } } } };
-    } else if (index == 2) {
+    } else if (index === 2) {
       return EMPTY_PULL_REQUESTS_RESPONSE;
     }
   });
@@ -75,9 +75,9 @@ const EMPTY_PULL_REQUESTS_RESPONSE = {
 test('Ensure Other category if pull request without conventional commit', async () => {
   let index = 0;
   (graphql as unknown as Mock).mockImplementation(async () => {
-    if (++index == 1) {
+    if (++index === 1) {
       return { organization: { repository: { milestones: { nodes: [{ title: '1.0' }] } } } };
-    } else if (index == 2) {
+    } else if (index === 2) {
       return {
         organization: {
           repository: {
@@ -114,9 +114,9 @@ test('Ensure Other category if pull request without conventional commit', async 
 test('Ensure all sections are extracted', async () => {
   let index = 0;
   (graphql as unknown as Mock).mockImplementation(async () => {
-    if (++index == 1) {
+    if (++index === 1) {
       return { organization: { repository: { milestones: { nodes: [{ title: '1.0' }] } } } };
-    } else if (index == 2) {
+    } else if (index === 2) {
       return {
         organization: {
           repository: {
@@ -162,9 +162,9 @@ test('Ensure all sections are extracted', async () => {
 test('Ensure category from pull request conventional commit', async () => {
   let index = 0;
   (graphql as unknown as Mock).mockImplementation(async () => {
-    if (++index == 1) {
+    if (++index === 1) {
       return { organization: { repository: { milestones: { nodes: [{ title: '1.0' }] } } } };
-    } else if (index == 2) {
+    } else if (index === 2) {
       return {
         organization: {
           repository: {
@@ -201,9 +201,9 @@ test('Ensure category from pull request conventional commit', async () => {
 test('Ensure unterminated section is extracted', async () => {
   let index = 0;
   (graphql as unknown as Mock).mockImplementation(async () => {
-    if (++index == 1) {
+    if (++index === 1) {
       return { organization: { repository: { milestones: { nodes: [{ title: '1.0' }] } } } };
-    } else if (index == 2) {
+    } else if (index === 2) {
       return {
         organization: {
           repository: {

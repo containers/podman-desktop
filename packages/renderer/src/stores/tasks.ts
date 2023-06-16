@@ -37,7 +37,7 @@ export function removeTask(id: string) {
 
 function updateTask(task: Task) {
   tasksInfo.update(tasks => {
-    tasks = tasks.filter(t => t.id != task.id);
+    tasks = tasks.filter(t => t.id !== task.id);
     tasks.push(task);
     return tasks;
   });
