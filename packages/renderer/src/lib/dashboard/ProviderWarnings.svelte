@@ -1,6 +1,5 @@
 <script lang="ts">
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import type * as extensionApi from '@podman-desktop/api';
 import { providerInfos } from '../../stores/providers';
 
 export let provider: ProviderInfo;

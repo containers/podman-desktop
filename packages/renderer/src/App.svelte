@@ -8,7 +8,6 @@ import { router } from 'tinro';
 
 import Route from './Route.svelte';
 import ContainerList from './lib/ContainerList.svelte';
-import { onMount } from 'svelte';
 import ImagesList from './lib/ImagesList.svelte';
 import ProviderList from './lib/ProviderList.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
@@ -16,8 +15,6 @@ import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile
 import PullImage from './lib/image/PullImage.svelte';
 import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
 import ContainerDetails from './lib/container/ContainerDetails.svelte';
-import { providerInfos } from './stores/providers';
-import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import DashboardPage from './lib/dashboard/DashboardPage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
@@ -48,18 +45,6 @@ router.subscribe(function (navigation) {
   if (navigation.url !== undefined && !navigation.url.startsWith('/preferences')) {
     nonSettingsPage = navigation.url;
   }
-});
-
-let providers: ProviderInfo[] = [];
-$: providerConnections = providers
-  .map(provider => provider.containerConnections)
-  .flat()
-  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-
-onMount(() => {
-  providerInfos.subscribe(value => {
-    providers = value;
-  });
 });
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

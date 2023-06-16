@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount, tick, onDestroy } from 'svelte';
+import { onMount, onDestroy } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 let providerUnsubscribe: Unsubscriber;

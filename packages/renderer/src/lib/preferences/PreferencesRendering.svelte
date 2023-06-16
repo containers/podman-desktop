@@ -46,7 +46,7 @@ function updateSearchValue(event: any) {
 }
 </script>
 
-<Route path="/" breadcrumb="{key}" let:meta>
+<Route path="/" breadcrumb="{key}">
   <SettingsPage title="Preferences">
     <div class="bg-charcoal-900">
       <div

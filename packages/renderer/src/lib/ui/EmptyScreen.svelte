@@ -1,7 +1,7 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faPaste } from '@fortawesome/free-solid-svg-icons';
-import { onMount, SvelteComponent } from 'svelte';
+import { onMount } from 'svelte';
 
 export let icon: any;
 export let title = 'No title';

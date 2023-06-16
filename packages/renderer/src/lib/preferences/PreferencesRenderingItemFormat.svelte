@@ -11,13 +11,13 @@ import Tooltip from '../ui/Tooltip.svelte';
 let invalidEntry = false;
 let invalidText = undefined;
 export let showUpdate = false;
-export let invalidRecord = (error: string) => {};
+export let invalidRecord = (_error: string) => {};
 export let validRecord = () => {};
-export let updateResetButtonVisibility = (recordValue: any) => {};
+export let updateResetButtonVisibility = (_recordValue: any) => {};
 export let resetToDefault = false;
 export let enableAutoSave = false;
 
-export let setRecordValue = (id: string, value: string) => {};
+export let setRecordValue = (_id: string, _value: string) => {};
 export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
 

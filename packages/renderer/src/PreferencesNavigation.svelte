@@ -6,9 +6,8 @@ import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration
 
 export let meta;
 
-let extensions, configProperties: Map<string, { id: string; title: string }>;
+let configProperties: Map<string, { id: string; title: string }>;
 
-$: extensions = [];
 $: configProperties = new Map();
 $: sectionExpanded = {};
 
@@ -17,9 +16,6 @@ function toggleSection(provider: string) {
 }
 
 onMount(async () => {
-  extensionInfos.subscribe(value => {
-    extensions = value;
-  });
   configurationProperties.subscribe(value => {
     configProperties = value
       .filter(property => property.scope === CONFIGURATION_DEFAULT_SCOPE)

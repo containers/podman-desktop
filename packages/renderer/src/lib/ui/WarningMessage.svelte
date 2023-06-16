@@ -1,11 +1,6 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
-import {
-  faChevronDown,
-  faChevronRight,
-  faExclamationCircle,
-  faTriangleExclamation,
-} from '@fortawesome/free-solid-svg-icons';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import Tooltip from './Tooltip.svelte';
 
 export let error: string;

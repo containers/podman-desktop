@@ -1,6 +1,5 @@
 <script lang="ts">
 import StarIcon from './StarIcon.svelte';
-import { SvelteComponent } from 'svelte';
 
 // status: one of RUNNING, STARTING, USED, CREATED, or DEGRADED
 // any other status will result in a standard outlined box

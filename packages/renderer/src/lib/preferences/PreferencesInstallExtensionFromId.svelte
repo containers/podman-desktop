@@ -51,7 +51,7 @@ $: latestVersionNumber = latestVersion ? `v${latestVersion.version}` : '';
 $: latestVersionOciLink = latestVersion ? latestVersion.ociUri : undefined;
 $: latestVersionIcon = latestVersion ? latestVersion.files.find(f => f.assetType === 'icon')?.data : undefined;
 $: latestVersionReadme = latestVersion ? latestVersion.files.find(f => f.assetType === 'README')?.data : undefined;
-$: latestVersionReadmeContent = fetchReadmeContent(latestVersionReadme);
+$: fetchReadmeContent(latestVersionReadme);
 $: isInstalled = installedExtensions.find(e => e.id === extensionId) !== undefined;
 
 let installInProgress = false;

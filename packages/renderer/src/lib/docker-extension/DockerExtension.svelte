@@ -38,7 +38,7 @@ window.events?.receive('dev-tools:open-extension', extensionId => {
 </script>
 
 {#if source && preloadPath}
-  <Route path="/*" breadcrumb="{name}" let:meta>
+  <Route path="/*" breadcrumb="{name}">
     <webview
       id="dd-webview-{webviewId}"
       src="{source}?extensionName={currentContrib.extensionId}&arch={arch}&hostname={hostname}&platform={platform}"

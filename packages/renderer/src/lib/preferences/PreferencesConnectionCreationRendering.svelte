@@ -133,7 +133,7 @@ onDestroy(() => {
   }
 });
 
-function handleInvalidComponent(_error: string) {
+function handleInvalidComponent() {
   isValid = false;
 }
 
