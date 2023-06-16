@@ -157,7 +157,7 @@ export function runCliCommand(
     });
 
     spawnProcess.on('close', exitCode => {
-      if (exitCode == 0) {
+      if (exitCode === 0) {
         resolve({ stdOut, stdErr, error: err });
       } else {
         if (options?.logger) {
@@ -191,7 +191,7 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
   // and the appropriate command to move the binary to the destination path
   let destinationPath: string;
   let command: string[];
-  if (system == 'win32') {
+  if (system === 'win32') {
     destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
     command = ['copy', `"${binaryPath}"`, `"${destinationPath}"`];
   } else {

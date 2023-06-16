@@ -162,7 +162,7 @@ function validateImageName(event): void {
               </div>
             </div>
           {/if}
-          {#if providerConnections.length == 1}
+          {#if providerConnections.length === 1}
             <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection}" />
           {/if}
         </div>

@@ -27,13 +27,13 @@ function DownloadClientLinks() {
   let varIcon = null;
   const userAgent = navigator.userAgent;
 
-  if (userAgent.indexOf('Windows') != -1) {
+  if (userAgent.indexOf('Windows') !== -1) {
     operatingSystem = 'Windows';
     varIcon = 'faWindows';
-  } else if (userAgent.indexOf('Mac') != -1) {
+  } else if (userAgent.indexOf('Mac') !== -1) {
     operatingSystem = 'macOS';
     varIcon = 'faApple';
-  } else if (userAgent.indexOf('Linux') != -1) {
+  } else if (userAgent.indexOf('Linux') !== -1) {
     operatingSystem = 'Linux';
     varIcon = 'faLinux';
   }

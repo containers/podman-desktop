@@ -21,7 +21,7 @@ let logsTerminal: Terminal;
 
 // need to refresh logs when pod is switched or state changes
 $: {
-  if (refPod && (refPod.id !== pod.id || (refPod.status != pod.status && pod.status !== 'EXITED'))) {
+  if (refPod && (refPod.id !== pod.id || (refPod.status !== pod.status && pod.status !== 'EXITED'))) {
     logsTerminal?.clear();
     fetchPodLogs();
   }

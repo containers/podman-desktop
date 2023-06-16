@@ -177,7 +177,7 @@ async function getKubernetesfileLocation() {
                       </select>
                     </label>
                   {/if}
-                  {#if providerConnections.length == 1}
+                  {#if providerConnections.length === 1}
                     <input
                       type="hidden"
                       name="providerChoice"

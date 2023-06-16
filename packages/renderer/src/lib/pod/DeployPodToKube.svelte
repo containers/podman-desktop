@@ -197,11 +197,11 @@ async function deployToKube() {
     // Check that there are services (servicesToCreate), if there aren't. Warn that we can't create an ingress.
     // All services are always created with one port (the first one), so we can use that port to create the ingress.
     // Must be a number
-    if (servicesToCreate.length == 0) {
+    if (servicesToCreate.length === 0) {
       deployWarning = 'You need to deploy using services to create an ingress.';
       deployStarted = false;
       return;
-    } else if (servicesToCreate.length == 1) {
+    } else if (servicesToCreate.length === 1) {
       serviceName = servicesToCreate[0].metadata.name;
       servicePort = servicesToCreate[0].spec.ports[0].port;
     } else if (servicesToCreate.length > 1) {
@@ -212,7 +212,7 @@ async function deployToKube() {
         deployStarted = false;
         return;
       }
-      const matchingService = servicesToCreate.find(service => service.spec.ports[0].port == ingressPort);
+      const matchingService = servicesToCreate.find(service => service.spec.ports[0].port === ingressPort);
       if (matchingService) {
         serviceName = matchingService.metadata.name;
         servicePort = matchingService.spec.ports[0].port;

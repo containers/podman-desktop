@@ -273,7 +273,7 @@ export class WinInstaller extends BaseInstaller {
         if (fs.existsSync(setupPath)) {
           const runResult = await runCliCommand(setupPath, ['/install', '/norestart']);
           //check if user cancelled installation see https://learn.microsoft.com/en-us/previous-versions//aa368542(v=vs.85)
-          if (runResult.exitCode != 1602) {
+          if (runResult.exitCode !== 1602) {
             if (runResult.exitCode !== 0) {
               throw new Error(runResult.stdErr);
             }

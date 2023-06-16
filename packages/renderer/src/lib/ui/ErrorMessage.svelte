@@ -8,7 +8,7 @@ export let icon = false;
 </script>
 
 {#if icon}
-  {#if error != undefined && error !== ''}
+  {#if error !== undefined && error !== ''}
     <Tooltip tip="{error}" top>
       <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
     </Tooltip>
@@ -16,7 +16,7 @@ export let icon = false;
 {:else}
   <div
     class="text-red-500 p-1 flex flex-row items-center {$$props.class}"
-    class:opacity-0="{error == undefined || error === ''}">
+    class:opacity-0="{error === undefined || error === ''}">
     <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
     <div class="ml-2">{error}</div>
   </div>
