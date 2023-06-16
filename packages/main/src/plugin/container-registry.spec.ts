@@ -33,7 +33,13 @@ vi.mock('dockerode', async () => {
   };
 });
 
-let containerRegistry: ContainerProviderRegistry;
+class TestContainerProviderRegistry extends ContainerProviderRegistry {
+  public getMatchingEngine(engineId: string): Dockerode {
+    return super.getMatchingEngine(engineId);
+  }
+}
+
+let containerRegistry: TestContainerProviderRegistry;
 
 const telemetryTrackMock = vi.fn().mockResolvedValue({});
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
@@ -50,7 +56,7 @@ beforeEach(() => {
   } as unknown as Proxy;
 
   const imageRegistry = new ImageRegistry({} as ApiSenderType, telemetry, certificates, proxy);
-  containerRegistry = new ContainerProviderRegistry({} as ApiSenderType, imageRegistry, telemetry);
+  containerRegistry = new TestContainerProviderRegistry({} as ApiSenderType, imageRegistry, telemetry);
 });
 
 test('tag should reject if no provider', async () => {
