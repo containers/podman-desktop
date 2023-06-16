@@ -36,8 +36,8 @@
         "parser": "@typescript-eslint/parser"
       }
     }
-]
-,  "settings": {
+  ],
+  "settings": {
     "import/resolver": {
       "typescript": true,
       "node": true,
@@ -69,29 +69,21 @@
     "@typescript-eslint/no-misused-promises": "error",
     "@typescript-eslint/prefer-optional-chain": "error",
 
-  /**
-   * Having a semicolon helps the optimizer interpret your code correctly.
-   * This avoids rare errors in optimized code.
-   * @see https://twitter.com/alex_kozack/status/1364210394328408066
-   */
-    "semi": [
-      "error",
-      "always"
-    ],
+    /**
+     * Having a semicolon helps the optimizer interpret your code correctly.
+     * This avoids rare errors in optimized code.
+     * @see https://twitter.com/alex_kozack/status/1364210394328408066
+     */
+    "semi": ["error", "always"],
     /**
      * This will make the history of changes in the hit a little cleaner
      */
-    "comma-dangle": [
-      "warn",
-      "always-multiline"
-    ],
+    "comma-dangle": ["warn", "always-multiline"],
     /**
      * Just for beauty
      */
-    "quotes": [
-      "warn", "single"
-    ],
-    "import/no-duplicates" : "error",
+    "quotes": ["warn", "single"],
+    "import/no-duplicates": "error",
     "import/no-unresolved": "off",
     "import/default": "off",
     "import/no-named-as-default-member": "off",
