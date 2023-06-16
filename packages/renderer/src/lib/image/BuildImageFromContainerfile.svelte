@@ -113,6 +113,13 @@ async function getContainerfileLocation() {
   if (!result.canceled && result.filePaths.length === 1) {
     containerFilePath = result.filePaths[0];
     hasInvalidFields = false;
+
+    // Extract the name of the folder containing the Containerfile
+    const folderName = containerFilePath.split('/').slice(-2, -1)[0];
+
+    // Set containerImageName to folderName
+    containerImageName = folderName;
+
     if (!containerBuildContextDirectory) {
       // select the parent directory of the file as default
       containerBuildContextDirectory = containerFilePath.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
