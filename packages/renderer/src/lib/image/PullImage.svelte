@@ -123,7 +123,7 @@ function validateImageName(event): void {
     </button>
   </div>
 
-  <div slot="empty" class="p-5">
+  <div slot="content" class="p-5">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else}

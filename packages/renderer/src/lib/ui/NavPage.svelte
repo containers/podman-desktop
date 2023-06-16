@@ -46,8 +46,6 @@ export let searchEnabled = true;
       </div>
     {/if}
 
-    <slot name="table" />
-
-    <slot name="empty" />
+    <slot name="content" />
   </div>
 </div>
