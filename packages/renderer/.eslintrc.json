@@ -17,5 +17,5 @@
     "svelte/no-at-html-tags": "off",
     "no-useless-escape": "off",
     "no-empty": "off"
-    }
+  }
 }
