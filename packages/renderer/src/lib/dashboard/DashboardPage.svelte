@@ -36,7 +36,7 @@ function getInitializationContext(id: string) {
 </script>
 
 <NavPage searchEnabled="{false}" title="Dashboard">
-  <div slot="empty" class="flex flex-col h-full bg-charcoal-700 shadow-nav pt-5 overflow-hidden">
+  <div slot="content" class="flex flex-col h-full bg-charcoal-700 shadow-nav pt-5 overflow-hidden">
     <div class="min-w-full flex-1 overflow-auto">
       <div class="px-5 space-y-5 h-full">
         <!-- Provider is ready display a box to indicate some information -->

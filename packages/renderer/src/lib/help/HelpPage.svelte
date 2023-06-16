@@ -18,7 +18,7 @@ $: contributedLinks = $providerInfos
 </script>
 
 <NavPage searchEnabled="{false}" title="Help">
-  <div slot="empty" class="flex flex-col min-h-full bg-zinc-700">
+  <div slot="content" class="flex flex-col min-h-full bg-zinc-700">
     <div class="min-w-full flex-1 pt-5 px-5 pb-5 space-y-5">
       <!-- Getting Started -->
       <div class="bg-charcoal-600 px-3 pt-3 pb-3 rounded-lg">
