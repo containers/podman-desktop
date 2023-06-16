@@ -3,6 +3,7 @@ import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { providerInfos } from '../../stores/providers';
 import type {
+  CheckStatus,
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
@@ -10,7 +11,7 @@ import type {
 import { onDestroy, onMount } from 'svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '../../stores/configurationProperties';
-import type { ContainerProviderConnection, provider } from '@podman-desktop/api';
+import type { ContainerProviderConnection } from '@podman-desktop/api';
 import type { Unsubscriber } from 'svelte/store';
 import Tooltip from '../ui/Tooltip.svelte';
 import { filesize } from 'filesize';
@@ -23,6 +24,7 @@ import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
+import PreferencesProviderInstallationModal from './PreferencesProviderInstallationModal.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   value?: any;
@@ -33,8 +35,13 @@ interface IProviderContainerConfigurationPropertyRecorded extends IConfiguration
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();
+$: providerInstallationInProgress = new Map<string, boolean>();
 
 let isStatusUpdated = false;
+let displayInstallModal = false;
+let providerToBeInstalled: { provider: ProviderInfo; displayName: string };
+let doExecuteAfterInstallation: () => void;
+$: preflightChecks = [];
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 let restartingQueue: IConnectionRestart[] = [];
@@ -50,6 +57,16 @@ onMount(() => {
     providers = providerInfosValue;
     const connectionNames = [];
     providers.forEach(provider => {
+      if (
+        providerToBeInstalled &&
+        doExecuteAfterInstallation &&
+        provider.name === providerToBeInstalled.provider.name &&
+        (provider.status === 'ready' || provider.status === 'installed')
+      ) {
+        providerToBeInstalled = undefined;
+        doExecuteAfterInstallation();
+      }
+
       provider.containerConnections.forEach(container => {
         const containerConnectionName = getProviderConnectionName(provider, container);
         connectionNames.push(containerConnectionName);
@@ -142,7 +159,7 @@ $: Promise.all(
   providers.map(async provider => {
     const providerContainer = await Promise.all(
       provider.containerConnections.map(async container => {
-        const containerConfigurations = await Promise.all(
+        return await Promise.all(
           configurationKeys.map(async configurationKey => {
             return {
               ...configurationKey,
@@ -155,7 +172,6 @@ $: Promise.all(
             };
           }),
         );
-        return containerConfigurations;
       }),
     );
     return providerContainer.flat();
@@ -212,6 +228,61 @@ async function startConnectionProvider(
     eventCollect,
   );
 }
+
+async function doCreateNew(provider: ProviderInfo, displayName: string) {
+  displayInstallModal = false;
+  if (provider.status === 'not-installed') {
+    providerInstallationInProgress.set(provider.name, true);
+    providerInstallationInProgress = providerInstallationInProgress;
+    providerToBeInstalled = { provider, displayName };
+    doExecuteAfterInstallation = () => router.goto(`/preferences/provider/${provider.internalId}`);
+    performInstallation(provider);
+  } else {
+    router.goto(`/preferences/provider/${provider.internalId}`);
+  }
+}
+
+async function performInstallation(provider: ProviderInfo) {
+  const checksStatus = [];
+  let checkSuccess = false;
+  let currentCheck: CheckStatus;
+  try {
+    checkSuccess = await window.runInstallPreflightChecks(provider.internalId, {
+      endCheck: status => {
+        if (currentCheck) {
+          currentCheck = status;
+        } else {
+          return;
+        }
+        if (currentCheck.successful === false) {
+          checksStatus.push(currentCheck);
+          preflightChecks = checksStatus;
+        }
+      },
+      startCheck: status => {
+        currentCheck = status;
+        if (currentCheck.successful === false) {
+          preflightChecks = [...checksStatus, currentCheck];
+        }
+      },
+    });
+  } catch (err) {
+    console.error(err);
+  }
+  if (checkSuccess) {
+    await window.installProvider(provider.internalId);
+    // reset checks
+    preflightChecks = [];
+  } else {
+    displayInstallModal = true;
+  }
+  providerInstallationInProgress.set(provider.name, false);
+  providerInstallationInProgress = providerInstallationInProgress;
+}
+
+function hideInstallModal() {
+  displayInstallModal = false;
+}
 </script>
 
 <SettingsPage title="Resources">
@@ -227,6 +298,7 @@ async function startConnectionProvider(
       title="No resources found"
       message="Start an extension that manages containers or Kubernetes engines"
       hidden="{providers.length > 0}" />
+
     {#each providers as provider}
       <div class="bg-charcoal-600 mb-5 rounded-md p-3 divide-x divide-gray-900 flex">
         <div>
@@ -263,7 +335,16 @@ async function startConnectionProvider(
                     class="pf-c-button pf-m-primary"
                     aria-label="Create new {providerDisplayName}"
                     type="button"
-                    on:click="{() => router.goto(`/preferences/provider/${provider.internalId}`)}">
+                    on:click="{() => doCreateNew(provider, providerDisplayName)}">
+                    {#if providerInstallationInProgress.get(provider.name) === true}
+                      <i class="pf-c-button__progress">
+                        <span class="pf-c-spinner pf-m-md" role="progressbar">
+                          <span class="pf-c-spinner__clipper"></span>
+                          <span class="pf-c-spinner__lead-ball"></span>
+                          <span class="pf-c-spinner__tail-ball"></span>
+                        </span>
+                      </i>
+                    {/if}
                     {buttonTitle} ...
                   </button>
                 </Tooltip>
@@ -355,4 +436,11 @@ async function startConnectionProvider(
       </div>
     {/each}
   </div>
+  {#if displayInstallModal}
+    <PreferencesProviderInstallationModal
+      providerToBeInstalled="{providerToBeInstalled}"
+      preflightChecks="{preflightChecks}"
+      closeCallback="{hideInstallModal}"
+      doCreateNew="{doCreateNew}" />
+  {/if}
 </SettingsPage>

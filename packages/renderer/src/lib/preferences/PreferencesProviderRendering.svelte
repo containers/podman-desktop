@@ -22,7 +22,7 @@ export let taskId: number = undefined;
 let showModal: ProviderInfo = undefined;
 
 let providerLifecycleError = '';
-router.subscribe(async route => {
+router.subscribe(() => {
   providerLifecycleError = '';
 });
 
@@ -36,22 +36,17 @@ onMount(() => {
 
 let providerInfo: ProviderInfo;
 $: providerInfo = providers.filter(provider => provider.internalId === providerInternalId)[0];
-let waiting = false;
 
 let logsTerminal: Terminal;
 
 async function startProvider(): Promise<void> {
-  waiting = true;
   await window.startProviderLifecycle(providerInfo.internalId);
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
-  waiting = false;
 }
 
 async function stopProvider(): Promise<void> {
-  waiting = true;
   await window.stopProviderLifecycle(providerInfo.internalId);
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
-  waiting = false;
 }
 
 async function startReceivingLogs(provider: ProviderInfo): Promise<void> {
@@ -66,7 +61,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 }
 </script>
 
-<Route path="/*" breadcrumb="{providerInfo?.name}" let:meta>
+<Route path="/*" breadcrumb="{providerInfo?.name}">
   <div class="flex flex-1 flex-col bg-charcoal-800 py-1 h-full">
     <div class="px-6">
       <button
