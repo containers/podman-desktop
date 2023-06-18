@@ -19,8 +19,8 @@
 import * as extensionApi from '@podman-desktop/api';
 import * as path from 'path';
 import * as os from 'os';
-import * as fs from 'fs';
 
+import { execPromise, getLimactl } from './limactl';
 import { configuration } from '@podman-desktop/api';
 
 function registerProvider(
@@ -51,28 +51,75 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const limaHome = os.homedir(); // TODO: look for the LIMA_HOME environment variable
   const socketPath = path.resolve(limaHome, '.lima/' + instanceName + '/sock/' + engineType + '.sock');
 
-  let provider;
-  if (fs.existsSync(socketPath)) {
-    provider = extensionApi.provider.createProvider({
-      name: 'Lima',
-      id: 'lima',
-      status: 'unknown',
-      images: {
-        icon: './icon.png',
-        logo: {
-          dark: './logo-dark.png',
-          light: './logo-light.png',
-        },
+  const provider = extensionApi.provider.createProvider({
+    name: 'Lima',
+    id: 'lima',
+    status: 'unknown',
+    images: {
+      icon: './icon.png',
+      logo: {
+        dark: './logo-dark.png',
+        light: './logo-light.png',
       },
-    });
-    extensionContext.subscriptions.push(provider);
+    },
+  });
+  extensionContext.subscriptions.push(provider);
+
+  provider.setContainerProviderConnectionFactory({
+    initialize: () => createInstance({}, undefined),
+    create: createInstance,
+    creationDisplayName: 'Lima instance',
+  });
+
+  registerProvider(extensionContext, provider, socketPath);
+}
+
+export async function createInstance(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params: { [key: string]: any },
+  logger: extensionApi.Logger,
+  token?: extensionApi.CancellationToken,
+): Promise<void> {
+  const parameters = [];
+  parameters.push('start');
+
+  // name
+  if (params['lima.factory.instance.name']) {
+    parameters.push('--name');
+    parameters.push(params['lima.factory.instance.name']);
   }
 
-  if (fs.existsSync(socketPath)) {
-    registerProvider(extensionContext, provider, socketPath);
-  } else {
-    console.error(`Could not find podman socket at ${socketPath}`);
+  // cpus
+  if (params['lima.factory.instance.cpus']) {
+    parameters.push('--cpus');
+    parameters.push(params['lima.factory.instance.cpus']);
   }
+
+  // memory
+  if (params['lima.factory.instance.memory']) {
+    parameters.push('--memory');
+    const memoryAsGiB = +params['lima.factory.instance.memory'] / (1024 * 1024 * 1024);
+    parameters.push(memoryAsGiB.toFixed(2));
+  }
+
+  // disk
+  if (params['lima.factory.instance.diskSize']) {
+    parameters.push('--disk');
+    const diskAsGiB = +params['lima.factory.instance.diskSize'] / (1024 * 1024 * 1024);
+    parameters.push(diskAsGiB.toFixed(2));
+  }
+
+  // template
+  if (params['lima.factory.instance.template']) {
+    let template = params['lima.factory.instance.template'];
+    if (params['lima.factory.instance.rootful'] && template.startswith('template://')) {
+      template += '-rootful';
+    }
+    parameters.push(template);
+  }
+
+  const env = {};
+  await execPromise(getLimactl(), parameters, { logger, env }, token);
 }
 
 export function deactivate(): void {

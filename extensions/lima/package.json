@@ -33,6 +33,71 @@
           "type": "string",
           "default": "",
           "description": "Instance name (default is same name as type)"
+        },
+        "lima.machine.cpus": {
+          "type": "number",
+          "format": "cpu",
+          "minimum": 1,
+          "default": 4,
+          "scope": "ContainerConnection",
+          "description": "CPU(s)"
+        },
+        "lima.machine.memory": {
+          "type": "number",
+          "format": "memory",
+          "minimum": 1073741824,
+          "default": 4294967296,
+          "scope": "ContainerConnection",
+          "description": "Memory"
+        },
+        "lima.machine.diskSize": {
+          "type": "number",
+          "format": "diskSize",
+          "default": 107374182400,
+          "scope": "ContainerConnection",
+          "description": "Disk"
+        },
+        "lima.factory.instance.name": {
+          "type": "string",
+          "default": "podman",
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Name"
+        },
+        "lima.factory.instance.cpus": {
+          "type": "number",
+          "format": "cpu",
+          "minimum": 1,
+          "default": 4,
+          "maximum": "HOST_TOTAL_CPU",
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "CPU(s)"
+        },
+        "lima.factory.instance.memory": {
+          "type": "number",
+          "format": "memory",
+          "minimum": 1073741824,
+          "default": 4294967296,
+          "maximum": "HOST_TOTAL_MEMORY",
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Memory"
+        },
+        "lima.factory.instance.diskSize": {
+          "type": "number",
+          "format": "diskSize",
+          "default": 107374182400,
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Disk"
+        },
+        "lima.factory.instance.template": {
+          "type": "string",
+          "default": "template://podman",
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Template"
+        },
+        "lima.factory.instance.rootful": {
+          "type": "boolean",
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Machine with root privileges"
         }
       }
     }
