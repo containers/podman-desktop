@@ -58,6 +58,7 @@ export interface IConfigurationPropertySchema {
   minimum?: number;
   maximum?: number | string;
   format?: string;
+  binary?: boolean;
   scope?: ConfigurationScope;
   readonly?: boolean;
   hidden?: boolean;

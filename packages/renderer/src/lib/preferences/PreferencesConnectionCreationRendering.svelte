@@ -171,7 +171,10 @@ function setConfigurationValue(id: string, value: string) {
 
 function getDisplayConfigurationValue(configurationKey: IConfigurationPropertyRecordedSchema, value?: any) {
   if (configurationKey.format === 'memory' || configurationKey.format === 'diskSize') {
-    return value ? filesize(value) : filesize(getNormalizedDefaultNumberValue(configurationKey));
+    const base = configurationKey.binary ? 2 : 10;
+    return value
+      ? filesize(value, { base: base })
+      : filesize(getNormalizedDefaultNumberValue(configurationKey), { base: base });
   } else if (configurationKey.format === 'cpu') {
     return value ? value : getNormalizedDefaultNumberValue(configurationKey);
   } else {
