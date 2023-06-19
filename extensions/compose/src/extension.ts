@@ -41,7 +41,7 @@ async function postActivate(extensionContext: extensionApi.ExtensionContext): Pr
   const os = new OS();
   const cliRun = new CliRun(extensionContext, os);
   const podmanComposeGenerator = new ComposeWrapperGenerator(os, path.resolve(extensionContext.storagePath, 'bin'));
-  const composeExtension = new ComposeExtension(
+  composeExtension = new ComposeExtension(
     extensionContext,
     new Detect(cliRun, os, extensionContext.storagePath),
     new ComposeGitHubReleases(octokit),
