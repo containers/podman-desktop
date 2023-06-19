@@ -29,7 +29,7 @@ export let propertyScope: string;
 export let callback: (
   param: string,
   data,
-  handlerKey: Symbol,
+  handlerKey: symbol,
   collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
   tokenId?: number,
 ) => Promise<void>;
