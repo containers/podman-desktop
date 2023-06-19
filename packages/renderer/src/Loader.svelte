@@ -26,7 +26,9 @@ onMount(async () => {
     if (extensionsStarted) {
       window.dispatchEvent(new CustomEvent('extensions-already-started', {}));
     }
-  } catch (error) {}
+  } catch (error) {
+    console.error('Unable to check if system is ready', error);
+  }
 });
 
 onDestroy(() => {
