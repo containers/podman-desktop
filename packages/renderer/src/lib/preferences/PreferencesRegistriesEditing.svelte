@@ -182,6 +182,29 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
 
   const newRegistry = registry === newRegistryRequest;
 
+  // Always check credentials before creating image / updating to see if they pass.
+  // if we happen to get a certificate verification issue, as the user if they would like to
+  // continue with the registry anyway.
+  try {
+    await window.checkImageCredentials(registry);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('unable to verify the first certificate')) {
+      const result = await window.showMessageBox({
+        title: 'Invalid Certificate',
+        type: 'warning',
+        message: 'The certificate for this registry is not trusted / verifiable. Would you like to still add it?',
+        buttons: ['Yes', 'No'],
+      });
+      if (result && result.response === 0) {
+        registry.ignoreInvalidCert = true;
+      } else {
+        setErrorResponse(registry.serverUrl, error.message);
+        loggingIn = false;
+        return;
+      }
+    }
+  }
+
   try {
     if (newRegistry) {
       await window.createImageRegistry(registry.source, registry);

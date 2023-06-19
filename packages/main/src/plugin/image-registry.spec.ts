@@ -385,6 +385,21 @@ describe('expect checkCredentials', async () => {
     );
   });
 
+  test('expect checkCredentials works with ignoring the certificate', async () => {
+    const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
+    spyGetAuthInfo.mockResolvedValue({ authUrl: 'foo', scheme: 'bearer' });
+
+    const spydoCheckCredentials = vi.spyOn(imageRegistry, 'doCheckCredentials');
+    spydoCheckCredentials.mockResolvedValue();
+
+    await imageRegistry.checkCredentials(
+      'my-podman-desktop-fake-registry.io/my/extension',
+      'my-username',
+      'my-password',
+      true,
+    );
+  });
+
   test('expect checkCredentials fails', async () => {
     const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
     spyGetAuthInfo.mockResolvedValue({ authUrl: 'foo', scheme: 'bearer' });
