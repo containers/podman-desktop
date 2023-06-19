@@ -20,7 +20,8 @@ import * as extensionApi from '@podman-desktop/api';
 import * as sudo from 'sudo-prompt';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
-import { execPromise } from './podman-cli';
+import { execPromise, getPodmanCli } from './podman-cli';
+import { findRunningMachine } from './extension';
 
 const podmanSystemdSocket = 'podman.socket';
 
@@ -107,23 +108,53 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     const fullCommand = `${podmanHelperBinary} ${command}`;
     try {
       await this.runSudoMacHelperCommand(fullCommand);
-      await extensionApi.window
-        .showInformationMessage(`Docker socket compatibility mode for Podman has been ${description}.
-      Restart your Podman machine to apply the changes.`);
+      await extensionApi.window.showInformationMessage(
+        `Docker socket compatibility mode for Podman has been ${description}.`,
+      );
     } catch (error) {
       console.error(`Error running podman-mac-helper: ${error}`);
       await extensionApi.window.showErrorMessage(`Error running podman-mac-helper: ${error}`, 'OK');
     }
   }
 
+  // Prompt the user that you need to restart the current podman machine for the changes to take effect
+  async promptRestart(machine: string): Promise<void> {
+    const result = await extensionApi.window.showInformationMessage(
+      `Restarting your Podman machine is required to apply the changes. Would you like to restart the Podman machine '${machine}' now?`,
+      'Yes',
+      'Cancel',
+    );
+    if (result === 'Yes') {
+      // Await since we must wait for the machine to stop before starting it again
+      await execPromise(getPodmanCli(), ['machine', 'stop', machine]);
+      await execPromise(getPodmanCli(), ['machine', 'start', machine]);
+    }
+  }
+
   // Enable the compatibility mode by running podman-mac-helper install
   // Run the command with sudo privileges and output the result to the user
   async enable(): Promise<void> {
-    return this.runCommand('install', 'enabled');
+    await this.runCommand('install', 'enabled');
+
+    // Prompt the user to restart the podman machine if it's running
+    const isRunning = await findRunningMachine();
+    if (isRunning !== '') {
+      await this.promptRestart(isRunning);
+    }
+
+    return Promise.resolve();
   }
 
   async disable(): Promise<void> {
-    return this.runCommand('uninstall', 'disabled');
+    await this.runCommand('uninstall', 'disabled');
+
+    // Prompt the user to restart the podman machine if it's running
+    const isRunning = await findRunningMachine();
+    if (isRunning !== '') {
+      await this.promptRestart(isRunning);
+    }
+
+    return Promise.resolve();
   }
 }
 

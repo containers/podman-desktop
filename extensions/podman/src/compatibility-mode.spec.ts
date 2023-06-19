@@ -44,6 +44,16 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+// mock isDefaultMachineRunning from extension to always return true
+// this is to prevent execPromise to be ran within it and cause errors
+vi.mock('./extension', () => {
+  return {
+    findRunningMachine: () => {
+      return 'default';
+    },
+  };
+});
+
 test('darwin: compatibility mode binary not found failure', async () => {
   // Mock platform to be darwin
   Object.defineProperty(process, 'platform', {
@@ -83,6 +93,34 @@ test('darwin: DarwinSocketCompatibility class, test runSudoMacHelperCommand ran 
 
   // Expect that mac helper command was ran
   expect(spyMacHelperCommand).toHaveBeenCalled();
+});
+
+test('darwin: DarwinSocketCompatibility class, test promptRestart ran within runCommand', async () => {
+  // Mock platform to be darwin
+  Object.defineProperty(process, 'platform', {
+    value: 'darwin',
+  });
+
+  const socketCompatClass = new DarwinSocketCompatibility();
+
+  // Mock execPromise was ran successfully
+  vi.mock('execPromise', () => {
+    return Promise.resolve();
+  });
+
+  // Mock that enable ran successfully
+  const spyEnable = vi.spyOn(socketCompatClass, 'runCommand');
+  spyEnable.mockImplementation(() => {
+    return Promise.resolve();
+  });
+
+  const spyPromptRestart = vi.spyOn(socketCompatClass, 'promptRestart');
+
+  // Run the command
+  await socketCompatClass.enable();
+
+  // Expect that promptRestart was ran
+  expect(spyPromptRestart).toHaveBeenCalled();
 });
 
 test('darwin: mock fs.existsSync returns /usr/local/bin/podman-mac-helper', async () => {
