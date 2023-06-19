@@ -26,7 +26,7 @@ let recordUpdateTimeout: NodeJS.Timeout;
 
 let recordValue: any;
 $: recordValue;
-$: updateResetButtonVisibility && updateResetButtonVisibility(recordValue);
+$: updateResetButtonVisibility?.(recordValue);
 let checkboxValue = false;
 $: if (resetToDefault) {
   recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;

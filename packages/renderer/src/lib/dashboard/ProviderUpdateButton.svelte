@@ -47,7 +47,7 @@ async function performUpdate(provider: ProviderInfo) {
 }
 </script>
 
-{#if provider.updateInfo && provider.updateInfo.version}
+{#if provider?.updateInfo?.version}
   <button
     disabled="{updateInProgress || preflightChecksFailed}"
     on:click="{() => performUpdate(provider)}"

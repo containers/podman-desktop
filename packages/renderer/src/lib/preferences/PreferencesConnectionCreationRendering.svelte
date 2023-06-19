@@ -292,7 +292,7 @@ async function close() {
     </div>
   {:else}
     <div class="my-2 px-6">
-      {#if providerInfo.images && providerInfo.images.icon}
+      {#if providerInfo?.images?.icon}
         {#if typeof providerInfo.images.icon === 'string'}
           <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
           <!-- TODO check theme used for image, now use dark by default -->

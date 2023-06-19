@@ -333,7 +333,7 @@ $: bodyPod && updateKubeResult();
 // Update bodyPod.metadata.labels.app to be the same as bodyPod.metadata.name
 // If statement required as bodyPod.metadata is undefined when bodyPod is undefined
 $: {
-  if (bodyPod && bodyPod.metadata && bodyPod.metadata.labels) {
+  if (bodyPod?.metadata?.labels) {
     bodyPod.metadata.labels.app = bodyPod.metadata.name;
   }
 }
