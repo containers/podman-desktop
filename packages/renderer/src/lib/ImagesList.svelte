@@ -270,7 +270,7 @@ function computeInterval(): number {
     {/if}
   </div>
 
-  <div class="flex min-w-full h-full overflow-auto" slot="content">
+  <div class="flex min-w-full h-full" slot="content">
     <table class="mx-5 w-full h-fit" class:hidden="{images.length === 0}">
       <!-- title -->
       <thead class="sticky top-0 bg-charcoal-700 z-[2]">
