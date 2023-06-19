@@ -58,11 +58,6 @@ onMount(async () => {
   }
 
   volumesUnsubscribe = filtered.subscribe(value => {
-    // keep warnings
-    const warningsPerEngine = new Map<string, string[]>();
-    value.forEach(volumeListInfo => {
-      warningsPerEngine.set(volumeListInfo.engineId, volumeListInfo.Warnings);
-    });
     const computedVolumes = value
       .map(volumeListInfo => volumeListInfo.Volumes)
       .flat()
