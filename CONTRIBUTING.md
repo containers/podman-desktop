@@ -55,7 +55,7 @@ You can develop on either: `Windows`, `macOS` or `Linux`.
 
 Requirements:
 
-- [Node.js 16+](https://nodejs.org/en/)
+- [Node.js 18+](https://nodejs.org/en/)
 - [yarn](https://yarnpkg.com/)
 
 Optional Linux requirements:
