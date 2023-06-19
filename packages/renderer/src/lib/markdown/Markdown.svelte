@@ -63,5 +63,6 @@ onMount(() => {
 </span>
 
 <section class="markdown" aria-label="markdown-content">
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html html}
 </section>
