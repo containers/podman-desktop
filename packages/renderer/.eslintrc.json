@@ -10,7 +10,6 @@
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/no-empty-function": "off",
     "no-undef": "off",
-    "no-useless-escape": "off",
-    "no-empty": "off"
+    "no-useless-escape": "off"
   }
 }
