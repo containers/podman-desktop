@@ -3904,47 +3904,47 @@
     test-exclude "^6.0.0"
     v8-to-istanbul "^9.1.0"
 
-"@vitest/expect@0.32.0":
-  version "0.32.0"
-  resolved "https://registry.yarnpkg.com/@vitest/expect/-/expect-0.32.0.tgz#5b10cdc822d54cb870aef917462fbf847202e4e0"
-  integrity sha512-VxVHhIxKw9Lux+O9bwLEEk2gzOUe93xuFHy9SzYWnnoYZFYg1NfBtnfnYWiJN7yooJ7KNElCK5YtA7DTZvtXtg==
+"@vitest/expect@0.32.2":
+  version "0.32.2"
+  resolved "https://registry.yarnpkg.com/@vitest/expect/-/expect-0.32.2.tgz#8111f6ab1ff3b203efbe3a25e8bb2d160ce4b720"
+  integrity sha512-6q5yzweLnyEv5Zz1fqK5u5E83LU+gOMVBDuxBl2d2Jfx1BAp5M+rZgc5mlyqdnxquyoiOXpXmFNkcGcfFnFH3Q==
   dependencies:
-    "@vitest/spy" "0.32.0"
-    "@vitest/utils" "0.32.0"
+    "@vitest/spy" "0.32.2"
+    "@vitest/utils" "0.32.2"
     chai "^4.3.7"
 
-"@vitest/runner@0.32.0":
-  version "0.32.0"
-  resolved "https://registry.yarnpkg.com/@vitest/runner/-/runner-0.32.0.tgz#d2a391bf4bb373e324cf2f372d8bb913ab323f08"
-  integrity sha512-QpCmRxftHkr72xt5A08xTEs9I4iWEXIOCHWhQQguWOKE4QH7DXSKZSOFibuwEIMAD7G0ERvtUyQn7iPWIqSwmw==
+"@vitest/runner@0.32.2":
+  version "0.32.2"
+  resolved "https://registry.yarnpkg.com/@vitest/runner/-/runner-0.32.2.tgz#18dd979ce4e8766bcc90948d11b4c8ae6ed90b89"
+  integrity sha512-06vEL0C1pomOEktGoLjzZw+1Fb+7RBRhmw/06WkDrd1akkT9i12su0ku+R/0QM69dfkIL/rAIDTG+CSuQVDcKw==
   dependencies:
-    "@vitest/utils" "0.32.0"
+    "@vitest/utils" "0.32.2"
     concordance "^5.0.4"
     p-limit "^4.0.0"
     pathe "^1.1.0"
 
-"@vitest/snapshot@0.32.0":
-  version "0.32.0"
-  resolved "https://registry.yarnpkg.com/@vitest/snapshot/-/snapshot-0.32.0.tgz#49c6a08da12ab903ab4582386c97d70b293bc644"
-  integrity sha512-yCKorPWjEnzpUxQpGlxulujTcSPgkblwGzAUEL+z01FTUg/YuCDZ8dxr9sHA08oO2EwxzHXNLjQKWJ2zc2a19Q==
+"@vitest/snapshot@0.32.2":
+  version "0.32.2"
+  resolved "https://registry.yarnpkg.com/@vitest/snapshot/-/snapshot-0.32.2.tgz#500b6453e88e4c50a0aded39839352c16b519b9e"
+  integrity sha512-JwhpeH/PPc7GJX38vEfCy9LtRzf9F4er7i4OsAJyV7sjPwjj+AIR8cUgpMTWK4S3TiamzopcTyLsZDMuldoi5A==
   dependencies:
     magic-string "^0.30.0"
     pathe "^1.1.0"
     pretty-format "^27.5.1"
 
-"@vitest/spy@0.32.0":
-  version "0.32.0"
-  resolved "https://registry.yarnpkg.com/@vitest/spy/-/spy-0.32.0.tgz#3ccb4e6dd4cbda7bb837c467d8405e2f8cc107a2"
-  integrity sha512-MruAPlM0uyiq3d53BkwTeShXY0rYEfhNGQzVO5GHBmmX3clsxcWp79mMnkOVcV244sNTeDcHbcPFWIjOI4tZvw==
+"@vitest/spy@0.32.2":
+  version "0.32.2"
+  resolved "https://registry.yarnpkg.com/@vitest/spy/-/spy-0.32.2.tgz#f3ef7afe0d34e863b90df7c959fa5af540a6aaf9"
+  integrity sha512-Q/ZNILJ4ca/VzQbRM8ur3Si5Sardsh1HofatG9wsJY1RfEaw0XKP8IVax2lI1qnrk9YPuG9LA2LkZ0EI/3d4ug==
   dependencies:
     tinyspy "^2.1.0"
 
-"@vitest/utils@0.32.0":
-  version "0.32.0"
-  resolved "https://registry.yarnpkg.com/@vitest/utils/-/utils-0.32.0.tgz#ffbc023083e0ef8401a3562086de0ff1b0599635"
-  integrity sha512-53yXunzx47MmbuvcOPpLaVljHaeSu1G2dHdmy7+9ngMnQIkBQcvwOcoclWFnxDMxFbnq8exAfh3aKSZaK71J5A==
+"@vitest/utils@0.32.2":
+  version "0.32.2"
+  resolved "https://registry.yarnpkg.com/@vitest/utils/-/utils-0.32.2.tgz#809c720cafbf4b35ce651deb8570d57785e77819"
+  integrity sha512-lnJ0T5i03j0IJaeW73hxe2AuVnZ/y1BhhCOuIcl9LIzXnbpXJT9Lrt6brwKHXLOiA7MZ6N5hSJjt0xE1dGNCzQ==
   dependencies:
-    concordance "^5.0.4"
+    diff-sequences "^29.4.3"
     loupe "^2.3.6"
     pretty-format "^27.5.1"
 
@@ -6162,6 +6162,11 @@ diff-sequences@^29.3.1:
   version "29.3.1"
   resolved "https://registry.yarnpkg.com/diff-sequences/-/diff-sequences-29.3.1.tgz#104b5b95fe725932421a9c6e5b4bef84c3f2249e"
   integrity sha512-hlM3QR272NXCi4pq+N4Kok4kOp6EsgOM3ZSpJI7Da3UAs+Ttsi8MRmB6trM/lhyzUxGfOgnpkHtgqm5Q/CTcfQ==
+
+diff-sequences@^29.4.3:
+  version "29.4.3"
+  resolved "https://registry.yarnpkg.com/diff-sequences/-/diff-sequences-29.4.3.tgz#9314bc1fabe09267ffeca9cbafc457d8499a13f2"
+  integrity sha512-ofrBgwpPhCD85kMKtE9RYFFq6OC1A89oW2vvgWZNCwxrUpRUILopY7lsYyMDSjc8g6U6aiO0Qubg6r4Wgt5ZnA==
 
 diff@^4.0.1:
   version "4.0.2"
@@ -14029,10 +14034,10 @@ vfile@^4.0.0:
     unist-util-stringify-position "^2.0.0"
     vfile-message "^2.0.0"
 
-vite-node@0.32.0:
-  version "0.32.0"
-  resolved "https://registry.yarnpkg.com/vite-node/-/vite-node-0.32.0.tgz#8ee54539fa75d1271adaa9788c8ba526480f4519"
-  integrity sha512-220P/y8YacYAU+daOAqiGEFXx2A8AwjadDzQqos6wSukjvvTWNqleJSwoUn0ckyNdjHIKoxn93Nh1vWBqEKr3Q==
+vite-node@0.32.2:
+  version "0.32.2"
+  resolved "https://registry.yarnpkg.com/vite-node/-/vite-node-0.32.2.tgz#bfccdfeb708b2309ea9e5fe424951c75bb9c0096"
+  integrity sha512-dTQ1DCLwl2aEseov7cfQ+kDMNJpM1ebpyMMMwWzBvLbis8Nla/6c9WQcqpPssTwS6Rp/+U6KwlIj8Eapw4bLdA==
   dependencies:
     cac "^6.7.14"
     debug "^4.3.4"
@@ -14057,19 +14062,19 @@ vitefu@^0.2.4:
   resolved "https://registry.yarnpkg.com/vitefu/-/vitefu-0.2.4.tgz#212dc1a9d0254afe65e579351bed4e25d81e0b35"
   integrity sha512-fanAXjSaf9xXtOOeno8wZXIhgia+CZury481LsDaV++lSvcU2R9Ch2bPh3PYFyoHW+w9LqAeYRISVQjUIew14g==
 
-vitest@^0.32.0:
-  version "0.32.0"
-  resolved "https://registry.yarnpkg.com/vitest/-/vitest-0.32.0.tgz#125212b8abbfdae047fa72e516bc7257fd0a67db"
-  integrity sha512-SW83o629gCqnV3BqBnTxhB10DAwzwEx3z+rqYZESehUB+eWsJxwcBQx7CKy0otuGMJTYh7qCVuUX23HkftGl/Q==
+vitest@^0.32.2:
+  version "0.32.2"
+  resolved "https://registry.yarnpkg.com/vitest/-/vitest-0.32.2.tgz#758ce2220f609e240ac054eca7ad11a5140679ab"
+  integrity sha512-hU8GNNuQfwuQmqTLfiKcqEhZY72Zxb7nnN07koCUNmntNxbKQnVbeIS6sqUgR3eXSlbOpit8+/gr1KpqoMgWCQ==
   dependencies:
     "@types/chai" "^4.3.5"
     "@types/chai-subset" "^1.3.3"
     "@types/node" "*"
-    "@vitest/expect" "0.32.0"
-    "@vitest/runner" "0.32.0"
-    "@vitest/snapshot" "0.32.0"
-    "@vitest/spy" "0.32.0"
-    "@vitest/utils" "0.32.0"
+    "@vitest/expect" "0.32.2"
+    "@vitest/runner" "0.32.2"
+    "@vitest/snapshot" "0.32.2"
+    "@vitest/spy" "0.32.2"
+    "@vitest/utils" "0.32.2"
     acorn "^8.8.2"
     acorn-walk "^8.2.0"
     cac "^6.7.14"
@@ -14085,7 +14090,7 @@ vitest@^0.32.0:
     tinybench "^2.5.0"
     tinypool "^0.5.0"
     vite "^3.0.0 || ^4.0.0"
-    vite-node "0.32.0"
+    vite-node "0.32.2"
     why-is-node-running "^2.2.2"
 
 w3c-xmlserializer@^4.0.0:
