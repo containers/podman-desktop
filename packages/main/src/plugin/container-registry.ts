@@ -677,12 +677,33 @@ export class ContainerProviderRegistry {
     return tags[0];
   }
 
-  async pushImage(engineId: string, imageTag: string, callback: (name: string, data: string) => void): Promise<void> {
+  async tagImage(engineId: string, imageTag: string, repo: string, tag?: string): Promise<void> {
     let telemetryOptions = {};
     try {
       const engine = this.getMatchingEngine(engineId);
       const image = engine.getImage(imageTag);
-      const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
+      await image.tag({ repo, tag });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('tagImage', Object.assign({ imageName: this.getImageHash(imageTag) }, telemetryOptions))
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  async pushImage(
+    engineId: string,
+    imageTag: string,
+    callback: (name: string, data: string) => void,
+    authInfo?: containerDesktopAPI.ContainerAuthInfo,
+  ): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      const engine = this.getMatchingEngine(engineId);
+      const image = engine.getImage(imageTag);
+      const authconfig = authInfo || this.imageRegistry.getAuthconfigForImage(imageTag);
       const pushStream = await image.push({ authconfig });
       pushStream.on('end', () => {
         callback('end', '');

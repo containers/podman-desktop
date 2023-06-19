@@ -795,6 +795,17 @@ export class ExtensionLoader {
       saveImage(engineId: string, id: string, filename: string) {
         return containerProviderRegistry.saveImage(engineId, id, filename);
       },
+      pushImage(
+        engineId: string,
+        imageId: string,
+        callback: (name: string, data: string) => void,
+        authInfo: containerDesktopAPI.ContainerAuthInfo | undefined,
+      ): Promise<void> {
+        return containerProviderRegistry.pushImage(engineId, imageId, callback, authInfo);
+      },
+      tagImage(engineId: string, imageId: string, repo: string, tag: string | undefined): Promise<void> {
+        return containerProviderRegistry.tagImage(engineId, imageId, repo, tag);
+      },
       onEvent: (listener, thisArg, disposables) => {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
       },
