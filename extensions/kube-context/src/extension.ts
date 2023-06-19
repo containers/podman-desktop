@@ -110,7 +110,8 @@ export async function updateContext(
 
   quickPicks = contexts.map(context => {
     return {
-      label: context.name === currentContext ? context.name + ' (current)' : context.name,
+      label: context.name,
+      description: context.name === currentContext ? 'Current Context' : undefined,
       picked: context.name === currentContext,
     };
   });
