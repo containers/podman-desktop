@@ -58,7 +58,7 @@ function callback(event: PullEvent) {
     // do we have progress ?
     if (event.progress && event.progress !== '') {
       logsPull.write(event.progress);
-    } else if (event.progressDetail && event.progressDetail.current && event.progressDetail.total) {
+    } else if (event?.progressDetail?.current && event?.progressDetail?.total) {
       logsPull.write(` ${Math.round((event.progressDetail.current / event.progressDetail.total) * 100)}%`);
     }
     // write end of line
