@@ -67,7 +67,7 @@
     "watch": "vite build -w"
   },
   "dependencies": {
-    "@octokit/rest": "^19.0.11",
+    "@octokit/rest": "^19.0.13",
     "@podman-desktop/api": "^0.0.1",
     "mustache": "^4.2.0",
     "sudo-prompt": "^9.2.1",
