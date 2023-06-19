@@ -29,16 +29,14 @@ let lineIndex = 0;
 
 function callback(event: PullEvent) {
   let lineIndexToWrite;
-  if (event.status) {
-    if (event.id) {
-      const lineNumber = lineNumberPerId.get(event.id);
-      if (lineNumber) {
-        lineIndexToWrite = lineNumber;
-      } else {
-        lineIndex++;
-        lineIndexToWrite = lineIndex;
-        lineNumberPerId.set(event.id, lineIndex);
-      }
+  if (event.status && event.id) {
+    const lineNumber = lineNumberPerId.get(event.id);
+    if (lineNumber) {
+      lineIndexToWrite = lineNumber;
+    } else {
+      lineIndex++;
+      lineIndexToWrite = lineIndex;
+      lineNumberPerId.set(event.id, lineIndex);
     }
   }
   // no index, append
