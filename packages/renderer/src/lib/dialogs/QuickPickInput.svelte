@@ -209,17 +209,13 @@ function handleKeydown(e: KeyboardEvent) {
       e.preventDefault();
       return;
     }
-  } else if (e.key === ' ') {
-    if (mode === 'QuickPick') {
-      if (quickPickCanPickMany) {
-        // if space is pressed, toggle the item
-        const originalIndex = quickPickItems.indexOf(quickPickFilteredItems[quickPickSelectedFilteredIndex]);
-        quickPickItems[originalIndex].checkbox = !quickPickItems[originalIndex].checkbox;
-        quickPickFilteredItems = quickPickItems;
-        e.preventDefault();
-        return;
-      }
-    }
+  } else if (e.key === ' ' && mode === 'QuickPick' && quickPickCanPickMany) {
+    // if space is pressed, toggle the item
+    const originalIndex = quickPickItems.indexOf(quickPickFilteredItems[quickPickSelectedFilteredIndex]);
+    quickPickItems[originalIndex].checkbox = !quickPickItems[originalIndex].checkbox;
+    quickPickFilteredItems = quickPickItems;
+    e.preventDefault();
+    return;
   }
 
   if (mode === 'QuickPick') {

@@ -59,14 +59,12 @@ let configurationKeys: IConfigurationPropertyRecordedSchema[] = [];
 let isValid = true;
 let errorMessage = undefined;
 
-$: if (logsTerminal) {
-  // reconnect the logger handler
-  if (loggerHandlerKey) {
-    try {
-      reconnectUI(loggerHandlerKey, getLoggerHandler());
-    } catch (error) {
-      console.error('error while reconnecting', error);
-    }
+// reconnect the logger handler
+$: if (logsTerminal && loggerHandlerKey) {
+  try {
+    reconnectUI(loggerHandlerKey, getLoggerHandler());
+  } catch (error) {
+    console.error('error while reconnecting', error);
   }
 }
 
