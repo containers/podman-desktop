@@ -183,7 +183,7 @@ function updatePortExposure(port: number, checked: boolean) {
 </script>
 
 <NavPage title="Copy containers to a pod" searchEnabled="{false}">
-  <div class="min-w-full h-full overflow-auto" slot="content">
+  <div class="min-w-full h-fit" slot="content">
     <div class="m-5 p-6 bg-charcoal-800 rounded-sm text-gray-700">
       <div>
         {#if podCreation}

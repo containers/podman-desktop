@@ -6,7 +6,7 @@ export let searchEnabled = true;
 
 <div class="flex flex-col w-full h-full shadow-pageheader">
   <div class="flex flex-col w-full h-full pt-4">
-    <div class="flex">
+    <div class="flex pb-2">
       <div class="px-5">
         <h1 aria-label="{title}" class="text-xl first-letter:uppercase">{title}</h1>
       </div>
@@ -17,7 +17,7 @@ export let searchEnabled = true;
       </div>
     </div>
     {#if searchEnabled}
-      <div class="flex flex-row pt-2 pb-4">
+      <div class="flex flex-row pb-4">
         <div class="pl-5 lg:w-[35rem] w-[22rem]">
           <div class="flex items-center bg-charcoal-800 text-gray-700 rounded-sm">
             <svg
@@ -46,6 +46,8 @@ export let searchEnabled = true;
       </div>
     {/if}
 
-    <slot name="content" />
+    <div class="flex w-full h-full overflow-auto">
+      <slot name="content" />
+    </div>
   </div>
 </div>

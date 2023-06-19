@@ -344,8 +344,8 @@ function updateKubeResult() {
 </script>
 
 <NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
-  <div slot="content" class="p-5 bg-zinc-700 h-full overflow-auto">
-    <div class="bg-charcoal-600 h-fit p-5">
+  <div slot="content" class="p-5 bg-zinc-700 min-w-full h-fit">
+    <div class="bg-charcoal-600 p-5">
       {#if kubeDetails}
         <p>Generated pod to deploy to Kubernetes:</p>
         <div class="h-48 pt-2">
