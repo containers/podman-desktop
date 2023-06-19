@@ -130,7 +130,7 @@ async function getContainerBuildContextDirectory() {
 </script>
 
 <NavPage title="Build Image from Containerfile" searchEnabled="{false}">
-  <div slot="content" class="p-5">
+  <div slot="content" class="p-5 overflow-auto">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else}
