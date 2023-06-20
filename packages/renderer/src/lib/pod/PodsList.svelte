@@ -316,7 +316,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
       </tbody>
     </table>
 
-    {#if providerConnections.length === 0}
+    {#if $filtered.length === 0 && providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
       <PodEmptyScreen />
