@@ -6934,10 +6934,10 @@ eslint-plugin-sonarjs@^0.19.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.19.0.tgz#6654bc1c6d24c2183891b8bfe1175004dbba1e3c"
   integrity sha512-6+s5oNk5TFtVlbRxqZN7FIGmjdPCYQKaTzFPmqieCmsU1kBYDzndTeQav0xtQNwZJWu5awWfTGe8Srq9xFOGnw==
 
-eslint-plugin-svelte@^2.30.0:
-  version "2.30.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-svelte/-/eslint-plugin-svelte-2.30.0.tgz#548f77441c5418cc0063d36cf139970d6a2cefad"
-  integrity sha512-2/qj0BJsfM0U2j4EjGb7iC/0nbUvXx1Gn78CdtyuXpi/rSomLPCPwnsZsloXMzlt6Xwe8LBlpRvZObSKEHLP5A==
+eslint-plugin-svelte@^2.31.0:
+  version "2.31.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-svelte/-/eslint-plugin-svelte-2.31.0.tgz#6bbc30abc6dd49620cf6f33f79c9a3328ab564bd"
+  integrity sha512-Q70jPFRraTkc/giPSfY7yuatmJcb5fPelWNplevqd45gfaJDjc3qXRtWQ6m9U5tWVVYERU9dcdUod294vwD8Gw==
   dependencies:
     "@eslint-community/eslint-utils" "^4.2.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
@@ -6947,7 +6947,8 @@ eslint-plugin-svelte@^2.30.0:
     postcss "^8.4.5"
     postcss-load-config "^3.1.4"
     postcss-safe-parser "^6.0.0"
-    svelte-eslint-parser "^0.30.0"
+    postcss-selector-parser "^6.0.11"
+    svelte-eslint-parser "^0.31.0"
 
 eslint-scope@5.1.1, eslint-scope@^5.1.1:
   version "5.1.1"
@@ -13130,15 +13131,6 @@ svelte-check@^3.4.3:
     sade "^1.7.4"
     svelte-preprocess "^5.0.3"
     typescript "^5.0.3"
-
-svelte-eslint-parser@^0.30.0:
-  version "0.30.0"
-  resolved "https://registry.yarnpkg.com/svelte-eslint-parser/-/svelte-eslint-parser-0.30.0.tgz#ba9f482c369a7ac0501127a8e801cdcd0758a3d3"
-  integrity sha512-H0Cn2TKr70DU9p/Gb04CfwtS7eK28MYumrHYPaDNkIFbfwGDLADpbERBn7u8G1Rcm2RMr2/mL6mq0J2e8iKFlA==
-  dependencies:
-    eslint-scope "^7.0.0"
-    eslint-visitor-keys "^3.0.0"
-    espree "^9.0.0"
 
 svelte-eslint-parser@^0.31.0:
   version "0.31.0"
