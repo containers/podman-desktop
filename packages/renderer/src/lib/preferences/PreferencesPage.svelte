@@ -15,6 +15,7 @@ import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
 import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
+import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
 
 let properties: IConfigurationPropertyRecordedSchema[];
 let defaultPrefPageId: string;
@@ -35,7 +36,7 @@ onMount(async () => {
 });
 </script>
 
-<div class="flex flex-col h-full px-5">
+<div class="flex flex-col h-full">
   <Route path="/*" breadcrumb="Preferences">
     {#if defaultPrefPageId !== undefined}
       <PreferencesRendering key="{defaultPrefPageId}" properties="{properties}" />
@@ -46,7 +47,7 @@ onMount(async () => {
   <Route path="/default/:key/*" breadcrumb="Preferences" let:meta>
     <PreferencesRendering key="{meta.params.key}" properties="{properties}" />
   </Route>
-  <Route path="/ddExtensions" breadcrumb="Docker Desktop Extensions" let:meta>
+  <Route path="/ddExtensions" breadcrumb="Docker Desktop Extensions">
     <PreferencesPageDockerExtensions />
   </Route>
   <Route path="/extension/:extensionId/*" breadcrumb="Extensions" let:meta>
@@ -75,6 +76,10 @@ onMount(async () => {
   </Route>
   <Route path="/extensions" breadcrumb="Extensions">
     <PreferencesExtensionList />
+  </Route>
+
+  <Route path="/extensions/install-from-id/:extensionId" breadcrumb="Install Extension from id" let:meta>
+    <PreferencesInstallExtensionFromId extensionId="{meta.params.extensionId}" />
   </Route>
 
   <Route path="/container-connection/:provider/:connection/*" breadcrumb="Container Engine" let:meta>

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount, tick, onDestroy } from 'svelte';
+import { onMount, onDestroy } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 let providerUnsubscribe: Unsubscriber;
@@ -125,7 +125,7 @@ async function getKubernetesfileLocation() {
 
 {#if providerConnections.length > 0}
   <NavPage title="Play Pods or Containers from a Kubernetes YAML File" searchEnabled="{false}">
-    <div slot="empty" class="bg-charcoal-700 p-5 h-full">
+    <div slot="content" class="bg-charcoal-700 p-5 min-w-full h-fit">
       <div class="bg-charcoal-800 px-6 py-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div class="text-xl font-medium">Select file:</div>
         <div hidden="{runStarted}">
@@ -177,7 +177,7 @@ async function getKubernetesfileLocation() {
                       </select>
                     </label>
                   {/if}
-                  {#if providerConnections.length == 1}
+                  {#if providerConnections.length === 1}
                     <input
                       type="hidden"
                       name="providerChoice"

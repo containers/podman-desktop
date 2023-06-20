@@ -16,29 +16,84 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { BrowserWindow } from 'electron';
 import { app, ipcMain, Tray } from 'electron';
 import './security-restrictions';
-import { createNewWindow, restoreWindow } from '/@/mainWindow';
-import { TrayMenu } from './tray-menu';
-import { isMac, isWindows, stoppedExtensions } from './util';
-import { AnimatedTray } from './tray-animate-icon';
-import { PluginSystem } from './plugin';
-import { StartupInstall } from './system/startup-install';
-import type { ExtensionLoader } from './plugin/extension-loader';
+import { createNewWindow, restoreWindow } from '/@/mainWindow.js';
+import { TrayMenu } from './tray-menu.js';
+import { isMac, isWindows, stoppedExtensions } from './util.js';
+import { AnimatedTray } from './tray-animate-icon.js';
+import { PluginSystem } from './plugin/index.js';
+import { StartupInstall } from './system/startup-install.js';
+import type { ExtensionLoader } from './plugin/extension-loader.js';
 import dns from 'node:dns';
+import { Deferred } from './plugin/util/deferred.js';
 
 let extensionLoader: ExtensionLoader | undefined;
+
+type AdditionalData = {
+  argv: string[];
+};
+
+export const mainWindowDeferred = new Deferred<BrowserWindow>();
+
+const argv = process.argv.slice(2);
+const additionalData: AdditionalData = {
+  argv: argv,
+};
+
 /**
  * Prevent multiple instances
  */
-const isSingleInstance = app.requestSingleInstanceLock();
+// provide additional data to the second instance
+const isSingleInstance = app.requestSingleInstanceLock(additionalData);
 if (!isSingleInstance) {
   app.quit();
   process.exit(0);
 }
-app.on('second-instance', () => {
+
+const handleAdditionalProtocolLauncherArgs = (args: ReadonlyArray<string>) => {
+  // On Windows protocol handler will call the app with '<url>' args
+  // on macOS it's done with 'open-url' event
+  if (isWindows()) {
+    // now search if we have 'open-url' in the list of args and give it to the handler
+    for (const arg of args) {
+      if (arg.startsWith('podman-desktop:extension/')) {
+        handleOpenUrl(arg);
+      }
+    }
+  }
+};
+
+export const handleOpenUrl = (url: string) => {
+  // if the url starts with podman-desktop:extension/<id>
+  // we need to install the extension
+  if (!url.startsWith('podman-desktop:extension/')) {
+    console.log(`url ${url} does not start with podman-desktop:extension/, skipping.`);
+    return;
+  }
+  // grab the extension id
+  const extensionId = url.substring('podman-desktop:extension/'.length);
+
+  // wait that the window is ready
+  mainWindowDeferred.promise
+    .then(w => {
+      w.webContents.send('podman-desktop-protocol:install-extension', extensionId);
+    })
+    .catch((error: unknown) => {
+      console.error('Error sending open-url event to webcontents', error);
+    });
+};
+
+// do not use _args as it may contain additional arguments
+app.on('second-instance', (_event, _args, _workingDirectory, additionalData: unknown) => {
+  // if we are on Windows, we need to handle the protocol
+  if (isWindows() && additionalData && (additionalData as AdditionalData).argv) {
+    handleAdditionalProtocolLauncherArgs((additionalData as AdditionalData).argv);
+  }
+
   restoreWindow().catch((error: unknown) => {
-    console.log('Error restoring window', error);
+    console.error('Error restoring window', error);
   });
 });
 
@@ -84,26 +139,47 @@ if (isWindows()) {
 
 let tray: Tray | null = null;
 
+// Handle the open-url event (macOS/Linux). For Windows, it needs to be handle in the second-instance event
+app.on('will-finish-launching', () => {
+  app.on('open-url', (event, url) => {
+    event.preventDefault();
+    // delegate to the handler
+    handleOpenUrl(url);
+  });
+});
+
 app.whenReady().then(
   async () => {
+    if (import.meta.env.PROD) {
+      if (isWindows()) {
+        app.setAsDefaultProtocolClient('podman-desktop', process.execPath, process.argv);
+      } else {
+        app.setAsDefaultProtocolClient('podman-desktop');
+      }
+    }
+
     // We must create the window first before initialization so that we can load the
     // configuration as well as plugins
     // The window is hiddenly created and shown when ready
 
     // Platforms: Linux, macOS, Windows
     // Create the main window
-    createNewWindow().catch((error: unknown) => {
-      console.log('Error creating window', error);
-    });
+    createNewWindow()
+      .then(w => mainWindowDeferred.resolve(w))
+      .catch((error: unknown) => {
+        console.error('Error creating window', error);
+      });
 
     // Platforms: macOS
     // Required for macOS to start the app correctly (this is will be shown in the dock)
     // We use 'activate' within whenReady in order to gracefully start on macOS, see this link:
     // https://www.electronjs.org/docs/latest/tutorial/quick-start#open-a-window-if-none-are-open-macos
     app.on('activate', () => {
-      createNewWindow().catch((error: unknown) => {
-        console.log('Error creating window', error);
-      });
+      createNewWindow()
+        .then(w => mainWindowDeferred.resolve(w))
+        .catch((error: unknown) => {
+          console.log('Error creating window', error);
+        });
     });
 
     // prefer ipv4 over ipv6

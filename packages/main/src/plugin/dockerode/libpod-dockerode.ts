@@ -95,6 +95,10 @@ export interface ContainerCreateOptions {
   name?: string;
 }
 
+export interface PodRemoveOptions {
+  force: boolean;
+}
+
 // API of libpod that we want to expose on our side
 export interface LibPod {
   createPod(podOptions: PodCreateOptions): Promise<{ Id: string }>;
@@ -104,7 +108,7 @@ export interface LibPod {
   getPodInspect(podId: string): Promise<PodInspectInfo>;
   startPod(podId: string): Promise<void>;
   stopPod(podId: string): Promise<void>;
-  removePod(podId: string): Promise<void>;
+  removePod(podId: string, options?: PodRemoveOptions): Promise<void>;
   restartPod(podId: string): Promise<void>;
   generateKube(names: string[]): Promise<string>;
   playKube(yamlContentFilePath: string): Promise<PlayKubeInfo>;
@@ -322,9 +326,9 @@ export class LibpodDockerode {
     };
 
     // add removePod
-    prototypeOfDockerode.removePod = function (podId: string) {
+    prototypeOfDockerode.removePod = function (podId: string, options?: { force: boolean }) {
       const optsf = {
-        path: `/v4.2.0/libpod/pods/${podId}`,
+        path: `/v4.2.0/libpod/pods/${podId}?`,
         method: 'DELETE',
         statusCodes: {
           200: true,
@@ -333,7 +337,7 @@ export class LibpodDockerode {
           404: 'no such pod',
           500: 'server error',
         },
-        options: {},
+        options: options || {},
       };
 
       return new Promise((resolve, reject) => {

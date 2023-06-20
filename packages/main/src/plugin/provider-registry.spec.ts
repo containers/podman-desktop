@@ -19,13 +19,13 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { ContainerProviderRegistry } from './container-registry';
+import type { ContainerProviderRegistry } from './container-registry.js';
 
-import { ProviderRegistry } from './provider-registry';
-import type { Telemetry } from './telemetry/telemetry';
+import { ProviderRegistry } from './provider-registry.js';
+import type { Telemetry } from './telemetry/telemetry.js';
 import type { ContainerProviderConnection, KubernetesProviderConnection } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info';
-import type { ApiSenderType } from './api';
+import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
+import type { ApiSenderType } from './api.js';
 
 let providerRegistry: ProviderRegistry;
 

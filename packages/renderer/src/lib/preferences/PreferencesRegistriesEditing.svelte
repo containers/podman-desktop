@@ -4,9 +4,7 @@ import { onMount } from 'svelte';
 import { registriesInfos, registriesSuggestedInfos } from '../../stores/registries';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
-import { faUserPen } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faUser, faUserPen } from '@fortawesome/free-solid-svg-icons';
 import SettingsPage from './SettingsPage.svelte';
 
 // contains the original instances of registries when user clicks on `Edit password` menu item
@@ -222,7 +220,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 </script>
 
 <SettingsPage title="Registries">
-  <div class="container mx-auto bg-charcoal-600 mt-5 rounded-md p-3">
+  <div class="container mx-auto bg-charcoal-600 rounded-md p-3">
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-gray-900">
       <div class="flex w-full">
@@ -606,7 +604,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
   <!-- Spacer end -->
 
   <!-- Add new registry button start -->
-  <div class="flex justify-end py-4 px-4 w-full">
+  <div class="flex justify-end pt-4 px-4 w-full">
     <button
       on:click="{() => setNewRegistryFormVisible(true)}"
       class="pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-7 w-36 text-sm rounded-md shadow hover:shadow-lg"

@@ -4,7 +4,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 
 export let title: string;
 export let icon: IconDefinition;
-export let hidden: boolean = false;
+export let hidden = false;
 export let onClick: () => void = () => {};
 </script>
 

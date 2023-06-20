@@ -16,14 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi } from 'vitest';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { afterEach, expect, test, vi } from 'vitest';
+import { spawn } from 'node:child_process';
 import { getSocketCompatibility, DarwinSocketCompatibility, LinuxSocketCompatibility } from './compatibility-mode';
 import * as extensionApi from '@podman-desktop/api';
+import type { Readable } from 'node:stream';
 
 vi.mock('@podman-desktop/api', () => {
   return {
     window: {
       showErrorMessage: vi.fn(),
+      showInformationMessage: vi.fn(),
     },
   };
 });
@@ -32,6 +37,11 @@ vi.mock('@podman-desktop/api', () => {
 
 vi.mock('runSudoMacHelperCommand', () => {
   return vi.fn();
+});
+
+afterEach(() => {
+  vi.resetAllMocks();
+  vi.restoreAllMocks();
 });
 
 test('darwin: compatibility mode binary not found failure', async () => {
@@ -131,13 +141,30 @@ test('linux: pass enabling when systemctl command exists', async () => {
   vi.mock('child_process', () => {
     return {
       execSync: vi.fn(),
+      spawn: vi.fn(),
     };
   });
+
+  const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+    if (event === 'data') {
+      cb('');
+    }
+  }) as unknown as Readable;
+  vi.mocked(spawn).mockReturnValue({
+    stdout: { on, setEncoding: vi.fn() },
+    stderr: { on, setEncoding: vi.fn() },
+    on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+      if (event === 'close') {
+        cb(0);
+      }
+    }),
+  } as any);
 
   const socketCompatClass = new LinuxSocketCompatibility();
 
   // Expect enable() to pass since systemctl command exists
   await expect(socketCompatClass.enable()).resolves.toBeUndefined();
+  expect(extensionApi.window.showErrorMessage).not.toHaveBeenCalled();
 });
 
 // Windows tests

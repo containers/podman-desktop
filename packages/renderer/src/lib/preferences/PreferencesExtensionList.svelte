@@ -1,8 +1,6 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faPuzzlePiece, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faPlay } from '@fortawesome/free-solid-svg-icons';
-import { faStop } from '@fortawesome/free-solid-svg-icons';
+import { faPuzzlePiece, faTrash, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import { afterUpdate } from 'svelte';
 import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
@@ -13,13 +11,13 @@ import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
 
 export let ociImage: string = undefined;
 
-let installInProgress: boolean = false;
-let errorInstall: string = '';
+let installInProgress = false;
+let errorInstall = '';
 let logs: string[] = [];
 
 let logElement;
 
-const buttonClass: string =
+const buttonClass =
   'm-0.5 text-gray-400 hover:bg-charcoal-600 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 
 async function installExtensionFromImage() {
@@ -70,8 +68,8 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
 </script>
 
 <SettingsPage title="Extensions">
-  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
-    <div class="bg-charcoal-700 rounded-md p-3">
+  <div class="bg-charcoal-600 rounded-md p-3">
+    <div class="bg-charcoal-700 mb-4 rounded-md p-3">
       <FeaturedExtensions />
     </div>
 

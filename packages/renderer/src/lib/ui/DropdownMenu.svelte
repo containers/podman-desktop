@@ -24,7 +24,7 @@ function toggleMenu() {
 
 // If we click outside the menu, close the menu
 function onWindowClick(e) {
-  if (outsideWindow.contains(e.target) == false) showMenu = false;
+  showMenu = outsideWindow.contains(e.target);
 }
 </script>
 

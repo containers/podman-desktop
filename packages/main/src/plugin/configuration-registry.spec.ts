@@ -18,8 +18,8 @@
 
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
-import type { IConfigurationNode } from './configuration-registry';
-import { ConfigurationRegistry } from './configuration-registry';
+import type { IConfigurationNode } from './configuration-registry.js';
+import { ConfigurationRegistry } from './configuration-registry.js';
 
 let configurationRegistry: ConfigurationRegistry;
 

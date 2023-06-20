@@ -10,12 +10,6 @@ import type { ImageInfoUI } from './ImageInfoUI';
 export let closeCallback: () => void;
 export let imageInfoToPush: ImageInfoUI;
 
-function keydownDockerfileChoice(e: KeyboardEvent) {
-  e.stopPropagation();
-  if (e.key === 'Escape') {
-    closeCallback();
-  }
-}
 let pushInProgress = false;
 let pushFinished = false;
 let logsPush;

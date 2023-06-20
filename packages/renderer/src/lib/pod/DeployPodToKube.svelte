@@ -197,11 +197,11 @@ async function deployToKube() {
     // Check that there are services (servicesToCreate), if there aren't. Warn that we can't create an ingress.
     // All services are always created with one port (the first one), so we can use that port to create the ingress.
     // Must be a number
-    if (servicesToCreate.length == 0) {
+    if (servicesToCreate.length === 0) {
       deployWarning = 'You need to deploy using services to create an ingress.';
       deployStarted = false;
       return;
-    } else if (servicesToCreate.length == 1) {
+    } else if (servicesToCreate.length === 1) {
       serviceName = servicesToCreate[0].metadata.name;
       servicePort = servicesToCreate[0].spec.ports[0].port;
     } else if (servicesToCreate.length > 1) {
@@ -212,7 +212,7 @@ async function deployToKube() {
         deployStarted = false;
         return;
       }
-      const matchingService = servicesToCreate.find(service => service.spec.ports[0].port == ingressPort);
+      const matchingService = servicesToCreate.find(service => service.spec.ports[0].port === ingressPort);
       if (matchingService) {
         serviceName = matchingService.metadata.name;
         servicePort = matchingService.spec.ports[0].port;
@@ -313,7 +313,9 @@ async function deployToKube() {
     window.telemetryTrack('deployToKube', eventProperties);
 
     // update status
-    updatePodInterval = setInterval(updatePod, 2000);
+    updatePodInterval = setInterval(() => {
+      updatePod();
+    }, 2000);
   } catch (error) {
     // Revert back to the previous bodyPod so the user can hit deploy again
     // we only update the bodyPod if we successfully create the pod.
@@ -331,7 +333,7 @@ $: bodyPod && updateKubeResult();
 // Update bodyPod.metadata.labels.app to be the same as bodyPod.metadata.name
 // If statement required as bodyPod.metadata is undefined when bodyPod is undefined
 $: {
-  if (bodyPod && bodyPod.metadata && bodyPod.metadata.labels) {
+  if (bodyPod?.metadata?.labels) {
     bodyPod.metadata.labels.app = bodyPod.metadata.name;
   }
 }
@@ -342,11 +344,11 @@ function updateKubeResult() {
 </script>
 
 <NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
-  <div slot="empty" class="p-5 bg-zinc-700 h-full">
-    <div class="bg-charcoal-600 h-full p-5">
+  <div slot="content" class="p-5 bg-zinc-700 min-w-full h-fit">
+    <div class="bg-charcoal-600 p-5">
       {#if kubeDetails}
         <p>Generated pod to deploy to Kubernetes:</p>
-        <div class="h-1/3 pt-2">
+        <div class="h-48 pt-2">
           <MonacoEditor content="{kubeDetails}" language="yaml" />
         </div>
       {/if}

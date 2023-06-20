@@ -18,7 +18,7 @@
 
 import { app, shell } from 'electron';
 import { URL } from 'url';
-import { securityRestrictionCurrentHandler } from './security-restrictions-handler';
+import { securityRestrictionCurrentHandler } from './security-restrictions-handler.js';
 
 /**
  * List of origins that you allow open INSIDE the application and permissions for each of them.

@@ -17,12 +17,13 @@
  ***********************************************************************/
 
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { KubernetesClient } from './kubernetes-client';
-import type { ApiSenderType } from './api';
-import type { ConfigurationRegistry } from './configuration-registry';
-import { FilesystemMonitoring } from './filesystem-monitoring';
+import { KubernetesClient } from './kubernetes-client.js';
+import type { ApiSenderType } from './api.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import { FilesystemMonitoring } from './filesystem-monitoring.js';
 import { KubeConfig } from '@kubernetes/client-node';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+import * as fs from 'node:fs';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
@@ -227,4 +228,16 @@ test('Check connection to Kubernetes cluster in error', async () => {
   const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
   const result = await client.checkConnection();
   expect(result).toBeFalsy();
+});
+
+test('Check update with empty kubeconfig file', async () => {
+  const readFileMock = vi.spyOn(fs.promises, 'readFile');
+  const consoleErrorSpy = vi.spyOn(console, 'error');
+
+  // provide empty kubeconfig file
+  readFileMock.mockResolvedValue('');
+
+  const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  await client.refresh();
+  expect(consoleErrorSpy).toBeCalledWith(expect.stringContaining('is empty. Skipping'));
 });

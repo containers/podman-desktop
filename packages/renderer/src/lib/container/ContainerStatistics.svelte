@@ -29,8 +29,8 @@ $: memoryColor =
     : RED_COLOR;
 
 // percentage
-let cpuUsagePercentage: number = -1;
-let memoryUsagePercentage: number = -1;
+let cpuUsagePercentage = -1;
+let memoryUsagePercentage = -1;
 let usedMemory;
 
 // id to cancel the streaming
@@ -74,7 +74,9 @@ onMount(async () => {
     return;
   }
   // grab stats result from the container
-  fetchStatsId = await window.getContainerStats(container.engineId, container.id, updateStatistics);
+  fetchStatsId = await window.getContainerStats(container.engineId, container.id, containerStats => {
+    updateStatistics(containerStats);
+  });
 });
 
 onDestroy(async () => {

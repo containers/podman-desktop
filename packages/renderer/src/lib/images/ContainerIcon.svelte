@@ -1,6 +1,6 @@
 <script lang="ts">
-export let size: string = '40';
-export let solid: boolean = false;
+export let size = '40';
+export let solid = false;
 </script>
 
 <svg

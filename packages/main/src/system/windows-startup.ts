@@ -19,7 +19,7 @@
 import { app } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { ConfigurationRegistry } from '../plugin/configuration-registry';
+import type { ConfigurationRegistry } from '../plugin/configuration-registry.js';
 
 /**
  * On Windows, launching program automatically on startup is done via %APPDATA%\Roaming\Microsoft\Windows\Start Menu\Programs\Startup folder

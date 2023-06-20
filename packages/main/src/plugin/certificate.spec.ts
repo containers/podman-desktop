@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { Certificates } from './certificates';
+import { Certificates } from './certificates.js';
 
 let certificate: Certificates;
 

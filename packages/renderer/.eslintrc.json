@@ -3,11 +3,13 @@
     "browser": true,
     "node": false
   },
-  "extends": [
-  ],
-  "parserOptions": {
-    "parser": "@typescript-eslint/parser",
-    "ecmaVersion": 12,
-    "sourceType": "module"
+  "extends": ["../../.eslintrc.json"],
+  "rules": {
+    "svelte/valid-compile": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "no-undef": "off",
+    "no-useless-escape": "off"
   }
 }

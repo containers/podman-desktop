@@ -20,42 +20,42 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
-import type { CommandRegistry } from './command-registry';
-import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info';
+import type { CommandRegistry } from './command-registry.js';
+import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info.js';
 import * as zipper from 'zip-local';
-import type { TrayMenuRegistry } from './tray-menu-registry';
-import { Disposable } from './types/disposable';
-import type { ProviderRegistry } from './provider-registry';
-import type { ConfigurationRegistry } from './configuration-registry';
-import type { ImageRegistry } from './image-registry';
-import type { MessageBox } from './message-box';
-import type { ProgressImpl } from './progress-impl';
-import { ProgressLocation } from './progress-impl';
-import type { NotificationImpl } from './notification-impl';
+import type { TrayMenuRegistry } from './tray-menu-registry.js';
+import { Disposable } from './types/disposable.js';
+import type { ProviderRegistry } from './provider-registry.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import type { ImageRegistry } from './image-registry.js';
+import type { MessageBox } from './message-box.js';
+import type { ProgressImpl } from './progress-impl.js';
+import { ProgressLocation } from './progress-impl.js';
+import type { NotificationImpl } from './notification-impl.js';
 import {
   StatusBarItemImpl,
   StatusBarAlignLeft,
   StatusBarAlignRight,
   StatusBarItemDefaultPriority,
-} from './statusbar/statusbar-item';
-import type { StatusBarRegistry } from './statusbar/statusbar-registry';
-import type { FilesystemMonitoring } from './filesystem-monitoring';
-import { Uri } from './types/uri';
-import type { KubernetesClient } from './kubernetes-client';
-import type { Proxy } from './proxy';
-import type { ContainerProviderRegistry } from './container-registry';
-import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
-import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry';
-import type { MenuRegistry } from '/@/plugin/menu-registry';
-import { desktopAppHomeDir } from '../util';
-import { Emitter } from './events/emitter';
-import { CancellationTokenSource } from './cancellation-token';
-import type { ApiSenderType } from './api';
-import type { AuthenticationImpl } from './authentication';
-import type { Telemetry } from './telemetry/telemetry';
-import { TelemetryTrustedValue } from './types/telemetry';
+} from './statusbar/statusbar-item.js';
+import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
+import type { FilesystemMonitoring } from './filesystem-monitoring.js';
+import { Uri } from './types/uri.js';
+import type { KubernetesClient } from './kubernetes-client.js';
+import type { Proxy } from './proxy.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
+import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
+import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry.js';
+import type { MenuRegistry } from '/@/plugin/menu-registry.js';
+import { desktopAppHomeDir } from '../util.js';
+import { Emitter } from './events/emitter.js';
+import { CancellationTokenSource } from './cancellation-token.js';
+import type { ApiSenderType } from './api.js';
+import type { AuthenticationImpl } from './authentication.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import { TelemetryTrustedValue } from './types/telemetry.js';
 import { clipboard as electronClipboard } from 'electron';
-import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 
 /**
  * Handle the loading of an extension
@@ -77,6 +77,9 @@ export interface AnalyzedExtension {
     version: string;
     ociUri: string;
   };
+
+  missingDependencies?: string[];
+  circularDependencies?: string[];
 }
 
 export interface ActivatedExtension {
@@ -192,8 +195,11 @@ export class ExtensionLoader {
     // extract to an existing directory
     zipper.sync.unzip(filePath).save(unpackedDirectory);
 
-    await this.loadExtension(unpackedDirectory, true);
-    this.apiSender.send('extension-started', {});
+    const extension = await this.analyzeExtension(unpackedDirectory, true);
+    if (extension) {
+      await this.loadExtension(extension);
+      this.apiSender.send('extension-started', {});
+    }
   }
 
   async init(): Promise<void> {
@@ -205,6 +211,8 @@ export class ExtensionLoader {
     if (!fs.existsSync(this.pluginsScanDirectory)) {
       fs.mkdirSync(this.pluginsScanDirectory, { recursive: true });
     }
+
+    this.overrideRequire();
   }
 
   protected async setupScanningDirectory(): Promise<void> {
@@ -252,9 +260,18 @@ export class ExtensionLoader {
       folders = await this.readDevelopmentFolders(path.join(__dirname, '../../../extensions'));
     }
     const externalExtensions = await this.readExternalFolders();
-    // ok now load all extensions from these folders
-    await Promise.all(folders.map(folder => this.loadExtension(folder, false)));
-    await Promise.all(externalExtensions.map(folder => this.loadExtension(folder, false)));
+    // ok now load grab all extensions from these folders
+    const analyzedExtensions: AnalyzedExtension[] = [];
+
+    const analyzedFoldersExtension = (
+      await Promise.all(folders.map(folder => this.analyzeExtension(folder, false)))
+    ).filter(extension => extension !== undefined) as AnalyzedExtension[];
+    analyzedExtensions.push(...analyzedFoldersExtension);
+
+    const analyzedExternalExtensions = (
+      await Promise.all(externalExtensions.map(folder => this.analyzeExtension(folder, false)))
+    ).filter(extension => extension !== undefined) as AnalyzedExtension[];
+    analyzedExtensions.push(...analyzedExternalExtensions);
 
     // also load extensions from the plugins directory
     if (fs.existsSync(this.pluginsDirectory)) {
@@ -264,9 +281,125 @@ export class ExtensionLoader {
         .filter(entry => entry.isDirectory())
         .map(directory => this.pluginsDirectory + '/' + directory.name);
 
-      // ok now load all extensions from the pluginDirectory folders
-      await Promise.all(pluginDirectories.map(folder => this.loadExtension(folder, true)));
+      // collect all extensions from the pluginDirectory folders
+      const analyzedPluginsDirectoryExtensions: AnalyzedExtension[] = (
+        await Promise.all(pluginDirectories.map(folder => this.analyzeExtension(folder, false)))
+      ).filter(extension => extension !== undefined) as AnalyzedExtension[];
+      analyzedExtensions.push(...analyzedPluginsDirectoryExtensions);
     }
+
+    // now we have all extensions, we can load them
+    await this.loadExtensions(analyzedExtensions);
+  }
+
+  async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension | undefined> {
+    // do nothing if there is no package.json file
+    if (!fs.existsSync(path.resolve(extensionPath, 'package.json'))) {
+      console.warn(`Ignoring extension ${extensionPath} without package.json file`);
+      return undefined;
+    }
+
+    const manifest = await this.loadManifest(extensionPath);
+
+    // create api object
+    const api = this.createApi(extensionPath, manifest);
+
+    const analyzedExtension: AnalyzedExtension = {
+      id: `${manifest.publisher}.${manifest.name}`,
+      name: manifest.name,
+      manifest,
+      path: extensionPath,
+      mainPath: path.resolve(extensionPath, manifest.main),
+      api,
+      removable,
+    };
+
+    return analyzedExtension;
+  }
+
+  // check if all dependencies are available
+  // if not, set the missingDependencies property
+  searchForMissingDependencies(analyzedExtensions: AnalyzedExtension[]): void {
+    analyzedExtensions.forEach(extension => {
+      const missingDependencies: string[] = [];
+      extension.manifest?.extensionDependencies?.forEach((dependency: string) => {
+        if (!analyzedExtensions.find(analyzedExtension => analyzedExtension.id === dependency)) {
+          missingDependencies.push(dependency);
+        }
+      });
+      extension.missingDependencies = missingDependencies;
+    });
+  }
+
+  async loadExtensions(analyzedExtensions: AnalyzedExtension[]): Promise<void> {
+    // check if all dependencies are available
+    this.searchForMissingDependencies(analyzedExtensions);
+
+    // do we have circular dependencies?
+    this.searchForCircularDependencies(analyzedExtensions);
+
+    // now, need to sort them by extensionDependencies order
+    const sortedExtensions = this.sortExtensionsByDependencies(analyzedExtensions);
+
+    // now, load all extensions
+    await Promise.all(sortedExtensions.map(extension => this.loadExtension(extension)));
+  }
+
+  // do we have circular dependencies?
+  // set it in the circularDependencies property
+  // search if a dependency is in the extensionDependencies of the other extension
+  searchForCircularDependencies(analyzedExtension: AnalyzedExtension[]): void {
+    analyzedExtension.forEach(extension => {
+      const circularDependencies: string[] = [];
+      extension.manifest?.extensionDependencies?.forEach((dependency: string) => {
+        if (
+          analyzedExtension
+            .find(analyzedExtension => analyzedExtension.id === dependency)
+            ?.manifest?.extensionDependencies?.includes(extension.id)
+        ) {
+          circularDependencies.push(dependency);
+        }
+      });
+      extension.circularDependencies = circularDependencies;
+    });
+  }
+
+  topologicalSort(
+    analyzedExtension: AnalyzedExtension,
+    allExtensions: AnalyzedExtension[],
+    explored: Map<string, boolean>,
+    sorted: AnalyzedExtension[],
+  ) {
+    // flasg the node as explored
+    explored.set(analyzedExtension.id, true);
+
+    // visit all the unvisited nodes
+    analyzedExtension.manifest?.extensionDependencies?.forEach((dependency: string) => {
+      // not visited yet, grab the AnalyzedExtension object and visit it
+      if (!explored.has(dependency)) {
+        const matchingDependency = allExtensions.find(extension => extension.id === dependency);
+        if (matchingDependency) {
+          this.topologicalSort(matchingDependency, allExtensions, explored, sorted);
+        }
+      }
+    });
+    // add at the end of the sorted array
+    sorted.push(analyzedExtension);
+  }
+
+  // use topological sort to sort extensions by dependencies
+  sortExtensionsByDependencies(analyzedExtensions: AnalyzedExtension[]): AnalyzedExtension[] {
+    const sorted: AnalyzedExtension[] = [];
+    const explored = new Map<string, boolean>();
+
+    // visit all unvisited nodes
+    analyzedExtensions.forEach(node => {
+      if (!explored.has(node.id)) {
+        this.topologicalSort(node, analyzedExtensions, explored, sorted);
+      }
+    });
+
+    return sorted;
   }
 
   async readDevelopmentFolders(path: string): Promise<string[]> {
@@ -344,7 +477,11 @@ export class ExtensionLoader {
 
     // reload the extension
     try {
-      await this.loadExtension(extension.path, removable);
+      const updatedExtension = await this.analyzeExtension(extension.path, removable);
+
+      if (updatedExtension) {
+        await this.loadExtension(updatedExtension, true);
+      }
     } catch (error) {
       console.error('error while reloading extension', error);
     } finally {
@@ -352,31 +489,19 @@ export class ExtensionLoader {
     }
   }
 
-  async loadExtension(extensionPath: string, removable: boolean): Promise<void> {
-    // do nothing if there is no package.json file
-    if (!fs.existsSync(path.resolve(extensionPath, 'package.json'))) {
-      console.warn(`Ignoring extension ${extensionPath} without package.json file`);
-      return;
+  async loadExtension(extension: AnalyzedExtension, checkForMissingDependencies = false): Promise<void> {
+    // check if all dependencies are available
+    if (checkForMissingDependencies && extension?.manifest?.extensionDependencies) {
+      // search from existing .this.analyzedExtensions
+      const missing: string[] = extension.manifest.extensionDependencies.filter(
+        (dependency: string) => !this.analyzedExtensions.get(dependency),
+      );
+      if (missing.length > 0) {
+        extension.missingDependencies = missing;
+      }
     }
 
-    // load manifest
-    const manifest = await this.loadManifest(extensionPath);
-    this.overrideRequire();
-
-    // create api object
-    const api = this.createApi(extensionPath, manifest);
-
-    const extension: AnalyzedExtension = {
-      id: `${manifest.publisher}.${manifest.name}`,
-      name: manifest.name,
-      manifest,
-      path: extensionPath,
-      mainPath: path.resolve(extensionPath, manifest.main),
-      api,
-      removable,
-    };
-
-    const extensionConfiguration = manifest?.contributes?.configuration;
+    const extensionConfiguration = extension.manifest?.contributes?.configuration;
     if (extensionConfiguration) {
       // add information about the current extension
       extensionConfiguration.extension = extension;
@@ -386,7 +511,7 @@ export class ExtensionLoader {
       this.configurationRegistry.registerConfigurations([extensionConfiguration]);
     }
 
-    const menus = manifest?.contributes?.menus;
+    const menus = extension.manifest?.contributes?.menus;
     if (menus) {
       this.menuRegistry.registerMenus(menus);
     }
@@ -397,15 +522,25 @@ export class ExtensionLoader {
 
     const telemetryOptions = { extensionId: extension.id };
 
+    if (extension.missingDependencies && extension.missingDependencies.length > 0) {
+      this.extensionState.set(extension.id, 'failed');
+      this.extensionStateErrors.set(
+        extension.id,
+        `Missing dependencies for this extension: ${extension?.missingDependencies.join(', ')}`,
+      );
+
+      return;
+    }
+
     try {
       // in development mode, watch if the extension is updated and reload it
       if (import.meta.env.DEV && !this.watcherExtensions.has(extension.id)) {
-        const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extensionPath);
+        const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extension.path);
         extensionWatcher.onDidChange(async () => {
           // wait 1 second before trying to reload the extension
           // this is to avoid reloading the extension while it is still being updated
           setTimeout(() => {
-            this.reloadExtension(extension, removable).catch((error: unknown) =>
+            this.reloadExtension(extension, extension.removable).catch((error: unknown) =>
               console.error('error while reloading extension', error),
             );
           }, 1000);
@@ -659,6 +794,17 @@ export class ExtensionLoader {
       },
       saveImage(engineId: string, id: string, filename: string) {
         return containerProviderRegistry.saveImage(engineId, id, filename);
+      },
+      pushImage(
+        engineId: string,
+        imageId: string,
+        callback: (name: string, data: string) => void,
+        authInfo: containerDesktopAPI.ContainerAuthInfo | undefined,
+      ): Promise<void> {
+        return containerProviderRegistry.pushImage(engineId, imageId, callback, authInfo);
+      },
+      tagImage(engineId: string, imageId: string, repo: string, tag: string | undefined): Promise<void> {
+        return containerProviderRegistry.tagImage(engineId, imageId, repo, tag);
       },
       onEvent: (listener, thisArg, disposables) => {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
@@ -920,7 +1066,11 @@ export class ExtensionLoader {
   async startExtension(extensionId: string): Promise<void> {
     const extension = this.analyzedExtensions.get(extensionId);
     if (extension) {
-      await this.loadExtension(extension?.path, extension.removable);
+      const analyzedExtension = await this.analyzeExtension(extension.path, extension.removable);
+
+      if (analyzedExtension) {
+        await this.loadExtension(analyzedExtension, true);
+      }
     }
   }
 

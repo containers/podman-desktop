@@ -17,10 +17,13 @@
  ***********************************************************************/
 
 import { WinInstaller } from './podman-install';
-import { beforeEach, expect, type Mock, test, vi } from 'vitest';
+import { beforeEach, expect, type Mock, test, vi, afterEach } from 'vitest';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import { runCliCommand } from './util';
+
+const originalConsoleError = console.error;
+const consoleErrorMock = vi.fn();
 
 vi.mock('@podman-desktop/api', async () => {
   return {
@@ -47,6 +50,11 @@ const progress = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  console.error = consoleErrorMock;
+});
+
+afterEach(() => {
+  console.error = originalConsoleError;
 });
 
 test('expect update on windows to show notification in case of 0 exit code', async () => {

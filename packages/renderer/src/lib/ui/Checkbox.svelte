@@ -4,10 +4,10 @@ import { createEventDispatcher } from 'svelte';
 import { faCheckSquare, faMinusSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { faSquare as faOutlineSquare } from '@fortawesome/free-regular-svg-icons';
 
-export let checked: boolean = false;
-export let disabled: boolean = false;
-export let indeterminate: boolean = false;
-export let disabledTooltip: string = '';
+export let checked = false;
+export let disabled = false;
+export let indeterminate = false;
+export let disabledTooltip = '';
 
 const dispatch = createEventDispatcher<{ click: boolean }>();
 

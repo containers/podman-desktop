@@ -18,13 +18,13 @@ import type { Menu } from '../../../../main/src/plugin/menu-registry';
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 export let onRenameImage: (imageInfo: ImageInfoUI) => void;
 export let image: ImageInfoUI;
-export let dropdownMenu: boolean = false;
-export let detailed: boolean = false;
+export let dropdownMenu = false;
+export let detailed = false;
 export let contributions: Menu[] = [];
 
 let errorTitle: string = undefined;
 let errorMessage: string = undefined;
-let isAuthenticatedForThisImage: boolean = false;
+let isAuthenticatedForThisImage = false;
 
 async function runImage(imageInfo: ImageInfoUI) {
   runImageInfo.set(imageInfo);

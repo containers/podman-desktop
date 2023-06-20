@@ -36,7 +36,8 @@ abstract class SocketCompatibility {
 
 export class DarwinSocketCompatibility extends SocketCompatibility {
   // Shows the details of the compatibility mode on what we do.
-  details = 'The podman-mac-helper binary will be ran. This requires administrative privileges.';
+  details =
+    'The podman-mac-helper binary will be run, linking the Docker socket to Podman. This requires administrative privileges.';
 
   // This will show the "opposite" of what the current state is
   // "Enable" if it's currently disabled, "Disable" if it's currently enabled
@@ -147,7 +148,7 @@ export class LinuxSocketCompatibility extends SocketCompatibility {
   // Runs the systemd command either 'enable' or 'disable'
   async runSystemdCommand(command: string, description: string): Promise<void> {
     // Only allow enable or disable, throw error if anything else is inputted
-    if (command != 'enable' && command != 'disable') {
+    if (command !== 'enable' && command !== 'disable') {
       throw new Error('runSystemdCommand only accepts enable or disable as the command');
     }
 
@@ -165,7 +166,7 @@ export class LinuxSocketCompatibility extends SocketCompatibility {
 
     // Show information message to the user that they may need to run
     // ln -s /run/podman/podman.sock /var/run/docker.sock to enable Docker compatibility
-    if (command == 'enable') {
+    if (command === 'enable') {
       // Show information and give the user an option of Yes or Cancel
       const result = await extensionApi.window.showInformationMessage(
         'Do you want to create a symlink from /run/podman/podman.sock to /var/run/docker.sock to enable Docker compatibility without having to set the DOCKER_HOST environment variable?',
@@ -173,7 +174,7 @@ export class LinuxSocketCompatibility extends SocketCompatibility {
         'Cancel',
       );
       // If the user clicked Yes, run the ln command
-      if (result == 'Yes') {
+      if (result === 'Yes') {
         try {
           await execPromise('pkexec', ['ln', '-s', '/run/podman/podman.sock', '/var/run/docker.sock']);
           await extensionApi.window.showInformationMessage(

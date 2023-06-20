@@ -35,13 +35,13 @@ let volumeMounts: { source: string; target: string }[] = [{ source: '', target: 
 let hostContainerPortMappings: { hostPort: string; containerPort: string }[] = [];
 
 // auto remove the container on exit
-let autoRemove: boolean = false;
+let autoRemove = false;
 
 // privileged moade
-let privileged: boolean = false;
+let privileged = false;
 
 // read-only moade
-let readOnly: boolean = false;
+let readOnly = false;
 
 // security options
 let securityOpts: string[] = [''];
@@ -70,7 +70,7 @@ let networkingModeUserNetwork = '';
 let networkingModeUserContainer = '';
 
 // tty
-let useTty: boolean = true;
+let useTty = true;
 
 let runUser: string | undefined = undefined;
 let dataReady = false;
@@ -180,7 +180,7 @@ async function startContainer() {
 
   hostContainerPortMappings
     .filter(pair => pair.hostPort && pair.containerPort)
-    .map(pair => {
+    .forEach(pair => {
       PortBindings[pair.containerPort] = [{ HostPort: pair.hostPort }];
       ExposedPorts[pair.containerPort] = {};
     });
@@ -388,13 +388,13 @@ function checkContainerName(event: any) {
 <Route path="/*" let:meta>
   {#if dataReady}
     <NavPage title="Create a container from image {imageDisplayName}:{image.tag}" searchEnabled="{false}">
-      <div slot="empty" class="bg-zinc-700 p-5 h-full">
+      <div slot="content" class="bg-zinc-700 p-5 min-w-full h-fit">
         <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
           <section class="pf-c-page__main-tabs pf-m-limit-width">
             <div class="pf-c-page__main-body">
               <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
                 <ul class="pf-c-tabs__list">
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/basic`}">
+                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/basic'}">
                     <a
                       href="/images/run/basic"
                       class="pf-c-tabs__link"
@@ -403,7 +403,7 @@ function checkContainerName(event: any) {
                       <span class="pf-c-tabs__item-text">Basic</span>
                     </a>
                   </li>
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/advanced`}">
+                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/advanced'}">
                     <a
                       href="/images/run/advanced"
                       class="pf-c-tabs__link"
@@ -412,7 +412,7 @@ function checkContainerName(event: any) {
                       <span class="pf-c-tabs__item-text">Advanced</span>
                     </a>
                   </li>
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/networking`}">
+                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/networking'}">
                     <a
                       href="/images/run/networking"
                       class="pf-c-tabs__link"
@@ -421,7 +421,7 @@ function checkContainerName(event: any) {
                       <span class="pf-c-tabs__item-text">Networking</span>
                     </a>
                   </li>
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/security`}">
+                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/security'}">
                     <a
                       href="/images/run/security"
                       class="pf-c-tabs__link"

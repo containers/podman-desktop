@@ -1,26 +1,21 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "node16",
     "target": "esnext",
     "sourceMap": false,
-    "moduleResolution": "Node",
+    "moduleResolution": "node16",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "strict": true,
     "isolatedModules": true,
 
-    "types" : ["node"],
+    "types": ["node"],
 
     "baseUrl": ".",
     "paths": {
-      "/@/*": [
-        "./src/*"
-      ]
-    },
+      "/@/*": ["./src/*"]
+    }
   },
-  "include": [
-    "src/**/*.ts",
-    "../../types/**/*.d.ts"
-  ]
+  "include": ["src/**/*.ts", "../../types/**/*.d.ts"]
 }

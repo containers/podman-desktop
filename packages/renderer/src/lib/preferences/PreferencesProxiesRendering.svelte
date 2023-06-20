@@ -42,10 +42,10 @@ async function updateProxyState() {
 </script>
 
 <SettingsPage title="Proxy Settings">
-  <div class="container mx-auto bg-charcoal-600 mt-5 rounded-md p-3">
+  <div class="container mx-auto bg-charcoal-600 rounded-md p-3">
     <!-- if proxy is not enabled, display a toggle -->
 
-    <label for="toggle-proxy" class="inline-flex relative items-center mt-2 mb-5 cursor-pointer">
+    <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer">
       <input
         type="checkbox"
         bind:checked="{proxyState}"

@@ -108,13 +108,13 @@ export class PodmanConfiguration {
         secrets: toml.Section({}),
         configmaps: toml.Section({}),
       };
-      if (proxySettings?.httpProxy && proxySettings?.httpProxy != '') {
+      if (proxySettings?.httpProxy && proxySettings?.httpProxy !== '') {
         containersConfContent['engine'].env.push(`http_proxy=${proxySettings.httpProxy}`);
       }
-      if (proxySettings?.httpsProxy && proxySettings?.httpsProxy != '') {
+      if (proxySettings?.httpsProxy && proxySettings?.httpsProxy !== '') {
         containersConfContent['engine'].env.push(`https_proxy=${proxySettings.httpsProxy}`);
       }
-      if (proxySettings?.noProxy && proxySettings?.noProxy != '') {
+      if (proxySettings?.noProxy && proxySettings?.noProxy !== '') {
         containersConfContent['engine'].env.push(`no_proxy=${proxySettings.noProxy}`);
       }
 

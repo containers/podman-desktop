@@ -80,8 +80,6 @@ async function doCreatePodFromContainers() {
   // now, for each container, recreate it with the pod
   // but before, stop the container
 
-  const containersToStart: { engineId: string; id: string }[] = [];
-
   // then, stop all containers
   for (const container of podCreation.containers) {
     // make sure it is stopped
@@ -96,12 +94,11 @@ async function doCreatePodFromContainers() {
   for (const container of podCreation.containers) {
     // recreate the container but adding the pod and using a different name
 
-    const replicatedContainer = await window.replicatePodmanContainer(
+    await window.replicatePodmanContainer(
       { ...container },
       { engineId },
       { pod: Id, name: container.name + '-podified' },
     );
-    containersToStart.push({ engineId, id: replicatedContainer.Id });
   }
 
   // finally, start the pod
@@ -186,9 +183,9 @@ function updatePortExposure(port: number, checked: boolean) {
 </script>
 
 <NavPage title="Copy containers to a pod" searchEnabled="{false}">
-  <div class="w-full h-full min-w-fit" slot="empty">
-    <div class="m-5 p-6 h-full bg-charcoal-800 rounded-sm text-gray-700">
-      <div class="w-4/5 min-w-[500px]">
+  <div class="min-w-full h-fit" slot="content">
+    <div class="m-5 p-6 bg-charcoal-800 rounded-sm text-gray-700">
+      <div>
         {#if podCreation}
           {#if containersPorts.length > 0}
             <div class="bg-charcoal-600 border-t-2 border-amber-500 p-4 mb-2" role="alert" aria-label="warning">
@@ -235,7 +232,7 @@ function updatePortExposure(port: number, checked: boolean) {
             <span class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400" aria-label="Containers"
               >Containers to replicate to the pod:</span>
           </div>
-          <div class="max-w-full bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
+          <div class="w-full bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
             {#each podCreation.containers as container, index}
               <div class="p-2 flex flex-row items-center text-gray-700">
                 <div class="w-10"><StatusIcon icon="{ContainerIcon}" status="STOPPED" /></div>
@@ -286,13 +283,13 @@ function updatePortExposure(port: number, checked: boolean) {
               </select>
             </label>
           {/if}
-          {#if providerConnections.length == 1}
+          {#if providerConnections.length === 1}
             <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
           {/if}
         </div>
 
-        <div class="w-full">
-          <div class="float-right">
+        <div class="w-full grid justify-items-end">
+          <div>
             <button class="pf-c-button underline hover:text-gray-400" on:click="{() => router.goto('/containers')}">
               Close
             </button>

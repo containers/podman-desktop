@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "description": "Generates release notes",
   "main": "index.js",
+  "type": "module",
   "author": "The Podman Desktop team",
   "license": "MIT",
   "scripts": {
-    "build": "tsc"
+    "build": "vite build"
   },
   "dependencies": {
-    "@octokit/graphql": "^5.0.6"
+    "@octokit/graphql": "^6.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "vitest": "^0.32.2"
   }
 }

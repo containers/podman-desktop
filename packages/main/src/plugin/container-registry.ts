@@ -17,39 +17,39 @@
  ***********************************************************************/
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Disposable } from './types/disposable';
+import { Disposable } from './types/disposable.js';
 import Dockerode from 'dockerode';
-import StreamValues from 'stream-json/streamers/StreamValues';
-import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
-import type { ImageInfo } from './api/image-info';
-import type { PodInfo, PodInspectInfo } from './api/pod-info';
-import type { ImageInspectInfo } from './api/image-inspect-info';
-import type { ProviderContainerConnectionInfo } from './api/provider-info';
-import type { ImageRegistry } from './image-registry';
-import type { PullEvent } from './api/pull-event';
-import type { Telemetry } from './telemetry/telemetry';
+import StreamValues from 'stream-json/streamers/StreamValues.js';
+import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info.js';
+import type { ImageInfo } from './api/image-info.js';
+import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
+import type { ImageInspectInfo } from './api/image-inspect-info.js';
+import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
+import type { ImageRegistry } from './image-registry.js';
+import type { PullEvent } from './api/pull-event.js';
+import type { Telemetry } from './telemetry/telemetry.js';
 import * as crypto from 'node:crypto';
 import moment from 'moment';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 import { EventEmitter } from 'node:events';
-import type { ContainerInspectInfo } from './api/container-inspect-info';
-import type { HistoryInfo } from './api/history-info';
+import type { ContainerInspectInfo } from './api/container-inspect-info.js';
+import type { HistoryInfo } from './api/history-info.js';
 import type {
   LibPod,
   PlayKubeInfo,
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
   PodInfo as LibpodPodInfo,
-} from './dockerode/libpod-dockerode';
-import { LibpodDockerode } from './dockerode/libpod-dockerode';
-import type { ContainerStatsInfo } from './api/container-stats-info';
-import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
-import type { NetworkInspectInfo } from './api/network-info';
-import type { Event } from './events/emitter';
-import { Emitter } from './events/emitter';
+} from './dockerode/libpod-dockerode.js';
+import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
+import type { ContainerStatsInfo } from './api/container-stats-info.js';
+import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
+import type { NetworkInspectInfo } from './api/network-info.js';
+import type { Event } from './events/emitter.js';
+import { Emitter } from './events/emitter.js';
 import fs from 'node:fs';
 import { pipeline } from 'node:stream/promises';
-import type { ApiSenderType } from './api';
+import type { ApiSenderType } from './api.js';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -677,12 +677,33 @@ export class ContainerProviderRegistry {
     return tags[0];
   }
 
-  async pushImage(engineId: string, imageTag: string, callback: (name: string, data: string) => void): Promise<void> {
+  async tagImage(engineId: string, imageTag: string, repo: string, tag?: string): Promise<void> {
     let telemetryOptions = {};
     try {
       const engine = this.getMatchingEngine(engineId);
       const image = engine.getImage(imageTag);
-      const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
+      await image.tag({ repo, tag });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('tagImage', Object.assign({ imageName: this.getImageHash(imageTag) }, telemetryOptions))
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  async pushImage(
+    engineId: string,
+    imageTag: string,
+    callback: (name: string, data: string) => void,
+    authInfo?: containerDesktopAPI.ContainerAuthInfo,
+  ): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      const engine = this.getMatchingEngine(engineId);
+      const image = engine.getImage(imageTag);
+      const authconfig = authInfo || this.imageRegistry.getAuthconfigForImage(imageTag);
       const pushStream = await image.push({ authconfig });
       pushStream.on('end', () => {
         callback('end', '');
@@ -938,7 +959,7 @@ export class ContainerProviderRegistry {
   async removePod(engineId: string, podId: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingPodmanEngine(engineId).removePod(podId);
+      return this.getMatchingPodmanEngine(engineId).removePod(podId, { force: true });
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;

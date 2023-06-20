@@ -1,13 +1,13 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faPaste } from '@fortawesome/free-solid-svg-icons';
-import { onMount, SvelteComponent } from 'svelte';
+import { onMount } from 'svelte';
 
 export let icon: any;
-export let title: string = 'No title';
-export let message: string = 'Message';
-export let commandline: string = '';
-export let hidden: boolean = false;
+export let title = 'No title';
+export let message = 'Message';
+export let commandline = '';
+export let hidden = false;
 
 let fontAwesomeIcon = false;
 let processed = false;
@@ -27,7 +27,11 @@ function copyRunInstructionToClipboard() {
 let copyTextDivElement: HTMLDivElement;
 </script>
 
-<div class="h-full min-w-full flex flex-col ${$$props.class || ''}" class:hidden="{hidden}" style="{$$props.style}">
+<div
+  class="h-full min-w-full flex flex-col {$$props.class || ''}"
+  class:hidden="{hidden}"
+  style="{$$props.style}"
+  aria-label="{$$props['aria-label']}">
   <div class="pf-c-empty-state h-full">
     <div class="pf-c-empty-state__content">
       <p class="pf-c-empty-state__body">

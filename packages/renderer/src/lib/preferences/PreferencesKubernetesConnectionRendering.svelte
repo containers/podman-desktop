@@ -8,13 +8,14 @@ import { onMount } from 'svelte';
 import type { ProviderInfo, ProviderKubernetesConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
-import Logger from './Logger.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
+import type { Terminal } from 'xterm';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
-export let apiUrlBase64: string = '';
+export let apiUrlBase64 = '';
 
 let scope: KubernetesProviderConnection;
 let providers: ProviderInfo[] = [];
@@ -77,7 +78,7 @@ function createNewConnection(providerId: string) {
 }
 
 let lifecycleError = '';
-router.subscribe(async route => {
+router.subscribe(() => {
   lifecycleError = '';
 });
 async function startConnection() {
@@ -102,14 +103,14 @@ async function deleteConnection() {
 
 let showModal: ProviderInfo = undefined;
 
-let logsTerminal;
+let logsTerminal: Terminal;
 
-async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
+async function stopReceivingLogs(_provider: ProviderInfo): Promise<void> {
   // await window.stopReceiveLogs(provider.internalId, kubernetesConnectionInfo);
 }
 </script>
 
-<Route path="/*" breadcrumb="{connectionName} Settings" let:meta>
+<Route path="/*" breadcrumb="{connectionName} Settings">
   <div class="flex flex-1 flex-col bg-charcoal-600 px-2">
     <div class="flex flex-row align-middle my-4">
       <div class="capitalize text-xl">{connectionName}</div>
@@ -228,7 +229,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px; width: 650px;">
       <div style="width:100%; height:100%;">
-        <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
+        <TerminalWindow bind:terminal="{logsTerminal}" />
       </div>
     </div>
   </Modal>

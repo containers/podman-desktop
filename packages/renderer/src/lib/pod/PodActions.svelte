@@ -1,8 +1,5 @@
 <script lang="ts">
-import { faFileCode, faPlay, faRocket } from '@fortawesome/free-solid-svg-icons';
-import { faStop } from '@fortawesome/free-solid-svg-icons';
-import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faFileCode, faPlay, faRocket, faStop, faArrowsRotate, faTrash } from '@fortawesome/free-solid-svg-icons';
 import type { PodInfoUI } from './PodInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -10,8 +7,8 @@ import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 
 export let pod: PodInfoUI;
-export let dropdownMenu: boolean = false;
-export let detailed: boolean = false;
+export let dropdownMenu = false;
+export let detailed = false;
 
 export let inProgressCallback: (inProgress: boolean, state?: string) => void = () => {};
 export let errorCallback: (erroMessage: string) => void = () => {};

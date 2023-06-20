@@ -89,10 +89,10 @@
           "description": "Image Path (Optional)"
         },
         "podman.factory.machine.rootful": {
-                  "type": "boolean",
-                  "scope": "ContainerProviderConnectionFactory",
-                  "description": "Machine with root privileges"
-      }
+          "type": "boolean",
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Machine with root privileges"
+        }
       }
     }
   },
@@ -111,9 +111,10 @@
   "devDependencies": {
     "7zip-min": "^1.4.4",
     "hasha": "^5.2.2",
-    "mkdirp": "^2.1.6",
-    "octokit": "^2.0.19",
+    "mkdirp": "^3.0.1",
+    "octokit": "^2.0.22",
     "ts-node": "^10.9.1",
+    "vitest": "^0.32.2",
     "zip-local": "^0.3.5"
   }
 }

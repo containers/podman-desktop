@@ -4,22 +4,23 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import { Buffer } from 'buffer';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
 import { providerInfos } from '../../stores/providers';
-import { beforeUpdate, onMount } from 'svelte';
+import { onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
-import Logger from './Logger.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import { writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
 import { filesize } from 'filesize';
 import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
+import type { Terminal } from 'xterm';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
 export let connection: string = undefined;
 
-let socketPath: string = '';
+let socketPath = '';
 let scope: ContainerProviderConnection;
 let providers: ProviderInfo[] = [];
 onMount(() => {
@@ -81,7 +82,7 @@ function createNewConnection(providerId: string) {
 }
 
 let lifecycleError = '';
-router.subscribe(async route => {
+router.subscribe(() => {
   lifecycleError = '';
 });
 
@@ -99,7 +100,7 @@ async function startConnection() {
   try {
     const loggerHandlerKey = startTask(
       `Start ${containerConnectionInfo.name}`,
-      `/preferences/resources`,
+      '/preferences/resources',
       getLoggerHandler(),
     );
     await window.startProviderConnectionLifecycle(
@@ -117,7 +118,7 @@ async function stopConnection() {
   lifecycleError = undefined;
   const loggerHandlerKey = startTask(
     `Stop ${containerConnectionInfo.name}`,
-    `/preferences/resources`,
+    '/preferences/resources',
     getLoggerHandler(),
   );
   await window.stopProviderConnectionLifecycle(
@@ -132,7 +133,7 @@ async function deleteConnection() {
   lifecycleError = undefined;
   const loggerHandlerKey = startTask(
     `Delete ${containerConnectionInfo.name}`,
-    `/preferences/resources`,
+    '/preferences/resources',
     getLoggerHandler(),
   );
   await window.deleteProviderConnectionLifecycle(
@@ -146,9 +147,9 @@ async function deleteConnection() {
 
 let showModal: ProviderInfo = undefined;
 
-let logsTerminal;
+let logsTerminal: Terminal;
 
-async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
+async function startReceivingLogs(provider: ProviderInfo): Promise<void> {
   const logHandler = (newContent: any[], colorPrefix: string) => {
     writeToTerminal(logsTerminal, newContent, colorPrefix);
   };
@@ -166,7 +167,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 }
 </script>
 
-<Route path="/*" breadcrumb="{connectionName} Settings" let:meta>
+<Route path="/*" breadcrumb="{connectionName} Settings">
   <div class="flex flex-1 flex-col bg-charcoal-600 px-2">
     <div class="flex flex-row align-middle my-4">
       <div class="capitalize text-xl">{connectionName} settings</div>
@@ -295,7 +296,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px; width: 650px;">
       <div style="width:100%; height:100%;">
-        <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => startReceivinLogs(showModal)}" />
+        <TerminalWindow bind:terminal="{logsTerminal}" on:init="{() => startReceivingLogs(showModal)}" />
       </div>
     </div>
   </Modal>

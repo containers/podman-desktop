@@ -7,8 +7,8 @@ import SettingsPage from '../preferences/SettingsPage.svelte';
 
 export let ociImage: string = undefined;
 
-let installInProgress: boolean = false;
-let errorInstall: string = '';
+let installInProgress = false;
+let errorInstall = '';
 let logs: string[] = [];
 
 let logElement;
@@ -49,7 +49,7 @@ function deleteContribution(extensionName: string) {
 </script>
 
 <SettingsPage title="Docker Desktop Extensions">
-  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
+  <div class="bg-charcoal-600 rounded-md p-3">
     <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
     <p class="text-xs italic">
       Not all are guaranteed to work but you can add their OCI Image below to try and load them.
@@ -105,9 +105,9 @@ function deleteContribution(extensionName: string) {
   </div>
 
   {#if $contributions.length > 0}
-    <div class="flex border-t-2 border-purple-500 flex-1 flex-col m-4 p-2">
+    <div class="flex border-t-2 border-purple-500 flex-1 flex-col mt-4 p-2">
       <p>Installed extensions:</p>
-      <div class="grid gap-4 grid-cols-4 py-4">
+      <div class="grid gap-4 grid-cols-4 pt-4">
         {#each $contributions as contribution, index}
           <div class="flex flex-col bg-purple-600 h-[100px]">
             <div class="flex justify-end flex-wrap">

@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
-    "lib": [
-      "ES2017",
-    ],
+    "lib": ["ES2017"],
     "sourceMap": true,
     "rootDir": "src",
     "outDir": "dist",
@@ -11,23 +9,14 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "types": [
-      "node",
-    ]
+    "types": ["node"]
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS",
-      "lib": [
-        "ES2020",
-        "DOM"
-      ],
-      "types": [
-        "node"
-      ]
+      "lib": ["ES2020", "DOM"],
+      "types": ["node"]
     }
   }
 }

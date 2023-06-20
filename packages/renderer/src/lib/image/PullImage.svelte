@@ -1,20 +1,17 @@
 <script lang="ts">
 import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import type { PullEvent } from '../../../../main/src/plugin/api/pull-event';
-import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
 import { providerInfos } from '../../stores/providers';
-import Modal from '../dialogs/Modal.svelte';
-import PreferencesRegistriesEditCreateRegistryModal from '../preferences/PreferencesRegistriesEditCreateRegistryModal.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
+import type { Terminal } from 'xterm';
 
-let logsPull;
+let logsPull: Terminal;
 let pullError = '';
 let pullInProgress = false;
 let pullFinished = false;
@@ -26,25 +23,20 @@ $: providerConnections = $providerInfos
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 let selectedProviderConnection: ProviderContainerConnectionInfo;
-$: initTerminal();
 
 const lineNumberPerId = new Map<string, number>();
 let lineIndex = 0;
 
-export let terminalInitialized = false;
-
 function callback(event: PullEvent) {
   let lineIndexToWrite;
-  if (event.status) {
-    if (event.id) {
-      const lineNumber = lineNumberPerId.get(event.id);
-      if (lineNumber) {
-        lineIndexToWrite = lineNumber;
-      } else {
-        lineIndex++;
-        lineIndexToWrite = lineIndex;
-        lineNumberPerId.set(event.id, lineIndex);
-      }
+  if (event.status && event.id) {
+    const lineNumber = lineNumberPerId.get(event.id);
+    if (lineNumber) {
+      lineIndexToWrite = lineNumber;
+    } else {
+      lineIndex++;
+      lineIndexToWrite = lineIndex;
+      lineNumberPerId.set(event.id, lineIndex);
     }
   }
   // no index, append
@@ -57,7 +49,7 @@ function callback(event: PullEvent) {
     // move cursor to the home
     logsPull.write(`\u001b[${lineIndexToWrite};0H`);
     // erase the line
-    logsPull.write(`\u001B[2K`);
+    logsPull.write('\u001B[2K');
     // do we have id ?
     if (event.id) {
       logsPull.write(`${event.id}: `);
@@ -66,57 +58,19 @@ function callback(event: PullEvent) {
     // do we have progress ?
     if (event.progress && event.progress !== '') {
       logsPull.write(event.progress);
-    } else if (event.progressDetail && event.progressDetail.current && event.progressDetail.total) {
+    } else if (event?.progressDetail?.current && event?.progressDetail?.total) {
       logsPull.write(` ${Math.round((event.progressDetail.current / event.progressDetail.total) * 100)}%`);
     }
     // write end of line
-    logsPull.write(`\n\r`);
+    logsPull.write('\n\r');
   } else if (event.error) {
     logsPull.write(event.error.replaceAll('\n', '\n\r') + '\n\r');
   }
-}
-let pullLogsXtermDiv: HTMLDivElement;
-
-async function initTerminal() {
-  await tick();
-  if (terminalInitialized) {
-    return;
-  }
-
-  // missing element, return
-  if (!pullLogsXtermDiv) {
-    return;
-  }
-
-  // grab font size
-  const fontSize = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.FontSize,
-  );
-  const lineHeight = await window.getConfigurationValue<number>(
-    TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
-  );
-
-  logsPull = new Terminal({ fontSize, lineHeight, disableStdin: true });
-  const fitAddon = new FitAddon();
-  logsPull.loadAddon(fitAddon);
-
-  logsPull.open(pullLogsXtermDiv);
-  // disable cursor
-  logsPull.write('\x1b[?25l');
-
-  // call fit addon each time we resize the window
-  window.addEventListener('resize', () => {
-    fitAddon.fit();
-  });
-  fitAddon.fit();
-  terminalInitialized = true;
 }
 
 async function pullImage() {
   lineNumberPerId.clear();
   lineIndex = 0;
-  await tick();
-  initTerminal();
   await tick();
   logsPull?.reset();
 
@@ -138,11 +92,6 @@ async function pullImageFinished() {
 
 async function gotoManageRegistries() {
   router.goto('/preferences/registries');
-}
-
-let showAddRegistryModal = false;
-async function toggleAddARegistry() {
-  showAddRegistryModal = true;
 }
 
 onMount(() => {
@@ -170,16 +119,9 @@ function validateImageName(event): void {
       </span>
       Manage registries
     </button>
-
-    <button on:click="{() => toggleAddARegistry()}" class="pf-c-button pf-m-primary" type="button">
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-id-badge" aria-hidden="true"></i>
-      </span>
-      Login to a Registry
-    </button>
   </div>
 
-  <div slot="empty" class="p-5">
+  <div slot="content" class="p-5 min-w-full h-fit">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else}
@@ -218,7 +160,7 @@ function validateImageName(event): void {
               </div>
             </div>
           {/if}
-          {#if providerConnections.length == 1}
+          {#if providerConnections.length === 1}
             <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection}" />
           {/if}
         </div>
@@ -249,21 +191,8 @@ function validateImageName(event): void {
             {/if}
           </div>
         </footer>
-        <div bind:this="{pullLogsXtermDiv}"></div>
+        <TerminalWindow bind:terminal="{logsPull}" />
       </div>
     {/if}
   </div>
 </NavPage>
-
-{#if showAddRegistryModal}
-  <Modal
-    on:close="{() => {
-      showAddRegistryModal = false;
-    }}">
-    <PreferencesRegistriesEditCreateRegistryModal
-      mode="create"
-      toggleCallback="{() => {
-        showAddRegistryModal = false;
-      }}" />
-  </Modal>
-{/if}

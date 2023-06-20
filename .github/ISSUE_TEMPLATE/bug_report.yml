@@ -25,9 +25,23 @@ body:
     attributes:
       label: Operating system
       description: "Which operating system are you on? Please provide the version as well. If you are on a Mac, please specify Apple silicon or Intel."
-      placeholder: "macOS Monterey 12.2.1 (Intel)"
+      placeholder: "macOS Ventura 13.4 (Arm), Windows 11"
     validations:
-      required: true 
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installation Method
+      description: "How did you install Podman Desktop ?"
+      options:
+        - "Installer from website/GitHub releases"
+        - "Brew (macOS)"
+        - "Chocolatey (Windows)"
+        - "Flathub (Linux)"
+        - "Scoop (Windows)"
+        - "Winget (Windows)"
+        - "Other"
 
   - type: dropdown
     id: version
@@ -35,8 +49,9 @@ body:
       label: Version
       description: What version of the software are you running?
       options:
-        - "1.0.x"
+        - "1.1.0"
         - "next (development version)"
+        - "1.0.x"
         - "0.15.0"
         - "0.14.1"
         - "0.14.0"

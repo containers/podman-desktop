@@ -3,7 +3,9 @@ import { onDestroy, onMount, tick } from 'svelte';
 import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 import Markdown from '/@/lib/markdown/Markdown.svelte';
 
-const DEFAULT_PROMPT = "Press 'Enter' to confirm your input or 'Escape' to cancel";
+const ENTER = 'Enter';
+const ESCAPE = 'Escape';
+const DEFAULT_PROMPT = `Press '${ENTER}' to confirm your input or '${ESCAPE}' to cancel`;
 let inputValue = '';
 let placeHolder = '';
 let prompt = '';
@@ -27,6 +29,7 @@ let quickPickSelectedFilteredIndex = 0;
 let quickPickCanPickMany = false;
 
 let inputElement: HTMLInputElement | HTMLTextAreaElement = undefined;
+let outerDiv: HTMLDivElement = undefined;
 
 const showInputCallback = async (options?: InputBoxOptions) => {
   mode = 'InputBox';
@@ -206,17 +209,13 @@ function handleKeydown(e: KeyboardEvent) {
       e.preventDefault();
       return;
     }
-  } else if (e.key === ' ') {
-    if (mode === 'QuickPick') {
-      if (quickPickCanPickMany) {
-        // if space is pressed, toggle the item
-        const originalIndex = quickPickItems.indexOf(quickPickFilteredItems[quickPickSelectedFilteredIndex]);
-        quickPickItems[originalIndex].checkbox = !quickPickItems[originalIndex].checkbox;
-        quickPickFilteredItems = quickPickItems;
-        e.preventDefault();
-        return;
-      }
-    }
+  } else if (e.key === ' ' && mode === 'QuickPick' && quickPickCanPickMany) {
+    // if space is pressed, toggle the item
+    const originalIndex = quickPickItems.indexOf(quickPickFilteredItems[quickPickSelectedFilteredIndex]);
+    quickPickItems[originalIndex].checkbox = !quickPickItems[originalIndex].checkbox;
+    quickPickFilteredItems = quickPickItems;
+    e.preventDefault();
+    return;
   }
 
   if (mode === 'QuickPick') {
@@ -247,17 +246,25 @@ function handleKeydown(e: KeyboardEvent) {
     }
   }
 }
+
+function handleMousedown(e: MouseEvent) {
+  if (outerDiv && !e.defaultPrevented && e.target instanceof Node && !outerDiv.contains(e.target)) {
+    window.sendShowQuickPickValues(currentId, []);
+    cleanup();
+  }
+}
 </script>
 
-<svelte:window on:keydown="{handleKeydown}" />
+<svelte:window on:keydown="{handleKeydown}" on:mousedown="{handleMousedown}" />
 
 {#if display}
   <!-- Create overlay-->
   <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 h-full z-40"></div>
 
   <div class="absolute m-auto left-0 right-0 z-50">
-    <div class=" flex justify-center items-center mt-1">
+    <div class="flex justify-center items-center mt-1">
       <div
+        bind:this="{outerDiv}"
         class="bg-charcoal-800 w-[700px] {mode === 'InputBox'
           ? 'h-fit'
           : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">

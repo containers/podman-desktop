@@ -1,17 +1,8 @@
 <script lang="ts">
-import {
-  faCheck,
-  faCheckCircle,
-  faCheckDouble,
-  faCheckSquare,
-  faChevronDown,
-  faCircle,
-  faInfoCircle,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { clearCompletedTasks, tasksInfo } from '/@/stores/tasks';
 
 import Fa from 'svelte-fa/src/fa.svelte';
-import BellSlashIcon from '../images/BellSlashIcon.svelte';
 import TaskIcon from '../images/TaskIcon.svelte';
 import TaskManagerEmptyScreen from './TaskManagerEmptyScreen.svelte';
 import TaskManagerGroup from './TaskManagerGroup.svelte';

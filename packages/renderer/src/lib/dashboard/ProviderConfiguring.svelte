@@ -29,16 +29,6 @@ let logsTerminal;
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
 
-async function initializeProvider() {
-  initializeError = undefined;
-  logsTerminal.clear();
-  initializationContext.promise?.catch(error => {
-    initializeError = error;
-    logsTerminal.write(error + '\r');
-    console.error('Error while initializing the provider', error);
-  });
-}
-
 async function refreshTerminal() {
   // missing element, return
   if (!logsXtermDiv) {
@@ -81,7 +71,7 @@ onMount(async () => {
   refreshTerminal();
 
   // Resize the terminal each time we change the div size
-  resizeObserver = new ResizeObserver(entries => {
+  resizeObserver = new ResizeObserver(() => {
     termFit?.fit();
   });
 

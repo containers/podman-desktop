@@ -17,10 +17,10 @@
  ***********************************************************************/
 
 import { featured as featuredJSONFile } from '../../../../../featured.json';
-import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api';
-import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog';
-import type { ExtensionLoader } from '/@/plugin/extension-loader';
-import type { FeaturedExtension } from '/@/plugin/featured/featured-api';
+import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
+import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
+import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
+import type { FeaturedExtension } from '/@/plugin/featured/featured-api.js';
 
 /**
  * Manages the Featured extensions

@@ -1,9 +1,15 @@
 <script lang="ts">
-import { faAlignLeft, faFileCode, faPlay, faRocket, faTerminal } from '@fortawesome/free-solid-svg-icons';
-import { faStop } from '@fortawesome/free-solid-svg-icons';
-import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faAlignLeft,
+  faFileCode,
+  faPlay,
+  faRocket,
+  faTerminal,
+  faStop,
+  faArrowsRotate,
+  faTrash,
+  faExternalLinkSquareAlt,
+} from '@fortawesome/free-solid-svg-icons';
 import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
 
 import { router } from 'tinro';
@@ -11,16 +17,16 @@ import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 export let container: ContainerInfoUI;
-export let dropdownMenu: boolean = false;
-export let detailed: boolean = false;
+export let dropdownMenu = false;
+export let detailed = false;
 
 export let inProgressCallback: (inProgress: boolean, state?: string) => void = () => {};
 export let errorCallback: (erroMessage: string) => void = () => {};
 
-async function startContainer(containerInfo: ContainerInfoUI) {
+async function startContainer() {
   inProgressCallback(true, 'STARTING');
   try {
-    await window.startContainer(containerInfo.engineId, containerInfo.id);
+    await window.startContainer(container.engineId, container.id);
   } catch (error) {
     errorCallback(error);
   } finally {
@@ -28,10 +34,10 @@ async function startContainer(containerInfo: ContainerInfoUI) {
   }
 }
 
-async function restartContainer(containerInfo: ContainerInfoUI) {
+async function restartContainer() {
   inProgressCallback(true, 'RESTARTING');
   try {
-    await window.restartContainer(containerInfo.engineId, containerInfo.id);
+    await window.restartContainer(container.engineId, container.id);
   } catch (error) {
     errorCallback(error);
   } finally {
@@ -39,10 +45,10 @@ async function restartContainer(containerInfo: ContainerInfoUI) {
   }
 }
 
-async function stopContainer(containerInfo: ContainerInfoUI) {
+async function stopContainer() {
   inProgressCallback(true, 'STOPPING');
   try {
-    await window.stopContainer(containerInfo.engineId, containerInfo.id);
+    await window.stopContainer(container.engineId, container.id);
   } catch (error) {
     errorCallback(error);
   } finally {
@@ -50,18 +56,18 @@ async function stopContainer(containerInfo: ContainerInfoUI) {
   }
 }
 
-function openBrowser(containerInfo: ContainerInfoUI): void {
-  window.openExternal(containerInfo.openingUrl);
+function openBrowser(): void {
+  window.openExternal(container.openingUrl);
 }
 
-function openLogs(containerInfo: ContainerInfoUI): void {
+function openLogs(): void {
   router.goto(`/containers/${container.id}/logs`);
 }
 
-async function deleteContainer(containerInfo: ContainerInfoUI): Promise<void> {
+async function deleteContainer(): Promise<void> {
   inProgressCallback(true, 'DELETING');
   try {
-    await window.deleteContainer(containerInfo.engineId, containerInfo.id);
+    await window.deleteContainer(container.engineId, container.id);
     router.goto('/containers/');
   } catch (error) {
     errorCallback(error);
@@ -70,7 +76,7 @@ async function deleteContainer(containerInfo: ContainerInfoUI): Promise<void> {
   }
 }
 
-function openTerminalContainer(containerInfo: ContainerInfoUI): void {
+function openTerminalContainer(): void {
   router.goto(`/containers/${container.id}/terminal`);
 }
 
@@ -94,7 +100,7 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Start Container"
-  onClick="{() => startContainer(container)}"
+  onClick="{() => startContainer()}"
   hidden="{container.state === 'RUNNING' || container.state === 'STOPPING'}"
   detailed="{detailed}"
   inProgress="{container.actionInProgress && container.state === 'STARTING'}"
@@ -103,7 +109,7 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Stop Container"
-  onClick="{() => stopContainer(container)}"
+  onClick="{() => stopContainer()}"
   hidden="{!(container.state === 'RUNNING' || container.state === 'STOPPING')}"
   detailed="{detailed}"
   inProgress="{container.actionInProgress && container.state === 'STOPPING'}"
@@ -111,7 +117,7 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Delete Container"
-  onClick="{() => deleteContainer(container)}"
+  onClick="{() => deleteContainer()}"
   icon="{faTrash}"
   detailed="{detailed}"
   inProgress="{container.actionInProgress && container.state === 'DELETING'}" />
@@ -121,7 +127,7 @@ if (dropdownMenu) {
   {#if !detailed}
     <ListItemButtonIcon
       title="Open Logs"
-      onClick="{() => openLogs(container)}"
+      onClick="{() => openLogs()}"
       menu="{dropdownMenu}"
       detailed="{false}"
       icon="{faAlignLeft}" />
@@ -144,7 +150,7 @@ if (dropdownMenu) {
     icon="{faRocket}" />
   <ListItemButtonIcon
     title="Open Browser"
-    onClick="{() => openBrowser(container)}"
+    onClick="{() => openBrowser()}"
     menu="{dropdownMenu}"
     enabled="{container.state === 'RUNNING' && container.hasPublicPort}"
     hidden="{dropdownMenu && container.state !== 'RUNNING'}"
@@ -153,7 +159,7 @@ if (dropdownMenu) {
   {#if !detailed}
     <ListItemButtonIcon
       title="Open Terminal"
-      onClick="{() => openTerminalContainer(container)}"
+      onClick="{() => openTerminalContainer()}"
       menu="{dropdownMenu}"
       hidden="{!(container.state === 'RUNNING')}"
       detailed="{false}"
@@ -161,7 +167,7 @@ if (dropdownMenu) {
   {/if}
   <ListItemButtonIcon
     title="Restart Container"
-    onClick="{() => restartContainer(container)}"
+    onClick="{() => restartContainer()}"
     menu="{dropdownMenu}"
     detailed="{detailed}"
     icon="{faArrowsRotate}" />

@@ -120,9 +120,9 @@ export class Generator {
     const sections = [];
 
     let index = 0;
-    while ((index = input.indexOf(RELEASE_NOTES_SECTION_TAG, index)) != -1) {
+    while ((index = input.indexOf(RELEASE_NOTES_SECTION_TAG, index)) !== -1) {
       const endIndex = input.indexOf(RELEASE_NOTES_SECTION_TAG, index + RELEASE_NOTES_SECTION_TAG.length);
-      if (endIndex != -1) {
+      if (endIndex !== -1) {
         sections.push(input.substring(index + RELEASE_NOTES_SECTION_TAG.length, endIndex));
         index = endIndex + RELEASE_NOTES_SECTION_TAG.length;
       } else {

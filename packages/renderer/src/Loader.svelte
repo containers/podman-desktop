@@ -1,11 +1,12 @@
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte';
+import { onDestroy, onMount, tick } from 'svelte';
+import { router } from 'tinro';
 import App from './App.svelte';
 import SealRocket from './lib/images/SealRocket.svelte';
 
-let systemReady: boolean = false;
+let systemReady = false;
 
-let toggle: boolean = false;
+let toggle = false;
 
 let loadingSequence;
 
@@ -25,12 +26,33 @@ onMount(async () => {
     if (extensionsStarted) {
       window.dispatchEvent(new CustomEvent('extensions-already-started', {}));
     }
-  } catch (error) {}
+  } catch (error) {
+    console.error('Unable to check if system is ready', error);
+  }
 });
 
 onDestroy(() => {
   if (loadingSequence) {
     clearInterval(loadingSequence);
+  }
+});
+
+// receive events from main process to install a new extension
+window.events?.receive('install-extension:from-id', extensionId => {
+  const action = async () => {
+    const redirectPage = `/preferences/extensions/install-from-id/${extensionId}`;
+    // need to open the extension page
+    await tick();
+    router.goto(redirectPage);
+  };
+
+  if (!systemReady) {
+    // need to wait for the system to be ready, so we delay the install
+    window.addEventListener('system-ready', () => {
+      action();
+    });
+  } else {
+    action();
   }
 });
 

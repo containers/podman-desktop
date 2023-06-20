@@ -6,13 +6,14 @@ import { onMount } from 'svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
-import Logger from './Logger.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import { writeToTerminal } from './Util';
 import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
+import type { Terminal } from 'xterm';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -21,7 +22,7 @@ export let taskId: number = undefined;
 let showModal: ProviderInfo = undefined;
 
 let providerLifecycleError = '';
-router.subscribe(async route => {
+router.subscribe(() => {
   providerLifecycleError = '';
 });
 
@@ -35,25 +36,20 @@ onMount(() => {
 
 let providerInfo: ProviderInfo;
 $: providerInfo = providers.filter(provider => provider.internalId === providerInternalId)[0];
-let waiting = false;
 
-let logsTerminal;
+let logsTerminal: Terminal;
 
 async function startProvider(): Promise<void> {
-  waiting = true;
   await window.startProviderLifecycle(providerInfo.internalId);
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
-  waiting = false;
 }
 
 async function stopProvider(): Promise<void> {
-  waiting = true;
   await window.stopProviderLifecycle(providerInfo.internalId);
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
-  waiting = false;
 }
 
-async function startReceivinLogs(provider: ProviderInfo): Promise<void> {
+async function startReceivingLogs(provider: ProviderInfo): Promise<void> {
   const logHandler = (newContent: any[]) => {
     writeToTerminal(logsTerminal, newContent, '\x1b[37m');
   };
@@ -65,9 +61,9 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
 }
 </script>
 
-<Route path="/*" breadcrumb="{providerInfo?.name}" let:meta>
-  <div class="flex flex-1 flex-col bg-charcoal-800 px-6 py-1">
-    <div>
+<Route path="/*" breadcrumb="{providerInfo?.name}">
+  <div class="flex flex-col bg-charcoal-800 py-1 w-full h-full overflow-hidden">
+    <div class="px-6">
       <button
         aria-label="Close"
         class="hover:text-gray-700 float-right text-lg"
@@ -75,15 +71,15 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
         <Fa icon="{faXmark}" />
       </button>
     </div>
-    <h1 class="capitalize text-sm">Resources > {providerInfo?.name}</h1>
+    <h1 class="capitalize text-sm px-6">Resources > {providerInfo?.name}</h1>
     <!-- Manage lifecycle-->
     {#if providerInfo?.lifecycleMethods}
-      <div class="pl-1 py-2">
+      <div class="pl-1 py-2 px-6">
         <div class="text-sm italic text-gray-700">Status</div>
         <div class="pl-3">{providerInfo.status}</div>
       </div>
 
-      <div class="py-2 flex flex:row">
+      <div class="py-2 px-6 flex flex:row">
         <!-- start is enabled only in stopped mode-->
         {#if providerInfo?.lifecycleMethods.includes('start')}
           <div class="px-2 text-sm italic text-gray-700">
@@ -166,7 +162,7 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
     <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px; width: 647px;">
       <div style="width:100%; height:100%; flexDirection: column;">
-        <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => startReceivinLogs(showModal)}" />
+        <TerminalWindow bind:terminal="{logsTerminal}" on:init="{() => startReceivingLogs(showModal)}" />
       </div>
     </div>
   </Modal>

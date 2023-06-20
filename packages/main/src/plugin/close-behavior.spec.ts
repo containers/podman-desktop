@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import { beforeEach, test, expect, vi } from 'vitest';
-import { CloseBehavior } from './close-behavior';
-import { ConfigurationRegistry } from './configuration-registry';
-import * as util from '../util';
+import { CloseBehavior } from './close-behavior.js';
+import { ConfigurationRegistry } from './configuration-registry.js';
+import * as util from '../util.js';
 
 vi.mock('./util', () => {
   return {

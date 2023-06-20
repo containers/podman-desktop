@@ -26,9 +26,9 @@ async function removeExtension() {
   <span slot="subtitle">
     {extensionInfo.description}
   </span>
-  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
+  <div class="bg-charcoal-600 rounded-md p-3">
     {#if extensionInfo}
-      <Route path="/*" breadcrumb="{extensionInfo.displayName}" let:meta>
+      <Route path="/*" breadcrumb="{extensionInfo.displayName}">
         <!-- Manage lifecycle-->
         <div class="flex pb-2">
           <div class="pr-2">Status</div>

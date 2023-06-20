@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { CancellationTokenSource } from './cancellation-token';
+import { CancellationTokenSource } from './cancellation-token.js';
 
 export class CancellationTokenRegistry {
   private callbackId = 0;

@@ -49,7 +49,7 @@ $: {
 
 function updateResetButtonVisibility(recordValue: any) {
   showResetButton =
-    recordUI.original.default !== undefined && recordValue !== undefined && recordValue != recordUI.original.default;
+    recordUI.original.default !== undefined && recordValue !== undefined && recordValue !== recordUI.original.default;
 }
 
 function doResetToDefault() {
