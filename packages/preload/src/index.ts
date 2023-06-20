@@ -173,6 +173,10 @@ function initExposure(): void {
     return ipcInvoke('container-provider-registry:listPods');
   });
 
+  contextBridge.exposeInMainWorld('reconnectContainerProviders', async (): Promise<PodInfo[]> => {
+    return ipcInvoke('container-provider-registry:reconnectContainerProviders');
+  });
+
   contextBridge.exposeInMainWorld('listNetworks', async (): Promise<NetworkInspectInfo[]> => {
     return ipcInvoke('container-provider-registry:listNetworks');
   });
