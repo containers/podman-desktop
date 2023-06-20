@@ -784,6 +784,21 @@ export class ContainerProviderRegistry {
     return crypto.createHash('sha512').update(imageName).digest('hex');
   }
 
+  async pingContainerEngine(providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<unknown> {
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingEngineFromConnection(providerContainerConnectionInfo).ping();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+
+        .track('pingContainerEngine', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
   async deleteContainer(engineId: string, id: string): Promise<void> {
     let telemetryOptions = {};
     try {
