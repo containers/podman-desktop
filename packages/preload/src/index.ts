@@ -61,6 +61,10 @@ import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/pl
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
+export type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
+const originalConsole = console;
+const memoryLogs: { logType: LogType; date: Date; message: string }[] = [];
+
 export interface FeedbackProperties {
   rating: number;
   comment?: string;
@@ -120,6 +124,18 @@ function initExposure(): void {
     apiSender.send(channel, data);
   });
 
+  // keep console log data
+  const types: LogType[] = ['log', 'warn', 'trace', 'debug', 'error'];
+  types.forEach(logType => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const originalFunction = (originalConsole as any)[logType];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (console as any)[logType] = (...args: unknown[]) => {
+      originalFunction(...args);
+      memoryLogs.push({ logType: logType, date: new Date(), message: args.join(' ') });
+    };
+  });
+
   ipcRenderer.on('console:output', (_, target: string, ...args) => {
     const prefix = 'main ↪️';
     if (target === 'log') {
@@ -147,6 +163,13 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('extensionSystemIsExtensionsStarted', async (): Promise<boolean> => {
     return ipcInvoke('extension-system:isExtensionsStarted');
   });
+
+  contextBridge.exposeInMainWorld(
+    'getDevtoolsConsoleLogs',
+    async (): Promise<{ logType: LogType; date: Date; message: string }[]> => {
+      return memoryLogs;
+    },
+  );
 
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
     return ipcInvoke('container-provider-registry:listContainers');
