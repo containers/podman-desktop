@@ -95,7 +95,7 @@
     "@types/tar": "^6.1.5",
     "@types/tar-fs": "^2.0.1",
     "@types/validator": "^13.7.17",
-    "@typescript-eslint/eslint-plugin": "^5.59.11",
+    "@typescript-eslint/eslint-plugin": "^5.60.0",
     "@typescript-eslint/parser": "^5.60.0",
     "@vitest/coverage-v8": "0.32.2",
     "cross-env": "7.0.3",
