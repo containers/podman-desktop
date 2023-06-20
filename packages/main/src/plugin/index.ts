@@ -679,6 +679,17 @@ export class PluginSystem {
         return containerProviderRegistry.pingContainerEngine(providerContainerConnectionInfo);
       },
     );
+
+    this.ipcHandle(
+      'container-provider-registry:listContainersFromEngine',
+      async (
+        _listener,
+        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      ): Promise<{ Id: string; Names: string[] }[]> => {
+        return containerProviderRegistry.listContainersFromEngine(providerContainerConnectionInfo);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:pruneVolumes',
       async (_listener, engine: string): Promise<Dockerode.PruneVolumesInfo> => {
