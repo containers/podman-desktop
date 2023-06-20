@@ -668,6 +668,11 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listVolumes', async (): Promise<VolumeListInfo[]> => {
       return containerProviderRegistry.listVolumes();
     });
+
+    this.ipcHandle('container-provider-registry:reconnectContainerProviders', async (): Promise<void> => {
+      return containerProviderRegistry.reconnectContainerProviders();
+    });
+
     this.ipcHandle(
       'container-provider-registry:pruneVolumes',
       async (_listener, engine: string): Promise<Dockerode.PruneVolumesInfo> => {
