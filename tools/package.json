@@ -10,7 +10,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@octokit/graphql": "^6.0.0"
+    "@octokit/graphql": "^6.0.1"
   },
   "devDependencies": {
     "typescript": "^5.0.4",
