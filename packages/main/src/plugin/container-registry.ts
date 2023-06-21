@@ -793,7 +793,6 @@ export class ContainerProviderRegistry {
       throw error;
     } finally {
       this.telemetryService
-
         .track('pingContainerEngine', telemetryOptions)
         .catch((err: unknown) => console.error('Unable to track', err));
     }
