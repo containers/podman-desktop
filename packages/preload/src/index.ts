@@ -36,7 +36,7 @@ import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-sta
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
-import type { ActiveOnboarding } from '../../main/src/plugin/api/onboarding';
+import type { ActiveOnboarding, OnboardingInputResponse } from '../../main/src/plugin/api/onboarding';
 
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
@@ -1260,6 +1260,22 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('getOnboardingStep', async (extension: string): Promise<ActiveOnboarding> => {
     return ipcInvoke('onboarding:getOnboardingStep', extension);
+  });
+
+  contextBridge.exposeInMainWorld('getActiveOnboardings', async (): Promise<ActiveOnboarding[]> => {
+    return ipcInvoke('onboarding:getActiveOnboardings');
+  });
+
+  contextBridge.exposeInMainWorld('executeOnboardingCommand', async (extension: string, command: string): Promise<void> => {
+    return ipcInvoke('onboarding:executeOnboardingCommand', extension, command);
+  });
+
+  contextBridge.exposeInMainWorld('doNext', async (extension: string): Promise<void> => {
+    return ipcInvoke('onboarding:doNext', extension);
+  });
+
+  contextBridge.exposeInMainWorld('setOnboardingRadioInputSelection', async (extension: string, idRadioGroup: string, idSelected: string): Promise<OnboardingInputResponse> => {
+    return ipcInvoke('onboarding:setOnboardingRadioInputSelection', extension, idRadioGroup, idSelected);
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -91,7 +91,7 @@ async function removeExtension() {
               <span class="pf-c-button__icon pf-m-start">
                 <i class="fas fa-play" aria-hidden="true"></i>
               </span>
-              Walkthrough
+              Onboarding
             </button>
           </div>
         </div>

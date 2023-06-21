@@ -16,6 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export interface OnboardingInputResponse {
+    stepCompleted: boolean;
+}
+
 export interface OnboardingCommandResponse {
     status: "succeeded" | "failed";
     body: any;  
@@ -25,6 +29,7 @@ export interface OnboardingCommand {
     id: string;
     command: string;
     response: OnboardingCommandResponse;
+    args: string[];
 }
 
 export interface OnboardingCommandAtActivation {
@@ -32,17 +37,49 @@ export interface OnboardingCommandAtActivation {
     order: number;
 }
 
-export interface OnboardingSubsetTemplateColumn {
-    content: string;
-    layout: string;
+export interface OnboardingViewCheckboxCardItem {
+    component: "checkbox_card";
+    id: string;
+    title: string;
+    subtitle: string;
+    media: { path: string; altText: string };
+    body: string;
+    checkbox: string;
 }
 
-export interface OnboardingSubsetGrid {
+export interface OnboardingViewRadioItem {
+    component: "radiogroup";
+    id: string;
+    options: OnboardingViewItem[];
+}
+
+export interface OnboardingViewButtonItem {
+    component: "button";
+    label: string;
+    value: string;
+    style: string;
+    id: string;
+}
+
+export interface OnboardingViewTextItem {
+    component: "text" | undefined;
+    value: string;
+    style: string;
+    id: string;
+}
+
+export type OnboardingViewItem = OnboardingViewTextItem | OnboardingViewButtonItem | OnboardingViewRadioItem | OnboardingViewCheckboxCardItem;
+
+export interface OnboardingViewRow {
     row: number;
-    columns: OnboardingSubsetTemplateColumn[];
+    items: OnboardingViewItem[];
 }
 
-export interface OnboardingSubstep {
+export interface OnboardingActiveStepView extends OnboardingStepView {
+    showNext: boolean; 
+}
+
+export interface OnboardingStepView {
     id: string;
     title: string;
     description: string;
@@ -50,8 +87,10 @@ export interface OnboardingSubstep {
     isSkippable: boolean;
     order: number;
     commandAtActivation: OnboardingCommandAtActivation[];
+    enableCompletionEvents: string[];
     completionEvents: string[];
-    grid: OnboardingSubsetGrid[];
+    content: OnboardingViewRow[];
+    when: string;
 }
 
 export interface OnboardingStep {
@@ -61,7 +100,7 @@ export interface OnboardingStep {
     isSkippable: boolean;
     order: number;
     commands: OnboardingCommand[];
-    substeps: OnboardingSubstep[];
+    views: OnboardingStepView[];
     media: { path: string; altText: string };
 }
 
@@ -79,8 +118,9 @@ export interface OnboardingActiveStep {
     isSkippable: boolean;
     order: number;
     commands: OnboardingCommand[];
-    substep: OnboardingSubstep;
+    view: OnboardingActiveStepView;
     media: { path: string; altText: string };
+    context: { [key: string]: any };
 }
 
 export interface OnboardingPlaceHolderStep {
@@ -91,6 +131,7 @@ export interface OnboardingPlaceHolderStep {
 }
 
 export interface ActiveOnboarding {
+    extension: string;
     title: string;
     description: string;
     media: { path: string; altText: string };

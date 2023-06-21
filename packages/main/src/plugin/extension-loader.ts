@@ -520,7 +520,7 @@ export class ExtensionLoader {
 
     const onboarding = extension.manifest?.contributes?.onboarding;
     if (onboarding) {
-      this.onboardingRegistry.registerOnboarding(extension.id, onboarding);
+      this.onboardingRegistry.registerOnboarding(extension.id, extension.path, onboarding);
     }
 
     this.analyzedExtensions.set(extension.id, extension);

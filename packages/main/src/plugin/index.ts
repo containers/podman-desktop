@@ -106,7 +106,7 @@ import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog.js';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import { ExtensionsUpdater } from './extensions-updater/extensions-updater.js';
 import type { CatalogExtension } from './extensions-catalog/extensions-catalog-api.js';
-import { ActiveOnboarding } from './api/onboarding.js';
+import { ActiveOnboarding, OnboardingInputResponse } from './api/onboarding.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -365,7 +365,7 @@ export class PluginSystem {
     const statusBarRegistry = new StatusBarRegistry(apiSender);
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
-    const onboardingRegistry = new OnboardingRegistry(commandRegistry);
+    const onboardingRegistry = new OnboardingRegistry(apiSender, commandRegistry);
 
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
@@ -1537,6 +1537,22 @@ export class PluginSystem {
 
     this.ipcHandle('onboarding:getOnboardingStep', async (_listener, extension: string): Promise<ActiveOnboarding> => {
       return onboardingRegistry.getOnboardingStep(extension);
+    });
+
+    this.ipcHandle('onboarding:getActiveOnboardings', async (): Promise<ActiveOnboarding[]> => {
+      return onboardingRegistry.getActiveOnboardings();
+    });
+
+    this.ipcHandle('onboarding:executeOnboardingCommand', async (_listener, extension: string, command: string): Promise<void> => {
+      return onboardingRegistry.executeOnboardingCommand(extension, command);
+    });
+
+    this.ipcHandle('onboarding:doNext', async (_listener, extension: string): Promise<void> => {
+      return onboardingRegistry.doNext(extension);
+    });
+
+    this.ipcHandle('onboarding:setOnboardingRadioInputSelection', async (_listener, extension: string, idRadioGroup: string, idSelected: string): Promise<OnboardingInputResponse> => {
+      return onboardingRegistry.setOnboardingRadioInputSelection(extension, idRadioGroup, idSelected);
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
