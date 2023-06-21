@@ -397,6 +397,19 @@ export class PluginSystem {
       'show-task-manager',
       undefined,
     );
+
+    statusBarRegistry.setEntry(
+      'troubleshooting',
+      false,
+      0,
+      undefined,
+      'Troubleshooting',
+      'fa fa-lightbulb',
+      true,
+      'troubleshooting',
+      undefined,
+    );
+
     commandRegistry.registerCommand('show-task-manager', () => {
       apiSender.send('toggle-task-manager', '');
     });
@@ -598,6 +611,10 @@ export class PluginSystem {
 
     commandRegistry.registerCommand('help', () => {
       apiSender.send('display-help', '');
+    });
+
+    commandRegistry.registerCommand('troubleshooting', () => {
+      apiSender.send('display-troubleshooting', '');
     });
 
     const terminalInit = new TerminalInit(configurationRegistry);
