@@ -254,6 +254,13 @@ function initExposure(): void {
     return ipcInvoke('container-provider-registry:startContainer', engine, containerId);
   });
 
+  contextBridge.exposeInMainWorld(
+    'pingContainerEngine',
+    async (providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<unknown> => {
+      return ipcInvoke('container-provider-registry:pingContainerEngine', providerContainerConnectionInfo);
+    },
+  );
+
   let onDataCallbacksPullImageId = 0;
   const onDataCallbacksPullImage = new Map<number, (event: PullEvent) => void>();
   contextBridge.exposeInMainWorld(
