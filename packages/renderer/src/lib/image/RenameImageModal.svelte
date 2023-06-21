@@ -12,6 +12,7 @@ let newImageName = '';
 let newImageTag = 'latest';
 let imageTags: string[] = [];
 let renameComplete = false;
+let keepImageTag = false;
 onMount(async () => {
   const inspectInfo = await window.getImageInspect(imageInfoToRename.engineId, imageInfoToRename.id);
 
@@ -79,6 +80,16 @@ function callback() {
           placeholder="Enter new tag (e.g. latest or v2)"
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           required />
+        <div class="flex items-center mb-4">
+          <label for="keepImageTag" class="my-2 text-sm font-bold text-gray-400">Keep Image Tag?</label>
+          <input
+            type="checkbox"
+            bind:checked="{keepImageTag}"
+            name="keepImageTag"
+            id="keepImageTag"
+            class="ml-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+            required />
+        </div>
         {#if !renameComplete}
           <button
             class="pf-c-button pf-m-primary"
@@ -86,7 +97,12 @@ function callback() {
             on:click="{() => {
               renameImage(selectedImageTag, newImageName, newImageTag);
             }}">
-            Add Image Tag</button>
+            {#if keepImageTag}
+              Add Image Tag
+            {:else}
+              Rename Image
+            {/if}
+          </button>
         {:else}
           <button class="pf-c-button pf-m-primary" type="button" on:click="{() => renameImageFinished()}"> Done</button>
         {/if}
