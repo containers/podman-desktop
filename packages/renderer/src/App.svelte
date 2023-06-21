@@ -36,6 +36,7 @@ import QuickPickInput from './lib/dialogs/QuickPickInput.svelte';
 import TaskManager from './lib/task-manager/TaskManager.svelte';
 import MessageBox from './lib/dialogs/MessageBox.svelte';
 import TitleBar from './lib/ui/TitleBar.svelte';
+import TroubleshootingPage from './lib/troubleshooting/TroubleshootingPage.svelte';
 
 router.mode.hash();
 
@@ -51,6 +52,10 @@ router.subscribe(function (navigation) {
 // @ts-ignore
 window.events?.receive('display-help', () => {
   router.goto('/help');
+});
+
+window.events?.receive('display-troubleshooting', () => {
+  router.goto('/troubleshooting');
 });
 </script>
 
@@ -144,6 +149,9 @@ window.events?.receive('display-help', () => {
         </Route>
         <Route path="/help" breadcrumb="Help">
           <HelpPage />
+        </Route>
+        <Route path="/troubleshooting" breadcrumb="Troubleshooting">
+          <TroubleshootingPage />
         </Route>
       </div>
     </div>
