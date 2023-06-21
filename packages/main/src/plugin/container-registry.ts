@@ -63,6 +63,7 @@ import { type Stream, Writable } from 'node:stream';
 import datejs from 'date.js';
 import { isWindows } from '../util.js';
 import { EnvfileParser } from './env-file-parser.js';
+import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
 
 export interface InternalContainerProvider {
   name: string;
@@ -220,6 +221,7 @@ export class ContainerProviderRegistry {
   registerContainerConnection(
     provider: containerDesktopAPI.Provider,
     containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
+    providerRegistry: ProviderRegistry,
   ): Disposable {
     const providerName = containerProviderConnection.name;
     const id = `${provider.id}.${providerName}`;
@@ -236,6 +238,27 @@ export class ContainerProviderRegistry {
       connection: containerProviderConnection,
     };
     let previousStatus = containerProviderConnection.status();
+
+    providerRegistry.onBeforeDidUpdateContainerConnection(event => {
+      if (event.providerId === provider.id && event.connection.name === containerProviderConnection.name) {
+        const newStatus = event.status;
+        if (newStatus === 'stopped') {
+          internalProvider.api = undefined;
+          internalProvider.libpodApi = undefined;
+          this.apiSender.send('provider-change', {});
+        }
+        if (newStatus === 'started') {
+          internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
+          if (containerProviderConnection.type === 'podman') {
+            internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
+          }
+          this.handleEvents(internalProvider.api);
+          this.internalProviders.set(id, internalProvider);
+          this.apiSender.send('provider-change', {});
+        }
+      }
+      previousStatus = event.status;
+    });
 
     if (containerProviderConnection.status() === 'started') {
       this.setupConnectionAPI(internalProvider, containerProviderConnection);
