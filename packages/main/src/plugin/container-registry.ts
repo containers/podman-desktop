@@ -798,6 +798,22 @@ export class ContainerProviderRegistry {
     }
   }
 
+  async listContainersFromEngine(
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  ): Promise<{ Id: string; Names: string[] }[]> {
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingEngineFromConnection(providerContainerConnectionInfo).listContainers({ all: true });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('listContainersFromEngine', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
   async deleteContainer(engineId: string, id: string): Promise<void> {
     let telemetryOptions = {};
     try {
