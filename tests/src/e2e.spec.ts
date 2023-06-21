@@ -103,10 +103,11 @@ describe('Basic e2e verification of podman desktop start', async () => {
   });
 
   describe('Navigation Bar test', async () => {
-    test('Verify are present in Navigation Bar', async () => {
-      const navBar = page.locator('nav[aria-label="Global"]');
+    test('Verify navigation items are present', async () => {
+      const navBar = page.getByRole('navigation').and(page.getByLabel('Global'));
+      await playExpect(navBar).toBeVisible();
       for (const item of navBarItems) {
-        const locator = navBar.locator(`a[aria-label="${item}"]`);
+        const locator = navBar.getByRole('link').and(navBar.getByLabel(item));
         await playExpect(locator).toBeVisible();
       }
     });
