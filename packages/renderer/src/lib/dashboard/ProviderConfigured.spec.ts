@@ -23,9 +23,15 @@ import { beforeAll, test, vi } from 'vitest';
 import { verifyStatus } from './ProviderStatusTestHelper.spec';
 import ProviderConfigured from '/@/lib/dashboard/ProviderConfigured.svelte';
 
-// fake the window.events object
 beforeAll(() => {
   (window as any).startProvider = vi.fn();
+
+  // mock that autostart is configured as true
+  (window.getConfigurationValue as unknown) = (_key: string) => {
+    return true;
+  };
+
+  // fake the window.events object
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
       func();
