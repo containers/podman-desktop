@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import * as jsYaml from 'js-yaml';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
@@ -343,8 +343,8 @@ function updateKubeResult() {
 }
 </script>
 
-<NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
-  <div slot="content" class="p-5 bg-zinc-700 min-w-full h-fit">
+<FormPage name="Deploy to Kubernetes" title="Deploy generated pod to Kubernetes" parentName="Pods" parentURL="/pods">
+  <div slot="content" class="p-5 min-w-full h-fit">
     <div class="bg-charcoal-600 p-5">
       {#if kubeDetails}
         <p>Generated pod to deploy to Kubernetes:</p>
@@ -575,4 +575,4 @@ function updateKubeResult() {
       {/if}
     </div>
   </div>
-</NavPage>
+</FormPage>
