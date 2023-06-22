@@ -13,7 +13,7 @@ With Podman Desktop, you can pull an image from a registry, to your container en
 #### Prerequisites
 
 - The image is available in a registry.
-- If the registry or the image are not publicly available, you configured access to the registry on Podman Desktop.
+- If the registry or the image are not publicly available, you configured access to the registry on Podman Desktop in **<icon icon="fa-solid fa-cog" size="lg" /> Settings > registry**.
 
 #### Procedure
 
