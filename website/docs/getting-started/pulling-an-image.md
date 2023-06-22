@@ -31,7 +31,7 @@ With Podman Desktop, you can pull an image from a registry, to your container en
 1. Go to **Summary**.
 1. Go to **History**.
    1. Click the output area.
-   2. Enter `Ctrl + F` to search the content.
+   1. Enter <kbd>Ctrl</kbd> + <kbd>F</kbd> on Windows and Linux, or <kbd>⌘</kbd> + <kbd>F</kbd> on macOS to start searching in the content.
 1. Go to **Inspect**.
    1. Click the output area.
    2. Enter `Ctrl + F` to search the content.
