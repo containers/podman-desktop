@@ -668,6 +668,28 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listVolumes', async (): Promise<VolumeListInfo[]> => {
       return containerProviderRegistry.listVolumes();
     });
+
+    this.ipcHandle('container-provider-registry:reconnectContainerProviders', async (): Promise<void> => {
+      return containerProviderRegistry.reconnectContainerProviders();
+    });
+
+    this.ipcHandle(
+      'container-provider-registry:pingContainerEngine',
+      async (_listener, providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<unknown> => {
+        return containerProviderRegistry.pingContainerEngine(providerContainerConnectionInfo);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:listContainersFromEngine',
+      async (
+        _listener,
+        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      ): Promise<{ Id: string; Names: string[] }[]> => {
+        return containerProviderRegistry.listContainersFromEngine(providerContainerConnectionInfo);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:pruneVolumes',
       async (_listener, engine: string): Promise<Dockerode.PruneVolumesInfo> => {
