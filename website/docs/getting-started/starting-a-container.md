@@ -27,7 +27,7 @@ You can interact with the running container by using the terminal in Podman Desk
 1. Go to **<icon icon="fa-solid fa-cubes" size="lg" /> Containers**.
 1. **<icon icon="fa-solid fa-search" size="lg" />**: Enter your image name, such as `quay.io/podman/hello`, to find your running container.
 1. Click your running container name.
-1. To search logs:
+1. To view logs:
    1. Go to **Logs**.
    1. Browse the content.
 1. To inspect the container:
