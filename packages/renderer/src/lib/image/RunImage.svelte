@@ -3,7 +3,7 @@ import { runImageInfo } from '../../stores/run-image-store';
 import { onMount } from 'svelte';
 import type { ContainerCreateOptions, HostConfig } from '../../../../main/src/plugin/api/container-info';
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { faFolderOpen, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
@@ -387,8 +387,12 @@ function checkContainerName(event: any) {
 
 <Route path="/*" let:meta>
   {#if dataReady}
-    <NavPage title="Create a container from image {imageDisplayName}:{image.tag}" searchEnabled="{false}">
-      <div slot="content" class="bg-zinc-700 p-5 min-w-full h-fit">
+    <FormPage
+      name="Run Image"
+      title="Create a container from image {imageDisplayName}:{image.tag}"
+      parentName="Images"
+      parentURL="/images">
+      <div slot="content" class="p-5 min-w-full h-fit">
         <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
           <section class="pf-c-page__main-tabs pf-m-limit-width">
             <div class="pf-c-page__main-body">
@@ -896,6 +900,6 @@ function checkContainerName(event: any) {
           <ErrorMessage class="py-2 text-sm" error="{createError}" />
         </div>
       </div>
-    </NavPage>
+    </FormPage>
   {/if}
 </Route>
