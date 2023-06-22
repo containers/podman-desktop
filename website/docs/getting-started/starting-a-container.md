@@ -47,7 +47,7 @@ You can interact with the running container by using the terminal in Podman Desk
 1. To interact with the exposed ports:
    1. Click **<icon icon="fa-solid fa-external-link" size="lg" />**.
    1. Your browser opens a page to the first exposed port on `localhost`.
-1. To deploy to your current Kubernetes context:
+1. To deploy to your current Kubernetes context, when you container engine is Podman:
    1. Click **<icon icon="fa-solid fa-rocket" size="lg" />**.
    1. Review the **Deploy generated pod to Kubernetes** screen.
    1. Click **<icon icon="fa-solid fa-rocket" size="lg" />**.
