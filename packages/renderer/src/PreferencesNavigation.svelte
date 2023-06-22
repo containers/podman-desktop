@@ -206,7 +206,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
                   id="configuration-section-{configSection.toLowerCase()}-{configItem.title.toLowerCase()}"
                   class="pf-c-nav__link"
                   style="font-weight: 200"
-                  aria-label="{configItem}"
+                  aria-label="{configItem.title}"
                   >{configItem.title}
                 </a>
               </li>

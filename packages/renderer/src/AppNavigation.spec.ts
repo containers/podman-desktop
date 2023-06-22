@@ -40,7 +40,6 @@ test('Test navigation bar gets right role and aria-label', () => {
 
   const navigationBar = screen.getByRole('navigation', { name: 'AppNavigation' });
   expect(navigationBar).toBeInTheDocument();
-  expect('AppNavigation').toEqual(navigationBar.getAttribute('aria-label'));
 });
 
 test('Test rendering of the navigation bar with empty items', () => {

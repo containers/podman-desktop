@@ -40,7 +40,6 @@ test('Test that Settings navigation bar has right role and aria-label', () => {
 
   const navigationBar = screen.getByRole('navigation', { name: 'PreferencesNavigation' });
   expect(navigationBar).toBeVisible();
-  expect('PreferencesNavigation').toEqual(navigationBar.getAttribute('aria-label'));
 });
 
 test('Test preferences items are discoverable using aria roles and labels', () => {
