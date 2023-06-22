@@ -9,6 +9,7 @@ import FlatMenu from '../ui/FlatMenu.svelte';
 export let pod: PodInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
+export let redirectAfterDelete = true;
 
 export let inProgressCallback: (inProgress: boolean, state?: string) => void = () => {};
 export let errorCallback: (erroMessage: string) => void = () => {};
@@ -54,7 +55,9 @@ async function deletePod(podInfoUI: PodInfoUI): Promise<void> {
     } else {
       await window.kubernetesDeletePod(podInfoUI.name);
     }
-    router.goto('/pods/');
+    if (redirectAfterDelete) {
+      router.goto('/pods/');
+    }
   } catch (error) {
     errorCallback(error);
   } finally {
