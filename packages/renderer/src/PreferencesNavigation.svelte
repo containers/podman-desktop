@@ -47,7 +47,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
 <nav
   class="z-1 pf-c-nav w-[250px] min-w-[200px] shadow flex-col justify-between flex transition-all duration-500 ease-in-out"
   style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))"
-  aria-label="Global">
+  aria-label="PreferencesNavigation">
   <div class="flex items-center">
     <div class="pt-4 px-5 mb-10">
       <p class="text-xl first-letter:uppercase">Settings</p>
@@ -59,7 +59,11 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/resources',
       )} hover:text-gray-400 cursor-pointer items-center">
-      <a href="/preferences/resources" id="configuration-section-resources" class="pf-c-nav__link">
+      <a
+        href="/preferences/resources"
+        id="configuration-section-resources"
+        class="pf-c-nav__link"
+        aria-label="Resources">
         <div class="flex items-center">
           <span class="block group-hover:block">Resources</span>
         </div>
@@ -72,7 +76,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/proxies',
       )} hover:text-gray-400 cursor-pointer items-center">
-      <a href="/preferences/proxies" id="configuration-section-proxy" class="pf-c-nav__link">
+      <a href="/preferences/proxies" id="configuration-section-proxy" class="pf-c-nav__link" aria-label="Proxy">
         <div class="flex items-center">
           <span class="block group-hover:block">Proxy</span>
         </div>
@@ -85,7 +89,11 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/registries',
       )} hover:text-gray-400 cursor-pointer items-center">
-      <a href="/preferences/registries" id="configuration-section-registries" class="pf-c-nav__link">
+      <a
+        href="/preferences/registries"
+        id="configuration-section-registries"
+        class="pf-c-nav__link"
+        aria-label="Registries">
         <div class="flex items-center">
           <span class="block group-hover:block">Registries</span>
         </div>
@@ -98,7 +106,11 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/authentication-providers',
       )} hover:text-gray-400 cursor-pointer items-center">
-      <a href="/preferences/authentication-providers" id="configuration-section-authentication" class="pf-c-nav__link">
+      <a
+        href="/preferences/authentication-providers"
+        id="configuration-section-authentication"
+        class="pf-c-nav__link"
+        aria-label="Authentication">
         <div class="flex items-center">
           <span class="hidden md:block group-hover:block">Authentication</span>
         </div>
@@ -115,6 +127,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
         href="/preferences/extensions"
         class="pf-c-nav__link text-left"
         id="configuration-section-extensions-catalog"
+        aria-label="Extensions"
         aria-expanded="{isAriaExpanded('extensionsCatalog')}"
         on:click="{() => toggleSection('extensionsCatalog')}">
         Extensions
@@ -132,7 +145,8 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
                 href="/preferences/extension/{extension.id}"
                 id="configuration-section-extensions-catalog-{extension.name.toLowerCase()}"
                 class="pf-c-nav__link"
-                style="font-weight: 200">{extension.displayName}</a>
+                style="font-weight: 200"
+                aria-label="{extension.name}">{extension.displayName}</a>
             </li>
           {/each}
         </ul>
@@ -145,7 +159,11 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
       class="pf-c-nav__item flex w-full justify-between {addCurrentClass(
         '/preferences/ddExtensions',
       )} hover:text-gray-400 cursor-pointer items-center">
-      <a href="/preferences/ddExtensions" id="configuration-section-docker-desktop-extensions" class="pf-c-nav__link">
+      <a
+        href="/preferences/ddExtensions"
+        id="configuration-section-docker-desktop-extensions"
+        class="pf-c-nav__link"
+        aria-label="DesktopExtensions">
         <div class="flex items-center">
           <span class="block group-hover:block">Desktop Extensions</span>
         </div>
@@ -164,6 +182,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
           id="configuration-section-{configSection.toLowerCase()}"
           aria-expanded="{isAriaExpanded(configSection)}"
           href="/preferences/default/{configSection}"
+          aria-label="{configSection}"
           on:click="{() => {
             if (configItems.length > 0) {
               toggleSection(configSection);
@@ -186,7 +205,10 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
                   href="/preferences/default/{configItem.id}"
                   id="configuration-section-{configSection.toLowerCase()}-{configItem.title.toLowerCase()}"
                   class="pf-c-nav__link"
-                  style="font-weight: 200">{configItem.title}</a>
+                  style="font-weight: 200"
+                  aria-label="{configItem}"
+                  >{configItem.title}
+                </a>
               </li>
             {/each}
           </ul>

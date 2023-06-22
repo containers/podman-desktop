@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom';
 import { beforeAll, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import AppNavigation from './AppNavigation.svelte';
+import PreferencesNavigation from './PreferencesNavigation.svelte';
 
 // fake the window.events object
 beforeAll(() => {
@@ -31,35 +31,36 @@ beforeAll(() => {
   };
 });
 
-test('Test navigation bar gets right role and aria-label', () => {
-  render(AppNavigation, {
+test('Test that Settings navigation bar has right role and aria-label', () => {
+  render(PreferencesNavigation, {
     meta: {
       url: '/',
     },
   });
 
-  const navigationBar = screen.getByRole('navigation', { name: 'AppNavigation' });
-  expect(navigationBar).toBeInTheDocument();
-  expect('AppNavigation').toEqual(navigationBar.getAttribute('aria-label'));
+  const navigationBar = screen.getByRole('navigation', { name: 'PreferencesNavigation' });
+  expect(navigationBar).toBeVisible();
+  expect('PreferencesNavigation').toEqual(navigationBar.getAttribute('aria-label'));
 });
 
-test('Test rendering of the navigation bar with empty items', () => {
-  render(AppNavigation, {
+test('Test preferences items are discoverable using aria roles and labels', () => {
+  render(PreferencesNavigation, {
     meta: {
       url: '/',
     },
   });
 
-  const dasboard = screen.getByRole('link', { name: 'Dashboard' });
-  expect(dasboard).toBeInTheDocument();
-  const containers = screen.getByRole('link', { name: 'Containers' });
-  expect(containers).toBeInTheDocument();
-  const pods = screen.getByRole('link', { name: 'Pods' });
-  expect(pods).toBeInTheDocument();
-  const images = screen.getByRole('link', { name: 'Images' });
-  expect(images).toBeInTheDocument();
-  const volumes = screen.getByRole('link', { name: 'Volumes' });
-  expect(volumes).toBeInTheDocument();
-  const settings = screen.getByRole('link', { name: 'Settings' });
-  expect(settings).toBeInTheDocument();
+  const resources = screen.getByRole('link', { name: 'Resources' });
+  expect(resources).toBeVisible();
+  const proxy = screen.getByRole('link', { name: 'Proxy' });
+  expect(proxy).toBeVisible();
+  const registries = screen.getByRole('link', { name: 'Registries' });
+  expect(registries).toBeVisible();
+  const authentication = screen.getByRole('link', { name: 'Authentication' });
+  expect(authentication).toBeVisible();
+  const extensions = screen.getByRole('link', { name: 'Extensions' });
+  expect(extensions).toBeVisible();
+  const desktop = screen.getByRole('link', { name: 'DesktopExtensions' });
+  expect(desktop).toBeVisible();
+  // ToDo: adding configuration section/items mocks for preferences, issue #2966
 });
