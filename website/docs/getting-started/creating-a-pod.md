@@ -1,14 +1,14 @@
 ---
 sidebar_position: 10
 title: Creating a pod
-description: Selecting containers to run a a pod.
+description: Creating a pod from selected containers.
 keywords: [podman desktop, podman, containers, pods]
 tags: [pods]
 ---
 
-# Selecting containers to run in a pod
+# Creating a pod from selected containers
 
-With Podman Desktop and the Podman container engine, you can select containers to run them in a pod.
+With Podman Desktop, you can create a pod from your selected containers, and run the pod on the Podman container engine.
 
 Consider running containers in a pod to:
 
