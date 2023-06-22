@@ -31,7 +31,7 @@ beforeAll(() => {
   };
 });
 
-test('Test that Settings navigation bar has right role and aria-label', () => {
+test('Test rendering of the preferences navigation bar and its items', () => {
   render(PreferencesNavigation, {
     meta: {
       url: '/',
@@ -40,14 +40,6 @@ test('Test that Settings navigation bar has right role and aria-label', () => {
 
   const navigationBar = screen.getByRole('navigation', { name: 'PreferencesNavigation' });
   expect(navigationBar).toBeVisible();
-});
-
-test('Test preferences items are discoverable using aria roles and labels', () => {
-  render(PreferencesNavigation, {
-    meta: {
-      url: '/',
-    },
-  });
 
   const resources = screen.getByRole('link', { name: 'Resources' });
   expect(resources).toBeVisible();

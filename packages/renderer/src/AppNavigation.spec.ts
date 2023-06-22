@@ -31,7 +31,7 @@ beforeAll(() => {
   };
 });
 
-test('Test navigation bar gets right role and aria-label', () => {
+test('Test rendering of the navigation bar with empty items', () => {
   render(AppNavigation, {
     meta: {
       url: '/',
@@ -40,14 +40,6 @@ test('Test navigation bar gets right role and aria-label', () => {
 
   const navigationBar = screen.getByRole('navigation', { name: 'AppNavigation' });
   expect(navigationBar).toBeInTheDocument();
-});
-
-test('Test rendering of the navigation bar with empty items', () => {
-  render(AppNavigation, {
-    meta: {
-      url: '/',
-    },
-  });
 
   const dasboard = screen.getByRole('link', { name: 'Dashboard' });
   expect(dasboard).toBeInTheDocument();
