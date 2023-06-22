@@ -303,6 +303,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                 </div>
                 <div class="text-right w-full">
                   <PodActions
+                    redirectAfterDelete="{false}"
                     pod="{pod}"
                     errorCallback="{error => errorCallback(pod, error)}"
                     inProgressCallback="{(flag, state) => inProgressCallback(pod, flag, state)}"
