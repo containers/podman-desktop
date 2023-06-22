@@ -6,7 +6,7 @@ keywords: [podman desktop, podman, containers, images]
 tags: [images]
 ---
 
-# Pulling an image to your Container engine
+# Pulling an image to your container engine
 
 With Podman Desktop, you can pull an image from a registry, to your container engine.
 
