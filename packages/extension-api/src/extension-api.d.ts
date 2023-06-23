@@ -899,6 +899,107 @@ declare module '@podman-desktop/api' {
     buttons?: readonly QuickInputButton[];
   }
 
+  /**
+   * Represents an item that can be selected from
+   * a list of items.
+   */
+  export interface CustomPickSectionItem {
+    /**
+     * A human-readable string which is rendered prominent. 
+     */
+    title: string;
+
+    /**
+     * A human-readable string which is rendered in a separate line.
+     */
+    content?: string;
+
+    /**
+     * A human-readable string which is rendered in a separate line. (Markdown format)
+     */
+    markDownContent?: string;
+  }
+
+  /**
+   * Represents an item that can be selected from
+   * a list of items.
+   */
+  export interface CustomPickItem {
+    /**
+     * A human-readable string which is rendered prominent. 
+     */
+    title: string;
+    /**
+     * A human-readable string which is rendered less prominent in the same line.
+     */
+    description?: string;
+    /**
+     * A human-readable string which is rendered in a separate line. (Markdown format)
+     */
+    markDownContent: string;
+    /**
+     * Optional sections that will be rendered in separate lines
+    */
+    sections?: CustomPickSectionItem[];
+    /**
+     * Optional flag indicating if this item is selected initially
+     */
+    selected?: boolean;
+  }
+
+  /**
+   * A concrete CustomPick to let the user pick an item from a list of items of type T.
+   * The items are rendered using a custom UI.
+   */
+  export interface CustomPick<T extends CustomPickItem> {
+     /**
+      * An optional human-readable string which is rendered prominent.
+      */
+     title?: string;
+     /**
+      * An optional human-readable string which is rendered less prominent in a separate line.
+      */
+     description?: string;
+     /**
+      * An optional base64 PNG image
+     */ 
+     icon?: string | { light: string; dark: string };
+     /**
+      * Items to pick from. This can be read and updated by the extension.
+      */
+     items: readonly T[];
+     /**
+      * Buttons for actions in the UI.
+      */
+     buttons: readonly QuickInputButton[];
+     /**
+      * If multiple items can be selected at the same time. Defaults to false.
+      */
+     canSelectMany: boolean;
+     /**
+      * An event signaling when the user indicated acceptance of the selected item(s).
+      */
+     readonly onDidAccept: Event<void>;
+     /**
+      * An event signaling when the selected items have changed.
+      */     
+     readonly onDidChangeSelection: Event<readonly T[]>
+     /**
+      * Shows the custom pick.
+      */
+     show(): void;
+     /**
+      * Hides the custom pick.
+      */
+     hide(): void;
+ 
+     /**
+      * Dispose and free associated resources. Call
+      * {@link CustomPick.hide}.
+      */
+     dispose(): void;
+  }
+
   export interface NotificationOptions {
     /**
      * A title for the notification, which will be shown at the top of the notification window when it is shown.
@@ -1187,7 +1288,13 @@ declare module '@podman-desktop/api' {
       options?: QuickPickOptions,
       token?: CancellationToken,
     ): Promise<T | undefined>;
-  }
+
+    /**
+     * Creates a CustomPick to let the user pick an item from a list of items of type T using a custom UI.
+     * @return A new CustomPick
+     */
+    export function createCustomPick<T extends CustomPickItem>(): CustomPick;
+ }
 
   export namespace kubernetes {
     // Path to the configuration file
