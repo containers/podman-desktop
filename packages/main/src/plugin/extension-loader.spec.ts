@@ -42,6 +42,7 @@ import type { AuthenticationImpl } from './authentication.js';
 import type { MessageBox } from './message-box.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
+import type { IconRegistry } from './icon-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -97,6 +98,8 @@ const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQui
 
 const authenticationProviderRegistry: AuthenticationImpl = {} as unknown as AuthenticationImpl;
 
+const iconRegistry: IconRegistry = {} as unknown as IconRegistry;
+
 const telemetryTrackMock = vi.fn();
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
 
@@ -120,6 +123,7 @@ beforeAll(() => {
     containerProviderRegistry,
     inputQuickPickRegistry,
     authenticationProviderRegistry,
+    iconRegistry,
     telemetry,
   );
 });

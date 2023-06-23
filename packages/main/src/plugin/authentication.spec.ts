@@ -44,6 +44,7 @@ import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import type { Proxy } from './proxy.js';
+import type { IconRegistry } from './icon-registry.js';
 
 function randomNumber(n = 5) {
   return Math.round(Math.random() * 10 * n);
@@ -243,6 +244,7 @@ suite('Authentication', () => {
       vi.fn() as unknown as ContainerProviderRegistry,
       vi.fn() as unknown as InputQuickPickRegistry,
       authentication,
+      vi.fn() as unknown as IconRegistry,
       vi.fn() as unknown as Telemetry,
     );
     providerMock = {
