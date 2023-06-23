@@ -445,6 +445,7 @@ declare module '@podman-desktop/api' {
     serverUrl: string;
     username: string;
     secret: string;
+    insecure?: boolean;
   }
 
   export interface RegistryProvider {

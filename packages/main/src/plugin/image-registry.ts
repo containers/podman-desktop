@@ -242,10 +242,12 @@ export class ImageRegistry {
       if (exists) {
         throw new Error(`Registry ${registryCreateOptions.serverUrl} already exists`);
       }
+
       await this.checkCredentials(
         registryCreateOptions.serverUrl,
         registryCreateOptions.username,
         registryCreateOptions.secret,
+        registryCreateOptions.insecure,
       );
       const registry = provider.create(registryCreateOptions);
       return this.registerRegistry(registry);
@@ -308,7 +310,7 @@ export class ImageRegistry {
     return undefined;
   }
 
-  getOptions(): OptionsOfTextResponseBody {
+  getOptions(insecure?: boolean): OptionsOfTextResponseBody {
     const httpsOptions: HttpsOptions = {};
     const options: OptionsOfTextResponseBody = {
       https: httpsOptions,
@@ -316,6 +318,9 @@ export class ImageRegistry {
 
     if (options.https) {
       options.https.certificateAuthority = this.certificates.getAllCertificates();
+      if (insecure) {
+        options.https.rejectUnauthorized = false;
+      }
     }
 
     if (this.proxyEnabled) {
@@ -650,8 +655,9 @@ export class ImageRegistry {
     return this.getManifestFromURL(manifestURL, imageData, token);
   }
 
-  async getAuthInfo(serviceUrl: string): Promise<{ authUrl: string; scheme: string }> {
+  async getAuthInfo(serviceUrl: string, insecure?: boolean): Promise<{ authUrl: string; scheme: string }> {
     let registryUrl: string;
+    const options = this.getOptions(insecure);
 
     if (serviceUrl.includes('docker.io')) {
       registryUrl = 'https://index.docker.io/v2/';
@@ -667,7 +673,7 @@ export class ImageRegistry {
     let scheme = '';
 
     try {
-      await got.get(registryUrl, this.getOptions());
+      await got.get(registryUrl, options);
     } catch (requestErr) {
       if (requestErr instanceof HTTPError) {
         const wwwAuthenticate = requestErr.response?.headers['www-authenticate'];
@@ -703,7 +709,7 @@ export class ImageRegistry {
     return { authUrl, scheme };
   }
 
-  async checkCredentials(serviceUrl: string, username: string, password: string): Promise<void> {
+  async checkCredentials(serviceUrl: string, username: string, password: string, insecure?: boolean): Promise<void> {
     if (serviceUrl === undefined || !validator.isURL(serviceUrl)) {
       throw Error(
         'The format of the Registry Location is incorrect.\nPlease use the format "registry.location.com" and try again.',
@@ -718,10 +724,10 @@ export class ImageRegistry {
       throw Error('Password should not be empty.');
     }
 
-    const { authUrl, scheme } = await this.getAuthInfo(serviceUrl);
+    const { authUrl, scheme } = await this.getAuthInfo(serviceUrl, insecure);
 
     if (authUrl !== undefined) {
-      await this.doCheckCredentials(scheme, authUrl, username, password);
+      await this.doCheckCredentials(scheme, authUrl, username, password, insecure);
     }
   }
 
@@ -758,12 +764,19 @@ export class ImageRegistry {
     return response.token;
   }
 
-  async doCheckCredentials(scheme: string, authUrl: string, username: string, password: string): Promise<void> {
+  async doCheckCredentials(
+    scheme: string,
+    authUrl: string,
+    username: string,
+    password: string,
+    insecure?: boolean,
+  ): Promise<void> {
+    const options = this.getOptions(insecure);
+
     let rawResponse: string | undefined;
     // add credentials in the header
     // encode username:password in base64
     const token = Buffer.from(`${username}:${password}`).toString('base64');
-    const options = this.getOptions();
     options.headers = {
       Authorization: `Basic ${token}`,
     };
