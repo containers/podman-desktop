@@ -58,6 +58,7 @@ async function renameImage(imageName: string, imageTag: string) {
         <button
           class="pf-c-button pf-m-primary"
           type="button"
+          name="Save"
           on:click="{() => {
             renameImage(imageName, imageTag);
           }}">
