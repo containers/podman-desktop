@@ -196,7 +196,7 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
         buttons: ['Yes', 'No'],
       });
       if (result && result.response === 0) {
-        registry.ignoreInvalidCert = true;
+        registry.insecure = true;
       } else {
         setErrorResponse(registry.serverUrl, error.message);
         loggingIn = false;

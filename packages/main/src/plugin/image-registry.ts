@@ -247,7 +247,7 @@ export class ImageRegistry {
         registryCreateOptions.serverUrl,
         registryCreateOptions.username,
         registryCreateOptions.secret,
-        registryCreateOptions.ignoreInvalidCert,
+        registryCreateOptions.insecure,
       );
       const registry = provider.create(registryCreateOptions);
       return this.registerRegistry(registry);
@@ -310,7 +310,7 @@ export class ImageRegistry {
     return undefined;
   }
 
-  getOptions(): OptionsOfTextResponseBody {
+  getOptions(insecure?: boolean): OptionsOfTextResponseBody {
     const httpsOptions: HttpsOptions = {};
     const options: OptionsOfTextResponseBody = {
       https: httpsOptions,
@@ -318,6 +318,9 @@ export class ImageRegistry {
 
     if (options.https) {
       options.https.certificateAuthority = this.certificates.getAllCertificates();
+      if (insecure) {
+        options.https.rejectUnauthorized = false;
+      }
     }
 
     if (this.proxyEnabled) {
@@ -652,14 +655,9 @@ export class ImageRegistry {
     return this.getManifestFromURL(manifestURL, imageData, token);
   }
 
-  async getAuthInfo(serviceUrl: string, ignoreInvalidCert?: boolean): Promise<{ authUrl: string; scheme: string }> {
+  async getAuthInfo(serviceUrl: string, insecure?: boolean): Promise<{ authUrl: string; scheme: string }> {
     let registryUrl: string;
-    const options = this.getOptions();
-
-    // If ignoreInvalidCertificate was passed in, ignore the certificate
-    if (ignoreInvalidCert && options.https) {
-      options.https.rejectUnauthorized = false;
-    }
+    const options = this.getOptions(insecure);
 
     if (serviceUrl.includes('docker.io')) {
       registryUrl = 'https://index.docker.io/v2/';
@@ -711,12 +709,7 @@ export class ImageRegistry {
     return { authUrl, scheme };
   }
 
-  async checkCredentials(
-    serviceUrl: string,
-    username: string,
-    password: string,
-    ignoreInvalidCert?: boolean,
-  ): Promise<void> {
+  async checkCredentials(serviceUrl: string, username: string, password: string, insecure?: boolean): Promise<void> {
     if (serviceUrl === undefined || !validator.isURL(serviceUrl)) {
       throw Error(
         'The format of the Registry Location is incorrect.\nPlease use the format "registry.location.com" and try again.',
@@ -731,10 +724,10 @@ export class ImageRegistry {
       throw Error('Password should not be empty.');
     }
 
-    const { authUrl, scheme } = await this.getAuthInfo(serviceUrl, ignoreInvalidCert);
+    const { authUrl, scheme } = await this.getAuthInfo(serviceUrl, insecure);
 
     if (authUrl !== undefined) {
-      await this.doCheckCredentials(scheme, authUrl, username, password, ignoreInvalidCert);
+      await this.doCheckCredentials(scheme, authUrl, username, password, insecure);
     }
   }
 
@@ -776,13 +769,9 @@ export class ImageRegistry {
     authUrl: string,
     username: string,
     password: string,
-    ignoreInvalidCert?: boolean,
+    insecure?: boolean,
   ): Promise<void> {
-    const options = this.getOptions();
-    // If ignoreInvalidCertificate was passed in, ignore the certificate
-    if (ignoreInvalidCert && options.https) {
-      options.https.rejectUnauthorized = false;
-    }
+    const options = this.getOptions(insecure);
 
     let rawResponse: string | undefined;
     // add credentials in the header
