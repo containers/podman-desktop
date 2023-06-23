@@ -12,6 +12,7 @@ import PodDetailsSummary from './PodDetailsSummary.svelte';
 import PodDetailsInspect from './PodDetailsInspect.svelte';
 import PodDetailsKube from './PodDetailsKube.svelte';
 import PodDetailsLogs from './PodDetailsLogs.svelte';
+import DetailsPage from '../ui/DetailsPage.svelte';
 import DetailsTab from '../ui/DetailsTab.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 
@@ -59,72 +60,41 @@ function errorCallback(errorMessage: string): void {
 </script>
 
 {#if pod}
-  <Route path="/*">
-    <div class="w-full h-full">
-      <div class="flex h-full flex-col">
-        <div class="flex w-full flex-row">
-          <div class="w-full px-5 pt-5">
-            <div class="flex flew-row items-center">
-              <a class="text-violet-400 text-base hover:no-underline" href="/pods" title="Go back to pods list">Pods</a>
-              <div class="text-xl mx-2 text-gray-700">></div>
-              <div class="text-sm font-extralight text-gray-700">Pod Details</div>
-            </div>
-            <div class="text-lg flex flex-row items-start pt-1">
-              <div class="pr-3 pt-1">
-                <StatusIcon icon="{PodIcon}" status="{pod.status}" />
-              </div>
-              <div class="text-lg flex flex-col">
-                <div class="mr-2">{pod.name}</div>
-                <div class="mr-2 pb-4 text-small text-gray-900">{pod.shortId}</div>
-              </div>
-            </div>
-            <section class="pf-c-page__main-tabs pf-m-limit-width">
-              <div class="pf-c-page__main-body">
-                <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
-                  <ul class="pf-c-tabs__list">
-                    <DetailsTab title="Summary" url="summary" />
-                    <DetailsTab title="Logs" url="logs" />
-                    <DetailsTab title="Inspect" url="inspect" />
-                    <DetailsTab title="Kube" url="kube" />
-                  </ul>
-                </div>
-              </div>
-            </section>
-          </div>
-          <div class="flex flex-col px-5 pt-5">
-            <div class="flex justify-end">
-              <div class="flex items-center w-5">
-                {#if pod.actionError}
-                  <ErrorMessage error="{pod.actionError}" icon />
-                {:else}
-                  <div>&nbsp;</div>
-                {/if}
-              </div>
-              <PodActions
-                pod="{pod}"
-                inProgressCallback="{(flag, state) => inProgressCallback(flag, state)}"
-                errorCallback="{error => errorCallback(error)}"
-                detailed="{true}" />
-            </div>
-          </div>
-          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
-            ><i class="fas fa-times" aria-hidden="true"></i></a>
-        </div>
-        <div class="h-full bg-charcoal-900">
-          <Route path="/summary" breadcrumb="Summary">
-            <PodDetailsSummary pod="{pod}" />
-          </Route>
-          <Route path="/logs" breadcrumb="Logs">
-            <PodDetailsLogs pod="{pod}" />
-          </Route>
-          <Route path="/inspect" breadcrumb="Inspect">
-            <PodDetailsInspect pod="{pod}" />
-          </Route>
-          <Route path="/kube" breadcrumb="Kube">
-            <PodDetailsKube pod="{pod}" />
-          </Route>
-        </div>
+  <DetailsPage name="Pod Details" title="{pod.name}" subtitle="{pod.shortId}" parentName="Pods" parentURL="/pods">
+    <StatusIcon slot="icon" icon="{PodIcon}" status="{pod.status}" />
+    <div slot="actions" class="flex justify-end">
+      <div class="flex items-center w-5">
+        {#if pod.actionError}
+          <ErrorMessage error="{pod.actionError}" icon />
+        {:else}
+          <div>&nbsp;</div>
+        {/if}
       </div>
+      <PodActions
+        pod="{pod}"
+        inProgressCallback="{(flag, state) => inProgressCallback(flag, state)}"
+        errorCallback="{error => errorCallback(error)}"
+        detailed="{true}" />
     </div>
-  </Route>
+    <div slot="tabs" class="pf-c-tabs__list">
+      <DetailsTab title="Summary" url="summary" />
+      <DetailsTab title="Logs" url="logs" />
+      <DetailsTab title="Inspect" url="inspect" />
+      <DetailsTab title="Kube" url="kube" />
+    </div>
+    <span slot="content">
+      <Route path="/summary" breadcrumb="Summary">
+        <PodDetailsSummary pod="{pod}" />
+      </Route>
+      <Route path="/logs" breadcrumb="Logs">
+        <PodDetailsLogs pod="{pod}" />
+      </Route>
+      <Route path="/inspect" breadcrumb="Inspect">
+        <PodDetailsInspect pod="{pod}" />
+      </Route>
+      <Route path="/kube" breadcrumb="Kube">
+        <PodDetailsKube pod="{pod}" />
+      </Route>
+    </span>
+  </DetailsPage>
 {/if}
