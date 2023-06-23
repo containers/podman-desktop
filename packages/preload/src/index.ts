@@ -33,6 +33,7 @@ import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-i
 import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
+import type { IconInfo } from '../../main/src/plugin/api/icon-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
@@ -910,6 +911,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listContributions', async (): Promise<ContributionInfo[]> => {
     return ipcInvoke('contributions:listContributions');
+  });
+
+  contextBridge.exposeInMainWorld('listIcons', async (): Promise<IconInfo[]> => {
+    return ipcInvoke('iconRegistry:listIcons');
   });
 
   // Handle callback to open devtools for extensions

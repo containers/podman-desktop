@@ -106,6 +106,8 @@ import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog.js';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import { ExtensionsUpdater } from './extensions-updater/extensions-updater.js';
 import type { CatalogExtension } from './extensions-catalog/extensions-catalog-api.js';
+import { IconRegistry } from './icon-registry.js';
+import type { IconInfo } from './api/icon-info.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -341,6 +343,8 @@ export class PluginSystem {
 
     // init api sender
     const apiSender = this.getApiSender(this.getWebContentsSender());
+
+    const iconRegistry = new IconRegistry(apiSender);
 
     const configurationRegistry = new ConfigurationRegistry();
     configurationRegistry.init();
@@ -652,6 +656,7 @@ export class PluginSystem {
       containerProviderRegistry,
       inputQuickPickRegistry,
       authentication,
+      iconRegistry,
       telemetry,
     );
     await this.extensionLoader.init();
@@ -1585,6 +1590,10 @@ export class PluginSystem {
 
     this.ipcHandle('app:getVersion', async (): Promise<string> => {
       return app.getVersion();
+    });
+
+    this.ipcHandle('iconRegistry:listIcons', async (): Promise<IconInfo[]> => {
+      return iconRegistry.listIcons();
     });
 
     this.ipcHandle('window:minimize', async (): Promise<void> => {
