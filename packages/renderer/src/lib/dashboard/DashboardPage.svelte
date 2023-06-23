@@ -8,7 +8,7 @@ import ProviderStopped from './ProviderStopped.svelte';
 import ProviderStarting from './ProviderStarting.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import type { InitializationContext } from './ProviderInitUtils';
-import { InitializeAndStartMode } from './ProviderInitUtils';
+import { DoNothingMode } from './ProviderInitUtils';
 import FeaturedExtensions from '/@/lib/featured/FeaturedExtensions.svelte';
 import ProviderConfiguring from '/@/lib/dashboard/ProviderConfiguring.svelte';
 
@@ -28,7 +28,7 @@ function getInitializationContext(id: string) {
   if (providerInitContexts.has(id)) {
     context = providerInitContexts.get(id);
   } else {
-    context = { mode: InitializeAndStartMode };
+    context = { mode: DoNothingMode };
     providerInitContexts.set(id, context);
   }
   return context;

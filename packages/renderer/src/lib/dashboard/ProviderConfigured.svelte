@@ -42,7 +42,7 @@ async function runProvider() {
 onMount(async () => {
   // Get the autostart configuration setting. If it's disabled, we do *not* want to start the current container provider.
   const autostart = await window.getConfigurationValue<boolean>('preferences.engine.autostart');
-  runAtStart = autostart && initializationContext.mode === InitializeAndStartMode;
+  runAtStart = autostart || initializationContext.mode === InitializeAndStartMode;
 
   if (runAtStart) {
     runProvider();
