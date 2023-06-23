@@ -91,7 +91,7 @@ export let meta;
 <svelte:window />
 <nav
   class="pf-c-nav group w-[54px] min-w-[54px] flex flex-col justify-between hover:overflow-y-none"
-  aria-label="Global">
+  aria-label="AppNavigation">
   <ul class="pf-c-nav__list">
     <li
       class="pf-c-nav__item flex w-full {meta.url === '/'

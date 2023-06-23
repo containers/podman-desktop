@@ -152,6 +152,25 @@ export class ContainerProviderRegistry {
     });
   }
 
+  reconnectContainerProviders() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const provider of this.internalProviders.values()) {
+      if (provider.api) this.setupConnectionAPI(provider, provider.connection);
+    }
+  }
+
+  setupConnectionAPI(
+    internalProvider: InternalContainerProvider,
+    containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
+  ) {
+    internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
+    if (containerProviderConnection.type === 'podman') {
+      internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
+    }
+    this.handleEvents(internalProvider.api);
+    this.apiSender.send('provider-change', {});
+  }
+
   registerContainerConnection(
     provider: containerDesktopAPI.Provider,
     containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
@@ -175,11 +194,7 @@ export class ContainerProviderRegistry {
     let previousStatus = containerProviderConnection.status();
 
     if (containerProviderConnection.status() === 'started') {
-      internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
-      if (containerProviderConnection.type === 'podman') {
-        internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
-      }
-      this.handleEvents(internalProvider.api);
+      this.setupConnectionAPI(internalProvider, containerProviderConnection);
     }
 
     // track the status of the provider
@@ -192,13 +207,8 @@ export class ContainerProviderRegistry {
           this.apiSender.send('provider-change', {});
         }
         if (newStatus === 'started') {
-          internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
-          if (containerProviderConnection.type === 'podman') {
-            internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
-          }
-          this.handleEvents(internalProvider.api);
+          this.setupConnectionAPI(internalProvider, containerProviderConnection);
           this.internalProviders.set(id, internalProvider);
-          this.apiSender.send('provider-change', {});
         }
         previousStatus = newStatus;
       }
@@ -798,6 +808,36 @@ export class ContainerProviderRegistry {
 
   getImageHash(imageName: string): string {
     return crypto.createHash('sha512').update(imageName).digest('hex');
+  }
+
+  async pingContainerEngine(providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<unknown> {
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingEngineFromConnection(providerContainerConnectionInfo).ping();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('pingContainerEngine', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  async listContainersFromEngine(
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  ): Promise<{ Id: string; Names: string[] }[]> {
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingEngineFromConnection(providerContainerConnectionInfo).listContainers({ all: true });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('listContainersFromEngine', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async deleteContainer(engineId: string, id: string): Promise<void> {

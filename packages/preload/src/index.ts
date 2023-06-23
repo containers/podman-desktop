@@ -61,6 +61,10 @@ import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/pl
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
+export type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
+const originalConsole = console;
+const memoryLogs: { logType: LogType; date: Date; message: string }[] = [];
+
 export interface FeedbackProperties {
   rating: number;
   comment?: string;
@@ -120,6 +124,18 @@ function initExposure(): void {
     apiSender.send(channel, data);
   });
 
+  // keep console log data
+  const types: LogType[] = ['log', 'warn', 'trace', 'debug', 'error'];
+  types.forEach(logType => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const originalFunction = (originalConsole as any)[logType];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (console as any)[logType] = (...args: unknown[]) => {
+      originalFunction(...args);
+      memoryLogs.push({ logType: logType, date: new Date(), message: args.join(' ') });
+    };
+  });
+
   ipcRenderer.on('console:output', (_, target: string, ...args) => {
     const prefix = 'main ↪️';
     if (target === 'log') {
@@ -148,6 +164,13 @@ function initExposure(): void {
     return ipcInvoke('extension-system:isExtensionsStarted');
   });
 
+  contextBridge.exposeInMainWorld(
+    'getDevtoolsConsoleLogs',
+    async (): Promise<{ logType: LogType; date: Date; message: string }[]> => {
+      return memoryLogs;
+    },
+  );
+
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
     return ipcInvoke('container-provider-registry:listContainers');
   });
@@ -171,6 +194,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listPods', async (): Promise<PodInfo[]> => {
     return ipcInvoke('container-provider-registry:listPods');
+  });
+
+  contextBridge.exposeInMainWorld('reconnectContainerProviders', async (): Promise<PodInfo[]> => {
+    return ipcInvoke('container-provider-registry:reconnectContainerProviders');
   });
 
   contextBridge.exposeInMainWorld('listNetworks', async (): Promise<NetworkInspectInfo[]> => {
@@ -226,6 +253,22 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('startContainer', async (engine: string, containerId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:startContainer', engine, containerId);
   });
+
+  contextBridge.exposeInMainWorld(
+    'pingContainerEngine',
+    async (providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<unknown> => {
+      return ipcInvoke('container-provider-registry:pingContainerEngine', providerContainerConnectionInfo);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'listContainersFromEngine',
+    async (
+      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    ): Promise<{ Id: string; Names: string[] }[]> => {
+      return ipcInvoke('container-provider-registry:listContainersFromEngine', providerContainerConnectionInfo);
+    },
+  );
 
   let onDataCallbacksPullImageId = 0;
   const onDataCallbacksPullImage = new Map<number, (event: PullEvent) => void>();

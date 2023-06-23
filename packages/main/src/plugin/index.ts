@@ -397,6 +397,19 @@ export class PluginSystem {
       'show-task-manager',
       undefined,
     );
+
+    statusBarRegistry.setEntry(
+      'troubleshooting',
+      false,
+      0,
+      undefined,
+      'Troubleshooting',
+      'fa fa-lightbulb',
+      true,
+      'troubleshooting',
+      undefined,
+    );
+
     commandRegistry.registerCommand('show-task-manager', () => {
       apiSender.send('toggle-task-manager', '');
     });
@@ -600,6 +613,10 @@ export class PluginSystem {
       apiSender.send('display-help', '');
     });
 
+    commandRegistry.registerCommand('troubleshooting', () => {
+      apiSender.send('display-troubleshooting', '');
+    });
+
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
 
@@ -668,6 +685,28 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listVolumes', async (): Promise<VolumeListInfo[]> => {
       return containerProviderRegistry.listVolumes();
     });
+
+    this.ipcHandle('container-provider-registry:reconnectContainerProviders', async (): Promise<void> => {
+      return containerProviderRegistry.reconnectContainerProviders();
+    });
+
+    this.ipcHandle(
+      'container-provider-registry:pingContainerEngine',
+      async (_listener, providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<unknown> => {
+        return containerProviderRegistry.pingContainerEngine(providerContainerConnectionInfo);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:listContainersFromEngine',
+      async (
+        _listener,
+        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      ): Promise<{ Id: string; Names: string[] }[]> => {
+        return containerProviderRegistry.listContainersFromEngine(providerContainerConnectionInfo);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:pruneVolumes',
       async (_listener, engine: string): Promise<Dockerode.PruneVolumesInfo> => {

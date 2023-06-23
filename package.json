@@ -100,7 +100,7 @@
     "@vitest/coverage-v8": "0.32.2",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
-    "electron": "^25.1.1",
+    "electron": "^25.2.0",
     "electron-builder": "23.6.0",
     "electron-builder-notarize": "^1.5.1",
     "electron-devtools-installer": "^3.2.0",
@@ -143,7 +143,7 @@
     "os-locale": "^6.0.2",
     "stream-json": "^1.8.0",
     "tar": "^6.1.15",
-    "tar-fs": "^3.0.2",
+    "tar-fs": "^3.0.3",
     "win-ca": "^3.5.0",
     "yaml": "^2.3.1",
     "zip-local": "^0.3.5"

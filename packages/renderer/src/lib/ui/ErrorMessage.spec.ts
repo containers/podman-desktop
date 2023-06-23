@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-const { join } = require('path');
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-module.exports = {
-  plugins: {
-    tailwindcss: {
-      config: join(__dirname, 'tailwind.config.cjs'),
-    },
-    'postcss-import': {},
-    autoprefixer: {},
-  },
-};
+import '@testing-library/jest-dom';
+import { test, expect } from 'vitest';
+import { render, screen } from '@testing-library/svelte';
+import ErrorMessage from './ErrorMessage.svelte';
+
+test('Check error message', async () => {
+  const error = 'This is an error message';
+  render(ErrorMessage, { error });
+
+  // check error message
+  const errorMesssage = screen.getByRole('alert', { name: 'Error Message Content' });
+  expect(errorMesssage).toBeInTheDocument();
+  expect(errorMesssage).toHaveTextContent(error);
+});
