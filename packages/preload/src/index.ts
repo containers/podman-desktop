@@ -321,38 +321,6 @@ function initExposure(): void {
     },
   );
 
-  let onDataCallbacksAddImageTagId = 0;
-  const onDataCallbacksAddImageTag = new Map<number, () => void>();
-  contextBridge.exposeInMainWorld(
-    'addImageTag',
-    async (
-      engine: string,
-      imageId: string,
-      newImageName: string,
-      newImageTag: string,
-      callback: () => void,
-    ): Promise<void> => {
-      onDataCallbacksAddImageTagId++;
-      onDataCallbacksAddImageTag.set(onDataCallbacksAddImageTagId, callback);
-      return ipcInvoke(
-        'container-provider-registry:addImageTag',
-        engine,
-        imageId,
-        newImageName,
-        newImageTag,
-        onDataCallbacksAddImageTagId,
-      );
-    },
-  );
-  ipcRenderer.on('container-provider-registry:addImageTag-onData', (_, onDataCallbacksAddImageTagId: number) => {
-    // grab callback from the map
-    const callback = onDataCallbacksAddImageTag.get(onDataCallbacksAddImageTagId);
-
-    if (callback) {
-      callback();
-    }
-  });
-
   contextBridge.exposeInMainWorld('restartContainer', async (engine: string, containerId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:restartContainer', engine, containerId);
   });
@@ -491,6 +459,13 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('deleteImage', async (engine: string, imageId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:deleteImage', engine, imageId);
   });
+
+  contextBridge.exposeInMainWorld(
+    'tagImage',
+    async (engine: string, imageId: string, repo: string, tag?: string): Promise<void> => {
+      return ipcInvoke('container-provider-registry:tagImage', engine, imageId, repo, tag);
+    },
+  );
 
   contextBridge.exposeInMainWorld('startProviderLifecycle', async (providerId: string): Promise<void> => {
     return ipcInvoke('provider-registry:startProviderLifecycle', providerId);

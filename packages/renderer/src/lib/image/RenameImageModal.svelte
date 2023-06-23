@@ -1,38 +1,25 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 
 export let closeCallback: () => void;
 export let imageInfoToRename: ImageInfoUI;
 
-let selectedImageTag = '';
-let newImageName = '';
-let newImageTag = 'latest';
-let imageTags: string[] = [];
-let renameComplete = false;
-let keepImageTag = false;
+let imageName = '';
+let imageTag = '';
 onMount(async () => {
-  const inspectInfo = await window.getImageInspect(imageInfoToRename.engineId, imageInfoToRename.id);
-
-  imageTags = inspectInfo.RepoTags;
-  if (imageTags.length > 0) {
-    selectedImageTag = imageTags[0];
-  }
+  imageName = imageInfoToRename.name;
+  imageTag = imageInfoToRename.tag;
 });
 
-async function renameImage(imageTag: string, newImageName: string, newImageTag: string) {
-  await window.addImageTag(imageInfoToRename.engineId, imageTag, newImageName, newImageTag, callback);
-}
+async function renameImage(imageName: string, imageTag: string) {
+  const currentImageNameTag = `${imageInfoToRename.name}:${imageInfoToRename.tag}`;
 
-async function renameImageFinished() {
+  await window.tagImage(imageInfoToRename.engineId, currentImageNameTag, imageName, imageTag);
+  await window.deleteImage(imageInfoToRename.engineId, currentImageNameTag);
+
   closeCallback();
-  router.goto('/images');
-}
-
-function callback() {
-  renameComplete = true;
 }
 </script>
 
@@ -50,62 +37,32 @@ function callback() {
     </div>
     <div class="flex flex-col px-10 py-4 text-sm leading-5 space-y-5">
       <div>
-        <label for="modalImageTag" class="block my-2 text-sm font-medium text-gray-400 dark:text-gray-400"
-          >Image Tag</label>
-        <select
-          class="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-charcoal-600 border-gray-900 placeholder-gray-700 text-white"
-          name="imageChoice"
-          bind:value="{selectedImageTag}">
-          {#each imageTags as imageTag}
-            <option value="{imageTag}">{imageTag}</option>
-          {/each}
-        </select>
-
-        <label for="newImageName" class="block my-2 text-sm font-bold text-gray-400">New Image Name</label>
+        <label for="imageName" class="block my-2 text-sm font-bold text-gray-400">Image Name</label>
         <input
           type="text"
-          bind:value="{newImageName}"
-          name="newImageName"
-          id="newImageName"
-          placeholder="Enter new image name (e.g. quay.io/namespace/my-custom-image)"
+          bind:value="{imageName}"
+          name="imageName"
+          id="imageTag"
+          placeholder="Enter image name (e.g. quay.io/namespace/my-image-name)"
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           required />
-
-        <label for="newImageTag" class="block my-2 text-sm font-bold text-gray-400">New Image Tag</label>
+        <label for="imageTag" class="block my-2 text-sm font-bold text-gray-400">Image Tag</label>
         <input
           type="text"
-          bind:value="{newImageTag}"
-          name="newImageTag"
-          id="newImageTag"
-          placeholder="Enter new tag (e.g. latest or v2)"
+          bind:value="{imageTag}"
+          name="imageTag"
+          id="imageTag"
+          placeholder="Enter Image name (e.g. quay.io/namespace/my-image-name)"
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           required />
-        <div class="flex items-center mb-4">
-          <label for="keepImageTag" class="my-2 text-sm font-bold text-gray-400">Keep Image Tag?</label>
-          <input
-            type="checkbox"
-            bind:checked="{keepImageTag}"
-            name="keepImageTag"
-            id="keepImageTag"
-            class="ml-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
-            required />
-        </div>
-        {#if !renameComplete}
-          <button
-            class="pf-c-button pf-m-primary"
-            type="button"
-            on:click="{() => {
-              renameImage(selectedImageTag, newImageName, newImageTag);
-            }}">
-            {#if keepImageTag}
-              Add Image Tag
-            {:else}
-              Rename Image
-            {/if}
-          </button>
-        {:else}
-          <button class="pf-c-button pf-m-primary" type="button" on:click="{() => renameImageFinished()}"> Done</button>
-        {/if}
+        <button
+          class="pf-c-button pf-m-primary"
+          type="button"
+          on:click="{() => {
+            renameImage(imageName, imageTag);
+          }}">
+          Save
+        </button>
       </div>
     </div>
   </div>

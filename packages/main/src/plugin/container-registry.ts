@@ -780,32 +780,6 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async addImageTag(
-    engineId: string,
-    imageTag: string,
-    newImageName: string,
-    newImageTag: string,
-    callback: () => void,
-  ): Promise<void> {
-    let telemetryOptions = {};
-    try {
-      const engine = this.getMatchingEngine(engineId);
-      const image = engine.getImage(imageTag);
-      await image.tag({ name: imageTag, repo: newImageName, tag: newImageTag });
-      callback();
-    } catch (error) {
-      telemetryOptions = { error: error };
-      throw error;
-    } finally {
-      this.telemetryService
-        .track(
-          'addImageTag',
-          Object.assign({ imageName: this.getImageHash(imageTag), newImageTag: newImageTag }, telemetryOptions),
-        )
-        .catch((err: unknown) => console.error('Unable to track', err));
-    }
-  }
-
   getImageHash(imageName: string): string {
     return crypto.createHash('sha512').update(imageName).digest('hex');
   }

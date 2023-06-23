@@ -815,6 +815,12 @@ export class PluginSystem {
       },
     );
     this.ipcHandle(
+      'container-provider-registry:tagImage',
+      async (_listener, engine: string, imageTag: string, repo: string, tag?: string): Promise<void> => {
+        return containerProviderRegistry.tagImage(engine, imageTag, repo, tag);
+      },
+    );
+    this.ipcHandle(
       'container-provider-registry:getImageInspect',
       async (_listener, engine: string, imageId: string): Promise<ImageInspectInfo> => {
         return containerProviderRegistry.getImageInspect(engine, imageId);
@@ -900,21 +906,6 @@ export class PluginSystem {
       async (_listener, engine: string, imageId: string, callbackId: number): Promise<void> => {
         return containerProviderRegistry.pushImage(engine, imageId, (name: string, data: string) => {
           this.getWebContentsSender().send('container-provider-registry:pushImage-onData', callbackId, name, data);
-        });
-      },
-    );
-    this.ipcHandle(
-      'container-provider-registry:addImageTag',
-      async (
-        _listener,
-        engine: string,
-        imageId: string,
-        newImageName: string,
-        newImageTag: string,
-        callbackId: number,
-      ): Promise<void> => {
-        return containerProviderRegistry.addImageTag(engine, imageId, newImageName, newImageTag, () => {
-          this.getWebContentsSender().send('container-provider-registry:addImageTag-onData', callbackId);
         });
       },
     );
