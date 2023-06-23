@@ -2962,24 +2962,24 @@
     p-map "^4.0.0"
     webpack-sources "^3.2.2"
 
-"@sveltejs/vite-plugin-svelte-inspector@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte-inspector/-/vite-plugin-svelte-inspector-1.0.2.tgz#da51dd8da54e69a706ad4793103f90aedae2c481"
-  integrity sha512-Cy1dUMcYCnDVV/hPLXa43YZJ2jGKVW5rA0xuNL9dlmYhT0yoS1g7+FOFSRlgk0BXKk/Oc7grs+8BVA5Iz2fr8A==
+"@sveltejs/vite-plugin-svelte-inspector@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte-inspector/-/vite-plugin-svelte-inspector-1.0.3.tgz#fdbf80b43bfaa20deaa5ff6d0676351aa9aecbcc"
+  integrity sha512-Khdl5jmmPN6SUsVuqSXatKpQTMIifoQPDanaxC84m9JxIibWvSABJyHpyys0Z+1yYrxY5TTEQm+6elh0XCMaOA==
   dependencies:
     debug "^4.3.4"
 
-"@sveltejs/vite-plugin-svelte@^2.4.1":
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-2.4.1.tgz#bab9d97a83fee641562f2657ce6ea755808bc149"
-  integrity sha512-bNNKvoRY89ptY7udeBSCmTdCVwkjmMcZ0j/z9J5MuedT8jPjq0zrknAo/jF1sToAza4NVaAgR9AkZoD9oJJmnA==
+"@sveltejs/vite-plugin-svelte@^2.4.2":
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-2.4.2.tgz#04f9fb698853a6a681a2a7d32016487316c30917"
+  integrity sha512-ePfcC48ftMKhkT0OFGdOyycYKnnkT6i/buzey+vHRTR/JpQvuPzzhf1PtKqCDQfJRgoPSN2vscXs6gLigx/zGw==
   dependencies:
-    "@sveltejs/vite-plugin-svelte-inspector" "^1.0.2"
+    "@sveltejs/vite-plugin-svelte-inspector" "^1.0.3"
     debug "^4.3.4"
     deepmerge "^4.3.1"
     kleur "^4.1.5"
     magic-string "^0.30.0"
-    svelte-hmr "^0.15.1"
+    svelte-hmr "^0.15.2"
     vitefu "^0.2.4"
 
 "@svgr/babel-plugin-add-jsx-attribute@^6.0.0":
@@ -13142,10 +13142,10 @@ svelte-fa@^3.0.4:
   resolved "https://registry.yarnpkg.com/svelte-fa/-/svelte-fa-3.0.4.tgz#22543b801950fe4a9a801ba8d4769a53d80c0782"
   integrity sha512-y04vEuAoV1wwVDItSCzPW7lzT6v1bj/y1p+W1V+NtIMpQ+8hj8MBkx7JFD7JHSnalPU1QiI8BVfguqheEA3nPg==
 
-svelte-hmr@^0.15.1:
-  version "0.15.1"
-  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.15.1.tgz#d11d878a0bbb12ec1cba030f580cd2049f4ec86b"
-  integrity sha512-BiKB4RZ8YSwRKCNVdNxK/GfY+r4Kjgp9jCLEy0DuqAKfmQtpL38cQK3afdpjw4sqSs4PLi3jIPJIFp259NkZtA==
+svelte-hmr@^0.15.2:
+  version "0.15.2"
+  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.15.2.tgz#d2f6fc82e040f2734abd54cea5cbef46828f2538"
+  integrity sha512-q/bAruCvFLwvNbeE1x3n37TYFb3mTBJ6TrCq6p2CoFbSTNhDE9oAtEfpy+wmc9So8AG0Tja+X0/mJzX9tSfvIg==
 
 svelte-preprocess@^5.0.3, svelte-preprocess@^5.0.4:
   version "5.0.4"
