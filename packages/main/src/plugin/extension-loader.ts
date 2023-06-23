@@ -57,6 +57,7 @@ import { securityRestrictionCurrentHandler } from '../security-restrictions-hand
 import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
 import { isLinux, isMac, isWindows } from '../util.js';
+import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -128,6 +129,7 @@ export class ExtensionLoader {
     private proxy: Proxy,
     private containerProviderRegistry: ContainerProviderRegistry,
     private inputQuickPickRegistry: InputQuickPickRegistry,
+    private customPickRegistry: CustomPickRegistry,
     private authenticationProviderRegistry: AuthenticationImpl,
     private iconRegistry: IconRegistry,
     private telemetry: Telemetry,
@@ -706,6 +708,7 @@ export class ExtensionLoader {
     const progress = this.progress;
     const notifications = this.notifications;
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
+    const customPickRegistry = this.customPickRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
       showInformationMessage: (message: string, ...items: string[]) => {
         return messageBox.showDialog('info', extManifest.displayName, message, items);
@@ -764,6 +767,9 @@ export class ExtensionLoader {
         }
 
         return new StatusBarItemImpl(this.statusBarRegistry, alignment, priority);
+      },
+      createCustomPick: <T extends containerDesktopAPI.CustomPickItem>(): containerDesktopAPI.CustomPick<T> => {
+        return customPickRegistry.createCustomPick();
       },
     };
 

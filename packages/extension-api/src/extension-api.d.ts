@@ -905,7 +905,7 @@ declare module '@podman-desktop/api' {
    */
   export interface CustomPickSectionItem {
     /**
-     * A human-readable string which is rendered prominent. 
+     * A human-readable string which is rendered prominent.
      */
     title: string;
 
@@ -926,7 +926,7 @@ declare module '@podman-desktop/api' {
    */
   export interface CustomPickItem {
     /**
-     * A human-readable string which is rendered prominent. 
+     * A human-readable string which is rendered prominent.
      */
     title: string;
     /**
@@ -939,7 +939,7 @@ declare module '@podman-desktop/api' {
     markDownContent: string;
     /**
      * Optional sections that will be rendered in separate lines
-    */
+     */
     sections?: CustomPickSectionItem[];
     /**
      * Optional flag indicating if this item is selected initially
@@ -952,52 +952,54 @@ declare module '@podman-desktop/api' {
    * The items are rendered using a custom UI.
    */
   export interface CustomPick<T extends CustomPickItem> {
-     /**
-      * An optional human-readable string which is rendered prominent.
-      */
-     title?: string;
-     /**
-      * An optional human-readable string which is rendered less prominent in a separate line.
-      */
-     description?: string;
-     /**
-      * An optional base64 PNG image
-     */ 
-     icon?: string | { light: string; dark: string };
-     /**
-      * Items to pick from. This can be read and updated by the extension.
-      */
-     items: readonly T[];
-     /**
-      * Buttons for actions in the UI.
-      */
-     buttons: readonly QuickInputButton[];
-     /**
-      * If multiple items can be selected at the same time. Defaults to false.
-      */
-     canSelectMany: boolean;
-     /**
-      * An event signaling when the user indicated acceptance of the selected item(s).
-      */
-     readonly onDidAccept: Event<void>;
-     /**
-      * An event signaling when the selected items have changed.
-      */     
-     readonly onDidChangeSelection: Event<readonly T[]>
-     /**
-      * Shows the custom pick.
-      */
-     show(): void;
-     /**
-      * Hides the custom pick.
-      */
-     hide(): void;
- 
-     /**
-      * Dispose and free associated resources. Call
-      * {@link CustomPick.hide}.
-      */
-     dispose(): void;
+    /**
+     * An optional human-readable string which is rendered prominent.
+     */
+    title?: string;
+    /**
+     * An optional human-readable string which is rendered less prominent in a separate line.
+     */
+    description?: string;
+    /**
+     * An optional base64 PNG image
+     */
+    icon?: string | { light: string; dark: string };
+    /**
+     * Items to pick from. This can be read and updated by the extension.
+     */
+    items: T[];
+    /**
+     * If multiple items can be selected at the same time. Defaults to false.
+     */
+    canSelectMany: boolean;
+    /**
+     * If the additional sections of an item should be hidden by default when the dialog opens up.
+     * The user can still open them by clicking on the 'show more' button.
+     * Defaults to false.
+     */
+    hideItemSections: boolean;
+    /**
+     * An event signaling when the user indicated confirmation of the selected item(s) index(es).
+     */
+    readonly onDidConfirmSelection: Event<number[]>;
+    /**
+     * An event signaling when this input UI is hidden.
+     */
+    readonly onDidHide: Event<void>;
+    /**
+     * Shows the custom pick.
+     */
+    show(): void;
+    /**
+     * Hides the custom pick.
+     */
+    hide(): void;
+
+    /**
+     * Dispose and free associated resources. Call
+     * {@link CustomPick.hide}.
+     */
+    dispose(): void;
   }
 
   export interface NotificationOptions {
@@ -1293,8 +1295,8 @@ declare module '@podman-desktop/api' {
      * Creates a CustomPick to let the user pick an item from a list of items of type T using a custom UI.
      * @return A new CustomPick
      */
-    export function createCustomPick<T extends CustomPickItem>(): CustomPick;
- }
+    export function createCustomPick<T extends CustomPickItem>(): CustomPick<T>;
+  }
 
   export namespace kubernetes {
     // Path to the configuration file

@@ -1112,6 +1112,17 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld(
+    'sendCustomPickItemsOnConfirmation',
+    async (customPickId: number, selectedIndexes: number[]): Promise<void> => {
+      return ipcInvoke('customPick:values', customPickId, selectedIndexes);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('closeCustomPick', async (customPickId: number): Promise<void> => {
+    return ipcInvoke('customPick:close', customPickId);
+  });
+
   let onDataCallbacksShellInContainerDDExtensionInstallId = 0;
   const onDataCallbacksShellInContainerDDExtension = new Map<number, (data: string) => void>();
   const onDataCallbacksShellInContainerDDExtensionError = new Map<number, (data: string) => void>();
