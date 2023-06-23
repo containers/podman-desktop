@@ -822,6 +822,13 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'checkImageCredentials',
+    async (registryCreateOptions: containerDesktopAPI.RegistryCreateOptions): Promise<void> => {
+      return ipcInvoke('image-registry:checkCredentials', registryCreateOptions);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'updateImageRegistry',
     async (registry: containerDesktopAPI.Registry): Promise<void> => {
       return ipcInvoke('image-registry:updateRegistry', registry);
