@@ -195,10 +195,12 @@ export class ExtensionLoader {
     // extract to an existing directory
     zipper.sync.unzip(filePath).save(unpackedDirectory);
 
-    const extension = await this.analyzeExtension(unpackedDirectory, true);
-    if (extension) {
+    try {
+      const extension = await this.analyzeExtension(unpackedDirectory, true);
       await this.loadExtension(extension);
       this.apiSender.send('extension-started', {});
+    } catch (e) {
+      console.error('Could not load packaged extension ${e}');
     }
   }
 
@@ -264,12 +266,12 @@ export class ExtensionLoader {
     const analyzedExtensions: AnalyzedExtension[] = [];
 
     const analyzedFoldersExtension = (
-      await Promise.all(folders.map(folder => this.analyzeExtension(folder, false)))
+      await Promise.all(folders.map(folder => this.analyzeExtension(folder, false).catch(() => undefined)))
     ).filter(extension => extension !== undefined) as AnalyzedExtension[];
     analyzedExtensions.push(...analyzedFoldersExtension);
 
     const analyzedExternalExtensions = (
-      await Promise.all(externalExtensions.map(folder => this.analyzeExtension(folder, false)))
+      await Promise.all(externalExtensions.map(folder => this.analyzeExtension(folder, false).catch(() => undefined)))
     ).filter(extension => extension !== undefined) as AnalyzedExtension[];
     analyzedExtensions.push(...analyzedExternalExtensions);
 
@@ -283,7 +285,7 @@ export class ExtensionLoader {
 
       // collect all extensions from the pluginDirectory folders
       const analyzedPluginsDirectoryExtensions: AnalyzedExtension[] = (
-        await Promise.all(pluginDirectories.map(folder => this.analyzeExtension(folder, false)))
+        await Promise.all(pluginDirectories.map(folder => this.analyzeExtension(folder, false).catch(() => undefined)))
       ).filter(extension => extension !== undefined) as AnalyzedExtension[];
       analyzedExtensions.push(...analyzedPluginsDirectoryExtensions);
     }
@@ -292,14 +294,19 @@ export class ExtensionLoader {
     await this.loadExtensions(analyzedExtensions);
   }
 
-  async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension | undefined> {
-    // do nothing if there is no package.json file
+  async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension> {
+    // error if there is no package.json file
     if (!fs.existsSync(path.resolve(extensionPath, 'package.json'))) {
       console.warn(`Ignoring extension ${extensionPath} without package.json file`);
-      return undefined;
+      return Promise.reject(new Error(`Extension ${extensionPath} missing package.json file`));
     }
 
+    // error if the manifest is missing entries
     const manifest = await this.loadManifest(extensionPath);
+    if (!manifest.name || !manifest.displayName || !manifest.version || !manifest.publisher || !manifest.description) {
+      console.warn(`Ignoring extension ${extensionPath} missing required manifest entries in package.json`);
+      return Promise.reject(new Error(`Extension ${extensionPath} missing required manifest entries in package.json`));
+    }
 
     // create api object
     const api = this.createApi(extensionPath, manifest);
@@ -478,10 +485,7 @@ export class ExtensionLoader {
     // reload the extension
     try {
       const updatedExtension = await this.analyzeExtension(extension.path, removable);
-
-      if (updatedExtension) {
-        await this.loadExtension(updatedExtension, true);
-      }
+      await this.loadExtension(updatedExtension, true);
     } catch (error) {
       console.error('error while reloading extension', error);
     } finally {
@@ -1066,10 +1070,11 @@ export class ExtensionLoader {
   async startExtension(extensionId: string): Promise<void> {
     const extension = this.analyzedExtensions.get(extensionId);
     if (extension) {
-      const analyzedExtension = await this.analyzeExtension(extension.path, extension.removable);
-
-      if (analyzedExtension) {
+      try {
+        const analyzedExtension = await this.analyzeExtension(extension.path, extension.removable);
         await this.loadExtension(analyzedExtension, true);
+      } catch (e) {
+        console.error('Could not start extension: ${e}');
       }
     }
   }
