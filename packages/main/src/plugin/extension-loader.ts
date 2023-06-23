@@ -56,6 +56,7 @@ import type { Telemetry } from './telemetry/telemetry.js';
 import { TelemetryTrustedValue } from './types/telemetry.js';
 import { clipboard as electronClipboard } from 'electron';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
+import type { IconRegistry } from './icon-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -128,6 +129,7 @@ export class ExtensionLoader {
     private containerProviderRegistry: ContainerProviderRegistry,
     private inputQuickPickRegistry: InputQuickPickRegistry,
     private authenticationProviderRegistry: AuthenticationImpl,
+    private iconRegistry: IconRegistry,
     private telemetry: Telemetry,
   ) {}
 
@@ -514,6 +516,11 @@ export class ExtensionLoader {
     const menus = extension.manifest?.contributes?.menus;
     if (menus) {
       this.menuRegistry.registerMenus(menus);
+    }
+
+    const icons = extension.manifest?.contributes?.icons;
+    if (icons) {
+      this.iconRegistry.registerIconContribution(extension, icons);
     }
 
     this.analyzedExtensions.set(extension.id, extension);

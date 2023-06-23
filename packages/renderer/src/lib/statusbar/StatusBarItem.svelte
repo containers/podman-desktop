@@ -10,6 +10,15 @@ function iconClass(entry: StatusBarEntry): string | undefined {
   } else if (!entry.enabled && entry.inactiveIconClass !== undefined && entry.inactiveIconClass.trim().length !== 0) {
     iconClass = entry.inactiveIconClass;
   }
+  // handle ${} in icon class
+  // and interpret the value and replace with the class-name
+  if (iconClass !== undefined) {
+    const match = iconClass.match(/\$\{(.*)\}/);
+    if (match !== null && match.length === 2) {
+      const className = match[1];
+      iconClass = iconClass.replace(match[0], `podman-desktop-icon-${className}`);
+    }
+  }
   return iconClass;
 }
 
