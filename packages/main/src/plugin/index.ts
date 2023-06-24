@@ -1201,6 +1201,18 @@ export class PluginSystem {
       },
     );
 
+    // Check credentials for a registry
+    this.ipcHandle(
+      'image-registry:checkCredentials',
+      async (_listener, registryCreateOptions: containerDesktopAPI.RegistryCreateOptions): Promise<void> => {
+        return imageRegistry.checkCredentials(
+          registryCreateOptions.serverUrl,
+          registryCreateOptions.username,
+          registryCreateOptions.secret,
+        );
+      },
+    );
+
     this.ipcHandle(
       'image-registry:createRegistry',
       async (
