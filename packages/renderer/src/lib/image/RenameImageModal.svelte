@@ -1,9 +1,11 @@
 <script lang="ts">
 import { onMount } from 'svelte';
+import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 
 export let closeCallback: () => void;
+export let detailed = false;
 export let imageInfoToRename: ImageInfoUI;
 
 let imageName = '';
@@ -26,6 +28,9 @@ async function renameImage(imageName: string, imageTag: string) {
   await window.tagImage(imageInfoToRename.engineId, currentImageNameTag, imageName, imageTag);
   await window.deleteImage(imageInfoToRename.engineId, currentImageNameTag);
 
+  if (detailed) {
+    router.goto('/images');
+  }
   closeCallback();
 }
 </script>

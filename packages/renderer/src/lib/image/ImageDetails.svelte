@@ -126,6 +126,7 @@ onMount(() => {
 {#if renameImageModal}
   <RenameImageModal
     imageInfoToRename="{image}"
+    detailed="{true}"
     closeCallback="{() => {
       closeModals();
     }}" />
