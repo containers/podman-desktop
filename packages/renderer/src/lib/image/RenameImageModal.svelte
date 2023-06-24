@@ -95,7 +95,7 @@ async function renameImage(imageName: string, imageTag: string) {
           bind:value="{imageTag}"
           name="imageTag"
           id="imageTag"
-          placeholder="Enter Image name (e.g. quay.io/namespace/my-image-name)"
+          placeholder="Enter image tag (e.g. latest)"
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           on:input="{event => validateImageTag(event)}"
           aria-invalid="{imageTagErrorMessage && imageTagErrorMessage !== ''}"
