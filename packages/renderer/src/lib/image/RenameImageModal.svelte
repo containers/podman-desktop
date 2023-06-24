@@ -13,6 +13,13 @@ onMount(async () => {
   imageTag = imageInfoToRename.tag;
 });
 
+function disableSave(name: string, tag: string): boolean {
+  const inputName = `${name}:${tag}`;
+  const currentName = `${imageInfoToRename.name}:${imageInfoToRename.tag}`;
+
+  return name.trim() === '' || tag.trim() === '' || inputName === currentName;
+}
+
 async function renameImage(imageName: string, imageTag: string) {
   const currentImageNameTag = `${imageInfoToRename.name}:${imageInfoToRename.tag}`;
 
@@ -42,7 +49,7 @@ async function renameImage(imageName: string, imageTag: string) {
           type="text"
           bind:value="{imageName}"
           name="imageName"
-          id="imageTag"
+          id="imageName"
           placeholder="Enter image name (e.g. quay.io/namespace/my-image-name)"
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           required />
@@ -59,6 +66,7 @@ async function renameImage(imageName: string, imageTag: string) {
           class="pf-c-button pf-m-primary"
           type="button"
           name="Save"
+          disabled="{disableSave(imageName, imageTag)}"
           on:click="{() => {
             renameImage(imageName, imageTag);
           }}">
