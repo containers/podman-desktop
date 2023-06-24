@@ -3,6 +3,7 @@ import { onMount } from 'svelte';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let closeCallback: () => void;
 export let detailed = false;
@@ -22,16 +23,40 @@ function disableSave(name: string, tag: string): boolean {
   return name.trim() === '' || tag.trim() === '' || inputName === currentName;
 }
 
+let imageNameErrorMessage = '';
+function validateImageName(event): void {
+  let inputName = event.target.value;
+  if (inputName === undefined || inputName.trim() === '') {
+    imageNameErrorMessage = 'Please enter a value';
+  } else {
+    imageNameErrorMessage = '';
+  }
+}
+
+let imageTagErrorMessage = '';
+function validateImageTag(event): void {
+  let inputName = event.target.value;
+  if (inputName === undefined || inputName.trim() === '') {
+    imageTagErrorMessage = 'Please enter a value';
+  } else {
+    imageTagErrorMessage = '';
+  }
+}
+
 async function renameImage(imageName: string, imageTag: string) {
   const currentImageNameTag = `${imageInfoToRename.name}:${imageInfoToRename.tag}`;
 
-  await window.tagImage(imageInfoToRename.engineId, currentImageNameTag, imageName, imageTag);
-  await window.deleteImage(imageInfoToRename.engineId, currentImageNameTag);
+  try {
+    await window.tagImage(imageInfoToRename.engineId, currentImageNameTag, imageName, imageTag);
+    await window.deleteImage(imageInfoToRename.engineId, currentImageNameTag);
+    closeCallback();
+  } catch (error) {
+    imageNameErrorMessage = error.message;
+  }
 
   if (detailed) {
     router.goto('/images');
   }
-  closeCallback();
 }
 </script>
 
@@ -57,7 +82,13 @@ async function renameImage(imageName: string, imageTag: string) {
           id="imageName"
           placeholder="Enter image name (e.g. quay.io/namespace/my-image-name)"
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+          on:input="{event => validateImageName(event)}"
+          aria-invalid="{imageNameErrorMessage && imageNameErrorMessage !== ''}"
           required />
+        {#if imageNameErrorMessage}
+          <ErrorMessage error="{imageNameErrorMessage}" />
+        {/if}
+
         <label for="imageTag" class="block my-2 text-sm font-bold text-gray-400">Image Tag</label>
         <input
           type="text"
@@ -66,7 +97,12 @@ async function renameImage(imageName: string, imageTag: string) {
           id="imageTag"
           placeholder="Enter Image name (e.g. quay.io/namespace/my-image-name)"
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+          on:input="{event => validateImageTag(event)}"
+          aria-invalid="{imageTagErrorMessage && imageTagErrorMessage !== ''}"
           required />
+        {#if imageTagErrorMessage}
+          <ErrorMessage error="{imageTagErrorMessage}" />
+        {/if}
         <button
           class="pf-c-button pf-m-primary"
           type="button"
