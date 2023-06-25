@@ -13,10 +13,10 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
-    "format:check": "prettier --check 'src/**/*.{css,ts,tsx}'",
-    "format:fix": "prettier --write 'src/**/*.{css,ts,tsx}'",
-    "lint:check": "eslint . --ext js,ts,tsx",
-    "lint:fix": "eslint . --fix --ext js,ts,tsx"
+    "format:check": "prettier --check '**/*.{md,js}' 'src/**/*.{css,ts,tsx}'",
+    "format:fix": "prettier --write '**/*.{md,js}' 'src/**/*.{css,ts,tsx}'",
+    "lint:check": "cd .. && eslint website --ext js,ts,tsx",
+    "lint:fix": "cd .. && eslint website --fix --ext js,ts,tsx"
   },
   "dependencies": {
     "@docusaurus/core": "2.4.1",
