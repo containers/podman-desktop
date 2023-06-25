@@ -16,7 +16,7 @@ Consider installing a Flatpak bundle rather than [from Flathub](../linux-install
 #### Prerequisites
 
 - [Flatpak](https://flatpak.org/setup/)
-- [Podman](https://podman.io/whatis.html) stable version
+- [Podman](https://podman.io/) stable version
 
 #### Procedure
 
