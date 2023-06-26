@@ -106,6 +106,10 @@ export class DockerPluginAdapter {
           spawnProcess.on('error', error => {
             execResult.killed = true;
             execResult.signal = error.toString();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (error as any).stderr = execResult.stderr;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (error as any).stdout = execResult.stdout;
             resolve(error);
           });
         });
