@@ -103,7 +103,7 @@ function setSectionVisibility(index: number, show: boolean) {
           </div>
         {/if}
         {#if title}
-          <h1 class="grow text-lg font-bold capitalize">{title}</h1>
+          <h1 class="grow text-lg font-bold capitalize" aria-label="{title}">{title}</h1>
         {/if}
         {#if description}
           <h3 class="grow text-xs">{description}</h3>
@@ -138,48 +138,50 @@ function setSectionVisibility(index: number, show: boolean) {
                 <Markdown>{item.markDownContent}</Markdown>
               </div>
             </div>
-            {#each item.sections as section}
-              <div class="mx-auto my-2 text-xs font-bold group-[.hide-section]:hidden">
-                {section.title}
-              </div>
-              {#if section.content}
-                <div
-                  class="bg-charcoal-500 group-hover:bg-purple-800 group-[.hide-section]:hidden group-[.is-selected]:bg-purple-800 px-4 py-2 flex flex-col text-xs items-center">
-                  {section.content}
+            {#if item.sections}
+              {#each item.sections as section}
+                <div class="mx-auto my-2 text-xs font-bold group-[.hide-section]:hidden">
+                  {section.title}
                 </div>
-              {/if}
-              {#if section.markDownContent}
-                <div
-                  class="bg-charcoal-500 group-hover:bg-purple-800 group-[.hide-section]:hidden group-[.is-selected]:bg-purple-800 px-4 py-2 flex flex-col text-xs">
-                  <Markdown>{section.markDownContent}</Markdown>
-                </div>
-              {/if}
-            {/each}
-            {#if item.sections.length > 0}
-              <div
-                class="p-4 bg-charcoal-500 group-hover:bg-purple-800 group-[.is-selected]:bg-purple-800 rounded-b-md text-xs flex justify-center">
-                {#if itemSectionHiddenStatus.get(i)}
-                  <button
-                    aria-label="Less detail"
-                    class="text-xs hover:underline"
-                    on:click="{() => setSectionVisibility(i, false)}">
-                    Show details
-                    <span class="pf-c-button__icon pf-m-end">
-                      <i class="fas fa-angle-down" aria-hidden="true"></i>
-                    </span>
-                  </button>
-                {:else}
-                  <button
-                    aria-label="Less detail"
-                    class="text-xs hover:underline"
-                    on:click="{() => setSectionVisibility(i, true)}">
-                    Less details
-                    <span class="pf-c-button__icon pf-m-end">
-                      <i class="fas fa-angle-up" aria-hidden="true"></i>
-                    </span>
-                  </button>
+                {#if section.content}
+                  <div
+                    class="bg-charcoal-500 group-hover:bg-purple-800 group-[.hide-section]:hidden group-[.is-selected]:bg-purple-800 px-4 py-2 flex flex-col text-xs items-center">
+                    {section.content}
+                  </div>
                 {/if}
-              </div>
+                {#if section.markDownContent}
+                  <div
+                    class="bg-charcoal-500 group-hover:bg-purple-800 group-[.hide-section]:hidden group-[.is-selected]:bg-purple-800 px-4 py-2 flex flex-col text-xs">
+                    <Markdown>{section.markDownContent}</Markdown>
+                  </div>
+                {/if}
+              {/each}
+              {#if item.sections.length > 0}
+                <div
+                  class="p-4 bg-charcoal-500 group-hover:bg-purple-800 group-[.is-selected]:bg-purple-800 rounded-b-md text-xs flex justify-center">
+                  {#if itemSectionHiddenStatus.get(i)}
+                    <button
+                      aria-label="Less detail"
+                      class="text-xs hover:underline"
+                      on:click="{() => setSectionVisibility(i, false)}">
+                      Show details
+                      <span class="pf-c-button__icon pf-m-end">
+                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                      </span>
+                    </button>
+                  {:else}
+                    <button
+                      aria-label="Less detail"
+                      class="text-xs hover:underline"
+                      on:click="{() => setSectionVisibility(i, true)}">
+                      Less details
+                      <span class="pf-c-button__icon pf-m-end">
+                        <i class="fas fa-angle-up" aria-hidden="true"></i>
+                      </span>
+                    </button>
+                  {/if}
+                </div>
+              {/if}
             {/if}
           </div>
         {/each}
@@ -189,6 +191,7 @@ function setSectionVisibility(index: number, show: boolean) {
         <button aria-label="Cancel" class="text-xs hover:underline" on:click="{() => cancel()}">Cancel</button>
         <button
           class="pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center pb-1"
+          aria-label="Next"
           disabled="{!items.find(item => item.selected)}"
           on:click="{() => next()}">Next</button>
       </div>
