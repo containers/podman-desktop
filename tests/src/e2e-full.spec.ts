@@ -1,7 +1,6 @@
-import type { BrowserWindow } from 'electron';
 import type { ElectronApplication, JSHandle, Page } from 'playwright';
 import { _electron as electron } from 'playwright';
-import { afterAll, beforeAll, expect, test, describe } from 'vitest';
+import { afterAll, beforeAll, test } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { existsSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
@@ -48,7 +47,7 @@ test('Pull and check image', async() => {
     await playExpect(images).toBeVisible();
     await images.click();
   
-    var checkPage = page.getByRole('heading', {name: 'images', exact: true});
+    let checkPage = page.getByRole('heading', {name: 'images', exact: true});
     await playExpect(checkPage).toBeVisible();
   
     const pullImageButton = page.locator('button:text("Pull an image")');
