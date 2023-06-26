@@ -145,7 +145,7 @@ test('Try to delete a pod that has containers', async () => {
   await fireEvent.click(checkbox);
 
   // click on the delete button
-  const deleteButton = screen.getByRole('button', { name: 'Delete selected containers' });
+  const deleteButton = screen.getByRole('button', { name: 'Delete selected containers and pods' });
   expect(deleteButton).toBeInTheDocument();
   await fireEvent.click(deleteButton);
 

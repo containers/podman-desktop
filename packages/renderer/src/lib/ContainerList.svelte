@@ -355,7 +355,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       <button
         class="pf-c-button pf-m-primary"
         on:click="{() => deleteSelectedContainers()}"
-        aria-label="Delete selected containers"
+        aria-label="Delete selected containers and pods"
         title="Delete {selectedItemsNumber} selected items"
         type="button">
         <span class="pf-c-button__icon pf-m-start">
