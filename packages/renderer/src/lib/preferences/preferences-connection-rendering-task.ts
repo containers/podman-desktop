@@ -167,6 +167,7 @@ export function eventCollect(key: symbol, eventName: 'log' | 'warn' | 'error' | 
     if (eventName === 'error') {
       task.status = 'failure';
       task.error = args.join('\n');
+      task.state = 'completed';
     } else if (eventName === 'finish') {
       if (task.status !== 'failure') {
         task.status = 'success';
