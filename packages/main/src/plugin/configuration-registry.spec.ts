@@ -16,21 +16,29 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import type { IConfigurationNode } from './configuration-registry.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
+import type { Directories } from './directories.js';
 
 let configurationRegistry: ConfigurationRegistry;
 
 // mock the fs methods
 const readFileSync = vi.spyOn(fs, 'readFileSync');
 
+const getConfigurationDirectoryMock = vi.fn();
+const directories = {
+  getConfigurationDirectory: getConfigurationDirectoryMock,
+} as unknown as Directories;
+
 beforeAll(() => {
   // mock the fs module
   vi.mock('node:fs');
 
-  configurationRegistry = new ConfigurationRegistry();
+  getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
+
+  configurationRegistry = new ConfigurationRegistry(directories);
   readFileSync.mockReturnValue(JSON.stringify({}));
 
   configurationRegistry.init();
@@ -49,10 +57,6 @@ beforeAll(() => {
   };
 
   configurationRegistry.registerConfigurations([node]);
-});
-
-beforeEach(() => {
-  vi.clearAllMocks();
 });
 
 describe('should be notified when a configuration is changed', async () => {

@@ -17,14 +17,13 @@
  ***********************************************************************/
 
 import * as path from 'path';
-import * as os from 'os';
 import * as fs from 'fs';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { ConfigurationImpl } from './configuration-impl.js';
 import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
 import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
-import { desktopAppHomeDir } from '../util.js';
+import type { Directories } from './directories.js';
 
 export type IConfigurationPropertySchemaType =
   | 'markdown'
@@ -113,7 +112,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private configurationValues: Map<string, any>;
 
-  constructor() {
+  constructor(private directories: Directories) {
     this.configurationProperties = {};
     this.configurationContributors = [];
     this.configurationValues = new Map();
@@ -121,9 +120,8 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   }
 
   protected getSettingsFile(): string {
-    const configurationDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'configuration');
     // create directory if it does not exist
-    return path.resolve(configurationDirectory, 'settings.json');
+    return path.resolve(this.directories.getConfigurationDirectory(), 'settings.json');
   }
 
   public init(): void {

@@ -18,7 +18,6 @@
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import * as path from 'path';
-import * as os from 'os';
 import * as fs from 'fs';
 import type { CommandRegistry } from './command-registry.js';
 import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info.js';
@@ -47,7 +46,6 @@ import type { ContainerProviderRegistry } from './container-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry.js';
 import type { MenuRegistry } from '/@/plugin/menu-registry.js';
-import { desktopAppHomeDir } from '../util.js';
 import { Emitter } from './events/emitter.js';
 import { CancellationTokenSource } from './cancellation-token.js';
 import type { ApiSenderType } from './api.js';
@@ -57,6 +55,7 @@ import { TelemetryTrustedValue } from './types/telemetry.js';
 import { clipboard as electronClipboard } from 'electron';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { IconRegistry } from './icon-registry.js';
+import type { Directories } from './directories.js';
 
 /**
  * Handle the loading of an extension
@@ -105,11 +104,11 @@ export class ExtensionLoader {
   protected watchTimeout = 1000;
 
   // Plugins directory location
-  private pluginsDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'plugins');
-  protected pluginsScanDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'plugins-scanning');
+  private pluginsDirectory;
+  protected pluginsScanDirectory;
 
   // Extensions directory location
-  private extensionsStorageDirectory = path.resolve(os.homedir(), desktopAppHomeDir(), 'extensions-storage');
+  private extensionsStorageDirectory;
 
   constructor(
     private commandRegistry: CommandRegistry,
@@ -131,7 +130,12 @@ export class ExtensionLoader {
     private authenticationProviderRegistry: AuthenticationImpl,
     private iconRegistry: IconRegistry,
     private telemetry: Telemetry,
-  ) {}
+    directories: Directories,
+  ) {
+    this.pluginsDirectory = directories.getPluginsDirectory();
+    this.pluginsScanDirectory = directories.getPluginsScanDirectory();
+    this.extensionsStorageDirectory = directories.getExtensionsStorageDirectory();
+  }
 
   mapError(err: unknown): ExtensionError | undefined {
     if (err) {

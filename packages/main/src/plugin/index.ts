@@ -108,6 +108,7 @@ import { ExtensionsUpdater } from './extensions-updater/extensions-updater.js';
 import type { CatalogExtension } from './extensions-catalog/extensions-catalog-api.js';
 import { IconRegistry } from './icon-registry.js';
 import type { IconInfo } from './api/icon-info.js';
+import { Directories } from './directories.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -345,8 +346,9 @@ export class PluginSystem {
     const apiSender = this.getApiSender(this.getWebContentsSender());
 
     const iconRegistry = new IconRegistry(apiSender);
+    const directories = new Directories();
 
-    const configurationRegistry = new ConfigurationRegistry();
+    const configurationRegistry = new ConfigurationRegistry(directories);
     configurationRegistry.init();
 
     const telemetry = new Telemetry(configurationRegistry);
@@ -658,6 +660,7 @@ export class PluginSystem {
       authentication,
       iconRegistry,
       telemetry,
+      directories,
     );
     await this.extensionLoader.init();
 
@@ -671,7 +674,7 @@ export class PluginSystem {
     // setup security restrictions on links
     await this.setupSecurityRestrictionsOnLinks(messageBox);
 
-    const contributionManager = new ContributionManager(apiSender);
+    const contributionManager = new ContributionManager(apiSender, directories);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
     });
@@ -1640,6 +1643,7 @@ export class PluginSystem {
       apiSender,
       containerProviderRegistry,
       contributionManager,
+      directories,
     );
     await dockerDesktopInstallation.init();
 
