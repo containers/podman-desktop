@@ -1,4 +1,4 @@
-import type { ElectronApplication, JSHandle, Page } from 'playwright';
+import type { ElectronApplication, Page } from 'playwright';
 import { _electron as electron } from 'playwright';
 import { afterAll, beforeAll, test } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
