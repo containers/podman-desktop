@@ -13,9 +13,12 @@ import {
   reconnectUI,
   startTask,
 } from './preferences-connection-rendering-task';
+/* eslint-disable import/no-duplicates */
+// https://github.com/import-js/eslint-plugin-import/issues/1479
 import { get } from 'svelte/store';
-import { createConnectionsInfo } from '/@/stores/create-connections';
 import { onDestroy, onMount } from 'svelte';
+/* eslint-enable import/no-duplicates */
+import { createConnectionsInfo } from '/@/stores/create-connections';
 import { filesize } from 'filesize';
 import { router } from 'tinro';
 import LinearProgress from '../ui/LinearProgress.svelte';
