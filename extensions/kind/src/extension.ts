@@ -185,7 +185,7 @@ async function createProvider(
   extensionContext: extensionApi.ExtensionContext,
   telemetryLogger: extensionApi.TelemetryLogger,
 ): Promise<void> {
-  const provider = extensionApi.provider.createProvider({
+  const providerOptions: extensionApi.ProviderOptions = {
     name: 'Kind',
     id: 'kind',
     status: 'unknown',
@@ -196,7 +196,14 @@ async function createProvider(
         light: './logo-light.png',
       },
     },
-  });
+  };
+
+  // Empty connection descriptive message
+  providerOptions.emptyConnectionMarkdownDescription = `
+  Kind is a Kubernetes utility for running local clusters using single-container "nodes", providing an easy way to create and manage Kubernetes environments for development and testing.\n\nMore information: [kind.sigs.k8s.io](https://kind.sigs.k8s.io/)`;
+
+  const provider = extensionApi.provider.createProvider(providerOptions);
+
   extensionContext.subscriptions.push(provider);
   await registerProvider(extensionContext, provider, telemetryLogger);
   extensionContext.subscriptions.push(

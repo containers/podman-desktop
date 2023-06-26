@@ -587,6 +587,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     logo: './logo.png',
   };
 
+  // Empty connection descriptive message
+  providerOptions.emptyConnectionMarkdownDescription =
+    'Podman is a lightweight, open-source container runtime and image management tool that enables users to run and manage containers without the need for a separate daemon.\n\nMore information: [podman.io](https://podman.io/)';
+
   const corePodmanEngineLinkGroup = 'Core Podman Engine';
 
   // add links
