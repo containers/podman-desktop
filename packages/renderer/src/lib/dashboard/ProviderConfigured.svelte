@@ -26,7 +26,6 @@ async function runProvider() {
   runAtStart = false;
   try {
     await window.startProvider(provider.internalId);
-    // wait that status is updated
     await new Promise<void>(resolve => {
       window.events.receive('provider-change', () => {
         resolve();
