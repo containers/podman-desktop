@@ -138,7 +138,22 @@ function toggleCheckboxContainerGroup(checked: boolean, containerGroup: Containe
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedContainers() {
+  // delete pods first if any
+  const podGroups = containerGroups.filter(group => group.type === ContainerGroupInfoTypeUI.POD);
+  if (podGroups.length > 0) {
+    await Promise.all(
+      podGroups.map(async podGroup => {
+        try {
+          await window.removePod(podGroup.engineId, podGroup.id);
+        } catch (e) {
+          console.error('error while removing pod', e);
+        }
+      }),
+    );
+  }
+  // then containers (that are no inside a pod)
   const selectedContainers = containerGroups
+    .filter(group => group.type !== ContainerGroupInfoTypeUI.POD)
     .map(group => group.containers)
     .flat()
     .filter(container => container.selected);
@@ -340,6 +355,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       <button
         class="pf-c-button pf-m-primary"
         on:click="{() => deleteSelectedContainers()}"
+        aria-label="Delete selected containers and pods"
         title="Delete {selectedItemsNumber} selected items"
         type="button">
         <span class="pf-c-button__icon pf-m-start">
@@ -378,6 +394,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <Checkbox
+              title="Toggle all"
               bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
               on:click="{event => toggleAllContainerGroups(event.detail)}" />
