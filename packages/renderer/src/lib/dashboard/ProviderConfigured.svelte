@@ -26,7 +26,6 @@ async function runProvider() {
   runAtStart = false;
   try {
     await window.startProvider(provider.internalId);
-    // wait that status is updated
     await new Promise<void>(resolve => {
       window.events.receive('provider-change', () => {
         resolve();
@@ -39,11 +38,7 @@ async function runProvider() {
   runInProgress = false;
 }
 
-onMount(async () => {
-  // Get the autostart configuration setting. If it's disabled, we do *not* want to start the current container provider.
-  const autostart = await window.getConfigurationValue<boolean>('preferences.engine.autostart');
-  runAtStart = autostart || initializationContext.mode === InitializeAndStartMode;
-
+onMount(() => {
   if (runAtStart) {
     runProvider();
   }
