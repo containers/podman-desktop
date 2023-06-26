@@ -42,6 +42,8 @@ import type { AuthenticationImpl } from './authentication.js';
 import type { MessageBox } from './message-box.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
+import type { IconRegistry } from './icon-registry.js';
+import type { Directories } from './directories.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -97,8 +99,16 @@ const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQui
 
 const authenticationProviderRegistry: AuthenticationImpl = {} as unknown as AuthenticationImpl;
 
+const iconRegistry: IconRegistry = {} as unknown as IconRegistry;
+
 const telemetryTrackMock = vi.fn();
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
+
+const directories = {
+  getPluginsDirectory: () => '/fake-plugins-directory',
+  getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
+  getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
+} as unknown as Directories;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
@@ -120,7 +130,9 @@ beforeAll(() => {
     containerProviderRegistry,
     inputQuickPickRegistry,
     authenticationProviderRegistry,
+    iconRegistry,
     telemetry,
+    directories,
   );
 });
 

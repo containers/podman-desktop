@@ -37,6 +37,7 @@ import TaskManager from './lib/task-manager/TaskManager.svelte';
 import MessageBox from './lib/dialogs/MessageBox.svelte';
 import TitleBar from './lib/ui/TitleBar.svelte';
 import TroubleshootingPage from './lib/troubleshooting/TroubleshootingPage.svelte';
+import IconsStyle from './lib/style/IconsStyle.svelte';
 
 router.mode.hash();
 
@@ -61,6 +62,7 @@ window.events?.receive('display-troubleshooting', () => {
 
 <Route path="/*" breadcrumb="Home" let:meta>
   <main class="flex flex-col w-screen h-screen overflow-hidden bg-charcoal-800">
+    <IconsStyle />
     <TitleBar />
 
     <WelcomePage />

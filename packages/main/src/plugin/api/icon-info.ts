@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { BrowserWindow } from 'electron';
-import * as os from 'os';
+import type { FontDefinition } from './font-info.js';
 
-const windows = os.platform() === 'win32';
-export function isWindows(): boolean {
-  return windows;
-}
-const mac = os.platform() === 'darwin';
-export function isMac(): boolean {
-  return mac;
-}
-const linux = os.platform() === 'linux';
-export function isLinux(): boolean {
-  return linux;
-}
-export function findWindow(): Electron.BrowserWindow | undefined {
-  return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+export interface IconDefinition {
+  description?: string;
+  font?: FontDefinition;
+  fontCharacter: string;
 }
 
-export const stoppedExtensions = { val: false };
+export interface IconInfo {
+  id: string;
+  definition: IconDefinition;
+}

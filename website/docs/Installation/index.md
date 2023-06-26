@@ -18,10 +18,14 @@ Podman Desktop requires you to install at least one container engine.
 
 Podman Desktop does not install any container engine automatically.
 
+Podman Desktop can use different virtual machines, such as:
+
+- Lima
+- Podman Machine
+
 Podman Desktop can control various container engines, such as:
 
 - Docker
-- Lima
 - Podman
 
 Consider installing the Podman container engine for:

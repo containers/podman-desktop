@@ -44,6 +44,8 @@ import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import type { Proxy } from './proxy.js';
+import type { IconRegistry } from './icon-registry.js';
+import type { Directories } from './directories.js';
 
 function randomNumber(n = 5) {
   return Math.round(Math.random() * 10 * n);
@@ -88,6 +90,12 @@ const apiSender: ApiSenderType = {
 };
 
 let authModule: AuthenticationImpl;
+
+const directories = {
+  getPluginsDirectory: () => '/fake-plugins-directory',
+  getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
+  getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
+} as unknown as Directories;
 
 beforeEach(function () {
   authModule = new AuthenticationImpl(apiSender);
@@ -243,7 +251,9 @@ suite('Authentication', () => {
       vi.fn() as unknown as ContainerProviderRegistry,
       vi.fn() as unknown as InputQuickPickRegistry,
       authentication,
+      vi.fn() as unknown as IconRegistry,
       vi.fn() as unknown as Telemetry,
+      directories,
     );
     providerMock = {
       onDidChangeSessions: vi.fn(),

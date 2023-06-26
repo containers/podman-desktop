@@ -16,14 +16,14 @@
     "@patternfly/patternfly": "^4.224.2",
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/svelte": "^3.2.2",
+    "@testing-library/svelte": "^4.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@tsconfig/svelte": "^4.0.1",
     "@types/js-yaml": "^4.0.5",
     "@types/validator": "^13.7.17",
     "@typescript-eslint/eslint-plugin": "5.60.0",
     "autoprefixer": "^10.4.14",
-    "eslint-plugin-svelte": "^2.31.0",
+    "eslint-plugin-svelte": "^2.31.1",
     "filesize": "^10.0.7",
     "humanize-duration": "^3.28.0",
     "jsdom": "^22.1.0",
@@ -49,7 +49,7 @@
     "yaml": "^2.3.1"
   },
   "dependencies": {
-    "@zerodevx/svelte-toast": "^0.9.3",
+    "@zerodevx/svelte-toast": "^0.9.4",
     "electron-context-menu": "^3.6.1",
     "tinro": "^0.6.12"
   }

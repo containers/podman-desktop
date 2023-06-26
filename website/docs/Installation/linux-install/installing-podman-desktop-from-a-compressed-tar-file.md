@@ -15,7 +15,7 @@ Consider installing from an archive rather than [from Flathub](../linux-install)
 
 #### Prerequisites
 
-- [Podman](https://podman.io/whatis.html) stable version
+- [Podman](https://podman.io/) stable version
 
 #### Procedure
 

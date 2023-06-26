@@ -44,6 +44,7 @@ $: styleClass = detailed
   <!-- enabled button -->
   <button
     title="{title}"
+    aria-label="{title}"
     on:click="{handleClick}"
     class="{styleClass} relative"
     class:disabled="{inProgress}"
