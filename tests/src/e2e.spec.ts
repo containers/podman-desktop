@@ -17,8 +17,12 @@ beforeAll(async () => {
     await rm('tests/output', { recursive: true, force: true });
   }
 
+  const env: { [key: string]: string } = Object.assign({}, process.env as { [key: string]: string });
+  env.PODMAN_DESKTOP_HOME_DIR = 'tests/output/podman-desktop';
+
   electronApp = await electron.launch({
     args: ['.'],
+    env,
     recordVideo: {
       dir: 'tests/output/videos',
       size: {
