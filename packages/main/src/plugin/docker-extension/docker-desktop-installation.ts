@@ -28,12 +28,14 @@ import type Dockerode from 'dockerode';
 import type { PullEvent } from '../api/pull-event.js';
 import type { ContributionManager } from '../contribution-manager.js';
 import type { ApiSenderType } from '../api.js';
+import type { Directories } from '../directories.js';
 
 export class DockerDesktopInstallation {
   constructor(
     private apiSender: ApiSenderType,
     private containerRegistry: ContainerProviderRegistry,
     private contributionManager: ContributionManager,
+    private directories: Directories,
   ) {}
 
   async extractDockerDesktopFiles(
@@ -256,10 +258,7 @@ export class DockerDesktopInstallation {
           const tmpTarPath = path.join(os.tmpdir(), `${imageNameWithoutSpecialChars}-tmp.tar`);
 
           // final folder
-          const finalFolderPath = path.join(
-            this.contributionManager.getContributionStorageDir(),
-            imageNameWithoutSpecialChars,
-          );
+          const finalFolderPath = path.join(this.directories.getContributionStorageDir(), imageNameWithoutSpecialChars);
 
           reportLog('Grabbing image content...');
           await this.exportContentOfContainer(providerConnection, foundMatchingImage.Id, tmpTarPath);

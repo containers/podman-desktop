@@ -17,11 +17,10 @@
  ***********************************************************************/
 
 import * as path from 'node:path';
-import * as os from 'node:os';
 import * as fs from 'node:fs';
 import type { ContributionInfo } from './api/contribution-info.js';
-import { desktopAppHomeDir } from '../util.js';
 import type { ApiSenderType } from './api.js';
+import type { Directories } from './directories.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -33,12 +32,12 @@ export class ContributionManager {
   private readonly EMPTY_ICON =
     'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz4=';
 
-  constructor(private apiSender: ApiSenderType) {}
+  constructor(private apiSender: ApiSenderType, private directories: Directories) {}
 
   // load the existing contributions
   async init(): Promise<void> {
     // create directory if not there
-    const contributionsFolder = this.getContributionStorageDir();
+    const contributionsFolder = this.directories.getContributionStorageDir();
     if (!fs.existsSync(contributionsFolder)) {
       fs.mkdirSync(contributionsFolder);
     }
@@ -136,10 +135,6 @@ export class ContributionManager {
         },
       );
     });
-  }
-
-  public getContributionStorageDir(): string {
-    return path.resolve(os.homedir(), desktopAppHomeDir(), 'contributions');
   }
 
   getExtensionPath(extensionId: string): string | undefined {
