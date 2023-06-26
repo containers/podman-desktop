@@ -95,7 +95,7 @@ if (dropdownMenu) {
   {/if}
 
   <ListItemButtonIcon
-    title="Rename Image"
+    title="Edit Image"
     onClick="{() => renameImage(image)}"
     menu="{dropdownMenu}"
     detailed="{detailed}"

@@ -66,7 +66,7 @@ async function renameImage(imageName: string, imageTag: string) {
   }}">
   <div class="modal flex flex-col place-self-center bg-charcoal-800 shadow-xl shadow-black">
     <div class="flex items-center justify-between px-6 py-5 space-x-2">
-      <h1 class="grow text-lg font-bold capitalize">Rename Image</h1>
+      <h1 class="grow text-lg font-bold capitalize">Edit Image</h1>
 
       <button class="hover:text-gray-300 py-1" on:click="{() => closeCallback()}">
         <i class="fas fa-times" aria-hidden="true"></i>
@@ -103,16 +103,27 @@ async function renameImage(imageName: string, imageTag: string) {
         {#if imageTagErrorMessage}
           <ErrorMessage error="{imageTagErrorMessage}" />
         {/if}
-        <button
-          class="pf-c-button pf-m-primary"
-          type="button"
-          name="Save"
-          disabled="{disableSave(imageName, imageTag)}"
-          on:click="{() => {
-            renameImage(imageName, imageTag);
-          }}">
-          Save
-        </button>
+        <div class="w-full mt-6 grid grid-cols-4 gap-6">
+          <button
+            class="pf-c-button pf-m-secondary col-start-3"
+            type="button"
+            name="Cancel"
+            on:click="{() => {
+              closeCallback();
+            }}">
+            Cancel
+          </button>
+          <button
+            class="pf-c-button pf-m-primary col-start-4"
+            type="button"
+            name="Save"
+            disabled="{disableSave(imageName, imageTag)}"
+            on:click="{() => {
+              renameImage(imageName, imageTag);
+            }}">
+            Save
+          </button>
+        </div>
       </div>
     </div>
   </div>
