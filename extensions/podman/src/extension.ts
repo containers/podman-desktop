@@ -774,6 +774,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       args = ['--host', 'podman', ...args];
     }
     const podmanProcess = spawn(command, args);
+    podmanProcess.on('error', err => {
+      console.error('Failed to spawn process.', err);
+    });
 
     // check for up to 5s to see if the socket is being made available
     const socketPath = getLinuxSocketPath();
