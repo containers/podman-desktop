@@ -23,6 +23,7 @@ import { spawn } from 'node:child_process';
 import * as sudo from 'sudo-prompt';
 import type * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
+import * as http from 'node:http';
 
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
@@ -237,4 +238,40 @@ function killProcess(spawnProcess: ChildProcess) {
   } else {
     spawnProcess.kill();
   }
+}
+
+export async function getMemTotalInfo(socketPath: string): Promise<number> {
+  const versionUrl = {
+    path: '/info',
+    socketPath: socketPath,
+  };
+
+  interface Info {
+    MemTotal: number;
+  }
+
+  return new Promise<number>((resolve, reject) => {
+    const req = http.get(versionUrl, res => {
+      const body = [];
+      res.on('data', chunk => {
+        body.push(chunk);
+      });
+
+      res.on('end', err => {
+        if (res.statusCode === 200) {
+          try {
+            resolve((JSON.parse(Buffer.concat(body).toString()) as Info).MemTotal);
+          } catch (e) {
+            reject(e);
+          }
+        } else {
+          reject(new Error(err.message));
+        }
+      });
+    });
+
+    req.once('error', err => {
+      reject(new Error(err.message));
+    });
+  });
 }
