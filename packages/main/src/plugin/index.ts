@@ -109,6 +109,15 @@ import type { CatalogExtension } from './extensions-catalog/extensions-catalog-a
 import { IconRegistry } from './icon-registry.js';
 import type { IconInfo } from './api/icon-info.js';
 import { Directories } from './directories.js';
+import { DiagnosticProviderRegistry } from './diagnostic-provider-registry.js';
+import { DiagnosticDialogSettings } from '../diagnostic/diagnostic-dialog-settings.js';
+import {
+  AboutInfoProvider,
+  CompositeGeneralDiagnosticInfoProvider,
+  ConfigurationInfoProvider,
+  DisplayInfoProvider,
+  SystemInfoProvider,
+} from '../diagnostic/diagnostic-provider.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -640,6 +649,17 @@ export class PluginSystem {
 
     const taskManager = new TaskManager(apiSender);
 
+    const compositeInfoProvider = new CompositeGeneralDiagnosticInfoProvider(
+      new AboutInfoProvider(),
+      new DisplayInfoProvider(),
+      new SystemInfoProvider(),
+      new ConfigurationInfoProvider(configurationRegistry),
+    );
+
+    const diagnosticProviderRegistry = new DiagnosticProviderRegistry([compositeInfoProvider]);
+    const diagnosticDialogSettings = new DiagnosticDialogSettings(configurationRegistry);
+    await diagnosticDialogSettings.init();
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -661,6 +681,7 @@ export class PluginSystem {
       iconRegistry,
       telemetry,
       directories,
+      diagnosticProviderRegistry,
     );
     await this.extensionLoader.init();
 

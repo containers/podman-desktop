@@ -19,6 +19,7 @@
 import * as extensionApi from '@podman-desktop/api';
 import * as os from 'node:os';
 import * as http from 'node:http';
+import { DockerDiagnosticInfoProvider } from './diagnostic/docker-diagnostic-info-provider';
 
 let stopLoop = false;
 
@@ -27,6 +28,7 @@ let provider: extensionApi.Provider;
 let providerState: extensionApi.ProviderConnectionStatus = 'stopped';
 let containerProviderConnection: extensionApi.ContainerProviderConnection;
 let containerProviderConnectionDisposable: extensionApi.Disposable;
+let diagnosticInfoProviderDisposer: extensionApi.Disposable;
 
 async function timeout(time: number): Promise<void> {
   return new Promise<void>(resolve => {
@@ -129,6 +131,12 @@ async function updateProvider(extensionContext: extensionApi.ExtensionContext) {
         extensionContext.subscriptions.push(containerProviderConnectionDisposable);
 
         provider.updateStatus('started');
+
+        if (!diagnosticInfoProviderDisposer) {
+          diagnosticInfoProviderDisposer = extensionApi.diagnostic.registerDiagnosticInfoProvider(
+            new DockerDiagnosticInfoProvider(socketPath),
+          );
+        }
       }
     }
   } else {
@@ -138,6 +146,9 @@ async function updateProvider(extensionContext: extensionApi.ExtensionContext) {
       containerProviderConnectionDisposable?.dispose();
       providerState = 'stopped';
       provider.updateStatus('stopped');
+
+      diagnosticInfoProviderDisposer?.dispose();
+      diagnosticInfoProviderDisposer = undefined;
     }
   }
 }

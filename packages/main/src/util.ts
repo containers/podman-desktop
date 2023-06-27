@@ -36,3 +36,20 @@ export function findWindow(): Electron.BrowserWindow | undefined {
 }
 
 export const stoppedExtensions = { val: false };
+
+export const getCommandLineArgs = (argv: string[], argName: string, exactMatch: boolean): string | undefined => {
+  if (!Array.isArray(argv)) {
+    throw new Error(`TypeError invalid func arg, must be an array: ${argv}`);
+  }
+
+  const argNameToFind = argName.toLocaleLowerCase();
+
+  for (let i = 0, len = argv.length; i < len; i++) {
+    const arg = argv[i].toLocaleLowerCase();
+    if ((exactMatch && arg === argNameToFind) || (!exactMatch && arg.startsWith(argNameToFind))) {
+      return argv[i];
+    }
+  }
+
+  return undefined;
+};

@@ -32,6 +32,7 @@ import { PodmanConfiguration } from './podman-configuration';
 import { getDetectionChecks } from './detection-checks';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { getSocketCompatibility } from './compatibility-mode';
+import { PodmanDiagnosticInfoProvider } from './diagnostic/podman-diagnostic-info-provider';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -43,6 +44,7 @@ let storedExtensionContext;
 let stopLoop = false;
 let autoMachineStarted = false;
 let autoMachineName;
+let diagnosticInfoProviderDisposer: extensionApi.Disposable;
 
 // System default notifier
 let defaultMachineNotify = true;
@@ -331,8 +333,15 @@ async function monitorPodmanSocket(socketPath: string, machineName?: string) {
       const alive = await isPodmanSocketAlive(socketPath);
       if (!alive) {
         updateProviderStatus('stopped', machineName);
+        diagnosticInfoProviderDisposer?.dispose();
+        diagnosticInfoProviderDisposer = undefined;
       } else {
         updateProviderStatus('started', machineName);
+        if (!diagnosticInfoProviderDisposer) {
+          diagnosticInfoProviderDisposer = extensionApi.diagnostic.registerDiagnosticInfoProvider(
+            new PodmanDiagnosticInfoProvider(socketPath),
+          );
+        }
       }
     } catch (error) {
       // ignore the update of machines

@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import {join} from 'path';
-import {builtinModules} from 'module';
+import { join } from 'path';
+import { builtinModules } from 'module';
 
 const PACKAGE_ROOT = __dirname;
 
@@ -45,9 +45,7 @@ const config = {
       formats: ['cjs'],
     },
     rollupOptions: {
-      external: [
-        ...builtinModules.flatMap(p => [p, `node:${p}`]),
-      ],
+      external: [...builtinModules.flatMap(p => [p, `node:${p}`])],
       output: {
         entryFileNames: '[name].cjs',
       },

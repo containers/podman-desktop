@@ -56,6 +56,7 @@ import { clipboard as electronClipboard } from 'electron';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
+import type { DiagnosticProviderRegistry } from './diagnostic-provider-registry';
 
 /**
  * Handle the loading of an extension
@@ -131,6 +132,7 @@ export class ExtensionLoader {
     private iconRegistry: IconRegistry,
     private telemetry: Telemetry,
     directories: Directories,
+    private diagnosticProviderRegistry: DiagnosticProviderRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -885,6 +887,22 @@ export class ExtensionLoader {
       },
     };
 
+    const diagnosticProviderRegistry = this.diagnosticProviderRegistry;
+    const diagnostic: typeof containerDesktopAPI.diagnostic = {
+      registerDiagnosticInfoProvider: diagnosticInfoProvider => {
+        return diagnosticProviderRegistry.registerDiagnosticInfoProvider(diagnosticInfoProvider);
+      },
+      unregisterDiagnosticInfoProvider: diagnosticInfoProvider => {
+        diagnosticProviderRegistry.unregisterDiagnosticInfoProvider(diagnosticInfoProvider);
+      },
+      registerDiagnosticLogsProvider: diagnosticLogsProvider => {
+        return diagnosticProviderRegistry.registerDiagnosticLogsProvider(diagnosticLogsProvider);
+      },
+      unregisterDiagnosticLogsProvider: diagnosticLogsProvider => {
+        diagnosticProviderRegistry.unregisterDiagnosticLogsProvider(diagnosticLogsProvider);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -910,6 +928,7 @@ export class ExtensionLoader {
       InputBoxValidationSeverity,
       QuickPickItemKind,
       authentication,
+      diagnostic,
     };
   }
 
@@ -1102,6 +1121,10 @@ export class ExtensionLoader {
 
   getConfigurationRegistry(): ConfigurationRegistry {
     return this.configurationRegistry;
+  }
+
+  getDiagnosticProviderRegistry(): DiagnosticProviderRegistry {
+    return this.diagnosticProviderRegistry;
   }
 
   getPluginsDirectory(): string {

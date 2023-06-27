@@ -21,13 +21,36 @@ import { app, ipcMain, Tray } from 'electron';
 import './security-restrictions';
 import { createNewWindow, restoreWindow } from '/@/mainWindow.js';
 import { TrayMenu } from './tray-menu.js';
-import { isMac, isWindows, stoppedExtensions } from './util.js';
+import { getCommandLineArgs, isMac, isWindows, stoppedExtensions } from './util.js';
 import { AnimatedTray } from './tray-animate-icon.js';
 import { PluginSystem } from './plugin/index.js';
 import { StartupInstall } from './system/startup-install.js';
 import type { ExtensionLoader } from './plugin/extension-loader.js';
 import dns from 'node:dns';
 import { Deferred } from './plugin/util/deferred.js';
+import { diagnosticMenuItem } from './diagnostic/diagnostic-menu-item';
+import { DiagnosticProcessor } from './diagnostic/diagnostic-processor';
+import { Logger } from './logger';
+import type { LogLevel } from 'electron-log';
+
+function initializeLoggerInstance(): Logger {
+  let desiredLogLevel: LogLevel = app.isPackaged ? 'info' : 'debug';
+  const logLevel = getCommandLineArgs(process.argv, '--logLevel=', false);
+  if (logLevel) {
+    const level = logLevel.split('=')[1];
+    if (level) {
+      desiredLogLevel = level as LogLevel;
+    }
+  }
+
+  const customLogPathArg = getCommandLineArgs(process.argv, '--logPath=', false);
+  const customLogsFolder = customLogPathArg?.substring(customLogPathArg.indexOf('=') + 1);
+
+  return new Logger(desiredLogLevel, customLogsFolder);
+}
+
+const logger: Logger = initializeLoggerInstance();
+export { logger };
 
 let extensionLoader: ExtensionLoader | undefined;
 
@@ -200,6 +223,9 @@ app.whenReady().then(
     // Get the configuration registry (saves all our settings)
     const configurationRegistry = extensionLoader.getConfigurationRegistry();
 
+    const diagnosticProviderRegistry = extensionLoader.getDiagnosticProviderRegistry();
+    const diagnosticProcessor = new DiagnosticProcessor(diagnosticProviderRegistry);
+
     // If we've manually set the tray icon color, update the tray icon. This can only be done
     // after configurationRegistry is loaded. Windows or Linux support only for icon color change.
     if (!isMac()) {
@@ -207,6 +233,24 @@ app.whenReady().then(
       if (typeof color === 'string') {
         animatedTray.setColor(color);
       }
+    }
+
+    const menu = Menu.getApplicationMenu();
+    if (menu) {
+      Menu.setApplicationMenu(
+        Menu.buildFromTemplate(
+          menu.items.map(i => {
+            if (i.role === 'help' && i.submenu) {
+              const newSubMenu = Menu.buildFromTemplate([
+                ...i.submenu.items,
+                diagnosticMenuItem(diagnosticProcessor, configurationRegistry),
+              ]);
+              return Object.assign({}, i, { submenu: newSubMenu });
+            }
+            return i;
+          }),
+        ),
+      );
     }
 
     // Share configuration registry with renderer process

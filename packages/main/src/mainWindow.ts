@@ -24,6 +24,7 @@ import { join } from 'path';
 import { URL } from 'url';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 import { isLinux, isMac, stoppedExtensions } from './util.js';
+import { logger } from './index.js';
 
 async function createWindow(): Promise<BrowserWindow> {
   const INITIAL_APP_WIDTH = 1050;
@@ -247,6 +248,8 @@ async function createWindow(): Promise<BrowserWindow> {
       : new URL('../renderer/dist/index.html', 'file://' + __dirname).toString();
 
   await browserWindow.loadURL(pageUrl);
+
+  logger.info('application started');
 
   return browserWindow;
 }

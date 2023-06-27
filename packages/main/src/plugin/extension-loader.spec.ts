@@ -44,6 +44,7 @@ import type { Telemetry } from './telemetry/telemetry.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
+import type { DiagnosticProviderRegistry } from './diagnostic-provider-registry';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -110,6 +111,8 @@ const directories = {
   getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
 } as unknown as Directories;
 
+const diagnosticProviderRegistry: DiagnosticProviderRegistry = {} as unknown as DiagnosticProviderRegistry;
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
   extensionLoader = new TestExtensionLoader(
@@ -133,6 +136,7 @@ beforeAll(() => {
     iconRegistry,
     telemetry,
     directories,
+    diagnosticProviderRegistry,
   );
 });
 

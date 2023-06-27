@@ -473,6 +473,23 @@ declare module '@podman-desktop/api' {
     create(registryCreateOptions: RegistryCreateOptions): Registry;
   }
 
+  export interface DiagnosticInfoProvider {
+    title: string;
+    collectInfo(): Promise<string>;
+  }
+
+  export interface DiagnosticLogsProvider {
+    title: string;
+    collectLogs(): Promise<string[]>;
+  }
+
+  export namespace diagnostic {
+    export function registerDiagnosticInfoProvider(diagnosticInfoProvider: DiagnosticInfoProvider): Disposable;
+    export function unregisterDiagnosticInfoProvider(diagnosticInfoProvider: DiagnosticInfoProvider): void;
+    export function registerDiagnosticLogsProvider(diagnosticLogsProvider: DiagnosticLogsProvider): Disposable;
+    export function unregisterDiagnosticLogsProvider(diagnosticLogsProvider: DiagnosticLogsProvider): void;
+  }
+
   /**
    * Handle registries from different sources
    */
