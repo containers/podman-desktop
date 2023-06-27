@@ -22,11 +22,14 @@ import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons
 import Fa from 'svelte-fa/src/fa.svelte';
 import ErrorMessage from './ui/ErrorMessage.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
+import { podsInfos } from '../stores/pods';
 import KubePlayButton from './kube/KubePlayButton.svelte';
 import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
 import { containerGroupsInfo } from '../stores/containerGroups';
 import Checkbox from './ui/Checkbox.svelte';
+import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
+import { PodUtils } from '../lib/pod/pod-utils';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -183,8 +186,10 @@ function createPodFromContainers() {
     .flat()
     .filter(container => container.selected);
 
+  const podUtils = new PodUtils();
+
   const podCreation = {
-    name: 'my-pod',
+    name: podUtils.calculateNewPodName(pods),
     containers: selectedContainers.map(container => {
       return { id: container.id, name: container.name, engineId: container.engineId, ports: container.ports };
     }),
@@ -198,6 +203,8 @@ function createPodFromContainers() {
 }
 
 let containersUnsubscribe: Unsubscriber;
+let podUnsubscribe: Unsubscriber;
+let pods: PodInfo[];
 onMount(async () => {
   // grab previous groups
   containerGroups = get(containerGroupsInfo);
@@ -256,6 +263,10 @@ onMount(async () => {
     // compute refresh interval
     const interval = computeInterval();
     refreshTimeouts.push(setTimeout(refreshUptime, interval));
+
+    podUnsubscribe = podsInfos.subscribe(podInfos => {
+      pods = podInfos;
+    });
   });
 });
 
@@ -270,6 +281,9 @@ onDestroy(() => {
   // unsubscribe from the store
   if (containersUnsubscribe) {
     containersUnsubscribe();
+  }
+  if (podUnsubscribe) {
+    podUnsubscribe();
   }
 });
 
