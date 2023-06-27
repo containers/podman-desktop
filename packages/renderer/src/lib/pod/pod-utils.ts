@@ -64,6 +64,28 @@ export class PodUtils {
       kind: podinfo.kind,
     };
   }
+
+  calculateNewPodName(existedPods?: PodInfo[]) {
+    const proposedPodName = 'my-pod';
+
+    if (!existedPods) {
+      return proposedPodName;
+    }
+
+    const existedNames = existedPods.map(pod => pod.Name);
+
+    if (!existedNames.includes(proposedPodName)) {
+      return proposedPodName;
+    } else {
+      let count = 1;
+      let uniqueName = `${proposedPodName}-${count}`;
+      while (existedNames.includes(uniqueName)) {
+        count++;
+        uniqueName = `${proposedPodName}-${count}`;
+      }
+      return uniqueName;
+    }
+  }
 }
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
