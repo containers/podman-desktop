@@ -50,11 +50,9 @@ export default defineConfig({
       { find: /^svelte$/, replacement: 'svelte/internal' },
     ],
     deps: {
-      inline: [
-        'moment',
-      ],
+      inline: ['moment'],
     },
-      ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
   base: '',
   server: {
@@ -69,5 +67,8 @@ export default defineConfig({
 
     emptyOutDir: true,
     reportCompressedSize: false,
+    rollupOptions: {
+      external: ['electron-log'],
+    },
   },
 });

@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { BrowserWindow } from 'electron';
-import { app, ipcMain, Tray } from 'electron';
+import { app, ipcMain, Menu, Tray } from 'electron';
 import './security-restrictions';
 import { createNewWindow, restoreWindow } from '/@/mainWindow.js';
 import { TrayMenu } from './tray-menu.js';
