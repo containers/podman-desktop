@@ -16,7 +16,7 @@
     "@patternfly/patternfly": "^4.224.2",
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/svelte": "^4.0.0",
+    "@testing-library/svelte": "^4.0.1",
     "@testing-library/user-event": "^14.4.3",
     "@tsconfig/svelte": "^4.0.1",
     "@types/js-yaml": "^4.0.5",
