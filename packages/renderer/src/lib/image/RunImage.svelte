@@ -14,12 +14,17 @@ import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { ContainerUtils } from '../container/container-utils';
 import { containersInfos } from '../../stores/containers';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import splitSpacesExcludeQuotes from 'quoted-string-space-split';
 let image: ImageInfoUI;
 
 let imageInspectInfo: ImageInspectInfo;
 
 let containerName = '';
 let containerNameError = '';
+
+let command = '';
+
+let entrypoint = '';
 
 let invalidFields = false;
 
@@ -95,6 +100,16 @@ onMount(async () => {
 
   imageInspectInfo = await window.getImageInspect(image.engineId, image.id);
   exposedPorts = Array.from(Object.keys(imageInspectInfo?.Config?.ExposedPorts || {}));
+
+  command = imageInspectInfo.Config.Cmd.join(' ');
+
+  if (imageInspectInfo.Config.Entrypoint) {
+    if (typeof imageInspectInfo.Config.Entrypoint === 'string') {
+      entrypoint = imageInspectInfo.Config.Entrypoint;
+    } else {
+      entrypoint = imageInspectInfo.Config.Entrypoint.join(' ');
+    }
+  }
 
   // auto-assign ports from available free port
   containerPortMapping = new Array<string>(exposedPorts.length);
@@ -273,6 +288,12 @@ async function startContainer() {
     ExposedPorts,
     Tty,
   };
+  if (command.trim().length > 0) {
+    options.Cmd = splitSpacesExcludeQuotes(command);
+  }
+  if (entrypoint.trim().length > 0) {
+    options.Entrypoint = splitSpacesExcludeQuotes(entrypoint);
+  }
 
   if (runUser) {
     options.User = runUser;
@@ -396,7 +417,7 @@ function checkContainerName(event: any) {
                 <ul class="pf-c-tabs__list">
                   <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/basic'}">
                     <a
-                      href="/images/run/basic"
+                      href="{meta.match}/basic"
                       class="pf-c-tabs__link"
                       aria-controls="open-tabs-example-tabs-list-details-panel"
                       id="open-tabs-example-tabs-list-details-link">
@@ -405,7 +426,7 @@ function checkContainerName(event: any) {
                   </li>
                   <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/advanced'}">
                     <a
-                      href="/images/run/advanced"
+                      href="{meta.match}/advanced"
                       class="pf-c-tabs__link"
                       aria-controls="open-tabs-example-tabs-list-details-panel"
                       id="open-tabs-example-tabs-list-details-link">
@@ -414,7 +435,7 @@ function checkContainerName(event: any) {
                   </li>
                   <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/networking'}">
                     <a
-                      href="/images/run/networking"
+                      href="{meta.match}/networking"
                       class="pf-c-tabs__link"
                       aria-controls="open-tabs-example-tabs-list-yaml-panel"
                       id="open-tabs-example-tabs-list-yaml-link">
@@ -423,7 +444,7 @@ function checkContainerName(event: any) {
                   </li>
                   <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === '/images/run/security'}">
                     <a
-                      href="/images/run/security"
+                      href="{meta.pattern}/security"
                       class="pf-c-tabs__link"
                       aria-controls="open-tabs-example-tabs-list-yaml-panel"
                       id="open-tabs-example-tabs-list-yaml-link">
@@ -450,6 +471,22 @@ function checkContainerName(event: any) {
                     ? 'border-red-500'
                     : 'border-charcoal-800'}" />
                 <ErrorMessage class="h-1 text-sm" error="{containerNameError}" />
+                <label for="modalEntrypoint" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                  >Entrypoint:</label>
+                <input
+                  type="text"
+                  bind:value="{entrypoint}"
+                  name="modalEntrypoint"
+                  id="modalEntrypoint"
+                  class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border border-charcoal-800" />
+                <label for="modalCommand" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                  >Command:</label>
+                <input
+                  type="text"
+                  bind:value="{command}"
+                  name="modalCommand"
+                  id="modalCommand"
+                  class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border border-charcoal-800" />
                 <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                   >Volumes:</label>
                 <!-- Display the list of volumes -->
