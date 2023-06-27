@@ -39,6 +39,8 @@ import type {
   UpdateContainerConnectionEvent,
   UpdateKubernetesConnectionEvent,
   ProviderConnectionStatus,
+  AuditResult,
+  AuditRequestItems,
 } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
@@ -692,6 +694,21 @@ export class ProviderRegistry {
 
     // create a logger
     return provider.containerProviderConnectionFactory.create(params, logHandler, token);
+  }
+
+  async auditConnectionParameters(
+    internalProviderId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params: AuditRequestItems,
+  ): Promise<AuditResult> {
+    // grab the correct provider
+    const provider = this.getMatchingProvider(internalProviderId);
+
+    if (!provider.connectionAuditor) {
+      throw new Error('The provider does not support audit for connection parameters');
+    }
+
+    return provider.connectionAuditor.auditItems(params);
   }
 
   async createKubernetesProviderConnection(
