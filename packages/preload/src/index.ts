@@ -602,6 +602,16 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'auditConnectionParameters',
+    async (
+      internalProviderId: string,
+      params: containerDesktopAPI.AuditRequestItems,
+    ): Promise<containerDesktopAPI.AuditResult> => {
+      return ipcInvoke('provider-registry:auditConnectionParameters', internalProviderId, params);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'createKubernetesProviderConnection',
     async (
       internalProviderId: string,

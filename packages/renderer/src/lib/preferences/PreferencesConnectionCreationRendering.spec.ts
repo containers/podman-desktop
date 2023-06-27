@@ -32,6 +32,7 @@ import { createConnectionsInfo } from '/@/stores/create-connections';
 const properties: IConfigurationPropertyRecordedSchema[] = [];
 const providerInfo: ProviderInfo = {
   id: 'test',
+  internalId: 'test',
   name: 'test',
 } as unknown as ProviderInfo;
 const propertyScope = 'FOO';
@@ -43,6 +44,7 @@ beforeAll(() => {
   (window as any).getOsCpu = vi.fn();
   (window as any).getOsFreeDiskSize = vi.fn();
   (window as any).getCancellableTokenSource = vi.fn();
+  (window as any).auditConnectionParameters = vi.fn();
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {

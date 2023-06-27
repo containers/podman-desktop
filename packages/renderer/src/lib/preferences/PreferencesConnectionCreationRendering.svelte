@@ -22,6 +22,8 @@ import LinearProgress from '../ui/LinearProgress.svelte';
 import Spinner from '../ui/Spinner.svelte';
 import Markdown from '../markdown/Markdown.svelte';
 import type { Terminal } from 'xterm';
+import type { AuditRequestItems } from '@podman-desktop/api';
+import AuditMessageBox from '../ui/AuditMessageBox.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
@@ -58,6 +60,10 @@ let configurationKeys: IConfigurationPropertyRecordedSchema[] = [];
 
 let isValid = true;
 let errorMessage = undefined;
+
+let formEl;
+
+$: connectionAuditResult = undefined;
 
 // reconnect the logger handler
 $: if (logsTerminal && loggerHandlerKey) {
@@ -101,6 +107,7 @@ onMount(async () => {
       }
       return property;
     });
+
   pageIsLoading = false;
 
   // check if we have an existing create action
@@ -123,6 +130,12 @@ onMount(async () => {
   if (taskId === undefined) {
     taskId = createConnectionInfoMap.size + 1;
   }
+
+  const data = {};
+  for (let field of configurationKeys) {
+    data[field.id] = field.default;
+  }
+  connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data);
 });
 
 onDestroy(() => {
@@ -135,8 +148,17 @@ function handleInvalidComponent() {
   isValid = false;
 }
 
-function handleValidComponent() {
+async function handleValidComponent() {
   isValid = true;
+
+  const formData = new FormData(formEl);
+  const data = {};
+  for (let field of formData) {
+    const [key, value] = field;
+    data[key] = value;
+  }
+
+  connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data as AuditRequestItems);
 }
 
 function setConfigurationValue(id: string, value: string) {
@@ -352,7 +374,10 @@ async function close() {
         {/if}
 
         <div class="p-3 mt-2 w-4/5 h-fit {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
-          <form novalidate class="p-2 space-y-7 h-fit" on:submit|preventDefault="{handleOnSubmit}">
+          {#if connectionAuditResult?.records?.length > 0}
+            <AuditMessageBox auditResult="{connectionAuditResult}" />
+          {/if}
+          <form novalidate class="p-2 space-y-7 h-fit" on:submit|preventDefault="{handleOnSubmit}" bind:this="{formEl}">
             {#each configurationKeys as configurationKey}
               <div class="mb-2.5">
                 <div class="font-semibold text-xs">

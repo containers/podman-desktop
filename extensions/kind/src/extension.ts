@@ -19,10 +19,10 @@
 import * as extensionApi from '@podman-desktop/api';
 import { detectKind, getKindPath, runCliCommand } from './util';
 import { KindInstaller } from './kind-installer';
-import type { CancellationToken, Logger } from '@podman-desktop/api';
+import type { AuditRequestItems, CancellationToken, Logger } from '@podman-desktop/api';
 import { window } from '@podman-desktop/api';
 import { ImageHandler } from './image-handler';
-import { createCluster } from './create-cluster';
+import { createCluster, connectionAuditor } from './create-cluster';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 
@@ -52,17 +52,35 @@ async function registerProvider(
   provider: extensionApi.Provider,
   telemetryLogger: extensionApi.TelemetryLogger,
 ): Promise<void> {
-  const disposable = provider.setKubernetesProviderConnectionFactory({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) =>
-      createCluster(params, logger, kindCli, telemetryLogger, token),
-    creationDisplayName: 'Kind cluster',
-  });
+  const disposable = provider.setKubernetesProviderConnectionFactory(
+    {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) =>
+        createCluster(params, logger, kindCli, telemetryLogger, token),
+      creationDisplayName: 'Kind cluster',
+    },
+    {
+      auditItems: async (items: AuditRequestItems) =>
+        await connectionAuditor(new ProviderNameExtractor(items).getProviderName()),
+    },
+  );
   extensionContext.subscriptions.push(disposable);
 
   // search
   await searchKindClusters(provider);
   console.log('kind extension is active');
+}
+
+class ProviderNameExtractor {
+  constructor(private items: AuditRequestItems) {}
+
+  getProviderName(): string {
+    if (this.items['kind.cluster.creation.provider']) {
+      return this.items['kind.cluster.creation.provider'];
+    }
+
+    return 'docker';
+  }
 }
 
 // search for clusters

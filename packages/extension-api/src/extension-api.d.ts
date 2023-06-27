@@ -252,6 +252,24 @@ declare module '@podman-desktop/api' {
     create?(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
   }
 
+  export interface AuditRecord {
+    type: 'info' | 'warning' | 'error';
+    record: string;
+  }
+
+  export interface AuditResult {
+    records: AuditRecord[];
+  }
+
+  export interface AuditRequestItems {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
+  }
+
+  export interface Auditor {
+    auditItems(items: AuditRequestItems): Promise<AuditResult>;
+  }
+
   export interface Link {
     title: string;
     url: string;
@@ -303,9 +321,11 @@ declare module '@podman-desktop/api' {
   export interface Provider {
     setContainerProviderConnectionFactory(
       containerProviderConnectionFactory: ContainerProviderConnectionFactory,
+      connectionAuditor?: Auditor,
     ): Disposable;
     setKubernetesProviderConnectionFactory(
       containerProviderConnectionFactory: KubernetesProviderConnectionFactory,
+      connectionAuditor?: Auditor,
     ): Disposable;
 
     registerContainerProviderConnection(connection: ContainerProviderConnection): Disposable;

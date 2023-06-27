@@ -19,12 +19,12 @@ import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { getKindPath, runCliCommand } from './util';
+import { getKindPath, getMemTotalInfo, runCliCommand } from './util';
 import mustache from 'mustache';
 import { parseAllDocuments } from 'yaml';
 
 import createClusterConfTemplate from './templates/create-cluster-conf.mustache?raw';
-import type { CancellationToken } from '@podman-desktop/api';
+import type { AuditRecord, AuditResult, CancellationToken } from '@podman-desktop/api';
 import ingressManifests from '/@gen/contour.yaml?raw';
 
 export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number) {
@@ -55,6 +55,30 @@ export async function setupIngressController(clusterName: string) {
     'kind-' + clusterName,
     manifests.map(manifest => manifest.toJSON()),
   );
+}
+
+export async function connectionAuditor(provider: string): Promise<AuditResult> {
+  const providerSocket = extensionApi.provider
+    .getContainerConnections()
+    .find(connection => connection.connection.type === provider);
+
+  if (!providerSocket) return undefined;
+
+  const memTotal = await getMemTotalInfo(providerSocket.connection.endpoint.socketPath);
+
+  // check if configured memory is less than 6GB
+  if (memTotal < 6000000000) {
+    return {
+      records: [
+        {
+          type: 'info',
+          record: 'It is recommend to install Kind on a virtual machine with at least 6GB of memory.',
+        } as AuditRecord,
+      ],
+    } as AuditResult;
+  }
+
+  return { records: [] } as AuditResult;
 }
 
 export async function createCluster(
