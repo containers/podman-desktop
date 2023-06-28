@@ -85,11 +85,9 @@ export class DockerExtensionPreload {
       execOptions,
     );
     if (rawResult.error) {
-      const error: any = { toString: () => rawResult.stderr };
-      error.stderr = rawResult.stderr;
-      error.stdout = rawResult.stdout;
-      throw error;
+      throw rawResult.error;
     }
+
     if (rawResult.code !== 0) {
       const error: any = { toString: () => rawResult.stderr };
       error.stderr = rawResult.stderr;
