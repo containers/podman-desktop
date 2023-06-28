@@ -7,4 +7,4 @@ import ImageIcon from '../images/ImageIcon.svelte';
   icon="{ImageIcon}"
   title="No images"
   message="Pull a first image using the following command line:"
-  commandline="podman pull redhat/ubi8-micro" />
+  commandline="podman pull quay.io/podman/hello" />
