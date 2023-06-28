@@ -84,7 +84,7 @@ export class DockerPluginAdapter {
             updatedArgs = args;
           }
 
-          const spawnProcess = spawn(updatedCommand, updatedArgs, { env });
+          const spawnProcess = spawn(updatedCommand, updatedArgs, { env, shell: true });
           spawnProcess.stdout.setEncoding('utf8');
           spawnProcess.stdout.on('data', data => {
             execResult.stdout += data;
