@@ -394,7 +394,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         on:click="{() => createPodFromContainers()}"
         title="Create Pod with {selectedItemsNumber} selected items"
         type="button">
-        <i class="fas fa-cubes" aria-hidden="true"></i>
+        <PodIcon size="1em" solid="{true}" />
       </button>
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
