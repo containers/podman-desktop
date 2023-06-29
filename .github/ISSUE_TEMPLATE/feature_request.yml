@@ -1,15 +1,15 @@
 name: Feature 💡
 description: Suggest an idea for this project
-labels: [kind/feature]
+labels: [kind/feature 💡]
 
 body:
   - type: markdown
     attributes:
       value: |
-        Before opening a feature request, please search for potential existing issues. 
-        
+        Before opening a feature request, please search for potential existing issues.
+
         ---
-        
+
         Thank you for taking the time to file a feature request, we appreciate and value your time to help the project!
 
   - type: textarea

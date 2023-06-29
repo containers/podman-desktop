@@ -1,15 +1,15 @@
-name: Enhancement 👋
+name: Enhancement ✨
 description: Suggest an enhancement to an existing feature
-labels: [kind/enhancement]
+labels: [kind/enhancement ✨]
 
 body:
   - type: markdown
     attributes:
       value: |
-        Before opening a new enhancement, please search for potential existing issues. 
-        
+        Before opening a new enhancement, please search for potential existing issues.
+
         ---
-        
+
         Thank you for taking the time to file an enhancement request, we appreciate and value your time to help the project!
 
   - type: textarea
