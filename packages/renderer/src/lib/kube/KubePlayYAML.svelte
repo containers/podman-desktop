@@ -10,6 +10,7 @@ import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.
 import NavPage from '../ui/NavPage.svelte';
 import KubePlayIcon from '../kube/KubePlayIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
@@ -17,6 +18,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 let runStarted = false;
 let runFinished = false;
 let runError = '';
+let runWarning = '';
 let kubernetesYamlFilePath = undefined;
 let hasInvalidFields = true;
 
@@ -25,6 +27,7 @@ let currentNamespace: string;
 let allNamespaces: V1NamespaceList;
 
 let playKubeResultRaw;
+let playKubeResultJSON;
 
 let userChoice: 'podman' | 'kubernetes' = 'podman';
 
@@ -57,8 +60,24 @@ async function playKubeFile(): Promise<void> {
     if (userChoice === 'podman') {
       try {
         const result = await window.playKube(kubernetesYamlFilePath, selectedProvider);
+
         // remove the null values from the result
         playKubeResultRaw = JSON.stringify(removeEmptyOrNull(result), null, 2);
+        playKubeResultJSON = JSON.parse(playKubeResultRaw);
+
+        // If there are container errors, that means that it was *able* to create the container
+        // but if failed to start. We will add this to the "warning" section as we were able to create the
+        // We add this with comma deliminated errors
+        if (playKubeResultJSON.Pods.length > 0) {
+          const containerErrors = playKubeResultJSON.Pods.filter(pod => pod.ContainerErrors.length > 0);
+          // For each Pod that has container errors, we will add the container errors to the warning message
+          if (containerErrors.length > 0) {
+            runWarning = `The following pods were created but failed to start: ${containerErrors
+              .map(pod => pod.ContainerErrors.join(', '))
+              .join(', ')}`;
+          }
+        }
+
         runFinished = true;
       } catch (error) {
         runError = error;
@@ -106,6 +125,10 @@ onDestroy(() => {
     providerUnsubscribe();
   }
 });
+
+function goBackToHistory(): void {
+  window.history.go(-1);
+}
 
 async function getKubernetesfileLocation() {
   const result = await window.openFileDialog('Select a .yaml file to play', {
@@ -274,17 +297,38 @@ async function getKubernetesfileLocation() {
             complete...
           </div>
         {/if}
-        <div class="text-sm"><ErrorMessage error="{runError}" /></div>
+
+        {#if runWarning}
+          <WarningMessage class="text-sm" error="{runWarning}" />
+        {/if}
+
+        {#if runError}
+          <ErrorMessage class="text-sm" error="{runError}" />
+        {/if}
+
+        {#if playKubeResultJSON}
+          <!-- Output area similar to DeployPodToKube.svelte -->
+          <div class="bg-charcoal-800 p-5 my-4">
+            <div class="flex flex-row items-center">
+              <div>
+                {#if playKubeResultJSON?.Pods.length > 1}
+                  Created pods:
+                {:else}
+                  Created pod:
+                {/if}
+              </div>
+            </div>
+
+            <div class="h-[100px] pt-2">
+              <MonacoEditor content="{playKubeResultRaw}" language="json" />
+            </div>
+          </div>
+        {/if}
+
         {#if runFinished}
-          <!-- On click, go BACK to the previous page (if clicked on Pods page, go back to pods, same for Containers)-->
-          <button on:click="{() => history.back()}" class="w-full pf-c-button pf-m-primary">Done</button>
+          <button on:click="{() => goBackToHistory()}" class="pt-4 w-full pf-c-button pf-m-primary">Done</button>
         {/if}
       </div>
-      {#if playKubeResultRaw}
-        <div class=" h-full w-full px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
-          <MonacoEditor content="{playKubeResultRaw}" language="json" />
-        </div>
-      {/if}
     </div>
   </NavPage>
 {/if}
