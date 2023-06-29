@@ -1,16 +1,16 @@
 name: Bug 🐞
 description: Report a bug report
-labels: [kind/bug]
+labels: [kind/bug 🐞]
 
 body:
   - type: markdown
     attributes:
       value: |
-        Before opening a bug report, please search for the behaviour in the existing issues. 
-        
+        Before opening a bug report, please search for the behaviour in the existing issues.
+
         ---
-        
-        Thank you for taking the time to file a bug report. To address this bug as fast as possible, we need some information. 
+
+        Thank you for taking the time to file a bug report. To address this bug as fast as possible, we need some information.
 
   - type: textarea
     id: bug-description
@@ -69,20 +69,20 @@ body:
         - "0.0.2"
         - "0.0.1"
     validations:
-      required: true 
+      required: true
 
   - type: textarea
     id: steps
     attributes:
       label: Steps to reproduce
-      description: What steps do we need to take to reproduce this error? 
+      description: What steps do we need to take to reproduce this error?
 
   - type: textarea
     id: logs
     attributes:
       label: Relevant log output
-      description: If applicable, provide relevant log output. 
-      render: shell 
+      description: If applicable, provide relevant log output.
+      render: shell
 
   - type: textarea
     id: additional-context
