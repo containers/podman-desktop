@@ -3149,10 +3149,10 @@
     lodash "^4.17.15"
     redent "^3.0.0"
 
-"@testing-library/svelte@^4.0.1":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@testing-library/svelte/-/svelte-4.0.1.tgz#b8b253cbf2632dedced0a6ddca7e33e3c2247091"
-  integrity sha512-rvqkMlkXPtbtMbYQsWTb666yBAJVrTJcek2TlDogBKhxwYKqbWgvtTftMNclPi5aLgy+QGndTyIf4gtdFKaiXA==
+"@testing-library/svelte@^4.0.2":
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/@testing-library/svelte/-/svelte-4.0.2.tgz#4024f14d03a85774b7711bc55373fe0732935cdd"
+  integrity sha512-kUCZx7qx3W53lsQXcwz9wphOOL7R006T26ZTDpQ5Zt1wpA0E8qxhyjwRQIvExMXCBwmN3LcI5E76cCVPEaKNVQ==
   dependencies:
     "@testing-library/dom" "^8.1.0"
 
