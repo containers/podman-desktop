@@ -906,12 +906,12 @@ function initExposure(): void {
     return ipcInvoke('extension-loader:listExtensions');
   });
 
-  contextBridge.exposeInMainWorld('stopExtension', async (extensionId: string): Promise<void> => {
+  contextBridge.exposeInMainWorld('disableExtension', async (extensionId: string): Promise<void> => {
     return ipcInvoke('extension-loader:deactivateExtension', extensionId);
   });
 
-  contextBridge.exposeInMainWorld('startExtension', async (extensionId: string): Promise<void> => {
-    return ipcInvoke('extension-loader:startExtension', extensionId);
+  contextBridge.exposeInMainWorld('enableExtension', async (extensionId: string): Promise<void> => {
+    return ipcInvoke('extension-loader:enableExtension', extensionId);
   });
 
   contextBridge.exposeInMainWorld('updateExtension', async (extensionId: string, ociUri: string): Promise<void> => {

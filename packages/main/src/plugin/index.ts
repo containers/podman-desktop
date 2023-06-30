@@ -1310,9 +1310,9 @@ export class PluginSystem {
       },
     );
     this.ipcHandle(
-      'extension-loader:startExtension',
+      'extension-loader:enableExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
-        return this.extensionLoader.startExtension(extensionId);
+        return this.extensionLoader.enableExtension(extensionId);
       },
     );
     this.ipcHandle(

@@ -204,7 +204,7 @@ export class ExtensionLoader {
     const extension = await this.analyzeExtension(unpackedDirectory, true);
     if (extension) {
       await this.loadExtension(extension);
-      this.apiSender.send('extension-started', {});
+      this.apiSender.send('extension-enabled', {});
     }
   }
 
@@ -967,9 +967,9 @@ export class ExtensionLoader {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
-    this.extensionState.set(extension.id, 'starting');
+    this.extensionState.set(extension.id, 'enabling');
     this.extensionStateErrors.delete(extension.id);
-    this.apiSender.send('extension-starting', {});
+    this.apiSender.send('extension-enabling', {});
 
     const subscriptions: containerDesktopAPI.Disposable[] = [];
 
@@ -1005,8 +1005,8 @@ export class ExtensionLoader {
         extensionContext,
       };
       this.activatedExtensions.set(extension.id, activatedExtension);
-      this.extensionState.set(extension.id, 'started');
-      this.apiSender.send('extension-started');
+      this.extensionState.set(extension.id, 'enabled');
+      this.apiSender.send('extension-enabled');
     } catch (err) {
       console.log(`Activation extension ${extension.id} failed error:${err}`);
       this.extensionState.set(extension.id, 'failed');
@@ -1028,8 +1028,8 @@ export class ExtensionLoader {
 
     const telemetryOptions = { extensionId: extension.id };
 
-    this.extensionState.set(extension.id, 'stopping');
-    this.apiSender.send('extension-stopping');
+    this.extensionState.set(extension.id, 'disabling');
+    this.apiSender.send('extension-disabling');
 
     if (extension.deactivateFunction) {
       try {
@@ -1061,8 +1061,8 @@ export class ExtensionLoader {
       }
     }
     this.activatedExtensions.delete(extensionId);
-    this.extensionState.set(extension.id, 'stopped');
-    this.apiSender.send('extension-stopped');
+    this.extensionState.set(extension.id, 'disabled');
+    this.apiSender.send('extension-disabled');
     this.telemetry
       .track('deactivateExtension', telemetryOptions)
       .catch((error: unknown) => console.log(`Failed to track deactivateExtension telemetry event. Error: ${error}`));
@@ -1074,7 +1074,7 @@ export class ExtensionLoader {
     );
   }
 
-  async startExtension(extensionId: string): Promise<void> {
+  async enableExtension(extensionId: string): Promise<void> {
     const extension = this.analyzedExtensions.get(extensionId);
     if (extension) {
       const analyzedExtension = await this.analyzeExtension(extension.path, extension.removable);

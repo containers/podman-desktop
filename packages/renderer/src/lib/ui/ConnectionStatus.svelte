@@ -11,35 +11,35 @@ const roundIconStyle = 'my-auto w-3 h-3 rounded-full';
 const labelStyle = 'my-auto ml-1 font-bold text-[9px]';
 const statusesStyle = new Map<string, connectionStatusStyle>([
   [
-    'started',
+    'enabled',
     {
       bgColor: 'bg-green-500',
       txtColor: 'text-green-500',
-      label: 'RUNNING',
+      label: 'ENABLED',
     },
   ],
   [
-    'starting',
+    'enabling',
     {
       bgColor: 'bg-green-500',
       txtColor: 'text-green-500',
-      label: 'STARTING',
+      label: 'ENABLING',
     },
   ],
   [
-    'stopped',
+    'disabled',
     {
       bgColor: 'bg-gray-900',
       txtColor: 'text-gray-900',
-      label: 'OFF',
+      label: 'DISABLED',
     },
   ],
   [
-    'stopping',
+    'disabling',
     {
       bgColor: 'bg-red-500',
       txtColor: 'text-red-500',
-      label: 'STOPPING',
+      label: 'DISABLING',
     },
   ],
   [

@@ -24,48 +24,48 @@ import ConnectionStatus from './ConnectionStatus.svelte';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-test('Expect green text and icon when connection is running', async () => {
-  render(ConnectionStatus, { status: 'started' });
+test('Expect green text and icon when connection is ENABLED', async () => {
+  render(ConnectionStatus, { status: 'enabled' });
   const icon = screen.getByLabelText('connection-status-icon');
   const label = screen.getByLabelText('connection-status-label');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-green-500');
-  expect(label).toHaveTextContent('RUNNING');
+  expect(label).toHaveTextContent('ENABLED');
 });
 
-test('Expect green text and icon when connection is starting', async () => {
-  render(ConnectionStatus, { status: 'starting' });
+test('Expect green text and icon when connection is enabling', async () => {
+  render(ConnectionStatus, { status: 'enabling' });
   const icon = screen.getByLabelText('connection-status-icon');
   const label = screen.getByLabelText('connection-status-label');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-green-500');
-  expect(label).toHaveTextContent('STARTING');
+  expect(label).toHaveTextContent('ENABLING');
 });
 
-test('Expect green text and icon when connection is stopped', async () => {
-  render(ConnectionStatus, { status: 'stopped' });
+test('Expect green text and icon when connection is disabled', async () => {
+  render(ConnectionStatus, { status: 'disabled' });
   const icon = screen.getByLabelText('connection-status-icon');
   const label = screen.getByLabelText('connection-status-label');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-gray-900');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-gray-900');
-  expect(label).toHaveTextContent('OFF');
+  expect(label).toHaveTextContent('DISABLED');
 });
 
-test('Expect green text and icon when connection is stopping', async () => {
-  render(ConnectionStatus, { status: 'stopping' });
+test('Expect green text and icon when connection is disabling', async () => {
+  render(ConnectionStatus, { status: 'disabling' });
   const icon = screen.getByLabelText('connection-status-icon');
   const label = screen.getByLabelText('connection-status-label');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-red-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-red-500');
-  expect(label).toHaveTextContent('STOPPING');
+  expect(label).toHaveTextContent('DISABLING');
 });
 
 test('Expect green text and icon when connection is unknown', async () => {

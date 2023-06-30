@@ -54,10 +54,10 @@ export const filtered = derived([searchPattern, volumeListInfos], ([$searchPatte
 
 export function initWindowFetchVolumes() {
   // need to refresh when extension is started or stopped
-  window?.events?.receive('extension-started', async () => {
+  window?.events?.receive('extension-enabled', async () => {
     await fetchVolumes();
   });
-  window?.events?.receive('extension-stopped', async () => {
+  window?.events?.receive('extension-disabled', async () => {
     await fetchVolumes();
   });
 

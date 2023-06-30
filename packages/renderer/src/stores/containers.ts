@@ -41,7 +41,7 @@ export const filtered = derived([searchPattern, containersInfos], ([$searchPatte
 );
 
 // need to refresh when extension is started
-window.events?.receive('extension-started', async () => {
+window.events?.receive('extension-enabled', async () => {
   await fetchContainers();
 });
 

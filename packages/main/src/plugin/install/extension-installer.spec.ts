@@ -87,7 +87,7 @@ test('should install an image if labels are correct', async () => {
   expect(sendEnd).toHaveBeenCalledWith('Extension Successfully installed.');
 
   // extension started
-  expect(apiSenderSendMock).toHaveBeenCalledWith('extension-started', {});
+  expect(apiSenderSendMock).toHaveBeenCalledWith('extension-enabled', {});
 });
 
 test('should fail if extension is already installed', async () => {

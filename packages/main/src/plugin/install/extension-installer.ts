@@ -169,7 +169,7 @@ export class ExtensionInstaller {
     }
 
     sendEnd('Extension Successfully installed.');
-    this.apiSender.send('extension-started', {});
+    this.apiSender.send('extension-enabled', {});
   }
 
   async init(): Promise<void> {

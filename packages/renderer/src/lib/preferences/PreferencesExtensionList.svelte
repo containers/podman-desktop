@@ -51,11 +51,11 @@ afterUpdate(() => {
   }
 });
 
-async function stopExtension(extension: ExtensionInfo) {
-  await window.stopExtension(extension.id);
+async function disableExtension(extension: ExtensionInfo) {
+  await window.disableExtension(extension.id);
 }
-async function startExtension(extension: ExtensionInfo) {
-  await window.startExtension(extension.id);
+async function enableExtension(extension: ExtensionInfo) {
+  await window.enableExtension(extension.id);
 }
 
 async function removeExtension(extension: ExtensionInfo) {
@@ -164,13 +164,13 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
                 <div class="flex flex-row justify-end">
                   <button
                     title="Start extension"
-                    on:click="{() => startExtension(extension)}"
+                    on:click="{() => enableExtension(extension)}"
                     class="{buttonClass}"
                     class:hidden="{extension.state !== 'stopped'}"><Fa class="h-4 w-4" icon="{faPlay}" /></button>
                   <button
                     title="Stop extension"
                     class="{buttonClass}"
-                    on:click="{() => stopExtension(extension)}"
+                    on:click="{() => disableExtension(extension)}"
                     hidden
                     class:hidden="{extension.state !== 'started'}"><Fa class="h-4 w-4" icon="{faStop}" /></button>
 

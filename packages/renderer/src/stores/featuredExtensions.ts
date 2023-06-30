@@ -28,16 +28,16 @@ export async function fetchFeaturedExtensions() {
 export const featuredExtensionInfos: Writable<FeaturedExtension[]> = writable([]);
 
 // need to refresh when extension is started or stopped
-window?.events?.receive('extension-starting', async () => {
+window?.events?.receive('extension-enabling', async () => {
   await fetchFeaturedExtensions();
 });
-window?.events?.receive('extension-started', async () => {
+window?.events?.receive('extension-enabled', async () => {
   await fetchFeaturedExtensions();
 });
-window?.events?.receive('extension-stopping', async () => {
+window?.events?.receive('extension-disabling', async () => {
   await fetchFeaturedExtensions();
 });
-window?.events?.receive('extension-stopped', async () => {
+window?.events?.receive('extension-disabled', async () => {
   await fetchFeaturedExtensions();
 });
 window?.events?.receive('extension-removed', async () => {

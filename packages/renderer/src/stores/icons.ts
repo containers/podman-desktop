@@ -38,7 +38,7 @@ export const iconsInfos: Writable<IconInfo[]> = writable([]);
 window.events?.receive('icon-update', async () => {
   await fetchIcons();
 });
-window.events?.receive('extension-stopped', async () => {
+window.events?.receive('extension-disabled', async () => {
   await fetchIcons();
 });
 

@@ -52,14 +52,14 @@ function setup(state: string): string {
   return extensionInfo.id;
 }
 describe('PreferencesExtensionRendering', () => {
-  test('Expect that the buttons have the correct state when an extension is stopped', async () => {
-    const id = setup('stopped');
+  test('Expect that the buttons have the correct state when an extension is disabled', async () => {
+    const id = setup('disabled');
     render(PreferencesExtensionRendering, { extensionId: id });
 
-    const start = screen.getByRole('button', { name: 'Start' });
+    const start = screen.getByRole('button', { name: 'Enable' });
     expect(start).toBeInTheDocument();
     expect(start).toBeEnabled();
-    const stop = screen.getByRole('button', { name: 'Stop' });
+    const stop = screen.getByRole('button', { name: 'Disable' });
     expect(stop).toBeInTheDocument();
     expect(stop).toBeDisabled();
     const remove = screen.getByRole('button', { name: 'Remove' });
@@ -67,14 +67,14 @@ describe('PreferencesExtensionRendering', () => {
     expect(remove).toBeEnabled();
   });
 
-  test('Expect that the buttons have the correct state when an extension is started', async () => {
-    const id = setup('started');
+  test('Expect that the buttons have the correct state when an extension is enabled', async () => {
+    const id = setup('enabled');
     render(PreferencesExtensionRendering, { extensionId: id });
 
-    const start = screen.getByRole('button', { name: 'Start' });
+    const start = screen.getByRole('button', { name: 'Enable' });
     expect(start).toBeInTheDocument();
     expect(start).toBeDisabled();
-    const stop = screen.getByRole('button', { name: 'Stop' });
+    const stop = screen.getByRole('button', { name: 'Disable' });
     expect(stop).toBeInTheDocument();
     expect(stop).toBeEnabled();
     const remove = screen.getByRole('button', { name: 'Remove' });
@@ -82,14 +82,14 @@ describe('PreferencesExtensionRendering', () => {
     expect(remove).toBeDisabled();
   });
 
-  test('Expect that the buttons have the correct state when an extension is starting', async () => {
-    const id = setup('starting');
+  test('Expect that the buttons have the correct state when an extension is enabling', async () => {
+    const id = setup('enabling');
     render(PreferencesExtensionRendering, { extensionId: id });
 
-    const start = screen.getByRole('button', { name: 'Start' });
+    const start = screen.getByRole('button', { name: 'Enable' });
     expect(start).toBeInTheDocument();
     expect(start).toBeDisabled();
-    const stop = screen.getByRole('button', { name: 'Stop' });
+    const stop = screen.getByRole('button', { name: 'Disable' });
     expect(stop).toBeInTheDocument();
     expect(stop).toBeDisabled();
     const remove = screen.getByRole('button', { name: 'Remove' });
@@ -97,14 +97,14 @@ describe('PreferencesExtensionRendering', () => {
     expect(remove).toBeDisabled();
   });
 
-  test('Expect that the buttons have the correct state when an extension is stopping', async () => {
-    const id = setup('stopping');
+  test('Expect that the buttons have the correct state when an extension is disabling', async () => {
+    const id = setup('disabling');
     render(PreferencesExtensionRendering, { extensionId: id });
 
-    const start = screen.getByRole('button', { name: 'Start' });
+    const start = screen.getByRole('button', { name: 'Enable' });
     expect(start).toBeInTheDocument();
     expect(start).toBeDisabled();
-    const stop = screen.getByRole('button', { name: 'Stop' });
+    const stop = screen.getByRole('button', { name: 'Disable' });
     expect(stop).toBeInTheDocument();
     expect(stop).toBeDisabled();
     const remove = screen.getByRole('button', { name: 'Remove' });

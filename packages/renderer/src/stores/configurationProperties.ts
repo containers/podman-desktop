@@ -34,10 +34,10 @@ export const configurationProperties: Writable<IConfigurationPropertyRecordedSch
 window.events?.receive('extensions-started', async () => {
   await fetchConfigurationProperties();
 });
-window.events?.receive('extension-started', async () => {
+window.events?.receive('extension-enabled', async () => {
   await fetchConfigurationProperties();
 });
-window.events?.receive('extension-stopped', async () => {
+window.events?.receive('extension-disabled', async () => {
   await fetchConfigurationProperties();
 });
 window.addEventListener('system-ready', () => {

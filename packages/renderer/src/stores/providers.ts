@@ -43,10 +43,10 @@ export async function fetchProviders() {
 export const providerInfos: Writable<ProviderInfo[]> = writable([]);
 
 // need to refresh when extension is started or stopped
-window?.events?.receive('extension-started', async () => {
+window?.events?.receive('extension-enabled', async () => {
   await fetchProviders();
 });
-window?.events?.receive('extension-stopped', async () => {
+window?.events?.receive('extension-disabled', async () => {
   await fetchProviders();
 });
 
