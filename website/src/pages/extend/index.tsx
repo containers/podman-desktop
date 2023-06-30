@@ -45,7 +45,7 @@ export default function Home(): JSX.Element {
             </h1>
             <p>Podman Desktop is using plug-ins under the hood to manage the different container engine.</p>
             <p>By adding a new plugin, you can extend the capabilities of Podman Desktop.</p>
-            <p>For example plug a new container Engine likes Podman, Docker, Lima, etc.</p>
+            <p>For example plug a new container engine like Podman, Docker, or use Lima.</p>
 
             <ThemedImage
               className="py-4"
