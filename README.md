@@ -41,8 +41,8 @@ Check the downloads page on [podman-desktop.io/downloads](https://podman-desktop
 
 - [Podman container engine](https://github.com/containers/podman)
 - [crc](https://github.com/code-ready/crc)
-- [Podman Lima machines](https://github.com/lima-vm/lima)
-- [Docker](https://github.com/moby/moby)
+- [Lima virtual machines](https://github.com/lima-vm/lima)
+- [Docker container engine](https://github.com/docker/docker)
 
 #### Podman engine update support
 
