@@ -3,6 +3,7 @@ import type { FeaturedExtension } from '../../../../main/src/plugin/featured/fea
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import LoadingIcon from '../ui/LoadingIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import { TelemetryService, EXTENSION_INSTALL_EVENT_TYPE } from '../../TelemetryService';
 
 export let featuredExtension: FeaturedExtension;
 
@@ -14,6 +15,7 @@ let errorInstall = '';
 let percentage = '0%';
 
 async function installExtension() {
+  let installError: string;
   console.log('User asked to install the extension with the following properties', featuredExtension);
   logs = [];
 
@@ -46,8 +48,17 @@ async function installExtension() {
     logs = [...logs, '☑️ installation finished !'];
     percentage = '100%';
   } catch (error) {
+    installError = `${error}`;
     console.log('error', error);
+  } finally {
+    TelemetryService.getService().handleExtensionEvent(
+      EXTENSION_INSTALL_EVENT_TYPE,
+      featuredExtension.id,
+      true,
+      installError,
+    );
   }
+
   installInProgress = false;
 }
 </script>

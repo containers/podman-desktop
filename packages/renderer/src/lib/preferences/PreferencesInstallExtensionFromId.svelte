@@ -21,6 +21,7 @@ import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
 import Markdown from '/@/lib/markdown/Markdown.svelte';
 import { extensionInfos } from '/@/stores/extensions';
 import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
+import { EXTENSION_INSTALL_EVENT_TYPE, TelemetryService } from '/@/TelemetryService';
 
 export let extensionId: string = undefined;
 
@@ -63,7 +64,14 @@ let percentage = 0;
 
 async function installExtension() {
   if (!latestVersionOciLink) {
-    console.log('no oci link found for this extension');
+    const errorMessage = 'no oci link found for this extension';
+    console.log(errorMessage);
+    TelemetryService.getService().handleExtensionEvent(
+      EXTENSION_INSTALL_EVENT_TYPE,
+      extensionDetails.id,
+      false,
+      errorMessage,
+    );
     return;
   }
 
@@ -101,7 +109,15 @@ async function installExtension() {
     logs = [...logs, '☑️ installation finished !'];
     percentage = 100;
   } catch (error) {
+    errorInstall = `${error}`;
     console.log('error', error);
+  } finally {
+    TelemetryService.getService().handleExtensionEvent(
+      EXTENSION_INSTALL_EVENT_TYPE,
+      extensionDetails.id,
+      false,
+      errorInstall,
+    );
   }
   installInProgress = false;
 }

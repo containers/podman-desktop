@@ -16,6 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export const EXTENSION_INSTALL_EVENT_TYPE = 'extension-install';
+export const EXTENSION_REMOVE_EVENT_TYPE = 'extension-remove';
+
+export type ExtensionTelemetryEventType = typeof EXTENSION_INSTALL_EVENT_TYPE | typeof EXTENSION_REMOVE_EVENT_TYPE;
+
 export class TelemetryService {
   private static instance: TelemetryService;
 
@@ -45,5 +50,9 @@ export class TelemetryService {
         });
       }
     }, 200);
+  }
+
+  public handleExtensionEvent(event: ExtensionTelemetryEventType, id: string, featured: boolean, error: string) {
+    window.telemetryTrack(event, { id, featured, error });
   }
 }

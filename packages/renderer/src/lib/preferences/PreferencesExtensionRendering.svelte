@@ -4,6 +4,7 @@ import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
+import { EXTENSION_REMOVE_EVENT_TYPE, TelemetryService } from '../../TelemetryService';
 
 export let extensionId: string = undefined;
 
@@ -18,7 +19,20 @@ async function startExtension() {
 }
 async function removeExtension() {
   window.location.href = '#/preferences/extensions';
-  await window.removeExtension(extensionInfo.id);
+  let removeError: string;
+  try {
+    await window.removeExtension(extensionInfo.id);
+  } catch (err) {
+    removeError = `${err}`;
+    console.log('error', err);
+  } finally {
+    TelemetryService.getService().handleExtensionEvent(
+      EXTENSION_REMOVE_EVENT_TYPE,
+      extensionInfo.id,
+      false,
+      removeError,
+    );
+  }
 }
 </script>
 

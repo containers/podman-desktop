@@ -8,6 +8,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
+import { TelemetryService, EXTENSION_REMOVE_EVENT_TYPE } from '../../TelemetryService';
 
 export let ociImage: string = undefined;
 
@@ -59,7 +60,15 @@ async function startExtension(extension: ExtensionInfo) {
 }
 
 async function removeExtension(extension: ExtensionInfo) {
-  await window.removeExtension(extension.id);
+  let removeError: string;
+  try {
+    await window.removeExtension(extension.id);
+  } catch (err) {
+    removeError = `${err}`;
+    console.log('error', err);
+  } finally {
+    TelemetryService.getService().handleExtensionEvent(EXTENSION_REMOVE_EVENT_TYPE, extension.id, false, removeError);
+  }
 }
 
 async function updateExtension(extension: ExtensionInfo, ociUri: string) {
