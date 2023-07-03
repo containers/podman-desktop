@@ -1800,6 +1800,30 @@ declare module '@podman-desktop/api' {
    */
   export namespace env {
     /**
+     * Flag indicating whether we are running on macOS (Mac OS X) operating system.
+     *
+     * If the value of this flag is true, it means the current system is macOS.
+     * If the value is false, it means the current system is not macOS.
+     */
+    export const isMac: boolean;
+
+    /**
+     * Flag indicating whether we are running on the Windows operating system.
+     *
+     * If the value of this flag is true, it means the current system is Windows.
+     * If the value is false, it means the current system is not Windows.
+     */
+    export const isWindows: boolean;
+
+    /**
+     * Flag indicating whether we are running on a Linux operating system.
+     *
+     * If the value of this flag is true, it means the current system is Linux.
+     * If the value is false, it means the current system is not Linux.
+     */
+    export const isLinux: boolean;
+
+    /**
      * Indicates whether the users has telemetry enabled.
      * Can be observed to determine if the extension should send telemetry.
      */
