@@ -56,6 +56,7 @@ import { clipboard as electronClipboard } from 'electron';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
+import { isLinux, isMac, isWindows } from '../util.js';
 
 /**
  * Handle the loading of an extension
@@ -851,6 +852,15 @@ export class ExtensionLoader {
 
     const telemetry = this.telemetry;
     const env: typeof containerDesktopAPI.env = {
+      get isMac() {
+        return isMac();
+      },
+      get isWindows() {
+        return isWindows();
+      },
+      get isLinux() {
+        return isLinux();
+      },
       openExternal: async (uri: containerDesktopAPI.Uri): Promise<boolean> => {
         const url = uri.toString();
         try {
