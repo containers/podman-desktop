@@ -11556,11 +11556,6 @@ quick-lru@^5.1.1:
   resolved "https://registry.npmjs.org/quick-lru/-/quick-lru-5.1.1.tgz"
   integrity sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==
 
-quoted-string-space-split@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/quoted-string-space-split/-/quoted-string-space-split-1.1.1.tgz#ce4dff182322b2f553ecdb06241cadff31178798"
-  integrity sha512-R/PBCVzU/LxUytMs5FGcIPVpKiqBag7mA5kOP2xw627IpSiqlB1Z5XMTi4ezDu7QHBCBvpJM3gN7Y625BCjxAw==
-
 randombytes@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/randombytes/-/randombytes-2.1.0.tgz#df6f84372f0270dc65cdf6291349ab7a473d4f2a"

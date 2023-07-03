@@ -141,7 +141,6 @@
     "hpagent": "^1.2.0",
     "moment": "^2.29.4",
     "os-locale": "^6.0.2",
-    "quoted-string-space-split": "^1.1.1",
     "stream-json": "^1.8.0",
     "tar": "^6.1.15",
     "tar-fs": "^3.0.3",

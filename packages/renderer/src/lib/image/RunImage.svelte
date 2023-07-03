@@ -14,7 +14,7 @@ import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { ContainerUtils } from '../container/container-utils';
 import { containersInfos } from '../../stores/containers';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
-import splitSpacesExcludeQuotes from 'quoted-string-space-split';
+import { splitSpacesHandlingDoubleQuotes } from '../string/string';
 let image: ImageInfoUI;
 
 let imageInspectInfo: ImageInspectInfo;
@@ -289,10 +289,10 @@ async function startContainer() {
     Tty,
   };
   if (command.trim().length > 0) {
-    options.Cmd = splitSpacesExcludeQuotes(command);
+    options.Cmd = splitSpacesHandlingDoubleQuotes(command);
   }
   if (entrypoint.trim().length > 0) {
-    options.Entrypoint = splitSpacesExcludeQuotes(entrypoint);
+    options.Entrypoint = splitSpacesHandlingDoubleQuotes(entrypoint);
   }
 
   if (runUser) {
