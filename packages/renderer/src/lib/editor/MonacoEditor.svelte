@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import { EditorSettings } from '../../../../main/src/plugin/editor-settings';
@@ -50,10 +50,10 @@ onMount(async () => {
     automaticLayout: true,
     scrollBeyondLastLine: false,
   });
+});
 
-  return () => {
-    editor.dispose();
-  };
+onDestroy(() => {
+  editor?.dispose();
 });
 
 $: content, editor?.getModel()?.setValue(content);

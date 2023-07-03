@@ -23,7 +23,6 @@ function onClick(checked: boolean) {
     type="checkbox"
     bind:checked="{checked}"
     disabled="{disabled}"
-    indeterminate="{indeterminate}"
     class="sr-only"
     on:click="{event => onClick(event.currentTarget.checked)}" />
   <div

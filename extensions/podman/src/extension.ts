@@ -774,6 +774,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       args = ['--host', 'podman', ...args];
     }
     const podmanProcess = spawn(command, args);
+    podmanProcess.on('error', err => {
+      console.error('Failed to spawn process.', err);
+    });
 
     // check for up to 5s to see if the socket is being made available
     const socketPath = getLinuxSocketPath();
@@ -818,6 +821,45 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   const podmanConfiguration = new PodmanConfiguration();
   await podmanConfiguration.init();
+}
+
+// Restart current machine
+export async function restartCurrentMachine(): Promise<void> {
+  // Find the machines
+  const machineListOutput = await execPromise(getPodmanCli(), ['machine', 'list', '--format', 'json']);
+  const machines = JSON.parse(machineListOutput) as MachineJSON[];
+
+  // Find the autostarted machine and check its status
+  const currentMachine: MachineJSON = machines.find(machine => machine?.Name === autoMachineName);
+
+  // If it's not running or starting, we can't restart it
+  if (!currentMachine?.Running && !currentMachine?.Starting) {
+    console.log('No machine to restart');
+    autoMachineStarted = false;
+    return;
+  }
+
+  // Restart the current machine
+  console.log('restarting autostarted machine', autoMachineName);
+  await execPromise(getPodmanCli(), ['machine', 'restart', autoMachineName]);
+}
+
+// Function that checks to see if the default machine is running and return a boolean
+export async function findRunningMachine(): Promise<string> {
+  let runningMachine: string;
+
+  // Find the machines
+  const machineListOutput = await execPromise(getPodmanCli(), ['machine', 'list', '--format', 'json']);
+  const machines = JSON.parse(machineListOutput) as MachineJSON[];
+
+  // Find the machine that is running
+  const found: MachineJSON = machines.find(machine => machine?.Running);
+
+  if (found) {
+    runningMachine = found.Name;
+  }
+
+  return runningMachine;
 }
 
 async function stopAutoStartedMachine() {

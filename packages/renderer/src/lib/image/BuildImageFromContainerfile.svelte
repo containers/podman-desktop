@@ -1,6 +1,9 @@
 <script lang="ts">
-import { onMount, onDestroy } from 'svelte';
+/* eslint-disable import/no-duplicates */
+// https://github.com/import-js/eslint-plugin-import/issues/1479
 import { get } from 'svelte/store';
+import { onDestroy, onMount } from 'svelte';
+/* eslint-enable import/no-duplicates */
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 
 import { providerInfos } from '../../stores/providers';

@@ -252,6 +252,24 @@ declare module '@podman-desktop/api' {
     create?(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
   }
 
+  export interface AuditRecord {
+    type: 'info' | 'warning' | 'error';
+    record: string;
+  }
+
+  export interface AuditResult {
+    records: AuditRecord[];
+  }
+
+  export interface AuditRequestItems {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
+  }
+
+  export interface Auditor {
+    auditItems(items: AuditRequestItems): Promise<AuditResult>;
+  }
+
   export interface Link {
     title: string;
     url: string;
@@ -303,9 +321,11 @@ declare module '@podman-desktop/api' {
   export interface Provider {
     setContainerProviderConnectionFactory(
       containerProviderConnectionFactory: ContainerProviderConnectionFactory,
+      connectionAuditor?: Auditor,
     ): Disposable;
     setKubernetesProviderConnectionFactory(
       containerProviderConnectionFactory: KubernetesProviderConnectionFactory,
+      connectionAuditor?: Auditor,
     ): Disposable;
 
     registerContainerProviderConnection(connection: ContainerProviderConnection): Disposable;
@@ -1779,6 +1799,30 @@ declare module '@podman-desktop/api' {
    * Namespace describing the environment Podman Desktop runs in.
    */
   export namespace env {
+    /**
+     * Flag indicating whether we are running on macOS (Mac OS X) operating system.
+     *
+     * If the value of this flag is true, it means the current system is macOS.
+     * If the value is false, it means the current system is not macOS.
+     */
+    export const isMac: boolean;
+
+    /**
+     * Flag indicating whether we are running on the Windows operating system.
+     *
+     * If the value of this flag is true, it means the current system is Windows.
+     * If the value is false, it means the current system is not Windows.
+     */
+    export const isWindows: boolean;
+
+    /**
+     * Flag indicating whether we are running on a Linux operating system.
+     *
+     * If the value of this flag is true, it means the current system is Linux.
+     * If the value is false, it means the current system is not Linux.
+     */
+    export const isLinux: boolean;
+
     /**
      * Indicates whether the users has telemetry enabled.
      * Can be observed to determine if the extension should send telemetry.

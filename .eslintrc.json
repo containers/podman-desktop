@@ -20,6 +20,7 @@
     "ecmaVersion": 12,
     "sourceType": "module",
     "extraFileExtensions": [".svelte"],
+    "warnOnUnsupportedTypeScriptVersion": false,
     "project": [
       "packages/*/tsconfig.json",
       "./website/tsconfig.json",

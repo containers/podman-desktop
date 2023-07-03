@@ -105,7 +105,7 @@
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
     "@podman-desktop/api": "^0.0.1",
-    "compare-versions": "^6.0.0-rc.1",
+    "compare-versions": "^6.0.0-rc.2",
     "sudo-prompt": "^9.2.1"
   },
   "devDependencies": {
@@ -114,7 +114,7 @@
     "mkdirp": "^3.0.1",
     "octokit": "^2.1.0",
     "ts-node": "^10.9.1",
-    "vitest": "^0.32.2",
+    "vitest": "^0.32.3",
     "zip-local": "^0.3.5"
   }
 }

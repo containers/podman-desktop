@@ -1469,6 +1469,17 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'provider-registry:auditConnectionParameters',
+      async (
+        _listener: Electron.IpcMainInvokeEvent,
+        internalProviderId: string,
+        params: containerDesktopAPI.AuditRequestItems,
+      ): Promise<containerDesktopAPI.AuditResult> => {
+        return await providerRegistry.auditConnectionParameters(internalProviderId, params);
+      },
+    );
+
+    this.ipcHandle(
       'provider-registry:createKubernetesProviderConnection',
       async (
         _listener: Electron.IpcMainInvokeEvent,
