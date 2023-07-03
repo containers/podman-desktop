@@ -12,11 +12,7 @@ If you cannot find your issue here or in the documentation, please fill an issue
 
 #### System Requirements
 
-The tool connects to Podman using the socket on the host on macOS and on a named pipe on Windows.
-This is available only on Podman 4.0.2+
-So, please check your version and update.
-
-On Windows, the named pipe is `//./pipe/docker_engine` when Docker Desktop is not installed. It will be solved by <https://github.com/containers/podman/issues/13502> / <https://github.com/containers/podman/pull/13655>. During that time, you might start Docker Desktop so the named pipe is the one expected.
+- Use Podman version 4.1 or greater.
 
 #### Check connection
 
