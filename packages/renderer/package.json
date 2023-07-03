@@ -49,7 +49,7 @@
     "yaml": "^2.3.1"
   },
   "dependencies": {
-    "@zerodevx/svelte-toast": "^0.9.4",
+    "@zerodevx/svelte-toast": "^0.9.5",
     "electron-context-menu": "^3.6.1",
     "tinro": "^0.6.12"
   }
