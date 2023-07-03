@@ -4136,10 +4136,10 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-"@zerodevx/svelte-toast@^0.9.4":
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/@zerodevx/svelte-toast/-/svelte-toast-0.9.4.tgz#2df0962f2034e9cff5775753d5c83278f2c02861"
-  integrity sha512-g5fYuYimIeCUGHZqffih7U8wMn3rhHS/TfPmAPDZQ6UxYNAYjmKp+yA9aFr7MKG07r5Mmcdads73z1h9lJshBg==
+"@zerodevx/svelte-toast@^0.9.5":
+  version "0.9.5"
+  resolved "https://registry.yarnpkg.com/@zerodevx/svelte-toast/-/svelte-toast-0.9.5.tgz#d86704f68e2f44475f53e273dc26c3d367ffb99a"
+  integrity sha512-JLeB/oRdJfT+dz9A5bgd3Z7TuQnBQbeUtXrGIrNWMGqWbabpepBF2KxtWVhL2qtxpRqhae2f6NAOzH7xs4jUSw==
 
 JSONStream@^1.0.4:
   version "1.3.5"
