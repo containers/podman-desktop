@@ -3945,10 +3945,10 @@
     "@typescript-eslint/types" "5.60.1"
     eslint-visitor-keys "^3.3.0"
 
-"@vitest/coverage-v8@0.32.2":
-  version "0.32.2"
-  resolved "https://registry.yarnpkg.com/@vitest/coverage-v8/-/coverage-v8-0.32.2.tgz#efb74efd47ccdea59874c700f93f8c30b5766ab9"
-  integrity sha512-/+V3nB3fyeuuSeKxCfi6XmWjDIxpky7AWSkGVfaMjAk7di8igBwRsThLjultwIZdTDH1RAxpjmCXEfSqsMFZOA==
+"@vitest/coverage-v8@0.32.3":
+  version "0.32.3"
+  resolved "https://registry.yarnpkg.com/@vitest/coverage-v8/-/coverage-v8-0.32.3.tgz#f480b97cf374b2287d1ff7b4304ebc2d857e8cc9"
+  integrity sha512-3CkMORVqeOYPan1XnCx9334OE3t4EmrSMAMDNOlyWRqWOvNM9I7cJFdmVzWUCmYrVSAVL5lW8NvbPeG0LwEcqw==
   dependencies:
     "@ampproject/remapping" "^2.2.1"
     "@bcoe/v8-coverage" "^0.2.3"
@@ -3958,7 +3958,7 @@
     istanbul-reports "^3.1.5"
     magic-string "^0.30.0"
     picocolors "^1.0.0"
-    std-env "^3.3.2"
+    std-env "^3.3.3"
     test-exclude "^6.0.0"
     v8-to-istanbul "^9.1.0"
 
