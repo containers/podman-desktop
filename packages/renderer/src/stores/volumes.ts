@@ -19,21 +19,53 @@
 import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
 import type { VolumeListInfo } from '../../../main/src/plugin/api/volume-info';
+
 import { findMatchInLeaves } from './search-util';
+import { EventStore } from './event-store';
+import VolumeIcon from '../lib/images/VolumeIcon.svelte';
+
+const windowEvents = [
+  'extension-started',
+  'extension-stopped',
+  'provider-change',
+  'container-stopped-event',
+  'container-die-event',
+  'container-kill-event',
+  'container-started-event',
+  'container-removed-event',
+  'volume-event',
+  'extensions-started',
+];
+const windowListeners = ['extensions-already-started'];
 
 let readyToUpdate = false;
-export let volumesInitialized = false;
 
-export async function fetchVolumes() {
-  if (!readyToUpdate) {
-    return;
+export async function checkForUpdate(eventName: string): Promise<boolean> {
+  if ('extensions-already-started' === eventName) {
+    readyToUpdate = true;
   }
-  const result = await window.listVolumes();
-  volumeListInfos.set(result);
-  volumesInitialized = true;
+
+  // do not fetch until extensions are all started
+  return readyToUpdate;
 }
 
 export const volumeListInfos: Writable<VolumeListInfo[]> = writable([]);
+
+// use helper here as window methods are initialized after the store in tests
+const listVolumes = (): Promise<VolumeListInfo[]> => {
+  return window.listVolumes();
+};
+
+export const volumesEventStore = new EventStore<VolumeListInfo[]>(
+  'volumes',
+  volumeListInfos,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  listVolumes,
+  VolumeIcon,
+);
+const volumesEventStoreInfo = volumesEventStore.setup();
 
 export const searchPattern = writable('');
 
@@ -52,52 +84,13 @@ export const filtered = derived([searchPattern, volumeListInfos], ([$searchPatte
   });
 });
 
-export function initWindowFetchVolumes() {
-  // need to refresh when extension is started or stopped
-  window?.events?.receive('extension-started', async () => {
-    await fetchVolumes();
-  });
-  window?.events?.receive('extension-stopped', async () => {
-    await fetchVolumes();
-  });
+export let volumesInitialized = false;
 
-  window?.events?.receive('provider-change', async () => {
-    await fetchVolumes();
-  });
+export const fetchVolumes = async () => {
+  await volumesEventStoreInfo.fetch();
+  volumesInitialized = true;
+};
 
-  window?.events?.receive('container-stopped-event', async () => {
-    await fetchVolumes();
-  });
-
-  window?.events?.receive('container-die-event', async () => {
-    await fetchVolumes();
-  });
-
-  window?.events?.receive('container-kill-event', async () => {
-    await fetchVolumes();
-  });
-
-  window?.events?.receive('container-started-event', async () => {
-    await fetchVolumes();
-  });
-
-  window?.events?.receive('container-removed-event', async () => {
-    await fetchVolumes();
-  });
-
-  window?.events?.receive('volume-event', async () => {
-    await fetchVolumes();
-  });
-
-  window?.events?.receive('extensions-started', async () => {
-    // make it ready to update
-    readyToUpdate = true;
-  });
-
-  window.addEventListener('extensions-already-started', () => {
-    // make it ready to update
-    readyToUpdate = true;
-  });
-}
-
-initWindowFetchVolumes();
+export const resetInitializationVolumes = () => {
+  volumesInitialized = false;
+};

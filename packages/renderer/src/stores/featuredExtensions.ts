@@ -16,39 +16,37 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 import type { FeaturedExtension } from '../../../main/src/plugin/featured/featured-api';
+import { EventStore } from './event-store';
 
-export async function fetchFeaturedExtensions() {
-  const result = await window.getFeaturedExtensions();
-  featuredExtensionInfos.set(result);
+const windowEvents = [
+  'extension-starting',
+  'extension-started',
+  'extension-stopping',
+  'extension-stopped',
+  'extension-removed',
+  'extensions-started',
+];
+const windowListeners = ['system-ready'];
+
+export async function checkForUpdate(): Promise<boolean> {
+  return true;
 }
 
 export const featuredExtensionInfos: Writable<FeaturedExtension[]> = writable([]);
 
-// need to refresh when extension is started or stopped
-window?.events?.receive('extension-starting', async () => {
-  await fetchFeaturedExtensions();
-});
-window?.events?.receive('extension-started', async () => {
-  await fetchFeaturedExtensions();
-});
-window?.events?.receive('extension-stopping', async () => {
-  await fetchFeaturedExtensions();
-});
-window?.events?.receive('extension-stopped', async () => {
-  await fetchFeaturedExtensions();
-});
-window?.events?.receive('extension-removed', async () => {
-  await fetchFeaturedExtensions();
-});
-window.addEventListener('system-ready', () => {
-  fetchFeaturedExtensions().catch((e: unknown) => {
-    console.error('Unable to fetch featured extensions', e);
-  });
-});
+// use helper here as window methods are initialized after the store in tests
+const getFeaturedExtensions = (): Promise<FeaturedExtension[]> => {
+  return window.getFeaturedExtensions();
+};
 
-window.events?.receive('extensions-started', async () => {
-  await fetchFeaturedExtensions();
-});
+const featuredExtensionsEventStore = new EventStore<FeaturedExtension[]>(
+  'feat extensions',
+  featuredExtensionInfos,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  getFeaturedExtensions,
+);
+featuredExtensionsEventStore.setup();
