@@ -3945,10 +3945,10 @@
     "@typescript-eslint/types" "5.60.1"
     eslint-visitor-keys "^3.3.0"
 
-"@vitest/coverage-v8@0.32.3":
-  version "0.32.3"
-  resolved "https://registry.yarnpkg.com/@vitest/coverage-v8/-/coverage-v8-0.32.3.tgz#f480b97cf374b2287d1ff7b4304ebc2d857e8cc9"
-  integrity sha512-3CkMORVqeOYPan1XnCx9334OE3t4EmrSMAMDNOlyWRqWOvNM9I7cJFdmVzWUCmYrVSAVL5lW8NvbPeG0LwEcqw==
+"@vitest/coverage-v8@0.32.4":
+  version "0.32.4"
+  resolved "https://registry.yarnpkg.com/@vitest/coverage-v8/-/coverage-v8-0.32.4.tgz#b11c182f52898f34f7cc5cf3aaa05e71528f7b7e"
+  integrity sha512-itiCYY3TmWEK+5wnFBoNr0ZA+adACp7Op1r2TeX5dPOgU2See7+Gx2NlK2lVMHVxfPsu5z9jszKa3i//eR+hqg==
   dependencies:
     "@ampproject/remapping" "^2.2.1"
     "@bcoe/v8-coverage" "^0.2.3"
@@ -12958,7 +12958,7 @@ statuses@2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
   integrity sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=
 
-std-env@^3.0.1, std-env@^3.3.2, std-env@^3.3.3:
+std-env@^3.0.1, std-env@^3.3.3:
   version "3.3.3"
   resolved "https://registry.yarnpkg.com/std-env/-/std-env-3.3.3.tgz#a54f06eb245fdcfef53d56f3c0251f1d5c3d01fe"
   integrity sha512-Rz6yejtVyWnVjC1RFvNmYL10kgjC49EOghxWn0RFqlCHGFpQx+Xe7yW3I4ceK1SGrWIGMjD5Kbue8W/udkbMJg==
