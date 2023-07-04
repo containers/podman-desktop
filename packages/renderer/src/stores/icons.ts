@@ -19,38 +19,34 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import type { IconInfo } from '../../../main/src/plugin/api/icon-info';
+import { EventStore } from './event-store';
+
+const windowEvents = ['icon-update', 'extension-stopped', 'extensions-started'];
+const windowListeners = ['extensions-already-started'];
 
 let readyToUpdate = false;
 
-export async function fetchIcons() {
-  // do not fetch until extensions are all started
-  if (!readyToUpdate) {
-    return;
+export async function checkForUpdate(eventName: string): Promise<boolean> {
+  if ('extensions-already-started' === eventName) {
+    readyToUpdate = true;
   }
 
-  const result = await window.listIcons();
-  iconsInfos.set(result);
+  // do not fetch until extensions are all started
+  return readyToUpdate;
 }
-
 export const iconsInfos: Writable<IconInfo[]> = writable([]);
 
-// need to refresh when extension is started or stopped
-window.events?.receive('icon-update', async () => {
-  await fetchIcons();
-});
-window.events?.receive('extension-stopped', async () => {
-  await fetchIcons();
-});
+// use helper here as window methods are initialized after the store in tests
+const listIcons = (): Promise<IconInfo[]> => {
+  return window.listIcons();
+};
 
-window?.events?.receive('extensions-started', async () => {
-  readyToUpdate = true;
-  await fetchIcons();
-});
-
-// if client is doing a refresh, we will receive this event and we need to update the data
-window.addEventListener('extensions-already-started', () => {
-  readyToUpdate = true;
-  fetchIcons().catch((error: unknown) => {
-    console.error('Failed to fetch icons', error);
-  });
-});
+const iconsEventStore = new EventStore<IconInfo[]>(
+  'icons',
+  iconsInfos,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  listIcons,
+);
+iconsEventStore.setup();

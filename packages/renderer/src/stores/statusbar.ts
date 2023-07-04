@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,31 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
+import { EventStore } from './event-store';
 import type { StatusBarEntryDescriptor } from '../../../main/src/plugin/statusbar/statusbar-registry';
 import { STATUS_BAR_UPDATED_EVENT_NAME } from '../../../main/src/plugin/statusbar/statusbar-registry';
 
-export async function fetchRenderModel() {
-  const result = await window.getStatusBarEntries();
-  statusBarEntries.set(result);
+const windowEvents = [STATUS_BAR_UPDATED_EVENT_NAME];
+const windowListeners = ['system-ready'];
+
+export async function checkForUpdate(): Promise<boolean> {
+  return true;
 }
 
-export const statusBarEntries: Writable<readonly StatusBarEntryDescriptor[]> = writable([]);
+export const statusBarEntries: Writable<StatusBarEntryDescriptor[]> = writable([]);
 
-window.events?.receive(STATUS_BAR_UPDATED_EVENT_NAME, async () => {
-  await fetchRenderModel();
-});
-window.addEventListener('system-ready', () => {
-  fetchRenderModel().catch((error: unknown) => {
-    console.error('Failed to fetch status bar entries', error);
-  });
-});
+// use helper here as window methods are initialized after the store in tests
+const getStatusBarEntries = (): Promise<StatusBarEntryDescriptor[]> => {
+  return window.getStatusBarEntries();
+};
+
+const eventStore = new EventStore<StatusBarEntryDescriptor[]>(
+  'status bar',
+  statusBarEntries,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  getStatusBarEntries,
+);
+eventStore.setup();

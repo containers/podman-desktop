@@ -30,14 +30,20 @@ const listContainersMock = vi.fn();
 const getProviderInfosMock = vi.fn();
 
 const deleteContainerMock = vi.fn();
+const listPodsMock = vi.fn();
+
+const kubernetesListPodsMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
   const onDidUpdateProviderStatusMock = vi.fn();
   (window as any).onDidUpdateProviderStatus = onDidUpdateProviderStatusMock;
   onDidUpdateProviderStatusMock.mockImplementation(() => Promise.resolve());
-
+  listPodsMock.mockImplementation(() => Promise.resolve([]));
+  kubernetesListPodsMock.mockImplementation(() => Promise.resolve([]));
   (window as any).listContainers = listContainersMock;
+  (window as any).listPods = listPodsMock;
+  (window as any).kubernetesListPods = kubernetesListPodsMock;
   (window as any).getProviderInfos = getProviderInfosMock;
   (window as any).removePod = vi.fn();
   (window as any).deleteContainer = deleteContainerMock;

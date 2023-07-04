@@ -18,80 +18,57 @@
 
 import type { Writable } from 'svelte/store';
 import { writable, derived } from 'svelte/store';
-import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
 import { findMatchInLeaves } from './search-util';
+import { EventStore } from './event-store';
+import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
+import ImageIcon from '../lib/images/ImageIcon.svelte';
+
+const windowEvents = [
+  'extension-started',
+  'extension-stopped',
+  'provider-change',
+  'image-pull-event',
+  'image-remove-event',
+  'image-build-event',
+  'registry-register',
+  'registry-unregister',
+  'image-tag-event',
+  'image-untag-event',
+  'extensions-started',
+];
+const windowListeners = ['image-build', 'extensions-already-started'];
 
 let readyToUpdate = false;
 
-export async function fetchImages() {
-  // do not fetch until extensions are all started
-  if (!readyToUpdate) {
-    return;
+export async function checkForUpdate(eventName: string): Promise<boolean> {
+  if ('extensions-already-started' === eventName) {
+    readyToUpdate = true;
   }
-  const result = await window.listImages();
-  imagesInfos.set(result);
+
+  // do not fetch until extensions are all started
+  return readyToUpdate;
 }
 
 export const imagesInfos: Writable<ImageInfo[]> = writable([]);
+
+// use helper here as window methods are initialized after the store in tests
+const listImages = (): Promise<ImageInfo[]> => {
+  return window.listImages();
+};
+
+const imagesEventStore = new EventStore<ImageInfo[]>(
+  'images',
+  imagesInfos,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  listImages,
+  ImageIcon,
+);
+imagesEventStore.setup();
 
 export const searchPattern = writable('');
 
 export const filtered = derived([searchPattern, imagesInfos], ([$searchPattern, $imagesInfos]) =>
   $imagesInfos.filter(imageInfo => findMatchInLeaves(imageInfo, $searchPattern.toLowerCase())),
 );
-
-// need to refresh when extension is started or stopped
-window?.events?.receive('extension-started', async () => {
-  await fetchImages();
-});
-window?.events?.receive('extension-stopped', async () => {
-  await fetchImages();
-});
-
-window.addEventListener('image-build', () => {
-  fetchImages().catch((error: unknown) => {
-    console.error('Failed to fetch images', error);
-  });
-});
-
-window?.events?.receive('provider-change', async () => {
-  await fetchImages();
-});
-
-window.events?.receive('image-pull-event', async () => {
-  await fetchImages();
-});
-window.events?.receive('image-remove-event', async () => {
-  await fetchImages();
-});
-window.events?.receive('image-build-event', async () => {
-  await fetchImages();
-});
-window.events?.receive('registry-register', async () => {
-  await fetchImages();
-});
-
-window.events?.receive('registry-unregister', async () => {
-  await fetchImages();
-});
-
-window.events?.receive('image-tag-event', async () => {
-  await fetchImages();
-});
-
-window.events?.receive('image-untag-event', async () => {
-  await fetchImages();
-});
-
-window?.events?.receive('extensions-started', async () => {
-  readyToUpdate = true;
-  await fetchImages();
-});
-
-// if client is doing a refresh, we will receive this event and we need to update the data
-window.addEventListener('extensions-already-started', () => {
-  readyToUpdate = true;
-  fetchImages().catch((error: unknown) => {
-    console.error('Failed to fetch images', error);
-  });
-});
