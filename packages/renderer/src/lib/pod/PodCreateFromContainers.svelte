@@ -11,6 +11,7 @@ import StatusIcon from '../images/StatusIcon.svelte';
 import ContainerIcon from '../images/ContainerIcon.svelte';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
+import PodIcon from '../images/PodIcon.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
@@ -301,9 +302,9 @@ function updatePortExposure(port: number, checked: boolean) {
               aria-label="Create pod"
               class="pf-c-button pf-m-primary"
               type="button">
-              <span class="pf-c-button__icon pf-m-start">
+              <div class="flex flex-row">
                 {#if createInProgress}
-                  <div class="mr-24">
+                  <div class="mr-12">
                     <i class="pf-c-button__progress">
                       <span class="pf-c-spinner pf-m-md" role="progressbar">
                         <span class="pf-c-spinner__clipper"></span>
@@ -313,10 +314,10 @@ function updatePortExposure(port: number, checked: boolean) {
                     </i>
                   </div>
                 {:else}
-                  <i class="fas fa-cube" aria-hidden="true"></i>
+                  <PodIcon class="mr-2" size="1em" solid="{true}" />
                 {/if}
-              </span>
-              Create Pod
+                Create Pod
+              </div>
             </button>
           </div>
         </div>
