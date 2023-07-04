@@ -21,7 +21,11 @@
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { expect, test, vi } from 'vitest';
-import { catalogExtensionInfos, fetchCatalogExtensions, initWindowFetchCatalogExtensions } from './catalog-extensions';
+import {
+  catalogExtensionEventStore,
+  catalogExtensionEventStoreInfo,
+  catalogExtensionInfos,
+} from './catalog-extensions';
 import type { CatalogExtension } from '../../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 
 // first, patch window object
@@ -47,15 +51,11 @@ Object.defineProperty(global, 'window', {
 
 beforeAll(() => {
   vi.clearAllMocks();
-});
-
-beforeEach(() => {
-  // init the store
-  initWindowFetchCatalogExtensions();
+  catalogExtensionEventStore.setup();
 });
 
 test('catalog extension should be updated in case of a container is removed', async () => {
-  // initial volume
+  // initial catalog is empty
   getCatalogExtensionsMock.mockResolvedValue([]);
 
   // get list and expect nothing there
@@ -103,7 +103,7 @@ test('catalog extension should be updated in case of a container is removed', as
   expect(getCatalogExtensionsMock).toBeCalled();
 
   // fetch manually
-  await fetchCatalogExtensions();
+  await catalogExtensionEventStoreInfo.fetch();
 
   // check if the catalog has been updated
   const afterCatalogExtensions = get(catalogExtensionInfos);

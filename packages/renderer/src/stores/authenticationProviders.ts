@@ -16,23 +16,40 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 import type { AuthenticationProviderInfo } from '../../../main/src/plugin/authentication';
+import { EventStore } from './event-store';
 
-export async function fetchAuthenticationProvidersInfo() {
-  // here we have to rebuild authentication providers with sessions
-  // which are not included
-  const authProvidersInfo = await window.getAuthenticationProvidersInfo();
-  authenticationProviders.set(authProvidersInfo);
+import KeyIcon from '../lib/images/KeyIcon.svelte';
+
+const windowEvents = ['authentication-provider-update'];
+const windowListeners = ['extensions-already-started'];
+
+let readyToUpdate = false;
+
+export async function checkForUpdate(eventName: string): Promise<boolean> {
+  if ('extensions-already-started' === eventName) {
+    readyToUpdate = true;
+  }
+
+  // do not fetch until extensions are all started
+  return readyToUpdate;
 }
 
 export const authenticationProviders: Writable<readonly AuthenticationProviderInfo[]> = writable([]);
 
-// need to refresh when new registry are updated/deleted
-window.events?.receive('authentication-provider-update', fetchAuthenticationProvidersInfo);
-window.addEventListener('system-ready', () => {
-  fetchAuthenticationProvidersInfo().catch((error: unknown) => {
-    console.error('Failed to fetch authentication providers', error);
-  });
-});
+// use helper here as window methods are initialized after the store in tests
+const getAuthenticationProvidersInfo = (): Promise<readonly AuthenticationProviderInfo[]> => {
+  return window.getAuthenticationProvidersInfo();
+};
+
+const eventStore = new EventStore<readonly AuthenticationProviderInfo[]>(
+  'auth providers',
+  authenticationProviders,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  getAuthenticationProvidersInfo,
+  KeyIcon,
+);
+eventStore.setup();
