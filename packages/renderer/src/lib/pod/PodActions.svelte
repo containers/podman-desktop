@@ -16,6 +16,7 @@ export let errorCallback: (erroMessage: string) => void = () => {};
 
 async function startPod(podInfoUI: PodInfoUI) {
   inProgressCallback(true, 'STARTING');
+  console.log('pod: ', pod);
   try {
     await window.startPod(podInfoUI.engineId, podInfoUI.id);
   } catch (error) {

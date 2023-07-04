@@ -30,6 +30,7 @@ import { containerGroupsInfo } from '../stores/containerGroups';
 import Checkbox from './ui/Checkbox.svelte';
 import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { PodUtils } from '../lib/pod/pod-utils';
+import ComposeActions from './compose/ComposeActions.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -490,6 +491,15 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       kind: 'podman',
                     }}"
                     redirectAfterDelete="{false}"
+                    dropdownMenu="{true}" />
+                {/if}
+                {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE}
+                  <ComposeActions
+                    compose="{{
+                      status: containerGroup.status,
+                      name: containerGroup.name,
+                      engineId: containerGroup.engineId,
+                    }}"
                     dropdownMenu="{true}" />
                 {/if}
               </td>

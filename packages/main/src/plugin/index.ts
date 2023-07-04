@@ -883,6 +883,14 @@ export class PluginSystem {
         return containerProviderRegistry.restartContainer(engine, containerId);
       },
     );
+
+    this.ipcHandle(
+      'container-provider-registry:restartContainersByProject',
+      async (_listener, engine: string, projectName: string): Promise<void> => {
+        return containerProviderRegistry.restartContainersByProject(engine, projectName);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:createAndStartContainer',
       async (_listener, engine: string, options: ContainerCreateOptions): Promise<void> => {
