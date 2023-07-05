@@ -81,7 +81,7 @@ test('should register icon contribution', async () => {
     {
       format: 'woff2',
       location: `${extensionPath}/${fontPath}`,
-      browserURL: `${extensionPath}/${fontPath}`,
+      browserURL: `url('file://${extensionPath}/${fontPath}')`,
     },
   ]);
   expect(icon.definition.font?.fontId).toBe(`${extensionId}-${fontPath}`);

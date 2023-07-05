@@ -96,10 +96,11 @@ export class IconRegistry {
       // fontId is based on the extension id and the font path
       const fontId = `${extension.id}-${defaultAttributes.fontPath}`;
 
-      let browserURL = iconFontLocation;
+      let cleanedIconFontLocation = iconFontLocation.replace(/'/g, '%27');
       if (isWindows()) {
-        browserURL = browserURL.replace(/\\/g, '/');
+        cleanedIconFontLocation = cleanedIconFontLocation.replace(/\\/g, '/');
       }
+      const browserURL = `url('file://${cleanedIconFontLocation}')`;
 
       // font definition
       const fontDefinition: FontDefinition = {

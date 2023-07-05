@@ -18,10 +18,6 @@ function createStyleSheet(): HTMLStyleElement {
   return style;
 }
 
-export function toUrl(location: string) {
-  return `url('file://${location.replace(/'/g, '%27')}')`;
-}
-
 onMount(() => {
   createStyleSheet();
 
@@ -46,7 +42,7 @@ onMount(() => {
     });
 
     fontsToAdd.forEach(font => {
-      const src = font.src.map(l => `${toUrl(l.browserURL)} format('${l.format}')`).join(', ');
+      const src = font.src.map(l => `${l.browserURL} format('${l.format}')`).join(', ');
       styles.push(
         `@font-face { src: ${src}; font-family: '${font.fontId.replace(/'/g, '%27')}'; font-display: block; }`,
       );

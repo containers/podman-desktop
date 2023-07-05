@@ -43,7 +43,7 @@ test('Check containers button is available and click on it', async () => {
         src: [
           {
             location: 'my-font.woff',
-            browserURL: 'my-font.woff',
+            browserURL: "url('file://my-font.woff')",
             format: 'woff2',
           },
         ],
