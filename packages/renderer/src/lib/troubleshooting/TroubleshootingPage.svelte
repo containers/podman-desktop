@@ -2,6 +2,7 @@
 import NavPage from '../ui/NavPage.svelte';
 import TroubleshootingDevToolsConsoleLogs from './TroubleshootingDevToolsConsoleLogs.svelte';
 import TroubleshootingPageProviders from './TroubleshootingPageProviders.svelte';
+import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
 </script>
 
 <NavPage title="Troubleshooting" searchEnabled="{false}">
@@ -9,5 +10,7 @@ import TroubleshootingPageProviders from './TroubleshootingPageProviders.svelte'
     <TroubleshootingPageProviders />
 
     <TroubleshootingDevToolsConsoleLogs />
+
+    <TroubleshootingPageStores />
   </div>
 </NavPage>
