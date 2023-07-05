@@ -12,10 +12,12 @@ export let detailed = false;
 export let inProgressCallback: (inProgress: boolean, state?: string) => void = () => {};
 export let errorCallback: (erroMessage: string) => void = () => {};
 
+const composeLabel = 'com.docker.compose.project';
+
 async function restartCompose(composeInfoUI: ComposeInfoUI) {
   inProgressCallback(true, 'RESTARTING');
   try {
-    await window.restartContainersByProject(composeInfoUI.engineId, composeInfoUI.name);
+    await window.restartContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
   } catch (error) {
     errorCallback(error);
   } finally {
