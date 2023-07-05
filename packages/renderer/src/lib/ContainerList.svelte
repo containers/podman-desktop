@@ -348,6 +348,21 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   container.state = 'ERROR';
   containerGroups = [...containerGroups];
 }
+
+function iconClass(container: ContainerInfoUI): string | undefined {
+  // handle ${} in icon class
+  // and interpret the value and replace with the class-name
+  let icon;
+  if (container.icon) {
+    const match = container.icon.match(/\$\{(.*)\}/);
+    if (match !== null && match.length === 2) {
+      const className = match[1];
+      icon = container.icon.replace(match[0], `podman-desktop-icon-${className}`);
+      return icon;
+    }
+  }
+  return icon;
+}
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="containers">
@@ -515,7 +530,11 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                 </td>
                 <td class="flex flex-row justify-center h-12">
                   <div class="grid place-content-center ml-3 mr-4">
-                    <StatusIcon icon="{ContainerIcon}" status="{container.state}" />
+                    {#if iconClass(container)}
+                      <StatusIcon iconClass="{iconClass(container)}" status="{container.state}" />
+                    {:else}
+                      <StatusIcon icon="{ContainerIcon}" status="{container.state}" />
+                    {/if}
                   </div>
                 </td>
                 <td

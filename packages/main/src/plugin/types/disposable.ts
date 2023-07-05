@@ -53,3 +53,79 @@ export class Disposable implements IDisposable {
     return new Disposable(func);
   }
 }
+
+/**
+ * Manages a collection of disposable values.
+ *
+ * This is the preferred way to manage multiple disposables. A `DisposableStore` is safer to work with than an
+ * `IDisposable[]` as it considers edge cases, such as registering the same value multiple times or adding an item to a
+ * store that has already been disposed of.
+ */
+export class DisposableStore implements IDisposable {
+  static DISABLE_DISPOSED_WARNING = false;
+
+  private readonly _toDispose = new Set<IDisposable>();
+  private _isDisposed = false;
+
+  /**
+   * Dispose of all registered disposables and mark this object as disposed.
+   *
+   * Any future disposables added to this object will be disposed of on `add`.
+   */
+  public dispose(): void {
+    if (this._isDisposed) {
+      return;
+    }
+
+    this._isDisposed = true;
+    this.clear();
+  }
+
+  /**
+   * @return `true` if this object has been disposed of.
+   */
+  public get isDisposed(): boolean {
+    return this._isDisposed;
+  }
+
+  /**
+   * Dispose of all registered disposables but do not mark this object as disposed.
+   */
+  public clear(): void {
+    if (this._toDispose.size === 0) {
+      return;
+    }
+
+    try {
+      this._toDispose.forEach(d => d.dispose());
+    } finally {
+      this._toDispose.clear();
+    }
+  }
+
+  /**
+   * Add a new {@link IDisposable disposable} to the collection.
+   */
+  public add<T extends IDisposable>(o: T): T {
+    if (!o) {
+      return o;
+    }
+    if ((o as unknown as DisposableStore) === this) {
+      throw new Error('Cannot register a disposable on itself!');
+    }
+
+    if (this._isDisposed) {
+      if (!DisposableStore.DISABLE_DISPOSED_WARNING) {
+        console.warn(
+          new Error(
+            'Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!',
+          ).stack,
+        );
+      }
+    } else {
+      this._toDispose.add(o);
+    }
+
+    return o;
+  }
+}

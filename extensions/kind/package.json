@@ -50,11 +50,28 @@
         }
       }
     },
+    "icons": {
+      "kind-icon": {
+        "description": "Kind icon",
+        "default": {
+          "fontPath": "kind-icon.woff2",
+          "fontCharacter": "\\EA01"
+        }
+      }
+    },
     "menus": {
       "dashboard/image": [
         {
           "command": "kind.image.move",
           "title": "Push image to Kind cluster"
+        }
+      ]
+    },
+    "views": {
+      "icons/containersList": [
+        {
+          "when": "io.x-k8s.kind.cluster in containerLabelKeys",
+          "icon": "${kind-icon}"
         }
       ]
     }

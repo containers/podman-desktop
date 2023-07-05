@@ -50,6 +50,9 @@ import { Emitter } from './events/emitter.js';
 import fs from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import type { ApiSenderType } from './api.js';
+import { ContextKeyService } from './contextkey/contextKeyService.js';
+import { ContextKeyExpr } from './contextkey/contextKey.js';
+import type { ViewRegistry } from './view-registry.js';
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -79,6 +82,7 @@ export class ContainerProviderRegistry {
     private apiSender: ApiSenderType,
     private imageRegistry: ImageRegistry,
     private telemetryService: Telemetry,
+    private viewRegistry: ViewRegistry,
   ) {
     const libPodDockerode = new LibpodDockerode();
     libPodDockerode.enhancePrototypeWithLibPod();
@@ -267,6 +271,8 @@ export class ContainerProviderRegistry {
 
   async listContainers(): Promise<ContainerInfo[]> {
     let telemetryOptions = {};
+    const viewContribution = this.viewRegistry.getViewContribution('icons/containersList');
+    const containerContext = new ContextKeyService();
     const containers = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
         try {
@@ -313,6 +319,22 @@ export class ContainerProviderRegistry {
                 StartedAt = '';
               }
 
+              // it prepares the context for the icon contributions
+              const contextId = containerContext.createChildContext();
+              const context = containerContext.getContextValuesContainer(contextId);
+              context.setValue('containerLabelKeys', Object.keys(container.Labels));
+              let icon;
+
+              // it checks if someone contributed to the containerlist view
+              viewContribution.every(contribution => {
+                const contextExprDeserialized = ContextKeyExpr.deserialize(contribution.when);
+                if (contextExprDeserialized?.evaluate(context)) {
+                  icon = contribution.icon;
+                  return false;
+                }
+                return true;
+              });
+
               // do we have a matching pod for this container ?
               let pod;
               const matchingPod = pods.find(pod =>
@@ -333,6 +355,7 @@ export class ContainerProviderRegistry {
                 engineId: provider.id,
                 engineType: provider.connection.type,
                 StartedAt,
+                icon,
               };
               return containerInfo;
             }),
@@ -344,6 +367,7 @@ export class ContainerProviderRegistry {
         }
       }),
     );
+    containerContext.dispose();
     const flatttenedContainers = containers.flat();
     this.telemetryService
       .track('listContainers', Object.assign({ total: flatttenedContainers.length }, telemetryOptions))
