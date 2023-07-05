@@ -1066,7 +1066,69 @@ export class ContainerProviderRegistry {
       throw error;
     } finally {
       this.telemetryService
-        .track('restartProjectContainers', telemetryOptions)
+        .track('restartContainersByLabel', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  async startContainersByLabel(engineId: string, label: string, key: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      // Get all the containers using listSimpleContainers
+      const containers = await this.listSimpleContainers();
+
+      // Find all the containers that are using projectLabel and match the projectName
+      const containersMatchingProject = containers.filter(container => {
+        // dont try to start it if it's already running
+        if (container.State === 'running') {
+          return false;
+        }
+        const labels = container.Labels;
+        return labels && labels[label] === key;
+      });
+
+      // Get all the container ids in containersIds
+      const containerIds = containersMatchingProject.map(container => container.Id);
+
+      // Start all the containers
+      await Promise.all(containerIds.map(containerId => this.startContainer(engineId, containerId)));
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('startContainersByLabel', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  async stopContainersByLabel(engineId: string, label: string, key: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      // Get all the containers using listSimpleContainers
+      const containers = await this.listSimpleContainers();
+
+      // Find all the containers that are using projectLabel and match the projectName
+      const containersMatchingProject = containers.filter(container => {
+        // dont try to start it if it's already running
+        if (container.State !== 'running') {
+          return false;
+        }
+        const labels = container.Labels;
+        return labels && labels[label] === key;
+      });
+
+      // Get all the container ids in containersIds
+      const containerIds = containersMatchingProject.map(container => container.Id);
+
+      // Start all the containers
+      await Promise.all(containerIds.map(containerId => this.stopContainer(engineId, containerId)));
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('stopContainersByLabel', telemetryOptions)
         .catch((err: unknown) => console.error('Unable to track', err));
     }
   }

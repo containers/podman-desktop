@@ -153,3 +153,64 @@ test('restartContainersByLabel should succeed successfully if project name is pr
   // Expect restartContainer tohave been called 3 times
   expect(restartContainer).toHaveBeenCalledTimes(3);
 });
+
+// Same test but with startContainersByLabel
+
+test('startContainersByLabel should succeed successfully if project name is provided and call startContainer', async () => {
+  const engine = {
+    // Fake that we have 3 containers of the same project
+    listSimpleContainers: vi
+      .fn()
+      .mockResolvedValue([
+        fakeContainerWithComposeProject,
+        fakeContainerWithComposeProject,
+        fakeContainerWithComposeProject,
+      ]),
+    getContainer: vi.fn().mockReturnValue({ start: vi.fn().mockResolvedValue({}) }),
+    listPods: vi.fn().mockResolvedValue([]),
+    startContainer: vi.fn().mockResolvedValue({}),
+  };
+  vi.spyOn(containerRegistry, 'getMatchingEngine').mockReturnValue(engine as unknown as Dockerode);
+  vi.spyOn(containerRegistry, 'listSimpleContainers').mockReturnValue(engine.listSimpleContainers());
+
+  // Spy on startContainer to make sure it's called
+  // it is NOT called if there are no matches.. So it's important tot check this.
+  const startContainer = vi.spyOn(containerRegistry, 'startContainer');
+
+  // Restart all containers in the 'project1' project
+  const result = await containerRegistry.startContainersByLabel('dummy', 'com.docker.compose.project', 'project1');
+  expect(result).toBeUndefined();
+
+  // Expect startContainer to NOT have been called since our containers are "running"
+  expect(startContainer).toHaveBeenCalledTimes(0);
+});
+
+// Same test but with stopContainersByLabel
+test('stopContainersByLabel should succeed successfully if project name is provided and call stopContainer', async () => {
+  const engine = {
+    // Fake that we have 3 containers of the same project
+    listSimpleContainers: vi
+      .fn()
+      .mockResolvedValue([
+        fakeContainerWithComposeProject,
+        fakeContainerWithComposeProject,
+        fakeContainerWithComposeProject,
+      ]),
+    getContainer: vi.fn().mockReturnValue({ stop: vi.fn().mockResolvedValue({}) }),
+    listPods: vi.fn().mockResolvedValue([]),
+    stopContainer: vi.fn().mockResolvedValue({}),
+  };
+  vi.spyOn(containerRegistry, 'getMatchingEngine').mockReturnValue(engine as unknown as Dockerode);
+  vi.spyOn(containerRegistry, 'listSimpleContainers').mockReturnValue(engine.listSimpleContainers());
+
+  // Spy on stopContainer to make sure it's called
+  // it is NOT called if there are no matches.. So it's important tot check this.
+  const stopContainer = vi.spyOn(containerRegistry, 'stopContainer');
+
+  // Restart all containers in the 'project1' project
+  const result = await containerRegistry.stopContainersByLabel('dummy', 'com.docker.compose.project', 'project1');
+  expect(result).toBeUndefined();
+
+  // Expect stopContainer tohave been called 3 times
+  expect(stopContainer).toHaveBeenCalledTimes(3);
+});
