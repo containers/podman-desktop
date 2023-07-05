@@ -30,15 +30,15 @@
           "type": "number",
           "format": "cpu",
           "minimum": 1,
-          "default": 1,
+          "default": 2,
           "scope": "ContainerConnection",
           "description": "CPU(s)"
         },
         "podman.machine.memory": {
           "type": "number",
           "format": "memory",
-          "minimum": 1024000000,
-          "default": 2048000000,
+          "minimum": 1000000000,
+          "default": 4000000000,
           "scope": "ContainerConnection",
           "description": "Memory"
         },
@@ -58,7 +58,7 @@
         "podman.factory.machine.cpus": {
           "type": "number",
           "format": "cpu",
-          "default": 1,
+          "default": 2,
           "minimum": 1,
           "maximum": "HOST_TOTAL_CPU",
           "scope": "ContainerProviderConnectionFactory",
@@ -67,8 +67,8 @@
         "podman.factory.machine.memory": {
           "type": "number",
           "format": "memory",
-          "minimum": 1024000000,
-          "default": 2048000000,
+          "minimum": 1000000000,
+          "default": 4000000000,
           "maximum": "HOST_TOTAL_MEMORY",
           "scope": "ContainerProviderConnectionFactory",
           "description": "Memory"
@@ -90,6 +90,7 @@
         },
         "podman.factory.machine.rootful": {
           "type": "boolean",
+          "default": true,
           "scope": "ContainerProviderConnectionFactory",
           "description": "Machine with root privileges"
         }
