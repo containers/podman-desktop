@@ -34,6 +34,7 @@ const dispatch = createEventDispatcher();
 const close = () => dispatch('close');
 
 let modal: HTMLDivElement;
+export let name = '';
 
 const handle_keydown = e => {
   if (e.key === 'Escape') {
@@ -70,6 +71,6 @@ if (previously_focused) {
 
 <div class="modal-background" on:click="{close}"></div>
 
-<div class="modal" role="dialog" aria-modal="true" bind:this="{modal}">
+<div class="modal" role="dialog" aria-label="{name}" aria-modal="true" bind:this="{modal}">
   <slot />
 </div>
