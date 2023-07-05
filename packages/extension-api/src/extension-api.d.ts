@@ -979,6 +979,12 @@ declare module '@podman-desktop/api' {
      */
     hideItemSections: boolean;
     /**
+     * When a custompick is closed (the sections are hidden) it is possible to set a minimum height so to force different items to have the same height.
+     * It must be set using pixels or percentage (e.g 100px or 50%)
+     * Use it carefully as it could break the layout.
+     */
+    minHeight?: string;
+    /**
      * An event signaling when the user indicated confirmation of the selected item(s) index(es).
      */
     readonly onDidConfirmSelection: Event<number[]>;

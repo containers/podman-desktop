@@ -50,4 +50,5 @@ export interface CustomPickOptions {
   items: CustomPickItem[];
   canSelectMany: boolean;
   hideItemSections: boolean;
+  minHeight?: string;
 }

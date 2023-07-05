@@ -28,6 +28,7 @@ export class CustomPickImpl<T extends CustomPickItem> implements CustomPick<T>, 
   private _items: T[] = [];
   private _canSelectMany = false;
   private _hideItemSections = false;
+  private _minHeight: string | undefined;
   private readonly _onDidConfirmSelection = new Emitter<number[]>();
   private readonly _onDidHide = new Emitter<void>();
 
@@ -84,6 +85,14 @@ export class CustomPickImpl<T extends CustomPickItem> implements CustomPick<T>, 
     this._hideItemSections = hideItemSections;
   }
 
+  get minHeight(): string | undefined {
+    return this._minHeight;
+  }
+
+  set minHeight(minHeight: string) {
+    this._minHeight = minHeight;
+  }
+
   show(): void {
     const data = {
       id: this.id,
@@ -93,6 +102,7 @@ export class CustomPickImpl<T extends CustomPickItem> implements CustomPick<T>, 
       items: this._items,
       canSelectMany: this._canSelectMany,
       hideItemSections: this._hideItemSections,
+      minHeight: this.minHeight,
     };
 
     // need to send the options to the frontend
