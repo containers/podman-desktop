@@ -118,6 +118,7 @@ async function getContainerfileLocation() {
     hasInvalidFields = false;
     if (!containerBuildContextDirectory) {
       // select the parent directory of the file as default
+      // eslint-disable-next-line no-useless-escape
       containerBuildContextDirectory = containerFilePath.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
     }
   }
