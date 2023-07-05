@@ -408,11 +408,7 @@ function checkContainerName(event: any) {
 
 <Route path="/*" let:meta>
   {#if dataReady}
-    <FormPage
-      name="Run Image"
-      title="Create a container from image {imageDisplayName}:{image.tag}"
-      parentName="Images"
-      parentURL="/images">
+    <FormPage title="Create a container from image {imageDisplayName}:{image.tag}">
       <div slot="content" class="p-5 min-w-full h-fit">
         <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
           <section class="pf-c-page__main-tabs pf-m-limit-width">
@@ -460,7 +456,7 @@ function checkContainerName(event: any) {
             </div>
           </section>
           <div>
-            <Route path="/basic" breadcrumb="Basic">
+            <Route path="/basic" breadcrumb="Basic" navLevel="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                   >Container name:</label>
@@ -607,7 +603,7 @@ function checkContainerName(event: any) {
                 {/each}
               </div>
             </Route>
-            <Route path="/advanced" breadcrumb="Advanced">
+            <Route path="/advanced" breadcrumb="Advanced" navLevel="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Use tty -->
                 <label for="containerTty" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
@@ -676,7 +672,7 @@ function checkContainerName(event: any) {
               </div>
             </Route>
 
-            <Route path="/security" breadcrumb="Security">
+            <Route path="/security" breadcrumb="Security" navLevel="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Privileged-->
                 <label for="containerPrivileged" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
@@ -797,7 +793,7 @@ function checkContainerName(event: any) {
               </div>
             </Route>
 
-            <Route path="/networking" breadcrumb="Networking">
+            <Route path="/networking" breadcrumb="Networking" navLevel="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- hostname-->
                 <label for="containerHostname" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"

@@ -45,13 +45,7 @@ onMount(() => {
 </script>
 
 {#if image}
-  <DetailsPage
-    name="Image Details"
-    title="{image.name}"
-    titleDetail="{image.shortId}"
-    subtitle="{image.tag}"
-    parentName="Images"
-    parentURL="/images">
+  <DetailsPage title="{image.name}" titleDetail="{image.shortId}" subtitle="{image.tag}">
     <StatusIcon slot="icon" icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
     <div slot="actions" class="flex justify-end">
       <ImageActions image="{image}" onPushImage="{handlePushImageModal}" detailed="{true}" dropdownMenu="{false}" />
@@ -62,14 +56,14 @@ onMount(() => {
       <DetailsTab title="Inspect" url="inspect" />
     </div>
     <span slot="content">
-      <Route path="/history" breadcrumb="History">
+      <Route path="/summary" breadcrumb="Summary" navLevel="tab">
+        <ImageDetailsSummary image="{image}" />
+      </Route>
+      <Route path="/history" breadcrumb="History" navLevel="tab">
         <ImageDetailsHistory image="{image}" />
       </Route>
-      <Route path="/inspect" breadcrumb="Inspect">
+      <Route path="/inspect" breadcrumb="Inspect" navLevel="tab">
         <ImageDetailsInspect image="{image}" />
-      </Route>
-      <Route path="/summary" breadcrumb="Summary">
-        <ImageDetailsSummary image="{image}" />
       </Route>
     </span>
   </DetailsPage>
