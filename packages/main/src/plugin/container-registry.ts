@@ -49,6 +49,7 @@ import type {
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
   PodInfo as LibpodPodInfo,
+  Info,
 } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import type { ContainerStatsInfo } from './api/container-stats-info.js';
@@ -1929,5 +1930,19 @@ export class ContainerProviderRegistry {
 
   getEnvFileParser(): EnvfileParser {
     return this.envfileParser;
+  }
+
+  async info(engineId: string): Promise<Info> {
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingPodmanEngine(engineId).info();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('info', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 }

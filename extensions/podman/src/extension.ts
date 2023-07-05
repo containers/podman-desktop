@@ -117,17 +117,10 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     let memoryUsage = 0;
     if (running) {
       try {
-        const output = await execPromise(getPodmanCli(), [
-          '-c',
-          machine.Name,
-          'info',
-          '--format',
-          '{ "cpuUsage": {{.Host.CPUUtilization.IdlePercent}}, "memoryFree": {{.Host.MemFree}}, "memoryAllocated": {{.Host.MemTotal}}, "diskUsed": {{.Store.GraphRootUsed}}, "diskAllocated": {{.Store.GraphRootAllocated}} }',
-        ]);
-        const info = JSON.parse(output);
-        cpuUsage = 100 - info.cpuUsage;
-        diskUsage = (info.diskUsed * 100) / info.diskAllocated;
-        memoryUsage = ((info.memoryAllocated - info.memoryFree) * 100) / info.memoryAllocated;
+        const info1 = await extensionApi.containerEngine.info(`podman.${prettyMachineName(machine.Name)}`);
+        cpuUsage = 100 - info1.host.cpuUtilization.idlePercent;
+        diskUsage = (info1.store.graphRootUsed * 100) / info1.store.graphRootAllocated;
+        memoryUsage = ((info1.host.memTotal - info1.host.memFree) * 100) / info1.host.memTotal;
       } catch (err: unknown) {
         console.error(` Can't get machine ${machine.Name} resource usage error ${err}`);
       }

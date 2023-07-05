@@ -23,6 +23,7 @@ import { beforeAll, expect, test } from 'vitest';
 import { type LibPod, LibpodDockerode } from '/@/plugin/dockerode/libpod-dockerode.js';
 import Dockerode from 'dockerode';
 import nock from 'nock';
+import podmanInfo from '../../../tests/resources/data/plugin/podman-info.json';
 
 beforeAll(() => {
   const libpod = new LibpodDockerode();
@@ -158,4 +159,12 @@ test('Check attach API', async () => {
 
   const stream = await (api as unknown as LibPod).podmanAttach(containerId);
   expect(stream.on).toBeDefined();
+});
+
+test('Check info', async () => {
+  nock('http://localhost').get('/v4.2.0/libpod/info').reply(200, podmanInfo);
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  const info = await (api as unknown as LibPod).info();
+  expect(info).toBeDefined();
+  expect(info).toStrictEqual(podmanInfo);
 });
