@@ -468,6 +468,11 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
                         <div class="text-[9px]">{connectionSetting.description}</div>
                         <div class="text-xs">{filesize(connectionSetting.value)}</div>
                       </div>
+                    {:else if connectionSetting.format === 'percent'}
+                      <div class="mr-4">
+                        <div class="text-[9px]">{connectionSetting.description}</div>
+                        <div class="text-xs">{connectionSetting.value.toFixed(2)}%</div>
+                      </div>
                     {:else}
                       {connectionSetting.description}: {connectionSetting.value}
                     {/if}

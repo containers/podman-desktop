@@ -88,6 +88,9 @@ export type MachineInfo = {
   memory: number;
   diskSize: number;
   userModeNetworking: boolean;
+  cpuUsage: number;
+  diskUsage: number;
+  memoryUsage: number;
 };
 
 async function updateMachines(provider: extensionApi.Provider): Promise<void> {
@@ -109,6 +112,27 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       status = 'starting';
     }
 
+    let cpuUsage = 0;
+    let diskUsage = 0;
+    let memoryUsage = 0;
+    if (running) {
+      try {
+        const output = await execPromise(getPodmanCli(), [
+          '-c',
+          machine.Name,
+          'info',
+          '--format',
+          '{ "cpuUsage": {{.Host.CPUUtilization.IdlePercent}}, "memoryFree": {{.Host.MemFree}}, "memoryAllocated": {{.Host.MemTotal}}, "diskUsed": {{.Store.GraphRootUsed}}, "diskAllocated": {{.Store.GraphRootAllocated}} }',
+        ]);
+        const info = JSON.parse(output);
+        cpuUsage = 100 - info.cpuUsage;
+        diskUsage = (info.diskUsed * 100) / info.diskAllocated;
+        memoryUsage = ((info.memoryAllocated - info.memoryFree) * 100) / info.memoryAllocated;
+      } catch (err: unknown) {
+        console.error(` Can't get machine ${machine.Name} resource usage error ${err}`);
+      }
+    }
+
     const previousStatus = podmanMachinesStatuses.get(machine.Name);
     if (previousStatus !== status) {
       // notify status change
@@ -123,6 +147,9 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       cpus: machine.CPUs,
       diskSize: parseInt(machine.DiskSize),
       userModeNetworking: userModeNetworking,
+      cpuUsage,
+      diskUsage,
+      memoryUsage,
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
@@ -336,6 +363,9 @@ async function updateContainerConfiguration(
   await containerConfiguration.update('machine.cpus', machineInfo.cpus);
   await containerConfiguration.update('machine.memory', machineInfo.memory);
   await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
+  await containerConfiguration.update('machine.cpuUsage', machineInfo.cpuUsage);
+  await containerConfiguration.update('machine.diskUsage', machineInfo.diskUsage);
+  await containerConfiguration.update('machine.memoryUsage', machineInfo.memoryUsage);
 }
 
 function calcMacosSocketPath(machineName: string): string {
@@ -556,6 +586,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   await containerConfiguration.update('machine.cpus', machineInfo.cpus);
   await containerConfiguration.update('machine.memory', machineInfo.memory);
   await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
+  await containerConfiguration.update('machine.cpuUsage', machineInfo.cpuUsage);
 
   currentConnections.set(machineInfo.name, disposable);
   storedExtensionContext.subscriptions.push(disposable);
