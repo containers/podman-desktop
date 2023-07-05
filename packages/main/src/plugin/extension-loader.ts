@@ -409,13 +409,13 @@ export class ExtensionLoader {
     return sorted;
   }
 
-  async readDevelopmentFolders(path: string): Promise<string[]> {
-    const entries = await fs.promises.readdir(path, { withFileTypes: true });
+  async readDevelopmentFolders(folderPath: string): Promise<string[]> {
+    const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     // filter only directories ignoring node_modules directory
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path + '/' + directory.name);
+      .map(directory => path.join(folderPath, directory.name));
   }
 
   async readExternalFolders(): Promise<string[]> {
@@ -428,12 +428,12 @@ export class ExtensionLoader {
     return pathes;
   }
 
-  async readProductionFolders(path: string): Promise<string[]> {
-    const entries = await fs.promises.readdir(path, { withFileTypes: true });
+  async readProductionFolders(folderPath: string): Promise<string[]> {
+    const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path + '/' + directory.name + `/builtin/${directory.name}.cdix`);
+      .map(directory => path.join(folderPath, directory.name, `/builtin/${directory.name}.cdix`));
   }
 
   getBase64Image(imagePath: string): string {
