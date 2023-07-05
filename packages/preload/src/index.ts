@@ -327,9 +327,9 @@ function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld(
-    'restartContainersByProject',
-    async (engine: string, projectName: string): Promise<void> => {
-      return ipcInvoke('container-provider-registry:restartContainersByProject', engine, projectName);
+    'restartContainersByLabel',
+    async (engine: string, label: string, key: string): Promise<void> => {
+      return ipcInvoke('container-provider-registry:restartContainersByLabel', engine, label, key);
     },
   );
 

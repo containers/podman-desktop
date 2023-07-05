@@ -125,7 +125,7 @@ test('push should succeed if provider', async () => {
   expect(result).toBeUndefined();
 });
 
-test('restartContainersByProject should succeed successfully if project name is provided and call restartContainer', async () => {
+test('restartContainersByLabel should succeed successfully if project name is provided and call restartContainer', async () => {
   const engine = {
     // Fake that we have 3 containers of the same project
     listSimpleContainers: vi
@@ -147,7 +147,7 @@ test('restartContainersByProject should succeed successfully if project name is 
   const restartContainer = vi.spyOn(containerRegistry, 'restartContainer');
 
   // Restart all containers in the 'project1' project
-  const result = await containerRegistry.restartContainersByProject('dummy', 'project1');
+  const result = await containerRegistry.restartContainersByLabel('dummy', 'com.docker.compose.project', 'project1');
   expect(result).toBeUndefined();
 
   // Expect restartContainer tohave been called 3 times

@@ -885,9 +885,9 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
-      'container-provider-registry:restartContainersByProject',
-      async (_listener, engine: string, projectName: string): Promise<void> => {
-        return containerProviderRegistry.restartContainersByProject(engine, projectName);
+      'container-provider-registry:restartContainersByLabel',
+      async (_listener, engine: string, label: string, key: string): Promise<void> => {
+        return containerProviderRegistry.restartContainersByLabel(engine, label, key);
       },
     );
 
