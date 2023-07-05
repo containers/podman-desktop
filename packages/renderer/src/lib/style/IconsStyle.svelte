@@ -46,7 +46,7 @@ onMount(() => {
     });
 
     fontsToAdd.forEach(font => {
-      const src = font.src.map(l => `${toUrl(l.location)} format('${l.format}')`).join(', ');
+      const src = font.src.map(l => `${toUrl(l.browserURL)} format('${l.format}')`).join(', ');
       styles.push(
         `@font-face { src: ${src}; font-family: '${font.fontId.replace(/'/g, '%27')}'; font-display: block; }`,
       );

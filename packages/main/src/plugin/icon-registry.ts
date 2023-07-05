@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import type { FontDefinition } from './api/font-info.js';
 import type { IconDefinition, IconInfo } from './api/icon-info.js';
@@ -95,10 +96,15 @@ export class IconRegistry {
       // fontId is based on the extension id and the font path
       const fontId = `${extension.id}-${defaultAttributes.fontPath}`;
 
+      let browserURL = iconFontLocation;
+      if (isWindows()) {
+        browserURL = browserURL.replace(/\\/g, '/');
+      }
+
       // font definition
       const fontDefinition: FontDefinition = {
         fontId,
-        src: [{ location: iconFontLocation, format }],
+        src: [{ location: iconFontLocation, browserURL, format }],
       };
 
       // register font
