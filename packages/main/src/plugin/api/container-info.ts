@@ -65,4 +65,6 @@ export interface ContainerCreateOptions {
   HostConfig?: HostConfig;
   Image?: string;
   Tty?: boolean;
+  Cmd?: string[];
+  Entrypoint?: string | string[];
 }
