@@ -90,7 +90,19 @@ You can view the progress at: https://community.chocolatey.org/packages/podman-d
 1. Create a PR to the repository with a title like `feat: bump to v0.11.0`
 1. If the PR passes all tests, merge the PR
 
-### Announcement
+## podman.io website
+
+Publish update to the podman website at https://podman.io
+
+The workflow will create an automatic submission to the podman.io site at https://github.com/containers/podman.io/pull/
+
+1. Go to https://github.com/containers/podman-desktop/actions/workflows/publish-to-podman_io.yaml
+1. Click on the top right drop-down `Run workflow`
+1. Select the release (under tags), which would be `v1.2.0`
+1. Enter the release version `1.2.0`. DO NOT add the `v`
+1. Click `Run workflow`
+
+## Announcement
 
 #### Release notes
 
