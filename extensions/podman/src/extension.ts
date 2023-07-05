@@ -763,7 +763,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // no podman for now, skip
   if (isMac()) {
-    if (!fs.existsSync(podmanMachineSocketsDirectoryMac)) {
+    if (!fs.existsSync(podmanMachineSocketsDirectory)) {
       return;
     }
     monitorMachines(provider).catch((error: unknown) => {
