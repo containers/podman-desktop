@@ -248,7 +248,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
       .forEach(key => {
         delete cloneConfig[key];
       });
-    fs.writeFileSync(this.getSettingsFile(), JSON.stringify(cloneConfig));
+    fs.writeFileSync(this.getSettingsFile(), JSON.stringify(cloneConfig, undefined, 2));
   }
 
   /**
