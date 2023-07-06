@@ -17,7 +17,7 @@ export let subtitle: string = undefined;
             href="{$lastPage.path}"
             title="Go back to {$lastPage.name}">{$lastPage.name}</a>
           <div class="text-xl mx-2 text-gray-700">></div>
-          <div class="text-sm font-extralight text-gray-700">{$currentPage.name}</div>
+          <div class="text-sm font-extralight text-gray-700" aria-label="name">{$currentPage.name}</div>
         </div>
         <div class="text-lg flex flex-row items-start pt-1">
           <div class="pr-3 pt-1">
