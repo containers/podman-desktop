@@ -63,6 +63,38 @@ const fakeContainerWithComposeProject: Dockerode.ContainerInfo = {
   },
 };
 
+const fakeContainer: Dockerode.ContainerInfo = {
+  Id: '1234',
+  Names: ['/container2'],
+  Image: 'image2',
+  ImageID: 'image2',
+  Command: 'command2',
+  Created: 1234567890,
+  State: 'running',
+  Status: 'running',
+  Ports: [],
+  Labels: {},
+  Mounts: [],
+  HostConfig: {
+    NetworkMode: 'bridge',
+  },
+  NetworkSettings: {
+    Networks: {
+      bridge: {
+        IPAddress: '',
+        IPPrefixLen: 0,
+        Gateway: '',
+        NetworkID: '',
+        EndpointID: '',
+        IPv6Gateway: '',
+        GlobalIPv6Address: '',
+        GlobalIPv6PrefixLen: 0,
+        MacAddress: '',
+      },
+    },
+  },
+};
+
 vi.mock('dockerode', async () => {
   return {
     default: vi.fn(),
@@ -134,6 +166,7 @@ test('restartContainersByLabel should succeed successfully if project name is pr
         fakeContainerWithComposeProject,
         fakeContainerWithComposeProject,
         fakeContainerWithComposeProject,
+        fakeContainer,
       ]),
     getContainer: vi.fn().mockReturnValue({ restart: vi.fn().mockResolvedValue({}) }),
     listPods: vi.fn().mockResolvedValue([]),
@@ -143,7 +176,7 @@ test('restartContainersByLabel should succeed successfully if project name is pr
   vi.spyOn(containerRegistry, 'listSimpleContainers').mockReturnValue(engine.listSimpleContainers());
 
   // Spy on restartContainer to make sure it's called
-  // it is NOT called if there are no matches.. So it's important tot check this.
+  // it is NOT called if there are no matches.. So it's important to check this.
   const restartContainer = vi.spyOn(containerRegistry, 'restartContainer');
 
   // Restart all containers in the 'project1' project
