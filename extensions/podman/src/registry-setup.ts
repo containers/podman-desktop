@@ -49,7 +49,7 @@ export class RegistrySetup {
     return path.resolve(podmanConfigContainersPath, 'auth.json');
   }
 
-  protected async updateRegistries(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  protected async updateRegistries(): Promise<void> {
     // read the file
     const authFile = await this.readAuthFile();
     const inFileRegistries: extensionApi.Registry[] = [];
@@ -77,7 +77,8 @@ export class RegistrySetup {
     // For each registry in the file that is not in the inMemory, add it
     const toBeAdded = inFileRegistries.filter(fileRegistry => !this.localRegistries.has(fileRegistry.serverUrl));
     toBeAdded.forEach(registry => {
-      extensionContext.subscriptions.push(extensionApi.registry.registerRegistry(registry));
+      // do not use the disposable from registerRegistry as we want to keep the registry after extension is stopped.
+      extensionApi.registry.registerRegistry(registry);
       this.localRegistries.set(registry.serverUrl, registry);
     });
     // For each registry in the inMemory that is not in the file, remove it
@@ -91,7 +92,7 @@ export class RegistrySetup {
     });
   }
 
-  public async setup(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  public async setup(): Promise<void> {
     extensionApi.registry.registerRegistryProvider({
       name: 'podman',
       create: function (registryCreateOptions: extensionApi.RegistryCreateOptions): extensionApi.Registry {
@@ -159,13 +160,13 @@ export class RegistrySetup {
 
     // need to monitor this file
     fs.watchFile(this.getAuthFileLocation(), () => {
-      this.updateRegistries(extensionContext).catch((error: unknown) => {
+      this.updateRegistries().catch((error: unknown) => {
         console.error('Error updating registries', error);
       });
     });
 
     // else init with the content of this file
-    await this.updateRegistries(extensionContext);
+    await this.updateRegistries();
   }
 
   protected async readAuthFile(): Promise<ContainersAuthConfigFile> {
