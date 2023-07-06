@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { QuickPickItem } from '@podman-desktop/api';
+import type { CustomPickItem, QuickPickItem } from '@podman-desktop/api';
 
 export interface QuickPickOptions {
   placeHolder?: string;
@@ -40,4 +40,15 @@ export interface InputBoxOptions {
   multiline: boolean;
   id: number;
   title?: string;
+}
+
+export interface CustomPickOptions {
+  id: number;
+  title?: string;
+  description?: string;
+  icon?: string | { light: string; dark: string };
+  items: CustomPickItem[];
+  canSelectMany: boolean;
+  hideItemSections: boolean;
+  minHeight?: string;
 }

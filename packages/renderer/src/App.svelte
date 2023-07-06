@@ -38,6 +38,7 @@ import MessageBox from './lib/dialogs/MessageBox.svelte';
 import TitleBar from './lib/ui/TitleBar.svelte';
 import TroubleshootingPage from './lib/troubleshooting/TroubleshootingPage.svelte';
 import IconsStyle from './lib/style/IconsStyle.svelte';
+import CustomPick from './lib/dialogs/CustomPick.svelte';
 
 router.mode.hash();
 
@@ -70,6 +71,7 @@ window.events?.receive('display-troubleshooting', () => {
     <div class="flex flex-row w-full h-full overflow-hidden">
       <MessageBox />
       <QuickPickInput />
+      <CustomPick />
       <AppNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
       {#if meta.url.startsWith('/preferences')}
         <PreferencesNavigation meta="{meta}" />
