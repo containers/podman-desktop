@@ -25,3 +25,9 @@ export const lastPage: Writable<TinroBreadcrumb> = writable({ name: 'Unknown', p
 
 export const listPage: Writable<TinroBreadcrumb> = writable();
 export const detailsPage: Writable<TinroBreadcrumb> = writable();
+
+export function mockBreadcrumb() {
+  listPage.set({ name: 'List', path: '/list' } as TinroBreadcrumb);
+  lastPage.set({ name: 'Previous', path: '/last' } as TinroBreadcrumb);
+  currentPage.set({ name: 'Current', path: '/current' } as TinroBreadcrumb);
+}
