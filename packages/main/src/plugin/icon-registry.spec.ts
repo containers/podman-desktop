@@ -25,6 +25,12 @@ import type { AnalyzedExtension } from './extension-loader.js';
 let iconRegistry: IconRegistry;
 const apiSenderSendMock = vi.fn();
 
+vi.mock('../util', async () => {
+  return {
+    isWindows: () => false,
+  };
+});
+
 beforeAll(async () => {
   iconRegistry = new IconRegistry({
     send: apiSenderSendMock,
@@ -75,6 +81,7 @@ test('should register icon contribution', async () => {
     {
       format: 'woff2',
       location: `${extensionPath}/${fontPath}`,
+      browserURL: `url('file://${extensionPath}/${fontPath}')`,
     },
   ]);
   expect(icon.definition.font?.fontId).toBe(`${extensionId}-${fontPath}`);

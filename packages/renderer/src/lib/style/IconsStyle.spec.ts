@@ -34,6 +34,7 @@ beforeAll(() => {
 });
 
 test('Check containers button is available and click on it', async () => {
+  const file = 'file://my-font.woff';
   const icon: IconInfo = {
     id: 'my-icon-id',
     definition: {
@@ -43,6 +44,7 @@ test('Check containers button is available and click on it', async () => {
         src: [
           {
             location: 'my-font.woff',
+            browserURL: `url('${file}')`,
             format: 'woff2',
           },
         ],
