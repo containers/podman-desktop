@@ -189,7 +189,7 @@ export class ExtensionInstaller {
         };
 
         this.installFromImage(sendLog, sendError, sendEnd, imageName).catch((error: unknown) => {
-          reportError('' + error);
+          sendError('' + error);
         });
       },
     );
