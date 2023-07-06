@@ -1125,6 +1125,31 @@ export class ContainerProviderRegistry {
     }
   }
 
+    // Delete all containers that match a certain label and key
+    async deleteContainersByLabel(engineId: string, label: string, key: string): Promise<void> {
+      let telemetryOptions = {};
+      try {
+        // Get all the containers using listSimpleContainers
+        const containers = await this.listSimpleContainers();
+  
+        // Find all the containers that are using projectLabel and match the projectName
+        const containersMatchingProject = containers.filter(container => container.Labels?.[label] === key);
+  
+        // Get all the container ids in containersIds
+        const containerIds = containersMatchingProject.map(container => container.Id);
+  
+        // Delete all the containers in containerIds
+        await Promise.all(containerIds.map(containerId => this.deleteContainer(engineId, containerId)));
+      } catch (error) {
+        telemetryOptions = { error: error };
+        throw error;
+      } finally {
+        this.telemetryService
+          .track('deleteContainersByLabel', telemetryOptions)
+          .catch((err: unknown) => console.error('Unable to track', err));
+      }
+    }
+
   async logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void): Promise<void> {
     let telemetryOptions = {};
     try {

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faPlay, faStop, faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPlay, faStop, faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import type { ComposeInfoUI } from './ComposeInfoUI';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
@@ -28,6 +28,17 @@ async function stopCompose(composeInfoUI: ComposeInfoUI) {
   inProgressCallback(true, 'STOPPING');
   try {
     await window.stopContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
+  } catch (error) {
+    errorCallback(error);
+  } finally {
+    inProgressCallback(false, 'STOPPED');
+  }
+}
+
+async function deleteCompose(composeInfoUI: ComposeInfoUI) {
+  inProgressCallback(true, 'DELETING');
+  try {
+    await window.deleteContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
   } catch (error) {
     errorCallback(error);
   } finally {
@@ -64,6 +75,7 @@ if (dropdownMenu) {
   inProgress="{compose.actionInProgress && compose.status === 'STARTING'}"
   icon="{faPlay}"
   iconOffset="pl-[0.15rem]" />
+
 <ListItemButtonIcon
   title="Stop Compose"
   onClick="{() => stopCompose(compose)}"
@@ -71,6 +83,13 @@ if (dropdownMenu) {
   detailed="{detailed}"
   inProgress="{compose.actionInProgress && compose.status === 'STOPPING'}"
   icon="{faStop}" />
+
+  <ListItemButtonIcon
+  title="Delete Compose"
+  onClick="{() => deleteCompose(compose)}"
+  icon="{faTrash}"
+  detailed="{detailed}"
+  inProgress="{compose.actionInProgress && compose.status === 'DELETING'}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
