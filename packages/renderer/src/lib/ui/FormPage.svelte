@@ -16,7 +16,7 @@ export let showBreadcrumb = true;
             href="{$lastPage.path}"
             title="Go back to {$lastPage.name}">{$lastPage.name}</a>
           <div class="text-xl mx-2 text-gray-700">></div>
-          <div class="text-sm font-extralight text-gray-700">{$currentPage.name}</div>
+          <div class="text-sm font-extralight text-gray-700" aria-label="name">{$currentPage.name}</div>
         </div>
       {/if}
       <div class="flex flex-row items-center pt-1">
