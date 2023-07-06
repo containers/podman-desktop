@@ -33,6 +33,8 @@ const route = createRouteObject({
 function processMetaBreadcrumbs(breadcrumbs?: Array<TinroBreadcrumb>) {
   if (breadcrumbs) {
     const curPage = breadcrumbs[breadcrumbs.length - 1];
+    if (!curPage) return;
+
     if (navLevel === 'list') {
       listPage.set(curPage);
       detailsPage.set(undefined);

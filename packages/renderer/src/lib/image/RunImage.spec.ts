@@ -24,6 +24,7 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import { runImageInfo } from '../../stores/run-image-store';
 import RunImage from '/@/lib/image/RunImage.svelte';
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
+import { mockBreadcrumb } from '../../stores/breadcrumb';
 
 // fake the window.events object
 beforeAll(() => {
@@ -37,6 +38,8 @@ beforeAll(() => {
   (window as any).listNetworks = vi.fn().mockResolvedValue([]);
   (window as any).listContainers = vi.fn().mockResolvedValue([]);
   (window as any).createAndStartContainer = vi.fn();
+
+  mockBreadcrumb();
 });
 
 async function waitRender() {
