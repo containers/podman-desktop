@@ -23,6 +23,8 @@ import type { ApiSenderType } from '../api.js';
 import type { ExtensionLoader } from '../extension-loader.js';
 import type { ImageRegistry } from '../image-registry.js';
 import * as path from 'node:path';
+import type { IpcMain, IpcMainEvent } from 'electron';
+import { ipcMain } from 'electron';
 
 let extensionInstaller: ExtensionInstaller;
 
@@ -50,6 +52,13 @@ const imageRegistry: ImageRegistry = {
   getImageConfigLabels: getImageConfigLabelsMock,
   downloadAndExtractImage: downloadAndExtractImageMock,
 } as unknown as ImageRegistry;
+
+vi.mock('electron', () => {
+  const mockIpcMain = {
+    on: vi.fn().mockReturnThis(),
+  };
+  return { ipcMain: mockIpcMain };
+});
 
 beforeAll(async () => {
   extensionInstaller = new ExtensionInstaller(apiSender, extensionLoader, imageRegistry);
@@ -153,4 +162,37 @@ test('should fail if an image have incorrect labels', async () => {
 
   // extension not started
   expect(apiSenderSendMock).not.toBeCalled();
+});
+
+test('should report error', async () => {
+  const imageToPull = 'fake.io/fake-image:fake-tag';
+
+  const spyExtractExtensionFiles = vi.spyOn(extensionInstaller, 'extractExtensionFiles');
+  spyExtractExtensionFiles.mockResolvedValueOnce();
+
+  const ipcMainOnMethod = vi.spyOn(ipcMain, 'on');
+
+  const replyMethodMock = vi.fn();
+
+  const spyInstaller = vi.spyOn(extensionInstaller, 'installFromImage');
+  spyInstaller.mockRejectedValueOnce(new Error('fake error'));
+
+  ipcMainOnMethod.mockImplementation(
+    (_channel: string, listener: (event: IpcMainEvent, ...args: unknown[]) => void) => {
+      // let's call the callback
+      listener({ reply: replyMethodMock } as unknown as IpcMainEvent, imageToPull, 0);
+      return {} as IpcMain;
+    },
+  );
+
+  // call init method
+  await extensionInstaller.init();
+
+  // wait calls on reply mock with a loop
+  while (replyMethodMock.mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // expect to have the sendError method called
+  expect(replyMethodMock).toHaveBeenCalledWith('extension-installer:install-from-image-error', 0, 'Error: fake error');
 });
