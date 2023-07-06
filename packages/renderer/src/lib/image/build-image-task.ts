@@ -159,6 +159,7 @@ export function eventCollect(key: symbol, eventName: 'finish' | 'stream' | 'erro
   if (task) {
     if (eventName === 'error') {
       task.status = 'failure';
+      task.state = 'completed';
     } else if (eventName === 'finish') {
       if (task.status !== 'failure') {
         task.status = 'success';
