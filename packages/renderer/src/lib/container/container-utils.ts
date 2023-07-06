@@ -145,6 +145,7 @@ export class ContainerUtils {
       return {
         name: composeProject,
         type: ContainerGroupInfoTypeUI.COMPOSE,
+        engineId: containerInfo.engineId,
       };
     }
 
