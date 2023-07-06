@@ -44,6 +44,7 @@ import type { Telemetry } from './telemetry/telemetry.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
+import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -97,6 +98,8 @@ const containerProviderRegistry: ContainerProviderRegistry = {} as unknown as Co
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
 
+const customPickRegistry: CustomPickRegistry = {} as unknown as CustomPickRegistry;
+
 const authenticationProviderRegistry: AuthenticationImpl = {} as unknown as AuthenticationImpl;
 
 const iconRegistry: IconRegistry = {} as unknown as IconRegistry;
@@ -129,6 +132,7 @@ beforeAll(() => {
     proxy,
     containerProviderRegistry,
     inputQuickPickRegistry,
+    customPickRegistry,
     authenticationProviderRegistry,
     iconRegistry,
     telemetry,
