@@ -84,11 +84,12 @@ export class DockerExtensionPreload {
       _args,
       execOptions,
     );
-    if (rawResult.error) {
-      throw new Error(rawResult.error);
-    }
+
     if (rawResult.code !== 0) {
-      throw new Error(`Command failed: ${rawResult.stderr}`);
+      const error: any = { toString: () => rawResult.stderr };
+      error.stderr = rawResult.stderr;
+      error.stdout = rawResult.stdout;
+      throw error;
     }
 
     const execResult: dockerDesktopAPI.ExecResult = rawResult;
