@@ -48,45 +48,42 @@ export async function updateContext(
   // read the kubeconfig file using fs
   const kubeConfigRawContent = await fs.promises.readFile(kubeconfigFile, 'utf-8');
 
-  if (kubeConfigRawContent.length === 0) {
-    console.error(`Kubeconfig file at '${kubeconfigFile}' is empty. Skipping.`);
-    return;
-  }
-
   // parse the content using jsYaml
   const kubeConfig = jsYaml.load(kubeConfigRawContent);
 
   // get the current context
-  const currentContext = kubeConfig['current-context'];
+  const currentContext = kubeConfig ? kubeConfig['current-context'] : undefined;
 
   // get all contexts
-  const contexts: KubeContext[] = kubeConfig['contexts'];
+  const contexts: KubeContext[] = kubeConfig?.['contexts'] ? kubeConfig['contexts'] : [];
 
-  // now, add each context
-  const subitems: extensionApi.MenuItem[] = contexts.map(context => {
-    return {
-      label: context.name,
+  if (contexts.length > 0) {
+    // now, add each context
+    const subitems: extensionApi.MenuItem[] = contexts.map(context => {
+      return {
+        label: context.name,
+        id: 'kubecontext.switch',
+        type: 'checkbox',
+        checked: context.name === currentContext,
+      };
+    });
+
+    const title: extensionApi.MenuItem = {
+      label: 'Context',
       id: 'kubecontext.switch',
-      type: 'checkbox',
-      checked: context.name === currentContext,
+      enabled: false,
     };
-  });
 
-  const title: extensionApi.MenuItem = {
-    label: 'Context',
-    id: 'kubecontext.switch',
-    enabled: false,
-  };
+    const item: extensionApi.MenuItem = {
+      id: 'kubecontext.switch',
+      label: 'Kubernetes',
+      submenu: [title, ...subitems],
+    };
 
-  const item: extensionApi.MenuItem = {
-    id: 'kubecontext.switch',
-    label: 'Kubernetes',
-    submenu: [title, ...subitems],
-  };
-
-  const subscription = extensionApi.tray.registerMenuItem(item);
-  menuItemsRegistered.push(subscription);
-  extensionContext.subscriptions.push(subscription);
+    const subscription = extensionApi.tray.registerMenuItem(item);
+    menuItemsRegistered.push(subscription);
+    extensionContext.subscriptions.push(subscription);
+  }
 
   // create a status bar item to show the current context and allow switching
   if (!statusBarItem) {
