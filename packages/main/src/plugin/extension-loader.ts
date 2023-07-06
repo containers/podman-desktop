@@ -71,7 +71,7 @@ export interface AnalyzedExtension {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   manifest: any;
   // main entry
-  mainPath: string;
+  mainPath?: string;
   api: typeof containerDesktopAPI;
   removable: boolean;
 
@@ -318,7 +318,7 @@ export class ExtensionLoader {
       name: manifest.name,
       manifest,
       path: extensionPath,
-      mainPath: path.resolve(extensionPath, manifest.main),
+      mainPath: manifest.main ? path.resolve(extensionPath, manifest.main) : undefined,
       api,
       removable,
     };
@@ -929,7 +929,12 @@ export class ExtensionLoader {
     };
   }
 
-  loadRuntime(extension: AnalyzedExtension): NodeRequire {
+  // helper function to call require from the given path
+  protected doRequire(path: string): NodeRequire {
+    return require(path);
+  }
+
+  loadRuntime(extension: AnalyzedExtension): NodeRequire | undefined {
     // cleaning the cache for all files of that plug-in.
     Object.keys(require.cache).forEach(function (key): void {
       const mod: NodeJS.Module | undefined = require.cache[key];
@@ -964,7 +969,9 @@ export class ExtensionLoader {
         }
       }
     });
-    return require(extension.mainPath);
+    if (extension.mainPath) {
+      return this.doRequire(extension.mainPath);
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -982,7 +989,7 @@ export class ExtensionLoader {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
+  async activateExtension(extension: AnalyzedExtension, extensionMain: any | undefined): Promise<void> {
     this.extensionState.set(extension.id, 'starting');
     this.extensionStateErrors.delete(extension.id);
     this.apiSender.send('extension-starting', {});
@@ -1002,13 +1009,13 @@ export class ExtensionLoader {
       storagePath,
     };
     let deactivateFunction = undefined;
-    if (typeof extensionMain['deactivate'] === 'function') {
+    if (typeof extensionMain?.['deactivate'] === 'function') {
       deactivateFunction = extensionMain['deactivate'];
     }
 
     const telemetryOptions = { extensionId: extension.id };
     try {
-      if (typeof extensionMain['activate'] === 'function') {
+      if (typeof extensionMain?.['activate'] === 'function') {
         // it returns exports
         console.log(`Activating extension (${extension.id})`);
         await extensionMain['activate'].apply(undefined, [extensionContext]);

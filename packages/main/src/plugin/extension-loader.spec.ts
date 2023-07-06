@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, beforeEach, test, expect, vi } from 'vitest';
+import { beforeAll, beforeEach, test, expect, vi, describe } from 'vitest';
 import type { CommandRegistry } from './command-registry.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
@@ -61,6 +61,10 @@ class TestExtensionLoader extends ExtensionLoader {
 
   getExtensionState() {
     return this.extensionState;
+  }
+
+  doRequire(module: string): NodeRequire {
+    return super.doRequire(module);
   }
 }
 
@@ -536,4 +540,87 @@ test('Verify searchForMissingDependencies(analyzedExtensions);', async () => {
     extensionId4,
     extensionId5,
   ]);
+});
+
+describe('check loadRuntime', async () => {
+  test('check for extension with main entry', async () => {
+    // override doRequire method
+    const doRequireMock = vi.spyOn(extensionLoader, 'doRequire');
+    doRequireMock.mockResolvedValue({} as NodeRequire);
+
+    const fakeExtension = {
+      mainPath: '/fake/path',
+    } as unknown as AnalyzedExtension;
+
+    extensionLoader.loadRuntime(fakeExtension);
+
+    // expect require to be called with the mainPath
+    expect(doRequireMock).toHaveBeenCalledWith(fakeExtension.mainPath);
+  });
+
+  test('check for extension without main entry', async () => {
+    // override doRequire method
+    const doRequireMock = vi.spyOn(extensionLoader, 'doRequire');
+    doRequireMock.mockResolvedValue({} as NodeRequire);
+
+    const fakeExtension = {
+      mainPath: undefined,
+    } as unknown as AnalyzedExtension;
+
+    extensionLoader.loadRuntime(fakeExtension);
+
+    // expect require to be called with the mainPath
+    expect(doRequireMock).not.toBeCalled();
+  });
+});
+
+describe('analyze extension and main', async () => {
+  test('check for extension with main entry', async () => {
+    vi.mock('node:fs');
+
+    // mock fs.existsSync
+    const fsExistsSyncMock = vi.spyOn(fs, 'existsSync');
+    fsExistsSyncMock.mockReturnValue(true);
+
+    const fakeManifest = {
+      publisher: 'fooPublisher',
+      name: 'fooName',
+      main: 'main-entry.js',
+    };
+
+    // mock loadManifest
+    const loadManifestMock = vi.spyOn(extensionLoader, 'loadManifest');
+    loadManifestMock.mockResolvedValue(fakeManifest);
+
+    const extension = await extensionLoader.analyzeExtension('/fake/path', false);
+
+    expect(extension).toBeDefined();
+    expect(extension?.mainPath).toBe('/fake/path/main-entry.js');
+    expect(extension?.id).toBe('fooPublisher.fooName');
+  });
+
+  test('check for extension without main entry', async () => {
+    vi.mock('node:fs');
+
+    // mock fs.existsSync
+    const fsExistsSyncMock = vi.spyOn(fs, 'existsSync');
+    fsExistsSyncMock.mockReturnValue(true);
+
+    const fakeManifest = {
+      publisher: 'fooPublisher',
+      name: 'fooName',
+      // no main entry
+    };
+
+    // mock loadManifest
+    const loadManifestMock = vi.spyOn(extensionLoader, 'loadManifest');
+    loadManifestMock.mockResolvedValue(fakeManifest);
+
+    const extension = await extensionLoader.analyzeExtension('/fake/path', false);
+
+    expect(extension).toBeDefined();
+    // not set
+    expect(extension?.mainPath).toBeUndefined();
+    expect(extension?.id).toBe('fooPublisher.fooName');
+  });
 });
