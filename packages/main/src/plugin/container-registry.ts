@@ -261,6 +261,7 @@ export class ContainerProviderRegistry {
     this.telemetryService
       .track('listSimpleContainers', Object.assign({ total: flatttenedContainers.length }, telemetryOptions))
       .catch((err: unknown) => console.error('Unable to track', err));
+
     return flatttenedContainers;
   }
 
@@ -1036,6 +1037,36 @@ export class ContainerProviderRegistry {
     } finally {
       this.telemetryService
         .track('restartContainer', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  // Find all containers that match the against the given project name to
+  // the label com.docker.compose.project (for example)
+  // and then restart all the containers that have the following label AND key
+  async restartContainersByLabel(engineId: string, label: string, key: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      // Get all the containers using listSimpleContainers
+      const containers = await this.listSimpleContainers();
+
+      // Find all the containers that are using projectLabel and match the projectName
+      const containersMatchingProject = containers.filter(container => {
+        const labels = container.Labels;
+        return labels && labels[label] === key;
+      });
+
+      // Get all the container ids in containersIds
+      const containerIds = containersMatchingProject.map(container => container.Id);
+
+      // Restart all the containers in containerIds
+      await Promise.all(containerIds.map(containerId => this.restartContainer(engineId, containerId)));
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('restartContainersByLabel', telemetryOptions)
         .catch((err: unknown) => console.error('Unable to track', err));
     }
   }
