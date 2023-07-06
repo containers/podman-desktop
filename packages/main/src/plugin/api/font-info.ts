@@ -18,6 +18,7 @@
 
 export interface FontSource {
   readonly location: string;
+  readonly browserURL: string;
   readonly format: string;
 }
 
