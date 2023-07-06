@@ -69,7 +69,11 @@ async function playKubeFile(): Promise<void> {
         // but if failed to start. We will add this to the "warning" section as we were able to create the
         // We add this with comma deliminated errors
         if (playKubeResultJSON.Pods.length > 0) {
-          const containerErrors = playKubeResultJSON.Pods.filter(pod => pod.ContainerErrors.length > 0);
+          // Filter out the pods that have container errors, but check to see that container errors exists first
+          const containerErrors = playKubeResultJSON.Pods.filter(
+            pod => pod.ContainerErrors && pod.ContainerErrors.length > 0,
+          );
+
           // For each Pod that has container errors, we will add the container errors to the warning message
           if (containerErrors.length > 0) {
             runWarning = `The following pods were created but failed to start: ${containerErrors
