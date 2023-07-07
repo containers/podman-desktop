@@ -3,13 +3,14 @@ import { createRouteObject } from 'tinro/dist/tinro_lib';
 import type { TinroBreadcrumb, TinroRouteMeta } from 'tinro';
 import { TelemetryService } from './TelemetryService';
 import { lastPage, currentPage, listPage, detailsPage } from './stores/breadcrumb';
+import type { NavigationHint } from './Route';
 
 export let path = '/*';
 export let fallback = false;
 export let redirect = false;
 export let firstmatch = false;
 export let breadcrumb = null;
-export let navLevel = undefined;
+export let navigationHint: NavigationHint = undefined;
 
 let showContent = false;
 let params: Record<string, string> = {};
@@ -35,13 +36,13 @@ function processMetaBreadcrumbs(breadcrumbs?: Array<TinroBreadcrumb>) {
     const curPage = breadcrumbs[breadcrumbs.length - 1];
     if (!curPage) return;
 
-    if (navLevel === 'list') {
+    if (navigationHint === 'root') {
       listPage.set(curPage);
       detailsPage.set(undefined);
-    } else if (navLevel === 'details') {
+    } else if (navigationHint === 'details') {
       detailsPage.set(curPage);
       lastPage.set($listPage);
-    } else if (navLevel === 'tab') {
+    } else if (navigationHint === 'tab') {
       // if we're on a details tab, fix the breadcrumb to come back to this tab
       const path = curPage.path.substring(0, curPage.path.lastIndexOf('/'));
       if ($detailsPage?.path.startsWith(path)) {
@@ -56,7 +57,7 @@ function processMetaBreadcrumbs(breadcrumbs?: Array<TinroBreadcrumb>) {
     }
 
     // set the current page to this route, unless we're on a tab
-    if (navLevel !== 'tab') {
+    if (navigationHint !== 'tab') {
       currentPage.set(curPage);
     }
 

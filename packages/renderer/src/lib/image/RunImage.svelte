@@ -15,6 +15,7 @@ import { ContainerUtils } from '../container/container-utils';
 import { containersInfos } from '../../stores/containers';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { splitSpacesHandlingDoubleQuotes } from '../string/string';
+
 let image: ImageInfoUI;
 
 let imageInspectInfo: ImageInspectInfo;
@@ -456,7 +457,7 @@ function checkContainerName(event: any) {
             </div>
           </section>
           <div>
-            <Route path="/basic" breadcrumb="Basic" navLevel="tab">
+            <Route path="/basic" breadcrumb="Basic" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                   >Container name:</label>
@@ -603,7 +604,7 @@ function checkContainerName(event: any) {
                 {/each}
               </div>
             </Route>
-            <Route path="/advanced" breadcrumb="Advanced" navLevel="tab">
+            <Route path="/advanced" breadcrumb="Advanced" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Use tty -->
                 <label for="containerTty" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
@@ -672,7 +673,7 @@ function checkContainerName(event: any) {
               </div>
             </Route>
 
-            <Route path="/security" breadcrumb="Security" navLevel="tab">
+            <Route path="/security" breadcrumb="Security" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Privileged-->
                 <label for="containerPrivileged" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
@@ -793,7 +794,7 @@ function checkContainerName(event: any) {
               </div>
             </Route>
 
-            <Route path="/networking" breadcrumb="Networking" navLevel="tab">
+            <Route path="/networking" breadcrumb="Networking" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- hostname-->
                 <label for="containerHostname" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"

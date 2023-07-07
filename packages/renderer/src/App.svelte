@@ -87,10 +87,10 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/" breadcrumb="Dashboard Page">
           <DashboardPage />
         </Route>
-        <Route path="/containers" breadcrumb="Containers" navLevel="list">
+        <Route path="/containers" breadcrumb="Containers" navigationHint="root">
           <ContainerList searchTerm="{meta.query.filter || ''}" />
         </Route>
-        <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta navLevel="details">
+        <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta navigationHint="details">
           <ContainerDetails containerID="{meta.params.id}" />
         </Route>
 
@@ -98,10 +98,14 @@ window.events?.receive('display-troubleshooting', () => {
           <KubePlayYAML />
         </Route>
 
-        <Route path="/images" breadcrumb="Images" navLevel="list">
+        <Route path="/images" breadcrumb="Images" navigationHint="root">
           <ImagesList />
         </Route>
-        <Route path="/images/:id/:engineId/:base64RepoTag/*" breadcrumb="Image Details" let:meta navLevel="details">
+        <Route
+          path="/images/:id/:engineId/:base64RepoTag/*"
+          breadcrumb="Image Details"
+          let:meta
+          navigationHint="details">
           <ImageDetails
             imageID="{meta.params.id}"
             engineId="{decodeURI(meta.params.engineId)}"
@@ -116,7 +120,7 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/images/pull" breadcrumb="Pull an Image">
           <PullImage />
         </Route>
-        <Route path="/pods" breadcrumb="Pods" navLevel="list">
+        <Route path="/pods" breadcrumb="Pods" navigationHint="root">
           <PodsList />
         </Route>
         <Route path="/deploy-to-kube/:resourceId/:engineId/*" breadcrumb="Deploy to Kubernetes" let:meta>
@@ -124,7 +128,7 @@ window.events?.receive('display-troubleshooting', () => {
             resourceId="{decodeURI(meta.params.resourceId)}"
             engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
-        <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta navLevel="details">
+        <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta navigationHint="details">
           <PodDetails
             podName="{decodeURI(meta.params.name)}"
             engineId="{decodeURI(meta.params.engineId)}"
@@ -133,10 +137,10 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/pod-create-from-containers" breadcrumb="Create Pod">
           <PodCreateFromContainers />
         </Route>
-        <Route path="/volumes" breadcrumb="Volumes" navLevel="list">
+        <Route path="/volumes" breadcrumb="Volumes" navigationHint="root">
           <VolumesList />
         </Route>
-        <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta navLevel="details">
+        <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta navigationHint="details">
           <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
         <Route path="/providers" breadcrumb="Providers">
