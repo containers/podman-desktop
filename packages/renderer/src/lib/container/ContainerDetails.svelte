@@ -77,19 +77,19 @@ function errorCallback(errorMessage: string): void {
       <DetailsTab title="Terminal" url="terminal" />
     </div>
     <span slot="content">
-      <Route path="/summary" breadcrumb="Summary" navLevel="tab">
+      <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
         <ContainerDetailsSummary container="{container}" />
       </Route>
-      <Route path="/logs" breadcrumb="Logs" navLevel="tab">
+      <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
         <ContainerDetailsLogs container="{container}" />
       </Route>
-      <Route path="/inspect" breadcrumb="Inspect" navLevel="tab">
+      <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <ContainerDetailsInspect container="{container}" />
       </Route>
-      <Route path="/kube" breadcrumb="Kube" navLevel="tab">
+      <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
         <ContainerDetailsKube container="{container}" />
       </Route>
-      <Route path="/terminal" breadcrumb="Terminal" navLevel="tab">
+      <Route path="/terminal" breadcrumb="Terminal" navigationHint="tab">
         <ContainerDetailsTerminal container="{container}" />
       </Route>
     </span>

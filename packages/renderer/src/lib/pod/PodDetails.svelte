@@ -83,16 +83,16 @@ function errorCallback(errorMessage: string): void {
       <DetailsTab title="Kube" url="kube" />
     </div>
     <span slot="content">
-      <Route path="/summary" breadcrumb="Summary" navLevel="tab">
+      <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
         <PodDetailsSummary pod="{pod}" />
       </Route>
-      <Route path="/logs" breadcrumb="Logs" navLevel="tab">
+      <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
         <PodDetailsLogs pod="{pod}" />
       </Route>
-      <Route path="/inspect" breadcrumb="Inspect" navLevel="tab">
+      <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <PodDetailsInspect pod="{pod}" />
       </Route>
-      <Route path="/kube" breadcrumb="Kube" navLevel="tab">
+      <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
         <PodDetailsKube pod="{pod}" />
       </Route>
     </span>

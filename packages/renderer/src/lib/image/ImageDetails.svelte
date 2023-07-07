@@ -56,13 +56,13 @@ onMount(() => {
       <DetailsTab title="Inspect" url="inspect" />
     </div>
     <span slot="content">
-      <Route path="/summary" breadcrumb="Summary" navLevel="tab">
+      <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
         <ImageDetailsSummary image="{image}" />
       </Route>
-      <Route path="/history" breadcrumb="History" navLevel="tab">
+      <Route path="/history" breadcrumb="History" navigationHint="tab">
         <ImageDetailsHistory image="{image}" />
       </Route>
-      <Route path="/inspect" breadcrumb="Inspect" navLevel="tab">
+      <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <ImageDetailsInspect image="{image}" />
       </Route>
     </span>
