@@ -136,7 +136,7 @@ export class AnimatedTray {
         this.tray.setToolTip('Podman Desktop is ready');
         break;
       case 'updating':
-        this.animatedInterval = setInterval(this.animateTrayIcon.bind(this), 1000);
+        this.animatedInterval = setInterval(this.animateTrayIcon.bind(this), 500);
         this.tray.setToolTip('Podman Desktop: resources are being updated');
         break;
     }
