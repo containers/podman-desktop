@@ -215,7 +215,7 @@ test('startContainersByLabel should succeed successfully if project name is prov
   expect(result).toBeUndefined();
 
   // Expect startContainer to NOT have been called since our containers are "running"
-  expect(startContainer).toHaveBeenCalledTimes(0);
+  expect(startContainer).not.toHaveBeenCalled();
 });
 
 // Same test but with stopContainersByLabel
@@ -244,6 +244,6 @@ test('stopContainersByLabel should succeed successfully if project name is provi
   const result = await containerRegistry.stopContainersByLabel('dummy', 'com.docker.compose.project', 'project1');
   expect(result).toBeUndefined();
 
-  // Expect stopContainer tohave been called 3 times
+  // Expect stopContainer to have been called 3 times
   expect(stopContainer).toHaveBeenCalledTimes(3);
 });

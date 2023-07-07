@@ -1079,14 +1079,9 @@ export class ContainerProviderRegistry {
       const containers = await this.listSimpleContainers();
 
       // Find all the containers that are using projectLabel and match the projectName
-      const containersMatchingProject = containers.filter(container => {
-        // dont try to start it if it's already running
-        if (container.State === 'running') {
-          return false;
-        }
-        const labels = container.Labels;
-        return labels && labels[label] === key;
-      });
+      const containersMatchingProject = containers.filter(
+        container => container.State !== 'running' && container.Labels?.[label] === key,
+      );
 
       // Get all the container ids in containersIds
       const containerIds = containersMatchingProject.map(container => container.Id);
@@ -1111,14 +1106,9 @@ export class ContainerProviderRegistry {
       const containers = await this.listSimpleContainers();
 
       // Find all the containers that are using projectLabel and match the projectName
-      const containersMatchingProject = containers.filter(container => {
-        // Only stop it if it's running, so filter out non-running ones.
-        if (container.State !== 'running') {
-          return false;
-        }
-        const labels = container.Labels;
-        return labels && labels[label] === key;
-      });
+      const containersMatchingProject = containers.filter(
+        container => container.State === 'running' && container.Labels?.[label] === key,
+      );
 
       // Get all the container ids in containersIds
       const containerIds = containersMatchingProject.map(container => container.Id);
