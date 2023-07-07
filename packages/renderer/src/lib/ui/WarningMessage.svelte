@@ -10,14 +10,14 @@ export let icon = false;
 {#if icon}
   {#if error !== undefined && error !== ''}
     <Tooltip tip="{error}" top>
-      <Fa size="18" class="cursor-pointer text-red-500" icon="{faTriangleExclamation}" />
+      <Fa size="18" class="cursor-pointer text-amber-500" icon="{faTriangleExclamation}" />
     </Tooltip>
   {/if}
 {:else}
   <div
-    class="text-red-500 p-1 flex flex-row items-center {$$props.class}"
+    class="text-amber-500 p-1 flex flex-row items-top {$$props.class}"
     class:opacity-0="{error === undefined || error === ''}">
-    <Fa size="18" class="cursor-pointer text-red-500" icon="{faTriangleExclamation}" />
+    <Fa size="18" class="cursor-pointer text-amber-500 mt-1" icon="{faTriangleExclamation}" />
     <div class="ml-2">{error}</div>
   </div>
 {/if}
