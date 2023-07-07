@@ -8,7 +8,7 @@
    id="svg188"
    sodipodi:docname="tray-icon-step3Template.svg"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
-   inkscape:export-filename="tray-icon-step2Template.png"
+   inkscape:export-filename="tray-icon-step3Template.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -22,7 +22,7 @@
        inkscape:collect="always"
        id="linearGradient4202">
       <stop
-         style="stop-color:#ffffff;stop-opacity:1"
+         style="stop-color:#000000;stop-opacity:0;"
          offset="0"
          id="stop4198" />
       <stop
@@ -53,8 +53,8 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="37.03125"
-     inkscape:cx="7.0075949"
-     inkscape:cy="12.489451"
+     inkscape:cx="7.0616034"
+     inkscape:cy="12.570464"
      inkscape:window-width="2560"
      inkscape:window-height="1371"
      inkscape:window-x="0"
