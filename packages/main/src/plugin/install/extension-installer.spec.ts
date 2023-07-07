@@ -20,11 +20,13 @@ import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { ExtensionInstaller } from './extension-installer.js';
 import type { ApiSenderType } from '../api.js';
-import type { ExtensionLoader } from '../extension-loader.js';
+import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
 import type { ImageRegistry } from '../image-registry.js';
 import * as path from 'node:path';
 import type { IpcMain, IpcMainEvent } from 'electron';
 import { ipcMain } from 'electron';
+import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
+import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
 
 let extensionInstaller: ExtensionInstaller;
 
@@ -39,10 +41,12 @@ getPluginsDirectoryMock.mockReturnValue('/fake/plugins/directory');
 const listExtensionsMock = vi.fn();
 const loadExtensionMock = vi.fn();
 const analyzeExtensionMock = vi.fn();
+const loadExtensionsMock = vi.fn();
 const extensionLoader: ExtensionLoader = {
   getPluginsDirectory: getPluginsDirectoryMock,
   listExtensions: listExtensionsMock,
   loadExtension: loadExtensionMock,
+  loadExtensions: loadExtensionsMock,
   analyzeExtension: analyzeExtensionMock,
 } as unknown as ExtensionLoader;
 
@@ -53,6 +57,11 @@ const imageRegistry: ImageRegistry = {
   downloadAndExtractImage: downloadAndExtractImageMock,
 } as unknown as ImageRegistry;
 
+const getFetchableExtensionsMock = vi.fn();
+const extensionsCatalog = {
+  getFetchableExtensions: getFetchableExtensionsMock,
+} as unknown as ExtensionsCatalog;
+
 vi.mock('electron', () => {
   const mockIpcMain = {
     on: vi.fn().mockReturnThis(),
@@ -61,7 +70,7 @@ vi.mock('electron', () => {
 });
 
 beforeAll(async () => {
-  extensionInstaller = new ExtensionInstaller(apiSender, extensionLoader, imageRegistry);
+  extensionInstaller = new ExtensionInstaller(apiSender, extensionLoader, imageRegistry, extensionsCatalog);
 });
 
 beforeEach(() => {
@@ -86,6 +95,10 @@ test('should install an image if labels are correct', async () => {
 
   const spyExtractExtensionFiles = vi.spyOn(extensionInstaller, 'extractExtensionFiles');
   spyExtractExtensionFiles.mockResolvedValueOnce();
+
+  analyzeExtensionMock.mockResolvedValueOnce({
+    manifest: {},
+  } as AnalyzedExtension);
 
   await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
 
@@ -195,4 +208,152 @@ test('should report error', async () => {
 
   // expect to have the sendError method called
   expect(replyMethodMock).toHaveBeenCalledWith('extension-installer:install-from-image-error', 0, 'Error: fake error');
+});
+
+test('should install an image with extension pack', async () => {
+  const sendLog = vi.fn();
+  const sendError = vi.fn();
+  const sendEnd = vi.fn();
+
+  const imageToPull = 'fake.io/fake-image:fake-tag';
+  const analyzeFromImageSpy = vi.spyOn(extensionInstaller, 'analyzeFromImage');
+
+  const extensionWithPack = {
+    manifest: {
+      name: 'extension-with-pack',
+      extensionPack: ['my.other-extension', 'my.another-extension'],
+    },
+  } as AnalyzedExtension;
+
+  const extensionOther = {
+    manifest: {
+      name: 'other-extension',
+    },
+  } as AnalyzedExtension;
+
+  const extensionAnother = {
+    manifest: {
+      name: 'another-extension',
+    },
+  } as AnalyzedExtension;
+
+  analyzeFromImageSpy.mockImplementation(
+    (_sendLog: (message: string) => void, _sendError: (message: string) => void, imageName: string) => {
+      if (imageName === 'fake.io/fake-image:fake-tag') {
+        return Promise.resolve(extensionWithPack);
+      } else if (imageName === 'my-other-extension-link') {
+        return Promise.resolve(extensionOther);
+      } else {
+        return Promise.resolve(extensionAnother);
+      }
+    },
+  );
+
+  // no installed extension
+  listExtensionsMock.mockResolvedValue([]);
+
+  const fetchableExtension1: CatalogFetchableExtension = {
+    extensionId: 'my.other-extension',
+    link: 'my-other-extension-link',
+    version: 'latest',
+  };
+  const fetchableExtension2: CatalogFetchableExtension = {
+    extensionId: 'my.another-extension',
+    link: 'my-another-extension-link',
+    version: 'latest',
+  };
+
+  getFetchableExtensionsMock.mockResolvedValue([fetchableExtension1, fetchableExtension2]);
+
+  await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+  // expect no error
+  expect(sendError).not.toHaveBeenCalled();
+
+  expect(sendEnd).toHaveBeenCalledWith('Extension Successfully installed.');
+
+  // extension started
+  expect(apiSenderSendMock).toHaveBeenCalledWith('extension-started', {});
+
+  // should have been called to load two extensions (current + extension pack)
+  // expect to have 2 arguments in array
+  expect(loadExtensionsMock).toHaveBeenCalledWith(
+    expect.arrayContaining([extensionWithPack, extensionOther, extensionAnother]),
+  );
+});
+
+test('should install an image with transitive dependencies', async () => {
+  // extension A depends on extension B
+  // extension B depends on extension C
+  // extension C depends on nothing
+
+  const sendLog = vi.fn();
+  const sendError = vi.fn();
+  const sendEnd = vi.fn();
+
+  const imageToPull = 'fake.io/extensionA';
+  const analyzeFromImageSpy = vi.spyOn(extensionInstaller, 'analyzeFromImage');
+
+  const extensionA = {
+    manifest: {
+      name: 'extension-a',
+      extensionDependencies: ['my.extension-b'],
+    },
+  } as AnalyzedExtension;
+
+  const extensionB = {
+    manifest: {
+      name: 'extension-b',
+      extensionDependencies: ['my.extension-c'],
+    },
+  } as AnalyzedExtension;
+
+  const extensionC = {
+    manifest: {
+      name: 'extension-c',
+    },
+  } as AnalyzedExtension;
+
+  analyzeFromImageSpy.mockImplementation(
+    (_sendLog: (message: string) => void, _sendError: (message: string) => void, imageName: string) => {
+      if (imageName === 'fake.io/extensionA') {
+        return Promise.resolve(extensionA);
+      } else if (imageName === 'fake.io/extensionB') {
+        return Promise.resolve(extensionB);
+      } else if (imageName === 'fake.io/extensionC') {
+        return Promise.resolve(extensionC);
+      }
+      return Promise.reject(new Error(`Unknown image name ${imageName}`));
+    },
+  );
+
+  // no installed extension
+  listExtensionsMock.mockResolvedValue([]);
+
+  const fetchableExtensionB: CatalogFetchableExtension = {
+    extensionId: 'my.extension-b',
+    link: 'fake.io/extensionB',
+    version: 'latest',
+  };
+  const fetchableExtensionC: CatalogFetchableExtension = {
+    extensionId: 'my.extension-c',
+    link: 'fake.io/extensionC',
+    version: 'latest',
+  };
+
+  getFetchableExtensionsMock.mockResolvedValue([fetchableExtensionB, fetchableExtensionC]);
+
+  await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+  // expect no error
+  expect(sendError).not.toHaveBeenCalled();
+
+  expect(sendEnd).toHaveBeenCalledWith('Extension Successfully installed.');
+
+  // extension started
+  expect(apiSenderSendMock).toHaveBeenCalledWith('extension-started', {});
+
+  // should have been called to load two extensions (current + extension pack)
+  // expect to have 2 arguments in array
+  expect(loadExtensionsMock).toHaveBeenCalledWith(expect.arrayContaining([extensionA, extensionB, extensionC]));
 });

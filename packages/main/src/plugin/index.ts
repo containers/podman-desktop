@@ -1706,7 +1706,12 @@ export class PluginSystem {
     const dockerExtensionAdapter = new DockerPluginAdapter(contributionManager);
     dockerExtensionAdapter.init();
 
-    const extensionInstaller = new ExtensionInstaller(apiSender, this.extensionLoader, imageRegistry);
+    const extensionInstaller = new ExtensionInstaller(
+      apiSender,
+      this.extensionLoader,
+      imageRegistry,
+      extensionsCatalog,
+    );
     await extensionInstaller.init();
 
     // launch the updater
