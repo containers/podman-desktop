@@ -23,15 +23,18 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { cp } from 'node:fs/promises';
 import * as tarFs from 'tar-fs';
-import type { ExtensionLoader } from '../extension-loader.js';
+import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
 import type { ApiSenderType } from '../api.js';
 import type { ImageRegistry } from '../image-registry.js';
+import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
+import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
 
 export class ExtensionInstaller {
   constructor(
     private apiSender: ApiSenderType,
     private extensionLoader: ExtensionLoader,
     private imageRegistry: ImageRegistry,
+    private extensionCatalog: ExtensionsCatalog,
   ) {}
 
   async extractExtensionFiles(tmpFolderPath: string, finalFolderPath: string, reportLog: (message: string) => void) {
@@ -92,12 +95,11 @@ export class ExtensionInstaller {
     });
   }
 
-  async installFromImage(
+  async analyzeFromImage(
     sendLog: (message: string) => void,
     sendError: (message: string) => void,
-    sendEnd: (message: string) => void,
     imageName: string,
-  ): Promise<void> {
+  ): Promise<AnalyzedExtension | undefined> {
     imageName = imageName.trim();
     sendLog(`Analyzing image ${imageName}...`);
     let imageConfigLabels;
@@ -157,16 +159,120 @@ export class ExtensionInstaller {
     sendLog('Filtering image content...');
     await this.extractExtensionFiles(tmpFolderPath, finalFolderPath, sendLog);
 
-    // refresh contributions
+    let analyzedExtension: AnalyzedExtension | undefined;
     try {
-      const analyzedExtension = await this.extensionLoader.analyzeExtension(finalFolderPath, true);
-      if (analyzedExtension) {
-        await this.extensionLoader.loadExtension(analyzedExtension);
-      }
+      analyzedExtension = await this.extensionLoader.analyzeExtension(finalFolderPath, true);
     } catch (error) {
-      sendError('Error while loading the extension ' + error);
+      sendError('Error while analyzing extension: ' + error);
+    }
+    return analyzedExtension;
+  }
+
+  async analyzeTransitiveDependencies(
+    imageName: string,
+    analyzedExtensions: AnalyzedExtension[],
+    errors: string[],
+    sendLog: (message: string) => void,
+    sendError: (message: string) => void,
+  ): Promise<boolean> {
+    const analyzedExtension = await this.analyzeFromImage(sendLog, sendError, imageName);
+
+    if (!analyzedExtension) {
+      return false;
+    }
+
+    analyzedExtensions.push(analyzedExtension);
+
+    const dependencyExtensionIds: string[] = [];
+
+    // do we have extensionPack or extension dependencies
+    if (analyzedExtension?.manifest?.extensionPack) {
+      dependencyExtensionIds.push(...analyzedExtension.manifest.extensionPack);
+    }
+    if (analyzedExtension?.manifest?.extensionDependencies) {
+      dependencyExtensionIds.push(...analyzedExtension.manifest.extensionDependencies);
+    }
+
+    // if we have dependencies, we need to analyze them first if not yet installed
+    if (dependencyExtensionIds.length > 0) {
+      const fetchableExtensions = await this.extensionCatalog.getFetchableExtensions();
+      const alreadyInstalledExtensionIds = (await this.extensionLoader.listExtensions()).map(extension => extension.id);
+
+      // need to analyze extensions that are in dependency minus the one installed or already analyzed
+      const extensionsToAnalyze = dependencyExtensionIds.filter(
+        dependency =>
+          !alreadyInstalledExtensionIds.includes(dependency) ||
+          !analyzedExtensions.find(extension => extension.id === dependency),
+      );
+
+      // check if all dependencies are in the catalog
+      const missingDependencies = extensionsToAnalyze.filter(
+        dependency => !fetchableExtensions.find(extension => extension.extensionId === dependency),
+      );
+      if (missingDependencies.length > 0) {
+        errors.push(
+          `Extension ${
+            analyzedExtension.manifest.name
+          } has missing installable dependencies: ${missingDependencies.join(', ')} from extensionPack attribute.`,
+        );
+        return false;
+      }
+
+      // first, grab name of the OCI image for each extension
+      const imagesOfExtensionsToAnalyze = (
+        extensionsToAnalyze
+          .map(extensionId => {
+            return fetchableExtensions.find(extension => extension.extensionId === extensionId);
+          })
+          .filter(extension => extension !== undefined) as CatalogFetchableExtension[]
+      ).map(extension => extension.link);
+
+      // now analyze all these dependencies
+      for (imageName of imagesOfExtensionsToAnalyze) {
+        try {
+          await this.analyzeTransitiveDependencies(imageName, analyzedExtensions, errors, sendLog, sendError);
+        } catch (error) {
+          errors.push(`Error while analyzing extension ${imageName}: ${error}`);
+        }
+      }
+    }
+    return true;
+  }
+
+  async installFromImage(
+    sendLog: (message: string) => void,
+    sendError: (message: string) => void,
+    sendEnd: (message: string) => void,
+    imageName: string,
+  ): Promise<void> {
+    // now collect all transitive dependencies
+    const analyzedExtensions: AnalyzedExtension[] = [];
+    const errors: string[] = [];
+    const analyzeSuccessful = await this.analyzeTransitiveDependencies(
+      imageName,
+      analyzedExtensions,
+      errors,
+      sendLog,
+      sendError,
+    );
+
+    // if we have some undefined objects, it is an error, cleanup extensions
+    if (errors.length > 0) {
+      analyzedExtensions
+        .filter(extension => extension !== undefined)
+        .forEach(extension => {
+          extension?.path && fs.rmdirSync(extension.path, { recursive: true });
+        });
+      sendError(`Error while installing extension ${imageName}: ${errors.join('\n')}`);
       return;
     }
+
+    if (!analyzeSuccessful) {
+      return;
+    }
+
+    // load all extensions
+    await this.extensionLoader.loadExtensions(analyzedExtensions);
 
     sendEnd('Extension Successfully installed.');
     this.apiSender.send('extension-started', {});
