@@ -18,28 +18,70 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import type * as podmanDesktopApi from '@podman-desktop/api';
+import { beforeAll, beforeEach, expect, type Mock, test, vi } from 'vitest';
+import * as podmanDesktopApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import { updateContext } from './extension';
 
+const item = {
+  show: vi.fn(),
+  command: '',
+  text: '',
+};
+
 vi.mock('@podman-desktop/api', async () => {
-  return {};
+  return {
+    window: {
+      createStatusBarItem: vi.fn(),
+    },
+    tray: {
+      registerMenuItem: vi.fn(),
+    },
+  };
+});
+
+beforeAll(() => {
+  (podmanDesktopApi.window.createStatusBarItem as Mock).mockReturnValue(item);
 });
 
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
-test('check empty kubeconfig file', async () => {
+async function checkContent(content: string, expectedContext: string): Promise<void> {
   const readFileMock = vi.spyOn(fs.promises, 'readFile');
-  const consoleErrorSpy = vi.spyOn(console, 'error');
 
   // provide empty kubeconfig file
-  readFileMock.mockResolvedValue('');
-  const fakeContext = {} as podmanDesktopApi.ExtensionContext;
+  readFileMock.mockResolvedValue(content);
+  const fakeContext = {
+    subscriptions: [],
+  } as unknown as podmanDesktopApi.ExtensionContext;
 
   const fakeFile = '/fake/kubeconfig/file';
   await updateContext(fakeContext, fakeFile);
-  expect(consoleErrorSpy).toBeCalledWith(`Kubeconfig file at '${fakeFile}' is empty. Skipping.`);
+  expect(item.command).toBe('kubecontext.quickpick');
+  expect(item.text).toBe(expectedContext);
+}
+
+test('check empty kubeconfig file', async () => {
+  await checkContent('', 'No context');
+});
+
+test('check invalid kubeconfig file', async () => {
+  await checkContent('this is not a valid YAML file', 'No context');
+});
+
+test('check kubeconfig file with no contexts', async () => {
+  await checkContent('apiVersion: v1\nkind: Config', 'No context');
+});
+
+test('check kubeconfig file with no current context', async () => {
+  await checkContent('apiVersion: v1\nkind: Config\ncontexts:\n- context:\n  name: default\n', 'No context');
+});
+
+test('check kubeconfig file with current context', async () => {
+  await checkContent(
+    'apiVersion: v1\nkind: Config\ncontexts:\n- context:\n  name: default\ncurrent-context: default',
+    'default',
+  );
 });

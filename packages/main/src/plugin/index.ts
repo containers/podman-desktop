@@ -109,6 +109,7 @@ import type { CatalogExtension } from './extensions-catalog/extensions-catalog-a
 import { IconRegistry } from './icon-registry.js';
 import type { IconInfo } from './api/icon-info.js';
 import { Directories } from './directories.js';
+import { CustomPickRegistry } from './custompick/custompick-registry.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -369,7 +370,7 @@ export class PluginSystem {
     const statusBarRegistry = new StatusBarRegistry(apiSender);
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
-
+    const customPickRegistry = new CustomPickRegistry(apiSender);
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
@@ -657,6 +658,7 @@ export class PluginSystem {
       proxy,
       containerProviderRegistry,
       inputQuickPickRegistry,
+      customPickRegistry,
       authentication,
       iconRegistry,
       telemetry,
@@ -889,6 +891,14 @@ export class PluginSystem {
         return containerProviderRegistry.restartContainer(engine, containerId);
       },
     );
+
+    this.ipcHandle(
+      'container-provider-registry:restartContainersByLabel',
+      async (_listener, engine: string, label: string, key: string): Promise<void> => {
+        return containerProviderRegistry.restartContainersByLabel(engine, label, key);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:createAndStartContainer',
       async (_listener, engine: string, options: ContainerCreateOptions): Promise<void> => {
@@ -1172,6 +1182,14 @@ export class PluginSystem {
 
     this.ipcHandle('showMessageBox:onSelect', async (_listener, id: number, index: number): Promise<void> => {
       return messageBox.onDidSelectButton(id, index);
+    });
+
+    this.ipcHandle('customPick:values', async (_listener, id: number, indexes: number[]): Promise<void> => {
+      return customPickRegistry.onConfirmSelection(id, indexes);
+    });
+
+    this.ipcHandle('customPick:close', async (_listener, id: number): Promise<void> => {
+      return customPickRegistry.onClose(id);
     });
 
     this.ipcHandle('image-registry:getRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {

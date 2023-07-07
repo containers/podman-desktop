@@ -16,11 +16,44 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 import type { ProviderInfo } from '../../../main/src/plugin/api/provider-info';
+import { EventStore } from './event-store';
+
+const windowEvents = [
+  'extension-started',
+  'extension-stopped',
+  'provider-lifecycle-change',
+  'provider-change',
+  'provider-create',
+  'provider-delete',
+  'provider:update-status',
+  'provider:update-warnings',
+  'provider:update-version',
+  'provider-register-kubernetes-connection',
+  'provider-unregister-kubernetes-connection',
+  'extensions-started',
+];
+const windowListeners = ['system-ready', 'provider-lifecycle-change'];
+
+export async function checkForUpdate(): Promise<boolean> {
+  return true;
+}
+
+export const providerInfos: Writable<ProviderInfo[]> = writable([]);
+
+const eventStore = new EventStore<ProviderInfo[]>(
+  'providers',
+  providerInfos,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  fetchProviders,
+);
+eventStore.setup();
+
 const updateProviderCallbacks = [];
-export async function fetchProviders() {
+export async function fetchProviders(): Promise<ProviderInfo[]> {
   const result = await window.getProviderInfos();
   providerInfos.set(result);
   result.forEach(providerInfo => {
@@ -38,57 +71,5 @@ export async function fetchProviders() {
       updateProviderCallbacks.push(providerInfo.internalId);
     }
   });
+  return result;
 }
-
-export const providerInfos: Writable<ProviderInfo[]> = writable([]);
-
-// need to refresh when extension is started or stopped
-window?.events?.receive('extension-started', async () => {
-  await fetchProviders();
-});
-window?.events?.receive('extension-stopped', async () => {
-  await fetchProviders();
-});
-
-window.addEventListener('provider-lifecycle-change', () => {
-  fetchProviders().catch((error: unknown) => {
-    console.error('Failed to fetch providers', error);
-  });
-});
-
-window?.events?.receive('provider-lifecycle-change', async () => {
-  await fetchProviders();
-});
-
-window?.events?.receive('provider-change', async () => {
-  await fetchProviders();
-});
-window?.events?.receive('provider-create', async () => {
-  await fetchProviders();
-});
-window?.events?.receive('provider-delete', async () => {
-  await fetchProviders();
-});
-window?.events?.receive('provider:update-status', async () => {
-  await fetchProviders();
-});
-window?.events?.receive('provider:update-warnings', async () => {
-  await fetchProviders();
-});
-window?.events?.receive('provider:update-version', async () => {
-  await fetchProviders();
-});
-window.addEventListener('system-ready', () => {
-  fetchProviders().catch((error: unknown) => {
-    console.error('Failed to fetch providers', error);
-  });
-});
-window?.events?.receive('provider-register-kubernetes-connection', async () => {
-  await fetchProviders();
-});
-window?.events?.receive('provider-unregister-kubernetes-connection', async () => {
-  await fetchProviders();
-});
-window.events?.receive('extensions-started', async () => {
-  await fetchProviders();
-});

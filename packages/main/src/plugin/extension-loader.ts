@@ -57,6 +57,7 @@ import { securityRestrictionCurrentHandler } from '../security-restrictions-hand
 import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
 import { isLinux, isMac, isWindows } from '../util.js';
+import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -70,7 +71,7 @@ export interface AnalyzedExtension {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   manifest: any;
   // main entry
-  mainPath: string;
+  mainPath?: string;
   api: typeof containerDesktopAPI;
   removable: boolean;
 
@@ -128,6 +129,7 @@ export class ExtensionLoader {
     private proxy: Proxy,
     private containerProviderRegistry: ContainerProviderRegistry,
     private inputQuickPickRegistry: InputQuickPickRegistry,
+    private customPickRegistry: CustomPickRegistry,
     private authenticationProviderRegistry: AuthenticationImpl,
     private iconRegistry: IconRegistry,
     private telemetry: Telemetry,
@@ -316,7 +318,7 @@ export class ExtensionLoader {
       name: manifest.name,
       manifest,
       path: extensionPath,
-      mainPath: path.resolve(extensionPath, manifest.main),
+      mainPath: manifest.main ? path.resolve(extensionPath, manifest.main) : undefined,
       api,
       removable,
     };
@@ -409,13 +411,13 @@ export class ExtensionLoader {
     return sorted;
   }
 
-  async readDevelopmentFolders(path: string): Promise<string[]> {
-    const entries = await fs.promises.readdir(path, { withFileTypes: true });
+  async readDevelopmentFolders(folderPath: string): Promise<string[]> {
+    const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     // filter only directories ignoring node_modules directory
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path + '/' + directory.name);
+      .map(directory => path.join(folderPath, directory.name));
   }
 
   async readExternalFolders(): Promise<string[]> {
@@ -428,12 +430,12 @@ export class ExtensionLoader {
     return pathes;
   }
 
-  async readProductionFolders(path: string): Promise<string[]> {
-    const entries = await fs.promises.readdir(path, { withFileTypes: true });
+  async readProductionFolders(folderPath: string): Promise<string[]> {
+    const entries = await fs.promises.readdir(folderPath, { withFileTypes: true });
     return entries
       .filter(entry => entry.isDirectory())
       .filter(directory => directory.name !== 'node_modules')
-      .map(directory => path + '/' + directory.name + `/builtin/${directory.name}.cdix`);
+      .map(directory => path.join(folderPath, directory.name, `/builtin/${directory.name}.cdix`));
   }
 
   getBase64Image(imagePath: string): string {
@@ -706,6 +708,7 @@ export class ExtensionLoader {
     const progress = this.progress;
     const notifications = this.notifications;
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
+    const customPickRegistry = this.customPickRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
       showInformationMessage: (message: string, ...items: string[]) => {
         return messageBox.showDialog('info', extManifest.displayName, message, items);
@@ -764,6 +767,9 @@ export class ExtensionLoader {
         }
 
         return new StatusBarItemImpl(this.statusBarRegistry, alignment, priority);
+      },
+      createCustomPick: <T extends containerDesktopAPI.CustomPickItem>(): containerDesktopAPI.CustomPick<T> => {
+        return customPickRegistry.createCustomPick();
       },
     };
 
@@ -923,7 +929,12 @@ export class ExtensionLoader {
     };
   }
 
-  loadRuntime(extension: AnalyzedExtension): NodeRequire {
+  // helper function to call require from the given path
+  protected doRequire(path: string): NodeRequire {
+    return require(path);
+  }
+
+  loadRuntime(extension: AnalyzedExtension): NodeRequire | undefined {
     // cleaning the cache for all files of that plug-in.
     Object.keys(require.cache).forEach(function (key): void {
       const mod: NodeJS.Module | undefined = require.cache[key];
@@ -958,7 +969,9 @@ export class ExtensionLoader {
         }
       }
     });
-    return require(extension.mainPath);
+    if (extension.mainPath) {
+      return this.doRequire(extension.mainPath);
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -976,7 +989,7 @@ export class ExtensionLoader {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async activateExtension(extension: AnalyzedExtension, extensionMain: any): Promise<void> {
+  async activateExtension(extension: AnalyzedExtension, extensionMain: any | undefined): Promise<void> {
     this.extensionState.set(extension.id, 'starting');
     this.extensionStateErrors.delete(extension.id);
     this.apiSender.send('extension-starting', {});
@@ -996,13 +1009,13 @@ export class ExtensionLoader {
       storagePath,
     };
     let deactivateFunction = undefined;
-    if (typeof extensionMain['deactivate'] === 'function') {
+    if (typeof extensionMain?.['deactivate'] === 'function') {
       deactivateFunction = extensionMain['deactivate'];
     }
 
     const telemetryOptions = { extensionId: extension.id };
     try {
-      if (typeof extensionMain['activate'] === 'function') {
+      if (typeof extensionMain?.['activate'] === 'function') {
         // it returns exports
         console.log(`Activating extension (${extension.id})`);
         await extensionMain['activate'].apply(undefined, [extensionContext]);

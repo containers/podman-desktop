@@ -327,6 +327,13 @@ function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld(
+    'restartContainersByLabel',
+    async (engine: string, label: string, key: string): Promise<void> => {
+      return ipcInvoke('container-provider-registry:restartContainersByLabel', engine, label, key);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'createAndStartContainer',
     async (engine: string, options: ContainerCreateOptions): Promise<void> => {
       return ipcInvoke('container-provider-registry:createAndStartContainer', engine, options);
@@ -1118,6 +1125,17 @@ function initExposure(): void {
       return ipcInvoke('showMessageBox:onSelect', messageBoxId, selectedIndex);
     },
   );
+
+  contextBridge.exposeInMainWorld(
+    'sendCustomPickItemsOnConfirmation',
+    async (customPickId: number, selectedIndexes: number[]): Promise<void> => {
+      return ipcInvoke('customPick:values', customPickId, selectedIndexes);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('closeCustomPick', async (customPickId: number): Promise<void> => {
+    return ipcInvoke('customPick:close', customPickId);
+  });
 
   let onDataCallbacksShellInContainerDDExtensionInstallId = 0;
   const onDataCallbacksShellInContainerDDExtension = new Map<number, (data: string) => void>();

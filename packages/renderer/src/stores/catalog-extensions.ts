@@ -16,31 +16,37 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 import type { CatalogExtension } from '../../../main/src/plugin/extensions-catalog/extensions-catalog-api';
+import { EventStore } from './event-store';
 
-export async function fetchCatalogExtensions() {
-  const result = await window.getCatalogExtensions();
-  catalogExtensionInfos.set(result);
+const windowEvents = [];
+const windowListeners = ['system-ready'];
+
+export async function checkForUpdate(): Promise<boolean> {
+  return true;
 }
 
 export const catalogExtensionInfos: Writable<CatalogExtension[]> = writable([]);
 
-export function initWindowFetchCatalogExtensions() {
-  // refresh when system is ready
-  window.addEventListener('system-ready', () => {
-    fetchCatalogExtensions().catch((e: unknown) => {
-      console.error('Unable to fetch catalog extensions', e);
-    });
+// use helper here as window methods are initialized after the store in tests
+const getCatalogExtensions = (): Promise<CatalogExtension[]> => {
+  return window.getCatalogExtensions();
+};
+
+export const catalogExtensionEventStore = new EventStore<CatalogExtension[]>(
+  'catalog extensions',
+  catalogExtensionInfos,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  getCatalogExtensions,
+);
+export const catalogExtensionEventStoreInfo = catalogExtensionEventStore.setup();
+
+// and refresh every 4 hours from client side
+setInterval(() => {
+  catalogExtensionEventStoreInfo.fetch().catch((e: unknown) => {
+    console.error('Unable to fetch catalog extensions', e);
   });
-
-  // and refresh every 4 hours from client side
-  setInterval(() => {
-    fetchCatalogExtensions().catch((e: unknown) => {
-      console.error('Unable to fetch catalog extensions', e);
-    });
-  }, 4 * 60 * 60 * 1000);
-}
-
-initWindowFetchCatalogExtensions();
+}, 4 * 60 * 60 * 1000);

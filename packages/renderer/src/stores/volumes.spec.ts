@@ -22,7 +22,7 @@ import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { expect, test, vi } from 'vitest';
 import type { VolumeInspectInfo } from '../../../main/src/plugin/api/volume-info';
-import { fetchVolumes, initWindowFetchVolumes, volumeListInfos } from './volumes';
+import { fetchVolumes, volumeListInfos, volumesEventStore } from './volumes';
 
 // first, path window object
 const callbacks = new Map<string, any>();
@@ -49,11 +49,6 @@ beforeAll(() => {
   vi.clearAllMocks();
 });
 
-beforeEach(() => {
-  // init the store
-  initWindowFetchVolumes();
-});
-
 test('volumes should be updated in case of a container is removed', async () => {
   // initial volume
   listVolumesMock.mockResolvedValue([
@@ -67,6 +62,7 @@ test('volumes should be updated in case of a container is removed', async () => 
       ],
     } as unknown as VolumeInspectInfo,
   ]);
+  volumesEventStore.setup();
 
   const callback = callbacks.get('extensions-already-started');
   // send 'extensions-already-started' event

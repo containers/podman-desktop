@@ -36,7 +36,7 @@ import { getSocketCompatibility } from './compatibility-mode';
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
 const listeners = new Set<StatusHandler>();
-const podmanMachineSocketsDirectoryMac = path.resolve(os.homedir(), appHomeDir(), 'machine');
+const podmanMachineSocketsDirectory = path.resolve(os.homedir(), appHomeDir(), 'machine');
 const podmanMachineSocketsSymlinkDirectoryMac = path.resolve(os.homedir(), '.podman');
 const MACOS_MAX_SOCKET_PATH_LENGTH = 104;
 let storedExtensionContext;
@@ -160,6 +160,8 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       if (!socketPath) {
         if (isMac()) {
           socketPath = calcMacosSocketPath(machineName);
+        } else if (isLinux()) {
+          socketPath = calcLinuxSocketPath(machineName);
         } else if (isWindows()) {
           socketPath = calcWinPipeName(machineName);
         }
@@ -255,11 +257,15 @@ async function updateContainerConfiguration(
 
 function calcMacosSocketPath(machineName: string): string {
   // max length for the path of a socket in macos is 104 chars
-  let socketPath = path.resolve(podmanMachineSocketsDirectoryMac, machineName, 'podman.sock');
+  let socketPath = path.resolve(podmanMachineSocketsDirectory, machineName, 'podman.sock');
   if (socketPath.length > MACOS_MAX_SOCKET_PATH_LENGTH) {
     socketPath = path.resolve(podmanMachineSocketsSymlinkDirectoryMac, machineName, 'podman.sock');
   }
   return socketPath;
+}
+
+function calcLinuxSocketPath(machineName: string): string {
+  return path.resolve(podmanMachineSocketsDirectory, machineName, 'podman.sock');
 }
 
 function calcWinPipeName(machineName: string): string {
@@ -757,7 +763,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // no podman for now, skip
   if (isMac()) {
-    if (!fs.existsSync(podmanMachineSocketsDirectoryMac)) {
+    if (!fs.existsSync(podmanMachineSocketsDirectory)) {
       return;
     }
     monitorMachines(provider).catch((error: unknown) => {

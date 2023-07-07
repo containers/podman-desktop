@@ -24,7 +24,7 @@ function copyLogsToClipboard() {
 }
 </script>
 
-<div class="flex flex-col bg-zinc-700 m-4 p-4 mb-10">
+<div class="flex flex-col bg-zinc-700 m-4 p-4">
   <div class="flex flex-row align-middle items-center w-full">
     <Fa size="40" icon="{faFileLines}" />
     <div class="mx-2 text-xl">Logs</div>

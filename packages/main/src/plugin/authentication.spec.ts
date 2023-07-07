@@ -46,6 +46,7 @@ import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import type { Proxy } from './proxy.js';
 import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
+import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 
 function randomNumber(n = 5) {
   return Math.round(Math.random() * 10 * n);
@@ -250,6 +251,7 @@ suite('Authentication', () => {
       vi.fn() as unknown as Proxy,
       vi.fn() as unknown as ContainerProviderRegistry,
       vi.fn() as unknown as InputQuickPickRegistry,
+      vi.fn() as unknown as CustomPickRegistry,
       authentication,
       vi.fn() as unknown as IconRegistry,
       vi.fn() as unknown as Telemetry,

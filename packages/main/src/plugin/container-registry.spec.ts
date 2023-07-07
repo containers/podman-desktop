@@ -27,6 +27,74 @@ import type Dockerode from 'dockerode';
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 
+const fakeContainerWithComposeProject: Dockerode.ContainerInfo = {
+  Id: '1234567890',
+  Names: ['/container1'],
+  Image: 'image1',
+  ImageID: 'image1',
+  Command: 'command1',
+  Created: 1234567890,
+  State: 'running',
+  Status: 'running',
+  Ports: [],
+  // Fake the labels to use com.docker.compose.project
+  Labels: {
+    'com.docker.compose.project': 'project1',
+  },
+  Mounts: [],
+  HostConfig: {
+    NetworkMode: 'bridge',
+  },
+  // Fake NetworkSettings
+  NetworkSettings: {
+    Networks: {
+      bridge: {
+        IPAddress: '',
+        IPPrefixLen: 0,
+        Gateway: '',
+        NetworkID: '',
+        EndpointID: '',
+        IPv6Gateway: '',
+        GlobalIPv6Address: '',
+        GlobalIPv6PrefixLen: 0,
+        MacAddress: '',
+      },
+    },
+  },
+};
+
+const fakeContainer: Dockerode.ContainerInfo = {
+  Id: '1234',
+  Names: ['/container2'],
+  Image: 'image2',
+  ImageID: 'image2',
+  Command: 'command2',
+  Created: 1234567890,
+  State: 'running',
+  Status: 'running',
+  Ports: [],
+  Labels: {},
+  Mounts: [],
+  HostConfig: {
+    NetworkMode: 'bridge',
+  },
+  NetworkSettings: {
+    Networks: {
+      bridge: {
+        IPAddress: '',
+        IPPrefixLen: 0,
+        Gateway: '',
+        NetworkID: '',
+        EndpointID: '',
+        IPv6Gateway: '',
+        GlobalIPv6Address: '',
+        GlobalIPv6PrefixLen: 0,
+        MacAddress: '',
+      },
+    },
+  },
+};
+
 vi.mock('dockerode', async () => {
   return {
     default: vi.fn(),
@@ -87,4 +155,34 @@ test('push should succeed if provider', async () => {
   vi.spyOn(containerRegistry, 'getMatchingEngine').mockReturnValue(engine as unknown as Dockerode);
   const result = await containerRegistry.pushImage('dummy', 'image:latest', () => {});
   expect(result).toBeUndefined();
+});
+
+test('restartContainersByLabel should succeed successfully if project name is provided and call restartContainer', async () => {
+  const engine = {
+    // Fake that we have 3 containers of the same project
+    listSimpleContainers: vi
+      .fn()
+      .mockResolvedValue([
+        fakeContainerWithComposeProject,
+        fakeContainerWithComposeProject,
+        fakeContainerWithComposeProject,
+        fakeContainer,
+      ]),
+    getContainer: vi.fn().mockReturnValue({ restart: vi.fn().mockResolvedValue({}) }),
+    listPods: vi.fn().mockResolvedValue([]),
+    restartContainer: vi.fn().mockResolvedValue({}),
+  };
+  vi.spyOn(containerRegistry, 'getMatchingEngine').mockReturnValue(engine as unknown as Dockerode);
+  vi.spyOn(containerRegistry, 'listSimpleContainers').mockReturnValue(engine.listSimpleContainers());
+
+  // Spy on restartContainer to make sure it's called
+  // it is NOT called if there are no matches.. So it's important to check this.
+  const restartContainer = vi.spyOn(containerRegistry, 'restartContainer');
+
+  // Restart all containers in the 'project1' project
+  const result = await containerRegistry.restartContainersByLabel('dummy', 'com.docker.compose.project', 'project1');
+  expect(result).toBeUndefined();
+
+  // Expect restartContainer tohave been called 3 times
+  expect(restartContainer).toHaveBeenCalledTimes(3);
 });

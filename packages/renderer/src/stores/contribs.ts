@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,30 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 import type { ContributionInfo } from '../../../main/src/plugin/api/contribution-info';
+import { EventStore } from './event-store';
 
-export async function fetchContributions() {
-  const result = await window.listContributions();
-  contributions.set(result);
+const windowEvents = ['contribution-register', 'contribution-unregister'];
+const windowListeners = ['system-ready'];
+
+export async function checkForUpdate(): Promise<boolean> {
+  return true;
 }
 
 export const contributions: Writable<readonly ContributionInfo[]> = writable([]);
 
-// need to refresh when new registry are updated/deleted
-window.events?.receive('contribution-register', async () => {
-  await fetchContributions();
-});
+// use helper here as window methods are initialized after the store in tests
+const listContributions = (): Promise<readonly ContributionInfo[]> => {
+  return window.listContributions();
+};
 
-window.events?.receive('contribution-unregister', async () => {
-  await fetchContributions();
-});
-window.addEventListener('system-ready', () => {
-  fetchContributions().catch((error: unknown) => {
-    console.error('Failed to fetch contributions', error);
-  });
-});
+const eventStore = new EventStore<readonly ContributionInfo[]>(
+  'contributions',
+  contributions,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  listContributions,
+);
+eventStore.setup();

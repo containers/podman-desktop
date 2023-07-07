@@ -24,19 +24,19 @@ import { render, screen } from '@testing-library/svelte';
 import VolumesList from './VolumesList.svelte';
 import { get } from 'svelte/store';
 import { providerInfos } from '/@/stores/providers';
-import { fetchVolumes, volumeListInfos } from '/@/stores/volumes';
+import { fetchVolumes, resetInitializationVolumes, volumeListInfos } from '/@/stores/volumes';
 
 const listVolumesMock = vi.fn();
 const getProviderInfosMock = vi.fn();
+const onDidUpdateProviderStatusMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
   (window as any).updateConfigurationValue = vi.fn();
   (window as any).getContributedMenus = vi.fn();
-  const onDidUpdateProviderStatusMock = vi.fn();
+
   (window as any).onDidUpdateProviderStatus = onDidUpdateProviderStatusMock;
-  onDidUpdateProviderStatusMock.mockImplementation(() => Promise.resolve());
   (window as any).listVolumes = listVolumesMock;
   (window as any).listImages = vi.fn();
 
@@ -47,6 +47,12 @@ beforeAll(() => {
       func();
     },
   };
+});
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  onDidUpdateProviderStatusMock.mockImplementation(() => Promise.resolve());
+  getProviderInfosMock.mockResolvedValue([]);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -78,6 +84,21 @@ test('Expect fetching in progress being displayed', async () => {
 });
 
 test('Expect no container engines being displayed', async () => {
+  resetInitializationVolumes();
+  listVolumesMock.mockResolvedValue([]);
+  getProviderInfosMock.mockResolvedValue([
+    {
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          status: 'started',
+        },
+      ],
+    },
+  ]);
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
 
