@@ -20,6 +20,11 @@ export let showBreadcrumb = true;
         </div>
       {/if}
       <div class="flex flex-row items-center pt-1">
+        {#if $$slots.icon}
+          <div class="pr-3 text-gray-700">
+            <slot name="icon" />
+          </div>
+        {/if}
         <h1 aria-label="{title}" class="text-xl first-letter:uppercase">{title}</h1>
       </div>
     </div>

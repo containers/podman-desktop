@@ -410,6 +410,9 @@ function checkContainerName(event: any) {
 <Route path="/*" let:meta>
   {#if dataReady}
     <FormPage title="Create a container from image {imageDisplayName}:{image.tag}">
+      <span slot="icon">
+        <i class="fas fa-play fa-2x" aria-hidden="true"></i>
+      </span>
       <div slot="content" class="p-5 min-w-full h-fit">
         <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
           <section class="pf-c-page__main-tabs pf-m-limit-width">
