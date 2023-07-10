@@ -137,6 +137,7 @@ export class ExtensionLoader {
     private authenticationProviderRegistry: AuthenticationImpl,
     private iconRegistry: IconRegistry,
     private telemetry: Telemetry,
+    private contextRegistry: ContextRegistry,
     private viewRegistry: ViewRegistry,
     private contextRegistry: ContextRegistry,
     directories: Directories,

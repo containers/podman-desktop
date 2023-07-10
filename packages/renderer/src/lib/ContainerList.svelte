@@ -1,6 +1,8 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
 import { filtered, searchPattern, containersInfos } from '../stores/containers';
+import { viewsContributions } from '../stores/views';
+import { contexts, adaptContextOnContainer } from '../stores/contexts';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import ContainerIcon from './images/ContainerIcon.svelte';
@@ -32,6 +34,10 @@ import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { PodUtils } from '../lib/pod/pod-utils';
 import ComposeActions from './compose/ComposeActions.svelte';
 import Spinner from './ui/Spinner.svelte';
+import { CONTAINER_LIST_VIEW } from './view/views';
+import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
+import { ContextKeyExpr } from './context/contextKey';
+import type { ContextUI } from './context/context';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -39,6 +45,8 @@ let enginesList: EngineInfoUI[];
 
 // groups of containers that will be displayed
 let containerGroups: ContainerGroupInfoUI[] = [];
+let viewContributions: ViewInfoUI[] = [];
+let extensionsContext: ContextUI[] = [];
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
@@ -205,11 +213,21 @@ function createPodFromContainers() {
 }
 
 let containersUnsubscribe: Unsubscriber;
+let contextsUnsubscribe: Unsubscriber;
 let podUnsubscribe: Unsubscriber;
+let viewsUnsubscribe: Unsubscriber;
 let pods: PodInfo[];
 onMount(async () => {
   // grab previous groups
   containerGroups = get(containerGroupsInfo);
+
+  contextsUnsubscribe = contexts.subscribe(value => {
+    extensionsContext = value;
+  });
+
+  viewsUnsubscribe = viewsContributions.subscribe(value => {
+    viewContributions = value.filter(view => view.viewId === CONTAINER_LIST_VIEW) || [];
+  });
 
   containersUnsubscribe = filtered.subscribe(value => {
     const currentContainers = value.map((containerInfo: ContainerInfo) => {
@@ -255,6 +273,7 @@ onMount(async () => {
             container.actionError = matchingContainer.actionError;
             container.selected = matchingContainer.selected;
           }
+          // if matching when update icon
         });
       }
     });
@@ -284,8 +303,14 @@ onDestroy(() => {
   if (containersUnsubscribe) {
     containersUnsubscribe();
   }
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
+  }
   if (podUnsubscribe) {
     podUnsubscribe();
+  }
+  if (viewsUnsubscribe) {
+    viewsUnsubscribe();
   }
 });
 
@@ -353,12 +378,27 @@ function iconClass(container: ContainerInfoUI): string | undefined {
   // handle ${} in icon class
   // and interpret the value and replace with the class-name
   let icon;
-  if (container.icon) {
-    const match = container.icon.match(/\$\{(.*)\}/);
-    if (match !== null && match.length === 2) {
-      const className = match[1];
-      icon = container.icon.replace(match[0], `podman-desktop-icon-${className}`);
-      return icon;
+  for (const contribution of viewContributions) {
+    //get extension context
+    const extensionContext: ContextUI = extensionsContext.find(ctx => {
+      console.log(ctx.extension);
+      console.log(contribution.extensionId);
+      return ctx.extension === contribution.extensionId;
+    });
+    console.log(extensionContext);
+    if (extensionContext) {
+      console.log('dentro');
+      adaptContextOnContainer(extensionContext, container);
+      const whenDeserialized = ContextKeyExpr.deserialize(contribution.when);
+      //if contribution has to be applied to this container
+      if (whenDeserialized?.evaluate(extensionContext)) {
+        const match = contribution.icon.match(/\$\{(.*)\}/);
+        if (match !== null && match.length === 2) {
+          const className = match[1];
+          icon = contribution.icon.replace(match[0], `podman-desktop-icon-${className}`);
+          return icon;
+        }
+      }
     }
   }
   return icon;

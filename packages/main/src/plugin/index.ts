@@ -369,7 +369,7 @@ export class PluginSystem {
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
     const viewRegistry = new ViewRegistry();
     const contextRegistry = new ContextRegistry(apiSender);
-    const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry, viewRegistry);
+    const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
     const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
@@ -668,6 +668,7 @@ export class PluginSystem {
       authentication,
       iconRegistry,
       telemetry,
+      contextRegistry,
       viewRegistry,
       contextRegistry,
       directories,

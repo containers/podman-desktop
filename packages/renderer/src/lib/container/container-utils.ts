@@ -136,6 +136,7 @@ export class ContainerUtils {
       selected: false,
       created: containerInfo.Created,
       icon: containerInfo.icon,
+      labels: containerInfo.Labels,
     };
   }
 

@@ -2232,4 +2232,13 @@ declare module '@podman-desktop/api' {
      */
     writeText(value: string): Promise<void>;
   }
+
+  export type ContextKeyValue =
+    | null
+    | undefined
+    | boolean
+    | number
+    | string
+    | Array<null | undefined | boolean | number | string>
+    | Record<string, null | undefined | boolean | number | string>;
 }
