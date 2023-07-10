@@ -37,6 +37,13 @@ import { context } from '/@/stores/context';
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
+import Donut from '/@/lib/donut/Donut.svelte';
+
+interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
+  value?: any;
+  container: string;
+  providerId: string;
+}
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
@@ -460,18 +467,17 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
                   {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
                     {#if connectionSetting.format === 'cpu'}
                       <div class="mr-4">
-                        <div class="text-[9px]">{connectionSetting.description}</div>
-                        <div class="text-xs">{connectionSetting.value}</div>
+                        <Donut
+                          title="{connectionSetting.description}"
+                          value="{connectionSetting.value[0]}"
+                          percent="{connectionSetting.value[1]}" />
                       </div>
                     {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
                       <div class="mr-4">
-                        <div class="text-[9px]">{connectionSetting.description}</div>
-                        <div class="text-xs">{filesize(connectionSetting.value)}</div>
-                      </div>
-                    {:else if connectionSetting.format === 'percent'}
-                      <div class="mr-4">
-                        <div class="text-[9px]">{connectionSetting.description}</div>
-                        <div class="text-xs">{connectionSetting.value.toFixed(2)}%</div>
+                        <Donut
+                          title="{connectionSetting.description}"
+                          value="{filesize(connectionSetting.value[0])}"
+                          percent="{connectionSetting.value[1]}" />
                       </div>
                     {:else}
                       {connectionSetting.description}: {connectionSetting.value}

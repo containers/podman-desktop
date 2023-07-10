@@ -112,15 +112,10 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       status = 'starting';
     }
 
-    let cpuUsage = 0;
-    let diskUsage = 0;
-    let memoryUsage = 0;
+    let machineInfo = undefined;
     if (running) {
       try {
-        const info1 = await extensionApi.containerEngine.info(`podman.${prettyMachineName(machine.Name)}`);
-        cpuUsage = 100 - info1.host.cpuUtilization.idlePercent;
-        diskUsage = (info1.store.graphRootUsed * 100) / info1.store.graphRootAllocated;
-        memoryUsage = ((info1.host.memTotal - info1.host.memFree) * 100) / info1.host.memTotal;
+        machineInfo = await extensionApi.containerEngine.info(`podman.${prettyMachineName(machine.Name)}`);
       } catch (err: unknown) {
         console.error(` Can't get machine ${machine.Name} resource usage error ${err}`);
       }
@@ -136,13 +131,13 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     const userModeNetworking = isWindows() ? machine.UserModeNetworking : true;
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
-      memory: parseInt(machine.Memory),
-      cpus: machine.CPUs,
-      diskSize: parseInt(machine.DiskSize),
+      memory: machineInfo?.host.memTotal,
+      cpus: machineInfo?.host.cpus,
+      diskSize: machineInfo?.store.graphRootAllocated,
       userModeNetworking: userModeNetworking,
-      cpuUsage,
-      diskUsage,
-      memoryUsage,
+      cpuUsage: 100 - machineInfo?.host.cpuUtilization.idlePercent,
+      diskUsage: (machineInfo?.store.graphRootUsed * 100) / machineInfo?.store.graphRootAllocated,
+      memoryUsage: ((machineInfo?.host.memTotal - machineInfo?.host.memFree) * 100) / machineInfo?.host.memTotal,
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
@@ -353,12 +348,9 @@ async function updateContainerConfiguration(
   const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
 
   // Set values for the machine
-  await containerConfiguration.update('machine.cpus', machineInfo.cpus);
-  await containerConfiguration.update('machine.memory', machineInfo.memory);
-  await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
-  await containerConfiguration.update('machine.cpuUsage', machineInfo.cpuUsage);
-  await containerConfiguration.update('machine.diskUsage', machineInfo.diskUsage);
-  await containerConfiguration.update('machine.memoryUsage', machineInfo.memoryUsage);
+  await containerConfiguration.update('machine.cpus', [machineInfo.cpus, machineInfo.cpuUsage]);
+  await containerConfiguration.update('machine.memory', [machineInfo.memory, machineInfo.memoryUsage]);
+  await containerConfiguration.update('machine.diskSize', [machineInfo.diskSize, machineInfo.diskUsage]);
 }
 
 function calcMacosSocketPath(machineName: string): string {
