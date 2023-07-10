@@ -1,16 +1,20 @@
 <script>
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import TroubleshootingDevToolsConsoleLogs from './TroubleshootingDevToolsConsoleLogs.svelte';
 import TroubleshootingPageProviders from './TroubleshootingPageProviders.svelte';
 import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
 </script>
 
-<NavPage title="Troubleshooting" searchEnabled="{false}">
-  <div slot="content" class="flex flex-col">
+<FormPage title="Troubleshooting" showBreadcrumb="{false}">
+  <span slot="icon">
+    <i class="fas fa-lightbulb fa-2x" aria-hidden="true"></i>
+  </span>
+
+  <div slot="content" class="flex flex-col space-y-4 p-4">
     <TroubleshootingPageProviders />
 
     <TroubleshootingDevToolsConsoleLogs />
 
     <TroubleshootingPageStores />
   </div>
-</NavPage>
+</FormPage>
