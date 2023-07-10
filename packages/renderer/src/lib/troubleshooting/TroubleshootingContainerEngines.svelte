@@ -9,10 +9,10 @@ $: containerEngines = providers.map(provider => provider.containerConnections).f
 $: containerEnginesRunning = containerEngines.filter(containerEngine => containerEngine.status === 'started');
 </script>
 
-<div class="flex flex-col bg-zinc-700 m-4 p-4">
+<div class="flex flex-col bg-charcoal-600 p-4 rounded-lg">
   <div class="flex flex-row align-middle items-center">
-    <ContainerIcon />
-    <div role="status" aria-label="container connections" class="m-4 text-xl">
+    <ContainerIcon size="40" solid="{true}" class="pr-3 text-gray-700" />
+    <div role="status" aria-label="container connections" class="text-xl">
       Container connections: {containerEngines.length} ({containerEnginesRunning.length} running)
     </div>
   </div>

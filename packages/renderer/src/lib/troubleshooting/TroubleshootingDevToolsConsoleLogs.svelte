@@ -24,17 +24,17 @@ function copyLogsToClipboard() {
 }
 </script>
 
-<div class="flex flex-col bg-zinc-700 m-4 p-4">
+<div class="flex flex-col bg-charcoal-600 p-4 rounded-lg">
   <div class="flex flex-row align-middle items-center w-full">
-    <Fa size="40" icon="{faFileLines}" />
-    <div class="mx-2 text-xl">Logs</div>
+    <Fa size="30" class="pr-3 text-gray-700" icon="{faFileLines}" />
+    <div class="text-xl">Logs</div>
     <div class="flex flex-1 justify-end">
       <button title="Copy To Clipboard" class="ml-5" on:click="{() => copyLogsToClipboard()}"
         ><Fa class="h-5 w-5 cursor-pointer text-xl text-purple-500 hover:text-purple-600" icon="{faPaste}" /></button>
     </div>
   </div>
   {#if logs.length > 0}
-    <div class="h-40 overflow-auto m-2 p-2">
+    <div class="h-40 overflow-auto m-2 p-2 bg-charcoal-800">
       <ul aria-label="logs">
         {#each logs as log}
           <li>

@@ -28,7 +28,7 @@ beforeAll(() => {});
 test('Check stores widget is there', async () => {
   render(TroubleshootingPageStores, {});
 
-  // get the h2 title
-  const title = screen.getByRole('heading', { name: 'Stores' });
+  // get the title
+  const title = screen.getByRole('status', { name: 'stores' });
   expect(title).toBeInTheDocument();
 });

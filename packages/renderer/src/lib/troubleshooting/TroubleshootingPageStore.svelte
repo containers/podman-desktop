@@ -17,7 +17,7 @@ async function fetch(): Promise<void> {
 let openDetails = false;
 </script>
 
-<div class="flex flex-col bg-charcoal-600 p-2 items-center rounded w-full">
+<div class="flex flex-col bg-charcoal-800 p-2 items-center rounded w-full">
   <div><svelte:component this="{eventStoreInfo.iconComponent}" size="20" /></div>
   <div class="text-xl">
     <button

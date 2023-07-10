@@ -25,10 +25,10 @@ onDestroy(() => {
 });
 </script>
 
-<div class="flex flex-col bg-zinc-700 m-4 p-4">
+<div class="flex flex-col bg-charcoal-600 p-4 rounded-lg">
   <div class="flex flex-row align-middle items-center w-full mb-4">
-    <Fa size="40" icon="{faDatabase}" />
-    <h2 class="mx-2 text-xl">Stores</h2>
+    <Fa size="30" class="pr-3 text-gray-700" icon="{faDatabase}" />
+    <div role="status" aria-label="stores" class="text-xl">Stores</div>
   </div>
 
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-4">
