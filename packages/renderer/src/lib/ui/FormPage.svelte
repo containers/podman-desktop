@@ -16,7 +16,10 @@ export let showBreadcrumb = true;
             href="{$lastPage.path}"
             title="Go back to {$lastPage.name}">{$lastPage.name}</a>
           <div class="text-xl mx-2 text-gray-700">></div>
-          <div class="text-sm font-extralight text-gray-700" aria-label="name">{$currentPage.name}</div>
+          <div class="grow text-sm font-extralight text-gray-700" aria-label="name">{$currentPage.name}</div>
+          <a href="{$lastPage.path}" title="Close" class="justify-self-end text-gray-900">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </a>
         </div>
       {/if}
       <div class="flex flex-row items-center pt-1">
@@ -25,20 +28,13 @@ export let showBreadcrumb = true;
             <slot name="icon" />
           </div>
         {/if}
-        <h1 aria-label="{title}" class="text-xl first-letter:uppercase">{title}</h1>
+        <h1 aria-label="{title}" class="grow text-xl first-letter:uppercase">{title}</h1>
+        {#if $$slots.actions}
+          <div class="flex justify-self-end pl-3">
+            <slot name="actions">&nbsp;</slot>
+          </div>
+        {/if}
       </div>
-    </div>
-    <div class="flex flex-1 justify-end">
-      {#if $$slots.actions}
-        <div class="pr-5">
-          <slot name="actions">&nbsp;</slot>
-        </div>
-      {/if}
-      {#if showBreadcrumb}
-        <a href="{$lastPage.path}" title="Close" class="mt-2 mr-2 text-gray-900">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </a>
-      {/if}
     </div>
   </div>
   <div class="flex w-full h-full bg-zinc-700 overflow-auto">
