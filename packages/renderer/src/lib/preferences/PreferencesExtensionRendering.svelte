@@ -3,7 +3,7 @@ import Route from '../../Route.svelte';
 import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import SettingsPage from './SettingsPage.svelte';
-import ConnectionStatus from '../ui/ConnectionStatus.svelte';
+import ExtensionStatus from '../ui/ExtensionStatus.svelte';
 
 export let extensionId: string = undefined;
 
@@ -32,7 +32,7 @@ async function removeExtension() {
         <!-- Manage lifecycle-->
         <div class="flex pb-2">
           <div class="pr-2">Status</div>
-          <ConnectionStatus status="{extensionInfo.state}" />
+          <ExtensionStatus status="{extensionInfo.state}" />
         </div>
 
         <div class="py-2 flex flex-row items-center">
@@ -46,7 +46,7 @@ async function removeExtension() {
               <span class="pf-c-button__icon pf-m-start">
                 <i class="fas fa-play" aria-hidden="true"></i>
               </span>
-              Start
+              Enable
             </button>
           </div>
 
@@ -60,7 +60,7 @@ async function removeExtension() {
               <span class="pf-c-button__icon pf-m-start">
                 <i class="fas fa-stop" aria-hidden="true"></i>
               </span>
-              Stop
+              Disable
             </button>
           </div>
 
