@@ -7,7 +7,7 @@ import { onDestroy, onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 
 import { providerInfos } from '../../stores/providers';
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 import {
   type BuildImageCallback,
@@ -133,7 +133,10 @@ async function getContainerBuildContextDirectory() {
 }
 </script>
 
-<NavPage title="Build Image from Containerfile" searchEnabled="{false}">
+<FormPage title="Build Image from Containerfile">
+  <span slot="icon">
+    <i class="fas fa-cube fa-2x" aria-hidden="true"></i>
+  </span>
   <div slot="content" class="p-5 min-w-full h-fit">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
@@ -217,4 +220,4 @@ async function getContainerBuildContextDirectory() {
       </div>
     {/if}
   </div>
-</NavPage>
+</FormPage>

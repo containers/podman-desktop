@@ -119,4 +119,14 @@ describe('PullImage', () => {
 
     expect(button).toBeEnabled();
   });
+
+  test('Expect that action is displayed', async () => {
+    setup();
+    render(PullImage);
+
+    const regButton = 'Manage registries';
+    const button = screen.getByRole('button', { name: regButton });
+    expect(button).toBeInTheDocument();
+    expect(button).toBeEnabled();
+  });
 });

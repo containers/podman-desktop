@@ -7,7 +7,7 @@ let providerUnsubscribe: Unsubscriber;
 import { providerInfos } from '../../stores/providers';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import KubePlayIcon from '../kube/KubePlayIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
@@ -151,8 +151,11 @@ async function getKubernetesfileLocation() {
 {/if}
 
 {#if providerConnections.length > 0}
-  <NavPage title="Play Pods or Containers from a Kubernetes YAML File" searchEnabled="{false}">
-    <div slot="content" class="bg-charcoal-700 p-5 min-w-full h-fit">
+  <FormPage title="Play Pods or Containers from a Kubernetes YAML File">
+    <span slot="icon">
+      <KubePlayIcon size="30px" />
+    </span>
+    <div slot="content" class="p-5 min-w-full h-fit">
       <div class="bg-charcoal-800 px-6 py-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div class="text-xl font-medium">Select file:</div>
         <div hidden="{runStarted}">
@@ -334,5 +337,5 @@ async function getKubernetesfileLocation() {
         {/if}
       </div>
     </div>
-  </NavPage>
+  </FormPage>
 {/if}

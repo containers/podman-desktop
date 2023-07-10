@@ -6,7 +6,7 @@ import type { PullEvent } from '../../../../main/src/plugin/api/pull-event';
 
 import { providerInfos } from '../../stores/providers';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { Terminal } from 'xterm';
@@ -111,8 +111,12 @@ function validateImageName(event): void {
 }
 </script>
 
-<NavPage title="Pull Image From a Registry" searchEnabled="{false}">
-  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+<FormPage title="Pull Image From a Registry">
+  <span slot="icon">
+    <i class="fas fa-arrow-circle-down fa-2x" aria-hidden="true"></i>
+  </span>
+
+  <div slot="actions" class="space-x-2 flex flex-nowrap">
     <button on:click="{() => gotoManageRegistries()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-cog" aria-hidden="true"></i>
@@ -181,6 +185,9 @@ function validateImageName(event): void {
                     </span>
                   </i>
                 {/if}
+                <span class="pf-c-button__icon pf-m-start">
+                  <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
+                </span>
                 Pull image</button>
             {:else}
               <button class="pf-c-button pf-m-primary" type="button" on:click="{() => pullImageFinished()}">
@@ -195,4 +202,4 @@ function validateImageName(event): void {
       </div>
     {/if}
   </div>
-</NavPage>
+</FormPage>

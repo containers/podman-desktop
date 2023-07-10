@@ -29,6 +29,11 @@ export let showBreadcrumb = true;
       </div>
     </div>
     <div class="flex flex-1 justify-end">
+      {#if $$slots.actions}
+        <div class="pr-5">
+          <slot name="actions">&nbsp;</slot>
+        </div>
+      {/if}
       {#if showBreadcrumb}
         <a href="{$lastPage.path}" title="Close" class="mt-2 mr-2 text-gray-900">
           <i class="fas fa-times" aria-hidden="true"></i>
