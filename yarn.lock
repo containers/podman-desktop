@@ -5520,10 +5520,10 @@ compare-version@^0.1.2:
   resolved "https://registry.npmjs.org/compare-version/-/compare-version-0.1.2.tgz"
   integrity sha1-AWLsLZNR9d3VmpICy6k1NmpyUIA=
 
-compare-versions@^6.0.0-rc.3:
-  version "6.0.0-rc.3"
-  resolved "https://registry.yarnpkg.com/compare-versions/-/compare-versions-6.0.0-rc.3.tgz#91d715b35c83ae8eb30c6e1d31cfa43dfb04bc1e"
-  integrity sha512-ILowKwhKR/soRLN0ETauW4Ky+fZA2FtYNkgblDgaqnJm7GHIIEiJXy1J+OVqTZTAHORmDu/TaUB2Lhq/RIeo7w==
+compare-versions@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/compare-versions/-/compare-versions-6.0.0.tgz#a3edb527e4487bfab9a8b62ffe70cebc9b87675b"
+  integrity sha512-s2MzYxfRsE9f/ow8hjn7ysa7pod1xhHdQMsgiJtKx6XSNf4x2N1KG4fjrkUmXcP/e9Y2ZX4zB6sHIso0Lm6evQ==
 
 component-type@^1.2.1:
   version "1.2.1"
