@@ -210,7 +210,7 @@ test('startContainersByLabel should succeed successfully if project name is prov
   // it is NOT called if there are no matches.. So it's important tot check this.
   const startContainer = vi.spyOn(containerRegistry, 'startContainer');
 
-  // Restart all containers in the 'project1' project
+  // Start all containers in the 'project1' project
   const result = await containerRegistry.startContainersByLabel('dummy', 'com.docker.compose.project', 'project1');
   expect(result).toBeUndefined();
 
@@ -246,4 +246,35 @@ test('stopContainersByLabel should succeed successfully if project name is provi
 
   // Expect stopContainer to have been called 3 times
   expect(stopContainer).toHaveBeenCalledTimes(3);
+});
+
+// Test deleting containers by label
+test('deleteContainersByLabel should succeed successfully if project name is provided and call deleteContainer', async () => {
+  const engine = {
+    // Fake that we have 3 containers of the same project
+    listSimpleContainers: vi
+      .fn()
+      .mockResolvedValue([
+        fakeContainerWithComposeProject,
+        fakeContainerWithComposeProject,
+        fakeContainerWithComposeProject,
+        fakeContainer,
+      ]),
+    getContainer: vi.fn().mockReturnValue({ remove: vi.fn().mockResolvedValue({}) }),
+    listPods: vi.fn().mockResolvedValue([]),
+    deleteContainer: vi.fn().mockResolvedValue({}),
+  };
+  vi.spyOn(containerRegistry, 'getMatchingEngine').mockReturnValue(engine as unknown as Dockerode);
+  vi.spyOn(containerRegistry, 'listSimpleContainers').mockReturnValue(engine.listSimpleContainers());
+
+  // Spy on deleteContainer to make sure it's called
+  // it is NOT called if there are no matches.. So it's important to check this.
+  const deleteContainer = vi.spyOn(containerRegistry, 'deleteContainer');
+
+  // Delete all containers in the 'project1' project
+  const result = await containerRegistry.deleteContainersByLabel('dummy', 'com.docker.compose.project', 'project1');
+  expect(result).toBeUndefined();
+
+  // Expect deleteContainer tohave been called 3 times
+  expect(deleteContainer).toHaveBeenCalledTimes(3);
 });

@@ -348,6 +348,13 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'deleteContainersByLabel',
+    async (engine: string, label: string, key: string): Promise<void> => {
+      return ipcInvoke('container-provider-registry:deleteContainersByLabel', engine, label, key);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'createAndStartContainer',
     async (engine: string, options: ContainerCreateOptions): Promise<void> => {
       return ipcInvoke('container-provider-registry:createAndStartContainer', engine, options);
