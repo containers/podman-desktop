@@ -84,7 +84,7 @@ if (dropdownMenu) {
   inProgress="{compose.actionInProgress && compose.status === 'STOPPING'}"
   icon="{faStop}" />
 
-  <ListItemButtonIcon
+<ListItemButtonIcon
   title="Delete Compose"
   onClick="{() => deleteCompose(compose)}"
   icon="{faTrash}"

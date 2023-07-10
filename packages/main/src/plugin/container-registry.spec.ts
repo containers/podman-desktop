@@ -210,8 +210,8 @@ test('startContainersByLabel should succeed successfully if project name is prov
   // it is NOT called if there are no matches.. So it's important tot check this.
   const startContainer = vi.spyOn(containerRegistry, 'startContainer');
 
-  // Restart all containers in the 'project1' project
-  const result = await containerRegistry.startContainersByLabel({ engineId: 'dummy', label: 'com.docker.compose.project', key: 'project1' });
+  // Start all containers in the 'project1' project
+  const result = await containerRegistry.startContainersByLabel('dummy', 'com.docker.compose.project', 'project1');
   expect(result).toBeUndefined();
 
   // Expect startContainer to NOT have been called since our containers are "running"
