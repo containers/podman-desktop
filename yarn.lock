@@ -13213,15 +13213,15 @@ svelte-check@^3.4.5:
     svelte-preprocess "^5.0.3"
     typescript "^5.0.3"
 
-svelte-eslint-parser@^0.32.0:
-  version "0.32.0"
-  resolved "https://registry.yarnpkg.com/svelte-eslint-parser/-/svelte-eslint-parser-0.32.0.tgz#4a9bd21fd8e9f29136c3eaf140ba1ce90e8cb353"
-  integrity sha512-Q8Nh3GHHoWZMv3Ej4zw+3+gyWPR8I5pPTJXEOvW+JOgwhGXqGKh7mOKNlVcEPtk+PCGiK9TPaRtvRkKoJR327A==
+svelte-eslint-parser@^0.32.0, svelte-eslint-parser@^0.32.1:
+  version "0.32.1"
+  resolved "https://registry.yarnpkg.com/svelte-eslint-parser/-/svelte-eslint-parser-0.32.1.tgz#9c72344143d5e1c7beeffd868b2d53f5d0d95578"
+  integrity sha512-GCSfeIzdgk53CaOzK+s/+l2igfTno3mWGkwoDYAwPes/rD9Al2fc7ksfopjx5UL87S7dw1eL73F6wNYiiuhzIA==
   dependencies:
     eslint-scope "^7.0.0"
     eslint-visitor-keys "^3.0.0"
     espree "^9.0.0"
-    postcss "^8.4.23"
+    postcss "^8.4.25"
     postcss-scss "^4.0.6"
 
 svelte-fa@^3.0.4:
