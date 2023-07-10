@@ -68,7 +68,7 @@ onMount(async () => {
   <Route path="/registries" breadcrumb="Registries">
     <PreferencesRegistriesEditing />
   </Route>
-  <Route path="/authentication-providers">
+  <Route path="/authentication-providers" breadcrumb="Authentication">
     <PreferencesAuthenticationProvidersRendering />
   </Route>
   <Route path="/proxies" breadcrumb="Proxy">
