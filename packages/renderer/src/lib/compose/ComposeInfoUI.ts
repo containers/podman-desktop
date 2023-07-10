@@ -16,10 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ContainerInfoUI } from '../container/ContainerInfoUI';
+
 export interface ComposeInfoUI {
   engineId: string;
   name: string;
   status: string;
   actionInProgress?: boolean;
   actionError?: string;
+  containers: ContainerInfoUI[];
 }
