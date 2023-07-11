@@ -16,19 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Writable } from 'svelte/store';
+import { writable } from 'svelte/store';
+import type { TinroBreadcrumb } from 'tinro';
 
-import '@testing-library/jest-dom';
-import { beforeAll, test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
+export const currentPage: Writable<TinroBreadcrumb> = writable({ name: 'Unknown', path: '/' } as TinroBreadcrumb);
+export const lastPage: Writable<TinroBreadcrumb> = writable({ name: 'Unknown', path: '/' } as TinroBreadcrumb);
 
-beforeAll(() => {});
+export const listPage: Writable<TinroBreadcrumb> = writable();
+export const detailsPage: Writable<TinroBreadcrumb> = writable();
 
-test('Check stores widget is there', async () => {
-  render(TroubleshootingPageStores, {});
-
-  // get the title
-  const title = screen.getByRole('status', { name: 'stores' });
-  expect(title).toBeInTheDocument();
-});
+export function mockBreadcrumb() {
+  listPage.set({ name: 'List', path: '/list' } as TinroBreadcrumb);
+  lastPage.set({ name: 'Previous', path: '/last' } as TinroBreadcrumb);
+  currentPage.set({ name: 'Current', path: '/current' } as TinroBreadcrumb);
+}

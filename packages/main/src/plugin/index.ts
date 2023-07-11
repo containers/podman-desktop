@@ -900,6 +900,27 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'container-provider-registry:startContainersByLabel',
+      async (_listener, engine: string, label: string, key: string): Promise<void> => {
+        return containerProviderRegistry.startContainersByLabel(engine, label, key);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:stopContainersByLabel',
+      async (_listener, engine: string, label: string, key: string): Promise<void> => {
+        return containerProviderRegistry.stopContainersByLabel(engine, label, key);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:deleteContainersByLabel',
+      async (_listener, engine: string, label: string, key: string): Promise<void> => {
+        return containerProviderRegistry.deleteContainersByLabel(engine, label, key);
+      },
+    );
+
+    this.ipcHandle(
       'container-provider-registry:createAndStartContainer',
       async (_listener, engine: string, options: ContainerCreateOptions): Promise<void> => {
         return containerProviderRegistry.createAndStartContainer(engine, options);

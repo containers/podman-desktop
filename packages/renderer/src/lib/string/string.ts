@@ -39,3 +39,14 @@ export function splitSpacesHandlingDoubleQuotes(inputString): string[] {
 
   return tokens;
 }
+
+export function quote(str: string): string {
+  if (str.indexOf(' ') !== -1 && str.at(0) !== '"' && str.at(str.length - 1) !== '"') {
+    return '"' + str + '"';
+  }
+  return str;
+}
+
+export function array2String(array: string[]): string {
+  return array.map(str => quote(str)).join(' ');
+}

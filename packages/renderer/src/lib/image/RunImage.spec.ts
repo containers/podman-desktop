@@ -24,6 +24,7 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import { runImageInfo } from '../../stores/run-image-store';
 import RunImage from '/@/lib/image/RunImage.svelte';
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
+import { mockBreadcrumb } from '../../stores/breadcrumb';
 
 // fake the window.events object
 beforeAll(() => {
@@ -37,6 +38,8 @@ beforeAll(() => {
   (window as any).listNetworks = vi.fn().mockResolvedValue([]);
   (window as any).listContainers = vi.fn().mockResolvedValue([]);
   (window as any).createAndStartContainer = vi.fn();
+
+  mockBreadcrumb();
 });
 
 async function waitRender() {
@@ -216,6 +219,19 @@ describe('RunImage', () => {
     );
   });
 
+  test('Expect that single array entrypoint with space is sent to API', async () => {
+    await createRunImage(['entrypoint with space'], []);
+
+    const button = screen.getByRole('button', { name: 'Start Container' });
+
+    await fireEvent.click(button);
+
+    expect(window.createAndStartContainer).toHaveBeenCalledWith(
+      'engineid',
+      expect.objectContaining({ Entrypoint: ['entrypoint with space'] }),
+    );
+  });
+
   test('Expect that two elements array entrypoint is sent to API', async () => {
     await createRunImage(['entrypoint1', 'entrypoint2'], []);
 
@@ -242,6 +258,18 @@ describe('RunImage', () => {
     );
   });
 
+  test('Expect that single array command with space is sent to API', async () => {
+    await createRunImage([], ['command with space']);
+
+    const button = screen.getByRole('button', { name: 'Start Container' });
+
+    await fireEvent.click(button);
+
+    expect(window.createAndStartContainer).toHaveBeenCalledWith(
+      'engineid',
+      expect.objectContaining({ Cmd: ['command with space'] }),
+    );
+  });
   test('Expect that two elements array command is sent to API', async () => {
     await createRunImage([], ['command1', 'command2']);
 

@@ -823,7 +823,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // register the registries
   const registrySetup = new RegistrySetup();
-  await registrySetup.setup(extensionContext);
+  await registrySetup.setup();
 
   const podmanConfiguration = new PodmanConfiguration();
   await podmanConfiguration.init();

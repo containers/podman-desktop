@@ -47,12 +47,7 @@ function errorCallback(errorMessage: string): void {
 </script>
 
 {#if container}
-  <DetailsPage
-    name="Container Details"
-    title="{container.name}"
-    subtitle="{container.shortImage}"
-    parentName="Containers"
-    parentURL="/containers">
+  <DetailsPage title="{container.name}" subtitle="{container.shortImage}">
     <StatusIcon slot="icon" icon="{ContainerIcon}" status="{container.state}" />
     <div slot="actions" class="flex justify-end">
       <div class="flex items-center w-5">
@@ -82,19 +77,19 @@ function errorCallback(errorMessage: string): void {
       <DetailsTab title="Terminal" url="terminal" />
     </div>
     <span slot="content">
-      <Route path="/summary" breadcrumb="Summary">
+      <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
         <ContainerDetailsSummary container="{container}" />
       </Route>
-      <Route path="/logs" breadcrumb="Logs">
+      <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
         <ContainerDetailsLogs container="{container}" />
       </Route>
-      <Route path="/inspect" breadcrumb="Inspect">
+      <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <ContainerDetailsInspect container="{container}" />
       </Route>
-      <Route path="/kube" breadcrumb="Kube">
+      <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
         <ContainerDetailsKube container="{container}" />
       </Route>
-      <Route path="/terminal" breadcrumb="Terminal">
+      <Route path="/terminal" breadcrumb="Terminal" navigationHint="tab">
         <ContainerDetailsTerminal container="{container}" />
       </Route>
     </span>

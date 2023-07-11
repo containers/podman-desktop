@@ -343,7 +343,11 @@ function updateKubeResult() {
 }
 </script>
 
-<FormPage name="Deploy to Kubernetes" title="Deploy generated pod to Kubernetes" parentName="Pods" parentURL="/pods">
+<FormPage title="Deploy generated pod to Kubernetes">
+  <span slot="icon">
+    <i class="fas fa-rocket fa-2x" aria-hidden="true"></i>
+  </span>
+
   <div slot="content" class="p-5 min-w-full h-fit">
     <div class="bg-charcoal-600 p-5">
       {#if kubeDetails}

@@ -292,7 +292,7 @@ export class ExtensionLoader {
 
       // collect all extensions from the pluginDirectory folders
       const analyzedPluginsDirectoryExtensions: AnalyzedExtension[] = (
-        await Promise.all(pluginDirectories.map(folder => this.analyzeExtension(folder, false)))
+        await Promise.all(pluginDirectories.map(folder => this.analyzeExtension(folder, true)))
       ).filter(extension => extension !== undefined) as AnalyzedExtension[];
       analyzedExtensions.push(...analyzedPluginsDirectoryExtensions);
     }
@@ -1019,7 +1019,7 @@ export class ExtensionLoader {
         // it returns exports
         console.log(`Activating extension (${extension.id})`);
         await extensionMain['activate'].apply(undefined, [extensionContext]);
-        console.log(`Activation extension (${extension.id}) ended`);
+        console.log(`Activating extension (${extension.id}) ended`);
       }
       const id = extension.id;
       const activatedExtension: ActivatedExtension = {
@@ -1031,7 +1031,7 @@ export class ExtensionLoader {
       this.extensionState.set(extension.id, 'started');
       this.apiSender.send('extension-started');
     } catch (err) {
-      console.log(`Activation extension ${extension.id} failed error:${err}`);
+      console.log(`Activating extension ${extension.id} failed error:${err}`);
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1058,7 +1058,7 @@ export class ExtensionLoader {
       try {
         await extension.deactivateFunction();
       } catch (err) {
-        console.log(`Deactivation extension ${extension.id} failed error:${err}`);
+        console.log(`Deactivating extension ${extension.id} failed error:${err}`);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (telemetryOptions as any).error = err;
       }

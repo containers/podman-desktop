@@ -3,7 +3,7 @@ import { providerInfos } from '../../stores/providers';
 import { onDestroy, onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { type PodCreation, podCreationHolder } from '../../stores/creation-from-containers-store';
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
@@ -183,7 +183,11 @@ function updatePortExposure(port: number, checked: boolean) {
 }
 </script>
 
-<NavPage title="Copy containers to a pod" searchEnabled="{false}">
+<FormPage title="Copy containers to a pod">
+  <span slot="icon">
+    <PodIcon solid="{true}" />
+  </span>
+
   <div class="min-w-full h-fit" slot="content">
     <div class="m-5 p-6 bg-charcoal-800 rounded-sm text-gray-700">
       <div>
@@ -328,4 +332,4 @@ function updatePortExposure(port: number, checked: boolean) {
       </div>
     </div>
   </div>
-</NavPage>
+</FormPage>

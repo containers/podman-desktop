@@ -34,12 +34,7 @@ onMount(() => {
 </script>
 
 {#if volume}
-  <DetailsPage
-    name="Volume Details"
-    title="{volume.shortName}"
-    subtitle="{volume.humanSize}"
-    parentName="Volumes"
-    parentURL="/volumes">
+  <DetailsPage title="{volume.shortName}" subtitle="{volume.humanSize}">
     <StatusIcon slot="icon" icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
     <div slot="actions" class="flex justify-end">
       <VolumeActions volume="{volume}" detailed="{true}" />
@@ -49,10 +44,10 @@ onMount(() => {
       <DetailsTab title="Inspect" url="inspect" />
     </div>
     <span slot="content">
-      <Route path="/summary" breadcrumb="Summary">
+      <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
         <VolumeDetailsSummary volume="{volume}" />
       </Route>
-      <Route path="/inspect" breadcrumb="Inspect">
+      <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <VolumeDetailsInspect volume="{volume}" />
       </Route>
     </span>

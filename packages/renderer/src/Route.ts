@@ -16,19 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import '@testing-library/jest-dom';
-import { beforeAll, test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
-
-beforeAll(() => {});
-
-test('Check stores widget is there', async () => {
-  render(TroubleshootingPageStores, {});
-
-  // get the title
-  const title = screen.getByRole('status', { name: 'stores' });
-  expect(title).toBeInTheDocument();
-});
+/**
+ * Navigation hints for setting current page and history (breadcrumbs):
+ *  root    - root pages that reset the history
+ *  details - additional pages that should be tracked in the history
+ *  tab     - tabs or other sub-pages that affect the URL, but do not
+ *            change what the 'current' page is.
+ */
+export type NavigationHint = 'root' | 'details' | 'tab';

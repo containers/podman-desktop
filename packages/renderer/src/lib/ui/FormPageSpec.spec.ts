@@ -16,19 +16,28 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import '@testing-library/jest-dom';
-import { beforeAll, test, expect } from 'vitest';
+import { test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
+import FormPageTest from './FormPageSpec.svelte';
 
-beforeAll(() => {});
+test('Expect icon slot is defined', async () => {
+  render(FormPageTest);
 
-test('Check stores widget is there', async () => {
-  render(TroubleshootingPageStores, {});
+  const element = screen.getByLabelText('icon');
+  expect(element).toBeInTheDocument();
+});
 
-  // get the title
-  const title = screen.getByRole('status', { name: 'stores' });
-  expect(title).toBeInTheDocument();
+test('Expect actions slot is defined', async () => {
+  render(FormPageTest);
+
+  const element = screen.getByLabelText('actions');
+  expect(element).toBeInTheDocument();
+});
+
+test('Expect content slot is defined', async () => {
+  render(FormPageTest);
+
+  const element = screen.getByLabelText('content');
+  expect(element).toBeInTheDocument();
 });

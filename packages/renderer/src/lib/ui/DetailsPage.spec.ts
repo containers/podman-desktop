@@ -20,12 +20,12 @@ import '@testing-library/jest-dom';
 import { test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import DetailsPage from './DetailsPage.svelte';
+import { lastPage, currentPage } from '../../stores/breadcrumb';
+import type { TinroBreadcrumb } from 'tinro';
 
 test('Expect title is defined', async () => {
-  const name = 'My Name';
   const title = 'My Dummy Title';
   render(DetailsPage, {
-    name,
     title,
   });
 
@@ -34,35 +34,40 @@ test('Expect title is defined', async () => {
   expect(titleElement).toHaveTextContent(title);
 });
 
-test('Expect backlink is defined', async () => {
-  const name = 'My Name';
-  const title = 'My Dummy Title';
-  const parentName = 'Parent';
-  const parentURL = '/test';
+test('Expect name is defined', async () => {
+  const name = 'My Dummy Name';
+  currentPage.set({ name: name, path: '/' } as TinroBreadcrumb);
   render(DetailsPage, {
-    name,
-    title,
-    parentName,
-    parentURL,
+    title: 'No Title',
   });
 
-  const nameElement = screen.getByLabelText('back');
+  const nameElement = screen.getByLabelText('name');
   expect(nameElement).toBeInTheDocument();
-  expect(nameElement).toHaveTextContent(parentName);
-  expect(nameElement).toHaveAttribute('href', parentURL);
+  expect(nameElement).toHaveTextContent(name);
+});
+
+test('Expect backlink is defined', async () => {
+  const backName = 'Last page';
+  const backPath = '/back';
+  lastPage.set({ name: backName, path: backPath } as TinroBreadcrumb);
+  render(DetailsPage, {
+    title: 'No Title',
+  });
+
+  const backElement = screen.getByLabelText('back');
+  expect(backElement).toBeInTheDocument();
+  expect(backElement).toHaveTextContent(backName);
+  expect(backElement).toHaveAttribute('href', backPath);
 });
 
 test('Expect close link is defined', async () => {
-  const name = 'My Name';
-  const title = 'My Dummy Title';
-  const parentURL = '/test';
+  const backPath = '/back';
+  lastPage.set({ name: 'Back', path: backPath } as TinroBreadcrumb);
   render(DetailsPage, {
-    name,
-    title,
-    parentURL,
+    title: 'No Title',
   });
 
   const closeElement = screen.getByTitle('Close Details');
   expect(closeElement).toBeInTheDocument();
-  expect(closeElement).toHaveAttribute('href', parentURL);
+  expect(closeElement).toHaveAttribute('href', backPath);
 });
