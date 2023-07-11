@@ -15,6 +15,7 @@ import { ContainerUtils } from '../container/container-utils';
 import { containersInfos } from '../../stores/containers';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { splitSpacesHandlingDoubleQuotes } from '../string/string';
+import { array2String } from '/@/lib/string/string.js';
 
 let image: ImageInfoUI;
 
@@ -102,13 +103,13 @@ onMount(async () => {
   imageInspectInfo = await window.getImageInspect(image.engineId, image.id);
   exposedPorts = Array.from(Object.keys(imageInspectInfo?.Config?.ExposedPorts || {}));
 
-  command = imageInspectInfo.Config.Cmd.join(' ');
+  command = array2String(imageInspectInfo.Config.Cmd);
 
   if (imageInspectInfo.Config.Entrypoint) {
     if (typeof imageInspectInfo.Config.Entrypoint === 'string') {
       entrypoint = imageInspectInfo.Config.Entrypoint;
     } else {
-      entrypoint = imageInspectInfo.Config.Entrypoint.join(' ');
+      entrypoint = array2String(imageInspectInfo.Config.Entrypoint);
     }
   }
 
