@@ -918,15 +918,15 @@ export async function createMachine(
   // memory
   if (params['podman.factory.machine.memory']) {
     parameters.push('--memory');
-    const memoryAsMB = +params['podman.factory.machine.memory'] / (1000 * 1000);
-    parameters.push(Math.floor(memoryAsMB).toString());
+    const memoryAsMiB = +params['podman.factory.machine.memory'] / (1024 * 1024);
+    parameters.push(Math.floor(memoryAsMiB).toString());
   }
 
   // disk size
   if (params['podman.factory.machine.diskSize']) {
     parameters.push('--disk-size');
-    const diskAsGB = +params['podman.factory.machine.diskSize'] / (1000 * 1000 * 1000);
-    parameters.push(Math.floor(diskAsGB).toString());
+    const diskAsGiB = +params['podman.factory.machine.diskSize'] / (1024 * 1024 * 1024);
+    parameters.push(Math.floor(diskAsGiB).toString());
   }
 
   // disk size
