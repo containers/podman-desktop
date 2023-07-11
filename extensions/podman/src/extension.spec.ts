@@ -101,14 +101,14 @@ test('verify create command called with correct values', async () => {
     {
       'podman.factory.machine.cpus': '2',
       'podman.factory.machine.image-path': 'path',
-      'podman.factory.machine.memory': '1048000000',
-      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.memory': '1048000000', // 1048MB = 999.45MiB
+      'podman.factory.machine.diskSize': '250000000000', // 250GB = 232.83GiB
     },
     undefined,
   );
   expect(spyExecPromise).toBeCalledWith(
     getPodmanCli(),
-    ['machine', 'init', '--cpus', '2', '--memory', '1048', '--disk-size', '250', '--image-path', 'path'],
+    ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path'],
     {
       env: {},
       logger: undefined,
