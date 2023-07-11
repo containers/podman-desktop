@@ -273,7 +273,6 @@ onMount(async () => {
             container.actionError = matchingContainer.actionError;
             container.selected = matchingContainer.selected;
           }
-          // if matching when update icon
         });
       }
     });
@@ -375,23 +374,22 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
 }
 
 function iconClass(container: ContainerInfoUI): string | undefined {
-  // handle ${} in icon class
-  // and interpret the value and replace with the class-name
   let icon;
+  // loop over all contribution for this view
   for (const contribution of viewContributions) {
-    //get extension context
+    // retrieve the extension from the contribution and fetch its context
     const extensionContext: ContextUI = extensionsContext.find(ctx => {
-      console.log(ctx.extension);
-      console.log(contribution.extensionId);
       return ctx.extension === contribution.extensionId;
     });
-    console.log(extensionContext);
     if (extensionContext) {
-      console.log('dentro');
+      // adapt the context to work with containers (e.g save container labels into the context)
       adaptContextOnContainer(extensionContext, container);
+      // deserialize the when clause
       const whenDeserialized = ContextKeyExpr.deserialize(contribution.when);
-      //if contribution has to be applied to this container
+      // if the when clause has to be applied to this container
       if (whenDeserialized?.evaluate(extensionContext)) {
+        // handle ${} in icon class
+        // and interpret the value and replace with the class-name
         const match = contribution.icon.match(/\$\{(.*)\}/);
         if (match !== null && match.length === 2) {
           const className = match[1];
@@ -571,7 +569,7 @@ function iconClass(container: ContainerInfoUI): string | undefined {
                 <td class="flex flex-row justify-center h-12">
                   <div class="grid place-content-center ml-3 mr-4">
                     {#if iconClass(container)}
-                      <StatusIcon iconClass="{iconClass(container)}" status="{container.state}" />
+                      <StatusIcon icon="{iconClass(container)}" status="{container.state}" />
                     {:else}
                       <StatusIcon icon="{ContainerIcon}" status="{container.state}" />
                     {/if}

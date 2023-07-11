@@ -5,7 +5,6 @@ import StarIcon from './StarIcon.svelte';
 // any other status will result in a standard outlined box
 export let status = '';
 export let icon: any = undefined;
-export let iconClass: string = undefined;
 
 $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' || status === 'DEGRADED';
 </script>
@@ -20,8 +19,8 @@ $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' ||
     class:border-gray-700="{!solid}"
     class:text-gray-700="{!solid}"
     title="{status}">
-    {#if iconClass}
-      <i class="{iconClass}" aria-hidden="true"></i>
+    {#if typeof icon === 'string'}
+      <i class="{icon}" aria-hidden="true"></i>
     {:else}
       <svelte:component this="{icon}" size="20" solid="{solid}" />
     {/if}

@@ -257,6 +257,7 @@ suite('Authentication', () => {
       authentication,
       vi.fn() as unknown as IconRegistry,
       vi.fn() as unknown as Telemetry,
+      vi.fn() as unknown as ContextRegistry,
       vi.fn() as unknown as ViewRegistry,
       vi.fn() as unknown as ContextRegistry,
       directories,

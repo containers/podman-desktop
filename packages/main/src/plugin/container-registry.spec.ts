@@ -24,7 +24,6 @@ import type { Proxy } from '/@/plugin/proxy.js';
 import { ImageRegistry } from '/@/plugin/image-registry.js';
 import type { ApiSenderType } from '/@/plugin/api.js';
 import type Dockerode from 'dockerode';
-import { ViewRegistry } from './view-registry.js';
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 
@@ -125,8 +124,7 @@ beforeEach(() => {
   } as unknown as Proxy;
 
   const imageRegistry = new ImageRegistry({} as ApiSenderType, telemetry, certificates, proxy);
-  const viewRegistry = new ViewRegistry();
-  containerRegistry = new TestContainerProviderRegistry({} as ApiSenderType, imageRegistry, telemetry, viewRegistry);
+  containerRegistry = new TestContainerProviderRegistry({} as ApiSenderType, imageRegistry, telemetry);
 });
 
 test('tag should reject if no provider', async () => {

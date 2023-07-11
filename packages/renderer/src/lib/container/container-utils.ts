@@ -135,7 +135,6 @@ export class ContainerUtils {
       groupInfo: this.getContainerGroup(containerInfo),
       selected: false,
       created: containerInfo.Created,
-      icon: containerInfo.icon,
       labels: containerInfo.Labels,
     };
   }

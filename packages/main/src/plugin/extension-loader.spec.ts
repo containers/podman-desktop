@@ -113,6 +113,8 @@ const iconRegistry: IconRegistry = {} as unknown as IconRegistry;
 const telemetryTrackMock = vi.fn();
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
 
+const contextRegistry: ContextRegistry = {} as unknown as ContextRegistry;
+
 const viewRegistry: ViewRegistry = {} as unknown as ViewRegistry;
 const contextRegistry: ContextRegistry = {} as unknown as ContextRegistry;
 
@@ -145,6 +147,7 @@ beforeAll(() => {
     authenticationProviderRegistry,
     iconRegistry,
     telemetry,
+    contextRegistry,
     viewRegistry,
     contextRegistry,
     directories,

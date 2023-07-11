@@ -24,6 +24,6 @@ export interface IContext {
 
 export interface ContextInfo {
   readonly id: number;
-  readonly parent?: Context | null;
+  readonly parent: Context | null;
   readonly extension: string | null;
 }
