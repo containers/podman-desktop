@@ -11,6 +11,7 @@ import ImageDetailsInspect from './ImageDetailsInspect.svelte';
 import ImageDetailsHistory from './ImageDetailsHistory.svelte';
 import ImageDetailsSummary from './ImageDetailsSummary.svelte';
 import PushImageModal from './PushImageModal.svelte';
+import RenameImageModal from './RenameImageModal.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import DetailsTab from '../ui/DetailsTab.svelte';
 
@@ -23,8 +24,14 @@ function handlePushImageModal() {
   pushImageModal = true;
 }
 
+let renameImageModal = false;
+function handleRenameImageModal() {
+  renameImageModal = true;
+}
+
 function closeModals() {
   pushImageModal = false;
+  renameImageModal = false;
 }
 
 let image: ImageInfoUI;
@@ -48,7 +55,12 @@ onMount(() => {
   <DetailsPage title="{image.name}" titleDetail="{image.shortId}" subtitle="{image.tag}">
     <StatusIcon slot="icon" icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
     <div slot="actions" class="flex justify-end">
-      <ImageActions image="{image}" onPushImage="{handlePushImageModal}" detailed="{true}" dropdownMenu="{false}" />
+      <ImageActions
+        image="{image}"
+        onPushImage="{handlePushImageModal}"
+        onRenameImage="{handleRenameImageModal}"
+        detailed="{true}"
+        dropdownMenu="{false}" />
     </div>
     <div slot="tabs" class="pf-c-tabs__list">
       <DetailsTab title="Summary" url="summary" />
@@ -72,6 +84,14 @@ onMount(() => {
 {#if pushImageModal}
   <PushImageModal
     imageInfoToPush="{image}"
+    closeCallback="{() => {
+      closeModals();
+    }}" />
+{/if}
+{#if renameImageModal}
+  <RenameImageModal
+    imageInfoToRename="{image}"
+    detailed="{true}"
     closeCallback="{() => {
       closeModals();
     }}" />

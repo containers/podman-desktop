@@ -1,5 +1,12 @@
 <script lang="ts">
-import { faArrowUp, faEllipsisVertical, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowUp,
+  faEllipsisVertical,
+  faLayerGroup,
+  faPlay,
+  faTrash,
+  faEdit,
+} from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -9,6 +16,7 @@ import { runImageInfo } from '../../stores/run-image-store';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
+export let onRenameImage: (imageInfo: ImageInfoUI) => void;
 export let image: ImageInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
@@ -33,6 +41,10 @@ async function deleteImage(): Promise<void> {
     errorTitle = 'Error while deleting image';
     errorMessage = error;
   }
+}
+
+async function renameImage(imageInfo: ImageInfoUI): Promise<void> {
+  onRenameImage(imageInfo);
 }
 
 async function pushImage(imageInfo: ImageInfoUI): Promise<void> {
@@ -81,6 +93,13 @@ if (dropdownMenu) {
       detailed="{detailed}"
       icon="{faArrowUp}" />
   {/if}
+
+  <ListItemButtonIcon
+    title="Edit Image"
+    onClick="{() => renameImage(image)}"
+    menu="{dropdownMenu}"
+    detailed="{detailed}"
+    icon="{faEdit}" />
 
   {#if !detailed}
     <ListItemButtonIcon

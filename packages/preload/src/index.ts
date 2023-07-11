@@ -489,6 +489,13 @@ function initExposure(): void {
     return ipcInvoke('container-provider-registry:deleteImage', engine, imageId);
   });
 
+  contextBridge.exposeInMainWorld(
+    'tagImage',
+    async (engine: string, imageId: string, repo: string, tag?: string): Promise<void> => {
+      return ipcInvoke('container-provider-registry:tagImage', engine, imageId, repo, tag);
+    },
+  );
+
   contextBridge.exposeInMainWorld('startProviderLifecycle', async (providerId: string): Promise<void> => {
     return ipcInvoke('provider-registry:startProviderLifecycle', providerId);
   });
