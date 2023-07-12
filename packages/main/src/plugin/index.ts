@@ -1349,9 +1349,9 @@ export class PluginSystem {
     });
 
     this.ipcHandle(
-      'extension-loader:deactivateExtension',
+      'extension-loader:stopExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
-        return this.extensionLoader.deactivateExtension(extensionId);
+        return this.extensionLoader.stopExtension(extensionId);
       },
     );
     this.ipcHandle(

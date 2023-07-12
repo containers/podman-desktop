@@ -261,22 +261,15 @@ test('Should load file from watching scanning folder', async () => {
 
 test('Verify extension error leads to failed state', async () => {
   const id = 'extension.id';
-  await extensionLoader.activateExtension(
-    {
-      id: id,
-      name: 'id',
-      path: 'dummy',
-      api: {} as typeof containerDesktopAPI,
-      mainPath: '',
-      removable: false,
-      manifest: {},
-    },
-    {
-      activate: () => {
-        throw Error('Failed');
-      },
-    },
-  );
+  await extensionLoader.activateExtension({
+    id: id,
+    name: 'id',
+    path: 'dummy',
+    api: {} as typeof containerDesktopAPI,
+    mainPath: 'missing main',
+    removable: false,
+    manifest: {},
+  });
   expect(extensionLoader.getExtensionState().get(id)).toBe('failed');
 });
 
