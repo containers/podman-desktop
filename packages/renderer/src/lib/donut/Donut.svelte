@@ -44,12 +44,7 @@ function getStoke() {
     stroke="{getStoke()}"
     stroke-width="5"
     d="{describeArc(size / 2, size / 2 + 5, size / 2, 0, (percent * 360) / 100)}"></path>
-  <text x="{size / 2}" y="25%" fill="white" text-anchor="middle" style="font-size: 9px;">{title}</text>
-  <text
-    x="{size / 2}"
-    y="{size / 2}"
-    fill="white"
-    dominant-baseline="central"
-    text-anchor="middle"
-    style="font-size: 9px;">{value}</text>
+  <text x="{size / 2}" y="37%" text-anchor="middle" class="text-xs stroke-gray-800">{title}</text>
+  <text x="{size / 2}" y="51%" dominant-baseline="central" text-anchor="middle" class="text-sm stroke-gray-500"
+    >{value}</text>
 </svg>
