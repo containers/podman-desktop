@@ -2,7 +2,7 @@
 sidebar_position: 10
 ---
 
-# Troubleshooting Podman
+#
 
 ### Unable to see any image or container after downloading Podman Desktop
 
@@ -48,7 +48,7 @@ Twitter:   @Podman_io
 
 #### Issue
 
-In this scenario, the screen may be displaying "No Containers" as shown below despite active containers runnning in the background.
+In this scenario, the screen might be displaying "No Containers" as shown below despite active containers runnning in the background.
 ![img](../img/containers_error.png)
 
 #### Solution
@@ -88,7 +88,7 @@ When running the Podman provider, a warning shows regarding Docker compatibility
 ⚠️ Docker Socket Compatibility: Podman is not emulating the default Docker socket path: '/var/run/docker.sock'. Docker-specific tools may not work. See troubleshooting page on podman-desktop.io for more information.
 ```
 
-This may appear when either:
+This might appear when either:
 
 - The Docker socket is not mounted correctly
 - Docker Desktop is also being ran at the same time

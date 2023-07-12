@@ -32,7 +32,7 @@ helper_binaries_dir=["/Users/user/example_directory"]
 
 #### Issue
 
-Despite having Podman Engine installed, you may receive an error as follows -
+Despite having Podman Engine installed, you might receive an error as follows -
 `Error: No such keg: /usr/local/Cellar/podman`
 or any similar error denoting that Podman Engine does not exist.
 
@@ -50,7 +50,7 @@ which podman
 
 This returns the path where the Podman Engine would be installed. This would help determine further action.
 
-For example, if you’re looking to completely uninstall Podman Engine from your system for a fresh installation, running `which podman` returns the exact path where Podman still exists. This could be the path where Podman Installer stores Podman Engine i.e. `/opt/podman`. Once you know the path, run:
+For example, if you’re looking to completely uninstall Podman Engine from your system for a fresh installation, running `which podman` returns the exact path where Podman still exists. This could be the path where Podman Installer stores Podman Engine, such as `/opt/podman`. Once you know the path, run:
 
 ```sh
 sudo rm -rf /opt/podman

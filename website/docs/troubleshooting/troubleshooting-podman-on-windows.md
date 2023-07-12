@@ -9,7 +9,7 @@ sidebar_position: 20
 If at all you are not able to stop your Podman Machine, you will find such an error in the Logs-
 `Error: Error stopping sysd: exit status 0`
 
-It is highly unlikely that you may be stuck in such a situation but if you are, here's a quick fix for it.
+It is highly unlikely that you might be stuck in such a situation but if you are, here's a quick fix for it.
 
 Assuming the name of the Podman Machine to be `my-machine`, run the following commands in the terminal:
 
@@ -17,7 +17,7 @@ Assuming the name of the Podman Machine to be `my-machine`, run the following co
 wsl --list
 ```
 
-This shall display a list of active distributions i.e. `my-machine` in this case.
+This shall display a list of active distributions, such as `my-machine` in this case.
 
 Then,
 
