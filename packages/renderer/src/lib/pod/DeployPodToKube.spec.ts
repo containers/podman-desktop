@@ -272,7 +272,7 @@ test('Fail to deploy ingress if service is not selected', async () => {
   expect(createButton).toBeEnabled();
 
   // Checkmark the ingress
-  const checkbox = screen.getByLabelText('Expose service locally using Kubernetes Ingress:');
+  const checkbox = screen.getByLabelText('Expose Service Locally Using Kubernetes Ingress:');
   await fireEvent.click(checkbox);
   expect(checkbox).toHaveProperty('checked', true);
 

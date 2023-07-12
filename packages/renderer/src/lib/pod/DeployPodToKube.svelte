@@ -351,7 +351,7 @@ function updateKubeResult() {
   <div slot="content" class="p-5 min-w-full h-fit">
     <div class="bg-charcoal-600 p-5">
       {#if kubeDetails}
-        <p>Generated pod to deploy to Kubernetes:</p>
+        <p>Generated Kubernetes YAML:</p>
         <div class="h-48 pt-2">
           <MonacoEditor content="{kubeDetails}" language="yaml" />
         </div>
@@ -371,7 +371,7 @@ function updateKubeResult() {
       {/if}
 
       <div class="pt-2 pb-4">
-        <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Use Kubernetes Services:</label>
+        <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes Services:</label>
         <input
           type="checkbox"
           bind:checked="{deployUsingServices}"
@@ -386,7 +386,7 @@ function updateKubeResult() {
 
       <div class="pt-2 pb-4">
         <label for="useRestricted" class="block mb-1 text-sm font-medium text-gray-300"
-          >Use restricted security context</label>
+          >Restricted Security Context:</label>
         <input
           type="checkbox"
           bind:checked="{deployUsingRestrictedSecurityContext}"
@@ -405,7 +405,7 @@ function updateKubeResult() {
       {#if !openshiftRouteGroupSupported && deployUsingServices}
         <div class="pt-2 pb-4">
           <label for="createIngress" class="block mb-1 text-sm font-medium text-gray-300"
-            >Expose service locally using Kubernetes Ingress:</label>
+            >Expose Service Locally Using Kubernetes Ingress:</label>
           <input
             type="checkbox"
             bind:checked="{createIngress}"
@@ -466,7 +466,7 @@ function updateKubeResult() {
 
       {#if allNamespaces}
         <div class="pt-2">
-          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes namespace:</label>
+          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Namespace:</label>
           <select
             class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             name="namespaceChoice"
