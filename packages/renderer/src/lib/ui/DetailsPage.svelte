@@ -28,7 +28,10 @@ export let subtitle: string = undefined;
               <h1>{title}</h1>
               <div class="text-base text-violet-400 ml-2" class:hidden="{!titleDetail}">{titleDetail}</div>
             </div>
-            <div class="mr-2 pb-4 text-small text-gray-900">{subtitle}</div>
+            <div class="mr-2 pb-4">
+              <span class="text-small text-gray-900" class:hidden="{!subtitle}">{subtitle}</span>
+              <slot name="subtitle" />
+            </div>
           </div>
         </div>
       </div>

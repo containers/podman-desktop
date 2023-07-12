@@ -50,7 +50,7 @@ async function refreshTerminal() {
   // call fit addon each time we resize the window
   window.addEventListener('resize', () => {
     if (currentRouterPath === `/container-connection/${providerInternalId}/${connection}/logs`) {
-      termFit.fit();
+      termFit?.fit();
     }
   });
   termFit.fit();
@@ -81,7 +81,7 @@ onMount(async () => {
     noLogs = false;
   });
   // Resize the terminal each time we change the div size
-  resizeObserver = new ResizeObserver(entries => {
+  resizeObserver = new ResizeObserver(() => {
     termFit?.fit();
   });
 

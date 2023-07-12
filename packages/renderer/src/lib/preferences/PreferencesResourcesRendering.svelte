@@ -19,15 +19,19 @@ import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
-import { getProviderConnectionName } from './Util';
-import type { IConnectionRestart, IConnectionStatus, IProviderConnectionConfigurationPropertyRecorded } from './Util';
+import {
+  getProviderConnectionName,
+  type IConnectionRestart,
+  type IConnectionStatus,
+  type IProviderConnectionConfigurationPropertyRecorded,
+} from './Util';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
-import { Buffer } from 'buffer';
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
 import PreferencesProviderInstallationModal from './PreferencesProviderInstallationModal.svelte';
 import Spinner from '../ui/Spinner.svelte';
+import { Buffer } from 'buffer';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
@@ -384,7 +388,7 @@ function hideInstallModal() {
                 <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}">
                   {#each providerContainerConfiguration
                     .get(provider.internalId)
-                    .filter(conf => conf.container === container.name) as connectionSetting}
+                    .filter(conf => conf.connection === container.name) as connectionSetting}
                     {#if connectionSetting.format === 'cpu'}
                       <div class="mr-4">
                         <div class="text-[9px]">{connectionSetting.description}</div>
