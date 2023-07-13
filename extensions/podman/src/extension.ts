@@ -32,6 +32,8 @@ import { PodmanConfiguration } from './podman-configuration';
 import { getDetectionChecks } from './detection-checks';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { getSocketCompatibility } from './compatibility-mode';
+import { compareVersions } from 'compare-versions';
+import type { AuditRequestItems, AuditResult } from '@podman-desktop/api';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -68,6 +70,7 @@ export type MachineJSON = {
   Running: boolean;
   Starting: boolean;
   Default: boolean;
+  UserModeNetworking?: boolean;
 };
 
 export type ConnectionJSON = {
@@ -83,6 +86,7 @@ export type MachineInfo = {
   cpus: number;
   memory: number;
   diskSize: number;
+  userModeNetworking?: boolean;
 };
 
 async function updateMachines(provider: extensionApi.Provider): Promise<void> {
@@ -114,6 +118,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       memory: parseInt(machine.Memory),
       cpus: machine.CPUs,
       diskSize: parseInt(machine.DiskSize),
+      userModeNetworking: isWindows() ? machine.UserModeNetworking : true,
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
@@ -597,6 +602,8 @@ async function doHandleWSLDistroNotFoundError(
               'podman.factory.machine.diskSize': machineInfo.diskSize,
             },
             undefined,
+            undefined,
+            undefined,
           );
         } catch (error) {
           console.error(error);
@@ -821,11 +828,16 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // allows to create machines
   if (isMac() || isWindows()) {
-    provider.setContainerProviderConnectionFactory({
-      initialize: () => createMachine({}, undefined),
-      create: createMachine,
-      creationDisplayName: 'Podman machine',
-    });
+    provider.setContainerProviderConnectionFactory(
+      {
+        initialize: () => createMachine({}, undefined),
+        create: (params, logger, token) => createMachine(params, logger, token, installedPodman?.version),
+        creationDisplayName: 'Podman machine',
+      },
+      {
+        auditItems: items => checkMachineParameters(items, installedPodman?.version),
+      },
+    );
   }
 
   // no podman for now, skip
@@ -1028,11 +1040,18 @@ export async function deactivate(): Promise<void> {
   });
 }
 
+const PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING = '4.6.0';
+
+function isUserModeNetworkingSupported(podmanVersion: string) {
+  return isWindows() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING) >= 0;
+}
+
 export async function createMachine(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: { [key: string]: any },
   logger: extensionApi.Logger,
   token?: extensionApi.CancellationToken,
+  podmanVersion?: string,
 ): Promise<void> {
   const parameters = [];
   parameters.push('machine');
@@ -1083,6 +1102,10 @@ export async function createMachine(
     parameters.push('--rootful');
   }
 
+  if (params['podman.factory.machine.user-mode-networking'] && isUserModeNetworkingSupported(podmanVersion)) {
+    parameters.push('--user-mode-networking');
+  }
+
   // name at the end
   if (params['podman.factory.machine.name']) {
     parameters.push(params['podman.factory.machine.name']);
@@ -1114,6 +1137,26 @@ export async function createMachine(
     }
   }
   await execPromise(getPodmanCli(), parameters, { logger, env }, token);
+}
+
+export async function checkMachineParameters(items: AuditRequestItems, podmanVersion?: string): Promise<AuditResult> {
+  const result = {
+    records: [],
+  };
+  if (items['podman.factory.machine.user-mode-networking'] && !isUserModeNetworkingSupported(podmanVersion)) {
+    if (!isWindows()) {
+      result.records.push({
+        type: 'warning',
+        record: 'User mode networking parameter is ignored on Linux and MacOS',
+      });
+    } else {
+      result.records.push({
+        type: 'warning',
+        record: `User mode networking is not supported by this Podman version, will be ignored. Install Podman ${PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING} or later.`,
+      });
+    }
+  }
+  return result;
 }
 function setupDisguisedPodmanSocketWatcher(
   provider: extensionApi.Provider,

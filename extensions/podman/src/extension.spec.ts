@@ -24,6 +24,7 @@ import { getPodmanCli } from './podman-cli';
 import type { Configuration } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
+import { isWindows } from './util';
 
 const config: Configuration = {
   get: () => {
@@ -156,6 +157,50 @@ test('verify create command called with correct values', async () => {
   expect(spyExecPromise).toBeCalledWith(
     getPodmanCli(),
     ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path'],
+    {
+      env: {},
+      logger: undefined,
+    },
+    undefined,
+  );
+  expect(console.error).not.toBeCalled();
+});
+
+test('verify create command called with correct values with user mode networking', async () => {
+  const spyExecPromise = vi.spyOn(podmanCli, 'execPromise');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.resolve('');
+  });
+  await extension.createMachine(
+    {
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.image-path': 'path',
+      'podman.factory.machine.memory': '1048000000',
+      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.user-mode-networking': true,
+    },
+    undefined,
+    undefined,
+    '4.6.0',
+  );
+  const parameters = [
+    'machine',
+    'init',
+    '--cpus',
+    '2',
+    '--memory',
+    '1048',
+    '--disk-size',
+    '250',
+    '--image-path',
+    'path',
+  ];
+  if (isWindows()) {
+    parameters.push('--user-mode-networking');
+  }
+  expect(spyExecPromise).toBeCalledWith(
+    getPodmanCli(),
+    parameters,
     {
       env: {},
       logger: undefined,

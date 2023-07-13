@@ -105,6 +105,12 @@
           "default": true,
           "scope": "ContainerProviderConnectionFactory",
           "description": "Machine with root privileges"
+        },
+        "podman.factory.machine.user-mode-networking": {
+          "type": "boolean",
+          "default": false,
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "User mode networking"
         }
       }
     },
