@@ -14,17 +14,17 @@ In the below example, we will pretend that we're upgrading from `0.11.0` to `0.1
 1. Click on the top right drop-down menu `Run workflow`
 1. Enter the name of the release. Example: `0.12.0` (DO NOT use the v prefix like v0.12.0)
 1. Specify the branch to use for the new release. It's main for all major releases. For a bugfix release, you'll select a different branch.
-1. Click on the `Run workflow` button. 
+1. Click on the `Run workflow` button.
 1. Note: `Run workflow` takes approximatley 30-50 minutes. Brew a coffee, work on the release notes, and/or complete the next two steps while you wait.
 1. Close the milestone for the respective release, make sure that all tasks within the milesetone are completed / updated before closing. https://github.com/containers/podman-desktop/milestones
-1. Click on `New Milestone` and create a new milestone for the NEXT release.
+1. If not already created, click on `New Milestone` and create a new milestone for the NEXT release.
 1. Check that https://github.com/containers/podman-desktop/actions/workflows/release.yaml has been completed. Sometimes it will flake, so you may need to re-run it.
 1. There should be an automated PR that has been created. Approve this and set to auto-merge. This will be automatically merged in after all tests have been ran (takes 10-30 minutes). The title looks like `chore: 📢 Bump version to 0.13.0`.
 1. Above PR MUST be merged before continuing with the steps.
 1. Edit the new release https://github.com/containers/podman-desktop/releases/edit/v0.12.0
 1. Select previous tag (v0.11.0) and click on `Generate release notes` and the click on `Update release`
 
-## Updating packages
+## Updating package managers (Brew, Winget, Chocolatey, Flathub)
 
 Pre-requisites:
 
@@ -94,7 +94,7 @@ You can view the progress at: https://community.chocolatey.org/packages/podman-d
 
 ## Documentation
 
-## Release notes
+### Release notes
 
 You can generate "draft" release notes by using the [release notes workflow](https://github.com/containers/podman-desktop/actions/workflows/release-notes.yaml). This will go through each PR and look for the `// release-notes` comment, in order to automatically generate release notes. Note: If no one has added release note comments, the script will result in a blank file.
 
@@ -151,7 +151,6 @@ An example of a previous post: https://www.reddit.com/r/podman/comments/10moat6/
 1. Send email to devtools-team at redhat.com, Podman-Desktop at redhat.com
 1. Send email to product-announce at redhat.com (high level)
 1. Send email to podman-desktop at lists.podman.io (no links to Red Hat internal slack, etc.)
-
 
 ## Release notes template
 
