@@ -52,7 +52,7 @@ async function waitRender() {
   return result;
 }
 
-async function createRunImage(entrypoint: string | string[], cmd: string[]) {
+async function createRunImage(entrypoint: string | string[] | undefined, cmd: string[] | undefined) {
   runImageInfo.set({
     age: '',
     base64RepoTag: '',
@@ -245,6 +245,19 @@ describe('RunImage', () => {
     );
   });
 
+  test('Expect that image without cmd is sent to API', async () => {
+    await createRunImage(['entrypoint1', 'entrypoint2'], undefined);
+
+    const button = screen.getByRole('button', { name: 'Start Container' });
+
+    await fireEvent.click(button);
+
+    expect(window.createAndStartContainer).toHaveBeenCalledWith(
+      'engineid',
+      expect.objectContaining({ Entrypoint: ['entrypoint1', 'entrypoint2'] }),
+    );
+  });
+
   test('Expect that single array command is sent to API', async () => {
     await createRunImage([], ['command']);
 
@@ -272,6 +285,19 @@ describe('RunImage', () => {
   });
   test('Expect that two elements array command is sent to API', async () => {
     await createRunImage([], ['command1', 'command2']);
+
+    const button = screen.getByRole('button', { name: 'Start Container' });
+
+    await fireEvent.click(button);
+
+    expect(window.createAndStartContainer).toHaveBeenCalledWith(
+      'engineid',
+      expect.objectContaining({ Cmd: ['command1', 'command2'] }),
+    );
+  });
+
+  test('Expect that image without entrypoint is sent to API', async () => {
+    await createRunImage(undefined, ['command1', 'command2']);
 
     const button = screen.getByRole('button', { name: 'Start Container' });
 
