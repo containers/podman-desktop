@@ -26,3 +26,11 @@ Podman Desktop has a **Troubleshooting** page to help identify and fix most comm
    Expect a reply such as: _Done in (5.00ms)_.
 
 1. Search for errors in the **Logs** section.
+
+#### Additional resources
+
+- [Troubleshooting Podman](troubleshooting/troubleshooting-podman)
+- [Troubleshooting Podman on Windows](troubleshooting/troubleshooting-podman-on-windows)
+- [Troubleshooting Podman on macOS](troubleshooting/troubleshooting-podman-on-macos)
+- [Troubleshooting Podman on Linux](troubleshooting/troubleshooting-podman-on-linux)
+- [Troubleshooting OpenShift Local](troubleshooting/troubleshooting-openshift-local)
