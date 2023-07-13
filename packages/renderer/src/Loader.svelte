@@ -64,6 +64,10 @@ window.events.receive('starting-extensions', (value: string) => {
   }
   clearInterval(loadingSequence);
 });
+
+window.events.receive('extensions-started', () => {
+  window.dispatchEvent(new CustomEvent('extensions-already-started', {}));
+});
 </script>
 
 {#if !systemReady}
