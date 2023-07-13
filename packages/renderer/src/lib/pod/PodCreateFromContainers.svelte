@@ -184,9 +184,7 @@ function updatePortExposure(port: number, checked: boolean) {
 </script>
 
 <FormPage title="Copy containers to a pod">
-  <span slot="icon">
-    <PodIcon solid="{true}" />
-  </span>
+  <PodIcon slot="icon" solid="{true}" />
 
   <div class="min-w-full h-fit" slot="content">
     <div class="m-5 p-6 bg-charcoal-800 rounded-sm text-gray-700">

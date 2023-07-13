@@ -134,9 +134,9 @@ async function getContainerBuildContextDirectory() {
 </script>
 
 <FormPage title="Build Image from Containerfile">
-  <span slot="icon">
+  <svelte:fragment slot="icon">
     <i class="fas fa-cube fa-2x" aria-hidden="true"></i>
-  </span>
+  </svelte:fragment>
   <div slot="content" class="p-5 min-w-full h-fit">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />

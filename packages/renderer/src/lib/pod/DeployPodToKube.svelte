@@ -344,9 +344,7 @@ function updateKubeResult() {
 </script>
 
 <FormPage title="Deploy generated pod to Kubernetes">
-  <span slot="icon">
-    <i class="fas fa-rocket fa-2x" aria-hidden="true"></i>
-  </span>
+  <i class="fas fa-rocket fa-2x" slot="icon" aria-hidden="true"></i>
 
   <div slot="content" class="p-5 min-w-full h-fit">
     <div class="bg-charcoal-600 p-5">

@@ -112,18 +112,18 @@ function validateImageName(event): void {
 </script>
 
 <FormPage title="Pull Image From a Registry">
-  <span slot="icon">
+  <svelte:fragment slot="icon">
     <i class="fas fa-arrow-circle-down fa-2x" aria-hidden="true"></i>
-  </span>
+  </svelte:fragment>
 
-  <div slot="actions" class="space-x-2 flex flex-nowrap">
+  <svelte:fragment slot="actions">
     <button on:click="{() => gotoManageRegistries()}" class="pf-c-button pf-m-primary" type="button">
       <span class="pf-c-button__icon pf-m-start">
         <i class="fas fa-cog" aria-hidden="true"></i>
       </span>
       Manage registries
     </button>
-  </div>
+  </svelte:fragment>
 
   <div slot="content" class="p-5 min-w-full h-fit">
     {#if providerConnections.length === 0}

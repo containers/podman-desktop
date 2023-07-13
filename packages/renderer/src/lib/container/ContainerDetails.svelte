@@ -49,7 +49,7 @@ function errorCallback(errorMessage: string): void {
 {#if container}
   <DetailsPage title="{container.name}" subtitle="{container.shortImage}">
     <StatusIcon slot="icon" icon="{ContainerIcon}" status="{container.state}" />
-    <div slot="actions" class="flex justify-end">
+    <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         {#if container.actionError}
           <ErrorMessage error="{container.actionError}" icon />
@@ -62,11 +62,11 @@ function errorCallback(errorMessage: string): void {
         errorCallback="{error => errorCallback(error)}"
         container="{container}"
         detailed="{true}" />
-    </div>
+    </svelte:fragment>
     <div slot="detail" class="flex py-2 w-full justify-end">
       <ContainerStatistics container="{container}" />
     </div>
-    <div slot="tabs" class="pf-c-tabs__list">
+    <svelte:fragment slot="tabs">
       <DetailsTab title="Summary" url="summary" />
       <DetailsTab title="Logs" url="logs" />
       <DetailsTab title="Inspect" url="inspect" />
@@ -75,8 +75,8 @@ function errorCallback(errorMessage: string): void {
         <DetailsTab title="Kube" url="kube" />
       {/if}
       <DetailsTab title="Terminal" url="terminal" />
-    </div>
-    <span slot="content">
+    </svelte:fragment>
+    <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
         <ContainerDetailsSummary container="{container}" />
       </Route>
@@ -92,6 +92,6 @@ function errorCallback(errorMessage: string): void {
       <Route path="/terminal" breadcrumb="Terminal" navigationHint="tab">
         <ContainerDetailsTerminal container="{container}" />
       </Route>
-    </span>
+    </svelte:fragment>
   </DetailsPage>
 {/if}

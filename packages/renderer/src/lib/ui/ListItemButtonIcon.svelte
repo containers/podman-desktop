@@ -18,9 +18,9 @@ let positionTopClass = 'top-1';
 if (detailed) positionTopClass = '[0.2rem]';
 
 const buttonDetailedClass =
-  'mx-1 text-gray-400 bg-charcoal-800 hover:text-violet-600 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
+  'text-gray-400 bg-charcoal-800 hover:text-violet-600 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
 const buttonDetailedDisabledClass =
-  'mx-1 text-gray-900 bg-charcoal-800 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
+  'text-gray-900 bg-charcoal-800 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
 const buttonClass =
   'm-0.5 text-gray-400 hover:bg-charcoal-600 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 const buttonDisabledClass =

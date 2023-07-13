@@ -3,13 +3,9 @@ import FormPage from './FormPage.svelte';
 </script>
 
 <FormPage title="Test component" showBreadcrumb="{false}">
-  <span slot="icon">
-    <i class="fas fa-lightbulb fa-2x" aria-label="icon"></i>
-  </span>
+  <i slot="icon" class="fas fa-lightbulb fa-2x" aria-label="icon"></i>
 
-  <span slot="actions">
-    <i class="fas fa-lightbulb fa-2x" aria-label="actions"></i>
-  </span>
+  <i slot="actions" class="fas fa-lightbulb fa-2x" aria-label="actions"></i>
 
   <div slot="content" class="flex flex-col">
     <i class="fas fa-lightbulb fa-2x" aria-label="content"></i>

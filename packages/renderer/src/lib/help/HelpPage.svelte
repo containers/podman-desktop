@@ -18,9 +18,9 @@ $: contributedLinks = $providerInfos
 </script>
 
 <FormPage title="Help" showBreadcrumb="{false}">
-  <span slot="icon">
+  <svelte:fragment slot="icon">
     <i class="fas fa-question-circle fa-2x" aria-hidden="true"></i>
-  </span>
+  </svelte:fragment>
   <div slot="content" class="flex flex-col min-w-full h-fit">
     <div class="min-w-full flex-1 pt-5 px-5 pb-5 space-y-5">
       <!-- Getting Started -->
