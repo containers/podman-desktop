@@ -42,7 +42,7 @@
     "test": "npm run test:unit && npm run test:e2e:smoke",
     "test:unit": "npm run test:main && npm run test:preload && npm run test:preload-docker-extension && npm run test:renderer && npm run test:tools && npm run test:extensions",
     "test:e2e:smoke": "cross-env NODE_ENV=development MODE=development DEBUG=pw:browser npm run build && xvfb-maybe vitest run tests/src/e2e-smoke.spec.ts",
-    "test:main": "vitest run -r packages/main --passWithNoTests --coverage",
+    "test:main": "vitest run -r packages/main --passWithNoTests --coverage --no-threads",
     "test:preload": "vitest run -r packages/preload --passWithNoTests --coverage",
     "test:preload-docker-extension": "vitest run -r packages/preload-docker-extension --passWithNoTests --coverage",
     "test:extensions": "npm run test:extensions:compose && npm run test:extensions:kind && npm run test:extensions:docker && npm run test:extensions:lima && npm run test:extensions:kube && npm run test:extensions:podman && npm run test:extensions:registries",
