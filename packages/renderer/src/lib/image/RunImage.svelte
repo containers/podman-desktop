@@ -103,7 +103,9 @@ onMount(async () => {
   imageInspectInfo = await window.getImageInspect(image.engineId, image.id);
   exposedPorts = Array.from(Object.keys(imageInspectInfo?.Config?.ExposedPorts || {}));
 
-  command = array2String(imageInspectInfo.Config.Cmd);
+  if (imageInspectInfo.Config.Cmd) {
+    command = array2String(imageInspectInfo.Config.Cmd);
+  }
 
   if (imageInspectInfo.Config.Entrypoint) {
     if (typeof imageInspectInfo.Config.Entrypoint === 'string') {
