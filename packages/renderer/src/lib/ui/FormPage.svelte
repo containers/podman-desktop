@@ -30,8 +30,8 @@ export let showBreadcrumb = true;
         {/if}
         <h1 aria-label="{title}" class="grow text-xl first-letter:uppercase">{title}</h1>
         {#if $$slots.actions}
-          <div class="flex justify-self-end pl-3">
-            <slot name="actions">&nbsp;</slot>
+          <div class="flex flex-nowrap justify-self-end pl-3 space-x-2">
+            <slot name="actions" />
           </div>
         {/if}
       </div>

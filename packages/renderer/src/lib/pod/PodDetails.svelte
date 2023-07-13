@@ -62,7 +62,7 @@ function errorCallback(errorMessage: string): void {
 {#if pod}
   <DetailsPage title="{pod.name}" subtitle="{pod.shortId}">
     <StatusIcon slot="icon" icon="{PodIcon}" status="{pod.status}" />
-    <div slot="actions" class="flex justify-end">
+    <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         {#if pod.actionError}
           <ErrorMessage error="{pod.actionError}" icon />
@@ -75,14 +75,14 @@ function errorCallback(errorMessage: string): void {
         inProgressCallback="{(flag, state) => inProgressCallback(flag, state)}"
         errorCallback="{error => errorCallback(error)}"
         detailed="{true}" />
-    </div>
-    <div slot="tabs" class="pf-c-tabs__list">
+    </svelte:fragment>
+    <svelte:fragment slot="tabs">
       <DetailsTab title="Summary" url="summary" />
       <DetailsTab title="Logs" url="logs" />
       <DetailsTab title="Inspect" url="inspect" />
       <DetailsTab title="Kube" url="kube" />
-    </div>
-    <span slot="content">
+    </svelte:fragment>
+    <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
         <PodDetailsSummary pod="{pod}" />
       </Route>
@@ -95,6 +95,6 @@ function errorCallback(errorMessage: string): void {
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
         <PodDetailsKube pod="{pod}" />
       </Route>
-    </span>
+    </svelte:fragment>
   </DetailsPage>
 {/if}

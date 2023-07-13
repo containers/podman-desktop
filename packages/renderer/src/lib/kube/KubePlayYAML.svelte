@@ -152,9 +152,8 @@ async function getKubernetesfileLocation() {
 
 {#if providerConnections.length > 0}
   <FormPage title="Play Pods or Containers from a Kubernetes YAML File">
-    <span slot="icon">
-      <KubePlayIcon size="30px" />
-    </span>
+    <KubePlayIcon slot="icon" size="30px" />
+
     <div slot="content" class="p-5 min-w-full h-fit">
       <div class="bg-charcoal-800 px-6 py-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div class="text-xl font-medium">Select file:</div>

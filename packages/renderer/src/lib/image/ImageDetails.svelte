@@ -54,20 +54,19 @@ onMount(() => {
 {#if image}
   <DetailsPage title="{image.name}" titleDetail="{image.shortId}" subtitle="{image.tag}">
     <StatusIcon slot="icon" icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
-    <div slot="actions" class="flex justify-end">
-      <ImageActions
-        image="{image}"
-        onPushImage="{handlePushImageModal}"
-        onRenameImage="{handleRenameImageModal}"
-        detailed="{true}"
-        dropdownMenu="{false}" />
-    </div>
-    <div slot="tabs" class="pf-c-tabs__list">
+    <ImageActions
+      slot="actions"
+      image="{image}"
+      onPushImage="{handlePushImageModal}"
+      onRenameImage="{handleRenameImageModal}"
+      detailed="{true}"
+      dropdownMenu="{false}" />
+    <svelte:fragment slot="tabs">
       <DetailsTab title="Summary" url="summary" />
       <DetailsTab title="History" url="history" />
       <DetailsTab title="Inspect" url="inspect" />
-    </div>
-    <span slot="content">
+    </svelte:fragment>
+    <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
         <ImageDetailsSummary image="{image}" />
       </Route>
@@ -77,7 +76,7 @@ onMount(() => {
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <ImageDetailsInspect image="{image}" />
       </Route>
-    </span>
+    </svelte:fragment>
   </DetailsPage>
 {/if}
 

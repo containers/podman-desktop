@@ -36,20 +36,18 @@ onMount(() => {
 {#if volume}
   <DetailsPage title="{volume.shortName}" subtitle="{volume.humanSize}">
     <StatusIcon slot="icon" icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
-    <div slot="actions" class="flex justify-end">
-      <VolumeActions volume="{volume}" detailed="{true}" />
-    </div>
-    <div slot="tabs" class="pf-c-tabs__list">
+    <VolumeActions slot="actions" volume="{volume}" detailed="{true}" />
+    <svelte:fragment slot="tabs">
       <DetailsTab title="Summary" url="summary" />
       <DetailsTab title="Inspect" url="inspect" />
-    </div>
-    <span slot="content">
+    </svelte:fragment>
+    <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
         <VolumeDetailsSummary volume="{volume}" />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <VolumeDetailsInspect volume="{volume}" />
       </Route>
-    </span>
+    </svelte:fragment>
   </DetailsPage>
 {/if}

@@ -33,7 +33,9 @@ export let subtitle: string = undefined;
         </div>
       </div>
       <div class="flex flex-col pr-2 pt-5">
-        <slot name="actions" />
+        <div class="flex justify-end space-x-2">
+          <slot name="actions" />
+        </div>
         <slot name="detail" />
       </div>
       <a href="{$lastPage.path}" title="Close Details" class="mt-2 mr-2 text-gray-900"

@@ -6,9 +6,7 @@ import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
 </script>
 
 <FormPage title="Troubleshooting" showBreadcrumb="{false}">
-  <span slot="icon">
-    <i class="fas fa-lightbulb fa-2x" aria-hidden="true"></i>
-  </span>
+  <i slot="icon" class="fas fa-lightbulb fa-2x" aria-hidden="true"></i>
 
   <div slot="content" class="flex flex-col space-y-4 p-4">
     <TroubleshootingPageProviders />
