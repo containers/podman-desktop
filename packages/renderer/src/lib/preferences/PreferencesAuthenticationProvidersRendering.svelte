@@ -10,7 +10,7 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 </script>
 
 <SettingsPage title="Authentication">
-  <div class="container w-full h-full">
+  <div class="container h-full">
     <!-- Authentication Providers table start -->
     <EmptyScreen
       icon="{KeyIcon}"

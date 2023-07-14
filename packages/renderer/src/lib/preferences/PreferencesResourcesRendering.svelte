@@ -291,7 +291,7 @@ function hideInstallModal() {
       href="/preferences/extensions"
       class="text-gray-700 underline underline-offset-2">Extensions</a>
   </span>
-  <div class="w-full h-full">
+  <div class="h-full">
     <EmptyScreen
       aria-label="no-resource-panel"
       icon="{EngineIcon}"
