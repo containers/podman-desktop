@@ -18,6 +18,7 @@ let buttonOrder;
 let display = false;
 
 let inputElement: HTMLInputElement = undefined;
+let messageBox: HTMLDivElement;
 
 const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
   currentId = options.id;
@@ -104,6 +105,21 @@ function handleKeydown(e: KeyboardEvent) {
     cleanup();
     e.preventDefault();
   }
+
+  if (e.key === 'Tab') {
+    // trap focus
+    const nodes = messageBox.querySelectorAll<HTMLElement>('*');
+    const tabbable = Array.from(nodes).filter(n => n.tabIndex >= 0);
+
+    let index = tabbable.indexOf(document.activeElement as HTMLElement);
+    if (index === -1 && e.shiftKey) index = 0;
+
+    index += tabbable.length + (e.shiftKey ? -1 : 1);
+    index %= tabbable.length;
+
+    tabbable[index].focus();
+    e.preventDefault();
+  }
 }
 </script>
 
@@ -112,7 +128,9 @@ function handleKeydown(e: KeyboardEvent) {
 {#if display}
   <!-- Create overlay-->
   <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 bg-blend-multiply h-full grid z-50">
-    <div class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black">
+    <div
+      class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black"
+      bind:this="{messageBox}">
       <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
         {#if type === 'error'}
           <Fa class="h-4 w-4 text-red-500" icon="{faCircleExclamation}" />
