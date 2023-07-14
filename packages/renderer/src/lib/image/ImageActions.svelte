@@ -36,7 +36,6 @@ $: window.hasAuthconfigForImage(image.name).then(result => (isAuthenticatedForTh
 async function deleteImage(): Promise<void> {
   try {
     await window.deleteImage(image.engineId, image.id);
-    router.goto('/images/');
   } catch (error) {
     errorTitle = 'Error while deleting image';
     errorMessage = error;

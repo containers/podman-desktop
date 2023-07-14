@@ -56,7 +56,7 @@ test('Expect to redirect to /pods page after deletion', async () => {
 });
 
 test('Expect no redirect to /pods page after deletion if configured', async () => {
-  render(PodActions, { pod, errorCallback, redirectAfterDelete: false });
+  render(PodActions, { pod, errorCallback });
 
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Pod' });

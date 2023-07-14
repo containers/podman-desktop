@@ -68,7 +68,6 @@ async function deleteContainer(): Promise<void> {
   inProgressCallback(true, 'DELETING');
   try {
     await window.deleteContainer(container.engineId, container.id);
-    router.goto('/containers/');
   } catch (error) {
     errorCallback(error);
   } finally {

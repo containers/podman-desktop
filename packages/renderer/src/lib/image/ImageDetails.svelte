@@ -35,24 +35,32 @@ function closeModals() {
 }
 
 let image: ImageInfoUI;
+let detailsPage: DetailsPage;
+
 onMount(() => {
   const imageUtils = new ImageUtils();
-  // loading container info
-  imagesInfos.subscribe(images => {
+  // loading image info
+  return imagesInfos.subscribe(images => {
     const matchingImage = images.find(c => c.Id === imageID && c.engineId === engineId);
+    let newImage: ImageInfoUI;
     if (matchingImage) {
       try {
-        image = imageUtils.getImageInfoUI(matchingImage, base64RepoTag);
+        newImage = imageUtils.getImageInfoUI(matchingImage, base64RepoTag);
       } catch (err) {
         console.error(err);
       }
     }
+    if (image && !newImage && detailsPage) {
+      // the image has been deleted
+      detailsPage.close();
+    }
+    image = newImage;
   });
 });
 </script>
 
 {#if image}
-  <DetailsPage title="{image.name}" titleDetail="{image.shortId}" subtitle="{image.tag}">
+  <DetailsPage title="{image.name}" titleDetail="{image.shortId}" subtitle="{image.tag}" bind:this="{detailsPage}">
     <StatusIcon slot="icon" icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
     <ImageActions
       slot="actions"
