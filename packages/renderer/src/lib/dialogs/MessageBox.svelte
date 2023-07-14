@@ -99,6 +99,10 @@ function clickButton(index: number) {
 }
 
 function handleKeydown(e: KeyboardEvent) {
+  if (!display) {
+    return;
+  }
+
   if (e.key === 'Escape') {
     // if there is a cancel button use its id, otherwise undefined
     window.sendShowMessageBoxOnSelect(currentId, cancelId >= 0 ? cancelId : undefined);
