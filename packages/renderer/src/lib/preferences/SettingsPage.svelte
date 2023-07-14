@@ -11,7 +11,9 @@ export let title: string;
 
     <slot name="header" />
   </div>
-  <div class="flex flex-col min-w-full h-full px-5 py-4 overflow-y-auto">
-    <slot />
+  <div class="flex flex-row min-w-full h-full px-5 py-4 overflow-y-auto">
+    <div class="flex flex-col grow max-w-[905px] mx-auto">
+      <slot />
+    </div>
   </div>
 </div>

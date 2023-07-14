@@ -243,7 +243,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 </script>
 
 <SettingsPage title="Registries">
-  <div class="container mx-auto bg-charcoal-600 rounded-md p-3">
+  <div class="container bg-charcoal-600 rounded-md p-3">
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-gray-900">
       <div class="flex w-full">

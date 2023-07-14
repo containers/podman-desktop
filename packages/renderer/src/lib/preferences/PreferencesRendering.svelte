@@ -73,7 +73,7 @@ function updateSearchValue(event: any) {
         </svg>
       </div>
     </div>
-    <div class="flex flex-col min-w-full rounded-md space-y-5">
+    <div class="flex flex-col space-y-5">
       {#if matchingRecords.size === 0}
         <div>No Settings Found</div>
       {:else}

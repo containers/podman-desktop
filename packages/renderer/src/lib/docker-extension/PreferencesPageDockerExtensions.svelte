@@ -59,7 +59,7 @@ function deleteContribution(extensionName: string) {
       the OpenShift extension.
     </p>
 
-    <div class="container mx-auto w-full mt-4 flex-col">
+    <div class="container w-full mt-4 flex-col">
       <div class="flex flex-col mb-4">
         <label for="ociImage" class="block mb-2 text-sm font-medium text-gray-400">Image name:</label>
         <input
