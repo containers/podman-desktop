@@ -179,6 +179,10 @@ function clickQuickPickItem(item: any, index: number) {
 }
 
 function handleKeydown(e: KeyboardEvent) {
+  if (!display) {
+    return;
+  }
+
   if (e.key === 'Escape') {
     // In case of validating error, do not proceed
     if (validationError) {
@@ -244,6 +248,21 @@ function handleKeydown(e: KeyboardEvent) {
       e.preventDefault();
       return;
     }
+  }
+
+  if (e.key === 'Tab') {
+    // trap focus
+    const nodes = outerDiv.querySelectorAll<HTMLElement>('*');
+    const tabbable = Array.from(nodes).filter(n => n.tabIndex >= 0);
+
+    let index = tabbable.indexOf(document.activeElement as HTMLElement);
+    if (index === -1 && e.shiftKey) index = 0;
+
+    index += tabbable.length + (e.shiftKey ? -1 : 1);
+    index %= tabbable.length;
+
+    tabbable[index].focus();
+    e.preventDefault();
   }
 }
 
