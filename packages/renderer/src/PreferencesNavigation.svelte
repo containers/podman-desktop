@@ -45,7 +45,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
 </script>
 
 <nav
-  class="z-1 pf-c-nav w-[250px] min-w-[200px] shadow flex-col justify-between flex transition-all duration-500 ease-in-out"
+  class="z-1 pf-c-nav w-[225px] min-w-[225px] shadow flex-col justify-between flex transition-all duration-500 ease-in-out"
   style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))"
   aria-label="PreferencesNavigation">
   <div class="flex items-center">
@@ -112,7 +112,7 @@ $: addSectionHiddenClass = (section: string): string => (sectionExpanded[section
         class="pf-c-nav__link"
         aria-label="Authentication">
         <div class="flex items-center">
-          <span class="hidden md:block group-hover:block">Authentication</span>
+          <span class="block group-hover:block">Authentication</span>
         </div>
       </a>
     </li>
