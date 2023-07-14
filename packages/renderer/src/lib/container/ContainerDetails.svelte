@@ -22,14 +22,22 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 export let containerID: string;
 
 let container: ContainerInfoUI;
+let detailsPage: DetailsPage;
+
 onMount(() => {
   const containerUtils = new ContainerUtils();
   // loading container info
-  containersInfos.subscribe(containers => {
+  return containersInfos.subscribe(containers => {
     const matchingContainer = containers.find(c => c.Id === containerID);
+    let newContainer: ContainerInfoUI;
     if (matchingContainer) {
-      container = containerUtils.getContainerInfoUI(matchingContainer);
+      newContainer = containerUtils.getContainerInfoUI(matchingContainer);
     }
+    if (container && !newContainer && detailsPage) {
+      // the container has been deleted
+      detailsPage.close();
+    }
+    container = newContainer;
   });
 });
 
@@ -47,7 +55,7 @@ function errorCallback(errorMessage: string): void {
 </script>
 
 {#if container}
-  <DetailsPage title="{container.name}" subtitle="{container.shortImage}">
+  <DetailsPage title="{container.name}" subtitle="{container.shortImage}" bind:this="{detailsPage}">
     <StatusIcon slot="icon" icon="{ContainerIcon}" status="{container.state}" />
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">

@@ -1,9 +1,14 @@
 <script lang="ts">
 import { lastPage, currentPage } from '../../stores/breadcrumb';
+import { router } from 'tinro';
 
 export let title: string;
 export let titleDetail: string = undefined;
 export let subtitle: string = undefined;
+
+export function close(): void {
+  router.goto($lastPage.path);
+}
 </script>
 
 <div class="w-full h-full">

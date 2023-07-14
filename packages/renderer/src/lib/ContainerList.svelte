@@ -501,7 +501,6 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       containers: [],
                       kind: 'podman',
                     }}"
-                    redirectAfterDelete="{false}"
                     dropdownMenu="{true}" />
                 {/if}
                 {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE}

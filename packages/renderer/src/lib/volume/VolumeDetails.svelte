@@ -16,25 +16,33 @@ export let volumeName: string;
 export let engineId: string;
 
 let volume: VolumeInfoUI;
+let detailsPage: DetailsPage;
+
 onMount(() => {
   const volumeUtils = new VolumeUtils();
   // loading volume info
-  volumeListInfos.subscribe(volumes => {
+  return volumeListInfos.subscribe(volumes => {
     const allVolumes = volumes.map(volumeListInfo => volumeListInfo.Volumes).flat();
     const matchingVolume = allVolumes.find(volume => volume.Name === volumeName && volume.engineId === engineId);
+    let newVolume: VolumeInfoUI;
     if (matchingVolume) {
       try {
-        volume = volumeUtils.toVolumeInfoUI(matchingVolume);
+        newVolume = volumeUtils.toVolumeInfoUI(matchingVolume);
       } catch (err) {
         console.error(err);
       }
     }
+    if (volume && !newVolume && detailsPage) {
+      // the volume has been deleted
+      detailsPage.close();
+    }
+    volume = newVolume;
   });
 });
 </script>
 
 {#if volume}
-  <DetailsPage title="{volume.shortName}" subtitle="{volume.humanSize}">
+  <DetailsPage title="{volume.shortName}" subtitle="{volume.humanSize}" bind:this="{detailsPage}">
     <StatusIcon slot="icon" icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
     <VolumeActions slot="actions" volume="{volume}" detailed="{true}" />
     <svelte:fragment slot="tabs">

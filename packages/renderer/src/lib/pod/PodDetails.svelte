@@ -1,9 +1,8 @@
 <script lang="ts">
 import Route from '../../Route.svelte';
-import { onDestroy, onMount } from 'svelte';
+import { onMount } from 'svelte';
 import type { PodInfoUI } from './PodInfoUI';
 import { PodUtils } from './pod-utils';
-import type { Unsubscriber } from 'svelte/store';
 import { podsInfos } from '../../stores/pods';
 import PodIcon from '../images/PodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
@@ -21,29 +20,29 @@ export let engineId: string;
 export let kind: string;
 
 let pod: PodInfoUI;
-let podUnsubscribe: Unsubscriber;
+let detailsPage: DetailsPage;
 
 onMount(() => {
   const podUtils = new PodUtils();
-  // loading volume info
-  podUnsubscribe = podsInfos.subscribe(pods => {
+  // loading pod info
+  return podsInfos.subscribe(pods => {
     const matchingPod = pods.find(
       podInPods => podInPods.Name === podName && podInPods.engineId === engineId && kind === podInPods.kind,
     );
+    let newPod: PodInfoUI;
     if (matchingPod) {
       try {
-        pod = podUtils.getPodInfoUI(matchingPod);
+        newPod = podUtils.getPodInfoUI(matchingPod);
       } catch (err) {
         console.error(err);
       }
     }
+    if (pod && !newPod && detailsPage) {
+      // the pod has been deleted
+      detailsPage.close();
+    }
+    pod = newPod;
   });
-});
-
-onDestroy(() => {
-  if (podUnsubscribe) {
-    podUnsubscribe();
-  }
 });
 
 function inProgressCallback(inProgress: boolean, state: string): void {
@@ -60,7 +59,7 @@ function errorCallback(errorMessage: string): void {
 </script>
 
 {#if pod}
-  <DetailsPage title="{pod.name}" subtitle="{pod.shortId}">
+  <DetailsPage title="{pod.name}" subtitle="{pod.shortId}" bind:this="{detailsPage}">
     <StatusIcon slot="icon" icon="{PodIcon}" status="{pod.status}" />
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
