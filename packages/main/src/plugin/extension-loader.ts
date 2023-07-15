@@ -25,7 +25,7 @@ import * as zipper from 'zip-local';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import { Disposable } from './types/disposable.js';
 import type { ProviderRegistry } from './provider-registry.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
+import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { MessageBox } from './message-box.js';
 import type { ProgressImpl } from './progress-impl.js';
@@ -58,6 +58,8 @@ import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
 import { isLinux, isMac, isWindows } from '../util.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
+import { ExtensionSettings } from './extension-settings.js';
+import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
 
 /**
  * Handle the loading of an extension
@@ -212,6 +214,22 @@ export class ExtensionLoader {
   }
 
   async init(): Promise<void> {
+    const extensionConfiguration: IConfigurationNode = {
+      id: 'preferences.extensions',
+      title: 'Extensions',
+      type: 'object',
+      properties: {
+        [ExtensionSettings.SectionName + '.' + ExtensionSettings.Disabled]: {
+          description: 'Disabled extensions',
+          type: 'array',
+          default: undefined,
+          hidden: true,
+        },
+      },
+    };
+
+    this.configurationRegistry.registerConfigurations([extensionConfiguration]);
+
     // create pluginsDirectory if it does not exist
     if (!fs.existsSync(this.pluginsDirectory)) {
       fs.mkdirSync(this.pluginsDirectory, { recursive: true });
@@ -248,6 +266,24 @@ export class ExtensionLoader {
       // load all files
       await Promise.all(files.map(file => this.loadPackagedFile(file)));
     }
+  }
+
+  getDisabledExtensionIds(): string[] {
+    return (
+      (this.configurationRegistry
+        .getConfiguration(ExtensionSettings.SectionName, CONFIGURATION_DEFAULT_SCOPE)
+        .get(ExtensionSettings.Disabled) as string[]) || []
+    );
+  }
+
+  setDisabledExtensionIds(disabledExtensionIds: string[]) {
+    this.configurationRegistry
+      .updateConfigurationValue(
+        ExtensionSettings.SectionName + '.' + ExtensionSettings.Disabled,
+        disabledExtensionIds,
+        CONFIGURATION_DEFAULT_SCOPE,
+      )
+      .catch((error: unknown) => console.error('error while saving list of disabled extensions', error));
   }
 
   async start() {
@@ -499,6 +535,10 @@ export class ExtensionLoader {
   }
 
   async loadExtension(extension: AnalyzedExtension, checkForMissingDependencies = false): Promise<void> {
+    this.analyzedExtensions.set(extension.id, extension);
+    this.extensionState.delete(extension.id);
+    this.extensionStateErrors.delete(extension.id);
+
     // check if all dependencies are available
     if (checkForMissingDependencies && extension?.manifest?.extensionDependencies) {
       // search from existing .this.analyzedExtensions
@@ -510,6 +550,42 @@ export class ExtensionLoader {
       }
     }
 
+    const telemetryOptions = { extensionId: extension.id };
+    try {
+      // in development mode, watch if the extension is updated and reload it
+      if (import.meta.env.DEV && !this.watcherExtensions.has(extension.id)) {
+        const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extension.path);
+        extensionWatcher.onDidChange(async () => {
+          // wait 1 second before trying to reload the extension
+          // this is to avoid reloading the extension while it is still being updated
+          setTimeout(() => {
+            this.reloadExtension(extension, extension.removable).catch((error: unknown) =>
+              console.error('error while reloading extension', error),
+            );
+          }, 1000);
+        });
+        this.watcherExtensions.set(extension.id, extensionWatcher);
+      }
+
+      // activate the extension if it hasn't been disabled
+      if (!this.getDisabledExtensionIds().includes(extension.id)) {
+        await this.activateExtension(extension);
+      } else {
+        console.log('Not activating disabled extension (' + extension.id + ')');
+      }
+    } catch (err) {
+      this.extensionState.set(extension.id, 'failed');
+      this.extensionStateErrors.set(extension.id, err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (telemetryOptions as any).error = err;
+    } finally {
+      this.telemetry.track('loadExtension', telemetryOptions).catch((error: unknown) => {
+        console.error('error while tracking loadExtension telemetry', error);
+      });
+    }
+  }
+
+  async loadExtensionContributions(extension: AnalyzedExtension): Promise<void> {
     const extensionConfiguration = extension.manifest?.contributes?.configuration;
     if (extensionConfiguration) {
       // add information about the current extension
@@ -530,50 +606,12 @@ export class ExtensionLoader {
       this.iconRegistry.registerIconContribution(extension, icons);
     }
 
-    this.analyzedExtensions.set(extension.id, extension);
-    this.extensionState.delete(extension.id);
-    this.extensionStateErrors.delete(extension.id);
-
-    const telemetryOptions = { extensionId: extension.id };
-
     if (extension.missingDependencies && extension.missingDependencies.length > 0) {
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(
         extension.id,
         `Missing dependencies for this extension: ${extension?.missingDependencies.join(', ')}`,
       );
-
-      return;
-    }
-
-    try {
-      // in development mode, watch if the extension is updated and reload it
-      if (import.meta.env.DEV && !this.watcherExtensions.has(extension.id)) {
-        const extensionWatcher = this.fileSystemMonitoring.createFileSystemWatcher(extension.path);
-        extensionWatcher.onDidChange(async () => {
-          // wait 1 second before trying to reload the extension
-          // this is to avoid reloading the extension while it is still being updated
-          setTimeout(() => {
-            this.reloadExtension(extension, extension.removable).catch((error: unknown) =>
-              console.error('error while reloading extension', error),
-            );
-          }, 1000);
-        });
-        this.watcherExtensions.set(extension.id, extensionWatcher);
-      }
-
-      const runtime = this.loadRuntime(extension);
-
-      await this.activateExtension(extension, runtime);
-    } catch (err) {
-      this.extensionState.set(extension.id, 'failed');
-      this.extensionStateErrors.set(extension.id, err);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (telemetryOptions as any).error = err;
-    } finally {
-      this.telemetry.track('loadExtension', telemetryOptions).catch((error: unknown) => {
-        console.error('error while tracking loadExtension telemetry', error);
-      });
     }
   }
 
@@ -988,11 +1026,12 @@ export class ExtensionLoader {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async activateExtension(extension: AnalyzedExtension, extensionMain: any | undefined): Promise<void> {
+  async activateExtension(extension: AnalyzedExtension): Promise<void> {
     this.extensionState.set(extension.id, 'starting');
     this.extensionStateErrors.delete(extension.id);
     this.apiSender.send('extension-starting', {});
+
+    await this.loadExtensionContributions(extension);
 
     const subscriptions: containerDesktopAPI.Disposable[] = [];
 
@@ -1004,17 +1043,20 @@ export class ExtensionLoader {
       await fs.promises.rename(oldStoragePath, storagePath);
     }
 
-    const extensionContext: containerDesktopAPI.ExtensionContext = {
-      subscriptions,
-      storagePath,
-    };
-    let deactivateFunction = undefined;
-    if (typeof extensionMain?.['deactivate'] === 'function') {
-      deactivateFunction = extensionMain['deactivate'];
-    }
-
     const telemetryOptions = { extensionId: extension.id };
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const extensionMain: any | undefined = this.loadRuntime(extension);
+      let deactivateFunction = undefined;
+      if (typeof extensionMain?.['deactivate'] === 'function') {
+        deactivateFunction = extensionMain['deactivate'];
+      }
+
+      const extensionContext: containerDesktopAPI.ExtensionContext = {
+        subscriptions,
+        storagePath,
+      };
+
       if (typeof extensionMain?.['activate'] === 'function') {
         // it returns exports
         console.log(`Activating extension (${extension.id})`);
@@ -1049,11 +1091,10 @@ export class ExtensionLoader {
       return;
     }
 
-    const telemetryOptions = { extensionId: extension.id };
-
     this.extensionState.set(extension.id, 'stopping');
     this.apiSender.send('extension-stopping');
 
+    const telemetryOptions = { extensionId: extension.id };
     if (extension.deactivateFunction) {
       try {
         await extension.deactivateFunction();
@@ -1091,6 +1132,18 @@ export class ExtensionLoader {
       .catch((error: unknown) => console.log(`Failed to track deactivateExtension telemetry event. Error: ${error}`));
   }
 
+  async stopExtension(extensionId: string): Promise<void> {
+    // the user explicitly disabled the extension, save the configuration
+    const disabledExtensions = this.getDisabledExtensionIds();
+
+    if (!disabledExtensions.includes(extensionId)) {
+      disabledExtensions.push(extensionId);
+      this.setDisabledExtensionIds(disabledExtensions);
+    }
+
+    await this.deactivateExtension(extensionId);
+  }
+
   async stopAllExtensions(): Promise<void> {
     await Promise.all(
       Array.from(this.activatedExtensions.keys()).map(extensionId => this.deactivateExtension(extensionId)),
@@ -1100,6 +1153,16 @@ export class ExtensionLoader {
   async startExtension(extensionId: string): Promise<void> {
     const extension = this.analyzedExtensions.get(extensionId);
     if (extension) {
+      const disabledExtensionIds = this.getDisabledExtensionIds();
+      const index = disabledExtensionIds.indexOf(extensionId);
+      if (index > -1) {
+        // extension was disabled but the user has activated it,
+        // clean the configuration up
+        disabledExtensionIds.splice(index, 1);
+
+        this.setDisabledExtensionIds(disabledExtensionIds);
+      }
+
       const analyzedExtension = await this.analyzeExtension(extension.path, extension.removable);
 
       if (analyzedExtension) {
