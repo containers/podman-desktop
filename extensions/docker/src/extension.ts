@@ -168,7 +168,7 @@ function initProvider(extensionContext: extensionApi.ExtensionContext) {
     status: 'ready',
     images: {
       icon: './icon.png',
-      logo: './icon.png',
+      logo: './logo.png',
     },
   });
 
