@@ -58,6 +58,7 @@ import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
 import { isLinux, isMac, isWindows } from '../util.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
+import { exec } from './util/exec.js';
 
 /**
  * Handle the loading of an extension
@@ -901,6 +902,16 @@ export class ExtensionLoader {
       },
     };
 
+    const process: typeof containerDesktopAPI.process = {
+      exec: (
+        command: string,
+        args?: string[],
+        options?: containerDesktopAPI.RunOptions,
+      ): Promise<containerDesktopAPI.RunResult> => {
+        return exec(command, args, options);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -910,6 +921,7 @@ export class ExtensionLoader {
       TelemetryTrustedValue: TelemetryTrustedValue,
       commands,
       env,
+      process,
       registry,
       provider,
       fs,
