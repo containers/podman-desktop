@@ -4,9 +4,12 @@ export let title: string;
 
 <div class="flex flex-col min-w-full h-full">
   <div class="min-w-full px-5 py-4">
-    <div>
-      <p class="capitalize text-xl">{title}</p>
-      <p class="text-sm text-gray-700"><slot name="subtitle"><br /></slot></p>
+    <div class="flex flex-row">
+      <div class="grow">
+        <p class="capitalize text-xl">{title}</p>
+        <p class="text-sm text-gray-700"><slot name="subtitle"><br /></slot></p>
+      </div>
+      <slot name="actions" />
     </div>
 
     <slot name="header" />

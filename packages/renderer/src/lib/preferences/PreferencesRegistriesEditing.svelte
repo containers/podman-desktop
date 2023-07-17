@@ -243,6 +243,19 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 </script>
 
 <SettingsPage title="Registries">
+  <svelte:fragment slot="actions">
+    <button
+      on:click="{() => setNewRegistryFormVisible(true)}"
+      class="pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-7 w-36 text-sm rounded-md shadow hover:shadow-lg"
+      type="button"
+      disabled="{showNewRegistryForm}">
+      <span class="pf-c-button__icon pf-m-start">
+        <i class="fas fa-plus-circle" aria-hidden="true"></i>
+      </span>
+      Add registry
+    </button>
+  </svelte:fragment>
+
   <div class="container bg-charcoal-600 rounded-md p-3">
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-gray-900">
@@ -621,20 +634,4 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
     </div>
     <!-- Registries table end -->
   </div>
-
-  <!-- Spacer start -->
-  <div class="container h-full"></div>
-  <!-- Spacer end -->
-
-  <!-- Add new registry button start -->
-  <div class="flex justify-end pt-4 px-4 w-full">
-    <button
-      on:click="{() => setNewRegistryFormVisible(true)}"
-      class="pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-7 w-36 text-sm rounded-md shadow hover:shadow-lg"
-      type="button"
-      disabled="{showNewRegistryForm}">
-      Add registry
-    </button>
-  </div>
-  <!-- Add new registry button end -->
 </SettingsPage>
