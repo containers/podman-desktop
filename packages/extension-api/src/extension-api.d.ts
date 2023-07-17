@@ -1974,6 +1974,102 @@ declare module '@podman-desktop/api' {
   }
 
   /**
+   * Options for running a command.
+   */
+  export interface RunOptions {
+    /**
+     * Environment variables to set for the command.
+     */
+    env?: { [key: string]: string };
+
+    /**
+     * A cancellation token used to request cancellation.
+     */
+    token?: CancellationToken;
+
+    /**
+     * A logger used to track execution events.
+     */
+    logger?: Logger;
+  }
+
+  /**
+   * Represents the result of running a command.
+   */
+  export interface RunResult {
+    /**
+     * The command that was executed.
+     */
+    command: string;
+
+    /**
+     * The standard output (stdout) content of the command.
+     */
+    stdout: string;
+
+    /**
+     * The standard error (stderr) content of the command.
+     */
+    stderr: string;
+  }
+
+  /**
+   * Represents an error that occurred during the execution of a command.
+   */
+  export interface RunError extends Error {
+    /**
+     * The error message.
+     */
+    message: string;
+
+    /**
+     * The exit code of the command.
+     */
+    exitCode: number;
+
+    /**
+     * The command that was executed.
+     */
+    command: string;
+
+    /**
+     * The standard output (stdout) content of the command.
+     */
+    stdout: string;
+
+    /**
+     * The standard error (stderr) content of the command.
+     */
+    stderr: string;
+
+    /**
+     * Indicates whether the execution was cancelled.
+     */
+    cancelled: boolean;
+
+    /**
+     * Indicates whether the process was forcefully killed.
+     */
+    killed: boolean;
+  }
+
+  /**
+   * Namespace for environment-related utilities.
+   */
+  export namespace process {
+    /**
+     * Executes the provided command and returns an object containing the exit code,
+     * stdout, and stderr content.
+     * @param command The command to execute.
+     * @param args The command arguments.
+     * @param options Options, such as environment variables.
+     * @returns A promise that resolves to a RunResult object.
+     * @throws {@link RunError} if provided command can not be executed.
+     */
+    export function exec(command: string, args?: string[], options?: RunOptions): Promise<RunResult>;
+  }
+
+  /**
    * A special value wrapper denoting a value that is safe to not clean.
    * This is to be used when you can guarantee no identifiable information is contained in the value and the cleaning is improperly redacting it.
    */
