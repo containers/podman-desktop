@@ -39,11 +39,6 @@
   --pf-c-nav__link--m-current--after--BorderColor: #8b5cf6;
 }
 
-.pf-c-tabs__link::after {
-  --pf-c-tabs__link--after--BorderColor: #8b5cf6;
-  --pf-c-tabs__link--m-current--after--BorderColor: #8b5cf6;
-}
-
 .pf-c-button {
   --pf-c-button--FontSize: 13px;
 }
