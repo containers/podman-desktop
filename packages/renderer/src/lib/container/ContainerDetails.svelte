@@ -16,7 +16,7 @@ import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
 import ContainerDetailsKube from './ContainerDetailsKube.svelte';
 import ContainerStatistics from './ContainerStatistics.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import DetailsTab from '../ui/DetailsTab.svelte';
+import Tab from '../ui/Tab.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let containerID: string;
@@ -67,14 +67,14 @@ function errorCallback(errorMessage: string): void {
       <ContainerStatistics container="{container}" />
     </div>
     <svelte:fragment slot="tabs">
-      <DetailsTab title="Summary" url="summary" />
-      <DetailsTab title="Logs" url="logs" />
-      <DetailsTab title="Inspect" url="inspect" />
+      <Tab title="Summary" url="summary" />
+      <Tab title="Logs" url="logs" />
+      <Tab title="Inspect" url="inspect" />
 
       {#if container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE}
-        <DetailsTab title="Kube" url="kube" />
+        <Tab title="Kube" url="kube" />
       {/if}
-      <DetailsTab title="Terminal" url="terminal" />
+      <Tab title="Terminal" url="terminal" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">

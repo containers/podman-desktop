@@ -13,7 +13,7 @@ import PodDetailsInspect from './PodDetailsInspect.svelte';
 import PodDetailsKube from './PodDetailsKube.svelte';
 import PodDetailsLogs from './PodDetailsLogs.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import DetailsTab from '../ui/DetailsTab.svelte';
+import Tab from '../ui/Tab.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let podName: string;
@@ -77,10 +77,10 @@ function errorCallback(errorMessage: string): void {
         detailed="{true}" />
     </svelte:fragment>
     <svelte:fragment slot="tabs">
-      <DetailsTab title="Summary" url="summary" />
-      <DetailsTab title="Logs" url="logs" />
-      <DetailsTab title="Inspect" url="inspect" />
-      <DetailsTab title="Kube" url="kube" />
+      <Tab title="Summary" url="summary" />
+      <Tab title="Logs" url="logs" />
+      <Tab title="Inspect" url="inspect" />
+      <Tab title="Kube" url="kube" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">

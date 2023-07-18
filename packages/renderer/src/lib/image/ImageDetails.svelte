@@ -13,7 +13,7 @@ import ImageDetailsSummary from './ImageDetailsSummary.svelte';
 import PushImageModal from './PushImageModal.svelte';
 import RenameImageModal from './RenameImageModal.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import DetailsTab from '../ui/DetailsTab.svelte';
+import Tab from '../ui/Tab.svelte';
 
 export let imageID: string;
 export let engineId: string;
@@ -62,9 +62,9 @@ onMount(() => {
       detailed="{true}"
       dropdownMenu="{false}" />
     <svelte:fragment slot="tabs">
-      <DetailsTab title="Summary" url="summary" />
-      <DetailsTab title="History" url="history" />
-      <DetailsTab title="Inspect" url="inspect" />
+      <Tab title="Summary" url="summary" />
+      <Tab title="History" url="history" />
+      <Tab title="Inspect" url="inspect" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">

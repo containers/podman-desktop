@@ -16,7 +16,7 @@ import { containersInfos } from '../../stores/containers';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { splitSpacesHandlingDoubleQuotes } from '../string/string';
 import { array2String } from '/@/lib/string/string.js';
-import DetailsTab from '../ui/DetailsTab.svelte';
+import Tab from '../ui/Tab.svelte';
 
 let image: ImageInfoUI;
 
@@ -420,10 +420,10 @@ function checkContainerName(event: any) {
       <div slot="content" class="p-5 min-w-full h-fit">
         <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
           <div class="flex flex-row px-2 border-b border-charcoal-400">
-            <DetailsTab title="Basic" url="basic" />
-            <DetailsTab title="Advanced" url="advanced" />
-            <DetailsTab title="Networking" url="networking" />
-            <DetailsTab title="Security" url="security" />
+            <Tab title="Basic" url="basic" />
+            <Tab title="Advanced" url="advanced" />
+            <Tab title="Networking" url="networking" />
+            <Tab title="Security" url="security" />
           </div>
           <div>
             <Route path="/basic" breadcrumb="Basic" navigationHint="tab">
