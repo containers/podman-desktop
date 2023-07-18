@@ -14,6 +14,7 @@ import WarningMessage from '../ui/WarningMessage.svelte';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
+import Spinner from '../ui/Spinner.svelte';
 
 let runStarted = false;
 let runFinished = false;
@@ -281,13 +282,7 @@ async function getKubernetesfileLocation() {
             <div class="flex flex-row align-text-top justify-center items-center">
               {#if runStarted}
                 <div class="mr-4">
-                  <i class="pf-c-button__progress">
-                    <span class="pf-c-spinner pf-m-md" role="progressbar">
-                      <span class="pf-c-spinner__clipper"></span>
-                      <span class="pf-c-spinner__lead-ball"></span>
-                      <span class="pf-c-spinner__tail-ball"></span>
-                    </span>
-                  </i>
+                  <Spinner />
                 </div>
               {:else}
                 <KubePlayIcon />

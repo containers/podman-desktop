@@ -31,6 +31,7 @@ import Checkbox from './ui/Checkbox.svelte';
 import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { PodUtils } from '../lib/pod/pod-utils';
 import ComposeActions from './compose/ComposeActions.svelte';
+import Spinner from './ui/Spinner.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -376,13 +377,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         <span class="pf-c-button__icon pf-m-start">
           {#if bulkDeleteInProgress}
             <div class="mr-4">
-              <i class="pf-c-button__progress">
-                <span class="pf-c-spinner pf-m-md" role="progressbar">
-                  <span class="pf-c-spinner__clipper"></span>
-                  <span class="pf-c-spinner__lead-ball"></span>
-                  <span class="pf-c-spinner__tail-ball"></span>
-                </span>
-              </i>
+              <Spinner />
             </div>
           {:else}
             <i class="fas fa-trash" aria-hidden="true"></i>

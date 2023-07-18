@@ -10,6 +10,7 @@ import FormPage from '../ui/FormPage.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { Terminal } from 'xterm';
+import Spinner from '../ui/Spinner.svelte';
 
 let logsPull: Terminal;
 let pullError = '';
@@ -177,13 +178,7 @@ function validateImageName(event): void {
                 type="submit"
                 on:click="{() => pullImage()}">
                 {#if pullInProgress === true}
-                  <i class="pf-c-button__progress">
-                    <span class="pf-c-spinner pf-m-md" role="progressbar">
-                      <span class="pf-c-spinner__clipper"></span>
-                      <span class="pf-c-spinner__lead-ball"></span>
-                      <span class="pf-c-spinner__tail-ball"></span>
-                    </span>
-                  </i>
+                  <Spinner />
                 {/if}
                 <span class="pf-c-button__icon pf-m-start">
                   <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>

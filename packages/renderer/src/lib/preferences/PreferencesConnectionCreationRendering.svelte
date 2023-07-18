@@ -333,10 +333,8 @@ async function close() {
     </h1>
     <div class="flex flex-col px-6 w-full h-full overflow-auto">
       {#if pageIsLoading}
-        <div class="text-center mt-16">
-          <div role="status">
-            <Spinner />
-          </div>
+        <div class="text-center mt-16" role="status">
+          <Spinner size="lg" />
         </div>
       {:else}
         {#if creationStarted}
@@ -413,13 +411,7 @@ async function close() {
                 <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
                   <div class="mr-24">
                     {#if creationInProgress === true}
-                      <i class="pf-c-button__progress">
-                        <span class="pf-c-spinner pf-m-md" role="progressbar">
-                          <span class="pf-c-spinner__clipper"></span>
-                          <span class="pf-c-spinner__lead-ball"></span>
-                          <span class="pf-c-spinner__tail-ball"></span>
-                        </span>
-                      </i>
+                      <Spinner />
                     {/if}
                   </div>
                   Create
