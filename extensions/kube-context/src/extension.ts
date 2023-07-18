@@ -90,7 +90,7 @@ export async function updateContext(
     statusBarItem = extensionApi.window.createStatusBarItem();
     statusBarItem.command = 'kubecontext.quickpick';
     statusBarItem.tooltip = 'Current Kubernetes context';
-    statusBarItem.iconClass = 'fa fa-server';
+    statusBarItem.iconClass = '${kube-icon}';
     statusBarItem.show();
     extensionContext.subscriptions.push(statusBarItem);
   }
