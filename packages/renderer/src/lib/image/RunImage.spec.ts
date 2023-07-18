@@ -52,7 +52,7 @@ async function waitRender() {
   return result;
 }
 
-async function createRunImage(entrypoint: string | string[] | undefined, cmd: string[] | undefined) {
+async function createRunImage(entrypoint?: string | string[], cmd?: string[]) {
   runImageInfo.set({
     age: '',
     base64RepoTag: '',
