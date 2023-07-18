@@ -56,7 +56,7 @@ async function executeCommand(entry: StatusBarEntry) {
   class="{opacity(entry)} px-1 {hoverBackground(entry)} {hoverCursor(entry)}"
   title="{tooltipText(entry)}">
   {#if iconClass(entry)}
-    <i class="{iconClass(entry)} not-italic" aria-hidden="true"></i>
+    <span class="{iconClass(entry)}" aria-hidden="true"></span>
   {/if}
   {#if entry.text}
     <span class="ml-1">{entry.text}</span>
