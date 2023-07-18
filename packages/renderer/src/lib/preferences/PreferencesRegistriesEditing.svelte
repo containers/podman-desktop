@@ -243,7 +243,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 </script>
 
 <SettingsPage title="Registries">
-  <svelte:fragment slot="actions">
+  <div slot="actions">
     <button
       on:click="{() => setNewRegistryFormVisible(true)}"
       class="pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-7 w-36 text-sm rounded-md shadow hover:shadow-lg"
@@ -254,7 +254,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
       </span>
       Add registry
     </button>
-  </svelte:fragment>
+  </div>
 
   <div class="container bg-charcoal-600 rounded-md p-3">
     <!-- Registries table start -->
