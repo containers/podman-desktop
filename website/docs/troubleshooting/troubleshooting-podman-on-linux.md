@@ -8,4 +8,6 @@ sidebar_position: 40
 
 On Linux, Podman usually runs natively on the host.
 Podman might also run in a virtual machine.
-Podman Desktop manages Podman machines in virtual machines, and does not handle native Podman installation configuration files.
+Podman Desktop does only connect to the native rootless podman connection.
+
+Podman Desktop does not manage podman native configuration or podman machine (create, configure, start, stop, delete).
