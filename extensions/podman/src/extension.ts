@@ -131,13 +131,15 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     const userModeNetworking = isWindows() ? machine.UserModeNetworking : true;
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
-      memory: machineInfo?.host.memTotal,
-      cpus: machineInfo?.host.cpus,
-      diskSize: machineInfo?.store.graphRootAllocated,
+      memory: machineInfo ? machineInfo.host.memTotal : 0,
+      cpus: machineInfo ? machineInfo.host.cpus : 0,
+      diskSize: machineInfo ? machineInfo.store.graphRootAllocated : 0,
       userModeNetworking: userModeNetworking,
-      cpuUsage: 100 - machineInfo?.host.cpuUtilization.idlePercent,
-      diskUsage: (machineInfo?.store.graphRootUsed * 100) / machineInfo?.store.graphRootAllocated,
-      memoryUsage: ((machineInfo?.host.memTotal - machineInfo?.host.memFree) * 100) / machineInfo?.host.memTotal,
+      cpuUsage: machineInfo ? 100 - machineInfo.host.cpuUtilization.idlePercent : 0,
+      diskUsage: machineInfo ? (machineInfo.store.graphRootUsed * 100) / machineInfo.store.graphRootAllocated : 0,
+      memoryUsage: machineInfo
+        ? ((machineInfo.host.memTotal - machineInfo.host.memFree) * 100) / machineInfo.host.memTotal
+        : 0,
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
