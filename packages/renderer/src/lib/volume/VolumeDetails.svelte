@@ -10,7 +10,7 @@ import { VolumeUtils } from './volume-utils';
 import VolumeDetailsSummary from '././VolumeDetailsSummary.svelte';
 import VolumeDetailsInspect from './VolumeDetailsInspect.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import DetailsTab from '../ui/DetailsTab.svelte';
+import Tab from '../ui/Tab.svelte';
 
 export let volumeName: string;
 export let engineId: string;
@@ -38,8 +38,8 @@ onMount(() => {
     <StatusIcon slot="icon" icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
     <VolumeActions slot="actions" volume="{volume}" detailed="{true}" />
     <svelte:fragment slot="tabs">
-      <DetailsTab title="Summary" url="summary" />
-      <DetailsTab title="Inspect" url="inspect" />
+      <Tab title="Summary" url="summary" />
+      <Tab title="Inspect" url="inspect" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
