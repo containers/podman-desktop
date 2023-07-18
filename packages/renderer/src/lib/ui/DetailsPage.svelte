@@ -41,15 +41,9 @@ export let subtitle: string = undefined;
       <a href="{$lastPage.path}" title="Close Details" class="mt-2 mr-2 text-gray-900"
         ><i class="fas fa-times" aria-hidden="true"></i></a>
     </div>
-    <section class="pf-c-page__main-tabs pf-m-limit-width">
-      <div class="pf-c-page__main-body">
-        <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
-          <ul class="pf-c-tabs__list">
-            <slot name="tabs" />
-          </ul>
-        </div>
-      </div>
-    </section>
+    <div class="flex flex-row px-2 border-b border-charcoal-400">
+      <slot name="tabs" />
+    </div>
     <div class="h-full bg-charcoal-900">
       <slot name="content" />
     </div>
