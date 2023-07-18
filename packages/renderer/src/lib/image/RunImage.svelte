@@ -103,14 +103,16 @@ onMount(async () => {
   imageInspectInfo = await window.getImageInspect(image.engineId, image.id);
   exposedPorts = Array.from(Object.keys(imageInspectInfo?.Config?.ExposedPorts || {}));
 
-  command = array2String(imageInspectInfo.Config.Cmd);
+  command = array2String(imageInspectInfo.Config?.Cmd || []);
 
-  if (imageInspectInfo.Config.Entrypoint) {
+  if (imageInspectInfo.Config?.Entrypoint) {
     if (typeof imageInspectInfo.Config.Entrypoint === 'string') {
       entrypoint = imageInspectInfo.Config.Entrypoint;
     } else {
       entrypoint = array2String(imageInspectInfo.Config.Entrypoint);
     }
+  } else {
+    entrypoint = '';
   }
 
   // auto-assign ports from available free port
