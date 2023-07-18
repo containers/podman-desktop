@@ -48,8 +48,8 @@ function registerProvider(
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   const engineType = configuration.getConfiguration('lima').get('type') || 'podman';
   const instanceName = configuration.getConfiguration('lima').get('name') || engineType;
-  const limaHome = os.homedir(); // TODO: look for the LIMA_HOME environment variable
-  const socketPath = path.resolve(limaHome, '.lima/' + instanceName + '/sock/' + engineType + '.sock');
+  const limaHome = 'LIMA_HOME' in process.env ? process.env['LIMA_HOME'] : os.homedir() + '/.lima';
+  const socketPath = path.resolve(limaHome, instanceName + '/sock/' + engineType + '.sock');
 
   let provider;
   if (fs.existsSync(socketPath)) {
