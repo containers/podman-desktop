@@ -2,6 +2,7 @@
 import type { ProviderDetectionCheck } from '@podman-desktop/api';
 
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import Spinner from '../ui/Spinner.svelte';
 
 export let provider: ProviderInfo;
 export let onDetectionChecks = (_detectionChecks: ProviderDetectionCheck[]) => {};
@@ -39,13 +40,7 @@ async function toggleDetectionChecks(provider: ProviderInfo) {
     <span class="pf-c-button__icon pf-m-start">
       {#if viewInProgress}
         <div class="mr-44">
-          <i class="pf-c-button__progress">
-            <span class="pf-c-spinner pf-m-md" role="progressbar">
-              <span class="pf-c-spinner__clipper"></span>
-              <span class="pf-c-spinner__lead-ball"></span>
-              <span class="pf-c-spinner__tail-ball"></span>
-            </span>
-          </i>
+          <Spinner />
         </div>
       {:else}
         <i class="fas fa-list" aria-hidden="true"></i>

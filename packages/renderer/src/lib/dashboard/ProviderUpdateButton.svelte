@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import Spinner from '../ui/Spinner.svelte';
 
 export let provider: ProviderInfo;
 let updateInProgress = false;
@@ -56,13 +57,7 @@ async function performUpdate(provider: ProviderInfo) {
     <span class="pf-c-button__icon pf-m-start">
       {#if updateInProgress}
         <div class="mr-20">
-          <i class="pf-c-button__progress">
-            <span class="pf-c-spinner pf-m-md" role="progressbar">
-              <span class="pf-c-spinner__clipper"></span>
-              <span class="pf-c-spinner__lead-ball"></span>
-              <span class="pf-c-spinner__tail-ball"></span>
-            </span>
-          </i>
+          <Spinner />
         </div>
       {:else}
         <i class="fas fa-box-open" aria-hidden="true"></i>

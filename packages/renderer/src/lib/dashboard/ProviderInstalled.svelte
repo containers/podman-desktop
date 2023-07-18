@@ -18,6 +18,7 @@ import {
   InitializeOnlyMode,
 } from './ProviderInitUtils';
 import Steps from 'svelte-steps/Steps.svelte';
+import Spinner from '../ui/Spinner.svelte';
 
 export let provider: ProviderInfo;
 export let initializationContext: InitializationContext;
@@ -197,13 +198,7 @@ function onInstallationClick() {
       <div class="flex flex-col text-gray-700">
         <div>Initializing</div>
         <div class="my-2 pr-5 relative">
-          <i class="pf-c-button__progress">
-            <span class="pf-c-spinner pf-m-md" role="progressbar">
-              <span class="pf-c-spinner__clipper"></span>
-              <span class="pf-c-spinner__lead-ball"></span>
-              <span class="pf-c-spinner__tail-ball"></span>
-            </span>
-          </i>
+          <Spinner />
         </div>
       </div>
     </div>

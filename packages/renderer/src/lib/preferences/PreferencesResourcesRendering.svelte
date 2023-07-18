@@ -25,6 +25,7 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
 import PreferencesProviderInstallationModal from './PreferencesProviderInstallationModal.svelte';
+import Spinner from '../ui/Spinner.svelte';
 
 interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   value?: any;
@@ -337,13 +338,7 @@ function hideInstallModal() {
                     type="button"
                     on:click="{() => doCreateNew(provider, providerDisplayName)}">
                     {#if providerInstallationInProgress.get(provider.name) === true}
-                      <i class="pf-c-button__progress">
-                        <span class="pf-c-spinner pf-m-md" role="progressbar">
-                          <span class="pf-c-spinner__clipper"></span>
-                          <span class="pf-c-spinner__lead-ball"></span>
-                          <span class="pf-c-spinner__tail-ball"></span>
-                        </span>
-                      </i>
+                      <Spinner />
                     {/if}
                     {buttonTitle} ...
                   </button>

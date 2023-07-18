@@ -12,6 +12,7 @@ import ContainerIcon from '../images/ContainerIcon.svelte';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import PodIcon from '../images/PodIcon.svelte';
+import Spinner from '../ui/Spinner.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
@@ -307,13 +308,7 @@ function updatePortExposure(port: number, checked: boolean) {
               <div class="flex flex-row">
                 {#if createInProgress}
                   <div class="mr-12">
-                    <i class="pf-c-button__progress">
-                      <span class="pf-c-spinner pf-m-md" role="progressbar">
-                        <span class="pf-c-spinner__clipper"></span>
-                        <span class="pf-c-spinner__lead-ball"></span>
-                        <span class="pf-c-spinner__tail-ball"></span>
-                      </span>
-                    </i>
+                    <Spinner />
                   </div>
                 {:else}
                   <PodIcon class="mr-2" size="1em" solid="{true}" />

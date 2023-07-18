@@ -8,6 +8,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
+import Spinner from '../ui/Spinner.svelte';
 
 export let ociImage: string = undefined;
 
@@ -92,13 +93,7 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
             class="w-full pf-c-button pf-m-primary"
             type="button">
             {#if installInProgress}
-              <i class="pf-c-button__progress">
-                <span class="pf-c-spinner pf-m-md" role="progressbar">
-                  <span class="pf-c-spinner__clipper"></span>
-                  <span class="pf-c-spinner__lead-ball"></span>
-                  <span class="pf-c-spinner__tail-ball"></span>
-                </span>
-              </i>
+              <Spinner />
             {/if}
             <span class="pf-c-button__icon pf-m-start">
               <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>

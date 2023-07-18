@@ -6,6 +6,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
+import Spinner from '../ui/Spinner.svelte';
 
 export let closeCallback: () => void;
 export let imageInfoToPush: ImageInfoUI;
@@ -138,13 +139,7 @@ let pushLogsXtermDiv: HTMLDivElement;
             pushImage(selectedImageTag);
           }}">
           {#if pushInProgress === true}
-            <i class="pf-c-button__progress">
-              <span class="pf-c-spinner pf-m-md" role="progressbar">
-                <span class="pf-c-spinner__clipper"></span>
-                <span class="pf-c-spinner__lead-ball"></span>
-                <span class="pf-c-spinner__tail-ball"></span>
-              </span>
-            </i>
+            <Spinner />
           {:else}
             <i class="fas fa-arrow-circle-up" aria-hidden="true"></i>
           {/if}
