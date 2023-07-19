@@ -65,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install the Chocolatey Automatic Package Updater Module
-        run: cinst au
+        run: choco install au -y
       - name: Build the Podman Desktop chocolatey Package by making sure we're using the latest release
         working-directory: ./.chocolatey/podman-desktop
         run: |
