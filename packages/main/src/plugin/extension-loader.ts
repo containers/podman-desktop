@@ -63,8 +63,6 @@ import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo 
 import type { ViewRegistry } from './view-registry.js';
 import type { ContextRegistry } from './context-registry.js';
 
-import type { LifecycleContextImpl } from './lifecycle-context.js';
-import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
 /**
  * Handle the loading of an extension
  */
@@ -833,9 +831,6 @@ export class ExtensionLoader {
       },
       stopContainer(engineId: string, id: string) {
         return containerProviderRegistry.stopContainer(engineId, id);
-      },
-      logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void) {
-        return containerProviderRegistry.logsContainer(engineId, id, callback);
       },
       saveImage(engineId: string, id: string, filename: string) {
         return containerProviderRegistry.saveImage(engineId, id, filename);

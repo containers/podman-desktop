@@ -122,40 +122,46 @@ function setNoLogs() {
 {#if connectionInfo}
   <div class="bg-charcoal-700 h-full">
     <DetailsPage title="{connectionInfo.name}">
-      <div class="flex flex-row" slot="subtitle">
-        <ConnectionStatus status="{connectionInfo.status}" />
-      </div>
-      <div slot="actions" class="flex justify-end">
-        <PreferencesConnectionActions
-          provider="{providerInfo}"
-          connection="{connectionInfo}"
-          connectionStatuses="{connectionStatus}"
-          updateConnectionStatus="{updateConectionStatus}"
-          addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
-      </div>
+      <svelte:fragment slot="subtitle">
+        <div class="flex flex-row">
+          <ConnectionStatus status="{connectionInfo.status}" />
+        </div>
+      </svelte:fragment>
+      <svelte:fragment slot="actions">
+        <div class="flex justify-end">
+          <PreferencesConnectionActions
+            provider="{providerInfo}"
+            connection="{connectionInfo}"
+            connectionStatuses="{connectionStatus}"
+            updateConnectionStatus="{updateConectionStatus}"
+            addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
+        </div>
+      </svelte:fragment>
       <CustomIcon slot="icon" icon="{providerInfo?.images?.icon}" altText="{providerInfo.name}" classes="max-h-10" />
-      <div slot="tabs" class="pf-c-tabs__list">
+      <svelte:fragment slot="tabs">
         <Tab title="Summary" url="summary" />
         {#if connectionInfo.lifecycleMethods && connectionInfo.lifecycleMethods.length > 0}
           <Tab title="Logs" url="logs" />
         {/if}
-      </div>
-      <div slot="content" class="h-full">
-        <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-          <PreferencesContainerConnectionDetailsSummary
-            containerConnectionInfo="{connectionInfo}"
-            providerInternalId="{providerInternalId}"
-            properties="{configurationKeys}" />
-        </Route>
-        <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
-          <PreferencesConnectionDetailsLogs            
-            providerInternalId="{providerInternalId}"
-            connection="{connection}"
-            connectionInfo="{connectionInfo}"
-            setNoLogs="{setNoLogs}"
-            noLog="{noLog}" />
-        </Route>
-      </div>
+      </svelte:fragment>
+      <svelte:fragment slot="content">
+        <div class="h-full">
+          <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
+            <PreferencesContainerConnectionDetailsSummary
+              containerConnectionInfo="{connectionInfo}"
+              providerInternalId="{providerInternalId}"
+              properties="{configurationKeys}" />
+          </Route>
+          <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
+            <PreferencesConnectionDetailsLogs
+              providerInternalId="{providerInternalId}"
+              connection="{connection}"
+              connectionInfo="{connectionInfo}"
+              setNoLogs="{setNoLogs}"
+              noLog="{noLog}" />
+          </Route>
+        </div>
+      </svelte:fragment>
     </DetailsPage>
   </div>
 {/if}
