@@ -26,6 +26,7 @@ import type { Telemetry } from './telemetry/telemetry.js';
 import type { ContainerProviderConnection, KubernetesProviderConnection } from '@podman-desktop/api';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 import type { ApiSenderType } from './api.js';
+import { LifecycleContextImpl } from './lifecycle-context.js';
 
 let providerRegistry: ProviderRegistry;
 
@@ -325,4 +326,87 @@ test('runAutostartContainer should start container and send event', async () => 
 
   // check that we have called the start method
   expect(autostartMock).toBeCalled();
+});
+
+test('should retrieve context of container provider', async () => {
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+  const connection: ProviderContainerConnectionInfo = {
+    name: 'connection',
+    type: 'docker',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status: 'stopped',
+  };
+
+  const startMock = vi.fn();
+  const stopMock = vi.fn();
+  provider.registerContainerProviderConnection({
+    name: 'connection',
+    type: 'docker',
+    lifecycle: {
+      start: startMock,
+      stop: stopMock,
+    },
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status() {
+      return 'stopped';
+    },
+  });
+
+  const context = providerRegistry.getMatchingConnectionLifecycleContext('0', connection);
+  expect(context instanceof LifecycleContextImpl).toBeTruthy();
+});
+
+test('should retrieve context of kubernetes provider', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let providerInternalId: any;
+
+  apiSenderSendMock.mockImplementation((_message, data) => {
+    providerInternalId = data;
+  });
+
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+
+  let initalizeCalled = false;
+  provider.setKubernetesProviderConnectionFactory({
+    initialize: async () => {
+      initalizeCalled = true;
+    },
+  });
+
+  expect(providerInternalId).toBeDefined();
+  await providerRegistry.initializeProvider(providerInternalId);
+
+  const connection: ProviderKubernetesConnectionInfo = {
+    name: 'connection',
+    endpoint: {
+      apiURL: 'url',
+    },
+    status: 'stopped',
+  };
+
+  const startMock = vi.fn();
+  const stopMock = vi.fn();
+  provider.registerKubernetesProviderConnection({
+    name: 'connection',
+    lifecycle: {
+      start: startMock,
+      stop: stopMock,
+    },
+    endpoint: {
+      apiURL: 'url',
+    },
+    status() {
+      return 'stopped';
+    },
+  });
+
+  const context = providerRegistry.getMatchingConnectionLifecycleContext('0', connection);
+  expect(context instanceof LifecycleContextImpl).toBeTruthy();
+
+  expect(initalizeCalled).toBe(true);
+  expect(apiSenderSendMock).toBeCalled();
 });

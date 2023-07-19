@@ -664,11 +664,11 @@ export class ProviderRegistry {
     return context;
   }
 
-  getMatchingContainerLifecycleContext(
-    providerId: string,
-    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  getMatchingConnectionLifecycleContext(
+    internalId: string,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   ): LifecycleContextImpl {
-    const connection = this.getMatchingContainerConnectionFromProvider(providerId, providerContainerConnectionInfo);
+    const connection = this.getMatchingConnectionFromProvider(internalId, providerContainerConnectionInfo);
 
     const context = this.connectionLifecycleContexts.get(connection);
     if (!context) {
