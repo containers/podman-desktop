@@ -61,6 +61,7 @@ import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import { exec } from './util/exec.js';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 import type { ViewRegistry } from './view-registry.js';
+import type { ContextRegistry } from './context-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -137,6 +138,7 @@ export class ExtensionLoader {
     private iconRegistry: IconRegistry,
     private telemetry: Telemetry,
     private viewRegistry: ViewRegistry,
+    private contextRegistry: ContextRegistry,
     directories: Directories,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
@@ -513,6 +515,8 @@ export class ExtensionLoader {
         extension.missingDependencies = missing;
       }
     }
+
+    this.contextRegistry.registerContext(extension.id);
 
     const extensionConfiguration = extension.manifest?.contributes?.configuration;
     if (extensionConfiguration) {
@@ -1100,6 +1104,8 @@ export class ExtensionLoader {
     for (const subscription of extension.extensionContext.subscriptions) {
       await subscription.dispose();
     }
+
+    this.contextRegistry.unregisterContext(extensionId);
 
     const analyzedExtension = this.analyzedExtensions.get(extensionId);
     if (analyzedExtension) {
