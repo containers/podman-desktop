@@ -25,7 +25,8 @@
           "default": "podman",
           "enum": [
             "podman",
-            "docker"
+            "docker",
+            "kubernetes"
           ],
           "description": "Engine type (requires restart of extension)"
         },
