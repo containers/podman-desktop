@@ -8,7 +8,9 @@ let systemReady = false;
 
 let toggle = false;
 
-let loadingSequence;
+let loadingSequence: NodeJS.Timer;
+
+let extensionsStarterChecker: NodeJS.Timer;
 
 onMount(async () => {
   loadingSequence = setInterval(() => {
@@ -21,19 +23,32 @@ onMount(async () => {
     if (systemReady) {
       window.dispatchEvent(new CustomEvent('system-ready', {}));
     }
-
-    const extensionsStarted = await window.extensionSystemIsExtensionsStarted();
-    if (extensionsStarted) {
-      window.dispatchEvent(new CustomEvent('extensions-already-started', {}));
-    }
   } catch (error) {
     console.error('Unable to check if system is ready', error);
   }
+
+  const checkRemoteStarted = async () => {
+    const extensionsStarted = await window.extensionSystemIsExtensionsStarted();
+    if (extensionsStarted) {
+      window.dispatchEvent(new CustomEvent('extensions-already-started', {}));
+      clearInterval(extensionsStarterChecker);
+    }
+  };
+
+  extensionsStarterChecker = setInterval(() => {
+    checkRemoteStarted().catch((error: unknown) => {
+      console.error('Unable to check if extensions are started', error);
+    });
+  }, 100);
 });
 
 onDestroy(() => {
   if (loadingSequence) {
     clearInterval(loadingSequence);
+  }
+
+  if (extensionsStarterChecker) {
+    clearInterval(extensionsStarterChecker);
   }
 });
 
