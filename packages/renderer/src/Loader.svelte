@@ -82,7 +82,7 @@ window.events.receive('starting-extensions', (value: string) => {
 </script>
 
 {#if !systemReady}
-  <main class="min-h-screen flex flex-col h-screen">
+  <main class="min-h-screen w-screen flex flex-col h-screen">
     <div class="min-h-full min-w-full flex flex-col">
       <div class="pf-c-empty-state h-full">
         <div class="pf-c-empty-state__content">
