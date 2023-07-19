@@ -34,16 +34,41 @@ test('write array object', () => {
   expect(xtermMock.write).toBeCalledTimes(2);
 });
 
-test('write invalid object', () => {
-  writeToTerminal(xtermMock, {} as unknown as string[], 'test');
+test('write array of array object', () => {
+  writeToTerminal(
+    xtermMock,
+    [
+      ['a', 'b'],
+      ['c', 'd'],
+    ],
+    'test',
+  );
   // no error reported
-  expect(xtermMock.write).toBeCalledWith(expect.stringContaining('test'));
+  expect(xtermMock.write).toBeCalledTimes(4);
+});
+
+test('write array with mixed values', () => {
+  writeToTerminal(xtermMock, [undefined, undefined, 'ok'], 'test');
+  // no error reported
+  expect(xtermMock.write).toBeCalledTimes(1);
+});
+
+test('write array of array object', () => {
+  writeToTerminal(xtermMock, [], 'test');
+  // no error reported
+  expect(xtermMock.write).not.toBeCalled();
+});
+
+test('write invalid object', () => {
+  writeToTerminal(xtermMock, {} as unknown as any[], 'test');
+  // it should not write as xterm.write is called with a valid string
+  expect(xtermMock.write).not.toBeCalled();
 });
 
 test('write undefined object', () => {
-  writeToTerminal(xtermMock, undefined as unknown as string[], 'test');
-  // no error reported
-  expect(xtermMock.write).toBeCalledWith(expect.stringContaining('test'));
+  writeToTerminal(xtermMock, undefined as unknown as any[], 'test');
+  // it should not write as xterm.write is called with a valid string
+  expect(xtermMock.write).not.toBeCalled();
 });
 
 test('return default if type is not number', () => {
