@@ -18,7 +18,7 @@
 
 import type { ElectronApplication, Page } from 'playwright';
 import { _electron as electron } from 'playwright';
-import { afterAll, beforeAll, test } from 'vitest';
+import { afterAll, beforeAll, test, describe } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { existsSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
@@ -60,40 +60,45 @@ afterAll(async () => {
   await electronApp.close();
 });
 
-test('Pull and check image', async () => {
-  const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
-  const imageLink = navBar.getByRole('link', { name: 'Images' });
-  await playExpect(imageLink).toBeVisible();
-  await imageLink.click();
+describe('Image pull verification', async () => {
+  test('Pull image', async () => {
+    const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
+    const imageLink = navBar.getByRole('link', { name: 'Images' });
+    await playExpect(imageLink).toBeVisible();
+    await imageLink.click();
 
-  const checkImagePage = page.getByRole('heading', { name: 'images', exact: true });
-  await playExpect(checkImagePage).toBeVisible();
+    const checkImagePage = page.getByRole('heading', { name: 'images', exact: true });
+    await playExpect(checkImagePage).toBeVisible();
 
-  const pullImageButton = page.getByRole('button', { name: 'Pull an image' });
-  await pullImageButton.waitFor({ state: 'visible' });
-  await pullImageButton.click();
+    const pullImageButton = page.getByRole('button', { name: 'Pull an image' });
+    await pullImageButton.waitFor({ state: 'visible' });
+    await pullImageButton.click();
 
-  const checkPullingPage = page.getByRole('heading', { name: 'Pull Image From a Registry' });
-  await playExpect(checkPullingPage).toBeVisible();
+    const checkPullingPage = page.getByRole('heading', { name: 'Pull Image From a Registry' });
+    await playExpect(checkPullingPage).toBeVisible();
 
-  const imageInput = page.getByLabel('imageName');
-  await imageInput.fill('quay.io/podman/hello');
+    const imageInput = page.getByLabel('imageName');
+    await imageInput.fill('quay.io/podman/hello');
 
-  const pullButton = page.getByRole('button', { name: 'Pull image' });
-  await pullButton.waitFor({ state: 'visible' });
-  await pullButton.click();
+    const pullButton = page.getByRole('button', { name: 'Pull image' });
+    await pullButton.waitFor({ state: 'visible' });
+    await pullButton.click();
 
-  const doneButton = page.getByRole('button', { name: 'Done' });
-  await doneButton.waitFor({ state: 'visible' });
-  await doneButton.click();
+    const doneButton = page.getByRole('button', { name: 'Done' });
+    await doneButton.waitFor({ state: 'visible' });
+    await doneButton.click();
+  });
 
-  await playExpect(checkImagePage).toBeVisible();
+  test('Check image appears', async () => {
+    const checkImagePage = page.getByRole('heading', { name: 'images', exact: true });
+    await playExpect(checkImagePage).toBeVisible();
 
-  const imageRow = checkImagePage.locator('tr:has-text("quay.io/podman/hello")');
-  await imageRow.waitFor({ state: 'visible' });
-  await imageRow.click();
+    const imageRow = checkImagePage.locator('tr:has-text("quay.io/podman/hello")');
+    await imageRow.waitFor({ state: 'visible' });
+    await imageRow.click();
 
-  await playExpect(page.getByText('Summary')).toBeVisible();
-  await playExpect(page.getByText('History')).toBeVisible();
-  await playExpect(page.getByText('Inspect')).toBeVisible();
+    await playExpect(page.getByText('Summary')).toBeVisible();
+    await playExpect(page.getByText('History')).toBeVisible();
+    await playExpect(page.getByText('Inspect')).toBeVisible();
+  });
 });
