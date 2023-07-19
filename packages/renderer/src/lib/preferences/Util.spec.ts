@@ -31,6 +31,8 @@ afterEach(() => {
 test('write array object', () => {
   writeToTerminal(xtermMock, ['a', 'b'], 'test');
   // no error reported
+  expect(xtermMock.write).toHaveBeenNthCalledWith(1, expect.stringContaining('a'));
+  expect(xtermMock.write).toHaveBeenNthCalledWith(2, expect.stringContaining('b'));
   expect(xtermMock.write).toBeCalledTimes(2);
 });
 
@@ -44,6 +46,10 @@ test('write array of array object', () => {
     'test',
   );
   // no error reported
+  expect(xtermMock.write).toHaveBeenNthCalledWith(1, expect.stringContaining('a'));
+  expect(xtermMock.write).toHaveBeenNthCalledWith(2, expect.stringContaining('b'));
+  expect(xtermMock.write).toHaveBeenNthCalledWith(3, expect.stringContaining('c'));
+  expect(xtermMock.write).toHaveBeenNthCalledWith(4, expect.stringContaining('d'));
   expect(xtermMock.write).toBeCalledTimes(4);
 });
 
@@ -51,12 +57,20 @@ test('write array with mixed values', () => {
   writeToTerminal(xtermMock, [undefined, undefined, 'ok'], 'test');
   // no error reported
   expect(xtermMock.write).toBeCalledTimes(1);
+  expect(xtermMock.write).toBeCalledWith(expect.stringContaining('ok'));
 });
 
 test('write array of array object', () => {
   writeToTerminal(xtermMock, [], 'test');
   // no error reported
   expect(xtermMock.write).not.toBeCalled();
+});
+
+test('write multiline string', () => {
+  writeToTerminal(xtermMock, ['a\nb\n'], 'test');
+  // no error reported
+  expect(xtermMock.write).toHaveBeenNthCalledWith(1, expect.stringContaining('a'));
+  expect(xtermMock.write).toHaveBeenNthCalledWith(2, expect.stringContaining('b'));
 });
 
 test('write invalid object', () => {
