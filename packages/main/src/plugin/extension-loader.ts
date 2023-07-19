@@ -808,6 +808,9 @@ export class ExtensionLoader {
       startContainer(engineId: string, id: string) {
         return containerProviderRegistry.startContainer(engineId, id);
       },
+      logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void) {
+        return containerProviderRegistry.logsContainer(engineId, id, callback);
+      },
       stopContainer(engineId: string, id: string) {
         return containerProviderRegistry.stopContainer(engineId, id);
       },
