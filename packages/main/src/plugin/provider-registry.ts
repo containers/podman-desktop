@@ -646,11 +646,11 @@ export class ProviderRegistry {
   }
 
   // helper method
-  protected getMatchingProvider(providerId: string): ProviderImpl {
+  protected getMatchingProvider(internalId: string): ProviderImpl {
     // need to find the provider
-    const provider = this.providers.get(providerId);
+    const provider = this.providers.get(internalId);
     if (!provider) {
-      throw new Error(`no provider matching provider id ${providerId}`);
+      throw new Error(`no provider matching provider id ${internalId}`);
     }
     return provider;
   }
