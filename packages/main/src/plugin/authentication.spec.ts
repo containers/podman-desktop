@@ -48,6 +48,7 @@ import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { ViewRegistry } from './view-registry.js';
+import type { ContextRegistry } from './context-registry.js';
 
 function randomNumber(n = 5) {
   return Math.round(Math.random() * 10 * n);
@@ -257,6 +258,7 @@ suite('Authentication', () => {
       vi.fn() as unknown as IconRegistry,
       vi.fn() as unknown as Telemetry,
       vi.fn() as unknown as ViewRegistry,
+      vi.fn() as unknown as ContextRegistry,
       directories,
     );
     providerMock = {
