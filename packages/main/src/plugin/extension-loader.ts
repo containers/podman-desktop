@@ -633,7 +633,7 @@ export class ExtensionLoader {
       getContainerConnections: () => {
         return providerRegistry.getContainerConnections();
       },
-      getMatchingProviderLifecycleContext(
+      getProviderLifecycleContext(
         providerId: string,
         providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       ): containerDesktopAPI.LifecycleContext {

@@ -41,7 +41,6 @@ import type {
   ProviderConnectionStatus,
   AuditResult,
   AuditRequestItems,
-  LifecycleContext,
 } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
@@ -691,7 +690,7 @@ export class ProviderRegistry {
   getMatchingProviderLifecycleContextByProviderId(
     providerId: string,
     providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
-  ): LifecycleContext {
+  ): LifecycleContextImpl {
     const internalId = this.getMatchingProviderInternalId(providerId);
     return this.getMatchingConnectionLifecycleContext(internalId, providerConnectionInfo);
   }
