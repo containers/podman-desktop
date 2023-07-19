@@ -1132,11 +1132,11 @@ export class PluginSystem {
         _listener,
         providerId: string,
         callbackId: number,
-        containerConnectionInfo?: ProviderContainerConnectionInfo,
+        connectionInfo?: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       ): Promise<void> => {
         let context;
-        if (containerConnectionInfo) {
-          context = providerRegistry.getMatchingContainerLifecycleContext(providerId, containerConnectionInfo);
+        if (connectionInfo) {
+          context = providerRegistry.getMatchingConnectionLifecycleContext(providerId, connectionInfo);
         } else {
           context = providerRegistry.getMatchingLifecycleContext(providerId);
         }
@@ -1159,11 +1159,11 @@ export class PluginSystem {
       async (
         _listener,
         providerId: string,
-        containerConnectionInfo?: ProviderContainerConnectionInfo,
+        connectionInfo?: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       ): Promise<void> => {
         let context;
-        if (containerConnectionInfo) {
-          context = providerRegistry.getMatchingContainerLifecycleContext(providerId, containerConnectionInfo);
+        if (connectionInfo) {
+          context = providerRegistry.getMatchingConnectionLifecycleContext(providerId, connectionInfo);
         } else {
           context = providerRegistry.getMatchingLifecycleContext(providerId);
         }

@@ -1062,7 +1062,7 @@ function initExposure(): void {
       log: LogFunction,
       warn: LogFunction,
       error: LogFunction,
-      containerConnectionInfo?: ProviderContainerConnectionInfo,
+      connectionInfo?: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
     ): Promise<void> => {
       onDataCallbacksStartReceiveLogsId++;
       const logger: containerDesktopAPI.Logger = {
@@ -1075,7 +1075,7 @@ function initExposure(): void {
         'provider-registry:startReceiveLogs',
         providerId,
         onDataCallbacksStartReceiveLogsId,
-        containerConnectionInfo,
+        connectionInfo,
       );
     },
   );
@@ -1098,8 +1098,11 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'stopReceiveLogs',
-    async (providerId: string, containerConnectionInfo?: ProviderContainerConnectionInfo): Promise<void> => {
-      return ipcInvoke('provider-registry:stopReceiveLogs', providerId, containerConnectionInfo);
+    async (
+      providerId: string,
+      connectionInfo?: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    ): Promise<void> => {
+      return ipcInvoke('provider-registry:stopReceiveLogs', providerId, connectionInfo);
     },
   );
 
