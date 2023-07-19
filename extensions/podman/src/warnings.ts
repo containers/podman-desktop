@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,19 +67,23 @@ export async function isDisguisedPodman(): Promise<boolean> {
   };
 
   return new Promise<boolean>(resolve => {
-    const req = http.get(podmanPingUrl, res => {
-      res.on('data', () => {
-        // do nothing
-      });
+    const req = http
+      .get(podmanPingUrl, res => {
+        res.on('data', () => {
+          // do nothing
+        });
 
-      res.on('end', () => {
-        if (res.statusCode === 200) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
+        res.on('end', () => {
+          if (res.statusCode === 200) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        });
+      })
+      .setTimeout(5000, function () {
+        resolve(false);
       });
-    });
 
     req.once('error', err => {
       console.debug('Error while pinging docker as podman', err);
