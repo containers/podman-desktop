@@ -678,6 +678,23 @@ export class ProviderRegistry {
     return context;
   }
 
+  getMatchingProviderInternalId(providerId: string): string {
+    // need to find the provider
+    const provider = Array.from(this.providers.values()).find(prov => prov.id === providerId);
+    if (!provider) {
+      throw new Error(`no provider matching provider id ${providerId}`);
+    }
+    return provider.internalId;
+  }
+
+  getMatchingProviderLifecycleContextByProviderId(
+    providerId: string,
+    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+  ): LifecycleContextImpl {
+    const internalId = this.getMatchingProviderInternalId(providerId);
+    return this.getMatchingConnectionLifecycleContext(internalId, providerConnectionInfo);
+  }
+
   async createContainerProviderConnection(
     internalProviderId: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

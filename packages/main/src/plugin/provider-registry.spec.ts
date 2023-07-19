@@ -410,3 +410,33 @@ test('should retrieve context of kubernetes provider', async () => {
   expect(initalizeCalled).toBe(true);
   expect(apiSenderSendMock).toBeCalled();
 });
+
+test('should retrieve provider internal id from id', async () => {
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+
+  const startMock = vi.fn();
+  const stopMock = vi.fn();
+  provider.registerContainerProviderConnection({
+    name: 'connection',
+    type: 'docker',
+    lifecycle: {
+      start: startMock,
+      stop: stopMock,
+    },
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status() {
+      return 'stopped';
+    },
+  });
+
+  const internalId = providerRegistry.getMatchingProviderInternalId('internal');
+  expect(internalId).toBe('0');
+});
+
+test('should throw error if no provider found with id', async () => {
+  expect(() => providerRegistry.getMatchingProviderInternalId('internal')).toThrowError(
+    'no provider matching provider id internal',
+  );
+});
