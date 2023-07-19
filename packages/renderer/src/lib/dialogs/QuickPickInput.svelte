@@ -2,6 +2,7 @@
 import { onDestroy, onMount, tick } from 'svelte';
 import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 import Markdown from '/@/lib/markdown/Markdown.svelte';
+import { DialogUtils } from './dialog-utils';
 
 const ENTER = 'Enter';
 const ESCAPE = 'Escape';
@@ -251,18 +252,7 @@ function handleKeydown(e: KeyboardEvent) {
   }
 
   if (e.key === 'Tab') {
-    // trap focus
-    const nodes = outerDiv.querySelectorAll<HTMLElement>('*');
-    const tabbable = Array.from(nodes).filter(n => n.tabIndex >= 0);
-
-    let index = tabbable.indexOf(document.activeElement as HTMLElement);
-    if (index === -1 && e.shiftKey) index = 0;
-
-    index += tabbable.length + (e.shiftKey ? -1 : 1);
-    index %= tabbable.length;
-
-    tabbable[index].focus();
-    e.preventDefault();
+    DialogUtils.tabWithinParent(e, outerDiv);
   }
 }
 

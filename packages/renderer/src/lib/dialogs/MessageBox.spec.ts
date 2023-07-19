@@ -20,11 +20,13 @@
 
 import '@testing-library/jest-dom';
 import { beforeAll, test, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, fireEvent } from '@testing-library/svelte';
 import MessageBox from './MessageBox.svelte';
 import type { MessageBoxOptions } from './messagebox-input';
+import userEvent from '@testing-library/user-event';
 
 const sendShowMessageBoxValuesMock = vi.fn();
+const sendShowMessageBoxOnSelect = vi.fn();
 const receiveFunctionMock = vi.fn();
 
 // mock some methods of the window object
@@ -33,6 +35,7 @@ beforeAll(() => {
     receive: receiveFunctionMock,
   };
   (window as any).sendShowMessageBoxValues = sendShowMessageBoxValuesMock;
+  (window as any).sendShowMessageBoxOnSelect = sendShowMessageBoxOnSelect;
 });
 
 describe('MessageBox', () => {
@@ -67,7 +70,7 @@ describe('MessageBox', () => {
     expect(button2).toBeInTheDocument();
   });
 
-  test('Expect that default OK button is displayed', async () => {
+  test('Expect that default OK button is displayed and works', async () => {
     const idRequest = 234;
 
     const messageBoxOptions: MessageBoxOptions = {
@@ -86,5 +89,61 @@ describe('MessageBox', () => {
 
     const ok = await screen.findByText('OK');
     expect(ok).toBeInTheDocument();
+    await fireEvent.click(ok);
+    expect(sendShowMessageBoxOnSelect).toBeCalledWith(idRequest, 0);
+  });
+
+  test('Expect that Esc closes', async () => {
+    const idRequest = 456;
+
+    const messageBoxOptions: MessageBoxOptions = {
+      id: idRequest,
+      title: 'My custom title',
+      message: 'My message',
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: MessageBoxOptions) => void) => {
+      if (message === 'showMessageBox:open') {
+        callback(messageBoxOptions);
+      }
+    });
+
+    render(MessageBox, {});
+
+    await userEvent.keyboard('{Escape}');
+    expect(sendShowMessageBoxOnSelect).toBeCalledWith(idRequest, undefined);
+  });
+
+  test('Expect that tabbing works', async () => {
+    const idRequest = 567;
+
+    const messageBoxOptions: MessageBoxOptions = {
+      id: idRequest,
+      title: 'My custom title',
+      message: 'My message',
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: MessageBoxOptions) => void) => {
+      if (message === 'showMessageBox:open') {
+        callback(messageBoxOptions);
+      }
+    });
+
+    render(MessageBox, {});
+
+    // there are only two user controls in the messagebox, close and ok.
+    // tabbing twice should get you to ok
+    await userEvent.keyboard('{Tab}');
+    await userEvent.keyboard('{Tab}');
+
+    const ok = await screen.findByText('OK');
+    expect(ok).toEqual(document.activeElement);
+
+    // tabbing twice again should bring you away and back
+    await userEvent.keyboard('{Tab}');
+    expect(ok).not.toEqual(document.activeElement);
+
+    await userEvent.keyboard('{Tab}');
+    expect(ok).toEqual(document.activeElement);
   });
 });

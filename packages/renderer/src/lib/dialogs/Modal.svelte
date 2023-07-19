@@ -29,6 +29,7 @@ button {
 
 <script lang="ts">
 import { createEventDispatcher, onDestroy } from 'svelte';
+import { DialogUtils } from './dialog-utils';
 
 const dispatch = createEventDispatcher();
 const close = () => dispatch('close');
@@ -43,18 +44,7 @@ const handle_keydown = e => {
   }
 
   if (e.key === 'Tab') {
-    // trap focus
-    const nodes = modal.querySelectorAll<HTMLElement>('*');
-    const tabbable = Array.from(nodes).filter(n => n.tabIndex >= 0);
-
-    let index = tabbable.indexOf(document.activeElement as HTMLElement);
-    if (index === -1 && e.shiftKey) index = 0;
-
-    index += tabbable.length + (e.shiftKey ? -1 : 1);
-    index %= tabbable.length;
-
-    tabbable[index].focus();
-    e.preventDefault();
+    DialogUtils.tabWithinParent(e, modal);
   }
 };
 
