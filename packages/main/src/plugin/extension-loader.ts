@@ -60,6 +60,7 @@ import { isLinux, isMac, isWindows } from '../util.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import { exec } from './util/exec.js';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
+import type { ViewRegistry } from './view-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -135,6 +136,7 @@ export class ExtensionLoader {
     private authenticationProviderRegistry: AuthenticationImpl,
     private iconRegistry: IconRegistry,
     private telemetry: Telemetry,
+    private viewRegistry: ViewRegistry,
     directories: Directories,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
@@ -530,6 +532,11 @@ export class ExtensionLoader {
     const icons = extension.manifest?.contributes?.icons;
     if (icons) {
       this.iconRegistry.registerIconContribution(extension, icons);
+    }
+
+    const views = extension.manifest?.contributes?.views;
+    if (views) {
+      this.viewRegistry.registerViews(extension.id, views);
     }
 
     this.analyzedExtensions.set(extension.id, extension);
@@ -1100,6 +1107,10 @@ export class ExtensionLoader {
       const menus = analyzedExtension.manifest?.contributes?.menus;
       if (menus) {
         this.menuRegistry.unregisterMenus(menus);
+      }
+      const views = analyzedExtension.manifest?.contributes?.views;
+      if (views) {
+        this.viewRegistry.unregisterViews(extensionId);
       }
     }
     this.activatedExtensions.delete(extensionId);
