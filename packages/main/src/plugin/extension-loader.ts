@@ -59,6 +59,7 @@ import type { Directories } from './directories.js';
 import { isLinux, isMac, isWindows } from '../util.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import { exec } from './util/exec.js';
+import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 
 /**
  * Handle the loading of an extension
@@ -631,6 +632,12 @@ export class ExtensionLoader {
       },
       getContainerConnections: () => {
         return providerRegistry.getContainerConnections();
+      },
+      getMatchingProviderLifecycleContext(
+        providerId: string,
+        providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+      ): containerDesktopAPI.LifecycleContext {
+        return providerRegistry.getMatchingProviderLifecycleContextByProviderId(providerId, providerConnectionInfo);
       },
     };
 

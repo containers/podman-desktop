@@ -423,6 +423,10 @@ declare module '@podman-desktop/api' {
     export const onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent>;
     export const onDidRegisterContainerConnection: Event<RegisterContainerConnectionEvent>;
     export function getContainerConnections(): ProviderContainerConnection[];
+    export function getMatchingProviderLifecycleContext(
+      providerId: string,
+      providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    ): LifecycleContext;
   }
 
   export interface ProxySettings {

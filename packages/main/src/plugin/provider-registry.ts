@@ -41,6 +41,7 @@ import type {
   ProviderConnectionStatus,
   AuditResult,
   AuditRequestItems,
+  LifecycleContext,
 } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
@@ -676,6 +677,23 @@ export class ProviderRegistry {
     }
 
     return context;
+  }
+
+  getMatchingProviderInternalId(providerId: string): string {
+    // need to find the provider
+    const provider = Array.from(this.providers.values()).find(prov => prov.id === providerId);
+    if (!provider) {
+      throw new Error(`no provider matching provider id ${providerId}`);
+    }
+    return provider.internalId;
+  }
+
+  getMatchingProviderLifecycleContextByProviderId(
+    providerId: string,
+    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+  ): LifecycleContext {
+    const internalId = this.getMatchingProviderInternalId(providerId);
+    return this.getMatchingConnectionLifecycleContext(internalId, providerConnectionInfo);
   }
 
   async createContainerProviderConnection(
