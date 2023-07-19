@@ -69,7 +69,9 @@ test('Pull and check image', async () => {
   await doneButton.waitFor({ state: 'visible' });
   await doneButton.click();
 
-  const imageRow = page.locator('tr:has-text("quay.io/podman/hello")');
+  await playExpect(checkImagePage).toBeVisible();
+
+  const imageRow = checkImagePage.locator('tr:has-text("quay.io/podman/hello")');
   await imageRow.waitFor({ state: 'visible' });
   await imageRow.click();
 
