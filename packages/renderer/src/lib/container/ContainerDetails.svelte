@@ -29,15 +29,12 @@ onMount(() => {
   // loading container info
   return containersInfos.subscribe(containers => {
     const matchingContainer = containers.find(c => c.Id === containerID);
-    let newContainer: ContainerInfoUI;
     if (matchingContainer) {
-      newContainer = containerUtils.getContainerInfoUI(matchingContainer);
-    }
-    if (container && !newContainer && detailsPage) {
+      container = containerUtils.getContainerInfoUI(matchingContainer);
+    } else if (detailsPage) {
       // the container has been deleted
       detailsPage.close();
     }
-    container = newContainer;
   });
 });
 
