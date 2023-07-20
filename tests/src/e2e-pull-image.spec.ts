@@ -93,7 +93,8 @@ describe('Image pull verification', async () => {
     const checkImagePage = page.getByRole('heading', { name: 'images', exact: true });
     await playExpect(checkImagePage).toBeVisible();
 
-    const imageRow = page.locator('tr:has-text("quay.io/podman/hello")');
+    const table = page.getByRole('table');
+    const imageRow = table.locator('tr:has-text("quay.io/podman/hello")');
     await imageRow.waitFor({ state: 'visible' });
     await imageRow.click();
 
