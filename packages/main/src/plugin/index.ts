@@ -668,7 +668,6 @@ export class PluginSystem {
       authentication,
       iconRegistry,
       telemetry,
-      contextRegistry,
       viewRegistry,
       contextRegistry,
       directories,

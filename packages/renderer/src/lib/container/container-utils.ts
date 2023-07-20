@@ -23,6 +23,7 @@ import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import { filesize } from 'filesize';
 import type { Port } from '@podman-desktop/api';
+import type { ContextUI } from '../context/context';
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {
     // part of a compose ?
@@ -219,5 +220,9 @@ export class ContainerUtils {
     } else {
       return '';
     }
+  }
+
+  adaptContextOnContainer(context: ContextUI, container: ContainerInfoUI): void {
+    context.setValue('containerLabelKeys', Object.keys(container.labels));
   }
 }

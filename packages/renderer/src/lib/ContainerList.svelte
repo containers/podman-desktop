@@ -2,7 +2,7 @@
 import { onDestroy, onMount } from 'svelte';
 import { filtered, searchPattern, containersInfos } from '../stores/containers';
 import { viewsContributions } from '../stores/views';
-import { contexts, adaptContextOnContainer } from '../stores/contexts';
+import { contexts } from '../stores/contexts';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import ContainerIcon from './images/ContainerIcon.svelte';
@@ -383,7 +383,7 @@ function iconClass(container: ContainerInfoUI): string | undefined {
     });
     if (extensionContext) {
       // adapt the context to work with containers (e.g save container labels into the context)
-      adaptContextOnContainer(extensionContext, container);
+      containerUtils.adaptContextOnContainer(extensionContext, container);
       // deserialize the when clause
       const whenDeserialized = ContextKeyExpr.deserialize(contribution.when);
       // if the when clause has to be applied to this container
@@ -391,7 +391,7 @@ function iconClass(container: ContainerInfoUI): string | undefined {
         // handle ${} in icon class
         // and interpret the value and replace with the class-name
         const match = contribution.icon.match(/\$\{(.*)\}/);
-        if (match !== null && match.length === 2) {
+        if (match && match.length === 2) {
           const className = match[1];
           icon = contribution.icon.replace(match[0], `podman-desktop-icon-${className}`);
           return icon;
