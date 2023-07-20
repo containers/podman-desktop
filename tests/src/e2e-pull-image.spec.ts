@@ -28,15 +28,18 @@ let page: Page;
 
 beforeAll(async () => {
   // remove all videos/screenshots
-  if (existsSync('tests/output')) {
+  if (existsSync('tests/output/pull-image')) {
     console.log('Cleaning up output folder...');
-    await rm('tests/output', { recursive: true, force: true });
+    await rm('tests/output/pull-image', { recursive: true, force: true });
   }
+
+  const env: { [key: string]: string } = Object.assign({}, process.env as { [key: string]: string });
+  env.PODMAN_DESKTOP_HOME_DIR = 'tests/output/podman-desktop';
 
   electronApp = await electron.launch({
     args: ['.'],
     recordVideo: {
-      dir: 'tests/output/videos',
+      dir: 'tests/output/pull-image/videos',
       size: {
         width: 1050,
         height: 700,
