@@ -62,7 +62,7 @@ test('should work with invalid JSON auth file', async () => {
   type ReadFileType = (
     path: string,
     options: string,
-    callback: (err: NodeJS.ErrnoException | null, data: string | Buffer) => void,
+    callback: (err: NodeJS.ErrnoException | undefined, data: string | Buffer) => void,
   ) => void;
 
   // mock the readFile
@@ -71,7 +71,7 @@ test('should work with invalid JSON auth file', async () => {
   readFileSpy.mockImplementation(
     (_path: string, _encoding: string, callback: (err: Error | null, data: string) => void) => {
       // mock the error
-      callback(null, 'invalid json');
+      callback(undefined, 'invalid json');
     },
   );
 

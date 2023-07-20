@@ -63,7 +63,7 @@ async function playKubeFile(): Promise<void> {
         const result = await window.playKube(kubernetesYamlFilePath, selectedProvider);
 
         // remove the null values from the result
-        playKubeResultRaw = JSON.stringify(removeEmptyOrNull(result), null, 2);
+        playKubeResultRaw = JSON.stringify(removeEmptyOrNull(result), undefined, 2);
         playKubeResultJSON = JSON.parse(playKubeResultRaw);
 
         // If there are container errors, that means that it was *able* to create the container

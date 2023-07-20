@@ -137,7 +137,7 @@ if (isWindows()) {
   app.setAppUserModelId(app.name);
 }
 
-let tray: Tray | null = null;
+let tray: Tray;
 
 // Handle the open-url event (macOS/Linux). For Windows, it needs to be handle in the second-instance event
 app.on('will-finish-launching', () => {

@@ -24,7 +24,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 function DownloadClientLinks() {
   let operatingSystem = '';
-  let varIcon = null;
+  let varIcon = undefined;
   const userAgent = navigator.userAgent;
 
   if (userAgent.indexOf('Windows') !== -1) {

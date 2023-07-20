@@ -6907,6 +6907,11 @@ eslint-plugin-import@^2.27.5:
     semver "^6.3.0"
     tsconfig-paths "^3.14.1"
 
+eslint-plugin-no-null@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-no-null/-/eslint-plugin-no-null-1.0.2.tgz#1236a812391390a1877ad4007c26e745341c951f"
+  integrity sha512-uRDiz88zCO/2rzGfgG15DBjNsgwWtWiSo4Ezy7zzajUgpnFIqd1TjepKeRmJZHEfBGu58o2a8S0D7vglvvhkVA==
+
 eslint-plugin-redundant-undefined@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-redundant-undefined/-/eslint-plugin-redundant-undefined-0.4.0.tgz#1445467d1920809f13f965f486a2d59f14f4aa65"
