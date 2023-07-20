@@ -1,8 +1,28 @@
+/**********************************************************************
+ * Copyright (C) 2023 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
 import type { BrowserWindow } from 'electron';
 import type { JSHandle, Page } from 'playwright';
 import { afterAll, beforeAll, expect, test, describe } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podmanDesktopRunner';
+import { WelcomePage } from './model/page/welcomePage';
+import { DashboardPage } from './model/page/dashboardPage';
 
 const navBarItems = ['Dashboard', 'Containers', 'Images', 'Pods', 'Volumes', 'Settings'];
 let pdRunner: PodmanDesktopRunner;
@@ -64,29 +84,29 @@ describe('Basic e2e verification of podman desktop start', async () => {
 
       await page.screenshot({ path: 'tests/output/screenshots/screenshot-welcome-page-init.png', fullPage: true });
 
-      const welcomeMessage = page.locator('text=/Welcome to Podman Desktop.*/');
-      await playExpect(welcomeMessage).toBeVisible();
+      const welcomePage = new WelcomePage(page);
+      await playExpect(welcomePage.welcomeMessage).toBeVisible();
     });
 
     test('Telemetry checkbox is present, set to true, consent can be changed', async () => {
       // wait for the initial screen to be loaded
-      const telemetryConsent = page.getByText('Telemetry');
-      expect(telemetryConsent).not.undefined;
-      expect(await telemetryConsent.isChecked()).to.be.true;
+      const welcomePage = new WelcomePage(page);
+      await playExpect(welcomePage.telemetryConsent).toBeVisible();
+      playExpect(await welcomePage.telemetryConsent.isChecked()).toBeTruthy();
 
-      await telemetryConsent.click();
-      expect(await telemetryConsent.isChecked()).to.be.false;
+      await welcomePage.turnOffTelemetry();
+      playExpect(await welcomePage.telemetryConsent.isChecked()).toBeFalsy();
     });
 
     test('Redirection from Welcome page to Dashboard works', async () => {
-      const goToPodmanDesktopButton = page.locator('button:text("Go to Podman Desktop")');
+      const welcomePage = new WelcomePage(page);
       // wait for visibility
-      await goToPodmanDesktopButton.waitFor({ state: 'visible' });
+      await welcomePage.goToPodmanDesktopButton.waitFor({ state: 'visible' });
 
       await page.screenshot({ path: 'tests/output/screenshots/screenshot-welcome-page-display.png', fullPage: true });
 
       // click on the button
-      await goToPodmanDesktopButton.click();
+      await welcomePage.goToPodmanDesktopButton.click();
 
       await page.screenshot({
         path: 'tests/output/screenshots/screenshot-welcome-page-redirect-to-dashboard.png',
@@ -94,8 +114,8 @@ describe('Basic e2e verification of podman desktop start', async () => {
       });
 
       // check we have the dashboard page
-      const dashboardTitle = page.getByRole('heading', { name: 'Dashboard' });
-      await playExpect(dashboardTitle).toBeVisible();
+      const dashboardPage = new DashboardPage(page);
+      await playExpect(dashboardPage.heading).toBeVisible();
     });
   });
 

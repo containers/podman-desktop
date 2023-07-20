@@ -16,22 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { removeFolderIfExists } from '../utility/cleanup';
+import type { Page } from 'playwright';
 
-let setupCalled = false;
-let teardownCalled = false;
+export class PodmanDesktopPage {
+  readonly page: Page;
 
-export async function setup() {
-  if (!setupCalled) {
-    // remove all previous testing output files
-    await removeFolderIfExists('tests/output');
-    setupCalled = true;
+  constructor(page: Page) {
+    this.page = page;
   }
-}
 
-export async function teardown() {
-  if (!teardownCalled) {
-    // here comes teardown logic
-    teardownCalled = true;
+  public getPage(): Page {
+    return this.page;
   }
 }
