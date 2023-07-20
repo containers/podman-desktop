@@ -110,6 +110,8 @@ import { IconRegistry } from './icon-registry.js';
 import type { IconInfo } from './api/icon-info.js';
 import { Directories } from './directories.js';
 import { CustomPickRegistry } from './custompick/custompick-registry.js';
+import { ViewRegistry } from './view-registry.js';
+import type { ViewInfoUI } from './api/view-info.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -363,6 +365,7 @@ export class PluginSystem {
     const certificates = new Certificates();
     await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
+    const viewRegistry = new ViewRegistry();
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
     const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
@@ -662,6 +665,7 @@ export class PluginSystem {
       authentication,
       iconRegistry,
       telemetry,
+      viewRegistry,
       directories,
     );
     await this.extensionLoader.init();
@@ -1665,6 +1669,14 @@ export class PluginSystem {
 
     this.ipcHandle('iconRegistry:listIcons', async (): Promise<IconInfo[]> => {
       return iconRegistry.listIcons();
+    });
+
+    this.ipcHandle('viewRegistry:listViewsContributions', async (_listener): Promise<ViewInfoUI[]> => {
+      return viewRegistry.listViewsContributions();
+    });
+
+    this.ipcHandle('viewRegistry:fetchViewsContributions', async (_listener, id: string): Promise<ViewInfoUI[]> => {
+      return viewRegistry.fetchViewsContributions(id);
     });
 
     this.ipcHandle('window:minimize', async (): Promise<void> => {

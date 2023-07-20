@@ -45,6 +45,7 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
+import type { ViewRegistry } from './view-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -111,6 +112,8 @@ const iconRegistry: IconRegistry = {} as unknown as IconRegistry;
 const telemetryTrackMock = vi.fn();
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
 
+const viewRegistry: ViewRegistry = {} as unknown as ViewRegistry;
+
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
   getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
@@ -140,6 +143,7 @@ beforeAll(() => {
     authenticationProviderRegistry,
     iconRegistry,
     telemetry,
+    viewRegistry,
     directories,
   );
 });
