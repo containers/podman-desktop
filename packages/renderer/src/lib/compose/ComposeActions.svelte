@@ -1,10 +1,11 @@
 <script lang="ts">
-import { faFileCode, faTrash, faPlay, faStop, faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
+import { faFileCode, faTrash, faPlay, faStop, faArrowsRotate, faRocket } from '@fortawesome/free-solid-svg-icons';
 import type { ComposeInfoUI } from './ComposeInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
+import { router } from 'tinro';
 
 export let compose: ComposeInfoUI;
 export let dropdownMenu = false;
@@ -58,6 +59,10 @@ async function restartCompose(composeInfoUI: ComposeInfoUI) {
   }
 }
 
+function deployToKubernetes(): void {
+  router.goto(`/compose/deploy-to-kube/${compose.name}/${compose.engineId}`);
+}
+
 function openGenerateKube(): void {
   router.goto(`/compose/${encodeURI(compose.name)}/${encodeURI(compose.engineId)}/kube`);
 }
@@ -98,14 +103,18 @@ if (dropdownMenu) {
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
-  {#if !detailed}
+  <ListItemButtonIcon
+    title="Deploy to Kubernetes"
+    onClick="{() => deployToKubernetes()}"
+    menu="{dropdownMenu}"
+    detailed="{detailed}"
+    icon="{faRocket}" />
     <ListItemButtonIcon
       title="Generate Kube"
       onClick="{() => openGenerateKube()}"
       menu="{dropdownMenu}"
       detailed="{detailed}"
       icon="{faFileCode}" />
-  {/if}
   <ListItemButtonIcon
     title="Restart Compose"
     onClick="{() => restartCompose(compose)}"

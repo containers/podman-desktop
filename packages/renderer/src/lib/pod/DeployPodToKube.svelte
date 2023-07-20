@@ -11,6 +11,7 @@ import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
 
 export let resourceId: string;
 export let engineId: string;
+export let type: string;
 
 let kubeDetails: string;
 
@@ -38,9 +39,16 @@ let containerPortArray: string[] = [];
 let createdRoutes: V1Route[] = [];
 
 onMount(async () => {
-  // grab kube result from the pod
-  const kubeResult = await window.generatePodmanKube(engineId, [resourceId]);
-  kubeDetails = kubeResult;
+  // If type = compose
+  // we will grab the containers by using the label com.docker.compose.project that matches the resourceId
+  // we can then pass the array of containers to generatePodmanKube rather than the singular pod id
+  if (type === 'compose') {
+    const containers = await window.listSimpleContainersByLabel('com.docker.compose.project', resourceId);
+    const containerIds = containers.map(container => container.Id);
+    kubeDetails = await window.generatePodmanKube(engineId, containerIds);
+  } else {
+    kubeDetails = await window.generatePodmanKube(engineId, [resourceId]);
+  }
 
   // parse yaml
   bodyPod = jsYaml.load(kubeDetails) as any;

@@ -265,6 +265,18 @@ export class ContainerProviderRegistry {
     return flatttenedContainers;
   }
 
+  // listSimpleContainers by matching label and key
+  async listSimpleContainersByLabel(label: string, key: string): Promise<SimpleContainerInfo[]> {
+    // Get all the containers using listSimpleContainers
+    const containers = await this.listSimpleContainers();
+
+    // Find all the containers that match the label + key
+    return containers.filter(container => {
+      const labels = container.Labels;
+      return labels && labels[label] === key;
+    });
+  }
+
   async listContainers(): Promise<ContainerInfo[]> {
     let telemetryOptions = {};
     const containers = await Promise.all(

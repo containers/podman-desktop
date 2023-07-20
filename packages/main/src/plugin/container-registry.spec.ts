@@ -278,3 +278,26 @@ test('deleteContainersByLabel should succeed successfully if project name is pro
   // Expect deleteContainer tohave been called 3 times
   expect(deleteContainer).toHaveBeenCalledTimes(3);
 });
+
+test('test listSimpleContainersByLabel with compose label', async () => {
+  const engine = {
+    // Fake that we have 3 containers of the same project
+    listSimpleContainers: vi
+      .fn()
+      .mockResolvedValue([
+        fakeContainerWithComposeProject,
+        fakeContainerWithComposeProject,
+        fakeContainerWithComposeProject,
+        fakeContainer,
+      ]),
+    listPods: vi.fn().mockResolvedValue([]),
+  };
+  vi.spyOn(containerRegistry, 'getMatchingEngine').mockReturnValue(engine as unknown as Dockerode);
+  vi.spyOn(containerRegistry, 'listSimpleContainers').mockReturnValue(engine.listSimpleContainers());
+
+  // List all containers with the label 'com.docker.compose.project' and value 'project1'
+  const result = await containerRegistry.listSimpleContainersByLabel('com.docker.compose.project', 'project1');
+
+  // We expect ONLY to return 3 since the last container does not have the correct label.
+  expect(result).toHaveLength(3);
+});
