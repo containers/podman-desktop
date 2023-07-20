@@ -68,7 +68,7 @@ test('should expect valid match with array of string and different case', async 
 test('should expect valid match with simple object', async () => {
   const object = {
     hello: 'foo',
-    baz: null,
+    baz: undefined,
   };
   expect(findMatchInLeaves(object, 'foo')).toBe(true);
 

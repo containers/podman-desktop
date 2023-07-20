@@ -52,7 +52,7 @@
       }
     }
   },
-  "plugins": ["@typescript-eslint", "sonarjs", "etc", "redundant-undefined"],
+  "plugins": ["@typescript-eslint", "sonarjs", "etc", "redundant-undefined", "no-null"],
   "ignorePatterns": [
     "packages/preload/exposedInMainWorld.d.ts",
     "packages/preload-docker-extension/exposedInDockerExtension.d.ts",
@@ -70,6 +70,7 @@
     "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/no-misused-promises": "error",
     "@typescript-eslint/prefer-optional-chain": "error",
+    "no-null/no-null": "error",
 
     /**
      * Having a semicolon helps the optimizer interpret your code correctly.

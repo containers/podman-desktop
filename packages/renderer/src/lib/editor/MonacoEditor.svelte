@@ -7,7 +7,7 @@ import { EditorSettings } from '../../../../main/src/plugin/editor-settings';
 import type monaco from 'monaco-editor';
 import { getPanelDetailColor } from '../color/color';
 
-let divEl: HTMLDivElement = null;
+let divEl: HTMLDivElement = undefined;
 let editor: monaco.editor.IStandaloneCodeEditor;
 let Monaco;
 

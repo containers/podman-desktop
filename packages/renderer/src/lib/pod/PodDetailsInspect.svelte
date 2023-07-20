@@ -27,7 +27,7 @@ onMount(async () => {
     }
   }
 
-  inspectDetails = JSON.stringify(inspectResult, null, 2);
+  inspectDetails = JSON.stringify(inspectResult, undefined, 2);
 });
 </script>
 

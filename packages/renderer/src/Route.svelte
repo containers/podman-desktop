@@ -9,7 +9,7 @@ export let path = '/*';
 export let fallback = false;
 export let redirect = false;
 export let firstmatch = false;
-export let breadcrumb = null;
+export let breadcrumb = undefined;
 export let navigationHint: NavigationHint = undefined;
 
 let showContent = false;

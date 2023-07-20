@@ -33,7 +33,7 @@ const shortcutEvent: extensionApi.Event<any> = Object.freeze(function (callback,
 export class CancellationTokenImpl implements extensionApi.CancellationToken {
   private _isCancellationRequested: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private emitter: Emitter<any> | null = null;
+  private emitter: Emitter<any> | undefined;
 
   constructor() {
     this._isCancellationRequested = false;
@@ -68,7 +68,7 @@ export class CancellationTokenImpl implements extensionApi.CancellationToken {
   public dispose(): void {
     if (this.emitter) {
       this.emitter.dispose();
-      this.emitter = null;
+      this.emitter = undefined;
     }
   }
 }

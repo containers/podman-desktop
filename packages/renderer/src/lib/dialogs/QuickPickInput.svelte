@@ -122,6 +122,7 @@ async function onInputChange(event: any) {
   validationError = undefined;
   const value = event.target.value;
   const result = await window.sendShowInputBoxValidate(currentId, value);
+  // eslint-disable-next-line no-null/no-null
   if (result !== undefined && result !== null && result) {
     validationError = result.toString();
   }
