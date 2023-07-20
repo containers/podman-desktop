@@ -20,6 +20,7 @@ import type { ElectronApplication, JSHandle, Page } from 'playwright';
 import { _electron as electron } from 'playwright';
 import { join } from 'node:path';
 import type { BrowserWindow } from 'electron';
+import type { BasePage } from '../model/pages/base-page';
 
 export class PodmanDesktopRunner {
   private _options: object;
@@ -60,6 +61,10 @@ export class PodmanDesktopRunner {
     } else {
       throw Error('Application was not started yet');
     }
+  }
+
+  public createPage<T extends BasePage>(type: new (page: Page) => T): T {
+    return new type(this.getPage());
   }
 
   public getElectronApp(): ElectronApplication {

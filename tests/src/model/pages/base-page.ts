@@ -18,7 +18,7 @@
 
 import type { Page } from 'playwright';
 
-export class PodmanDesktopPage {
+export class BasePage {
   readonly page: Page;
 
   constructor(page: Page) {

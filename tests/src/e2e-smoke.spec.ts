@@ -21,8 +21,7 @@ import type { JSHandle, Page } from 'playwright';
 import { afterAll, beforeAll, expect, test, describe } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
-import { WelcomePage } from './model/pages/welcome-page';
-import { DashboardPage } from './model/pages/dashboard-page';
+import { DashboardPage, WelcomePage } from './model/index';
 
 const navBarItems = ['Dashboard', 'Containers', 'Images', 'Pods', 'Volumes', 'Settings'];
 let pdRunner: PodmanDesktopRunner;
@@ -40,6 +39,7 @@ afterAll(async () => {
 describe('Basic e2e verification of podman desktop start', async () => {
   describe('Welcome page handling', async () => {
     test('Check the Welcome page is displayed', async () => {
+
       const window: JSHandle<BrowserWindow> = await pdRunner.getBrowserWindow();
 
       const windowState = await window.evaluate(
@@ -66,13 +66,13 @@ describe('Basic e2e verification of podman desktop start', async () => {
 
       await pdRunner.screenshot('welcome-page-init.png');
 
-      const welcomePage = new WelcomePage(page);
+      const welcomePage = pdRunner.createPage(WelcomePage);
       await playExpect(welcomePage.welcomeMessage).toBeVisible();
     });
 
     test('Telemetry checkbox is present, set to true, consent can be changed', async () => {
       // wait for the initial screen to be loaded
-      const welcomePage = new WelcomePage(page);
+      const welcomePage = pdRunner.createPage(WelcomePage);
       await playExpect(welcomePage.telemetryConsent).toBeVisible();
       playExpect(await welcomePage.telemetryConsent.isChecked()).toBeTruthy();
 
@@ -81,7 +81,7 @@ describe('Basic e2e verification of podman desktop start', async () => {
     });
 
     test('Redirection from Welcome page to Dashboard works', async () => {
-      const welcomePage = new WelcomePage(page);
+      const welcomePage = pdRunner.createPage(WelcomePage);
       // wait for visibility
       await welcomePage.goToPodmanDesktopButton.waitFor({ state: 'visible' });
 
@@ -93,7 +93,7 @@ describe('Basic e2e verification of podman desktop start', async () => {
       await pdRunner.screenshot('welcome-page-redirect-to-dashboard.png');
 
       // check we have the dashboard page
-      const dashboardPage = new DashboardPage(page);
+      const dashboardPage = pdRunner.createPage(DashboardPage);
       await playExpect(dashboardPage.heading).toBeVisible();
     });
   });
