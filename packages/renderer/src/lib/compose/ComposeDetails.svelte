@@ -3,8 +3,6 @@ import Route from '../../Route.svelte';
 import ComposeIcon from '../images/PodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import ComposeActions from './ComposeActions.svelte';
-import DetailsPage from '../ui/DetailsPage.svelte';
-import DetailsTab from '../ui/DetailsTab.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { onDestroy, onMount } from 'svelte';
 import { containersInfos } from '/@/stores/containers';
@@ -12,6 +10,8 @@ import type { ComposeInfoUI } from './ComposeInfoUI';
 import { ContainerUtils } from '../container/container-utils';
 import ComposeDetailsLogs from './ComposeDetailsLogs.svelte';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
+import DetailsPage from '../ui/DetailsPage.svelte';
+import Tab from '../ui/Tab.svelte';
 
 export let composeName: string;
 export let engineId: string;
@@ -75,19 +75,19 @@ onDestroy(() => {
 {#if compose}
   <DetailsPage title="{composeName}" subtitle="">
     <StatusIcon slot="icon" icon="{ComposeIcon}" status="{compose.status}" />
-    <div slot="actions" class="flex justify-end">
+    <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         <div>&nbsp;</div>
       </div>
-      <ComposeActions compose="{compose}" dropdownMenu="{true}" />
-    </div>
-    <div slot="tabs" class="pf-c-tabs__list">
-      <DetailsTab title="Logs" url="logs" />
-    </div>
-    <span slot="content">
+      <ComposeActions compose="{compose}" detailed="{true}" />
+    </svelte:fragment>
+    <svelte:fragment slot="tabs">
+      <Tab title="Logs" url="logs" />
+    </svelte:fragment>
+    <svelte:fragment slot="content">
       <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
         <ComposeDetailsLogs compose="{compose}" />
       </Route>
-    </span>
+    </svelte:fragment>
   </DetailsPage>
 {/if}

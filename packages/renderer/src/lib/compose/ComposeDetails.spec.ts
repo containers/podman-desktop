@@ -33,7 +33,11 @@ test('Simple test that compose logs are clickable and loadable', async () => {
   render(ComposeDetails, { composeName: 'foobar', engineId: 'engine' });
   // Click on the logs href
   const logsHref = screen.getByRole('link', { name: 'Logs' });
-  fireEvent.click(logsHref);
+  await fireEvent.click(logsHref);
+
+  // Checks that the 'emptyscreen' of the logs is displayed
+  // which should display "Log output of foobar"
+  expect(screen.getByText('Log output of foobar')).toBeInTheDocument();
 });
 
 test('Simple test that compose name is displayed', async () => {

@@ -129,10 +129,10 @@ window.events?.receive('display-troubleshooting', () => {
             resourceId="{decodeURI(meta.params.resourceId)}"
             engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
-        <Route path="/compose/:name/:engineId/*" breadcrumb="Compose Details" let:meta>
+        <Route path="/compose/:name/:engineId/*" breadcrumb="Compose Details" let:meta navigationHint="details">
           <ComposeDetails composeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
-        <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta>
+        <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta navigationHint="details">
           <PodDetails
             podName="{decodeURI(meta.params.name)}"
             engineId="{decodeURI(meta.params.engineId)}"

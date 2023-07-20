@@ -9,6 +9,7 @@ import { isMultiplexedLog } from '../stream/stream-utils';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
+import { ansi256Colours, colourizedANSIContainerName } from '../editor/editor-utils';
 
 export let compose: ComposeInfoUI;
 
@@ -36,31 +37,9 @@ let currentRouterPath: string;
 // Router path for the logging
 let logsRouterPath = `/compose/${encodeURI(compose.name)}/${encodeURI(compose.engineId)}/logs`;
 
-// An array of readable ANSI escape sequence colours against a black terminal background
-// these are the most "readable" colours against a black background
-// No colours like grey, normal blue (cyan instead) or red, since they don't appear very well.
-const ansi256Colors = [
-  '\u001b[36m', // cyan
-  '\u001b[33m', // yellow
-  '\u001b[32m', // green
-  '\u001b[35m', // magenta
-  '\u001b[34m', // blue
-  '\u001b[36;1m', // bright cyan
-  '\u001b[33;1m', // bright yellow
-  '\u001b[32;1m', // bright green
-  '\u001b[35;1m', // bright magenta
-  '\u001b[34;1m', // bright blue
-];
-
 // Create a map that will store the ANSI 256 colour for each container name
 // if we run out of colours, we'll start from the beginning.
 const colourizedContainerName = new Map<string, string>();
-
-// Function that takes the container name and ANSI colour and encapsulates the name in the colour,
-// making sure that we reset the colour back to white after the name.
-function colourizedANSIContainerName(name: string, colour: string) {
-  return `${colour}${name}\u001b[0m`;
-}
 
 // Callback for logs which will output the logs to the terminal
 function callback(name: string, data: string) {
@@ -150,11 +129,9 @@ async function refreshTerminal() {
 
 onMount(async () => {
   compose.containers.forEach((container, index) => {
-    const colour = ansi256Colors[index % ansi256Colors.length];
+    const colour = ansi256Colours[index % ansi256Colours.length];
     colourizedContainerName.set(container.name, colourizedANSIContainerName(container.name, colour));
   });
-
-  console.log('colors:', colourizedContainerName);
 
   // Refresh the terminal on initial load
   await refreshTerminal();
