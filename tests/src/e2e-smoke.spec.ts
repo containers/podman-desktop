@@ -1,27 +1,17 @@
 import type { BrowserWindow } from 'electron';
-import type { ElectronApplication, JSHandle, Page } from 'playwright';
-import { _electron as electron } from 'playwright';
+import type { JSHandle, Page } from 'playwright';
 import { afterAll, beforeAll, expect, test, describe } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { existsSync } from 'node:fs';
-import { rm } from 'node:fs/promises';
+import { PodmanDesktopRunner } from './runner/podmanDesktopRunner';
 
 const navBarItems = ['Dashboard', 'Containers', 'Images', 'Pods', 'Volumes', 'Settings'];
-let electronApp: ElectronApplication;
+let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
 beforeAll(async () => {
-  // remove all videos/screenshots
-  if (existsSync('tests/output')) {
-    console.log('Cleaning up output folder...');
-    await rm('tests/output', { recursive: true, force: true });
-  }
-
   const env: { [key: string]: string } = Object.assign({}, process.env as { [key: string]: string });
   env.PODMAN_DESKTOP_HOME_DIR = 'tests/output/podman-desktop';
-
-  electronApp = await electron.launch({
-    args: ['.'],
+  const properties = {
     env,
     recordVideo: {
       dir: 'tests/output/videos',
@@ -30,13 +20,16 @@ beforeAll(async () => {
         height: 700,
       },
     },
-  });
+  };
 
-  page = await electronApp.firstWindow();
+  pdRunner = new PodmanDesktopRunner('.', properties);
+  await pdRunner.startApp();
+
+  page = await pdRunner.getPage();
 });
 
 afterAll(async () => {
-  await electronApp.close();
+  await pdRunner.closeApp();
 });
 
 describe('Basic e2e verification of podman desktop start', async () => {
@@ -45,7 +38,7 @@ describe('Basic e2e verification of podman desktop start', async () => {
       // Direct Electron console to Node terminal.
       page.on('console', console.log);
 
-      const window: JSHandle<BrowserWindow> = await electronApp.browserWindow(page);
+      const window: JSHandle<BrowserWindow> = await pdRunner.app.browserWindow(page);
 
       const windowState = await window.evaluate(
         (mainWindow): Promise<{ isVisible: boolean; isDevToolsOpened: boolean; isCrashed: boolean }> => {
