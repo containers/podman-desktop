@@ -694,8 +694,7 @@ export class KubernetesClient {
 
     const manifests = parseAllDocuments(content, { customTags: this.getTags });
     // filter out null manifests
-    // eslint-disable-next-line no-null/no-null
-    return manifests.map(manifest => manifest.toJSON()).filter(manifest => manifest !== null);
+    return manifests.map(manifest => manifest.toJSON()).filter(manifest => !!manifest);
   }
 
   async createResourcesFromFile(context: string, filePath: string, namespace: string): Promise<void> {
