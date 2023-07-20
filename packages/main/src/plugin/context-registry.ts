@@ -31,7 +31,7 @@ export class ContextRegistry {
   registerContext(extension: string): void {
     if (!this.contexts.find(context => context.extension === extension)) {
       this.id++;
-      const ctx = new Context(this.id, null, extension, this.apiSender);
+      const ctx = new Context(this.id, this.apiSender, undefined, extension);
       this.contexts.push(ctx);
     }
   }

@@ -30,9 +30,9 @@ export class Context implements IContext {
 
   constructor(
     private _id: number,
-    private _parent: Context | null,
-    private _extension: string | null,
     private apiSender: ApiSenderType,
+    private _parent?: Context,
+    private _extension?: string,
   ) {
     this._value = Object.create(null);
   }
@@ -41,11 +41,11 @@ export class Context implements IContext {
     return this._id;
   }
 
-  get parent(): Context | null {
+  get parent(): Context | undefined {
     return this._parent;
   }
 
-  get extension(): string | null {
+  get extension(): string | undefined {
     return this._extension;
   }
 
@@ -103,6 +103,6 @@ export class Context implements IContext {
   }
 
   dispose(): void {
-    this._parent = null;
+    this._parent = undefined;
   }
 }

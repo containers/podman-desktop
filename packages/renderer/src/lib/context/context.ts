@@ -26,7 +26,7 @@ import type { ContextInfo, IContext } from '../../../../main/src/plugin/api/cont
 export class ContextUI implements IContext {
   private _value: Record<string, any>;
 
-  constructor(private _id: number, private _parent: ContextUI | null, private _extension: string | null) {
+  constructor(private _id: number, private _parent?: ContextUI, private _extension?: string) {
     this._value = Object.create(null);
   }
 
@@ -77,10 +77,10 @@ export class ContextUI implements IContext {
   }
 
   dispose(): void {
-    this._parent = null;
+    this._parent = undefined;
   }
 
-  static adaptContext(ctx: ContextInfo, parent: ContextUI | null): ContextUI {
+  static adaptContext(ctx: ContextInfo, parent?: ContextUI): ContextUI {
     return new ContextUI(ctx.id, parent, ctx.extension);
   }
 }

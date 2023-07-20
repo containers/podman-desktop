@@ -43,7 +43,7 @@ const listContexts = async (): Promise<ContextUI[]> => {
   // as we cannot send an instance from main to renderer, we create a clone with the contextUI type so its functions can be invoked
   const adaptedContexts: ContextUI[] = [];
   serverContexts.forEach(ctx => {
-    let parentCtx: ContextUI | null = null;
+    let parentCtx: ContextUI;
     if (ctx.parent) {
       parentCtx = adaptedContexts.find(adapted => adapted.id === ctx.parent.id);
     }
