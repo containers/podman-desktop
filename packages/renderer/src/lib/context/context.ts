@@ -27,14 +27,14 @@ export class ContextUI implements IContext {
   private _value: Record<string, any>;
 
   constructor(private _id: number, private _parent?: ContextUI, private _extension?: string) {
-    this._value = Object.create(null);
+    this._value = {};
   }
 
   get id(): number {
     return this._id;
   }
 
-  get extension(): string | null {
+  get extension(): string | undefined {
     return this._extension;
   }
 
@@ -71,7 +71,7 @@ export class ContextUI implements IContext {
   }
 
   collectAllValues(): Record<string, any> {
-    let result = this._parent ? this._parent.collectAllValues() : Object.create(null);
+    let result = this._parent ? this._parent.collectAllValues() : {};
     result = { ...result, ...this._value };
     return result;
   }

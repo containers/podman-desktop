@@ -343,8 +343,8 @@ export abstract class ContextKeyExpr {
   }
 
   private static _parser = new Parser({ regexParsingWithErrorRecovery: false });
-  public static deserialize(serialized: string | null | undefined): ContextKeyExpression | undefined {
-    if (serialized === undefined || serialized === null) {
+  public static deserialize(serialized: string | undefined): ContextKeyExpression | undefined {
+    if (serialized === undefined) {
       // an empty string needs to be handled by the parser to get a corresponding parsing error reported
       return undefined;
     }
@@ -359,7 +359,7 @@ export class ContextKeyInExpr implements IContextKeyExpression {
   }
 
   public readonly type = ContextKeyExprType.In;
-  private negated: ContextKeyExpression | null = null;
+  private negated: ContextKeyExpression | undefined = undefined;
 
   private constructor(private readonly key: string, private readonly valueKey: string) {}
 
@@ -394,7 +394,7 @@ export class ContextKeyInExpr implements IContextKeyExpression {
       return source.includes(item as any);
     }
 
-    if (typeof item === 'string' && typeof source === 'object' && source !== null) {
+    if (typeof item === 'string' && source && typeof source === 'object') {
       return hasOwnProperty.call(source, item);
     }
     return false;
@@ -479,11 +479,11 @@ export interface IContextKey<T extends ContextKeyValue = ContextKeyValue> {
 }
 
 export interface IContextKeyServiceTarget {
-  parentElement: IContextKeyServiceTarget | null;
+  parentElement: IContextKeyServiceTarget | undefined;
   setAttribute(attr: string, value: string): void;
   removeAttribute(attr: string): void;
   hasAttribute(attr: string): boolean;
-  getAttribute(attr: string): string | null;
+  getAttribute(attr: string): string | undefined;
 }
 
 export interface IReadableSet<T> {

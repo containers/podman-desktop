@@ -18,13 +18,12 @@
 import type { Context } from '../context/context.js';
 
 export type ContextKeyValue =
-  | null
   | undefined
   | boolean
   | number
   | string
-  | Array<null | undefined | boolean | number | string>
-  | Record<string, null | undefined | boolean | number | string>;
+  | Array<undefined | boolean | number | string>
+  | Record<string, undefined | boolean | number | string>;
 
 export interface IContext {
   getValue<T extends ContextKeyValue = ContextKeyValue>(key: string): T | undefined;

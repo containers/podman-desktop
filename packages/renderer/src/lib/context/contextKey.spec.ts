@@ -38,7 +38,7 @@ suite('ContextKeyExpr', () => {
     assert.strictEqual(ainb.evaluate(createContext({ a: 3, b: [1, 2, 3] })), true);
     assert.strictEqual(ainb.evaluate(createContext({ a: 3, b: [1, 2] })), false);
     assert.strictEqual(ainb.evaluate(createContext({ a: 3 })), false);
-    assert.strictEqual(ainb.evaluate(createContext({ a: 3, b: null })), false);
+    assert.strictEqual(ainb.evaluate(createContext({ a: 3, b: undefined })), false);
     assert.strictEqual(ainb.evaluate(createContext({ a: 'x', b: ['x'] })), true);
     assert.strictEqual(ainb.evaluate(createContext({ a: 'x', b: ['y'] })), false);
     assert.strictEqual(ainb.evaluate(createContext({ a: 'x', b: {} })), false);
@@ -53,7 +53,7 @@ suite('ContextKeyExpr', () => {
     assert.strictEqual(aNotInB.evaluate(createContext({ a: 3, b: [1, 2, 3] })), false);
     assert.strictEqual(aNotInB.evaluate(createContext({ a: 3, b: [1, 2] })), true);
     assert.strictEqual(aNotInB.evaluate(createContext({ a: 3 })), true);
-    assert.strictEqual(aNotInB.evaluate(createContext({ a: 3, b: null })), true);
+    assert.strictEqual(aNotInB.evaluate(createContext({ a: 3, b: undefined })), true);
     assert.strictEqual(aNotInB.evaluate(createContext({ a: 'x', b: ['x'] })), false);
     assert.strictEqual(aNotInB.evaluate(createContext({ a: 'x', b: ['y'] })), true);
     assert.strictEqual(aNotInB.evaluate(createContext({ a: 'x', b: {} })), true);

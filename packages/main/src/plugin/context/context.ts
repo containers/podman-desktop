@@ -34,7 +34,7 @@ export class Context implements IContext {
     private _parent?: Context,
     private _extension?: string,
   ) {
-    this._value = Object.create(null);
+    this._value = {};
   }
 
   get id(): number {
@@ -97,7 +97,7 @@ export class Context implements IContext {
   }
 
   collectAllValues(): Record<string, any> {
-    let result = this._parent ? this._parent.collectAllValues() : Object.create(null);
+    let result = this._parent ? this._parent.collectAllValues() : {};
     result = { ...result, ...this._value };
     return result;
   }
