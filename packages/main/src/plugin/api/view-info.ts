@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 export interface ViewContribution {
-  when: string | null | undefined;
+  when: string | undefined;
   icon: string;
 }
 
