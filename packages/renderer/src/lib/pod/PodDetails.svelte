@@ -29,19 +29,16 @@ onMount(() => {
     const matchingPod = pods.find(
       podInPods => podInPods.Name === podName && podInPods.engineId === engineId && kind === podInPods.kind,
     );
-    let newPod: PodInfoUI;
     if (matchingPod) {
       try {
-        newPod = podUtils.getPodInfoUI(matchingPod);
+        pod = podUtils.getPodInfoUI(matchingPod);
       } catch (err) {
         console.error(err);
       }
-    }
-    if (pod && !newPod && detailsPage) {
+    } else if (detailsPage) {
       // the pod has been deleted
       detailsPage.close();
     }
-    pod = newPod;
   });
 });
 

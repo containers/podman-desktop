@@ -24,19 +24,16 @@ onMount(() => {
   return volumeListInfos.subscribe(volumes => {
     const allVolumes = volumes.map(volumeListInfo => volumeListInfo.Volumes).flat();
     const matchingVolume = allVolumes.find(volume => volume.Name === volumeName && volume.engineId === engineId);
-    let newVolume: VolumeInfoUI;
     if (matchingVolume) {
       try {
-        newVolume = volumeUtils.toVolumeInfoUI(matchingVolume);
+        volume = volumeUtils.toVolumeInfoUI(matchingVolume);
       } catch (err) {
         console.error(err);
       }
-    }
-    if (volume && !newVolume && detailsPage) {
+    } else if (detailsPage) {
       // the volume has been deleted
       detailsPage.close();
     }
-    volume = newVolume;
   });
 });
 </script>
