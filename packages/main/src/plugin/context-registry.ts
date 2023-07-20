@@ -21,26 +21,19 @@ import { Context } from './context/context.js';
 
 export class ContextRegistry {
   private contexts: Context[];
+  private id: number;
 
   constructor(private apiSender: ApiSenderType) {
     this.contexts = [];
+    this.id = 0;
   }
 
   registerContext(extension: string): void {
     if (!this.contexts.find(context => context.extension === extension)) {
-      const id = this.getNewId();
-      const ctx = new Context(id, null, extension, this.apiSender);
+      this.id++;
+      const ctx = new Context(this.id, null, extension, this.apiSender);
       this.contexts.push(ctx);
     }
-  }
-
-  getNewId() {
-    let newId = 0;
-    if (this.contexts.length > 0) {
-      const ctxWithLargestId = this.contexts.reduce((prev, current) => (prev.id > current.id ? prev : current));
-      newId = ctxWithLargestId.id + 1;
-    }
-    return newId;
   }
 
   unregisterContext(extension: string): void {
