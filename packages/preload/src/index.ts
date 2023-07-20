@@ -1451,7 +1451,7 @@ function initExposure(): void {
       return ipcInvoke('viewRegistry:fetchViewsContributions', extensionId);
     },
   );
-  
+
   contextBridge.exposeInMainWorld('listContexts', async (): Promise<ContextInfo[]> => {
     return ipcInvoke('contextRegistry:listContexts');
   });

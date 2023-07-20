@@ -1682,7 +1682,7 @@ export class PluginSystem {
     this.ipcHandle('viewRegistry:fetchViewsContributions', async (_listener, id: string): Promise<ViewInfoUI[]> => {
       return viewRegistry.fetchViewsContributions(id);
     });
-    
+
     this.ipcHandle('contextRegistry:listContexts', async (_listener): Promise<ContextInfo[]> => {
       return contextRegistry.listContextInfos();
     });
