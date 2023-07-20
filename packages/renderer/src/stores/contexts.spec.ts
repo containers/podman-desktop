@@ -51,7 +51,7 @@ beforeAll(() => {
 
 test('contexts should be updated in case of an extension is stopped', async () => {
   // initial view
-  listContextsMock.mockResolvedValue([new ContextUI(0, null, 'extension')]);
+  listContextsMock.mockResolvedValue([new ContextUI(0, undefined, 'extension')]);
   contextsEventStore.setup();
 
   const callback = callbacks.get('extensions-already-started');
@@ -65,10 +65,10 @@ test('contexts should be updated in case of an extension is stopped', async () =
   // now get list
   const ctxs = get(contexts);
   expect(ctxs.length).toBe(1);
-  expect(ctxs[0].extension).toEqual('0');
+  expect(ctxs[0].id).toEqual(0);
   expect(ctxs[0].extension).toEqual('extension');
 
-  // ok now mock the listVolumes function to return an empty list
+  // ok now mock the listContexts function to return an empty list
   listContextsMock.mockResolvedValue([]);
 
   // call 'container-removed-event' event

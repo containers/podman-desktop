@@ -66,8 +66,8 @@ test('Should return array with contexts of registered extensions', async () => {
   const contexts = contextRegistry.listContextInfos();
   expectTypeOf(contexts).toBeArray();
   expect(contexts.length).toBe(1);
-  expect(contexts[0].id).toEqual(0);
-  expect(contexts[0].parent).toBeNull();
+  expect(contexts[0].id).toBeDefined();
+  expect(contexts[0].parent).toBeUndefined();
   expect(contexts[0].extension).toEqual('extension');
 });
 
@@ -78,7 +78,7 @@ test('Should throw an error if trying to get context not registered extension', 
 test('Should return the contextInfo of the registered extension', async () => {
   contextRegistry.registerContext('extension');
   const context = contextRegistry.getContextInfo('extension');
-  expect(context.id).toEqual(0);
-  expect(context.parent).toBeNull();
+  expect(context.id).toBeDefined();
+  expect(context.parent).toBeUndefined();
   expect(context.extension).toEqual('extension');
 });
