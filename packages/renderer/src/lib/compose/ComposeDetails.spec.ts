@@ -26,6 +26,7 @@ beforeAll(() => {
   });
   (window as any).ResizeObserver = vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
   (window as any).initializeProvider = vi.fn().mockResolvedValue([]);
+  (window as any).generatePodmanKube = vi.fn();
   mockBreadcrumb();
 });
 
@@ -43,4 +44,10 @@ test('Simple test that compose logs are clickable and loadable', async () => {
 test('Simple test that compose name is displayed', async () => {
   render(ComposeDetails, { composeName: 'foobar', engineId: 'engine' });
   expect(screen.getByText('foobar')).toBeInTheDocument();
+});
+
+test('Test that compose kube tab is clickable and loadable', async () => {
+  render(ComposeDetails, { composeName: 'foobar', engineId: 'engine' });
+  const kubeHref = screen.getByRole('link', { name: 'Kube' });
+  await fireEvent.click(kubeHref);
 });
