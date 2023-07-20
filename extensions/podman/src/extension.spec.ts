@@ -232,7 +232,7 @@ test('if a machine failed to start with a wsl distro not found error but the ski
   spyExecPromise.mockImplementation(() => {
     return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
   });
-  await expect(extension.startMachine(provider, machineInfo, undefined, true)).rejects.toThrow(
+  await expect(extension.startMachine(provider, machineInfo, undefined, undefined, true)).rejects.toThrow(
     'wsl bootstrap script failed: exit status 0xffffffff',
   );
   expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();

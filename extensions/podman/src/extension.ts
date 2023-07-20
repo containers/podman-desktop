@@ -429,10 +429,10 @@ function prettyMachineName(machineName: string): string {
 async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (context, logger): Promise<void> => {
-      await startMachine(provider, machineInfo, logger);
+      await startMachine(provider, machineInfo, context, logger);
     },
     stop: async (context, logger): Promise<void> => {
-      await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], { logger });
+      await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], { context, logger });
       provider.updateStatus('ready');
     },
     delete: async (logger): Promise<void> => {
@@ -473,12 +473,13 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
 export async function startMachine(
   provider: extensionApi.Provider,
   machineInfo: MachineInfo,
+  context?: extensionApi.LifecycleContext,
   logger?: extensionApi.Logger,
   skipHandleError?: boolean,
 ): Promise<void> {
   try {
     // start the machine
-    await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], { logger });
+    await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], { context, logger });
     provider.updateStatus('started');
   } catch (err) {
     if (skipHandleError) {
@@ -741,7 +742,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           } else {
             console.log('Podman extension:', 'Autostarting machine', machineName);
             const machineInfo = podmanMachinesInfo.get(machineName);
-            await startMachine(provider, machineInfo, logger);
+            const containerProviderConnection = containerProviderConnections.get(machineName);
+            const context: extensionApi.LifecycleContext = extensionApi.provider.getProviderLifecycleContext(
+              provider.id,
+              containerProviderConnection,
+            );
+            await startMachine(provider, machineInfo, context, logger);
             autoMachineStarted = true;
             autoMachineName = machineName;
           }
