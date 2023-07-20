@@ -50,8 +50,7 @@ async function doCreatePodFromContainers() {
       return Object.entries(containerInspect.HostConfig.PortBindings).map(([key, value]) => {
         const container_port = parseInt(key.split('/')[0]);
         // we may not have any value
-        // eslint-disable-next-line no-null/no-null
-        if (!value || value === null) {
+        if (!value) {
           return undefined;
         }
         const host_port = parseInt(value[0].HostPort);
