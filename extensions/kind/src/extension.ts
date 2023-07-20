@@ -125,8 +125,15 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
     };
     if (!item) {
       const lifecycle: extensionApi.ProviderConnectionLifecycle = {
-        start: async (): Promise<void> => {
+        start: async (context, logger): Promise<void> => {
           try {
+            if (context || logger) {
+              await extensionApi.containerEngine.logsContainer(
+                cluster.engineId,
+                cluster.id,
+                getLoggerCallback(context, logger),
+              );
+            }
             // start the container
             await extensionApi.containerEngine.startContainer(cluster.engineId, cluster.id);
           } catch (err) {
@@ -135,7 +142,14 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
             throw err;
           }
         },
-        stop: async (): Promise<void> => {
+        stop: async (context, logger): Promise<void> => {
+          if (context || logger) {
+            await extensionApi.containerEngine.logsContainer(
+              cluster.engineId,
+              cluster.id,
+              getLoggerCallback(context, logger),
+            );
+          }
           await extensionApi.containerEngine.stopContainer(cluster.engineId, cluster.id);
         },
         delete: async (logger): Promise<void> => {
@@ -179,6 +193,15 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
       }
     }
   });
+}
+
+function getLoggerCallback(context?: extensionApi.LifecycleContext, logger?: Logger) {
+  return (_name: string, data: string) => {
+    if (data) {
+      context?.log?.log(data);
+      logger?.log(data);
+    }
+  };
 }
 
 async function searchKindClusters(provider: extensionApi.Provider): Promise<void> {
