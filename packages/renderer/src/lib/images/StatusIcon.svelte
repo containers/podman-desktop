@@ -20,7 +20,7 @@ $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' ||
     class:text-gray-700="{!solid}"
     title="{status}">
     {#if typeof icon === 'string'}
-      <i class="{icon}" aria-hidden="true"></i>
+      <span class="{icon}" aria-hidden="true"></span>
     {:else}
       <svelte:component this="{icon}" size="20" solid="{solid}" />
     {/if}

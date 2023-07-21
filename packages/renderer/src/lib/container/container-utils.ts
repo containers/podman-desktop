@@ -24,6 +24,10 @@ import humanizeDuration from 'humanize-duration';
 import { filesize } from 'filesize';
 import type { Port } from '@podman-desktop/api';
 import type { ContextUI } from '../context/context';
+import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import { ContextKeyExpr } from '../context/contextKey';
+import ContainerIcon from '../images/ContainerIcon.svelte';
+
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {
     // part of a compose ?
@@ -114,7 +118,11 @@ export class ContainerUtils {
     return containerInfo.engineName;
   }
 
-  getContainerInfoUI(containerInfo: ContainerInfo): ContainerInfoUI {
+  getContainerInfoUI(
+    containerInfo: ContainerInfo,
+    extensionsContext?: ContextUI[],
+    viewContributions?: ViewInfoUI[],
+  ): ContainerInfoUI {
     return {
       id: containerInfo.Id,
       shortId: containerInfo.Id.substring(0, 8),
@@ -137,6 +145,7 @@ export class ContainerUtils {
       selected: false,
       created: containerInfo.Created,
       labels: containerInfo.Labels,
+      icon: this.iconClass(containerInfo, extensionsContext, viewContributions) || ContainerIcon,
     };
   }
 
@@ -222,7 +231,44 @@ export class ContainerUtils {
     }
   }
 
-  adaptContextOnContainer(context: ContextUI, container: ContainerInfoUI): void {
-    context.setValue('containerLabelKeys', Object.keys(container.labels));
+  iconClass(
+    container: ContainerInfo,
+    extensionsContext?: ContextUI[],
+    viewContributions?: ViewInfoUI[],
+  ): string | undefined {
+    if (!extensionsContext || !viewContributions) {
+      return undefined;
+    }
+
+    let icon;
+    // loop over all contribution for this view
+    for (const contribution of viewContributions) {
+      // retrieve the extension from the contribution and fetch its context
+      const extensionContext: ContextUI = extensionsContext.find(ctx => {
+        return ctx.extension === contribution.extensionId;
+      });
+      if (extensionContext) {
+        // adapt the context to work with containers (e.g save container labels into the context)
+        this.adaptContextOnContainer(extensionContext, container);
+        // deserialize the when clause
+        const whenDeserialized = ContextKeyExpr.deserialize(contribution.when);
+        // if the when clause has to be applied to this container
+        if (whenDeserialized?.evaluate(extensionContext)) {
+          // handle ${} in icon class
+          // and interpret the value and replace with the class-name
+          const match = contribution.icon.match(/\$\{(.*)\}/);
+          if (match && match.length === 2) {
+            const className = match[1];
+            icon = contribution.icon.replace(match[0], `podman-desktop-icon-${className}`);
+            return icon;
+          }
+        }
+      }
+    }
+    return icon;
+  }
+
+  adaptContextOnContainer(context: ContextUI, container: ContainerInfo): void {
+    context.setValue('containerLabelKeys', Object.keys(container.Labels));
   }
 }

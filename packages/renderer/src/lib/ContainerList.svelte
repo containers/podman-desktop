@@ -5,7 +5,6 @@ import { viewsContributions } from '../stores/views';
 import { contexts } from '../stores/contexts';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
-import ContainerIcon from './images/ContainerIcon.svelte';
 import PodIcon from './images/PodIcon.svelte';
 import StatusIcon from './images/StatusIcon.svelte';
 import { router } from 'tinro';
@@ -36,7 +35,6 @@ import ComposeActions from './compose/ComposeActions.svelte';
 import Spinner from './ui/Spinner.svelte';
 import { CONTAINER_LIST_VIEW } from './view/views';
 import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
-import { ContextKeyExpr } from './context/contextKey';
 import type { ContextUI } from './context/context';
 
 const containerUtils = new ContainerUtils();
@@ -47,6 +45,7 @@ let enginesList: EngineInfoUI[];
 let containerGroups: ContainerGroupInfoUI[] = [];
 let viewContributions: ViewInfoUI[] = [];
 let extensionsContext: ContextUI[] = [];
+let containersInfo: ContainerInfo[] = [];
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
@@ -223,72 +222,85 @@ onMount(async () => {
 
   contextsUnsubscribe = contexts.subscribe(value => {
     extensionsContext = value;
+    if (containersInfo.length > 0) {
+      updateContainers(containersInfo, extensionsContext, viewContributions);
+    }
   });
 
   viewsUnsubscribe = viewsContributions.subscribe(value => {
     viewContributions = value.filter(view => view.viewId === CONTAINER_LIST_VIEW) || [];
+    if (containersInfo.length > 0) {
+      updateContainers(containersInfo, extensionsContext, viewContributions);
+    }
   });
 
   containersUnsubscribe = filtered.subscribe(value => {
-    const currentContainers = value.map((containerInfo: ContainerInfo) => {
-      return containerUtils.getContainerInfoUI(containerInfo);
-    });
+    updateContainers(value, extensionsContext, viewContributions);
+  });
 
-    // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
-    const engines = currentContainers.map(container => {
-      return {
-        name: container.engineName,
-        id: container.engineId,
-      };
-    });
-
-    // Remove duplicates from engines by name
-    const uniqueEngines = engines.filter(
-      (engine, index, self) => index === self.findIndex(t => t.name === engine.name),
-    );
-
-    if (uniqueEngines.length > 1) {
-      multipleEngines = true;
-    } else {
-      multipleEngines = false;
-    }
-
-    // Set the engines to the global variable for the Prune functionality button
-    enginesList = uniqueEngines;
-
-    // create groups
-    const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
-
-    // update selected items based on current selected items
-    computedContainerGroups.forEach(group => {
-      const matchingGroup = containerGroups.find(currentGroup => currentGroup.name === group.name);
-      if (matchingGroup) {
-        group.selected = matchingGroup.selected;
-        group.expanded = matchingGroup.expanded;
-        group.containers.forEach(container => {
-          const matchingContainer = matchingGroup.containers.find(
-            currentContainer => currentContainer.id === container.id,
-          );
-          if (matchingContainer) {
-            container.actionError = matchingContainer.actionError;
-            container.selected = matchingContainer.selected;
-          }
-        });
-      }
-    });
-
-    // update the value
-    containerGroups = computedContainerGroups;
-
-    // compute refresh interval
-    const interval = computeInterval();
-    refreshTimeouts.push(setTimeout(refreshUptime, interval));
-
-    podUnsubscribe = podsInfos.subscribe(podInfos => {
-      pods = podInfos;
-    });
+  podUnsubscribe = podsInfos.subscribe(podInfos => {
+    pods = podInfos;
   });
 });
+
+function updateContainers(
+  containers: ContainerInfo[],
+  extensionsContext: ContextUI[],
+  viewContributions: ViewInfoUI[],
+) {
+  containersInfo = containers;
+  const currentContainers = containers.map((containerInfo: ContainerInfo) => {
+    return containerUtils.getContainerInfoUI(containerInfo, extensionsContext, viewContributions);
+  });
+
+  // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
+  const engines = currentContainers.map(container => {
+    return {
+      name: container.engineName,
+      id: container.engineId,
+    };
+  });
+
+  // Remove duplicates from engines by name
+  const uniqueEngines = engines.filter((engine, index, self) => index === self.findIndex(t => t.name === engine.name));
+
+  if (uniqueEngines.length > 1) {
+    multipleEngines = true;
+  } else {
+    multipleEngines = false;
+  }
+
+  // Set the engines to the global variable for the Prune functionality button
+  enginesList = uniqueEngines;
+
+  // create groups
+  const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+
+  // update selected items based on current selected items
+  computedContainerGroups.forEach(group => {
+    const matchingGroup = containerGroups.find(currentGroup => currentGroup.name === group.name);
+    if (matchingGroup) {
+      group.selected = matchingGroup.selected;
+      group.expanded = matchingGroup.expanded;
+      group.containers.forEach(container => {
+        const matchingContainer = matchingGroup.containers.find(
+          currentContainer => currentContainer.id === container.id,
+        );
+        if (matchingContainer) {
+          container.actionError = matchingContainer.actionError;
+          container.selected = matchingContainer.selected;
+        }
+      });
+    }
+  });
+
+  // update the value
+  containerGroups = computedContainerGroups;
+
+  // compute refresh interval
+  const interval = computeInterval();
+  refreshTimeouts.push(setTimeout(refreshUptime, interval));
+}
 
 onDestroy(() => {
   // store current groups for later
@@ -371,35 +383,6 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   container.actionError = errorMessage;
   container.state = 'ERROR';
   containerGroups = [...containerGroups];
-}
-
-function iconClass(container: ContainerInfoUI): string | undefined {
-  let icon;
-  // loop over all contribution for this view
-  for (const contribution of viewContributions) {
-    // retrieve the extension from the contribution and fetch its context
-    const extensionContext: ContextUI = extensionsContext.find(ctx => {
-      return ctx.extension === contribution.extensionId;
-    });
-    if (extensionContext) {
-      // adapt the context to work with containers (e.g save container labels into the context)
-      containerUtils.adaptContextOnContainer(extensionContext, container);
-      // deserialize the when clause
-      const whenDeserialized = ContextKeyExpr.deserialize(contribution.when);
-      // if the when clause has to be applied to this container
-      if (whenDeserialized?.evaluate(extensionContext)) {
-        // handle ${} in icon class
-        // and interpret the value and replace with the class-name
-        const match = contribution.icon.match(/\$\{(.*)\}/);
-        if (match && match.length === 2) {
-          const className = match[1];
-          icon = contribution.icon.replace(match[0], `podman-desktop-icon-${className}`);
-          return icon;
-        }
-      }
-    }
-  }
-  return icon;
 }
 </script>
 
@@ -568,11 +551,7 @@ function iconClass(container: ContainerInfoUI): string | undefined {
                 </td>
                 <td class="flex flex-row justify-center h-12">
                   <div class="grid place-content-center ml-3 mr-4">
-                    {#if iconClass(container)}
-                      <StatusIcon icon="{iconClass(container)}" status="{container.state}" />
-                    {:else}
-                      <StatusIcon icon="{ContainerIcon}" status="{container.state}" />
-                    {/if}
+                    <StatusIcon icon="{container.icon}" status="{container.state}" />
                   </div>
                 </td>
                 <td
