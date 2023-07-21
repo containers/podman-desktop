@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './basePage';
+import { PodmanDesktopPage } from './base-page';
 
 export class DashboardPage extends PodmanDesktopPage {
   readonly heading: Locator;

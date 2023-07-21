@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './basePage';
+import { PodmanDesktopPage } from './base-page';
 import { expect } from '@playwright/test';
 
 export class WelcomePage extends PodmanDesktopPage {

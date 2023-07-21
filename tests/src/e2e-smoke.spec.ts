@@ -20,45 +20,29 @@ import type { BrowserWindow } from 'electron';
 import type { JSHandle, Page } from 'playwright';
 import { afterAll, beforeAll, expect, test, describe } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { PodmanDesktopRunner } from './runner/podmanDesktopRunner';
-import { WelcomePage } from './model/page/welcomePage';
-import { DashboardPage } from './model/page/dashboardPage';
+import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
+import { WelcomePage } from './model/pages/welcome-page';
+import { DashboardPage } from './model/pages/dashboard-page';
 
 const navBarItems = ['Dashboard', 'Containers', 'Images', 'Pods', 'Volumes', 'Settings'];
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
 beforeAll(async () => {
-  const env: { [key: string]: string } = Object.assign({}, process.env as { [key: string]: string });
-  env.PODMAN_DESKTOP_HOME_DIR = 'tests/output/podman-desktop';
-  const properties = {
-    env,
-    recordVideo: {
-      dir: 'tests/output/videos',
-      size: {
-        width: 1050,
-        height: 700,
-      },
-    },
-  };
-
-  pdRunner = new PodmanDesktopRunner('.', properties);
-  await pdRunner.startApp();
-
-  page = await pdRunner.getPage();
+  pdRunner = new PodmanDesktopRunner();
+  page = await pdRunner.start();
 });
 
 afterAll(async () => {
-  await pdRunner.closeApp();
+  await pdRunner.close();
 });
 
 describe('Basic e2e verification of podman desktop start', async () => {
   describe('Welcome page handling', async () => {
     test('Check the Welcome page is displayed', async () => {
-      // Direct Electron console to Node terminal.
-      page.on('console', console.log);
+      pdRunner.redirectEletronConsoleToTerminal();
 
-      const window: JSHandle<BrowserWindow> = await pdRunner.app.browserWindow(page);
+      const window: JSHandle<BrowserWindow> = await pdRunner.getBrowserWindow();
 
       const windowState = await window.evaluate(
         (mainWindow): Promise<{ isVisible: boolean; isDevToolsOpened: boolean; isCrashed: boolean }> => {
@@ -82,7 +66,7 @@ describe('Basic e2e verification of podman desktop start', async () => {
       expect(windowState.isCrashed, 'The app has crashed').toBeFalsy();
       expect(windowState.isVisible, 'The main window was not visible').toBeTruthy();
 
-      await page.screenshot({ path: 'tests/output/screenshots/screenshot-welcome-page-init.png', fullPage: true });
+      await pdRunner.takeScreenshot('welcome-page-init.png');
 
       const welcomePage = new WelcomePage(page);
       await playExpect(welcomePage.welcomeMessage).toBeVisible();
@@ -103,15 +87,12 @@ describe('Basic e2e verification of podman desktop start', async () => {
       // wait for visibility
       await welcomePage.goToPodmanDesktopButton.waitFor({ state: 'visible' });
 
-      await page.screenshot({ path: 'tests/output/screenshots/screenshot-welcome-page-display.png', fullPage: true });
+      await pdRunner.takeScreenshot('welcome-page-display.png');
 
       // click on the button
       await welcomePage.goToPodmanDesktopButton.click();
 
-      await page.screenshot({
-        path: 'tests/output/screenshots/screenshot-welcome-page-redirect-to-dashboard.png',
-        fullPage: true,
-      });
+      await pdRunner.takeScreenshot('welcome-page-redirect-to-dashboard.png');
 
       // check we have the dashboard page
       const dashboardPage = new DashboardPage(page);

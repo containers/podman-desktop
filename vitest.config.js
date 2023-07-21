@@ -28,7 +28,7 @@ const config = {
   test: {
     globals: true,
     environment: 'jsdom',
-    globalSetup: './tests/src/globalSetup/globalSetup.ts',
+    globalSetup: './tests/src/globalSetup/global-setup.ts',
     /**
      * By default, vitest search test files in all packages.
      * For e2e tests have sense search only is project root tests folder
