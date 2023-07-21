@@ -79,11 +79,36 @@ export class Context implements IContext {
   }
 
   getValue<T>(key: string): T | undefined {
-    const ret = this._value[key];
+    const ret = this._value[key] || this.getDottedKeyValue(key);
     if (typeof ret === 'undefined' && this._parent) {
-      return this._parent.getValue<T>(key);
+      return this._parent.getValue<T>(key) || this._parent.getDottedKeyValue<T>(key);
     }
     return ret;
+  }
+
+  /**
+   * A key could represent a complex value like the property of an object
+   *
+   * E.g command.status - this function retrieves the value of "command" from the context
+   * and look for its "status" property value
+   *
+   * @param key the key
+   * @param context the context where to look for the value
+   * @returns the value of the complex key or undefined
+   */
+  getDottedKeyValue<T>(key: string): T | undefined {
+    if (!key) {
+      return undefined;
+    }
+    const bits = key.split('.');
+    let contextValue = this.getValue<T>(bits[0]);
+    if (contextValue === undefined) {
+      return undefined;
+    }
+    for (let i = 1; i < bits.length; i++) {
+      contextValue = contextValue[bits[i] as keyof T] as T;
+    }
+    return contextValue;
   }
 
   updateParent(parent: Context): void {
