@@ -1,51 +1,46 @@
+/**********************************************************************
+ * Copyright (C) 2023 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
 import type { BrowserWindow } from 'electron';
-import type { ElectronApplication, JSHandle, Page } from 'playwright';
-import { _electron as electron } from 'playwright';
+import type { JSHandle, Page } from 'playwright';
 import { afterAll, beforeAll, expect, test, describe } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { existsSync } from 'node:fs';
-import { rm } from 'node:fs/promises';
+import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
+import { WelcomePage } from './model/pages/welcome-page';
+import { DashboardPage } from './model/pages/dashboard-page';
 
 const navBarItems = ['Dashboard', 'Containers', 'Images', 'Pods', 'Volumes', 'Settings'];
-let electronApp: ElectronApplication;
+let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
 beforeAll(async () => {
-  // remove all videos/screenshots
-  if (existsSync('tests/output')) {
-    console.log('Cleaning up output folder...');
-    await rm('tests/output', { recursive: true, force: true });
-  }
-
-  const env: { [key: string]: string } = Object.assign({}, process.env as { [key: string]: string });
-  env.PODMAN_DESKTOP_HOME_DIR = 'tests/output/podman-desktop';
-
-  electronApp = await electron.launch({
-    args: ['.'],
-    env,
-    recordVideo: {
-      dir: 'tests/output/videos',
-      size: {
-        width: 1050,
-        height: 700,
-      },
-    },
-  });
-
-  page = await electronApp.firstWindow();
+  pdRunner = new PodmanDesktopRunner();
+  page = await pdRunner.start();
 });
 
 afterAll(async () => {
-  await electronApp.close();
+  await pdRunner.close();
 });
 
 describe('Basic e2e verification of podman desktop start', async () => {
   describe('Welcome page handling', async () => {
     test('Check the Welcome page is displayed', async () => {
-      // Direct Electron console to Node terminal.
-      page.on('console', console.log);
-
-      const window: JSHandle<BrowserWindow> = await electronApp.browserWindow(page);
+      const window: JSHandle<BrowserWindow> = await pdRunner.getBrowserWindow();
 
       const windowState = await window.evaluate(
         (mainWindow): Promise<{ isVisible: boolean; isDevToolsOpened: boolean; isCrashed: boolean }> => {
@@ -69,40 +64,37 @@ describe('Basic e2e verification of podman desktop start', async () => {
       expect(windowState.isCrashed, 'The app has crashed').toBeFalsy();
       expect(windowState.isVisible, 'The main window was not visible').toBeTruthy();
 
-      await page.screenshot({ path: 'tests/output/screenshots/screenshot-welcome-page-init.png', fullPage: true });
+      await pdRunner.screenshot('welcome-page-init.png');
 
-      const welcomeMessage = page.locator('text=/Welcome to Podman Desktop.*/');
-      await playExpect(welcomeMessage).toBeVisible();
+      const welcomePage = new WelcomePage(page);
+      await playExpect(welcomePage.welcomeMessage).toBeVisible();
     });
 
     test('Telemetry checkbox is present, set to true, consent can be changed', async () => {
       // wait for the initial screen to be loaded
-      const telemetryConsent = page.getByText('Telemetry');
-      expect(telemetryConsent).not.undefined;
-      expect(await telemetryConsent.isChecked()).to.be.true;
+      const welcomePage = new WelcomePage(page);
+      await playExpect(welcomePage.telemetryConsent).toBeVisible();
+      playExpect(await welcomePage.telemetryConsent.isChecked()).toBeTruthy();
 
-      await telemetryConsent.click();
-      expect(await telemetryConsent.isChecked()).to.be.false;
+      await welcomePage.turnOffTelemetry();
+      playExpect(await welcomePage.telemetryConsent.isChecked()).toBeFalsy();
     });
 
     test('Redirection from Welcome page to Dashboard works', async () => {
-      const goToPodmanDesktopButton = page.locator('button:text("Go to Podman Desktop")');
+      const welcomePage = new WelcomePage(page);
       // wait for visibility
-      await goToPodmanDesktopButton.waitFor({ state: 'visible' });
+      await welcomePage.goToPodmanDesktopButton.waitFor({ state: 'visible' });
 
-      await page.screenshot({ path: 'tests/output/screenshots/screenshot-welcome-page-display.png', fullPage: true });
+      await pdRunner.screenshot('welcome-page-display.png');
 
       // click on the button
-      await goToPodmanDesktopButton.click();
+      await welcomePage.goToPodmanDesktopButton.click();
 
-      await page.screenshot({
-        path: 'tests/output/screenshots/screenshot-welcome-page-redirect-to-dashboard.png',
-        fullPage: true,
-      });
+      await pdRunner.screenshot('welcome-page-redirect-to-dashboard.png');
 
       // check we have the dashboard page
-      const dashboardTitle = page.getByRole('heading', { name: 'Dashboard' });
-      await playExpect(dashboardTitle).toBeVisible();
+      const dashboardPage = new DashboardPage(page);
+      await playExpect(dashboardPage.heading).toBeVisible();
     });
   });
 
