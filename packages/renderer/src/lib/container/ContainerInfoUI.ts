@@ -64,6 +64,8 @@ export interface ContainerInfoUI {
   created: number;
   actionInProgress?: boolean;
   actionError?: string;
+  labels: { [label: string]: string };
+  icon?: any;
 }
 
 export interface ContainerGroupInfoUI extends ContainerGroupPartInfoUI {

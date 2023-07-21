@@ -1,9 +1,10 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
 import { filtered, searchPattern, containersInfos } from '../stores/containers';
+import { viewsContributions } from '../stores/views';
+import { contexts } from '../stores/contexts';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
-import ContainerIcon from './images/ContainerIcon.svelte';
 import PodIcon from './images/PodIcon.svelte';
 import StatusIcon from './images/StatusIcon.svelte';
 import { router } from 'tinro';
@@ -32,6 +33,9 @@ import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { PodUtils } from '../lib/pod/pod-utils';
 import ComposeActions from './compose/ComposeActions.svelte';
 import Spinner from './ui/Spinner.svelte';
+import { CONTAINER_LIST_VIEW } from './view/views';
+import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
+import type { ContextUI } from './context/context';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -39,6 +43,9 @@ let enginesList: EngineInfoUI[];
 
 // groups of containers that will be displayed
 let containerGroups: ContainerGroupInfoUI[] = [];
+let viewContributions: ViewInfoUI[] = [];
+let extensionsContext: ContextUI[] = [];
+let containersInfo: ContainerInfo[] = [];
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
@@ -205,72 +212,95 @@ function createPodFromContainers() {
 }
 
 let containersUnsubscribe: Unsubscriber;
+let contextsUnsubscribe: Unsubscriber;
 let podUnsubscribe: Unsubscriber;
+let viewsUnsubscribe: Unsubscriber;
 let pods: PodInfo[];
 onMount(async () => {
   // grab previous groups
   containerGroups = get(containerGroupsInfo);
 
-  containersUnsubscribe = filtered.subscribe(value => {
-    const currentContainers = value.map((containerInfo: ContainerInfo) => {
-      return containerUtils.getContainerInfoUI(containerInfo);
-    });
-
-    // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
-    const engines = currentContainers.map(container => {
-      return {
-        name: container.engineName,
-        id: container.engineId,
-      };
-    });
-
-    // Remove duplicates from engines by name
-    const uniqueEngines = engines.filter(
-      (engine, index, self) => index === self.findIndex(t => t.name === engine.name),
-    );
-
-    if (uniqueEngines.length > 1) {
-      multipleEngines = true;
-    } else {
-      multipleEngines = false;
+  contextsUnsubscribe = contexts.subscribe(value => {
+    extensionsContext = value;
+    if (containersInfo.length > 0) {
+      updateContainers(containersInfo, extensionsContext, viewContributions);
     }
+  });
 
-    // Set the engines to the global variable for the Prune functionality button
-    enginesList = uniqueEngines;
+  viewsUnsubscribe = viewsContributions.subscribe(value => {
+    viewContributions = value.filter(view => view.viewId === CONTAINER_LIST_VIEW) || [];
+    if (containersInfo.length > 0) {
+      updateContainers(containersInfo, extensionsContext, viewContributions);
+    }
+  });
 
-    // create groups
-    const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+  containersUnsubscribe = filtered.subscribe(value => {
+    updateContainers(value, extensionsContext, viewContributions);
+  });
 
-    // update selected items based on current selected items
-    computedContainerGroups.forEach(group => {
-      const matchingGroup = containerGroups.find(currentGroup => currentGroup.name === group.name);
-      if (matchingGroup) {
-        group.selected = matchingGroup.selected;
-        group.expanded = matchingGroup.expanded;
-        group.containers.forEach(container => {
-          const matchingContainer = matchingGroup.containers.find(
-            currentContainer => currentContainer.id === container.id,
-          );
-          if (matchingContainer) {
-            container.actionError = matchingContainer.actionError;
-            container.selected = matchingContainer.selected;
-          }
-        });
-      }
-    });
-
-    // update the value
-    containerGroups = computedContainerGroups;
-
-    // compute refresh interval
-    const interval = computeInterval();
-    refreshTimeouts.push(setTimeout(refreshUptime, interval));
-
-    podUnsubscribe = podsInfos.subscribe(podInfos => {
-      pods = podInfos;
-    });
+  podUnsubscribe = podsInfos.subscribe(podInfos => {
+    pods = podInfos;
   });
 });
+
+function updateContainers(
+  containers: ContainerInfo[],
+  extensionsContext: ContextUI[],
+  viewContributions: ViewInfoUI[],
+) {
+  containersInfo = containers;
+  const currentContainers = containers.map((containerInfo: ContainerInfo) => {
+    return containerUtils.getContainerInfoUI(containerInfo, extensionsContext, viewContributions);
+  });
+
+  // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
+  const engines = currentContainers.map(container => {
+    return {
+      name: container.engineName,
+      id: container.engineId,
+    };
+  });
+
+  // Remove duplicates from engines by name
+  const uniqueEngines = engines.filter((engine, index, self) => index === self.findIndex(t => t.name === engine.name));
+
+  if (uniqueEngines.length > 1) {
+    multipleEngines = true;
+  } else {
+    multipleEngines = false;
+  }
+
+  // Set the engines to the global variable for the Prune functionality button
+  enginesList = uniqueEngines;
+
+  // create groups
+  const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+
+  // update selected items based on current selected items
+  computedContainerGroups.forEach(group => {
+    const matchingGroup = containerGroups.find(currentGroup => currentGroup.name === group.name);
+    if (matchingGroup) {
+      group.selected = matchingGroup.selected;
+      group.expanded = matchingGroup.expanded;
+      group.containers.forEach(container => {
+        const matchingContainer = matchingGroup.containers.find(
+          currentContainer => currentContainer.id === container.id,
+        );
+        if (matchingContainer) {
+          container.actionError = matchingContainer.actionError;
+          container.selected = matchingContainer.selected;
+        }
+      });
+    }
+  });
+
+  // update the value
+  containerGroups = computedContainerGroups;
+
+  // compute refresh interval
+  const interval = computeInterval();
+  refreshTimeouts.push(setTimeout(refreshUptime, interval));
+}
 
 onDestroy(() => {
   // store current groups for later
@@ -284,8 +314,14 @@ onDestroy(() => {
   if (containersUnsubscribe) {
     containersUnsubscribe();
   }
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
+  }
   if (podUnsubscribe) {
     podUnsubscribe();
+  }
+  if (viewsUnsubscribe) {
+    viewsUnsubscribe();
   }
 });
 
@@ -515,7 +551,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                 </td>
                 <td class="flex flex-row justify-center h-12">
                   <div class="grid place-content-center ml-3 mr-4">
-                    <StatusIcon icon="{ContainerIcon}" status="{container.state}" />
+                    <StatusIcon icon="{container.icon}" status="{container.state}" />
                   </div>
                 </td>
                 <td
