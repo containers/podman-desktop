@@ -18,12 +18,13 @@
 
 import type { Locator, Page } from 'playwright';
 import { PodmanDesktopPage } from './base-page';
+import { RunImagePage } from './run-image-page';
 
 export class ImageDetailsPage extends PodmanDesktopPage {
   readonly name: Locator;
   readonly imageName: string;
   readonly heading: Locator;
-  readonly runButton: Locator;
+  readonly runImageButton: Locator;
   readonly deleteButton: Locator;
   readonly editButton: Locator;
   readonly summaryTab: Locator;
@@ -37,7 +38,7 @@ export class ImageDetailsPage extends PodmanDesktopPage {
     this.name = page.getByLabel('name').and(page.getByText('Image Details'));
     this.imageName = name;
     this.heading = page.getByRole('heading', { name: this.imageName });
-    this.runButton = page.getByRole('button', { name: 'Run Image' });
+    this.runImageButton = page.getByRole('button', { name: 'Run Image' });
     this.deleteButton = page.getByRole('button', { name: 'Delete Image' });
     this.editButton = page.getByRole('button', { name: 'Edit Image' });
     this.summaryTab = page.getByText('Summary');
@@ -45,5 +46,10 @@ export class ImageDetailsPage extends PodmanDesktopPage {
     this.inspectTab = page.getByText('Inspect');
     this.closeLink = page.getByRole('link', { name: 'Close Details' });
     this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
+  }
+
+  async openRunImage(): Promise<RunImagePage> {
+    await this.runImageButton.click();
+    return new RunImagePage(this.page, this.imageName);
   }
 }

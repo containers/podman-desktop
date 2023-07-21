@@ -24,8 +24,9 @@ import { rm } from 'node:fs/promises';
  * @param path path to a folder to be force removed recursively
  */
 export async function removeFolderIfExists(path: string) {
+  console.log(`Cleaning up folder: ${path}`);
   if (existsSync(path)) {
-    console.log(`Cleaning up folder: ${path}`);
+    console.log(`Folder found, removing...`);
     await rm(path, { recursive: true, force: true });
   }
 }

@@ -16,16 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from 'playwright';
-
-export abstract class PodmanDesktopPage {
-  readonly page: Page;
-
-  constructor(page: Page) {
-    this.page = page;
-  }
-
-  public getPage(): Page {
-    return this.page;
-  }
+export enum ContainerState {
+  Starting = 'STARTING',
+  Stopping = 'STOPPING',
+  Running = 'RUNNING',
+  Error = 'ERROR',
+  Exited = 'EXITED',
+  Deleting = 'DELETING',
+  Created = 'CREATED',
+  Paused = 'PAUSED',
+  Unknown = 'UNKNOWN',
 }
