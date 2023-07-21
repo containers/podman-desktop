@@ -82,14 +82,10 @@ window.events.receive('starting-extensions', (value: string) => {
 </script>
 
 {#if !systemReady}
-  <main class="min-h-screen flex flex-col h-screen">
-    <div class="min-h-full min-w-full flex flex-col">
-      <div class="pf-c-empty-state h-full">
-        <div class="pf-c-empty-state__content">
-          <SealRocket />
-          <h1 class="pf-c-title pf-m-lg">Initializing...</h1>
-        </div>
-      </div>
+  <main class="flex flex-row w-screen h-screen justify-center" style="-webkit-app-region: drag;">
+    <div class="flex flex-col justify-center">
+      <SealRocket />
+      <h1 class="text-center text-xl">Initializing...</h1>
     </div>
   </main>
 {:else}
