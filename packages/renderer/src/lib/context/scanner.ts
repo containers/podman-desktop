@@ -26,8 +26,13 @@ import { CharCode } from '../../../../main/src/plugin/util/charCode';
 export const enum TokenType {
   LParen,
   RParen,
+  Eq,
+  True,
+  False,
   In,
   Not,
+  And,
+  Or,
   Str,
   QuotedStr,
   Error,
@@ -37,15 +42,29 @@ export const enum TokenType {
 export type Token =
   | { type: TokenType.LParen; offset: number }
   | { type: TokenType.RParen; offset: number }
+  | { type: TokenType.Eq; offset: number; isTripleEq: boolean }
+  | { type: TokenType.True; offset: number }
+  | { type: TokenType.False; offset: number }
   | { type: TokenType.In; offset: number }
   | { type: TokenType.Not; offset: number }
+  | { type: TokenType.And; offset: number }
+  | { type: TokenType.Or; offset: number }
   | { type: TokenType.Str; offset: number; lexeme: string }
   | { type: TokenType.QuotedStr; offset: number; lexeme: string }
   | { type: TokenType.Error; offset: number; lexeme: string }
   | { type: TokenType.EOF; offset: number };
 
-type KeywordTokenType = TokenType.Not | TokenType.In;
-type TokenTypeWithoutLexeme = TokenType.LParen | TokenType.RParen | TokenType.In | TokenType.Not | TokenType.EOF;
+type KeywordTokenType = TokenType.Not | TokenType.In | TokenType.False | TokenType.True;
+type TokenTypeWithoutLexeme =
+  | TokenType.LParen
+  | TokenType.RParen
+  | TokenType.True
+  | TokenType.False
+  | TokenType.In
+  | TokenType.Not
+  | TokenType.And
+  | TokenType.Or
+  | TokenType.EOF;
 
 /**
  * Example:
@@ -80,10 +99,20 @@ export class Scanner {
         return '(';
       case TokenType.RParen:
         return ')';
+      case TokenType.Eq:
+        return token.isTripleEq ? '===' : '==';
+      case TokenType.True:
+        return 'true';
+      case TokenType.False:
+        return 'false';
       case TokenType.In:
         return 'in';
       case TokenType.Not:
         return 'not';
+      case TokenType.And:
+        return '&&';
+      case TokenType.Or:
+        return '||';
       case TokenType.Str:
         return token.lexeme;
       case TokenType.QuotedStr:
@@ -100,6 +129,8 @@ export class Scanner {
   private static _keywords = new Map<string, KeywordTokenType>([
     ['not', TokenType.Not],
     ['in', TokenType.In],
+    ['false', TokenType.False],
+    ['true', TokenType.True],
   ]);
 
   private _input = '';
@@ -135,6 +166,24 @@ export class Scanner {
         case CharCode.CloseParen:
           this._addToken(TokenType.RParen);
           break;
+        case CharCode.Equals:
+          if (this._match(CharCode.Equals)) {
+            // support `==`
+            const isTripleEq = this._match(CharCode.Equals); // eat last `=` if `===`
+            this._tokens.push({ type: TokenType.Eq, offset: this._start, isTripleEq });
+          }
+          break;
+        case CharCode.Ampersand:
+          if (this._match(CharCode.Ampersand)) {
+            this._addToken(TokenType.And);
+          }
+          break;
+
+        case CharCode.Pipe:
+          if (this._match(CharCode.Pipe)) {
+            this._addToken(TokenType.Or);
+          }
+          break;
 
         case CharCode.SingleQuote:
           this._quotedString();
@@ -157,6 +206,17 @@ export class Scanner {
     this._addToken(TokenType.EOF);
 
     return Array.from(this._tokens);
+  }
+
+  private _match(expected: number): boolean {
+    if (this._isAtEnd()) {
+      return false;
+    }
+    if (this._input.charCodeAt(this._current) !== expected) {
+      return false;
+    }
+    this._current++;
+    return true;
   }
 
   private _advance(): number {

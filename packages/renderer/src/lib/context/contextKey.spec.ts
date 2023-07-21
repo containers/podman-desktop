@@ -18,7 +18,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import * as assert from 'assert';
+import assert from 'assert';
 import { suite, test } from 'vitest';
 
 import { ContextKeyExpr } from './contextKey.js';
@@ -32,6 +32,17 @@ function createContext(ctx: any) {
 }
 
 suite('ContextKeyExpr', () => {
+  test('ContextKeyExpr.equals', () => {
+    const a = ContextKeyExpr.and(ContextKeyExpr.equals('b1', 'bb1'), ContextKeyExpr.equals('b2', 'bb2'))!;
+    const b = ContextKeyExpr.and(ContextKeyExpr.equals('b2', 'bb2'), ContextKeyExpr.equals('b1', 'bb1'))!;
+    assert(a.equals(b), 'expressions should be equal');
+  });
+
+  test('ContextKeyEqualsExpr', () => {
+    const a_cequalsb = ContextKeyExpr.deserialize('a == b')!;
+    assert.strictEqual(a_cequalsb.evaluate(createContext({ a: 'b' })), true);
+  });
+
   test('ContextKeyInExpr', () => {
     const ainb = ContextKeyExpr.deserialize('a in b')!;
     assert.strictEqual(ainb.evaluate(createContext({ a: 3, b: [3, 2, 1] })), true);
