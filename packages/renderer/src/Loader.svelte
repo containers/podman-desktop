@@ -82,7 +82,7 @@ window.events.receive('starting-extensions', (value: string) => {
 </script>
 
 {#if !systemReady}
-  <main class="flex flex-row w-screen h-screen justify-center">
+  <main class="flex flex-row w-screen h-screen justify-center" style="-webkit-app-region: drag;">
     <div class="flex flex-col justify-center">
       <SealRocket />
       <h1 class="text-center text-xl">Initializing...</h1>
