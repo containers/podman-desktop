@@ -66,7 +66,7 @@ describe('Basic e2e verification of podman desktop start', async () => {
       expect(windowState.isCrashed, 'The app has crashed').toBeFalsy();
       expect(windowState.isVisible, 'The main window was not visible').toBeTruthy();
 
-      await pdRunner.takeScreenshot('welcome-page-init.png');
+      await pdRunner.screenshot('welcome-page-init.png');
 
       const welcomePage = new WelcomePage(page);
       await playExpect(welcomePage.welcomeMessage).toBeVisible();
@@ -87,12 +87,12 @@ describe('Basic e2e verification of podman desktop start', async () => {
       // wait for visibility
       await welcomePage.goToPodmanDesktopButton.waitFor({ state: 'visible' });
 
-      await pdRunner.takeScreenshot('welcome-page-display.png');
+      await pdRunner.screenshot('welcome-page-display.png');
 
       // click on the button
       await welcomePage.goToPodmanDesktopButton.click();
 
-      await pdRunner.takeScreenshot('welcome-page-redirect-to-dashboard.png');
+      await pdRunner.screenshot('welcome-page-redirect-to-dashboard.png');
 
       // check we have the dashboard page
       const dashboardPage = new DashboardPage(page);

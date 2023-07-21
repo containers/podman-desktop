@@ -24,8 +24,8 @@ import type { BrowserWindow } from 'electron';
 export class PodmanDesktopRunner {
   private _options: object;
   private _running: boolean;
-  private _app!: ElectronApplication;
-  private _page!: Page;
+  private _app: ElectronApplication | undefined;
+  private _page: Page | undefined;
   private readonly _profile: string;
   private readonly _testOutput: string;
 
@@ -42,17 +42,17 @@ export class PodmanDesktopRunner {
     }
 
     // start the app with given properties
-    this.app = await electron.launch({
+    this._app = await electron.launch({
       ...this._options,
     });
     // setup state
     this._running = true;
-    this._page = await this._app.firstWindow();
+    this._page = await this.getElectronApp().firstWindow();
 
     return this._page;
   }
 
-  public async getPage(): Promise<Page> {
+  public getPage(): Page {
     if (this._page) {
       return this._page;
     } else {
@@ -60,12 +60,7 @@ export class PodmanDesktopRunner {
     }
   }
 
-  public redirectEletronConsoleToTerminal() {
-    // Direct Electron console to Node terminal.
-    this._page.on('console', console.log);
-  }
-
-  public async getElectronApp(): Promise<ElectronApplication> {
+  public getElectronApp(): ElectronApplication {
     if (this._app) {
       return this._app;
     } else {
@@ -73,20 +68,25 @@ export class PodmanDesktopRunner {
     }
   }
 
-  public async getBrowserWindow(): Promise<JSHandle<BrowserWindow>> {
-    return await this.app.browserWindow(this._page);
+  public redirectEletronConsoleToTerminal() {
+    // Direct Electron console to Node terminal.
+    this.getPage().on('console', console.log);
   }
 
-  public async takeScreenshot(filename: string) {
-    await this._page.screenshot({ path: join(this._testOutput, 'screenshots', filename), fullPage: true });
+  public async getBrowserWindow(): Promise<JSHandle<BrowserWindow>> {
+    return await this.getElectronApp().browserWindow(this.getPage());
+  }
+
+  public async screenshot(filename: string) {
+    await this.getPage().screenshot({ path: join(this._testOutput, 'screenshots', filename), fullPage: true });
   }
 
   public async close() {
     if (!this.isRunning()) {
       throw Error('Podman Desktop is not running');
     }
-    if (this.app) {
-      await this.app.close();
+    if (this.getElectronApp()) {
+      await this.getElectronApp().close();
     }
     this._running = false;
   }
@@ -126,14 +126,6 @@ export class PodmanDesktopRunner {
 
   public getTestOutput(): string {
     return this._testOutput;
-  }
-
-  public get app(): ElectronApplication {
-    return this._app;
-  }
-
-  public set app(value: ElectronApplication) {
-    this._app = value;
   }
 
   public get options(): object {
