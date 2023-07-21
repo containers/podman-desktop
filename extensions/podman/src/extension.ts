@@ -872,6 +872,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     const disposable = extensionApi.Disposable.create(() => {
       podmanProcess.kill();
     });
+
     extensionContext.subscriptions.push(disposable);
     initDefaultLinux(provider).catch((error: unknown) => {
       console.error('Error while initializing default linux', error);
@@ -887,6 +888,94 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   monitorProvider(provider).catch((error: unknown) => {
     console.error('Error while monitoring provider', error);
   });
+
+  const onboardingCheckInstalltionCommand = extensionApi.commands.registerCommand(
+    'podman.onboarding.checkPodmanInstalled',
+    async () => {
+      const installation = await getPodmanInstallation();
+      return {
+        status: 'completed',
+        installed: installation ? 'ok' : 'failed',
+      };
+    },
+  );
+
+  const onboardingCheckReqsCommand = extensionApi.commands.registerCommand(
+    'podman.onboarding.checkPodmanRequirements',
+    async () => {
+      const checks = podmanInstall.getInstallChecks();
+      const result = [];
+      let successful = true;
+      for (const check of checks) {
+        try {
+          const checkResult = await check.execute();
+
+          result.push({
+            name: check.title,
+            successful: checkResult.successful,
+            description: checkResult.description,
+            docLinks: checkResult.docLinks,
+          });
+
+          if (!checkResult.successful) {
+            successful = false;
+          }
+        } catch (err) {
+          result.push({
+            name: check.title,
+            successful: false,
+            description:
+              err instanceof Error ? err.message : typeof err === 'object' ? err?.toString() : 'unknown error',
+          });
+          successful = false;
+        }
+      }
+
+      let warningsMarkdown = '';
+
+      for (const res of result) {
+        warningsMarkdown += `* ${res.successful ? '✅' : '❌'} ${res.name} \n`;
+        if (res.description) {
+          warningsMarkdown += res.description;
+          if (res.docLinks) {
+            warningsMarkdown += ' See: ';
+            for (const link of res.docLinks) {
+              warningsMarkdown += `[${link.title}](${link.url}) `;
+            }
+            warningsMarkdown += '\n';
+          }
+        }
+      }
+
+      return {
+        status: successful ? 'ok' : 'failed',
+        warningsMarkdown: warningsMarkdown,
+      };
+    },
+  );
+
+  const onboardingInstallPodmanCommand = extensionApi.commands.registerCommand(
+    'podman.onboarding.installPodman',
+    async () => {
+      try {
+        await podmanInstall.doInstallPodman(provider);
+        return {
+          status: 'ok',
+        };
+      } catch (e) {
+        console.error(e);
+        return {
+          status: 'failed',
+        };
+      }
+    },
+  );
+
+  extensionContext.subscriptions.push(
+    onboardingCheckInstalltionCommand,
+    onboardingCheckReqsCommand,
+    onboardingInstallPodmanCommand,
+  );
 
   // register the registries
   const registrySetup = new RegistrySetup();

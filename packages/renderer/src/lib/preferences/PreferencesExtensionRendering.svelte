@@ -6,6 +6,7 @@ import SettingsPage from './SettingsPage.svelte';
 import ExtensionStatus from '../ui/ExtensionStatus.svelte';
 import Button from '../ui/Button.svelte';
 import { faPlay, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { router } from 'tinro';
 
 export let extensionId: string = undefined;
 
@@ -68,6 +69,18 @@ async function removeExtension() {
           {:else}
             <div class="text-gray-900 items-center px-2 text-sm">Default extension, cannot be removed</div>
           {/if}
+        </div>
+
+        <div class="px-2 text-sm italic text-gray-700">
+          <button
+            on:click="{() => router.goto(`/preferences/onboarding/${extensionInfo.id}`)}"
+            class="pf-c-button pf-m-primary"
+            type="button">
+            <span class="pf-c-button__icon pf-m-start">
+              <i class="fas fa-play" aria-hidden="true"></i>
+            </span>
+            Onboarding
+          </button>
         </div>
         {#if extensionInfo.error}
           <div class="flex flex-col">

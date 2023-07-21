@@ -65,6 +65,7 @@ import type { Menu } from '../../main/src/plugin/menu-registry';
 import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
 import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
 import type { ContextInfo } from '../../main/src/plugin/api/context-info';
+import type { OnboardingInfo } from '../../main/src/plugin/api/onboarding';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -1480,6 +1481,18 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('windowClose', async (): Promise<void> => {
     return ipcInvoke('window:close');
   });
+
+  contextBridge.exposeInMainWorld('listOnboarding', async (): Promise<OnboardingInfo[]> => {
+    return ipcInvoke('onboardingRegistry:listOnboarding');
+  });
+
+  contextBridge.exposeInMainWorld(
+    'executeOnboardingCommand',
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    async (extension: string, stepId: string, commandId: string, args?: any[]): Promise<void> => {
+      return ipcInvoke('onboardingRegistry:executeOnboardingCommand', extension, stepId, commandId, args);
+    },
+  );
 }
 
 // expose methods

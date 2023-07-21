@@ -113,6 +113,9 @@ import { CustomPickRegistry } from './custompick/custompick-registry.js';
 import { ViewRegistry } from './view-registry.js';
 import type { ViewInfoUI } from './api/view-info.js';
 import { Context } from './context/context.js';
+import { OnboardingRegistry } from './onboarding-registry.js';
+import type { OnboardingInfo } from './api/onboarding.js';
+import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -377,6 +380,7 @@ export class PluginSystem {
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
+    const onboardingRegistry = new OnboardingRegistry(apiSender, commandRegistry);
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
@@ -641,6 +645,10 @@ export class PluginSystem {
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
 
+    // init onboarding configuration
+    const onboardingUtils = new OnboardingUtils(configurationRegistry);
+    onboardingUtils.init();
+
     const messageBox = new MessageBox(apiSender);
 
     const authentication = new AuthenticationImpl(apiSender);
@@ -667,6 +675,7 @@ export class PluginSystem {
       customPickRegistry,
       authentication,
       iconRegistry,
+      onboardingRegistry,
       telemetry,
       viewRegistry,
       context,
@@ -1718,6 +1727,18 @@ export class PluginSystem {
       }
       window.close();
     });
+
+    this.ipcHandle('onboardingRegistry:listOnboarding', async (): Promise<OnboardingInfo[]> => {
+      return onboardingRegistry.listOnboarding();
+    });
+
+    this.ipcHandle(
+      'onboardingRegistry:executeOnboardingCommand',
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      async (_listener, extension: string, stepId: string, commandId: string, args?: any[]): Promise<void> => {
+        return onboardingRegistry.executeOnboardingCommand(extension, stepId, commandId, args);
+      },
+    );
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
