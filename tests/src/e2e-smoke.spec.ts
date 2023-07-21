@@ -40,8 +40,6 @@ afterAll(async () => {
 describe('Basic e2e verification of podman desktop start', async () => {
   describe('Welcome page handling', async () => {
     test('Check the Welcome page is displayed', async () => {
-      pdRunner.redirectEletronConsoleToTerminal();
-
       const window: JSHandle<BrowserWindow> = await pdRunner.getBrowserWindow();
 
       const windowState = await window.evaluate(
