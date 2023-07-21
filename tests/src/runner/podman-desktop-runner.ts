@@ -48,6 +48,8 @@ export class PodmanDesktopRunner {
     // setup state
     this._running = true;
     this._page = await this.getElectronApp().firstWindow();
+    // Direct Electron console to Node terminal.
+    this.getPage().on('console', console.log);
 
     return this._page;
   }
@@ -66,11 +68,6 @@ export class PodmanDesktopRunner {
     } else {
       throw Error('Application was not started yet');
     }
-  }
-
-  public redirectEletronConsoleToTerminal() {
-    // Direct Electron console to Node terminal.
-    this.getPage().on('console', console.log);
   }
 
   public async getBrowserWindow(): Promise<JSHandle<BrowserWindow>> {
