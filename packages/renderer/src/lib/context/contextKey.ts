@@ -358,99 +358,7 @@ export class Parser {
             return ContextKeyRegexExpr.create(key, regexp);
           }
 
-          switch (expr.type) {
-            case TokenType.RegexStr:
-            case TokenType.Error: {
-              // also handle an ErrorToken in case of smth such as /(/file)/
-              const lexemeReconstruction = [expr.lexeme]; // /REGEX/ or /REGEX/FLAGS
-              this._advance();
-
-              let followingToken = this._peek();
-              let parenBalance = 0;
-              for (let i = 0; i < expr.lexeme.length; i++) {
-                if (expr.lexeme.charCodeAt(i) === CharCode.OpenParen) {
-                  parenBalance++;
-                } else if (expr.lexeme.charCodeAt(i) === CharCode.CloseParen) {
-                  parenBalance--;
-                }
-              }
-
-              while (
-                !this._isAtEnd() &&
-                followingToken.type !== TokenType.And &&
-                followingToken.type !== TokenType.Or
-              ) {
-                switch (followingToken.type) {
-                  case TokenType.LParen:
-                    parenBalance++;
-                    break;
-                  case TokenType.RParen:
-                    parenBalance--;
-                    break;
-                  case TokenType.RegexStr:
-                  case TokenType.QuotedStr:
-                    for (let i = 0; i < followingToken.lexeme.length; i++) {
-                      if (followingToken.lexeme.charCodeAt(i) === CharCode.OpenParen) {
-                        parenBalance++;
-                      } else if (expr.lexeme.charCodeAt(i) === CharCode.CloseParen) {
-                        parenBalance--;
-                      }
-                    }
-                }
-                if (parenBalance < 0) {
-                  break;
-                }
-                lexemeReconstruction.push(Scanner.getLexeme(followingToken));
-                this._advance();
-                followingToken = this._peek();
-              }
-
-              const regexLexeme = lexemeReconstruction.join('');
-              const closingSlashIndex = regexLexeme.lastIndexOf('/');
-              const flags =
-                closingSlashIndex === regexLexeme.length - 1
-                  ? undefined
-                  : this._removeFlagsGY(regexLexeme.substring(closingSlashIndex + 1));
-              let regexp: RegExp | undefined;
-              try {
-                regexp = new RegExp(regexLexeme.substring(1, closingSlashIndex), flags);
-              } catch (e) {
-                throw this._errExpectedButGot('REGEX', expr);
-              }
-              return ContextKeyExpr.regex(key, regexp);
-            }
-
-            case TokenType.QuotedStr: {
-              const serializedValue = expr.lexeme;
-              this._advance();
-              // replicate old regex parsing behavior
-
-              let regex: RegExp | undefined = undefined;
-
-              if (!isFalsyOrWhitespace(serializedValue)) {
-                const start = serializedValue.indexOf('/');
-                const end = serializedValue.lastIndexOf('/');
-                if (start !== end && start >= 0) {
-                  const value = serializedValue.slice(start + 1, end);
-                  const caseIgnoreFlag = serializedValue[end + 1] === 'i' ? 'i' : '';
-                  try {
-                    regex = new RegExp(value, caseIgnoreFlag);
-                  } catch (_e) {
-                    throw this._errExpectedButGot('REGEX', expr);
-                  }
-                }
-              }
-
-              if (regex === undefined) {
-                throw this._errExpectedButGot('REGEX', expr);
-              }
-
-              return ContextKeyRegexExpr.create(key, regex);
-            }
-
-            default:
-              throw this._errExpectedButGot('REGEX', this._peek());
-          }
+          this._innerToken(expr, key);
         }
 
         // [ 'not' 'in' value ]
@@ -462,67 +370,7 @@ export class Parser {
 
         // [ ('==' | '!=' | '<' | '<=' | '>' | '>=' | 'in') value ]
         const maybeOp = this._peek().type;
-        switch (maybeOp) {
-          case TokenType.Eq: {
-            this._advance();
-
-            const right = this._value();
-            if (this._previous().type === TokenType.QuotedStr) {
-              // to preserve old parser behavior: "foo == 'true'" is preserved as "foo == 'true'", but "foo == true" is optimized as "foo"
-              return ContextKeyExpr.equals(key, right);
-            }
-            switch (right) {
-              case 'true':
-                return ContextKeyExpr.has(key);
-              case 'false':
-                return ContextKeyExpr.not(key);
-              default:
-                return ContextKeyExpr.equals(key, right);
-            }
-          }
-
-          case TokenType.NotEq: {
-            this._advance();
-
-            const right = this._value();
-            if (this._previous().type === TokenType.QuotedStr) {
-              // same as above with "foo != 'true'"
-              return ContextKeyExpr.notEquals(key, right);
-            }
-            switch (right) {
-              case 'true':
-                return ContextKeyExpr.not(key);
-              case 'false':
-                return ContextKeyExpr.has(key);
-              default:
-                return ContextKeyExpr.notEquals(key, right);
-            }
-          }
-          // TODO: ContextKeyExpr.smaller(key, right) accepts only `number` as `right` AND during eval of this node, we just eval to `false` if `right` is not a number
-          // consequently, package.json linter should _warn_ the user if they're passing undesired things to ops
-          case TokenType.Lt:
-            this._advance();
-            return ContextKeySmallerExpr.create(key, this._value());
-
-          case TokenType.LtEq:
-            this._advance();
-            return ContextKeySmallerEqualsExpr.create(key, this._value());
-
-          case TokenType.Gt:
-            this._advance();
-            return ContextKeyGreaterExpr.create(key, this._value());
-
-          case TokenType.GtEq:
-            this._advance();
-            return ContextKeyGreaterEqualsExpr.create(key, this._value());
-
-          case TokenType.In:
-            this._advance();
-            return ContextKeyExpr.in(key, this._value());
-
-          default:
-            return ContextKeyExpr.has(key);
-        }
+        return this._maybeOperation(maybeOp, key);
       }
 
       case TokenType.EOF:
@@ -539,6 +387,190 @@ export class Parser {
           "true | false | KEY \n\t| KEY '=~' REGEX \n\t| KEY ('==' | '!=' | '<' | '<=' | '>' | '>=' | 'in' | 'not' 'in') value",
           this._peek(),
         );
+    }
+  }
+
+  private _innerToken(expr: Token, key: string): ContextKeyExpression {
+    switch (expr.type) {
+      case TokenType.RegexStr:
+      case TokenType.Error: {
+        // also handle an ErrorToken in case of smth such as /(/file)/
+        const lexemeReconstruction = [expr.lexeme]; // /REGEX/ or /REGEX/FLAGS
+        this._advance();
+
+        let followingToken = this._peek();
+        let parenBalance = 0;
+        for (let i = 0; i < expr.lexeme.length; i++) {
+          if (expr.lexeme.charCodeAt(i) === CharCode.OpenParen) {
+            parenBalance++;
+          } else if (expr.lexeme.charCodeAt(i) === CharCode.CloseParen) {
+            parenBalance--;
+          }
+        }
+
+        while (!this._isAtEnd() && followingToken.type !== TokenType.And && followingToken.type !== TokenType.Or) {
+          const deltaBalance = this._deltaBalance(followingToken, expr);
+          parenBalance += deltaBalance;
+          if (parenBalance < 0) {
+            break;
+          }
+          lexemeReconstruction.push(Scanner.getLexeme(followingToken));
+          this._advance();
+          followingToken = this._peek();
+        }
+
+        const regexLexeme = lexemeReconstruction.join('');
+        const closingSlashIndex = regexLexeme.lastIndexOf('/');
+        const flags =
+          closingSlashIndex === regexLexeme.length - 1
+            ? undefined
+            : this._removeFlagsGY(regexLexeme.substring(closingSlashIndex + 1));
+        let regexp: RegExp | undefined;
+        try {
+          regexp = new RegExp(regexLexeme.substring(1, closingSlashIndex), flags);
+        } catch (e) {
+          throw this._errExpectedButGot('REGEX', expr);
+        }
+        return ContextKeyExpr.regex(key, regexp);
+      }
+
+      case TokenType.QuotedStr: {
+        const serializedValue = expr.lexeme;
+        this._advance();
+        // replicate old regex parsing behavior
+
+        let regex: RegExp | undefined = undefined;
+
+        if (!isFalsyOrWhitespace(serializedValue)) {
+          const start = serializedValue.indexOf('/');
+          const end = serializedValue.lastIndexOf('/');
+          if (start !== end && start >= 0) {
+            const value = serializedValue.slice(start + 1, end);
+            const caseIgnoreFlag = serializedValue[end + 1] === 'i' ? 'i' : '';
+            try {
+              regex = new RegExp(value, caseIgnoreFlag);
+            } catch (_e) {
+              throw this._errExpectedButGot('REGEX', expr);
+            }
+          }
+        }
+
+        if (regex === undefined) {
+          throw this._errExpectedButGot('REGEX', expr);
+        }
+
+        return ContextKeyRegexExpr.create(key, regex);
+      }
+
+      default:
+        throw this._errExpectedButGot('REGEX', this._peek());
+    }
+  }
+
+  private _deltaBalance(
+    followingToken: Token,
+    expr:
+      | {
+          type: TokenType.RegexStr;
+          offset: number;
+          lexeme: string;
+        }
+      | {
+          type: TokenType.Error;
+          offset: number;
+          lexeme: string;
+        },
+  ) {
+    let parenBalance = 0;
+    switch (followingToken.type) {
+      case TokenType.LParen:
+        parenBalance++;
+        break;
+      case TokenType.RParen:
+        parenBalance--;
+        break;
+      case TokenType.RegexStr:
+      case TokenType.QuotedStr:
+        for (let i = 0; i < followingToken.lexeme.length; i++) {
+          if (followingToken.lexeme.charCodeAt(i) === CharCode.OpenParen) {
+            parenBalance++;
+          } else if (expr.lexeme.charCodeAt(i) === CharCode.CloseParen) {
+            parenBalance--;
+          }
+        }
+    }
+    return parenBalance;
+  }
+
+  private _maybeOperation(maybeOp: TokenType, key: string): ContextKeyExpression {
+    switch (maybeOp) {
+      case TokenType.Eq: {
+        this._advance();
+
+        const right = this._value();
+        if (this._previous().type === TokenType.QuotedStr) {
+          // to preserve old parser behavior: "foo == 'true'" is preserved as "foo == 'true'", but "foo == true" is optimized as "foo"
+          return ContextKeyExpr.equals(key, right);
+        }
+        return this._equalsRight(right, key);
+      }
+
+      case TokenType.NotEq: {
+        this._advance();
+
+        const right = this._value();
+        if (this._previous().type === TokenType.QuotedStr) {
+          // same as above with "foo != 'true'"
+          return ContextKeyExpr.notEquals(key, right);
+        }
+        return this._notEqualRight(right, key);
+      }
+      // TODO: ContextKeyExpr.smaller(key, right) accepts only `number` as `right` AND during eval of this node, we just eval to `false` if `right` is not a number
+      // consequently, package.json linter should _warn_ the user if they're passing undesired things to ops
+      case TokenType.Lt:
+        this._advance();
+        return ContextKeySmallerExpr.create(key, this._value());
+
+      case TokenType.LtEq:
+        this._advance();
+        return ContextKeySmallerEqualsExpr.create(key, this._value());
+
+      case TokenType.Gt:
+        this._advance();
+        return ContextKeyGreaterExpr.create(key, this._value());
+
+      case TokenType.GtEq:
+        this._advance();
+        return ContextKeyGreaterEqualsExpr.create(key, this._value());
+
+      case TokenType.In:
+        this._advance();
+        return ContextKeyExpr.in(key, this._value());
+
+      default:
+        return ContextKeyExpr.has(key);
+    }
+  }
+
+  private _equalsRight(right: string, key: string): ContextKeyExpression {
+    switch (right) {
+      case 'true':
+        return ContextKeyExpr.has(key);
+      case 'false':
+        return ContextKeyExpr.not(key);
+      default:
+        return ContextKeyExpr.equals(key, right);
+    }
+  }
+
+  private _notEqualRight(right: string, key: string): ContextKeyExpression {
+    switch (right) {
+      case 'true':
+        return ContextKeyExpr.not(key);
+      case 'false':
+        return ContextKeyExpr.has(key);
+      default:
+        return ContextKeyExpr.notEquals(key, right);
     }
   }
 

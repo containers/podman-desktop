@@ -21,9 +21,6 @@
  *--------------------------------------------------------------------------------------------*/
 // based on https://github.com/microsoft/vscode/blob/76415ef0b1f60e0479bdfee173c1a4f97e785b52/src/vs/platform/contextkey/test/common/contextkey.test.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable sonarjs/no-redundant-boolean */
-/* eslint-disable sonarjs/no-identical-expressions */
 
 import assert from 'assert';
 import { suite, test } from 'vitest';
@@ -40,8 +37,8 @@ function createContext(ctx: any) {
 }
 
 function strImplies(p0: string, q0: string): boolean {
-  const p = ContextKeyExpr.deserialize(p0)!;
-  const q = ContextKeyExpr.deserialize(q0)!;
+  const p = ContextKeyExpr.deserialize(p0);
+  const q = ContextKeyExpr.deserialize(q0);
   return implies(p, q);
 }
 
@@ -59,7 +56,7 @@ suite('ContextKeyExpr', () => {
       ContextKeyExpr.notEquals('c2', 'cc2'),
       ContextKeyExpr.not('d1'),
       ContextKeyExpr.not('d2'),
-    )!;
+    );
     const b = ContextKeyExpr.and(
       ContextKeyExpr.equals('b2', 'bb2'),
       ContextKeyExpr.notEquals('c1', 'cc1'),
@@ -72,7 +69,7 @@ suite('ContextKeyExpr', () => {
       ContextKeyExpr.has('a1'),
       ContextKeyExpr.and(ContextKeyExpr.equals('and.a', true)),
       ContextKeyExpr.not('d2'),
-    )!;
+    );
     assert(a.equals(b), 'expressions should be equal');
   });
 
@@ -110,7 +107,7 @@ suite('ContextKeyExpr', () => {
     });
     function testExpression(expr: string, expected: boolean): void {
       const rules = ContextKeyExpr.deserialize(expr);
-      assert.strictEqual(rules!.evaluate(context), expected, expr);
+      assert.strictEqual(rules.evaluate(context), expected, expr);
     }
     function testBatch(expr: string, value: any): void {
       /* eslint-disable eqeqeq */
@@ -133,11 +130,14 @@ suite('ContextKeyExpr', () => {
     testBatch('d', 'd');
     testBatch('z', undefined);
 
+    const truthyValue = true;
+    const falsyValue = false;
+    const five = '5';
     testExpression('true', true);
     testExpression('false', false);
-    testExpression('a && !b', true && !false);
-    testExpression('a && b', true && false);
-    testExpression('a && !b && c == 5', true && !false && '5' === '5');
+    testExpression('a && !b', truthyValue && !falsyValue);
+    testExpression('a && b', truthyValue && falsyValue);
+    testExpression('a && !b && c == 5', truthyValue && !falsyValue && five === '5');
     testExpression('d =~ /e.*/', false);
 
     // precedence test: false && true || true === true because && is evaluated first
@@ -150,7 +150,7 @@ suite('ContextKeyExpr', () => {
 
   test('negate', () => {
     function testNegate(expr: string, expected: string): void {
-      const actual = ContextKeyExpr.deserialize(expr)!.negate().serialize();
+      const actual = ContextKeyExpr.deserialize(expr).negate().serialize();
       assert.strictEqual(actual, expected);
     }
     testNegate('true', 'false');
@@ -167,7 +167,7 @@ suite('ContextKeyExpr', () => {
 
   test('false, true', () => {
     function testNormalize(expr: string, expected: string): void {
-      const actual = ContextKeyExpr.deserialize(expr)!.serialize();
+      const actual = ContextKeyExpr.deserialize(expr).serialize();
       assert.strictEqual(actual, expected);
     }
     testNormalize('true', 'true');
@@ -198,7 +198,7 @@ suite('ContextKeyExpr', () => {
   });
 
   test('ContextKeyInExpr', () => {
-    const ainb = ContextKeyExpr.deserialize('a in b')!;
+    const ainb = ContextKeyExpr.deserialize('a in b');
     assert.strictEqual(ainb.evaluate(createContext({ a: 3, b: [3, 2, 1] })), true);
     assert.strictEqual(ainb.evaluate(createContext({ a: 3, b: [1, 2, 3] })), true);
     assert.strictEqual(ainb.evaluate(createContext({ a: 3, b: [1, 2] })), false);
@@ -213,7 +213,7 @@ suite('ContextKeyExpr', () => {
   });
 
   test('ContextKeyNotInExpr', () => {
-    const aNotInB = ContextKeyExpr.deserialize('a not in b')!;
+    const aNotInB = ContextKeyExpr.deserialize('a not in b');
     assert.strictEqual(aNotInB.evaluate(createContext({ a: 3, b: [3, 2, 1] })), false);
     assert.strictEqual(aNotInB.evaluate(createContext({ a: 3, b: [1, 2, 3] })), false);
     assert.strictEqual(aNotInB.evaluate(createContext({ a: 3, b: [1, 2] })), true);
@@ -236,26 +236,26 @@ suite('ContextKeyExpr', () => {
       ContextKeyExpr.and(ContextKeyExpr.has('a'), ContextKeyExpr.has('c')),
       ContextKeyExpr.and(ContextKeyExpr.has('b'), ContextKeyExpr.has('c')),
     );
-    assert.strictEqual(actual!.equals(expected!), true);
+    assert.strictEqual(actual.equals(expected), true);
   });
 
   test('issue #129625: Removes duplicated terms in OR expressions', () => {
-    const expr = ContextKeyExpr.or(ContextKeyExpr.has('A'), ContextKeyExpr.has('B'), ContextKeyExpr.has('A'))!;
+    const expr = ContextKeyExpr.or(ContextKeyExpr.has('A'), ContextKeyExpr.has('B'), ContextKeyExpr.has('A'));
     assert.strictEqual(expr.serialize(), 'A || B');
   });
 
   test('Resolves true constant OR expressions', () => {
-    const expr = ContextKeyExpr.or(ContextKeyExpr.has('A'), ContextKeyExpr.not('A'))!;
+    const expr = ContextKeyExpr.or(ContextKeyExpr.has('A'), ContextKeyExpr.not('A'));
     assert.strictEqual(expr.serialize(), 'true');
   });
 
   test('Resolves false constant AND expressions', () => {
-    const expr = ContextKeyExpr.and(ContextKeyExpr.has('A'), ContextKeyExpr.not('A'))!;
+    const expr = ContextKeyExpr.and(ContextKeyExpr.has('A'), ContextKeyExpr.not('A'));
     assert.strictEqual(expr.serialize(), 'false');
   });
 
   test('issue #129625: Removes duplicated terms in AND expressions', () => {
-    const expr = ContextKeyExpr.and(ContextKeyExpr.has('A'), ContextKeyExpr.has('B'), ContextKeyExpr.has('A'))!;
+    const expr = ContextKeyExpr.and(ContextKeyExpr.has('A'), ContextKeyExpr.has('B'), ContextKeyExpr.has('A'));
     assert.strictEqual(expr.serialize(), 'A && B');
   });
 
@@ -263,11 +263,11 @@ suite('ContextKeyExpr', () => {
     const expr = ContextKeyExpr.and(
       ContextKeyExpr.has('A'),
       ContextKeyExpr.or(ContextKeyExpr.has('B1'), ContextKeyExpr.has('B2')),
-    )!;
+    );
     assert.strictEqual(expr.serialize(), 'A && B1 || A && B2');
-    assert.strictEqual(expr.negate()!.serialize(), '!A || !A && !B1 || !A && !B2 || !B1 && !B2');
-    assert.strictEqual(expr.negate()!.negate()!.serialize(), 'A && B1 || A && B2');
-    assert.strictEqual(expr.negate()!.negate()!.negate()!.serialize(), '!A || !A && !B1 || !A && !B2 || !B1 && !B2');
+    assert.strictEqual(expr.negate().serialize(), '!A || !A && !B1 || !A && !B2 || !B1 && !B2');
+    assert.strictEqual(expr.negate().negate().serialize(), 'A && B1 || A && B2');
+    assert.strictEqual(expr.negate().negate().negate().serialize(), '!A || !A && !B1 || !A && !B2 || !B1 && !B2');
   });
 
   test('issue #129625: remove redundant terms in OR expressions', () => {
@@ -292,7 +292,7 @@ suite('ContextKeyExpr', () => {
 
   test('Greater, GreaterEquals, Smaller, SmallerEquals evaluate', () => {
     function checkEvaluate(expr: string, ctx: any, expected: any): void {
-      const _expr = ContextKeyExpr.deserialize(expr)!;
+      const _expr = ContextKeyExpr.deserialize(expr);
       assert.strictEqual(_expr.evaluate(createContext(ctx)), expected);
     }
 
@@ -337,7 +337,7 @@ suite('ContextKeyExpr', () => {
 
   test('Greater, GreaterEquals, Smaller, SmallerEquals negate', () => {
     function checkNegate(expr: string, expected: string): void {
-      const a = ContextKeyExpr.deserialize(expr)!;
+      const a = ContextKeyExpr.deserialize(expr);
       const b = a.negate();
       assert.strictEqual(b.serialize(), expected);
     }
@@ -360,20 +360,20 @@ suite('ContextKeyExpr', () => {
   });
 
   test('issue #111899: context keys can use `<` or `>` ', () => {
-    const actual = ContextKeyExpr.deserialize('editorTextFocus && vim.active && vim.use<C-r>')!;
+    const actual = ContextKeyExpr.deserialize('editorTextFocus && vim.active && vim.use<C-r>');
     assert.ok(
       actual.equals(
         ContextKeyExpr.and(
           ContextKeyExpr.has('editorTextFocus'),
           ContextKeyExpr.has('vim.active'),
           ContextKeyExpr.has('vim.use<C-r>'),
-        )!,
+        ),
       ),
     );
   });
 
   test('ContextKeyEqualsExpr', () => {
-    const a_cequalsb = ContextKeyExpr.deserialize('a == b')!;
+    const a_cequalsb = ContextKeyExpr.deserialize('a == b');
     assert.strictEqual(a_cequalsb.evaluate(createContext({ a: 'b' })), true);
   });
 });

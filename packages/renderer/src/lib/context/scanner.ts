@@ -216,83 +216,101 @@ export class Scanner {
       this._start = this._current;
 
       const ch = this._advance();
-      switch (ch) {
-        case CharCode.OpenParen:
-          this._addToken(TokenType.LParen);
-          break;
-        case CharCode.CloseParen:
-          this._addToken(TokenType.RParen);
-          break;
-
-        case CharCode.ExclamationMark:
-          if (this._match(CharCode.Equals)) {
-            const isTripleEq = this._match(CharCode.Equals); // eat last `=` if `!==`
-            this._tokens.push({ type: TokenType.NotEq, offset: this._start, isTripleEq });
-          } else {
-            this._addToken(TokenType.Neg);
-          }
-          break;
-
-        case CharCode.SingleQuote:
-          this._quotedString();
-          break;
-        case CharCode.Slash:
-          this._regex();
-          break;
-
-        case CharCode.Equals:
-          if (this._match(CharCode.Equals)) {
-            // support `==`
-            const isTripleEq = this._match(CharCode.Equals); // eat last `=` if `===`
-            this._tokens.push({ type: TokenType.Eq, offset: this._start, isTripleEq });
-          } else if (this._match(CharCode.Tilde)) {
-            this._addToken(TokenType.RegexOp);
-          } else {
-            this._error(hintDidYouMean('==', '=~'));
-          }
-          break;
-
-        case CharCode.LessThan:
-          this._addToken(this._match(CharCode.Equals) ? TokenType.LtEq : TokenType.Lt);
-          break;
-
-        case CharCode.GreaterThan:
-          this._addToken(this._match(CharCode.Equals) ? TokenType.GtEq : TokenType.Gt);
-          break;
-
-        case CharCode.Ampersand:
-          if (this._match(CharCode.Ampersand)) {
-            this._addToken(TokenType.And);
-          } else {
-            this._error(hintDidYouMean('&&'));
-          }
-          break;
-
-        case CharCode.Pipe:
-          if (this._match(CharCode.Pipe)) {
-            this._addToken(TokenType.Or);
-          } else {
-            this._error(hintDidYouMean('||'));
-          }
-          break;
-
-        // TODO@ulugbekna: 1) rewrite using a regex 2) reconsider what characters are considered whitespace, including unicode, nbsp, etc.
-        case CharCode.Space:
-        case CharCode.CarriageReturn:
-        case CharCode.Tab:
-        case CharCode.LineFeed:
-        case CharCode.NoBreakSpace: // &nbsp
-          break;
-
-        default:
-          this._string();
-      }
+      this.scanAtPosition(ch);
     }
-
     this._start = this._current;
     this._addToken(TokenType.EOF);
 
     return Array.from(this._tokens);
+  }
+
+  scanAtPosition(ch: number) {
+    switch (ch) {
+      case CharCode.OpenParen:
+        this._addToken(TokenType.LParen);
+        break;
+      case CharCode.CloseParen:
+        this._addToken(TokenType.RParen);
+        break;
+
+      case CharCode.ExclamationMark:
+        this._scanExclamationMark();
+        break;
+
+      case CharCode.SingleQuote:
+        this._quotedString();
+        break;
+      case CharCode.Slash:
+        this._regex();
+        break;
+
+      case CharCode.Equals:
+        this._scanEquals();
+        break;
+
+      case CharCode.LessThan:
+        this._addToken(this._match(CharCode.Equals) ? TokenType.LtEq : TokenType.Lt);
+        break;
+
+      case CharCode.GreaterThan:
+        this._addToken(this._match(CharCode.Equals) ? TokenType.GtEq : TokenType.Gt);
+        break;
+
+      case CharCode.Ampersand:
+        this._scanAmpersand();
+        break;
+
+      case CharCode.Pipe:
+        this._scanPipe();
+        break;
+
+      case CharCode.Space:
+      case CharCode.CarriageReturn:
+      case CharCode.Tab:
+      case CharCode.LineFeed:
+      case CharCode.NoBreakSpace: // &nbsp
+        break;
+
+      default:
+        this._string();
+    }
+  }
+
+  _scanExclamationMark() {
+    if (this._match(CharCode.Equals)) {
+      const isTripleEq = this._match(CharCode.Equals); // eat last `=` if `!==`
+      this._tokens.push({ type: TokenType.NotEq, offset: this._start, isTripleEq });
+    } else {
+      this._addToken(TokenType.Neg);
+    }
+  }
+
+  _scanEquals() {
+    if (this._match(CharCode.Equals)) {
+      // support `==`
+      const isTripleEq = this._match(CharCode.Equals); // eat last `=` if `===`
+      this._tokens.push({ type: TokenType.Eq, offset: this._start, isTripleEq });
+    } else if (this._match(CharCode.Tilde)) {
+      this._addToken(TokenType.RegexOp);
+    } else {
+      this._error(hintDidYouMean('==', '=~'));
+    }
+  }
+
+  _scanAmpersand() {
+    if (this._match(CharCode.Ampersand)) {
+      this._addToken(TokenType.And);
+    } else {
+      this._error(hintDidYouMean('&&'));
+    }
+  }
+
+  _scanPipe() {
+    if (this._match(CharCode.Pipe)) {
+      this._addToken(TokenType.Or);
+    } else {
+      this._error(hintDidYouMean('||'));
+    }
   }
 
   private _match(expected: number): boolean {
@@ -326,8 +344,6 @@ export class Scanner {
     this._tokens.push(errToken);
   }
 
-  // u - unicode, y - sticky
-  // TODO we accept double quotes as part of the string rather than as a delimiter (to preserve old parser's behavior)
   /* eslint-disable-next-line no-useless-escape */
   private stringRe = /[a-zA-Z0-9_<>\-\./\\:\*\?\+\[\]\^,#@;"%\$\p{L}-]+/uy;
   private _string() {
