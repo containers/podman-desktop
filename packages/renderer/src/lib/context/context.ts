@@ -77,7 +77,7 @@ export class ContextUI implements IContext {
    * @returns the value of the complex key or undefined
    */
   getDottedKeyValue<T>(key: string): T | undefined {
-    if (!key) {
+    if (!key || key.indexOf('.') === -1) {
       return undefined;
     }
     const bits = key.split('.');
@@ -86,7 +86,9 @@ export class ContextUI implements IContext {
       return undefined;
     }
     for (let i = 1; i < bits.length; i++) {
-      contextValue = contextValue[bits[i]];
+      if (contextValue) {
+        contextValue = contextValue[bits[i]];
+      }
     }
     return contextValue;
   }

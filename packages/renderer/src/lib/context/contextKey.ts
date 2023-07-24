@@ -27,7 +27,6 @@
 import type { LexingError, Token } from './scanner.js';
 import { Scanner, TokenType } from './scanner.js';
 import type { ContextKeyValue, IContext } from '../../../../main/src/plugin/api/context-info.js';
-import { isLinux, isMac, isWindows } from '../../../../main/src/util.js';
 import { CharCode } from '../../../../main/src/plugin/util/charCode.js';
 import type { IDisposable } from '../../../../main/src/plugin/types/disposable.js';
 import type { Event } from '@podman-desktop/api';
@@ -35,9 +34,13 @@ import type { Event } from '@podman-desktop/api';
 const CONSTANT_VALUES = new Map<string, boolean>();
 CONSTANT_VALUES.set('false', false);
 CONSTANT_VALUES.set('true', true);
-CONSTANT_VALUES.set('isMac', isMac());
-CONSTANT_VALUES.set('isLinux', isLinux());
-CONSTANT_VALUES.set('isWindows', isWindows());
+
+export async function initContextKeysPlatform(): Promise<void> {
+  const platform = await window.getOsPlatform();
+  CONSTANT_VALUES.set('isMac', platform === 'darwin');
+  CONSTANT_VALUES.set('isLinux', platform === 'linux');
+  CONSTANT_VALUES.set('isWindows', platform === 'win32');
+}
 
 /** allow register constant context keys that are known only after startup; requires running `substituteConstants` on the context key - https://github.com/microsoft/vscode/issues/174218#issuecomment-1437972127 */
 export function setConstant(key: string, value: boolean) {
@@ -1000,6 +1003,10 @@ export class ContextKeyInExpr implements IContextKeyExpression {
     const item = context.getValue(this.key);
 
     if (Array.isArray(source)) {
+      // if item is undefined, the user has passed a string that has to be found in source
+      if (!item) {
+        return source.includes(this.key);
+      }
       return source.includes(item as any);
     }
 
