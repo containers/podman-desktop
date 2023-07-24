@@ -12,7 +12,7 @@ import ContainerIcon from '../images/ContainerIcon.svelte';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import PodIcon from '../images/PodIcon.svelte';
-import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
@@ -294,28 +294,18 @@ function updatePortExposure(port: number, checked: boolean) {
 
         <div class="w-full grid justify-items-end">
           <div>
-            <button class="pf-c-button underline hover:text-gray-400" on:click="{() => router.goto('/containers')}">
-              Close
-            </button>
-            <button
-              disabled="{createInProgress}"
+            <Button title="Close" on:click="{() => router.goto('/containers')}" />
+            <Button
+              title="Create Pod"
+              type="primary"
+              bind:disabled="{createInProgress}"
               on:click="{() => {
                 createPodFromContainers();
               }}"
-              aria-label="Create pod"
-              class="pf-c-button pf-m-primary"
-              type="button">
-              <div class="flex flex-row">
-                {#if createInProgress}
-                  <div class="mr-12">
-                    <Spinner />
-                  </div>
-                {:else}
-                  <PodIcon class="mr-2" size="1em" solid="{true}" />
-                {/if}
-                Create Pod
-              </div>
-            </button>
+              bind:inProgress="{createInProgress}"
+              aria-label="Create pod">
+              <PodIcon slot="icon" size="1em" solid="{true}" />
+            </Button>
           </div>
         </div>
 

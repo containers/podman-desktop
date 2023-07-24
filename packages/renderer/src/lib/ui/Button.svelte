@@ -1,0 +1,52 @@
+<script lang="ts">
+import type { ButtonType } from './Button';
+import Spinner from './Spinner.svelte';
+
+export let title: string = undefined;
+export let inProgress = false;
+export let disabled = false;
+export let type: ButtonType = undefined;
+
+let classes = '';
+$: {
+  if (disabled || inProgress) {
+    if (type === 'primary' || type === 'secondary') {
+      classes = 'bg-charcoal-50';
+    } else {
+      classes = 'text-charcoal-50 no-underline';
+    }
+  } else {
+    if (type === 'primary') {
+      classes = 'bg-purple-500 border-none hover:bg-purple-400';
+    } else if (type === 'secondary') {
+      classes = 'border-[1px] border-gray-200 hover:border-purple-500 hover:text-purple-500';
+    } else {
+      classes = 'border-none hover:underline';
+    }
+  }
+}
+</script>
+
+<button
+  type="button"
+  class="relative px-4 py-[6px] rounded-[4px] box-border text-white text-[13px] whitespace-nowrap select-none {classes} {$$props.class ||
+    ''}"
+  title="{title}"
+  aria-label="{$$props['aria-label']}"
+  on:click
+  disabled="{disabled || inProgress}">
+  {#if $$slots.icon}
+    <div class="flex flex-row p-0 m-0 bg-transparent justify-center space-x-[4px]">
+      {#if inProgress}
+        <Spinner size="sm" style="position: relative" />
+      {:else}
+        <slot name="icon" />
+      {/if}
+      {#if $$slots.default}
+        <span><slot /></span>
+      {/if}
+    </div>
+  {:else}
+    <slot />
+  {/if}
+</button>

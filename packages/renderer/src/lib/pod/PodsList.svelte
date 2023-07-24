@@ -21,7 +21,7 @@ import Prune from '../engine/Prune.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Checkbox from '../ui/Checkbox.svelte';
-import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -207,21 +207,13 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
 
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
-      <button
-        class="pf-c-button pf-m-primary"
+      <Button
         on:click="{() => deleteSelectedPods()}"
         title="Delete {selectedItemsNumber} selected items"
-        type="button">
-        <span class="pf-c-button__icon pf-m-start">
-          {#if bulkDeleteInProgress}
-            <div class="mr-4">
-              <Spinner />
-            </div>
-          {:else}
-            <i class="fas fa-trash" aria-hidden="true"></i>
-          {/if}
-        </span>
-      </button>
+        inProgress="{bulkDeleteInProgress}"
+        type="primary">
+        <i slot="icon" class="fas fa-trash" aria-hidden="true"></i>
+      </Button>
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>

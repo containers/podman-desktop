@@ -4,6 +4,7 @@ import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Button from '../ui/Button.svelte';
 
 export let closeCallback: () => void;
 export let detailed = false;
@@ -104,25 +105,17 @@ async function renameImage(imageName: string, imageTag: string) {
           <ErrorMessage error="{imageTagErrorMessage}" />
         {/if}
         <div class="w-full mt-6 grid grid-cols-4 gap-6">
-          <button
-            class="pf-c-button pf-m-secondary col-start-3"
-            type="button"
-            name="Cancel"
+          <Button
+            class="pcol-start-3"
             on:click="{() => {
               closeCallback();
-            }}">
-            Cancel
-          </button>
-          <button
-            class="pf-c-button pf-m-primary col-start-4"
-            type="button"
-            name="Save"
+            }}">Cancel</Button>
+          <Button
+            class="col-start-4"
             disabled="{disableSave(imageName, imageTag)}"
             on:click="{() => {
               renameImage(imageName, imageTag);
-            }}">
-            Save
-          </button>
+            }}">Save</Button>
         </div>
       </div>
     </div>

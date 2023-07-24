@@ -32,10 +32,10 @@ import Checkbox from './ui/Checkbox.svelte';
 import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { PodUtils } from '../lib/pod/pod-utils';
 import ComposeActions from './compose/ComposeActions.svelte';
-import Spinner from './ui/Spinner.svelte';
 import { CONTAINER_LIST_VIEW } from './view/views';
 import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
 import type { ContextUI } from './context/context';
+import Button from './ui/Button.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -394,42 +394,31 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     {#if $containersInfos.length > 0}
       <Prune type="containers" engines="{enginesList}" />
     {/if}
-    <button on:click="{() => toggleCreateContainer()}" class="pf-c-button pf-m-primary" type="button">
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-plus-circle" aria-hidden="true"></i>
-      </span>
+    <Button on:click="{() => toggleCreateContainer()}" type="primary">
+      <i slot="icon" class="fas fa-plus-circle" aria-hidden="true"></i>
       Create a container
-    </button>
+    </Button>
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
   </div>
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
-      <button
-        class="pf-c-button pf-m-primary"
+      <Button
         on:click="{() => deleteSelectedContainers()}"
         aria-label="Delete selected containers and pods"
         title="Delete {selectedItemsNumber} selected items"
-        type="button">
-        <span class="pf-c-button__icon pf-m-start">
-          {#if bulkDeleteInProgress}
-            <div class="mr-4">
-              <Spinner />
-            </div>
-          {:else}
-            <i class="fas fa-trash" aria-hidden="true"></i>
-          {/if}
-        </span>
-      </button>
+        bind:inProgress="{bulkDeleteInProgress}"
+        type="primary">
+        <i slot="icon" class="fas fa-trash" aria-hidden="true"></i>
+      </Button>
       <div class="px-1"></div>
-      <button
-        class="pf-c-button pf-m-primary"
+      <Button
         on:click="{() => createPodFromContainers()}"
         title="Create Pod with {selectedItemsNumber} selected items"
-        type="button">
-        <PodIcon size="1em" solid="{true}" />
-      </button>
+        type="primary">
+        <PodIcon slot="icon" size="1em" solid="{true}" />
+      </Button>
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>
@@ -657,10 +646,8 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         </ul>
 
         <div class="pt-5 grid grid-cols-2 gap-10 place-content-center w-full">
-          <button class="pf-c-button pf-m-primary" type="button" on:click="{() => fromDockerfile()}"
-            >Containerfile or Dockerfile</button>
-          <button class="pf-c-button pf-m-secondary" type="button" on:click="{() => fromExistingImage()}"
-            >Existing image</button>
+          <Button type="primary" on:click="{() => fromDockerfile()}">Containerfile or Dockerfile</Button>
+          <Button type="secondary" on:click="{() => fromExistingImage()}">Existing image</Button>
         </div>
       </div>
     </div>

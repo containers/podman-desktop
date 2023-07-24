@@ -14,7 +14,7 @@ import WarningMessage from '../ui/WarningMessage.svelte';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
-import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
 
 let runStarted = false;
 let runFinished = false;
@@ -274,23 +274,15 @@ async function getKubernetesfileLocation() {
         </div>
 
         {#if !runFinished}
-          <button
+          <Button
             on:click="{() => playKubeFile()}"
             disabled="{hasInvalidFields || runStarted}"
-            class="w-full pf-c-button pf-m-primary"
-            type="button">
-            <div class="flex flex-row align-text-top justify-center items-center">
-              {#if runStarted}
-                <div class="mr-4">
-                  <Spinner />
-                </div>
-              {:else}
-                <KubePlayIcon />
-              {/if}
-
-              Play
-            </div>
-          </button>
+            class="w-full"
+            type="primary"
+            bind:inProgress="{runStarted}">
+            <KubePlayIcon slot="icon" />
+            Play
+          </Button>
         {/if}
         {#if runStarted}
           <div class="text-gray-700 text-sm">
@@ -327,7 +319,7 @@ async function getKubernetesfileLocation() {
         {/if}
 
         {#if runFinished}
-          <button on:click="{() => goBackToHistory()}" class="pt-4 w-full pf-c-button pf-m-primary">Done</button>
+          <Button on:click="{() => goBackToHistory()}" class="pt-4 w-full" title="Done" type="primary" />
         {/if}
       </div>
     </div>
