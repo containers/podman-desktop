@@ -1003,6 +1003,10 @@ export class ContextKeyInExpr implements IContextKeyExpression {
     const item = context.getValue(this.key);
 
     if (Array.isArray(source)) {
+      // if item is undefined, the user has passed a string that has to be found in source
+      if (!item) {
+        return source.includes(this.key);
+      }
       return source.includes(item as any);
     }
 
