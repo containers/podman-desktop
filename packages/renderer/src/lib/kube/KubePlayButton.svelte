@@ -9,7 +9,7 @@ function runContainerYaml(): void {
 
 <button
   on:click="{() => runContainerYaml()}"
-  class="pf-c-button pf-m-primary"
+  class="pd-button pd-primary"
   type="button"
   title="Play pod/containers from kubernetes YAML file ">
   <div class="flex flex-row align-text-top justify-start items-center">

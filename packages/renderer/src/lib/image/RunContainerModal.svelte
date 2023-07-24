@@ -160,8 +160,8 @@ async function startContainer() {
                 {/each}
               </div>
 
-              <button on:click="{() => startContainer()}" class="w-full pf-c-button pf-m-primary">
-                <span class="pf-c-button__icon pf-m-start">
+              <button on:click="{() => startContainer()}" class="w-full pd-button pd-primary">
+                <span class="pd-button-icon pd-start">
                   <i class="fas fa-play" aria-hidden="true"></i>
                 </span>
                 Start Container</button>

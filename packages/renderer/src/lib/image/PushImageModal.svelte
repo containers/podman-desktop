@@ -132,7 +132,7 @@ let pushLogsXtermDiv: HTMLDivElement;
 
       {#if !pushFinished}
         <button
-          class="pf-c-button pf-m-primary"
+          class="pd-button pd-primary"
           disabled="{pushInProgress}"
           type="button"
           on:click="{() => {
@@ -145,7 +145,7 @@ let pushLogsXtermDiv: HTMLDivElement;
           {/if}
           Push image</button>
       {:else}
-        <button class="pf-c-button pf-m-primary" type="button" on:click="{() => pushImageFinished()}"> Done</button>
+        <button class="pd-button pd-primary" type="button" on:click="{() => pushImageFinished()}"> Done</button>
       {/if}
 
       <div bind:this="{pushLogsXtermDiv}"></div>

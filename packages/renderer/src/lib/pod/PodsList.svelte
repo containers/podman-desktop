@@ -208,11 +208,11 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
       <button
-        class="pf-c-button pf-m-primary"
+        class="pd-button pd-primary"
         on:click="{() => deleteSelectedPods()}"
         title="Delete {selectedItemsNumber} selected items"
         type="button">
-        <span class="pf-c-button__icon pf-m-start">
+        <span class="pd-button-icon">
           {#if bulkDeleteInProgress}
             <div class="mr-4">
               <Spinner />

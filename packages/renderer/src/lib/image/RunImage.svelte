@@ -515,7 +515,7 @@ function checkContainerName(event: any) {
                 <button
                   class="pt-3 pb-2 outline-none text-sm rounded-sm bg-transparent placeholder-gray-700"
                   on:click="{addHostContainerPorts}">
-                  <span class="pf-c-button__icon pf-m-start">
+                  <span class="pd-button-icon pd-start">
                     <i class="fas fa-plus-circle"></i>
                   </span>
                   Add custom port mapping</button>
@@ -892,11 +892,8 @@ function checkContainerName(event: any) {
           </div>
 
           <div class="pt-2 border-zinc-600 border-t-2"></div>
-          <button
-            on:click="{() => startContainer()}"
-            class="w-full pf-c-button pf-m-primary pt-6"
-            disabled="{invalidFields}">
-            <span class="pf-c-button__icon pf-m-start">
+          <button on:click="{() => startContainer()}" class="w-full pd-button pd-primary" disabled="{invalidFields}">
+            <span class="pd-button-icon pd-start">
               <i class="fas fa-play" aria-hidden="true"></i>
             </span>
             Start Container</button>

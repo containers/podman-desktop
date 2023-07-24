@@ -233,20 +233,20 @@ function computeInterval(): number {
     {/if}
     <button
       on:click="{() => gotoPullImage()}"
-      class="pf-c-button pf-m-primary"
+      class="pd-button pd-primary"
       type="button"
       title="Pull Image From a Registry">
-      <span class="pf-c-button__icon pf-m-start">
+      <span class="pd-button-icon pd-start">
         <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
       </span>
       Pull an image
     </button>
     <button
       on:click="{() => gotoBuildImage()}"
-      class="pf-c-button pf-m-primary"
+      class="pd-button pd-primary"
       type="button"
       title="Build Image from Containerfile">
-      <span class="pf-c-button__icon pf-m-start">
+      <span class="pd-button-icon pd-start">
         <i class="fas fa-cube" aria-hidden="true"></i>
       </span>
       Build an image
@@ -256,11 +256,11 @@ function computeInterval(): number {
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
       <button
-        class="pf-c-button pf-m-primary"
+        class="pd-button pd-primary"
         on:click="{() => deleteSelectedImages()}"
         title="Delete {selectedItemsNumber} selected items"
         type="button">
-        <span class="pf-c-button__icon pf-m-start">
+        <span class="pd-button-icon">
           {#if bulkDeleteInProgress}
             <div class="mr-4">
               <Spinner />

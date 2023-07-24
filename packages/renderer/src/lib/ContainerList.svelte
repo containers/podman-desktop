@@ -394,8 +394,8 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     {#if $containersInfos.length > 0}
       <Prune type="containers" engines="{enginesList}" />
     {/if}
-    <button on:click="{() => toggleCreateContainer()}" class="pf-c-button pf-m-primary" type="button">
-      <span class="pf-c-button__icon pf-m-start">
+    <button on:click="{() => toggleCreateContainer()}" class="pd-button pd-primary" type="button">
+      <span class="pd-button-icon pd-start">
         <i class="fas fa-plus-circle" aria-hidden="true"></i>
       </span>
       Create a container
@@ -407,12 +407,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
       <button
-        class="pf-c-button pf-m-primary"
+        class="pd-button pd-primary"
         on:click="{() => deleteSelectedContainers()}"
         aria-label="Delete selected containers and pods"
         title="Delete {selectedItemsNumber} selected items"
         type="button">
-        <span class="pf-c-button__icon pf-m-start">
+        <span class="pd-button-icon pd-start">
           {#if bulkDeleteInProgress}
             <div class="mr-4">
               <Spinner />
@@ -424,7 +424,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       </button>
       <div class="px-1"></div>
       <button
-        class="pf-c-button pf-m-primary"
+        class="pd-button pd-primary"
         on:click="{() => createPodFromContainers()}"
         title="Create Pod with {selectedItemsNumber} selected items"
         type="button">
@@ -657,9 +657,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         </ul>
 
         <div class="pt-5 grid grid-cols-2 gap-10 place-content-center w-full">
-          <button class="pf-c-button pf-m-primary" type="button" on:click="{() => fromDockerfile()}"
+          <button class="pd-button pd-primary" type="button" on:click="{() => fromDockerfile()}"
             >Containerfile or Dockerfile</button>
-          <button class="pf-c-button pf-m-secondary" type="button" on:click="{() => fromExistingImage()}"
+          <button class="pd-button pd-secondary" type="button" on:click="{() => fromExistingImage()}"
             >Existing image</button>
         </div>
       </div>

@@ -294,7 +294,7 @@ function updatePortExposure(port: number, checked: boolean) {
 
         <div class="w-full grid justify-items-end">
           <div>
-            <button class="pf-c-button underline hover:text-gray-400" on:click="{() => router.goto('/containers')}">
+            <button class="pd-button underline hover:text-gray-400" on:click="{() => router.goto('/containers')}">
               Close
             </button>
             <button
@@ -303,7 +303,7 @@ function updatePortExposure(port: number, checked: boolean) {
                 createPodFromContainers();
               }}"
               aria-label="Create pod"
-              class="pf-c-button pf-m-primary"
+              class="pd-button pd-primary"
               type="button">
               <div class="flex flex-row">
                 {#if createInProgress}

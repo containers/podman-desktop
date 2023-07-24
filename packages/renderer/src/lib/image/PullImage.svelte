@@ -118,8 +118,8 @@ function validateImageName(event): void {
   </svelte:fragment>
 
   <svelte:fragment slot="actions">
-    <button on:click="{() => gotoManageRegistries()}" class="pf-c-button pf-m-primary" type="button">
-      <span class="pf-c-button__icon pf-m-start">
+    <button on:click="{() => gotoManageRegistries()}" class="pd-button pd-primary" type="button">
+      <span class="pd-button-icon pd-start">
         <i class="fas fa-cog" aria-hidden="true"></i>
       </span>
       Manage registries
@@ -173,20 +173,19 @@ function validateImageName(event): void {
           <div class="w-full flex flex-col justify-end">
             {#if !pullFinished}
               <button
-                class="pf-c-button pf-m-primary"
+                class="pd-button pd-primary"
                 disabled="{!imageToPull || imageToPull.trim() === '' || pullInProgress}"
                 type="submit"
                 on:click="{() => pullImage()}">
                 {#if pullInProgress === true}
                   <Spinner />
                 {/if}
-                <span class="pf-c-button__icon pf-m-start">
+                <span class="pd-button-icon pd-start">
                   <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
                 </span>
                 Pull image</button>
             {:else}
-              <button class="pf-c-button pf-m-primary" type="button" on:click="{() => pullImageFinished()}">
-                Done</button>
+              <button class="pd-button pd-primary" type="button" on:click="{() => pullImageFinished()}"> Done</button>
             {/if}
             {#if pullError}
               <ErrorMessage error="{pullError}" />

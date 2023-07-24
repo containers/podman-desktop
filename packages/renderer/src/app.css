@@ -9,3 +9,37 @@ a {
   -webkit-user-drag: none;
   -webkit-app-region: no-drag;
 }
+
+@layer components {
+  .pd-button {
+    @apply relative px-4 py-[6px] rounded-[4px] box-border text-white text-[13px] whitespace-nowrap select-none;
+  }
+
+  .pd-primary:disabled {
+    @apply bg-charcoal-50;
+  }
+
+  .pd-primary {
+    @apply bg-purple-500 border-none;
+  }
+
+  .pd-primary:hover:enabled {
+    @apply bg-purple-400;
+  }
+
+  .pd-secondary {
+    @apply border-[1px] border-gray-200;
+  }
+
+  .pd-secondary:hover:enabled {
+    @apply border-purple-500 text-purple-500;
+  }
+
+  .pd-button-icon {
+    @apply p-0 m-0 bg-transparent;
+  }
+
+  .pd-start {
+    @apply mr-1;
+  }
+}

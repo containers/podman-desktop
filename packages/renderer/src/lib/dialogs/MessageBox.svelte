@@ -172,9 +172,9 @@ function handleKeydown(e: KeyboardEvent) {
               >Cancel</button>
           {:else}
             <button
-              class="pf-c-button transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center pb-1"
-              class:pf-m-primary="{defaultId === i}"
-              class:pf-m-secondary="{defaultId !== i}"
+              class="pd-button transition ease-in-out delay-50 shadow hover:shadow-lg"
+              class:pd-primary="{defaultId === i}"
+              class:pd-secondary="{defaultId !== i}"
               on:click="{() => clickButton(i)}">{buttons[i]}</button>
           {/if}
         {/each}

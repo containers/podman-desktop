@@ -202,9 +202,9 @@ async function getContainerBuildContextDirectory() {
             <button
               on:click="{() => buildContainerImage()}"
               disabled="{hasInvalidFields}"
-              class="w-full pf-c-button pf-m-primary"
+              class="w-full pd-button pd-primary"
               type="button">
-              <span class="pf-c-button__icon pf-m-start">
+              <span class="pd-button__icon pd-start">
                 <i class="fas fa-cube" aria-hidden="true"></i>
               </span>
               Build
@@ -212,7 +212,7 @@ async function getContainerBuildContextDirectory() {
           {/if}
 
           {#if buildFinished}
-            <button on:click="{() => cleanupBuild()}" class="w-full pf-c-button pf-m-primary">Done</button>
+            <button on:click="{() => cleanupBuild()}" class="w-full pd-button pd-primary">Done</button>
           {/if}
         </div>
 

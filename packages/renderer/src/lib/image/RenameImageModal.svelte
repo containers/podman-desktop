@@ -105,7 +105,7 @@ async function renameImage(imageName: string, imageTag: string) {
         {/if}
         <div class="w-full mt-6 grid grid-cols-4 gap-6">
           <button
-            class="pf-c-button pf-m-secondary col-start-3"
+            class="pd-button pd-secondary col-start-3"
             type="button"
             name="Cancel"
             on:click="{() => {
@@ -114,7 +114,7 @@ async function renameImage(imageName: string, imageTag: string) {
             Cancel
           </button>
           <button
-            class="pf-c-button pf-m-primary col-start-4"
+            class="pd-button pd-primary col-start-4"
             type="button"
             name="Save"
             disabled="{disableSave(imageName, imageTag)}"

@@ -277,7 +277,7 @@ async function getKubernetesfileLocation() {
           <button
             on:click="{() => playKubeFile()}"
             disabled="{hasInvalidFields || runStarted}"
-            class="w-full pf-c-button pf-m-primary"
+            class="w-full pd-button pd-primary"
             type="button">
             <div class="flex flex-row align-text-top justify-center items-center">
               {#if runStarted}
@@ -327,7 +327,7 @@ async function getKubernetesfileLocation() {
         {/if}
 
         {#if runFinished}
-          <button on:click="{() => goBackToHistory()}" class="pt-4 w-full pf-c-button pf-m-primary">Done</button>
+          <button on:click="{() => goBackToHistory()}" class="pt-4 w-full pd-button pd-primary">Done</button>
         {/if}
       </div>
     </div>
