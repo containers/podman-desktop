@@ -5,43 +5,41 @@ import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
-import type { PodInfoUI } from './PodInfoUI';
 import { isMultiplexedLog } from '../stream/stream-utils';
-import { ansi256Colours, colourizedANSIContainerName } from '../editor/editor-utils';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
+import type { ComposeInfoUI } from './ComposeInfoUI';
+import { ansi256Colours, colourizedANSIContainerName } from '../editor/editor-utils';
 
-export let pod: PodInfoUI;
+export let compose: ComposeInfoUI;
 
-// Log
+// Logging element
 let logsXtermDiv: HTMLDivElement;
-let refPod;
-// Logs has been initialized
+let refCompose;
+
+// Log initialization
 let noLogs = true;
 let logsTerminal: Terminal;
 
-// need to refresh logs when pod is switched or state changes
 $: {
-  if (refPod && (refPod.id !== pod.id || (refPod.status !== pod.status && pod.status !== 'EXITED'))) {
+  if (refCompose && refCompose.status !== compose.status) {
     logsTerminal?.clear();
-    fetchPodLogs();
+    fetchComposeLogs();
   }
-  refPod = pod;
+  refCompose = compose;
 }
 
 // Terminal resize
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
 let currentRouterPath: string;
-let logsRouterPath = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
+
+// Router path for the logging
+let logsRouterPath = `/compose/${encodeURI(compose.name)}/${encodeURI(compose.engineId)}/logs`;
 
 // Create a map that will store the ANSI 256 colour for each container name
 // if we run out of colours, we'll start from the beginning.
 const colourizedContainerName = new Map<string, string>();
-pod.containers.forEach((container, index) => {
-  const colour = ansi256Colours[index % ansi256Colours.length];
-  colourizedContainerName.set(container.Names, colourizedANSIContainerName(container.Names, colour));
-});
 
 // Callback for logs which will output the logs to the terminal
 function callback(name: string, data: string) {
@@ -55,28 +53,24 @@ function callback(name: string, data: string) {
   }
 }
 
-// Fetches the logs for each container in the pod and outputs to the terminal
-async function fetchPodLogs() {
-  // Go through each name of pod.containers array and determine
-  // how much spacing is required for each name to be printed.
+// Fetches the logs for each container in the compose group
+async function fetchComposeLogs() {
+  // Figure out how much spacing to put for the naming of the containers
   let maxNameLength = 0;
-  pod.containers.forEach(container => {
-    if (container.Names.length > maxNameLength) {
-      maxNameLength = container.Names.length;
+  compose.containers.forEach(container => {
+    if (container.name.length > maxNameLength) {
+      maxNameLength = container.name.length;
     }
   });
 
-  // Go through the array of containers from pod.containers and
-  // call window.logsContainer for each container with a logs callback.
-  // We use a custom logsCallback since we are adding the container name and padding
-  // before each log output.
-  //
-  // NOTE: Podman API returns 'Names' despite being a singular name for the container.
-  for (let container of pod.containers) {
+  // Go trhrough the array of containers in the compose group
+  // and create a custom logsContainer window for each container, we use a custom logsCallback
+  // in order to add padding to each output / make it look nice.
+  for (let container of compose.containers) {
     // Set a customer callback that will add the container name and padding
     const logsCallback = (name: string, data: string) => {
-      const padding = ' '.repeat(maxNameLength - container.Names.length);
-      const colouredName = colourizedContainerName.get(container.Names);
+      const padding = ' '.repeat(maxNameLength - container.name.length);
+      const colouredName = colourizedContainerName.get(container.name);
 
       let content;
       if (isMultiplexedLog(data)) {
@@ -89,11 +83,7 @@ async function fetchPodLogs() {
     };
 
     // Get the logs for the container
-    if (pod.kind === 'podman') {
-      await window.logsContainer(pod.engineId, container.Id, logsCallback);
-    } else {
-      await window.kubernetesReadPodLog(pod.name, container.Names, logsCallback);
-    }
+    await window.logsContainer(container.engineId, container.id, logsCallback);
   }
 }
 
@@ -138,9 +128,14 @@ async function refreshTerminal() {
 }
 
 onMount(async () => {
+  compose.containers.forEach((container, index) => {
+    const colour = ansi256Colours[index % ansi256Colours.length];
+    colourizedContainerName.set(container.name, colourizedANSIContainerName(container.name, colour));
+  });
+
   // Refresh the terminal on initial load
   await refreshTerminal();
-  fetchPodLogs();
+  fetchComposeLogs();
 
   // Resize the terminal each time we change the div size
   resizeObserver = new ResizeObserver(() => {
@@ -157,7 +152,7 @@ onDestroy(() => {
 });
 </script>
 
-<EmptyScreen icon="{NoLogIcon}" title="No Log" message="Log output of Pod {pod.name}" hidden="{noLogs === false}" />
+<EmptyScreen icon="{NoLogIcon}" title="No Log" message="Log output of {compose.name}" hidden="{noLogs === false}" />
 
 <div
   class="min-w-full flex flex-col"

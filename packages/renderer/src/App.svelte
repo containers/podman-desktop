@@ -27,6 +27,7 @@ import VolumesList from './lib/volume/VolumesList.svelte';
 import VolumeDetails from './lib/volume/VolumeDetails.svelte';
 import KubePlayYAML from './lib/kube/KubePlayYAML.svelte';
 import PodDetails from './lib/pod/PodDetails.svelte';
+import ComposeDetails from './lib/compose/ComposeDetails.svelte';
 import PodCreateFromContainers from './lib/pod/PodCreateFromContainers.svelte';
 import DeployPodToKube from './lib/pod/DeployPodToKube.svelte';
 import RunImage from './lib/image/RunImage.svelte';
@@ -127,6 +128,9 @@ window.events?.receive('display-troubleshooting', () => {
           <DeployPodToKube
             resourceId="{decodeURI(meta.params.resourceId)}"
             engineId="{decodeURI(meta.params.engineId)}" />
+        </Route>
+        <Route path="/compose/:name/:engineId/*" breadcrumb="Compose Details" let:meta navigationHint="details">
+          <ComposeDetails composeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
         <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta navigationHint="details">
           <PodDetails
