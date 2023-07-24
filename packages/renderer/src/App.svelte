@@ -39,6 +39,7 @@ import TitleBar from './lib/ui/TitleBar.svelte';
 import TroubleshootingPage from './lib/troubleshooting/TroubleshootingPage.svelte';
 import IconsStyle from './lib/style/IconsStyle.svelte';
 import CustomPick from './lib/dialogs/CustomPick.svelte';
+import ContextKey from './lib/context/ContextKey.svelte';
 
 router.mode.hash();
 
@@ -65,6 +66,7 @@ window.events?.receive('display-troubleshooting', () => {
   <main class="flex flex-col w-screen h-screen overflow-hidden bg-charcoal-800">
     <IconsStyle />
     <TitleBar />
+    <ContextKey />
 
     <WelcomePage />
 
