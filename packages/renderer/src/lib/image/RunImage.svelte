@@ -17,6 +17,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { splitSpacesHandlingDoubleQuotes } from '../string/string';
 import { array2String } from '/@/lib/string/string.js';
 import Tab from '../ui/Tab.svelte';
+import Button from '../ui/Button.svelte';
 
 let image: ImageInfoUI;
 
@@ -512,13 +513,10 @@ function checkContainerName(event: any) {
                   </div>
                 {/each}
 
-                <button
-                  class="pt-3 pb-2 outline-none text-sm rounded-sm bg-transparent placeholder-gray-700"
-                  on:click="{addHostContainerPorts}">
-                  <span class="pf-c-button__icon pf-m-start">
-                    <i class="fas fa-plus-circle"></i>
-                  </span>
-                  Add custom port mapping</button>
+                <Button class="pt-3 pb-2" on:click="{addHostContainerPorts}">
+                  <i slot="icon" class="fas fa-plus-circle"></i>
+                  Add custom port mapping
+                </Button>
                 <!-- Display the list of existing hostContainerPortMappings -->
                 {#each hostContainerPortMappings as hostContainerPortMapping, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
@@ -892,14 +890,10 @@ function checkContainerName(event: any) {
           </div>
 
           <div class="pt-2 border-zinc-600 border-t-2"></div>
-          <button
-            on:click="{() => startContainer()}"
-            class="w-full pf-c-button pf-m-primary pt-6"
-            disabled="{invalidFields}">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-play" aria-hidden="true"></i>
-            </span>
-            Start Container</button>
+          <Button on:click="{() => startContainer()}" class="w-full" type="primary" bind:disabled="{invalidFields}">
+            <i slot="icon" class="fas fa-play" aria-hidden="true"></i>
+            Start Container
+          </Button>
           <ErrorMessage class="py-2 text-sm" error="{createError}" />
         </div>
       </div>

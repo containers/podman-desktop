@@ -20,6 +20,7 @@ import {
 import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { Terminal } from 'xterm';
+import Button from '../ui/Button.svelte';
 
 let buildFinished = false;
 let containerImageName = 'my-custom-image';
@@ -199,20 +200,18 @@ async function getContainerBuildContextDirectory() {
 
         <div class="w-full flex flex-row space-x-4">
           {#if !buildImageInfo?.buildRunning}
-            <button
+            <Button
               on:click="{() => buildContainerImage()}"
               disabled="{hasInvalidFields}"
-              class="w-full pf-c-button pf-m-primary"
-              type="button">
-              <span class="pf-c-button__icon pf-m-start">
-                <i class="fas fa-cube" aria-hidden="true"></i>
-              </span>
+              class="w-full"
+              type="primary">
+              <i slot="icon" class="fas fa-cube" aria-hidden="true"></i>
               Build
-            </button>
+            </Button>
           {/if}
 
           {#if buildFinished}
-            <button on:click="{() => cleanupBuild()}" class="w-full pf-c-button pf-m-primary">Done</button>
+            <Button type="primary" on:click="{() => cleanupBuild()}" class="w-full">Done</Button>
           {/if}
         </div>
 

@@ -10,7 +10,7 @@ import FormPage from '../ui/FormPage.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { Terminal } from 'xterm';
-import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
 
 let logsPull: Terminal;
 let pullError = '';
@@ -102,12 +102,15 @@ onMount(() => {
 });
 
 let imageNameInvalid = undefined;
+let imageNameIsInvalid = imageToPull === undefined || imageToPull.trim() === '';
 function validateImageName(event): void {
   imageToPull = event.target.value;
   if (imageToPull === undefined || imageToPull.trim() === '') {
+    imageNameIsInvalid = true;
     imageNameInvalid = 'Please enter a value';
   } else {
-    imageNameInvalid = '';
+    imageNameIsInvalid = false;
+    imageNameInvalid = undefined;
   }
 }
 </script>
@@ -118,12 +121,10 @@ function validateImageName(event): void {
   </svelte:fragment>
 
   <svelte:fragment slot="actions">
-    <button on:click="{() => gotoManageRegistries()}" class="pf-c-button pf-m-primary" type="button">
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-cog" aria-hidden="true"></i>
-      </span>
+    <Button on:click="{() => gotoManageRegistries()}" type="primary">
+      <i slot="icon" class="fas fa-cog" aria-hidden="true"></i>
       Manage registries
-    </button>
+    </Button>
   </svelte:fragment>
 
   <div slot="content" class="p-5 min-w-full h-fit">
@@ -172,21 +173,16 @@ function validateImageName(event): void {
         <footer>
           <div class="w-full flex flex-col justify-end">
             {#if !pullFinished}
-              <button
-                class="pf-c-button pf-m-primary"
-                disabled="{!imageToPull || imageToPull.trim() === '' || pullInProgress}"
-                type="submit"
-                on:click="{() => pullImage()}">
-                {#if pullInProgress === true}
-                  <Spinner />
-                {/if}
-                <span class="pf-c-button__icon pf-m-start">
-                  <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
-                </span>
-                Pull image</button>
+              <Button
+                type="primary"
+                bind:disabled="{imageNameIsInvalid}"
+                on:click="{() => pullImage()}"
+                bind:inProgress="{pullInProgress}">
+                <i slot="icon" class="fas fa-arrow-circle-down" aria-hidden="true"></i>
+                Pull image
+              </Button>
             {:else}
-              <button class="pf-c-button pf-m-primary" type="button" on:click="{() => pullImageFinished()}">
-                Done</button>
+              <Button type="primary" on:click="{() => pullImageFinished()}">Done</Button>
             {/if}
             {#if pullError}
               <ErrorMessage error="{pullError}" />

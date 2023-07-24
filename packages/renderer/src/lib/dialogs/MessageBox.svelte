@@ -4,6 +4,8 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faCircleQuestion, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import type { MessageBoxOptions } from './messagebox-input';
+import Button from '../ui/Button.svelte';
+import type { ButtonType } from '../ui/Button';
 
 let currentId = 0;
 let title;
@@ -125,6 +127,14 @@ function handleKeydown(e: KeyboardEvent) {
     e.preventDefault();
   }
 }
+
+function getButtonType(b: boolean): ButtonType {
+  if (b) {
+    return 'primary';
+  } else {
+    return 'secondary';
+  }
+}
 </script>
 
 <svelte:window on:keydown="{handleKeydown}" />
@@ -168,14 +178,9 @@ function handleKeydown(e: KeyboardEvent) {
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
         {#each buttonOrder as i}
           {#if i === cancelId}
-            <button aria-label="Cancel" class="text-xs hover:underline" on:click="{() => clickButton(i)}"
-              >Cancel</button>
+            <Button aria-label="Cancel" on:click="{() => clickButton(i)}">Cancel</Button>
           {:else}
-            <button
-              class="pf-c-button transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center pb-1"
-              class:pf-m-primary="{defaultId === i}"
-              class:pf-m-secondary="{defaultId !== i}"
-              on:click="{() => clickButton(i)}">{buttons[i]}</button>
+            <Button type="{getButtonType(defaultId === i)}" on:click="{() => clickButton(i)}">{buttons[i]}</Button>
           {/if}
         {/each}
       </div>

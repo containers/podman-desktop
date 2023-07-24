@@ -6,7 +6,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
-import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
 
 export let closeCallback: () => void;
 export let imageInfoToPush: ImageInfoUI;
@@ -131,21 +131,17 @@ let pushLogsXtermDiv: HTMLDivElement;
       </div>
 
       {#if !pushFinished}
-        <button
-          class="pf-c-button pf-m-primary"
-          disabled="{pushInProgress}"
-          type="button"
+        <Button
+          type="primary"
           on:click="{() => {
             pushImage(selectedImageTag);
-          }}">
-          {#if pushInProgress === true}
-            <Spinner />
-          {:else}
-            <i class="fas fa-arrow-circle-up" aria-hidden="true"></i>
-          {/if}
-          Push image</button>
+          }}"
+          bind:inProgress="{pushInProgress}">
+          <i slot="icon" class="fas fa-arrow-circle-up" aria-hidden="true"></i>
+          Push image
+        </Button>
       {:else}
-        <button class="pf-c-button pf-m-primary" type="button" on:click="{() => pushImageFinished()}"> Done</button>
+        <Button type="primary" on:click="{() => pushImageFinished()}">Done</Button>
       {/if}
 
       <div bind:this="{pushLogsXtermDiv}"></div>

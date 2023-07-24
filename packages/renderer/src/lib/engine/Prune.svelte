@@ -1,4 +1,5 @@
 <script lang="ts">
+import Button from '../ui/Button.svelte';
 import type { EngineInfoUI } from './EngineInfoUI';
 
 // Imported type for prune (containers, images, pods, volumes)
@@ -72,13 +73,7 @@ async function prune(type: string) {
 }
 </script>
 
-<button
-  on:click="{() => openPruneDialog()}"
-  class="pf-c-button pf-m-primary"
-  type="button"
-  title="Remove unused images">
-  <span class="pf-c-button__icon pf-m-start">
-    <i class="fas fa-trash" aria-hidden="true"></i>
-  </span>
+<Button on:click="{() => openPruneDialog()}" title="Remove unused images" type="primary">
+  <i slot="icon" class="fas fa-trash" aria-hidden="true"></i>
   Prune {type}
-</button>
+</Button>
