@@ -153,7 +153,7 @@
                 }
               ],
               "completionEvents": [
-                "onCommandResult:checkPodmanInstalled"
+                "checkPodmanInstalled"
               ]
             },
             {
@@ -163,7 +163,7 @@
                 "path": "icon.png",
                 "altText": "podman logo"
               },
-              "when": "onCommandResult:checkPodmanInstalled.installed == failed"
+              "when": "checkPodmanInstalled.installed == failed"
             },
             {
               "id": "checkPodmanRequirements",
@@ -172,14 +172,14 @@
                 "path": "icon.png",
                 "altText": "podman logo"
               },
-              "when": "onCommandResult:checkPodmanInstalled.installed == failed",
+              "when": "checkPodmanInstalled.installed == failed",
               "commandAtActivation": [
                 {
                   "command": "checkPodmanRequirements"
                 }
               ],
               "completionEvents": [
-                "onCommandResult:checkPodmanRequirements"
+                "checkPodmanRequirements"
               ]
             },
             {
@@ -189,9 +189,9 @@
                 "path": "icon.png",
                 "altText": "podman logo"
               },
-              "when": "onCommandResult:checkPodmanRequirements.status == failed && onCommandResult:checkPodmanInstalled.installed == failed",
+              "when": "checkPodmanRequirements.status == failed && checkPodmanInstalled.installed == failed",
               "completionEvents": [
-                "onCommandResult:checkPodmanRequirements.status == ok"
+                "checkPodmanRequirements.status == ok"
               ],
               "content": [
                 [
@@ -215,21 +215,21 @@
               ]
             },
             {
-              "id": "installPodman",
+              "id": "installPodmanView",
               "title": "Installing Podman",
               "description": "Once installed, we will enable and configure the extension",
               "media": {
                 "path": "icon.png",
                 "altText": "podman logo"
               },
-              "when": "onCommandResult:checkPodmanInstalled.installed == failed",
+              "when": "checkPodmanInstalled.installed == failed",
               "commandAtActivation": [
                 {
                   "command": "installPodman"
                 }
               ],
               "completionEvents": [
-                "onCommandResult:installPodman"
+                "installPodman"
               ]
             },
             {
@@ -239,7 +239,7 @@
                 "path": "icon.png",
                 "altText": "podman logo"
               },
-              "when": "onCommandResult:installPodman.status == failed && onCommandResult:checkPodmanInstalled.installed == failed"
+              "when": "installPodman.status == failed && checkPodmanInstalled.installed == failed"
             },
             {
               "id": "podmanInstalled",
@@ -248,7 +248,7 @@
                 "path": "icon.png",
                 "altText": "podman logo"
               },
-              "when": "onCommandResult:installPodman.status == ok || onCommandResult:checkPodmanInstalled.installed == ok"
+              "when": "installPodman.status == ok || checkPodmanInstalled.installed == ok"
             }
           ]
         }

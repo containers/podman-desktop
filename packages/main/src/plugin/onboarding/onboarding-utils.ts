@@ -30,7 +30,7 @@ export class OnboardingUtils {
         ['experimental.onboarding']: {
           description: 'When enabled, it is possible to use the onboarding workflow.',
           type: 'boolean',
-          default: true,
+          default: false,
           hidden: true,
         },
       },

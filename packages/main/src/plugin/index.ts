@@ -114,7 +114,7 @@ import { ViewRegistry } from './view-registry.js';
 import type { ViewInfoUI } from './api/view-info.js';
 import { Context } from './context/context.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
-import type { OnboardingInfo } from './api/onboarding.js';
+import type { OnboardingInfo, OnboardingStepStatus } from './api/onboarding.js';
 import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -1739,10 +1739,18 @@ export class PluginSystem {
     this.ipcHandle(
       'onboardingRegistry:executeOnboardingCommand',
       /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      async (_listener, extension: string, stepId: string, commandId: string, args?: any[]): Promise<void> => {
-        return onboardingRegistry.executeOnboardingCommand(extension, stepId, commandId, args);
+      async (_listener, executionId: number, extension: string, stepId: string, commandId: string, args?: any[]): Promise<void> => {
+        return onboardingRegistry.executeOnboardingCommand(executionId, extension, stepId, commandId, args);
       },
     );
+
+    this.ipcHandle('onboardingRegistry:updateStepState', async (_listener, status: OnboardingStepStatus, extension: string, stepId: string, viewId?: string): Promise<void> => {
+      return onboardingRegistry.updateStepState(status, extension, stepId, viewId);
+    });
+
+    this.ipcHandle('onboardingRegistry:resetOnboarding', async (_listener, extension: string): Promise<void> => {
+      return onboardingRegistry.resetOnboarding(extension);
+    });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,

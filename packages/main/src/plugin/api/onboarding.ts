@@ -63,7 +63,7 @@ export interface OnboardingStepView {
   completionEvents: string[];
   content: OnboardingViewItem[][];
   when: string;
-  status: OnboardingStepStatus;
+  status?: OnboardingStepStatus;
   showNext?: boolean;
 }
 
@@ -74,7 +74,7 @@ export interface OnboardingStep {
   commands: OnboardingCommand[];
   views: OnboardingStepView[];
   media: { path: string; altText: string };
-  status: OnboardingStepStatus;
+  status?: OnboardingStepStatus;
 }
 
 export interface Onboarding {

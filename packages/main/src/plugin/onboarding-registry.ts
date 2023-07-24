@@ -19,7 +19,7 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
-import type { Onboarding, OnboardingInfo } from './api/onboarding.js';
+import type { Onboarding, OnboardingInfo, OnboardingStepStatus } from './api/onboarding.js';
 import type { CommandRegistry } from './command-registry.js';
 import type { ApiSenderType } from './api.js';
 import type { AnalyzedExtension } from './extension-loader.js';
@@ -91,7 +91,7 @@ export class OnboardingRegistry {
     return this.onboardingInfos;
   }
 
-  async executeOnboardingCommand(extension: string, stepId: string, commandId: string, args?: any[]): Promise<void> {
+  async executeOnboardingCommand(executionId: number, extension: string, stepId: string, commandId: string, args?: any[]): Promise<void> {
     const onboarding = this.onboardingInfos.find(onboarding => onboarding.extension === extension);
     if (onboarding) {
       const step = onboarding.steps.find(step => step.id === stepId);
@@ -104,12 +104,14 @@ export class OnboardingRegistry {
               args,
             );
             this.apiSender.send('onboarding:command-executed', {
+              executionId,
               command: commandId,
               status: 'succeeded',
               body: response,
             });
           } catch (e) {
             this.apiSender.send('onboarding:command-executed', {
+              executionId,
               command: commandId,
               status: 'failed',
               body: {
@@ -122,11 +124,45 @@ export class OnboardingRegistry {
       }
     }
     this.apiSender.send('onboarding:command-executed', {
+      executionId,
       command: commandId,
       status: 'failed',
       body: {
         error: 'Unable to execute the command',
       },
+    });
+  }
+
+  updateStepState(status: OnboardingStepStatus, extension: string, stepId: string, viewId?: string): void {
+    const onboarding = this.onboardingInfos.find(onboarding => onboarding.extension === extension);
+    if (!onboarding) {
+      throw new Error(`No onboarding for extension ${extension}`);
+    }
+    const step = onboarding.steps.find(step => step.id === stepId);
+    if (!step) {
+      throw new Error(`No onboarding step with id ${stepId} for extension ${extension}`);
+    }
+    if (viewId) {
+      const view = step.views.find(view => view.id === viewId);
+      if (!view) {
+        throw new Error(`No onboarding view with id ${viewId} in step with id ${stepId} for extension ${extension}`);        
+      }
+      view.status = status;
+    } else {
+      step.status = status;
+    }
+  }
+
+  resetOnboarding(extension: string): void {
+    const onboarding = this.onboardingInfos.find(onboarding => onboarding.extension === extension);
+    if (!onboarding) {
+      throw new Error(`No onboarding for extension ${extension}`);
+    }
+    onboarding.steps.forEach(step => {
+      step.status = undefined;
+      step.views.forEach(view => {
+        view.status = undefined;
+      });
     });
   }
 }

@@ -2,7 +2,7 @@
 import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import { onDestroy, onMount } from 'svelte';
-import type { OnboardingInfo, OnboardingStep, OnboardingStepView } from '../../../../main/src/plugin/api/onboarding';
+import type { OnboardingInfo, OnboardingStep, OnboardingStepStatus, OnboardingStepView } from '../../../../main/src/plugin/api/onboarding';
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import {
   faCircleCheck,
@@ -35,23 +35,41 @@ $: activeStep;
 $: executing = false;
 let context: ContextUI;
 let displayCancelSetup = false;
+let displayResetSetup = false;
+
+let contextKeys: string[] = [];
+let executionId = 0;
+let executions: number[] = [];
 /*
 $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
 let contextsUnsubscribe: Unsubscriber;
 onMount(async () => {
-  onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
+  onboardingUnsubscribe = onboardingList.subscribe(async onboardingItems => {
     if (!onboarding) {
-      onboarding = onboardingItems.filter(o => o.extension === extensionId)[0];
-      setActiveStep();
+      onboarding = onboardingItems.find(o => o.extension === extensionId);
+      await startOnboarding();
     }
   });
 
-  contextsUnsubscribe = contexts.subscribe(value => {
-    console.log(value);
+  contextsUnsubscribe = contexts.subscribe(async value => {
     context = value.find(ctx => ctx.extension === extensionId);
+    await startOnboarding();
   });
 });
+
+let started = false;
+async function startOnboarding() {
+  if (!started && context && onboarding) {
+    started = true;
+    if (isOnboardingCompleted(onboarding)) {
+      // ask user if she wants to restart
+      setDisplayResetSetup(true);
+    } else {
+      await restartSetup();
+    }      
+  }
+}
 
 onDestroy(() => {
   if (onboardingUnsubscribe) {
@@ -62,14 +80,15 @@ onDestroy(() => {
   }
 });
 
-function setActiveStep() {
+async function setActiveStep() {
   if (!onboarding) {
     console.error(`Unable to retrieve the onboarding workflow for ${extensionInfo?.displayName}`);
     return;
   }
   for (const step of onboarding.steps) {
     if (!step.status) {
-      for (const view of step.views) {
+      for (let i=0; i<step.views.length; i++) {
+        const view = step.views[i];
         if (!view.status) {
           let whenDeserialized;
           if (view.when) {
@@ -80,10 +99,10 @@ function setActiveStep() {
               step,
               view,
             };
-            doExecuteCommandsAtActivation(activeStep);
+            await doExecuteCommandsAtActivation(activeStep);
             return;
           } else {
-            view.status = 'skipped';
+            await updateStepViewStatus(step, view, 'skipped');
             continue;
           }
         }
@@ -92,31 +111,42 @@ function setActiveStep() {
   }
 
   // if it reaches this point it means that the onboarding is fully completed and the user is redirected to the dashboard
+  cleanContext();
   router.goto('/');
 }
 
 async function doExecuteCommandsAtActivation(active: ActiveStep) {
   for (const cmd of active.view.commandAtActivation || []) {
     setExecuting(true);
-    await window.executeOnboardingCommand(extensionId, active.step.id, cmd.command);
+    ++executionId;
+    executions.push(executionId);
+    await window.executeOnboardingCommand(executionId, extensionId, active.step.id, cmd.command);
     setExecuting(false);
   }
 }
 
 let eventsCompleted: string[] = [];
-window.events?.receive('onboarding:command-executed', result => {
+window.events?.receive('onboarding:command-executed', async result => {
+  // this is a hack to keep the state safe whean receiving multiple events for the same action
+  const indexExecution = executions.indexOf(result.executionId);  
+  if (indexExecution === -1) {
+    return;
+  }
+  executions.splice(indexExecution, 1);
+
   if (result.status === 'failed') {
     console.error(`Failed at executing command ${result.command}: ${result.body.error}`);
     return;
   }
   context?.setValue(result.command, result.body);
-  if (!eventsCompleted.includes(`onCommandResult:${result.command}`)) {
-    eventsCompleted.push(`onCommandResult:${result.command}`);
+  contextKeys.push(result.command);
+  if (!eventsCompleted.includes(result.command)) {
+    eventsCompleted.push(result.command);
   }
-  assertStepCompleted();
+  await assertStepCompleted();
 });
 
-function assertStepCompleted() {
+async function assertStepCompleted() {
   const isCompleted =
     !activeStep.view.completionEvents ||
     activeStep.view.completionEvents.length === 0 ||
@@ -131,15 +161,36 @@ function assertStepCompleted() {
     });
 
   if (isCompleted) {
-    activeStep.view.status = 'completed';
-    const views = activeStep.step.views;
-    // if completed view is the last of the whole step, mark this as completed
-    if (views[views.length - 1].id === activeStep.view.id) {
-      activeStep.step.status = 'completed';
-    }
+    await updateStepViewStatus(activeStep.step, activeStep.view, 'completed');
     resetUI();
-    setActiveStep();
+    await setActiveStep();
   }
+}
+
+async function updateStepViewStatus(step: OnboardingStep, view: OnboardingStepView, status: OnboardingStepStatus) {
+  view.status = status;
+  await window.updateStepState(status, extensionId, step.id, view.id);
+  const views = step.views;
+  // if completed view is the last of the whole step, mark this as completed
+  if (views[views.length - 1].id === view.id) {
+    step.status = 'completed';
+    await window.updateStepState('completed', extensionId, step.id);
+  }
+}
+
+function isOnboardingCompleted(onboarding: OnboardingInfo): boolean {
+  let completed = true;
+  onboarding.steps.forEach(step => {
+    if (!step.status) {
+      completed = false;
+    }
+    step.views.forEach(view => {
+      if (!view.status) {
+        completed = false;
+      }
+    });
+  });
+  return completed;
 }
 
 function resetUI() {
@@ -158,14 +209,37 @@ function setDisplayCancelSetup(display: boolean) {
   displayCancelSetup = display;
 }
 
+function setDisplayResetSetup(display: boolean) {
+  displayResetSetup = display;
+}
+
 function cancelSetup() {
   // TODO: it cancels all running commands
   // it redirect the user to the dashboard
+  cleanContext();
   router.goto('/');
+}
+
+async function restartSetup() {
+  await window.resetOnboarding(extensionId);
+  onboarding.steps.forEach(step => {
+    step.status = undefined;
+    step.views.forEach(view => {
+      view.status = undefined;
+    });
+  });
+  setDisplayResetSetup(false);
+  await setActiveStep();
+}
+
+function cleanContext() {
+  for (const key of contextKeys) {
+    context.removeValue(key);
+  }
 }
 </script>
 
-{#if onboarding}
+{#if onboarding && activeStep}
   <div class="flex flex-col bg-[#36373a] h-full">
     <div class="flex flex-row justify-between mb-20">
       {#if activeStep.step.media}
@@ -253,7 +327,7 @@ function cancelSetup() {
       <div class="mb-10 mx-auto text-sm">
         Press the <span class="bg-purple-700 p-0.5">Next</span> button below to proceed.
       </div>
-      <div class="flex flex-row-reverse p-6 bg-charcoal-600">
+      <div class="flex flex-row-reverse p-6 bg-charcoal-700">
         <button class="bg-purple-700 py-1.5 px-5 rounded-md text-sm" on:click="{() => next()}">Next</button>
         <button class="bg-purple-700 py-1.5 px-5 mr-2 rounded-md text-sm" on:click="{() => setDisplayCancelSetup(true)}"
           >Cancel</button>
@@ -278,6 +352,30 @@ function cancelSetup() {
         <button aria-label="Cancel" class="text-xs hover:underline" on:click="{() => setDisplayCancelSetup(false)}"
           >Cancel</button>
         <button class="bg-purple-700 py-1.5 px-5 mr-2 rounded-md text-xs" on:click="{() => cancelSetup()}">Ok</button>
+      </div>
+    </div>
+  </div>
+{/if}
+{#if displayResetSetup}
+  <!-- Create overlay-->
+  <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 bg-blend-multiply h-full grid z-50">
+    <div class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black">
+      <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
+        <Fa class="h-4 w-4" icon="{faCircleQuestion}" />
+        <span class="grow text-md font-bold capitalize">Restart the entire setup?</span>
+      </div>
+
+      <div class="px-10 py-4 text-sm text-gray-500 leading-5">
+        You have already completed this setup. Do you want to complete it again?
+      </div>
+
+      <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
+        <button aria-label="Cancel" class="text-xs hover:underline" on:click="{() => {
+          setDisplayResetSetup(false);
+          cancelSetup();
+        }}"
+          >No</button>
+        <button class="bg-purple-700 py-1.5 px-5 mr-2 rounded-md text-xs" on:click="{() => restartSetup()}">Yes</button>
       </div>
     </div>
   </div>

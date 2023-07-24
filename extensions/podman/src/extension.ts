@@ -959,8 +959,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     async () => {
       try {
         await podmanInstall.doInstallPodman(provider);
+        const installation = await getPodmanInstallation();
         return {
-          status: 'ok',
+          status: installation ? 'ok' : 'failed',
         };
       } catch (e) {
         console.error(e);
