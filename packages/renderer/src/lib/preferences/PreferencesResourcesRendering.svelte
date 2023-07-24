@@ -233,11 +233,16 @@ async function startConnectionProvider(
 async function doCreateNew(provider: ProviderInfo, displayName: string) {
   displayInstallModal = false;
   if (provider.status === 'not-installed') {
-    providerInstallationInProgress.set(provider.name, true);
-    providerInstallationInProgress = providerInstallationInProgress;
-    providerToBeInstalled = { provider, displayName };
-    doExecuteAfterInstallation = () => router.goto(`/preferences/provider/${provider.internalId}`);
-    performInstallation(provider);
+    const onboarding = window.getOnboarding(provider.id);
+    if (onboarding) {
+      router.goto(`/preferences/onboarding/${provider.id}`)
+    } else {
+      providerInstallationInProgress.set(provider.name, true);
+      providerInstallationInProgress = providerInstallationInProgress;
+      providerToBeInstalled = { provider, displayName };
+      doExecuteAfterInstallation = () => router.goto(`/preferences/provider/${provider.internalId}`);
+      performInstallation(provider);
+    }    
   } else {
     router.goto(`/preferences/provider/${provider.internalId}`);
   }

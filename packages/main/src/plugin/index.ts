@@ -380,7 +380,7 @@ export class PluginSystem {
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
-    const onboardingRegistry = new OnboardingRegistry(apiSender, commandRegistry);
+    const onboardingRegistry = new OnboardingRegistry(apiSender, commandRegistry, configurationRegistry);
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
@@ -1730,6 +1730,10 @@ export class PluginSystem {
 
     this.ipcHandle('onboardingRegistry:listOnboarding', async (): Promise<OnboardingInfo[]> => {
       return onboardingRegistry.listOnboarding();
+    });
+
+    this.ipcHandle('onboardingRegistry:getOnboarding', async (_listener, extension: string): Promise<OnboardingInfo | undefined> => {
+      return onboardingRegistry.getOnboarding(extension);
     });
 
     this.ipcHandle(

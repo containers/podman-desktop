@@ -2,7 +2,6 @@
 import { onDestroy, onMount } from 'svelte';
 import type { OnboardingViewItem } from '../../../../main/src/plugin/api/onboarding';
 import Markdown from '../markdown/Markdown.svelte';
-import { getContextDotsKeyValue } from '../context/contextKey';
 import type { ContextUI } from '../context/context';
 export let item: OnboardingViewItem;
 export let step: string;
@@ -58,7 +57,7 @@ function replacePlaceholders(label: string): string {
   let arr;
   while ((arr = re.exec(newLabel)) !== undefined) {
     if (arr.length > 1) {
-      const replacement = getContextDotsKeyValue(arr[1], context);
+      const replacement = context.getDottedKeyValue(arr[1]);
       if (replacement) {
         newLabel = newLabel.replace(arr[0], replacement.toString());
       }

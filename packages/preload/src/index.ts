@@ -1486,6 +1486,10 @@ function initExposure(): void {
     return ipcInvoke('onboardingRegistry:listOnboarding');
   });
 
+  contextBridge.exposeInMainWorld('getOnboarding', async (extension: string): Promise<OnboardingInfo[]> => {
+    return ipcInvoke('onboardingRegistry:getOnboarding', extension);
+  });
+
   contextBridge.exposeInMainWorld(
     'executeOnboardingCommand',
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */

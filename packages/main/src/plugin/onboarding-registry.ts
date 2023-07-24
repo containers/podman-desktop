@@ -23,11 +23,12 @@ import type { Onboarding, OnboardingInfo } from './api/onboarding.js';
 import type { CommandRegistry } from './command-registry.js';
 import type { ApiSenderType } from './api.js';
 import type { AnalyzedExtension } from './extension-loader.js';
+import { ConfigurationRegistry } from './configuration-registry.js';
 
 export class OnboardingRegistry {
   private onboardingInfos: OnboardingInfo[] = [];
 
-  constructor(private apiSender: ApiSenderType, private commandRegistry: CommandRegistry) {}
+  constructor(private apiSender: ApiSenderType, private commandRegistry: CommandRegistry, private configurationRegistry: ConfigurationRegistry) {}
 
   registerOnboarding(extension: AnalyzedExtension, onboarding: Onboarding): void {
     const onInfo = this.createOnboardingInfo(extension, onboarding);
@@ -36,6 +37,14 @@ export class OnboardingRegistry {
 
   unregisterOnboarding(extension: string): void {
     this.onboardingInfos = this.onboardingInfos.filter(onboarding => onboarding.extension !== extension);
+  }
+
+  getOnboarding(extension: string): OnboardingInfo | undefined {
+    const isOnboardingEnabled = this.configurationRegistry.getConfiguration('experimental').get('onboarding');
+    if (isOnboardingEnabled) {
+      return this.onboardingInfos.find(onboarding => onboarding.extension === extension);
+    }
+    return undefined;    
   }
 
   createOnboardingInfo(extension: AnalyzedExtension, onboarding: Onboarding): OnboardingInfo {
