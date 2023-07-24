@@ -23,10 +23,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import assert from 'assert';
-import { suite, test } from 'vitest';
+import { suite, test, vi } from 'vitest';
 
-import { ContextKeyExpr, implies, type ContextKeyExpression } from './contextKey.js';
-import { isLinux, isMac, isWindows } from '../../../../main/src/util.js';
+import { ContextKeyExpr, implies, type ContextKeyExpression, initContextKeysPlatform } from './contextKey.js';
 
 function createContext(ctx: any) {
   return {
@@ -165,7 +164,12 @@ suite('ContextKeyExpr', () => {
     );
   });
 
-  test('false, true', () => {
+  test('false, true', async () => {
+    const getOsPlatformMock = vi.fn();
+    (window as any).getOsPlatform = getOsPlatformMock;
+    getOsPlatformMock.mockResolvedValue('darwin');
+    await initContextKeysPlatform();
+
     function testNormalize(expr: string, expected: string): void {
       const actual = ContextKeyExpr.deserialize(expr).serialize();
       assert.strictEqual(actual, expected);
@@ -178,9 +182,9 @@ suite('ContextKeyExpr', () => {
     testNormalize('a && false', 'false');
     testNormalize('a || true', 'true');
     testNormalize('a || false', 'a');
-    testNormalize('isMac', isMac() ? 'true' : 'false');
-    testNormalize('isLinux', isLinux() ? 'true' : 'false');
-    testNormalize('isWindows', isWindows() ? 'true' : 'false');
+    testNormalize('isMac', 'true');
+    testNormalize('isLinux', 'false');
+    testNormalize('isWindows', 'false');
   });
 
   test('issue #101015: distribute OR', () => {
