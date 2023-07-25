@@ -115,7 +115,7 @@
     "husky": "^8.0.0",
     "lint-staged": "^13.2.3",
     "nock": "^13.3.2",
-    "playwright": "1.36.1",
+    "playwright": "1.36.2",
     "postcss-import": "^15.1.0",
     "prettier": "^2.8.8",
     "prettier-plugin-svelte": "^2.10.1",
