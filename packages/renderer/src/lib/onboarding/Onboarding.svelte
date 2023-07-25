@@ -2,7 +2,12 @@
 import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import { onDestroy, onMount } from 'svelte';
-import type { OnboardingInfo, OnboardingStep, OnboardingStepStatus, OnboardingStepView } from '../../../../main/src/plugin/api/onboarding';
+import type {
+  OnboardingInfo,
+  OnboardingStep,
+  OnboardingStepStatus,
+  OnboardingStepView,
+} from '../../../../main/src/plugin/api/onboarding';
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import {
   faCircleCheck,
@@ -45,16 +50,18 @@ $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
 let contextsUnsubscribe: Unsubscriber;
 onMount(async () => {
-  onboardingUnsubscribe = onboardingList.subscribe(async onboardingItems => {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
     if (!onboarding) {
       onboarding = onboardingItems.find(o => o.extension === extensionId);
-      await startOnboarding();
+      startOnboarding();
     }
   });
 
-  contextsUnsubscribe = contexts.subscribe(async value => {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  contextsUnsubscribe = contexts.subscribe(value => {
     context = value.find(ctx => ctx.extension === extensionId);
-    await startOnboarding();
+    startOnboarding();
   });
 });
 
@@ -67,7 +74,7 @@ async function startOnboarding() {
       setDisplayResetSetup(true);
     } else {
       await restartSetup();
-    }      
+    }
   }
 }
 
@@ -87,7 +94,7 @@ async function setActiveStep() {
   }
   for (const step of onboarding.steps) {
     if (!step.status) {
-      for (let i=0; i<step.views.length; i++) {
+      for (let i = 0; i < step.views.length; i++) {
         const view = step.views[i];
         if (!view.status) {
           let whenDeserialized;
@@ -128,7 +135,7 @@ async function doExecuteCommandsAtActivation(active: ActiveStep) {
 let eventsCompleted: string[] = [];
 window.events?.receive('onboarding:command-executed', async result => {
   // this is a hack to keep the state safe whean receiving multiple events for the same action
-  const indexExecution = executions.indexOf(result.executionId);  
+  const indexExecution = executions.indexOf(result.executionId);
   if (indexExecution === -1) {
     return;
   }
@@ -370,11 +377,13 @@ function cleanContext() {
       </div>
 
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
-        <button aria-label="Cancel" class="text-xs hover:underline" on:click="{() => {
-          setDisplayResetSetup(false);
-          cancelSetup();
-        }}"
-          >No</button>
+        <button
+          aria-label="Cancel"
+          class="text-xs hover:underline"
+          on:click="{() => {
+            setDisplayResetSetup(false);
+            cancelSetup();
+          }}">No</button>
         <button class="bg-purple-700 py-1.5 px-5 mr-2 rounded-md text-xs" on:click="{() => restartSetup()}">Yes</button>
       </div>
     </div>

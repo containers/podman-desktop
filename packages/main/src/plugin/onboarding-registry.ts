@@ -23,12 +23,16 @@ import type { Onboarding, OnboardingInfo, OnboardingStepStatus } from './api/onb
 import type { CommandRegistry } from './command-registry.js';
 import type { ApiSenderType } from './api.js';
 import type { AnalyzedExtension } from './extension-loader.js';
-import { ConfigurationRegistry } from './configuration-registry.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
 
 export class OnboardingRegistry {
   private onboardingInfos: OnboardingInfo[] = [];
 
-  constructor(private apiSender: ApiSenderType, private commandRegistry: CommandRegistry, private configurationRegistry: ConfigurationRegistry) {}
+  constructor(
+    private apiSender: ApiSenderType,
+    private commandRegistry: CommandRegistry,
+    private configurationRegistry: ConfigurationRegistry,
+  ) {}
 
   registerOnboarding(extension: AnalyzedExtension, onboarding: Onboarding): void {
     const onInfo = this.createOnboardingInfo(extension, onboarding);
@@ -44,7 +48,7 @@ export class OnboardingRegistry {
     if (isOnboardingEnabled) {
       return this.onboardingInfos.find(onboarding => onboarding.extension === extension);
     }
-    return undefined;    
+    return undefined;
   }
 
   createOnboardingInfo(extension: AnalyzedExtension, onboarding: Onboarding): OnboardingInfo {
@@ -91,7 +95,13 @@ export class OnboardingRegistry {
     return this.onboardingInfos;
   }
 
-  async executeOnboardingCommand(executionId: number, extension: string, stepId: string, commandId: string, args?: any[]): Promise<void> {
+  async executeOnboardingCommand(
+    executionId: number,
+    extension: string,
+    stepId: string,
+    commandId: string,
+    args?: any[],
+  ): Promise<void> {
     const onboarding = this.onboardingInfos.find(onboarding => onboarding.extension === extension);
     if (onboarding) {
       const step = onboarding.steps.find(step => step.id === stepId);
@@ -145,7 +155,7 @@ export class OnboardingRegistry {
     if (viewId) {
       const view = step.views.find(view => view.id === viewId);
       if (!view) {
-        throw new Error(`No onboarding view with id ${viewId} in step with id ${stepId} for extension ${extension}`);        
+        throw new Error(`No onboarding view with id ${viewId} in step with id ${stepId} for extension ${extension}`);
       }
       view.status = status;
     } else {

@@ -1498,9 +1498,12 @@ function initExposure(): void {
     },
   );
 
-  contextBridge.exposeInMainWorld('updateStepState', async (status: OnboardingStepStatus, extension: string, stepId: string, viewId?: string): Promise<void> => {
-    return ipcInvoke('onboardingRegistry:updateStepState', status, extension, stepId, viewId);
-  });
+  contextBridge.exposeInMainWorld(
+    'updateStepState',
+    async (status: OnboardingStepStatus, extension: string, stepId: string, viewId?: string): Promise<void> => {
+      return ipcInvoke('onboardingRegistry:updateStepState', status, extension, stepId, viewId);
+    },
+  );
 
   contextBridge.exposeInMainWorld('resetOnboarding', async (extension: string): Promise<void> => {
     return ipcInvoke('onboardingRegistry:resetOnboarding', extension);

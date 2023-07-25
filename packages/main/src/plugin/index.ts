@@ -1732,21 +1732,40 @@ export class PluginSystem {
       return onboardingRegistry.listOnboarding();
     });
 
-    this.ipcHandle('onboardingRegistry:getOnboarding', async (_listener, extension: string): Promise<OnboardingInfo | undefined> => {
-      return onboardingRegistry.getOnboarding(extension);
-    });
+    this.ipcHandle(
+      'onboardingRegistry:getOnboarding',
+      async (_listener, extension: string): Promise<OnboardingInfo | undefined> => {
+        return onboardingRegistry.getOnboarding(extension);
+      },
+    );
 
     this.ipcHandle(
       'onboardingRegistry:executeOnboardingCommand',
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      async (_listener, executionId: number, extension: string, stepId: string, commandId: string, args?: any[]): Promise<void> => {
+      async (
+        _listener,
+        executionId: number,
+        extension: string,
+        stepId: string,
+        commandId: string,
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        args?: any[],
+      ): Promise<void> => {
         return onboardingRegistry.executeOnboardingCommand(executionId, extension, stepId, commandId, args);
       },
     );
 
-    this.ipcHandle('onboardingRegistry:updateStepState', async (_listener, status: OnboardingStepStatus, extension: string, stepId: string, viewId?: string): Promise<void> => {
-      return onboardingRegistry.updateStepState(status, extension, stepId, viewId);
-    });
+    this.ipcHandle(
+      'onboardingRegistry:updateStepState',
+      async (
+        _listener,
+        status: OnboardingStepStatus,
+        extension: string,
+        stepId: string,
+        viewId?: string,
+      ): Promise<void> => {
+        return onboardingRegistry.updateStepState(status, extension, stepId, viewId);
+      },
+    );
 
     this.ipcHandle('onboardingRegistry:resetOnboarding', async (_listener, extension: string): Promise<void> => {
       return onboardingRegistry.resetOnboarding(extension);

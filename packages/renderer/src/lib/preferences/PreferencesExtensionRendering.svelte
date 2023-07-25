@@ -7,14 +7,13 @@ import ExtensionStatus from '../ui/ExtensionStatus.svelte';
 import Button from '../ui/Button.svelte';
 import { faPlay, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { router } from 'tinro';
-import { onMount } from 'svelte';
 
 export let extensionId: string = undefined;
 
 let extensionInfo: ExtensionInfo;
 $: extensionInfo = $extensionInfos.find(extension => extension.id === extensionId);
 $: hideOnboardingButton = true;
-$: hasOnboarding(extensionId).then(value => hideOnboardingButton = value);
+$: hasOnboarding(extensionId).then(value => (hideOnboardingButton = value));
 
 async function stopExtension() {
   await window.stopExtension(extensionInfo.id);
@@ -79,8 +78,7 @@ async function hasOnboarding(extensionId: string): Promise<boolean> {
           {/if}
         </div>
 
-        <div class="px-2 text-sm italic text-gray-700"
-          class:hidden="{hideOnboardingButton}">
+        <div class="px-2 text-sm italic text-gray-700" class:hidden="{hideOnboardingButton}">
           <button
             on:click="{() => router.goto(`/preferences/onboarding/${extensionInfo.id}`)}"
             class="pf-c-button pf-m-primary"
