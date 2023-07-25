@@ -13,6 +13,7 @@ import ComposeDetailsKube from './ComposeDetailsKube.svelte';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
+import ComposeDetailsInspect from './ComposeDetailsInspect.svelte';
 
 export let composeName: string;
 export let engineId: string;
@@ -84,11 +85,15 @@ onDestroy(() => {
     </svelte:fragment>
     <svelte:fragment slot="tabs">
       <Tab title="Logs" url="logs" />
+      <Tab title="Inspect" url="inspect" />
       <Tab title="Kube" url="kube" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
         <ComposeDetailsLogs compose="{compose}" />
+      </Route>
+      <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
+        <ComposeDetailsInspect compose="{compose}" />
       </Route>
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
         <ComposeDetailsKube compose="{compose}" />

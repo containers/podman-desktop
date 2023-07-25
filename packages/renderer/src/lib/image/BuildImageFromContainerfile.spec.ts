@@ -40,7 +40,7 @@ beforeAll(() => {
     addListener: vi.fn(),
   });
   (window as any).openFileDialog = vi.fn().mockResolvedValue({ canceled: false, filePaths: ['Containerfile'] });
-  (window as any).telemetryPage = vi.fn();
+  (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
 });
 
 // the build image page expects to have a valid provider connection, so let's mock one
