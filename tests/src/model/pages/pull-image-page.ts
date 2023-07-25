@@ -25,6 +25,9 @@ export class PullImagePage extends PodmanDesktopPage {
   readonly imageInput: Locator;
   readonly pullButton: Locator;
   readonly doneButton: Locator;
+  readonly summaryTab: Locator;
+  readonly historyTab: Locator;
+  readonly inspectTab: Locator;
   readonly closeLink: Locator;
   readonly backToImagesLink: Locator;
   readonly manageRegistriesButton: Locator;
@@ -35,6 +38,9 @@ export class PullImagePage extends PodmanDesktopPage {
     this.imageInput = page.getByLabel('imageName');
     this.pullButton = page.getByRole('button', { name: 'Pull image' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
+    this.summaryTab = page.getByText('Summary');
+    this.historyTab = page.getByText('History');
+    this.inspectTab = page.getByText('Inspect');
     this.closeLink = page.getByRole('link', { name: 'Close' });
     this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
     this.manageRegistriesButton = page.getByRole('button', { name: 'Manage registries' });
@@ -48,9 +54,6 @@ export class PullImagePage extends PodmanDesktopPage {
     } else {
       throw Error('Pull image button is not enabled, verify image name');
     }
-
-    await this.pullButton.waitFor({ state: 'visible' });
-    await this.pullButton.click();
 
     await this.doneButton.waitFor({ state: 'visible' });
     await this.doneButton.click();

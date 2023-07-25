@@ -26,6 +26,9 @@ export class ImageDetailPage extends PodmanDesktopPage {
   readonly runButton: Locator;
   readonly deleteButton: Locator;
   readonly editButton: Locator;
+  readonly summaryTab: Locator;
+  readonly historyTab: Locator;
+  readonly inspectTab: Locator;
   readonly closeLink: Locator;
   readonly backToImagesLink: Locator;
 
@@ -37,6 +40,9 @@ export class ImageDetailPage extends PodmanDesktopPage {
     this.runButton = page.getByRole('button', { name: 'Run Image' });
     this.deleteButton = page.getByRole('button', { name: 'Delete Image' });
     this.editButton = page.getByRole('button', { name: 'Edit Image' });
+    this.summaryTab = page.getByText('Summary');
+    this.historyTab = page.getByText('History');
+    this.inspectTab = page.getByText('Inspect');
     this.closeLink = page.getByRole('link', { name: 'Close Details' });
     this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
   }

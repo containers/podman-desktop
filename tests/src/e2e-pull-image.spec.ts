@@ -21,6 +21,7 @@ import { afterAll, beforeAll, test, describe } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
+import { ImagesPage } from './model/pages/images-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -44,39 +45,19 @@ describe('Image pull verification', async () => {
     await playExpect(imageLink).toBeVisible();
     await imageLink.click();
 
-    const checkImagePage = page.getByRole('heading', { name: 'images', exact: true });
-    await playExpect(checkImagePage).toBeVisible();
+    const imagesPage = new ImagesPage(page);
+    const pullImagePage = await imagesPage.pullImage();
+    const updatedImages = await pullImagePage.pullImage('quay.io/podman/hello');
 
-    const pullImageButton = page.getByRole('button', { name: 'Pull an image' });
-    await pullImageButton.waitFor({ state: 'visible' });
-    await pullImageButton.click();
-
-    const checkPullingPage = page.getByRole('heading', { name: 'Pull Image From a Registry' });
-    await playExpect(checkPullingPage).toBeVisible();
-
-    const imageInput = page.getByLabel('imageName');
-    await imageInput.fill('quay.io/podman/hello');
-
-    const pullButton = page.getByRole('button', { name: 'Pull image' });
-    await pullButton.waitFor({ state: 'visible' });
-    await pullButton.click();
-
-    const doneButton = page.getByRole('button', { name: 'Done' });
-    await doneButton.waitFor({ state: 'visible' });
-    await doneButton.click();
+    playExpect(updatedImages.imageExists('quay.io/podman/hello')).toBeTruthy();
   });
 
-  test('Check image appears', async () => {
-    const checkImagePage = page.getByRole('heading', { name: 'images', exact: true });
-    await playExpect(checkImagePage).toBeVisible();
+  test('Check image details', async () => {
+    const imagesPage = new ImagesPage(page);
+    const imageDetailPage = await imagesPage.openImageDetails('quay.io/podman/hello');
 
-    const table = page.getByRole('table');
-    const imageRow = table.locator('tr:has-text("quay.io/podman/hello")');
-    await imageRow.waitFor({ state: 'visible' });
-    await imageRow.click();
-
-    await playExpect(page.getByText('Summary')).toBeVisible();
-    await playExpect(page.getByText('History')).toBeVisible();
-    await playExpect(page.getByText('Inspect')).toBeVisible();
+    await playExpect(imageDetailPage.summaryTab).toBeVisible();
+    await playExpect(imageDetailPage.historyTab).toBeVisible();
+    await playExpect(imageDetailPage.inspectTab).toBeVisible();
   });
 });
