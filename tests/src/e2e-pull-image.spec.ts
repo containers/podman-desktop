@@ -16,51 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ElectronApplication, Page } from 'playwright';
-import { _electron as electron } from 'playwright';
+import type { Page } from 'playwright';
 import { afterAll, beforeAll, test, describe } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { existsSync } from 'node:fs';
-import { rm } from 'node:fs/promises';
+import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
+import { WelcomePage } from './model/pages/welcome-page';
 
-let electronApp: ElectronApplication;
+let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
 beforeAll(async () => {
-  // remove all videos/screenshots
-  if (existsSync('tests/output/pull-image')) {
-    console.log('Cleaning up output folder...');
-    await rm('tests/output/pull-image', { recursive: true, force: true });
-  }
+  pdRunner = new PodmanDesktopRunner();
+  page = await pdRunner.start();
 
-  const env: { [key: string]: string } = Object.assign({}, process.env as { [key: string]: string });
-  env.PODMAN_DESKTOP_HOME_DIR = 'tests/output/podman-desktop';
-
-  electronApp = await electron.launch({
-    args: ['.'],
-    recordVideo: {
-      dir: 'tests/output/pull-image/videos',
-      size: {
-        width: 1050,
-        height: 700,
-      },
-    },
-  });
-
-  page = await electronApp.firstWindow();
-
-  page.on('console', console.log);
-
-  const checkLoader = page.getByRole('heading', { name: 'Initializing...' });
-  await playExpect(checkLoader).toHaveCount(0, { timeout: 10000 });
-
-  if ((await page.getByRole('button', { name: 'Go to Podman Desktop' }).count()) > 0) {
-    await page.getByRole('button', { name: 'Go to Podman Desktop' }).click();
-  }
+  const welcomePage = new WelcomePage(page);
+  await welcomePage.handleWelcomePage();
 });
 
 afterAll(async () => {
-  await electronApp.close();
+  await pdRunner.close();
 });
 
 describe('Image pull verification', async () => {

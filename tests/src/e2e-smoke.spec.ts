@@ -42,27 +42,27 @@ describe('Basic e2e verification of podman desktop start', async () => {
     test('Check the Welcome page is displayed', async () => {
       const window: JSHandle<BrowserWindow> = await pdRunner.getBrowserWindow();
 
-  const windowState = await window.evaluate(
-    (mainWindow): Promise<{ isVisible: boolean; isDevToolsOpened: boolean; isCrashed: boolean }> => {
-      const getState = () => ({
-        isVisible: mainWindow.isVisible(),
-        isDevToolsOpened: mainWindow.webContents.isDevToolsOpened(),
-        isCrashed: mainWindow.webContents.isCrashed(),
-      });
+      const windowState = await window.evaluate(
+        (mainWindow): Promise<{ isVisible: boolean; isDevToolsOpened: boolean; isCrashed: boolean }> => {
+          const getState = () => ({
+            isVisible: mainWindow.isVisible(),
+            isDevToolsOpened: mainWindow.webContents.isDevToolsOpened(),
+            isCrashed: mainWindow.webContents.isCrashed(),
+          });
 
-      return new Promise(resolve => {
-        /**
-         * The main window is created hidden, and is shown only when it is ready.
-         * See {@link ../packages/main/src/mainWindow.ts} function
-         */
-        if (mainWindow.isVisible()) {
-          resolve(getState());
-        } else mainWindow.once('ready-to-show', () => resolve(getState()));
-      });
-    },
-  );
-    expect(windowState.isCrashed, 'The app has crashed').toBeFalsy();
-    expect(windowState.isVisible, 'The main window was not visible').toBeTruthy();
+          return new Promise(resolve => {
+            /**
+             * The main window is created hidden, and is shown only when it is ready.
+             * See {@link ../packages/main/src/mainWindow.ts} function
+             */
+            if (mainWindow.isVisible()) {
+              resolve(getState());
+            } else mainWindow.once('ready-to-show', () => resolve(getState()));
+          });
+        },
+      );
+      expect(windowState.isCrashed, 'The app has crashed').toBeFalsy();
+      expect(windowState.isVisible, 'The main window was not visible').toBeTruthy();
 
       await pdRunner.screenshot('welcome-page-init.png');
 
@@ -108,7 +108,6 @@ describe('Basic e2e verification of podman desktop start', async () => {
       }
     });
   });
-});
 
   describe('Navigation Bar test', async () => {
     test('Verify navigation items are present', async () => {
