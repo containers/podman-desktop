@@ -37,11 +37,16 @@ export function exec(command: string, args?: string[], options?: RunOptions): Pr
     env = Object.assign(env, options.env);
   }
 
+  let cwd: string;
+  if (options?.cwd) {
+    cwd = options.cwd;
+  }
+
   return new Promise((resolve, reject) => {
     let stdout = '';
     let stderr = '';
 
-    const childProcess: ChildProcessWithoutNullStreams = spawn(command, args, { env });
+    const childProcess: ChildProcessWithoutNullStreams = spawn(command, args, { env, cwd });
 
     options?.token?.onCancellationRequested(() => {
       if (!childProcess.killed) {
