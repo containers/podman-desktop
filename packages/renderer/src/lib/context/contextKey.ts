@@ -171,10 +171,9 @@ export type ParsingError = {
 };
 
 const errorEmptyString = 'Empty context key expression';
-const hintEmptyString =
-  "Did you forget to write an expression? You can also put 'false' or 'true' to always evaluate to false or true, respectively.";
-const errorNoInAfterNot = "'in' after 'not'.";
-const errorClosingParenthesis = "closing parenthesis ')'";
+const hintEmptyString = `Did you forget to write an expression? You can also put 'false' or 'true' to always evaluate to false or true, respectively.`;
+const errorNoInAfterNot = `'in' after 'not'.`;
+const errorClosingParenthesis = `closing parenthesis ')'`;
 const errorUnexpectedToken = 'Unexpected token';
 const hintUnexpectedToken = 'Did you forget to put && or || before the token?';
 const errorUnexpectedEOF = 'Unexpected end of expression';
@@ -307,7 +306,7 @@ export class Parser {
           this._advance();
           return ContextKeyNotExpr.create(peek.lexeme);
         default:
-          throw this._errExpectedButGot("KEY | true | false | '(' expression ')'", peek);
+          throw this._errExpectedButGot(`KEY | true | false | '(' expression ')'`, peek);
       }
     }
     return this._primary();
@@ -387,7 +386,7 @@ export class Parser {
 
       default:
         throw this._errExpectedButGot(
-          "true | false | KEY \n\t| KEY '=~' REGEX \n\t| KEY ('==' | '!=' | '<' | '<=' | '>' | '>=' | 'in' | 'not' 'in') value",
+          `true | false | KEY \n\t| KEY '=~' REGEX \n\t| KEY ('==' | '!=' | '<' | '<=' | '>' | '>=' | 'in' | 'not' 'in') value`,
           this._peek(),
         );
     }

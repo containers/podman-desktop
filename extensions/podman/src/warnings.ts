@@ -40,10 +40,7 @@ export function getDisguisedPodmanInformation(): extensionApi.ProviderInformatio
       // Due to how `podman-mac-helper` does not (by default) map the emulator to /var/run/docker.sock, we need to explain
       // that the user must go on the Podman Desktop website for more information. This is because the user must manually
       // map the socket to /var/run/docker.sock if not done by `podman machine` already (podman machine automatically maps the socket if Docker is not running)
-      details = detailsExplanation.concat(
-        // eslint-disable-next-line quotes
-        ` Press 'Docker Compatibility' button to enable.`,
-      );
+      details = detailsExplanation.concat(` Press 'Docker Compatibility' button to enable.`);
       break;
     default:
       details = detailsExplanation;

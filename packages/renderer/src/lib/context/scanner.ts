@@ -113,8 +113,7 @@ function hintDidYouMean(...meant: string[]) {
 }
 
 const hintDidYouForgetToOpenOrCloseQuote = 'Did you forget to open or close the quote?';
-const hintDidYouForgetToEscapeSlash =
-  "Did you forget to escape the '/' (slash) character? Put two backslashes before it to escape, e.g., '\\\\/\\'.";
+const hintDidYouForgetToEscapeSlash = `Did you forget to escape the '/' (slash) character? Put two backslashes before it to escape, e.g., '\\\\/\\'.`;
 
 /**
  * A simple scanner for context keys.

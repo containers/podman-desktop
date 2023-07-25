@@ -85,7 +85,7 @@
     /**
      * Just for beauty
      */
-    "quotes": ["warn", "single"],
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
     "import/no-duplicates": "error",
     "import/no-unresolved": "off",
     "import/default": "off",
