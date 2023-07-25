@@ -58,6 +58,40 @@ describe('exec', () => {
     expect(stdout).toContain('Hello, World!');
   });
 
+  test('should run the command with custom cwd and resolve with the result', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+    const cwd = '/tmp';
+
+    vi.mock('child_process', () => {
+      return {
+        spawn: vi.fn(),
+      };
+    });
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    const { stdout } = await exec(command, args, { cwd });
+
+    // caller should contains the cwd provided
+    expect(spawnMock).toHaveBeenCalledWith(command, args, expect.objectContaining({ cwd: cwd }));
+    expect(stdout).toBeDefined();
+    expect(stdout).toContain('Hello, World!');
+  });
+
   test('should reject with an error when the command execution fails', async () => {
     const command = 'nonexistent-command';
 

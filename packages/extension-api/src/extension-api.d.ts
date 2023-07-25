@@ -2009,6 +2009,11 @@ declare module '@podman-desktop/api' {
      * A logger used to track execution events.
      */
     logger?: Logger;
+
+    /**
+     * custom directory
+     */
+    cwd?: string;
   }
 
   /**
