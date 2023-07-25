@@ -26,7 +26,7 @@ export interface OnboardingCommand {
   id: string;
   command: string;
   response?: { [key: string]: any };
-  args: string[];
+  args?: string[];
 }
 
 export interface OnboardingCommandAtActivation {
@@ -56,13 +56,13 @@ export type OnboardingStepStatus = 'completed' | 'failed' | 'skipped';
 export interface OnboardingStepView {
   id: string;
   title: string;
-  description: string;
-  media: { path: string; altText: string };
-  commandAtActivation: OnboardingCommandAtActivation[];
-  enableCompletionEvents: string[];
-  completionEvents: string[];
-  content: OnboardingViewItem[][];
-  when: string;
+  description?: string;
+  media?: { path: string; altText: string };
+  commandAtActivation?: OnboardingCommandAtActivation[];
+  enableCompletionEvents?: string[];
+  completionEvents?: string[];
+  content?: OnboardingViewItem[][];
+  when?: string;
   status?: OnboardingStepStatus;
   showNext?: boolean;
 }
@@ -70,10 +70,10 @@ export interface OnboardingStepView {
 export interface OnboardingStep {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   commands: OnboardingCommand[];
   views: OnboardingStepView[];
-  media: { path: string; altText: string };
+  media?: { path: string; altText: string };
   status?: OnboardingStepStatus;
 }
 

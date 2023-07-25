@@ -41,7 +41,7 @@ const listOnboarding = (): Promise<OnboardingInfo[]> => {
   return window.listOnboarding();
 };
 
-const onboardingEventStore = new EventStore<OnboardingInfo[]>(
+export const onboardingEventStore = new EventStore<OnboardingInfo[]>(
   'onboarding',
   onboardingList,
   checkForUpdate,
@@ -49,4 +49,8 @@ const onboardingEventStore = new EventStore<OnboardingInfo[]>(
   windowListeners,
   listOnboarding,
 );
-onboardingEventStore.setup();
+const onboardingEventStoreInfo = onboardingEventStore.setup();
+
+export const fetchOnboarding = async () => {
+  await onboardingEventStoreInfo.fetch();
+};

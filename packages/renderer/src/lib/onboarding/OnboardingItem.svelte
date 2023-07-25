@@ -8,6 +8,7 @@ export let step: string;
 export let extensionId: string;
 export let context: ContextUI;
 export let setExecuting: (isExecuting: boolean) => void;
+export let getExecutionId: () => number;
 const re = new RegExp(/\${(.+?)}/g);
 let html;
 let isMarkdown = false;
@@ -22,7 +23,7 @@ onMount(() => {
       let command = buttons.get(buttonId);
       if (command) {
         setExecuting(true);
-        await window.executeOnboardingCommand(extensionId, step, command);
+        await window.executeOnboardingCommand(getExecutionId(), extensionId, step, command);
         setExecuting(false);
       }
     }
@@ -55,7 +56,8 @@ function createItem(item: OnboardingViewItem): string {
 function replacePlaceholders(label: string): string {
   let newLabel = label;
   let arr;
-  while ((arr = re.exec(newLabel)) !== undefined) {
+  // eslint-disable-next-line eqeqeq
+  while ((arr = re.exec(newLabel)) != undefined) {
     if (arr.length > 1) {
       const replacement = context.getDottedKeyValue(arr[1]);
       if (replacement) {

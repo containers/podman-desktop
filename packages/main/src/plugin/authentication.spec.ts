@@ -50,6 +50,7 @@ import type { Directories } from './directories.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
+import type { OnboardingRegistry } from './onboarding-registry.js';
 import { getBase64Image } from '../util.js';
 
 vi.mock('../util.js', async () => {
@@ -57,6 +58,7 @@ vi.mock('../util.js', async () => {
     getBase64Image: vi.fn(),
   };
 });
+
 
 function randomNumber(n = 5) {
   return Math.round(Math.random() * 10 * n);
@@ -264,6 +266,7 @@ suite('Authentication', () => {
       vi.fn() as unknown as CustomPickRegistry,
       authentication,
       vi.fn() as unknown as IconRegistry,
+      vi.fn() as unknown as OnboardingRegistry,
       vi.fn() as unknown as Telemetry,
       vi.fn() as unknown as ViewRegistry,
       vi.fn() as unknown as Context,

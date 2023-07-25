@@ -125,11 +125,15 @@ async function setActiveStep() {
 async function doExecuteCommandsAtActivation(active: ActiveStep) {
   for (const cmd of active.view.commandAtActivation || []) {
     setExecuting(true);
-    ++executionId;
-    executions.push(executionId);
-    await window.executeOnboardingCommand(executionId, extensionId, active.step.id, cmd.command);
+    await window.executeOnboardingCommand(getExecutionId(), extensionId, active.step.id, cmd.command);
     setExecuting(false);
   }
+}
+
+function getExecutionId(): number {
+  ++executionId;
+  executions.push(executionId);
+  return executionId;
 }
 
 let eventsCompleted: string[] = [];
@@ -322,7 +326,8 @@ function cleanContext() {
                 extensionId="{extensionId}"
                 step="{activeStep.step.id}"
                 context="{context}"
-                setExecuting="{setExecuting}" />
+                setExecuting="{setExecuting}"
+                getExecutionId="{getExecutionId}" />
             {/each}
           </div>
         {/each}
