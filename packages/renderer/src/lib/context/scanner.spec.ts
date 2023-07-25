@@ -354,8 +354,8 @@ test('sfdx:project_opened && resource =~ /.*\\/functions\\/.*\\/[^\\/]+(\\/[^\\/
   ]);
 });
 
-test("view =~ '/(servers)/' && viewItem =~ '/^(Starting|Started|Debugging|Stopping|Stopped)/'", () => {
-  const input = "view =~ '/(servers)/' && viewItem =~ '/^(Starting|Started|Debugging|Stopping|Stopped)/'";
+test(`view =~ '/(servers)/' && viewItem =~ '/^(Starting|Started|Debugging|Stopping|Stopped)/'`, () => {
+  const input = `view =~ '/(servers)/' && viewItem =~ '/^(Starting|Started|Debugging|Stopping|Stopped)/'`;
   assert.deepStrictEqual(scan(input), [
     { type: 'Str', lexeme: 'view', offset: 0 },
     { type: '=~', offset: 5 },
@@ -378,33 +378,33 @@ test('resourcePath =~ /.md(.yml|.txt)*$/gim', () => {
   ]);
 });
 
-test("foo === bar'", () => {
-  const input = "foo === bar'";
+test(`foo === bar'`, () => {
+  const input = `foo === bar'`;
   assert.deepStrictEqual(scan(input), [
     { type: 'Str', offset: 0, lexeme: 'foo' },
     { type: '===', offset: 4 },
     { type: 'Str', offset: 8, lexeme: 'bar' },
-    { type: 'ErrorToken', offset: 11, lexeme: "'" },
+    { type: 'ErrorToken', offset: 11, lexeme: `'` },
     { type: 'EOF', offset: 12 },
   ]);
 });
 
-test("foo === '", () => {
-  const input = "foo === '";
+test(`foo === '`, () => {
+  const input = `foo === '`;
   assert.deepStrictEqual(scan(input), [
     { type: 'Str', offset: 0, lexeme: 'foo' },
     { type: '===', offset: 4 },
-    { type: 'ErrorToken', offset: 8, lexeme: "'" },
+    { type: 'ErrorToken', offset: 8, lexeme: `'` },
     { type: 'EOF', offset: 9 },
   ]);
 });
 
-test("foo && 'bar - unterminated single quote", () => {
-  const input = "foo && 'bar";
+test(`foo && 'bar - unterminated single quote`, () => {
+  const input = `foo && 'bar`;
   assert.deepStrictEqual(scan(input), [
     { type: 'Str', lexeme: 'foo', offset: 0 },
     { type: '&&', offset: 4 },
-    { type: 'ErrorToken', offset: 7, lexeme: "'bar" },
+    { type: 'ErrorToken', offset: 7, lexeme: `'bar` },
     { type: 'EOF', offset: 11 },
   ]);
 });
