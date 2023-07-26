@@ -104,6 +104,14 @@ console.log('compose: ', compose);
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
+  {#if !detailed}
+    <ListItemButtonIcon
+      title="Generate Kube"
+      onClick="{() => openGenerateKube()}"
+      menu="{dropdownMenu}"
+      detailed="{detailed}"
+      icon="{faFileCode}" />
+  {/if}
   <ListItemButtonIcon
     title="Deploy to Kubernetes"
     onClick="{() => deployToKubernetes()}"
@@ -111,12 +119,6 @@ console.log('compose: ', compose);
     hidden="{!(compose.engineType === 'podman')}"
     detailed="{detailed}"
     icon="{faRocket}" />
-  <ListItemButtonIcon
-    title="Generate Kube"
-    onClick="{() => openGenerateKube()}"
-    menu="{dropdownMenu}"
-    detailed="{detailed}"
-    icon="{faFileCode}" />
   <ListItemButtonIcon
     title="Restart Compose"
     onClick="{() => restartCompose(compose)}"
