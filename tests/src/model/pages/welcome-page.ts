@@ -49,8 +49,18 @@ export class WelcomePage extends PodmanDesktopPage {
   /**
    * Waits for application to initialize, turn off telemetry and closes welcome page
    */
-  async handleWelcomePage() {
+  async handleWelcomePage(skipIfNotPresent: boolean) {
     await this.waitForInitialization();
+    if (skipIfNotPresent) {
+      try {
+        await this.goToPodmanDesktopButton.waitFor({ state: 'visible', timeout: 1000 });
+      } catch (err) {
+        if ((err as Error).name !== 'TimeoutError') {
+          throw err;
+        }
+        return;
+      }
+    }
     await this.turnOffTelemetry();
     await this.closeWelcomePage();
     await expect(this.welcomeMessage).toHaveCount(0, { timeout: 3000 });
