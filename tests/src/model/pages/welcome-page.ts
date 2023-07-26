@@ -55,7 +55,9 @@ export class WelcomePage extends PodmanDesktopPage {
       try {
         await this.goToPodmanDesktopButton.waitFor({ state: 'visible', timeout: 1000 });
       } catch (err) {
-        console.log(`err: ${(err as Error).name}`);
+        if ((err as Error).name !== 'TimeoutError') {
+          throw err;
+        }
         return;
       }
     }
