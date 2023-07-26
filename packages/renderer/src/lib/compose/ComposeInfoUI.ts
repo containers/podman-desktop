@@ -20,6 +20,7 @@ import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 
 export interface ComposeInfoUI {
   engineId: string;
+  engineType: 'podman' | 'docker';
   name: string;
   status: string;
   actionInProgress?: boolean;

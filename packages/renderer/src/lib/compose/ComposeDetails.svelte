@@ -23,6 +23,9 @@ let composeUnsubscribe: Unsubscriber;
 
 let compose: ComposeInfoUI;
 
+// Assume that the engine type is podman until we find a compose group that is docker
+let engineType: 'docker' | 'podman' = 'podman';
+
 onMount(() => {
   // We will use the containersInfos store to get every container that matches
   // the label com.docker.compose.project={composeName}
@@ -56,11 +59,17 @@ onMount(() => {
       return containerUtils.getContainerInfoUI(container);
     });
 
+    // Get the engine type from the first container in the list (if it exists)
+    if (convertedContainers.length > 0) {
+      engineType = convertedContainers[0].engineType;
+    }
+
     // Make sure we update the compose object with the name, status, engineID, containers, etc.
     // or else logging will not appear correctly when loading (it'll see empty containers..)
     compose = {
       name: composeName,
       engineId: engineId,
+      engineType: engineType,
       status: status,
       containers: convertedContainers,
     };

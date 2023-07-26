@@ -23,7 +23,11 @@
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { contextBridge, ipcRenderer } from 'electron';
 import EventEmitter from 'events';
-import type { ContainerCreateOptions, ContainerInfo } from '../../main/src/plugin/api/container-info';
+import type {
+  ContainerCreateOptions,
+  ContainerInfo,
+  SimpleContainerInfo,
+} from '../../main/src/plugin/api/container-info';
 import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';
@@ -177,6 +181,13 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
     return ipcInvoke('container-provider-registry:listContainers');
   });
+
+  contextBridge.exposeInMainWorld(
+    'listSimpleContainersByLabel',
+    async (label: string, key: string): Promise<SimpleContainerInfo[]> => {
+      return ipcInvoke('container-provider-registry:listSimpleContainersByLabel', label, key);
+    },
+  );
 
   contextBridge.exposeInMainWorld('listImages', async (): Promise<ImageInfo[]> => {
     return ipcInvoke('container-provider-registry:listImages');

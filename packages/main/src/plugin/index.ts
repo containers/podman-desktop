@@ -688,6 +688,14 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
     });
+
+    this.ipcHandle(
+      'container-provider-registry:listSimpleContainersByLabel',
+      async (_listener, label: string, key: string): Promise<SimpleContainerInfo[]> => {
+        return containerProviderRegistry.listSimpleContainersByLabel(label, key);
+      },
+    );
+
     this.ipcHandle('container-provider-registry:listSimpleContainers', async (): Promise<SimpleContainerInfo[]> => {
       return containerProviderRegistry.listSimpleContainers();
     });

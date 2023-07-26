@@ -35,6 +35,7 @@ export interface ContainerGroupPartInfoUI {
   id?: string;
   engineId?: string;
   engineName?: string;
+  engineType?: 'podman' | 'docker';
   shortId?: string;
   status?: string;
   humanCreationDate?: string;
