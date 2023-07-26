@@ -9,6 +9,7 @@ import { containersInfos } from '/@/stores/containers';
 import type { ComposeInfoUI } from './ComposeInfoUI';
 import { ContainerUtils } from '../container/container-utils';
 import ComposeDetailsLogs from './ComposeDetailsLogs.svelte';
+import ComposeDetailsKube from './ComposeDetailsKube.svelte';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
@@ -83,10 +84,14 @@ onDestroy(() => {
     </svelte:fragment>
     <svelte:fragment slot="tabs">
       <Tab title="Logs" url="logs" />
+      <Tab title="Kube" url="kube" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
         <ComposeDetailsLogs compose="{compose}" />
+      </Route>
+      <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
+        <ComposeDetailsKube compose="{compose}" />
       </Route>
     </svelte:fragment>
   </DetailsPage>
