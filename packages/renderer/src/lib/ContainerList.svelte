@@ -532,6 +532,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       status: containerGroup.status,
                       name: containerGroup.name,
                       engineId: containerGroup.engineId,
+                      engineType: containerGroup.engineType,
                       containers: [],
                     }}"
                     dropdownMenu="{true}" />

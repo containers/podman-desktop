@@ -5,7 +5,6 @@ import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
-import { router } from 'tinro';
 
 export let compose: ComposeInfoUI;
 export let dropdownMenu = false;
@@ -75,6 +74,8 @@ if (dropdownMenu) {
 } else {
   actionsStyle = FlatMenu;
 }
+
+console.log('compose: ', compose);
 </script>
 
 <ListItemButtonIcon
@@ -107,14 +108,15 @@ if (dropdownMenu) {
     title="Deploy to Kubernetes"
     onClick="{() => deployToKubernetes()}"
     menu="{dropdownMenu}"
+    hidden="{!(compose.engineType === 'podman')}"
     detailed="{detailed}"
     icon="{faRocket}" />
-    <ListItemButtonIcon
-      title="Generate Kube"
-      onClick="{() => openGenerateKube()}"
-      menu="{dropdownMenu}"
-      detailed="{detailed}"
-      icon="{faFileCode}" />
+  <ListItemButtonIcon
+    title="Generate Kube"
+    onClick="{() => openGenerateKube()}"
+    menu="{dropdownMenu}"
+    detailed="{detailed}"
+    icon="{faFileCode}" />
   <ListItemButtonIcon
     title="Restart Compose"
     onClick="{() => restartCompose(compose)}"

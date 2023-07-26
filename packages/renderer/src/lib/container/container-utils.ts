@@ -157,6 +157,7 @@ export class ContainerUtils {
         name: composeProject,
         type: ContainerGroupInfoTypeUI.COMPOSE,
         engineId: containerInfo.engineId,
+        engineType: containerInfo.engineType,
       };
     }
 
@@ -169,6 +170,7 @@ export class ContainerUtils {
         id: podInfo.id,
         status: (podInfo.status || '').toUpperCase(),
         engineId: containerInfo.engineId,
+        engineType: containerInfo.engineType,
       };
     }
 
@@ -177,6 +179,7 @@ export class ContainerUtils {
       name: this.getName(containerInfo),
       type: ContainerGroupInfoTypeUI.STANDALONE,
       status: (containerInfo.Status || '').toUpperCase(),
+      engineType: containerInfo.engineType,
     };
   }
 
@@ -198,6 +201,7 @@ export class ContainerUtils {
             id: group.id,
             status: group.status,
             engineId: group.engineId,
+            engineType: group.engineType,
             containers: [],
           });
         }
