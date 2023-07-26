@@ -5,7 +5,7 @@ import type { ContainerCreateOptions, HostConfig } from '../../../../main/src/pl
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
 import FormPage from '../ui/FormPage.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
-import { faFolderOpen, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faFolderOpen, faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { router } from 'tinro';
 import Route from '../../Route.svelte';
@@ -513,8 +513,7 @@ function checkContainerName(event: any) {
                   </div>
                 {/each}
 
-                <Button class="pt-3 pb-2" on:click="{addHostContainerPorts}">
-                  <i slot="icon" class="fas fa-plus-circle"></i>
+                <Button class="pt-3 pb-2" on:click="{addHostContainerPorts}" icon="{faPlusCircle}" type="link">
                   Add custom port mapping
                 </Button>
                 <!-- Display the list of existing hostContainerPortMappings -->
@@ -890,8 +889,7 @@ function checkContainerName(event: any) {
           </div>
 
           <div class="pt-2 border-zinc-600 border-t-2"></div>
-          <Button on:click="{() => startContainer()}" class="w-full" type="primary" bind:disabled="{invalidFields}">
-            <i slot="icon" class="fas fa-play" aria-hidden="true"></i>
+          <Button on:click="{() => startContainer()}" class="w-full" icon="{faPlay}" bind:disabled="{invalidFields}">
             Start Container
           </Button>
           <ErrorMessage class="py-2 text-sm" error="{createError}" />

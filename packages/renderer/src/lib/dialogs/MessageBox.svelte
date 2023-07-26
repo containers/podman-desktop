@@ -178,7 +178,7 @@ function getButtonType(b: boolean): ButtonType {
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
         {#each buttonOrder as i}
           {#if i === cancelId}
-            <Button aria-label="Cancel" on:click="{() => clickButton(i)}">Cancel</Button>
+            <Button type="link" aria-label="Cancel" on:click="{() => clickButton(i)}">Cancel</Button>
           {:else}
             <Button type="{getButtonType(defaultId === i)}" on:click="{() => clickButton(i)}">{buttons[i]}</Button>
           {/if}

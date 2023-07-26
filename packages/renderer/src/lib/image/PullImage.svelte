@@ -11,6 +11,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
+import { faArrowCircleDown, faCog } from '@fortawesome/free-solid-svg-icons';
 
 let logsPull: Terminal;
 let pullError = '';
@@ -121,10 +122,7 @@ function validateImageName(event): void {
   </svelte:fragment>
 
   <svelte:fragment slot="actions">
-    <Button on:click="{() => gotoManageRegistries()}" type="primary">
-      <i slot="icon" class="fas fa-cog" aria-hidden="true"></i>
-      Manage registries
-    </Button>
+    <Button on:click="{() => gotoManageRegistries()}" icon="{faCog}">Manage registries</Button>
   </svelte:fragment>
 
   <div slot="content" class="p-5 min-w-full h-fit">
@@ -174,15 +172,14 @@ function validateImageName(event): void {
           <div class="w-full flex flex-col justify-end">
             {#if !pullFinished}
               <Button
-                type="primary"
+                icon="{faArrowCircleDown}"
                 bind:disabled="{imageNameIsInvalid}"
                 on:click="{() => pullImage()}"
                 bind:inProgress="{pullInProgress}">
-                <i slot="icon" class="fas fa-arrow-circle-down" aria-hidden="true"></i>
                 Pull image
               </Button>
             {:else}
-              <Button type="primary" on:click="{() => pullImageFinished()}">Done</Button>
+              <Button on:click="{() => pullImageFinished()}">Done</Button>
             {/if}
             {#if pullError}
               <ErrorMessage error="{pullError}" />

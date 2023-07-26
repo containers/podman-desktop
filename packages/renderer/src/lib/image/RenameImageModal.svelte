@@ -107,6 +107,7 @@ async function renameImage(imageName: string, imageTag: string) {
         <div class="w-full mt-6 grid grid-cols-4 gap-6">
           <Button
             class="pcol-start-3"
+            type="link"
             on:click="{() => {
               closeCallback();
             }}">Cancel</Button>

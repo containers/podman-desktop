@@ -8,7 +8,9 @@ function runContainerYaml(): void {
 }
 </script>
 
-<Button on:click="{() => runContainerYaml()}" title="Play pod/containers from kubernetes YAML file" type="primary">
-  <KubePlayIcon slot="icon" />
+<Button
+  on:click="{() => runContainerYaml()}"
+  title="Play pod/containers from kubernetes YAML file"
+  icon="{KubePlayIcon}">
   Play Kubernetes YAML
 </Button>

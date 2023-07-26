@@ -278,9 +278,8 @@ async function getKubernetesfileLocation() {
             on:click="{() => playKubeFile()}"
             disabled="{hasInvalidFields || runStarted}"
             class="w-full"
-            type="primary"
-            bind:inProgress="{runStarted}">
-            <KubePlayIcon slot="icon" />
+            bind:inProgress="{runStarted}"
+            icon="{KubePlayIcon}">
             Play
           </Button>
         {/if}

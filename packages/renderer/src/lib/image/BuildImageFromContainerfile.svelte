@@ -21,6 +21,7 @@ import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
+import { faCube } from '@fortawesome/free-solid-svg-icons';
 
 let buildFinished = false;
 let containerImageName = 'my-custom-image';
@@ -204,14 +205,13 @@ async function getContainerBuildContextDirectory() {
               on:click="{() => buildContainerImage()}"
               disabled="{hasInvalidFields}"
               class="w-full"
-              type="primary">
-              <i slot="icon" class="fas fa-cube" aria-hidden="true"></i>
+              icon="{faCube}">
               Build
             </Button>
           {/if}
 
           {#if buildFinished}
-            <Button type="primary" on:click="{() => cleanupBuild()}" class="w-full">Done</Button>
+            <Button on:click="{() => cleanupBuild()}" class="w-full">Done</Button>
           {/if}
         </div>
 

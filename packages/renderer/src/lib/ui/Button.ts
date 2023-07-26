@@ -18,8 +18,8 @@
 
 /**
  * Type of button:
- *  primary   - a main action
+ *  primary   - a main action (the default)
  *  secondary - a secondary action
- *  undefined - close, cancel, or other non-default button
+ *  link      - close, cancel, or other non-default button
  */
-export type ButtonType = 'primary' | 'secondary' | undefined;
+export type ButtonType = 'primary' | 'secondary' | 'link';
