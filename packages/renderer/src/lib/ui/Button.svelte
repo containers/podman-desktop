@@ -1,11 +1,26 @@
 <script lang="ts">
 import type { ButtonType } from './Button';
+import { onMount } from 'svelte';
+import Fa from 'svelte-fa/src/fa.svelte';
 import Spinner from './Spinner.svelte';
 
 export let title: string = undefined;
 export let inProgress = false;
 export let disabled = false;
-export let type: ButtonType = undefined;
+export let type: ButtonType = 'primary';
+export let icon: any = undefined;
+
+let iconType: string = undefined;
+
+onMount(() => {
+  if (icon?.prefix === 'fas') {
+    iconType = 'fa';
+  } else if (icon?.name.includes('PodIcon')) {
+    iconType = 'pd';
+  } else {
+    iconType = 'unknown';
+  }
+});
 
 let classes = '';
 $: {
@@ -35,12 +50,16 @@ $: {
   aria-label="{$$props['aria-label']}"
   on:click
   disabled="{disabled || inProgress}">
-  {#if $$slots.icon}
+  {#if icon}
     <div class="flex flex-row p-0 m-0 bg-transparent justify-center space-x-[4px]">
       {#if inProgress}
-        <Spinner size="sm" style="position: relative" />
-      {:else}
-        <slot name="icon" />
+        <Spinner size="sm" relative="{true}" />
+      {:else if iconType === 'fa'}
+        <Fa icon="{icon}" />
+      {:else if iconType === 'pd'}
+        <svelte:component this="{icon}" size="1em" solid="{true}" />
+      {:else if iconType === 'unknown'}
+        <svelte:component this="{icon}" />
       {/if}
       {#if $$slots.default}
         <span><slot /></span>

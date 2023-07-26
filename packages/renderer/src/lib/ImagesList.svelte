@@ -25,6 +25,7 @@ import type { Menu } from '../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../main/src/plugin/menu-registry';
 import Checkbox from './ui/Checkbox.svelte';
 import Button from './ui/Button.svelte';
+import { faArrowCircleDown, faCube, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -231,12 +232,10 @@ function computeInterval(): number {
     {#if $imagesInfos.length > 0}
       <Prune type="images" engines="{enginesList}" />
     {/if}
-    <Button on:click="{() => gotoPullImage()}" type="primary" title="Pull Image From a Registry">
-      <i slot="icon" class="fas fa-arrow-circle-down" aria-hidden="true"></i>
+    <Button on:click="{() => gotoPullImage()}" title="Pull Image From a Registry" icon="{faArrowCircleDown}">
       Pull an image
     </Button>
-    <Button on:click="{() => gotoBuildImage()}" title="Build Image from Containerfile" type="primary">
-      <i slot="icon" class="fas fa-cube" aria-hidden="true"></i>
+    <Button on:click="{() => gotoBuildImage()}" title="Build Image from Containerfile" icon="{faCube}">
       Build an image
     </Button>
   </div>
@@ -247,9 +246,7 @@ function computeInterval(): number {
         on:click="{() => deleteSelectedImages()}"
         title="Delete {selectedItemsNumber} selected items"
         bind:inProgress="{bulkDeleteInProgress}"
-        type="primary">
-        <i slot="icon" class="fas fa-trash" aria-hidden="true"></i>
-      </Button>
+        icon="{faTrash}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>

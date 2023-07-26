@@ -19,7 +19,7 @@ import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.s
 import moment from 'moment';
 import { get, type Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
-import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import ErrorMessage from './ui/ErrorMessage.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
@@ -394,10 +394,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     {#if $containersInfos.length > 0}
       <Prune type="containers" engines="{enginesList}" />
     {/if}
-    <Button on:click="{() => toggleCreateContainer()}" type="primary">
-      <i slot="icon" class="fas fa-plus-circle" aria-hidden="true"></i>
-      Create a container
-    </Button>
+    <Button on:click="{() => toggleCreateContainer()}" icon="{faPlusCircle}">Create a container</Button>
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
@@ -409,16 +406,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         aria-label="Delete selected containers and pods"
         title="Delete {selectedItemsNumber} selected items"
         bind:inProgress="{bulkDeleteInProgress}"
-        type="primary">
-        <i slot="icon" class="fas fa-trash" aria-hidden="true"></i>
-      </Button>
+        icon="{faTrash}" />
       <div class="px-1"></div>
       <Button
         on:click="{() => createPodFromContainers()}"
         title="Create Pod with {selectedItemsNumber} selected items"
-        type="primary">
-        <PodIcon slot="icon" size="1em" solid="{true}" />
-      </Button>
+        icon="{PodIcon}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>

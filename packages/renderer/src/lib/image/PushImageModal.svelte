@@ -7,6 +7,7 @@ import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings'
 import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import Button from '../ui/Button.svelte';
+import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
 
 export let closeCallback: () => void;
 export let imageInfoToPush: ImageInfoUI;
@@ -132,16 +133,15 @@ let pushLogsXtermDiv: HTMLDivElement;
 
       {#if !pushFinished}
         <Button
-          type="primary"
+          icon="{faCircleArrowUp}"
           on:click="{() => {
             pushImage(selectedImageTag);
           }}"
           bind:inProgress="{pushInProgress}">
-          <i slot="icon" class="fas fa-arrow-circle-up" aria-hidden="true"></i>
           Push image
         </Button>
       {:else}
-        <Button type="primary" on:click="{() => pushImageFinished()}">Done</Button>
+        <Button on:click="{() => pushImageFinished()}">Done</Button>
       {/if}
 
       <div bind:this="{pushLogsXtermDiv}"></div>

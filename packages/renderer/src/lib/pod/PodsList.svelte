@@ -22,6 +22,7 @@ import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Checkbox from '../ui/Checkbox.svelte';
 import Button from '../ui/Button.svelte';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -211,9 +212,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
         on:click="{() => deleteSelectedPods()}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
-        type="primary">
-        <i slot="icon" class="fas fa-trash" aria-hidden="true"></i>
-      </Button>
+        icon="{faTrash}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>

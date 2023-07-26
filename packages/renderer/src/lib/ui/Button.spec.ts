@@ -32,6 +32,15 @@ test('Check primary button styling', async () => {
   expect(button).toHaveClass('bg-purple-500');
 });
 
+test('Check primary button is the default', async () => {
+  render(Button);
+
+  // check for one element of the styling
+  const button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveClass('bg-purple-500');
+});
+
 test('Check secondary button styling', async () => {
   render(Button, { type: 'secondary' });
 
@@ -42,7 +51,7 @@ test('Check secondary button styling', async () => {
 });
 
 test('Check default button styling', async () => {
-  render(Button);
+  render(Button, { type: 'link' });
 
   // check for one element of the styling
   const button = screen.getByRole('button');

@@ -35,7 +35,7 @@ test('Check button text', async () => {
 test('Check icon', async () => {
   render(ButtonSpec);
 
-  // check icon matches
-  const icon = screen.getByLabelText('icon');
+  // check icon exists
+  const icon = screen.getByRole('img', { hidden: true });
   expect(icon).toBeInTheDocument();
 });

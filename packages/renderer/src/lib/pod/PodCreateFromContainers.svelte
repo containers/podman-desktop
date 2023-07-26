@@ -294,17 +294,16 @@ function updatePortExposure(port: number, checked: boolean) {
 
         <div class="w-full grid justify-items-end">
           <div>
-            <Button title="Close" on:click="{() => router.goto('/containers')}" />
+            <Button type="link" on:click="{() => router.goto('/containers')}">Close</Button>
             <Button
-              title="Create Pod"
-              type="primary"
+              icon="{PodIcon}"
               bind:disabled="{createInProgress}"
               on:click="{() => {
                 createPodFromContainers();
               }}"
               bind:inProgress="{createInProgress}"
               aria-label="Create pod">
-              <PodIcon slot="icon" size="1em" solid="{true}" />
+              Create Pod
             </Button>
           </div>
         </div>

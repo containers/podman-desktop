@@ -1,4 +1,5 @@
 <script lang="ts">
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import Button from '../ui/Button.svelte';
 import type { EngineInfoUI } from './EngineInfoUI';
 
@@ -73,7 +74,6 @@ async function prune(type: string) {
 }
 </script>
 
-<Button on:click="{() => openPruneDialog()}" title="Remove unused images" type="primary">
-  <i slot="icon" class="fas fa-trash" aria-hidden="true"></i>
+<Button on:click="{() => openPruneDialog()}" title="Remove unused images" icon="{faTrash}">
   Prune {type}
 </Button>
