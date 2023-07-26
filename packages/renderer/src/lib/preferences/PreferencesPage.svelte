@@ -62,7 +62,7 @@ onMount(async () => {
       properties="{properties}"
       taskId="{+meta.params.taskId}" />
   </Route>
-  <Route path="/resources/*" breadcrumb="Resources">
+  <Route path="/resources" breadcrumb="Resources" navigationHint="root">
     <PreferencesResourcesRendering />
   </Route>
   <Route path="/registries" breadcrumb="Registries">
@@ -82,13 +82,21 @@ onMount(async () => {
     <PreferencesInstallExtensionFromId extensionId="{meta.params.extensionId}" />
   </Route>
 
-  <Route path="/container-connection/:provider/:connection/*" breadcrumb="Container Engine" let:meta>
+  <Route
+    path="/container-connection/:provider/:connection/*"
+    breadcrumb="Container Engine"
+    let:meta
+    navigationHint="details">
     <PreferencesContainerConnectionRendering
       providerInternalId="{meta.params.provider}"
       connection="{meta.params.connection}"
       properties="{properties}" />
   </Route>
-  <Route path="/kubernetes-connection/:provider/:apiUrlBase64/*" breadcrumb="Kubernetes Engine" let:meta>
+  <Route
+    path="/kubernetes-connection/:provider/:apiUrlBase64/*"
+    breadcrumb="Kubernetes Engine"
+    let:meta
+    navigationHint="details">
     <PreferencesKubernetesConnectionRendering
       providerInternalId="{meta.params.provider}"
       apiUrlBase64="{meta.params.apiUrlBase64}"

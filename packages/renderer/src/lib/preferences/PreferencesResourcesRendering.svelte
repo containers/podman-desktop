@@ -19,19 +19,19 @@ import { router } from 'tinro';
 import SettingsPage from './SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
-import { getProviderConnectionName, type IConnectionRestart, type IConnectionStatus } from './Util';
+import {
+  getProviderConnectionName,
+  type IConnectionRestart,
+  type IConnectionStatus,
+  type IProviderConnectionConfigurationPropertyRecorded,
+} from './Util';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
 import PreferencesProviderInstallationModal from './PreferencesProviderInstallationModal.svelte';
 import Spinner from '../ui/Spinner.svelte';
-
-interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
-  value?: any;
-  container: string;
-  providerId: string;
-}
+import { Buffer } from 'buffer';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
@@ -155,7 +155,7 @@ $: configurationKeys = properties
   .filter(property => property.scope === 'ContainerConnection')
   .sort((a, b) => a.id.localeCompare(b.id));
 
-let tmpProviderContainerConfiguration: IProviderContainerConfigurationPropertyRecorded[] = [];
+let tmpProviderContainerConfiguration: IProviderConnectionConfigurationPropertyRecorded[] = [];
 $: Promise.all(
   providers.map(async provider => {
     const providerContainer = await Promise.all(
@@ -168,7 +168,7 @@ $: Promise.all(
                 configurationKey.id,
                 container as unknown as ContainerProviderConnection,
               ),
-              container: container.name,
+              connection: container.name,
               providerId: provider.internalId,
             };
           }),
@@ -186,7 +186,7 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration
     innerProviderContainerConfigurations.push(value);
     map.set(value.providerId, innerProviderContainerConfigurations);
     return map;
-  }, new Map<string, IProviderContainerConfigurationPropertyRecorded[]>());
+  }, new Map<string, IProviderConnectionConfigurationPropertyRecorded[]>());
 
 function updateContainerStatus(
   provider: ProviderInfo,
@@ -354,8 +354,20 @@ function hideInstallModal() {
             hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
           {#each provider.containerConnections as container}
             <div class="px-5 py-2 w-[240px]">
-              <div class="float-right text-gray-900 cursor-not-allowed">
-                <Fa icon="{faArrowUpRightFromSquare}" />
+              <div class="float-right">
+                <Tooltip tip="{provider.name} details" bottom>
+                  <button
+                    aria-label="{provider.name} details"
+                    type="button"
+                    on:click="{() =>
+                      router.goto(
+                        `/preferences/container-connection/${provider.internalId}/${Buffer.from(
+                          container.endpoint.socketPath,
+                        ).toString('base64')}/summary`,
+                      )}">
+                    <Fa icon="{faArrowUpRightFromSquare}" />
+                  </button>
+                </Tooltip>
               </div>
               <div class="{container.status !== 'started' ? 'text-gray-900' : ''} text-sm">
                 {container.name}
@@ -376,7 +388,7 @@ function hideInstallModal() {
                 <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}">
                   {#each providerContainerConfiguration
                     .get(provider.internalId)
-                    .filter(conf => conf.container === container.name) as connectionSetting}
+                    .filter(conf => conf.connection === container.name) as connectionSetting}
                     {#if connectionSetting.format === 'cpu'}
                       <div class="mr-4">
                         <div class="text-[9px]">{connectionSetting.description}</div>
@@ -406,6 +418,21 @@ function hideInstallModal() {
           {/each}
           {#each provider.kubernetesConnections as kubeConnection}
             <div class="px-5 py-2 w-[240px]">
+              <div class="float-right">
+                <Tooltip tip="{provider.name} details" bottom>
+                  <button
+                    aria-label="{provider.name} details"
+                    type="button"
+                    on:click="{() =>
+                      router.goto(
+                        `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
+                          kubeConnection.endpoint.apiURL,
+                        ).toString('base64')}/summary`,
+                      )}">
+                    <Fa icon="{faArrowUpRightFromSquare}" />
+                  </button>
+                </Tooltip>
+              </div>
               <div class="text-sm">
                 {kubeConnection.name}
               </div>
