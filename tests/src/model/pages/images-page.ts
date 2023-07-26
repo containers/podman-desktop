@@ -19,7 +19,7 @@
 import type { Locator, Page } from 'playwright';
 import { PodmanDesktopPage } from './base-page';
 import { PullImagePage } from './pull-image-page';
-import { ImageDetailPage } from './image-detail-page';
+import { ImageDetailsPage } from './image-details-page';
 
 export class ImagesPage extends PodmanDesktopPage {
   readonly heading: Locator;
@@ -42,7 +42,7 @@ export class ImagesPage extends PodmanDesktopPage {
     return new PullImagePage(this.page);
   }
 
-  async openImageDetails(name: string): Promise<ImageDetailPage> {
+  async openImageDetails(name: string): Promise<ImageDetailsPage> {
     const imageRow = await this.getImageRowByName(name);
     if (imageRow === undefined) {
       throw Error(`Image: '${name}' does not exist`);
@@ -50,7 +50,7 @@ export class ImagesPage extends PodmanDesktopPage {
 
     const imageRowName = imageRow.getByRole('cell').nth(3);
     await imageRowName.click();
-    return new ImageDetailPage(this.page, name);
+    return new ImageDetailsPage(this.page, name);
   }
 
   async getImageRowByName(name: string): Promise<Locator | undefined> {

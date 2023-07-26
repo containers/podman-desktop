@@ -19,7 +19,7 @@
 import type { Locator, Page } from 'playwright';
 import { PodmanDesktopPage } from './base-page';
 
-export class ImageDetailPage extends PodmanDesktopPage {
+export class ImageDetailsPage extends PodmanDesktopPage {
   readonly name: Locator;
   readonly imageName: string;
   readonly heading: Locator;
