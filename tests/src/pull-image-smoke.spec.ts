@@ -31,7 +31,7 @@ beforeAll(async () => {
   page = await pdRunner.start();
 
   const welcomePage = new WelcomePage(page);
-  await welcomePage.handleWelcomePage();
+  await welcomePage.handleWelcomePage(true);
 });
 
 afterAll(async () => {

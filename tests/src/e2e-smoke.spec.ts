@@ -23,12 +23,15 @@ import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
 import { DashboardPage } from './model/pages/dashboard-page';
+import { removeFolderIfExists } from './utility/cleanup';
+import { join } from 'path';
 
 const navBarItems = ['Dashboard', 'Containers', 'Images', 'Pods', 'Volumes', 'Settings'];
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
 beforeAll(async () => {
+  await removeFolderIfExists(join('tests', 'output', 'podman-desktop'));
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
 });
