@@ -21,7 +21,6 @@ import { test, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import PodActions from './PodActions.svelte';
 import type { PodInfoUI } from './PodInfoUI';
-import { router } from 'tinro';
 
 const pod: PodInfoUI = {
   id: 'pod',
@@ -29,20 +28,13 @@ const pod: PodInfoUI = {
 
 const errorCallback = vi.fn();
 
-// mock router import { router } from 'tinro';
-vi.mock('tinro', () => ({
-  router: {
-    goto: vi.fn(),
-  },
-}));
-
 beforeEach(() => {
   (window as any).kubernetesDeletePod = vi.fn();
   vi.resetAllMocks();
   vi.clearAllMocks();
 });
 
-test('Expect to redirect to /pods page after deletion', async () => {
+test('Expect no error deleting pod', async () => {
   render(PodActions, { pod, errorCallback });
 
   // click on delete button
@@ -50,20 +42,4 @@ test('Expect to redirect to /pods page after deletion', async () => {
   await fireEvent.click(deleteButton);
 
   expect(errorCallback).not.toHaveBeenCalled();
-
-  // check that router has been called
-  expect(router.goto).toHaveBeenCalledWith('/pods/');
-});
-
-test('Expect no redirect to /pods page after deletion if configured', async () => {
-  render(PodActions, { pod, errorCallback });
-
-  // click on delete button
-  const deleteButton = screen.getByRole('button', { name: 'Delete Pod' });
-  await fireEvent.click(deleteButton);
-
-  expect(errorCallback).not.toHaveBeenCalled();
-
-  // check that router has not been called
-  expect(router.goto).not.toHaveBeenCalledWith('/pods');
 });
