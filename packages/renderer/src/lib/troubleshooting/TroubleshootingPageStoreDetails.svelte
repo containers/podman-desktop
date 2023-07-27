@@ -4,6 +4,8 @@ import type { EventStoreInfo } from '/@/stores/event-store';
 
 import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
+import Button from '../ui/Button.svelte';
+import { faRefresh, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export let closeCallback: () => void;
 
@@ -42,13 +44,8 @@ async function fetch(): Promise<void> {
           <div class="mx-2 flex flex-row items-center">
             Size: <div role="status" aria-label="size">{eventStoreInfo.size}</div>
             <div class="mx-2">
-              <button
-                disabled="{fetchInProgress}"
-                class="px-3 my-1 text-sm font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700"
-                title="Refresh"
-                on:click="{() => fetch()}">
-                Refresh
-              </button>
+              <Button class="my-1" bind:inProgress="{fetchInProgress}" on:click="{() => fetch()}" icon="{faRefresh}"
+                >Refresh</Button>
             </div>
           </div>
         </div>
@@ -59,13 +56,12 @@ async function fetch(): Promise<void> {
             <div class="pb-2 text-lg">
               Updating events:
               {#if eventStoreInfo.bufferEvents.length > 0}
-                <button
-                  disabled="{fetchInProgress}"
-                  class="px-3 my-1 text-sm font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700"
-                  title="Refresh"
-                  on:click="{() => eventStoreInfo.clearEvents()}">
-                  Clear events
-                </button>
+                <Button
+                  class="my-1"
+                  bind:inProgress="{fetchInProgress}"
+                  title="Clear events"
+                  on:click="{() => eventStoreInfo.clearEvents()}"
+                  icon="{faTrash}">Clear</Button>
               {/if}
             </div>
             {#if eventStoreInfo.bufferEvents.length > 0}
@@ -105,10 +101,8 @@ async function fetch(): Promise<void> {
 
         <div class="text-xs text-gray-800 mt-2 text-center">Track events that have updated the store</div>
         <div class="flex flex-row justify-end w-full pt-2">
-          <button aria-label="Cancel" class="text-xs hover:underline mr-3" on:click="{() => closeCallback()}"
-            >Cancel</button>
-          <button class="pf-c-button pf-m-primary" type="button" aria-label="Next" on:click="{() => closeCallback()}"
-            >OK</button>
+          <Button aria-label="Cancel" class="mr-3" type="link" on:click="{() => closeCallback()}">Cancel</Button>
+          <Button aria-label="OK" on:click="{() => closeCallback()}">OK</Button>
         </div>
       </div>
     </div>

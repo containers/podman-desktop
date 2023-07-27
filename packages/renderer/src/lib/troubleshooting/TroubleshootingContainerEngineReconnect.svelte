@@ -1,4 +1,6 @@
 <script lang="ts">
+import { faPlug } from '@fortawesome/free-solid-svg-icons';
+import Button from '../ui/Button.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 let reconnectInProgress = false;
@@ -24,13 +26,14 @@ async function reconnectContainerProviders() {
 </script>
 
 <div class="flex flex-row items-center">
-  <button
-    disabled="{reconnectInProgress}"
-    class="px-3 my-1 text-sm font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700"
-    title="Establish again connection to the socket of container engines"
-    on:click="{() => reconnectContainerProviders()}">
+  <Button
+    class="my-1"
+    bind:inProgress="{reconnectInProgress}"
+    title="Re-establish connection to the container engine sockets"
+    on:click="{() => reconnectContainerProviders()}"
+    icon="{faPlug}">
     Reconnect providers
-  </button>
+  </Button>
   <div role="status" class="mx-2">{reconnectResult}</div>
   {#if reconnectError}
     <ErrorMessage class="mx-2" error="{reconnectError}" />
