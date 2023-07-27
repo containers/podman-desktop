@@ -10,7 +10,6 @@ import Tooltip from '../ui/Tooltip.svelte';
 
 let invalidEntry = false;
 let invalidText = undefined;
-export let showUpdate = false;
 export let invalidRecord = (_error: string) => {};
 export let validRecord = () => {};
 export let updateResetButtonVisibility = (_recordValue: any) => {};
@@ -378,14 +377,4 @@ function assertNumericValueIsValid(value: number) {
       <ErrorMessage error="{invalidText}." />
     {/if}
   </div>
-  {#if showUpdate}
-    {#if !!record.readonly === false && !invalidEntry}
-      <button on:click="{() => update(record)}" class="pf-c-button pf-m-primary w-40 px-4" type="button">
-        <span class="pf-c-button__icon pf-m-start">
-          <i class="fas fa-save" aria-hidden="true"></i>
-        </span>
-        Update
-      </button>
-    {/if}
-  {/if}
 </div>
