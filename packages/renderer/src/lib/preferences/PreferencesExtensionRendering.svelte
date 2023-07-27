@@ -4,6 +4,8 @@ import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import SettingsPage from './SettingsPage.svelte';
 import ExtensionStatus from '../ui/ExtensionStatus.svelte';
+import Button from '../ui/Button.svelte';
+import { faPlay, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export let extensionId: string = undefined;
 
@@ -38,45 +40,30 @@ async function removeExtension() {
         <div class="py-2 flex flex-row items-center">
           <!-- start is enabled only when stopped or failed -->
           <div class="px-2 text-sm italic text-gray-700">
-            <button
+            <Button
               disabled="{extensionInfo.state !== 'stopped' && extensionInfo.state !== 'failed'}"
               on:click="{() => startExtension()}"
-              class="pf-c-button pf-m-primary"
-              type="button">
-              <span class="pf-c-button__icon pf-m-start">
-                <i class="fas fa-play" aria-hidden="true"></i>
-              </span>
+              icon="{faPlay}">
               Enable
-            </button>
+            </Button>
           </div>
 
           <!-- stop is enabled only when started -->
           <div class="px-2 text-sm italic text-gray-700">
-            <button
-              disabled="{extensionInfo.state !== 'started'}"
-              on:click="{() => stopExtension()}"
-              class="pf-c-button pf-m-primary"
-              type="button">
-              <span class="pf-c-button__icon pf-m-start">
-                <i class="fas fa-stop" aria-hidden="true"></i>
-              </span>
+            <Button disabled="{extensionInfo.state !== 'started'}" on:click="{() => stopExtension()}" icon="{faStop}">
               Disable
-            </button>
+            </Button>
           </div>
 
           <!-- delete is enabled only when stopped or failed -->
           {#if extensionInfo.removable}
             <div class="px-2 text-sm italic text-gray-700">
-              <button
+              <Button
                 disabled="{extensionInfo.state !== 'stopped' && extensionInfo.state !== 'failed'}"
                 on:click="{() => removeExtension()}"
-                class="pf-c-button pf-m-primary"
-                type="button">
-                <span class="pf-c-button__icon pf-m-start">
-                  <i class="fas fa-trash" aria-hidden="true"></i>
-                </span>
+                icon="{faTrash}">
                 Remove
-              </button>
+              </Button>
             </div>
           {:else}
             <div class="text-gray-900 items-center px-2 text-sm">Default extension, cannot be removed</div>

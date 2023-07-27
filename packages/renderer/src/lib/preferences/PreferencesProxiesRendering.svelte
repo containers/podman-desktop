@@ -2,6 +2,8 @@
 import type { ProxySettings } from '@podman-desktop/api';
 import { onMount } from 'svelte';
 import SettingsPage from './SettingsPage.svelte';
+import Button from '../ui/Button.svelte';
+import { faPen } from '@fortawesome/free-solid-svg-icons';
 
 let proxySettings: ProxySettings;
 let proxyState: boolean;
@@ -104,16 +106,9 @@ async function updateProxyState() {
           required />
       </div>
       <div class="my-2 pt-4">
-        <button
-          on:click="{() => updateProxySettings()}"
-          disabled="{!proxyState}"
-          class="w-full pf-c-button pf-m-primary"
-          type="button">
-          <span class="pf-c-button__icon pf-m-start">
-            <i class="fas fa-pen" aria-hidden="true"></i>
-          </span>
+        <Button on:click="{() => updateProxySettings()}" disabled="{!proxyState}" class="w-full" icon="{faPen}">
           Update
-        </button>
+        </Button>
       </div>
     {/if}
   </div>

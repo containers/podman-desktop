@@ -4,7 +4,8 @@ import { afterUpdate } from 'svelte';
 import { contributions } from '../../stores/contribs';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
-import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
+import { faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 
 export let ociImage: string = undefined;
 
@@ -73,19 +74,13 @@ function deleteContribution(extensionName: string) {
       </div>
     </div>
 
-    <button
+    <Button
       on:click="{() => installDDExtensionFromImage()}"
-      disabled="{ociImage === undefined || ociImage.trim() === '' || installInProgress}"
-      class="pf-c-button pf-m-primary"
-      type="button">
-      {#if installInProgress}
-        <Spinner />
-      {/if}
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-arrow-circle-down ml-6" aria-hidden="true"></i>
-      </span>
+      inProgress="{installInProgress}"
+      disabled="{ociImage === undefined || ociImage.trim() === ''}"
+      icon="{faArrowCircleDown}">
       Install extension from the OCI image
-    </button>
+    </Button>
 
     <div
       class:opacity-0="{logs.length === 0}"
