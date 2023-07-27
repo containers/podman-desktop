@@ -2673,6 +2673,11 @@
   resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-18.0.0.tgz#f43d765b3c7533fd6fb88f3f25df079c24fccf69"
   integrity sha512-V8GImKs3TeQRxRtXFpG2wl19V7444NIOTDF24AWuIbmNaNYOQMWRbjcGDXV5B+0n887fgDcuMNOmlul+k+oJtw==
 
+"@octokit/plugin-paginate-graphql@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@octokit/plugin-paginate-graphql/-/plugin-paginate-graphql-4.0.0.tgz#b26024fa454039c18b948f13bf754ff86b89e8b9"
+  integrity sha512-7HcYW5tP7/Z6AETAPU14gp5H5KmCPT3hmJrS/5tO7HIgbwenYmgw4OY9Ma54FDySuxMwD+wsJlxtuGWwuZuItA==
+
 "@octokit/plugin-paginate-rest@^8.0.0":
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/@octokit/plugin-paginate-rest/-/plugin-paginate-rest-8.0.0.tgz#417b5367da2ba3c2d255a59b87c1cc608228ec38"
@@ -10549,14 +10554,15 @@ obuf@^1.0.0, obuf@^1.1.2:
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.2.tgz#09bea3343d41859ebd446292d11c9d4db619084e"
   integrity sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==
 
-octokit@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/octokit/-/octokit-3.0.0.tgz#ee77166fd09807a43c7484694ca7e137f5d950b6"
-  integrity sha512-kcFJmUreomSGA//1KfH7Ci+Xh8XO8yH/GbtTm6R0gB+JyIgjw5qL4DupMSzeTsvByxIBhoXE2PM5ZRXeJa1dDw==
+octokit@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/octokit/-/octokit-3.1.0.tgz#33f73dfab3cd438818dda4336eddfded13ae7118"
+  integrity sha512-dmIH5D+edpb4/ASd6ZGo6BiRR1g4ytu8lG4f+6XN/2AW+CSuTsT0nj1d6rv/HKgoflMQ1+rb3KlVWcvrmgQZhw==
   dependencies:
     "@octokit/app" "^14.0.0"
     "@octokit/core" "^5.0.0"
     "@octokit/oauth-app" "^6.0.0"
+    "@octokit/plugin-paginate-graphql" "^4.0.0"
     "@octokit/plugin-paginate-rest" "^8.0.0"
     "@octokit/plugin-rest-endpoint-methods" "^9.0.0"
     "@octokit/plugin-retry" "^6.0.0"
