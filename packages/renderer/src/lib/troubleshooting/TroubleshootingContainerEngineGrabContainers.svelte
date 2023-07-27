@@ -1,5 +1,7 @@
 <script lang="ts">
+import { faSignal } from '@fortawesome/free-solid-svg-icons';
 import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import Button from '../ui/Button.svelte';
 
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 
@@ -30,13 +32,13 @@ async function grabContainers() {
 
 <div class="flex flex-row items-center">
   <div class="w-36">
-    <button
-      disabled="{listInProgress}"
-      class="px-3 my-1 text-sm font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700 w-full"
-      title="Check containers"
-      on:click="{() => grabContainers()}">
+    <Button
+      bind:inProgress="{listInProgress}"
+      class="my-1 w-full"
+      on:click="{() => grabContainers()}"
+      icon="{faSignal}">
       Check containers
-    </button>
+    </Button>
   </div>
   <div role="status" class="mx-2">{listContainersResult}</div>
   {#if listError}

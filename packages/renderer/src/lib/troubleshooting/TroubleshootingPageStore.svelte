@@ -1,4 +1,6 @@
 <script lang="ts">
+import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+import Button from '../ui/Button.svelte';
 import TroubleshootingPageStoreDetails from './TroubleshootingPageStoreDetails.svelte';
 import type { EventStoreInfo } from '/@/stores/event-store';
 
@@ -31,14 +33,14 @@ let openDetails = false;
   </div>
   <div class="text-sm">({eventStoreInfo.size} items)</div>
   <div class="">
-    <button
-      disabled="{fetchInProgress}"
-      class="px-3 my-1 text-sm font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700 w-full"
-      title="Refresh"
+    <Button
+      bind:inProgress="{fetchInProgress}"
+      class="my-1"
       aria-label="Refresh"
-      on:click="{() => fetch()}">
+      on:click="{() => fetch()}"
+      icon="{faRefresh}">
       Refresh
-    </button>
+    </Button>
   </div>
   {#if eventStoreInfo.bufferEvents.length > 0}
     {@const lastUpdate = eventStoreInfo.bufferEvents[eventStoreInfo.bufferEvents.length - 1]}

@@ -3,6 +3,8 @@ import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugi
 
 import { Buffer } from 'buffer';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Button from '../ui/Button.svelte';
+import { faSignal } from '@fortawesome/free-solid-svg-icons';
 
 export let providerContainerEngine: ProviderContainerConnectionInfo;
 
@@ -31,13 +33,13 @@ async function pingConnection() {
 
 <div class="flex flex-row items-center">
   <div class="w-36">
-    <button
-      disabled="{pingInProgress}"
-      class="px-3 my-1 text-sm font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700 w-full"
-      title="Ping"
-      on:click="{() => pingConnection()}">
+    <Button
+      bind:inProgress="{pingInProgress}"
+      class="my-1 w-full"
+      on:click="{() => pingConnection()}"
+      icon="{faSignal}">
       Ping
-    </button>
+    </Button>
   </div>
   <div role="status" class="mx-2">{pingResult}</div>
   {#if pingError}
