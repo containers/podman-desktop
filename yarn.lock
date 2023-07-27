@@ -2777,10 +2777,10 @@
     "@octokit/webhooks-types" "7.1.0"
     aggregate-error "^3.1.0"
 
-"@patternfly/patternfly@^4.224.2":
-  version "4.224.2"
-  resolved "https://registry.yarnpkg.com/@patternfly/patternfly/-/patternfly-4.224.2.tgz#9d1b000c3c43457ae47c3556a334412d164fad90"
-  integrity sha512-HGNV26uyHSIECuhjPg/WGn0mXbAotcs6ODfhAOkfYjIgGylddgiwElxUe1rpEHV5mQJJ2rMn4OdeJIIpzRX61g==
+"@patternfly/patternfly@^5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@patternfly/patternfly/-/patternfly-5.0.2.tgz#f5daf2c98ccb85e6466d42fd61d39ba3c10ed532"
+  integrity sha512-PB8+MLdYVgF1hIOxGmnVsZG+YHUX3RePe5W1oMS4gS00EmSgw1cobr1Qbpy/BqqS8/R9DRN4hZ2FKDT0d5tkFQ==
 
 "@phenomnomnominal/tsquery@^5.0.0":
   version "5.0.1"
