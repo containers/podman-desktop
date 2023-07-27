@@ -4,8 +4,9 @@ import { onMount } from 'svelte';
 import { registriesInfos, registriesSuggestedInfos } from '../../stores/registries';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
-import { faTrash, faUser, faUserPen } from '@fortawesome/free-solid-svg-icons';
+import { faPlusCircle, faTrash, faUser, faUserPen } from '@fortawesome/free-solid-svg-icons';
 import SettingsPage from './SettingsPage.svelte';
+import Button from '../ui/Button.svelte';
 
 // contains the original instances of registries when user clicks on `Edit password` menu item
 // to be able to roll back changes when `Cancel` button is clicked
@@ -244,16 +245,9 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
 <SettingsPage title="Registries">
   <div slot="actions">
-    <button
-      on:click="{() => setNewRegistryFormVisible(true)}"
-      class="pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-7 w-36 text-sm rounded-md shadow hover:shadow-lg"
-      type="button"
-      disabled="{showNewRegistryForm}">
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-plus-circle" aria-hidden="true"></i>
-      </span>
+    <Button on:click="{() => setNewRegistryFormVisible(true)}" icon="{faPlusCircle}" disabled="{showNewRegistryForm}">
       Add registry
-    </button>
+    </Button>
   </div>
 
   <div class="container bg-charcoal-600 rounded-md p-3">
@@ -304,7 +298,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                     class="block px-3 block w-full h-full transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
                 </div>
               {:else if !registry.username && !registry.secret}
-                <button class="font-bold" on:click="{() => markRegistryAsModified(registry)}">Login now</button>
+                <Button on:click="{() => markRegistryAsModified(registry)}">Login now</Button>
               {:else}
                 {registry.username}
               {/if}
@@ -348,21 +342,10 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                     </div>
                   </div>
                   <div class="h-7 text-sm">
-                    <button
-                      on:click="{() => loginToRegistry(registry)}"
-                      disabled="{loggingIn}"
-                      class="pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer w-full h-full rounded-md shadow hover:shadow-lg"
-                      type="button">
-                      Login
-                    </button>
+                    <Button on:click="{() => loginToRegistry(registry)}" inProgress="{loggingIn}">Login</Button>
                   </div>
                   <div class="h-7 text-sm">
-                    <button
-                      on:click="{() => markRegistryAsClean(registry)}"
-                      class="transition ease-in-out delay-50 hover:cursor-pointer w-16 h-full"
-                      type="button">
-                      Cancel
-                    </button>
+                    <Button on:click="{() => markRegistryAsClean(registry)}" type="link">Cancel</Button>
                   </div>
                 {:else}
                   <!-- Password field start -->
@@ -506,34 +489,22 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
                 <div class="flex text-sm">
                   {#if listedSuggestedRegistries[i]}
-                    <button
+                    <Button
                       on:click="{() => loginToRegistry(newRegistryRequest)}"
                       disabled="{!newRegistryRequest.serverUrl ||
                         !newRegistryRequest.username ||
-                        !newRegistryRequest.secret ||
-                        loggingIn}"
-                      class="inline pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center"
-                      type="button">
+                        !newRegistryRequest.secret}"
+                      inProgress="{loggingIn}">
                       Login
-                    </button>
+                    </Button>
                   {/if}
                 </div>
                 <div class="flex text-sm">
                   <div class="h-7 pr-5 text-sm">
                     {#if listedSuggestedRegistries[i]}
-                      <button
-                        on:click="{() => hideSuggestedRegistries()}"
-                        class="transition ease-in-out delay-50 hover:cursor-pointer h-full justify-center w-16"
-                        type="button">
-                        Cancel
-                      </button>
+                      <Button on:click="{() => hideSuggestedRegistries()}" type="link">Cancel</Button>
                     {:else}
-                      <button
-                        on:click="{() => setNewSuggestedRegistryFormVisible(i, registry)}"
-                        class="inline pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center pb-1"
-                        type="button">
-                        Configure
-                      </button>
+                      <Button on:click="{() => setNewSuggestedRegistryFormVisible(i, registry)}">Configure</Button>
                     {/if}
                   </div>
                 </div>
@@ -601,24 +572,17 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                 </div>
 
                 <div class="flex text-sm">
-                  <button
+                  <Button
                     on:click="{() => loginToRegistry(newRegistryRequest)}"
                     disabled="{!newRegistryRequest.serverUrl ||
                       !newRegistryRequest.username ||
-                      !newRegistryRequest.secret ||
-                      loggingIn}"
-                    class="inline pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center"
-                    type="button">
+                      !newRegistryRequest.secret}"
+                    inProgress="{loggingIn}">
                     Login
-                  </button>
+                  </Button>
                 </div>
                 <div class="flex text-sm">
-                  <button
-                    on:click="{() => setNewRegistryFormVisible(false)}"
-                    class="transition ease-in-out delay-50 hover:cursor-pointer h-full justify-center w-16"
-                    type="button">
-                    Cancel
-                  </button>
+                  <Button on:click="{() => setNewRegistryFormVisible(false)}" type="link">Cancel</Button>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faPuzzlePiece, faTrash, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
+import { faPuzzlePiece, faTrash, faPlay, faStop, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 import { afterUpdate } from 'svelte';
 import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
@@ -8,7 +8,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
-import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
 
 export let ociImage: string = undefined;
 
@@ -87,19 +87,14 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
             class="w-1/2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             required />
 
-          <button
+          <Button
             on:click="{() => installExtensionFromImage()}"
-            disabled="{ociImage === undefined || ociImage.trim() === '' || installInProgress}"
-            class="w-full pf-c-button pf-m-primary"
-            type="button">
-            {#if installInProgress}
-              <Spinner />
-            {/if}
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
-            </span>
+            disabled="{ociImage === undefined || ociImage.trim() === ''}"
+            class="w-full"
+            inProgress="{installInProgress}"
+            icon="{faArrowCircleDown}">
             Install extension from the OCI image
-          </button>
+          </Button>
         </div>
 
         <div class="container w-full flex-col">
