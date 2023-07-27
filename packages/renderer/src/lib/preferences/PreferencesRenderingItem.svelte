@@ -85,7 +85,6 @@ $: resetToDefault = false;
     {/if}
     {#if recordUI.original.type === 'string' && (!recordUI.original.enum || recordUI.original.enum.length === 0)}
       <PreferencesRenderingItemFormat
-        showUpdate="{false}"
         record="{recordUI.original}"
         updateResetButtonVisibility="{updateResetButtonVisibility}"
         resetToDefault="{resetToDefault}"
@@ -94,7 +93,6 @@ $: resetToDefault = false;
   </div>
   {#if recordUI.original.type !== 'string' || (recordUI.original.enum && recordUI.original.enum.length > 0)}
     <PreferencesRenderingItemFormat
-      showUpdate="{false}"
       record="{recordUI.original}"
       updateResetButtonVisibility="{updateResetButtonVisibility}"
       resetToDefault="{resetToDefault}"
