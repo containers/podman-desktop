@@ -72,7 +72,7 @@ test('Check containers button is available and get error', async () => {
   // check that we have the ping result
   const pingResult = screen.getByRole('status', { name: '' });
   expect(pingResult).toBeInTheDocument();
-  expect(pingResult).toHaveTextContent('...Waiting for response...');
+  expect(pingResult).toHaveTextContent('Failed');
 
   // and no error
   const errorMesssage = screen.getByRole('alert', { name: 'Error Message Content' });

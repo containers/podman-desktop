@@ -16,10 +16,10 @@ async function grabContainers() {
   listContainersResult = '...Waiting for response...';
   try {
     const result = await window.listContainersFromEngine(providerContainerEngine);
-
     listContainersResult = `Responded: ${result.length} containers`;
   } catch (e) {
     listError = e;
+    listContainersResult = 'Failed';
   } finally {
     listInProgress = false;
   }

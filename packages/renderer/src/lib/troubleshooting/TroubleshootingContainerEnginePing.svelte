@@ -19,6 +19,7 @@ async function pingConnection() {
     const result = await window.pingContainerEngine(providerContainerEngine);
     pingResult = `Responded: ${Buffer.from(String(result)).toString()}`;
   } catch (e) {
+    pingResult = 'Failed';
     pingError = e;
   } finally {
     pingInProgress = false;
