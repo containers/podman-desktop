@@ -284,6 +284,8 @@ commit automatically with `git commit -s`.
 2. Reviewers are assigned by GitHub to two Podman Desktop developers
 3. PR's require 1 LGTM / Approval (2 if it's a large code change)
 
+> **_NOTE:_** Confirm that your PR works on macOS, Windows and Linux if it's a significant change (not a UI improvement)
+
 > **_NOTE:_** If your PR hasn't been merged in an appropriate amount of time, ping the two developers assigned to the issue with `@`
 
 ## Continuous Integration
