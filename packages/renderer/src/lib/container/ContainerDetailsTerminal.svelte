@@ -7,6 +7,8 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
 import { getPanelDetailColor } from '../color/color';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+import NoLogIcon from '../ui/NoLogIcon.svelte';
 
 export let container: ContainerInfoUI;
 let terminalXtermDiv: HTMLDivElement;
@@ -80,14 +82,8 @@ onMount(async () => {
 
 <div class="h-full" bind:this="{terminalXtermDiv}" class:hidden="{container.state !== 'RUNNING'}"></div>
 
-<div class="h-full min-w-full flex flex-col" class:hidden="{container.state === 'RUNNING'}">
-  <div class="pf-c-empty-state h-full">
-    <div class="pf-c-empty-state__content">
-      <i class="fas fa-terminal pf-c-empty-state__icon" aria-hidden="true"></i>
-
-      <h1 class="pf-c-title pf-m-lg">No Terminal</h1>
-
-      <div class="pf-c-empty-state__body">Container is not running</div>
-    </div>
-  </div>
-</div>
+<EmptyScreen
+  hidden="{container.state === 'RUNNING'}"
+  icon="{NoLogIcon}"
+  title="No Terminal"
+  message="Container is not running" />
