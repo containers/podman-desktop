@@ -112,8 +112,7 @@ import { Directories } from './directories.js';
 import { CustomPickRegistry } from './custompick/custompick-registry.js';
 import { ViewRegistry } from './view-registry.js';
 import type { ViewInfoUI } from './api/view-info.js';
-import { ContextRegistry } from './context-registry.js';
-import type { ContextInfo } from './api/context-info.js';
+import { Context } from './context/context.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -368,7 +367,7 @@ export class PluginSystem {
     await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
     const viewRegistry = new ViewRegistry();
-    const contextRegistry = new ContextRegistry(apiSender);
+    const context = new Context(apiSender);
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
     const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
@@ -669,7 +668,7 @@ export class PluginSystem {
       iconRegistry,
       telemetry,
       viewRegistry,
-      contextRegistry,
+      context,
       directories,
     );
     await this.extensionLoader.init();
@@ -1689,14 +1688,6 @@ export class PluginSystem {
 
     this.ipcHandle('viewRegistry:fetchViewsContributions', async (_listener, id: string): Promise<ViewInfoUI[]> => {
       return viewRegistry.fetchViewsContributions(id);
-    });
-
-    this.ipcHandle('contextRegistry:listContexts', async (_listener): Promise<ContextInfo[]> => {
-      return contextRegistry.listContextInfos();
-    });
-
-    this.ipcHandle('contextRegistry:getContext', async (_listener, id: string): Promise<ContextInfo> => {
-      return contextRegistry.getContextInfo(id);
     });
 
     this.ipcHandle('window:minimize', async (): Promise<void> => {

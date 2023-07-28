@@ -21,21 +21,13 @@
  *--------------------------------------------------------------------------------------------*/
 // based on https://github.com/microsoft/vscode/blob/3eed9319874b7ca037128962593b6a8630869253/src/vs/platform/contextkey/browser/contextKeyService.ts
 
-import type { ContextInfo, IContext } from '../../../../main/src/plugin/api/context-info';
+import type { IContext } from '../../../../main/src/plugin/api/context-info';
 
 export class ContextUI implements IContext {
   private _value: Record<string, any>;
 
-  constructor(private _id: number, private _parent?: ContextUI, private _extension?: string) {
+  constructor() {
     this._value = {};
-  }
-
-  get id(): number {
-    return this._id;
-  }
-
-  get extension(): string | undefined {
-    return this._extension;
   }
 
   get value(): Record<string, any> {
@@ -59,11 +51,7 @@ export class ContextUI implements IContext {
   }
 
   getValue<T>(key: string): T | undefined {
-    const ret = this._value[key] || this.getDottedKeyValue(key);
-    if (typeof ret === 'undefined' && this._parent) {
-      return this._parent.getValue<T>(key) || this._parent.getDottedKeyValue<T>(key);
-    }
-    return ret;
+    return this._value[key] || this.getDottedKeyValue(key);
   }
 
   /**
@@ -93,21 +81,7 @@ export class ContextUI implements IContext {
     return contextValue;
   }
 
-  updateParent(parent: ContextUI): void {
-    this._parent = parent;
-  }
-
   collectAllValues(): Record<string, any> {
-    let result = this._parent ? this._parent.collectAllValues() : {};
-    result = { ...result, ...this._value };
-    return result;
-  }
-
-  dispose(): void {
-    this._parent = undefined;
-  }
-
-  static adaptContext(ctx: ContextInfo, parent?: ContextUI): ContextUI {
-    return new ContextUI(ctx.id, parent, ctx.extension);
+    return this._value;
   }
 }

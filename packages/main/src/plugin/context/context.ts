@@ -28,25 +28,8 @@ import type { IContext } from '../api/context-info.js';
 export class Context implements IContext {
   private _value: Record<string, any>;
 
-  constructor(
-    private _id: number,
-    private apiSender: ApiSenderType,
-    private _parent?: Context,
-    private _extension?: string,
-  ) {
+  constructor(private apiSender: ApiSenderType) {
     this._value = {};
-  }
-
-  get id(): number {
-    return this._id;
-  }
-
-  get parent(): Context | undefined {
-    return this._parent;
-  }
-
-  get extension(): string | undefined {
-    return this._extension;
   }
 
   get value(): Record<string, any> {
@@ -57,7 +40,6 @@ export class Context implements IContext {
     if (this._value[key] !== value) {
       this._value[key] = value;
       this.apiSender.send('context-value-updated', {
-        extension: this._extension,
         key,
         value,
       });
@@ -70,7 +52,6 @@ export class Context implements IContext {
     if (key in this._value) {
       delete this._value[key];
       this.apiSender.send('context-key-removed', {
-        extension: this._extension,
         key,
       });
       return true;
@@ -79,11 +60,7 @@ export class Context implements IContext {
   }
 
   getValue<T>(key: string): T | undefined {
-    const ret = this._value[key] || this.getDottedKeyValue(key);
-    if (typeof ret === 'undefined' && this._parent) {
-      return this._parent.getValue<T>(key) || this._parent.getDottedKeyValue<T>(key);
-    }
-    return ret;
+    return this._value[key] || this.getDottedKeyValue(key);
   }
 
   /**
@@ -111,23 +88,7 @@ export class Context implements IContext {
     return contextValue;
   }
 
-  updateParent(parent: Context): void {
-    this._parent = parent;
-    this.apiSender.send('context-parent-updated', {
-      extension: this._extension,
-      pid: parent._id,
-      pextension: parent._extension,
-      pp: parent.parent,
-    });
-  }
-
   collectAllValues(): Record<string, any> {
-    let result = this._parent ? this._parent.collectAllValues() : {};
-    result = { ...result, ...this._value };
-    return result;
-  }
-
-  dispose(): void {
-    this._parent = undefined;
+    return this._value;
   }
 }

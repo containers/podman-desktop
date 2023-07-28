@@ -221,7 +221,7 @@ test('should expect icon to be undefined if no context/view is passed', async ()
 });
 
 test('should expect icon to be valid value with context/view set', async () => {
-  const context = new ContextUI(1, undefined, 'extension');
+  const context = new ContextUI();
   const view: ViewInfoUI = {
     extensionId: 'extension',
     viewId: 'id',
@@ -234,7 +234,7 @@ test('should expect icon to be valid value with context/view set', async () => {
       'io.x-k8s.kind.cluster': 'ok',
     },
   } as unknown as ContainerInfo;
-  const icon = containerUtils.iconClass(containerInfo, [context], [view]);
+  const icon = containerUtils.iconClass(containerInfo, context, [view]);
   expect(icon).toBe('podman-desktop-icon-kind-icon');
 });
 
