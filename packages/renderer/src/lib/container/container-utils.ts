@@ -120,7 +120,7 @@ export class ContainerUtils {
 
   getContainerInfoUI(
     containerInfo: ContainerInfo,
-    extensionsContext?: ContextUI[],
+    context?: ContextUI,
     viewContributions?: ViewInfoUI[],
   ): ContainerInfoUI {
     return {
@@ -145,7 +145,7 @@ export class ContainerUtils {
       selected: false,
       created: containerInfo.Created,
       labels: containerInfo.Labels,
-      icon: this.iconClass(containerInfo, extensionsContext, viewContributions) || ContainerIcon,
+      icon: this.iconClass(containerInfo, context, viewContributions) || ContainerIcon,
     };
   }
 
@@ -235,37 +235,27 @@ export class ContainerUtils {
     }
   }
 
-  iconClass(
-    container: ContainerInfo,
-    extensionsContext?: ContextUI[],
-    viewContributions?: ViewInfoUI[],
-  ): string | undefined {
-    if (!extensionsContext || !viewContributions) {
+  iconClass(container: ContainerInfo, context?: ContextUI, viewContributions?: ViewInfoUI[]): string | undefined {
+    if (!context || !viewContributions) {
       return undefined;
     }
 
     let icon;
     // loop over all contribution for this view
     for (const contribution of viewContributions) {
-      // retrieve the extension from the contribution and fetch its context
-      const extensionContext: ContextUI = extensionsContext.find(ctx => {
-        return ctx.extension === contribution.extensionId;
-      });
-      if (extensionContext) {
-        // adapt the context to work with containers (e.g save container labels into the context)
-        this.adaptContextOnContainer(extensionContext, container);
-        // deserialize the when clause
-        const whenDeserialized = ContextKeyExpr.deserialize(contribution.when);
-        // if the when clause has to be applied to this container
-        if (whenDeserialized?.evaluate(extensionContext)) {
-          // handle ${} in icon class
-          // and interpret the value and replace with the class-name
-          const match = contribution.icon.match(/\$\{(.*)\}/);
-          if (match && match.length === 2) {
-            const className = match[1];
-            icon = contribution.icon.replace(match[0], `podman-desktop-icon-${className}`);
-            return icon;
-          }
+      // adapt the context to work with containers (e.g save container labels into the context)
+      this.adaptContextOnContainer(context, container);
+      // deserialize the when clause
+      const whenDeserialized = ContextKeyExpr.deserialize(contribution.when);
+      // if the when clause has to be applied to this container
+      if (whenDeserialized?.evaluate(context)) {
+        // handle ${} in icon class
+        // and interpret the value and replace with the class-name
+        const match = contribution.icon.match(/\$\{(.*)\}/);
+        if (match && match.length === 2) {
+          const className = match[1];
+          icon = contribution.icon.replace(match[0], `podman-desktop-icon-${className}`);
+          return icon;
         }
       }
     }

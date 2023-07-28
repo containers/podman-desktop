@@ -2,7 +2,7 @@
 import { onDestroy, onMount } from 'svelte';
 import { filtered, searchPattern, containersInfos } from '../stores/containers';
 import { viewsContributions } from '../stores/views';
-import { contexts } from '../stores/contexts';
+import { context } from '../stores/context';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
 import PodIcon from './images/PodIcon.svelte';
@@ -44,7 +44,7 @@ let enginesList: EngineInfoUI[];
 // groups of containers that will be displayed
 let containerGroups: ContainerGroupInfoUI[] = [];
 let viewContributions: ViewInfoUI[] = [];
-let extensionsContext: ContextUI[] = [];
+let globalContext: ContextUI = undefined;
 let containersInfo: ContainerInfo[] = [];
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -220,22 +220,22 @@ onMount(async () => {
   // grab previous groups
   containerGroups = get(containerGroupsInfo);
 
-  contextsUnsubscribe = contexts.subscribe(value => {
-    extensionsContext = value;
+  contextsUnsubscribe = context.subscribe(value => {
+    globalContext = value;
     if (containersInfo.length > 0) {
-      updateContainers(containersInfo, extensionsContext, viewContributions);
+      updateContainers(containersInfo, globalContext, viewContributions);
     }
   });
 
   viewsUnsubscribe = viewsContributions.subscribe(value => {
     viewContributions = value.filter(view => view.viewId === CONTAINER_LIST_VIEW) || [];
     if (containersInfo.length > 0) {
-      updateContainers(containersInfo, extensionsContext, viewContributions);
+      updateContainers(containersInfo, globalContext, viewContributions);
     }
   });
 
   containersUnsubscribe = filtered.subscribe(value => {
-    updateContainers(value, extensionsContext, viewContributions);
+    updateContainers(value, globalContext, viewContributions);
   });
 
   podUnsubscribe = podsInfos.subscribe(podInfos => {
@@ -243,14 +243,10 @@ onMount(async () => {
   });
 });
 
-function updateContainers(
-  containers: ContainerInfo[],
-  extensionsContext: ContextUI[],
-  viewContributions: ViewInfoUI[],
-) {
+function updateContainers(containers: ContainerInfo[], globalContext: ContextUI, viewContributions: ViewInfoUI[]) {
   containersInfo = containers;
   const currentContainers = containers.map((containerInfo: ContainerInfo) => {
-    return containerUtils.getContainerInfoUI(containerInfo, extensionsContext, viewContributions);
+    return containerUtils.getContainerInfoUI(containerInfo, globalContext, viewContributions);
   });
 
   // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]

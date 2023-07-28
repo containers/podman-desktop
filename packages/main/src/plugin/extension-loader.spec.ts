@@ -46,7 +46,7 @@ import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { ViewRegistry } from './view-registry.js';
-import type { ContextRegistry } from './context-registry.js';
+import type { Context } from './context/context.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -114,7 +114,8 @@ const telemetryTrackMock = vi.fn();
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
 
 const viewRegistry: ViewRegistry = {} as unknown as ViewRegistry;
-const contextRegistry: ContextRegistry = {} as unknown as ContextRegistry;
+
+const context: Context = {} as unknown as Context;
 
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
@@ -146,7 +147,7 @@ beforeAll(() => {
     iconRegistry,
     telemetry,
     viewRegistry,
-    contextRegistry,
+    context,
     directories,
   );
 });

@@ -2237,4 +2237,20 @@ declare module '@podman-desktop/api' {
      */
     writeText(value: string): Promise<void>;
   }
+
+  /**
+   * The context provides write access to the system's context.
+   */
+  export namespace Context {
+    /**
+     * Store a new value for key in the context.
+     * This can be used in enablement of command or with the when property.
+     * The key should consists of '<extension-
+     * id>.<actual-key>'
+     *
+     * @param key the key of the key/value pair to be added to the context
+     * @param value value associated to the key
+     */
+    export function setValue(key: string, value: string): void;
+  }
 }

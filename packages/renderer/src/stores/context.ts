@@ -16,23 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test } from 'vitest';
-import { ContextUI } from './context';
+import type { Writable } from 'svelte/store';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../lib/context/context';
 
-test('check that value is correctly returned', async () => {
-  const context = new ContextUI();
-  context.setValue('key', 'value');
+export const context: Writable<ContextUI> = writable(new ContextUI());
 
-  const value = context.getValue('key');
-  expect(value).toBe('value');
+window.events?.receive('context-value-updated', async value => {
+  context.update(ctx => {
+    ctx.setValue(value.key, value.value);
+    return ctx;
+  });
 });
 
-test('check that value of a dotted key is correctly returned', async () => {
-  const context = new ContextUI();
-  context.setValue('key', {
-    first: 'value',
+window.events?.receive('context-key-removed', async value => {
+  context.update(ctx => {
+    ctx.removeValue(value.key);
+    return ctx;
   });
-
-  const value = context.getValue('key.first');
-  expect(value).toBe('value');
 });
