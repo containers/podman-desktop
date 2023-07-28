@@ -27,6 +27,9 @@ import Markdown from '../markdown/Markdown.svelte';
 import type { Terminal } from 'xterm';
 import type { AuditRequestItems } from '@podman-desktop/api';
 import AuditMessageBox from '../ui/AuditMessageBox.svelte';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+import { faCubes } from '@fortawesome/free-solid-svg-icons';
+import Button from '../ui/Button.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
@@ -299,22 +302,16 @@ async function close() {
 
 <div class="flex flex-col w-full h-full overflow-hidden">
   {#if creationSuccessful}
-    <div class="pf-c-empty-state h-full px-6">
-      <div class="pf-c-empty-state__content">
-        <i class="fas fa-cubes pf-c-empty-state__icon" aria-hidden="true"></i>
-        <h1 class="pf-c-title pf-m-lg">Creation</h1>
-        <div class="pf-c-empty-state__body">Successful operation</div>
-        <button
-          on:click="{() => {
-            cleanup();
-            router.goto('/preferences/resources');
-          }}"
-          class="pf-c-button pf-m-primary"
-          type="button">
-          Go back to resources
-        </button>
-      </div>
-    </div>
+    <EmptyScreen icon="{faCubes}" title="Creation" message="Successful operation">
+      <Button
+        class="py-3"
+        on:click="{() => {
+          cleanup();
+          router.goto('/preferences/resources');
+        }}">
+        Go back to resources
+      </Button>
+    </EmptyScreen>
   {:else}
     <div class="my-2 px-6">
       {#if providerInfo?.images?.icon}
