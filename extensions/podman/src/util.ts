@@ -18,7 +18,6 @@
 
 import * as os from 'node:os';
 import * as path from 'node:path';
-import * as fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import { getInstallationPath } from './podman-cli';
 
@@ -106,18 +105,6 @@ export function runCliCommand(command: string, args: string[], options?: RunOpti
 
     spawnProcess.on('close', exitCode => {
       resolve({ exitCode, stdOut: output, stdErr: err });
-    });
-  });
-}
-
-export function readFile(path: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    fs.readFile(path, 'utf8', (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
     });
   });
 }

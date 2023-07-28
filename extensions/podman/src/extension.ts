@@ -21,10 +21,11 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import * as http from 'node:http';
 import * as fs from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { RegistrySetup } from './registry-setup';
 
-import { getAssetsFolder, isLinux, isMac, isWindows, appHomeDir, readFile } from './util';
+import { getAssetsFolder, isLinux, isMac, isWindows, appHomeDir } from './util';
 import { PodmanInstall } from './podman-install';
 import type { InstalledPodman } from './podman-cli';
 import { execPromise, getPodmanCli, getPodmanInstallation } from './podman-cli';
@@ -237,7 +238,7 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
     // Create an information message to ask the user if they wish to set the running machine as default.
     const result = await extensionApi.window.showInformationMessage(
       `Podman Machine '${runningMachine.Name}' is running but not the default machine ${
-        defaultMachine ? '(default is ' + defaultMachine.Name + ')' : ''
+        defaultMachine ? "(default is '" + defaultMachine.Name + "')" : ''
       }. This will cause podman CLI errors while trying to connect to '${
         runningMachine.Name
       }'. Do you want to set it as default?`,
@@ -249,21 +250,29 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
       try {
         // make it the default to run the info command
         await execPromise(getPodmanCli(), ['system', 'connection', 'default', runningMachine.Name]);
-
-        // check if it's rootful
-        const machineInfoJson = await execPromise(getPodmanCli(), ['machine', 'info', '--format', 'json']);
-        const machineInfo = JSON.parse(machineInfoJson);
-        const filepath = path.join(machineInfo.Host.MachineConfigDir, `${runningMachine.Name}.json`);
-        const machineConfigJson = await readFile(filepath);
-        const machineConfig = JSON.parse(machineConfigJson);
-        if (machineConfig.Rootful) {
-          //if it's rootful let's update the connection
-          await execPromise(getPodmanCli(), ['system', 'connection', 'default', `${runningMachine.Name}-root`]);
-        }
       } catch (error) {
         // eslint-disable-next-line quotes
         console.error("Error running 'podman system connection default': ", error);
         await extensionApi.window.showErrorMessage(`Error running 'podman system connection default': ${error}`);
+      }
+
+      try {
+        // check if it's rootful
+        const machineInfoJson = await execPromise(getPodmanCli(), ['machine', 'info', '--format', 'json']);
+        const machineInfo = JSON.parse(machineInfoJson);
+        const filepath = path.join(machineInfo.Host.MachineConfigDir, `${runningMachine.Name}.json`);
+        if (fs.existsSync(filepath)) {
+          const machineConfigJson = await readFile(filepath, 'utf8');
+          if (machineConfigJson.length > 0) {
+            const machineConfig = JSON.parse(machineConfigJson);
+            if (machineConfig.Rootful) {
+              //if it's rootful let's update the connection
+              await execPromise(getPodmanCli(), ['system', 'connection', 'default', `${runningMachine.Name}-root`]);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error when checking rootful machine: ', error);
       }
       await extensionApi.window.showInformationMessage(
         `Podman Machine '${runningMachine.Name}' is now the default machine on the CLI.`,
