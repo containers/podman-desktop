@@ -931,7 +931,7 @@ export class ExtensionLoader {
       },
     };
 
-    const contextAPI: typeof containerDesktopAPI.Context = {
+    const contextAPI: typeof containerDesktopAPI.context = {
       setValue: (key: string, value: string): void => {
         this.context.setValue(key, value);
       },
@@ -963,7 +963,7 @@ export class ExtensionLoader {
       InputBoxValidationSeverity,
       QuickPickItemKind,
       authentication,
-      Context: contextAPI,
+      context: contextAPI,
     };
   }
 

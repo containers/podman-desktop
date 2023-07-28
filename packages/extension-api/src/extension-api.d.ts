@@ -2241,7 +2241,7 @@ declare module '@podman-desktop/api' {
   /**
    * The context provides write access to the system's context.
    */
-  export namespace Context {
+  export namespace context {
     /**
      * Store a new value for key in the context.
      * This can be used in enablement of command or with the when property.
