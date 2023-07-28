@@ -18,12 +18,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as path from 'path';
-import * as fs from 'fs';
-import type { Onboarding, OnboardingInfo, OnboardingStepStatus } from './api/onboarding.js';
+import type { Onboarding, OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
 import type { CommandRegistry } from './command-registry.js';
 import type { ApiSenderType } from './api.js';
 import type { AnalyzedExtension } from './extension-loader.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
+import { getBase64Image } from '../util.js';
+import type { Context } from './context/context.js';
 
 export class OnboardingRegistry {
   private onboardingInfos: OnboardingInfo[] = [];
@@ -32,6 +33,7 @@ export class OnboardingRegistry {
     private apiSender: ApiSenderType,
     private commandRegistry: CommandRegistry,
     private configurationRegistry: ConfigurationRegistry,
+    private context: Context,
   ) {}
 
   registerOnboarding(extension: AnalyzedExtension, onboarding: Onboarding): void {
@@ -62,32 +64,13 @@ export class OnboardingRegistry {
 
   convertImages(rootPath: string, onboarding: Onboarding) {
     if (onboarding.media?.path) {
-      onboarding.media.path = this.getBase64Image(rootPath, onboarding.media.path);
+      onboarding.media.path = getBase64Image(path.resolve(rootPath, onboarding.media.path));
     }
 
     for (const step of onboarding.steps) {
       if (step.media?.path) {
-        step.media.path = this.getBase64Image(rootPath, step.media.path);
+        step.media.path = getBase64Image(path.resolve(rootPath, step.media.path));
       }
-      for (const view of step.views) {
-        if (view.media?.path) {
-          view.media.path = this.getBase64Image(rootPath, view.media.path);
-        }
-      }
-    }
-  }
-
-  // Return the base64 of the file
-  getBase64Image(rootPath: string, file: string): string {
-    try {
-      const imageContent = fs.readFileSync(path.resolve(rootPath, file));
-      // convert to base64
-      const base64Content = Buffer.from(imageContent).toString('base64');
-      // create base64 image content
-      return `data:image/png;base64,${base64Content}`;
-    } catch (e) {
-      console.error(e);
-      return '';
     }
   }
 
@@ -95,84 +78,67 @@ export class OnboardingRegistry {
     return this.onboardingInfos;
   }
 
-  async executeOnboardingCommand(
-    executionId: number,
-    extension: string,
-    stepId: string,
-    commandId: string,
-    args?: any[],
-  ): Promise<void> {
+  async executeOnboardingCommand(executionId: number, extension: string, command: string): Promise<void> {
+    try {
+      // retrieve context for extension
+      const response = await this.commandRegistry.executeCommand<{ [key: string]: any }>(command);
+      this.apiSender.send('onboarding:command-executed', {
+        executionId,
+        extension,
+        command,
+        status: 'succeeded',
+        body: response,
+      });
+    } catch (e) {
+      this.apiSender.send('onboarding:command-executed', {
+        executionId,
+        extension,
+        command,
+        status: 'failed',
+        body: {
+          error: e,
+        },
+      });
+    }
+  }
+
+  updateStepState(status: OnboardingStatus, extension: string, stepId?: string): void {
     const onboarding = this.onboardingInfos.find(onboarding => onboarding.extension === extension);
-    if (onboarding) {
+    if (!onboarding) {
+      throw new Error(`No onboarding for extension ${extension}`);
+    }
+    if (stepId) {
       const step = onboarding.steps.find(step => step.id === stepId);
-      if (step) {
-        const commandToExecute = step.commands.find(cmd => cmd.id === commandId);
-        if (commandToExecute) {
-          try {
-            const response = await this.commandRegistry.executeCommand<{ [key: string]: any }>(
-              commandToExecute?.command,
-              args,
-            );
-            this.apiSender.send('onboarding:command-executed', {
-              executionId,
-              command: commandId,
-              status: 'succeeded',
-              body: response,
-            });
-          } catch (e) {
-            this.apiSender.send('onboarding:command-executed', {
-              executionId,
-              command: commandId,
-              status: 'failed',
-              body: {
-                error: e,
-              },
-            });
-          }
-          return;
-        }
+      if (!step) {
+        throw new Error(`No onboarding step with id ${stepId} for extension ${extension}`);
       }
-    }
-    this.apiSender.send('onboarding:command-executed', {
-      executionId,
-      command: commandId,
-      status: 'failed',
-      body: {
-        error: 'Unable to execute the command',
-      },
-    });
-  }
-
-  updateStepState(status: OnboardingStepStatus, extension: string, stepId: string, viewId?: string): void {
-    const onboarding = this.onboardingInfos.find(onboarding => onboarding.extension === extension);
-    if (!onboarding) {
-      throw new Error(`No onboarding for extension ${extension}`);
-    }
-    const step = onboarding.steps.find(step => step.id === stepId);
-    if (!step) {
-      throw new Error(`No onboarding step with id ${stepId} for extension ${extension}`);
-    }
-    if (viewId) {
-      const view = step.views.find(view => view.id === viewId);
-      if (!view) {
-        throw new Error(`No onboarding view with id ${viewId} in step with id ${stepId} for extension ${extension}`);
-      }
-      view.status = status;
-    } else {
       step.status = status;
+    } else {
+      onboarding.status = status;
     }
   }
 
-  resetOnboarding(extension: string): void {
-    const onboarding = this.onboardingInfos.find(onboarding => onboarding.extension === extension);
-    if (!onboarding) {
-      throw new Error(`No onboarding for extension ${extension}`);
+  resetOnboarding(extensions: string[]): void {
+    if (extensions.length === 0) {
+      return;
     }
-    onboarding.steps.forEach(step => {
-      step.status = undefined;
-      step.views.forEach(view => {
-        view.status = undefined;
+    const onboardings = this.onboardingInfos.filter(onboarding =>
+      extensions.find(extension => onboarding.extension === extension),
+    );
+    if (onboardings.length === 0) {
+      throw new Error(`No onboarding found for extensions ${extensions.join(',')}`);
+    }
+    onboardings.forEach(onboarding => {
+      onboarding.status = undefined;
+      onboarding.steps.forEach(step => {
+        step.status = undefined;
       });
     });
+    const contextValues = this.context.collectAllValues();
+    for (const key in contextValues) {
+      if (key.startsWith('onboarding.')) {
+        this.context.removeValue(key, true);
+      }
+    }
   }
 }

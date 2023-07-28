@@ -22,59 +22,39 @@ export interface OnboardingCommandResponse {
   body: any;
 }
 
-export interface OnboardingCommand {
-  id: string;
-  command: string;
-  response?: { [key: string]: any };
-  args?: string[];
-}
-
-export interface OnboardingCommandAtActivation {
-  command: string;
-}
-
 export interface OnboardingBaseItem {
   id: string;
-  template?: 'dark_bg';
+  highlight?: boolean;
 }
 
-export interface OnboardingViewButtonItem extends OnboardingBaseItem {
+export interface OnboardingStepButtonItem extends OnboardingBaseItem {
   component: 'button';
   label: string;
   command: string;
 }
 
-export interface OnboardingViewTextItem extends OnboardingBaseItem {
+export interface OnboardingStepTextItem extends OnboardingBaseItem {
   component: 'text';
   value: string;
 }
 
-export type OnboardingViewItem = OnboardingViewTextItem | OnboardingViewButtonItem;
+export type OnboardingStepItem = OnboardingStepTextItem | OnboardingStepButtonItem;
 
-export type OnboardingStepStatus = 'completed' | 'failed' | 'skipped';
-
-export interface OnboardingStepView {
-  id: string;
-  title: string;
-  description?: string;
-  media?: { path: string; altText: string };
-  commandAtActivation?: OnboardingCommandAtActivation[];
-  enableCompletionEvents?: string[];
-  completionEvents?: string[];
-  content?: OnboardingViewItem[][];
-  when?: string;
-  status?: OnboardingStepStatus;
-  showNext?: boolean;
-}
+export type OnboardingStatus = 'completed' | 'failed' | 'skipped';
 
 export interface OnboardingStep {
   id: string;
+  label: string;
   title: string;
   description?: string;
-  commands: OnboardingCommand[];
-  views: OnboardingStepView[];
   media?: { path: string; altText: string };
-  status?: OnboardingStepStatus;
+  command?: string;
+  enableCompletionEvents?: string[];
+  completionEvents?: string[];
+  content?: OnboardingStepItem[][];
+  when?: string;
+  status?: OnboardingStatus;
+  showNext?: boolean;
 }
 
 export interface Onboarding {
@@ -86,4 +66,5 @@ export interface Onboarding {
 
 export interface OnboardingInfo extends Onboarding {
   extension: string;
+  status?: OnboardingStatus;
 }

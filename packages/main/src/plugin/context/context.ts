@@ -48,12 +48,14 @@ export class Context implements IContext {
     return false;
   }
 
-  removeValue(key: string): boolean {
+  removeValue(key: string, doNotNotify?: boolean): boolean {
     if (key in this._value) {
       delete this._value[key];
-      this.apiSender.send('context-key-removed', {
-        key,
-      });
+      if (!doNotNotify) {
+        this.apiSender.send('context-key-removed', {
+          key,
+        });
+      }
       return true;
     }
     return false;

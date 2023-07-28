@@ -1,17 +1,12 @@
 <script lang="ts">
-import { extensionInfos } from '../../stores/extensions';
-import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import { onDestroy, onMount } from 'svelte';
-import type {
-  OnboardingInfo,
-  OnboardingStep,
-  OnboardingStepStatus,
-  OnboardingStepView,
-} from '../../../../main/src/plugin/api/onboarding';
+import type { OnboardingInfo, OnboardingStep, OnboardingStatus } from '../../../../main/src/plugin/api/onboarding';
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import {
   faCircleCheck,
+  faCircleChevronRight,
   faCircleQuestion,
+  faCircleXmark,
   faCircle as faFilledCircle,
   faForward,
 } from '@fortawesome/free-solid-svg-icons';
@@ -20,31 +15,33 @@ import type { Unsubscriber } from 'svelte/store';
 import { onboardingList } from '/@/stores/onboarding';
 import OnboardingItem from './OnboardingItem.svelte';
 import type { ContextUI } from '../context/context';
-import { contexts } from '/@/stores/contexts';
 import { ContextKeyExpr } from '../context/contextKey';
 import { router } from 'tinro';
+import { context } from '/@/stores/context';
 
-interface ActiveStep {
+interface ActiveOnboardingStep {
+  onboarding: OnboardingInfo;
   step: OnboardingStep;
-  view: OnboardingStepView;
 }
 
-export let extensionId: string = undefined;
+interface OnboardingStepLabels {
+  label: string;
+  status?: OnboardingStatus;
+}
 
-let extensionInfo: ExtensionInfo;
-$: extensionInfo = $extensionInfos.find(extension => extension.id === extensionId);
-let onboarding: OnboardingInfo;
-let activeStep: ActiveStep;
+export let extensionIds: string[] = [];
+
+let onboardings: OnboardingInfo[];
+let activeStep: ActiveOnboardingStep;
 $: activeStep;
 
 $: executing = false;
-let context: ContextUI;
+let globalContext: ContextUI;
 let displayCancelSetup = false;
 let displayResetSetup = false;
 
-let contextKeys: string[] = [];
-let executionId = 0;
-let executions: number[] = [];
+let executedCommands: string[] = [];
+const onboardingLabels: OnboardingStepLabels[] = [];
 /*
 $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
@@ -52,30 +49,47 @@ let contextsUnsubscribe: Unsubscriber;
 onMount(async () => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
-    if (!onboarding) {
-      onboarding = onboardingItems.find(o => o.extension === extensionId);
+    if (!onboardings) {
+      onboardings = onboardingItems.filter(o => extensionIds.find(extensionId => o.extension === extensionId));
+      // if there is only one extensionId, it is only executing a single extension onboarding and it needs to show its step in the top right
+      // if there are multiple steps with the same label, it only shows once
+      if (extensionIds.length === 1) {
+        onboardings[0].steps.forEach(step => {
+          if (!onboardingLabels.find(l => l.label === step.label)) {
+            onboardingLabels.push({
+              label: step.label,
+              status: undefined,
+            });
+          }
+        });
+      }
       startOnboarding();
     }
   });
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  contextsUnsubscribe = contexts.subscribe(value => {
-    context = value.find(ctx => ctx.extension === extensionId);
-    startOnboarding();
+  contextsUnsubscribe = context.subscribe(async value => {
+    globalContext = value;
+    const gotStarted = await startOnboarding();
+    if (!gotStarted) {
+      await assertStepCompleted();
+    }
   });
 });
 
 let started = false;
-async function startOnboarding() {
-  if (!started && context && onboarding) {
+async function startOnboarding(): Promise<boolean> {
+  if (!started && globalContext && onboardings) {
     started = true;
-    if (isOnboardingCompleted(onboarding)) {
+    if (isOnboardingsSetupCompleted(onboardings)) {
       // ask user if she wants to restart
       setDisplayResetSetup(true);
     } else {
       await restartSetup();
     }
+    return true;
   }
+  return false;
 }
 
 onDestroy(() => {
@@ -88,28 +102,31 @@ onDestroy(() => {
 });
 
 async function setActiveStep() {
-  if (!onboarding) {
-    console.error(`Unable to retrieve the onboarding workflow for ${extensionInfo?.displayName}`);
+  if (!onboardings) {
+    console.error(`Unable to retrieve the onboarding workflow`);
     return;
   }
-  for (const step of onboarding.steps) {
-    if (!step.status) {
-      for (let i = 0; i < step.views.length; i++) {
-        const view = step.views[i];
-        if (!view.status) {
+  for (const onboarding of onboardings) {
+    if (!onboarding.status) {
+      for (let i = 0; i < onboarding.steps.length; i++) {
+        const step = onboarding.steps[i];
+        if (!step.status) {
           let whenDeserialized;
-          if (view.when) {
-            whenDeserialized = ContextKeyExpr.deserialize(view.when);
+          if (step.when) {
+            whenDeserialized = ContextKeyExpr.deserialize(step.when);
           }
-          if (!view.when || whenDeserialized?.evaluate(context)) {
+          if (!step.when || whenDeserialized?.evaluate(globalContext)) {
             activeStep = {
+              onboarding,
               step,
-              view,
             };
-            await doExecuteCommandsAtActivation(activeStep);
+            if (step.command) {
+              await doExecuteCommand(onboarding.extension, step.command);
+              await assertStepCompleted();
+            }
             return;
           } else {
-            await updateStepViewStatus(step, view, 'skipped');
+            await updateOnboardingStepStatus(onboarding, step, 'skipped');
             continue;
           }
         }
@@ -118,94 +135,89 @@ async function setActiveStep() {
   }
 
   // if it reaches this point it means that the onboarding is fully completed and the user is redirected to the dashboard
-  cleanContext();
   router.goto('/');
 }
 
-async function doExecuteCommandsAtActivation(active: ActiveStep) {
-  for (const cmd of active.view.commandAtActivation || []) {
-    setExecuting(true);
-    await window.executeOnboardingCommand(getExecutionId(), extensionId, active.step.id, cmd.command);
-    setExecuting(false);
+async function doExecuteCommand(extension: string, command: string) {
+  setExecuting(true);
+  await window.executeCommand(command);
+  if (!executedCommands.includes(command)) {
+    executedCommands.push(command);
   }
+  setExecuting(false);
 }
-
-function getExecutionId(): number {
-  ++executionId;
-  executions.push(executionId);
-  return executionId;
-}
-
-let eventsCompleted: string[] = [];
-window.events?.receive('onboarding:command-executed', async result => {
-  // this is a hack to keep the state safe whean receiving multiple events for the same action
-  const indexExecution = executions.indexOf(result.executionId);
-  if (indexExecution === -1) {
-    return;
-  }
-  executions.splice(indexExecution, 1);
-
-  if (result.status === 'failed') {
-    console.error(`Failed at executing command ${result.command}: ${result.body.error}`);
-    return;
-  }
-  context?.setValue(result.command, result.body);
-  contextKeys.push(result.command);
-  if (!eventsCompleted.includes(result.command)) {
-    eventsCompleted.push(result.command);
-  }
-  await assertStepCompleted();
-});
 
 async function assertStepCompleted() {
   const isCompleted =
-    !activeStep.view.completionEvents ||
-    activeStep.view.completionEvents.length === 0 ||
-    activeStep.view.completionEvents.every(cmp => {
-      // check if eventCompleted contains the event required by the step to be considered complete
-      if (eventsCompleted.includes(cmp)) {
+    !activeStep.step.completionEvents ||
+    activeStep.step.completionEvents.length === 0 ||
+    activeStep.step.completionEvents.every(cmp => {
+      // check if command has been executed
+      if (cmp.startsWith('onCommand:') && executedCommands.includes(cmp.replace('onCommand:', ''))) {
         return true;
       }
-      // check if cmp string stem is in eventCompleted and find the value required from context
-      const completionEventDeserialized = ContextKeyExpr.deserialize(cmp);
-      return completionEventDeserialized.evaluate(context);
+
+      // check if cmp string is an onContext event, check the value from context
+      if (cmp.startsWith('onContext:onboarding.')) {
+        cmp = cmp.replace('onContext:onboarding.', '');
+        const completionEventDeserialized = ContextKeyExpr.deserialize(cmp);
+        if (!globalContext) {
+          return false;
+        }
+        return completionEventDeserialized.evaluate(globalContext);
+      }
+
+      return false;
     });
 
   if (isCompleted) {
-    await updateStepViewStatus(activeStep.step, activeStep.view, 'completed');
-    resetUI();
+    await updateOnboardingStepStatus(activeStep.onboarding, activeStep.step, 'completed');
+    // reset executeCommands list
+    executedCommands = [];
     await setActiveStep();
   }
 }
 
-async function updateStepViewStatus(step: OnboardingStep, view: OnboardingStepView, status: OnboardingStepStatus) {
-  view.status = status;
-  await window.updateStepState(status, extensionId, step.id, view.id);
-  const views = step.views;
+async function updateOnboardingStepStatus(onboarding: OnboardingInfo, step: OnboardingStep, status: OnboardingStatus) {
+  step.status = status;
+  updateStepLabel(step.label, status);
+  await window.updateStepState(status, onboarding.extension, step.id);
+  const steps = onboarding.steps;
   // if completed view is the last of the whole step, mark this as completed
-  if (views[views.length - 1].id === view.id) {
-    step.status = 'completed';
-    await window.updateStepState('completed', extensionId, step.id);
+  if (steps[steps.length - 1].id === step.id) {
+    onboarding.status = 'completed';
+    await window.updateStepState('completed', onboarding.extension, step.id);
   }
 }
 
-function isOnboardingCompleted(onboarding: OnboardingInfo): boolean {
-  let completed = true;
-  onboarding.steps.forEach(step => {
-    if (!step.status) {
-      completed = false;
+function updateStepLabel(label: string, status: OnboardingStatus) {
+  for (const lbl of onboardingLabels) {
+    if (lbl.label === label) {
+      lbl.status = status;
+      return;
     }
-    step.views.forEach(view => {
-      if (!view.status) {
-        completed = false;
-      }
-    });
-  });
-  return completed;
+  }
 }
 
-function resetUI() {
-  eventsCompleted = [];
+function isOnboardingsSetupCompleted(onboardings: OnboardingInfo[]): boolean {
+  for (const onboarding of onboardings) {
+    if (!isOnboardingCompleted(onboarding)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isOnboardingCompleted(onboarding: OnboardingInfo): boolean {
+  if (!onboarding.status) {
+    return false;
+  }
+  for (const step of onboarding.steps) {
+    if (!step.status) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function setExecuting(isExecuting: boolean) {
@@ -224,77 +236,94 @@ function setDisplayResetSetup(display: boolean) {
   displayResetSetup = display;
 }
 
-function cancelSetup() {
+async function cancelSetup() {
   // TODO: it cancels all running commands
   // it redirect the user to the dashboard
-  cleanContext();
+  await cleanContext();
   router.goto('/');
 }
 
 async function restartSetup() {
-  await window.resetOnboarding(extensionId);
-  onboarding.steps.forEach(step => {
-    step.status = undefined;
-    step.views.forEach(view => {
-      view.status = undefined;
+  await cleanContext();
+  onboardings.forEach(onboarding => {
+    onboarding.status = undefined;
+    onboarding.steps.forEach(step => {
+      step.status = undefined;
     });
   });
   setDisplayResetSetup(false);
   await setActiveStep();
 }
 
-function cleanContext() {
-  for (const key of contextKeys) {
-    context.removeValue(key);
+async function cleanContext() {
+  await window.resetOnboarding(extensionIds);
+  const values = globalContext.collectAllValues();
+  for (const key in values) {
+    if (key.startsWith('onboarding.')) {
+      globalContext.removeValue(key);
+    }
   }
 }
 </script>
 
-{#if onboarding && activeStep}
+{#if activeStep}
   <div class="flex flex-col bg-[#36373a] h-full">
     <div class="flex flex-row justify-between mb-20">
-      {#if activeStep.step.media}
-        <img
-          class="w-14 h-14 object-contain"
-          alt="{activeStep.step.media.altText}"
-          src="{activeStep.step.media.path}" />
-      {/if}
-      <div class="flex flex-col ml-8 my-2">
-        <div class="text-lg font-bold text-white">{activeStep.step.title}</div>
-        {#if activeStep.step.description}
-          <div class="text-sm text-white">{activeStep.step.description}</div>
+      <div class="flex flew-row">
+        {#if activeStep.onboarding.media}
+          <img
+            class="w-14 h-14 object-contain"
+            alt="{activeStep.onboarding.media.altText}"
+            src="{activeStep.onboarding.media.path}" />
         {/if}
-        <button
-          class="flex flex-row text-xs items-center hover:underline"
-          on:click="{() => setDisplayCancelSetup(true)}">
-          <span class="mr-1">Skip this entire setup</span>
-          <Fa icon="{faForward}" size="12" />
-        </button>
+        <div class="flex flex-col ml-8 my-2">
+          <div class="text-lg font-bold text-white">{activeStep.onboarding.title}</div>
+          {#if activeStep.onboarding.description}
+            <div class="text-sm text-white">{activeStep.onboarding.description}</div>
+          {/if}
+          <button
+            class="flex flex-row text-xs items-center hover:underline"
+            on:click="{() => setDisplayCancelSetup(true)}">
+            <span class="mr-1">Skip this entire setup</span>
+            <Fa icon="{faForward}" size="12" />
+          </button>
+        </div>
       </div>
       <div class="flex flex-row mt-1 mr-2">
-        {#each onboarding.steps as step}
+        {#each onboardingLabels as step}
           <div class="flex flex-col mr-2">
             <div class="flex justify-center mb-2">
-              {#if step.id === activeStep.step.id}
+              {#if step.label === activeStep.step.label}
                 <Fa class="place-content-center text-purple-500" size="24" icon="{faFilledCircle}" />
               {:else if step.status === 'completed'}
                 <Fa class="place-content-center" size="24" icon="{faCircleCheck}" />
+              {:else if step.status === 'skipped'}
+                <Fa class="place-content-center" size="24" icon="{faCircleChevronRight}" />
+              {:else if step.status === 'failed'}
+                <Fa class="place-content-center" size="24" icon="{faCircleXmark}" />
               {:else}
                 <Fa class="place-content-center" size="24" icon="{faCircle}" />
               {/if}
             </div>
-            <div class="text-sm">{step.title}</div>
+            <div class="text-sm">{step.label}</div>
           </div>
         {/each}
       </div>
     </div>
     <div class="w-[450px] flex flex-col mx-auto">
-      {#if activeStep.view.media}
+      {#if activeStep.step.media}
         <div class="mx-auto">
           <img
             class="w-24 h-24 object-contain"
-            alt="{activeStep.view.media.altText}"
-            src="{activeStep.view.media.path}" />
+            alt="{activeStep.step.media.altText}"
+            src="{activeStep.step.media.path}" />
+        </div>
+      {:else if activeStep.onboarding.media}
+        <div class="mx-auto">
+          <img
+            class="w-24 h-24 object-contain"
+            alt="{activeStep.onboarding.media.altText}"
+            src="{activeStep.onboarding.media.path}" />
         </div>
       {/if}
       <div class="flex flex-row mx-auto">
@@ -309,32 +338,29 @@ function cleanContext() {
             </i>
           </div>
         {/if}
-        <div class="text-lg text-white">{activeStep.view.title}</div>
+        <div class="text-lg text-white">{activeStep.step.title}</div>
       </div>
-      {#if activeStep.view.description}
-        <div class="text-sm text-white mx-auto">{activeStep.view.description}</div>
+      {#if activeStep.step.description}
+        <div class="text-sm text-white mx-auto">{activeStep.step.description}</div>
       {/if}
     </div>
 
     <div class="flex flex-col mx-auto">
-      {#if activeStep.view.content}
-        {#each activeStep.view.content as row}
+      {#if activeStep.step.content}
+        {#each activeStep.step.content as row}
           <div class="flex flex-row mx-auto">
             {#each row as item}
               <OnboardingItem
                 item="{item}"
-                extensionId="{extensionId}"
-                step="{activeStep.step.id}"
-                context="{context}"
-                setExecuting="{setExecuting}"
-                getExecutionId="{getExecutionId}" />
+                getContext="{() => globalContext}"
+                executeCommand="{command => doExecuteCommand(activeStep.onboarding.extension, command)}" />
             {/each}
           </div>
         {/each}
       {/if}
     </div>
 
-    {#if !activeStep.view.completionEvents || activeStep.view.completionEvents.length === 0}
+    {#if !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}
       <div class="grow"></div>
       <div class="mb-10 mx-auto text-sm">
         Press the <span class="bg-purple-700 p-0.5">Next</span> button below to proceed.

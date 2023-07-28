@@ -1,15 +1,13 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import type { OnboardingViewItem } from '../../../../main/src/plugin/api/onboarding';
+import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import Markdown from '../markdown/Markdown.svelte';
 import type { ContextUI } from '../context/context';
-export let item: OnboardingViewItem;
-export let step: string;
-export let extensionId: string;
-export let context: ContextUI;
-export let setExecuting: (isExecuting: boolean) => void;
-export let getExecutionId: () => number;
-const re = new RegExp(/\${(.+?)}/g);
+export let item: OnboardingStepItem;
+export let getContext: () => ContextUI;
+export let executeCommand: (command: string) => Promise<void>;
+
+const re = new RegExp(/\${onContext:(.+?)}/g);
 let html;
 let isMarkdown = false;
 $: buttons = new Map<string, string>();
@@ -22,9 +20,7 @@ onMount(() => {
       const buttonId = e.target.id;
       let command = buttons.get(buttonId);
       if (command) {
-        setExecuting(true);
-        await window.executeOnboardingCommand(getExecutionId(), extensionId, step, command);
-        setExecuting(false);
+        await executeCommand(command);
       }
     }
   };
@@ -35,7 +31,7 @@ onMount(() => {
 onDestroy(() => {
   eventListeners.forEach(listener => document.removeEventListener('click', listener));
 });
-function createItem(item: OnboardingViewItem): string {
+function createItem(item: OnboardingStepItem): string {
   let html = '';
   switch (item.component) {
     case 'button': {
@@ -59,7 +55,7 @@ function replacePlaceholders(label: string): string {
   // eslint-disable-next-line eqeqeq
   while ((arr = re.exec(newLabel)) != undefined) {
     if (arr.length > 1) {
-      const replacement = context.getDottedKeyValue(arr[1]);
+      const replacement = getContext().getValue(arr[1]);
       if (replacement) {
         newLabel = newLabel.replace(arr[0], replacement.toString());
       }
@@ -69,8 +65,7 @@ function replacePlaceholders(label: string): string {
 }
 </script>
 
-<div
-  class="flex justify-center {item.template === 'dark_bg' ? 'bg-charcoal-600' : ''} p-3 m-2 rounded-md min-w-[500px]">
+<div class="flex justify-center {item.highlight ? 'bg-charcoal-600' : ''} p-3 m-2 rounded-md min-w-[500px]">
   {#if html}
     {#if !isMarkdown}
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->

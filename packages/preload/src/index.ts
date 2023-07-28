@@ -65,7 +65,7 @@ import type { Menu } from '../../main/src/plugin/menu-registry';
 import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
 import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
 import type { ContextInfo } from '../../main/src/plugin/api/context-info';
-import type { OnboardingInfo, OnboardingStepStatus } from '../../main/src/plugin/api/onboarding';
+import type { OnboardingInfo, OnboardingStatus } from '../../main/src/plugin/api/onboarding';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -1492,21 +1492,20 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'executeOnboardingCommand',
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    async (executionId: number, extension: string, stepId: string, commandId: string, args?: any[]): Promise<void> => {
-      return ipcInvoke('onboardingRegistry:executeOnboardingCommand', executionId, extension, stepId, commandId, args);
+    async (executionId: number, extension: string, command: string): Promise<void> => {
+      return ipcInvoke('onboardingRegistry:executeOnboardingCommand', executionId, extension, command);
     },
   );
 
   contextBridge.exposeInMainWorld(
     'updateStepState',
-    async (status: OnboardingStepStatus, extension: string, stepId: string, viewId?: string): Promise<void> => {
-      return ipcInvoke('onboardingRegistry:updateStepState', status, extension, stepId, viewId);
+    async (status: OnboardingStatus, extension: string, stepId?: string): Promise<void> => {
+      return ipcInvoke('onboardingRegistry:updateStepState', status, extension, stepId);
     },
   );
 
-  contextBridge.exposeInMainWorld('resetOnboarding', async (extension: string): Promise<void> => {
-    return ipcInvoke('onboardingRegistry:resetOnboarding', extension);
+  contextBridge.exposeInMainWorld('resetOnboarding', async (extensions: string[]): Promise<void> => {
+    return ipcInvoke('onboardingRegistry:resetOnboarding', extensions);
   });
 }
 

@@ -114,7 +114,7 @@ import { ViewRegistry } from './view-registry.js';
 import type { ViewInfoUI } from './api/view-info.js';
 import { Context } from './context/context.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
-import type { OnboardingInfo, OnboardingStepStatus } from './api/onboarding.js';
+import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
 import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -380,7 +380,7 @@ export class PluginSystem {
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
-    const onboardingRegistry = new OnboardingRegistry(apiSender, commandRegistry, configurationRegistry);
+    const onboardingRegistry = new OnboardingRegistry(apiSender, commandRegistry, configurationRegistry, context);
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
@@ -1741,34 +1741,20 @@ export class PluginSystem {
 
     this.ipcHandle(
       'onboardingRegistry:executeOnboardingCommand',
-      async (
-        _listener,
-        executionId: number,
-        extension: string,
-        stepId: string,
-        commandId: string,
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-        args?: any[],
-      ): Promise<void> => {
-        return onboardingRegistry.executeOnboardingCommand(executionId, extension, stepId, commandId, args);
+      async (_listener, executionId: number, extension: string, command: string): Promise<void> => {
+        return onboardingRegistry.executeOnboardingCommand(executionId, extension, command);
       },
     );
 
     this.ipcHandle(
       'onboardingRegistry:updateStepState',
-      async (
-        _listener,
-        status: OnboardingStepStatus,
-        extension: string,
-        stepId: string,
-        viewId?: string,
-      ): Promise<void> => {
-        return onboardingRegistry.updateStepState(status, extension, stepId, viewId);
+      async (_listener, status: OnboardingStatus, extension: string, stepId?: string): Promise<void> => {
+        return onboardingRegistry.updateStepState(status, extension, stepId);
       },
     );
 
-    this.ipcHandle('onboardingRegistry:resetOnboarding', async (_listener, extension: string): Promise<void> => {
-      return onboardingRegistry.resetOnboarding(extension);
+    this.ipcHandle('onboardingRegistry:resetOnboarding', async (_listener, extensions: string[]): Promise<void> => {
+      return onboardingRegistry.resetOnboarding(extensions);
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(

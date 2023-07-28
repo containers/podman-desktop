@@ -84,7 +84,7 @@ onMount(async () => {
   </Route>
 
   <Route path="/onboarding/:extensionId" breadcrumb="Extension Onboarding" let:meta>
-    <Onboarding extensionId="{meta.params.extensionId}" />
+    <Onboarding extensionIds="{[meta.params.extensionId]}" />
   </Route>
 
   <Route
