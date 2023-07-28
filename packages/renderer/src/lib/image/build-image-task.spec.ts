@@ -66,3 +66,20 @@ test('check reconnect', async () => {
   expect(newCallback.onStream).toHaveBeenCalledWith('hello\rworld\rduring disconnect\r');
   expect(newCallback.onEnd).toHaveBeenCalledTimes(1);
 });
+
+// If we error, then we should be able to see the error displayed
+test('check error', async () => {
+  const dummyCallback: BuildImageCallback = {
+    onStream: vi.fn(),
+    onError: vi.fn(),
+    onEnd: vi.fn(),
+  };
+
+  const key = startBuild('foo', dummyCallback);
+
+  eventCollect(key.buildImageKey, 'stream', 'hello');
+  eventCollect(key.buildImageKey, 'error', 'world');
+
+  expect(dummyCallback.onStream).toHaveBeenCalledWith('hello');
+  expect(dummyCallback.onError).toHaveBeenCalledWith('world');
+});
