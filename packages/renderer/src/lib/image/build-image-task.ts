@@ -158,6 +158,8 @@ export function eventCollect(key: symbol, eventName: 'finish' | 'stream' | 'erro
   const task = allTasks.get(key);
   if (task) {
     if (eventName === 'error') {
+      // If we errored out, we should store the error message in the task so it is correctly displayed
+      task.error = data;
       task.status = 'failure';
       task.state = 'completed';
     } else if (eventName === 'finish') {
