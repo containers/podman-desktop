@@ -16,16 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import type { Certificates } from '/@/plugin/certificates.js';
 import type { Proxy } from '/@/plugin/proxy.js';
 import { ImageRegistry } from '/@/plugin/image-registry.js';
 import type { ApiSenderType } from '/@/plugin/api.js';
-import type Dockerode from 'dockerode';
+import Dockerode from 'dockerode';
+import { EventEmitter } from 'node:events';
 
 /* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const fakeContainerWithComposeProject: Dockerode.ContainerInfo = {
   Id: '1234567890',
@@ -94,16 +96,13 @@ const fakeContainer: Dockerode.ContainerInfo = {
     },
   },
 };
-
-vi.mock('dockerode', async () => {
-  return {
-    default: vi.fn(),
-  };
-});
-
 class TestContainerProviderRegistry extends ContainerProviderRegistry {
   public getMatchingEngine(engineId: string): Dockerode {
     return super.getMatchingEngine(engineId);
+  }
+
+  public getMatchingContainer(engineId: string, containerId: string): Dockerode.Container {
+    return super.getMatchingContainer(engineId, containerId);
   }
 }
 
@@ -300,4 +299,163 @@ test('test listSimpleContainersByLabel with compose label', async () => {
 
   // We expect ONLY to return 3 since the last container does not have the correct label.
   expect(result).toHaveLength(3);
+});
+
+describe('execInContainer', () => {
+  // stream using first Byte being header
+  const writeData = (eventEmitter: EventEmitter, type: 'stdout' | 'stderr', data: string) => {
+    const header = Buffer.alloc(8);
+    // first byte is type
+    header.writeUInt8(type === 'stdout' ? 1 : 2, 0);
+
+    // write fourth byte is size of the message in big endian layout
+    header.writeUInt32BE(data.length, 4);
+
+    // full string is header + data
+    const fullString = Buffer.concat([header, Buffer.from(data)]);
+
+    eventEmitter.emit('data', fullString);
+  };
+
+  test('test exec in a container', async () => {
+    const startStream = new EventEmitter();
+
+    const startExecMock = vi.fn();
+    startExecMock.mockResolvedValue(startStream);
+
+    const inspectExecMock = vi.fn();
+    inspectExecMock.mockResolvedValue({ Running: true });
+
+    const execMock = {
+      start: startExecMock,
+      inspect: inspectExecMock,
+    };
+
+    const containerExecMock = vi.fn().mockResolvedValue(execMock);
+
+    const dockerode = new Dockerode();
+    const modem = dockerode.modem;
+
+    const dockerodeContainer = {
+      exec: containerExecMock,
+      modem: modem,
+    } as unknown as Dockerode.Container;
+
+    vi.spyOn(containerRegistry, 'getMatchingContainer').mockReturnValue(dockerodeContainer);
+
+    let stdout = '';
+    const stdoutFunction = (data: Buffer) => {
+      stdout += data.toString();
+    };
+
+    let stderr = '';
+    const stderrFunction = (data: Buffer) => {
+      stderr += data.toString();
+    };
+
+    const promiseExec = containerRegistry.execInContainer(
+      'dummy',
+      '1234567890',
+      ['echo', 'hello', 'world'],
+      stdoutFunction,
+      stderrFunction,
+    );
+    // wait method is initialized
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // send data on stdout
+    writeData(startStream, 'stdout', 'hello ');
+    writeData(startStream, 'stdout', 'world');
+
+    // send data on stderr
+    writeData(startStream, 'stderr', 'warning ');
+    writeData(startStream, 'stderr', 'message');
+
+    // wait and then say that stream is ended
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    startStream.emit('end', {});
+
+    // wait the end
+    await promiseExec;
+
+    console.log('stdout', stdout);
+    expect(stdout).toBe('hello world');
+    expect(stderr).toBe('warning message');
+  });
+
+  test('test exec in a container with interval inspect', async () => {
+    const startStream = new EventEmitter();
+
+    // add a destroy method
+    const destroyMock = vi.fn();
+    (startStream as any).destroy = destroyMock;
+
+    const startExecMock = vi.fn();
+    startExecMock.mockResolvedValue(startStream);
+
+    const inspectResult = { Running: true };
+    const inspectExecMock = vi.fn();
+    inspectExecMock.mockResolvedValue(inspectResult);
+
+    const execMock = {
+      start: startExecMock,
+      inspect: inspectExecMock,
+    };
+
+    const containerExecMock = vi.fn().mockResolvedValue(execMock);
+
+    const dockerode = new Dockerode();
+    const modem = dockerode.modem;
+
+    const dockerodeContainer = {
+      exec: containerExecMock,
+      modem: modem,
+    } as unknown as Dockerode.Container;
+
+    vi.spyOn(containerRegistry, 'getMatchingContainer').mockReturnValue(dockerodeContainer);
+
+    let stdout = '';
+    const stdoutFunction = (data: Buffer) => {
+      stdout += data.toString();
+    };
+
+    let stderr = '';
+    const stderrFunction = (data: Buffer) => {
+      stderr += data.toString();
+    };
+
+    const promiseExec = containerRegistry.execInContainer(
+      'dummy',
+      '1234567890',
+      ['echo', 'hello', 'world'],
+      stdoutFunction,
+      stderrFunction,
+    );
+    // wait method is initialized
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // send data on stdout
+    writeData(startStream, 'stdout', 'hello ');
+    writeData(startStream, 'stdout', 'world');
+
+    // send data on stderr
+    writeData(startStream, 'stderr', 'warning ');
+    writeData(startStream, 'stderr', 'message');
+
+    // wait and then say that stream is ended
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // here we don't send end but says that the process is no longer running
+    inspectResult.Running = false;
+
+    // wait the end
+    await promiseExec;
+
+    // expect destroy to have been called
+    expect(destroyMock).toHaveBeenCalled();
+
+    expect(stdout).toBe('hello world');
+    expect(stderr).toBe('warning message');
+  });
 });
