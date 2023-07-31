@@ -151,7 +151,9 @@ function toggleCheckboxContainerGroup(checked: boolean, containerGroup: Containe
 let bulkDeleteInProgress = false;
 async function deleteSelectedContainers() {
   // delete pods first if any
-  const podGroups = containerGroups.filter(group => group.type === ContainerGroupInfoTypeUI.POD);
+  const podGroups = containerGroups
+    .filter(group => group.type === ContainerGroupInfoTypeUI.POD)
+    .filter(pod => pod.selected);
   if (podGroups.length > 0) {
     await Promise.all(
       podGroups.map(async podGroup => {
@@ -163,7 +165,7 @@ async function deleteSelectedContainers() {
       }),
     );
   }
-  // then containers (that are no inside a pod)
+  // then containers (that are not inside a pod)
   const selectedContainers = containerGroups
     .filter(group => group.type !== ContainerGroupInfoTypeUI.POD)
     .map(group => group.containers)
