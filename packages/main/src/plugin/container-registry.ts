@@ -50,6 +50,8 @@ import { Emitter } from './events/emitter.js';
 import fs from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import type { ApiSenderType } from './api.js';
+import { Writable } from 'stream';
+
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -1192,6 +1194,69 @@ export class ContainerProviderRegistry {
         .track('logsContainer', telemetryOptions)
         .catch((err: unknown) => console.error('Unable to track', err));
     }
+  }
+
+  async execInContainer(
+    engineId: string,
+    id: string,
+    command: string[],
+    onStdout: (data: Buffer) => void,
+    onStderr: (data: Buffer) => void,
+  ): Promise<void> {
+    const container = this.getMatchingContainer(engineId, id);
+
+    const exec = await container.exec({
+      AttachStdout: true,
+      AttachStderr: true,
+      AttachStdin: false,
+      Cmd: command,
+      Tty: false,
+    });
+
+    const execStream = await exec.start({ hijack: true, stdin: false });
+
+    const wrappedAsStream = (redirect: (data: Buffer) => void): Writable => {
+      return new Writable({
+        write: (chunk, _encoding, done) => {
+          redirect(chunk);
+          done();
+        },
+      });
+    };
+
+    const stdoutEchoStream = wrappedAsStream(onStdout);
+    const stderrEchoStream = wrappedAsStream(onStderr);
+
+    container.modem.demuxStream(execStream, stdoutEchoStream, stderrEchoStream);
+
+    return new Promise((resolve, reject) => {
+      const check = async () => {
+        const r = await exec.inspect();
+
+        if (!r.Running) {
+          clearInterval(timer);
+          execStream.destroy();
+          resolve();
+        }
+      };
+
+      // workaround if end callback is not called
+      // it seems it happens sometimes on Windows
+      const timer = setInterval(() => {
+        check().catch((err: unknown) => {
+          console.log('error in check', err);
+        });
+      }, 1000);
+
+      execStream.on('end', () => {
+        clearInterval(timer);
+        resolve();
+      });
+      execStream.on('error', err => {
+        clearInterval(timer);
+        reject(err);
+      });
+    });
   }
 
   async shellInContainer(
