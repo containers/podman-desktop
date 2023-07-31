@@ -21,7 +21,6 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import * as http from 'node:http';
 import * as fs from 'node:fs';
-import { readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { RegistrySetup } from './registry-setup';
 
@@ -235,13 +234,10 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
     // Make sure we do notifyDefault = false so we don't keep notifying the user when this dialog is open.
     defaultMachineMonitor = false;
 
+    const defaultMachineText = defaultMachine ? `(default is '${defaultMachine.Name}')` : '';
     // Create an information message to ask the user if they wish to set the running machine as default.
     const result = await extensionApi.window.showInformationMessage(
-      `Podman Machine '${runningMachine.Name}' is running but not the default machine ${
-        defaultMachine ? "(default is '" + defaultMachine.Name + "')" : ''
-      }. This will cause podman CLI errors while trying to connect to '${
-        runningMachine.Name
-      }'. Do you want to set it as default?`,
+      `Podman Machine '${runningMachine.Name}' is running but not the default machine ${defaultMachineText}. This will cause podman CLI errors while trying to connect to '${runningMachine.Name}'. Do you want to set it as default?`,
       'Yes',
       'Ignore',
       'Cancel',
@@ -254,6 +250,7 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
         // eslint-disable-next-line quotes
         console.error("Error running 'podman system connection default': ", error);
         await extensionApi.window.showErrorMessage(`Error running 'podman system connection default': ${error}`);
+        return;
       }
 
       try {
@@ -262,8 +259,8 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
         const machineInfo = JSON.parse(machineInfoJson);
         const filepath = path.join(machineInfo.Host.MachineConfigDir, `${runningMachine.Name}.json`);
         if (fs.existsSync(filepath)) {
-          const machineConfigJson = await readFile(filepath, 'utf8');
-          if (machineConfigJson.length > 0) {
+          const machineConfigJson = await fs.promises.readFile(filepath, 'utf8');
+          if (machineConfigJson && machineConfigJson.length > 0) {
             const machineConfig = JSON.parse(machineConfigJson);
             if (machineConfig.Rootful) {
               //if it's rootful let's update the connection
