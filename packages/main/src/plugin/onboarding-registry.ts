@@ -78,30 +78,6 @@ export class OnboardingRegistry {
     return this.onboardingInfos;
   }
 
-  async executeOnboardingCommand(executionId: number, extension: string, command: string): Promise<void> {
-    try {
-      // retrieve context for extension
-      const response = await this.commandRegistry.executeCommand<{ [key: string]: any }>(command);
-      this.apiSender.send('onboarding:command-executed', {
-        executionId,
-        extension,
-        command,
-        status: 'succeeded',
-        body: response,
-      });
-    } catch (e) {
-      this.apiSender.send('onboarding:command-executed', {
-        executionId,
-        extension,
-        command,
-        status: 'failed',
-        body: {
-          error: e,
-        },
-      });
-    }
-  }
-
   updateStepState(status: OnboardingStatus, extension: string, stepId?: string): void {
     const onboarding = this.onboardingInfos.find(onboarding => onboarding.extension === extension);
     if (!onboarding) {

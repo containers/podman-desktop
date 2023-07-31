@@ -1740,13 +1740,6 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
-      'onboardingRegistry:executeOnboardingCommand',
-      async (_listener, executionId: number, extension: string, command: string): Promise<void> => {
-        return onboardingRegistry.executeOnboardingCommand(executionId, extension, command);
-      },
-    );
-
-    this.ipcHandle(
       'onboardingRegistry:updateStepState',
       async (_listener, status: OnboardingStatus, extension: string, stepId?: string): Promise<void> => {
         return onboardingRegistry.updateStepState(status, extension, stepId);

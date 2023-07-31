@@ -1491,13 +1491,6 @@ function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld(
-    'executeOnboardingCommand',
-    async (executionId: number, extension: string, command: string): Promise<void> => {
-      return ipcInvoke('onboardingRegistry:executeOnboardingCommand', executionId, extension, command);
-    },
-  );
-
-  contextBridge.exposeInMainWorld(
     'updateStepState',
     async (status: OnboardingStatus, extension: string, stepId?: string): Promise<void> => {
       return ipcInvoke('onboardingRegistry:updateStepState', status, extension, stepId);
