@@ -353,20 +353,20 @@ export class DockerDesktopInstallation {
   }
 
   protected async handleExtensionVMServiceRequest(port: string, config: RequestConfig): Promise<unknown> {
-    const method: Method = this.asGotMethod(config.method);
-
-    const options: OptionsOfTextResponseBody = {
-      method,
-    };
-
-    if (config.data) {
-      options.json = config.data;
-    }
-
-    options.headers = config.headers;
-
     // use got library
     try {
+      const method: Method = this.asGotMethod(config.method);
+
+      const options: OptionsOfTextResponseBody = {
+        method,
+      };
+
+      if (config.data) {
+        options.json = config.data;
+      }
+
+      options.headers = config.headers;
+
       const response = await got(`http://localhost:${port}${config.url}`, options);
 
       // try to see if response is json
@@ -384,6 +384,8 @@ export class DockerDesktopInstallation {
         throw Error('Unable to get access');
       } else if (requestErr instanceof Error) {
         throw Error(requestErr.message);
+      } else {
+        throw Error('Unknown error: ' + requestErr);
       }
     }
   }

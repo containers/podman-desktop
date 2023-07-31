@@ -221,4 +221,19 @@ describe('handleExtensionVMServiceRequest', () => {
       }),
     ).rejects.toThrowError('Dummy error');
   });
+
+  test('Check unknown error ', async () => {
+    vi.spyOn(dockerDesktopInstallation, 'asGotMethod').mockImplementationOnce(() => {
+      throw 'foo error';
+    });
+
+    await expect(
+      dockerDesktopInstallation.handleExtensionVMServiceRequest('10000', {
+        method: 'Invalid',
+        headers: {},
+        url: '/foo/bar',
+        data: undefined,
+      }),
+    ).rejects.toThrowError('Unknown error: foo error');
+  });
 });
