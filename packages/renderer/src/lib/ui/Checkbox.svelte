@@ -27,7 +27,7 @@ function onClick(checked: boolean) {
     on:click="{event => onClick(event.currentTarget.checked)}" />
   <div
     class="grid place-content-center"
-    title="{disabled ? disabledTooltip : ''}"
+    title="{disabled ? disabledTooltip : title}"
     class:cursor-pointer="{!disabled}"
     class:cursor-not-allowed="{disabled}">
     {#if disabled}

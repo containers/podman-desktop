@@ -449,6 +449,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               </td>
               <td class="px-2">
                 <Checkbox
+                  title="Toggle {containerGroup.type}"
                   bind:checked="{containerGroup.selected}"
                   on:click="{event => toggleCheckboxContainerGroup(event.detail, containerGroup)}" />
               </td>
@@ -528,7 +529,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     : ''}">
                 </td>
                 <td class="px-2">
-                  <Checkbox bind:checked="{container.selected}" />
+                  <Checkbox title="Toggle container" bind:checked="{container.selected}" />
                 </td>
                 <td class="flex flex-row justify-center h-12">
                   <div class="grid place-content-center ml-3 mr-4">
