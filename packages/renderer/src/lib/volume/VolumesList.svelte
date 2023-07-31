@@ -215,6 +215,7 @@ function computeInterval(): number {
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
             <Checkbox
+              title="Toggle all"
               bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
               on:click="{event => toggleAllVolumes(event.detail)}" />
@@ -232,6 +233,7 @@ function computeInterval(): number {
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
               <Checkbox
+                title="Toggle volume"
                 bind:checked="{volume.selected}"
                 disabled="{volume.inUse}"
                 disabledTooltip="Volume is used by a container" />
