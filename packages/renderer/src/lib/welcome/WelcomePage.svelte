@@ -8,6 +8,7 @@ import { WelcomeUtils } from './welcome-utils';
 import { router } from 'tinro';
 import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
 import Tooltip from '../ui/Tooltip.svelte';
+import Button from '../ui/Button.svelte';
 
 export let showWelcome = false;
 export let showTelemetry = false;
@@ -138,12 +139,10 @@ function closeWelcome() {
     <!-- Footer - button bar -->
     <div class="flex justify-end flex-none bg-charcoal-600 p-8">
       <div class="flex flex-row">
-        <button
-          class="pf-c-button pf-m-primary w-30 px-6"
-          type="button"
+        <Button
           on:click="{() => {
             closeWelcome();
-          }}">Go to Podman Desktop</button>
+          }}">Go to Podman Desktop</Button>
       </div>
     </div>
   </div>
