@@ -29,6 +29,9 @@ import type { PullEvent } from '../api/pull-event.js';
 import type { ContributionManager } from '../contribution-manager.js';
 import type { ApiSenderType } from '../api.js';
 import type { Directories } from '../directories.js';
+import type { Method, OptionsOfTextResponseBody } from 'got';
+import got, { RequestError } from 'got';
+import type { RequestConfig } from '@docker/extension-api-client-types/dist/v1';
 
 export class DockerDesktopInstallation {
   constructor(
@@ -310,5 +313,78 @@ export class DockerDesktopInstallation {
         this.apiSender.send('toast:handler', { type, message });
       },
     );
+
+    ipcMain.handle(
+      'docker-desktop-adapter:extensionVMServiceRequest',
+      async (_event: IpcMainInvokeEvent, port: string, config: RequestConfig): Promise<unknown> => {
+        return this.handleExtensionVMServiceRequest(port, config);
+      },
+    );
+  }
+
+  // transform the method name to a got method
+  protected isGotMethod(methodName: string): methodName is Method {
+    const allMethods = [
+      'GET',
+      'POST',
+      'PUT',
+      'PATCH',
+      'HEAD',
+      'DELETE',
+      'OPTIONS',
+      'TRACE',
+      'get',
+      'post',
+      'put',
+      'patch',
+      'head',
+      'delete',
+      'options',
+      'trace',
+    ];
+    return allMethods.includes(methodName);
+  }
+
+  protected asGotMethod(methodName: string): Method {
+    if (!this.isGotMethod(methodName)) {
+      throw Error('Invalid method');
+    }
+    return methodName as Method;
+  }
+
+  protected async handleExtensionVMServiceRequest(port: string, config: RequestConfig): Promise<unknown> {
+    const method: Method = this.asGotMethod(config.method);
+
+    const options: OptionsOfTextResponseBody = {
+      method,
+    };
+
+    if (config.data) {
+      options.json = config.data;
+    }
+
+    options.headers = config.headers;
+
+    // use got library
+    try {
+      const response = await got(`http://localhost:${port}${config.url}`, options);
+
+      // try to see if response is json
+      try {
+        return JSON.parse(response.body);
+      } catch (error) {
+        // provides the body as is
+        return response.body;
+      }
+    } catch (requestErr) {
+      if (
+        requestErr instanceof RequestError &&
+        (requestErr.response?.statusCode === 401 || requestErr.response?.statusCode === 403)
+      ) {
+        throw Error('Unable to get access');
+      } else if (requestErr instanceof Error) {
+        throw Error(requestErr.message);
+      }
+    }
   }
 }
