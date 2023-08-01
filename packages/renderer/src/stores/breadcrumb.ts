@@ -20,11 +20,12 @@ import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import type { TinroBreadcrumb } from 'tinro';
 
-export const currentPage: Writable<TinroBreadcrumb> = writable({ name: 'Unknown', path: '/' } as TinroBreadcrumb);
-export const lastPage: Writable<TinroBreadcrumb> = writable({ name: 'Unknown', path: '/' } as TinroBreadcrumb);
+const home = { name: 'Home', path: '/' } as TinroBreadcrumb;
+export const currentPage: Writable<TinroBreadcrumb> = writable(home);
+export const lastPage: Writable<TinroBreadcrumb> = writable(home);
 
-export const listPage: Writable<TinroBreadcrumb> = writable();
-export const detailsPage: Writable<TinroBreadcrumb> = writable();
+export const listPage: Writable<TinroBreadcrumb> = writable(home);
+export const detailsPage: Writable<TinroBreadcrumb> = writable(home);
 
 export function mockBreadcrumb() {
   listPage.set({ name: 'List', path: '/list' } as TinroBreadcrumb);
