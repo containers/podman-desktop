@@ -19,7 +19,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-
+import * as fs from 'fs';
 import type { Method } from 'got';
 import type { ContributionManager } from '../contribution-manager.js';
 import type { ContainerProviderRegistry } from '../container-registry.js';
@@ -28,15 +28,29 @@ import type { Directories } from '../directories.js';
 import { DockerDesktopInstallation } from './docker-desktop-installation.js';
 import type { RequestConfig } from '@docker/extension-api-client-types/dist/v1/http-service.js';
 import nock from 'nock';
+import type { IpcMainEvent } from 'electron';
+import type Dockerode from 'dockerode';
+import type { ProviderContainerConnectionInfo } from '../api/provider-info.js';
 
 let dockerDesktopInstallation: TestDockerDesktopInstallation;
 
-const contributionManager = {} as unknown as ContributionManager;
-const containerProviderRegistry = {} as unknown as ContainerProviderRegistry;
+const contributionManagerLoadMetadataMock = vi.fn();
+const contributionManagerInitMock = vi.fn();
+const contributionManager = {
+  init: contributionManagerInitMock,
+  loadMetadata: contributionManagerLoadMetadataMock,
+} as unknown as ContributionManager;
+
+const containerProviderGetFirstRunningConnectionMock = vi.fn();
+const containerProviderRegistryPullImageMock = vi.fn();
+const containerProviderRegistry = {
+  getFirstRunningConnection: containerProviderGetFirstRunningConnectionMock,
+  pullImage: containerProviderRegistryPullImageMock,
+} as unknown as ContainerProviderRegistry;
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
   getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
-  getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
+  getContributionStorageDir: () => '/fake-contribution-storage-directory',
 } as unknown as Directories;
 
 const apiSender: ApiSenderType = {
@@ -56,6 +70,10 @@ class TestDockerDesktopInstallation extends DockerDesktopInstallation {
 
   async handleExtensionVMServiceRequest(port: string, config: RequestConfig): Promise<unknown> {
     return super.handleExtensionVMServiceRequest(port, config);
+  }
+
+  async handlePluginInstall(event: IpcMainEvent, imageName: string, logCallbackId: number): Promise<void> {
+    return super.handlePluginInstall(event, imageName, logCallbackId);
   }
 }
 
@@ -236,4 +254,86 @@ describe('handleExtensionVMServiceRequest', () => {
       }),
     ).rejects.toThrowError('Unknown error: foo error');
   });
+});
+
+test('Check handlePluginInstall', async () => {
+  vi.mock('node:fs');
+
+  const allReplies: string[] = [];
+
+  const ipcMainEventReplyMock = vi.fn().mockImplementation((channel: string, ...args: any[]) => {
+    allReplies.push(`${channel}=>${args.join(',')}`);
+  });
+
+  const ipcMainEvent = {
+    reply: ipcMainEventReplyMock,
+  } as unknown as IpcMainEvent;
+
+  const imageNameToInstall = 'foo/bar:latest';
+
+  const providerConnectionListImagesMock = vi.fn();
+  const providerConnectionGetImageMock = vi.fn();
+
+  const providerConnectionMock = {
+    listImages: providerConnectionListImagesMock,
+    getImage: providerConnectionGetImageMock,
+  } as unknown as Dockerode;
+
+  // mock containerRegistry.getFirstRunningConnection()
+  containerProviderGetFirstRunningConnectionMock.mockReturnValue([
+    {} as unknown as ProviderContainerConnectionInfo,
+    providerConnectionMock,
+  ]);
+
+  // mock listImages
+  const matchingImage = { RepoTags: [imageNameToInstall], Id: '123456Id' };
+  providerConnectionListImagesMock.mockResolvedValue([matchingImage]);
+
+  // mock fs.unlinkSync
+  vi.spyOn(fs, 'unlinkSync').mockResolvedValue();
+
+  const imageAnalysis = {
+    Config: {
+      Labels: {
+        'org.opencontainers.image.title': 'FooTitle',
+        'org.opencontainers.image.description': 'Foo description',
+        'org.opencontainers.image.vendor': 'Foo vendor',
+        'com.docker.desktop.extension.api.version': '1.0.0',
+      },
+    },
+  };
+
+  // mock getImage
+  providerConnectionGetImageMock.mockReturnValue({
+    remove: vi.fn(),
+    inspect: vi.fn().mockResolvedValue(imageAnalysis),
+  });
+
+  // mock exportContentOfContainer
+  vi.spyOn(dockerDesktopInstallation, 'exportContentOfContainer').mockResolvedValue();
+
+  // mock unpackTarFile
+  vi.spyOn(dockerDesktopInstallation, 'unpackTarFile').mockResolvedValue();
+
+  // mock extractDockerDesktopFiles
+  vi.spyOn(dockerDesktopInstallation, 'extractDockerDesktopFiles').mockResolvedValue();
+
+  contributionManagerLoadMetadataMock.mockResolvedValue({
+    name: 'My Extension',
+  });
+
+  const logCallbackId = 2503;
+
+  await dockerDesktopInstallation.handlePluginInstall(ipcMainEvent, imageNameToInstall, logCallbackId);
+
+  // check we received end event
+  expect(allReplies).toEqual(
+    expect.arrayContaining(['docker-desktop-plugin:install-end=>2503,Extension Successfully installed.']),
+  );
+
+  // checked no error
+  expect(allReplies.filter(line => line.includes('docker-desktop-plugin:install-error')).length).toEqual(0);
+
+  // contribution manager is called
+  expect(contributionManagerInitMock).toBeCalled();
 });
