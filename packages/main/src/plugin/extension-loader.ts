@@ -64,7 +64,7 @@ import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
 import { createHttpPatchedModules } from './proxy-resolver.js';
-import * as ModuleLoader from './module-loader.js';
+import { ModuleLoader } from './module-loader.js';
 
 /**
  * Handle the loading of an extension
@@ -102,6 +102,8 @@ const EXTENSION_OPTION = '--extension-folder';
 
 export class ExtensionLoader {
   private overrideRequireDone = false;
+
+  private moduleLoader: ModuleLoader;
 
   private activatedExtensions = new Map<string, ActivatedExtension>();
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
@@ -148,6 +150,7 @@ export class ExtensionLoader {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
     this.extensionsStorageDirectory = directories.getExtensionsStorageDirectory();
+    this.moduleLoader = new ModuleLoader(require('module'), this.analyzedExtensions);
   }
 
   mapError(err: unknown): ExtensionError | undefined {
@@ -205,10 +208,10 @@ export class ExtensionLoader {
       fs.mkdirSync(this.pluginsScanDirectory, { recursive: true });
     }
 
-    ModuleLoader.addOverride(createHttpPatchedModules(this.proxy)); // add patched http and https
-    ModuleLoader.addOverride({ '@podman-desktop/api': ext => ext.api }); // add podman desktop API
+    this.moduleLoader.addOverride(createHttpPatchedModules(this.proxy)); // add patched http and https
+    this.moduleLoader.addOverride({ '@podman-desktop/api': ext => ext.api }); // add podman desktop API
 
-    ModuleLoader.overrideRequire(this.analyzedExtensions);
+    this.moduleLoader.overrideRequire();
   }
 
   protected async setupScanningDirectory(): Promise<void> {
