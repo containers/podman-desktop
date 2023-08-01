@@ -9,7 +9,8 @@ export let item: OnboardingStepItem;
 export let getContext: () => ContextUI;
 export let executeCommand: (command: string) => Promise<void>;
 
-const re = new RegExp(/\${onContext:(.+?)}/g);
+const onboardingContextRegex = new RegExp(/\${onboardingContext:(.+?)}/g);
+const globalContextRegex = new RegExp(/\${onContext:(.+?)}/g);
 let html;
 let isMarkdown = false;
 $: buttons = new Map<string, string>();
@@ -51,19 +52,32 @@ function createItem(item: OnboardingStepItem): string {
   }
   return html;
 }
+
 function replacePlaceholders(label: string): string {
   let newLabel = label;
+  newLabel = replacePlaceHoldersRegex(onboardingContextRegex, newLabel, `${extension}.${SCOPE_ONBOARDING}`);
+  newLabel = replacePlaceHoldersRegex(globalContextRegex, newLabel);
+  return newLabel;
+}
+
+function replacePlaceHoldersRegex(regex: RegExp, label: string, prefix?: string) {
   let arr;
   // eslint-disable-next-line eqeqeq
-  while ((arr = re.exec(newLabel)) != undefined) {
-    if (arr.length > 1) {
-      const replacement = getContext().getValue(`${extension}.${SCOPE_ONBOARDING}.${arr[1]}`);
-      if (replacement) {
-        newLabel = newLabel.replace(arr[0], replacement.toString());
-      }
+  while ((arr = regex.exec(label)) != undefined) {
+    label = getNewValue(label, arr, prefix);
+  }
+  return label;
+}
+
+function getNewValue(label: string, execArray: RegExpExecArray, prefix?: string) {
+  if (execArray.length > 1) {
+    const key = prefix ? `${prefix}.${execArray[1]}` : execArray[1];
+    const replacement = getContext().getValue(key);
+    if (replacement) {
+      return label.replace(execArray[0], replacement.toString());
     }
   }
-  return newLabel;
+  return label;
 }
 </script>
 

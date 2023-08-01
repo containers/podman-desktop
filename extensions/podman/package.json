@@ -124,13 +124,13 @@
           "id": "startPodmanInstallation",
           "label": "Start Setup",
           "title": "We could not find Podman. Let's install it!",
-          "when": "onContext:podmanIsNotInstalled == true"
+          "when": "onboardingContext:podmanIsNotInstalled == true"
         },
         {
           "id": "checkPodmanRequirements",
           "label": "Check System",
           "title": "Checking for system requirements to install Podman",
-          "when": "onContext:podmanIsNotInstalled == true",
+          "when": "onboardingContext:podmanIsNotInstalled == true",
           "command": "podman.onboarding.checkPodmanRequirements",
           "completionEvents": [
             "onCommand:podman.onboarding.checkPodmanRequirements"
@@ -140,14 +140,14 @@
           "id": "missingRequirementView",
           "label": "Fix System",
           "title": "Some system requirements are missing",
-          "when": "onContext:requirementsStatus == failed && onContext:podmanIsNotInstalled == true",
+          "when": "onboardingContext:requirementsStatus == failed && onboardingContext:podmanIsNotInstalled == true",
           "completionEvents": [
-            "onContext:requirementsStatus == ok"
+            "onboardingContext:requirementsStatus == ok"
           ],
           "content": [
             [
               {
-                "value": "${onContext:warningsMarkdown}",
+                "value": "${onboardingContext:warningsMarkdown}",
                 "highlight": true
               }
             ],
@@ -170,7 +170,7 @@
           "label": "Install Podman",
           "title": "Installing Podman",
           "description": "Once installed, we will enable and configure the extension",
-          "when": "onContext:podmanIsNotInstalled == true",
+          "when": "onboardingContext:podmanIsNotInstalled == true",
           "command": "podman.onboarding.installPodman",
           "completionEvents": [
             "onCommand:podman.onboarding.installPodman"
@@ -180,13 +180,13 @@
           "id": "podmanFailedInstallation",
           "label": "Done",
           "title": "Failed installing Podman",
-          "when": "onContext:podmanIsNotInstalled == true"
+          "when": "onboardingContext:podmanIsNotInstalled == true"
         },
         {
           "id": "podmanInstalled",
           "label": "Done",
           "title": "Podman successfully installed",
-          "when": "onContext:podmanIsNotInstalled == false"
+          "when": "onboardingContext:podmanIsNotInstalled == false"
         }
       ]
     }

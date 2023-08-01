@@ -21,4 +21,4 @@ export const STATUS_COMPLETED = 'completed';
 export const STATUS_SKIPPED = 'skipped';
 
 export const ON_COMMAND_PREFIX = 'onCommand:';
-export const ON_CONTEXT_PREFIX = 'onContext:';
+export const ONBOARDING_CONTEXT_PREFIX = 'onboardingContext:';

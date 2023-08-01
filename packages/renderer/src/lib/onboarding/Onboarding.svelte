@@ -13,7 +13,7 @@ import { router } from 'tinro';
 import { context } from '/@/stores/context';
 import {
   ON_COMMAND_PREFIX,
-  ON_CONTEXT_PREFIX,
+  ONBOARDING_CONTEXT_PREFIX,
   SCOPE_ONBOARDING,
   STATUS_COMPLETED,
   STATUS_SKIPPED,
@@ -140,7 +140,7 @@ async function setActiveStep() {
 }
 
 function normalize(when: string, extension: string): string {
-  return when.replaceAll(ON_CONTEXT_PREFIX, `${extension}.${SCOPE_ONBOARDING}.`);
+  return when.replaceAll(ONBOARDING_CONTEXT_PREFIX, `${extension}.${SCOPE_ONBOARDING}.`);
 }
 
 async function doExecuteCommand(command: string) {
@@ -163,8 +163,8 @@ async function assertStepCompleted() {
       }
 
       // check if cmp string is an onContext event, check the value from context
-      if (cmp.startsWith(ON_CONTEXT_PREFIX)) {
-        cmp = cmp.replace(ON_CONTEXT_PREFIX, `${activeStep.onboarding.extension}.${SCOPE_ONBOARDING}.`);
+      if (cmp.startsWith(ONBOARDING_CONTEXT_PREFIX)) {
+        cmp = cmp.replace(ONBOARDING_CONTEXT_PREFIX, `${activeStep.onboarding.extension}.${SCOPE_ONBOARDING}.`);
         const completionEventDeserialized = ContextKeyExpr.deserialize(cmp);
         if (!globalContext) {
           return false;
