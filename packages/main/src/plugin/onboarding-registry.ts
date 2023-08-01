@@ -19,67 +19,80 @@
 
 import * as path from 'path';
 import type { Onboarding, OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
-import type { CommandRegistry } from './command-registry.js';
-import type { ApiSenderType } from './api.js';
 import type { AnalyzedExtension } from './extension-loader.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { getBase64Image } from '../util.js';
 import type { Context } from './context/context.js';
 
 export class OnboardingRegistry {
-  private onboardingInfos: OnboardingInfo[] = [];
+  private onboardingInfos: Map<string, OnboardingInfo> = new Map<string, OnboardingInfo>();
+  private runningOnboardingExtension: string | undefined = undefined;
 
-  constructor(
-    private apiSender: ApiSenderType,
-    private commandRegistry: CommandRegistry,
-    private configurationRegistry: ConfigurationRegistry,
-    private context: Context,
-  ) {}
+  constructor(private configurationRegistry: ConfigurationRegistry, private context: Context) {}
 
   registerOnboarding(extension: AnalyzedExtension, onboarding: Onboarding): void {
     const onInfo = this.createOnboardingInfo(extension, onboarding);
-    this.onboardingInfos.push(onInfo);
+    this.onboardingInfos.set(extension.id, onInfo);
   }
 
   unregisterOnboarding(extension: string): void {
-    this.onboardingInfos = this.onboardingInfos.filter(onboarding => onboarding.extension !== extension);
+    this.onboardingInfos.delete(extension);
   }
 
   getOnboarding(extension: string): OnboardingInfo | undefined {
     const isOnboardingEnabled = this.configurationRegistry.getConfiguration('experimental').get('onboarding');
     if (isOnboardingEnabled) {
-      return this.onboardingInfos.find(onboarding => onboarding.extension === extension);
+      return this.onboardingInfos.get(extension);
     }
     return undefined;
   }
 
+  getRunningOnboardingExtensionId(): string | undefined {
+    return this.runningOnboardingExtension;
+  }
+
   createOnboardingInfo(extension: AnalyzedExtension, onboarding: Onboarding): OnboardingInfo {
     //TODO we need to check the onboarding has a valid schema. contains atleast a step and substep
-    this.convertImages(extension.path, onboarding);
+    this.convertImages(extension, onboarding);
     return {
       ...onboarding,
       extension: extension.id,
     };
   }
 
-  convertImages(rootPath: string, onboarding: Onboarding) {
+  convertImages(extension: AnalyzedExtension, onboarding: Onboarding) {
     if (onboarding.media?.path) {
-      onboarding.media.path = getBase64Image(path.resolve(rootPath, onboarding.media.path));
+      onboarding.media.path = getBase64Image(path.resolve(extension.path, onboarding.media.path));
+    } else if (extension.manifest?.icon) {
+      // if no image has been set for the onboarding, it uses the extension icon
+      onboarding.media = {
+        path: getBase64Image(path.resolve(extension.path, extension.manifest.icon)),
+        altText: 'icon',
+      };
     }
 
     for (const step of onboarding.steps) {
       if (step.media?.path) {
-        step.media.path = getBase64Image(path.resolve(rootPath, step.media.path));
+        step.media.path = getBase64Image(path.resolve(extension.path, step.media.path));
       }
     }
   }
 
   listOnboarding(): OnboardingInfo[] {
-    return this.onboardingInfos;
+    return Array.from(this.onboardingInfos.values());
+  }
+
+  /**
+   * it sets the extension which is currently running its onboarding
+   *
+   * @param extensionId extension used to retrieve the onboarding
+   */
+  setRunningOnboarding(extensionId?: string) {
+    this.runningOnboardingExtension = extensionId;
   }
 
   updateStepState(status: OnboardingStatus, extension: string, stepId?: string): void {
-    const onboarding = this.onboardingInfos.find(onboarding => onboarding.extension === extension);
+    const onboarding = this.onboardingInfos.get(extension);
     if (!onboarding) {
       throw new Error(`No onboarding for extension ${extension}`);
     }
@@ -91,30 +104,45 @@ export class OnboardingRegistry {
       step.status = status;
     } else {
       onboarding.status = status;
+      // when it updates the onboarding status, it is completed so it resets the running onboarding value
+      this.setRunningOnboarding(undefined);
     }
   }
 
+  /**
+   * This function reset all the values created/updated during a previous onboarding
+   *
+   * @param extensions list of the extensions to reset their onboarding
+   * @returns n/a
+   */
   resetOnboarding(extensions: string[]): void {
     if (extensions.length === 0) {
       return;
     }
-    const onboardings = this.onboardingInfos.filter(onboarding =>
-      extensions.find(extension => onboarding.extension === extension),
-    );
+    const onboardings: OnboardingInfo[] = [];
+    extensions.forEach(extension => {
+      const onboarding = this.onboardingInfos.get(extension);
+      if (onboarding) {
+        onboardings.push(onboarding);
+      }
+    });
     if (onboardings.length === 0) {
       throw new Error(`No onboarding found for extensions ${extensions.join(',')}`);
     }
+    const contextValues = this.context.collectAllValues();
     onboardings.forEach(onboarding => {
+      // reset onboarding status
       onboarding.status = undefined;
+      // reset steps status
       onboarding.steps.forEach(step => {
         step.status = undefined;
       });
-    });
-    const contextValues = this.context.collectAllValues();
-    for (const key in contextValues) {
-      if (key.startsWith('onboarding.')) {
-        this.context.removeValue(key, true);
+      // remove context key added during the onboarding
+      for (const key in contextValues) {
+        if (key.startsWith(`${onboarding.extension}.onboarding`)) {
+          this.context.removeValue(key, true);
+        }
       }
-    }
+    });
   }
 }

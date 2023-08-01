@@ -3,6 +3,8 @@ import { onDestroy, onMount } from 'svelte';
 import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import Markdown from '../markdown/Markdown.svelte';
 import type { ContextUI } from '../context/context';
+import { SCOPE_ONBOARDING } from './onboarding-utils';
+export let extension: string;
 export let item: OnboardingStepItem;
 export let getContext: () => ContextUI;
 export let executeCommand: (command: string) => Promise<void>;
@@ -55,7 +57,7 @@ function replacePlaceholders(label: string): string {
   // eslint-disable-next-line eqeqeq
   while ((arr = re.exec(newLabel)) != undefined) {
     if (arr.length > 1) {
-      const replacement = getContext().getValue(arr[1]);
+      const replacement = getContext().getValue(`${extension}.${SCOPE_ONBOARDING}.${arr[1]}`);
       if (replacement) {
         newLabel = newLabel.replace(arr[0], replacement.toString());
       }

@@ -1,15 +1,8 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
 import type { OnboardingInfo, OnboardingStep, OnboardingStatus } from '../../../../main/src/plugin/api/onboarding';
-import { faCircle } from '@fortawesome/free-regular-svg-icons';
-import {
-  faCircleCheck,
-  faCircleChevronRight,
-  faCircleQuestion,
-  faCircleXmark,
-  faCircle as faFilledCircle,
-  faForward,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faCircleQuestion, faCircleXmark, faCircle } from '@fortawesome/free-regular-svg-icons';
+import { faCircleChevronRight, faCircle as faFilledCircle, faForward } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { onboardingList } from '/@/stores/onboarding';
@@ -18,6 +11,13 @@ import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import { router } from 'tinro';
 import { context } from '/@/stores/context';
+import {
+  ON_COMMAND_PREFIX,
+  ON_CONTEXT_PREFIX,
+  SCOPE_ONBOARDING,
+  STATUS_COMPLETED,
+  STATUS_SKIPPED,
+} from './onboarding-utils';
 
 interface ActiveOnboardingStep {
   onboarding: OnboardingInfo;
@@ -108,12 +108,15 @@ async function setActiveStep() {
   }
   for (const onboarding of onboardings) {
     if (!onboarding.status) {
+      //set active onboarding
+      await window.setRunningOnboarding(onboarding.extension);
       for (let i = 0; i < onboarding.steps.length; i++) {
         const step = onboarding.steps[i];
         if (!step.status) {
           let whenDeserialized;
           if (step.when) {
-            whenDeserialized = ContextKeyExpr.deserialize(step.when);
+            const when = normalize(step.when, onboarding.extension);
+            whenDeserialized = ContextKeyExpr.deserialize(when);
           }
           if (!step.when || whenDeserialized?.evaluate(globalContext)) {
             activeStep = {
@@ -121,12 +124,12 @@ async function setActiveStep() {
               step,
             };
             if (step.command) {
-              await doExecuteCommand(onboarding.extension, step.command);
+              await doExecuteCommand(step.command);
               await assertStepCompleted();
             }
             return;
           } else {
-            await updateOnboardingStepStatus(onboarding, step, 'skipped');
+            await updateOnboardingStepStatus(onboarding, step, STATUS_SKIPPED);
             continue;
           }
         }
@@ -138,7 +141,11 @@ async function setActiveStep() {
   router.goto('/');
 }
 
-async function doExecuteCommand(extension: string, command: string) {
+function normalize(when: string, extension: string): string {
+  return when.replaceAll(ON_CONTEXT_PREFIX, `${extension}.${SCOPE_ONBOARDING}.`);
+}
+
+async function doExecuteCommand(command: string) {
   setExecuting(true);
   await window.executeCommand(command);
   if (!executedCommands.includes(command)) {
@@ -153,13 +160,13 @@ async function assertStepCompleted() {
     activeStep.step.completionEvents.length === 0 ||
     activeStep.step.completionEvents.every(cmp => {
       // check if command has been executed
-      if (cmp.startsWith('onCommand:') && executedCommands.includes(cmp.replace('onCommand:', ''))) {
+      if (cmp.startsWith(ON_COMMAND_PREFIX) && executedCommands.includes(cmp.replace(ON_COMMAND_PREFIX, ''))) {
         return true;
       }
 
       // check if cmp string is an onContext event, check the value from context
-      if (cmp.startsWith('onContext:onboarding.')) {
-        cmp = cmp.replace('onContext:onboarding.', '');
+      if (cmp.startsWith(ON_CONTEXT_PREFIX)) {
+        cmp = cmp.replace(ON_CONTEXT_PREFIX, `${activeStep.onboarding.extension}.${SCOPE_ONBOARDING}.`);
         const completionEventDeserialized = ContextKeyExpr.deserialize(cmp);
         if (!globalContext) {
           return false;
@@ -171,7 +178,7 @@ async function assertStepCompleted() {
     });
 
   if (isCompleted) {
-    await updateOnboardingStepStatus(activeStep.onboarding, activeStep.step, 'completed');
+    await updateOnboardingStepStatus(activeStep.onboarding, activeStep.step, STATUS_COMPLETED);
     // reset executeCommands list
     executedCommands = [];
     await setActiveStep();
@@ -182,11 +189,10 @@ async function updateOnboardingStepStatus(onboarding: OnboardingInfo, step: Onbo
   step.status = status;
   updateStepLabel(step.label, status);
   await window.updateStepState(status, onboarding.extension, step.id);
-  const steps = onboarding.steps;
   // if completed view is the last of the whole step, mark this as completed
-  if (steps[steps.length - 1].id === step.id) {
-    onboarding.status = 'completed';
-    await window.updateStepState('completed', onboarding.extension, step.id);
+  if (onboardingLabels[onboardingLabels.length - 1].label === step.label) {
+    onboarding.status = STATUS_COMPLETED;
+    await window.updateStepState(STATUS_COMPLETED, onboarding.extension);
   }
 }
 
@@ -256,19 +262,24 @@ async function restartSetup() {
 }
 
 async function cleanContext() {
+  // reset onboarding on backend
   await window.resetOnboarding(extensionIds);
-  const values = globalContext.collectAllValues();
-  for (const key in values) {
-    if (key.startsWith('onboarding.')) {
-      globalContext.removeValue(key);
+  // clean ui context
+  const contextValues = globalContext.collectAllValues();
+  onboardings.forEach(onboarding => {
+    // remove context key added during the onboarding
+    for (const key in contextValues) {
+      if (key.startsWith(`${onboarding.extension}.${SCOPE_ONBOARDING}`)) {
+        globalContext.removeValue(key);
+      }
     }
-  }
+  });
 }
 </script>
 
 {#if activeStep}
   <div class="flex flex-col bg-[#36373a] h-full">
-    <div class="flex flex-row justify-between mb-20">
+    <div class="flex flex-row justify-between mt-5 mx-5 mb-20">
       <div class="flex flew-row">
         {#if activeStep.onboarding.media}
           <img
@@ -351,9 +362,10 @@ async function cleanContext() {
           <div class="flex flex-row mx-auto">
             {#each row as item}
               <OnboardingItem
+                extension="{activeStep.onboarding.extension}"
                 item="{item}"
                 getContext="{() => globalContext}"
-                executeCommand="{command => doExecuteCommand(activeStep.onboarding.extension, command)}" />
+                executeCommand="{command => doExecuteCommand(command)}" />
             {/each}
           </div>
         {/each}

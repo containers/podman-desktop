@@ -894,7 +894,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     async () => {
       const installation = await getPodmanInstallation();
       const installed = installation ? true : false;
-      extensionApi.context.setOnboardingValue('podman.isNotInstalled', !installed);
+      extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
     },
   );
 
@@ -945,8 +945,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         }
       }
 
-      extensionApi.context.setOnboardingValue('podman.requirementsStatus', successful ? 'ok' : 'failed');
-      extensionApi.context.setOnboardingValue('podman.warningsMarkdown', warningsMarkdown);
+      extensionApi.context.setValue('requirementsStatus', successful ? 'ok' : 'failed', 'onboarding');
+      extensionApi.context.setValue('warningsMarkdown', warningsMarkdown, 'onboarding');
     },
   );
 
@@ -957,10 +957,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         await podmanInstall.doInstallPodman(provider);
         const installation = await getPodmanInstallation();
         const installed = installation ? true : false;
-        extensionApi.context.setOnboardingValue('podman.isNotInstalled', !installed);
+        extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
       } catch (e) {
         console.error(e);
-        extensionApi.context.setOnboardingValue('podman.isNotInstalled', true);
+        extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
       }
     },
   );
