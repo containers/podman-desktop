@@ -26,7 +26,6 @@ import type { Context } from './context/context.js';
 
 export class OnboardingRegistry {
   private onboardingInfos: Map<string, OnboardingInfo> = new Map<string, OnboardingInfo>();
-  private runningOnboardingExtension: string | undefined = undefined;
 
   constructor(private configurationRegistry: ConfigurationRegistry, private context: Context) {}
 
@@ -45,10 +44,6 @@ export class OnboardingRegistry {
       return this.onboardingInfos.get(extension);
     }
     return undefined;
-  }
-
-  getRunningOnboardingExtensionId(): string | undefined {
-    return this.runningOnboardingExtension;
   }
 
   createOnboardingInfo(extension: AnalyzedExtension, onboarding: Onboarding): OnboardingInfo {
@@ -82,15 +77,6 @@ export class OnboardingRegistry {
     return Array.from(this.onboardingInfos.values());
   }
 
-  /**
-   * it sets the extension which is currently running its onboarding
-   *
-   * @param extensionId extension used to retrieve the onboarding
-   */
-  setRunningOnboarding(extensionId?: string) {
-    this.runningOnboardingExtension = extensionId;
-  }
-
   updateStepState(status: OnboardingStatus, extension: string, stepId?: string): void {
     const onboarding = this.onboardingInfos.get(extension);
     if (!onboarding) {
@@ -104,8 +90,6 @@ export class OnboardingRegistry {
       step.status = status;
     } else {
       onboarding.status = status;
-      // when it updates the onboarding status, it is completed so it resets the running onboarding value
-      this.setRunningOnboarding(undefined);
     }
   }
 

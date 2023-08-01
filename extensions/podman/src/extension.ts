@@ -889,7 +889,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     console.error('Error while monitoring provider', error);
   });
 
-  const onboardingCheckInstalltionCommand = extensionApi.commands.registerCommand(
+  const onboardingCheckInstallationCommand = extensionApi.commands.registerCommand(
     'podman.onboarding.checkPodmanInstalled',
     async () => {
       const installation = await getPodmanInstallation();
@@ -966,7 +966,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   );
 
   extensionContext.subscriptions.push(
-    onboardingCheckInstalltionCommand,
+    onboardingCheckInstallationCommand,
     onboardingCheckReqsCommand,
     onboardingInstallPodmanCommand,
   );

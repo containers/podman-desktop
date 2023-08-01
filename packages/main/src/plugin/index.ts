@@ -1750,10 +1750,6 @@ export class PluginSystem {
       return onboardingRegistry.resetOnboarding(extensions);
     });
 
-    this.ipcHandle('onboardingRegistry:setRunningOnboarding', async (_listener, extension: string): Promise<void> => {
-      return onboardingRegistry.setRunningOnboarding(extension);
-    });
-
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,

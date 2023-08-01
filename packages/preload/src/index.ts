@@ -1500,10 +1500,6 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('resetOnboarding', async (extensions: string[]): Promise<void> => {
     return ipcInvoke('onboardingRegistry:resetOnboarding', extensions);
   });
-
-  contextBridge.exposeInMainWorld('setRunningOnboarding', async (extension: string): Promise<void> => {
-    return ipcInvoke('onboardingRegistry:setRunningOnboarding', extension);
-  });
 }
 
 // expose methods

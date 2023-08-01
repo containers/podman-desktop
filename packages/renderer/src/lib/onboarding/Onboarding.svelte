@@ -108,8 +108,6 @@ async function setActiveStep() {
   }
   for (const onboarding of onboardings) {
     if (!onboarding.status) {
-      //set active onboarding
-      await window.setRunningOnboarding(onboarding.extension);
       for (let i = 0; i < onboarding.steps.length; i++) {
         const step = onboarding.steps[i];
         if (!step.status) {
