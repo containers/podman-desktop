@@ -8,6 +8,8 @@ import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
+import Button from '../ui/Button.svelte';
+import { faRocket } from '@fortawesome/free-solid-svg-icons';
 
 export let resourceId: string;
 export let engineId: string;
@@ -494,17 +496,14 @@ function updateKubeResult() {
       {/if}
 
       {#if !deployStarted}
-        <div class="pt-2 m-2">
-          <button
+        <div class="pt-4">
+          <Button
             on:click="{() => deployToKube()}"
-            class="w-full pf-c-button pf-m-primary"
-            type="button"
+            class="w-full"
+            icon="{faRocket}"
             disabled="{bodyPod?.metadata?.name === ''}">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-rocket" aria-hidden="true"></i>
-            </span>
             Deploy
-          </button>
+          </Button>
         </div>
       {/if}
 
@@ -581,7 +580,9 @@ function updateKubeResult() {
       {/if}
 
       {#if deployFinished}
-        <button on:click="{() => goBackToHistory()}" class="pt-4 w-full pf-c-button pf-m-primary">Done</button>
+        <div class="pt-4">
+          <Button on:click="{() => goBackToHistory()}" class="w-full">Done</Button>
+        </div>
       {/if}
     </div>
   </div>
