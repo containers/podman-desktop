@@ -215,12 +215,15 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
 export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void> {
   // As a last check, let's see if the machine that is running is set by default or not on the CLI.
   // if it isn't, we should prompt the user to set it as default, or else podman CLI commands will not work
+  const ROOTFUL_SUFFIX = '-root';
   const runningMachine = machines.find(machine => machine.Running);
   let defaultMachine = machines.find(machine => machine.Default);
+  // It may happen that the default machine has not been found because the rootful connection is set as default
+  // if so, we try to find the default system connection and use it to identify the default machine
   if (!defaultMachine) {
     const defaultConnection = await getDefaultConnection();
     let defaultConnectionName = defaultConnection?.Name;
-    if (defaultConnectionName.endsWith('-root')) {
+    if (defaultConnectionName.endsWith(ROOTFUL_SUFFIX)) {
       defaultConnectionName = defaultConnectionName.substring(0, defaultConnectionName.length - 5);
     }
     defaultMachine = machines.find(machine => machine.Name === defaultConnectionName);
@@ -254,7 +257,8 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
       }
 
       try {
-        // check if it's rootful
+        // after updating the default connection using the rootless connection, we verify if the machine has been
+        // created as rootful. If so, the default connection must be set to the rootful connection
         const machineInfoJson = await execPromise(getPodmanCli(), ['machine', 'info', '--format', 'json']);
         const machineInfo = JSON.parse(machineInfoJson);
         const filepath = path.join(machineInfo.Host.MachineConfigDir, `${runningMachine.Name}.json`);
@@ -262,9 +266,14 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
           const machineConfigJson = await fs.promises.readFile(filepath, 'utf8');
           if (machineConfigJson && machineConfigJson.length > 0) {
             const machineConfig = JSON.parse(machineConfigJson);
+            // if it's rootful let's update the connection to the rootful one
             if (machineConfig.Rootful) {
-              //if it's rootful let's update the connection
-              await execPromise(getPodmanCli(), ['system', 'connection', 'default', `${runningMachine.Name}-root`]);
+              await execPromise(getPodmanCli(), [
+                'system',
+                'connection',
+                'default',
+                `${runningMachine.Name}${ROOTFUL_SUFFIX}`,
+              ]);
             }
           }
         }
