@@ -24,7 +24,7 @@ import type { Directories } from './directories.js';
 import { getFreePort } from './util/port.js';
 import * as jsYaml from 'js-yaml';
 
-interface DockerExtensionMetadata {
+export interface DockerExtensionMetadata {
   name: string;
   vm?: {
     composefile?: string;
@@ -226,6 +226,12 @@ export class ContributionManager {
       // if does not exist, create it with 10000
       if (fs.existsSync(globalPortsFile)) {
         const portNumberString = await fs.promises.readFile(globalPortsFile, 'utf-8');
+        // if not a number, throw an error
+        if (isNaN(parseInt(portNumberString))) {
+          throw new Error(
+            `The file ${globalPortsFile} does not contains a valid port number. Found ${portNumberString}`,
+          );
+        }
         initPortRange = parseInt(portNumberString) + 1;
       }
 

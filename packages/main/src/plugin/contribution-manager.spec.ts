@@ -18,11 +18,13 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import * as fs from 'node:fs';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
+import type { DockerExtensionMetadata } from './contribution-manager.js';
 import { ContributionManager } from './contribution-manager.js';
 import type { Directories } from './directories.js';
-
+import * as jsYaml from 'js-yaml';
 let contributionManager: ContributionManager;
 
 let composeFileExample: any;
@@ -137,4 +139,34 @@ test('Should add a service to expose port if socket', async () => {
   expect(podmanDesktopService.command).toContain('socat');
   // socket exposure
   expect(podmanDesktopService.command).toContain(`/run/guest-services/${socketPath}`);
+});
+
+test('Check invalid port file', async () => {
+  vi.mock('node:fs');
+  vi.mock('js-yaml');
+
+  const metadata = {
+    vm: {
+      composefile: 'dummy-compose-file',
+    },
+  } as unknown as DockerExtensionMetadata;
+
+  // mock existsSync as always returning true
+  vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+
+  // fake object
+  vi.spyOn(jsYaml, 'load').mockReturnValue({});
+
+  // mock readFile
+  vi.spyOn(fs.promises, 'readFile').mockImplementation(async (path: any) => {
+    if (path.toString().endsWith('ports-file')) {
+      return 'not a number';
+    } else {
+      return '';
+    }
+  });
+
+  await expect(contributionManager.enhanceComposeFile('/fake/directory', ociImage, metadata)).rejects.toThrow(
+    'does not contains a valid port number',
+  );
 });
