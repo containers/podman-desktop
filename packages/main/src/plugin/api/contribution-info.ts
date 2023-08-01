@@ -31,4 +31,10 @@ export interface ContributionInfo {
 
   // root storage path
   storagePath: string;
+
+  // custom compose file based on the extension compose-file if any
+  vmCustomizedComposeFile?: string;
+
+  // port use for the exposure and to allow the extension to connect to the service
+  vmServicePort?: number;
 }
