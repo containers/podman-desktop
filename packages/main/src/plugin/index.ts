@@ -1726,7 +1726,7 @@ export class PluginSystem {
     );
     await dockerDesktopInstallation.init();
 
-    const dockerExtensionAdapter = new DockerPluginAdapter(contributionManager);
+    const dockerExtensionAdapter = new DockerPluginAdapter(contributionManager, containerProviderRegistry);
     dockerExtensionAdapter.init();
 
     const extensionInstaller = new ExtensionInstaller(
