@@ -54,7 +54,7 @@ function callback(name: string, data: string) {
 }
 
 // Fetches the logs for each container in the compose group
-async function fetchComposeLogs() {
+async function fetchComposeLogs(): Promise<void> {
   // Figure out how much spacing to put for the naming of the containers
   let maxNameLength = 0;
   compose.containers.forEach(container => {
@@ -63,12 +63,12 @@ async function fetchComposeLogs() {
     }
   });
 
-  // Go trhrough the array of containers in the compose group
+  // Go through the array of containers in the compose group
   // and create a custom logsContainer window for each container, we use a custom logsCallback
   // in order to add padding to each output / make it look nice.
-  for (let container of compose.containers) {
+  const promises = compose.containers.map(container => {
     // Set a customer callback that will add the container name and padding
-    const logsCallback = (name: string, data: string) => {
+    const logsCallback = (name, data) => {
       const padding = ' '.repeat(maxNameLength - container.name.length);
       const colouredName = colourizedContainerName.get(container.name);
 
@@ -82,9 +82,26 @@ async function fetchComposeLogs() {
       callback(name, `${colouredName} ${padding} | ${content}`);
     };
 
-    // Get the logs for the container
-    await window.logsContainer(container.engineId, container.id, logsCallback);
-  }
+    // Wrap the logsContainer function in a Promise
+    return new Promise((resolve, reject) => {
+      window.logsContainer(container.engineId, container.id, (name, data) => {
+        try {
+          logsCallback(name, data);
+          resolve(undefined);
+        } catch (error) {
+          // Catch any errors that occur during logsCallback and reject the Promise
+          reject(error);
+        }
+      });
+    }).catch((error: unknown) => {
+      // If there's an error, just output it to console instead of throwing an error
+      // in case there's one container that errors, but the others don't.
+      console.log(error);
+    });
+  });
+
+  // Wait for all promises to settle (success or error)
+  await Promise.all(promises);
 }
 
 async function refreshTerminal() {
