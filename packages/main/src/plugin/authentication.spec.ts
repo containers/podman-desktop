@@ -59,7 +59,6 @@ vi.mock('../util.js', async () => {
   };
 });
 
-
 function randomNumber(n = 5) {
   return Math.round(Math.random() * 10 * n);
 }

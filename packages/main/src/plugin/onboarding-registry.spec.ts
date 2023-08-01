@@ -18,18 +18,15 @@
 
 import { beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
 import { OnboardingRegistry } from './onboarding-registry.js';
-import { CommandRegistry } from './command-registry.js';
-import type { Telemetry } from './telemetry/telemetry.js';
-import type { ApiSenderType } from './api.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { AnalyzedExtension } from './extension-loader.js';
 import * as fs from 'node:fs';
+import { Context } from './context/context.js';
+import type { ApiSenderType } from './api.js';
 
 let onboardingRegistry: OnboardingRegistry;
-let commandRegistry: CommandRegistry;
 const extensionId = 'myextension.id';
-const stepId = 'podmanSetup';
-const viewId = 'checkPodmanInstalledView';
+const stepId = 'checkPodmanInstalled';
 
 const getConfigMock = vi.fn();
 const getConfigurationMock = vi.fn();
@@ -44,46 +41,24 @@ const configurationRegistry = {
 
 const readFileSync = vi.spyOn(fs, 'readFileSync');
 const bufferFrom = vi.spyOn(Buffer, 'from');
+const apiSender: ApiSenderType = { send: vi.fn() } as unknown as ApiSenderType;
+const context = new Context(apiSender);
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeEach(() => {
   vi.clearAllMocks();
-  commandRegistry = new CommandRegistry({} as Telemetry);
-  onboardingRegistry = new OnboardingRegistry({} as ApiSenderType, commandRegistry, configurationRegistry);
+  onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
   const manifest = {
     contributes: {
       onboarding: {
         title: 'Get started with Podman Desktop',
         steps: [
           {
-            id: stepId,
-            title: 'Podman Setup',
-            commands: [
-              {
-                id: 'checkPodmanInstalled',
-                command: 'podman.onboarding.checkPodmanInstalled',
-                response: {
-                  status: 'string',
-                  installed: 'string',
-                },
-              },
-            ],
-            views: [
-              {
-                id: viewId,
-                title: 'Checking for Podman installation',
-                media: {
-                  path: 'icon.png',
-                  altText: 'podman logo',
-                },
-                commandAtActivation: [
-                  {
-                    command: 'checkPodmanInstalled',
-                  },
-                ],
-                completionEvents: ['checkPodmanInstalled'],
-              },
-            ],
+            id: 'checkPodmanInstalled',
+            label: 'Check Podman',
+            title: 'Checking for Podman installation',
+            command: 'podman.onboarding.checkPodmanInstalled',
+            completionEvents: ['onCommand:podman.onboarding.checkPodmanInstalled'],
           },
         ],
       },
@@ -142,13 +117,12 @@ test('Should update state of step', async () => {
   expect(onboarding?.steps[0].status).toBe('completed');
 });
 
-test('Should update state of view', async () => {
-  onboardingRegistry.updateStepState('completed', extensionId, stepId, viewId);
+test('Should update state of onboarding', async () => {
+  onboardingRegistry.updateStepState('completed', extensionId);
   const onboarding = onboardingRegistry.getOnboarding(extensionId);
   expect(onboarding).toBeDefined();
-  expect(onboarding?.steps[0].status).toBe(undefined);
-  expect(onboarding?.steps[0].views[0].status).toBeDefined();
-  expect(onboarding?.steps[0].views[0].status).toBe('completed');
+  expect(onboarding?.status).toBeDefined();
+  expect(onboarding?.status).toBe('completed');
 });
 
 test('Should throw if no onboarding for that extension', async () => {
@@ -163,32 +137,32 @@ test('Should throw if no step in onboarding for that extension', async () => {
   );
 });
 
-test('Should throw if no view in that step in onboarding for that extension', async () => {
-  expect(() => onboardingRegistry.updateStepState('completed', extensionId, stepId, 'unknown')).toThrowError(
-    `No onboarding view with id unknown in step with id ${stepId} for extension ${extensionId}`,
-  );
-});
-
 test('Should reset all states', async () => {
   // update state so they are not undefined
+  const contextKey = `${extensionId}.onboarding.test`;
+  context.setValue(contextKey, 'test');
+  onboardingRegistry.updateStepState('completed', extensionId);
   onboardingRegistry.updateStepState('completed', extensionId, stepId);
-  onboardingRegistry.updateStepState('completed', extensionId, stepId, viewId);
   let onboarding = onboardingRegistry.getOnboarding(extensionId);
   // verify update went well
   expect(onboarding).toBeDefined();
+  expect(onboarding?.status).toBeDefined();
+  expect(onboarding?.status).toBe('completed');
   expect(onboarding?.steps[0].status).toBeDefined();
   expect(onboarding?.steps[0].status).toBe('completed');
-  expect(onboarding?.steps[0].views[0].status).toBeDefined();
-  expect(onboarding?.steps[0].views[0].status).toBe('completed');
+  expect(context.getValue(contextKey)).toBe('test');
   // reset all states
-  onboardingRegistry.resetOnboarding(extensionId);
+  onboardingRegistry.resetOnboarding([extensionId]);
   // check states have been reset
   onboarding = onboardingRegistry.getOnboarding(extensionId);
   expect(onboarding).toBeDefined();
+  expect(onboarding?.status).toBe(undefined);
   expect(onboarding?.steps[0].status).toBe(undefined);
-  expect(onboarding?.steps[0].views[0].status).toBe(undefined);
+  expect('test' in context.collectAllValues()).toBe(false);
 });
 
 test('Should throw if no onboarding for that extension', async () => {
-  expect(() => onboardingRegistry.resetOnboarding('unknown')).toThrowError('No onboarding for extension unknown');
+  expect(() => onboardingRegistry.resetOnboarding(['unknown'])).toThrowError(
+    'No onboarding found for extensions unknown',
+  );
 });
