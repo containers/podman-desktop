@@ -57,18 +57,27 @@ export class OnboardingRegistry {
 
   convertImages(extension: AnalyzedExtension, onboarding: Onboarding) {
     if (onboarding.media?.path) {
-      onboarding.media.path = getBase64Image(path.resolve(extension.path, onboarding.media.path));
+      const base64Image = getBase64Image(path.resolve(extension.path, onboarding.media.path));
+      if (base64Image) {
+        onboarding.media.path = base64Image;
+      }
     } else if (extension.manifest?.icon) {
-      // if no image has been set for the onboarding, it uses the extension icon
-      onboarding.media = {
-        path: getBase64Image(path.resolve(extension.path, extension.manifest.icon)),
-        altText: 'icon',
-      };
+      const base64Image = getBase64Image(path.resolve(extension.path, extension.manifest.icon));
+      if (base64Image) {
+        // if no image has been set for the onboarding, it uses the extension icon
+        onboarding.media = {
+          path: base64Image,
+          altText: 'icon',
+        };
+      }
     }
 
     for (const step of onboarding.steps) {
       if (step.media?.path) {
-        step.media.path = getBase64Image(path.resolve(extension.path, step.media.path));
+        const base64Image = getBase64Image(path.resolve(extension.path, step.media.path));
+        if (base64Image) {
+          step.media.path = base64Image;
+        }
       }
     }
   }
