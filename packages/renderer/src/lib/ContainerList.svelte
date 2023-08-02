@@ -377,6 +377,22 @@ function inProgressCallback(container: ContainerInfoUI, inProgress: boolean, sta
   containerGroups = [...containerGroups];
 }
 
+// Go through each container passed in and update the progress
+function composeGroupInProgressCallback(containers: ContainerInfoUI[], inProgress: boolean, state?: string): void {
+  containers.forEach(container => {
+    container.actionInProgress = inProgress;
+    // reset error when starting task
+    if (inProgress) {
+      container.actionError = '';
+    }
+    if (state) {
+      container.state = state;
+    }
+  });
+
+  containerGroups = [...containerGroups];
+}
+
 function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   container.actionError = errorMessage;
   container.state = 'ERROR';
@@ -513,7 +529,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       engineType: containerGroup.engineType,
                       containers: [],
                     }}"
-                    dropdownMenu="{true}" />
+                    dropdownMenu="{true}"
+                    inProgressCallback="{(containers, flag, state) =>
+                      composeGroupInProgressCallback(containerGroup.containers, flag, state)}" />
                 {/if}
               </td>
             </tr>

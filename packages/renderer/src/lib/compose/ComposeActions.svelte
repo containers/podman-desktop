@@ -5,56 +5,57 @@ import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
+import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 
 export let compose: ComposeInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
 
-export let inProgressCallback: (inProgress: boolean, state?: string) => void = () => {};
+export let inProgressCallback: (containers: ContainerInfoUI[], inProgress: boolean, state?: string) => void = () => {};
 export let errorCallback: (erroMessage: string) => void = () => {};
 
 const composeLabel = 'com.docker.compose.project';
 
 async function startCompose(composeInfoUI: ComposeInfoUI) {
-  inProgressCallback(true, 'STARTING');
+  inProgressCallback(composeInfoUI.containers, true, 'STARTING');
   try {
     await window.startContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false, 'RUNNING');
+    inProgressCallback(composeInfoUI.containers, false, 'RUNNING');
   }
 }
 async function stopCompose(composeInfoUI: ComposeInfoUI) {
-  inProgressCallback(true, 'STOPPING');
+  inProgressCallback(composeInfoUI.containers, true, 'STOPPING');
   try {
     await window.stopContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false, 'STOPPED');
+    inProgressCallback(composeInfoUI.containers, false, 'STOPPED');
   }
 }
 
 async function deleteCompose(composeInfoUI: ComposeInfoUI) {
-  inProgressCallback(true, 'DELETING');
+  inProgressCallback(composeInfoUI.containers, true, 'DELETING');
   try {
     await window.deleteContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false, 'STOPPED');
+    inProgressCallback(composeInfoUI.containers, false, 'STOPPED');
   }
 }
 
 async function restartCompose(composeInfoUI: ComposeInfoUI) {
-  inProgressCallback(true, 'RESTARTING');
+  inProgressCallback(composeInfoUI.containers, true, 'RESTARTING');
   try {
     await window.restartContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
   } catch (error) {
     errorCallback(error);
   } finally {
-    inProgressCallback(false);
+    inProgressCallback(composeInfoUI.containers, false);
   }
 }
 
