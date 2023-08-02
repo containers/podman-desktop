@@ -124,6 +124,7 @@ test('Expect an input button with Browse as placeholder when record is type stri
   const record: IConfigurationPropertyRecordedSchema = {
     title: 'record',
     parentId: 'parent.record',
+    placeholder: 'Example: text',
     description: 'record-description',
     type: 'string',
     format: 'file',
@@ -131,6 +132,10 @@ test('Expect an input button with Browse as placeholder when record is type stri
   render(PreferencesRenderingItemFormat, {
     record,
   });
+  const readOnlyInput = screen.getByLabelText('record-description');
+  expect(readOnlyInput).toBeInTheDocument();
+  expect(readOnlyInput instanceof HTMLInputElement).toBe(true);
+  expect((readOnlyInput as HTMLInputElement).placeholder).toBe(record.placeholder);
   const input = screen.getByLabelText('button-record-description');
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLInputElement).toBe(true);
@@ -161,6 +166,7 @@ test('Expect a text input when record is type string', async () => {
     title: 'record',
     parentId: 'parent.record',
     description: 'record-description',
+    placeholder: 'Example: text',
     type: 'string',
   };
   render(PreferencesRenderingItemFormat, {
@@ -171,6 +177,7 @@ test('Expect a text input when record is type string', async () => {
   expect(input instanceof HTMLInputElement).toBe(true);
   expect((input as HTMLInputElement).type).toBe('text');
   expect((input as HTMLSelectElement).name).toBe('record');
+  expect((input as HTMLInputElement).placeholder).toBe(record.placeholder);
 });
 
 test('Expect tooltip text shows info when input is less than minimum', async () => {
