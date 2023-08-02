@@ -2,7 +2,8 @@
 import type { ProviderDetectionCheck } from '@podman-desktop/api';
 
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
+import { faList } from '@fortawesome/free-solid-svg-icons';
 
 export let provider: ProviderInfo;
 export let onDetectionChecks = (_detectionChecks: ProviderDetectionCheck[]) => {};
@@ -31,21 +32,11 @@ async function toggleDetectionChecks(provider: ProviderInfo) {
 </script>
 
 {#if provider.detectionChecks.length > 0}
-  <button
+  <Button
     on:click="{() => toggleDetectionChecks(provider)}"
-    class="pf-c-button pf-m-primary"
-    disabled="{viewInProgress}"
-    type="button"
+    inProgress="{viewInProgress}"
+    icon="{faList}"
     title="Why {provider.name} is not found.">
-    <span class="pf-c-button__icon pf-m-start">
-      {#if viewInProgress}
-        <div class="mr-44">
-          <Spinner />
-        </div>
-      {:else}
-        <i class="fas fa-list" aria-hidden="true"></i>
-      {/if}
-    </span>
     {mode === 'view' ? 'View' : 'Hide'} detection checks
-  </button>
+  </Button>
 {/if}

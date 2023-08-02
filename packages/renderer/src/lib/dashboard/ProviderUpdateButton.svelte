@@ -1,6 +1,7 @@
 <script lang="ts">
+import { faBoxOpen } from '@fortawesome/free-solid-svg-icons';
 import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
 
 export let provider: ProviderInfo;
 let updateInProgress = false;
@@ -49,20 +50,11 @@ async function performUpdate(provider: ProviderInfo) {
 </script>
 
 {#if provider?.updateInfo?.version}
-  <button
-    disabled="{updateInProgress || preflightChecksFailed}"
-    on:click="{() => performUpdate(provider)}"
-    class="pf-c-button pf-m-primary"
-    type="button">
-    <span class="pf-c-button__icon pf-m-start">
-      {#if updateInProgress}
-        <div class="mr-20">
-          <Spinner />
-        </div>
-      {:else}
-        <i class="fas fa-box-open" aria-hidden="true"></i>
-      {/if}
-    </span>
+  <Button
+    inProgress="{updateInProgress}"
+    disabled="{preflightChecksFailed}"
+    icon="{faBoxOpen}"
+    on:click="{() => performUpdate(provider)}">
     Update to {provider.updateInfo.version}
-  </button>
+  </Button>
 {/if}

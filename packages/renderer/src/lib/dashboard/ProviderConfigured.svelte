@@ -10,6 +10,7 @@ import Steps from 'svelte-steps/Steps.svelte';
 import { onMount } from 'svelte';
 import { InitializeAndStartMode, InitializationSteps, type InitializationContext } from './ProviderInitUtils';
 import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
 
 export let provider: ProviderInfo;
 export let initializationContext: InitializationContext;
@@ -65,9 +66,9 @@ onMount(() => {
 
     {#if !runAtStart && !runInProgress}
       <div class="mt-5">
-        <button on:click="{() => runProvider()}" class="pf-c-button pf-m-primary" type="button">
+        <Button on:click="{() => runProvider()}">
           Run {provider.name}
-        </button>
+        </Button>
       </div>
     {/if}
     {#if runAtStart || runInProgress}
