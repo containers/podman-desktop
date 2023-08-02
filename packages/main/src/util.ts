@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { BrowserWindow } from 'electron';
+import * as fs from 'fs';
 import * as os from 'os';
 
 const windows = os.platform() === 'win32';
@@ -36,3 +37,20 @@ export function findWindow(): Electron.BrowserWindow | undefined {
 }
 
 export const stoppedExtensions = { val: false };
+
+export function getBase64Image(imagePath: string): string | undefined {
+  try {
+    if (fs.existsSync(imagePath)) {
+      const imageContent = fs.readFileSync(imagePath);
+
+      // convert to base64
+      const base64Content = Buffer.from(imageContent).toString('base64');
+
+      // create base64 image content
+      return `data:image/png;base64,${base64Content}`;
+    }
+  } catch (error) {
+    console.error(`Error while creating base64 image content for ${imagePath}`, error);
+  }
+  return undefined;
+}

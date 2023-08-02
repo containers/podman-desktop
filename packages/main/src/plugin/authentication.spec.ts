@@ -24,6 +24,7 @@ import type {
   Event,
 } from '@podman-desktop/api';
 import { beforeEach, afterEach, expect, test, vi, suite } from 'vitest';
+import type { Mock } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import { AuthenticationImpl } from './authentication.js';
 import type { CommandRegistry } from './command-registry.js';
@@ -49,6 +50,13 @@ import type { Directories } from './directories.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
+import { getBase64Image } from '../util.js';
+
+vi.mock('../util.js', async () => {
+  return {
+    getBase64Image: vi.fn(),
+  };
+});
 
 function randomNumber(n = 5) {
   return Math.round(Math.random() * 10 * n);
@@ -276,7 +284,7 @@ suite('Authentication', () => {
   const BASE64ENCODEDIMAGE = 'BASE64ENCODEDIMAGE';
 
   test('allows images option to be undefined or empty', async () => {
-    vi.spyOn(extLoader, 'getBase64Image').mockImplementation(() => BASE64ENCODEDIMAGE);
+    (getBase64Image as Mock).mockReturnValue(BASE64ENCODEDIMAGE);
     const api = extLoader.createApi('/path', {});
     expect(api).toBeDefined();
     api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock);
@@ -297,7 +305,7 @@ suite('Authentication', () => {
   });
 
   test('converts images.icon path to base 64 image when registering provider', async () => {
-    vi.spyOn(extLoader, 'getBase64Image').mockImplementation(() => BASE64ENCODEDIMAGE);
+    (getBase64Image as Mock).mockReturnValue(BASE64ENCODEDIMAGE);
     const api = extLoader.createApi('/path', {});
     expect(api).toBeDefined();
     api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {
@@ -314,7 +322,7 @@ suite('Authentication', () => {
   });
 
   test('converts images.icon with themes path to base 64 image when registering provider', async () => {
-    vi.spyOn(extLoader, 'getBase64Image').mockImplementation(() => BASE64ENCODEDIMAGE);
+    (getBase64Image as Mock).mockReturnValue(BASE64ENCODEDIMAGE);
     const api = extLoader.createApi('/path', {});
     expect(api).toBeDefined();
     api.authentication.registerAuthenticationProvider('provider2.id', 'Provider2 Label', providerMock, {
