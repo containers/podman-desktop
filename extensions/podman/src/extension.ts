@@ -70,6 +70,14 @@ export type MachineJSON = {
   Default: boolean;
 };
 
+export type ConnectionJSON = {
+  Name: string;
+  URI: string;
+  Identity: string;
+  IsMachine: boolean;
+  Default: boolean;
+};
+
 export type MachineInfo = {
   name: string;
   cpus: number;
@@ -207,27 +215,70 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
 export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void> {
   // As a last check, let's see if the machine that is running is set by default or not on the CLI.
   // if it isn't, we should prompt the user to set it as default, or else podman CLI commands will not work
+  const ROOTFUL_SUFFIX = '-root';
   const runningMachine = machines.find(machine => machine.Running);
-  const defaultMachine = machines.find(machine => machine.Default);
+  let defaultMachine = machines.find(machine => machine.Default);
+  // It may happen that the default machine has not been found because the rootful connection is set as default
+  // if so, we try to find the default system connection and use it to identify the default machine
+  if (!defaultMachine) {
+    const defaultConnection = await getDefaultConnection();
+    let defaultConnectionName = defaultConnection?.Name;
+    if (defaultConnectionName.endsWith(ROOTFUL_SUFFIX)) {
+      defaultConnectionName = defaultConnectionName.substring(0, defaultConnectionName.length - 5);
+    }
+    defaultMachine = machines.find(machine => machine.Name === defaultConnectionName);
+
+    if (runningMachine?.Name === defaultConnectionName) {
+      runningMachine.Default = true;
+    }
+  }
 
   if (defaultMachineNotify && defaultMachineMonitor && runningMachine && !runningMachine.Default) {
     // Make sure we do notifyDefault = false so we don't keep notifying the user when this dialog is open.
     defaultMachineMonitor = false;
 
+    const defaultMachineText = defaultMachine ? `(default is '${defaultMachine.Name}')` : '';
     // Create an information message to ask the user if they wish to set the running machine as default.
     const result = await extensionApi.window.showInformationMessage(
-      `Podman Machine '${runningMachine.Name}' is running but not the default machine (default is '${defaultMachine.Name}'). This will cause podman CLI errors while trying to connect to '${runningMachine.Name}'. Do you want to set it as default?`,
+      `Podman Machine '${runningMachine.Name}' is running but not the default machine ${defaultMachineText}. This will cause podman CLI errors while trying to connect to '${runningMachine.Name}'. Do you want to set it as default?`,
       'Yes',
       'Ignore',
       'Cancel',
     );
     if (result === 'Yes') {
       try {
+        // make it the default to run the info command
         await execPromise(getPodmanCli(), ['system', 'connection', 'default', runningMachine.Name]);
       } catch (error) {
         // eslint-disable-next-line quotes
         console.error("Error running 'podman system connection default': ", error);
         await extensionApi.window.showErrorMessage(`Error running 'podman system connection default': ${error}`);
+        return;
+      }
+
+      try {
+        // after updating the default connection using the rootless connection, we verify if the machine has been
+        // created as rootful. If so, the default connection must be set to the rootful connection
+        const machineInfoJson = await execPromise(getPodmanCli(), ['machine', 'info', '--format', 'json']);
+        const machineInfo = JSON.parse(machineInfoJson);
+        const filepath = path.join(machineInfo.Host.MachineConfigDir, `${runningMachine.Name}.json`);
+        if (fs.existsSync(filepath)) {
+          const machineConfigJson = await fs.promises.readFile(filepath, 'utf8');
+          if (machineConfigJson && machineConfigJson.length > 0) {
+            const machineConfig = JSON.parse(machineConfigJson);
+            // if it's rootful let's update the connection to the rootful one
+            if (machineConfig.Rootful) {
+              await execPromise(getPodmanCli(), [
+                'system',
+                'connection',
+                'default',
+                `${runningMachine.Name}${ROOTFUL_SUFFIX}`,
+              ]);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error when checking rootful machine: ', error);
       }
       await extensionApi.window.showInformationMessage(
         `Podman Machine '${runningMachine.Name}' is now the default machine on the CLI.`,
@@ -240,6 +291,16 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
 
     defaultMachineMonitor = true;
   }
+}
+
+async function getDefaultConnection(): Promise<ConnectionJSON | undefined> {
+  // init machines available
+  const connectionListOutput = await execPromise(getPodmanCli(), ['system', 'connection', 'list', '--format', 'json']);
+
+  // parse output
+  const connections = JSON.parse(connectionListOutput) as ConnectionJSON[];
+
+  return connections.find(connection => connection.Default);
 }
 
 async function updateContainerConfiguration(
