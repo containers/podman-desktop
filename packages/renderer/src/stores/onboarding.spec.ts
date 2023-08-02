@@ -74,15 +74,15 @@ test('onboarding should be updated in case of an extension is stopped', async ()
   expect(onboardingList1.length).toBe(1);
   expect(onboardingList1[0].extension).toEqual('extension');
 
-  // ok now mock the listVolumes function to return an empty list
+  // ok now mock the listOnboarding function to return an empty list
   listOnboardingMock.mockResolvedValue([]);
 
-  // call 'container-removed-event' event
+  // call 'extension-stopped' event
   const extensionStoppedCallback = callbacks.get('extension-stopped');
   expect(extensionStoppedCallback).toBeDefined();
   await extensionStoppedCallback();
 
-  // check if the volumes are updated
+  // check if the onboardings are updated
   const onboardingList2 = get(onboardingList);
   expect(onboardingList2.length).toBe(0);
 });

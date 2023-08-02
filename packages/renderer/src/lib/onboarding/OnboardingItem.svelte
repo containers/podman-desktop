@@ -18,17 +18,16 @@ const eventListeners = [];
 onMount(() => {
   const itemHtml = createItem(item);
   html = itemHtml;
-  const clickListener = async e => {
+  const clickListener = e => {
     if (e.target instanceof HTMLButtonElement) {
       const buttonId = e.target.id;
       let command = buttons.get(buttonId);
       if (command) {
-        await executeCommand(command);
+        executeCommand(command);
       }
     }
   };
   eventListeners.push(clickListener);
-  /* eslint-disable @typescript-eslint/no-misused-promises */
   document.addEventListener('click', clickListener);
 });
 onDestroy(() => {
@@ -61,20 +60,19 @@ function replacePlaceholders(label: string): string {
 }
 
 function replacePlaceHoldersRegex(regex: RegExp, label: string, prefix?: string) {
-  let arr;
-  // eslint-disable-next-line eqeqeq
-  while ((arr = regex.exec(label)) != undefined) {
-    label = getNewValue(label, arr, prefix);
+  const matches = [...label.matchAll(regex)];
+  for (const match of matches) {
+    label = getNewValue(label, match, prefix);
   }
   return label;
 }
 
-function getNewValue(label: string, execArray: RegExpExecArray, prefix?: string) {
-  if (execArray.length > 1) {
-    const key = prefix ? `${prefix}.${execArray[1]}` : execArray[1];
+function getNewValue(label: string, matchArray: RegExpMatchArray, prefix?: string) {
+  if (matchArray.length > 1) {
+    const key = prefix ? `${prefix}.${matchArray[1]}` : matchArray[1];
     const replacement = getContext().getValue(key);
     if (replacement) {
-      return label.replace(execArray[0], replacement.toString());
+      return label.replace(matchArray[0], replacement.toString());
     }
   }
   return label;
