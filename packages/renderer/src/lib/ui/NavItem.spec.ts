@@ -1,0 +1,77 @@
+/**********************************************************************
+ * Copyright (C) 2023 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import '@testing-library/jest-dom';
+import { test, expect } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/svelte';
+import NavItem from './NavItem.svelte';
+
+function renderIt(tooltip: string, href: string, meta: any, onClick?: any): void {
+  render(NavItem, { tooltip: tooltip, href: href, meta: meta, onClick: onClick });
+}
+
+test('Expect correct role and href', async () => {
+  const tooltip = 'Dashboard';
+  const href = '/test';
+  renderIt(tooltip, href, { url: href });
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element).toBeInTheDocument();
+  expect(element).toHaveAttribute('href', href);
+});
+
+test('Expect selection styling', async () => {
+  const tooltip = 'Dashboard';
+  const href = '/test';
+  renderIt(tooltip, href, { url: href });
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element).toBeInTheDocument();
+  expect(element.firstChild).toBeInTheDocument();
+  expect(element.firstChild).toHaveClass('border-l-purple-500');
+});
+
+test('Expect not to have selection styling', async () => {
+  const tooltip = 'Dashboard';
+  renderIt(tooltip, '/test', { url: '/elsewhere' });
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element).toBeInTheDocument();
+  expect(element.firstChild).toBeInTheDocument();
+  expect(element.firstChild).not.toHaveClass('border-l-purple-500');
+  expect(element.firstChild).toHaveClass('border-l-charcoal-800');
+});
+
+test('Expect that having an onClick handler overrides href and works', async () => {
+  const tooltip = 'Settings';
+  let clicked = false;
+  const onClick = () => {
+    clicked = true;
+  };
+  renderIt(tooltip, '/test', { url: '/test' }, onClick);
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element).toBeInTheDocument();
+  expect(element).toHaveAttribute('href', '#top');
+
+  await fireEvent.click(element);
+
+  expect(clicked).toBe(true);
+});
