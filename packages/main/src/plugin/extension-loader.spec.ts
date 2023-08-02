@@ -46,7 +46,7 @@ import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { ViewRegistry } from './view-registry.js';
-import type { Context } from './context/context.js';
+import { Context } from './context/context.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -115,7 +115,7 @@ const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemet
 
 const viewRegistry: ViewRegistry = {} as unknown as ViewRegistry;
 
-const context: Context = {} as unknown as Context;
+const context: Context = new Context(apiSender);
 
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
@@ -630,5 +630,32 @@ describe('analyze extension and main', async () => {
     // not set
     expect(extension?.mainPath).toBeUndefined();
     expect(extension?.id).toBe('fooPublisher.fooName');
+  });
+});
+
+describe('setContextValue', async () => {
+  test('without scope the setValue is called with original value', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+    const setValueSpy = vi.spyOn(context, 'setValue');
+
+    api.context.setValue('key', 'value');
+    expect(setValueSpy).toBeCalledWith('key', 'value');
+  });
+  test('with onboarding scope the key is prefixed before calling setValue', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+    const setValueSpy = vi.spyOn(context, 'setValue');
+
+    api.context.setValue('key', 'value', 'onboarding');
+    expect(setValueSpy).toBeCalledWith('publisher.name.onboarding.key', 'value');
   });
 });
