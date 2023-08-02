@@ -40,19 +40,15 @@ $ podman machine ssh [optional-machine-name]
 $ sudo vi /etc/containers/registries.conf
 ```
 
-5. Add the insecure registry: Under the [registries.insecure] section, add the URL of the insecure registry you want to use. For example, if your insecure registry is located at http://example-registry.com, add the following line:
+5. Add the insecure registry: Add a new [[registry]] section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at http://registry.example.com, add the following lines:
 
 ```sh
-[registries.insecure]
-registries = ['example-registry.com']
+[[registry]]
+location = registry.example.com
+insecure = true
 ```
 
-If you have multiple registries, you can add them using the same format:
-
-```sh
-[registries.insecure]
-registries = ['example-registry1.com', 'example-registry2.com']
-```
+If you have multiple registries, you can add one [[registry]] block per registry.
 
 6. Save and exit the file.
 
@@ -70,7 +66,7 @@ $ podman machine start
 
 1. Add your insecure registry within **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Registries**.
 
-1. Click "Yes" to the insecure registry warning.
+2. Click "Yes" to the insecure registry warning.
 
 ![Podman Desktop Registry Warning](img/registry-warning-insecure.png)
 
@@ -80,19 +76,15 @@ $ podman machine start
 $ sudo vi /etc/containers/registries.conf
 ```
 
-4. Add the insecure registry: Under the [registries.insecure] section, add the URL of the insecure registry you want to use. For example, if your insecure registry is located at http://example-registry.com, add the following line:
+4. Add the insecure registry: Add a new [[registry]] section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at http://registry.example.com, add the following lines:
 
 ```sh
-[registries.insecure]
-registries = ['example-registry.com']
+[[registry]]
+location = registry.example.com
+insecure = true
 ```
 
-If you have multiple registries, you can add them using the same format:
-
-```sh
-[registries.insecure]
-registries = ['example-registry1.com', 'example-registry2.com']
-```
+If you have multiple registries, you can add one [[registry]] block per registry:
 
 5. Save and exit the file.
 
