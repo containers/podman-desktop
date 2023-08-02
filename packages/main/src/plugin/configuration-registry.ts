@@ -54,6 +54,7 @@ export interface IConfigurationPropertySchema {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default?: any;
   description?: string;
+  placeholder?: string;
   markdownDescription?: string;
   minimum?: number;
   maximum?: number | string;
