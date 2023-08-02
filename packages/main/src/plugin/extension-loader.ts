@@ -932,7 +932,11 @@ export class ExtensionLoader {
     };
 
     const contextAPI: typeof containerDesktopAPI.context = {
-      setValue: (key: string, value: string): void => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setValue: (key: string, value: any, scope?: 'onboarding'): void => {
+        if (scope === 'onboarding') {
+          key = `${extensionInfo.id}.${scope}.${key}`;
+        }
         this.context.setValue(key, value);
       },
     };

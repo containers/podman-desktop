@@ -2250,7 +2250,9 @@ declare module '@podman-desktop/api' {
      *
      * @param key the key of the key/value pair to be added to the context
      * @param value value associated to the key
+     * @param scope the scope to use to save the value
      */
-    export function setValue(key: string, value: string): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    export function setValue(key: string, value: any, scope?: 'onboarding'): void;
   }
 }
