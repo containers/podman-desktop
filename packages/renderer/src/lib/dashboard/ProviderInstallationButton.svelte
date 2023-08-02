@@ -1,6 +1,7 @@
 <script lang="ts">
+import { faRocket } from '@fortawesome/free-solid-svg-icons';
 import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
 
 export let provider: ProviderInfo;
 
@@ -49,20 +50,11 @@ async function performInstallation(provider: ProviderInfo) {
 </script>
 
 {#if provider.installationSupport}
-  <button
-    disabled="{installInProgress || preflightChecksFailed}"
-    on:click="{() => performInstallation(provider)}"
-    class="pf-c-button pf-m-primary"
-    type="button">
-    <span class="pf-c-button__icon pf-m-start">
-      {#if installInProgress}
-        <div class="mr-20">
-          <Spinner />
-        </div>
-      {:else}
-        <i class="fas fa-rocket" aria-hidden="true"></i>
-      {/if}
-    </span>
+  <Button
+    inProgress="{installInProgress}"
+    disabled="{preflightChecksFailed}"
+    icon="{faRocket}"
+    on:click="{() => performInstallation(provider)}">
     Install
-  </button>
+  </Button>
 {/if}
