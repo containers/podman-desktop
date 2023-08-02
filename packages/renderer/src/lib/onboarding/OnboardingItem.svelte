@@ -23,7 +23,9 @@ onMount(() => {
       const buttonId = e.target.id;
       let command = buttons.get(buttonId);
       if (command) {
-        executeCommand(command);
+        executeCommand(command).catch((error: unknown) => {
+          console.error(`error while executing command ${command}`, error);
+        });
       }
     }
   };
