@@ -56,7 +56,7 @@ import { clipboard as electronClipboard } from 'electron';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
-import { isLinux, isMac, isWindows } from '../util.js';
+import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import { exec } from './util/exec.js';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
@@ -444,16 +444,6 @@ export class ExtensionLoader {
       .map(directory => path.join(folderPath, directory.name, `/builtin/${directory.name}.cdix`));
   }
 
-  getBase64Image(imagePath: string): string {
-    const imageContent = fs.readFileSync(imagePath);
-
-    // convert to base64
-    const base64Content = Buffer.from(imageContent).toString('base64');
-
-    // create base64 image content
-    return `data:image/png;base64,${base64Content}`;
-  }
-
   /**
    * Update the image to be a base64 content
    */
@@ -466,13 +456,19 @@ export class ExtensionLoader {
       return undefined;
     }
     if (typeof image === 'string') {
-      return this.getBase64Image(path.resolve(rootPath, image));
+      return getBase64Image(path.resolve(rootPath, image));
     } else {
       if (image.light) {
-        image.light = this.getBase64Image(path.resolve(rootPath, image.light));
+        const base64Image = getBase64Image(path.resolve(rootPath, image.light));
+        if (base64Image) {
+          image.light = base64Image;
+        }
       }
       if (image.dark) {
-        image.dark = this.getBase64Image(path.resolve(rootPath, image.dark));
+        const base64Image = getBase64Image(path.resolve(rootPath, image.dark));
+        if (base64Image) {
+          image.dark = base64Image;
+        }
       }
       return image;
     }
