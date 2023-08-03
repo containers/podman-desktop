@@ -86,8 +86,8 @@ export class ContainerProviderRegistry {
     libPodDockerode.enhancePrototypeWithLibPod();
   }
 
-  private containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
-  private internalProviders: Map<string, InternalContainerProvider> = new Map();
+  protected containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
+  protected internalProviders: Map<string, InternalContainerProvider> = new Map();
 
   handleEvents(api: Dockerode) {
     const eventEmitter = new EventEmitter();
@@ -610,6 +610,7 @@ export class ContainerProviderRegistry {
     return engine.libpodApi;
   }
 
+  // prefer podman over docker
   public getFirstRunningConnection(): [ProviderContainerConnectionInfo, Dockerode] {
     // grab all connections
     const matchingContainerProviders = Array.from(this.internalProviders.entries()).filter(
@@ -618,6 +619,12 @@ export class ContainerProviderRegistry {
     if (!matchingContainerProviders || matchingContainerProviders.length === 0) {
       throw new Error('No provider with a running engine');
     }
+
+    // prefer podman over other engines
+    // sort by podman first as container type
+    matchingContainerProviders.sort((a, b) => {
+      return b[1].connection.type.localeCompare(a[1].connection.type);
+    });
 
     const matchingConnection = matchingContainerProviders[0];
     if (!matchingConnection[1].api) {
