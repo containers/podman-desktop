@@ -175,3 +175,19 @@ test('Check SecurityRestrictions on known domains', async () => {
   // expect openExternal has been called
   expect(shell.openExternal).toBeCalledWith('https://www.podman-desktop.io');
 });
+
+test('Should apiSender handle local receive events', async () => {
+  const apiSender = pluginSystem.getApiSender(webContents);
+  expect(apiSender).toBeDefined();
+
+  let fooReceived = '';
+  apiSender.receive('foo', (data: any) => {
+    fooReceived = String(data);
+  });
+
+  // try to send data
+  apiSender.send('foo', 'hello-world');
+
+  // data should have been received
+  expect(fooReceived).toBe('hello-world');
+});
