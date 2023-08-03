@@ -281,6 +281,7 @@ export class PluginSystem {
           // add to the queue
           queuedEvents.push({ channel, data });
         }
+        eventEmitter.emit(channel, data);
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       receive: (channel: string, func: any) => {
