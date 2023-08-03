@@ -17,9 +17,17 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import type * as extensionApi from '@podman-desktop/api';
 import type { OS } from './os';
 import { CliRun } from './cli-run';
+import type * as extensionApi from '@podman-desktop/api';
+import * as sudo from 'sudo-prompt';
+import * as fs from 'node:fs';
+
+const osMock = {
+  isLinux: vi.fn(),
+  isMac: vi.fn(),
+  isWindows: vi.fn(),
+};
 
 vi.mock('@podman-desktop/api', async () => {
   return {
@@ -35,8 +43,25 @@ vi.mock('@podman-desktop/api', async () => {
   };
 });
 
+// Mock sudo-prompt exec to resolve everytime.
+vi.mock('sudo-prompt', async () => {
+  return {
+    exec: vi.fn().mockImplementation(callback => {
+      callback(undefined);
+    }),
+  };
+});
+
+// mock exists sync
+vi.mock('node:fs', async () => {
+  return {
+    existsSync: vi.fn(),
+  };
+});
+
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
+  vi.restoreAllMocks();
 });
 
 test('error: expect installBinaryToSystem to fail with a non existing binary', async () => {
@@ -52,4 +77,56 @@ test('error: expect installBinaryToSystem to fail with a non existing binary', a
 
   // Expect await installBinaryToSystem to throw an error
   await expect(cliRun.installBinaryToSystem('test', 'tmpBinary')).rejects.toThrowError();
+});
+
+test('success: installBinaryToSystem on mac with /usr/bin/local already created', async () => {
+  // Mock the platform to be darwin
+  Object.defineProperty(process, 'platform', {
+    value: 'darwin',
+  });
+
+  // Create the CliRun object to call installBinaryToSystem
+  let fakeContext: extensionApi.ExtensionContext;
+  const cliRun = new CliRun(fakeContext, osMock);
+
+  // Mock existsSync to be true since within the function it's doing: !fs.existsSync(localBinDir)
+  vi.spyOn(fs, 'existsSync').mockImplementation(() => {
+    return true;
+  });
+
+  // When exec is called, expect the following
+  vi.spyOn(sudo, 'exec').mockImplementation((command, options, callback) => {
+    expect(options.name).toBe('Binary Installation');
+    expect(command).toBe('cp test /usr/local/bin/tmpBinary');
+    callback(undefined);
+  });
+
+  // Run installBinaryToSystem which will trigger the spyOn mock
+  await cliRun.installBinaryToSystem('test', 'tmpBinary');
+});
+
+test('success: installBinaryToSystem on mac with /usr/bin/local NOT created yet (expect mkdir -p command)', async () => {
+  // Mock the platform to be darwin
+  Object.defineProperty(process, 'platform', {
+    value: 'darwin',
+  });
+
+  // Create the CliRun object to call installBinaryToSystem
+  let fakeContext: extensionApi.ExtensionContext;
+  const cliRun = new CliRun(fakeContext, osMock);
+
+  // Mock existsSync to be false since within the function it's doing: !fs.existsSync(localBinDir)
+  vi.spyOn(fs, 'existsSync').mockImplementation(() => {
+    return false;
+  });
+
+  // When exec is called, expect the following
+  vi.spyOn(sudo, 'exec').mockImplementation((command, options, callback) => {
+    expect(options.name).toBe('Binary Installation');
+    expect(command).toBe('mkdir -p /usr/local/bin && cp test /usr/local/bin/tmpBinary');
+    callback(undefined);
+  });
+
+  // Run installBinaryToSystem which will trigger the spyOn mock
+  await cliRun.installBinaryToSystem('test', 'tmpBinary');
 });
