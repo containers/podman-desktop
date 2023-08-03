@@ -623,7 +623,13 @@ export class ContainerProviderRegistry {
     // prefer podman over other engines
     // sort by podman first as container type
     matchingContainerProviders.sort((a, b) => {
-      return b[1].connection.type.localeCompare(a[1].connection.type);
+      if (a[1].connection.type === 'podman' && b[1].connection.type === 'podman') {
+        return 0;
+      } else if (a[1].connection.type === 'podman' && b[1].connection.type !== 'podman') {
+        return -1;
+      } else {
+        return 1;
+      }
     });
 
     const matchingConnection = matchingContainerProviders[0];
