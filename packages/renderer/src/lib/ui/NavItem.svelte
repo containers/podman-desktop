@@ -4,6 +4,7 @@ import Tooltip from './Tooltip.svelte';
 
 export let href: string;
 export let tooltip: string;
+export let ariaLabel: string = undefined;
 export let meta: TinroRouteMeta;
 export let onClick: any = undefined;
 
@@ -11,7 +12,7 @@ let selected: boolean;
 $: selected = meta.url === href;
 </script>
 
-<a href="{onClick ? '#top' : href}" aria-label="{tooltip}" on:click|preventDefault="{onClick}">
+<a href="{onClick ? '#top' : href}" aria-label="{ariaLabel ? ariaLabel : tooltip}" on:click|preventDefault="{onClick}">
   <div
     class="flex w-full py-3 justify-center items-center border-x-[4px] border-charcoal-800 text-white cursor-pointer"
     class:border-l-purple-500="{selected}"

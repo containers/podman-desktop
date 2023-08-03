@@ -112,16 +112,16 @@ export let meta: TinroRouteMeta;
         ></svg>
     </div>
   </NavItem>
-  <NavItem href="/containers" tooltip="Containers{containerCount}" bind:meta="{meta}">
+  <NavItem href="/containers" tooltip="Containers{containerCount}" ariaLabel="Containers" bind:meta="{meta}">
     <ContainerIcon size="24" />
   </NavItem>
-  <NavItem href="/pods" tooltip="Pods{podCount}" bind:meta="{meta}">
+  <NavItem href="/pods" tooltip="Pods{podCount}" ariaLabel="Pods" bind:meta="{meta}">
     <PodIcon size="24" />
   </NavItem>
-  <NavItem href="/images" tooltip="Images{imageCount}" bind:meta="{meta}">
+  <NavItem href="/images" tooltip="Images{imageCount}" ariaLabel="Images" bind:meta="{meta}">
     <ImageIcon size="24" />
   </NavItem>
-  <NavItem href="/volumes" tooltip="Volumes{volumeCount}" bind:meta="{meta}">
+  <NavItem href="/volumes" tooltip="Volumes{volumeCount}" ariaLabel="Volumes" bind:meta="{meta}">
     <VolumeIcon size="24" />
   </NavItem>
 
