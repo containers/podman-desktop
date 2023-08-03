@@ -52,11 +52,6 @@ onMount(async () => {
     } finally {
       fetchingInProgress = false;
     }
-  } else {
-    // fetch in background
-    fetchVolumes().catch((error: unknown) => {
-      console.error('unable to fetch the volumes', error);
-    });
   }
 
   volumesUnsubscribe = filtered.subscribe(value => {
