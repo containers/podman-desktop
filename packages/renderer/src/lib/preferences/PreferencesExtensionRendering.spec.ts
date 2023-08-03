@@ -19,13 +19,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom';
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
 import { extensionInfos } from '../../stores/extensions';
 
+const getOnboardingMock = vi.fn();
 // fake the window.events object
 beforeAll(() => {
+  (window as any).getOnboarding = getOnboardingMock;
   (window.events as unknown) = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     receive: (_channel: string, func: any) => {

@@ -62,6 +62,7 @@ import { exec } from './util/exec.js';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
+import type { OnboardingRegistry } from './onboarding-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -136,6 +137,7 @@ export class ExtensionLoader {
     private customPickRegistry: CustomPickRegistry,
     private authenticationProviderRegistry: AuthenticationImpl,
     private iconRegistry: IconRegistry,
+    private onboardingRegistry: OnboardingRegistry,
     private telemetry: Telemetry,
     private viewRegistry: ViewRegistry,
     private context: Context,
@@ -535,6 +537,11 @@ export class ExtensionLoader {
     const views = extension.manifest?.contributes?.views;
     if (views) {
       this.viewRegistry.registerViews(extension.id, views);
+    }
+
+    const onboarding = extension.manifest?.contributes?.onboarding;
+    if (onboarding) {
+      this.onboardingRegistry.registerOnboarding(extension, onboarding);
     }
 
     this.analyzedExtensions.set(extension.id, extension);
@@ -1123,6 +1130,11 @@ export class ExtensionLoader {
       const views = analyzedExtension.manifest?.contributes?.views;
       if (views) {
         this.viewRegistry.unregisterViews(extensionId);
+      }
+
+      const onboarding = analyzedExtension.manifest?.contributes?.onboarding;
+      if (onboarding) {
+        this.onboardingRegistry.unregisterOnboarding(extensionId);
       }
     }
     this.activatedExtensions.delete(extensionId);

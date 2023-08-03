@@ -16,6 +16,7 @@ import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
+import Onboarding from '../onboarding/Onboarding.svelte';
 
 let properties: IConfigurationPropertyRecordedSchema[];
 let defaultPrefPageId: string;
@@ -80,6 +81,10 @@ onMount(async () => {
 
   <Route path="/extensions/install-from-id/:extensionId" breadcrumb="Install Extension from id" let:meta>
     <PreferencesInstallExtensionFromId extensionId="{meta.params.extensionId}" />
+  </Route>
+
+  <Route path="/onboarding/:extensionId" breadcrumb="Extension Onboarding" let:meta>
+    <Onboarding extensionIds="{[meta.params.extensionId]}" />
   </Route>
 
   <Route

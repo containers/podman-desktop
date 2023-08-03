@@ -15,6 +15,18 @@
       {
         "command": "podman.info",
         "title": "podman: Specific info about podman"
+      },
+      {
+        "command": "podman.onboarding.checkPodmanInstalled",
+        "title": "podman: Check podman installation"
+      },
+      {
+        "command": "podman.onboarding.checkPodmanRequirements",
+        "title": "podman: Check system requirements to install podman"
+      },
+      {
+        "command": "podman.onboarding.installPodman",
+        "title": "podman: Install podman"
       }
     ],
     "configuration": {
@@ -95,6 +107,88 @@
           "description": "Machine with root privileges"
         }
       }
+    },
+    "onboarding": {
+      "title": "Podman Setup",
+      "steps": [
+        {
+          "id": "checkPodmanInstalled",
+          "label": "Check Podman",
+          "title": "Checking for Podman installation",
+          "command": "podman.onboarding.checkPodmanInstalled",
+          "completionEvents": [
+            "onCommand:podman.onboarding.checkPodmanInstalled"
+          ]
+        },
+        {
+          "id": "startPodmanInstallation",
+          "label": "Start Setup",
+          "title": "We could not find Podman. Let's install it!",
+          "when": "onboardingContext:podmanIsNotInstalled == true"
+        },
+        {
+          "id": "checkPodmanRequirements",
+          "label": "Check System",
+          "title": "Checking for system requirements to install Podman",
+          "when": "onboardingContext:podmanIsNotInstalled == true",
+          "command": "podman.onboarding.checkPodmanRequirements",
+          "completionEvents": [
+            "onCommand:podman.onboarding.checkPodmanRequirements"
+          ]
+        },
+        {
+          "id": "missingRequirementView",
+          "label": "Fix System",
+          "title": "Some system requirements are missing",
+          "when": "onboardingContext:requirementsStatus == failed && onboardingContext:podmanIsNotInstalled == true",
+          "completionEvents": [
+            "onboardingContext:requirementsStatus == ok"
+          ],
+          "content": [
+            [
+              {
+                "value": "${onboardingContext:warningsMarkdown}",
+                "highlight": true
+              }
+            ],
+            [
+              {
+                "value": "When possible, we've provided information on how to address these requirements."
+              }
+            ],
+            [
+              {
+                "label": "Check requirements again",
+                "command": "podman.onboarding.checkPodmanRequirements",
+                "component": "button"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "installPodmanView",
+          "label": "Install Podman",
+          "title": "Installing Podman",
+          "description": "Once installed, we will enable and configure the extension",
+          "when": "onboardingContext:podmanIsNotInstalled == true",
+          "command": "podman.onboarding.installPodman",
+          "completionEvents": [
+            "onCommand:podman.onboarding.installPodman"
+          ]
+        },
+        {
+          "id": "podmanFailedInstallation",
+          "label": "Done",
+          "title": "Failed installing Podman",
+          "when": "onboardingContext:podmanIsNotInstalled == true"
+        },
+        {
+          "id": "podmanInstalled",
+          "label": "Done",
+          "title": "Podman successfully installed",
+          "when": "onboardingContext:podmanIsNotInstalled == false"
+        }
+      ]
     }
   },
   "scripts": {

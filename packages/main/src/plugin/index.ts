@@ -113,6 +113,9 @@ import { CustomPickRegistry } from './custompick/custompick-registry.js';
 import { ViewRegistry } from './view-registry.js';
 import type { ViewInfoUI } from './api/view-info.js';
 import { Context } from './context/context.js';
+import { OnboardingRegistry } from './onboarding-registry.js';
+import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
+import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -377,6 +380,7 @@ export class PluginSystem {
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
+    const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
@@ -641,6 +645,10 @@ export class PluginSystem {
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
 
+    // init onboarding configuration
+    const onboardingUtils = new OnboardingUtils(configurationRegistry);
+    onboardingUtils.init();
+
     const messageBox = new MessageBox(apiSender);
 
     const authentication = new AuthenticationImpl(apiSender);
@@ -667,6 +675,7 @@ export class PluginSystem {
       customPickRegistry,
       authentication,
       iconRegistry,
+      onboardingRegistry,
       telemetry,
       viewRegistry,
       context,
@@ -1717,6 +1726,28 @@ export class PluginSystem {
         return;
       }
       window.close();
+    });
+
+    this.ipcHandle('onboardingRegistry:listOnboarding', async (): Promise<OnboardingInfo[]> => {
+      return onboardingRegistry.listOnboarding();
+    });
+
+    this.ipcHandle(
+      'onboardingRegistry:getOnboarding',
+      async (_listener, extension: string): Promise<OnboardingInfo | undefined> => {
+        return onboardingRegistry.getOnboarding(extension);
+      },
+    );
+
+    this.ipcHandle(
+      'onboardingRegistry:updateStepState',
+      async (_listener, status: OnboardingStatus, extension: string, stepId?: string): Promise<void> => {
+        return onboardingRegistry.updateStepState(status, extension, stepId);
+      },
+    );
+
+    this.ipcHandle('onboardingRegistry:resetOnboarding', async (_listener, extensions: string[]): Promise<void> => {
+      return onboardingRegistry.resetOnboarding(extensions);
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
