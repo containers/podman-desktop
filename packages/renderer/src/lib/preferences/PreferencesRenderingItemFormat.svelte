@@ -318,10 +318,11 @@ function assertNumericValueIsValid(value: number) {
     {:else if record.type === 'string' && record.format === 'file'}
       <div class="w-full flex">
         <input
-          class="grow {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm"
+          class="grow {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm placeholder-gray-900"
           name="{record.id}"
           readonly
           type="text"
+          placeholder="{record.placeholder}"
           value="{recordValue || ''}"
           id="input-standard-{record.id}"
           aria-invalid="{invalidEntry}"
@@ -363,9 +364,10 @@ function assertNumericValueIsValid(value: number) {
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"
-        class="grow py-1 px-2 w-full outline-0 border-b-2 border-gray-800 hover:border-violet-500 focus:border-violet-500"
+        class="grow py-1 px-2 w-full outline-0 border-b-2 border-gray-800 hover:border-violet-500 focus:border-violet-500 placeholder-gray-900"
         name="{record.id}"
         type="text"
+        placeholder="{record.placeholder}"
         bind:value="{recordValue}"
         readonly="{!!record.readonly}"
         id="input-standard-{record.id}"
