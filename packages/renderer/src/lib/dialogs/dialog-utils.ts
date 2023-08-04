@@ -16,19 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export class DialogUtils {
-  static tabWithinParent(e: KeyboardEvent, parent: HTMLDivElement): void {
-    // trap focus within parent element
-    const nodes = parent.querySelectorAll<HTMLElement>('*');
-    const tabbable = Array.from(nodes).filter(n => n.tabIndex >= 0);
+export function tabWithinParent(e: KeyboardEvent, parent: HTMLDivElement): void {
+  // trap focus within parent element
+  const nodes = parent.querySelectorAll<HTMLElement>('*');
+  const tabbable = Array.from(nodes).filter(n => n.tabIndex >= 0);
 
-    let index = tabbable.indexOf(document.activeElement as HTMLElement);
-    if (index === -1 && e.shiftKey) index = 0;
+  let index = tabbable.indexOf(document.activeElement as HTMLElement);
+  if (index === -1 && e.shiftKey) index = 0;
 
-    index += tabbable.length + (e.shiftKey ? -1 : 1);
-    index %= tabbable.length;
+  index += tabbable.length + (e.shiftKey ? -1 : 1);
+  index %= tabbable.length;
 
-    tabbable[index].focus();
-    e.preventDefault();
-  }
+  tabbable[index].focus();
+  e.preventDefault();
 }

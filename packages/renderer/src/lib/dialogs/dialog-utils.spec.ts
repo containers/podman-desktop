@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { DialogUtils } from './dialog-utils';
+import { tabWithinParent } from './dialog-utils';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -60,14 +60,14 @@ test('check tabbing order', async () => {
 
   // expect tabbing order to be 1 -> 2 -> 3 -> 1
   vi.spyOn(document, 'activeElement', 'get').mockReturnValue(button1);
-  DialogUtils.tabWithinParent(event, container);
+  tabWithinParent(event, container);
   expect(active).toBe(button2);
 
   vi.spyOn(document, 'activeElement', 'get').mockReturnValue(button2);
-  DialogUtils.tabWithinParent(event, container);
+  tabWithinParent(event, container);
   expect(active).toBe(button3);
 
   vi.spyOn(document, 'activeElement', 'get').mockReturnValue(button3);
-  DialogUtils.tabWithinParent(event, container);
+  tabWithinParent(event, container);
   expect(active).toBe(button1);
 });

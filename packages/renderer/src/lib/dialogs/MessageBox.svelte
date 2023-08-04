@@ -6,7 +6,7 @@ import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome
 import type { MessageBoxOptions } from './messagebox-input';
 import Button from '../ui/Button.svelte';
 import type { ButtonType } from '../ui/Button';
-import { DialogUtils } from './dialog-utils';
+import { tabWithinParent } from './dialog-utils';
 
 let currentId = 0;
 let title;
@@ -114,7 +114,7 @@ function handleKeydown(e: KeyboardEvent) {
   }
 
   if (e.key === 'Tab') {
-    DialogUtils.tabWithinParent(e, messageBox);
+    tabWithinParent(e, messageBox);
   }
 }
 
