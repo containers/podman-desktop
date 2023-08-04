@@ -155,7 +155,6 @@ function setNoLogs() {
           <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
             <PreferencesConnectionDetailsLogs
               providerInternalId="{providerInternalId}"
-              connection="{connection}"
               connectionInfo="{connectionInfo}"
               setNoLogs="{setNoLogs}"
               noLog="{noLog}" />
