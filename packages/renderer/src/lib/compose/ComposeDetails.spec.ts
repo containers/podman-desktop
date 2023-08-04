@@ -5,9 +5,11 @@ import ComposeDetails from './ComposeDetails.svelte';
 import { mockBreadcrumb } from '../../stores/breadcrumb';
 import type { ContainerInspectInfo } from '@podman-desktop/api';
 import { containersInfos } from '../../stores/containers';
+import { providerInfos } from '../../stores/providers';
 import { get } from 'svelte/store';
 
 const listContainersMock = vi.fn();
+const getProviderInfosMock = vi.fn();
 
 vi.mock('xterm', () => {
   return {
@@ -34,13 +36,21 @@ beforeAll(() => {
   (window as any).initializeProvider = vi.fn().mockResolvedValue([]);
   (window as any).getContainerInspect = vi.fn().mockResolvedValue(containerInspectInfo);
   (window as any).listNetworks = vi.fn().mockResolvedValue([]);
+  (window as any).getProviderInfos = getProviderInfosMock;
   (window as any).listContainers = listContainersMock;
   (window as any).logsContainer = vi.fn();
   (window as any).listViewsContributions = vi.fn();
-  (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
   (window as any).generatePodmanKube = vi.fn();
   mockBreadcrumb();
 });
+
+async function waitRender(name: string, engineId: string): Promise<void> {
+  const result = render(ComposeDetails, { composeName: name, engineId: engineId });
+  // wait that result.component.$$.ctx[2] is set
+  while (result.component.$$.ctx[2] === undefined) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+}
 
 const containerInspectInfo: ContainerInspectInfo = {
   engineId: '',
@@ -177,6 +187,20 @@ test('Simple test that compose summary is clickable and loadable', async () => {
 });
 
 test('Compose details inspect is clickable and loadable', async () => {
+  getProviderInfosMock.mockResolvedValue([
+    {
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          status: 'started',
+        },
+      ],
+    },
+  ]);
+
   const mockedContainers = [
     {
       Id: 'sha256:1234567890123',
@@ -213,7 +237,12 @@ test('Compose details inspect is clickable and loadable', async () => {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
-  render(ComposeDetails, { composeName: 'foobar', engineId: 'podman' });
+  while (get(providerInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  // Wait for the render to completely finish
+  await waitRender('foobar', 'podman');
 
   // Click on the inspect href that it renders correctly / displays the correct data
   const inspectHref = screen.getByRole('link', { name: 'Inspect' });
