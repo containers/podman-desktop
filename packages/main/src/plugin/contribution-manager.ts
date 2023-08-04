@@ -204,7 +204,7 @@ export class ContributionManager {
     rootDirectory: string,
     ociImageName: string,
     metadata: DockerExtensionMetadata,
-  ): Promise<void> {
+  ): Promise<string | undefined> {
     // if there is a VM file, generate it
     if (metadata?.vm?.composefile) {
       // read this file
@@ -269,6 +269,7 @@ export class ContributionManager {
       }
 
       await fs.promises.writeFile(composeFilePath, jsYaml.dump(afterTransformationCompose, { lineWidth: 1000 }));
+      return composeFilePath;
     }
   }
 
