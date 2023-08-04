@@ -124,7 +124,7 @@
     "typescript": "5.1.6",
     "validator": "^13.11.0",
     "vite": "^4.4.8",
-    "vitest": "^0.33.0",
+    "vitest": "^0.34.1",
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
