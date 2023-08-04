@@ -6995,10 +6995,10 @@ eslint-plugin-redundant-undefined@^0.4.0:
   dependencies:
     "@typescript-eslint/utils" "^5.47.1"
 
-eslint-plugin-sonarjs@^0.19.0:
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.19.0.tgz#6654bc1c6d24c2183891b8bfe1175004dbba1e3c"
-  integrity sha512-6+s5oNk5TFtVlbRxqZN7FIGmjdPCYQKaTzFPmqieCmsU1kBYDzndTeQav0xtQNwZJWu5awWfTGe8Srq9xFOGnw==
+eslint-plugin-sonarjs@^0.20.0:
+  version "0.20.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.20.0.tgz#215529e6e89c5c9b5cb6af9e7ef9a1ce45c53bb0"
+  integrity sha512-BRhZ7BY/oTr6DDaxvx58ReTg7R+J8T+Y2ZVGgShgpml25IHBTIG7EudUtHuJD1zhtMgUEt59x3VNvUQRo2LV6w==
 
 eslint-plugin-svelte@^2.32.4:
   version "2.32.4"
