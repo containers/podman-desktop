@@ -185,14 +185,11 @@ export class ContributionManager {
 
     const extensionPath = matching.storagePath;
     // delete all this directory
-    console.log('deleting', extensionPath);
     await fs.promises.rm(extensionPath, { recursive: true });
 
     // recompute
-    console.log('recompute', extensionPath);
     await this.init();
 
-    console.log('send event', extensionPath);
     this.apiSender.send('contribution-unregister', matching);
   }
 
