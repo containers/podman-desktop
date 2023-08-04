@@ -29,7 +29,7 @@ button {
 
 <script lang="ts">
 import { createEventDispatcher, onDestroy } from 'svelte';
-import { DialogUtils } from './dialog-utils';
+import { tabWithinParent } from './dialog-utils';
 
 const dispatch = createEventDispatcher();
 const close = () => dispatch('close');
@@ -44,7 +44,7 @@ const handle_keydown = e => {
   }
 
   if (e.key === 'Tab') {
-    DialogUtils.tabWithinParent(e, modal);
+    tabWithinParent(e, modal);
   }
 };
 

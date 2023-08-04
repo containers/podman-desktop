@@ -2,7 +2,7 @@
 import { onDestroy, onMount, tick } from 'svelte';
 import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 import Markdown from '/@/lib/markdown/Markdown.svelte';
-import { DialogUtils } from './dialog-utils';
+import { tabWithinParent } from './dialog-utils';
 
 const ENTER = 'Enter';
 const ESCAPE = 'Escape';
@@ -252,7 +252,7 @@ function handleKeydown(e: KeyboardEvent) {
   }
 
   if (e.key === 'Tab') {
-    DialogUtils.tabWithinParent(e, outerDiv);
+    tabWithinParent(e, outerDiv);
   }
 }
 
