@@ -693,7 +693,7 @@ export class PluginSystem {
     // setup security restrictions on links
     await this.setupSecurityRestrictionsOnLinks(messageBox);
 
-    const contributionManager = new ContributionManager(apiSender, directories);
+    const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
     });
