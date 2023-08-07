@@ -88,12 +88,13 @@ onMount(async () => {
   </Route>
 
   <Route
-    path="/container-connection/:provider/:connection/*"
+    path="/container-connection/:provider/:name/:connection/*"
     breadcrumb="Container Engine"
     let:meta
     navigationHint="details">
     <PreferencesContainerConnectionRendering
       providerInternalId="{meta.params.provider}"
+      name="{meta.params.name}"
       connection="{meta.params.connection}"
       properties="{properties}" />
   </Route>

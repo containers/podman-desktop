@@ -21,7 +21,9 @@ import CustomIcon from '../images/CustomIcon.svelte';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
 export let connection: string = undefined;
+export let name: string = undefined;
 
+const connectionName = Buffer.from(name, 'base64').toString();
 const socketPath: string = Buffer.from(connection, 'base64').toString();
 $: connectionStatus = new Map<string, IConnectionStatus>();
 let noLog = true;
@@ -40,7 +42,7 @@ onMount(async () => {
     const providers = providerInfosValue;
     providerInfo = providers.find(provider => provider.internalId === providerInternalId);
     connectionInfo = providerInfo?.containerConnections?.find(
-      connection => connection.endpoint.socketPath === socketPath,
+      connection => connection.endpoint.socketPath === socketPath && connection.name === connectionName,
     );
     const containerConnectionName = getProviderConnectionName(providerInfo, connectionInfo);
     if (
