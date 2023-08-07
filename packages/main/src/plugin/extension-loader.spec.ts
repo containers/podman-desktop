@@ -66,6 +66,10 @@ class TestExtensionLoader extends ExtensionLoader {
     return this.extensionState;
   }
 
+  getExtensionStateErrors() {
+    return this.extensionStateErrors;
+  }
+
   doRequire(module: string): NodeRequire {
     return super.doRequire(module);
   }
@@ -79,7 +83,10 @@ const menuRegistry: MenuRegistry = {} as unknown as MenuRegistry;
 
 const providerRegistry: ProviderRegistry = {} as unknown as ProviderRegistry;
 
-const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
+const configurationRegistryGetConfigurationMock = vi.fn();
+const configurationRegistry: ConfigurationRegistry = {
+  getConfiguration: configurationRegistryGetConfigurationMock,
+} as unknown as ConfigurationRegistry;
 
 const imageRegistry: ImageRegistry = {} as unknown as ImageRegistry;
 
@@ -288,6 +295,41 @@ test('Verify extension error leads to failed state', async () => {
         throw Error('Failed');
       },
     },
+  );
+  expect(extensionLoader.getExtensionState().get(id)).toBe('failed');
+});
+
+test('Verify extension activate with a long timeout is flagged as error', async () => {
+  const id = 'extension.id';
+
+  // mock getConfiguration
+  const getMock = vi.fn();
+  configurationRegistryGetConfigurationMock.mockReturnValue({
+    get: getMock,
+  });
+  getMock.mockReturnValue(1);
+
+  await extensionLoader.activateExtension(
+    {
+      id: id,
+      name: 'id',
+      path: 'dummy',
+      api: {} as typeof containerDesktopAPI,
+      mainPath: '',
+      removable: false,
+      manifest: {},
+    },
+    {
+      activate: () => {
+        // wait for 20 seconds
+        return new Promise(resolve => setTimeout(resolve, 20000));
+      },
+    },
+  );
+
+  expect(extensionLoader.getExtensionStateErrors().get(id)).toBeDefined();
+  expect(extensionLoader.getExtensionStateErrors().get(id)?.toString()).toContain(
+    'Extension extension.id activation timed out after 1 seconds',
   );
   expect(extensionLoader.getExtensionState().get(id)).toBe('failed');
 });
