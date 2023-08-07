@@ -18,27 +18,43 @@
 
 import type { Locator, Page } from 'playwright';
 import { PodmanDesktopPage } from './base-page';
-import { PullImagePage } from './pull-image-page';
 import { ImageDetailsPage } from './image-details-page';
+import { PullImagePage } from './pull-image-page';
 
 export class ImagesPage extends PodmanDesktopPage {
   readonly heading: Locator;
-  readonly pullButton: Locator;
-  readonly pruneButton: Locator;
-  readonly buildButton: Locator;
-  readonly imagesTable: Locator;
+  readonly pullImageButton: Locator;
+  readonly pruneImagesButton: Locator;
+  readonly buildImageButton: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.heading = page.getByRole('heading', { name: 'images', exact: true });
-    this.pullButton = page.getByRole('button', { name: 'Pull an image' });
-    this.pruneButton = page.getByRole('button', { name: 'Prune images' });
-    this.buildButton = page.getByRole('button', { name: 'Build an image' });
-    this.imagesTable = page.getByRole('table');
+    this.heading = page.getByRole('heading', { name: 'Images', exact: true });
+    this.pullImageButton = page.getByRole('button', { name: 'Pull an image' });
+    this.pruneImagesButton = page.getByRole('button', { name: 'Prune images' });
+    this.buildImageButton = page.getByRole('button', { name: 'Build an image' });
   }
 
-  async pullImage(): Promise<PullImagePage> {
-    await this.pullButton.click();
+  async pageIsEmpty(): Promise<boolean> {
+    const noImagesHeading = this.page.getByRole('heading', { name: 'No images', exact: true });
+    try {
+      await noImagesHeading.waitFor({ state: 'visible', timeout: 500 });
+    } catch (err) {
+      return false;
+    }
+    return true;
+  }
+
+  async getTable(): Promise<Locator> {
+    if (!(await this.pageIsEmpty())) {
+      return this.page.getByRole('table');
+    } else {
+      throw Error('Images page is empty, there are no images');
+    }
+  }
+
+  async openPullImage(): Promise<PullImagePage> {
+    await this.pullImageButton.click();
     return new PullImagePage(this.page);
   }
 
@@ -47,16 +63,17 @@ export class ImagesPage extends PodmanDesktopPage {
     if (imageRow === undefined) {
       throw Error(`Image: '${name}' does not exist`);
     }
-
     const imageRowName = imageRow.getByRole('cell').nth(3);
     await imageRowName.click();
     return new ImageDetailsPage(this.page, name);
   }
 
   async getImageRowByName(name: string): Promise<Locator | undefined> {
-    await this.imagesTable.waitFor({ state: 'visible', timeout: 3000 });
-    const rows = await this.imagesTable.getByRole('row').all();
-
+    if (await this.pageIsEmpty()) {
+      return undefined;
+    }
+    const table = await this.getTable();
+    const rows = await table.getByRole('row').all();
     for (const row of rows) {
       // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
       const zeroCell = await row.getByRole('cell').nth(0).innerText();
@@ -64,7 +81,8 @@ export class ImagesPage extends PodmanDesktopPage {
         continue;
       }
       const thirdCell = await row.getByRole('cell').nth(3).innerText();
-      if (thirdCell.indexOf(name) >= 0) {
+      const index = thirdCell.indexOf(name);
+      if (index >= 0) {
         return row;
       }
     }
