@@ -362,8 +362,8 @@ function hideInstallModal() {
                     on:click="{() =>
                       router.goto(
                         `/preferences/container-connection/${provider.internalId}/${Buffer.from(
-                          container.endpoint.socketPath,
-                        ).toString('base64')}/summary`,
+                          container.name,
+                        ).toString('base64')}/${Buffer.from(container.endpoint.socketPath).toString('base64')}/summary`,
                       )}">
                     <Fa icon="{faArrowUpRightFromSquare}" />
                   </button>
