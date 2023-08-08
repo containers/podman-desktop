@@ -41,14 +41,14 @@ function getInitializationContext(id: string) {
       <div class="px-5 space-y-5 h-full">
         <!-- Provider is ready display a box to indicate some information -->
         {#if providersReady.length > 0}
-          {#each providersReady as providerReady}
+          {#each providersReady as providerReady (providerReady.internalId)}
             <ProviderReady provider="{providerReady}" />
           {/each}
         {/if}
 
         <!-- Provider is starting -->
         {#if providersStarting.length > 0}
-          {#each providersStarting as providerStarting}
+          {#each providersStarting as providerStarting (providerStarting.internalId)}
             <ProviderStarting provider="{providerStarting}" />
           {/each}
         {/if}
@@ -56,7 +56,7 @@ function getInitializationContext(id: string) {
         <!-- Provider is installed but not ready, it requires a user action
           display a box to indicate how to make the provider ready -->
         {#if providersInstalled.length > 0}
-          {#each providersInstalled as providerInstalled}
+          {#each providersInstalled as providerInstalled (providerInstalled.internalId)}
             <ProviderInstalled
               provider="{providerInstalled}"
               initializationContext="{getInitializationContext(providerInstalled.internalId)}" />
@@ -65,7 +65,7 @@ function getInitializationContext(id: string) {
 
         <!-- Provider is configuring -->
         {#if providersConfiguring.length > 0}
-          {#each providersConfiguring as providerConfiguring}
+          {#each providersConfiguring as providerConfiguring (providerConfiguring.internalId)}
             <ProviderConfiguring
               provider="{providerConfiguring}"
               initializationContext="{getInitializationContext(providerConfiguring.internalId)}" />
@@ -73,9 +73,9 @@ function getInitializationContext(id: string) {
         {/if}
 
         <!-- Provider is configured but not ready, it requires a user action
-          display a box to indicate how to make the provider ready -->
+          display a box to indicate how to make the provider ready /* (providerConfigured.internalId)*/-->
         {#if providersConfigured.length > 0}
-          {#each providersConfigured as providerConfigured}
+          {#each providersConfigured as providerConfigured (providerConfigured.internalId)}
             <ProviderConfigured
               provider="{providerConfigured}"
               initializationContext="{getInitializationContext(providerConfigured.internalId)}" />
@@ -84,14 +84,14 @@ function getInitializationContext(id: string) {
 
         <!-- Provider is not installed, display a box to indicate how to install from the tool if possible -->
         {#if providersNotInstalled.length > 0}
-          {#each providersNotInstalled as providerNotInstalled}
+          {#each providersNotInstalled as providerNotInstalled (providerNotInstalled.internalId)}
             <ProviderNotInstalled provider="{providerNotInstalled}" />
           {/each}
         {/if}
 
         <!-- Provider is stopped -->
         {#if providersStopped.length > 0}
-          {#each providersStopped as providerStopped}
+          {#each providersStopped as providerStopped (providerStopped.internalId)}
             <ProviderStopped provider="{providerStopped}" />
           {/each}
         {/if}
