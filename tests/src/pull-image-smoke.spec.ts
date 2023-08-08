@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import type { Page } from 'playwright';
-import { afterAll, beforeAll, test, describe } from 'vitest';
+import type { PDRunnerTestContext } from 'vitest';
+import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
@@ -37,6 +38,10 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await pdRunner.close();
+});
+
+beforeEach<PDRunnerTestContext>(async ctx => {
+  ctx.pdRunner = pdRunner;
 });
 
 describe('Image pull verification', async () => {

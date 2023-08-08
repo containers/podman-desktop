@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import type { Page } from 'playwright';
-import { afterAll, beforeAll, test, describe } from 'vitest';
+import type { PDRunnerTestContext } from 'vitest';
+import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
@@ -47,6 +48,10 @@ beforeAll(async () => {
     'Images page is empty, there are no images present',
   );
   await deleteContainer(page, containerToRun);
+});
+
+beforeEach<PDRunnerTestContext>(async ctx => {
+  ctx.pdRunner = pdRunner;
 });
 
 afterAll(async () => {

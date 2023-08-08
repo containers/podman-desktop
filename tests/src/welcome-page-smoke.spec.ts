@@ -18,7 +18,8 @@
 
 import type { BrowserWindow } from 'electron';
 import type { JSHandle, Page } from 'playwright';
-import { afterAll, beforeAll, expect, test, describe } from 'vitest';
+import type { PDRunnerTestContext } from 'vitest';
+import { afterAll, beforeAll, expect, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
@@ -35,6 +36,10 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await pdRunner.close();
+});
+
+beforeEach<PDRunnerTestContext>(async ctx => {
+  ctx.pdRunner = pdRunner;
 });
 
 describe('Basic e2e verification of podman desktop start', async () => {
