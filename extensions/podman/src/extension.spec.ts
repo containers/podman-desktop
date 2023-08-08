@@ -24,7 +24,6 @@ import { getPodmanCli } from './podman-cli';
 import type { Configuration } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
-import { isWindows } from './util';
 
 const config: Configuration = {
   get: () => {
@@ -181,7 +180,6 @@ test('verify create command called with correct values with user mode networking
     },
     undefined,
     undefined,
-    '4.6.0',
   );
   const parameters = [
     'machine',
@@ -194,10 +192,8 @@ test('verify create command called with correct values with user mode networking
     '232',
     '--image-path',
     'path',
+    '--user-mode-networking',
   ];
-  if (isWindows()) {
-    parameters.push('--user-mode-networking');
-  }
   expect(spyExecPromise).toBeCalledWith(
     getPodmanCli(),
     parameters,
