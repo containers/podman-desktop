@@ -48,6 +48,9 @@ const config = {
      */
     testTimeout: 60_000,
     hookTimeout: 60_000,
+    // test reporters - default for all and junit for CI
+    reporters: process.env.CI ? ['default', 'junit'] : ['default'],
+    outputFile: process.env.CI ? { junit: 'tests/output/junit-results.xml' } : {},
   },
   resolve: {
     alias: {
