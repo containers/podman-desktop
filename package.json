@@ -134,7 +134,7 @@
     "analytics-node": "^6.2.0",
     "check-disk-space": "^3.4.0",
     "chokidar": "^3.5.3",
-    "compare-versions": "^6.0.0",
+    "compare-versions": "^6.1.0",
     "dockerode": "^3.3.5",
     "electron-context-menu": "^3.6.1",
     "electron-updater": "6.1.1",
