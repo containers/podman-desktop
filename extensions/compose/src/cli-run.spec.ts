@@ -79,7 +79,7 @@ test('error: expect installBinaryToSystem to fail with a non existing binary', a
   await expect(cliRun.installBinaryToSystem('test', 'tmpBinary')).rejects.toThrowError();
 });
 
-test('success: installBinaryToSystem on mac with /usr/bin/local already created', async () => {
+test('success: installBinaryToSystem on mac with /usr/local/bin already created', async () => {
   // Mock the platform to be darwin
   Object.defineProperty(process, 'platform', {
     value: 'darwin',
@@ -105,10 +105,36 @@ test('success: installBinaryToSystem on mac with /usr/bin/local already created'
   await cliRun.installBinaryToSystem('test', 'tmpBinary');
 });
 
-test('success: installBinaryToSystem on mac with /usr/bin/local NOT created yet (expect mkdir -p command)', async () => {
+test('success: installBinaryToSystem on mac with /usr/local/bin NOT created yet (expect mkdir -p command)', async () => {
   // Mock the platform to be darwin
   Object.defineProperty(process, 'platform', {
     value: 'darwin',
+  });
+
+  // Create the CliRun object to call installBinaryToSystem
+  let fakeContext: extensionApi.ExtensionContext;
+  const cliRun = new CliRun(fakeContext, osMock);
+
+  // Mock existsSync to be false since within the function it's doing: !fs.existsSync(localBinDir)
+  vi.spyOn(fs, 'existsSync').mockImplementation(() => {
+    return false;
+  });
+
+  // When exec is called, expect the following
+  vi.spyOn(sudo, 'exec').mockImplementation((command, options, callback) => {
+    expect(options.name).toBe('Binary Installation');
+    expect(command).toBe('mkdir -p /usr/local/bin && cp test /usr/local/bin/tmpBinary');
+    callback(undefined);
+  });
+
+  // Run installBinaryToSystem which will trigger the spyOn mock
+  await cliRun.installBinaryToSystem('test', 'tmpBinary');
+});
+
+test('success: installBinaryToSystem on linux with /usr/local/bin NOT created yet (expect mkdir -p command)', async () => {
+  // Mock the platform to be darwin
+  Object.defineProperty(process, 'platform', {
+    value: 'linux',
   });
 
   // Create the CliRun object to call installBinaryToSystem

@@ -154,7 +154,7 @@ export class CliRun {
 
     // If on macOS or Linux, check to see if the /usr/local/bin directory exists,
     // if it does not, then add mkdir -p /usr/local/bin to the start of the command when moving the binary.
-    if (system === 'linux' || (system === 'darwin' && !fs.existsSync(localBinDir))) {
+    if ((system === 'linux' || system === 'darwin') && !fs.existsSync(localBinDir)) {
       command.unshift('mkdir', '-p', localBinDir, '&&');
     }
 
