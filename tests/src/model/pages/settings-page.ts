@@ -19,13 +19,17 @@
 import type { Locator, Page } from 'playwright';
 import { PodmanDesktopPage } from './base-page';
 
-export class DashboardPage extends PodmanDesktopPage {
-  readonly heading: Locator;
-  readonly devSandboxBox: Locator;
+export abstract class SettingsPage extends PodmanDesktopPage {
+  readonly tabName: string;
 
-  constructor(page: Page) {
+  constructor(page: Page, tabName: string) {
     super(page);
-    this.heading = page.getByRole('heading', { name: 'Dashboard' });
-    this.devSandboxBox = page.getByTitle('Free remote OpenShift sandbox environment for immediate access');
+    this.tabName = tabName;
+  }
+
+  async getTab(): Promise<Locator> {
+    return this.page
+      .getByRole('navigation', { name: 'PreferencesNavigation' })
+      .getByRole('link', { name: this.tabName, exact: true });
   }
 }

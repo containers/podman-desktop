@@ -17,15 +17,15 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './base-page';
+import { SettingsPage } from './settings-page';
 
-export class DashboardPage extends PodmanDesktopPage {
+export class SettingsExtensionsPage extends SettingsPage {
   readonly heading: Locator;
   readonly devSandboxBox: Locator;
 
   constructor(page: Page) {
-    super(page);
-    this.heading = page.getByRole('heading', { name: 'Dashboard' });
+    super(page, 'Extensions');
+    this.heading = page.getByRole('heading', { name: 'Extensions' });
     this.devSandboxBox = page.getByTitle('Free remote OpenShift sandbox environment for immediate access');
   }
 }

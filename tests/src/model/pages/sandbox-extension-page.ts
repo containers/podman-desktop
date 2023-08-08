@@ -17,15 +17,21 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './base-page';
+import { SettingsPage } from './settings-page';
 
-export class DashboardPage extends PodmanDesktopPage {
+export class SandboxExtensionPage extends SettingsPage {
   readonly heading: Locator;
-  readonly devSandboxBox: Locator;
+  readonly enableButton: Locator;
+  readonly disableButton: Locator;
+  readonly removeExtensionButton: Locator;
+  readonly status: Locator;
 
   constructor(page: Page) {
-    super(page);
-    this.heading = page.getByRole('heading', { name: 'Dashboard' });
-    this.devSandboxBox = page.getByTitle('Free remote OpenShift sandbox environment for immediate access');
+    super(page, 'redhat-sandbox');
+    this.heading = page.getByText('Red Hat OpenShift Sandbox Extension');
+    this.enableButton = page.getByRole('button', { name: ' Enable' });
+    this.disableButton = page.getByRole('button', { name: ' Disable' });
+    this.removeExtensionButton = page.getByRole('button', { name: ' Remove' });
+    this.status = page.getByLabel('connection-status-label');
   }
 }
