@@ -189,9 +189,9 @@ test('verify create command called with correct values with user mode networking
     '--cpus',
     '2',
     '--memory',
-    '1048',
+    '999',
     '--disk-size',
-    '250',
+    '232',
     '--image-path',
     'path',
   ];

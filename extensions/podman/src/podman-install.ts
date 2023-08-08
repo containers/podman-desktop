@@ -29,6 +29,7 @@ import { getAssetsFolder, runCliCommand } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
+import { isUserModeNetworkingSupported, USER_MODE_NETWORKING_SUPPORTED_KEY } from './extension';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -128,6 +129,10 @@ export class PodmanInstall {
       // write podman version
       if (newInstalledPodman) {
         this.podmanInfo.podmanVersion = newInstalledPodman.version;
+        extensionApi.context.setValue(
+          USER_MODE_NETWORKING_SUPPORTED_KEY,
+          isUserModeNetworkingSupported(newInstalledPodman.version),
+        );
       }
       // update detections checks
       provider.updateDetectionChecks(getDetectionChecks(newInstalledPodman));

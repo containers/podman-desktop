@@ -33,7 +33,6 @@ import { getDetectionChecks } from './detection-checks';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { getSocketCompatibility } from './compatibility-mode';
 import { compareVersions } from 'compare-versions';
-import type { AuditRequestItems, AuditResult } from '@podman-desktop/api';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -603,7 +602,6 @@ async function doHandleWSLDistroNotFoundError(
             },
             undefined,
             undefined,
-            undefined,
           );
         } catch (error) {
           console.error(error);
@@ -633,12 +631,18 @@ async function registerUpdatesIfAny(
   }
 }
 
+export const USER_MODE_NETWORKING_SUPPORTED_KEY = 'podman.isUserModeNetworkingSupported';
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   storedExtensionContext = extensionContext;
   const podmanInstall = new PodmanInstall(extensionContext.storagePath);
 
   const installedPodman = await getPodmanInstallation();
   const version: string | undefined = installedPodman?.version;
+
+  if (version) {
+    extensionApi.context.setValue(USER_MODE_NETWORKING_SUPPORTED_KEY, isUserModeNetworkingSupported(version));
+  }
 
   const detectionChecks: extensionApi.ProviderDetectionCheck[] = [];
   let status: extensionApi.ProviderStatus = 'not-installed';
@@ -828,16 +832,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // allows to create machines
   if (isMac() || isWindows()) {
-    provider.setContainerProviderConnectionFactory(
-      {
-        initialize: () => createMachine({}, undefined),
-        create: (params, logger, token) => createMachine(params, logger, token, installedPodman?.version),
-        creationDisplayName: 'Podman machine',
-      },
-      {
-        auditItems: items => checkMachineParameters(items, installedPodman?.version),
-      },
-    );
+    provider.setContainerProviderConnectionFactory({
+      initialize: () => createMachine({}, undefined),
+      create: createMachine,
+      creationDisplayName: 'Podman machine',
+    });
   }
 
   // no podman for now, skip
@@ -1042,7 +1041,7 @@ export async function deactivate(): Promise<void> {
 
 const PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING = '4.6.0';
 
-function isUserModeNetworkingSupported(podmanVersion: string) {
+export function isUserModeNetworkingSupported(podmanVersion: string) {
   return isWindows() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING) >= 0;
 }
 
@@ -1051,7 +1050,6 @@ export async function createMachine(
   params: { [key: string]: any },
   logger: extensionApi.Logger,
   token?: extensionApi.CancellationToken,
-  podmanVersion?: string,
 ): Promise<void> {
   const parameters = [];
   parameters.push('machine');
@@ -1102,7 +1100,7 @@ export async function createMachine(
     parameters.push('--rootful');
   }
 
-  if (params['podman.factory.machine.user-mode-networking'] && isUserModeNetworkingSupported(podmanVersion)) {
+  if (params['podman.factory.machine.user-mode-networking']) {
     parameters.push('--user-mode-networking');
   }
 
@@ -1139,25 +1137,6 @@ export async function createMachine(
   await execPromise(getPodmanCli(), parameters, { logger, env }, token);
 }
 
-export async function checkMachineParameters(items: AuditRequestItems, podmanVersion?: string): Promise<AuditResult> {
-  const result = {
-    records: [],
-  };
-  if (items['podman.factory.machine.user-mode-networking'] && !isUserModeNetworkingSupported(podmanVersion)) {
-    if (!isWindows()) {
-      result.records.push({
-        type: 'warning',
-        record: 'User mode networking parameter is ignored on Linux and MacOS',
-      });
-    } else {
-      result.records.push({
-        type: 'warning',
-        record: `User mode networking is not supported by this Podman version, will be ignored. Install Podman ${PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING} or later.`,
-      });
-    }
-  }
-  return result;
-}
 function setupDisguisedPodmanSocketWatcher(
   provider: extensionApi.Provider,
   socketFile: string,

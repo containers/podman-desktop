@@ -110,7 +110,8 @@
           "type": "boolean",
           "default": false,
           "scope": "ContainerProviderConnectionFactory",
-          "description": "User mode networking"
+          "description": "User mode networking",
+          "when": "podman.isUserModeNetworkingSupported == true"
         }
       }
     },
