@@ -22,10 +22,12 @@ import { PodmanDesktopPage } from './base-page';
 export class DashboardPage extends PodmanDesktopPage {
   readonly heading: Locator;
   readonly devSandboxBox: Locator;
+  readonly devSandboxStatus: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = page.getByRole('heading', { name: 'Dashboard' });
     this.devSandboxBox = page.getByTitle('Free remote OpenShift sandbox environment for immediate access');
+    this.devSandboxStatus = page.getByText('Developer Sandbox is running');
   }
 }

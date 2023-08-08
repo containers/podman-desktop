@@ -53,11 +53,7 @@ describe('Developer Sandbox installation verification', async () => {
     });
 
     test('Check Settings extension component for installation availability', async () => {
-      const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
-      const settingsLink = navBar.getByRole('link', { name: 'Settings' });
-      await playExpect(settingsLink).toBeVisible();
-      await settingsLink.click();
-
+      await goToSettings();
       const settingsBar = new SettingsBar(page);
       const extensionsPage = await settingsBar.openTabPage(SettingsExtensionsPage);
 
@@ -97,22 +93,34 @@ describe('Developer Sandbox installation verification', async () => {
 
         await sandboxPage.disableButton.click();
         await playExpect(sandboxPage.status).toHaveText('DISABLED');
-        //+ verify dashboard
+
+        await goToDashboard();
+        const dashboardPage = new DashboardPage(page);
+        await playExpect(dashboardPage.devSandboxStatus).toBeHidden();
       });
 
       test('Enable extension and verify Dashboard components', async () => {
-        const sandboxPage = new SandboxExtensionPage(page);
+        await goToSettings();
+        const settingsBar = new SettingsBar(page);
+        await settingsBar.openTabPage(SettingsExtensionsPage);
+        const sandboxPage = await settingsBar.openTabPage(SandboxExtensionPage);
 
         await sandboxPage.enableButton.click();
         await playExpect(sandboxPage.status).toHaveText('ENABLED');
-        //+ verify dashboard
+
+        await goToDashboard();
+        const dashboardPage = new DashboardPage(page);
+        await playExpect(dashboardPage.devSandboxStatus).toBeVisible();
       });
     });
   });
 
   describe('Remove extension and verify UI', async () => {
     test('Remove extension and verify Settings components', async () => {
-      const sandboxPage = new SandboxExtensionPage(page);
+      await goToSettings();
+      const settingsBar = new SettingsBar(page);
+      await settingsBar.openTabPage(SettingsExtensionsPage);
+      const sandboxPage = await settingsBar.openTabPage(SandboxExtensionPage);
 
       await sandboxPage.disableButton.click();
       await sandboxPage.removeExtensionButton.click();
@@ -124,16 +132,11 @@ describe('Developer Sandbox installation verification', async () => {
       });
       await playExpect(installButton).toBeVisible();
 
-      const settingsBar = new SettingsBar(page);
       await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: 'redhat-sandbox' })).toBeHidden();
     });
 
     test('Verify Dashboard components', async () => {
-      const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
-      const dashboardLink = navBar.getByRole('link', { name: 'Dashboard' });
-      await playExpect(dashboardLink).toBeVisible();
-      await dashboardLink.click();
-
+      await goToDashboard();
       const dashboardPage = new DashboardPage(page);
       const dashboardInstallButton = dashboardPage.devSandboxBox.getByRole('button', {
         name: 'Install redhat.redhat-sandbox Extension',
@@ -142,3 +145,17 @@ describe('Developer Sandbox installation verification', async () => {
     });
   });
 });
+
+async function goToDashboard() {
+  const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
+  const dashboardLink = navBar.getByRole('link', { name: 'Dashboard' });
+  await playExpect(dashboardLink).toBeVisible();
+  await dashboardLink.click();
+}
+
+async function goToSettings() {
+  const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
+  const settingsLink = navBar.getByRole('link', { name: 'Settings' });
+  await playExpect(settingsLink).toBeVisible();
+  await settingsLink.click();
+}
