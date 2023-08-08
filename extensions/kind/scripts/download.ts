@@ -20,6 +20,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Octokit } from 'octokit';
+import { load } from 'js-yaml';
 import type { OctokitOptions } from '@octokit/core/dist-types/types';
 
 const CONTOUR_ORG = 'projectcontour';
@@ -39,23 +40,33 @@ export {};
 
 async function download(tagVersion: string, repoPath: string, fileName: string): Promise<void> {
   const destDir = path.resolve(__dirname, '..', 'src-generated');
+  const resDir = path.resolve(__dirname, '..', 'resources', 'contour');
+  const downloadFile = process.env.CONTOUR_SKIP_DOWNLOAD ? !process.env.CONTOUR_SKIP_DOWNLOAD : true;
   if (!fs.existsSync(destDir)) {
     fs.mkdirSync(destDir);
   }
   const destFile = path.resolve(destDir, fileName);
-  console.log(
-    `Downloading Contour manifests from https://github.com/${CONTOUR_ORG}/${CONTOUR_REPO}/${CONTOUR_DEPLOY_PATH}/${CONTOUR_DEPLOY_FILE} version ${tagVersion}`,
-  );
-  // await downloadFile(url, destFile);
-  const manifests = await octokit.rest.repos.getContent({
-    owner: CONTOUR_ORG,
-    repo: CONTOUR_REPO,
-    path: repoPath + '/' + fileName,
-    ref: tagVersion,
-    headers: {
-      accept: 'application/json',
-    },
-  });
+  let manifests;
+  if (downloadFile) {
+    console.log(
+      `Downloading Contour manifests from https://github.com/${CONTOUR_ORG}/${CONTOUR_REPO}/${CONTOUR_DEPLOY_PATH}/${CONTOUR_DEPLOY_FILE} version ${tagVersion}`,
+    );
+    manifests = await octokit.rest.repos.getContent({
+      owner: CONTOUR_ORG,
+      repo: CONTOUR_REPO,
+      path: repoPath + '/' + fileName,
+      ref: tagVersion,
+      headers: {
+        accept: 'application/json',
+      },
+    });
+  } else {
+    const localFile = path.join(resDir, tagVersion, 'contour.yaml');
+    if (fs.existsSync(localFile)) {
+      console.log(`Reading locally stored Contour manifests from ${localFile}`);
+      manifests = { data: load(fs.readFileSync(localFile, 'utf-8')) };
+    }
+  }
   let buffer;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,10 +79,12 @@ async function download(tagVersion: string, repoPath: string, fileName: string):
   }
 
   fs.writeFileSync(destFile, buffer);
-  console.log(`Downloaded to ${destFile}`);
+  console.log(`Contour.yaml available at ${destFile}`);
 }
 
 // grab the manifests from the given URL
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 // download the file from the given URL and store the content in destFile
+// due to a limit rate for github endpoint access on CI, there is an option to use locally stored file
+// use CONTOUR_SKIP_DOWNLOAD env. var to take locally stored file
 download(CONTOUR_VERSION, CONTOUR_DEPLOY_PATH, CONTOUR_DEPLOY_FILE);
