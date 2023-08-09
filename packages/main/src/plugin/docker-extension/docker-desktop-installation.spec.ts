@@ -36,9 +36,15 @@ let dockerDesktopInstallation: TestDockerDesktopInstallation;
 
 const contributionManagerLoadMetadataMock = vi.fn();
 const contributionManagerInitMock = vi.fn();
+const contributionManagerFindComposeBinaryMock = vi.fn();
+const contributionManagerEnhanceComposeFileMock = vi.fn();
+const containerProviderStartVMMock = vi.fn();
 const contributionManager = {
   init: contributionManagerInitMock,
   loadMetadata: contributionManagerLoadMetadataMock,
+  findComposeBinary: contributionManagerFindComposeBinaryMock,
+  enhanceComposeFile: contributionManagerEnhanceComposeFileMock,
+  startVM: containerProviderStartVMMock,
 } as unknown as ContributionManager;
 
 const containerProviderGetFirstRunningConnectionMock = vi.fn();
@@ -318,8 +324,17 @@ test('Check handlePluginInstall', async () => {
   // mock extractDockerDesktopFiles
   vi.spyOn(dockerDesktopInstallation, 'extractDockerDesktopFiles').mockResolvedValue();
 
+  // mock findComposeBinary
+  contributionManagerFindComposeBinaryMock.mockResolvedValue('/my-compose-binary');
+
+  // mock enhanceComposeFile
+  contributionManagerEnhanceComposeFileMock.mockResolvedValue('/my-enhanced-compose-file.yaml');
+
   contributionManagerLoadMetadataMock.mockResolvedValue({
     name: 'My Extension',
+    vm: {
+      composefile: 'docker-compose.yaml',
+    },
   });
 
   const logCallbackId = 2503;
@@ -336,4 +351,6 @@ test('Check handlePluginInstall', async () => {
 
   // contribution manager is called
   expect(contributionManagerInitMock).toBeCalled();
+
+  expect(containerProviderStartVMMock).toBeCalledWith('My Extension', '/my-enhanced-compose-file.yaml', true);
 });
