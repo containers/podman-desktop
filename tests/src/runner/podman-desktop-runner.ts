@@ -109,9 +109,8 @@ export class PodmanDesktopRunner {
     const window: JSHandle<BrowserWindow> = await this.getBrowserWindow();
 
     await window.evaluate((mainWindow): Promise<void> => {
-      mainWindow.webContents.closeDevTools();
-      mainWindow.maximize();
       mainWindow.webContents.openDevTools({ mode: 'detach' });
+      mainWindow.focus();
       return new Promise(resolve => {
         if (mainWindow.isVisible()) {
           resolve();
@@ -148,8 +147,8 @@ export class PodmanDesktopRunner {
       recordVideo: {
         dir: directory,
         size: {
-          width: 1280,
-          height: 720,
+          width: 1050,
+          height: 700,
         },
       },
     };
