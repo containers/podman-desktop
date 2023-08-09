@@ -18,7 +18,7 @@
 
 import type { BrowserWindow } from 'electron';
 import type { JSHandle, Page } from 'playwright';
-import type { PDRunnerTestContext } from 'vitest';
+import type { RunnerTestContext } from './testContext/runner-test-context';
 import { afterAll, beforeAll, expect, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
@@ -38,7 +38,7 @@ afterAll(async () => {
   await pdRunner.close();
 });
 
-beforeEach<PDRunnerTestContext>(async ctx => {
+beforeEach<RunnerTestContext>(async ctx => {
   ctx.pdRunner = pdRunner;
 });
 
