@@ -385,6 +385,16 @@ describe('expect checkCredentials', async () => {
     );
   });
 
+  test('expect checkCredentials works with a localhost registry', async () => {
+    const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
+    spyGetAuthInfo.mockResolvedValue({ authUrl: 'foo', scheme: 'bearer' });
+
+    const spydoCheckCredentials = vi.spyOn(imageRegistry, 'doCheckCredentials');
+    spydoCheckCredentials.mockResolvedValue();
+
+    await imageRegistry.checkCredentials('localhost:5000', 'my-username', 'my-password');
+  });
+
   test('expect checkCredentials works with ignoring the certificate', async () => {
     const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
     spyGetAuthInfo.mockResolvedValue({ authUrl: 'foo', scheme: 'bearer' });
@@ -397,6 +407,18 @@ describe('expect checkCredentials', async () => {
       'my-username',
       'my-password',
       true,
+    );
+  });
+
+  test('test checkCredentials fails with a wrong registry input', async () => {
+    const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
+    spyGetAuthInfo.mockResolvedValue({ authUrl: 'foo', scheme: 'bearer' });
+
+    const spydoCheckCredentials = vi.spyOn(imageRegistry, 'doCheckCredentials');
+    spydoCheckCredentials.mockResolvedValue();
+
+    await expect(imageRegistry.checkCredentials(':', 'my-username', 'my-password')).rejects.toThrow(
+      'The format of the Registry Location is incorrect.',
     );
   });
 

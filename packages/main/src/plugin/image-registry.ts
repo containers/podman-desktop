@@ -24,9 +24,7 @@ import type { Telemetry } from './telemetry/telemetry.js';
 import * as crypto from 'node:crypto';
 import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
 import got, { HTTPError, RequestError } from 'got';
-import validatorPkg from 'validator';
-// workaround for ESM
-const validator: { isURL: (url: string) => boolean } = validatorPkg as unknown as { isURL: (url: string) => boolean };
+import validator from 'validator';
 
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import type { Certificates } from './certificates.js';
@@ -710,7 +708,15 @@ export class ImageRegistry {
   }
 
   async checkCredentials(serviceUrl: string, username: string, password: string, insecure?: boolean): Promise<void> {
-    if (serviceUrl === undefined || !validator.isURL(serviceUrl)) {
+    // When checking the validation of the URL, do not require a TLD (ex. .com, .org, etc.)
+    // in case we are passing in a local test registry such as http://localhost:5000
+    const urlOptions = {
+      require_tld: false,
+    };
+    const isUrl = validator.default.isURL(serviceUrl, urlOptions);
+
+    // Check if the URL is undefined or not a valid URL
+    if (serviceUrl === undefined || !isUrl) {
       throw Error(
         'The format of the Registry Location is incorrect.\nPlease use the format "registry.location.com" and try again.',
       );
