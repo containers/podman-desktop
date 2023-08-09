@@ -16,8 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { BrowserWindow } from 'electron';
-import type { JSHandle, Page } from 'playwright';
+import type { Page } from 'playwright';
 import type { RunnerTestContext } from './testContext/runner-test-context';
 import { afterAll, beforeAll, expect, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
@@ -45,27 +44,7 @@ beforeEach<RunnerTestContext>(async ctx => {
 describe('Basic e2e verification of podman desktop start', async () => {
   describe('Welcome page handling', async () => {
     test('Check the Welcome page is displayed', async () => {
-      const window: JSHandle<BrowserWindow> = await pdRunner.getBrowserWindow();
-
-      const windowState = await window.evaluate(
-        (mainWindow): Promise<{ isVisible: boolean; isDevToolsOpened: boolean; isCrashed: boolean }> => {
-          const getState = () => ({
-            isVisible: mainWindow.isVisible(),
-            isDevToolsOpened: mainWindow.webContents.isDevToolsOpened(),
-            isCrashed: mainWindow.webContents.isCrashed(),
-          });
-
-          return new Promise(resolve => {
-            /**
-             * The main window is created hidden, and is shown only when it is ready.
-             * See {@link ../packages/main/src/mainWindow.ts} function
-             */
-            if (mainWindow.isVisible()) {
-              resolve(getState());
-            } else mainWindow.once('ready-to-show', () => resolve(getState()));
-          });
-        },
-      );
+      const windowState = await pdRunner.getApplicationState();
       expect(windowState.isCrashed, 'The app has crashed').toBeFalsy();
       expect(windowState.isVisible, 'The main window was not visible').toBeTruthy();
 

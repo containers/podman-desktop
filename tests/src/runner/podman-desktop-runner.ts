@@ -58,6 +58,8 @@ export class PodmanDesktopRunner {
       console.log(`STDERR: ${data}`);
     });
 
+    await this.setupApplication();
+
     return this._page;
   }
 
@@ -75,6 +77,47 @@ export class PodmanDesktopRunner {
     } else {
       throw Error('Application was not started yet');
     }
+  }
+
+  async getApplicationState(): Promise<{
+    isVisible: boolean;
+    isDevToolsOpened: boolean;
+    isCrashed: boolean;
+    isMaximized: boolean;
+  }> {
+    const window: JSHandle<BrowserWindow> = await this.getBrowserWindow();
+
+    return await window.evaluate(
+      (
+        mainWindow,
+      ): Promise<{ isVisible: boolean; isDevToolsOpened: boolean; isCrashed: boolean; isMaximized: boolean }> => {
+        const getState = () => ({
+          isVisible: mainWindow.isVisible(),
+          isDevToolsOpened: mainWindow.webContents.isDevToolsOpened(),
+          isCrashed: mainWindow.webContents.isCrashed(),
+          isMaximized: mainWindow.isMaximized(),
+        });
+
+        return new Promise(resolve => {
+          resolve(getState());
+        });
+      },
+    );
+  }
+
+  async setupApplication(): Promise<void> {
+    const window: JSHandle<BrowserWindow> = await this.getBrowserWindow();
+
+    await window.evaluate((mainWindow): Promise<void> => {
+      mainWindow.webContents.closeDevTools();
+      mainWindow.maximize();
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
+      return new Promise(resolve => {
+        if (mainWindow.isVisible()) {
+          resolve();
+        } else mainWindow.once('ready-to-show', () => resolve());
+      });
+    });
   }
 
   public async getBrowserWindow(): Promise<JSHandle<BrowserWindow>> {
@@ -105,8 +148,8 @@ export class PodmanDesktopRunner {
       recordVideo: {
         dir: directory,
         size: {
-          width: 1050,
-          height: 700,
+          width: 1280,
+          height: 720,
         },
       },
     };
