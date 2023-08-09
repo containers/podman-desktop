@@ -29,6 +29,7 @@ export class PodmanDesktopRunner {
   private readonly _profile: string;
   private readonly _customFolder;
   private readonly _testOutput: string;
+  private _videoName: string | undefined;
 
   constructor(profile = '', customFolder = 'podman-desktop') {
     this._running = false;
@@ -36,6 +37,7 @@ export class PodmanDesktopRunner {
     this._testOutput = join('tests', 'output', this._profile);
     this._customFolder = join(this._testOutput, customFolder);
     this._options = this.defaultOptions();
+    this._videoName = undefined;
   }
 
   public async start(): Promise<Page> {
@@ -85,12 +87,26 @@ export class PodmanDesktopRunner {
     await this.getPage().screenshot({ path: join(this._testOutput, 'screenshots', filename) });
   }
 
+  async saveVideoAs(path: string) {
+    const video = this.getPage().video();
+    if (video) {
+      await video.saveAs(path);
+    } else {
+      console.log(`Video file associated was not found`);
+    }
+  }
+
   public async close() {
     if (!this.isRunning()) {
       throw Error('Podman Desktop is not running');
     }
     if (this.getElectronApp()) {
       await this.getElectronApp().close();
+    }
+    if (this._videoName) {
+      const videoPath = join(this._testOutput, 'videos', `${this._videoName}.webm`);
+      await this.saveVideoAs(videoPath);
+      console.log(`Saving a video file as: ${videoPath}`);
     }
     this._running = false;
   }
@@ -126,6 +142,10 @@ export class PodmanDesktopRunner {
 
   public setOptions(value: object) {
     this._options = value;
+  }
+
+  public setVideoName(name: string) {
+    this._videoName = name;
   }
 
   public getTestOutput(): string {

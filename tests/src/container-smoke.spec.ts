@@ -35,6 +35,7 @@ const containerToRun = 'podman-hello';
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
+  pdRunner.setVideoName('containers-e2e');
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   // wait giving a time to podman desktop to load up
