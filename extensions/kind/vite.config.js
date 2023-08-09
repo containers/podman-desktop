@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import {join} from 'path';
-import {builtinModules} from 'module';
+import { join } from 'path';
+import { builtinModules } from 'module';
 
 const PACKAGE_ROOT = __dirname;
 
@@ -32,7 +32,6 @@ const config = {
   resolve: {
     alias: {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
-      '/@gen/': join(PACKAGE_ROOT, 'src-generated') + '/',
     },
   },
   build: {
@@ -46,10 +45,7 @@ const config = {
       formats: ['cjs'],
     },
     rollupOptions: {
-      external: [
-        '@podman-desktop/api',
-        ...builtinModules.flatMap(p => [p, `node:${p}`]),
-      ],
+      external: ['@podman-desktop/api', ...builtinModules.flatMap(p => [p, `node:${p}`])],
       output: {
         entryFileNames: '[name].js',
       },
