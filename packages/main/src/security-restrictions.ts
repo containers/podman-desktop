@@ -42,6 +42,7 @@ const ALLOWED_ORIGINS_AND_PERMISSIONS = new Map<
     | 'openExternal'
     | 'window-management'
     | 'window-placement'
+    | 'idle-detection'
     | 'unknown'
   >
 >(
