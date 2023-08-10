@@ -209,12 +209,6 @@ jobs:
       - name: Run svelte check
         run: yarn svelte:check
 
-      - uses: actions/upload-artifact@v3.1.2
-        if: always()
-        with:
-          name: unit-tests
-          path: ./tests/output/
-
   smoke-e2e-tests:
     name: smoke e2e tests
     runs-on: ubuntu-22.04
