@@ -139,7 +139,7 @@ export class LibpodDockerode {
     // add listPodmanContainers
     prototypeOfDockerode.listPodmanContainers = function (opts?: { all: boolean }) {
       const optsf = {
-        path: '/v4.2.0/libpod/containers/json',
+        path: '/v4.2.0/libpod/containers/json?',
         method: 'GET',
         options: opts,
         statusCodes: {

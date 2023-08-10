@@ -91,3 +91,49 @@ test('Check list of containers using Podman API', async () => {
   const firstContainer = listOfContainers[0];
   expect(firstContainer.Id).toBe('37a54a845ef27a212634ef00c994c0793b5f19ec16853d606beb1c929461c1cd');
 });
+
+test('Check list of containers using Podman API and all true options', async () => {
+  const jsonContainers = [
+    {
+      AutoRemove: false,
+      Command: ['httpd-foreground'],
+      Created: '2023-08-09T13:49:31.12068064+02:00',
+      CreatedAt: '',
+      Exited: false,
+      ExitedAt: 1691582587,
+      ExitCode: 0,
+      Id: '37a54a845ef27a212634ef00c994c0793b5f19ec16853d606beb1c929461c1cd',
+      Image: 'docker.io/library/httpd:latest',
+      ImageID: '911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a',
+      IsInfra: false,
+      Labels: null,
+      Mounts: [],
+      Names: ['gallant_solomon'],
+      Namespaces: {},
+      Networks: ['podman'],
+      Pid: 1738,
+      Pod: '',
+      PodName: '',
+      Ports: [
+        {
+          host_ip: '',
+          container_port: 80,
+          host_port: 9090,
+          range: 1,
+          protocol: 'tcp',
+        },
+      ],
+      Size: null,
+      StartedAt: 1691585124,
+      State: 'running',
+      Status: '',
+    },
+  ];
+
+  nock('http://localhost').get('/v4.2.0/libpod/containers/json?all=true').reply(200, jsonContainers);
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  const listOfContainers = await (api as unknown as LibPod).listPodmanContainers({ all: true });
+  expect(listOfContainers.length).toBe(1);
+  const firstContainer = listOfContainers[0];
+  expect(firstContainer.Id).toBe('37a54a845ef27a212634ef00c994c0793b5f19ec16853d606beb1c929461c1cd');
+});
