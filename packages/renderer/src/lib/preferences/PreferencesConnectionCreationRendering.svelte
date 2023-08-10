@@ -141,7 +141,11 @@ onMount(async () => {
   for (let field of configurationKeys) {
     data[field.id] = field.default;
   }
-  connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data);
+  try {
+    connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data);
+  } catch (e) {
+    console.warn(e.message);
+  }
 });
 
 onDestroy(() => {
