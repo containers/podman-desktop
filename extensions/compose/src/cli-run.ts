@@ -21,6 +21,7 @@ import { resolve } from 'node:path';
 import * as path from 'node:path';
 import * as sudo from 'sudo-prompt';
 import * as os from 'node:os';
+import * as fs from 'node:fs';
 import type * as extensionApi from '@podman-desktop/api';
 import type { OS } from './os';
 
@@ -37,6 +38,7 @@ export interface RunOptions {
 }
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
+const localBinDir = '/usr/local/bin';
 
 export class CliRun {
   constructor(private readonly extensionContext: extensionApi.ExtensionContext, private os: OS) {}
@@ -146,8 +148,14 @@ export class CliRun {
       destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
       command = ['copy', `"${binaryPath}"`, `"${destinationPath}"`];
     } else {
-      destinationPath = path.join('/usr/local/bin', binaryName);
+      destinationPath = path.join(localBinDir, binaryName);
       command = ['cp', binaryPath, destinationPath];
+    }
+
+    // If on macOS or Linux, check to see if the /usr/local/bin directory exists,
+    // if it does not, then add mkdir -p /usr/local/bin to the start of the command when moving the binary.
+    if ((system === 'linux' || system === 'darwin') && !fs.existsSync(localBinDir)) {
+      command.unshift('mkdir', '-p', localBinDir, '&&');
     }
 
     // If windows or mac, use sudo-prompt to elevate the privileges
