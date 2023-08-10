@@ -73,6 +73,6 @@ async function download(tagVersion: string, repoPath: string, fileName: string):
 // grab the manifests from the given URL
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 // download the file from the given URL and store the content in destFile
-// partiullar contour file should be manually added to the repo once downloaded
+// particular contour file should be manually added to the repo once downloaded
 // run download script on demand using `yarn --cwd extensions/kind/ run install:contour`
 download(CONTOUR_VERSION, CONTOUR_DEPLOY_PATH, CONTOUR_DEPLOY_FILE);
