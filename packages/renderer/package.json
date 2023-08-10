@@ -24,7 +24,7 @@
     "@typescript-eslint/eslint-plugin": "5.62.0",
     "autoprefixer": "^10.4.14",
     "eslint-plugin-svelte": "^2.32.4",
-    "filesize": "^10.0.8",
+    "filesize": "^10.0.10",
     "humanize-duration": "^3.29.0",
     "jsdom": "^22.1.0",
     "micromark": "^4.0.0",
