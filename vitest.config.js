@@ -34,7 +34,7 @@ const config = {
      * By default, vitest search test files in all packages.
      * For e2e tests have sense search only is project root tests folder
      */
-    include: ['**/{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: ['**/tests/src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: [
       '**/builtin/**',
       '**/node_modules/**',
@@ -48,6 +48,9 @@ const config = {
      */
     testTimeout: 60_000,
     hookTimeout: 60_000,
+    // test reporters - default for all and junit for CI
+    reporters: process.env.CI ? ['default', 'junit'] : ['default'],
+    outputFile: process.env.CI ? { junit: 'tests/output/junit-results.xml' } : {},
   },
   resolve: {
     alias: {
