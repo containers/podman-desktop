@@ -300,7 +300,7 @@ export class ImageRegistry {
     // Www-Authenticate: Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:samalba/my-app:pull,push"
     // need to extract realm, service and scope parameters with a regexp
     const WWW_AUTH_REGEXP =
-      /(?<scheme>Bearer|Basic) realm="(?<realm>[^"]+)"(,service="(?<service>[^"]+)")?(,scope="(?<scope>[^"]+)")?/;
+      /(?<scheme>Bearer|Basic|BASIC) realm="(?<realm>[^"]+)"(,service="(?<service>[^"]+)")?(,scope="(?<scope>[^"]+)")?/;
 
     const parsed = WWW_AUTH_REGEXP.exec(wwwAuthenticate);
     if (parsed?.groups) {
