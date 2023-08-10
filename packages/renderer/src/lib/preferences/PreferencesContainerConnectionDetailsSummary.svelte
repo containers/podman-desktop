@@ -4,6 +4,7 @@ import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugi
 import { filesize } from 'filesize';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
+import Donut from '/@/lib/donut/Donut.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
@@ -41,8 +42,16 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
       {#each providerContainerConfiguration as connectionSetting}
         <div class="flex flex-row mt-5">
           <span class="font-semibold min-w-[150px]">{connectionSetting.description}</span>
-          {#if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
-            <span>{filesize(connectionSetting.value)}</span>
+          {#if connectionSetting.format === 'cpu'}
+            <Donut
+              title="{connectionSetting.description}"
+              value="{connectionSetting.value[0]}"
+              percent="{connectionSetting.value[1]}" />
+          {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
+            <Donut
+              title="{connectionSetting.description}"
+              value="{filesize(connectionSetting.value[0])}"
+              percent="{connectionSetting.value[1]}" />
           {:else}
             <span>{connectionSetting.value}</span>
           {/if}
