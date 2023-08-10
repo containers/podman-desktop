@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './base-page';
+import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
 
-export class PullImagePage extends PodmanDesktopPage {
+export class PullImagePage extends BasePage {
   readonly heading: Locator;
   readonly pullImageButton: Locator;
   readonly closeLink: Locator;

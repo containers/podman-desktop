@@ -17,10 +17,10 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './base-page';
+import { BasePage } from './base-page';
 import { expect } from '@playwright/test';
 
-export class WelcomePage extends PodmanDesktopPage {
+export class WelcomePage extends BasePage {
   readonly welcomeMessage: Locator;
   readonly telemetryConsent: Locator;
   readonly goToPodmanDesktopButton: Locator;

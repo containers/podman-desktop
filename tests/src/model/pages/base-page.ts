@@ -18,7 +18,7 @@
 
 import type { Page } from 'playwright';
 
-export abstract class PodmanDesktopPage {
+export abstract class BasePage {
   readonly page: Page;
 
   constructor(page: Page) {

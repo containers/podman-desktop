@@ -17,10 +17,10 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './base-page';
+import { BasePage } from './base-page';
 import { ContainersPage } from './containers-page';
 
-export class RunImagePage extends PodmanDesktopPage {
+export class RunImagePage extends BasePage {
   readonly name: Locator;
   readonly heading: Locator;
   readonly closeLink: Locator;
