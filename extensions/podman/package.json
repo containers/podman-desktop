@@ -110,7 +110,7 @@
           "type": "boolean",
           "default": false,
           "scope": "ContainerProviderConnectionFactory",
-          "description": "User mode networking",
+          "markdownDescription": "User mode networking (traffic relayed by a user process). See [documentation](https://docs.podman.io/en/latest/markdown/podman-machine-init.1.html#user-mode-networking).",
           "when": "podman.isUserModeNetworkingSupported == true"
         }
       }
