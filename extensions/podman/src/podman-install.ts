@@ -178,6 +178,10 @@ export class PodmanInstall {
         provider.updateDetectionChecks(getDetectionChecks(installedPodman));
         provider.updateVersion(updateInfo.bundledVersion);
         this.podmanInfo.ignoreVersionUpdate = undefined;
+        extensionApi.context.setValue(
+          USER_MODE_NETWORKING_SUPPORTED_KEY,
+          isUserModeNetworkingSupported(updateInfo.bundledVersion),
+        );
       } else if (answer === 'Ignore') {
         this.podmanInfo.ignoreVersionUpdate = updateInfo.bundledVersion;
       }
