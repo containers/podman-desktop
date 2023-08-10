@@ -405,7 +405,10 @@ async function close() {
             <div class="w-full">
               <div class="float-right">
                 <Button type="link" on:click="{() => router.goto('/preferences/resources')}">Close</Button>
-                <Button disabled="{!isValid}" inProgress="{creationInProgress}">Create</Button>
+                <Button
+                  disabled="{!isValid}"
+                  inProgress="{creationInProgress}"
+                  on:click="{() => formEl.requestSubmit()}">Create</Button>
               </div>
             </div>
           </form>
