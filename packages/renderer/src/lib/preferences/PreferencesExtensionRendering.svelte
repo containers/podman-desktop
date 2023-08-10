@@ -84,15 +84,9 @@ async function hasOnboarding(extensionId: string): Promise<boolean> {
           </div>
 
           <div class="px-2 text-sm italic text-gray-700" class:hidden="{hideOnboardingButton}">
-            <button
-              on:click="{() => router.goto(`/preferences/onboarding/${extensionInfo.id}`)}"
-              class="pf-c-button pf-m-primary"
-              type="button">
-              <span class="pf-c-button__icon pf-m-start">
-                <i class="fas fa-play" aria-hidden="true"></i>
-              </span>
+            <Button icon="{faPlay}" on:click="{() => router.goto(`/preferences/onboarding/${extensionInfo.id}`)}">
               Onboarding
-            </button>
+            </Button>
           </div>
           {#if extensionInfo.error}
             <div class="flex flex-col">

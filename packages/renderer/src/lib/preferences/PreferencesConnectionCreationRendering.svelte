@@ -404,19 +404,8 @@ async function close() {
             {/each}
             <div class="w-full">
               <div class="float-right">
-                <button
-                  class="pf-c-button underline hover:text-gray-700"
-                  on:click="{() => router.goto('/preferences/resources')}">
-                  Close
-                </button>
-                <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
-                  <div class="mr-24">
-                    {#if creationInProgress === true}
-                      <Spinner />
-                    {/if}
-                  </div>
-                  Create
-                </button>
+                <Button type="link" on:click="{() => router.goto('/preferences/resources')}">Close</Button>
+                <Button disabled="{!isValid}" inProgress="{creationInProgress}">Create</Button>
               </div>
             </div>
           </form>

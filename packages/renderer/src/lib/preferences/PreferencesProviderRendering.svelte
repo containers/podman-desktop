@@ -11,9 +11,10 @@ import { writeToTerminal } from './Util';
 import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faHistory, faPlay, faStop, faXmark } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import type { Terminal } from 'xterm';
+import Button from '../ui/Button.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -83,47 +84,29 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
         <!-- start is enabled only in stopped mode-->
         {#if providerInfo?.lifecycleMethods.includes('start')}
           <div class="px-2 text-sm italic text-gray-700">
-            <button
-              disabled="{providerInfo.status !== 'stopped'}"
-              on:click="{() => startProvider()}"
-              class="pf-c-button pf-m-primary"
-              type="button">
-              <span class="pf-c-button__icon pf-m-start">
-                <i class="fas fa-play" aria-hidden="true"></i>
-              </span>
+            <Button disabled="{providerInfo.status !== 'stopped'}" on:click="{() => startProvider()}" icon="{faPlay}">
               Start
-            </button>
+            </Button>
           </div>
         {/if}
 
         <!-- stop is enabled only in started mode-->
         {#if providerInfo.lifecycleMethods.includes('stop')}
           <div class="px-2 text-sm italic text-gray-700">
-            <button
-              disabled="{providerInfo.status !== 'started'}"
-              on:click="{() => stopProvider()}"
-              class="pf-c-button pf-m-primary"
-              type="button">
-              <span class="pf-c-button__icon pf-m-start">
-                <i class="fas fa-stop" aria-hidden="true"></i>
-              </span>
+            <Button disabled="{providerInfo.status !== 'started'}" on:click="{() => stopProvider()}" icon="{faStop}">
               Stop
-            </button>
+            </Button>
           </div>
         {/if}
         <div class="px-2 text-sm italic text-gray-700">
-          <button
-            type="button"
+          <Button
             on:click="{() => {
               showModal = providerInfo;
               // startReceivinLogs(providerInfo);
             }}"
-            class="pf-c-button pf-m-secondary">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-history" aria-hidden="true"></i>
-            </span>
+            icon="{faHistory}">
             Show Logs
-          </button>
+          </Button>
         </div>
 
         {#if providerLifecycleError}

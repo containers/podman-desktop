@@ -4,6 +4,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import Modal from '../dialogs/Modal.svelte';
 import ProviderLogo from '../dashboard/ProviderLogo.svelte';
 import type { ProviderInfo, CheckStatus } from '../../../../main/src/plugin/api/provider-info';
+import Button from '../ui/Button.svelte';
 
 export let providerToBeInstalled: { provider: ProviderInfo; displayName: string };
 export let preflightChecks: CheckStatus[];
@@ -61,14 +62,11 @@ function openLink(e: MouseEvent, url: string): void {
             Be sure that your system fulfills all the requirements above before proceeding
           </div>
           <div class="flex flex-row justify-end w-full pt-2">
-            <button aria-label="Cancel" class="text-xs hover:underline mr-3" on:click="{() => closeCallback()}"
-              >Cancel</button>
-            <button
-              class="pf-c-button pf-m-primary"
-              type="button"
+            <Button type="link" class="mr-3" on:click="{() => closeCallback()}">Cancel</Button>
+            <Button
               aria-label="Next"
               on:click="{() => doCreateNew(providerToBeInstalled.provider, providerToBeInstalled.displayName)}"
-              >Retry</button>
+              >Retry</Button>
           </div>
         </div>
       </div>
