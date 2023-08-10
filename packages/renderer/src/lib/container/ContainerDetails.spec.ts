@@ -45,9 +45,6 @@ const myContainer: ContainerInfo = {
   Created: 0,
   Ports: undefined,
   State: undefined,
-  HostConfig: undefined,
-  NetworkSettings: undefined,
-  Mounts: undefined,
 };
 
 const deleteContainerMock = vi.fn();
