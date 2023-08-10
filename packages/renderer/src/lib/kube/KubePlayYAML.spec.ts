@@ -140,3 +140,33 @@ test('error: When pressing the Play button, expect us to show the errors to the 
   const error = screen.getByText('The following pods were created but failed to start: error 1, error 2');
   expect(error).toBeInTheDocument();
 });
+
+test('expect done button is there at the end', async () => {
+  (window as any).playKube = vi.fn().mockResolvedValue({
+    Pods: [],
+  });
+
+  // Render the component
+  setup();
+  render(KubePlayYAML, {});
+
+  // Simulate selecting a file
+  const fileInput = screen.getByRole('textbox', { name: 'Kubernetes YAML file' });
+  expect(fileInput).toBeInTheDocument();
+  await userEvent.click(fileInput);
+
+  // Simulate selecting a runtime
+  const runtimeOption = screen.getByText('Using a Podman container engine');
+  expect(runtimeOption).toBeInTheDocument();
+
+  // Simulate clicking the "Play" button
+  const playButton = screen.getByRole('button', { name: 'Play' });
+  expect(playButton).toBeInTheDocument();
+  await userEvent.click(playButton);
+
+  // search the done button
+  const doneButton = screen.getByRole('button', { name: 'Done' });
+  expect(doneButton).toBeInTheDocument();
+  // check that text value is also 'Done'
+  expect(doneButton).toHaveTextContent('Done');
+});
