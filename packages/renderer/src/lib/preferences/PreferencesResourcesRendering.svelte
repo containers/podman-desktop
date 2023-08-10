@@ -38,13 +38,6 @@ import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
 import Donut from '/@/lib/donut/Donut.svelte';
-
-interface IProviderContainerConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
-  value?: any;
-  container: string;
-  providerId: string;
-}
-
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();
