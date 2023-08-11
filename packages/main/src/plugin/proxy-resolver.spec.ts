@@ -77,10 +77,14 @@ function createProxy(enabled: boolean, httpsProxy?: string, httpProxy?: string) 
   }
   return proxy as unknown as Proxy;
 }
+const Http = 'http';
+const HttpProxyUrl = `${Http}://proxy.url`;
+const HttpsProxyUrl = 'https://proxy.url';
 
 beforeEach(() => {
   vi.clearAllMocks();
 });
+
 test('getOptions return options w/o agent if proxy not enabled', () => {
   const proxy = createProxy(false);
   const options = ProxyResolver.getOptions(proxy, false);
@@ -88,28 +92,28 @@ test('getOptions return options w/o agent if proxy not enabled', () => {
 });
 
 test('getOptions return options w/ agent for https proxy', () => {
-  const proxy = createProxy(true, 'https://proxy.url', 'http://proxy.url');
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl);
   const options = ProxyResolver.getOptions(proxy, true);
   expect(options.agent).is.not.undefined;
   expect((options.agent as any).https).is.true;
 });
 
 test('getOptions return options w/ https.Agent for https proxy', () => {
-  const proxy = createProxy(true, undefined, 'http://proxy.url');
+  const proxy = createProxy(true, undefined, HttpProxyUrl);
   const options = ProxyResolver.getOptions(proxy, false);
   expect(options.agent).is.not.undefined;
   expect((options.agent as any).https).is.false;
 });
 
 test('patched http get calls original with the original parameters when proxy is not enabled', () => {
-  const proxy = createProxy(false, 'https://proxy.url', 'http://proxy.url');
+  const proxy = createProxy(false, HttpsProxyUrl, HttpProxyUrl);
   const patched = ProxyResolver.createHttpPatchedModules(proxy);
-  patched.http.get('http://site.url');
-  expect(get).toBeCalledWith('http://site.url');
+  patched.http.get(`${Http}://site.url`);
+  expect(get).toBeCalledWith(`${Http}://site.url`);
 });
 
 test('patched http get calls original method with the original parameters when proxy is enabled and socketPath is requested', () => {
-  const proxy = createProxy(true, 'https://proxy.url', 'http://proxy.url');
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl);
   const patched = ProxyResolver.createHttpPatchedModules(proxy);
   const socketOptions = { socketPath: '/var/socket/path' };
   patched.http.get(socketOptions);
@@ -117,7 +121,7 @@ test('patched http get calls original method with the original parameters when p
 });
 
 test('patched http get when called with url and callback calls original with options and callback', () => {
-  const proxy = createProxy(true, 'https://proxy.url', 'http://proxy.url');
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl);
   const patched = ProxyResolver.createHttpPatchedModules(proxy);
   const url = 'https://[fe80::1802:20ff:fe8d:d4ce]';
   const callback = vi.fn();
@@ -137,7 +141,7 @@ test('patched http get when called with url and callback calls original with opt
 });
 
 test('patched http get translates username@password in url to auth option', () => {
-  const proxy = createProxy(true, 'https://proxy.url', 'http://proxy.url');
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl);
   const patched = ProxyResolver.createHttpPatchedModules(proxy);
   const url = 'https://usr:pass@rest.url';
   const callback = vi.fn();
@@ -158,7 +162,7 @@ test('patched http get translates username@password in url to auth option', () =
 });
 
 test('patched http get works when url passed as protocol and hostname in options', () => {
-  const proxy = createProxy(true, 'https://proxy.url', 'http://proxy.url');
+  const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl);
   const patched = ProxyResolver.createHttpPatchedModules(proxy);
   const callback = vi.fn();
   const options = {
