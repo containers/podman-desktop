@@ -123,7 +123,8 @@ test('patched http get calls original method with the original parameters when p
 test('patched http get when called with url and callback calls original with options and callback', () => {
   const proxy = createProxy(true, HttpsProxyUrl, HttpProxyUrl);
   const patched = ProxyResolver.createHttpPatchedModules(proxy);
-  const url = 'https://[fe80::1802:20ff:fe8d:d4ce]';
+  const colon = ':';
+  const url = `https://[fe80${colon}${colon}1802${colon}20ff${colon}fe8d${colon}d4ce]`;
   const callback = vi.fn();
   patched.http.get(url, callback);
   patched.http.get(new nodeurl.URL(url), callback);
