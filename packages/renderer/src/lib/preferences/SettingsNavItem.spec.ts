@@ -79,7 +79,8 @@ test('Expect section styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
   expect(element.firstChild.childNodes[2]).toBeInTheDocument();
-  expect(element.firstChild.childNodes[2]).toHaveClass('fas');
+  expect(element.firstChild.childNodes[2].firstChild).toBeInTheDocument();
+  expect(element.firstChild.childNodes[2].firstChild).toHaveClass('fas');
 });
 
 test('Expect sections expand', async () => {
@@ -91,9 +92,12 @@ test('Expect sections expand', async () => {
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
   expect(element.firstChild.childNodes[2]).toBeInTheDocument();
-  expect(element.firstChild.childNodes[2]).toHaveClass('fa-angle-right');
+  expect(element.firstChild.childNodes[2]).toContainHTML('fa-angle-right');
+  expect(element.firstChild.childNodes[2]).not.toContainHTML('fa-angle-down');
 
   await fireEvent.click(element);
 
-  expect(element.firstChild.childNodes[2]).toHaveClass('fa-angle-down');
+  // since it is animated, we'll test that the down angle has appeared (and
+  // not wait for right angle to disappear)
+  expect(element.firstChild.childNodes[2]).toContainHTML('fa-angle-down');
 });
