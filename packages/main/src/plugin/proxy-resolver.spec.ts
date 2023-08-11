@@ -132,7 +132,7 @@ test('patched http get when called with url and callback calls original with opt
   expect(get).toBeCalledWith(
     {
       agent: new HttpsProxyAgent({} as HttpsProxyAgentOptions),
-      hostname: 'fe80::1802:20ff:fe8d:d4ce',
+      hostname: `fe80${colon}${colon}1802${colon}20ff${colon}fe8d${colon}d4ce`,
       path: '/',
       port: '',
       protocol: 'https:',
