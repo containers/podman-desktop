@@ -125,7 +125,7 @@ export function createHttpPatch(originals: typeof http | typeof https, proxy: Pr
         }
 
         const host = options.hostname || options.host;
-        const isLocalhost = !host || host === 'localhost' || host === '127.0.0.1'; // Avoiding https://github.com/microsoft/vscode/issues/120354
+        const isLocalhost = !host || host === 'localhost' || host === '127.0.0.1';
         if (!isLocalhost) {
           options = Object.assign({}, options, getOptions(proxy, options.protocol === 'https:'));
         }
