@@ -60,8 +60,12 @@ async function registerProvider(
       creationDisplayName: 'Kind cluster',
     },
     {
-      auditItems: async (items: AuditRequestItems) =>
-        await connectionAuditor(new ProviderNameExtractor(items).getProviderName()),
+      auditItems: async (items: AuditRequestItems) => {
+        return await connectionAuditor(
+          new ProviderNameExtractor(items).getProviderName(),
+          items['kind.cluster.creation.image']
+        )
+      },
     },
   );
   extensionContext.subscriptions.push(disposable);

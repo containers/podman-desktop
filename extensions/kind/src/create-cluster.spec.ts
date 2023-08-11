@@ -117,10 +117,11 @@ test('expect error if Kubernetes reports error', async () => {
 });
 
 test('check cluster configuration generation', async () => {
-  const conf = getKindClusterConfig('k1', 80, 443);
+  const conf = getKindClusterConfig('k1', 80, 443, 'image: example');
   expect(conf).to.contains('name: k1');
   expect(conf).to.contains('hostPort: 80');
   expect(conf).to.contains('hostPort: 443');
+  expect(conf).to.contains('image: example');
 });
 
 test('check that consilience check returns warning message', async () => {
@@ -143,4 +144,14 @@ test('check that consilience check returns no warning messages', async () => {
   expect(checks).toBeDefined();
   expect(checks).toHaveProperty('records');
   expect(checks.records.length).toBe(0);
+});
+
+test('check that consilience check returns warning message when image has no sha256 digest', async () => {
+  const checks = await connectionAuditor('docker', 'image:tag');
+
+  expect(checks).toBeDefined();
+  expect(checks).toHaveProperty('records');
+  expect(checks.records.length).toBe(1);
+  expect(checks.records[0]).toHaveProperty('type');
+  expect(checks.records[0].type).toBe('warning');
 });

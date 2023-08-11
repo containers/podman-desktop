@@ -27,11 +27,12 @@ import createClusterConfTemplate from './templates/create-cluster-conf.mustache?
 import type { AuditRecord, AuditResult, CancellationToken } from '@podman-desktop/api';
 import ingressManifests from '/@/resources/contour.yaml?raw';
 
-export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number) {
+export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number, extraConfig: string) {
   return mustache.render(createClusterConfTemplate, {
     clusterName: clusterName,
     httpHostPort: httpHostPort,
     httpsHostPort: httpsHostPort,
+    extraConfig: extraConfig,
   });
 }
 
@@ -57,7 +58,19 @@ export async function setupIngressController(clusterName: string) {
   );
 }
 
-export async function connectionAuditor(provider: string): Promise<AuditResult> {
+export async function connectionAuditor(provider: string, image?: string): Promise<AuditResult> {
+
+  if(image !== undefined && image.length > 0 && !image.includes("@sha256:")) {
+    return {
+      records: [
+        {
+          type: 'warning',
+          record: 'It is recommend to include the @sha256:{image digest} for the image used.',
+        } as AuditRecord,
+      ],
+    } as AuditResult;
+  }
+
   const providerSocket = extensionApi.provider
     .getContainerConnections()
     .find(connection => connection.connection.type === provider);
@@ -124,8 +137,15 @@ export async function createCluster(
     ingressController = params['kind.cluster.creation.ingress'] === 'on';
   }
 
+  // grab custom kind node image if defined
+  let extraConfig = '';
+  const image = params['kind.cluster.creation.image'];
+  if (image !== undefined && image.length > 0) {
+    extraConfig = 'image: ' + image;
+  }
+
   // create the config file
-  const kindClusterConfig = getKindClusterConfig(clusterName, httpHostPort, httpsHostPort);
+  const kindClusterConfig = getKindClusterConfig(clusterName, httpHostPort, httpsHostPort, extraConfig);
 
   // create a temporary file
   const tmpDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'kind-cluster-config-'));
