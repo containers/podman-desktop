@@ -21,7 +21,7 @@ import { app, ipcMain, Tray } from 'electron';
 import './security-restrictions';
 import { createNewWindow, restoreWindow } from '/@/mainWindow.js';
 import { TrayMenu } from './tray-menu.js';
-import { isMac, isWindows, stoppedExtensions } from './util.js';
+import { isLinux, isMac, isWindows, stoppedExtensions } from './util.js';
 import { AnimatedTray } from './tray-animate-icon.js';
 import { PluginSystem } from './plugin/index.js';
 import { StartupInstall } from './system/startup-install.js';
@@ -41,6 +41,13 @@ const argv = process.argv.slice(2);
 const additionalData: AdditionalData = {
   argv: argv,
 };
+
+/**
+ * Add accessibility support on Linux automatically
+ */
+if (isLinux()) {
+  app.commandLine.appendSwitch('force-renderer-accessibility');
+}
 
 /**
  * Prevent multiple instances
@@ -150,6 +157,10 @@ app.on('will-finish-launching', () => {
 
 app.whenReady().then(
   async () => {
+    if (isLinux()) {
+      app.setAccessibilitySupportEnabled(true);
+    }
+
     if (import.meta.env.PROD) {
       if (isWindows()) {
         app.setAsDefaultProtocolClient('podman-desktop', process.execPath, process.argv);
