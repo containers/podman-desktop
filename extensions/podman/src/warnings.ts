@@ -70,11 +70,8 @@ export async function isDisguisedPodman(): Promise<boolean> {
       });
 
       res.on('end', () => {
-        if (res.statusCode === 200) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
+        // true if status code is OK
+        resolve(res.statusCode === 200);
       });
     });
 
