@@ -140,10 +140,7 @@ export async function createCluster(
   }
 
   // grab custom kind node image if defined
-  let controlPlaneImage = null;
-  if (params['kind.cluster.creation.controlPlaneImage']) {
-    controlPlaneImage = params['kind.cluster.creation.controlPlaneImage'];
-  }
+  const controlPlaneImage = params['kind.cluster.creation.controlPlaneImage'];
 
   // create the config file
   const kindClusterConfig = getKindClusterConfig(clusterName, httpHostPort, httpsHostPort, controlPlaneImage);
