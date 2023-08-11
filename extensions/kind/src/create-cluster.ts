@@ -28,7 +28,7 @@ import type { AuditRecord, AuditResult, CancellationToken } from '@podman-deskto
 import ingressManifests from '/@/resources/contour.yaml?raw';
 import {AuditRequestItems} from '@podman-desktop/api';
 
-export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number, controlPlaneImage: string | undefined) {
+export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number, controlPlaneImage?: string) {
   return mustache.render(createClusterConfTemplate, {
     clusterName: clusterName,
     httpHostPort: httpHostPort,
