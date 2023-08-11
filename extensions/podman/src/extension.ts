@@ -85,7 +85,7 @@ export type MachineInfo = {
   cpus: number;
   memory: number;
   diskSize: number;
-  userModeNetworking?: boolean;
+  userModeNetworking: boolean;
 };
 
 async function updateMachines(provider: extensionApi.Provider): Promise<void> {
@@ -112,12 +112,14 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       listeners.forEach(listener => listener(machine.Name, status));
       podmanMachinesStatuses.set(machine.Name, status);
     }
+
+    const userModeNetworking = isWindows() ? machine.UserModeNetworking : true;
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
       memory: parseInt(machine.Memory),
       cpus: machine.CPUs,
       diskSize: parseInt(machine.DiskSize),
-      userModeNetworking: isWindows() ? machine.UserModeNetworking : true,
+      userModeNetworking: userModeNetworking,
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
@@ -1041,6 +1043,7 @@ export async function deactivate(): Promise<void> {
 
 const PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING = '4.6.0';
 
+// Checks if user mode networking is supported. Only Windows platform allows this parameter to be tuned
 export function isUserModeNetworkingSupported(podmanVersion: string) {
   return isWindows() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING) >= 0;
 }
