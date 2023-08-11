@@ -125,12 +125,12 @@ test('check cluster configuration generation', async () => {
 });
 
 test('check cluster configuration empty string image', async () => {
-  const conf = getKindClusterConfig(null, null, null, '');
+  const conf = getKindClusterConfig(undefined, undefined, undefined, '');
   expect(conf).to.not.contains('image:');
 });
 
 test('check cluster configuration null string image', async () => {
-  const conf = getKindClusterConfig(null, null, null, null);
+  const conf = getKindClusterConfig(undefined, undefined, undefined, undefined);
   expect(conf).to.not.contains('image:');
 });
 

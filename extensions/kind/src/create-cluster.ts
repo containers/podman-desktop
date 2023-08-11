@@ -24,9 +24,8 @@ import mustache from 'mustache';
 import { parseAllDocuments } from 'yaml';
 
 import createClusterConfTemplate from './templates/create-cluster-conf.mustache?raw';
-import type { AuditRecord, AuditResult, CancellationToken } from '@podman-desktop/api';
+import type { AuditRecord, AuditResult, CancellationToken, AuditRequestItems } from '@podman-desktop/api';
 import ingressManifests from '/@/resources/contour.yaml?raw';
-import type {AuditRequestItems} from '@podman-desktop/api';
 
 export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number, controlPlaneImage?: string) {
   return mustache.render(createClusterConfTemplate, {
