@@ -64,7 +64,7 @@ async function registerProvider(
         return await connectionAuditor(
           new ProviderNameExtractor(items).getProviderName(),
           items
-        )
+        );
       },
     },
   );
