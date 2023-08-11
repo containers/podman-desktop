@@ -8,6 +8,7 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
     "types": ["node"]
   },
   "include": ["src"],
