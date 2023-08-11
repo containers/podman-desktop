@@ -237,12 +237,14 @@ export class ExtensionLoader {
       // add watcher
       fs.watch(this.pluginsScanDirectory, (_, filename) => {
         // need to load the file
-        const packagedFile = path.resolve(this.pluginsScanDirectory, filename);
-        setTimeout(() => {
-          this.loadPackagedFile(packagedFile).catch((error: unknown) => {
-            console.error('Error while loadPackagedFile', error);
-          });
-        }, this.watchTimeout);
+        if (filename) {
+          const packagedFile = path.resolve(this.pluginsScanDirectory, filename);
+          setTimeout(() => {
+            this.loadPackagedFile(packagedFile).catch((error: unknown) => {
+              console.error('Error while loadPackagedFile', error);
+            });
+          }, this.watchTimeout);
+        }
       });
 
       // scan all files in the directory

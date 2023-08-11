@@ -93,6 +93,7 @@
     "@types/dockerode": "^3.3.19",
     "@types/getos": "^3.0.1",
     "@types/js-yaml": "^4.0.5",
+    "@types/node": "^18",
     "@types/tar": "^6.1.5",
     "@types/tar-fs": "^2.0.1",
     "@types/validator": "^13.11.1",
@@ -153,6 +154,7 @@
   },
   "resolutions": {
     "trim": "0.0.3",
-    "ssh2": "1.11.0"
+    "ssh2": "1.11.0",
+    "@types/node": "^18"
   }
 }
