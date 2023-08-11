@@ -27,7 +27,12 @@ import createClusterConfTemplate from './templates/create-cluster-conf.mustache?
 import type { AuditRecord, AuditResult, CancellationToken, AuditRequestItems } from '@podman-desktop/api';
 import ingressManifests from '/@/resources/contour.yaml?raw';
 
-export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number, controlPlaneImage?: string) {
+export function getKindClusterConfig(
+  clusterName: string,
+  httpHostPort: number,
+  httpsHostPort: number,
+  controlPlaneImage?: string,
+) {
   return mustache.render(createClusterConfTemplate, {
     clusterName: clusterName,
     httpHostPort: httpHostPort,
@@ -59,9 +64,8 @@ export async function setupIngressController(clusterName: string) {
 }
 
 export async function connectionAuditor(provider: string, items: AuditRequestItems): Promise<AuditResult> {
-
   const image = items['kind.cluster.creation.controlPlaneImage'];
-  if(image && !image.includes('@sha256:')) {
+  if (image && !image.includes('@sha256:')) {
     return {
       records: [
         {

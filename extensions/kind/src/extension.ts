@@ -61,10 +61,7 @@ async function registerProvider(
     },
     {
       auditItems: async (items: AuditRequestItems) => {
-        return await connectionAuditor(
-          new ProviderNameExtractor(items).getProviderName(),
-          items,
-        );
+        return await connectionAuditor(new ProviderNameExtractor(items).getProviderName(), items);
       },
     },
   );

@@ -157,7 +157,7 @@ test('check that consilience check returns no warning messages', async () => {
 });
 
 test('check that consilience check returns warning message when image has no sha256 digest', async () => {
-  const checks = await connectionAuditor('docker', {'kind.cluster.creation.controlPlaneImage': 'image:tag'});
+  const checks = await connectionAuditor('docker', { 'kind.cluster.creation.controlPlaneImage': 'image:tag' });
 
   expect(checks).toBeDefined();
   expect(checks).toHaveProperty('records');
@@ -165,4 +165,3 @@ test('check that consilience check returns warning message when image has no sha
   expect(checks.records[0]).toHaveProperty('type');
   expect(checks.records[0].type).toBe('warning');
 });
-
