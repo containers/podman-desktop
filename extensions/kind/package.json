@@ -48,7 +48,7 @@
           "scope": "KubernetesProviderConnectionFactory",
           "description": "Setup an ingress controller (Contour https://projectcontour.io)"
         },
-        "kind.cluster.creation.image": {
+        "kind.cluster.creation.controlPlaneImage": {
           "type": "string",
           "default": "",
           "scope": "KubernetesProviderConnectionFactory",

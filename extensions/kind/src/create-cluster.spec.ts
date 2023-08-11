@@ -117,16 +117,26 @@ test('expect error if Kubernetes reports error', async () => {
 });
 
 test('check cluster configuration generation', async () => {
-  const conf = getKindClusterConfig('k1', 80, 443, 'image: example');
+  const conf = getKindClusterConfig('k1', 80, 443, 'image:tag');
   expect(conf).to.contains('name: k1');
   expect(conf).to.contains('hostPort: 80');
   expect(conf).to.contains('hostPort: 443');
-  expect(conf).to.contains('image: example');
+  expect(conf).to.contains('image: image:tag');
+});
+
+test('check cluster configuration empty string image', async () => {
+  const conf = getKindClusterConfig(null, null, null, '');
+  expect(conf).to.not.contains('image:');
+});
+
+test('check cluster configuration null string image', async () => {
+  const conf = getKindClusterConfig(null, null, null, null);
+  expect(conf).to.not.contains('image:');
 });
 
 test('check that consilience check returns warning message', async () => {
   (getMemTotalInfo as Mock).mockReturnValue(3000000000);
-  const checks = await connectionAuditor('docker');
+  const checks = await connectionAuditor('docker', {});
 
   expect(checks).toBeDefined();
   expect(checks).toHaveProperty('records');
@@ -139,7 +149,7 @@ test('check that consilience check returns warning message', async () => {
 
 test('check that consilience check returns no warning messages', async () => {
   (getMemTotalInfo as Mock).mockReturnValue(6000000001);
-  const checks = await connectionAuditor('docker');
+  const checks = await connectionAuditor('docker', {});
 
   expect(checks).toBeDefined();
   expect(checks).toHaveProperty('records');
@@ -147,7 +157,7 @@ test('check that consilience check returns no warning messages', async () => {
 });
 
 test('check that consilience check returns warning message when image has no sha256 digest', async () => {
-  const checks = await connectionAuditor('docker', 'image:tag');
+  const checks = await connectionAuditor('docker', {'kind.cluster.creation.controlPlaneImage': 'image:tag'});
 
   expect(checks).toBeDefined();
   expect(checks).toHaveProperty('records');
@@ -155,3 +165,4 @@ test('check that consilience check returns warning message when image has no sha
   expect(checks.records[0]).toHaveProperty('type');
   expect(checks.records[0].type).toBe('warning');
 });
+

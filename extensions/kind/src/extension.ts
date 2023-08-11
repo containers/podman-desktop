@@ -63,7 +63,7 @@ async function registerProvider(
       auditItems: async (items: AuditRequestItems) => {
         return await connectionAuditor(
           new ProviderNameExtractor(items).getProviderName(),
-          items['kind.cluster.creation.image']
+          items
         )
       },
     },

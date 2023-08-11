@@ -26,13 +26,14 @@ import { parseAllDocuments } from 'yaml';
 import createClusterConfTemplate from './templates/create-cluster-conf.mustache?raw';
 import type { AuditRecord, AuditResult, CancellationToken } from '@podman-desktop/api';
 import ingressManifests from '/@/resources/contour.yaml?raw';
+import {AuditRequestItems} from '@podman-desktop/api';
 
-export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number, extraConfig: string) {
+export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number, controlPlaneImage: string | undefined) {
   return mustache.render(createClusterConfTemplate, {
     clusterName: clusterName,
     httpHostPort: httpHostPort,
     httpsHostPort: httpsHostPort,
-    extraConfig: extraConfig,
+    controlPlaneImage: controlPlaneImage,
   });
 }
 
@@ -58,9 +59,10 @@ export async function setupIngressController(clusterName: string) {
   );
 }
 
-export async function connectionAuditor(provider: string, image?: string): Promise<AuditResult> {
+export async function connectionAuditor(provider: string, items: AuditRequestItems): Promise<AuditResult> {
 
-  if(image !== undefined && image.length > 0 && !image.includes("@sha256:")) {
+  const image = items["kind.cluster.creation.controlPlaneImage"];
+  if(image && !image.includes("@sha256:")) {
     return {
       records: [
         {
@@ -138,14 +140,13 @@ export async function createCluster(
   }
 
   // grab custom kind node image if defined
-  let extraConfig = '';
-  const image = params['kind.cluster.creation.image'];
-  if (image !== undefined && image.length > 0) {
-    extraConfig = 'image: ' + image;
+  let controlPlaneImage = null;
+  if (params['kind.cluster.creation.controlPlaneImage']) {
+    controlPlaneImage = params['kind.cluster.creation.controlPlaneImage'];
   }
 
   // create the config file
-  const kindClusterConfig = getKindClusterConfig(clusterName, httpHostPort, httpsHostPort, extraConfig);
+  const kindClusterConfig = getKindClusterConfig(clusterName, httpHostPort, httpsHostPort, controlPlaneImage);
 
   // create a temporary file
   const tmpDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'kind-cluster-config-'));
