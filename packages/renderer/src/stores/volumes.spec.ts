@@ -85,6 +85,9 @@ test('volumes should be updated in case of a container is removed', async () => 
   expect(containerRemovedCallback).toBeDefined();
   await containerRemovedCallback();
 
+  // wait debounce
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
   // check if the volumes are updated
   const volumes2 = get(volumeListInfos);
   expect(volumes2.length).toBe(0);

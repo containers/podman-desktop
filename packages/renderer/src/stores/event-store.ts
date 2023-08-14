@@ -25,26 +25,33 @@ import { addStore, updateStore } from './event-store-manager';
 import humanizeDuration from 'humanize-duration';
 import DesktopIcon from '../lib/images/DesktopIcon.svelte';
 
+// 1.5 SECOND for DEBOUNCE and 5s for THROTTLE
+const SECOND = 1000;
+const DEFAULT_DEBOUNCE_TIMEOUT = 1.5 * SECOND;
+const DEFAULT_THROTTLE_TIMEOUT = 5 * SECOND;
+
+interface EventStoreInfoEvent {
+  name: string;
+
+  // args of the event
+  args: unknown[];
+
+  date: number;
+  // if the event was skipped
+  skipped: boolean;
+  length?: number;
+
+  // update time in ms
+  humanDuration?: number;
+}
+
 export interface EventStoreInfo {
   name: string;
 
   iconComponent?: ComponentType;
 
   // list last 100 events
-  bufferEvents: {
-    name: string;
-
-    // args of the event
-    args: unknown[];
-
-    date: number;
-    // if the event was skipped
-    skipped: boolean;
-    length?: number;
-
-    // update time in ms
-    humanDuration?: number;
-  }[];
+  bufferEvents: EventStoreInfoEvent[];
 
   // number of elements in the store
   size: number;
@@ -59,6 +66,14 @@ export interface EventStoreInfo {
 // Helper to manage store updated from events
 
 export class EventStore<T> {
+  // debounce delay in ms. If set to > 0 , timeout before updating store value
+  // if there are always new requests, it will never update the store
+  // as we postpone the update until there is no new request
+  private debounceTimeoutDelay = 0;
+
+  // debounce always delay in ms. If set to > 0 , update after this delay even if some requests are pending.
+  private debounceThrottleTimeoutDelay = 0;
+
   constructor(
     private name: string,
     private store: Writable<T>,
@@ -71,6 +86,15 @@ export class EventStore<T> {
     if (!iconComponent) {
       this.iconComponent = DesktopIcon;
     }
+  }
+
+  protected updateEvent(eventStoreInfo: EventStoreInfo, event: EventStoreInfoEvent) {
+    // update the info object
+    eventStoreInfo.bufferEvents.push(event);
+    if (eventStoreInfo.bufferEvents.length > 100) {
+      eventStoreInfo.bufferEvents.shift();
+    }
+    updateStore(eventStoreInfo);
   }
 
   protected async performUpdate(
@@ -100,8 +124,7 @@ export class EventStore<T> {
         this.store.set(result);
       }
     } finally {
-      // update the info object
-      eventStoreInfo.bufferEvents.push({
+      this.updateEvent(eventStoreInfo, {
         name: eventName,
         args: args,
         date: Date.now(),
@@ -109,11 +132,16 @@ export class EventStore<T> {
         length: numberOfResults,
         humanDuration: updateDuration,
       });
-      if (eventStoreInfo.bufferEvents.length > 100) {
-        eventStoreInfo.bufferEvents.shift();
-      }
-      updateStore(eventStoreInfo);
     }
+  }
+
+  setupWithDebounce(
+    debounceTimeoutDelay = DEFAULT_DEBOUNCE_TIMEOUT,
+    debounceThrottleTimeoutDelay = DEFAULT_THROTTLE_TIMEOUT,
+  ): EventStoreInfo {
+    this.debounceTimeoutDelay = debounceTimeoutDelay;
+    this.debounceThrottleTimeoutDelay = debounceThrottleTimeoutDelay;
+    return this.setup();
   }
 
   setup(): EventStoreInfo {
@@ -136,10 +164,73 @@ export class EventStore<T> {
     };
     addStore(eventStoreInfo);
 
+    // for debounce
+    let timeout: NodeJS.Timeout | undefined;
+
+    // for throttling every 5s if not already done
+    let timeoutThrottle: NodeJS.Timeout | undefined;
+
     const update = async (eventName: string, args?: unknown[]) => {
       const needUpdate = await this.checkForUpdate(eventName, args);
-      await this.performUpdate(needUpdate, eventStoreInfo, eventName, args);
+
+      // method that do the update
+      const doUpdate = async () => {
+        await this.performUpdate(needUpdate, eventStoreInfo, eventName, args);
+      };
+
+      // no debounce, just do it
+      if (this.debounceTimeoutDelay <= 0) {
+        await doUpdate();
+        return;
+      }
+
+      // debounce timeout. If there is a pending action, cancel it and wait longer
+      if (timeout) {
+        clearTimeout(timeout);
+
+        this.updateEvent(eventStoreInfo, {
+          name: `debounce-${eventName}`,
+          args: args,
+          date: Date.now(),
+          skipped: true,
+          length: 0,
+          humanDuration: 0,
+        });
+
+        timeout = undefined;
+      }
+      timeout = setTimeout(() => {
+        // cancel the throttleTimeout if any
+        if (timeoutThrottle) {
+          clearTimeout(timeoutThrottle);
+          timeoutThrottle = undefined;
+        }
+
+        doUpdate()
+          .catch((error: unknown) => {
+            console.error(`Failed to update ${this.name}`, error);
+          })
+          .finally(() => {
+            timeout = undefined;
+          });
+      }, this.debounceTimeoutDelay);
+
+      // throttle timeout, ask after 5s to update anyway to have at least UI being refreshed every 5s if there is a lot of events
+      // because debounce will defer all the events until the end so it's not so nice from UI side.
+      if (!timeoutThrottle && this.debounceThrottleTimeoutDelay > 0) {
+        timeoutThrottle = setTimeout(() => {
+          doUpdate()
+            .catch((error: unknown) => {
+              console.error(`Failed to update ${this.name}`, error);
+            })
+            .finally(() => {
+              clearTimeout(timeoutThrottle);
+              timeoutThrottle = undefined;
+            });
+        }, this.debounceThrottleTimeoutDelay);
+      }
     };
+
     this.windowEvents.forEach(eventName => {
       window.events?.receive(eventName, async (args?: unknown[]) => {
         await update(eventName, args);
