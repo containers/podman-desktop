@@ -15,7 +15,7 @@ import {
 } from './preferences-connection-rendering-task';
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
-import { get } from 'svelte/store';
+import { get, type Unsubscriber } from 'svelte/store';
 import { onDestroy, onMount } from 'svelte';
 /* eslint-enable import/no-duplicates */
 import { createConnectionsInfo } from '/@/stores/create-connections';
@@ -30,6 +30,9 @@ import AuditMessageBox from '../ui/AuditMessageBox.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import { faCubes } from '@fortawesome/free-solid-svg-icons';
 import Button from '../ui/Button.svelte';
+import type { ContextUI } from '/@/lib/context/context';
+import { ContextKeyExpr } from '/@/lib/context/contextKey';
+import { context } from '/@/stores/context';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
@@ -69,7 +72,11 @@ let errorMessage = undefined;
 
 let formEl;
 
+let globalContext: ContextUI;
+
 $: connectionAuditResult = undefined;
+
+let contextsUnsubscribe: Unsubscriber;
 
 // reconnect the logger handler
 $: if (logsTerminal && loggerHandlerKey) {
@@ -80,13 +87,20 @@ $: if (logsTerminal && loggerHandlerKey) {
   }
 }
 
+function isPropertyValidInContext(when: string, context: ContextUI) {
+  const expr = ContextKeyExpr.deserialize(when);
+  return expr.evaluate(context);
+}
+
 onMount(async () => {
   osMemory = await window.getOsMemory();
   osCpu = await window.getOsCpu();
   osFreeDisk = await window.getOsFreeDiskSize();
+  contextsUnsubscribe = context.subscribe(value => (globalContext = value));
   configurationKeys = properties
     .filter(property => property.scope === propertyScope)
     .filter(property => property.id.startsWith(providerInfo.id))
+    .filter(property => !property.when || isPropertyValidInContext(property.when, globalContext))
     .map(property => {
       switch (property.maximum) {
         case 'HOST_TOTAL_DISKSIZE': {
@@ -151,6 +165,9 @@ onMount(async () => {
 onDestroy(() => {
   if (loggerHandlerKey) {
     disconnectUI(loggerHandlerKey);
+  }
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
   }
 });
 
