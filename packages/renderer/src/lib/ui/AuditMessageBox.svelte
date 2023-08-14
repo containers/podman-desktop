@@ -2,7 +2,6 @@
 import Fa from 'svelte-fa/src/fa.svelte';
 import { faTriangleExclamation, faCircleInfo, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
 import type { AuditRecord, AuditResult } from '@podman-desktop/api';
-import { onMount } from 'svelte';
 
 export let auditResult: AuditResult;
 
@@ -10,11 +9,9 @@ let infoRecords: AuditRecord[];
 let warningRecords: AuditRecord[];
 let errorRecords: AuditRecord[];
 
-onMount(async () => {
-  infoRecords = auditResult?.records.filter(record => record.type === 'info');
-  warningRecords = auditResult?.records.filter(record => record.type === 'warning');
-  errorRecords = auditResult?.records.filter(record => record.type === 'error');
-});
+$: infoRecords = auditResult?.records.filter(record => record.type === 'info');
+$: warningRecords = auditResult?.records.filter(record => record.type === 'warning');
+$: errorRecords = auditResult?.records.filter(record => record.type === 'error');
 </script>
 
 {#if errorRecords && errorRecords.length > 0}

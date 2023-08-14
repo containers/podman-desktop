@@ -72,3 +72,43 @@ test('Should display error message', async () => {
   expect(errMessage).toBeInTheDocument();
   expect(errMessage).toHaveTextContent('Dummy error message');
 });
+
+test('Should update data when audit result is updated', async () => {
+  const dummyResult = {
+    records: [
+      {
+        type: 'error',
+        record: 'Dummy error message',
+      } as AuditRecord,
+    ],
+  } as AuditResult;
+  const renderComponent = render(AuditMessageBox, { auditResult: dummyResult });
+  const errMessage = screen.getByLabelText('error');
+
+  expect(errMessage).toBeInTheDocument();
+  expect(errMessage).toHaveTextContent('Dummy error message');
+
+  // now we update the audit result field
+  renderComponent.component.$set({
+    auditResult: {
+      records: [
+        {
+          type: 'info',
+          record: 'Dummy info message',
+        },
+      ],
+    },
+  });
+
+  // wait for tick
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  const afterUpdateError = screen.queryByLabelText('error');
+  expect(afterUpdateError).not.toBeInTheDocument();
+
+  // check the info message now
+  const infoMessage = screen.getByLabelText('info');
+
+  expect(infoMessage).toBeInTheDocument();
+  expect(infoMessage).toHaveTextContent('Dummy info message');
+});
