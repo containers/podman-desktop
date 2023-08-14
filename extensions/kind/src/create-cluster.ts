@@ -64,39 +64,36 @@ export async function setupIngressController(clusterName: string) {
 }
 
 export async function connectionAuditor(provider: string, items: AuditRequestItems): Promise<AuditResult> {
+  const records: AuditRecord[] = [];
+  const auditResult = {
+    records: records,
+  };
+
   const image = items['kind.cluster.creation.controlPlaneImage'];
   if (image && !image.includes('@sha256:')) {
-    return {
-      records: [
-        {
-          type: 'warning',
-          record: 'It is recommend to include the @sha256:{image digest} for the image used.',
-        } as AuditRecord,
-      ],
-    } as AuditResult;
+    records.push({
+      type: 'warning',
+      record: 'It is recommend to include the @sha256:{image digest} for the image used.',
+    });
   }
 
   const providerSocket = extensionApi.provider
     .getContainerConnections()
     .find(connection => connection.connection.type === provider);
 
-  if (!providerSocket) return undefined;
+  if (!providerSocket) return auditResult;
 
   const memTotal = await getMemTotalInfo(providerSocket.connection.endpoint.socketPath);
 
   // check if configured memory is less than 6GB
   if (memTotal < 6000000000) {
-    return {
-      records: [
-        {
-          type: 'info',
-          record: 'It is recommend to install Kind on a virtual machine with at least 6GB of memory.',
-        } as AuditRecord,
-      ],
-    } as AuditResult;
+    records.push({
+      type: 'info',
+      record: 'It is recommend to install Kind on a virtual machine with at least 6GB of memory.',
+    });
   }
 
-  return { records: [] } as AuditResult;
+  return auditResult;
 }
 
 export async function createCluster(
