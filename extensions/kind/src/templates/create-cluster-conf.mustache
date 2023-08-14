@@ -3,6 +3,9 @@ apiVersion: kind.x-k8s.io/v1alpha4
 name: {{{ clusterName }}}
 nodes:
 - role: control-plane
+{{#controlPlaneImage}}
+  image: {{{ controlPlaneImage }}}
+{{/controlPlaneImage}}
   kubeadmConfigPatches:
   - |
     kind: InitConfiguration
