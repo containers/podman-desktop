@@ -7,6 +7,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Markdown from '../markdown/Markdown.svelte';
 import { getNormalizedDefaultNumberValue } from './Util';
 import Tooltip from '../ui/Tooltip.svelte';
+import Button from '../ui/Button.svelte';
 
 let invalidEntry = false;
 let invalidText = undefined;
@@ -334,15 +335,11 @@ function assertNumericValueIsValid(value: number) {
           on:click="{event => handleCleanValue(event)}">
           <Fa icon="{faXmark}" />
         </button>
-        <input
+        <Button
           on:click="{() => selectFilePath()}"
           id="rendering.FilePath.{record.id}"
-          readonly
           aria-invalid="{invalidEntry}"
-          aria-label="button-{record.description}"
-          placeholder="Browse ..."
-          class="bg-violet-500 p-1 text-xs text-center hover:bg-zinc-700 placeholder-white rounded-sm cursor-pointer outline-0"
-          required />
+          aria-label="button-{record.description}">Browse ...</Button>
       </div>
     {:else if record.type === 'string' && record.enum && record.enum.length > 0}
       <select
