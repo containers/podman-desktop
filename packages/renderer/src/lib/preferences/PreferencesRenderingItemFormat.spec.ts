@@ -138,8 +138,7 @@ test('Expect an input button with Browse as placeholder when record is type stri
   expect((readOnlyInput as HTMLInputElement).placeholder).toBe(record.placeholder);
   const input = screen.getByLabelText('button-record-description');
   expect(input).toBeInTheDocument();
-  expect(input instanceof HTMLInputElement).toBe(true);
-  expect((input as HTMLInputElement).placeholder).toBe('Browse ...');
+  expect(input.textContent).toBe('Browse ...');
 });
 
 test('Expect a select when record is type string and has enum values', async () => {
