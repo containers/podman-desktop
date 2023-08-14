@@ -224,6 +224,7 @@ declare module '@podman-desktop/api' {
   export interface KubernetesProviderConnection {
     name: string;
     endpoint: KubernetesProviderConnectionEndpoint;
+    kubeconfig?: string;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
   }
@@ -1339,10 +1340,12 @@ declare module '@podman-desktop/api' {
     readonly location: Uri;
   }
 
+  export type EngineType = 'podman' | 'docker';
+
   export interface ContainerInfo {
     engineId: string;
     engineName: string;
-    engineType: 'podman' | 'docker';
+    engineType: EngineType;
     Id: string;
     Names: string[];
     Image: string;

@@ -521,6 +521,7 @@ export class ProviderRegistry {
       providerConnection = {
         name: connection.name,
         status: connection.status(),
+        kubeconfig: connection.kubeconfig,
         endpoint: {
           apiURL: connection.endpoint.apiURL,
         },
@@ -845,6 +846,7 @@ export class ProviderRegistry {
           providerId: internalProviderId,
           connection: {
             name: providerConnectionInfo.name,
+            kubeconfig: providerConnectionInfo.kubeconfig,
             endpoint: providerConnectionInfo.endpoint,
             status: (): ProviderConnectionStatus => {
               return providerConnectionInfo.status;
@@ -895,6 +897,7 @@ export class ProviderRegistry {
           providerId: internalProviderId,
           connection: {
             name: providerConnectionInfo.name,
+            kubeconfig: providerConnectionInfo.kubeconfig,
             endpoint: providerConnectionInfo.endpoint,
             status: (): ProviderConnectionStatus => {
               return providerConnectionInfo.status;

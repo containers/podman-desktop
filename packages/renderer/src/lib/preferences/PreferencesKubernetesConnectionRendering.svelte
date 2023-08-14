@@ -17,6 +17,7 @@ import PreferencesKubernetesConnectionDetailsSummary from './PreferencesKubernet
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import CustomIcon from '../images/CustomIcon.svelte';
+import PreferencesConnectionDetailsKubeconfig from '/src/lib/preferences/PreferencesKubernetesConnectionDetailsKubeconfig.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string = undefined;
@@ -146,6 +147,9 @@ function setNoLogs() {
         {#if connectionInfo.lifecycleMethods && connectionInfo.lifecycleMethods.length > 0}
           <Tab title="Logs" url="logs" />
         {/if}
+        {#if connectionInfo.kubeconfig}
+          <Tab title="Kubeconfig" url="kubeconfig" />
+        {/if}
       </svelte:fragment>
       <svelte:fragment slot="content">
         <div class="h-full">
@@ -161,6 +165,9 @@ function setNoLogs() {
               connectionInfo="{connectionInfo}"
               setNoLogs="{setNoLogs}"
               noLog="{noLog}" />
+          </Route>
+          <Route path="/kubeconfig" breadcrumb="kubeconfig" navigationHint="tab">
+            <PreferencesConnectionDetailsKubeconfig kubeconfig="{connectionInfo.kubeconfig}" />
           </Route>
         </div>
       </svelte:fragment>

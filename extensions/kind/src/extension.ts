@@ -19,7 +19,7 @@
 import * as extensionApi from '@podman-desktop/api';
 import { detectKind, getKindPath, runCliCommand } from './util';
 import { KindInstaller } from './kind-installer';
-import type { AuditRequestItems, CancellationToken, Logger } from '@podman-desktop/api';
+import type { AuditRequestItems, CancellationToken, EngineType, Logger } from '@podman-desktop/api';
 import { window } from '@podman-desktop/api';
 import { ImageHandler } from './image-handler';
 import { createCluster, connectionAuditor } from './create-cluster';
@@ -34,7 +34,8 @@ export interface KindCluster {
   name: string;
   status: extensionApi.ProviderConnectionStatus;
   apiPort: number;
-  engineType: 'podman' | 'docker';
+  engineType: EngineType;
+  kubeconfig?: string;
 }
 
 let kindClusters: KindCluster[] = [];
@@ -83,6 +84,26 @@ class ProviderNameExtractor {
   }
 }
 
+// get the kubeconfig for a given kind cluster
+function getKubeconfig(cluster: KindCluster, logger?: Logger): Promise<string | undefined> {
+  const env = Object.assign({}, process.env);
+  if (cluster.engineType === 'podman') {
+    env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
+  }
+  env.PATH = getKindPath();
+
+  return new Promise<string | undefined>(resolve => {
+    runCliCommand(kindCli, ['get', 'kubeconfig', '--name', cluster.name], { env, logger })
+      .then(spawnInfo => {
+        resolve(spawnInfo.stdOut);
+      })
+      .catch((reason: unknown) => {
+        console.warn(reason);
+        resolve(undefined);
+      });
+  });
+}
+
 // search for clusters
 async function updateClusters(provider: extensionApi.Provider, containers: extensionApi.ContainerInfo[]) {
   const kindContainers = containers.map(container => {
@@ -109,14 +130,27 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
       id: container.Id,
     };
   });
-  kindClusters = kindContainers.map(container => {
-    return {
-      name: container.name,
-      status: container.status,
-      apiPort: container.apiPort,
-      engineType: container.engineType,
-    };
-  });
+
+  // collect all the kubeconfigs
+  const kubeconfigs = Object.fromEntries<string>(
+    await Promise.all(
+      kindContainers.map(async container => {
+        return [container.id, await getKubeconfig(container)] as [string, string | undefined];
+      }),
+    ),
+  );
+
+  kindClusters = await Promise.all(
+    kindContainers.map(async container => {
+      return {
+        name: container.name,
+        status: container.status,
+        apiPort: container.apiPort,
+        engineType: container.engineType,
+        kubeconfig: kubeconfigs[container.id],
+      };
+    }),
+  );
 
   kindContainers.forEach(cluster => {
     const item = registeredKubernetesConnections.find(item => item.connection.name === cluster.name);
@@ -165,6 +199,7 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
       const connection: extensionApi.KubernetesProviderConnection = {
         name: cluster.name,
         status,
+        kubeconfig: kubeconfigs[cluster.id],
         endpoint: {
           apiURL: `https://localhost:${cluster.apiPort}`,
         },

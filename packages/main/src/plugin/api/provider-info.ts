@@ -41,6 +41,7 @@ export interface ProviderContainerConnectionInfo {
 export interface ProviderKubernetesConnectionInfo {
   name: string;
   status: ProviderConnectionStatus;
+  kubeconfig?: string;
   endpoint: {
     apiURL: string;
   };
