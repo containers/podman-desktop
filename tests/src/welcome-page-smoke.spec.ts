@@ -32,6 +32,7 @@ let page: Page;
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner('', 'welcome-podman-desktop');
   page = await pdRunner.start();
+  pdRunner.setVideoName('welcome-page-e2e');
 });
 
 afterAll(async () => {

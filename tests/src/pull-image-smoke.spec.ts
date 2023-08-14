@@ -31,6 +31,7 @@ let page: Page;
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
+  pdRunner.setVideoName('pull-image-e2e');
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
