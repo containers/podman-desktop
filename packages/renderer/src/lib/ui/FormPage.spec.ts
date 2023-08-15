@@ -17,8 +17,8 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { test, expect, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import FormPage from './FormPage.svelte';
 import { lastPage, currentPage } from '../../stores/breadcrumb';
 import type { TinroBreadcrumb } from 'tinro';
@@ -70,7 +70,13 @@ test('Expect backlink is defined', async () => {
   const backElement = screen.getByLabelText('back');
   expect(backElement).toBeInTheDocument();
   expect(backElement).toHaveTextContent(backName);
-  expect(backElement).toHaveAttribute('href', backPath);
+
+  const urlMock = vi.fn();
+  (window as any).openExternal = urlMock;
+
+  fireEvent.click(backElement);
+
+  expect(urlMock).toBeCalledWith('/back');
 });
 
 test('Expect close link is defined', async () => {
