@@ -1,5 +1,6 @@
 <script lang="ts">
 import { lastPage, currentPage } from '../../stores/breadcrumb';
+import Link from './Link.svelte';
 
 export let title: string;
 export let showBreadcrumb = true;
@@ -10,11 +11,7 @@ export let showBreadcrumb = true;
     <div class="flex flex-col w-full h-fit">
       {#if showBreadcrumb}
         <div class="flex flew-row items-center">
-          <a
-            aria-label="back"
-            class="text-violet-400 text-base hover:no-underline"
-            href="{$lastPage.path}"
-            title="Go back to {$lastPage.name}">{$lastPage.name}</a>
+          <Link aria-label="back" href="{$lastPage.path}" title="Go back to {$lastPage.name}">{$lastPage.name}</Link>
           <div class="text-xl mx-2 text-gray-700">></div>
           <div class="grow text-sm font-extralight text-gray-700" aria-label="name">{$currentPage.name}</div>
           <a href="{$lastPage.path}" title="Close" class="justify-self-end text-gray-900">
