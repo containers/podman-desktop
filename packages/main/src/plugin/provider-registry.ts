@@ -706,7 +706,7 @@ export class ProviderRegistry {
     const provider = this.getMatchingProvider(internalProviderId);
     const telemetryData: {
       providerId: string;
-      error?: Error;
+      error?: unknown;
       name: string;
     } = {
       providerId: provider.id,
@@ -714,12 +714,13 @@ export class ProviderRegistry {
     };
     try {
       if (!provider.containerProviderConnectionFactory) {
-        const error = new Error('The provider does not support container connection creation');
-        telemetryData.error = error;
-        throw error;
+        throw new Error('The provider does not support container connection creation');
       }
       // create a logger
       return provider.containerProviderConnectionFactory.create(params, logHandler, token);
+    } catch (err) {
+      telemetryData.error = err;
+      throw err;
     } finally {
       await this.telemetryService.track('createProviderConnection', telemetryData);
     }
