@@ -65,6 +65,7 @@ const machineInfo: extension.MachineInfo = {
   diskSize: 1000000,
   memory: 10000000,
   name: 'name',
+  userModeNetworking: false,
 };
 
 const machineDefaultName = 'podman-machine-default';
