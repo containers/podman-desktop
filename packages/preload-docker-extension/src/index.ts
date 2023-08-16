@@ -295,40 +295,44 @@ export class DockerExtensionPreload {
       hostname,
     };
 
+    const vmServicePort = urlParams.get('vmServicePort') || undefined;
+
+    // do we have a service being exposed ?
+    const doRequest = async (config: RequestConfig): Promise<unknown> => {
+      if (vmServicePort) {
+        return ipcRenderer.invoke('docker-desktop-adapter:extensionVMServiceRequest', vmServicePort, config);
+      } else {
+        throw new Error(`no service port defined for request ${config}`);
+      }
+    };
+
     const extensionVMService: dockerDesktopAPI.HttpService = {
       get: async (url: string): Promise<unknown> => {
-        console.error('extensionVMService.get not implemented', url);
-        return {} as any;
+        return doRequest({ url, method: 'GET', headers: {}, data: undefined });
       },
       post: async (url: string, data: any): Promise<unknown> => {
-        console.error('extensionVMService.post not implemented', url, data);
-        return {} as any;
+        return doRequest({ url, method: 'POST', headers: {}, data });
       },
       put: async (url: string, data: any): Promise<unknown> => {
-        console.error('extensionVMService.put not implemented', url, data);
-        return {} as any;
+        return doRequest({ url, method: 'PUT', headers: {}, data });
       },
       patch: async (url: string, data: any): Promise<unknown> => {
-        console.error('extensionVMService.patch not implemented', url, data);
-        return {} as any;
+        return doRequest({ url, method: 'PATCH', headers: {}, data });
       },
       delete: async (url: string): Promise<unknown> => {
-        console.error('extensionVMService.delete not implemented', url);
-        return {} as any;
+        return doRequest({ url, method: 'DELETE', headers: {}, data: undefined });
       },
       head: async (url: string): Promise<unknown> => {
-        console.error('extensionVMService.head not implemented', url);
-        return {} as any;
+        return doRequest({ url, method: 'HEAD', headers: {}, data: undefined });
       },
       request: async (config: RequestConfig): Promise<unknown> => {
-        console.error('extensionVMService.request not implemented', config);
-        return {} as any;
+        return doRequest(config);
       },
     };
 
     const extensionCliVM: dockerDesktopAPI.ExtensionCli = {
-      //FIXME:
-      exec: {} as any,
+      // need to call exec inside a container for the VM service
+      exec: this.getExec('VM_SERVICE'),
     };
 
     const extensionVM: dockerDesktopAPI.ExtensionVM = {

@@ -68,7 +68,7 @@ Optional Linux requirements:
 - GNU C and C++ compiler
   Fedora/RHEL
   ```sh
-  dnf install gpp-c++
+  dnf install gcc-c++
   ```
   Ubuntu/Debian
   ```sh

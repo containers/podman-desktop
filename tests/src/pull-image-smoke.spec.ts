@@ -17,11 +17,13 @@
  ***********************************************************************/
 
 import type { Page } from 'playwright';
-import { afterAll, beforeAll, test, describe } from 'vitest';
+import type { RunnerTestContext } from './testContext/runner-test-context';
+import { afterAll, beforeAll, test, describe, beforeEach, expect } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
 import { ImagesPage } from './model/pages/images-page';
+import { NavigationBar } from './model/workbench/navigation';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -29,6 +31,7 @@ let page: Page;
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
+  pdRunner.setVideoName('pull-image-e2e');
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
@@ -38,18 +41,19 @@ afterAll(async () => {
   await pdRunner.close();
 });
 
+beforeEach<RunnerTestContext>(async ctx => {
+  ctx.pdRunner = pdRunner;
+});
+
 describe('Image pull verification', async () => {
   test('Pull image', async () => {
-    const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
-    const imageLink = navBar.getByRole('link', { name: 'Images' });
-    await playExpect(imageLink).toBeVisible();
-    await imageLink.click();
-
-    const imagesPage = new ImagesPage(page);
-    const pullImagePage = await imagesPage.pullImage();
+    const navBar = new NavigationBar(page);
+    const imagesPage = await navBar.openImages();
+    const pullImagePage = await imagesPage.openPullImage();
     const updatedImages = await pullImagePage.pullImage('quay.io/podman/hello');
 
-    playExpect(updatedImages.imageExists('quay.io/podman/hello')).toBeTruthy();
+    const exists = await updatedImages.waitForImageExists('quay.io/podman/hello');
+    expect(exists, 'quay.io/podman/hello image not present in the list of images').toBeTruthy();
   });
 
   test('Check image details', async () => {

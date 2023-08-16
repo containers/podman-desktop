@@ -29,7 +29,7 @@ test('Check primary button styling', async () => {
   // check for one element of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('bg-purple-500');
+  expect(button).toHaveClass('bg-purple-600');
 });
 
 test('Check primary button is the default', async () => {
@@ -38,7 +38,7 @@ test('Check primary button is the default', async () => {
   // check for one element of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('bg-purple-500');
+  expect(button).toHaveClass('bg-purple-600');
 });
 
 test('Check secondary button styling', async () => {
@@ -50,11 +50,13 @@ test('Check secondary button styling', async () => {
   expect(button).toHaveClass('border-gray-200');
 });
 
-test('Check default button styling', async () => {
+test('Check link button styling', async () => {
   render(Button, { type: 'link' });
 
-  // check for one element of the styling
+  // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('hover:underline');
+  expect(button).toHaveClass('border-none');
+  expect(button).toHaveClass('hover:bg-white');
+  expect(button).toHaveClass('hover:bg-opacity-10');
 });

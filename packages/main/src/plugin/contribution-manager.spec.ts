@@ -19,13 +19,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as fs from 'node:fs';
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import type { DockerExtensionMetadata } from './contribution-manager.js';
 import { ContributionManager } from './contribution-manager.js';
 import type { Directories } from './directories.js';
 import * as jsYaml from 'js-yaml';
-let contributionManager: ContributionManager;
+import type { ContainerProviderRegistry } from './container-registry.js';
+import * as util from '../util.js';
+import * as exec from './util/exec.js';
+import type { RunResult } from '@podman-desktop/api';
+import { EventEmitter } from 'stream-json/Assembler.js';
+import type { ContributionInfo } from './api/contribution-info.js';
+let contributionManager: TestContributionManager;
 
 let composeFileExample: any;
 
@@ -33,10 +39,46 @@ const ociImage = 'quay.io/my-image';
 const extensionName = 'my-extension';
 const portNumber = 10000;
 
-const apiSender: ApiSenderType = {
-  send: vi.fn(),
-  receive: vi.fn(),
+const eventEmitter = new EventEmitter();
+
+const send = (channel: string, data?: any) => {
+  eventEmitter.emit(channel, data);
 };
+
+const receive = (channel: string, func: any) => {
+  eventEmitter.on(channel, data => {
+    func(data);
+  });
+};
+
+const apiSender: ApiSenderType = {
+  send,
+  receive,
+};
+
+class TestContributionManager extends ContributionManager {
+  addContribution(contribution: ContributionInfo) {
+    return this.contributions.push(contribution);
+  }
+
+  setStartedContribution(contribId: string, val: boolean) {
+    this.startedContributions.set(contribId, val);
+  }
+
+  hasStartedContribution(contribId: string) {
+    return this.startedContributions.has(contribId);
+  }
+
+  resetContributions() {
+    this.contributions = [];
+    this.startedContributions.clear();
+  }
+}
+
+const getFirstRunningConnectionMock = vi.fn();
+const containerProviderRegistry = {
+  getFirstRunningConnection: getFirstRunningConnectionMock,
+} as unknown as ContainerProviderRegistry;
 
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
@@ -45,11 +87,25 @@ const directories = {
 } as unknown as Directories;
 
 beforeAll(() => {
-  contributionManager = new ContributionManager(apiSender, directories);
+  contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
 });
+
+const originalConsoleLogMethod = console.log;
+
+const consoleLogMock = vi.fn();
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.resetAllMocks();
+  contributionManager.resetContributions();
+
+  const logs = (...args: any[]) => {
+    consoleLogMock(...args);
+    originalConsoleLogMethod(...args);
+  };
+
+  console.log = logs;
+
   composeFileExample = {
     services: {
       'devenv-volumes': {
@@ -57,6 +113,10 @@ beforeEach(() => {
       },
     },
   };
+});
+
+afterEach(() => {
+  console.log = originalConsoleLogMethod;
 });
 
 test('Should interpret ${DESKTOP_PLUGIN_IMAGE}', async () => {
@@ -169,4 +229,402 @@ test('Check invalid port file', async () => {
   await expect(contributionManager.enhanceComposeFile('/fake/directory', ociImage, metadata)).rejects.toThrow(
     'does not contains a valid port number',
   );
+});
+
+test('waitForAContainerConnection', async () => {
+  // mock getFirstRunningConnection
+  getFirstRunningConnectionMock.mockResolvedValue({} as any);
+
+  // should succeed
+  const promise = contributionManager.waitForAContainerConnection();
+
+  // wait a little code of promise is executed
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  // now send the 'extension-started' event
+  apiSender.send('extensions-started', {});
+
+  await promise;
+});
+
+test('waitForAContainerConnection delayed', async () => {
+  // mock getFirstRunningConnection
+  // first and second time fails, third time succeed
+  getFirstRunningConnectionMock
+    .mockImplementationOnce(() => {
+      throw new Error('test error');
+    })
+    .mockReturnValueOnce({} as any);
+
+  const promise = contributionManager.waitForAContainerConnection();
+
+  // wait a little code of promise is executed
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // now send the 'extension-started' event
+  apiSender.send('extensions-started', {});
+
+  // and now the provider-change event (failing)
+  apiSender.send('provider-change', {});
+
+  await promise;
+});
+
+test('waitForAContainerConnection delayed twice', async () => {
+  // mock getFirstRunningConnection
+  // first and second time fails, third time succeed
+  getFirstRunningConnectionMock
+    .mockImplementationOnce(() => {
+      throw new Error('test error');
+    })
+    .mockImplementationOnce(() => {
+      throw new Error('test error');
+    })
+    .mockReturnValueOnce({} as any);
+
+  const promise = contributionManager.waitForAContainerConnection();
+
+  // wait a little code of promise is executed
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // now send the 'extension-started' event
+  apiSender.send('extensions-started', {});
+
+  // and now the provider-change event (failing)
+  apiSender.send('provider-change', {});
+
+  // and another one (succeed)
+  apiSender.send('provider-change', {});
+
+  await promise;
+});
+
+describe('findComposeBinary', () => {
+  vi.mock('./util', () => {
+    return {
+      isWindows: vi.fn(),
+      isMac: vi.fn(),
+      isLinux: vi.fn(),
+      exec: vi.fn(),
+    };
+  });
+
+  vi.mock('../util/exec', () => {
+    return vi.fn();
+  });
+
+  test('Check findComposeBinary on Windows', async () => {
+    vi.mock('node:fs');
+
+    vi.spyOn(util, 'isWindows').mockImplementation(() => true);
+
+    // mock exec
+    vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
+
+    const binary = await contributionManager.findComposeBinary();
+
+    expect(binary).toBe('docker-compose.exe');
+  });
+
+  test('Check findComposeBinary not exists on Windows', async () => {
+    vi.mock('node:fs');
+
+    vi.spyOn(util, 'isWindows').mockImplementation(() => true);
+
+    // mock exec
+    vi.spyOn(exec, 'exec').mockRejectedValue(new Error('not found'));
+
+    const binary = await contributionManager.findComposeBinary();
+
+    // not found
+    expect(binary).toBeUndefined();
+  });
+
+  test('Check findComposeBinary on macOS', async () => {
+    vi.mock('node:fs');
+
+    vi.spyOn(util, 'isMac').mockImplementation(() => true);
+    vi.spyOn(util, 'isWindows').mockImplementation(() => false);
+
+    // mock existsSync as returning false first time and true second time
+    vi.spyOn(fs, 'existsSync').mockReturnValueOnce(false).mockReturnValueOnce(true);
+
+    // mock exec
+    vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
+
+    const binary = await contributionManager.findComposeBinary();
+
+    // taking last binary path as first item did not exists during the test
+    expect(binary).toBe('/opt/homebrew/bin/docker-compose');
+  });
+
+  test('Check findComposeBinary on Linux', async () => {
+    vi.mock('node:fs');
+
+    vi.spyOn(util, 'isLinux').mockImplementation(() => true);
+    vi.spyOn(util, 'isMac').mockImplementation(() => false);
+    vi.spyOn(util, 'isWindows').mockImplementation(() => false);
+
+    // mock existsSync as returning true
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+
+    // mock exec
+    vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
+
+    const binary = await contributionManager.findComposeBinary();
+
+    // taking first binary path as they all exists
+    expect(binary).toBe('/usr/bin/docker-compose');
+  });
+});
+
+describe('startVms', () => {
+  test('do not start if nothing', async () => {
+    const contrib1 = {
+      extensionId: 'contrib1',
+    } as ContributionInfo;
+    const contrib2 = {
+      extensionId: 'contrib3',
+    } as ContributionInfo;
+
+    contributionManager.addContribution(contrib1);
+    contributionManager.addContribution(contrib2);
+    // vm method
+    const startVMMethod = vi.spyOn(contributionManager, 'startVM').mockResolvedValue({} as any);
+
+    // spy waitForAContainerConnection
+    const waitForAContainerConnectionMethod = vi
+      .spyOn(contributionManager, 'waitForAContainerConnection')
+      .mockResolvedValue({} as any);
+
+    await contributionManager.startVMs();
+
+    expect(startVMMethod).not.toBeCalled();
+    expect(waitForAContainerConnectionMethod).not.toBeCalled();
+  });
+
+  test('start a VM', async () => {
+    const contrib1 = {
+      extensionId: 'contrib1',
+    } as ContributionInfo;
+    const contrib2 = {
+      extensionId: 'contrib2',
+      vmCustomizedComposeFile: 'compose-contrib2.yaml',
+    } as ContributionInfo;
+    const contrib3 = {
+      extensionId: 'contrib3',
+    } as ContributionInfo;
+
+    contributionManager.addContribution(contrib1);
+    contributionManager.addContribution(contrib2);
+    contributionManager.addContribution(contrib3);
+    // vm method
+    const startVMMethod = vi.spyOn(contributionManager, 'startVM').mockResolvedValue({} as any);
+
+    // spy waitForAContainerConnection
+    const waitForAContainerConnectionMethod = vi
+      .spyOn(contributionManager, 'waitForAContainerConnection')
+      .mockResolvedValue({} as any);
+
+    await contributionManager.startVMs();
+
+    expect(startVMMethod).toHaveBeenCalledWith('contrib2', 'compose-contrib2.yaml');
+    expect(waitForAContainerConnectionMethod).toHaveBeenCalled();
+  });
+});
+
+describe('startVM', () => {
+  beforeAll(() => {
+    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+  });
+
+  test('start a VM without compose file', async () => {
+    await contributionManager.startVM('contrib1');
+    expect(consoleLogMock).toBeCalledWith(
+      'skip extensionId contrib1 start as there is no vmCustomizedComposeFile parameter',
+    );
+  });
+
+  test('start a VM already started', async () => {
+    contributionManager.setStartedContribution('contrib1', true);
+    await contributionManager.startVM('contrib1', '/path/to/compose.yaml');
+    expect(consoleLogMock).toBeCalledWith('skip already started VM for extension contrib1');
+  });
+
+  test('start a VM', async () => {
+    const execComposeCommand = vi.spyOn(contributionManager, 'execComposeCommand').mockResolvedValue({} as any);
+
+    await contributionManager.startVM('contrib1', '/path/to/compose.yaml');
+
+    const parentDir = '/path/to';
+    const composeArgs = ['-p', 'podman-desktop-ext-contrib1', 'up', '-d'];
+    expect(execComposeCommand).toBeCalledWith(parentDir, composeArgs);
+  });
+
+  test('start a VM with monitor', async () => {
+    const waitForRunningStateSpy = vi.spyOn(contributionManager, 'waitForRunningState').mockResolvedValue({} as any);
+    vi.spyOn(contributionManager, 'execComposeCommand').mockResolvedValue({} as any);
+
+    await contributionManager.startVM('contrib1', '/path/to/compose.yaml', true);
+
+    expect(waitForRunningStateSpy).toBeCalled();
+  });
+});
+
+describe('isPodmanDesktopServiceAlive', () => {
+  beforeAll(() => {
+    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+  });
+
+  test('is Alive', async () => {
+    const items = [
+      {
+        Service: 'podman-desktop-socket',
+        State: 'running',
+      },
+      {
+        Service: 'my-app',
+        State: 'running',
+      },
+    ];
+
+    const execSpy = vi
+      .spyOn(contributionManager, 'execComposeCommand')
+      .mockResolvedValue({ stdout: JSON.stringify(items) } as any);
+
+    const isAlive = await contributionManager.isPodmanDesktopServiceAlive('/fake/directory', 'my-project');
+    expect(execSpy).toBeCalledWith('/fake/directory', ['-p', 'my-project', 'ps', '--format', 'json']);
+    expect(isAlive).toBeTruthy();
+  });
+
+  test('is not alive', async () => {
+    const items = [
+      {
+        Service: 'podman-desktop-socket',
+        State: 'unknown',
+      },
+      {
+        Service: 'my-app',
+        State: 'running',
+      },
+    ];
+
+    const execSpy = vi
+      .spyOn(contributionManager, 'execComposeCommand')
+      .mockResolvedValue({ stdout: JSON.stringify(items) } as any);
+
+    const isAlive = await contributionManager.isPodmanDesktopServiceAlive('/fake/directory', 'my-project');
+    expect(execSpy).toBeCalledWith('/fake/directory', ['-p', 'my-project', 'ps', '--format', 'json']);
+    expect(isAlive).toBeFalsy();
+  });
+
+  test('JSON output corrupted', async () => {
+    vi.spyOn(contributionManager, 'execComposeCommand').mockResolvedValue({ stdout: 'hello' } as any);
+
+    await expect(contributionManager.isPodmanDesktopServiceAlive('/fake/directory', 'my-project')).rejects.toThrow(
+      'unable to parse the result of the ps command',
+    );
+  });
+
+  test('service is missing', async () => {
+    const items = [
+      {
+        Service: 'my-app',
+        State: 'running',
+      },
+    ];
+
+    vi.spyOn(contributionManager, 'execComposeCommand').mockResolvedValue({ stdout: JSON.stringify(items) } as any);
+
+    await expect(contributionManager.isPodmanDesktopServiceAlive('/fake/directory', 'my-project')).rejects.toThrow(
+      'unable to find the podman-desktop-socket service in the ps command',
+    );
+  });
+});
+
+describe('waitForRunningState', () => {
+  beforeAll(() => {
+    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+  });
+
+  test('should work after few times', async () => {
+    // resolve true after 4 calls
+    const spyIsAlive = vi
+      .spyOn(contributionManager, 'isPodmanDesktopServiceAlive')
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+
+    await contributionManager.waitForRunningState('/fake/directory', 'my-project');
+
+    // check we have called 5 times the method isAlive
+    expect(spyIsAlive).toBeCalledTimes(5);
+  });
+
+  test('should abort due to long wait', async () => {
+    // resolve always false
+    vi.spyOn(contributionManager, 'isPodmanDesktopServiceAlive').mockResolvedValue(false);
+
+    await expect(contributionManager.waitForRunningState('/fake/directory', 'my-project', 2500)).rejects.toThrow(
+      'The podman-desktop-socket service is not running after',
+    );
+  });
+});
+
+test('execComposeCommand', async () => {
+  vi.spyOn(contributionManager, 'findComposeBinary').mockResolvedValue('/my/compose');
+
+  // create tuple
+  const tuple = [
+    {
+      endpoint: {
+        socketPath: '/my/socket',
+      },
+    },
+    'arg2',
+  ];
+
+  getFirstRunningConnectionMock.mockReturnValue(tuple);
+
+  // mock exec
+  vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
+
+  // call
+  await contributionManager.execComposeCommand('/fake/directory', ['arg1', 'arg2']);
+
+  // check
+  expect(exec.exec).toBeCalledWith(
+    '/my/compose',
+    ['arg1', 'arg2'],
+    expect.objectContaining({ env: { DOCKER_HOST: 'unix:///my/socket' }, cwd: '/fake/directory' }),
+  );
+});
+
+test('delete extension', async () => {
+  const contrib1 = {
+    extensionId: 'contrib1',
+    vmCustomizedComposeFile: '/path/to/compose-contrib1.yaml',
+  } as ContributionInfo;
+  const contrib2 = {
+    extensionId: 'contrib3',
+  } as ContributionInfo;
+
+  contributionManager.addContribution(contrib1);
+  contributionManager.addContribution(contrib2);
+
+  const execComposeCommand = vi.spyOn(contributionManager, 'execComposeCommand').mockResolvedValue({} as any);
+
+  const initCommand = vi.spyOn(contributionManager, 'init').mockResolvedValue({} as any);
+
+  // flag the extension as started
+  contributionManager.setStartedContribution('contrib1', true);
+
+  await contributionManager.deleteExtension('contrib1');
+
+  // should have deleted the extension as being started
+  expect(contributionManager.hasStartedContribution('contrib1')).toBeFalsy();
+  expect(initCommand).toBeCalled();
+  expect(execComposeCommand).toBeCalledWith('/path/to', ['-p', 'podman-desktop-ext-contrib1', 'down']);
 });

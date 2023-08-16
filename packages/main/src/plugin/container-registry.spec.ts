@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { InternalContainerProvider } from '/@/plugin/container-registry.js';
 import { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import type { Certificates } from '/@/plugin/certificates.js';
@@ -25,6 +26,7 @@ import { ImageRegistry } from '/@/plugin/image-registry.js';
 import type { ApiSenderType } from '/@/plugin/api.js';
 import Dockerode from 'dockerode';
 import { EventEmitter } from 'node:events';
+import type * as podmanDesktopAPI from '@podman-desktop/api';
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -103,6 +105,14 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
 
   public getMatchingContainer(engineId: string, containerId: string): Dockerode.Container {
     return super.getMatchingContainer(engineId, containerId);
+  }
+
+  addInternalProvider(name: string, provider: InternalContainerProvider): void {
+    this.internalProviders.set(name, provider);
+  }
+
+  addContainerProvider(name: string, provider: podmanDesktopAPI.ContainerProviderConnection): void {
+    this.containerProviders.set(name, provider);
   }
 }
 
@@ -458,4 +468,58 @@ describe('execInContainer', () => {
     expect(stdout).toBe('hello world');
     expect(stderr).toBe('warning message');
   });
+});
+
+test('getFirstRunningConnection', async () => {
+  const fakeDockerode = {} as Dockerode;
+
+  // set providers with docker being first
+  containerRegistry.addInternalProvider('docker1', {
+    name: 'docker1',
+    id: 'docker1',
+    connection: {
+      type: 'docker',
+    },
+    api: fakeDockerode,
+  } as InternalContainerProvider);
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+    },
+    api: fakeDockerode,
+  } as InternalContainerProvider);
+
+  containerRegistry.addInternalProvider('docker2', {
+    name: 'docker2',
+    id: 'docker2',
+    connection: {
+      type: 'docker',
+    },
+    api: fakeDockerode,
+  } as InternalContainerProvider);
+
+  containerRegistry.addInternalProvider('podman2', {
+    name: 'podman2',
+    id: 'podman2',
+    connection: {
+      type: 'podman',
+    },
+    api: fakeDockerode,
+  } as InternalContainerProvider);
+
+  // add provider for podman1
+  containerRegistry.addContainerProvider('podman1', {
+    name: 'podman1',
+    endpoint: {
+      socketPath: '/podman1.socket',
+    },
+  } as podmanDesktopAPI.ContainerProviderConnection);
+
+  const connection = containerRegistry.getFirstRunningConnection();
+
+  // first should be podman 1 as we're first ordering podman providers
+  expect(connection[0].name).toBe('podman1');
+  expect(connection[0].endpoint.socketPath).toBe('/podman1.socket');
 });

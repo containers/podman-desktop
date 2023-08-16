@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 import type * as extensionApi from '@podman-desktop/api';
 import * as os from 'node:os';
 import * as http from 'node:http';
+
+const DEFAULT_TIMEOUT = 5000;
 
 // Explanations
 const detailsExplanation = 'Docker socket is not reachable. Docker specific tools may not work.';
@@ -57,31 +59,44 @@ export function getDisguisedPodmanInformation(): extensionApi.ProviderInformatio
 // Async function that checks to see if the current Docker socket is a disguised Podman socket
 export async function isDisguisedPodman(): Promise<boolean> {
   const socketPath = getSocketPath();
+  return isDisguisedPodmanPath(socketPath, DEFAULT_TIMEOUT);
+}
 
-  const podmanPingUrl = {
+export async function isDisguisedPodmanPath(socketPath: string, timeout?: number): Promise<boolean> {
+  const options: http.RequestOptions = {
     path: '/libpod/_ping',
     socketPath,
+    method: 'GET',
   };
+  // add timeout if provided
+  if (timeout) {
+    options.timeout = timeout;
+  }
 
   return new Promise<boolean>(resolve => {
-    const req = http.get(podmanPingUrl, res => {
+    const req = http.request(options, res => {
       res.on('data', () => {
         // do nothing
       });
 
       res.on('end', () => {
-        if (res.statusCode === 200) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
+        // true if status code is OK
+        resolve(res.statusCode === 200);
       });
     });
 
+    // in case of error, it's not reachable
     req.once('error', err => {
       console.debug('Error while pinging docker as podman', err);
       resolve(false);
     });
+
+    // in case of timeout, it's not reachable
+    req.on('timeout', () => {
+      resolve(false);
+    });
+
+    req.end();
   });
 }
 

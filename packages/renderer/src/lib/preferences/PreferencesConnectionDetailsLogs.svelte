@@ -14,7 +14,6 @@ import type {
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
 export let providerInternalId: string = undefined;
-export let connection: string = undefined;
 export let connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo = undefined;
 export let setNoLogs: () => void;
 export let noLog: boolean;
@@ -28,9 +27,6 @@ let logsXtermDiv: HTMLDivElement;
 // Terminal resize
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
-
-// need to refresh logs when container is switched or state changes
-let currentRouterPath: string;
 
 async function refreshTerminal() {
   // missing element, return
@@ -47,12 +43,6 @@ async function refreshTerminal() {
   // disable cursor
   logsTerminal.write('\x1b[?25l');
 
-  // call fit addon each time we resize the window
-  window.addEventListener('resize', () => {
-    if (currentRouterPath === `/container-connection/${providerInternalId}/${connection}/logs`) {
-      termFit?.fit();
-    }
-  });
   termFit.fit();
 }
 

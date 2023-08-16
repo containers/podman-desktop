@@ -62,6 +62,9 @@ import { exec } from './util/exec.js';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
+import type { OnboardingRegistry } from './onboarding-registry.js';
+import { createHttpPatchedModules } from './proxy-resolver.js';
+import { ModuleLoader } from './module-loader.js';
 
 /**
  * Handle the loading of an extension
@@ -100,6 +103,8 @@ const EXTENSION_OPTION = '--extension-folder';
 export class ExtensionLoader {
   private overrideRequireDone = false;
 
+  private moduleLoader: ModuleLoader;
+
   private activatedExtensions = new Map<string, ActivatedExtension>();
   private analyzedExtensions = new Map<string, AnalyzedExtension>();
   private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
@@ -136,6 +141,7 @@ export class ExtensionLoader {
     private customPickRegistry: CustomPickRegistry,
     private authenticationProviderRegistry: AuthenticationImpl,
     private iconRegistry: IconRegistry,
+    private onboardingRegistry: OnboardingRegistry,
     private telemetry: Telemetry,
     private viewRegistry: ViewRegistry,
     private context: Context,
@@ -144,6 +150,7 @@ export class ExtensionLoader {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
     this.extensionsStorageDirectory = directories.getExtensionsStorageDirectory();
+    this.moduleLoader = new ModuleLoader(require('module'), this.analyzedExtensions);
   }
 
   mapError(err: unknown): ExtensionError | undefined {
@@ -174,32 +181,6 @@ export class ExtensionLoader {
     }));
   }
 
-  protected overrideRequire() {
-    if (!this.overrideRequireDone) {
-      this.overrideRequireDone = true;
-      const module = require('module');
-      // save original load method
-      const internalLoad = module._load;
-      const analyzedExtensions = this.analyzedExtensions;
-
-      // if we try to resolve theia module, return the filename entry to use cache.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      module._load = function (request: string, parent: any): any {
-        if (request !== '@podman-desktop/api') {
-          // eslint-disable-next-line prefer-rest-params
-          return internalLoad.apply(this, arguments);
-        }
-        const extension = Array.from(analyzedExtensions.values()).find(extension =>
-          path.normalize(parent.filename).startsWith(path.normalize(extension.path)),
-        );
-        if (extension?.api) {
-          return extension.api;
-        }
-        throw new Error('Unable to find extension API');
-      };
-    }
-  }
-
   async loadPackagedFile(filePath: string): Promise<void> {
     // need to unpack the file before load it
     const filename = path.basename(filePath);
@@ -227,7 +208,10 @@ export class ExtensionLoader {
       fs.mkdirSync(this.pluginsScanDirectory, { recursive: true });
     }
 
-    this.overrideRequire();
+    this.moduleLoader.addOverride(createHttpPatchedModules(this.proxy)); // add patched http and https
+    this.moduleLoader.addOverride({ '@podman-desktop/api': ext => ext.api }); // add podman desktop API
+
+    this.moduleLoader.overrideRequire();
   }
 
   protected async setupScanningDirectory(): Promise<void> {
@@ -235,12 +219,14 @@ export class ExtensionLoader {
       // add watcher
       fs.watch(this.pluginsScanDirectory, (_, filename) => {
         // need to load the file
-        const packagedFile = path.resolve(this.pluginsScanDirectory, filename);
-        setTimeout(() => {
-          this.loadPackagedFile(packagedFile).catch((error: unknown) => {
-            console.error('Error while loadPackagedFile', error);
-          });
-        }, this.watchTimeout);
+        if (filename) {
+          const packagedFile = path.resolve(this.pluginsScanDirectory, filename);
+          setTimeout(() => {
+            this.loadPackagedFile(packagedFile).catch((error: unknown) => {
+              console.error('Error while loadPackagedFile', error);
+            });
+          }, this.watchTimeout);
+        }
       });
 
       // scan all files in the directory
@@ -535,6 +521,11 @@ export class ExtensionLoader {
     const views = extension.manifest?.contributes?.views;
     if (views) {
       this.viewRegistry.registerViews(extension.id, views);
+    }
+
+    const onboarding = extension.manifest?.contributes?.onboarding;
+    if (onboarding) {
+      this.onboardingRegistry.registerOnboarding(extension, onboarding);
     }
 
     this.analyzedExtensions.set(extension.id, extension);
@@ -1123,6 +1114,11 @@ export class ExtensionLoader {
       const views = analyzedExtension.manifest?.contributes?.views;
       if (views) {
         this.viewRegistry.unregisterViews(extensionId);
+      }
+
+      const onboarding = analyzedExtension.manifest?.contributes?.onboarding;
+      if (onboarding) {
+        this.onboardingRegistry.unregisterOnboarding(extensionId);
       }
     }
     this.activatedExtensions.delete(extensionId);

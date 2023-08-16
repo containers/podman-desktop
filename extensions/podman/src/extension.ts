@@ -32,6 +32,7 @@ import { PodmanConfiguration } from './podman-configuration';
 import { getDetectionChecks } from './detection-checks';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { getSocketCompatibility } from './compatibility-mode';
+import { compareVersions } from 'compare-versions';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -68,6 +69,7 @@ export type MachineJSON = {
   Running: boolean;
   Starting: boolean;
   Default: boolean;
+  UserModeNetworking?: boolean;
 };
 
 export type ConnectionJSON = {
@@ -83,6 +85,7 @@ export type MachineInfo = {
   cpus: number;
   memory: number;
   diskSize: number;
+  userModeNetworking: boolean;
 };
 
 async function updateMachines(provider: extensionApi.Provider): Promise<void> {
@@ -109,11 +112,14 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       listeners.forEach(listener => listener(machine.Name, status));
       podmanMachinesStatuses.set(machine.Name, status);
     }
+
+    const userModeNetworking = isWindows() ? machine.UserModeNetworking : true;
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
       memory: parseInt(machine.Memory),
       cpus: machine.CPUs,
       diskSize: parseInt(machine.DiskSize),
+      userModeNetworking: userModeNetworking,
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
@@ -597,6 +603,7 @@ async function doHandleWSLDistroNotFoundError(
               'podman.factory.machine.diskSize': machineInfo.diskSize,
             },
             undefined,
+            undefined,
           );
         } catch (error) {
           console.error(error);
@@ -626,12 +633,18 @@ async function registerUpdatesIfAny(
   }
 }
 
+export const USER_MODE_NETWORKING_SUPPORTED_KEY = 'podman.isUserModeNetworkingSupported';
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   storedExtensionContext = extensionContext;
   const podmanInstall = new PodmanInstall(extensionContext.storagePath);
 
   const installedPodman = await getPodmanInstallation();
   const version: string | undefined = installedPodman?.version;
+
+  if (version) {
+    extensionApi.context.setValue(USER_MODE_NETWORKING_SUPPORTED_KEY, isUserModeNetworkingSupported(version));
+  }
 
   const detectionChecks: extensionApi.ProviderDetectionCheck[] = [];
   let status: extensionApi.ProviderStatus = 'not-installed';
@@ -872,6 +885,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     const disposable = extensionApi.Disposable.create(() => {
       podmanProcess.kill();
     });
+
     extensionContext.subscriptions.push(disposable);
     initDefaultLinux(provider).catch((error: unknown) => {
       console.error('Error while initializing default linux', error);
@@ -887,6 +901,88 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   monitorProvider(provider).catch((error: unknown) => {
     console.error('Error while monitoring provider', error);
   });
+
+  const onboardingCheckInstallationCommand = extensionApi.commands.registerCommand(
+    'podman.onboarding.checkPodmanInstalled',
+    async () => {
+      const installation = await getPodmanInstallation();
+      const installed = installation ? true : false;
+      extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
+    },
+  );
+
+  const onboardingCheckReqsCommand = extensionApi.commands.registerCommand(
+    'podman.onboarding.checkPodmanRequirements',
+    async () => {
+      const checks = podmanInstall.getInstallChecks();
+      const result = [];
+      let successful = true;
+      for (const check of checks) {
+        try {
+          const checkResult = await check.execute();
+
+          result.push({
+            name: check.title,
+            successful: checkResult.successful,
+            description: checkResult.description,
+            docLinks: checkResult.docLinks,
+          });
+
+          if (!checkResult.successful) {
+            successful = false;
+          }
+        } catch (err) {
+          result.push({
+            name: check.title,
+            successful: false,
+            description:
+              err instanceof Error ? err.message : typeof err === 'object' ? err?.toString() : 'unknown error',
+          });
+          successful = false;
+        }
+      }
+
+      let warningsMarkdown = '';
+
+      for (const res of result) {
+        warningsMarkdown += `* ${res.successful ? '✅' : '❌'} ${res.name} \n`;
+        if (res.description) {
+          warningsMarkdown += res.description;
+          if (res.docLinks) {
+            warningsMarkdown += ' See: ';
+            for (const link of res.docLinks) {
+              warningsMarkdown += `[${link.title}](${link.url}) `;
+            }
+            warningsMarkdown += '\n';
+          }
+        }
+      }
+
+      extensionApi.context.setValue('requirementsStatus', successful ? 'ok' : 'failed', 'onboarding');
+      extensionApi.context.setValue('warningsMarkdown', warningsMarkdown, 'onboarding');
+    },
+  );
+
+  const onboardingInstallPodmanCommand = extensionApi.commands.registerCommand(
+    'podman.onboarding.installPodman',
+    async () => {
+      try {
+        await podmanInstall.doInstallPodman(provider);
+        const installation = await getPodmanInstallation();
+        const installed = installation ? true : false;
+        extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
+      } catch (e) {
+        console.error(e);
+        extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
+      }
+    },
+  );
+
+  extensionContext.subscriptions.push(
+    onboardingCheckInstallationCommand,
+    onboardingCheckReqsCommand,
+    onboardingInstallPodmanCommand,
+  );
 
   // register the registries
   const registrySetup = new RegistrySetup();
@@ -945,6 +1041,13 @@ export async function deactivate(): Promise<void> {
   });
 }
 
+const PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING = '4.6.0';
+
+// Checks if user mode networking is supported. Only Windows platform allows this parameter to be tuned
+export function isUserModeNetworkingSupported(podmanVersion: string) {
+  return isWindows() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING) >= 0;
+}
+
 export async function createMachine(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: { [key: string]: any },
@@ -1000,6 +1103,10 @@ export async function createMachine(
     parameters.push('--rootful');
   }
 
+  if (params['podman.factory.machine.user-mode-networking']) {
+    parameters.push('--user-mode-networking');
+  }
+
   // name at the end
   if (params['podman.factory.machine.name']) {
     parameters.push(params['podman.factory.machine.name']);
@@ -1032,6 +1139,7 @@ export async function createMachine(
   }
   await execPromise(getPodmanCli(), parameters, { logger, env }, token);
 }
+
 function setupDisguisedPodmanSocketWatcher(
   provider: extensionApi.Provider,
   socketFile: string,

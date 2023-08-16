@@ -9,7 +9,8 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
 import Button from '../ui/Button.svelte';
-import { faRocket } from '@fortawesome/free-solid-svg-icons';
+import { faExternalLink, faRocket } from '@fortawesome/free-solid-svg-icons';
+import Link from '../ui/Link.svelte';
 
 export let resourceId: string;
 export let engineId: string;
@@ -403,9 +404,10 @@ function updateKubeResult() {
           data-testid="useRestricted"
           class=""
           required />
-        <span class="text-gray-400 text-sm ml-1"
-          >Update Kubernetes manifest to respect the Pod security <a
-            href="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted">restricted profile</a
+        <span class="text-gray-400 text-sm ml-1">
+          Update Kubernetes manifest to respect the Pod security <Link
+            href="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted"
+            >restricted profile</Link
           >.</span>
       </div>
 
@@ -513,12 +515,8 @@ function updateKubeResult() {
             <div>Created pod:</div>
             {#if openshiftConsoleURL && createdPod?.metadata?.name}
               <div class="justify-end flex flex-1">
-                <div class="pf-c-button pf-m-link cursor-pointer" on:click="{() => openOpenshiftConsole()}">
-                  <span class="pf-c-button__icon pf-m-start">
-                    <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-                  </span>
-                  Open in OpenShift console
-                </div>
+                <Link class="text-sm" icon="{faExternalLink}" on:click="{() => openOpenshiftConsole()}"
+                  >Open in OpenShift console</Link>
               </div>
             {/if}
           </div>
@@ -561,11 +559,7 @@ function updateKubeResult() {
                 {#each createdRoutes as createdRoute}
                   <li class="pt-2">
                     Port {createdRoute.spec.port.targetPort} is reachable with route
-                    <span
-                      class="cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline"
-                      on:click="{() => {
-                        openRoute(createdRoute);
-                      }}">{createdRoute.metadata.name}</span>
+                    <Link on:click="{() => openRoute(createdRoute)}">{createdRoute.metadata.name}</Link>
                   </li>
                 {/each}
               </ul>

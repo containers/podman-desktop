@@ -50,6 +50,7 @@ import { Emitter } from './events/emitter.js';
 import fs from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import type { ApiSenderType } from './api.js';
+import type { Stream } from 'stream';
 import { Writable } from 'stream';
 
 export interface InternalContainerProvider {
@@ -86,8 +87,8 @@ export class ContainerProviderRegistry {
     libPodDockerode.enhancePrototypeWithLibPod();
   }
 
-  private containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
-  private internalProviders: Map<string, InternalContainerProvider> = new Map();
+  protected containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
+  protected internalProviders: Map<string, InternalContainerProvider> = new Map();
 
   handleEvents(api: Dockerode) {
     const eventEmitter = new EventEmitter();
@@ -610,6 +611,7 @@ export class ContainerProviderRegistry {
     return engine.libpodApi;
   }
 
+  // prefer podman over docker
   public getFirstRunningConnection(): [ProviderContainerConnectionInfo, Dockerode] {
     // grab all connections
     const matchingContainerProviders = Array.from(this.internalProviders.entries()).filter(
@@ -618,6 +620,18 @@ export class ContainerProviderRegistry {
     if (!matchingContainerProviders || matchingContainerProviders.length === 0) {
       throw new Error('No provider with a running engine');
     }
+
+    // prefer podman over other engines
+    // sort by podman first as container type
+    matchingContainerProviders.sort((a, b) => {
+      if (a[1].connection.type === 'podman' && b[1].connection.type === 'podman') {
+        return 0;
+      } else if (a[1].connection.type === 'podman' && b[1].connection.type !== 'podman') {
+        return -1;
+      } else {
+        return 1;
+      }
+    });
 
     const matchingConnection = matchingContainerProviders[0];
     if (!matchingConnection[1].api) {
@@ -1582,13 +1596,13 @@ export class ContainerProviderRegistry {
         `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
       );
       const tarStream = tar.pack(containerBuildContextDirectory);
-      let streamingPromise;
+      let streamingPromise: Stream;
       try {
-        streamingPromise = await matchingContainerProvider.api.buildImage(tarStream, {
+        streamingPromise = (await matchingContainerProvider.api.buildImage(tarStream, {
           registryconfig,
           dockerfile: relativeContainerfilePath,
           t: imageName,
-        });
+        })) as unknown as Stream;
       } catch (error: unknown) {
         console.log('error in buildImage', error);
         const errorMessage = error instanceof Error ? error.message : '' + error;

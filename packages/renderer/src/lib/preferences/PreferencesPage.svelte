@@ -16,6 +16,7 @@ import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
+import Onboarding from '../onboarding/Onboarding.svelte';
 
 let properties: IConfigurationPropertyRecordedSchema[];
 let defaultPrefPageId: string;
@@ -82,13 +83,18 @@ onMount(async () => {
     <PreferencesInstallExtensionFromId extensionId="{meta.params.extensionId}" />
   </Route>
 
+  <Route path="/onboarding/:extensionId" breadcrumb="Extension Onboarding" let:meta>
+    <Onboarding extensionIds="{[meta.params.extensionId]}" />
+  </Route>
+
   <Route
-    path="/container-connection/:provider/:connection/*"
+    path="/container-connection/:provider/:name/:connection/*"
     breadcrumb="Container Engine"
     let:meta
     navigationHint="details">
     <PreferencesContainerConnectionRendering
       providerInternalId="{meta.params.provider}"
+      name="{meta.params.name}"
       connection="{meta.params.connection}"
       properties="{properties}" />
   </Route>

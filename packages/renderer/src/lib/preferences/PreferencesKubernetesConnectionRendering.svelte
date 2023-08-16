@@ -157,7 +157,6 @@ function setNoLogs() {
           </Route>
           <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
             <PreferencesConnectionDetailsLogs
-              connection="{apiUrlBase64}"
               providerInternalId="{providerInternalId}"
               connectionInfo="{connectionInfo}"
               setNoLogs="{setNoLogs}"

@@ -47,6 +47,7 @@ import type { Directories } from './directories.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { ViewRegistry } from './view-registry.js';
 import { Context } from './context/context.js';
+import type { OnboardingRegistry } from './onboarding-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -110,6 +111,8 @@ const authenticationProviderRegistry: AuthenticationImpl = {} as unknown as Auth
 
 const iconRegistry: IconRegistry = {} as unknown as IconRegistry;
 
+const onboardingRegistry: OnboardingRegistry = {} as unknown as OnboardingRegistry;
+
 const telemetryTrackMock = vi.fn();
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
 
@@ -145,6 +148,7 @@ beforeAll(() => {
     customPickRegistry,
     authenticationProviderRegistry,
     iconRegistry,
+    onboardingRegistry,
     telemetry,
     viewRegistry,
     context,

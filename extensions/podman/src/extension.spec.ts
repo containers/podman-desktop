@@ -65,6 +65,7 @@ const machineInfo: extension.MachineInfo = {
   diskSize: 1000000,
   memory: 10000000,
   name: 'name',
+  userModeNetworking: false,
 };
 
 const machineDefaultName = 'podman-machine-default';
@@ -156,6 +157,47 @@ test('verify create command called with correct values', async () => {
   expect(spyExecPromise).toBeCalledWith(
     getPodmanCli(),
     ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path'],
+    {
+      env: {},
+      logger: undefined,
+    },
+    undefined,
+  );
+  expect(console.error).not.toBeCalled();
+});
+
+test('verify create command called with correct values with user mode networking', async () => {
+  const spyExecPromise = vi.spyOn(podmanCli, 'execPromise');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.resolve('');
+  });
+  await extension.createMachine(
+    {
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.image-path': 'path',
+      'podman.factory.machine.memory': '1048000000',
+      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.user-mode-networking': true,
+    },
+    undefined,
+    undefined,
+  );
+  const parameters = [
+    'machine',
+    'init',
+    '--cpus',
+    '2',
+    '--memory',
+    '999',
+    '--disk-size',
+    '232',
+    '--image-path',
+    'path',
+    '--user-mode-networking',
+  ];
+  expect(spyExecPromise).toBeCalledWith(
+    getPodmanCli(),
+    parameters,
     {
       env: {},
       logger: undefined,

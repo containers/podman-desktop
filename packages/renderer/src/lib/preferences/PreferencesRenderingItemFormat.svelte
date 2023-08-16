@@ -7,6 +7,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Markdown from '../markdown/Markdown.svelte';
 import { getNormalizedDefaultNumberValue } from './Util';
 import Tooltip from '../ui/Tooltip.svelte';
+import Button from '../ui/Button.svelte';
 
 let invalidEntry = false;
 let invalidText = undefined;
@@ -318,10 +319,11 @@ function assertNumericValueIsValid(value: number) {
     {:else if record.type === 'string' && record.format === 'file'}
       <div class="w-full flex">
         <input
-          class="grow {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm"
+          class="grow {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm placeholder-gray-900"
           name="{record.id}"
           readonly
           type="text"
+          placeholder="{record.placeholder}"
           value="{recordValue || ''}"
           id="input-standard-{record.id}"
           aria-invalid="{invalidEntry}"
@@ -333,15 +335,11 @@ function assertNumericValueIsValid(value: number) {
           on:click="{event => handleCleanValue(event)}">
           <Fa icon="{faXmark}" />
         </button>
-        <input
+        <Button
           on:click="{() => selectFilePath()}"
           id="rendering.FilePath.{record.id}"
-          readonly
           aria-invalid="{invalidEntry}"
-          aria-label="button-{record.description}"
-          placeholder="Browse ..."
-          class="bg-violet-500 p-1 text-xs text-center hover:bg-zinc-700 placeholder-white rounded-sm cursor-pointer outline-0"
-          required />
+          aria-label="button-{record.description}">Browse ...</Button>
       </div>
     {:else if record.type === 'string' && record.enum && record.enum.length > 0}
       <select
@@ -363,9 +361,10 @@ function assertNumericValueIsValid(value: number) {
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"
-        class="grow py-1 px-2 w-full outline-0 border-b-2 border-gray-800 hover:border-violet-500 focus:border-violet-500"
+        class="grow py-1 px-2 w-full outline-0 border-b-2 border-gray-800 hover:border-violet-500 focus:border-violet-500 placeholder-gray-900"
         name="{record.id}"
         type="text"
+        placeholder="{record.placeholder}"
         bind:value="{recordValue}"
         readonly="{!!record.readonly}"
         id="input-standard-{record.id}"

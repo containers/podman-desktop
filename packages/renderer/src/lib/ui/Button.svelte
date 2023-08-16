@@ -32,11 +32,11 @@ $: {
     }
   } else {
     if (type === 'primary') {
-      classes = 'bg-purple-500 border-none hover:bg-purple-400';
+      classes = 'bg-purple-600 border-none text-white hover:bg-purple-500';
     } else if (type === 'secondary') {
-      classes = 'border-[1px] border-gray-200 hover:border-purple-500 hover:text-purple-500';
+      classes = 'border-[1px] border-gray-200 text-white hover:border-purple-500 hover:text-purple-500';
     } else {
-      classes = 'border-none hover:underline';
+      classes = 'border-none text-purple-400 hover:bg-white hover:bg-opacity-10';
     }
   }
 }
@@ -44,7 +44,7 @@ $: {
 
 <button
   type="button"
-  class="relative px-4 py-[6px] rounded-[4px] box-border text-white text-[13px] whitespace-nowrap select-none {classes} {$$props.class ||
+  class="relative px-4 py-[6px] rounded-[4px] box-border text-[13px] whitespace-nowrap select-none transition-all {classes} {$$props.class ||
     ''}"
   title="{title}"
   aria-label="{$$props['aria-label']}"

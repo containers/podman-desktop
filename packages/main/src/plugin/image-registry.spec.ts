@@ -106,6 +106,15 @@ test('Should extract auth registry with Amazon ECR registry', async () => {
   expect(authInfo?.scope).toBeUndefined();
 });
 
+test('Should be able to use a local Sonatype Nexus instance that uses localhost and BASIC response', async () => {
+  const authInfo = imageRegistry.extractAuthData('BASIC realm="http://localhost:8082",service="test.sonatype.com"');
+  expect(authInfo).toBeDefined();
+  expect(authInfo?.authUrl).toBe('http://localhost:8082');
+  expect(authInfo?.scheme).toBe('BASIC');
+  expect(authInfo?.service).toBe('test.sonatype.com');
+  expect(authInfo?.scope).toBeUndefined();
+});
+
 test('Should extract auth registry with quay.io registry', async () => {
   const authInfo = imageRegistry.extractAuthData('Bearer realm="https://quay.io/v2/auth",service="quay.io"');
   expect(authInfo).toBeDefined();
@@ -113,6 +122,12 @@ test('Should extract auth registry with quay.io registry', async () => {
   expect(authInfo?.authUrl).toBe('https://quay.io/v2/auth');
   expect(authInfo?.service).toBe('quay.io');
   expect(authInfo?.scope).toBeUndefined();
+});
+
+test('Expect extractAuthData to fail since its not Bearer, Basic or BASIC. ', async () => {
+  const authInfo = imageRegistry.extractAuthData('Foobar realm="https://quay.io/v2/auth",service="quay.io"');
+  // Expect it to be undefined since its not Bearer, Basic or BASIC.
+  expect(authInfo).toBeUndefined();
 });
 
 test('should map short name to hub server', () => {
@@ -385,6 +400,16 @@ describe('expect checkCredentials', async () => {
     );
   });
 
+  test('expect checkCredentials works with a localhost registry', async () => {
+    const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
+    spyGetAuthInfo.mockResolvedValue({ authUrl: 'foo', scheme: 'bearer' });
+
+    const spydoCheckCredentials = vi.spyOn(imageRegistry, 'doCheckCredentials');
+    spydoCheckCredentials.mockResolvedValue();
+
+    await imageRegistry.checkCredentials('localhost:5000', 'my-username', 'my-password');
+  });
+
   test('expect checkCredentials works with ignoring the certificate', async () => {
     const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
     spyGetAuthInfo.mockResolvedValue({ authUrl: 'foo', scheme: 'bearer' });
@@ -397,6 +422,18 @@ describe('expect checkCredentials', async () => {
       'my-username',
       'my-password',
       true,
+    );
+  });
+
+  test('test checkCredentials fails with a wrong registry input', async () => {
+    const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
+    spyGetAuthInfo.mockResolvedValue({ authUrl: 'foo', scheme: 'bearer' });
+
+    const spydoCheckCredentials = vi.spyOn(imageRegistry, 'doCheckCredentials');
+    spydoCheckCredentials.mockResolvedValue();
+
+    await expect(imageRegistry.checkCredentials(':', 'my-username', 'my-password')).rejects.toThrow(
+      'The format of the Registry Location is incorrect.',
     );
   });
 
