@@ -155,16 +155,19 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }
 
   // update context menu on change
-  extensionApi.kubernetes.onDidUpdateKubeconfig(async (event: extensionApi.KubeconfigUpdateEvent) => {
-    // update the tray everytime .kube/config file is updated
-    if (event.type === 'UPDATE' || event.type === 'CREATE') {
-      kubeconfigFile = event.location.fsPath;
-      await updateContext(extensionContext, kubeconfigFile);
-    } else if (event.type === 'DELETE') {
-      await deleteContext();
-      kubeconfigFile = undefined;
-    }
-  });
+  const disposeOnDidUpdate = extensionApi.kubernetes.onDidUpdateKubeconfig(
+    async (event: extensionApi.KubeconfigUpdateEvent) => {
+      // update the tray everytime .kube/config file is updated
+      if (event.type === 'UPDATE' || event.type === 'CREATE') {
+        kubeconfigFile = event.location.fsPath;
+        await updateContext(extensionContext, kubeconfigFile);
+      } else if (event.type === 'DELETE') {
+        await deleteContext();
+        kubeconfigFile = undefined;
+      }
+    },
+  );
+  extensionContext.subscriptions.push(disposeOnDidUpdate);
 
   const switchCommand = extensionApi.commands.registerCommand('kubecontext.switch', async (newContext: string) => {
     await setContext(newContext);
