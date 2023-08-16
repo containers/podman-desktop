@@ -15,28 +15,7 @@
 
   --pf-global--LineHeight--md: 0.9rem;
   --pf-global--FontWeight--normal: 100;
-  --pf-c-nav__link--after--BorderColor: #7c3aed;
   --pf-global--BackgroundColor: #ff0000;
-}
-
-.pf-c-nav {
-  --pf-c-nav__link--before--BorderBottomWidth: 0;
-  --pf-c-nav__link--FontWeight: 600;
-  --pf-c-nav__link--m-current--BackgroundColor: #36363d; /*charcoal-500*/
-
-  --pf-c-nav__link--PaddingTop: 13px;
-  --pf-c-nav__link--PaddingBottom: 13px;
-  --pf-c-nav__link--PaddingRight: 4px;
-  --pf-c-nav__link--PaddingLeft: 16px;
-
-  /* gray 200*/
-  --pf-c-nav__link--Color: #e2e8f0;
-  --pf-c-nav__link--m-current--Color: #fff;
-}
-
-.pf-c-nav__link::after {
-  --pf-c-nav__link--after--BorderColor: #8b5cf6;
-  --pf-c-nav__link--m-current--after--BorderColor: #8b5cf6;
 }
 
 .pf-c-button {
