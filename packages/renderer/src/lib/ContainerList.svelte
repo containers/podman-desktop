@@ -1,9 +1,10 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
 import { filtered, searchPattern, containersInfos } from '../stores/containers';
+import { viewsContributions } from '../stores/views';
+import { context } from '../stores/context';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
-import ContainerIcon from './images/ContainerIcon.svelte';
 import PodIcon from './images/PodIcon.svelte';
 import StatusIcon from './images/StatusIcon.svelte';
 import { router } from 'tinro';
@@ -18,14 +19,23 @@ import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.s
 import moment from 'moment';
 import { get, type Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
-import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import ErrorMessage from './ui/ErrorMessage.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
+import { podsInfos } from '../stores/pods';
 import KubePlayButton from './kube/KubePlayButton.svelte';
 import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
 import { containerGroupsInfo } from '../stores/containerGroups';
+import Checkbox from './ui/Checkbox.svelte';
+import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
+import { PodUtils } from '../lib/pod/pod-utils';
+import ComposeActions from './compose/ComposeActions.svelte';
+import { CONTAINER_LIST_VIEW } from './view/views';
+import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
+import type { ContextUI } from './context/context';
+import Button from './ui/Button.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -33,6 +43,9 @@ let enginesList: EngineInfoUI[];
 
 // groups of containers that will be displayed
 let containerGroups: ContainerGroupInfoUI[] = [];
+let viewContributions: ViewInfoUI[] = [];
+let globalContext: ContextUI = undefined;
+let containersInfo: ContainerInfo[] = [];
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
@@ -129,15 +142,32 @@ function computeInterval(): number {
   return 60 * 60 * 24 * SECOND;
 }
 
-function toggleCheckboxContainerGroup(value: boolean, containerGroup: ContainerGroupInfoUI) {
+function toggleCheckboxContainerGroup(checked: boolean, containerGroup: ContainerGroupInfoUI) {
   // need to apply that on all containers
-  containerGroup.containers.forEach(container => (container.selected = value));
+  containerGroup.containers.forEach(container => (container.selected = checked));
 }
 
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedContainers() {
+  // delete pods first if any
+  const podGroups = containerGroups
+    .filter(group => group.type === ContainerGroupInfoTypeUI.POD)
+    .filter(pod => pod.selected);
+  if (podGroups.length > 0) {
+    await Promise.all(
+      podGroups.map(async podGroup => {
+        try {
+          await window.removePod(podGroup.engineId, podGroup.id);
+        } catch (e) {
+          console.error('error while removing pod', e);
+        }
+      }),
+    );
+  }
+  // then containers (that are not inside a pod)
   const selectedContainers = containerGroups
+    .filter(group => group.type !== ContainerGroupInfoTypeUI.POD)
     .map(group => group.containers)
     .flat()
     .filter(container => container.selected);
@@ -167,8 +197,10 @@ function createPodFromContainers() {
     .flat()
     .filter(container => container.selected);
 
+  const podUtils = new PodUtils();
+
   const podCreation = {
-    name: 'my-pod',
+    name: podUtils.calculateNewPodName(pods),
     containers: selectedContainers.map(container => {
       return { id: container.id, name: container.name, engineId: container.engineId, ports: container.ports };
     }),
@@ -182,66 +214,91 @@ function createPodFromContainers() {
 }
 
 let containersUnsubscribe: Unsubscriber;
+let contextsUnsubscribe: Unsubscriber;
+let podUnsubscribe: Unsubscriber;
+let viewsUnsubscribe: Unsubscriber;
+let pods: PodInfo[];
 onMount(async () => {
   // grab previous groups
   containerGroups = get(containerGroupsInfo);
 
-  containersUnsubscribe = filtered.subscribe(value => {
-    const currentContainers = value.map((containerInfo: ContainerInfo) => {
-      return containerUtils.getContainerInfoUI(containerInfo);
-    });
-
-    // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
-    const engines = currentContainers.map(container => {
-      return {
-        name: container.engineName,
-        id: container.engineId,
-      };
-    });
-
-    // Remove duplicates from engines by name
-    const uniqueEngines = engines.filter(
-      (engine, index, self) => index === self.findIndex(t => t.name === engine.name),
-    );
-
-    if (uniqueEngines.length > 1) {
-      multipleEngines = true;
-    } else {
-      multipleEngines = false;
+  contextsUnsubscribe = context.subscribe(value => {
+    globalContext = value;
+    if (containersInfo.length > 0) {
+      updateContainers(containersInfo, globalContext, viewContributions);
     }
+  });
 
-    // Set the engines to the global variable for the Prune functionality button
-    enginesList = uniqueEngines;
+  viewsUnsubscribe = viewsContributions.subscribe(value => {
+    viewContributions = value.filter(view => view.viewId === CONTAINER_LIST_VIEW) || [];
+    if (containersInfo.length > 0) {
+      updateContainers(containersInfo, globalContext, viewContributions);
+    }
+  });
 
-    // create groups
-    const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+  containersUnsubscribe = filtered.subscribe(value => {
+    updateContainers(value, globalContext, viewContributions);
+  });
 
-    // update selected items based on current selected items
-    computedContainerGroups.forEach(group => {
-      const matchingGroup = containerGroups.find(currentGroup => currentGroup.name === group.name);
-      if (matchingGroup) {
-        group.selected = matchingGroup.selected;
-        group.expanded = matchingGroup.expanded;
-        group.containers.forEach(container => {
-          const matchingContainer = matchingGroup.containers.find(
-            currentContainer => currentContainer.id === container.id,
-          );
-          if (matchingContainer) {
-            container.actionError = matchingContainer.actionError;
-            container.selected = matchingContainer.selected;
-          }
-        });
-      }
-    });
-
-    // update the value
-    containerGroups = computedContainerGroups;
-
-    // compute refresh interval
-    const interval = computeInterval();
-    refreshTimeouts.push(setTimeout(refreshUptime, interval));
+  podUnsubscribe = podsInfos.subscribe(podInfos => {
+    pods = podInfos;
   });
 });
+
+function updateContainers(containers: ContainerInfo[], globalContext: ContextUI, viewContributions: ViewInfoUI[]) {
+  containersInfo = containers;
+  const currentContainers = containers.map((containerInfo: ContainerInfo) => {
+    return containerUtils.getContainerInfoUI(containerInfo, globalContext, viewContributions);
+  });
+
+  // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
+  const engines = currentContainers.map(container => {
+    return {
+      name: container.engineName,
+      id: container.engineId,
+    };
+  });
+
+  // Remove duplicates from engines by name
+  const uniqueEngines = engines.filter((engine, index, self) => index === self.findIndex(t => t.name === engine.name));
+
+  if (uniqueEngines.length > 1) {
+    multipleEngines = true;
+  } else {
+    multipleEngines = false;
+  }
+
+  // Set the engines to the global variable for the Prune functionality button
+  enginesList = uniqueEngines;
+
+  // create groups
+  const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+
+  // update selected items based on current selected items
+  computedContainerGroups.forEach(group => {
+    const matchingGroup = containerGroups.find(currentGroup => currentGroup.name === group.name);
+    if (matchingGroup) {
+      group.selected = matchingGroup.selected;
+      group.expanded = matchingGroup.expanded;
+      group.containers.forEach(container => {
+        const matchingContainer = matchingGroup.containers.find(
+          currentContainer => currentContainer.id === container.id,
+        );
+        if (matchingContainer) {
+          container.actionError = matchingContainer.actionError;
+          container.selected = matchingContainer.selected;
+        }
+      });
+    }
+  });
+
+  // update the value
+  containerGroups = computedContainerGroups;
+
+  // compute refresh interval
+  const interval = computeInterval();
+  refreshTimeouts.push(setTimeout(refreshUptime, interval));
+}
 
 onDestroy(() => {
   // store current groups for later
@@ -254,6 +311,15 @@ onDestroy(() => {
   // unsubscribe from the store
   if (containersUnsubscribe) {
     containersUnsubscribe();
+  }
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
+  }
+  if (podUnsubscribe) {
+    podUnsubscribe();
+  }
+  if (viewsUnsubscribe) {
+    viewsUnsubscribe();
   }
 });
 
@@ -271,15 +337,13 @@ function keydownChoice(e: KeyboardEvent) {
 function openGroupDetails(containerGroup: ContainerGroupInfoUI): void {
   if (containerGroup.type === ContainerGroupInfoTypeUI.POD) {
     router.goto(`/pods/podman/${encodeURI(containerGroup.name)}/${encodeURI(containerGroup.engineId)}/logs`);
+  } else if (containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE) {
+    router.goto(`/compose/${encodeURI(containerGroup.name)}/${encodeURI(containerGroup.engineId)}/logs`);
   }
 }
 
 function toggleCreateContainer(): void {
   openChoiceModal = !openChoiceModal;
-}
-
-function runContainerYaml(): void {
-  router.goto('/containers/play');
 }
 
 function fromDockerfile(): void {
@@ -293,12 +357,12 @@ function toggleContainerGroup(containerGroup: ContainerGroupInfoUI) {
   containerGroups = containerGroups.map(group => (group.name === containerGroup.name ? containerGroup : group));
 }
 
-function toggleAllContainerGroups(value: boolean) {
+function toggleAllContainerGroups(checked: boolean) {
   const toggleContainers = containerGroups;
   toggleContainers
     .filter(group => group.type !== ContainerGroupInfoTypeUI.STANDALONE)
-    .forEach(group => (group.selected = value));
-  toggleContainers.forEach(group => group.containers.forEach(container => (container.selected = value)));
+    .forEach(group => (group.selected = checked));
+  toggleContainers.forEach(group => group.containers.forEach(container => (container.selected = checked)));
   containerGroups = toggleContainers;
 }
 
@@ -311,6 +375,22 @@ function inProgressCallback(container: ContainerInfoUI, inProgress: boolean, sta
   if (state) {
     container.state = state;
   }
+
+  containerGroups = [...containerGroups];
+}
+
+// Go through each container passed in and update the progress
+function composeGroupInProgressCallback(containers: ContainerInfoUI[], inProgress: boolean, state?: string): void {
+  containers.forEach(container => {
+    container.actionInProgress = inProgress;
+    // reset error when starting task
+    if (inProgress) {
+      container.actionError = '';
+    }
+    if (state) {
+      container.state = state;
+    }
+  });
 
   containerGroups = [...containerGroups];
 }
@@ -328,64 +408,41 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     {#if $containersInfos.length > 0}
       <Prune type="containers" engines="{enginesList}" />
     {/if}
-    <button on:click="{() => toggleCreateContainer()}" class="pf-c-button pf-m-primary" type="button">
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-plus-circle" aria-hidden="true"></i>
-      </span>
-      Create a container
-    </button>
+    <Button on:click="{() => toggleCreateContainer()}" icon="{faPlusCircle}">Create a container</Button>
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
   </div>
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
-      <button
-        class="pf-c-button pf-m-primary"
+      <Button
         on:click="{() => deleteSelectedContainers()}"
+        aria-label="Delete selected containers and pods"
         title="Delete {selectedItemsNumber} selected items"
-        type="button">
-        <span class="pf-c-button__icon pf-m-start">
-          {#if bulkDeleteInProgress}
-            <div class="mr-4">
-              <i class="pf-c-button__progress">
-                <span class="pf-c-spinner pf-m-md" role="progressbar">
-                  <span class="pf-c-spinner__clipper"></span>
-                  <span class="pf-c-spinner__lead-ball"></span>
-                  <span class="pf-c-spinner__tail-ball"></span>
-                </span>
-              </i>
-            </div>
-          {:else}
-            <i class="fas fa-trash" aria-hidden="true"></i>
-          {/if}
-        </span>
-      </button>
+        bind:inProgress="{bulkDeleteInProgress}"
+        icon="{faTrash}" />
       <div class="px-1"></div>
-      <button
-        class="pf-c-button pf-m-primary"
+      <Button
         on:click="{() => createPodFromContainers()}"
         title="Create Pod with {selectedItemsNumber} selected items"
-        type="button">
-        <i class="fas fa-cubes" aria-hidden="true"></i>
-      </button>
+        icon="{PodIcon}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>
 
-  <div class="min-w-full flex" slot="table">
-    <table class="mx-5 w-full" class:hidden="{containerGroups.length === 0}">
+  <div class="flex min-w-full h-full" slot="content">
+    <table class="mx-5 w-full h-fit" class:hidden="{containerGroups.length === 0}">
       <!-- title -->
-      <thead>
+      <thead class="sticky top-0 bg-charcoal-700 z-[2]">
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5"
-            ><input
-              type="checkbox"
-              indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
+          <th class="px-2 w-5">
+            <Checkbox
+              title="Toggle all"
               bind:checked="{selectedAllCheckboxes}"
-              on:click="{event => toggleAllContainerGroups(event.currentTarget.checked)}"
-              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
+              indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
+              on:click="{event => toggleAllContainerGroups(event.detail)}" />
+          </th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th class="w-10">Name</th>
           <th>Image</th>
@@ -409,11 +466,10 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                   icon="{containerGroup.expanded ? faChevronDown : faChevronRight}" />
               </td>
               <td class="px-2">
-                <input
-                  type="checkbox"
-                  on:click="{event => toggleCheckboxContainerGroup(event.currentTarget.checked, containerGroup)}"
+                <Checkbox
+                  title="Toggle {containerGroup.type}"
                   bind:checked="{containerGroup.selected}"
-                  class=" cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+                  on:click="{event => toggleCheckboxContainerGroup(event.detail, containerGroup)}" />
               </td>
               <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
                 <div class="grid place-content-center ml-3 mr-4">
@@ -466,6 +522,19 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     }}"
                     dropdownMenu="{true}" />
                 {/if}
+                {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE}
+                  <ComposeActions
+                    compose="{{
+                      status: containerGroup.status,
+                      name: containerGroup.name,
+                      engineId: containerGroup.engineId,
+                      engineType: containerGroup.engineType,
+                      containers: [],
+                    }}"
+                    dropdownMenu="{true}"
+                    inProgressCallback="{(containers, flag, state) =>
+                      composeGroupInProgressCallback(containerGroup.containers, flag, state)}" />
+                {/if}
               </td>
             </tr>
           {/if}
@@ -480,14 +549,11 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     : ''}">
                 </td>
                 <td class="px-2">
-                  <input
-                    type="checkbox"
-                    bind:checked="{container.selected}"
-                    class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+                  <Checkbox title="Toggle container" bind:checked="{container.selected}" />
                 </td>
                 <td class="flex flex-row justify-center h-12">
                   <div class="grid place-content-center ml-3 mr-4">
-                    <StatusIcon icon="{ContainerIcon}" status="{container.state}" />
+                    <StatusIcon icon="{container.icon}" status="{container.state}" />
                   </div>
                 </td>
                 <td
@@ -558,9 +624,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         <tr><td class="leading-[8px]">&nbsp;</td></tr>
       {/each}
     </table>
-  </div>
 
-  <div slot="empty" class="min-h-full">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
@@ -592,10 +656,8 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         </ul>
 
         <div class="pt-5 grid grid-cols-2 gap-10 place-content-center w-full">
-          <button class="pf-c-button pf-m-primary" type="button" on:click="{() => fromDockerfile()}"
-            >Containerfile or Dockerfile</button>
-          <button class="pf-c-button pf-m-secondary" type="button" on:click="{() => fromExistingImage()}"
-            >Existing image</button>
+          <Button type="primary" on:click="{() => fromDockerfile()}">Containerfile or Dockerfile</Button>
+          <Button type="secondary" on:click="{() => fromExistingImage()}">Existing image</Button>
         </div>
       </div>
     </div>

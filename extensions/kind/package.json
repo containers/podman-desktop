@@ -47,6 +47,22 @@
           "default": true,
           "scope": "KubernetesProviderConnectionFactory",
           "description": "Setup an ingress controller (Contour https://projectcontour.io)"
+        },
+        "kind.cluster.creation.controlPlaneImage": {
+          "type": "string",
+          "default": "",
+          "scope": "KubernetesProviderConnectionFactory",
+          "placeholder": "Leave empty for using latest.",
+          "markdownDescription": "Node’s container image (Available image tags on [kind/releases](https://github.com/kubernetes-sigs/kind/releases))"
+        }
+      }
+    },
+    "icons": {
+      "kind-icon": {
+        "description": "Kind icon",
+        "default": {
+          "fontPath": "kind-icon.woff2",
+          "fontCharacter": "\\EA01"
         }
       }
     },
@@ -57,24 +73,36 @@
           "title": "Push image to Kind cluster"
         }
       ]
+    },
+    "views": {
+      "icons/containersList": [
+        {
+          "when": "io.x-k8s.kind.cluster in containerLabelKeys",
+          "icon": "${kind-icon}"
+        }
+      ]
     }
   },
   "scripts": {
-    "build": "npx ts-node ./scripts/download.ts && vite build && node ./scripts/build.js",
+    "install:contour": "npx ts-node ./scripts/download.ts",
+    "build": "vite build && node ./scripts/build.js",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
     "watch": "vite build -w"
   },
   "dependencies": {
-    "@octokit/rest": "^19.0.8",
+    "@octokit/rest": "^20.0.1",
     "@podman-desktop/api": "^0.0.1",
     "mustache": "^4.2.0",
-    "sudo-prompt": "^9.2.1"
+    "sudo-prompt": "^9.2.1",
+    "yaml": "^2.3.1"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
-    "mkdirp": "^2.1.6",
-    "vite": "^4.3.8",
+    "mkdirp": "^3.0.1",
+    "tmp-promise": "^3.0.3",
+    "vite": "^4.4.9",
+    "vitest": "^0.34.1",
     "zip-local": "^0.3.5"
   }
 }

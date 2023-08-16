@@ -16,16 +16,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import nock from 'nock';
-import { ExtensionsCatalog } from './extensions-catalog';
-import type { Certificates } from '../certificates';
-import type { Proxy } from '../proxy';
-import { Emitter } from '../events/emitter';
+import { ExtensionsCatalog } from './extensions-catalog.js';
+import type { Certificates } from '../certificates.js';
+import type { Proxy } from '../proxy.js';
+import { Emitter } from '../events/emitter.js';
 import type { ProxySettings } from '@podman-desktop/api';
 
 let extensionsCatalog: ExtensionsCatalog;
+
+const fooAssetIcon = {
+  assetType: 'icon',
+  data: 'fooIcon',
+};
 
 const fakePublishedExtension1 = {
   publisher: {
@@ -39,8 +44,10 @@ const fakePublishedExtension1 = {
   versions: [
     {
       version: '1.0.0',
+      preview: false,
       lastUpdated: '2021-01-01T00:00:00.000Z',
       ociUri: 'oci-registry.foo/foo/bar',
+      files: [fooAssetIcon],
     },
   ],
 };
@@ -58,12 +65,9 @@ const proxy: Proxy = {
   isEnabled: isEnabledProxyMock,
 } as unknown as Proxy;
 
-beforeAll(async () => {
-  extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
-});
-
 const originalConsoleError = console.error;
 beforeEach(() => {
+  extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
   vi.clearAllMocks();
   console.error = vi.fn();
 });
@@ -136,4 +140,34 @@ test('check getHttpOptions with Proxy', async () => {
   // certificates should be 1, 2, 3
   expect(options.https?.certificateAuthority).toBeDefined();
   expect(options.https?.certificateAuthority?.length).toBe(3);
+});
+
+test('should get all extensions', async () => {
+  const url = new URL(ExtensionsCatalog.ALL_EXTENSIONS_URL);
+  const host = url.origin;
+  const pathname = url.pathname;
+  nock(host)
+    .get(pathname)
+    .reply(200, {
+      extensions: [fakePublishedExtension1],
+    });
+
+  const allExtensions = await extensionsCatalog.getExtensions();
+  expect(allExtensions).toBeDefined();
+  expect(allExtensions.length).toBe(1);
+
+  // check data
+  const extension = allExtensions[0];
+  expect(extension.id).toBe('foo.fooName');
+  expect(extension.publisherName).toBe('foo');
+  expect(extension.displayName).toBe(fakePublishedExtension1.displayName);
+  expect(extension.versions.length).toBe(1);
+  expect(extension.versions[0]).toStrictEqual({
+    ociUri: 'oci-registry.foo/foo/bar',
+    preview: false,
+    version: '1.0.0',
+    files: [fooAssetIcon],
+  });
+  // no error
+  expect(console.error).not.toBeCalled();
 });

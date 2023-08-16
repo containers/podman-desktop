@@ -7,6 +7,7 @@ import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings'
 import { getPanelDetailColor } from '../color/color';
 import type { PodInfoUI } from './PodInfoUI';
 import { isMultiplexedLog } from '../stream/stream-utils';
+import { ansi256Colours, colourizedANSIContainerName } from '../editor/editor-utils';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 
@@ -21,7 +22,7 @@ let logsTerminal: Terminal;
 
 // need to refresh logs when pod is switched or state changes
 $: {
-  if (refPod && (refPod.id !== pod.id || (refPod.status != pod.status && pod.status !== 'EXITED'))) {
+  if (refPod && (refPod.id !== pod.id || (refPod.status !== pod.status && pod.status !== 'EXITED'))) {
     logsTerminal?.clear();
     fetchPodLogs();
   }
@@ -32,37 +33,15 @@ $: {
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
 let currentRouterPath: string;
-let logsRouterPath: string = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
-
-// An array of readable ANSI escape sequence colours against a black terminal background
-// these are the most "readable" colours against a black background
-// No colours like grey, normal blue (cyan instead) or red, since they don't appear very well.
-const ansi256Colors = [
-  `\u001b[36m`, // cyan
-  `\u001b[33m`, // yellow
-  `\u001b[32m`, // green
-  `\u001b[35m`, // magenta
-  `\u001b[34m`, // blue
-  `\u001b[36;1m`, // bright cyan
-  `\u001b[33;1m`, // bright yellow
-  `\u001b[32;1m`, // bright green
-  `\u001b[35;1m`, // bright magenta
-  `\u001b[34;1m`, // bright blue
-];
+let logsRouterPath = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
 
 // Create a map that will store the ANSI 256 colour for each container name
 // if we run out of colours, we'll start from the beginning.
 const colourizedContainerName = new Map<string, string>();
 pod.containers.forEach((container, index) => {
-  const colour = ansi256Colors[index % ansi256Colors.length];
+  const colour = ansi256Colours[index % ansi256Colours.length];
   colourizedContainerName.set(container.Names, colourizedANSIContainerName(container.Names, colour));
 });
-
-// Function that takes the container name and ANSI colour and encapsulates the name in the colour,
-// making sure that we reset the colour back to white after the name.
-function colourizedANSIContainerName(name: string, colour: string) {
-  return `${colour}${name}\u001b[0m`;
-}
 
 // Callback for logs which will output the logs to the terminal
 function callback(name: string, data: string) {
@@ -93,7 +72,7 @@ async function fetchPodLogs() {
   // before each log output.
   //
   // NOTE: Podman API returns 'Names' despite being a singular name for the container.
-  pod.containers.forEach(async container => {
+  for (let container of pod.containers) {
     // Set a customer callback that will add the container name and padding
     const logsCallback = (name: string, data: string) => {
       const padding = ' '.repeat(maxNameLength - container.Names.length);
@@ -115,7 +94,7 @@ async function fetchPodLogs() {
     } else {
       await window.kubernetesReadPodLog(pod.name, container.Names, logsCallback);
     }
-  });
+  }
 }
 
 async function refreshTerminal() {
@@ -164,7 +143,7 @@ onMount(async () => {
   fetchPodLogs();
 
   // Resize the terminal each time we change the div size
-  resizeObserver = new ResizeObserver(entries => {
+  resizeObserver = new ResizeObserver(() => {
     termFit?.fit();
   });
 

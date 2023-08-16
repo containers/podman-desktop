@@ -16,39 +16,39 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
+import { EventStore } from './event-store';
 
-export async function fetchExtensions() {
-  const result = await window.listExtensions();
-  result.sort((a, b) => a.displayName.localeCompare(b.displayName));
-  extensionInfos.set(result);
+const windowEvents = [
+  'extension-starting',
+  'extension-started',
+  'extension-stopping',
+  'extension-stopped',
+  'extension-removed',
+  'extensions-started',
+  'extensions-updated',
+];
+const windowListeners = ['system-ready'];
+
+export async function checkForUpdate(): Promise<boolean> {
+  return true;
 }
 
 export const extensionInfos: Writable<ExtensionInfo[]> = writable([]);
 
-// need to refresh when extension is started or stopped
-window?.events?.receive('extension-starting', async () => {
-  await fetchExtensions();
-});
-window?.events?.receive('extension-started', async () => {
-  await fetchExtensions();
-});
-window?.events?.receive('extension-stopping', async () => {
-  await fetchExtensions();
-});
-window?.events?.receive('extension-stopped', async () => {
-  await fetchExtensions();
-});
-window?.events?.receive('extension-removed', async () => {
-  await fetchExtensions();
-});
-window?.events?.receive('extensions-started', async () => {
-  await fetchExtensions();
-});
-window.addEventListener('system-ready', () => {
-  fetchExtensions().catch((error: unknown) => {
-    console.error('Failed to fetch extensions', error);
-  });
-});
+const eventStore = new EventStore<ExtensionInfo[]>(
+  'extensions',
+  extensionInfos,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  fetchExtensions,
+);
+eventStore.setup();
+
+export async function fetchExtensions(): Promise<ExtensionInfo[]> {
+  const result = await window.listExtensions();
+  result.sort((a, b) => a.displayName.localeCompare(b.displayName));
+  return result;
+}

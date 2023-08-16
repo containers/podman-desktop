@@ -18,7 +18,7 @@
 
 import { afterEach, expect, test, vi } from 'vitest';
 
-import { Uri } from './uri';
+import { Uri } from './uri.js';
 
 afterEach(() => {
   vi.resetAllMocks();

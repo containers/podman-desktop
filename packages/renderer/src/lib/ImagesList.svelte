@@ -10,6 +10,7 @@ import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
 import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
 import { providerInfos } from '../stores/providers';
 import PushImageModal from './image/PushImageModal.svelte';
+import RenameImageModal from './image/RenameImageModal.svelte';
 import { ImageUtils } from './image/image-utils';
 import NavPage from './ui/NavPage.svelte';
 import ImageIcon from './images/ImageIcon.svelte';
@@ -22,6 +23,9 @@ import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
 import type { Menu } from '../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../main/src/plugin/menu-registry';
+import Checkbox from './ui/Checkbox.svelte';
+import Button from './ui/Button.svelte';
+import { faArrowCircleDown, faCube, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -37,18 +41,24 @@ function handlePushImageModal(imageInfo: ImageInfoUI) {
   pushImageModal = true;
 }
 
+let renameImageModal = false;
+let renameImageModalImageInfo = undefined;
+function handleRenameImageModal(imageInfo: ImageInfoUI) {
+  renameImageModalImageInfo = imageInfo;
+  renameImageModal = true;
+}
+
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 // number of selected items in the list
-$: selectedItemsNumber = images.filter(image => image.selected).length;
+$: selectedItemsNumber = images.filter(image => !image.inUse).filter(image => image.selected).length;
 
 // do we need to unselect all checkboxes if we don't have all items being selected ?
 $: selectedAllCheckboxes = images.filter(image => !image.inUse).every(image => image.selected);
 
-let allChecked = false;
 const imageUtils = new ImageUtils();
 
 function updateImages() {
@@ -65,7 +75,8 @@ function updateImages() {
       image.selected = matchingImage.selected;
     }
   });
-  images = computedImages.sort((first, second) => second.createdAt - first.createdAt);
+  computedImages.sort((first, second) => second.createdAt - first.createdAt);
+  images = computedImages;
 
   // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
   const engines = images.map(container => {
@@ -128,6 +139,7 @@ onDestroy(() => {
 
 function closeModals() {
   pushImageModal = false;
+  renameImageModal = false;
 }
 
 function gotoBuildImage(): void {
@@ -142,10 +154,10 @@ function openDetailsImage(image: ImageInfoUI) {
   router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/summary`);
 }
 
-function toggleAllImages(value: boolean) {
+function toggleAllImages(checked: boolean) {
   const toggleImages = images;
   // filter out all images used by a container
-  toggleImages.filter(image => !image.inUse).forEach(image => (image.selected = value));
+  toggleImages.filter(image => !image.inUse).forEach(image => (image.selected = checked));
   images = toggleImages;
 }
 
@@ -220,60 +232,38 @@ function computeInterval(): number {
     {#if $imagesInfos.length > 0}
       <Prune type="images" engines="{enginesList}" />
     {/if}
-    <button on:click="{() => gotoPullImage()}" class="pf-c-button pf-m-primary" type="button">
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
-      </span>
+    <Button on:click="{() => gotoPullImage()}" title="Pull Image From a Registry" icon="{faArrowCircleDown}">
       Pull an image
-    </button>
-    <button on:click="{() => gotoBuildImage()}" class="pf-c-button pf-m-primary" type="button">
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-cube" aria-hidden="true"></i>
-      </span>
+    </Button>
+    <Button on:click="{() => gotoBuildImage()}" title="Build Image from Containerfile" icon="{faCube}">
       Build an image
-    </button>
+    </Button>
   </div>
 
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
-      <button
-        class="pf-c-button pf-m-primary"
+      <Button
         on:click="{() => deleteSelectedImages()}"
         title="Delete {selectedItemsNumber} selected items"
-        type="button">
-        <span class="pf-c-button__icon pf-m-start">
-          {#if bulkDeleteInProgress}
-            <div class="mr-4">
-              <i class="pf-c-button__progress">
-                <span class="pf-c-spinner pf-m-md" role="progressbar">
-                  <span class="pf-c-spinner__clipper"></span>
-                  <span class="pf-c-spinner__lead-ball"></span>
-                  <span class="pf-c-spinner__tail-ball"></span>
-                </span>
-              </i>
-            </div>
-          {:else}
-            <i class="fas fa-trash" aria-hidden="true"></i>
-          {/if}
-        </span>
-      </button>
+        bind:inProgress="{bulkDeleteInProgress}"
+        icon="{faTrash}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>
 
-  <div class="min-w-full flex" slot="table">
-    <table class="mx-5 w-full" class:hidden="{images.length === 0}">
+  <div class="flex min-w-full h-full" slot="content">
+    <table class="mx-5 w-full h-fit" class:hidden="{images.length === 0}">
       <!-- title -->
-      <thead>
+      <thead class="sticky top-0 bg-charcoal-700 z-[2]">
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
           <th class="px-2 w-5">
-            <input
-              type="checkbox"
+            <Checkbox
+              title="Toggle all"
+              bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              bind:checked="{allChecked}"
-              on:click="{event => toggleAllImages(event.currentTarget.checked)}"
-              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
+              on:click="{event => toggleAllImages(event.detail)}" />
+          </th>
           <th class="text-center font-extrabold w-10 px-2">status</th>
           <th class="w-10">Name</th>
           <th class="px-6 whitespace-nowrap w-10">age</th>
@@ -281,20 +271,16 @@ function computeInterval(): number {
           <th class="text-right pr-2">Actions</th>
         </tr>
       </thead>
-      <tbody class="">
+      <tbody>
         {#each images as image}
           <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
-              <input
-                type="checkbox"
+              <Checkbox
+                title="Toggle image"
                 bind:checked="{image.selected}"
                 disabled="{image.inUse}"
-                class:cursor-pointer="{!image.inUse}"
-                class:cursor-not-allowed="{image.inUse}"
-                class:opacity-10="{image.inUse}"
-                title="{image.inUse ? 'Image is used by a container' : ''}"
-                class=" invert hue-rotate-[218deg] brightness-75" />
+                disabledTooltip="Image is used by a container" />
             </td>
             <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center content-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
@@ -336,6 +322,7 @@ function computeInterval(): number {
               <ImageActions
                 image="{image}"
                 onPushImage="{handlePushImageModal}"
+                onRenameImage="{handleRenameImageModal}"
                 dropdownMenu="{true}"
                 contributions="{contributedMenus}" />
             </td>
@@ -344,8 +331,7 @@ function computeInterval(): number {
         {/each}
       </tbody>
     </table>
-  </div>
-  <div slot="empty" class="min-h-full">
+
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
@@ -355,6 +341,13 @@ function computeInterval(): number {
     {#if pushImageModal}
       <PushImageModal
         imageInfoToPush="{pushImageModalImageInfo}"
+        closeCallback="{() => {
+          closeModals();
+        }}" />
+    {/if}
+    {#if renameImageModal}
+      <RenameImageModal
+        imageInfoToRename="{renameImageModalImageInfo}"
         closeCallback="{() => {
           closeModals();
         }}" />

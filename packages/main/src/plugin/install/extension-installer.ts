@@ -23,15 +23,18 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { cp } from 'node:fs/promises';
 import * as tarFs from 'tar-fs';
-import type { ExtensionLoader } from '../extension-loader';
-import type { ApiSenderType } from '../api';
-import type { ImageRegistry } from '../image-registry';
+import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
+import type { ApiSenderType } from '../api.js';
+import type { ImageRegistry } from '../image-registry.js';
+import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
+import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
 
 export class ExtensionInstaller {
   constructor(
     private apiSender: ApiSenderType,
     private extensionLoader: ExtensionLoader,
     private imageRegistry: ImageRegistry,
+    private extensionCatalog: ExtensionsCatalog,
   ) {}
 
   async extractExtensionFiles(tmpFolderPath: string, finalFolderPath: string, reportLog: (message: string) => void) {
@@ -92,108 +95,207 @@ export class ExtensionInstaller {
     });
   }
 
+  async analyzeFromImage(
+    sendLog: (message: string) => void,
+    sendError: (message: string) => void,
+    imageName: string,
+  ): Promise<AnalyzedExtension | undefined> {
+    imageName = imageName.trim();
+    sendLog(`Analyzing image ${imageName}...`);
+    let imageConfigLabels;
+    try {
+      imageConfigLabels = await this.imageRegistry.getImageConfigLabels(imageName);
+    } catch (error) {
+      sendError('Error while analyzing image: ' + error);
+      return;
+    }
+
+    if (!imageConfigLabels) {
+      sendError(`Image ${imageName} is not a Podman Desktop Extension. Unable to grab image config labels.`);
+      return;
+    }
+
+    const titleLabel = imageConfigLabels['org.opencontainers.image.title'];
+    const descriptionLabel = imageConfigLabels['org.opencontainers.image.description'];
+    const vendorLabel = imageConfigLabels['org.opencontainers.image.vendor'];
+    const apiVersion = imageConfigLabels['io.podman-desktop.api.version'];
+
+    if (!titleLabel || !descriptionLabel || !vendorLabel || !apiVersion) {
+      sendError(`Image ${imageName} is not a Podman Desktop Extension`);
+      return;
+    }
+
+    // strip the tag (ending with :something) from the image name if any
+    let imageNameWithoutTag: string;
+    if (imageName.includes(':')) {
+      imageNameWithoutTag = imageName.split(':')[0];
+    } else {
+      imageNameWithoutTag = imageName;
+    }
+
+    // remove all special characters from the image name
+    const imageNameWithoutSpecialChars = imageNameWithoutTag.replace(/[^a-zA-Z0-9]/g, '');
+
+    // tmp folder
+    const tmpFolderPath = path.join(os.tmpdir(), `/tmp/${imageNameWithoutSpecialChars}-tmp`);
+
+    // final folder
+    const finalFolderPath = path.join(this.extensionLoader.getPluginsDirectory(), imageNameWithoutSpecialChars);
+
+    // grab all extensions
+    const extensions = await this.extensionLoader.listExtensions();
+
+    // check if the extension is already installed for that path
+    const alreadyInstalledExtension = extensions.find(extension => extension.path === finalFolderPath);
+
+    if (alreadyInstalledExtension) {
+      sendError(`Extension ${alreadyInstalledExtension.name} is already installed`);
+      return;
+    }
+
+    sendLog('Downloading and extract layers...');
+    await this.imageRegistry.downloadAndExtractImage(imageName, tmpFolderPath, sendLog);
+
+    sendLog('Filtering image content...');
+    await this.extractExtensionFiles(tmpFolderPath, finalFolderPath, sendLog);
+
+    let analyzedExtension: AnalyzedExtension | undefined;
+    try {
+      analyzedExtension = await this.extensionLoader.analyzeExtension(finalFolderPath, true);
+    } catch (error) {
+      sendError('Error while analyzing extension: ' + error);
+    }
+    return analyzedExtension;
+  }
+
+  async analyzeTransitiveDependencies(
+    imageName: string,
+    analyzedExtensions: AnalyzedExtension[],
+    errors: string[],
+    sendLog: (message: string) => void,
+    sendError: (message: string) => void,
+  ): Promise<boolean> {
+    const analyzedExtension = await this.analyzeFromImage(sendLog, sendError, imageName);
+
+    if (!analyzedExtension) {
+      return false;
+    }
+
+    analyzedExtensions.push(analyzedExtension);
+
+    const dependencyExtensionIds: string[] = [];
+
+    // do we have extensionPack or extension dependencies
+    if (analyzedExtension?.manifest?.extensionPack) {
+      dependencyExtensionIds.push(...analyzedExtension.manifest.extensionPack);
+    }
+    if (analyzedExtension?.manifest?.extensionDependencies) {
+      dependencyExtensionIds.push(...analyzedExtension.manifest.extensionDependencies);
+    }
+
+    // if we have dependencies, we need to analyze them first if not yet installed
+    if (dependencyExtensionIds.length > 0) {
+      const fetchableExtensions = await this.extensionCatalog.getFetchableExtensions();
+      const alreadyInstalledExtensionIds = (await this.extensionLoader.listExtensions()).map(extension => extension.id);
+
+      // need to analyze extensions that are in dependency minus the one installed or already analyzed
+      const extensionsToAnalyze = dependencyExtensionIds.filter(
+        dependency =>
+          !alreadyInstalledExtensionIds.includes(dependency) ||
+          !analyzedExtensions.find(extension => extension.id === dependency),
+      );
+
+      // check if all dependencies are in the catalog
+      const missingDependencies = extensionsToAnalyze.filter(
+        dependency => !fetchableExtensions.find(extension => extension.extensionId === dependency),
+      );
+      if (missingDependencies.length > 0) {
+        errors.push(
+          `Extension ${
+            analyzedExtension.manifest.name
+          } has missing installable dependencies: ${missingDependencies.join(', ')} from extensionPack attribute.`,
+        );
+        return false;
+      }
+
+      // first, grab name of the OCI image for each extension
+      const imagesOfExtensionsToAnalyze = (
+        extensionsToAnalyze
+          .map(extensionId => {
+            return fetchableExtensions.find(extension => extension.extensionId === extensionId);
+          })
+          .filter(extension => extension !== undefined) as CatalogFetchableExtension[]
+      ).map(extension => extension.link);
+
+      // now analyze all these dependencies
+      for (imageName of imagesOfExtensionsToAnalyze) {
+        try {
+          await this.analyzeTransitiveDependencies(imageName, analyzedExtensions, errors, sendLog, sendError);
+        } catch (error) {
+          errors.push(`Error while analyzing extension ${imageName}: ${error}`);
+        }
+      }
+    }
+    return true;
+  }
+
+  async installFromImage(
+    sendLog: (message: string) => void,
+    sendError: (message: string) => void,
+    sendEnd: (message: string) => void,
+    imageName: string,
+  ): Promise<void> {
+    // now collect all transitive dependencies
+    const analyzedExtensions: AnalyzedExtension[] = [];
+    const errors: string[] = [];
+    const analyzeSuccessful = await this.analyzeTransitiveDependencies(
+      imageName,
+      analyzedExtensions,
+      errors,
+      sendLog,
+      sendError,
+    );
+
+    // if we have some undefined objects, it is an error, cleanup extensions
+    if (errors.length > 0) {
+      analyzedExtensions
+        .filter(extension => extension !== undefined)
+        .forEach(extension => {
+          extension?.path && fs.rmdirSync(extension.path, { recursive: true });
+        });
+      sendError(`Error while installing extension ${imageName}: ${errors.join('\n')}`);
+      return;
+    }
+
+    if (!analyzeSuccessful) {
+      return;
+    }
+
+    // load all extensions
+    await this.extensionLoader.loadExtensions(analyzedExtensions);
+
+    sendEnd('Extension Successfully installed.');
+    this.apiSender.send('extension-started', {});
+  }
+
   async init(): Promise<void> {
     ipcMain.on(
       'extension-installer:install-from-image',
       (event: IpcMainEvent, imageName: string, logCallbackId: number): void => {
-        const reportLog = (message: string): void => {
+        const sendLog = (message: string): void => {
           event.reply('extension-installer:install-from-image-log', logCallbackId, message);
         };
 
-        const handler = async (): Promise<void> => {
-          imageName = imageName.trim();
-          reportLog(`Analyzing image ${imageName}...`);
-          let imageConfigLabels;
-          try {
-            imageConfigLabels = await this.imageRegistry.getImageConfigLabels(imageName);
-          } catch (error) {
-            event.reply(
-              'extension-installer:install-from-image-error',
-              logCallbackId,
-              'Error while analyzing image: ' + error,
-            );
-            return;
-          }
-
-          if (!imageConfigLabels) {
-            event.reply(
-              'extension-installer:install-from-image-error',
-              logCallbackId,
-              `Image ${imageName} is not a Podman Desktop Extension. Unable to grab image config labels.`,
-            );
-            return;
-          }
-
-          const titleLabel = imageConfigLabels['org.opencontainers.image.title'];
-          const descriptionLabel = imageConfigLabels['org.opencontainers.image.description'];
-          const vendorLabel = imageConfigLabels['org.opencontainers.image.vendor'];
-          const apiVersion = imageConfigLabels['io.podman-desktop.api.version'];
-
-          if (!titleLabel || !descriptionLabel || !vendorLabel || !apiVersion) {
-            event.reply(
-              'extension-installer:install-from-image-error',
-              logCallbackId,
-              `Image ${imageName} is not a Podman Desktop Extension`,
-            );
-            return;
-          }
-
-          // strip the tag (ending with :something) from the image name if any
-          let imageNameWithoutTag: string;
-          if (imageName.includes(':')) {
-            imageNameWithoutTag = imageName.split(':')[0];
-          } else {
-            imageNameWithoutTag = imageName;
-          }
-
-          // remove all special characters from the image name
-          const imageNameWithoutSpecialChars = imageNameWithoutTag.replace(/[^a-zA-Z0-9]/g, '');
-
-          // tmp folder
-          const tmpFolderPath = path.join(os.tmpdir(), `/tmp/${imageNameWithoutSpecialChars}-tmp`);
-
-          // final folder
-          const finalFolderPath = path.join(this.extensionLoader.getPluginsDirectory(), imageNameWithoutSpecialChars);
-
-          // grab all extensions
-          const extensions = await this.extensionLoader.listExtensions();
-
-          // check if the extension is already installed for that path
-          const alreadyInstalledExtension = extensions.find(extension => extension.path === finalFolderPath);
-
-          if (alreadyInstalledExtension) {
-            event.reply(
-              'extension-installer:install-from-image-error',
-              logCallbackId,
-              `Extension ${alreadyInstalledExtension.name} is already installed`,
-            );
-            return;
-          }
-
-          reportLog('Downloading and extract layers...');
-          await this.imageRegistry.downloadAndExtractImage(imageName, tmpFolderPath, reportLog);
-
-          event.reply('extension-installer:install-from-image-log', logCallbackId, 'Filtering image content...');
-          await this.extractExtensionFiles(tmpFolderPath, finalFolderPath, reportLog);
-
-          // refresh contributions
-          try {
-            await this.extensionLoader.loadExtension(finalFolderPath, true);
-          } catch (error) {
-            event.reply(
-              'extension-installer:install-from-image-error',
-              logCallbackId,
-              'Error while loading the extension ' + error,
-            );
-            return;
-          }
-
-          event.reply('extension-installer:install-from-image-end', logCallbackId, 'Extension Successfully installed.');
-          this.apiSender.send('extension-started', {});
+        const sendError = (message: string): void => {
+          event.reply('extension-installer:install-from-image-error', logCallbackId, message);
         };
 
-        handler().catch((error: unknown) => {
-          event.reply('extension-installer:install-from-image-error', logCallbackId, error);
+        const sendEnd = (message: string): void => {
+          event.reply('extension-installer:install-from-image-end', logCallbackId, message);
+        };
+
+        this.installFromImage(sendLog, sendError, sendEnd, imageName).catch((error: unknown) => {
+          sendError('' + error);
         });
       },
     );

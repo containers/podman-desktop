@@ -3,9 +3,9 @@ import { runImageInfo } from '../../stores/run-image-store';
 import { onMount } from 'svelte';
 import type { ContainerCreateOptions, HostConfig } from '../../../../main/src/plugin/api/container-info';
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
-import { faFolderOpen, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faFolderOpen, faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { router } from 'tinro';
 import Route from '../../Route.svelte';
@@ -14,12 +14,21 @@ import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { ContainerUtils } from '../container/container-utils';
 import { containersInfos } from '../../stores/containers';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import { splitSpacesHandlingDoubleQuotes } from '../string/string';
+import { array2String } from '/@/lib/string/string.js';
+import Tab from '../ui/Tab.svelte';
+import Button from '../ui/Button.svelte';
+
 let image: ImageInfoUI;
 
 let imageInspectInfo: ImageInspectInfo;
 
 let containerName = '';
 let containerNameError = '';
+
+let command = '';
+
+let entrypoint = '';
 
 let invalidFields = false;
 
@@ -35,13 +44,13 @@ let volumeMounts: { source: string; target: string }[] = [{ source: '', target: 
 let hostContainerPortMappings: { hostPort: string; containerPort: string }[] = [];
 
 // auto remove the container on exit
-let autoRemove: boolean = false;
+let autoRemove = false;
 
 // privileged moade
-let privileged: boolean = false;
+let privileged = false;
 
 // read-only moade
-let readOnly: boolean = false;
+let readOnly = false;
 
 // security options
 let securityOpts: string[] = [''];
@@ -70,7 +79,7 @@ let networkingModeUserNetwork = '';
 let networkingModeUserContainer = '';
 
 // tty
-let useTty: boolean = true;
+let useTty = true;
 
 let runUser: string | undefined = undefined;
 let dataReady = false;
@@ -95,6 +104,18 @@ onMount(async () => {
 
   imageInspectInfo = await window.getImageInspect(image.engineId, image.id);
   exposedPorts = Array.from(Object.keys(imageInspectInfo?.Config?.ExposedPorts || {}));
+
+  command = array2String(imageInspectInfo.Config?.Cmd || []);
+
+  if (imageInspectInfo.Config?.Entrypoint) {
+    if (typeof imageInspectInfo.Config.Entrypoint === 'string') {
+      entrypoint = imageInspectInfo.Config.Entrypoint;
+    } else {
+      entrypoint = array2String(imageInspectInfo.Config.Entrypoint);
+    }
+  } else {
+    entrypoint = '';
+  }
 
   // auto-assign ports from available free port
   containerPortMapping = new Array<string>(exposedPorts.length);
@@ -180,7 +201,7 @@ async function startContainer() {
 
   hostContainerPortMappings
     .filter(pair => pair.hostPort && pair.containerPort)
-    .map(pair => {
+    .forEach(pair => {
       PortBindings[pair.containerPort] = [{ HostPort: pair.hostPort }];
       ExposedPorts[pair.containerPort] = {};
     });
@@ -273,6 +294,12 @@ async function startContainer() {
     ExposedPorts,
     Tty,
   };
+  if (command.trim().length > 0) {
+    options.Cmd = splitSpacesHandlingDoubleQuotes(command);
+  }
+  if (entrypoint.trim().length > 0) {
+    options.Entrypoint = splitSpacesHandlingDoubleQuotes(entrypoint);
+  }
 
   if (runUser) {
     options.User = runUser;
@@ -385,57 +412,22 @@ function checkContainerName(event: any) {
 }
 </script>
 
-<Route path="/*" let:meta>
+<Route path="/*">
   {#if dataReady}
-    <NavPage title="Create a container from image {imageDisplayName}:{image.tag}" searchEnabled="{false}">
-      <div slot="empty" class="bg-zinc-700 p-5 h-full">
+    <FormPage title="Create a container from image {imageDisplayName}:{image.tag}">
+      <svelte:fragment slot="icon">
+        <i class="fas fa-play fa-2x" aria-hidden="true"></i>
+      </svelte:fragment>
+      <div slot="content" class="p-5 min-w-full h-fit">
         <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
-          <section class="pf-c-page__main-tabs pf-m-limit-width">
-            <div class="pf-c-page__main-body">
-              <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
-                <ul class="pf-c-tabs__list">
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/basic`}">
-                    <a
-                      href="/images/run/basic"
-                      class="pf-c-tabs__link"
-                      aria-controls="open-tabs-example-tabs-list-details-panel"
-                      id="open-tabs-example-tabs-list-details-link">
-                      <span class="pf-c-tabs__item-text">Basic</span>
-                    </a>
-                  </li>
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/advanced`}">
-                    <a
-                      href="/images/run/advanced"
-                      class="pf-c-tabs__link"
-                      aria-controls="open-tabs-example-tabs-list-details-panel"
-                      id="open-tabs-example-tabs-list-details-link">
-                      <span class="pf-c-tabs__item-text">Advanced</span>
-                    </a>
-                  </li>
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/networking`}">
-                    <a
-                      href="/images/run/networking"
-                      class="pf-c-tabs__link"
-                      aria-controls="open-tabs-example-tabs-list-yaml-panel"
-                      id="open-tabs-example-tabs-list-yaml-link">
-                      <span class="pf-c-tabs__item-text">Networking</span>
-                    </a>
-                  </li>
-                  <li class="pf-c-tabs__item" class:pf-m-current="{meta.url === `/images/run/security`}">
-                    <a
-                      href="/images/run/security"
-                      class="pf-c-tabs__link"
-                      aria-controls="open-tabs-example-tabs-list-yaml-panel"
-                      id="open-tabs-example-tabs-list-yaml-link">
-                      <span class="pf-c-tabs__item-text">Security</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </section>
+          <div class="flex flex-row px-2 border-b border-charcoal-400">
+            <Tab title="Basic" url="basic" />
+            <Tab title="Advanced" url="advanced" />
+            <Tab title="Networking" url="networking" />
+            <Tab title="Security" url="security" />
+          </div>
           <div>
-            <Route path="/basic" breadcrumb="Basic">
+            <Route path="/basic" breadcrumb="Basic" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                   >Container name:</label>
@@ -450,6 +442,22 @@ function checkContainerName(event: any) {
                     ? 'border-red-500'
                     : 'border-charcoal-800'}" />
                 <ErrorMessage class="h-1 text-sm" error="{containerNameError}" />
+                <label for="modalEntrypoint" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                  >Entrypoint:</label>
+                <input
+                  type="text"
+                  bind:value="{entrypoint}"
+                  name="modalEntrypoint"
+                  id="modalEntrypoint"
+                  class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border border-charcoal-800" />
+                <label for="modalCommand" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                  >Command:</label>
+                <input
+                  type="text"
+                  bind:value="{command}"
+                  name="modalCommand"
+                  id="modalCommand"
+                  class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border border-charcoal-800" />
                 <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                   >Volumes:</label>
                 <!-- Display the list of volumes -->
@@ -505,13 +513,9 @@ function checkContainerName(event: any) {
                   </div>
                 {/each}
 
-                <button
-                  class="pt-3 pb-2 outline-none text-sm rounded-sm bg-transparent placeholder-gray-700"
-                  on:click="{addHostContainerPorts}">
-                  <span class="pf-c-button__icon pf-m-start">
-                    <i class="fas fa-plus-circle"></i>
-                  </span>
-                  Add custom port mapping</button>
+                <Button class="pt-3 pb-2" on:click="{addHostContainerPorts}" icon="{faPlusCircle}" type="link">
+                  Add custom port mapping
+                </Button>
                 <!-- Display the list of existing hostContainerPortMappings -->
                 {#each hostContainerPortMappings as hostContainerPortMapping, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
@@ -566,7 +570,7 @@ function checkContainerName(event: any) {
                 {/each}
               </div>
             </Route>
-            <Route path="/advanced" breadcrumb="Advanced">
+            <Route path="/advanced" breadcrumb="Advanced" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Use tty -->
                 <label for="containerTty" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
@@ -635,7 +639,7 @@ function checkContainerName(event: any) {
               </div>
             </Route>
 
-            <Route path="/security" breadcrumb="Security">
+            <Route path="/security" breadcrumb="Security" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Privileged-->
                 <label for="containerPrivileged" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
@@ -756,7 +760,7 @@ function checkContainerName(event: any) {
               </div>
             </Route>
 
-            <Route path="/networking" breadcrumb="Networking">
+            <Route path="/networking" breadcrumb="Networking" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- hostname-->
                 <label for="containerHostname" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
@@ -885,17 +889,12 @@ function checkContainerName(event: any) {
           </div>
 
           <div class="pt-2 border-zinc-600 border-t-2"></div>
-          <button
-            on:click="{() => startContainer()}"
-            class="w-full pf-c-button pf-m-primary pt-6"
-            disabled="{invalidFields}">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-play" aria-hidden="true"></i>
-            </span>
-            Start Container</button>
+          <Button on:click="{() => startContainer()}" class="w-full" icon="{faPlay}" bind:disabled="{invalidFields}">
+            Start Container
+          </Button>
           <ErrorMessage class="py-2 text-sm" error="{createError}" />
         </div>
       </div>
-    </NavPage>
+    </FormPage>
   {/if}
 </Route>

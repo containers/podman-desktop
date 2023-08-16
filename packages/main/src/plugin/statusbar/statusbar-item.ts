@@ -18,7 +18,7 @@
 
 import type { StatusBarAlignment, StatusBarItem } from '@podman-desktop/api';
 import crypto from 'node:crypto';
-import type { StatusBarRegistry } from './statusbar-registry';
+import type { StatusBarRegistry } from './statusbar-registry.js';
 
 export const StatusBarAlignLeft = 'LEFT';
 export const StatusBarAlignRight = 'RIGHT';

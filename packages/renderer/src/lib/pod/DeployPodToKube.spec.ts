@@ -36,6 +36,7 @@ const kubernetesCreatePodMock = vi.fn();
 const kubernetesCreateIngressMock = vi.fn();
 const kubernetesCreateServiceMock = vi.fn();
 const kubernetesIsAPIGroupSupported = vi.fn();
+const listSimpleContainersByLabelMock = vi.fn();
 
 beforeEach(() => {
   Object.defineProperty(window, 'generatePodmanKube', {
@@ -69,6 +70,9 @@ beforeEach(() => {
   Object.defineProperty(window, 'telemetryTrack', {
     value: telemetryTrackMock,
   });
+  Object.defineProperty(window, 'listSimpleContainersByLabel', {
+    value: listSimpleContainersByLabelMock,
+  });
 
   // podYaml with volumes
   const podYaml = {
@@ -97,6 +101,18 @@ beforeEach(() => {
     },
   };
   generatePodmanKubeMock.mockResolvedValue(jsYaml.dump(podYaml));
+
+  // Mock listSimpleContainersByLabel with a SimpleContainerInfo[] array of 1 container
+  const simpleContainerInfo = {
+    id: '1234',
+    name: 'hello',
+    image: 'hello-world',
+    status: 'running',
+    labels: {
+      'com.docker.compose.project': 'hello',
+    },
+  };
+  listSimpleContainersByLabelMock.mockResolvedValue([simpleContainerInfo]);
 });
 
 afterEach(() => {
@@ -190,6 +206,34 @@ test('When deploying a pod, volumes should not be added (they are deleted by pod
           {
             name: 'hello',
             image: 'hello-world',
+            imagePullPolicy: 'IfNotPresent',
+          },
+        ],
+      },
+    }),
+  );
+});
+
+// Test deploying a compose group of containers
+test('Test deploying a group of compose containers with type compose still functions the same as normal deploy', async () => {
+  await waitRender({ type: 'compose' });
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
+
+  // Press the deploy button
+  await fireEvent.click(createButton);
+
+  // Expect to return the correct create pod yaml
+  await waitFor(() =>
+    expect(kubernetesCreatePodMock).toBeCalledWith('default', {
+      metadata: { name: 'hello' },
+      spec: {
+        containers: [
+          {
+            name: 'hello',
+            image: 'hello-world',
+            imagePullPolicy: 'IfNotPresent',
           },
         ],
       },
@@ -216,6 +260,7 @@ test('When modifying the pod name, metadata.apps.label should also have been cha
           {
             name: 'hello',
             image: 'hello-world',
+            imagePullPolicy: 'IfNotPresent',
           },
         ],
       },
@@ -245,6 +290,7 @@ test('When deploying a pod, restricted security context is added', async () => {
           {
             name: 'hello',
             image: 'hello-world',
+            imagePullPolicy: 'IfNotPresent',
             securityContext: {
               allowPrivilegeEscalation: false,
               capabilities: {
@@ -269,7 +315,7 @@ test('Fail to deploy ingress if service is not selected', async () => {
   expect(createButton).toBeEnabled();
 
   // Checkmark the ingress
-  const checkbox = screen.getByLabelText('Expose service locally using Kubernetes Ingress:');
+  const checkbox = screen.getByLabelText('Expose Service Locally Using Kubernetes Ingress:');
   await fireEvent.click(checkbox);
   expect(checkbox).toHaveProperty('checked', true);
 

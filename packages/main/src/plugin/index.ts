@@ -22,15 +22,15 @@
 import * as os from 'node:os';
 import * as path from 'path';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { CommandRegistry } from './command-registry';
-import { ContainerProviderRegistry } from './container-registry';
-import { ExtensionLoader } from './extension-loader';
-import { TrayMenuRegistry } from './tray-menu-registry';
-import { ProviderRegistry } from './provider-registry';
-import type { IConfigurationPropertyRecordedSchema } from './configuration-registry';
-import { ConfigurationRegistry } from './configuration-registry';
-import { TerminalInit } from './terminal-init';
-import { ImageRegistry } from './image-registry';
+import { CommandRegistry } from './command-registry.js';
+import { ContainerProviderRegistry } from './container-registry.js';
+import { ExtensionLoader } from './extension-loader.js';
+import { TrayMenuRegistry } from './tray-menu-registry.js';
+import { ProviderRegistry } from './provider-registry.js';
+import type { IConfigurationPropertyRecordedSchema } from './configuration-registry.js';
+import { ConfigurationRegistry } from './configuration-registry.js';
+import { TerminalInit } from './terminal-init.js';
+import { ImageRegistry } from './image-registry.js';
 import { EventEmitter } from 'node:events';
 import type {
   PreflightCheckEvent,
@@ -38,68 +38,84 @@ import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
-} from './api/provider-info';
+} from './api/provider-info.js';
 import type { WebContents } from 'electron';
 import { app, ipcMain, BrowserWindow, shell, clipboard } from 'electron';
-import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
-import type { ImageInfo } from './api/image-info';
-import type { PullEvent } from './api/pull-event';
-import type { ExtensionInfo } from './api/extension-info';
-import type { ImageInspectInfo } from './api/image-inspect-info';
-import type { TrayMenu } from '../tray-menu';
-import { getFreePort } from './util/port';
-import { isLinux, isMac } from '../util';
-import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box';
-import { MessageBox } from './message-box';
-import { ProgressImpl } from './progress-impl';
-import type { ContributionInfo } from './api/contribution-info';
-import { ContributionManager } from './contribution-manager';
-import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation';
-import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter';
-import { PAGE_EVENT_TYPE, Telemetry } from './telemetry/telemetry';
-import { NotificationImpl } from './notification-impl';
-import { StatusBarRegistry } from './statusbar/statusbar-registry';
-import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry';
+import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info.js';
+import type { ImageInfo } from './api/image-info.js';
+import type { PullEvent } from './api/pull-event.js';
+import type { ExtensionInfo } from './api/extension-info.js';
+import type { ImageInspectInfo } from './api/image-inspect-info.js';
+import type { TrayMenu } from '../tray-menu.js';
+import { getFreePort } from './util/port.js';
+import { isLinux, isMac } from '../util.js';
+import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
+import { MessageBox } from './message-box.js';
+import { ProgressImpl } from './progress-impl.js';
+import type { ContributionInfo } from './api/contribution-info.js';
+import { ContributionManager } from './contribution-manager.js';
+import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation.js';
+import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter.js';
+import { PAGE_EVENT_TYPE, Telemetry } from './telemetry/telemetry.js';
+import { NotificationImpl } from './notification-impl.js';
+import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
+import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';
 import type { IpcMainInvokeEvent } from 'electron/main';
-import type { ContainerInspectInfo } from './api/container-inspect-info';
-import type { HistoryInfo } from './api/history-info';
-import type { PodInfo, PodInspectInfo } from './api/pod-info';
-import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
-import type { ContainerStatsInfo } from './api/container-stats-info';
+import type { ContainerInspectInfo } from './api/container-inspect-info.js';
+import type { HistoryInfo } from './api/history-info.js';
+import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
+import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
+import type { ContainerStatsInfo } from './api/container-stats-info.js';
 import type {
   PlayKubeInfo,
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
-} from './dockerode/libpod-dockerode';
+} from './dockerode/libpod-dockerode.js';
 import type Dockerode from 'dockerode';
-import { AutostartEngine } from './autostart-engine';
-import { CloseBehavior } from './close-behavior';
-import { TrayIconColor } from './tray-icon-color';
-import { KubernetesClient } from './kubernetes-client';
+import { AutostartEngine } from './autostart-engine.js';
+import { CloseBehavior } from './close-behavior.js';
+import { TrayIconColor } from './tray-icon-color.js';
+import { KubernetesClient } from './kubernetes-client.js';
 import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service, V1Ingress } from '@kubernetes/client-node';
-import type { V1Route } from './api/openshift-types';
-import type { NetworkInspectInfo } from './api/network-info';
-import { FilesystemMonitoring } from './filesystem-monitoring';
-import { Certificates } from './certificates';
-import { Proxy } from './proxy';
-import { EditorInit } from './editor-init';
-import { WelcomeInit } from './welcome/welcome-init';
-import { ExtensionInstaller } from './install/extension-installer';
-import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
-import type { Menu } from '/@/plugin/menu-registry';
-import { MenuRegistry } from '/@/plugin/menu-registry';
-import { CancellationTokenRegistry } from './cancellation-token-registry';
+import type { V1Route } from './api/openshift-types.js';
+import type { NetworkInspectInfo } from './api/network-info.js';
+import { FilesystemMonitoring } from './filesystem-monitoring.js';
+import { Certificates } from './certificates.js';
+import { Proxy } from './proxy.js';
+import { EditorInit } from './editor-init.js';
+import { WelcomeInit } from './welcome/welcome-init.js';
+import { ExtensionInstaller } from './install/extension-installer.js';
+import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
+import type { Menu } from '/@/plugin/menu-registry.js';
+import { MenuRegistry } from '/@/plugin/menu-registry.js';
+import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 import type { UpdateCheckResult } from 'electron-updater';
 import { autoUpdater } from 'electron-updater';
-import type { ApiSenderType } from './api';
-import type { AuthenticationProviderInfo } from './authentication';
-import { AuthenticationImpl } from './authentication';
-import checkDiskSpace from 'check-disk-space';
-import { TaskManager } from '/@/plugin/task-manager';
-import { Featured } from './featured/featured';
-import type { FeaturedExtension } from './featured/featured-api';
-import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog';
-import { securityRestrictionCurrentHandler } from '../security-restrictions-handler';
+import type { ApiSenderType } from './api.js';
+import type { AuthenticationProviderInfo } from './authentication.js';
+import { AuthenticationImpl } from './authentication.js';
+import checkDiskSpacePkg from 'check-disk-space';
+// workaround for ESM
+const checkDiskSpace: (path: string) => Promise<{ free: number }> = checkDiskSpacePkg as unknown as (
+  path: string,
+) => Promise<{ free: number }>;
+import { TaskManager } from '/@/plugin/task-manager.js';
+import { Featured } from './featured/featured.js';
+import type { FeaturedExtension } from './featured/featured-api.js';
+import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog.js';
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
+import { ExtensionsUpdater } from './extensions-updater/extensions-updater.js';
+import type { CatalogExtension } from './extensions-catalog/extensions-catalog-api.js';
+import { IconRegistry } from './icon-registry.js';
+import type { IconInfo } from './api/icon-info.js';
+import { Directories } from './directories.js';
+import { CustomPickRegistry } from './custompick/custompick-registry.js';
+import { ViewRegistry } from './view-registry.js';
+import type { ViewInfoUI } from './api/view-info.js';
+import { Context } from './context/context.js';
+import { OnboardingRegistry } from './onboarding-registry.js';
+import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
+import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -182,7 +198,7 @@ export class PluginSystem {
     const currentExtList = await this.extensionLoader.listExtensions();
 
     //Only loop through if list of extensions is different than last time
-    if (this.validExtList != currentExtList) {
+    if (this.validExtList !== currentExtList) {
       this.validExtList = currentExtList;
       //start setting path => name
       this.validExtList.forEach((extInfo: ExtensionInfo) => {
@@ -198,7 +214,7 @@ export class PluginSystem {
         if (stack.includes(extPath)) toAppend = name;
       });
 
-      if (toAppend != '') return `[${toAppend}]`;
+      if (toAppend !== '') return `[${toAppend}]`;
     }
   }
 
@@ -268,6 +284,7 @@ export class PluginSystem {
           // add to the queue
           queuedEvents.push({ channel, data });
         }
+        eventEmitter.emit(channel, data);
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       receive: (channel: string, func: any) => {
@@ -336,7 +353,10 @@ export class PluginSystem {
     // init api sender
     const apiSender = this.getApiSender(this.getWebContentsSender());
 
-    const configurationRegistry = new ConfigurationRegistry();
+    const iconRegistry = new IconRegistry(apiSender);
+    const directories = new Directories();
+
+    const configurationRegistry = new ConfigurationRegistry(directories);
     configurationRegistry.init();
 
     const telemetry = new Telemetry(configurationRegistry);
@@ -350,6 +370,8 @@ export class PluginSystem {
     const certificates = new Certificates();
     await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
+    const viewRegistry = new ViewRegistry();
+    const context = new Context(apiSender);
     const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
     const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
@@ -357,7 +379,8 @@ export class PluginSystem {
     const statusBarRegistry = new StatusBarRegistry(apiSender);
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
-
+    const customPickRegistry = new CustomPickRegistry(apiSender);
+    const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
@@ -391,6 +414,19 @@ export class PluginSystem {
       'show-task-manager',
       undefined,
     );
+
+    statusBarRegistry.setEntry(
+      'troubleshooting',
+      false,
+      0,
+      undefined,
+      'Troubleshooting',
+      'fa fa-lightbulb',
+      true,
+      'troubleshooting',
+      undefined,
+    );
+
     commandRegistry.registerCommand('show-task-manager', () => {
       apiSender.send('toggle-task-manager', '');
     });
@@ -594,6 +630,10 @@ export class PluginSystem {
       apiSender.send('display-help', '');
     });
 
+    commandRegistry.registerCommand('troubleshooting', () => {
+      apiSender.send('display-troubleshooting', '');
+    });
+
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
 
@@ -604,6 +644,10 @@ export class PluginSystem {
     // init welcome configuration
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
+
+    // init onboarding configuration
+    const onboardingUtils = new OnboardingUtils(configurationRegistry);
+    onboardingUtils.init();
 
     const messageBox = new MessageBox(apiSender);
 
@@ -628,8 +672,14 @@ export class PluginSystem {
       proxy,
       containerProviderRegistry,
       inputQuickPickRegistry,
+      customPickRegistry,
       authentication,
+      iconRegistry,
+      onboardingRegistry,
       telemetry,
+      viewRegistry,
+      context,
+      directories,
     );
     await this.extensionLoader.init();
 
@@ -643,10 +693,18 @@ export class PluginSystem {
     // setup security restrictions on links
     await this.setupSecurityRestrictionsOnLinks(messageBox);
 
-    const contributionManager = new ContributionManager(apiSender);
+    const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
     });
+
+    this.ipcHandle(
+      'container-provider-registry:listSimpleContainersByLabel',
+      async (_listener, label: string, key: string): Promise<SimpleContainerInfo[]> => {
+        return containerProviderRegistry.listSimpleContainersByLabel(label, key);
+      },
+    );
+
     this.ipcHandle('container-provider-registry:listSimpleContainers', async (): Promise<SimpleContainerInfo[]> => {
       return containerProviderRegistry.listSimpleContainers();
     });
@@ -662,6 +720,28 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listVolumes', async (): Promise<VolumeListInfo[]> => {
       return containerProviderRegistry.listVolumes();
     });
+
+    this.ipcHandle('container-provider-registry:reconnectContainerProviders', async (): Promise<void> => {
+      return containerProviderRegistry.reconnectContainerProviders();
+    });
+
+    this.ipcHandle(
+      'container-provider-registry:pingContainerEngine',
+      async (_listener, providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<unknown> => {
+        return containerProviderRegistry.pingContainerEngine(providerContainerConnectionInfo);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:listContainersFromEngine',
+      async (
+        _listener,
+        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      ): Promise<{ Id: string; Names: string[] }[]> => {
+        return containerProviderRegistry.listContainersFromEngine(providerContainerConnectionInfo);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:pruneVolumes',
       async (_listener, engine: string): Promise<Dockerode.PruneVolumesInfo> => {
@@ -770,6 +850,12 @@ export class PluginSystem {
       },
     );
     this.ipcHandle(
+      'container-provider-registry:tagImage',
+      async (_listener, engine: string, imageTag: string, repo: string, tag?: string): Promise<void> => {
+        return containerProviderRegistry.tagImage(engine, imageTag, repo, tag);
+      },
+    );
+    this.ipcHandle(
       'container-provider-registry:getImageInspect',
       async (_listener, engine: string, imageId: string): Promise<ImageInspectInfo> => {
         return containerProviderRegistry.getImageInspect(engine, imageId);
@@ -830,6 +916,35 @@ export class PluginSystem {
         return containerProviderRegistry.restartContainer(engine, containerId);
       },
     );
+
+    this.ipcHandle(
+      'container-provider-registry:restartContainersByLabel',
+      async (_listener, engine: string, label: string, key: string): Promise<void> => {
+        return containerProviderRegistry.restartContainersByLabel(engine, label, key);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:startContainersByLabel',
+      async (_listener, engine: string, label: string, key: string): Promise<void> => {
+        return containerProviderRegistry.startContainersByLabel(engine, label, key);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:stopContainersByLabel',
+      async (_listener, engine: string, label: string, key: string): Promise<void> => {
+        return containerProviderRegistry.stopContainersByLabel(engine, label, key);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:deleteContainersByLabel',
+      async (_listener, engine: string, label: string, key: string): Promise<void> => {
+        return containerProviderRegistry.deleteContainersByLabel(engine, label, key);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:createAndStartContainer',
       async (_listener, engine: string, options: ContainerCreateOptions): Promise<void> => {
@@ -1042,11 +1157,11 @@ export class PluginSystem {
         _listener,
         providerId: string,
         callbackId: number,
-        containerConnectionInfo?: ProviderContainerConnectionInfo,
+        connectionInfo?: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       ): Promise<void> => {
         let context;
-        if (containerConnectionInfo) {
-          context = providerRegistry.getMatchingContainerLifecycleContext(providerId, containerConnectionInfo);
+        if (connectionInfo) {
+          context = providerRegistry.getMatchingConnectionLifecycleContext(providerId, connectionInfo);
         } else {
           context = providerRegistry.getMatchingLifecycleContext(providerId);
         }
@@ -1069,11 +1184,11 @@ export class PluginSystem {
       async (
         _listener,
         providerId: string,
-        containerConnectionInfo?: ProviderContainerConnectionInfo,
+        connectionInfo?: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       ): Promise<void> => {
         let context;
-        if (containerConnectionInfo) {
-          context = providerRegistry.getMatchingContainerLifecycleContext(providerId, containerConnectionInfo);
+        if (connectionInfo) {
+          context = providerRegistry.getMatchingConnectionLifecycleContext(providerId, connectionInfo);
         } else {
           context = providerRegistry.getMatchingLifecycleContext(providerId);
         }
@@ -1115,6 +1230,14 @@ export class PluginSystem {
       return messageBox.onDidSelectButton(id, index);
     });
 
+    this.ipcHandle('customPick:values', async (_listener, id: number, indexes: number[]): Promise<void> => {
+      return customPickRegistry.onConfirmSelection(id, indexes);
+    });
+
+    this.ipcHandle('customPick:close', async (_listener, id: number): Promise<void> => {
+      return customPickRegistry.onClose(id);
+    });
+
     this.ipcHandle('image-registry:getRegistries', async (): Promise<readonly containerDesktopAPI.Registry[]> => {
       return imageRegistry.getRegistries();
     });
@@ -1147,6 +1270,18 @@ export class PluginSystem {
       'image-registry:unregisterRegistry',
       async (_listener, registry: containerDesktopAPI.Registry): Promise<void> => {
         return imageRegistry.unregisterRegistry(registry);
+      },
+    );
+
+    // Check credentials for a registry
+    this.ipcHandle(
+      'image-registry:checkCredentials',
+      async (_listener, registryCreateOptions: containerDesktopAPI.RegistryCreateOptions): Promise<void> => {
+        return imageRegistry.checkCredentials(
+          registryCreateOptions.serverUrl,
+          registryCreateOptions.username,
+          registryCreateOptions.secret,
+        );
       },
     );
 
@@ -1234,6 +1369,10 @@ export class PluginSystem {
       return featured.getFeaturedExtensions();
     });
 
+    this.ipcHandle('catalog:getExtensions', async (): Promise<CatalogExtension[]> => {
+      return extensionsCatalog.getExtensions();
+    });
+
     this.ipcHandle(
       'extension-loader:deactivateExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
@@ -1244,6 +1383,12 @@ export class PluginSystem {
       'extension-loader:startExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
         return this.extensionLoader.startExtension(extensionId);
+      },
+    );
+    this.ipcHandle(
+      'extension-updater:updateExtension',
+      async (_listener: Electron.IpcMainInvokeEvent, extensionId: string, ociUri: string): Promise<void> => {
+        return extensionsUpdater.updateExtension(extensionId, ociUri);
       },
     );
     this.ipcHandle(
@@ -1384,6 +1529,17 @@ export class PluginSystem {
         } finally {
           logger.onEnd();
         }
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:auditConnectionParameters',
+      async (
+        _listener: Electron.IpcMainInvokeEvent,
+        internalProviderId: string,
+        params: containerDesktopAPI.AuditRequestItems,
+      ): Promise<containerDesktopAPI.AuditResult> => {
+        return await providerRegistry.auditConnectionParameters(internalProviderId, params);
       },
     );
 
@@ -1532,6 +1688,18 @@ export class PluginSystem {
       return app.getVersion();
     });
 
+    this.ipcHandle('iconRegistry:listIcons', async (): Promise<IconInfo[]> => {
+      return iconRegistry.listIcons();
+    });
+
+    this.ipcHandle('viewRegistry:listViewsContributions', async (_listener): Promise<ViewInfoUI[]> => {
+      return viewRegistry.listViewsContributions();
+    });
+
+    this.ipcHandle('viewRegistry:fetchViewsContributions', async (_listener, id: string): Promise<ViewInfoUI[]> => {
+      return viewRegistry.fetchViewsContributions(id);
+    });
+
     this.ipcHandle('window:minimize', async (): Promise<void> => {
       const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
       if (!window) {
@@ -1560,18 +1728,55 @@ export class PluginSystem {
       window.close();
     });
 
+    this.ipcHandle('onboardingRegistry:listOnboarding', async (): Promise<OnboardingInfo[]> => {
+      return onboardingRegistry.listOnboarding();
+    });
+
+    this.ipcHandle(
+      'onboardingRegistry:getOnboarding',
+      async (_listener, extension: string): Promise<OnboardingInfo | undefined> => {
+        return onboardingRegistry.getOnboarding(extension);
+      },
+    );
+
+    this.ipcHandle(
+      'onboardingRegistry:updateStepState',
+      async (_listener, status: OnboardingStatus, extension: string, stepId?: string): Promise<void> => {
+        return onboardingRegistry.updateStepState(status, extension, stepId);
+      },
+    );
+
+    this.ipcHandle('onboardingRegistry:resetOnboarding', async (_listener, extensions: string[]): Promise<void> => {
+      return onboardingRegistry.resetOnboarding(extensions);
+    });
+
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,
       contributionManager,
+      directories,
     );
     await dockerDesktopInstallation.init();
 
-    const dockerExtensionAdapter = new DockerPluginAdapter(contributionManager);
+    const dockerExtensionAdapter = new DockerPluginAdapter(contributionManager, containerProviderRegistry);
     dockerExtensionAdapter.init();
 
-    const extensionInstaller = new ExtensionInstaller(apiSender, this.extensionLoader, imageRegistry);
+    const extensionInstaller = new ExtensionInstaller(
+      apiSender,
+      this.extensionLoader,
+      imageRegistry,
+      extensionsCatalog,
+    );
     await extensionInstaller.init();
+
+    // launch the updater
+    const extensionsUpdater = new ExtensionsUpdater(
+      extensionsCatalog,
+      this.extensionLoader,
+      configurationRegistry,
+      extensionInstaller,
+      telemetry,
+    );
 
     await contributionManager.init();
 
@@ -1586,6 +1791,7 @@ export class PluginSystem {
       apiSender.send('extensions-started');
       this.markAsExtensionsStarted();
     }
+    extensionsUpdater.init().catch((err: unknown) => console.error('Unable to perform extension updates', err));
     autoStartConfiguration.start().catch((err: unknown) => console.error('Unable to perform autostart', err));
     return this.extensionLoader;
   }

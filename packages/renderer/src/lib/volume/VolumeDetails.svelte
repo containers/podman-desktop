@@ -9,16 +9,19 @@ import VolumeActions from './VolumeActions.svelte';
 import { VolumeUtils } from './volume-utils';
 import VolumeDetailsSummary from '././VolumeDetailsSummary.svelte';
 import VolumeDetailsInspect from './VolumeDetailsInspect.svelte';
-import DetailsTab from '../ui/DetailsTab.svelte';
+import DetailsPage from '../ui/DetailsPage.svelte';
+import Tab from '../ui/Tab.svelte';
 
 export let volumeName: string;
 export let engineId: string;
 
 let volume: VolumeInfoUI;
+let detailsPage: DetailsPage;
+
 onMount(() => {
   const volumeUtils = new VolumeUtils();
   // loading volume info
-  volumeListInfos.subscribe(volumes => {
+  return volumeListInfos.subscribe(volumes => {
     const allVolumes = volumes.map(volumeListInfo => volumeListInfo.Volumes).flat();
     const matchingVolume = allVolumes.find(volume => volume.Name === volumeName && volume.engineId === engineId);
     if (matchingVolume) {
@@ -27,61 +30,29 @@ onMount(() => {
       } catch (err) {
         console.error(err);
       }
+    } else if (detailsPage) {
+      // the volume has been deleted
+      detailsPage.close();
     }
   });
 });
 </script>
 
 {#if volume}
-  <Route path="/*">
-    <div class="w-full h-full">
-      <div class="flex h-full flex-col">
-        <div class="flex w-full flex-row">
-          <div class="w-full px-5 pt-5">
-            <div class="flex flew-row items-center">
-              <a class="text-violet-400 text-base hover:no-underline" href="/volumes" title="Go back to volumes list"
-                >Volumes</a>
-              <div class="text-xl mx-2 text-gray-700">></div>
-              <div class="text-sm font-extralight text-gray-700">Volume Details</div>
-            </div>
-            <div class="text-lg flex flex-row items-start pt-1">
-              <div class="pr-3 pt-1">
-                <StatusIcon icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
-              </div>
-              <div class="text-lg flex flex-col">
-                <div class="mr-2">{volume.shortName}</div>
-                <div class="mr-2 pb-4 text-small text-gray-900">{volume.humanSize}</div>
-              </div>
-            </div>
-
-            <section class="pf-c-page__main-tabs pf-m-limit-width">
-              <div class="pf-c-page__main-body">
-                <div class="pf-c-tabs pf-m-page-insets" id="open-tabs-example-tabs-list">
-                  <ul class="pf-c-tabs__list">
-                    <DetailsTab title="Summary" url="summary" />
-                    <DetailsTab title="Inspect" url="inspect" />
-                  </ul>
-                </div>
-              </div>
-            </section>
-          </div>
-          <div class="flex flex-col px-5 pt-5">
-            <div class="flex justify-end">
-              <VolumeActions volume="{volume}" detailed="{true}" />
-            </div>
-          </div>
-          <a href="/containers" title="Close Details" class="mt-2 mr-2 text-gray-900"
-            ><i class="fas fa-times" aria-hidden="true"></i></a>
-        </div>
-        <div class="h-full bg-charcoal-900">
-          <Route path="/summary" breadcrumb="Summary">
-            <VolumeDetailsSummary volume="{volume}" />
-          </Route>
-          <Route path="/inspect" breadcrumb="Inspect">
-            <VolumeDetailsInspect volume="{volume}" />
-          </Route>
-        </div>
-      </div>
-    </div>
-  </Route>
+  <DetailsPage title="{volume.shortName}" subtitle="{volume.humanSize}" bind:this="{detailsPage}">
+    <StatusIcon slot="icon" icon="{VolumeIcon}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
+    <VolumeActions slot="actions" volume="{volume}" detailed="{true}" />
+    <svelte:fragment slot="tabs">
+      <Tab title="Summary" url="summary" />
+      <Tab title="Inspect" url="inspect" />
+    </svelte:fragment>
+    <svelte:fragment slot="content">
+      <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
+        <VolumeDetailsSummary volume="{volume}" />
+      </Route>
+      <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
+        <VolumeDetailsInspect volume="{volume}" />
+      </Route>
+    </svelte:fragment>
+  </DetailsPage>
 {/if}

@@ -18,24 +18,24 @@
 
 import Analytics from 'analytics-node';
 import { app } from 'electron';
-import { Identity } from './identity';
+import { Identity } from './identity.js';
 import * as os from 'node:os';
 import type { LinuxOs } from 'getos';
 import getos from 'getos';
 import * as osLocale from 'os-locale';
 import { promisify } from 'node:util';
-import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry';
-import { TelemetrySettings } from './telemetry-settings';
-import type { Event } from '../events/emitter';
-import { Emitter } from '../events/emitter';
+import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry.js';
+import { TelemetrySettings } from './telemetry-settings.js';
+import type { Event } from '../events/emitter.js';
+import { Emitter } from '../events/emitter.js';
 import type {
   TelemetryLogger,
   TelemetryLoggerOptions,
   TelemetrySender,
   TelemetryTrustedValue,
 } from '@podman-desktop/api';
-import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry';
-import { stoppedExtensions } from '../../util';
+import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry.js';
+import { stoppedExtensions } from '../../util.js';
 
 export const TRACK_EVENT_TYPE = 'track';
 export const PAGE_EVENT_TYPE = 'page';
@@ -118,10 +118,12 @@ export class Telemetry {
       },
     });
 
-    // needs to prompt the user for the first time he launches the app
     if (check) {
+      // the user has been prompted, either configure the telemetry system or disable it based on their preference
       if (this.isTelemetryEnabled()) {
-        await this.configureTelemetry();
+        this.configureTelemetry().catch((err: unknown) => {
+          console.error(`Error initializing telemetry: ${err}`);
+        });
       } else {
         this.telemetryInitialized = true;
 

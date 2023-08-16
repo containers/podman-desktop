@@ -16,32 +16,34 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 import type { IConfigurationPropertyRecordedSchema } from '../../../main/src/plugin/configuration-registry';
+import { EventStore } from './event-store';
 
-export async function fetchConfigurationProperties() {
+const windowEvents = ['extensions-started', 'extension-started', 'extension-stopped'];
+const windowListeners = ['system-ready', 'extensions-already-started'];
+
+export async function checkForUpdate(): Promise<boolean> {
+  return true;
+}
+
+export const configurationProperties: Writable<IConfigurationPropertyRecordedSchema[]> = writable([]);
+
+const eventStore = new EventStore<IConfigurationPropertyRecordedSchema[]>(
+  'config',
+  configurationProperties,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  fetchConfigurationProperties,
+);
+eventStore.setup();
+
+export async function fetchConfigurationProperties(): Promise<IConfigurationPropertyRecordedSchema[]> {
   const result: Record<string, IConfigurationPropertyRecordedSchema> = await window.getConfigurationProperties();
   const properties: IConfigurationPropertyRecordedSchema[] = [];
   for (const key in result) {
     properties.push(result[key]);
   }
-  configurationProperties.set(properties);
+  return properties;
 }
-
-export const configurationProperties: Writable<IConfigurationPropertyRecordedSchema[]> = writable([]);
-
-window.events?.receive('extensions-started', async () => {
-  await fetchConfigurationProperties();
-});
-window.events?.receive('extension-started', async () => {
-  await fetchConfigurationProperties();
-});
-window.events?.receive('extension-stopped', async () => {
-  await fetchConfigurationProperties();
-});
-window.addEventListener('system-ready', () => {
-  fetchConfigurationProperties().catch((error: unknown) => {
-    console.error('Failed to fetch configuration properties', error);
-  });
-});

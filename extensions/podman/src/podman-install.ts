@@ -29,6 +29,7 @@ import { getAssetsFolder, runCliCommand } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
+import { isUserModeNetworkingSupported, USER_MODE_NETWORKING_SUPPORTED_KEY } from './extension';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -128,6 +129,10 @@ export class PodmanInstall {
       // write podman version
       if (newInstalledPodman) {
         this.podmanInfo.podmanVersion = newInstalledPodman.version;
+        extensionApi.context.setValue(
+          USER_MODE_NETWORKING_SUPPORTED_KEY,
+          isUserModeNetworkingSupported(newInstalledPodman.version),
+        );
       }
       // update detections checks
       provider.updateDetectionChecks(getDetectionChecks(newInstalledPodman));
@@ -173,6 +178,10 @@ export class PodmanInstall {
         provider.updateDetectionChecks(getDetectionChecks(installedPodman));
         provider.updateVersion(updateInfo.bundledVersion);
         this.podmanInfo.ignoreVersionUpdate = undefined;
+        extensionApi.context.setValue(
+          USER_MODE_NETWORKING_SUPPORTED_KEY,
+          isUserModeNetworkingSupported(updateInfo.bundledVersion),
+        );
       } else if (answer === 'Ignore') {
         this.podmanInfo.ignoreVersionUpdate = updateInfo.bundledVersion;
       }
@@ -247,7 +256,7 @@ abstract class BaseInstaller implements Installer {
   }
 }
 
-class WinInstaller extends BaseInstaller {
+export class WinInstaller extends BaseInstaller {
   getUpdatePreflightChecks(): extensionApi.InstallCheck[] {
     return [];
   }
@@ -272,11 +281,14 @@ class WinInstaller extends BaseInstaller {
       try {
         if (fs.existsSync(setupPath)) {
           const runResult = await runCliCommand(setupPath, ['/install', '/norestart']);
-          if (runResult.exitCode !== 0) {
-            throw new Error(runResult.stdErr);
+          //check if user cancelled installation see https://learn.microsoft.com/en-us/previous-versions//aa368542(v=vs.85)
+          if (runResult.exitCode !== 1602) {
+            if (runResult.exitCode !== 0) {
+              throw new Error(runResult.stdErr);
+            }
+            progress.report({ increment: 80 });
+            extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
           }
-          progress.report({ increment: 80 });
-          extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
           return true;
         } else {
           throw new Error(`Can't find Podman setup package! Path: ${setupPath} doesn't exists.`);

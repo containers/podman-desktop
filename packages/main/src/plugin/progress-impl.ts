@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type * as extensionApi from '@podman-desktop/api';
-import { findWindow } from '../util';
-import { CancellationTokenImpl } from './cancellation-token';
-import type { TaskManager } from '/@/plugin/task-manager';
+import { findWindow } from '../util.js';
+import { CancellationTokenImpl } from './cancellation-token.js';
+import type { TaskManager } from '/@/plugin/task-manager.js';
 
 export enum ProgressLocation {
   /**
@@ -42,7 +42,7 @@ export class ProgressImpl {
       token: extensionApi.CancellationToken,
     ) => Promise<R>,
   ): Promise<R> {
-    if (options.location == ProgressLocation.APP_ICON) {
+    if (options.location === ProgressLocation.APP_ICON) {
       return this.withApplicationIcon(options, task);
     } else {
       return this.withWidget(options, task);

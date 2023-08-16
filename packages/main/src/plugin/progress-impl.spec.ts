@@ -19,9 +19,9 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { ApiSenderType } from './api';
-import { ProgressImpl, ProgressLocation } from './progress-impl';
-import { TaskManager } from './task-manager';
+import type { ApiSenderType } from './api.js';
+import { ProgressImpl, ProgressLocation } from './progress-impl.js';
+import { TaskManager } from './task-manager.js';
 
 const apiSenderSendMock = vi.fn();
 

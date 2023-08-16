@@ -17,17 +17,17 @@ import PodActions from './PodActions.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
 import moment from 'moment';
 import Tooltip from '../ui/Tooltip.svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import Prune from '../engine/Prune.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Checkbox from '../ui/Checkbox.svelte';
+import Button from '../ui/Button.svelte';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let pods: PodInfoUI[] = [];
-let multipleEngines = false;
 let enginesList: EngineInfoUI[];
 
 $: providerConnections = $providerInfos
@@ -48,8 +48,6 @@ $: selectedItemsNumber = pods.filter(pod => pod.selected).length;
 // do we need to unselect all checkboxes if we don't have all items being selected ?
 $: selectedAllCheckboxes = pods.every(pod => pod.selected);
 
-let allChecked = false;
-
 const podUtils = new PodUtils();
 
 let podsUnsubscribe: Unsubscriber;
@@ -66,18 +64,8 @@ onMount(async () => {
     });
 
     // Remove duplicates from engines by name
-    const uniqueEngines = engines.filter(
-      (engine, index, self) => index === self.findIndex(t => t.name === engine.name),
-    );
-
-    if (uniqueEngines.length > 1) {
-      multipleEngines = true;
-    } else {
-      multipleEngines = false;
-    }
-
     // Set the engines to the global variable for the Prune functionality button
-    enginesList = uniqueEngines;
+    enginesList = engines.filter((engine, index, self) => index === self.findIndex(t => t.name === engine.name));
 
     // update selected items based on current selected items
     computedPods.forEach(pod => {
@@ -105,10 +93,9 @@ onDestroy(() => {
   }
 });
 
-function toggleAllPods(value: boolean) {
+function toggleAllPods(checked: boolean) {
   const togglePods = pods;
-  // filter out all images used by a container
-  togglePods.forEach(pod => (pod.selected = value));
+  togglePods.forEach(pod => (pod.selected = checked));
   pods = togglePods;
 }
 
@@ -221,59 +208,40 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
 
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
-      <button
-        class="pf-c-button pf-m-primary"
+      <Button
         on:click="{() => deleteSelectedPods()}"
         title="Delete {selectedItemsNumber} selected items"
-        type="button">
-        <span class="pf-c-button__icon pf-m-start">
-          {#if bulkDeleteInProgress}
-            <div class="mr-4">
-              <i class="pf-c-button__progress">
-                <span class="pf-c-spinner pf-m-md" role="progressbar">
-                  <span class="pf-c-spinner__clipper"></span>
-                  <span class="pf-c-spinner__lead-ball"></span>
-                  <span class="pf-c-spinner__tail-ball"></span>
-                </span>
-              </i>
-            </div>
-          {:else}
-            <i class="fas fa-trash" aria-hidden="true"></i>
-          {/if}
-        </span>
-      </button>
+        inProgress="{bulkDeleteInProgress}"
+        icon="{faTrash}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>
 
-  <div class="min-w-full flex" slot="table">
-    <table class="mx-5 w-full" class:hidden="{pods.length === 0}">
+  <div class="flex min-w-full h-full" slot="content">
+    <table class="mx-5 w-full h-fit" class:hidden="{pods.length === 0}">
       <!-- title -->
-      <thead>
+      <thead class="sticky top-0 bg-charcoal-700 z-[2]">
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5"
-            ><input
-              type="checkbox"
+          <th class="px-2 w-5">
+            <Checkbox
+              title="Toggle all"
+              bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              bind:checked="{allChecked}"
-              on:click="{event => toggleAllPods(event.currentTarget.checked)}"
-              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
+              on:click="{checked => toggleAllPods(checked.detail)}" />
+          </th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
           <th class="whitespace-nowrap px-6">age</th>
           <th class="text-right pr-2">Actions</th>
         </tr>
       </thead>
-      <tbody class="">
+      <tbody>
         {#each pods as pod}
           <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
-              <input
-                type="checkbox"
-                bind:checked="{pod.selected}"
-                class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+              <Checkbox title="Toggle pod" bind:checked="{pod.selected}" />
             </td>
             <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
@@ -296,12 +264,11 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                     </div>
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-900">
-                    <!-- Hide in case of single engine-->
-                    {#if multipleEngines}
-                      <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
-                        {pod.engineName}
-                      </div>
-                    {/if}
+                    <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
+                      {pod.engineName}{#if pod.kind === 'kubernetes'}<div class="ml-1">
+                          <Tooltip tip="{pod.engineId}" top>{pod.engineId.substring(0, 16)}</Tooltip>
+                        </div>{/if}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -335,9 +302,8 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
         {/each}
       </tbody>
     </table>
-  </div>
-  <div slot="empty" class="min-h-full">
-    {#if providerConnections.length === 0}
+
+    {#if $filtered.length === 0 && providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
       <PodEmptyScreen />

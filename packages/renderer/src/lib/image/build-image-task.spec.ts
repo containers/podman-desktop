@@ -51,18 +51,35 @@ test('check reconnect', async () => {
   const firstKey = startBuild('foo', dummyCallback);
 
   // stream some stuff
-  eventCollect(firstKey, 'stream', 'hello');
-  eventCollect(firstKey, 'stream', 'world');
+  eventCollect(firstKey.buildImageKey, 'stream', 'hello');
+  eventCollect(firstKey.buildImageKey, 'stream', 'world');
 
-  disconnectUI(firstKey);
+  disconnectUI(firstKey.buildImageKey);
 
   // send event while there is no UI connected
-  eventCollect(firstKey, 'stream', 'during disconnect');
-  eventCollect(firstKey, 'finish', '');
+  eventCollect(firstKey.buildImageKey, 'stream', 'during disconnect');
+  eventCollect(firstKey.buildImageKey, 'finish', '');
 
-  reconnectUI(firstKey, newCallback);
+  reconnectUI(firstKey.buildImageKey, newCallback);
 
   // check that we've replayed everything (including events that happened while there was no UI connected)
   expect(newCallback.onStream).toHaveBeenCalledWith('hello\rworld\rduring disconnect\r');
   expect(newCallback.onEnd).toHaveBeenCalledTimes(1);
+});
+
+// If we error, then we should be able to see the error displayed
+test('check error', async () => {
+  const dummyCallback: BuildImageCallback = {
+    onStream: vi.fn(),
+    onError: vi.fn(),
+    onEnd: vi.fn(),
+  };
+
+  const key = startBuild('foo', dummyCallback);
+
+  eventCollect(key.buildImageKey, 'stream', 'hello');
+  eventCollect(key.buildImageKey, 'error', 'world');
+
+  expect(dummyCallback.onStream).toHaveBeenCalledWith('hello');
+  expect(dummyCallback.onError).toHaveBeenCalledWith('world');
 });

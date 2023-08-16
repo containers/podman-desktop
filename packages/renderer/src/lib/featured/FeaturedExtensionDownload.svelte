@@ -1,7 +1,6 @@
 <script lang="ts">
 import type { FeaturedExtension } from '../../../../main/src/plugin/featured/featured-api';
-import { faCheckCircle, faDownload } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import LoadingIcon from '../ui/LoadingIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 

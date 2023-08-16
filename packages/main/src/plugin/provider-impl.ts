@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Disposable } from './types/disposable';
-import type { IDisposable } from './types/disposable';
-import type { ContainerProviderRegistry } from './container-registry';
+import { Disposable } from './types/disposable.js';
+import type { IDisposable } from './types/disposable.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
 
 import type {
   ContainerProviderConnection,
@@ -38,9 +38,10 @@ import type {
   ProviderAutostart,
   KubernetesProviderConnectionFactory,
   ProviderInformation,
+  Auditor,
 } from '@podman-desktop/api';
-import type { ProviderRegistry } from './provider-registry';
-import { Emitter } from './events/emitter';
+import type { ProviderRegistry } from './provider-registry.js';
+import { Emitter } from './events/emitter.js';
 
 export class ProviderImpl implements Provider, IDisposable {
   private containerProviderConnections: Set<ContainerProviderConnection>;
@@ -49,6 +50,8 @@ export class ProviderImpl implements Provider, IDisposable {
   // optional factory
   private _containerProviderConnectionFactory: ContainerProviderConnectionFactory | undefined = undefined;
   private _kubernetesProviderConnectionFactory: KubernetesProviderConnectionFactory | undefined = undefined;
+
+  private _connectionAuditor: Auditor | undefined = undefined;
 
   private _status: ProviderStatus;
 
@@ -107,6 +110,10 @@ export class ProviderImpl implements Provider, IDisposable {
 
   get containerProviderConnectionFactory(): ContainerProviderConnectionFactory | undefined {
     return this._containerProviderConnectionFactory;
+  }
+
+  get connectionAuditor(): Auditor | undefined {
+    return this._connectionAuditor;
   }
 
   get name(): string {
@@ -186,19 +193,25 @@ export class ProviderImpl implements Provider, IDisposable {
 
   setContainerProviderConnectionFactory(
     containerProviderConnectionFactory: ContainerProviderConnectionFactory,
+    connectionAuditor?: Auditor,
   ): Disposable {
     this._containerProviderConnectionFactory = containerProviderConnectionFactory;
+    this._connectionAuditor = connectionAuditor;
     return Disposable.create(() => {
       this._containerProviderConnectionFactory = undefined;
+      this._connectionAuditor = undefined;
     });
   }
 
   setKubernetesProviderConnectionFactory(
     kubernetesProviderConnectionFactory: KubernetesProviderConnectionFactory,
+    connectionAuditor?: Auditor,
   ): Disposable {
     this._kubernetesProviderConnectionFactory = kubernetesProviderConnectionFactory;
+    this._connectionAuditor = connectionAuditor;
     return Disposable.create(() => {
       this._kubernetesProviderConnectionFactory = undefined;
+      this._connectionAuditor = undefined;
     });
   }
 

@@ -18,12 +18,12 @@
 
 import { ipcMain } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import type { TrayMenu } from '../tray-menu';
-import type { ProviderInfo } from './api/provider-info';
-import type { CommandRegistry } from './command-registry';
-import type { ProviderRegistry } from './provider-registry';
-import type { Telemetry } from './telemetry/telemetry';
-import { TrayMenuRegistry } from './tray-menu-registry';
+import type { TrayMenu } from '../tray-menu.js';
+import type { ProviderInfo } from './api/provider-info.js';
+import type { CommandRegistry } from './command-registry.js';
+import type { ProviderRegistry } from './provider-registry.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import { TrayMenuRegistry } from './tray-menu-registry.js';
 
 let menuRegistry: TrayMenuRegistry;
 let trayMenu: TrayMenu;

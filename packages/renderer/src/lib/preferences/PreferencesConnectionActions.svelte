@@ -32,8 +32,8 @@ async function startConnectionProvider(
       if (!loggerHandlerKey) {
         updateConnectionStatus(provider, providerConnectionInfo, 'start');
         loggerHandlerKey = startTask(
-          `Start ${provider.name} ${providerConnectionInfo.name}`,
-          `/preferences/resources`,
+          `Start ${providerConnectionInfo.name}`,
+          '/preferences/resources',
           getLoggerHandler(provider, providerConnectionInfo),
         );
       }
@@ -56,8 +56,8 @@ async function restartConnectionProvider(
   if (providerConnectionInfo.status === 'started') {
     updateConnectionStatus(provider, providerConnectionInfo, 'restart');
     const loggerHandlerKey = startTask(
-      `Restart ${provider.name} ${providerConnectionInfo.name}`,
-      `/preferences/resources`,
+      `Restart ${providerConnectionInfo.name}`,
+      '/preferences/resources',
       getLoggerHandler(provider, providerConnectionInfo),
     );
     addConnectionToRestartingQueue({
@@ -82,8 +82,8 @@ async function stopConnectionProvider(
     if (providerConnectionInfo.status === 'started') {
       updateConnectionStatus(provider, providerConnectionInfo, 'stop');
       const loggerHandlerKey = startTask(
-        `Stop ${provider.name} ${providerConnectionInfo.name}`,
-        `/preferences/resources`,
+        `Stop ${providerConnectionInfo.name}`,
+        '/preferences/resources',
         getLoggerHandler(provider, providerConnectionInfo),
       );
       await window.stopProviderConnectionLifecycle(
@@ -106,8 +106,8 @@ async function deleteConnectionProvider(
     if (providerConnectionInfo.status === 'stopped' || providerConnectionInfo.status === 'unknown') {
       updateConnectionStatus(provider, providerConnectionInfo, 'delete');
       const loggerHandlerKey = startTask(
-        `Delete ${provider.name} ${providerConnectionInfo.name}`,
-        `/preferences/resources`,
+        `Delete ${providerConnectionInfo.name}`,
+        '/preferences/resources',
         getLoggerHandler(provider, providerConnectionInfo),
       );
       await window.deleteProviderConnectionLifecycle(

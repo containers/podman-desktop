@@ -19,7 +19,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { test, expect } from 'vitest';
-import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
+import { ensureRestrictedSecurityContext, PodUtils } from '/@/lib/pod/pod-utils';
+import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 
 function verifyPodSecurityContext(containers: any[], type = 'RuntimeDefault') {
   containers.forEach(container => {
@@ -78,4 +79,32 @@ test('Expect security context to be added to dual containers pod', async () => {
   };
   ensureRestrictedSecurityContext(pod);
   verifyPodSecurityContext(pod.spec.containers);
+});
+
+test('Expect return a valid name for a new pod', () => {
+  const podUtils = new PodUtils();
+  const newPodName = podUtils.calculateNewPodName();
+
+  expect(newPodName).toBe('my-pod');
+});
+
+test('Expect return a valid name for a new pod if there is a pod with the same name', () => {
+  const podUtils = new PodUtils();
+  const newPodName = podUtils.calculateNewPodName([{ Name: 'my-pod' } as PodInfo]);
+
+  expect(newPodName).toBe('my-pod-1');
+});
+
+test('Expect return a valid name for a new pod if there is a pods with different names', () => {
+  const podUtils = new PodUtils();
+  const newPodName = podUtils.calculateNewPodName([{ Name: 'my-super-pod' } as PodInfo]);
+
+  expect(newPodName).toBe('my-pod');
+});
+
+test('Expect return a valid name for a new pod if there are pods with the same name', () => {
+  const podUtils = new PodUtils();
+  const newPodName = podUtils.calculateNewPodName([{ Name: 'my-pod' } as PodInfo, { Name: 'my-pod-1' } as PodInfo]);
+
+  expect(newPodName).toBe('my-pod-2');
 });

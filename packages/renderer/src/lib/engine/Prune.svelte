@@ -1,6 +1,7 @@
 <script lang="ts">
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import Button from '../ui/Button.svelte';
 import type { EngineInfoUI } from './EngineInfoUI';
-import type { MessageBoxReturnValue } from '../../../../main/src/plugin/message-box';
 
 // Imported type for prune (containers, images, pods, volumes)
 export let type: string;
@@ -31,40 +32,40 @@ async function openPruneDialog(): Promise<void> {
 async function prune(type: string) {
   switch (type) {
     case 'containers':
-      engines.forEach(async engine => {
+      for (let engine of engines) {
         try {
           await window.pruneContainers(engine.id);
         } catch (error) {
           console.error(error);
         }
-      });
+      }
       break;
     case 'pods':
-      engines.forEach(async engine => {
+      for (let engine of engines) {
         try {
           await window.prunePods(engine.id);
         } catch (error) {
           console.error(error);
         }
-      });
+      }
       break;
     case 'volumes':
-      engines.forEach(async engine => {
+      for (let engine of engines) {
         try {
           await window.pruneVolumes(engine.id);
         } catch (error) {
           console.error(error);
         }
-      });
+      }
       break;
     case 'images':
-      engines.forEach(async engine => {
+      for (let engine of engines) {
         try {
           await window.pruneImages(engine.id);
         } catch (error) {
           console.error(error);
         }
-      });
+      }
       break;
     default:
       console.error('Prune type not found');
@@ -73,9 +74,6 @@ async function prune(type: string) {
 }
 </script>
 
-<button on:click="{() => openPruneDialog()}" class="pf-c-button pf-m-primary" type="button" title="Prune {type}">
-  <span class="pf-c-button__icon pf-m-start">
-    <i class="fas fa-trash" aria-hidden="true"></i>
-  </span>
+<Button on:click="{() => openPruneDialog()}" title="Remove unused images" icon="{faTrash}">
   Prune {type}
-</button>
+</Button>

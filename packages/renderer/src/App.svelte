@@ -8,7 +8,6 @@ import { router } from 'tinro';
 
 import Route from './Route.svelte';
 import ContainerList from './lib/ContainerList.svelte';
-import { onMount } from 'svelte';
 import ImagesList from './lib/ImagesList.svelte';
 import ProviderList from './lib/ProviderList.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
@@ -16,8 +15,6 @@ import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile
 import PullImage from './lib/image/PullImage.svelte';
 import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
 import ContainerDetails from './lib/container/ContainerDetails.svelte';
-import { providerInfos } from './stores/providers';
-import type { ProviderInfo } from '../../main/src/plugin/api/provider-info';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import DashboardPage from './lib/dashboard/DashboardPage.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
@@ -30,6 +27,7 @@ import VolumesList from './lib/volume/VolumesList.svelte';
 import VolumeDetails from './lib/volume/VolumeDetails.svelte';
 import KubePlayYAML from './lib/kube/KubePlayYAML.svelte';
 import PodDetails from './lib/pod/PodDetails.svelte';
+import ComposeDetails from './lib/compose/ComposeDetails.svelte';
 import PodCreateFromContainers from './lib/pod/PodCreateFromContainers.svelte';
 import DeployPodToKube from './lib/pod/DeployPodToKube.svelte';
 import RunImage from './lib/image/RunImage.svelte';
@@ -39,6 +37,10 @@ import QuickPickInput from './lib/dialogs/QuickPickInput.svelte';
 import TaskManager from './lib/task-manager/TaskManager.svelte';
 import MessageBox from './lib/dialogs/MessageBox.svelte';
 import TitleBar from './lib/ui/TitleBar.svelte';
+import TroubleshootingPage from './lib/troubleshooting/TroubleshootingPage.svelte';
+import IconsStyle from './lib/style/IconsStyle.svelte';
+import CustomPick from './lib/dialogs/CustomPick.svelte';
+import ContextKey from './lib/context/ContextKey.svelte';
 
 router.mode.hash();
 
@@ -50,102 +52,109 @@ router.subscribe(function (navigation) {
   }
 });
 
-let providers: ProviderInfo[] = [];
-$: providerConnections = providers
-  .map(provider => provider.containerConnections)
-  .flat()
-  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-
-onMount(() => {
-  providerInfos.subscribe(value => {
-    providers = value;
-  });
-});
-
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 window.events?.receive('display-help', () => {
   router.goto('/help');
 });
+
+window.events?.receive('display-troubleshooting', () => {
+  router.goto('/troubleshooting');
+});
 </script>
 
 <Route path="/*" breadcrumb="Home" let:meta>
-  <main class="min-h-screen flex flex-col h-screen bg-charcoal-800">
+  <main class="flex flex-col w-screen h-screen overflow-hidden bg-charcoal-800">
+    <IconsStyle />
     <TitleBar />
+    <ContextKey />
 
     <WelcomePage />
 
-    <div class="overflow-x-hidden flex flex-1">
+    <div class="flex flex-row w-full h-full overflow-hidden">
       <MessageBox />
+      <QuickPickInput />
+      <CustomPick />
       <AppNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
       {#if meta.url.startsWith('/preferences')}
         <PreferencesNavigation meta="{meta}" />
       {/if}
 
       <div
-        class="z-0 w-full h-full min-h-fit flex flex-col overflow-y-scroll"
+        class="flex flex-col w-full h-full overflow-hidden"
         class:bg-charcoal-700="{!meta.url.startsWith('/preferences')}"
         class:bg-charcoal-800="{meta.url.startsWith('/preferences')}">
         <TaskManager />
         <SendFeedback />
         <ToastHandler />
-        <QuickPickInput />
         <Route path="/" breadcrumb="Dashboard Page">
           <DashboardPage />
         </Route>
-        <Route path="/containers" breadcrumb="Containers">
+        <Route path="/containers" breadcrumb="Containers" navigationHint="root">
           <ContainerList searchTerm="{meta.query.filter || ''}" />
         </Route>
-        <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta>
+        <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta navigationHint="details">
           <ContainerDetails containerID="{meta.params.id}" />
         </Route>
 
-        <Route path="/kube/play" breadcrumb="Play Pods or Containers from a Kubernetes YAML File">
+        <Route path="/kube/play" breadcrumb="Play Kubernetes YAML">
           <KubePlayYAML />
         </Route>
 
-        <Route path="/images" breadcrumb="Images">
+        <Route path="/images" breadcrumb="Images" navigationHint="root">
           <ImagesList />
         </Route>
-        <Route path="/images/:id/:engineId/:base64RepoTag/*" breadcrumb="Image Details" let:meta>
+        <Route
+          path="/images/:id/:engineId/:base64RepoTag/*"
+          breadcrumb="Image Details"
+          let:meta
+          navigationHint="details">
           <ImageDetails
             imageID="{meta.params.id}"
             engineId="{decodeURI(meta.params.engineId)}"
             base64RepoTag="{meta.params.base64RepoTag}" />
         </Route>
-        <Route path="/images/build" breadcrumb="Build Image from Containerfile">
+        <Route path="/images/build" breadcrumb="Build an Image">
           <BuildImageFromContainerfile />
         </Route>
-        <Route path="/images/run/*" breadcrumb="Create a container from image">
+        <Route path="/images/run/*" breadcrumb="Run Image">
           <RunImage />
         </Route>
-        <Route path="/images/pull" breadcrumb="Pull Image From a Registry">
+        <Route path="/images/pull" breadcrumb="Pull an Image">
           <PullImage />
         </Route>
-        <Route path="/pods" breadcrumb="Pods">
+        <Route path="/pods" breadcrumb="Pods" navigationHint="root">
           <PodsList />
         </Route>
-        <Route
-          path="/deploy-to-kube/:resourceId/:engineId/*"
-          breadcrumb="Generated pod to deploy to Kubernetes"
-          let:meta>
+        <Route path="/deploy-to-kube/:resourceId/:engineId/*" breadcrumb="Deploy to Kubernetes" let:meta>
           <DeployPodToKube
             resourceId="{decodeURI(meta.params.resourceId)}"
-            engineId="{decodeURI(meta.params.engineId)}" />
+            engineId="{decodeURI(meta.params.engineId)}"
+            type="container" />
         </Route>
-        <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta>
+        <!-- Same DeployPodToKube route, but instead we pass in the compose group name, then redirect to DeployPodToKube -->
+        <Route path="/compose/deploy-to-kube/:composeGroupName/:engineId/*" breadcrumb="Deploy to Kubernetes" let:meta>
+          <DeployPodToKube
+            resourceId="{decodeURI(meta.params.composeGroupName)}"
+            engineId="{decodeURI(meta.params.engineId)}"
+            type="compose" />
+        </Route>
+        <Route path="/compose/:name/:engineId/*" breadcrumb="Compose Details" let:meta navigationHint="details">
+          <ComposeDetails composeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
+        </Route>
+        <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta navigationHint="details">
           <PodDetails
             podName="{decodeURI(meta.params.name)}"
             engineId="{decodeURI(meta.params.engineId)}"
             kind="{decodeURI(meta.params.kind)}" />
         </Route>
-        <Route path="/pod-create-from-containers" breadcrumb="Create a pod from containers">
+        <Route path="/pod-create-from-containers" breadcrumb="Create Pod">
           <PodCreateFromContainers />
         </Route>
-        <Route path="/volumes" breadcrumb="Volumes">
+        <Route path="/volumes" breadcrumb="Volumes" navigationHint="root">
           <VolumesList />
         </Route>
-        <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta>
+        <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta navigationHint="details">
           <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
         <Route path="/providers" breadcrumb="Providers">
@@ -159,6 +168,9 @@ window.events?.receive('display-help', () => {
         </Route>
         <Route path="/help" breadcrumb="Help">
           <HelpPage />
+        </Route>
+        <Route path="/troubleshooting" breadcrumb="Troubleshooting">
+          <TroubleshootingPage />
         </Route>
       </div>
     </div>

@@ -14,7 +14,7 @@ onMount(async () => {
   delete inspectResult.engineId;
   delete inspectResult.engineName;
 
-  inspectDetails = JSON.stringify(inspectResult, null, 2);
+  inspectDetails = JSON.stringify(inspectResult, undefined, 2);
 });
 </script>
 

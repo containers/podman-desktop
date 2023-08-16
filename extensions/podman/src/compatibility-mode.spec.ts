@@ -16,14 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi } from 'vitest';
-import { getSocketCompatibility, DarwinSocketCompatibility } from './compatibility-mode';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { afterEach, expect, test, vi } from 'vitest';
+import { spawn } from 'node:child_process';
+import { getSocketCompatibility, DarwinSocketCompatibility, LinuxSocketCompatibility } from './compatibility-mode';
 import * as extensionApi from '@podman-desktop/api';
+import type { Readable } from 'node:stream';
 
 vi.mock('@podman-desktop/api', () => {
   return {
     window: {
       showErrorMessage: vi.fn(),
+      showInformationMessage: vi.fn(),
     },
   };
 });
@@ -32,6 +37,21 @@ vi.mock('@podman-desktop/api', () => {
 
 vi.mock('runSudoMacHelperCommand', () => {
   return vi.fn();
+});
+
+afterEach(() => {
+  vi.resetAllMocks();
+  vi.restoreAllMocks();
+});
+
+// mock isDefaultMachineRunning from extension to always return true
+// this is to prevent execPromise to be ran within it and cause errors
+vi.mock('./extension', () => {
+  return {
+    findRunningMachine: () => {
+      return 'default';
+    },
+  };
 });
 
 test('darwin: compatibility mode binary not found failure', async () => {
@@ -75,6 +95,34 @@ test('darwin: DarwinSocketCompatibility class, test runSudoMacHelperCommand ran 
   expect(spyMacHelperCommand).toHaveBeenCalled();
 });
 
+test('darwin: DarwinSocketCompatibility class, test promptRestart ran within runCommand', async () => {
+  // Mock platform to be darwin
+  Object.defineProperty(process, 'platform', {
+    value: 'darwin',
+  });
+
+  const socketCompatClass = new DarwinSocketCompatibility();
+
+  // Mock execPromise was ran successfully
+  vi.mock('execPromise', () => {
+    return Promise.resolve();
+  });
+
+  // Mock that enable ran successfully
+  const spyEnable = vi.spyOn(socketCompatClass, 'runCommand');
+  spyEnable.mockImplementation(() => {
+    return Promise.resolve();
+  });
+
+  const spyPromptRestart = vi.spyOn(socketCompatClass, 'promptRestart');
+
+  // Run the command
+  await socketCompatClass.enable();
+
+  // Expect that promptRestart was ran
+  expect(spyPromptRestart).toHaveBeenCalled();
+});
+
 test('darwin: mock fs.existsSync returns /usr/local/bin/podman-mac-helper', async () => {
   // Mock platform to be darwin
   Object.defineProperty(process, 'platform', {
@@ -103,19 +151,61 @@ test('darwin: mock fs.existsSync returns /usr/local/bin/podman-mac-helper', asyn
 });
 
 // Linux tests
+test('linux: compatibility mode pass', async () => {
+  Object.defineProperty(process, 'platform', {
+    value: 'linux',
+  });
+  expect(() => getSocketCompatibility()).toBeTruthy();
+});
 
-test('linux: compatibility mode fail', async () => {
-  // Mock platform to be darwin
+// Fail when trying to use runSystemdCommand with a command that's not "enable" or "disable"
+test('linux: fail when trying to use runSystemdCommand with a command that is not "enable" or "disable"', async () => {
   Object.defineProperty(process, 'platform', {
     value: 'linux',
   });
 
-  // Expect getSocketCompatibility to return error since Linux is not supported yet
-  expect(() => getSocketCompatibility()).toThrowError();
+  const socketCompatClass = new LinuxSocketCompatibility();
+  await expect(socketCompatClass.runSystemdCommand('start', 'enabled')).rejects.toThrowError(
+    'runSystemdCommand only accepts enable or disable as the command',
+  );
+});
+
+test('linux: pass enabling when systemctl command exists', async () => {
+  Object.defineProperty(process, 'platform', {
+    value: 'linux',
+  });
+
+  // Mock that execSync runs successfully
+  vi.mock('child_process', () => {
+    return {
+      execSync: vi.fn(),
+      spawn: vi.fn(),
+    };
+  });
+
+  const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+    if (event === 'data') {
+      cb('');
+    }
+  }) as unknown as Readable;
+  vi.mocked(spawn).mockReturnValue({
+    stdout: { on, setEncoding: vi.fn() },
+    stderr: { on, setEncoding: vi.fn() },
+    on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+      if (event === 'close') {
+        cb(0);
+      }
+    }),
+  } as any);
+
+  const socketCompatClass = new LinuxSocketCompatibility();
+
+  // Expect enable() to pass since systemctl command exists
+  await expect(socketCompatClass.enable()).resolves.toBeUndefined();
+  expect(extensionApi.window.showErrorMessage).not.toHaveBeenCalled();
 });
 
 // Windows tests
-
 test('windows: compatibility mode fail', async () => {
   // Mock platform to be darwin
   Object.defineProperty(process, 'platform', {

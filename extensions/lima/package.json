@@ -16,7 +16,27 @@
         "command": "docker.info",
         "title": "Lima: Specific info about Lima"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Lima",
+      "properties": {
+        "lima.type": {
+          "type": "string",
+          "default": "podman",
+          "enum": [
+            "podman",
+            "docker",
+            "kubernetes"
+          ],
+          "description": "Engine type (requires restart of extension)"
+        },
+        "lima.name": {
+          "type": "string",
+          "default": "",
+          "description": "Instance name (default is same name as type)"
+        }
+      }
+    }
   },
   "scripts": {
     "build": "tsc && node ./scripts/build.js",
@@ -29,7 +49,7 @@
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
-    "mkdirp": "^2.1.6",
+    "mkdirp": "^3.0.1",
     "zip-local": "^0.3.5"
   }
 }

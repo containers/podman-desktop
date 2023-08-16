@@ -18,9 +18,9 @@
 
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import { Featured } from './featured';
-import type { ExtensionLoader } from '../extension-loader';
-import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog';
+import { Featured } from './featured.js';
+import type { ExtensionLoader } from '../extension-loader.js';
+import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
 
 let featured: Featured;
 
@@ -87,7 +87,7 @@ test('getFeaturedExtensions should check installable extensions', async () => {
   listExtensionsMock.mockReturnValue([
     {
       publisher: 'podman-desktop',
-      id: 'podman',
+      id: 'podman-desktop.podman',
       // make it a built-in extension (cannot be removed, just disabled)
       removable: false,
     },

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import { EditorSettings } from '../../../../main/src/plugin/editor-settings';
@@ -7,7 +7,7 @@ import { EditorSettings } from '../../../../main/src/plugin/editor-settings';
 import type monaco from 'monaco-editor';
 import { getPanelDetailColor } from '../color/color';
 
-let divEl: HTMLDivElement = null;
+let divEl: HTMLDivElement = undefined;
 let editor: monaco.editor.IStandaloneCodeEditor;
 let Monaco;
 
@@ -15,7 +15,6 @@ export let content = '';
 export let language = 'json';
 
 onMount(async () => {
-  // @ts-ignore
   self.MonacoEnvironment = {
     getWorker: function (_moduleId: any, label: string) {
       if (label === 'json') {
@@ -23,6 +22,7 @@ onMount(async () => {
       }
       return new editorWorker();
     },
+    createTrustedTypesPolicy: () => undefined,
   };
 
   Monaco = await import('monaco-editor');
@@ -50,13 +50,13 @@ onMount(async () => {
     automaticLayout: true,
     scrollBeyondLastLine: false,
   });
-
-  return () => {
-    editor.dispose();
-  };
 });
 
-$: content, editor && editor.getModel().setValue(content);
+onDestroy(() => {
+  editor?.dispose();
+});
+
+$: content, editor?.getModel()?.setValue(content);
 </script>
 
 <div bind:this="{divEl}" class="h-full"></div>

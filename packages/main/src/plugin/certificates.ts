@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { isLinux, isMac, isWindows } from '../util';
-import { spawnWithPromise } from './util/spawn-promise';
+import { isLinux, isMac, isWindows } from '../util.js';
+import { spawnWithPromise } from './util/spawn-promise.js';
 import * as https from 'node:https';
 import * as tls from 'node:tls';
 import * as fs from 'node:fs';
@@ -76,7 +76,7 @@ export class Certificates {
   async retrieveWindowsCertificates(): Promise<string[]> {
     // delegate to the win-ca module
     const winCaRetrieval = new Promise<string[]>(resolve => {
-      const CAs: string[] = [];
+      const CAs: string[] = [...tls.rootCertificates];
 
       if (import.meta.env.PROD) {
         const rootExePath = path.join(process.resourcesPath, 'win-ca', 'roots.exe');

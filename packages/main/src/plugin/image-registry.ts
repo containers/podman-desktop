@@ -16,19 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Disposable } from './types/disposable';
+import { Disposable } from './types/disposable.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Emitter } from './events/emitter';
+import { Emitter } from './events/emitter.js';
 import type * as Dockerode from 'dockerode';
-import type { Telemetry } from './telemetry/telemetry';
+import type { Telemetry } from './telemetry/telemetry.js';
 import * as crypto from 'node:crypto';
 import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
 import got, { HTTPError, RequestError } from 'got';
 import validator from 'validator';
+
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
-import type { Certificates } from './certificates';
-import type { Proxy } from './proxy';
-import type { ApiSenderType } from './api';
+import type { Certificates } from './certificates.js';
+import type { Proxy } from './proxy.js';
+import type { ApiSenderType } from './api.js';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
@@ -85,7 +86,7 @@ export class ImageRegistry {
     const splitParts = imageName.split('/');
     if (
       splitParts.length === 1 ||
-      (!splitParts[0].includes('.') && !splitParts[0].includes(':') && splitParts[0] != 'localhost')
+      (!splitParts[0].includes('.') && !splitParts[0].includes(':') && splitParts[0] !== 'localhost')
     ) {
       return 'docker.io';
     } else {
@@ -239,10 +240,12 @@ export class ImageRegistry {
       if (exists) {
         throw new Error(`Registry ${registryCreateOptions.serverUrl} already exists`);
       }
+
       await this.checkCredentials(
         registryCreateOptions.serverUrl,
         registryCreateOptions.username,
         registryCreateOptions.secret,
+        registryCreateOptions.insecure,
       );
       const registry = provider.create(registryCreateOptions);
       return this.registerRegistry(registry);
@@ -295,7 +298,7 @@ export class ImageRegistry {
     // Www-Authenticate: Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:samalba/my-app:pull,push"
     // need to extract realm, service and scope parameters with a regexp
     const WWW_AUTH_REGEXP =
-      /(?<scheme>Bearer|Basic) realm="(?<realm>[^"]+)"(,service="(?<service>[^"]+)")?(,scope="(?<scope>[^"]+)")?/;
+      /(?<scheme>Bearer|Basic|BASIC) realm="(?<realm>[^"]+)"(,service="(?<service>[^"]+)")?(,scope="(?<scope>[^"]+)")?/;
 
     const parsed = WWW_AUTH_REGEXP.exec(wwwAuthenticate);
     if (parsed?.groups) {
@@ -305,7 +308,7 @@ export class ImageRegistry {
     return undefined;
   }
 
-  getOptions(): OptionsOfTextResponseBody {
+  getOptions(insecure?: boolean): OptionsOfTextResponseBody {
     const httpsOptions: HttpsOptions = {};
     const options: OptionsOfTextResponseBody = {
       https: httpsOptions,
@@ -313,6 +316,9 @@ export class ImageRegistry {
 
     if (options.https) {
       options.https.certificateAuthority = this.certificates.getAllCertificates();
+      if (insecure) {
+        options.https.rejectUnauthorized = false;
+      }
     }
 
     if (this.proxyEnabled) {
@@ -335,7 +341,7 @@ export class ImageRegistry {
             proxy: httpProxyUrl,
           });
         } catch (error) {
-          throw new Error(`Failed to create https proxy agent from ${httpProxyUrl}: ${error}`);
+          throw new Error(`Failed to create http proxy agent from ${httpProxyUrl}: ${error}`);
         }
       }
       if (httpsProxyUrl) {
@@ -647,8 +653,9 @@ export class ImageRegistry {
     return this.getManifestFromURL(manifestURL, imageData, token);
   }
 
-  async getAuthInfo(serviceUrl: string): Promise<{ authUrl: string; scheme: string }> {
+  async getAuthInfo(serviceUrl: string, insecure?: boolean): Promise<{ authUrl: string; scheme: string }> {
     let registryUrl: string;
+    const options = this.getOptions(insecure);
 
     if (serviceUrl.includes('docker.io')) {
       registryUrl = 'https://index.docker.io/v2/';
@@ -664,7 +671,7 @@ export class ImageRegistry {
     let scheme = '';
 
     try {
-      await got.get(registryUrl, this.getOptions());
+      await got.get(registryUrl, options);
     } catch (requestErr) {
       if (requestErr instanceof HTTPError) {
         const wwwAuthenticate = requestErr.response?.headers['www-authenticate'];
@@ -700,8 +707,16 @@ export class ImageRegistry {
     return { authUrl, scheme };
   }
 
-  async checkCredentials(serviceUrl: string, username: string, password: string): Promise<void> {
-    if (serviceUrl === undefined || !validator.isURL(serviceUrl)) {
+  async checkCredentials(serviceUrl: string, username: string, password: string, insecure?: boolean): Promise<void> {
+    // When checking the validation of the URL, do not require a TLD (ex. .com, .org, etc.)
+    // in case we are passing in a local test registry such as http://localhost:5000
+    const urlOptions = {
+      require_tld: false,
+    };
+    const isUrl = validator.default.isURL(serviceUrl, urlOptions);
+
+    // Check if the URL is undefined or not a valid URL
+    if (serviceUrl === undefined || !isUrl) {
       throw Error(
         'The format of the Registry Location is incorrect.\nPlease use the format "registry.location.com" and try again.',
       );
@@ -715,10 +730,10 @@ export class ImageRegistry {
       throw Error('Password should not be empty.');
     }
 
-    const { authUrl, scheme } = await this.getAuthInfo(serviceUrl);
+    const { authUrl, scheme } = await this.getAuthInfo(serviceUrl, insecure);
 
     if (authUrl !== undefined) {
-      await this.doCheckCredentials(scheme, authUrl, username, password);
+      await this.doCheckCredentials(scheme, authUrl, username, password, insecure);
     }
   }
 
@@ -755,12 +770,19 @@ export class ImageRegistry {
     return response.token;
   }
 
-  async doCheckCredentials(scheme: string, authUrl: string, username: string, password: string): Promise<void> {
+  async doCheckCredentials(
+    scheme: string,
+    authUrl: string,
+    username: string,
+    password: string,
+    insecure?: boolean,
+  ): Promise<void> {
+    const options = this.getOptions(insecure);
+
     let rawResponse: string | undefined;
     // add credentials in the header
     // encode username:password in base64
     const token = Buffer.from(`${username}:${password}`).toString('base64');
-    const options = this.getOptions();
     options.headers = {
       Authorization: `Basic ${token}`,
     };

@@ -1,8 +1,6 @@
 <script lang="ts">
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faPuzzlePiece, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faPlay } from '@fortawesome/free-solid-svg-icons';
-import { faStop } from '@fortawesome/free-solid-svg-icons';
+import { faPuzzlePiece, faTrash, faPlay, faStop, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 import { afterUpdate } from 'svelte';
 import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
@@ -10,16 +8,17 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
+import Button from '../ui/Button.svelte';
 
 export let ociImage: string = undefined;
 
-let installInProgress: boolean = false;
-let errorInstall: string = '';
+let installInProgress = false;
+let errorInstall = '';
 let logs: string[] = [];
 
 let logElement;
 
-const buttonClass: string =
+const buttonClass =
   'm-0.5 text-gray-400 hover:bg-charcoal-600 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 
 async function installExtensionFromImage() {
@@ -63,11 +62,15 @@ async function startExtension(extension: ExtensionInfo) {
 async function removeExtension(extension: ExtensionInfo) {
   await window.removeExtension(extension.id);
 }
+
+async function updateExtension(extension: ExtensionInfo, ociUri: string) {
+  await window.updateExtension(extension.id, ociUri);
+}
 </script>
 
 <SettingsPage title="Extensions">
-  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
-    <div class="bg-charcoal-700 rounded-md p-3">
+  <div class="bg-charcoal-600 rounded-md p-3">
+    <div class="bg-charcoal-700 mb-4 rounded-md p-3">
       <FeaturedExtensions />
     </div>
 
@@ -84,25 +87,14 @@ async function removeExtension(extension: ExtensionInfo) {
             class="w-1/2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             required />
 
-          <button
+          <Button
             on:click="{() => installExtensionFromImage()}"
-            disabled="{ociImage === undefined || ociImage.trim() === '' || installInProgress}"
-            class="w-full pf-c-button pf-m-primary"
-            type="button">
-            {#if installInProgress}
-              <i class="pf-c-button__progress">
-                <span class="pf-c-spinner pf-m-md" role="progressbar">
-                  <span class="pf-c-spinner__clipper"></span>
-                  <span class="pf-c-spinner__lead-ball"></span>
-                  <span class="pf-c-spinner__tail-ball"></span>
-                </span>
-              </i>
-            {/if}
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-arrow-circle-down" aria-hidden="true"></i>
-            </span>
+            disabled="{ociImage === undefined || ociImage.trim() === ''}"
+            class="w-full"
+            inProgress="{installInProgress}"
+            icon="{faArrowCircleDown}">
             Install extension from the OCI image
-          </button>
+          </Button>
         </div>
 
         <div class="container w-full flex-col">
@@ -140,6 +132,13 @@ async function removeExtension(extension: ExtensionInfo) {
                         {extension.displayName}
                         {extension.removable ? '(user)' : '(default extension)'}
                         <span class="text-xs font-extra-light text-gray-900">v{extension.version}</span>
+                        {#if extension.update}
+                          <button
+                            class="mx-2 px-2 text-xs font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700"
+                            title="Update to {extension.update.version}"
+                            on:click="{() => updateExtension(extension, extension.update.ociUri)}">
+                            Update</button>
+                        {/if}
                       </div>
                     </div>
                     <div class="flex flex-row">

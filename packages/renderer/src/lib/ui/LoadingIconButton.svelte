@@ -8,7 +8,7 @@ export let action: string;
 export let icon: IconDefinition;
 export let state: IConnectionStatus;
 export let leftPosition: string;
-export let clickAction: () => {};
+export let clickAction: () => Promise<void> | void;
 
 $: disable =
   state.inProgress ||

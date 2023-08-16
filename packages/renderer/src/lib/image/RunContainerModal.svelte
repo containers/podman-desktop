@@ -4,6 +4,8 @@ import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-ins
 import type { ContainerCreateOptions } from '../../../../main/src/plugin/api/container-info';
 import { onMount } from 'svelte';
 import Modal from '../dialogs/Modal.svelte';
+import Button from '../ui/Button.svelte';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
 
 export let image: ImageInfoUI;
 export let closeCallback: () => void;
@@ -160,11 +162,7 @@ async function startContainer() {
                 {/each}
               </div>
 
-              <button on:click="{() => startContainer()}" class="w-full pf-c-button pf-m-primary">
-                <span class="pf-c-button__icon pf-m-start">
-                  <i class="fas fa-play" aria-hidden="true"></i>
-                </span>
-                Start Container</button>
+              <Button on:click="{() => startContainer()}" class="w-full" icon="{faPlay}">Start Container</Button>
             </div>
           </div>
         </div>

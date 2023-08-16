@@ -17,8 +17,8 @@
  ***********************************************************************/
 
 import type { ProxySettings, Event } from '@podman-desktop/api';
-import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
-import { Emitter } from './events/emitter';
+import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
+import { Emitter } from './events/emitter.js';
 
 /**
  * Handle proxy settings for Podman Desktop

@@ -2,6 +2,8 @@
 import type { ProxySettings } from '@podman-desktop/api';
 import { onMount } from 'svelte';
 import SettingsPage from './SettingsPage.svelte';
+import Button from '../ui/Button.svelte';
+import { faPen } from '@fortawesome/free-solid-svg-icons';
 
 let proxySettings: ProxySettings;
 let proxyState: boolean;
@@ -42,10 +44,10 @@ async function updateProxyState() {
 </script>
 
 <SettingsPage title="Proxy Settings">
-  <div class="container mx-auto bg-charcoal-600 mt-5 rounded-md p-3">
+  <div class="flex flex-col bg-charcoal-600 rounded-md p-3 space-y-2">
     <!-- if proxy is not enabled, display a toggle -->
 
-    <label for="toggle-proxy" class="inline-flex relative items-center mt-2 mb-5 cursor-pointer">
+    <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer">
       <input
         type="checkbox"
         bind:checked="{proxyState}"
@@ -60,10 +62,10 @@ async function updateProxyState() {
     </label>
 
     {#if proxySettings}
-      <div>
+      <div class="space-y-2">
         <label
           for="httpProxy"
-          class="block mb-2 text-sm font-medium {proxyState
+          class="mb-2 text-sm font-medium {proxyState
             ? 'text-gray-400 dark:text-gray-400'
             : 'text-gray-900 dark:text-gray-900'}">Web Proxy (HTTP):</label>
         <input
@@ -74,10 +76,10 @@ async function updateProxyState() {
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           required />
       </div>
-      <div>
+      <div class="space-y-2">
         <label
           for="httpsProxy"
-          class="pt-4 block mb-2 text-sm font-medium {proxyState
+          class="pt-4 mb-2 text-sm font-medium {proxyState
             ? 'text-gray-400 dark:text-gray-400'
             : 'text-gray-900 dark:text-gray-900'}">Secure Web Proxy (HTTPS):</label>
         <input
@@ -88,10 +90,10 @@ async function updateProxyState() {
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           required />
       </div>
-      <div>
+      <div class="space-y-2">
         <label
           for="httpProxy"
-          class="pt-4 block mb-2 text-sm font-medium {proxyState
+          class="pt-4 mb-2 text-sm font-medium {proxyState
             ? 'text-gray-400 dark:text-gray-400'
             : 'text-gray-900 dark:text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
         <input
@@ -104,16 +106,9 @@ async function updateProxyState() {
           required />
       </div>
       <div class="my-2 pt-4">
-        <button
-          on:click="{() => updateProxySettings()}"
-          disabled="{!proxyState}"
-          class="w-full pf-c-button pf-m-primary"
-          type="button">
-          <span class="pf-c-button__icon pf-m-start">
-            <i class="fas fa-pen" aria-hidden="true"></i>
-          </span>
+        <Button on:click="{() => updateProxySettings()}" disabled="{!proxyState}" class="w-full" icon="{faPen}">
           Update
-        </button>
+        </Button>
       </div>
     {/if}
   </div>

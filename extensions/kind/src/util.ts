@@ -23,6 +23,7 @@ import { spawn } from 'node:child_process';
 import * as sudo from 'sudo-prompt';
 import type * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
+import * as http from 'node:http';
 
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
@@ -157,7 +158,7 @@ export function runCliCommand(
     });
 
     spawnProcess.on('close', exitCode => {
-      if (exitCode == 0) {
+      if (exitCode === 0) {
         resolve({ stdOut, stdErr, error: err });
       } else {
         if (options?.logger) {
@@ -191,9 +192,9 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
   // and the appropriate command to move the binary to the destination path
   let destinationPath: string;
   let command: string[];
-  if (system == 'win32') {
+  if (system === 'win32') {
     destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
-    command = ['copy', binaryPath, destinationPath];
+    command = ['copy', `"${binaryPath}"`, `"${destinationPath}"`];
   } else {
     destinationPath = path.join('/usr/local/bin', binaryName);
     command = ['cp', binaryPath, destinationPath];
@@ -237,4 +238,40 @@ function killProcess(spawnProcess: ChildProcess) {
   } else {
     spawnProcess.kill();
   }
+}
+
+export async function getMemTotalInfo(socketPath: string): Promise<number> {
+  const versionUrl = {
+    path: '/info',
+    socketPath: socketPath,
+  };
+
+  interface Info {
+    MemTotal: number;
+  }
+
+  return new Promise<number>((resolve, reject) => {
+    const req = http.get(versionUrl, res => {
+      const body = [];
+      res.on('data', chunk => {
+        body.push(chunk);
+      });
+
+      res.on('end', err => {
+        if (res.statusCode === 200) {
+          try {
+            resolve((JSON.parse(Buffer.concat(body).toString()) as Info).MemTotal);
+          } catch (e) {
+            reject(e);
+          }
+        } else {
+          reject(new Error(err.message));
+        }
+      });
+    });
+
+    req.once('error', err => {
+      reject(new Error(err.message));
+    });
+  });
 }

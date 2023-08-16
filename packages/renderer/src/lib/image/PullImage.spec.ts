@@ -36,6 +36,10 @@ beforeAll(() => {
     },
   };
   (window as any).telemetryPage = vi.fn();
+  (window as any).getConfigurationValue = vi.fn();
+  (window as any).matchMedia = vi.fn().mockReturnValue({
+    addListener: vi.fn(),
+  });
 });
 
 const buttonText = 'Pull image';
@@ -74,7 +78,7 @@ function setup() {
 describe('PullImage', () => {
   test('Expect that textbox is available and button is displayed', async () => {
     setup();
-    render(PullImage, {});
+    render(PullImage);
 
     const entry = screen.getByPlaceholderText('Image name');
     expect(entry).toBeInTheDocument();
@@ -113,6 +117,16 @@ describe('PullImage', () => {
     await userEvent.click(textbox);
     await userEvent.paste('some-valid-image');
 
+    expect(button).toBeEnabled();
+  });
+
+  test('Expect that action is displayed', async () => {
+    setup();
+    render(PullImage);
+
+    const regButton = 'Manage registries';
+    const button = screen.getByRole('button', { name: regButton });
+    expect(button).toBeInTheDocument();
     expect(button).toBeEnabled();
   });
 });

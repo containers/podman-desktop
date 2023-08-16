@@ -26,6 +26,8 @@ interface KubeContext {
 
 const menuItemsRegistered: extensionApi.Disposable[] = [];
 let kubeconfigFile: string | undefined;
+let statusBarItem: extensionApi.StatusBarItem;
+let quickPicks: extensionApi.QuickPickItem[];
 
 async function deleteContext(): Promise<void> {
   // remove the context from the list
@@ -33,9 +35,16 @@ async function deleteContext(): Promise<void> {
   menuItemsRegistered.forEach(item => {
     item.dispose();
   });
+
+  if (statusBarItem) {
+    statusBarItem.dispose();
+  }
 }
 
-async function updateContext(extensionContext: extensionApi.ExtensionContext, kubeconfigFile: string): Promise<void> {
+export async function updateContext(
+  extensionContext: extensionApi.ExtensionContext,
+  kubeconfigFile: string,
+): Promise<void> {
   // read the kubeconfig file using fs
   const kubeConfigRawContent = await fs.promises.readFile(kubeconfigFile, 'utf-8');
 
@@ -43,40 +52,93 @@ async function updateContext(extensionContext: extensionApi.ExtensionContext, ku
   const kubeConfig = jsYaml.load(kubeConfigRawContent);
 
   // get the current context
-  const currentContext = kubeConfig['current-context'];
+  const currentContext = kubeConfig?.['current-context'];
 
   // get all contexts
-  const contexts: KubeContext[] = kubeConfig['contexts'];
+  const contexts: KubeContext[] = kubeConfig?.['contexts'] ? kubeConfig['contexts'] : [];
 
-  // now, add each context
-  const subitems: extensionApi.MenuItem[] = contexts.map(context => {
+  if (contexts.length > 0) {
+    // now, add each context
+    const subitems: extensionApi.MenuItem[] = contexts.map(context => {
+      return {
+        label: context.name,
+        id: 'kubecontext.switch',
+        type: 'checkbox',
+        checked: context.name === currentContext,
+      };
+    });
+
+    const title: extensionApi.MenuItem = {
+      label: 'Context',
+      id: 'kubecontext.switch',
+      enabled: false,
+    };
+
+    const item: extensionApi.MenuItem = {
+      id: 'kubecontext.switch',
+      label: 'Kubernetes',
+      submenu: [title, ...subitems],
+    };
+
+    const subscription = extensionApi.tray.registerMenuItem(item);
+    menuItemsRegistered.push(subscription);
+    extensionContext.subscriptions.push(subscription);
+  }
+
+  // create a status bar item to show the current context and allow switching
+  if (!statusBarItem) {
+    statusBarItem = extensionApi.window.createStatusBarItem();
+    statusBarItem.command = 'kubecontext.quickpick';
+    statusBarItem.tooltip = 'Current Kubernetes context';
+    statusBarItem.iconClass = '${kube-icon}';
+    statusBarItem.show();
+    extensionContext.subscriptions.push(statusBarItem);
+  }
+
+  if (currentContext) {
+    if (currentContext.length <= 20) {
+      statusBarItem.text = currentContext;
+    } else {
+      statusBarItem.text = currentContext.substring(0, 20) + '...';
+    }
+  } else {
+    statusBarItem.text = 'No context';
+  }
+
+  quickPicks = contexts.map(context => {
     return {
       label: context.name,
-      id: 'kubecontext.switch',
-      type: 'checkbox',
-      checked: context.name === currentContext,
+      description: context.name === currentContext ? 'Current Context' : undefined,
+      picked: context.name === currentContext,
     };
   });
-
-  const title: extensionApi.MenuItem = {
-    label: 'Context',
-    id: 'kubecontext.switch',
-    enabled: false,
-  };
-
-  const item: extensionApi.MenuItem = {
-    id: 'kubecontext.switch',
-    label: 'Kubernetes',
-    submenu: [title, ...subitems],
-  };
-
-  const subscription = extensionApi.tray.registerMenuItem(item);
-  menuItemsRegistered.push(subscription);
-  extensionContext.subscriptions.push(subscription);
 }
 
 function getKubeconfig(): string | undefined {
   return kubeconfigFile;
+}
+
+async function setContext(newContext: string) {
+  const file = getKubeconfig();
+  if (!file) {
+    await extensionApi.window.showErrorMessage('No kubeconfig file found');
+    return;
+  }
+  // load the file
+  const kubeConfigRawContent = fs.readFileSync(file, 'utf-8');
+
+  // parse the content using jsYaml
+  const kubeConfig = jsYaml.load(kubeConfigRawContent);
+
+  // update the context
+  kubeConfig['current-context'] = newContext;
+
+  // write again the file using promises fs
+  await fs.promises.writeFile(
+    file,
+    jsYaml.dump(kubeConfig, { noArrayIndent: true, quotingType: '"', lineWidth: -1 }),
+    'utf-8',
+  );
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
@@ -104,30 +166,20 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     }
   });
 
-  const command = extensionApi.commands.registerCommand('kubecontext.switch', async (newContext: string) => {
-    const file = getKubeconfig();
-    if (!file) {
-      await extensionApi.window.showErrorMessage('No kubeconfig file found');
-      return;
-    }
-    // load the file
-    const kubeConfigRawContent = fs.readFileSync(file, 'utf-8');
-
-    // parse the content using jsYaml
-    const kubeConfig = jsYaml.load(kubeConfigRawContent);
-
-    // update the context
-    kubeConfig['current-context'] = newContext;
-
-    // write again the file using promises fs
-    await fs.promises.writeFile(
-      file,
-      jsYaml.dump(kubeConfig, { noArrayIndent: true, quotingType: '"', lineWidth: -1 }),
-      'utf-8',
-    );
+  const switchCommand = extensionApi.commands.registerCommand('kubecontext.switch', async (newContext: string) => {
+    await setContext(newContext);
   });
+  extensionContext.subscriptions.push(switchCommand);
 
-  extensionContext.subscriptions.push(command);
+  const quickPickCommand = extensionApi.commands.registerCommand('kubecontext.quickpick', async () => {
+    const selectedContext = await extensionApi.window.showQuickPick(quickPicks, {
+      placeHolder: 'Select a Kubernetes context',
+    });
+    if (selectedContext) {
+      await setContext(selectedContext.label);
+    }
+  });
+  extensionContext.subscriptions.push(quickPickCommand);
 }
 
 export function deactivate(): void {

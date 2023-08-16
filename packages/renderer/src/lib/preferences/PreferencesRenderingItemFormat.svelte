@@ -7,17 +7,17 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Markdown from '../markdown/Markdown.svelte';
 import { getNormalizedDefaultNumberValue } from './Util';
 import Tooltip from '../ui/Tooltip.svelte';
+import Button from '../ui/Button.svelte';
 
 let invalidEntry = false;
 let invalidText = undefined;
-export let showUpdate = false;
-export let invalidRecord = (error: string) => {};
+export let invalidRecord = (_error: string) => {};
 export let validRecord = () => {};
-export let updateResetButtonVisibility = (recordValue: any) => {};
+export let updateResetButtonVisibility = (_recordValue: any) => {};
 export let resetToDefault = false;
 export let enableAutoSave = false;
 
-export let setRecordValue = (id: string, value: string) => {};
+export let setRecordValue = (_id: string, _value: string) => {};
 export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
 
@@ -26,8 +26,8 @@ let recordUpdateTimeout: NodeJS.Timeout;
 
 let recordValue: any;
 $: recordValue;
-$: updateResetButtonVisibility && updateResetButtonVisibility(recordValue);
-let checkboxValue: boolean = false;
+$: updateResetButtonVisibility?.(recordValue);
+let checkboxValue = false;
 $: if (resetToDefault) {
   recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
   if (typeof recordValue === 'boolean') {
@@ -74,7 +74,7 @@ function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
     const numberValue = parseFloat(userValue);
     if (userValue === '') {
       invalidEntry = true;
-      invalidText = `Expecting a number`;
+      invalidText = 'Expecting a number';
       return invalid();
     }
     if (isNaN(numberValue)) {
@@ -210,7 +210,6 @@ function onNumberInputKeyPress(event: any) {
   // if the key is not a number skip it
   if (isNaN(Number(event.key))) {
     event.preventDefault();
-    return;
   }
 }
 
@@ -250,7 +249,7 @@ function assertNumericValueIsValid(value: number) {
 </script>
 
 <div class="flex flex-row mb-1 pt-2">
-  <div class="flex flex-col mx-2 text-start w-full justify-center items-start pf-c-form__group-control">
+  <div class="flex flex-col text-start w-full justify-center items-start">
     {#if record.type === 'boolean'}
       <label class="relative inline-flex items-center cursor-pointer">
         <span class="text-xs {checkboxValue ? 'text-white' : 'text-gray-700'} mr-3"
@@ -320,10 +319,11 @@ function assertNumericValueIsValid(value: number) {
     {:else if record.type === 'string' && record.format === 'file'}
       <div class="w-full flex">
         <input
-          class="grow {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm"
+          class="grow {!recordValue ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm placeholder-gray-900"
           name="{record.id}"
           readonly
           type="text"
+          placeholder="{record.placeholder}"
           value="{recordValue || ''}"
           id="input-standard-{record.id}"
           aria-invalid="{invalidEntry}"
@@ -335,15 +335,11 @@ function assertNumericValueIsValid(value: number) {
           on:click="{event => handleCleanValue(event)}">
           <Fa icon="{faXmark}" />
         </button>
-        <input
+        <Button
           on:click="{() => selectFilePath()}"
           id="rendering.FilePath.{record.id}"
-          readonly
           aria-invalid="{invalidEntry}"
-          aria-label="button-{record.description}"
-          placeholder="Browse ..."
-          class="bg-violet-500 p-1 text-xs text-center hover:bg-zinc-700 placeholder-white rounded-sm cursor-pointer outline-0"
-          required />
+          aria-label="button-{record.description}">Browse ...</Button>
       </div>
     {:else if record.type === 'string' && record.enum && record.enum.length > 0}
       <select
@@ -365,9 +361,10 @@ function assertNumericValueIsValid(value: number) {
     {:else}
       <input
         on:input="{event => checkValue(record, event)}"
-        class="pf-c-form-control outline-0"
+        class="grow py-1 px-2 w-full outline-0 border-b-2 border-gray-800 hover:border-violet-500 focus:border-violet-500 placeholder-gray-900"
         name="{record.id}"
         type="text"
+        placeholder="{record.placeholder}"
         bind:value="{recordValue}"
         readonly="{!!record.readonly}"
         id="input-standard-{record.id}"
@@ -379,14 +376,4 @@ function assertNumericValueIsValid(value: number) {
       <ErrorMessage error="{invalidText}." />
     {/if}
   </div>
-  {#if showUpdate}
-    {#if !!record.readonly === false && !invalidEntry}
-      <button on:click="{() => update(record)}" class="pf-c-button pf-m-primary w-40 px-4" type="button">
-        <span class="pf-c-button__icon pf-m-start">
-          <i class="fas fa-save" aria-hidden="true"></i>
-        </span>
-        Update
-      </button>
-    {/if}
-  {/if}
 </div>

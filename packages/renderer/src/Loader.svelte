@@ -1,13 +1,16 @@
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte';
-
+import { onDestroy, onMount, tick } from 'svelte';
+import { router } from 'tinro';
 import App from './App.svelte';
+import SealRocket from './lib/images/SealRocket.svelte';
 
-let systemReady: boolean = false;
+let systemReady = false;
 
-let toggle: boolean = false;
+let toggle = false;
 
-let loadingSequence;
+let loadingSequence: NodeJS.Timer;
+
+let extensionsStarterChecker: NodeJS.Timer;
 
 onMount(async () => {
   loadingSequence = setInterval(() => {
@@ -20,17 +23,51 @@ onMount(async () => {
     if (systemReady) {
       window.dispatchEvent(new CustomEvent('system-ready', {}));
     }
+  } catch (error) {
+    console.error('Unable to check if system is ready', error);
+  }
 
+  const checkRemoteStarted = async () => {
     const extensionsStarted = await window.extensionSystemIsExtensionsStarted();
     if (extensionsStarted) {
       window.dispatchEvent(new CustomEvent('extensions-already-started', {}));
+      clearInterval(extensionsStarterChecker);
     }
-  } catch (error) {}
+  };
+
+  extensionsStarterChecker = setInterval(() => {
+    checkRemoteStarted().catch((error: unknown) => {
+      console.error('Unable to check if extensions are started', error);
+    });
+  }, 100);
 });
 
 onDestroy(() => {
   if (loadingSequence) {
     clearInterval(loadingSequence);
+  }
+
+  if (extensionsStarterChecker) {
+    clearInterval(extensionsStarterChecker);
+  }
+});
+
+// receive events from main process to install a new extension
+window.events?.receive('install-extension:from-id', extensionId => {
+  const action = async () => {
+    const redirectPage = `/preferences/extensions/install-from-id/${extensionId}`;
+    // need to open the extension page
+    await tick();
+    router.goto(redirectPage);
+  };
+
+  if (!systemReady) {
+    // need to wait for the system to be ready, so we delay the install
+    window.addEventListener('system-ready', () => {
+      action();
+    });
+  } else {
+    action();
   }
 });
 
@@ -45,18 +82,10 @@ window.events.receive('starting-extensions', (value: string) => {
 </script>
 
 {#if !systemReady}
-  <main class="min-h-screen flex flex-col h-screen">
-    <div class="min-h-full min-w-full flex flex-col">
-      <div class="pf-c-empty-state h-full">
-        <div class="pf-c-empty-state__content">
-          <i
-            class:text-zinc-700="{toggle}"
-            class:text-zinc-600="{!toggle}"
-            class="fas fa-layer-group m-4 text-8xl"
-            aria-hidden="true"></i>
-          <h1 class="pf-c-title pf-m-lg">Initializing...</h1>
-        </div>
-      </div>
+  <main class="flex flex-row w-screen h-screen justify-center" style="-webkit-app-region: drag;">
+    <div class="flex flex-col justify-center">
+      <SealRocket />
+      <h1 class="text-center text-xl">Initializing...</h1>
     </div>
   </main>
 {:else}

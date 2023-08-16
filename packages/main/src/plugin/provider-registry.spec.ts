@@ -19,13 +19,14 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { ContainerProviderRegistry } from './container-registry';
+import type { ContainerProviderRegistry } from './container-registry.js';
 
-import { ProviderRegistry } from './provider-registry';
-import type { Telemetry } from './telemetry/telemetry';
+import { ProviderRegistry } from './provider-registry.js';
+import type { Telemetry } from './telemetry/telemetry.js';
 import type { ContainerProviderConnection, KubernetesProviderConnection } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info';
-import type { ApiSenderType } from './api';
+import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
+import type { ApiSenderType } from './api.js';
+import { LifecycleContextImpl } from './lifecycle-context.js';
 
 let providerRegistry: ProviderRegistry;
 
@@ -325,4 +326,117 @@ test('runAutostartContainer should start container and send event', async () => 
 
   // check that we have called the start method
   expect(autostartMock).toBeCalled();
+});
+
+test('should retrieve context of container provider', async () => {
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+  const connection: ProviderContainerConnectionInfo = {
+    name: 'connection',
+    type: 'docker',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status: 'stopped',
+  };
+
+  const startMock = vi.fn();
+  const stopMock = vi.fn();
+  provider.registerContainerProviderConnection({
+    name: 'connection',
+    type: 'docker',
+    lifecycle: {
+      start: startMock,
+      stop: stopMock,
+    },
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status() {
+      return 'stopped';
+    },
+  });
+
+  const context = providerRegistry.getMatchingConnectionLifecycleContext('0', connection);
+  expect(context instanceof LifecycleContextImpl).toBeTruthy();
+});
+
+test('should retrieve context of kubernetes provider', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let providerInternalId: any;
+
+  apiSenderSendMock.mockImplementation((_message, data) => {
+    providerInternalId = data;
+  });
+
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+
+  let initalizeCalled = false;
+  provider.setKubernetesProviderConnectionFactory({
+    initialize: async () => {
+      initalizeCalled = true;
+    },
+  });
+
+  expect(providerInternalId).toBeDefined();
+  await providerRegistry.initializeProvider(providerInternalId);
+
+  const connection: ProviderKubernetesConnectionInfo = {
+    name: 'connection',
+    endpoint: {
+      apiURL: 'url',
+    },
+    status: 'stopped',
+  };
+
+  const startMock = vi.fn();
+  const stopMock = vi.fn();
+  provider.registerKubernetesProviderConnection({
+    name: 'connection',
+    lifecycle: {
+      start: startMock,
+      stop: stopMock,
+    },
+    endpoint: {
+      apiURL: 'url',
+    },
+    status() {
+      return 'stopped';
+    },
+  });
+
+  const context = providerRegistry.getMatchingConnectionLifecycleContext('0', connection);
+  expect(context instanceof LifecycleContextImpl).toBeTruthy();
+
+  expect(initalizeCalled).toBe(true);
+  expect(apiSenderSendMock).toBeCalled();
+});
+
+test('should retrieve provider internal id from id', async () => {
+  const provider = providerRegistry.createProvider({ id: 'internal', name: 'internal', status: 'installed' });
+
+  const startMock = vi.fn();
+  const stopMock = vi.fn();
+  provider.registerContainerProviderConnection({
+    name: 'connection',
+    type: 'docker',
+    lifecycle: {
+      start: startMock,
+      stop: stopMock,
+    },
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status() {
+      return 'stopped';
+    },
+  });
+
+  const internalId = providerRegistry.getMatchingProviderInternalId('internal');
+  expect(internalId).toBe('0');
+});
+
+test('should throw error if no provider found with id', async () => {
+  expect(() => providerRegistry.getMatchingProviderInternalId('internal')).toThrowError(
+    'no provider matching provider id internal',
+  );
 });

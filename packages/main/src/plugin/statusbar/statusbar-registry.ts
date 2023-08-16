@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ApiSenderType } from '../api';
-import type { IDisposable } from '../types/disposable';
+import type { ApiSenderType } from '../api.js';
+import type { IDisposable } from '../types/disposable.js';
 
 export const STATUS_BAR_UPDATED_EVENT_NAME = 'status-bar-updated';
 

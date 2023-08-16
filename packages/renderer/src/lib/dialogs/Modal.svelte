@@ -29,11 +29,13 @@ button {
 
 <script lang="ts">
 import { createEventDispatcher, onDestroy } from 'svelte';
+import { tabWithinParent } from './dialog-utils';
 
 const dispatch = createEventDispatcher();
 const close = () => dispatch('close');
 
 let modal: HTMLDivElement;
+export let name = '';
 
 const handle_keydown = e => {
   if (e.key === 'Escape') {
@@ -42,18 +44,7 @@ const handle_keydown = e => {
   }
 
   if (e.key === 'Tab') {
-    // trap focus
-    const nodes = modal.querySelectorAll<HTMLElement>('*');
-    const tabbable = Array.from(nodes).filter(n => n.tabIndex >= 0);
-
-    let index = tabbable.indexOf(document.activeElement as HTMLElement);
-    if (index === -1 && e.shiftKey) index = 0;
-
-    index += tabbable.length + (e.shiftKey ? -1 : 1);
-    index %= tabbable.length;
-
-    tabbable[index].focus();
-    e.preventDefault();
+    tabWithinParent(e, modal);
   }
 };
 
@@ -70,6 +61,6 @@ if (previously_focused) {
 
 <div class="modal-background" on:click="{close}"></div>
 
-<div class="modal" role="dialog" aria-modal="true" bind:this="{modal}">
+<div class="modal" role="dialog" aria-label="{name}" aria-modal="true" bind:this="{modal}">
   <slot />
 </div>

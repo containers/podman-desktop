@@ -27,7 +27,7 @@ let termFit: FitAddon;
 $: {
   if (
     refContainer &&
-    (refContainer.id !== container.id || (refContainer.state != container.state && container.state !== 'EXITED'))
+    (refContainer.id !== container.id || (refContainer.state !== container.state && container.state !== 'EXITED'))
   ) {
     logsTerminal?.clear();
     fetchContainerLogs();
@@ -104,7 +104,7 @@ onMount(async () => {
   await refreshTerminal();
   fetchContainerLogs();
   // Resize the terminal each time we change the div size
-  resizeObserver = new ResizeObserver(entries => {
+  resizeObserver = new ResizeObserver(() => {
     termFit?.fit();
   });
 

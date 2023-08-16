@@ -1,17 +1,8 @@
 <script lang="ts">
 import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
+import { iconClass } from './StatusBarItem';
 
 export let entry;
-
-function iconClass(entry: StatusBarEntry): string | undefined {
-  let iconClass = undefined;
-  if (entry.enabled && entry.activeIconClass !== undefined && entry.activeIconClass.trim().length !== 0) {
-    iconClass = entry.activeIconClass;
-  } else if (!entry.enabled && entry.inactiveIconClass !== undefined && entry.inactiveIconClass.trim().length !== 0) {
-    iconClass = entry.inactiveIconClass;
-  }
-  return iconClass;
-}
 
 function tooltipText(entry: StatusBarEntry): string {
   return entry.tooltip !== undefined ? entry.tooltip : '';
@@ -47,7 +38,7 @@ async function executeCommand(entry: StatusBarEntry) {
   class="{opacity(entry)} px-1 {hoverBackground(entry)} {hoverCursor(entry)}"
   title="{tooltipText(entry)}">
   {#if iconClass(entry)}
-    <i class="{iconClass(entry)}" aria-hidden="true"></i>
+    <span class="{iconClass(entry)}" aria-hidden="true"></span>
   {/if}
   {#if entry.text}
     <span class="ml-1">{entry.text}</span>

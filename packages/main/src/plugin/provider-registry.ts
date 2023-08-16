@@ -39,6 +39,8 @@ import type {
   UpdateContainerConnectionEvent,
   UpdateKubernetesConnectionEvent,
   ProviderConnectionStatus,
+  AuditResult,
+  AuditRequestItems,
 } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
@@ -46,15 +48,15 @@ import type {
   ProviderKubernetesConnectionInfo,
   LifecycleMethod,
   PreflightChecksCallback,
-} from './api/provider-info';
-import type { ContainerProviderRegistry } from './container-registry';
-import type { Event } from './events/emitter';
-import { Emitter } from './events/emitter';
-import { LifecycleContextImpl, LoggerImpl } from './lifecycle-context';
-import { ProviderImpl } from './provider-impl';
-import type { Telemetry } from './telemetry/telemetry';
-import { Disposable } from './types/disposable';
-import type { ApiSenderType } from './api';
+} from './api/provider-info.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
+import type { Event } from './events/emitter.js';
+import { Emitter } from './events/emitter.js';
+import { LifecycleContextImpl, LoggerImpl } from './lifecycle-context.js';
+import { ProviderImpl } from './provider-impl.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import { Disposable } from './types/disposable.js';
+import type { ApiSenderType } from './api.js';
 
 export type ProviderEventListener = (name: string, providerInfo: ProviderInfo) => void;
 export type ProviderLifecycleListener = (
@@ -461,6 +463,7 @@ export class ProviderRegistry {
   async initializeProvider(providerInternalId: string): Promise<void> {
     const provider = this.getMatchingProvider(providerInternalId);
 
+    provider.updateStatus('configuring');
     // do we have a lifecycle attached to the provider ?
     if (
       this.providerLifecycles.has(providerInternalId) &&
@@ -643,11 +646,11 @@ export class ProviderRegistry {
   }
 
   // helper method
-  protected getMatchingProvider(providerId: string): ProviderImpl {
+  protected getMatchingProvider(internalId: string): ProviderImpl {
     // need to find the provider
-    const provider = this.providers.get(providerId);
+    const provider = this.providers.get(internalId);
     if (!provider) {
-      throw new Error(`no provider matching provider id ${providerId}`);
+      throw new Error(`no provider matching provider id ${internalId}`);
     }
     return provider;
   }
@@ -661,11 +664,11 @@ export class ProviderRegistry {
     return context;
   }
 
-  getMatchingContainerLifecycleContext(
-    providerId: string,
-    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  getMatchingConnectionLifecycleContext(
+    internalId: string,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   ): LifecycleContextImpl {
-    const connection = this.getMatchingContainerConnectionFromProvider(providerId, providerContainerConnectionInfo);
+    const connection = this.getMatchingConnectionFromProvider(internalId, providerContainerConnectionInfo);
 
     const context = this.connectionLifecycleContexts.get(connection);
     if (!context) {
@@ -673,6 +676,23 @@ export class ProviderRegistry {
     }
 
     return context;
+  }
+
+  getMatchingProviderInternalId(providerId: string): string {
+    // need to find the provider
+    const provider = Array.from(this.providers.values()).find(prov => prov.id === providerId);
+    if (!provider) {
+      throw new Error(`no provider matching provider id ${providerId}`);
+    }
+    return provider.internalId;
+  }
+
+  getMatchingProviderLifecycleContextByProviderId(
+    providerId: string,
+    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+  ): LifecycleContextImpl {
+    const internalId = this.getMatchingProviderInternalId(providerId);
+    return this.getMatchingConnectionLifecycleContext(internalId, providerConnectionInfo);
   }
 
   async createContainerProviderConnection(
@@ -691,6 +711,21 @@ export class ProviderRegistry {
 
     // create a logger
     return provider.containerProviderConnectionFactory.create(params, logHandler, token);
+  }
+
+  async auditConnectionParameters(
+    internalProviderId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params: AuditRequestItems,
+  ): Promise<AuditResult> {
+    // grab the correct provider
+    const provider = this.getMatchingProvider(internalProviderId);
+
+    if (!provider.connectionAuditor) {
+      throw new Error('The provider does not support audit for connection parameters');
+    }
+
+    return provider.connectionAuditor.auditItems(params);
   }
 
   async createKubernetesProviderConnection(

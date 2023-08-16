@@ -4,11 +4,13 @@ import { afterUpdate } from 'svelte';
 import { contributions } from '../../stores/contribs';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
+import Button from '../ui/Button.svelte';
+import { faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 
 export let ociImage: string = undefined;
 
-let installInProgress: boolean = false;
-let errorInstall: string = '';
+let installInProgress = false;
+let errorInstall = '';
 let logs: string[] = [];
 
 let logElement;
@@ -49,7 +51,7 @@ function deleteContribution(extensionName: string) {
 </script>
 
 <SettingsPage title="Docker Desktop Extensions">
-  <div class="bg-charcoal-600 mt-5 rounded-md p-3">
+  <div class="bg-charcoal-600 rounded-md p-3">
     <p class="text-xs">There is an ongoing support of Docker Desktop UI extensions from Podman Desktop.</p>
     <p class="text-xs italic">
       Not all are guaranteed to work but you can add their OCI Image below to try and load them.
@@ -59,7 +61,7 @@ function deleteContribution(extensionName: string) {
       the OpenShift extension.
     </p>
 
-    <div class="container mx-auto w-full mt-4 flex-col">
+    <div class="container w-full mt-4 flex-col">
       <div class="flex flex-col mb-4">
         <label for="ociImage" class="block mb-2 text-sm font-medium text-gray-400">Image name:</label>
         <input
@@ -72,25 +74,13 @@ function deleteContribution(extensionName: string) {
       </div>
     </div>
 
-    <button
+    <Button
       on:click="{() => installDDExtensionFromImage()}"
-      disabled="{ociImage === undefined || ociImage.trim() === '' || installInProgress}"
-      class="pf-c-button pf-m-primary"
-      type="button">
-      {#if installInProgress}
-        <i class="pf-c-button__progress">
-          <span class="pf-c-spinner pf-m-md" role="progressbar">
-            <span class="pf-c-spinner__clipper"></span>
-            <span class="pf-c-spinner__lead-ball"></span>
-            <span class="pf-c-spinner__tail-ball"></span>
-          </span>
-        </i>
-      {/if}
-      <span class="pf-c-button__icon pf-m-start">
-        <i class="fas fa-arrow-circle-down ml-6" aria-hidden="true"></i>
-      </span>
+      inProgress="{installInProgress}"
+      disabled="{ociImage === undefined || ociImage.trim() === ''}"
+      icon="{faArrowCircleDown}">
       Install extension from the OCI image
-    </button>
+    </Button>
 
     <div
       class:opacity-0="{logs.length === 0}"
@@ -105,9 +95,9 @@ function deleteContribution(extensionName: string) {
   </div>
 
   {#if $contributions.length > 0}
-    <div class="flex border-t-2 border-purple-500 flex-1 flex-col m-4 p-2">
+    <div class="flex border-t-2 border-purple-500 flex-1 flex-col mt-4 p-2">
       <p>Installed extensions:</p>
-      <div class="grid gap-4 grid-cols-4 py-4">
+      <div class="grid gap-4 grid-cols-4 pt-4">
         {#each $contributions as contribution, index}
           <div class="flex flex-col bg-purple-600 h-[100px]">
             <div class="flex justify-end flex-wrap">

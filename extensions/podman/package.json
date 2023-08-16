@@ -15,6 +15,18 @@
       {
         "command": "podman.info",
         "title": "podman: Specific info about podman"
+      },
+      {
+        "command": "podman.onboarding.checkPodmanInstalled",
+        "title": "podman: Check podman installation"
+      },
+      {
+        "command": "podman.onboarding.checkPodmanRequirements",
+        "title": "podman: Check system requirements to install podman"
+      },
+      {
+        "command": "podman.onboarding.installPodman",
+        "title": "podman: Install podman"
       }
     ],
     "configuration": {
@@ -30,15 +42,15 @@
           "type": "number",
           "format": "cpu",
           "minimum": 1,
-          "default": 1,
+          "default": 2,
           "scope": "ContainerConnection",
           "description": "CPU(s)"
         },
         "podman.machine.memory": {
           "type": "number",
           "format": "memory",
-          "minimum": 1024000000,
-          "default": 2048000000,
+          "minimum": 1000000000,
+          "default": 4000000000,
           "scope": "ContainerConnection",
           "description": "Memory"
         },
@@ -58,7 +70,7 @@
         "podman.factory.machine.cpus": {
           "type": "number",
           "format": "cpu",
-          "default": 1,
+          "default": 2,
           "minimum": 1,
           "maximum": "HOST_TOTAL_CPU",
           "scope": "ContainerProviderConnectionFactory",
@@ -67,8 +79,8 @@
         "podman.factory.machine.memory": {
           "type": "number",
           "format": "memory",
-          "minimum": 1024000000,
-          "default": 2048000000,
+          "minimum": 1000000000,
+          "default": 4000000000,
           "maximum": "HOST_TOTAL_MEMORY",
           "scope": "ContainerProviderConnectionFactory",
           "description": "Memory"
@@ -89,11 +101,101 @@
           "description": "Image Path (Optional)"
         },
         "podman.factory.machine.rootful": {
-                  "type": "boolean",
-                  "scope": "ContainerProviderConnectionFactory",
-                  "description": "Machine with root privileges"
+          "type": "boolean",
+          "default": true,
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Machine with root privileges"
+        },
+        "podman.factory.machine.user-mode-networking": {
+          "type": "boolean",
+          "default": false,
+          "scope": "ContainerProviderConnectionFactory",
+          "markdownDescription": "User mode networking (traffic relayed by a user process). See [documentation](https://docs.podman.io/en/latest/markdown/podman-machine-init.1.html#user-mode-networking).",
+          "when": "podman.isUserModeNetworkingSupported == true"
+        }
       }
-      }
+    },
+    "onboarding": {
+      "title": "Podman Setup",
+      "steps": [
+        {
+          "id": "checkPodmanInstalled",
+          "label": "Check Podman",
+          "title": "Checking for Podman installation",
+          "command": "podman.onboarding.checkPodmanInstalled",
+          "completionEvents": [
+            "onCommand:podman.onboarding.checkPodmanInstalled"
+          ]
+        },
+        {
+          "id": "startPodmanInstallation",
+          "label": "Start Setup",
+          "title": "We could not find Podman. Let's install it!",
+          "when": "onboardingContext:podmanIsNotInstalled == true"
+        },
+        {
+          "id": "checkPodmanRequirements",
+          "label": "Check System",
+          "title": "Checking for system requirements to install Podman",
+          "when": "onboardingContext:podmanIsNotInstalled == true",
+          "command": "podman.onboarding.checkPodmanRequirements",
+          "completionEvents": [
+            "onCommand:podman.onboarding.checkPodmanRequirements"
+          ]
+        },
+        {
+          "id": "missingRequirementView",
+          "label": "Fix System",
+          "title": "Some system requirements are missing",
+          "when": "onboardingContext:requirementsStatus == failed && onboardingContext:podmanIsNotInstalled == true",
+          "completionEvents": [
+            "onboardingContext:requirementsStatus == ok"
+          ],
+          "content": [
+            [
+              {
+                "value": "${onboardingContext:warningsMarkdown}",
+                "highlight": true
+              }
+            ],
+            [
+              {
+                "value": "When possible, we've provided information on how to address these requirements."
+              }
+            ],
+            [
+              {
+                "label": "Check requirements again",
+                "command": "podman.onboarding.checkPodmanRequirements",
+                "component": "button"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "installPodmanView",
+          "label": "Install Podman",
+          "title": "Installing Podman",
+          "description": "Once installed, we will enable and configure the extension",
+          "when": "onboardingContext:podmanIsNotInstalled == true",
+          "command": "podman.onboarding.installPodman",
+          "completionEvents": [
+            "onCommand:podman.onboarding.installPodman"
+          ]
+        },
+        {
+          "id": "podmanFailedInstallation",
+          "label": "Done",
+          "title": "Failed installing Podman",
+          "when": "onboardingContext:podmanIsNotInstalled == true"
+        },
+        {
+          "id": "podmanInstalled",
+          "label": "Done",
+          "title": "Podman successfully installed",
+          "when": "onboardingContext:podmanIsNotInstalled == false"
+        }
+      ]
     }
   },
   "scripts": {
@@ -105,15 +207,17 @@
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
     "@podman-desktop/api": "^0.0.1",
-    "compare-versions": "^5.0.3",
+    "compare-versions": "^6.1.0",
     "sudo-prompt": "^9.2.1"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
     "hasha": "^5.2.2",
-    "mkdirp": "^2.1.6",
-    "octokit": "^2.0.16",
+    "mkdirp": "^3.0.1",
+    "nock": "^13.3.2",
+    "octokit": "^3.1.0",
     "ts-node": "^10.9.1",
+    "vitest": "^0.34.1",
     "zip-local": "^0.3.5"
   }
 }

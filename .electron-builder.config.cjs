@@ -142,6 +142,11 @@ const config = {
       },
     ],
   },
+  protocols: {
+    name: 'Podman Desktop',
+    schemes: ['podman-desktop'],
+    role: "Editor"
+  },
   publish: {
     provider: 'github',
     timeout: 10000,

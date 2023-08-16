@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 import * as os from 'node:os';
-import type { ConfigurationRegistry, IConfigurationNode } from '../plugin/configuration-registry';
-import { MacosStartup } from './macos-startup';
-import { WindowsStartup } from './windows-startup';
+import type { ConfigurationRegistry, IConfigurationNode } from '../plugin/configuration-registry.js';
+import { MacosStartup } from './macos-startup.js';
+import { WindowsStartup } from './windows-startup.js';
 
 export class StartupInstall {
   private osStartup: MacosStartup | WindowsStartup | undefined;

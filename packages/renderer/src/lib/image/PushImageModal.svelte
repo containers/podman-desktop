@@ -6,16 +6,12 @@ import { FitAddon } from 'xterm-addon-fit';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
+import Button from '../ui/Button.svelte';
+import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
 
 export let closeCallback: () => void;
 export let imageInfoToPush: ImageInfoUI;
 
-function keydownDockerfileChoice(e: KeyboardEvent) {
-  e.stopPropagation();
-  if (e.key === 'Escape') {
-    closeCallback();
-  }
-}
 let pushInProgress = false;
 let pushFinished = false;
 let logsPush;
@@ -136,27 +132,16 @@ let pushLogsXtermDiv: HTMLDivElement;
       </div>
 
       {#if !pushFinished}
-        <button
-          class="pf-c-button pf-m-primary"
-          disabled="{pushInProgress}"
-          type="button"
+        <Button
+          icon="{faCircleArrowUp}"
           on:click="{() => {
             pushImage(selectedImageTag);
-          }}">
-          {#if pushInProgress === true}
-            <i class="pf-c-button__progress">
-              <span class="pf-c-spinner pf-m-md" role="progressbar">
-                <span class="pf-c-spinner__clipper"></span>
-                <span class="pf-c-spinner__lead-ball"></span>
-                <span class="pf-c-spinner__tail-ball"></span>
-              </span>
-            </i>
-          {:else}
-            <i class="fas fa-arrow-circle-up" aria-hidden="true"></i>
-          {/if}
-          Push image</button>
+          }}"
+          bind:inProgress="{pushInProgress}">
+          Push image
+        </Button>
       {:else}
-        <button class="pf-c-button pf-m-primary" type="button" on:click="{() => pushImageFinished()}"> Done</button>
+        <Button on:click="{() => pushImageFinished()}">Done</Button>
       {/if}
 
       <div bind:this="{pushLogsXtermDiv}"></div>

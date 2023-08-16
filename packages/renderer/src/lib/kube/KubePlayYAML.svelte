@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount, tick, onDestroy } from 'svelte';
+import { onMount, onDestroy } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 let providerUnsubscribe: Unsubscriber;
@@ -7,16 +7,19 @@ let providerUnsubscribe: Unsubscriber;
 import { providerInfos } from '../../stores/providers';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import KubePlayIcon from '../kube/KubePlayIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
+import Button from '../ui/Button.svelte';
 
 let runStarted = false;
 let runFinished = false;
 let runError = '';
+let runWarning = '';
 let kubernetesYamlFilePath = undefined;
 let hasInvalidFields = true;
 
@@ -25,6 +28,7 @@ let currentNamespace: string;
 let allNamespaces: V1NamespaceList;
 
 let playKubeResultRaw;
+let playKubeResultJSON;
 
 let userChoice: 'podman' | 'kubernetes' = 'podman';
 
@@ -57,8 +61,28 @@ async function playKubeFile(): Promise<void> {
     if (userChoice === 'podman') {
       try {
         const result = await window.playKube(kubernetesYamlFilePath, selectedProvider);
+
         // remove the null values from the result
-        playKubeResultRaw = JSON.stringify(removeEmptyOrNull(result), null, 2);
+        playKubeResultRaw = JSON.stringify(removeEmptyOrNull(result), undefined, 2);
+        playKubeResultJSON = JSON.parse(playKubeResultRaw);
+
+        // If there are container errors, that means that it was *able* to create the container
+        // but if failed to start. We will add this to the "warning" section as we were able to create the
+        // We add this with comma deliminated errors
+        if (playKubeResultJSON.Pods.length > 0) {
+          // Filter out the pods that have container errors, but check to see that container errors exists first
+          const containerErrors = playKubeResultJSON.Pods.filter(
+            pod => pod.ContainerErrors && pod.ContainerErrors.length > 0,
+          );
+
+          // For each Pod that has container errors, we will add the container errors to the warning message
+          if (containerErrors.length > 0) {
+            runWarning = `The following pods were created but failed to start: ${containerErrors
+              .map(pod => pod.ContainerErrors.join(', '))
+              .join(', ')}`;
+          }
+        }
+
         runFinished = true;
       } catch (error) {
         runError = error;
@@ -107,6 +131,10 @@ onDestroy(() => {
   }
 });
 
+function goBackToHistory(): void {
+  window.history.go(-1);
+}
+
 async function getKubernetesfileLocation() {
   const result = await window.openFileDialog('Select a .yaml file to play', {
     name: 'YAML files',
@@ -124,8 +152,10 @@ async function getKubernetesfileLocation() {
 {/if}
 
 {#if providerConnections.length > 0}
-  <NavPage title="Play Pods or Containers from a Kubernetes YAML File" searchEnabled="{false}">
-    <div slot="empty" class="bg-charcoal-700 p-5 h-full">
+  <FormPage title="Play Pods or Containers from a Kubernetes YAML File">
+    <KubePlayIcon slot="icon" size="30px" />
+
+    <div slot="content" class="p-5 min-w-full h-fit">
       <div class="bg-charcoal-800 px-6 py-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div class="text-xl font-medium">Select file:</div>
         <div hidden="{runStarted}">
@@ -177,7 +207,7 @@ async function getKubernetesfileLocation() {
                       </select>
                     </label>
                   {/if}
-                  {#if providerConnections.length == 1}
+                  {#if providerConnections.length === 1}
                     <input
                       type="hidden"
                       name="providerChoice"
@@ -244,29 +274,14 @@ async function getKubernetesfileLocation() {
         </div>
 
         {#if !runFinished}
-          <button
+          <Button
             on:click="{() => playKubeFile()}"
             disabled="{hasInvalidFields || runStarted}"
-            class="w-full pf-c-button pf-m-primary"
-            type="button">
-            <div class="flex flex-row align-text-top justify-center items-center">
-              {#if runStarted}
-                <div class="mr-4">
-                  <i class="pf-c-button__progress">
-                    <span class="pf-c-spinner pf-m-md" role="progressbar">
-                      <span class="pf-c-spinner__clipper"></span>
-                      <span class="pf-c-spinner__lead-ball"></span>
-                      <span class="pf-c-spinner__tail-ball"></span>
-                    </span>
-                  </i>
-                </div>
-              {:else}
-                <KubePlayIcon />
-              {/if}
-
-              Play
-            </div>
-          </button>
+            class="w-full"
+            bind:inProgress="{runStarted}"
+            icon="{KubePlayIcon}">
+            Play
+          </Button>
         {/if}
         {#if runStarted}
           <div class="text-gray-700 text-sm">
@@ -274,17 +289,38 @@ async function getKubernetesfileLocation() {
             complete...
           </div>
         {/if}
-        <div class="text-sm"><ErrorMessage error="{runError}" /></div>
+
+        {#if runWarning}
+          <WarningMessage class="text-sm" error="{runWarning}" />
+        {/if}
+
+        {#if runError}
+          <ErrorMessage class="text-sm" error="{runError}" />
+        {/if}
+
+        {#if playKubeResultJSON}
+          <!-- Output area similar to DeployPodToKube.svelte -->
+          <div class="bg-charcoal-800 p-5 my-4">
+            <div class="flex flex-row items-center">
+              <div>
+                {#if playKubeResultJSON?.Pods.length > 1}
+                  Created pods:
+                {:else}
+                  Created pod:
+                {/if}
+              </div>
+            </div>
+
+            <div class="h-[100px] pt-2">
+              <MonacoEditor content="{playKubeResultRaw}" language="json" />
+            </div>
+          </div>
+        {/if}
+
         {#if runFinished}
-          <!-- On click, go BACK to the previous page (if clicked on Pods page, go back to pods, same for Containers)-->
-          <button on:click="{() => history.back()}" class="w-full pf-c-button pf-m-primary">Done</button>
+          <Button on:click="{() => goBackToHistory()}" class="pt-4 w-full">Done</Button>
         {/if}
       </div>
-      {#if playKubeResultRaw}
-        <div class=" h-full w-full px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8">
-          <MonacoEditor content="{playKubeResultRaw}" language="json" />
-        </div>
-      {/if}
     </div>
-  </NavPage>
+  </FormPage>
 {/if}

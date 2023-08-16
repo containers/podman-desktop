@@ -1,16 +1,19 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import * as jsYaml from 'js-yaml';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
+import Button from '../ui/Button.svelte';
+import { faRocket } from '@fortawesome/free-solid-svg-icons';
 
 export let resourceId: string;
 export let engineId: string;
+export let type: string;
 
 let kubeDetails: string;
 
@@ -38,9 +41,16 @@ let containerPortArray: string[] = [];
 let createdRoutes: V1Route[] = [];
 
 onMount(async () => {
-  // grab kube result from the pod
-  const kubeResult = await window.generatePodmanKube(engineId, [resourceId]);
-  kubeDetails = kubeResult;
+  // If type = compose
+  // we will grab the containers by using the label com.docker.compose.project that matches the resourceId
+  // we can then pass the array of containers to generatePodmanKube rather than the singular pod id
+  if (type === 'compose') {
+    const containers = await window.listSimpleContainersByLabel('com.docker.compose.project', resourceId);
+    const containerIds = containers.map(container => container.Id);
+    kubeDetails = await window.generatePodmanKube(engineId, containerIds);
+  } else {
+    kubeDetails = await window.generatePodmanKube(engineId, [resourceId]);
+  }
 
   // parse yaml
   bodyPod = jsYaml.load(kubeDetails) as any;
@@ -81,6 +91,7 @@ onMount(async () => {
     container.ports?.forEach((port: any) => {
       containerPortArray.push(port.hostPort);
     });
+    container.imagePullPolicy = 'IfNotPresent';
   });
 });
 
@@ -196,11 +207,11 @@ async function deployToKube() {
     // Check that there are services (servicesToCreate), if there aren't. Warn that we can't create an ingress.
     // All services are always created with one port (the first one), so we can use that port to create the ingress.
     // Must be a number
-    if (servicesToCreate.length == 0) {
+    if (servicesToCreate.length === 0) {
       deployWarning = 'You need to deploy using services to create an ingress.';
       deployStarted = false;
       return;
-    } else if (servicesToCreate.length == 1) {
+    } else if (servicesToCreate.length === 1) {
       serviceName = servicesToCreate[0].metadata.name;
       servicePort = servicesToCreate[0].spec.ports[0].port;
     } else if (servicesToCreate.length > 1) {
@@ -211,7 +222,7 @@ async function deployToKube() {
         deployStarted = false;
         return;
       }
-      const matchingService = servicesToCreate.find(service => service.spec.ports[0].port == ingressPort);
+      const matchingService = servicesToCreate.find(service => service.spec.ports[0].port === ingressPort);
       if (matchingService) {
         serviceName = matchingService.metadata.name;
         servicePort = matchingService.spec.ports[0].port;
@@ -312,7 +323,9 @@ async function deployToKube() {
     window.telemetryTrack('deployToKube', eventProperties);
 
     // update status
-    updatePodInterval = setInterval(updatePod, 2000);
+    updatePodInterval = setInterval(() => {
+      updatePod();
+    }, 2000);
   } catch (error) {
     // Revert back to the previous bodyPod so the user can hit deploy again
     // we only update the bodyPod if we successfully create the pod.
@@ -330,7 +343,7 @@ $: bodyPod && updateKubeResult();
 // Update bodyPod.metadata.labels.app to be the same as bodyPod.metadata.name
 // If statement required as bodyPod.metadata is undefined when bodyPod is undefined
 $: {
-  if (bodyPod && bodyPod.metadata && bodyPod.metadata.labels) {
+  if (bodyPod?.metadata?.labels) {
     bodyPod.metadata.labels.app = bodyPod.metadata.name;
   }
 }
@@ -340,12 +353,14 @@ function updateKubeResult() {
 }
 </script>
 
-<NavPage title="Deploy generated pod to Kubernetes" searchEnabled="{false}">
-  <div slot="empty" class="p-5 bg-zinc-700 h-full">
-    <div class="bg-charcoal-600 h-full p-5">
+<FormPage title="Deploy generated pod to Kubernetes">
+  <i class="fas fa-rocket fa-2x" slot="icon" aria-hidden="true"></i>
+
+  <div slot="content" class="p-5 min-w-full h-fit">
+    <div class="bg-charcoal-600 p-5">
       {#if kubeDetails}
-        <p>Generated pod to deploy to Kubernetes:</p>
-        <div class="h-1/3 pt-2">
+        <p>Generated Kubernetes YAML:</p>
+        <div class="h-48 pt-2">
           <MonacoEditor content="{kubeDetails}" language="yaml" />
         </div>
       {/if}
@@ -364,7 +379,7 @@ function updateKubeResult() {
       {/if}
 
       <div class="pt-2 pb-4">
-        <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Use Kubernetes Services:</label>
+        <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes Services:</label>
         <input
           type="checkbox"
           bind:checked="{deployUsingServices}"
@@ -379,7 +394,7 @@ function updateKubeResult() {
 
       <div class="pt-2 pb-4">
         <label for="useRestricted" class="block mb-1 text-sm font-medium text-gray-300"
-          >Use restricted security context</label>
+          >Restricted Security Context:</label>
         <input
           type="checkbox"
           bind:checked="{deployUsingRestrictedSecurityContext}"
@@ -398,7 +413,7 @@ function updateKubeResult() {
       {#if !openshiftRouteGroupSupported && deployUsingServices}
         <div class="pt-2 pb-4">
           <label for="createIngress" class="block mb-1 text-sm font-medium text-gray-300"
-            >Expose service locally using Kubernetes Ingress:</label>
+            >Expose Service Locally Using Kubernetes Ingress:</label>
           <input
             type="checkbox"
             bind:checked="{createIngress}"
@@ -459,7 +474,7 @@ function updateKubeResult() {
 
       {#if allNamespaces}
         <div class="pt-2">
-          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes namespace:</label>
+          <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Namespace:</label>
           <select
             class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
             name="namespaceChoice"
@@ -481,17 +496,14 @@ function updateKubeResult() {
       {/if}
 
       {#if !deployStarted}
-        <div class="pt-2 m-2">
-          <button
+        <div class="pt-4">
+          <Button
             on:click="{() => deployToKube()}"
-            class="w-full pf-c-button pf-m-primary"
-            type="button"
+            class="w-full"
+            icon="{faRocket}"
             disabled="{bodyPod?.metadata?.name === ''}">
-            <span class="pf-c-button__icon pf-m-start">
-              <i class="fas fa-rocket" aria-hidden="true"></i>
-            </span>
             Deploy
-          </button>
+          </Button>
         </div>
       {/if}
 
@@ -568,8 +580,10 @@ function updateKubeResult() {
       {/if}
 
       {#if deployFinished}
-        <button on:click="{() => goBackToHistory()}" class="pt-4 w-full pf-c-button pf-m-primary">Done</button>
+        <div class="pt-4">
+          <Button on:click="{() => goBackToHistory()}" class="w-full">Done</Button>
+        </div>
       {/if}
     </div>
   </div>
-</NavPage>
+</FormPage>

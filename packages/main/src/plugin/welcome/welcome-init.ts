@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationNode, IConfigurationRegistry } from '../configuration-registry';
-import { WelcomeSettings } from './welcome-settings';
+import type { IConfigurationNode, IConfigurationRegistry } from '../configuration-registry.js';
+import { WelcomeSettings } from './welcome-settings.js';
 
 export class WelcomeInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}

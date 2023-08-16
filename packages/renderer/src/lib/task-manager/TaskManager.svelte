@@ -1,20 +1,12 @@
 <script lang="ts">
-import {
-  faCheck,
-  faCheckCircle,
-  faCheckDouble,
-  faCheckSquare,
-  faChevronDown,
-  faCircle,
-  faInfoCircle,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { clearCompletedTasks, tasksInfo } from '/@/stores/tasks';
 
 import Fa from 'svelte-fa/src/fa.svelte';
-import BellSlashIcon from '../images/BellSlashIcon.svelte';
 import TaskIcon from '../images/TaskIcon.svelte';
 import TaskManagerEmptyScreen from './TaskManagerEmptyScreen.svelte';
 import TaskManagerGroup from './TaskManagerGroup.svelte';
+import Button from '../ui/Button.svelte';
 
 // display or not the tasks manager (defaut is false)
 export let showTaskManager = false;
@@ -111,9 +103,9 @@ window.events?.receive('toggle-task-manager', () => {
       <!-- only if there are tasks-->
       {#if completedTasks.length > 0}
         <div class="flex flex-row w-full">
-          <div class="p-2 flex flex-row space-x-2 w-full text-gray-400">
-            <button on:click="{() => clearCompleted()}" class="pf-c-button pf-m-secondary">Clear completed</button>
-            <!--<button class="pf-c-button pf-m-secondary">View task history</button>-->
+          <div class="p-2 flex flex-row space-x-2 w-full">
+            <Button on:click="{() => clearCompleted()}">Clear completed</Button>
+            <!--<Button>View task history</Button>-->
           </div>
         </div>
       {/if}

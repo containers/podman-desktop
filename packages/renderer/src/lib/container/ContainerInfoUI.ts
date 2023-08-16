@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Port } from '@podman-desktop/api';
+
 // type of groups
 export enum ContainerGroupInfoTypeUI {
   STANDALONE = 'standalone',
@@ -33,6 +35,7 @@ export interface ContainerGroupPartInfoUI {
   id?: string;
   engineId?: string;
   engineName?: string;
+  engineType?: 'podman' | 'docker';
   shortId?: string;
   status?: string;
   humanCreationDate?: string;
@@ -51,7 +54,7 @@ export interface ContainerInfoUI {
   state: string;
   uptime: string;
   startedAt: string;
-  ports: number[];
+  ports: Port[];
   portsAsString: string;
   displayPort: string;
   command: string;
@@ -62,6 +65,8 @@ export interface ContainerInfoUI {
   created: number;
   actionInProgress?: boolean;
   actionError?: string;
+  labels: { [label: string]: string };
+  icon?: any;
 }
 
 export interface ContainerGroupInfoUI extends ContainerGroupPartInfoUI {

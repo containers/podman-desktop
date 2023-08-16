@@ -24,26 +24,40 @@ import type {
   Event,
 } from '@podman-desktop/api';
 import { beforeEach, afterEach, expect, test, vi, suite } from 'vitest';
-import type { ApiSenderType } from './api';
-import { AuthenticationImpl } from './authentication';
-import type { CommandRegistry } from './command-registry';
-import type { ConfigurationRegistry } from './configuration-registry';
-import type { ContainerProviderRegistry } from './container-registry';
-import { Emitter as EventEmitter } from './events/emitter';
-import { ExtensionLoader } from './extension-loader';
-import type { FilesystemMonitoring } from './filesystem-monitoring';
-import type { ImageRegistry } from './image-registry';
-import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry';
-import type { KubernetesClient } from './kubernetes-client';
-import type { MenuRegistry } from './menu-registry';
-import type { MessageBox } from './message-box';
-import type { NotificationImpl } from './notification-impl';
-import type { ProgressImpl } from './progress-impl';
-import type { ProviderRegistry } from './provider-registry';
-import type { StatusBarRegistry } from './statusbar/statusbar-registry';
-import type { Telemetry } from './telemetry/telemetry';
-import type { TrayMenuRegistry } from './tray-menu-registry';
-import type { Proxy } from './proxy';
+import type { Mock } from 'vitest';
+import type { ApiSenderType } from './api.js';
+import { AuthenticationImpl } from './authentication.js';
+import type { CommandRegistry } from './command-registry.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
+import { Emitter as EventEmitter } from './events/emitter.js';
+import { ExtensionLoader } from './extension-loader.js';
+import type { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { ImageRegistry } from './image-registry.js';
+import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
+import type { KubernetesClient } from './kubernetes-client.js';
+import type { MenuRegistry } from './menu-registry.js';
+import type { MessageBox } from './message-box.js';
+import type { NotificationImpl } from './notification-impl.js';
+import type { ProgressImpl } from './progress-impl.js';
+import type { ProviderRegistry } from './provider-registry.js';
+import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import type { TrayMenuRegistry } from './tray-menu-registry.js';
+import type { Proxy } from './proxy.js';
+import type { IconRegistry } from './icon-registry.js';
+import type { Directories } from './directories.js';
+import type { CustomPickRegistry } from './custompick/custompick-registry.js';
+import type { ViewRegistry } from './view-registry.js';
+import type { Context } from './context/context.js';
+import type { OnboardingRegistry } from './onboarding-registry.js';
+import { getBase64Image } from '../util.js';
+
+vi.mock('../util.js', async () => {
+  return {
+    getBase64Image: vi.fn(),
+  };
+});
 
 function randomNumber(n = 5) {
   return Math.round(Math.random() * 10 * n);
@@ -88,6 +102,12 @@ const apiSender: ApiSenderType = {
 };
 
 let authModule: AuthenticationImpl;
+
+const directories = {
+  getPluginsDirectory: () => '/fake-plugins-directory',
+  getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
+  getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
+} as unknown as Directories;
 
 beforeEach(function () {
   authModule = new AuthenticationImpl(apiSender);
@@ -242,8 +262,14 @@ suite('Authentication', () => {
       vi.fn() as unknown as Proxy,
       vi.fn() as unknown as ContainerProviderRegistry,
       vi.fn() as unknown as InputQuickPickRegistry,
+      vi.fn() as unknown as CustomPickRegistry,
       authentication,
+      vi.fn() as unknown as IconRegistry,
+      vi.fn() as unknown as OnboardingRegistry,
       vi.fn() as unknown as Telemetry,
+      vi.fn() as unknown as ViewRegistry,
+      vi.fn() as unknown as Context,
+      directories,
     );
     providerMock = {
       onDidChangeSessions: vi.fn(),
@@ -260,7 +286,7 @@ suite('Authentication', () => {
   const BASE64ENCODEDIMAGE = 'BASE64ENCODEDIMAGE';
 
   test('allows images option to be undefined or empty', async () => {
-    vi.spyOn(extLoader, 'getBase64Image').mockImplementation(() => BASE64ENCODEDIMAGE);
+    (getBase64Image as Mock).mockReturnValue(BASE64ENCODEDIMAGE);
     const api = extLoader.createApi('/path', {});
     expect(api).toBeDefined();
     api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock);
@@ -281,7 +307,7 @@ suite('Authentication', () => {
   });
 
   test('converts images.icon path to base 64 image when registering provider', async () => {
-    vi.spyOn(extLoader, 'getBase64Image').mockImplementation(() => BASE64ENCODEDIMAGE);
+    (getBase64Image as Mock).mockReturnValue(BASE64ENCODEDIMAGE);
     const api = extLoader.createApi('/path', {});
     expect(api).toBeDefined();
     api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {
@@ -298,7 +324,7 @@ suite('Authentication', () => {
   });
 
   test('converts images.icon with themes path to base 64 image when registering provider', async () => {
-    vi.spyOn(extLoader, 'getBase64Image').mockImplementation(() => BASE64ENCODEDIMAGE);
+    (getBase64Image as Mock).mockReturnValue(BASE64ENCODEDIMAGE);
     const api = extLoader.createApi('/path', {});
     expect(api).toBeDefined();
     api.authentication.registerAuthenticationProvider('provider2.id', 'Provider2 Label', providerMock, {

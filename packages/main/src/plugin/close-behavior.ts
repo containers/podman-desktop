@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { isLinux } from '../util';
-import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
+import { isLinux } from '../util.js';
+import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 
 export class CloseBehavior {
   constructor(private configurationRegistry: ConfigurationRegistry) {}

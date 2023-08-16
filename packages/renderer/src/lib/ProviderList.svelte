@@ -1,8 +1,7 @@
 <script lang="ts">
 import { providerInfos } from '../stores/providers';
 import Fa from 'svelte-fa/src/fa.svelte';
-import { faPlay } from '@fortawesome/free-solid-svg-icons';
-import { faStop } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import type { ProviderInfo } from '../../../main/src/plugin/api/provider-info';
 
 let waiting = false;

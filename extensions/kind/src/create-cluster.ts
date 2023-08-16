@@ -19,19 +19,25 @@ import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { getKindPath, runCliCommand } from './util';
+import { getKindPath, getMemTotalInfo, runCliCommand } from './util';
 import mustache from 'mustache';
 import { parseAllDocuments } from 'yaml';
 
 import createClusterConfTemplate from './templates/create-cluster-conf.mustache?raw';
-import type { CancellationToken } from '@podman-desktop/api';
-import ingressManifests from '/@gen/contour.yaml?raw';
+import type { AuditRecord, AuditResult, CancellationToken, AuditRequestItems } from '@podman-desktop/api';
+import ingressManifests from '/@/resources/contour.yaml?raw';
 
-export function getKindClusterConfig(clusterName: string, httpHostPort: number, httpsHostPort: number) {
+export function getKindClusterConfig(
+  clusterName: string,
+  httpHostPort: number,
+  httpsHostPort: number,
+  controlPlaneImage?: string,
+) {
   return mustache.render(createClusterConfTemplate, {
     clusterName: clusterName,
     httpHostPort: httpHostPort,
     httpsHostPort: httpsHostPort,
+    controlPlaneImage: controlPlaneImage,
   });
 }
 
@@ -55,6 +61,39 @@ export async function setupIngressController(clusterName: string) {
     'kind-' + clusterName,
     manifests.map(manifest => manifest.toJSON()),
   );
+}
+
+export async function connectionAuditor(provider: string, items: AuditRequestItems): Promise<AuditResult> {
+  const records: AuditRecord[] = [];
+  const auditResult = {
+    records: records,
+  };
+
+  const image = items['kind.cluster.creation.controlPlaneImage'];
+  if (image && !image.includes('@sha256:')) {
+    records.push({
+      type: 'warning',
+      record: 'It is recommend to include the @sha256:{image digest} for the image used.',
+    });
+  }
+
+  const providerSocket = extensionApi.provider
+    .getContainerConnections()
+    .find(connection => connection.connection.type === provider);
+
+  if (!providerSocket) return auditResult;
+
+  const memTotal = await getMemTotalInfo(providerSocket.connection.endpoint.socketPath);
+
+  // check if configured memory is less than 6GB
+  if (memTotal < 6000000000) {
+    records.push({
+      type: 'info',
+      record: 'It is recommend to install Kind on a virtual machine with at least 6GB of memory.',
+    });
+  }
+
+  return auditResult;
 }
 
 export async function createCluster(
@@ -100,8 +139,11 @@ export async function createCluster(
     ingressController = params['kind.cluster.creation.ingress'] === 'on';
   }
 
+  // grab custom kind node image if defined
+  const controlPlaneImage = params['kind.cluster.creation.controlPlaneImage'];
+
   // create the config file
-  const kindClusterConfig = getKindClusterConfig(clusterName, httpHostPort, httpsHostPort);
+  const kindClusterConfig = getKindClusterConfig(clusterName, httpHostPort, httpsHostPort, controlPlaneImage);
 
   // create a temporary file
   const tmpDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'kind-cluster-config-'));

@@ -17,6 +17,9 @@ import Prune from '../engine/Prune.svelte';
 import moment from 'moment';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
+import Checkbox from '../ui/Checkbox.svelte';
+import Button from '../ui/Button.svelte';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -31,12 +34,10 @@ $: providerConnections = $providerInfos
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 // number of selected items in the list
-$: selectedItemsNumber = volumes.filter(volume => volume.selected).length;
+$: selectedItemsNumber = volumes.filter(volume => !volume.inUse).filter(volume => volume.selected).length;
 
 // do we need to unselect all checkboxes if we don't have all items being selected ?
-$: selectedAllCheckboxes = volumes.every(volume => volume.selected);
-
-let allChecked = false;
+$: selectedAllCheckboxes = volumes.filter(volume => !volume.inUse).every(volume => volume.selected);
 
 const volumeUtils = new VolumeUtils();
 
@@ -53,17 +54,12 @@ onMount(async () => {
     }
   } else {
     // fetch in background
-    fetchVolumes().catch(error => {
+    fetchVolumes().catch((error: unknown) => {
       console.error('unable to fetch the volumes', error);
     });
   }
 
   volumesUnsubscribe = filtered.subscribe(value => {
-    // keep warnings
-    const warningsPerEngine = new Map<string, string[]>();
-    value.forEach(volumeListInfo => {
-      warningsPerEngine.set(volumeListInfo.engineId, volumeListInfo.Warnings);
-    });
     const computedVolumes = value
       .map(volumeListInfo => volumeListInfo.Volumes)
       .flat()
@@ -116,10 +112,10 @@ onDestroy(() => {
   }
 });
 
-function toggleAllVolumes(value: boolean) {
+function toggleAllVolumes(checked: boolean) {
   const toggleVolumes = volumes;
   // filter out all volumes used by a container
-  toggleVolumes.filter(volume => !volume.inUse).forEach(volume => (volume.selected = value));
+  toggleVolumes.filter(volume => !volume.inUse).forEach(volume => (volume.selected = checked));
   volumes = toggleVolumes;
 }
 
@@ -202,44 +198,28 @@ function computeInterval(): number {
 
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
-      <button
-        class="pf-c-button pf-m-primary"
+      <Button
         on:click="{() => deleteSelectedVolumes()}"
         title="Delete {selectedItemsNumber} selected items"
-        type="button">
-        <span class="pf-c-button__icon pf-m-start">
-          {#if bulkDeleteInProgress}
-            <div class="mr-4">
-              <i class="pf-c-button__progress">
-                <span class="pf-c-spinner pf-m-md" role="progressbar">
-                  <span class="pf-c-spinner__clipper"></span>
-                  <span class="pf-c-spinner__lead-ball"></span>
-                  <span class="pf-c-spinner__tail-ball"></span>
-                </span>
-              </i>
-            </div>
-          {:else}
-            <i class="fas fa-trash" aria-hidden="true"></i>
-          {/if}
-        </span>
-      </button>
+        inProgress="{bulkDeleteInProgress}"
+        icon="{faTrash}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>
 
-  <div class="min-w-full flex" slot="table">
-    <table class="mx-5 w-full" class:hidden="{volumes.length === 0}">
+  <div class="flex min-w-full h-full" slot="content">
+    <table class="mx-5 w-full h-fit" class:hidden="{volumes.length === 0}">
       <!-- title -->
-      <thead>
+      <thead class="sticky top-0 bg-charcoal-700 z-[2]">
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5"
-            ><input
-              type="checkbox"
+          <th class="px-2 w-5">
+            <Checkbox
+              title="Toggle all"
+              bind:checked="{selectedAllCheckboxes}"
               indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              bind:checked="{allChecked}"
-              on:click="{event => toggleAllVolumes(event.currentTarget.checked)}"
-              class="cursor-pointer invert hue-rotate-[218deg] brightness-75" /></th>
+              on:click="{event => toggleAllVolumes(event.detail)}" />
+          </th>
           <th class="text-center font-extrabold w-10 px-2">status</th>
           <th class="w-10">Name</th>
           <th class="px-6 whitespace-nowrap">age</th>
@@ -247,20 +227,16 @@ function computeInterval(): number {
           <th class="text-right pr-2">Actions</th>
         </tr>
       </thead>
-      <tbody class="">
+      <tbody>
         {#each volumes as volume}
           <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
             <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
             <td class="px-2">
-              <input
-                type="checkbox"
+              <Checkbox
+                title="Toggle volume"
                 bind:checked="{volume.selected}"
                 disabled="{volume.inUse}"
-                class:cursor-pointer="{!volume.inUse}"
-                class:cursor-not-allowed="{volume.inUse}"
-                class:opacity-10="{volume.inUse}"
-                title="{volume.inUse ? 'Volume is used by a container' : ''}"
-                class="cursor-pointer invert hue-rotate-[218deg] brightness-75" />
+                disabledTooltip="Volume is used by a container" />
             </td>
             <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
               <div class="grid place-content-center ml-3 mr-4">
@@ -302,8 +278,7 @@ function computeInterval(): number {
         {/each}
       </tbody>
     </table>
-  </div>
-  <div slot="empty" class="min-h-full">
+
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if fetchingInProgress}

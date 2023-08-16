@@ -22,6 +22,8 @@ import { render, screen } from '@testing-library/svelte';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import { providerInfos } from '../../stores/providers';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import userEvent from '@testing-library/user-event';
+import { router } from 'tinro';
 
 const providerInfo: ProviderInfo = {
   id: 'podman',
@@ -54,11 +56,22 @@ const providerInfo: ProviderInfo = {
   kubernetesProviderConnectionInitialization: false,
 };
 
+// mock the router
+vi.mock('tinro', () => {
+  return {
+    router: {
+      goto: vi.fn(),
+    },
+  };
+});
+
 beforeEach(() => {
   (window.events as unknown) = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     receive: vi.fn(),
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
 });
 
 test('Expect to see elements regarding default provider name', async () => {
@@ -137,4 +150,70 @@ test('Expect to see the no resource message when there is no providers', async (
   render(PreferencesResourcesRendering, {});
   const panel = screen.getByLabelText('no-resource-panel');
   expect(panel).toBeInTheDocument();
+});
+
+test('Expect to redirect to create New page if provider is installed', async () => {
+  // clone providerInfo and change id and status
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  // remove display name
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  // change name of the provider
+  customProviderInfo.name = 'foo-provider';
+  providerInfos.set([customProviderInfo]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.getByRole('button', { name: 'Create new foo-provider' });
+  expect(button).toBeInTheDocument();
+  await userEvent.click(button);
+  // redirect to create new page
+  expect(router.goto).toHaveBeenCalledWith(`/preferences/provider/${customProviderInfo.internalId}`);
+});
+
+test('Expect to display the dialog if missing requirements for installation', async () => {
+  const installPreflightMock = vi.fn().mockResolvedValue(false);
+  const installProviderMock = vi.fn().mockResolvedValue(undefined);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).runInstallPreflightChecks = installPreflightMock;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).installProvider = installProviderMock;
+  // clone providerInfo and change id and status
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  // remove display name
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  // change name of the provider
+  customProviderInfo.status = 'not-installed';
+  customProviderInfo.name = 'foo-provider';
+  providerInfos.set([customProviderInfo]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.getByRole('button', { name: 'Create new foo-provider' });
+  expect(button).toBeInTheDocument();
+  await userEvent.click(button);
+  // provider is not installed, it checks the requirements, something fails and the dialog about missing reqs is shown
+  expect(installPreflightMock).toBeCalled();
+  expect(installProviderMock).not.toHaveBeenCalled();
+  const modal = screen.getByLabelText('install provider');
+  expect(modal).toBeInTheDocument();
+});
+
+test('Expect to directly install the provider if requirements are met', async () => {
+  const installPreflightMock = vi.fn().mockResolvedValue(true);
+  const installProviderMock = vi.fn().mockResolvedValue(undefined);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).runInstallPreflightChecks = installPreflightMock;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).installProvider = installProviderMock;
+  // clone providerInfo and change id and status
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  // remove display name
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  // change name of the provider
+  customProviderInfo.status = 'not-installed';
+  customProviderInfo.name = 'foo-provider';
+  providerInfos.set([customProviderInfo]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.getByRole('button', { name: 'Create new foo-provider' });
+  expect(button).toBeInTheDocument();
+  await userEvent.click(button);
+  // all requirements are met so the installProvider function is called
+  expect(installPreflightMock).toBeCalled();
+  expect(installProviderMock).toBeCalled();
 });

@@ -26,3 +26,24 @@ export interface CatalogFetchableExtension {
   link: string;
   version: string;
 }
+
+// exposed extensions
+export interface CatalogExtension {
+  id: string;
+  publisherName: string;
+  extensionName: string;
+  displayName: string;
+  versions: CatalogExtensionVersion[];
+}
+
+interface CatalogExtensionVersion {
+  version: string;
+  ociUri: string;
+  preview: boolean;
+  files: CatalogExtensionVersionFile[];
+}
+
+interface CatalogExtensionVersionFile {
+  assetType: 'icon' | 'LICENSE' | 'README';
+  data: string;
+}

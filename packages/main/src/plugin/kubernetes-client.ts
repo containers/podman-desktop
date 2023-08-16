@@ -40,20 +40,20 @@ import {
   Watch,
   VersionApi,
 } from '@kubernetes/client-node';
-import type { V1Route } from './api/openshift-types';
+import type { V1Route } from './api/openshift-types.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Emitter } from './events/emitter';
-import { Uri } from './types/uri';
+import { Emitter } from './events/emitter.js';
+import { Uri } from './types/uri.js';
 import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
-import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
-import type { FilesystemMonitoring } from './filesystem-monitoring';
-import type { PodInfo } from './api/pod-info';
+import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
+import type { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { PodInfo } from './api/pod-info.js';
 import { PassThrough } from 'node:stream';
-import type { ApiSenderType } from './api';
+import type { ApiSenderType } from './api.js';
 import { parseAllDocuments } from 'yaml';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -68,7 +68,7 @@ function toContainerStatus(state: V1ContainerState | undefined): string {
   return 'Unknown';
 }
 
-function toPodInfo(pod: V1Pod): PodInfo {
+function toPodInfo(pod: V1Pod, contextName?: string): PodInfo {
   const containers =
     pod.status?.containerStatuses?.map(status => {
       return {
@@ -88,8 +88,8 @@ function toPodInfo(pod: V1Pod): PodInfo {
     Namespace: pod.metadata?.namespace || '',
     Networks: [],
     Status: pod.status?.phase || '',
-    engineId: 'kubernetes',
-    engineName: 'Kubernetes',
+    engineId: contextName ?? 'kubernetes',
+    engineName: 'k8s',
     kind: 'kubernetes',
   };
 }
@@ -168,7 +168,7 @@ export class KubernetesClient {
       // check if path exists
       if (existsSync(userKubeconfigPath)) {
         this.kubeconfigPath = userKubeconfigPath;
-        await this.refresh();
+        this.refresh().catch(() => console.error('Refresh of kube resources on startup failed'));
       } else {
         console.error(`Kubeconfig path ${userKubeconfigPath} provided does not exist. Skipping.`);
       }
@@ -220,7 +220,8 @@ export class KubernetesClient {
           '/api/v1/namespaces/' + ns + '/pods',
           {},
           () => this.apiSender.send('pod-event'),
-          (err: unknown) => console.error('Kube event error', err),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (err: any) => console.warn('Kube watch ended', err.toString()),
         )
         .then(req => (this.kubeWatcher = req))
         .catch((err: unknown) => console.error('Kube event error', err));
@@ -298,6 +299,13 @@ export class KubernetesClient {
   }
 
   async refresh() {
+    // check the file is empty
+    const fileContent = await fs.promises.readFile(this.kubeconfigPath);
+    if (fileContent.length === 0) {
+      console.error(`Kubeconfig file at ${this.kubeconfigPath} is empty. Skipping.`);
+      return;
+    }
+
     // perform it under a try/catch block as the file may not be valid for the kubernetes-javascript client library
     try {
       this.kubeConfig.loadFromFile(this.kubeconfigPath);
@@ -435,7 +443,7 @@ export class KubernetesClient {
     const connected = await this.checkConnection();
     if (ns && connected) {
       const pods = await this.listNamespacedPod(ns);
-      return pods.items.map(pod => toPodInfo(pod));
+      return pods.items.map(pod => toPodInfo(pod, this.getCurrentContextName()));
     }
     return [];
   }
@@ -687,7 +695,7 @@ export class KubernetesClient {
 
     const manifests = parseAllDocuments(content, { customTags: this.getTags });
     // filter out null manifests
-    return manifests.map(manifest => manifest.toJSON()).filter(manifest => manifest !== null);
+    return manifests.map(manifest => manifest.toJSON()).filter(manifest => !!manifest);
   }
 
   async createResourcesFromFile(context: string, filePath: string, namespace: string): Promise<void> {

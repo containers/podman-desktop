@@ -37,7 +37,7 @@ export type ActivateFunction = {
 };
 
 export function createFieldValidator(...validators): [SvelteStore<Validation>, ActivateFunction] {
-  const validation: Validation = { dirty: false, valid: false, message: null };
+  const validation: Validation = { dirty: false, valid: false, message: undefined };
   const writableObject = writable<Validation>(validation);
   const validator = buildValidator(validators);
 

@@ -11,3 +11,5 @@ tags: [migrating-to-kubernetes]
 Podman Desktop and Podman have many features allowing easy migration from containers to Kubernetes:
 
 - [Kind support](kubernetes/kind)
+- [Lima support](kubernetes/lima)
+- [Minikube support](kubernetes/minikube)

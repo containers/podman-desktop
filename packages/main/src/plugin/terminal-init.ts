@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry';
-import { TerminalSettings } from './terminal-settings';
+import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
+import { TerminalSettings } from './terminal-settings.js';
 
 export class TerminalInit {
   private static DEFAULT_LINE_HEIGHT = 1;

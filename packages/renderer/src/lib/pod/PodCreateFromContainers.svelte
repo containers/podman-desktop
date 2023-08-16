@@ -3,17 +3,23 @@ import { providerInfos } from '../../stores/providers';
 import { onDestroy, onMount } from 'svelte';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { type PodCreation, podCreationHolder } from '../../stores/creation-from-containers-store';
-import NavPage from '../ui/NavPage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import ContainerIcon from '../images/ContainerIcon.svelte';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa/src/fa.svelte';
+import PodIcon from '../images/PodIcon.svelte';
+import Button from '../ui/Button.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
 let createError = undefined;
 $: mapPortExposed = new Map<number, { exposed: boolean; container: string }>();
+let containersPorts: { containers: string[]; ports: number[] }[];
+$: containersPorts = [];
 
 let providers: ProviderInfo[] = [];
 $: providerConnections = providers
@@ -44,7 +50,7 @@ async function doCreatePodFromContainers() {
       return Object.entries(containerInspect.HostConfig.PortBindings).map(([key, value]) => {
         const container_port = parseInt(key.split('/')[0]);
         // we may not have any value
-        if (!value || value === null) {
+        if (!value) {
           return undefined;
         }
         const host_port = parseInt(value[0].HostPort);
@@ -76,8 +82,6 @@ async function doCreatePodFromContainers() {
   // now, for each container, recreate it with the pod
   // but before, stop the container
 
-  const containersToStart: { engineId: string; id: string }[] = [];
-
   // then, stop all containers
   for (const container of podCreation.containers) {
     // make sure it is stopped
@@ -92,12 +96,11 @@ async function doCreatePodFromContainers() {
   for (const container of podCreation.containers) {
     // recreate the container but adding the pod and using a different name
 
-    const replicatedContainer = await window.replicatePodmanContainer(
+    await window.replicatePodmanContainer(
       { ...container },
       { engineId },
       { pod: Id, name: container.name + '-podified' },
     );
-    containersToStart.push({ engineId, id: replicatedContainer.Id });
   }
 
   // finally, start the pod
@@ -116,16 +119,47 @@ onMount(() => {
 
   podCreationUnsubscribe = podCreationHolder.subscribe(value => {
     podCreation = value;
+    const mapPortPrivate = new Map<number, string[]>();
     podCreation.containers.forEach(container => {
       container.ports.forEach(port => {
-        mapPortExposed.set(port, {
+        mapPortExposed.set(port.PublicPort, {
           exposed: true,
           container: container.name,
         });
+        mapPortPrivate.set(port.PrivatePort, [...(mapPortPrivate.get(port.PrivatePort) || []), container.name]);
       });
+    });
+    mapPortPrivate.forEach((value, key) => {
+      if (value.length < 2) {
+        mapPortPrivate.delete(key);
+        return;
+      }
+      const indexContainersItem = getIndexSameContainersItems(value);
+      if (indexContainersItem !== undefined) {
+        containersPorts[indexContainersItem].ports.push(key);
+      } else {
+        containersPorts.push({
+          containers: value,
+          ports: [key],
+        });
+      }
     });
   });
 });
+
+function getIndexSameContainersItems(containers: string[]): number | undefined {
+  let index = 0;
+  for (const entry of containersPorts) {
+    const isDiff =
+      containers.filter(arr1Item => !entry.containers.includes(arr1Item)).length > 0 ||
+      entry.containers.filter(arr1Item => !containers.includes(arr1Item)).length > 0;
+    if (!isDiff) {
+      return index;
+    }
+    index++;
+  }
+  return undefined;
+}
 
 onDestroy(() => {
   if (providersUnsubscribe) {
@@ -150,11 +184,40 @@ function updatePortExposure(port: number, checked: boolean) {
 }
 </script>
 
-<NavPage title="Copy containers to a pod" searchEnabled="{false}">
-  <div class="w-full h-full min-w-fit" slot="empty">
-    <div class="m-5 p-6 h-full bg-charcoal-800 rounded-sm text-gray-700">
-      <div class="w-4/5 min-w-[500px]">
+<FormPage title="Copy containers to a pod">
+  <PodIcon slot="icon" solid="{true}" />
+
+  <div class="min-w-full h-fit" slot="content">
+    <div class="m-5 p-6 bg-charcoal-800 rounded-sm text-gray-700">
+      <div>
         {#if podCreation}
+          {#if containersPorts.length > 0}
+            <div class="bg-charcoal-600 border-t-2 border-amber-500 p-4 mb-2" role="alert" aria-label="warning">
+              <div class="flex flex-row">
+                <div class="mr-3">
+                  <Fa size="18" class="text-amber-400" icon="{faTriangleExclamation}" />
+                </div>
+                <div class="flex flex-col">
+                  <div class="text-sm text-amber-400">Possible runtime error</div>
+                  {#each containersPorts as { containers, ports }}
+                    <div class="mt-1 text-sm text-white">
+                      Containers
+                      {#each containers as container, index}
+                        <span class="font-bold">{container}</span>
+                        {#if index === containers.length - 2}
+                          and
+                        {:else if index < containers.length - 1}
+                          ,
+                        {/if}
+                        {' '}
+                      {/each}
+                      use same <span class="font-bold">{ports.length > 1 ? 'ports' : 'port'} {ports.join(', ')}</span>.
+                    </div>
+                  {/each}
+                </div>
+              </div>
+            </div>
+          {/if}
           <div class="mb-2">
             <span class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400">Name of the pod:</span>
           </div>
@@ -173,7 +236,7 @@ function updatePortExposure(port: number, checked: boolean) {
             <span class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400" aria-label="Containers"
               >Containers to replicate to the pod:</span>
           </div>
-          <div class="max-w-full bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
+          <div class="w-full bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
             {#each podCreation.containers as container, index}
               <div class="p-2 flex flex-row items-center text-gray-700">
                 <div class="w-10"><StatusIcon icon="{ContainerIcon}" status="STOPPED" /></div>
@@ -224,41 +287,24 @@ function updatePortExposure(port: number, checked: boolean) {
               </select>
             </label>
           {/if}
-          {#if providerConnections.length == 1}
+          {#if providerConnections.length === 1}
             <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
           {/if}
         </div>
 
-        <div class="w-full">
-          <div class="float-right">
-            <button class="pf-c-button underline hover:text-gray-400" on:click="{() => router.goto('/containers')}">
-              Close
-            </button>
-            <button
-              disabled="{createInProgress}"
+        <div class="w-full grid justify-items-end">
+          <div>
+            <Button type="link" on:click="{() => router.goto('/containers')}">Close</Button>
+            <Button
+              icon="{PodIcon}"
+              bind:disabled="{createInProgress}"
               on:click="{() => {
                 createPodFromContainers();
               }}"
-              aria-label="Create pod"
-              class="pf-c-button pf-m-primary"
-              type="button">
-              <span class="pf-c-button__icon pf-m-start">
-                {#if createInProgress}
-                  <div class="mr-24">
-                    <i class="pf-c-button__progress">
-                      <span class="pf-c-spinner pf-m-md" role="progressbar">
-                        <span class="pf-c-spinner__clipper"></span>
-                        <span class="pf-c-spinner__lead-ball"></span>
-                        <span class="pf-c-spinner__tail-ball"></span>
-                      </span>
-                    </i>
-                  </div>
-                {:else}
-                  <i class="fas fa-cube" aria-hidden="true"></i>
-                {/if}
-              </span>
+              bind:inProgress="{createInProgress}"
+              aria-label="Create pod">
               Create Pod
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -268,4 +314,4 @@ function updatePortExposure(port: number, checked: boolean) {
       </div>
     </div>
   </div>
-</NavPage>
+</FormPage>

@@ -24,15 +24,17 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
-    "@octokit/rest": "^19.0.8",
+    "@octokit/rest": "^20.0.1",
     "mustache": "^4.2.0",
-    "shell-path": "^3.0.0"
+    "shell-path": "^3.0.0",
+    "sudo-prompt": "^9.2.1"
   },
   "devDependencies": {
     "7zip-min": "^1.4.3",
     "@podman-desktop/api": "^0.0.1",
-    "mkdirp": "^2.1.6",
-    "vite": "^4.3.8",
+    "mkdirp": "^3.0.1",
+    "vite": "^4.4.9",
+    "vitest": "^0.34.1",
     "zip-local": "^0.3.5"
   }
 }

@@ -51,10 +51,10 @@ To enable users to install your extension, consider publishing your extension to
    COPY dist /extension/dist
    ```
 
-1. Build a multi-arch image that works on all supported Podman Desktop platforms:
+1. Build an image:
 
    ```shell-session
-   $ podman build --arch amd64,arm64 --manifest quay.io/fbenoit/my-first-extension .
+   $ podman build -t quay.io/fbenoit/my-first-extension .
    ```
 
 1. Push the image and manifest to the OCI image registry:

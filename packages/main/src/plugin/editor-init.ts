@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry';
-import { EditorSettings } from './editor-settings';
+import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
+import { EditorSettings } from './editor-settings.js';
 
 export class EditorInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}

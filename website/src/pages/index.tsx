@@ -24,16 +24,16 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 function DownloadClientLinks() {
   let operatingSystem = '';
-  let varIcon = null;
+  let varIcon = undefined;
   const userAgent = navigator.userAgent;
 
-  if (userAgent.indexOf('Windows') != -1) {
+  if (userAgent.indexOf('Windows') !== -1) {
     operatingSystem = 'Windows';
     varIcon = 'faWindows';
-  } else if (userAgent.indexOf('Mac') != -1) {
+  } else if (userAgent.indexOf('Mac') !== -1) {
     operatingSystem = 'macOS';
     varIcon = 'faApple';
-  } else if (userAgent.indexOf('Linux') != -1) {
+  } else if (userAgent.indexOf('Linux') !== -1) {
     operatingSystem = 'Linux';
     varIcon = 'faLinux';
   }
@@ -136,10 +136,6 @@ function SectionTitle(props) {
       </p>
     </div>
   );
-}
-
-function WorkInProgress() {
-  return <div className="text-sm font-extralight text-purple-800 dark:text-purple-200">Work in progress</div>;
 }
 
 function KeepUpToDate() {
@@ -278,7 +274,7 @@ function Configure() {
               </div>
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Proxy</h2>
-                <p className="leading-relaxed text-base">Configure your proxy settings (in progress..).</p>
+                <p className="leading-relaxed text-base">Configure your proxy settings.</p>
               </div>
             </div>
 
@@ -290,9 +286,7 @@ function Configure() {
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">
                   Resources Utilization
                 </h2>
-                <p className="leading-relaxed text-base">
-                  Configure CPU/Memory/Disk of Podman machines (work in progress)
-                </p>
+                <p className="leading-relaxed text-base">Configure CPU/Memory/Disk of Podman machines.</p>
               </div>
             </div>
 
@@ -305,7 +299,7 @@ function Configure() {
                   Container Engines
                 </h2>
                 <p className="leading-relaxed text-base">
-                  Handle multiple container engines at the same time: Podman, Docker, and Lima.
+                  Handle multiple container engines at the same time: Podman, Docker.
                 </p>
               </div>
             </div>
@@ -325,7 +319,6 @@ function EnterpriseReady() {
 
           <h2 className="max-w-lg mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white sm:text-4xl md:mx-auto">
             Enterprise ready
-            <WorkInProgress />
           </h2>
         </div>
         <div className="container px-5 pb-5 mx-auto">

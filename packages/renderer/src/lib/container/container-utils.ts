@@ -22,6 +22,12 @@ import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
 import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import { filesize } from 'filesize';
+import type { Port } from '@podman-desktop/api';
+import type { ContextUI } from '../context/context';
+import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import { ContextKeyExpr } from '../context/contextKey';
+import ContainerIcon from '../images/ContainerIcon.svelte';
+
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {
     // part of a compose ?
@@ -77,12 +83,12 @@ export class ContainerUtils {
     return image;
   }
 
-  getPorts(containerInfo: ContainerInfo): number[] {
-    return containerInfo.Ports?.filter(port => port.PublicPort).map(port => port.PublicPort) || [];
+  getPorts(containerInfo: ContainerInfo): Port[] {
+    return containerInfo.Ports?.filter(port => port.PublicPort).map(port => port) || [];
   }
 
   getDisplayPort(containerInfo: ContainerInfo): string {
-    const ports = this.getPorts(containerInfo);
+    const ports = this.getPorts(containerInfo).map(port => port.PublicPort);
     if (ports.length === 0) {
       return '';
     }
@@ -112,7 +118,11 @@ export class ContainerUtils {
     return containerInfo.engineName;
   }
 
-  getContainerInfoUI(containerInfo: ContainerInfo): ContainerInfoUI {
+  getContainerInfoUI(
+    containerInfo: ContainerInfo,
+    context?: ContextUI,
+    viewContributions?: ViewInfoUI[],
+  ): ContainerInfoUI {
     return {
       id: containerInfo.Id,
       shortId: containerInfo.Id.substring(0, 8),
@@ -134,6 +144,8 @@ export class ContainerUtils {
       groupInfo: this.getContainerGroup(containerInfo),
       selected: false,
       created: containerInfo.Created,
+      labels: containerInfo.Labels,
+      icon: this.iconClass(containerInfo, context, viewContributions) || ContainerIcon,
     };
   }
 
@@ -144,6 +156,8 @@ export class ContainerUtils {
       return {
         name: composeProject,
         type: ContainerGroupInfoTypeUI.COMPOSE,
+        engineId: containerInfo.engineId,
+        engineType: containerInfo.engineType,
       };
     }
 
@@ -156,6 +170,7 @@ export class ContainerUtils {
         id: podInfo.id,
         status: (podInfo.status || '').toUpperCase(),
         engineId: containerInfo.engineId,
+        engineType: containerInfo.engineType,
       };
     }
 
@@ -164,6 +179,7 @@ export class ContainerUtils {
       name: this.getName(containerInfo),
       type: ContainerGroupInfoTypeUI.STANDALONE,
       status: (containerInfo.Status || '').toUpperCase(),
+      engineType: containerInfo.engineType,
     };
   }
 
@@ -185,6 +201,7 @@ export class ContainerUtils {
             id: group.id,
             status: group.status,
             engineId: group.engineId,
+            engineType: group.engineType,
             containers: [],
           });
         }
@@ -208,7 +225,7 @@ export class ContainerUtils {
   }
 
   getPortsAsString(containerInfo: ContainerInfo): string {
-    const ports = this.getPorts(containerInfo);
+    const ports = this.getPorts(containerInfo).map(port => port.PublicPort);
     if (ports.length > 1) {
       return `${ports.join(', ')}`;
     } else if (ports.length === 1) {
@@ -216,5 +233,36 @@ export class ContainerUtils {
     } else {
       return '';
     }
+  }
+
+  iconClass(container: ContainerInfo, context?: ContextUI, viewContributions?: ViewInfoUI[]): string | undefined {
+    if (!context || !viewContributions) {
+      return undefined;
+    }
+
+    let icon;
+    // loop over all contribution for this view
+    for (const contribution of viewContributions) {
+      // adapt the context to work with containers (e.g save container labels into the context)
+      this.adaptContextOnContainer(context, container);
+      // deserialize the when clause
+      const whenDeserialized = ContextKeyExpr.deserialize(contribution.when);
+      // if the when clause has to be applied to this container
+      if (whenDeserialized?.evaluate(context)) {
+        // handle ${} in icon class
+        // and interpret the value and replace with the class-name
+        const match = contribution.icon.match(/\$\{(.*)\}/);
+        if (match && match.length === 2) {
+          const className = match[1];
+          icon = contribution.icon.replace(match[0], `podman-desktop-icon-${className}`);
+          return icon;
+        }
+      }
+    }
+    return icon;
+  }
+
+  adaptContextOnContainer(context: ContextUI, container: ContainerInfo): void {
+    context.setValue('containerLabelKeys', Object.keys(container.Labels));
   }
 }

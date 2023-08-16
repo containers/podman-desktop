@@ -23,6 +23,13 @@ import type {
 } from '../../../../main/src/plugin/api/provider-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
+export interface IProviderConnectionConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value?: any;
+  connection: string;
+  providerId: string;
+}
+
 export interface IConnectionStatus {
   status: string;
   action?: string;
@@ -37,13 +44,21 @@ export interface IConnectionRestart {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function writeToTerminal(xterm: any, data: string[], colorPrefix: string): void {
+export function writeToTerminal(xterm: any, data: any[], colorPrefix: string): void {
   if (Array.isArray(data)) {
-    for (const it of data) {
-      writeMultilineString(xterm, it, colorPrefix);
-    }
-  } else {
+    writeArrayToTerminal(xterm, data, colorPrefix);
+  } else if (typeof data === 'string') {
     writeMultilineString(xterm, data, colorPrefix);
+  }
+}
+
+function writeArrayToTerminal(xterm: any, data: any[], colorPrefix: string) {
+  for (const content of data) {
+    if (Array.isArray(content)) {
+      writeArrayToTerminal(xterm, content, colorPrefix);
+    } else if (typeof content === 'string') {
+      writeMultilineString(xterm, content, colorPrefix);
+    }
   }
 }
 

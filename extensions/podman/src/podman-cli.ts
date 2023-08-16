@@ -17,7 +17,7 @@
  ***********************************************************************/
 import { spawn } from 'node:child_process';
 import { isMac, isWindows } from './util';
-import type { CancellationToken, Logger } from '@podman-desktop/api';
+import type { CancellationToken, LifecycleContext, Logger } from '@podman-desktop/api';
 import { configuration } from '@podman-desktop/api';
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
@@ -57,6 +57,7 @@ export function getCustomBinaryPath(): string | undefined {
 }
 
 export interface ExecOptions {
+  context?: LifecycleContext;
   logger?: Logger;
   env?: NodeJS.ProcessEnv;
 }
@@ -89,6 +90,7 @@ export function execPromise(
     token?.onCancellationRequested(() => {
       process.kill();
       // reject the promise
+      options?.context?.log.error('Execution cancelled');
       options?.logger?.error('Execution cancelled');
       reject(new Error('Execution cancelled'));
     });
@@ -100,22 +102,26 @@ export function execPromise(
       if (stdErr && stdErr !== '') {
         content += stdErr + '\n';
       }
+      options?.context?.log.error(content);
       options?.logger?.error(content);
       reject(new Error(content + error));
     });
     process.stdout.setEncoding('utf8');
     process.stdout.on('data', data => {
       stdOut += data;
+      options?.context?.log.log(data);
       options?.logger?.log(data);
     });
     process.stderr.setEncoding('utf8');
     process.stderr.on('data', data => {
       stdErr += data;
+      options?.context?.log.warn(data);
       options?.logger?.warn(data);
     });
 
     process.on('close', exitCode => {
       if (exitCode !== 0) {
+        options?.context?.log.error(stdErr);
         options?.logger?.error(stdErr);
         reject(new Error(stdErr));
       }

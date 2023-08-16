@@ -40,7 +40,7 @@ export function coverageConfig(packageRoot, packageName) {
         '**/.{cache,git,idea,output,temp,cdix}/**',
         '**/*{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tailwind,postcss}.config.*',
       ],
-      provider: 'c8',
+      provider: 'v8',
       reportsDirectory: path.join(packageRoot, '../../', `test-resources/coverage/${packageName}`),
       reporter: ['lcov', 'text'],
     },

@@ -4,22 +4,13 @@
     "module": "esnext",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
-    "lib": [
-        "ES2017",
-        "webworker"
-    ],
+    "lib": ["ES2017", "webworker"],
     "sourceMap": true,
     "rootDir": "src",
     "outDir": "dist",
     "skipLibCheck": true,
-    "types": [
-        "node",
-    ]
-},
+    "types": ["node"]
+  },
 
-"include": [
-    "src",
-    "types/*.d.ts",
-    "../../types/**/*.d.ts"
-]
+  "include": ["src", "types/*.d.ts", "../../types/**/*.d.ts"]
 }

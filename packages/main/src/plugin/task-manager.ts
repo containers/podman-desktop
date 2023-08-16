@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ApiSenderType } from './api';
-import type { Task } from '/@/plugin/api/task';
+import type { ApiSenderType } from './api.js';
+import type { Task } from '/@/plugin/api/task.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -45,7 +45,7 @@ export class TaskManager {
 
   public updateTask(task: Task) {
     this.apiSender.send('task-updated', task);
-    if (task.state == 'completed') {
+    if (task.state === 'completed') {
       this.tasks.delete(task.id);
     }
   }

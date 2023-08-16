@@ -22,12 +22,12 @@ onMount(async () => {
       if (kubepod) {
         inspectResult = kubepod;
       } else {
-        inspectResult = "Can't inspect pod " + pod.name;
+        inspectResult = `Can't inspect pod ${pod.name}`;
       }
     }
   }
 
-  inspectDetails = JSON.stringify(inspectResult, null, 2);
+  inspectDetails = JSON.stringify(inspectResult, undefined, 2);
 });
 </script>
 

@@ -18,9 +18,9 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 import type { Mock } from 'vitest';
-import { createCluster, getKindClusterConfig } from './create-cluster';
-import { runCliCommand } from './util';
-import type { TelemetryLogger } from '@podman-desktop/api';
+import { createCluster, connectionAuditor, getKindClusterConfig } from './create-cluster';
+import { getMemTotalInfo, runCliCommand } from './util';
+import type { AuditRecord, TelemetryLogger } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 
 vi.mock('@podman-desktop/api', async () => {
@@ -29,6 +29,11 @@ vi.mock('@podman-desktop/api', async () => {
     kubernetes: {
       createResources: vi.fn(),
     },
+    provider: {
+      getContainerConnections: vi
+        .fn()
+        .mockReturnValue([{ connection: { type: 'docker', endpoint: { socketPath: 'socket' } } }]),
+    },
   };
 });
 
@@ -36,6 +41,7 @@ vi.mock('./util', async () => {
   return {
     runCliCommand: vi.fn(),
     getKindPath: vi.fn(),
+    getMemTotalInfo: vi.fn(),
   };
 });
 
@@ -111,8 +117,51 @@ test('expect error if Kubernetes reports error', async () => {
 });
 
 test('check cluster configuration generation', async () => {
-  const conf = getKindClusterConfig('k1', 80, 443);
+  const conf = getKindClusterConfig('k1', 80, 443, 'image:tag');
   expect(conf).to.contains('name: k1');
   expect(conf).to.contains('hostPort: 80');
   expect(conf).to.contains('hostPort: 443');
+  expect(conf).to.contains('image: image:tag');
+});
+
+test('check cluster configuration empty string image', async () => {
+  const conf = getKindClusterConfig(undefined, undefined, undefined, '');
+  expect(conf).to.not.contains('image:');
+});
+
+test('check cluster configuration null string image', async () => {
+  const conf = getKindClusterConfig(undefined, undefined, undefined, undefined);
+  expect(conf).to.not.contains('image:');
+});
+
+test('check that consilience check returns warning message', async () => {
+  (getMemTotalInfo as Mock).mockReturnValue(3000000000);
+  const checks = await connectionAuditor('docker', {});
+
+  expect(checks).toBeDefined();
+  expect(checks).toHaveProperty('records');
+  expect(checks.records.length).toBe(1);
+  expect(checks.records[0]).to.contains({
+    type: 'info',
+    record: 'It is recommend to install Kind on a virtual machine with at least 6GB of memory.',
+  } as AuditRecord);
+});
+
+test('check that consilience check returns no warning messages', async () => {
+  (getMemTotalInfo as Mock).mockReturnValue(6000000001);
+  const checks = await connectionAuditor('docker', {});
+
+  expect(checks).toBeDefined();
+  expect(checks).toHaveProperty('records');
+  expect(checks.records.length).toBe(0);
+});
+
+test('check that consilience check returns warning message when image has no sha256 digest', async () => {
+  const checks = await connectionAuditor('docker', { 'kind.cluster.creation.controlPlaneImage': 'image:tag' });
+
+  expect(checks).toBeDefined();
+  expect(checks).toHaveProperty('records');
+  expect(checks.records.length).toBe(1);
+  expect(checks.records[0]).toHaveProperty('type');
+  expect(checks.records[0].type).toBe('warning');
 });

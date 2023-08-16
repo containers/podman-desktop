@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faClose, faInfoCircle, faSquareCheck, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { createEventDispatcher, onMount } from 'svelte';
+import { onMount } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { TaskManager, type TaskUI } from './task-manager';
 import { removeTask } from '/@/stores/tasks';
@@ -9,7 +9,6 @@ import type { Task } from '../../../../main/src/plugin/api/task';
 export let task: Task;
 
 const taskManager = new TaskManager();
-const dispatch = createEventDispatcher();
 
 let taskUI: TaskUI;
 $: taskUI = taskManager.toTaskUi(task);

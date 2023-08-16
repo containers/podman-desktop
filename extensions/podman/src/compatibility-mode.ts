@@ -20,6 +20,10 @@ import * as extensionApi from '@podman-desktop/api';
 import * as sudo from 'sudo-prompt';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
+import { execPromise, getPodmanCli } from './podman-cli';
+import { findRunningMachine } from './extension';
+
+const podmanSystemdSocket = 'podman.socket';
 
 // Create an abstract class for compatibility mode (macOS only)
 // TODO: Windows, Linux
@@ -28,6 +32,13 @@ abstract class SocketCompatibility {
   abstract enable(): Promise<void>;
   abstract disable(): Promise<void>;
   abstract details: string;
+  abstract tooltipText(): string;
+}
+
+export class DarwinSocketCompatibility extends SocketCompatibility {
+  // Shows the details of the compatibility mode on what we do.
+  details =
+    'The podman-mac-helper binary will be run, linking the Docker socket to Podman. This requires administrative privileges.';
 
   // This will show the "opposite" of what the current state is
   // "Enable" if it's currently disabled, "Disable" if it's currently enabled
@@ -36,11 +47,6 @@ abstract class SocketCompatibility {
     const text = 'macOS Docker socket compatibility for Podman.';
     return this.isEnabled() ? `Disable ${text}` : `Enable ${text}`;
   }
-}
-
-export class DarwinSocketCompatibility extends SocketCompatibility {
-  // Shows the details of the compatibility mode on what we do.
-  details = 'The podman-mac-helper binary will be run. This requires administrative privileges.';
 
   // Find the podman-mac-helper binary which should only be located in either
   // brew or podman's install location
@@ -102,31 +108,137 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     const fullCommand = `${podmanHelperBinary} ${command}`;
     try {
       await this.runSudoMacHelperCommand(fullCommand);
-      await extensionApi.window
-        .showInformationMessage(`Docker socket compatibility mode for Podman has been ${description}.
-      Restart your Podman machine to apply the changes.`);
+      await extensionApi.window.showInformationMessage(
+        `Docker socket compatibility mode for Podman has been ${description}.`,
+      );
     } catch (error) {
       console.error(`Error running podman-mac-helper: ${error}`);
       await extensionApi.window.showErrorMessage(`Error running podman-mac-helper: ${error}`, 'OK');
     }
   }
 
+  // Prompt the user that you need to restart the current podman machine for the changes to take effect
+  async promptRestart(machine: string): Promise<void> {
+    const result = await extensionApi.window.showInformationMessage(
+      `Restarting your Podman machine is required to apply the changes. Would you like to restart the Podman machine '${machine}' now?`,
+      'Yes',
+      'Cancel',
+    );
+    if (result === 'Yes') {
+      // Await since we must wait for the machine to stop before starting it again
+      await execPromise(getPodmanCli(), ['machine', 'stop', machine]);
+      await execPromise(getPodmanCli(), ['machine', 'start', machine]);
+    }
+  }
+
   // Enable the compatibility mode by running podman-mac-helper install
   // Run the command with sudo privileges and output the result to the user
   async enable(): Promise<void> {
-    return this.runCommand('install', 'enabled');
+    await this.runCommand('install', 'enabled');
+
+    // Prompt the user to restart the podman machine if it's running
+    const isRunning = await findRunningMachine();
+    if (isRunning !== '') {
+      await this.promptRestart(isRunning);
+    }
+
+    return Promise.resolve();
   }
 
   async disable(): Promise<void> {
-    return this.runCommand('uninstall', 'disabled');
+    await this.runCommand('uninstall', 'disabled');
+
+    // Prompt the user to restart the podman machine if it's running
+    const isRunning = await findRunningMachine();
+    if (isRunning !== '') {
+      await this.promptRestart(isRunning);
+    }
+
+    return Promise.resolve();
   }
 }
 
-// TODO: Windows, Linux
+export class LinuxSocketCompatibility extends SocketCompatibility {
+  details =
+    'Administrative privileges are required to enable or disable the systemd Podman socket for Docker compatibility.';
+
+  // This will show the "opposite" of what the current state is
+  // "Enable" if it's currently disabled, "Disable" if it's currently enabled
+  // for tooltip text
+  tooltipText(): string {
+    const text = 'Linux Docker socket compatibility for Podman.';
+    return this.isEnabled() ? `Disable ${text}` : `Enable ${text}`;
+  }
+
+  // isEnabled() checks to see if /etc/systemd/system/socket.target.wants/podman.socket exists
+  isEnabled(): boolean {
+    const filename = '/etc/systemd/system/socket.target.wants/podman.socket';
+    return fs.existsSync(filename);
+  }
+
+  // Runs the systemd command either 'enable' or 'disable'
+  async runSystemdCommand(command: string, description: string): Promise<void> {
+    // Only allow enable or disable, throw error if anything else is inputted
+    if (command !== 'enable' && command !== 'disable') {
+      throw new Error('runSystemdCommand only accepts enable or disable as the command');
+    }
+
+    // Create the full command to run with --now as well as the podman socket name
+    const fullCommand = [command, '--now', podmanSystemdSocket];
+
+    try {
+      // Have to run via sudo
+      await execPromise('systemctl', fullCommand);
+    } catch (error) {
+      console.error(`Error running systemctl command: ${error}`);
+      await extensionApi.window.showErrorMessage(`Error running systemctl command: ${error}`, 'OK');
+      return;
+    }
+
+    // Show information message to the user that they may need to run
+    // ln -s /run/podman/podman.sock /var/run/docker.sock to enable Docker compatibility
+    if (command === 'enable') {
+      // Show information and give the user an option of Yes or Cancel
+      const result = await extensionApi.window.showInformationMessage(
+        'Do you want to create a symlink from /run/podman/podman.sock to /var/run/docker.sock to enable Docker compatibility without having to set the DOCKER_HOST environment variable?',
+        'Yes',
+        'Cancel',
+      );
+      // If the user clicked Yes, run the ln command
+      if (result === 'Yes') {
+        try {
+          await execPromise('pkexec', ['ln', '-s', '/run/podman/podman.sock', '/var/run/docker.sock']);
+          await extensionApi.window.showInformationMessage(
+            'Symlink created successfully. The Podman socket is now available at /var/run/docker.sock.',
+          );
+        } catch (error) {
+          console.error(`Error creating symlink: ${error}`);
+          await extensionApi.window.showErrorMessage(`Error creating symlink: ${error}`, 'OK');
+          return;
+        }
+      }
+    }
+    await extensionApi.window.showInformationMessage(
+      `Podman systemd socket has been ${description} for Docker compatibility.`,
+    );
+  }
+
+  async enable(): Promise<void> {
+    return this.runSystemdCommand('enable', 'enabled');
+  }
+
+  async disable(): Promise<void> {
+    return this.runSystemdCommand('disable', 'disabled');
+  }
+}
+
+// TODO: Windows
 export function getSocketCompatibility(): SocketCompatibility {
   switch (process.platform) {
     case 'darwin':
       return new DarwinSocketCompatibility();
+    case 'linux':
+      return new LinuxSocketCompatibility();
     default:
       throw new Error(`Unsupported platform ${process.platform}`);
   }

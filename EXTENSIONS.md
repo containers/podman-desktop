@@ -6,15 +6,17 @@ Bundled extensions are located in the `/extensions` folder.
 
 #### Creating a new extension
 
-When creating a new extension, import the extension API: `import * as extensionApi from '@podman-desktop/api';` 
+When creating a new extension, import the extension API: `import * as extensionApi from '@podman-desktop/api';`
 
 All functionality with Podman Desktop is communicated through the `extension-api`. The API is located [here](https://github.com/containers/podman-desktop/blob/main/packages/extension-api/src/extension-api.d.ts).
 
 When loading an extension, Podman Desktop will:
+
 1. Search and load the JavaScript file specified in `main` entry of the `package.json` file in the extension directory (typically `extension.js`).
 2. Run the exported `activate` function.
 
 When unloading an extension, Podman Desktop will:
+
 1. Run the (optional) exported `deactivate` function.
 2. Dispose of any resources that have been added to `extensionContext.subscriptions`, see `deactivateExtension` in [extension-loader.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/plugin/extension-loader.ts).
 
@@ -25,10 +27,8 @@ This is an example `extensions/foobar/src/extensions.ts` file with the basic `ac
 ```ts
 import * as extensionApi from '@podman-desktop/api';
 
-
 // Activate the extension asynchronously
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-
   // Create a provider with an example name, ID and icon
   const provider = extensionApi.provider.createProvider({
     name: 'foobar',
@@ -57,17 +57,17 @@ Podman Desktop runs each provider via series of statuses from [extension-api](ht
 #### `ProviderStatus`
 
 ```ts
-  export type ProviderStatus =
-    | 'not-installed'
-    | 'installed'
-    | 'configured'
-    | 'ready'
-    | 'started'
-    | 'stopped'
-    | 'starting'
-    | 'stopping'
-    | 'error'
-    | 'unknown';
+export type ProviderStatus =
+  | 'not-installed'
+  | 'installed'
+  | 'configured'
+  | 'ready'
+  | 'started'
+  | 'stopped'
+  | 'starting'
+  | 'stopping'
+  | 'error'
+  | 'unknown';
 ```
 
 `ProviderStatus` supplies information to the main Provider page detailing whether or not that Provider is installed, ready, started, stopped, etc.
@@ -82,15 +82,16 @@ This can be updated throughout your extension by calling for example: `provider.
 export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
 ```
 
-> **_NOTE:_** The `unknown` status is unique as it will not show in the extension section of Podman Desktop, it will also not be accessible via API calls. Uknown statuses typically happen when Podman Desktop is unable to load the extension. 
+> **_NOTE:_** The `unknown` status is unique as it will not show in the extension section of Podman Desktop, it will also not be accessible via API calls. Uknown statuses typically happen when Podman Desktop is unable to load the extension.
 
 `ProviderConnectionStatus` is the main "Lifecycle" of your extension. The status is updated by automatically by Podman Desktop and reflected within the provider.
 
-Upon a successful start up via the `activate` function within your extension, `ProviderConnectionStatus` will be reflected as 'started'. 
+Upon a successful start up via the `activate` function within your extension, `ProviderConnectionStatus` will be reflected as 'started'.
 
 `ProviderConnectionStatus` statuses are used in two areas, [extension-loader.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/plugin/extension-loader.ts) and [tray-menu.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/tray-menu.ts):
-* `extension-loader.ts`: Attempts to load the extension and sets the status accordingly (either `started`, `stopped`, `starting` or `stopping`). If an unknown error has occured, the status is set to `unknown`. `extension-loader.ts` also sends an API call to Podman Desktop to update the UI of the extension.
-* `tray-menu.ts`: If `extensionApi.tray.registerMenuItem(item);` API call has been used, a tray menu of the extension will be created. When created, Podman Desktop will use the `ProviderConnectionStatus` to indicate the status within the tray menu.
+
+- `extension-loader.ts`: Attempts to load the extension and sets the status accordingly (either `started`, `stopped`, `starting` or `stopping`). If an unknown error has occured, the status is set to `unknown`. `extension-loader.ts` also sends an API call to Podman Desktop to update the UI of the extension.
+- `tray-menu.ts`: If `extensionApi.tray.registerMenuItem(item);` API call has been used, a tray menu of the extension will be created. When created, Podman Desktop will use the `ProviderConnectionStatus` to indicate the status within the tray menu.
 
 #### Expanding the `extension-api` API
 
@@ -101,10 +102,10 @@ In this example, we'll add a new function to simply display: "hello world" in th
 1. Add the new function to `/packages/extension-api/src/extension-api.d.ts`, under a namespace. This will make it accessible within the API when it's being called within your extension:
 
 ```ts
-  export namespace foobar {
-    // ...
-    export function hello(input: string): void;
-  }
+export namespace foobar {
+  // ...
+  export function hello(input: string): void;
+}
 ```
 
 2. The `packages/main/src/plugin/extension-loader.ts` acts as an extension loader that defines all the actions needed by the API. Modify it to add the main functionality of `hello()` under the `foobar` namespace const:
@@ -148,7 +149,7 @@ return <typeof containerDesktopAPI>{
 ```ts
 export class FoobarClient {
   hello(input: string) {
-    console.log("hello " + input);
+    console.log('hello ' + input);
   }
 }
 ```
@@ -157,7 +158,6 @@ export class FoobarClient {
 
 ```ts
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-
   // Define the provider
   const provider = extensionApi.provider.createProvider({
     name: 'foobar',
@@ -173,7 +173,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   extensionContext.subscriptions.push(provider);
 
   // Call the "hello world" function that'll output to the console
-  extensionContext.foobar.hello("world");
+  extensionContext.foobar.hello('world');
 }
 ```
-

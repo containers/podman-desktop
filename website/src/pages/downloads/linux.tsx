@@ -42,7 +42,7 @@ export function LinuxDownloads(): JSX.Element {
   });
 
   const copyFlathubInstructions = async () => {
-    await navigator.clipboard.writeText('flatpak install --user flathub io.podman_desktop.PodmanDesktop');
+    await navigator.clipboard.writeText('flatpak install flathub io.podman_desktop.PodmanDesktop');
   };
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export function LinuxDownloads(): JSX.Element {
               <p className="text-lg">
                 Using{' '}
                 <a className="text-purple-500" href="https://flathub.org/apps/details/io.podman_desktop.PodmanDesktop">
-                  FlatHub
+                  Flathub
                 </a>{' '}
                 ? Install in one command:
               </p>

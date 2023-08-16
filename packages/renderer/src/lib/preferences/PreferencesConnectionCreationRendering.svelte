@@ -2,7 +2,7 @@
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
-import Logger from './Logger.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import { getNormalizedDefaultNumberValue, writeToTerminal } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
@@ -13,14 +13,26 @@ import {
   reconnectUI,
   startTask,
 } from './preferences-connection-rendering-task';
-import { get } from 'svelte/store';
-import { createConnectionsInfo } from '/@/stores/create-connections';
+/* eslint-disable import/no-duplicates */
+// https://github.com/import-js/eslint-plugin-import/issues/1479
+import { get, type Unsubscriber } from 'svelte/store';
 import { onDestroy, onMount } from 'svelte';
+/* eslint-enable import/no-duplicates */
+import { createConnectionsInfo } from '/@/stores/create-connections';
 import { filesize } from 'filesize';
 import { router } from 'tinro';
 import LinearProgress from '../ui/LinearProgress.svelte';
 import Spinner from '../ui/Spinner.svelte';
 import Markdown from '../markdown/Markdown.svelte';
+import type { Terminal } from 'xterm';
+import type { AuditRequestItems } from '@podman-desktop/api';
+import AuditMessageBox from '../ui/AuditMessageBox.svelte';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+import { faCubes } from '@fortawesome/free-solid-svg-icons';
+import Button from '../ui/Button.svelte';
+import type { ContextUI } from '/@/lib/context/context';
+import { ContextKeyExpr } from '/@/lib/context/contextKey';
+import { context } from '/@/stores/context';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
@@ -28,7 +40,7 @@ export let propertyScope: string;
 export let callback: (
   param: string,
   data,
-  handlerKey: Symbol,
+  handlerKey: symbol,
   collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
   tokenId?: number,
 ) => Promise<void>;
@@ -44,6 +56,13 @@ export let pageIsLoading = true;
 let showLogs = false;
 let tokenId: number;
 
+const providerDisplayName =
+  (providerInfo.containerProviderConnectionCreation
+    ? providerInfo.containerProviderConnectionCreationDisplayName || undefined
+    : providerInfo.kubernetesProviderConnectionCreation
+    ? providerInfo.kubernetesProviderConnectionCreationDisplayName
+    : undefined) || providerInfo.name;
+
 let osMemory, osCpu, osFreeDisk;
 // get only ContainerProviderConnectionFactory scope fields that are starting by the provider id
 let configurationKeys: IConfigurationPropertyRecordedSchema[] = [];
@@ -51,24 +70,37 @@ let configurationKeys: IConfigurationPropertyRecordedSchema[] = [];
 let isValid = true;
 let errorMessage = undefined;
 
-$: if (logsTerminal) {
-  // reconnect the logger handler
-  if (loggerHandlerKey) {
-    try {
-      reconnectUI(loggerHandlerKey, getLoggerHandler());
-    } catch (error) {
-      console.error('error while reconnecting', error);
-    }
+let formEl;
+
+let globalContext: ContextUI;
+
+$: connectionAuditResult = undefined;
+
+let contextsUnsubscribe: Unsubscriber;
+
+// reconnect the logger handler
+$: if (logsTerminal && loggerHandlerKey) {
+  try {
+    reconnectUI(loggerHandlerKey, getLoggerHandler());
+  } catch (error) {
+    console.error('error while reconnecting', error);
   }
+}
+
+function isPropertyValidInContext(when: string, context: ContextUI) {
+  const expr = ContextKeyExpr.deserialize(when);
+  return expr.evaluate(context);
 }
 
 onMount(async () => {
   osMemory = await window.getOsMemory();
   osCpu = await window.getOsCpu();
   osFreeDisk = await window.getOsFreeDiskSize();
+  contextsUnsubscribe = context.subscribe(value => (globalContext = value));
   configurationKeys = properties
     .filter(property => property.scope === propertyScope)
     .filter(property => property.id.startsWith(providerInfo.id))
+    .filter(property => !property.when || isPropertyValidInContext(property.when, globalContext))
     .map(property => {
       switch (property.maximum) {
         case 'HOST_TOTAL_DISKSIZE': {
@@ -95,6 +127,7 @@ onMount(async () => {
       }
       return property;
     });
+
   pageIsLoading = false;
 
   // check if we have an existing create action
@@ -117,20 +150,42 @@ onMount(async () => {
   if (taskId === undefined) {
     taskId = createConnectionInfoMap.size + 1;
   }
+
+  const data = {};
+  for (let field of configurationKeys) {
+    data[field.id] = field.default;
+  }
+  try {
+    connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data);
+  } catch (e) {
+    console.warn(e.message);
+  }
 });
 
 onDestroy(() => {
   if (loggerHandlerKey) {
     disconnectUI(loggerHandlerKey);
   }
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
+  }
 });
 
-function handleInvalidComponent(_error: string) {
+function handleInvalidComponent() {
   isValid = false;
 }
 
-function handleValidComponent() {
+async function handleValidComponent() {
   isValid = true;
+
+  const formData = new FormData(formEl);
+  const data = {};
+  for (let field of formData) {
+    const [key, value] = field;
+    data[key] = value;
+  }
+
+  connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data as AuditRequestItems);
 }
 
 function setConfigurationValue(id: string, value: string) {
@@ -148,7 +203,7 @@ function getDisplayConfigurationValue(configurationKey: IConfigurationPropertyRe
   }
 }
 
-let logsTerminal;
+let logsTerminal: Terminal;
 let loggerHandlerKey: symbol | undefined = undefined;
 
 function getLoggerHandler(): ConnectionCallback {
@@ -235,7 +290,7 @@ async function handleOnSubmit(e) {
     // clear terminal
     logsTerminal?.clear();
     loggerHandlerKey = startTask(
-      `Creating a ${providerInfo.name} provider`,
+      `Create ${providerDisplayName}`,
       `/preferences/provider-task/${providerInfo.internalId}/${taskId}`,
       getLoggerHandler(),
     );
@@ -266,27 +321,21 @@ async function close() {
 }
 </script>
 
-<div class="flex flex-1 flex-col">
+<div class="flex flex-col w-full h-full overflow-hidden">
   {#if creationSuccessful}
-    <div class="pf-c-empty-state h-full">
-      <div class="pf-c-empty-state__content">
-        <i class="fas fa-cubes pf-c-empty-state__icon" aria-hidden="true"></i>
-        <h1 class="pf-c-title pf-m-lg">Creation</h1>
-        <div class="pf-c-empty-state__body">Successful operation</div>
-        <button
-          on:click="{() => {
-            cleanup();
-            router.goto('/preferences/resources');
-          }}"
-          class="pf-c-button pf-m-primary"
-          type="button">
-          Go back to resources
-        </button>
-      </div>
-    </div>
+    <EmptyScreen icon="{faCubes}" title="Creation" message="Successful operation">
+      <Button
+        class="py-3"
+        on:click="{() => {
+          cleanup();
+          router.goto('/preferences/resources');
+        }}">
+        Go back to resources
+      </Button>
+    </EmptyScreen>
   {:else}
-    <div class="my-2">
-      {#if providerInfo.images && providerInfo.images.icon}
+    <div class="my-2 px-6">
+      {#if providerInfo?.images?.icon}
         {#if typeof providerInfo.images.icon === 'string'}
           <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
           <!-- TODO check theme used for image, now use dark by default -->
@@ -295,109 +344,93 @@ async function close() {
         {/if}
       {/if}
     </div>
-    {@const providerDisplayName =
-      (providerInfo.containerProviderConnectionCreation
-        ? providerInfo.containerProviderConnectionCreationDisplayName || undefined
-        : providerInfo.kubernetesProviderConnectionCreation
-        ? providerInfo.kubernetesProviderConnectionCreationDisplayName
-        : undefined) || providerInfo.name}
-    <h1 class="font-semibold">
+    <h1 class="font-semibold px-6 pb-2">
       {creationInProgress ? 'Creating' : 'Create a'}
       {providerDisplayName}
       {creationInProgress ? '...' : ''}
     </h1>
-    {#if pageIsLoading}
-      <div class="text-center mt-16">
-        <div role="status">
-          <Spinner />
+    <div class="flex flex-col px-6 w-full h-full overflow-auto">
+      {#if pageIsLoading}
+        <div class="text-center mt-16" role="status">
+          <Spinner size="lg" />
         </div>
-      </div>
-    {:else}
-      {#if creationStarted}
-        <div class="w-4/5 mt-2">
-          <div class="mt-2 mb-8">
-            {#if creationInProgress}
-              <LinearProgress />
-            {/if}
-            <div class="mt-2 float-right">
-              <button
-                aria-label="Show Logs"
-                class="text-xs mr-3 hover:underline"
-                on:click="{() => (showLogs = !showLogs)}"
-                >Show Logs <i class="fas {showLogs ? 'fa-angle-up' : 'fa-angle-down'}" aria-hidden="true"></i></button>
-              <button
-                aria-label="Cancel creation"
-                class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
-                disabled="{!tokenId}"
-                on:click="{cancel}">Cancel</button>
-              <button
-                class="text-xs hover:underline {creationInProgress ? 'hidden' : ''}"
-                aria-label="Close panel"
-                on:click="{close}">Close</button>
-            </div>
-          </div>
-          <div id="log" class="pt-2 h-80 {showLogs ? '' : 'hidden'}">
-            <div class="w-full h-full">
-              <Logger bind:logsTerminal="{logsTerminal}" onInit="{() => {}}" />
-            </div>
-          </div>
-        </div>
-      {/if}
-      {#if errorMessage}
-        <div class="w-4/5 mt-2">
-          <ErrorMessage error="{errorMessage}" />
-        </div>
-      {/if}
-
-      <div class="p-3 mt-4 w-4/5 {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
-        <form novalidate class="pf-c-form p-2" on:submit|preventDefault="{handleOnSubmit}">
-          {#each configurationKeys as configurationKey}
-            <div class="mb-2.5">
-              <div class="font-semibold text-xs">
-                {#if configurationKey.description}
-                  {configurationKey.description}:
-                {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
-                  <Markdown>{configurationKey.markdownDescription}:</Markdown>
-                {/if}
-                {#if configurationValues.has(configurationKey.id)}
-                  {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
-                {:else}
-                  {getDisplayConfigurationValue(configurationKey)}
-                {/if}
+      {:else}
+        {#if creationStarted}
+          <div class="w-4/5">
+            <div class="mt-2 mb-8">
+              {#if creationInProgress}
+                <LinearProgress />
+              {/if}
+              <div class="mt-2 float-right">
+                <button
+                  aria-label="Show Logs"
+                  class="text-xs mr-3 hover:underline"
+                  on:click="{() => (showLogs = !showLogs)}"
+                  >Show Logs <i class="fas {showLogs ? 'fa-angle-up' : 'fa-angle-down'}" aria-hidden="true"></i
+                  ></button>
+                <button
+                  aria-label="Cancel creation"
+                  class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
+                  disabled="{!tokenId}"
+                  on:click="{cancel}">Cancel</button>
+                <button
+                  class="text-xs hover:underline {creationInProgress ? 'hidden' : ''}"
+                  aria-label="Close panel"
+                  on:click="{close}">Close</button>
               </div>
-              <PreferencesRenderingItemFormat
-                invalidRecord="{handleInvalidComponent}"
-                validRecord="{handleValidComponent}"
-                record="{configurationKey}"
-                setRecordValue="{setConfigurationValue}"
-                enableSlider="{true}" />
             </div>
-          {/each}
-          <div class="w-full">
-            <div class="float-right">
-              <button
-                class="pf-c-button underline hover:text-gray-700"
-                on:click="{() => router.goto('/preferences/resources')}">
-                Close
-              </button>
-              <button disabled="{!isValid || creationInProgress}" class="pf-c-button pf-m-primary" type="submit">
-                <div class="mr-24">
-                  {#if creationInProgress === true}
-                    <i class="pf-c-button__progress">
-                      <span class="pf-c-spinner pf-m-md" role="progressbar">
-                        <span class="pf-c-spinner__clipper"></span>
-                        <span class="pf-c-spinner__lead-ball"></span>
-                        <span class="pf-c-spinner__tail-ball"></span>
-                      </span>
-                    </i>
+            <div id="log" class="pt-2 h-80 {showLogs ? '' : 'hidden'}">
+              <div class="w-full h-full">
+                <TerminalWindow bind:terminal="{logsTerminal}" />
+              </div>
+            </div>
+          </div>
+        {/if}
+        {#if errorMessage}
+          <div class="w-4/5 mt-2">
+            <ErrorMessage error="{errorMessage}" />
+          </div>
+        {/if}
+
+        <div class="p-3 mt-2 w-4/5 h-fit {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
+          {#if connectionAuditResult?.records?.length > 0}
+            <AuditMessageBox auditResult="{connectionAuditResult}" />
+          {/if}
+          <form novalidate class="p-2 space-y-7 h-fit" on:submit|preventDefault="{handleOnSubmit}" bind:this="{formEl}">
+            {#each configurationKeys as configurationKey}
+              <div class="mb-2.5">
+                <div class="font-semibold text-xs">
+                  {#if configurationKey.description}
+                    {configurationKey.description}:
+                  {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
+                    <Markdown>{configurationKey.markdownDescription}:</Markdown>
+                  {/if}
+                  {#if configurationValues.has(configurationKey.id)}
+                    {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
+                  {:else}
+                    {getDisplayConfigurationValue(configurationKey)}
                   {/if}
                 </div>
-                Create
-              </button>
+                <PreferencesRenderingItemFormat
+                  invalidRecord="{handleInvalidComponent}"
+                  validRecord="{handleValidComponent}"
+                  record="{configurationKey}"
+                  setRecordValue="{setConfigurationValue}"
+                  enableSlider="{true}" />
+              </div>
+            {/each}
+            <div class="w-full">
+              <div class="float-right">
+                <Button type="link" on:click="{() => router.goto('/preferences/resources')}">Close</Button>
+                <Button
+                  disabled="{!isValid}"
+                  inProgress="{creationInProgress}"
+                  on:click="{() => formEl.requestSubmit()}">Create</Button>
+              </div>
             </div>
-          </div>
-        </form>
-      </div>
-    {/if}
+          </form>
+        </div>
+      {/if}
+    </div>
   {/if}
 </div>

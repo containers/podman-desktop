@@ -1,19 +1,16 @@
 <script lang="ts">
 import { router } from 'tinro';
 import KubePlayIcon from './KubePlayIcon.svelte';
+import Button from '../ui/Button.svelte';
 
 function runContainerYaml(): void {
   router.goto('/kube/play');
 }
 </script>
 
-<button
+<Button
   on:click="{() => runContainerYaml()}"
-  class="pf-c-button pf-m-primary"
-  type="button"
-  title="Play pod/containers from kubernetes YAML file ">
-  <div class="flex flex-row align-text-top justify-start items-center">
-    <KubePlayIcon />
-    Play Kubernetes YAML
-  </div>
-</button>
+  title="Play pod/containers from kubernetes YAML file"
+  icon="{KubePlayIcon}">
+  Play Kubernetes YAML
+</Button>

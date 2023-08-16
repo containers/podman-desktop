@@ -18,22 +18,27 @@
 
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { ipcMain } from 'electron';
-import type { ContainerProviderRegistry } from '../container-registry';
+import type { ContainerProviderRegistry } from '../container-registry.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { readFile, cp } from 'node:fs/promises';
 import * as tarFs from 'tar-fs';
 import type Dockerode from 'dockerode';
-import type { PullEvent } from '../api/pull-event';
-import type { ContributionManager } from '../contribution-manager';
-import type { ApiSenderType } from '../api';
+import type { PullEvent } from '../api/pull-event.js';
+import type { ContributionManager } from '../contribution-manager.js';
+import type { ApiSenderType } from '../api.js';
+import type { Directories } from '../directories.js';
+import type { Method, OptionsOfTextResponseBody } from 'got';
+import got, { RequestError } from 'got';
+import type { RequestConfig } from '@docker/extension-api-client-types/dist/v1';
 
 export class DockerDesktopInstallation {
   constructor(
     private apiSender: ApiSenderType,
     private containerRegistry: ContainerProviderRegistry,
     private contributionManager: ContributionManager,
+    private directories: Directories,
   ) {}
 
   async extractDockerDesktopFiles(
@@ -60,6 +65,10 @@ export class DockerDesktopInstallation {
       Object.keys(metadata.ui).forEach(key => {
         files.push(metadata.ui[key].root);
       });
+    }
+
+    if (metadata.vm?.composefile) {
+      files.push(metadata.vm.composefile);
     }
 
     // host binaries
@@ -160,139 +169,7 @@ export class DockerDesktopInstallation {
     ipcMain.on(
       'docker-desktop-plugin:install',
       (event: IpcMainEvent, imageName: string, logCallbackId: number): void => {
-        const reportLog = (message: string): void => {
-          event.reply('docker-desktop-plugin:install-log', logCallbackId, message);
-        };
-
-        const handler = async (): Promise<void> => {
-          // use first working connection
-          let providerConnectionDetails;
-          try {
-            providerConnectionDetails = this.containerRegistry.getFirstRunningConnection();
-          } catch (error) {
-            event.reply(
-              'docker-desktop-plugin:install-error',
-              logCallbackId,
-              'No provider is running. Please start a provider.',
-            );
-            return;
-          }
-
-          const providerConnectionInfo = providerConnectionDetails[0];
-          const providerConnection = providerConnectionDetails[1];
-          reportLog(`Pulling image ${imageName}...`);
-
-          try {
-            await this.containerRegistry.pullImage(providerConnectionInfo, imageName, (pullEvent: PullEvent) => {
-              if (pullEvent.progress || pullEvent.progressDetail) {
-                console.log(pullEvent.progress);
-              } else if (pullEvent.status) {
-                reportLog(pullEvent.status);
-              }
-            });
-          } catch (error) {
-            event.reply('docker-desktop-plugin:install-error', logCallbackId, 'Error while pulling image: ' + error);
-            return;
-          }
-
-          // ok search the image
-          const images = await providerConnection.listImages();
-          // const foundMatchingImage = images.find(image => image.RepoTags?.find(tag => tag.includes('aquasec/trivy-docker-extension:0.4.3')));
-          const foundMatchingImage = images.find(image =>
-            image.RepoTags?.find(tag => tag.includes(imageName) || imageName.includes(tag)),
-          );
-
-          if (!foundMatchingImage) {
-            event.reply('docker-desktop-plugin:install-error', logCallbackId, `Not able to find image ${imageName}`);
-            return;
-          }
-
-          // get the image information
-          const image = providerConnection.getImage(foundMatchingImage.Id);
-          reportLog('Check if image is a Docker Desktop Extension...');
-
-          // analyze the image
-          const imageAnalysis = await image.inspect();
-
-          // check if it's a Docker Desktop Extension
-          const labels = imageAnalysis.Config.Labels;
-          if (!labels) {
-            event.reply(
-              'docker-desktop-plugin:install-error',
-              logCallbackId,
-              `Image ${imageName} is not a Docker Desktop Extension`,
-            );
-            return;
-          }
-          const titleLabel = labels['org.opencontainers.image.title'];
-          const descriptionLabel = labels['org.opencontainers.image.description'];
-          const vendorLabel = labels['org.opencontainers.image.vendor'];
-          const apiVersion = labels['com.docker.desktop.extension.api.version'];
-
-          if (!titleLabel || !descriptionLabel || !vendorLabel || !apiVersion) {
-            event.reply(
-              'docker-desktop-plugin:install-error',
-              logCallbackId,
-              `Image ${imageName} is not a Docker Desktop Extension`,
-            );
-            return;
-          }
-
-          // strip the tag (ending with :something) from the image name if any
-          let imageNameWithoutTag: string;
-          if (imageName.includes(':')) {
-            imageNameWithoutTag = imageName.split(':')[0];
-          } else {
-            imageNameWithoutTag = imageName;
-          }
-
-          // remove all special characters from the image name
-          const imageNameWithoutSpecialChars = imageNameWithoutTag.replace(/[^a-zA-Z0-9]/g, '');
-
-          // tmp folder
-          const tmpFolderPath = path.join(os.tmpdir(), `/tmp/${imageNameWithoutSpecialChars}-tmp`);
-
-          // tmp tar file
-          const tmpTarPath = path.join(os.tmpdir(), `${imageNameWithoutSpecialChars}-tmp.tar`);
-
-          // final folder
-          const finalFolderPath = path.join(
-            this.contributionManager.getContributionStorageDir(),
-            imageNameWithoutSpecialChars,
-          );
-
-          reportLog('Grabbing image content...');
-          await this.exportContentOfContainer(providerConnection, foundMatchingImage.Id, tmpTarPath);
-
-          // delete the image
-          await image.remove();
-
-          reportLog('Extracting image content...');
-          try {
-            await this.unpackTarFile(tmpTarPath, tmpFolderPath);
-          } finally {
-            // delete the tmp tar file
-            fs.unlinkSync(tmpTarPath);
-          }
-
-          event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Filtering image content...');
-
-          await this.extractDockerDesktopFiles(tmpFolderPath, finalFolderPath, reportLog);
-
-          // check metadata. If name is missing, add the one from the image
-          const metadata = await this.contributionManager.loadMetadata(finalFolderPath);
-          if (!metadata.name) {
-            // need to add the title from the image
-            metadata.name = titleLabel;
-            await this.contributionManager.saveMetadata(finalFolderPath, metadata);
-          }
-
-          event.reply('docker-desktop-plugin:install-end', logCallbackId, 'Extension Successfully installed.');
-          // refresh contributions
-          await this.contributionManager.init();
-        };
-
-        handler().catch((error: unknown) => {
+        this.handlePluginInstall(event, imageName, logCallbackId).catch((error: unknown) => {
           event.reply('docker-desktop-plugin:install-error', logCallbackId, error);
         });
       },
@@ -311,5 +188,243 @@ export class DockerDesktopInstallation {
         this.apiSender.send('toast:handler', { type, message });
       },
     );
+
+    ipcMain.handle(
+      'docker-desktop-adapter:extensionVMServiceRequest',
+      async (_event: IpcMainInvokeEvent, port: string, config: RequestConfig): Promise<unknown> => {
+        return this.handleExtensionVMServiceRequest(port, config);
+      },
+    );
+  }
+
+  // transform the method name to a got method
+  protected isGotMethod(methodName: string): methodName is Method {
+    const allMethods = [
+      'GET',
+      'POST',
+      'PUT',
+      'PATCH',
+      'HEAD',
+      'DELETE',
+      'OPTIONS',
+      'TRACE',
+      'get',
+      'post',
+      'put',
+      'patch',
+      'head',
+      'delete',
+      'options',
+      'trace',
+    ];
+    return allMethods.includes(methodName);
+  }
+
+  protected asGotMethod(methodName: string): Method {
+    if (!this.isGotMethod(methodName)) {
+      throw Error('Invalid method');
+    }
+    return methodName as Method;
+  }
+
+  protected async handleExtensionVMServiceRequest(port: string, config: RequestConfig): Promise<unknown> {
+    // use got library
+    try {
+      const method: Method = this.asGotMethod(config.method);
+
+      const options: OptionsOfTextResponseBody = {
+        method,
+      };
+
+      if (config.data) {
+        options.json = config.data;
+      }
+
+      options.headers = config.headers;
+
+      const response = await got(`http://localhost:${port}${config.url}`, options);
+
+      // try to see if response is json
+      try {
+        return JSON.parse(response.body);
+      } catch (error) {
+        // provides the body as is
+        return response.body;
+      }
+    } catch (requestErr) {
+      if (
+        requestErr instanceof RequestError &&
+        (requestErr.response?.statusCode === 401 || requestErr.response?.statusCode === 403)
+      ) {
+        throw Error('Unable to get access');
+      } else if (requestErr instanceof Error) {
+        throw Error(requestErr.message);
+      } else {
+        throw Error('Unknown error: ' + requestErr);
+      }
+    }
+  }
+
+  protected async handlePluginInstall(event: IpcMainEvent, imageName: string, logCallbackId: number): Promise<void> {
+    const reportLog = (message: string): void => {
+      event.reply('docker-desktop-plugin:install-log', logCallbackId, message);
+    };
+
+    // use first working connection
+    let providerConnectionDetails;
+    try {
+      providerConnectionDetails = this.containerRegistry.getFirstRunningConnection();
+    } catch (error) {
+      event.reply(
+        'docker-desktop-plugin:install-error',
+        logCallbackId,
+        'No provider is running. Please start a provider.',
+      );
+      return;
+    }
+
+    const providerConnectionInfo = providerConnectionDetails[0];
+    const providerConnection = providerConnectionDetails[1];
+    reportLog(`Pulling image ${imageName}...`);
+
+    try {
+      await this.containerRegistry.pullImage(providerConnectionInfo, imageName, (pullEvent: PullEvent) => {
+        if (pullEvent.progress || pullEvent.progressDetail) {
+          console.log(pullEvent.progress);
+        } else if (pullEvent.status) {
+          reportLog(pullEvent.status);
+        }
+      });
+    } catch (error) {
+      event.reply('docker-desktop-plugin:install-error', logCallbackId, 'Error while pulling image: ' + error);
+      return;
+    }
+
+    // ok search the image
+    const images = await providerConnection.listImages();
+    // const foundMatchingImage = images.find(image => image.RepoTags?.find(tag => tag.includes('aquasec/trivy-docker-extension:0.4.3')));
+    const foundMatchingImage = images.find(image =>
+      image.RepoTags?.find(tag => tag.includes(imageName) || imageName.includes(tag)),
+    );
+
+    if (!foundMatchingImage) {
+      event.reply('docker-desktop-plugin:install-error', logCallbackId, `Not able to find image ${imageName}`);
+      return;
+    }
+
+    // get the image information
+    const image = providerConnection.getImage(foundMatchingImage.Id);
+    reportLog('Check if image is a Docker Desktop Extension...');
+
+    // analyze the image
+    const imageAnalysis = await image.inspect();
+
+    // check if it's a Docker Desktop Extension
+    const labels = imageAnalysis.Config.Labels;
+    if (!labels) {
+      event.reply(
+        'docker-desktop-plugin:install-error',
+        logCallbackId,
+        `Image ${imageName} is not a Docker Desktop Extension`,
+      );
+      return;
+    }
+    const titleLabel = labels['org.opencontainers.image.title'];
+    const descriptionLabel = labels['org.opencontainers.image.description'];
+    const vendorLabel = labels['org.opencontainers.image.vendor'];
+    const apiVersion = labels['com.docker.desktop.extension.api.version'];
+
+    if (!titleLabel || !descriptionLabel || !vendorLabel || !apiVersion) {
+      event.reply(
+        'docker-desktop-plugin:install-error',
+        logCallbackId,
+        `Image ${imageName} is not a Docker Desktop Extension`,
+      );
+      return;
+    }
+
+    // strip the tag (ending with :something) from the image name if any
+    let imageNameWithoutTag: string;
+    if (imageName.includes(':')) {
+      imageNameWithoutTag = imageName.split(':')[0];
+    } else {
+      imageNameWithoutTag = imageName;
+    }
+
+    // remove all special characters from the image name
+    const imageNameWithoutSpecialChars = imageNameWithoutTag.replace(/[^a-zA-Z0-9]/g, '');
+
+    // tmp folder
+    const tmpFolderPath = path.join(os.tmpdir(), `/tmp/${imageNameWithoutSpecialChars}-tmp`);
+
+    // tmp tar file
+    const tmpTarPath = path.join(os.tmpdir(), `${imageNameWithoutSpecialChars}-tmp.tar`);
+
+    // final folder
+    const finalFolderPath = path.join(this.directories.getContributionStorageDir(), imageNameWithoutSpecialChars);
+
+    reportLog('Grabbing image content...');
+    await this.exportContentOfContainer(providerConnection, foundMatchingImage.Id, tmpTarPath);
+
+    // delete the image
+    await image.remove();
+
+    reportLog('Extracting image content...');
+    try {
+      await this.unpackTarFile(tmpTarPath, tmpFolderPath);
+    } finally {
+      // delete the tmp tar file
+      fs.unlinkSync(tmpTarPath);
+    }
+
+    event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Filtering image content...');
+
+    await this.extractDockerDesktopFiles(tmpFolderPath, finalFolderPath, reportLog);
+
+    event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Loading metadata...');
+    // check metadata. If name is missing, add the one from the image
+    const metadata = await this.contributionManager.loadMetadata(finalFolderPath);
+    if (!metadata.name) {
+      // need to add the title from the image
+      metadata.name = titleLabel;
+      await this.contributionManager.saveMetadata(finalFolderPath, metadata);
+    }
+
+    // if there is a VM, need to generate the updated compose file
+    let enhancedComposeFile;
+    if (metadata.vm) {
+      // check compose presence
+      event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Check compose being setup...');
+      const foundPath = await this.contributionManager.findComposeBinary();
+      if (!foundPath) {
+        event.reply('docker-desktop-plugin:install-error', logCallbackId, 'Compose binary not found.');
+        return;
+      } else {
+        event.reply('docker-desktop-plugin:install-log', logCallbackId, `Compose binary found at ${foundPath}.`);
+      }
+
+      event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Enhance compose file...');
+      // need to update the compose file
+      try {
+        enhancedComposeFile = await this.contributionManager.enhanceComposeFile(finalFolderPath, imageName, metadata);
+      } catch (error) {
+        event.reply('docker-desktop-plugin:install-error', logCallbackId, error);
+        return;
+      }
+
+      // try to start the VM
+      event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Starting compose project...');
+      await this.contributionManager.startVM(metadata.name, enhancedComposeFile, true);
+    }
+
+    event.reply('docker-desktop-plugin:install-end', logCallbackId, 'Extension Successfully installed.');
+
+    // refresh contributions
+    try {
+      await this.contributionManager.init();
+    } catch (error) {
+      event.reply('docker-desktop-plugin:install-error', logCallbackId, error);
+      return;
+    }
   }
 }

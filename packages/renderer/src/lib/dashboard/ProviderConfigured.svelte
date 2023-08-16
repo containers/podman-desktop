@@ -5,15 +5,17 @@ import PreflightChecks from './PreflightChecks.svelte';
 import ProviderLinks from './ProviderLinks.svelte';
 import ProviderLogo from './ProviderLogo.svelte';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
-import { Steps } from 'svelte-steps';
+import Steps from 'svelte-steps/Steps.svelte';
 
 import { onMount } from 'svelte';
-import { type InitializationMode, InitializeAndStartMode, InitializationSteps } from './ProviderInitUtils';
+import { InitializeAndStartMode, InitializationSteps, type InitializationContext } from './ProviderInitUtils';
+import Spinner from '../ui/Spinner.svelte';
+import Button from '../ui/Button.svelte';
 
 export let provider: ProviderInfo;
-export let initializationMode: InitializationMode;
+export let initializationContext: InitializationContext;
 
-let runAtStart = initializationMode === InitializeAndStartMode;
+let runAtStart = initializationContext.mode === InitializeAndStartMode;
 let runInProgress = false;
 
 let runError: string | undefined = undefined;
@@ -26,7 +28,6 @@ async function runProvider() {
   runAtStart = false;
   try {
     await window.startProvider(provider.internalId);
-    // wait that status is updated
     await new Promise<void>(resolve => {
       window.events.receive('provider-change', () => {
         resolve();
@@ -65,14 +66,14 @@ onMount(() => {
 
     {#if !runAtStart && !runInProgress}
       <div class="mt-5">
-        <button on:click="{() => runProvider()}" class="pf-c-button pf-m-primary" type="button">
+        <Button on:click="{() => runProvider()}">
           Run {provider.name}
-        </button>
+        </Button>
       </div>
     {/if}
     {#if runAtStart || runInProgress}
       <div class="mt-5">
-        {#if initializationMode === InitializeAndStartMode}
+        {#if initializationContext.mode === InitializeAndStartMode}
           <Steps
             steps="{InitializationSteps}"
             primary="var(--pf-global--primary-color--300)"
@@ -83,14 +84,8 @@ onMount(() => {
         {/if}
         <div class="flex flex-col text-gray-700">
           <div>Starting</div>
-          <div class="my-2 pr-5">
-            <i class="pf-c-button__progress">
-              <span class="pf-c-spinner pf-m-md" role="progressbar">
-                <span class="pf-c-spinner__clipper"></span>
-                <span class="pf-c-spinner__lead-ball"></span>
-                <span class="pf-c-spinner__tail-ball"></span>
-              </span>
-            </i>
+          <div class="my-2 pr-5 relative">
+            <Spinner />
           </div>
         </div>
       </div>
@@ -100,7 +95,7 @@ onMount(() => {
       <ErrorMessage class="flex flex-col mt-2 my-2 text-sm" error="{runError}" />
     {/if}
   </div>
-  {#if provider.updateInfo}
+  {#if provider.version !== provider.updateInfo?.version}
     <div class="mt-10 mb-1 w-full flex justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>

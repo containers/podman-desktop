@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 import { beforeAll, beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
-import { MenuRegistry } from './menu-registry';
-import { CommandRegistry } from './command-registry';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry';
+import { MenuRegistry } from './menu-registry.js';
+import { CommandRegistry } from './command-registry.js';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 
 let menuRegistry: MenuRegistry;
 let commandRegistry;

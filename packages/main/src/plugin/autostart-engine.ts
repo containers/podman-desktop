@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry';
-import type { ProviderRegistry } from './provider-registry';
+import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
+import type { ProviderRegistry } from './provider-registry.js';
 
 export class AutostartEngine {
   constructor(private configurationRegistry: ConfigurationRegistry, private providerRegistry: ProviderRegistry) {}

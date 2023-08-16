@@ -19,5 +19,10 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 
+export interface BuildImageInfo {
+  buildImageKey: symbol;
+  buildRunning: boolean;
+}
+
 // current build key
-export const buildImagesInfo: Writable<{ buildImageKey: symbol }> = writable();
+export const buildImagesInfo: Writable<BuildImageInfo> = writable();

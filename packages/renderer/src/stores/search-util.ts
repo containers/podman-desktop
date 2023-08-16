@@ -32,7 +32,7 @@ export function findMatchInLeaves(object: unknown, query: string): boolean {
 
 // Aggregate all leaves of a given object
 function aggregateLeaves(object: unknown): string[] {
-  if (object === undefined || object === null) {
+  if (!object) {
     return [];
   } else if (typeof object === 'string') {
     return [object];

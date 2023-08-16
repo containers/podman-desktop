@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Disposable } from './types/disposable';
-import type { Telemetry } from './telemetry/telemetry';
+import { Disposable } from './types/disposable.js';
+import type { Telemetry } from './telemetry/telemetry.js';
 
 export interface CommandHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

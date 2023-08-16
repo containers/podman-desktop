@@ -17,39 +17,42 @@
  ***********************************************************************/
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Disposable } from './types/disposable';
+import { Disposable } from './types/disposable.js';
 import Dockerode from 'dockerode';
-import StreamValues from 'stream-json/streamers/StreamValues';
-import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info';
-import type { ImageInfo } from './api/image-info';
-import type { PodInfo, PodInspectInfo } from './api/pod-info';
-import type { ImageInspectInfo } from './api/image-inspect-info';
-import type { ProviderContainerConnectionInfo } from './api/provider-info';
-import type { ImageRegistry } from './image-registry';
-import type { PullEvent } from './api/pull-event';
-import type { Telemetry } from './telemetry/telemetry';
+import StreamValues from 'stream-json/streamers/StreamValues.js';
+import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info.js';
+import type { ImageInfo } from './api/image-info.js';
+import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
+import type { ImageInspectInfo } from './api/image-inspect-info.js';
+import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
+import type { ImageRegistry } from './image-registry.js';
+import type { PullEvent } from './api/pull-event.js';
+import type { Telemetry } from './telemetry/telemetry.js';
 import * as crypto from 'node:crypto';
 import moment from 'moment';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 import { EventEmitter } from 'node:events';
-import type { ContainerInspectInfo } from './api/container-inspect-info';
-import type { HistoryInfo } from './api/history-info';
+import type { ContainerInspectInfo } from './api/container-inspect-info.js';
+import type { HistoryInfo } from './api/history-info.js';
 import type {
   LibPod,
   PlayKubeInfo,
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
   PodInfo as LibpodPodInfo,
-} from './dockerode/libpod-dockerode';
-import { LibpodDockerode } from './dockerode/libpod-dockerode';
-import type { ContainerStatsInfo } from './api/container-stats-info';
-import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info';
-import type { NetworkInspectInfo } from './api/network-info';
-import type { Event } from './events/emitter';
-import { Emitter } from './events/emitter';
+} from './dockerode/libpod-dockerode.js';
+import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
+import type { ContainerStatsInfo } from './api/container-stats-info.js';
+import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
+import type { NetworkInspectInfo } from './api/network-info.js';
+import type { Event } from './events/emitter.js';
+import { Emitter } from './events/emitter.js';
 import fs from 'node:fs';
 import { pipeline } from 'node:stream/promises';
-import type { ApiSenderType } from './api';
+import type { ApiSenderType } from './api.js';
+import type { Stream } from 'stream';
+import { Writable } from 'stream';
+
 export interface InternalContainerProvider {
   name: string;
   id: string;
@@ -84,8 +87,8 @@ export class ContainerProviderRegistry {
     libPodDockerode.enhancePrototypeWithLibPod();
   }
 
-  private containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
-  private internalProviders: Map<string, InternalContainerProvider> = new Map();
+  protected containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
+  protected internalProviders: Map<string, InternalContainerProvider> = new Map();
 
   handleEvents(api: Dockerode) {
     const eventEmitter = new EventEmitter();
@@ -152,6 +155,25 @@ export class ContainerProviderRegistry {
     });
   }
 
+  reconnectContainerProviders() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const provider of this.internalProviders.values()) {
+      if (provider.api) this.setupConnectionAPI(provider, provider.connection);
+    }
+  }
+
+  setupConnectionAPI(
+    internalProvider: InternalContainerProvider,
+    containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
+  ) {
+    internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
+    if (containerProviderConnection.type === 'podman') {
+      internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
+    }
+    this.handleEvents(internalProvider.api);
+    this.apiSender.send('provider-change', {});
+  }
+
   registerContainerConnection(
     provider: containerDesktopAPI.Provider,
     containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
@@ -175,11 +197,7 @@ export class ContainerProviderRegistry {
     let previousStatus = containerProviderConnection.status();
 
     if (containerProviderConnection.status() === 'started') {
-      internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
-      if (containerProviderConnection.type === 'podman') {
-        internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
-      }
-      this.handleEvents(internalProvider.api);
+      this.setupConnectionAPI(internalProvider, containerProviderConnection);
     }
 
     // track the status of the provider
@@ -192,13 +210,8 @@ export class ContainerProviderRegistry {
           this.apiSender.send('provider-change', {});
         }
         if (newStatus === 'started') {
-          internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
-          if (containerProviderConnection.type === 'podman') {
-            internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
-          }
-          this.handleEvents(internalProvider.api);
+          this.setupConnectionAPI(internalProvider, containerProviderConnection);
           this.internalProviders.set(id, internalProvider);
-          this.apiSender.send('provider-change', {});
         }
         previousStatus = newStatus;
       }
@@ -251,7 +264,20 @@ export class ContainerProviderRegistry {
     this.telemetryService
       .track('listSimpleContainers', Object.assign({ total: flatttenedContainers.length }, telemetryOptions))
       .catch((err: unknown) => console.error('Unable to track', err));
+
     return flatttenedContainers;
+  }
+
+  // listSimpleContainers by matching label and key
+  async listSimpleContainersByLabel(label: string, key: string): Promise<SimpleContainerInfo[]> {
+    // Get all the containers using listSimpleContainers
+    const containers = await this.listSimpleContainers();
+
+    // Find all the containers that match the label + key
+    return containers.filter(container => {
+      const labels = container.Labels;
+      return labels && labels[label] === key;
+    });
   }
 
   async listContainers(): Promise<ContainerInfo[]> {
@@ -585,6 +611,7 @@ export class ContainerProviderRegistry {
     return engine.libpodApi;
   }
 
+  // prefer podman over docker
   public getFirstRunningConnection(): [ProviderContainerConnectionInfo, Dockerode] {
     // grab all connections
     const matchingContainerProviders = Array.from(this.internalProviders.entries()).filter(
@@ -593,6 +620,18 @@ export class ContainerProviderRegistry {
     if (!matchingContainerProviders || matchingContainerProviders.length === 0) {
       throw new Error('No provider with a running engine');
     }
+
+    // prefer podman over other engines
+    // sort by podman first as container type
+    matchingContainerProviders.sort((a, b) => {
+      if (a[1].connection.type === 'podman' && b[1].connection.type === 'podman') {
+        return 0;
+      } else if (a[1].connection.type === 'podman' && b[1].connection.type !== 'podman') {
+        return -1;
+      } else {
+        return 1;
+      }
+    });
 
     const matchingConnection = matchingContainerProviders[0];
     if (!matchingConnection[1].api) {
@@ -677,12 +716,33 @@ export class ContainerProviderRegistry {
     return tags[0];
   }
 
-  async pushImage(engineId: string, imageTag: string, callback: (name: string, data: string) => void): Promise<void> {
+  async tagImage(engineId: string, imageTag: string, repo: string, tag?: string): Promise<void> {
     let telemetryOptions = {};
     try {
       const engine = this.getMatchingEngine(engineId);
       const image = engine.getImage(imageTag);
-      const authconfig = this.imageRegistry.getAuthconfigForImage(imageTag);
+      await image.tag({ repo, tag });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('tagImage', Object.assign({ imageName: this.getImageHash(imageTag) }, telemetryOptions))
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  async pushImage(
+    engineId: string,
+    imageTag: string,
+    callback: (name: string, data: string) => void,
+    authInfo?: containerDesktopAPI.ContainerAuthInfo,
+  ): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      const engine = this.getMatchingEngine(engineId);
+      const image = engine.getImage(imageTag);
+      const authconfig = authInfo || this.imageRegistry.getAuthconfigForImage(imageTag);
       const pushStream = await image.push({ authconfig });
       pushStream.on('end', () => {
         callback('end', '');
@@ -751,6 +811,36 @@ export class ContainerProviderRegistry {
 
   getImageHash(imageName: string): string {
     return crypto.createHash('sha512').update(imageName).digest('hex');
+  }
+
+  async pingContainerEngine(providerContainerConnectionInfo: ProviderContainerConnectionInfo): Promise<unknown> {
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingEngineFromConnection(providerContainerConnectionInfo).ping();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('pingContainerEngine', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  async listContainersFromEngine(
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+  ): Promise<{ Id: string; Names: string[] }[]> {
+    let telemetryOptions = {};
+    try {
+      return this.getMatchingEngineFromConnection(providerContainerConnectionInfo).listContainers({ all: true });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('listContainersFromEngine', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
   }
 
   async deleteContainer(engineId: string, id: string): Promise<void> {
@@ -912,7 +1002,7 @@ export class ContainerProviderRegistry {
   async removePod(engineId: string, podId: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingPodmanEngine(engineId).removePod(podId);
+      return this.getMatchingPodmanEngine(engineId).removePod(podId, { force: true });
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -979,6 +1069,115 @@ export class ContainerProviderRegistry {
     }
   }
 
+  // Find all containers that match the against the given project name to
+  // the label com.docker.compose.project (for example)
+  // and then restart all the containers that have the following label AND key
+  async restartContainersByLabel(engineId: string, label: string, key: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      // Get all the containers using listSimpleContainers
+      const containers = await this.listSimpleContainers();
+
+      // Find all the containers that are using projectLabel and match the projectName
+      const containersMatchingProject = containers.filter(container => {
+        const labels = container.Labels;
+        return labels && labels[label] === key;
+      });
+
+      // Get all the container ids in containersIds
+      const containerIds = containersMatchingProject.map(container => container.Id);
+
+      // Restart all the containers in containerIds
+      await Promise.all(containerIds.map(containerId => this.restartContainer(engineId, containerId)));
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('restartContainersByLabel', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  // Start containers that match a label + key
+  async startContainersByLabel(engineId: string, label: string, key: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      // Get all the containers using listSimpleContainers
+      const containers = await this.listSimpleContainers();
+
+      // Find all the containers that are using projectLabel and match the projectName
+      const containersMatchingProject = containers.filter(
+        container => container.State !== 'running' && container.Labels?.[label] === key,
+      );
+
+      // Get all the container ids in containersIds
+      const containerIds = containersMatchingProject.map(container => container.Id);
+
+      // Start all the containers
+      await Promise.all(containerIds.map(containerId => this.startContainer(engineId, containerId)));
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('startContainersByLabel', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  // Stop containers that match a label + key
+  async stopContainersByLabel(engineId: string, label: string, key: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      // Get all the containers using listSimpleContainers
+      const containers = await this.listSimpleContainers();
+
+      // Find all the containers that are using projectLabel and match the projectName
+      const containersMatchingProject = containers.filter(
+        container => container.State === 'running' && container.Labels?.[label] === key,
+      );
+
+      // Get all the container ids in containersIds
+      const containerIds = containersMatchingProject.map(container => container.Id);
+
+      // Stop all the containers
+      await Promise.all(containerIds.map(containerId => this.stopContainer(engineId, containerId)));
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('stopContainersByLabel', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
+  // Delete all containers that match a certain label and key
+  async deleteContainersByLabel(engineId: string, label: string, key: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      // Get all the containers using listSimpleContainers
+      const containers = await this.listSimpleContainers();
+
+      // Find all the containers that are using projectLabel and match the projectName
+      const containersMatchingProject = containers.filter(container => container.Labels?.[label] === key);
+
+      // Get all the container ids in containersIds
+      const containerIds = containersMatchingProject.map(container => container.Id);
+
+      // Delete all the containers in containerIds
+      await Promise.all(containerIds.map(containerId => this.deleteContainer(engineId, containerId)));
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService
+        .track('deleteContainersByLabel', telemetryOptions)
+        .catch((err: unknown) => console.error('Unable to track', err));
+    }
+  }
+
   async logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void): Promise<void> {
     let telemetryOptions = {};
     try {
@@ -1009,6 +1208,69 @@ export class ContainerProviderRegistry {
         .track('logsContainer', telemetryOptions)
         .catch((err: unknown) => console.error('Unable to track', err));
     }
+  }
+
+  async execInContainer(
+    engineId: string,
+    id: string,
+    command: string[],
+    onStdout: (data: Buffer) => void,
+    onStderr: (data: Buffer) => void,
+  ): Promise<void> {
+    const container = this.getMatchingContainer(engineId, id);
+
+    const exec = await container.exec({
+      AttachStdout: true,
+      AttachStderr: true,
+      AttachStdin: false,
+      Cmd: command,
+      Tty: false,
+    });
+
+    const execStream = await exec.start({ hijack: true, stdin: false });
+
+    const wrappedAsStream = (redirect: (data: Buffer) => void): Writable => {
+      return new Writable({
+        write: (chunk, _encoding, done) => {
+          redirect(chunk);
+          done();
+        },
+      });
+    };
+
+    const stdoutEchoStream = wrappedAsStream(onStdout);
+    const stderrEchoStream = wrappedAsStream(onStderr);
+
+    container.modem.demuxStream(execStream, stdoutEchoStream, stderrEchoStream);
+
+    return new Promise((resolve, reject) => {
+      const check = async () => {
+        const r = await exec.inspect();
+
+        if (!r.Running) {
+          clearInterval(timer);
+          execStream.destroy();
+          resolve();
+        }
+      };
+
+      // workaround if end callback is not called
+      // it seems it happens sometimes on Windows
+      const timer = setInterval(() => {
+        check().catch((err: unknown) => {
+          console.log('error in check', err);
+        });
+      }, 1000);
+
+      execStream.on('end', () => {
+        clearInterval(timer);
+        resolve();
+      });
+      execStream.on('error', err => {
+        clearInterval(timer);
+        reject(err);
+      });
+    });
   }
 
   async shellInContainer(
@@ -1285,22 +1547,13 @@ export class ContainerProviderRegistry {
     kubernetesYamlFilePath: string,
     selectedProvider: ProviderContainerConnectionInfo,
   ): Promise<PlayKubeInfo> {
-    // grab all connections
-    const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-      containerProvider =>
-        containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
-        containerProvider.name === selectedProvider.name,
-    );
-    if (!matchingContainerProvider?.libpodApi) {
-      throw new Error('No provider with a running engine');
-    }
     let telemetryOptions = {};
     try {
       // grab all connections
       const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
         containerProvider =>
           containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
-          containerProvider.name === selectedProvider.name,
+          containerProvider.connection.name === selectedProvider.name,
       );
       if (!matchingContainerProvider?.libpodApi) {
         throw new Error('No provider with a running engine');
@@ -1343,13 +1596,13 @@ export class ContainerProviderRegistry {
         `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
       );
       const tarStream = tar.pack(containerBuildContextDirectory);
-      let streamingPromise;
+      let streamingPromise: Stream;
       try {
-        streamingPromise = await matchingContainerProvider.api.buildImage(tarStream, {
+        streamingPromise = (await matchingContainerProvider.api.buildImage(tarStream, {
           registryconfig,
           dockerfile: relativeContainerfilePath,
           t: imageName,
-        });
+        })) as unknown as Stream;
       } catch (error: unknown) {
         console.log('error in buildImage', error);
         const errorMessage = error instanceof Error ? error.message : '' + error;

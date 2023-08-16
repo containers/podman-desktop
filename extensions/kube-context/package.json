@@ -16,7 +16,16 @@
         "command": "kubecontext.switch",
         "title": "Kube Context: switch context"
       }
-    ]
+    ],
+    "icons": {
+      "kube-icon": {
+        "description": "Kubernetes icon",
+        "default": {
+          "fontPath": "kube.woff2",
+          "fontCharacter": "\\0041"
+        }
+      }
+    }
   },
   "scripts": {
     "build": "rollup --bundleConfigAsCjs --config rollup.config.js --compact --environment BUILD:production  && node ./scripts/build.js",
@@ -31,7 +40,8 @@
   "devDependencies": {
     "7zip-min": "^1.4.4",
     "@types/js-yaml": "^4.0.5",
-    "mkdirp": "^2.1.6",
+    "mkdirp": "^3.0.1",
+    "vitest": "^0.34.1",
     "zip-local": "^0.3.5"
   }
 }

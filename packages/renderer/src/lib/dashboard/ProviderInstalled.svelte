@@ -11,20 +11,22 @@ import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
 import {
+  type InitializationContext,
   type InitializationMode,
   InitializationSteps,
   InitializeAndStartMode,
   InitializeOnlyMode,
 } from './ProviderInitUtils';
-import { Steps } from 'svelte-steps';
+import Steps from 'svelte-steps/Steps.svelte';
+import Spinner from '../ui/Spinner.svelte';
 
 export let provider: ProviderInfo;
-export let updateInitializationMode: (string, InitializationMode) => void;
+export let initializationContext: InitializationContext;
 
 let initializationButtonVisible = true;
 let initializeInProgress = false;
 
-let initalizeError: string | undefined = undefined;
+let initializeError: string | undefined = undefined;
 
 let preflightChecks: CheckStatus[] = [];
 
@@ -44,23 +46,16 @@ $: initializationButtonVisible =
   provider.containerProviderConnectionInitialization || provider.kubernetesProviderConnectionInitialization;
 
 async function initializeProvider() {
-  initalizeError = undefined;
+  initializeError = undefined;
   logsTerminal.clear();
   initializeInProgress = true;
-  try {
-    await window.initializeProvider(provider.internalId);
-    // wait that status is updated
-    await new Promise<void>(resolve => {
-      window.events.receive('provider-change', () => {
-        resolve();
-      });
-    });
-  } catch (error) {
-    initalizeError = error;
+  initializationContext.promise = window.initializeProvider(provider.internalId);
+  initializationContext.promise.catch((error: unknown) => {
+    initializeError = String(error);
     initializationButtonVisible = true;
     logsTerminal.write(error + '\r');
     console.error('Error while initializing the provider', error);
-  }
+  });
   initializeInProgress = false;
 }
 
@@ -106,7 +101,7 @@ onMount(async () => {
   refreshTerminal();
 
   // Resize the terminal each time we change the div size
-  resizeObserver = new ResizeObserver(entries => {
+  resizeObserver = new ResizeObserver(() => {
     termFit?.fit();
   });
 
@@ -126,7 +121,7 @@ function updateOptionsMenu(visible: boolean) {
 function onInstallationClick() {
   initializeInProgress = true;
   initializationButtonVisible = false;
-  updateInitializationMode(provider.internalId, installationOptionSelected);
+  initializationContext.mode = installationOptionSelected as InitializationMode;
   initializeProvider();
 }
 </script>
@@ -202,21 +197,15 @@ function onInstallationClick() {
       {/if}
       <div class="flex flex-col text-gray-700">
         <div>Initializing</div>
-        <div class="my-2 pr-5">
-          <i class="pf-c-button__progress">
-            <span class="pf-c-spinner pf-m-md" role="progressbar">
-              <span class="pf-c-spinner__clipper"></span>
-              <span class="pf-c-spinner__lead-ball"></span>
-              <span class="pf-c-spinner__tail-ball"></span>
-            </span>
-          </i>
+        <div class="my-2 pr-5 relative">
+          <Spinner />
         </div>
       </div>
     </div>
 
     <div
       class=""
-      style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initalizeError
+      style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initializeError
         ? 'block'
         : 'none'}"
       class:h-full="{noErrors === false}"
@@ -225,7 +214,7 @@ function onInstallationClick() {
     </div>
   </div>
 
-  {#if provider.updateInfo}
+  {#if provider.version !== provider.updateInfo?.version}
     <div class="mt-10 mb-1 w-full flex justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>

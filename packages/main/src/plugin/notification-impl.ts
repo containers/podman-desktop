@@ -18,7 +18,7 @@
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Notification } from 'electron';
-import { Disposable } from './types/disposable';
+import { Disposable } from './types/disposable.js';
 
 export class NotificationImpl {
   showNotification(options: containerDesktopAPI.NotificationOptions): Disposable {

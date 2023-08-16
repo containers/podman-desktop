@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { router } from 'tinro';
-import { buildImagesInfo } from '/@/stores/build-images';
+import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
 import { createTask, removeTask } from '/@/stores/tasks';
 import type { Task } from '../../../../main/src/plugin/api/task';
 
@@ -59,12 +59,12 @@ const buildReplays = new Map<symbol, BuildReplay>();
 const allTasks = new Map<symbol, Task>();
 
 // new build is occuring, needs to compute a new key and prepare replay data
-export function startBuild(imageName: string, buildImageCallback: BuildImageCallback): symbol {
+export function startBuild(imageName: string, buildImageCallback: BuildImageCallback): BuildImageInfo {
   const key = getKey();
   buildCallbacks.set(key, buildImageCallback);
 
   // start a task
-  const task = createTask(imageName);
+  const task = createTask(`Build ${imageName}`);
 
   // go to the images build
   task.gotoTask = () => {
@@ -76,24 +76,24 @@ export function startBuild(imageName: string, buildImageCallback: BuildImageCall
 
   // create a new replay value
   buildReplays.set(key, { stream: '', error: '', end: false });
-  return key;
+  return { buildImageKey: key, buildRunning: true };
 }
 
 // clear all data related to the given build
-export function clearBuildTask(key: symbol): void {
-  buildCallbacks.delete(key);
-  buildOnHolds.delete(key);
-  buildReplays.delete(key);
+export function clearBuildTask(info: BuildImageInfo): void {
+  buildCallbacks.delete(info.buildImageKey);
+  buildOnHolds.delete(info.buildImageKey);
+  buildReplays.delete(info.buildImageKey);
   // remove current build
   buildImagesInfo.set(undefined);
 
   // remove the task
-  const task = allTasks.get(key);
+  const task = allTasks.get(info.buildImageKey);
   if (task) {
     removeTask(task.id);
   }
 
-  allTasks.delete(key);
+  allTasks.delete(info.buildImageKey);
 }
 
 // client is leaving the page, disconnect the UI
@@ -158,7 +158,10 @@ export function eventCollect(key: symbol, eventName: 'finish' | 'stream' | 'erro
   const task = allTasks.get(key);
   if (task) {
     if (eventName === 'error') {
+      // If we errored out, we should store the error message in the task so it is correctly displayed
+      task.error = data;
       task.status = 'failure';
+      task.state = 'completed';
     } else if (eventName === 'finish') {
       if (task.status !== 'failure') {
         task.status = 'success';

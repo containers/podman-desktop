@@ -16,25 +16,35 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable, derived } from 'svelte/store';
+import { writable, derived, type Writable } from 'svelte/store';
 import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
+
 import { findMatchInLeaves } from './search-util';
+import { EventStore } from './event-store';
+import PodIcon from '../lib/images/PodIcon.svelte';
+
+const windowEvents = [
+  'extension-started',
+  'extension-stopped',
+  'container-stopped-event',
+  'container-die-event',
+  'container-kill-event',
+  'container-started-event',
+  'provider-change',
+  'pod-event',
+  'extensions-started',
+];
+const windowListeners = ['extensions-already-started'];
 
 let readyToUpdate = false;
 
-export async function fetchPods() {
+export async function checkForUpdate(eventName: string): Promise<boolean> {
+  if ('extensions-already-started' === eventName) {
+    readyToUpdate = true;
+  }
+
   // do not fetch until extensions are all started
-  if (!readyToUpdate) {
-    return;
-  }
-  let result = await window.listPods();
-  try {
-    const pods = await window.kubernetesListPods();
-    result = result.concat(pods);
-  } finally {
-    podsInfos.set(result);
-  }
+  return readyToUpdate;
 }
 
 export const podsInfos: Writable<PodInfo[]> = writable([]);
@@ -45,47 +55,25 @@ export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $i
   return $imagesInfos.filter(podInfo => findMatchInLeaves(podInfo, $searchPattern.toLowerCase()));
 });
 
-// need to refresh when extension is started or stopped
-window.events?.receive('extension-started', async () => {
-  await fetchPods();
-});
-window.events?.receive('extension-stopped', async () => {
-  await fetchPods();
-});
+const eventStore = new EventStore<PodInfo[]>(
+  'pods',
+  podsInfos,
+  checkForUpdate,
+  windowEvents,
+  windowListeners,
+  grabAllPods,
+  PodIcon,
+);
+eventStore.setup();
 
-window.events?.receive('container-stopped-event', async () => {
-  await fetchPods();
-});
+export async function grabAllPods(): Promise<PodInfo[]> {
+  let result = await window.listPods();
+  try {
+    const pods = await window.kubernetesListPods();
+    result = result.concat(pods);
+  } finally {
+    podsInfos.set(result);
+  }
 
-window.events?.receive('container-die-event', async () => {
-  await fetchPods();
-});
-
-window.events?.receive('container-kill-event', async () => {
-  await fetchPods();
-});
-
-window.events?.receive('container-started-event', async () => {
-  await fetchPods();
-});
-
-window.events?.receive('provider-change', async () => {
-  await fetchPods();
-});
-
-window.events?.receive('pod-event', async () => {
-  await fetchPods();
-});
-
-window?.events?.receive('extensions-started', async () => {
-  readyToUpdate = true;
-  await fetchPods();
-});
-
-// if client is doing a refresh, we will receive this event and we need to update the data
-window.addEventListener('extensions-already-started', () => {
-  readyToUpdate = true;
-  fetchPods().catch((error: unknown) => {
-    console.error('Failed to fetch pods', error);
-  });
-});
+  return result;
+}

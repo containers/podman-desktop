@@ -19,10 +19,10 @@
 import * as extensionApi from '@podman-desktop/api';
 import { detectKind, getKindPath, runCliCommand } from './util';
 import { KindInstaller } from './kind-installer';
-import type { CancellationToken, Logger } from '@podman-desktop/api';
+import type { AuditRequestItems, CancellationToken, Logger } from '@podman-desktop/api';
 import { window } from '@podman-desktop/api';
 import { ImageHandler } from './image-handler';
-import { createCluster } from './create-cluster';
+import { createCluster, connectionAuditor } from './create-cluster';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 
@@ -52,17 +52,36 @@ async function registerProvider(
   provider: extensionApi.Provider,
   telemetryLogger: extensionApi.TelemetryLogger,
 ): Promise<void> {
-  const disposable = provider.setKubernetesProviderConnectionFactory({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) =>
-      createCluster(params, logger, kindCli, telemetryLogger, token),
-    creationDisplayName: 'Kind cluster',
-  });
+  const disposable = provider.setKubernetesProviderConnectionFactory(
+    {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) =>
+        createCluster(params, logger, kindCli, telemetryLogger, token),
+      creationDisplayName: 'Kind cluster',
+    },
+    {
+      auditItems: async (items: AuditRequestItems) => {
+        return await connectionAuditor(new ProviderNameExtractor(items).getProviderName(), items);
+      },
+    },
+  );
   extensionContext.subscriptions.push(disposable);
 
   // search
   await searchKindClusters(provider);
   console.log('kind extension is active');
+}
+
+class ProviderNameExtractor {
+  constructor(private items: AuditRequestItems) {}
+
+  getProviderName(): string {
+    if (this.items['kind.cluster.creation.provider']) {
+      return this.items['kind.cluster.creation.provider'];
+    }
+
+    return 'docker';
+  }
 }
 
 // search for clusters
@@ -107,8 +126,15 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
     };
     if (!item) {
       const lifecycle: extensionApi.ProviderConnectionLifecycle = {
-        start: async (): Promise<void> => {
+        start: async (context, logger): Promise<void> => {
           try {
+            if (context || logger) {
+              await extensionApi.containerEngine.logsContainer(
+                cluster.engineId,
+                cluster.id,
+                getLoggerCallback(context, logger),
+              );
+            }
             // start the container
             await extensionApi.containerEngine.startContainer(cluster.engineId, cluster.id);
           } catch (err) {
@@ -117,7 +143,14 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
             throw err;
           }
         },
-        stop: async (): Promise<void> => {
+        stop: async (context, logger): Promise<void> => {
+          if (context || logger) {
+            await extensionApi.containerEngine.logsContainer(
+              cluster.engineId,
+              cluster.id,
+              getLoggerCallback(context, logger),
+            );
+          }
           await extensionApi.containerEngine.stopContainer(cluster.engineId, cluster.id);
         },
         delete: async (logger): Promise<void> => {
@@ -163,6 +196,15 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
   });
 }
 
+function getLoggerCallback(context?: extensionApi.LifecycleContext, logger?: Logger) {
+  return (_name: string, data: string) => {
+    if (data) {
+      context?.log?.log(data);
+      logger?.log(data);
+    }
+  };
+}
+
 async function searchKindClusters(provider: extensionApi.Provider): Promise<void> {
   const allContainers = await extensionApi.containerEngine.listContainers();
 
@@ -185,7 +227,7 @@ async function createProvider(
   extensionContext: extensionApi.ExtensionContext,
   telemetryLogger: extensionApi.TelemetryLogger,
 ): Promise<void> {
-  const provider = extensionApi.provider.createProvider({
+  const providerOptions: extensionApi.ProviderOptions = {
     name: 'Kind',
     id: 'kind',
     status: 'unknown',
@@ -196,7 +238,14 @@ async function createProvider(
         light: './logo-light.png',
       },
     },
-  });
+  };
+
+  // Empty connection descriptive message
+  providerOptions.emptyConnectionMarkdownDescription = `
+  Kind is a Kubernetes utility for running local clusters using single-container "nodes", providing an easy way to create and manage Kubernetes environments for development and testing.\n\nMore information: [kind.sigs.k8s.io](https://kind.sigs.k8s.io/)`;
+
+  const provider = extensionApi.provider.createProvider(providerOptions);
+
   extensionContext.subscriptions.push(provider);
   await registerProvider(extensionContext, provider, telemetryLogger);
   extensionContext.subscriptions.push(

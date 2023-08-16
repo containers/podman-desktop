@@ -1,16 +1,16 @@
 name: Bug 🐞
 description: Report a bug report
-labels: [kind/bug]
+labels: [kind/bug 🐞]
 
 body:
   - type: markdown
     attributes:
       value: |
-        Before opening a bug report, please search for the behaviour in the existing issues. 
-        
+        Before opening a bug report, please search for the behaviour in the existing issues.
+
         ---
-        
-        Thank you for taking the time to file a bug report. To address this bug as fast as possible, we need some information. 
+
+        Thank you for taking the time to file a bug report. To address this bug as fast as possible, we need some information.
 
   - type: textarea
     id: bug-description
@@ -25,9 +25,23 @@ body:
     attributes:
       label: Operating system
       description: "Which operating system are you on? Please provide the version as well. If you are on a Mac, please specify Apple silicon or Intel."
-      placeholder: "macOS Monterey 12.2.1 (Intel)"
+      placeholder: "macOS Ventura 13.4 (Arm), Windows 11"
     validations:
-      required: true 
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installation Method
+      description: "How did you install Podman Desktop ?"
+      options:
+        - "Installer from website/GitHub releases"
+        - "Brew (macOS)"
+        - "Chocolatey (Windows)"
+        - "Flathub (Linux)"
+        - "Scoop (Windows)"
+        - "Winget (Windows)"
+        - "Other"
 
   - type: dropdown
     id: version
@@ -35,8 +49,11 @@ body:
       label: Version
       description: What version of the software are you running?
       options:
-        - "1.0.0"
+        - "1.2.1"
         - "next (development version)"
+        - "1.2.0"
+        - "1.1.0"
+        - "1.0.x"
         - "0.15.0"
         - "0.14.1"
         - "0.14.0"
@@ -54,20 +71,20 @@ body:
         - "0.0.2"
         - "0.0.1"
     validations:
-      required: true 
+      required: true
 
   - type: textarea
     id: steps
     attributes:
       label: Steps to reproduce
-      description: What steps do we need to take to reproduce this error? 
+      description: What steps do we need to take to reproduce this error?
 
   - type: textarea
     id: logs
     attributes:
       label: Relevant log output
-      description: If applicable, provide relevant log output. 
-      render: shell 
+      description: If applicable, provide relevant log output.
+      render: shell
 
   - type: textarea
     id: additional-context

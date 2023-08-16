@@ -35,7 +35,7 @@ function TailWindThemeSelector(): JSX.Element {
     const mutationObserver = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
         if (
-          mutation.type == 'attributes' &&
+          mutation.type === 'attributes' &&
           (mutation.attributeName === 'data-rh' || mutation.attributeName === 'data-theme')
         ) {
           updadeTailwindDarkTheme();

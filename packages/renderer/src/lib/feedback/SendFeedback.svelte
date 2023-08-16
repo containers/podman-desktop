@@ -4,6 +4,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import Modal from '../dialogs/Modal.svelte';
 import type { FeedbackProperties } from '../../../../preload/src/index';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Button from '../ui/Button.svelte';
 let displayModal = false;
 
 // feedback of the user
@@ -99,7 +100,6 @@ async function sendFeedback(): Promise<void> {
           name="tellUsWhyFeedback"
           id="tellUsWhyFeedback"
           bind:value="{tellUsWhyFeedback}"
-          placeholder="Leave blank to generate a name"
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
         ></textarea>
 
@@ -119,11 +119,7 @@ async function sendFeedback(): Promise<void> {
           {/if}
 
           <div class="flex flex-row justify-end w-full">
-            <button
-              disabled="{smileyRating === 0}"
-              class="pf-c-button pf-m-primary"
-              type="button"
-              on:click="{() => sendFeedback()}">Send feedback</button>
+            <Button disabled="{smileyRating === 0}" on:click="{() => sendFeedback()}">Send feedback</Button>
           </div>
         </div>
       </div>

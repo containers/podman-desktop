@@ -1,5 +1,5 @@
 <script lang="ts">
-export let size: string = '40';
+export let size = '40';
 </script>
 
 <svg

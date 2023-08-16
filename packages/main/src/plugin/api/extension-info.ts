@@ -20,6 +20,12 @@ export interface ExtensionError {
   message: string;
   stack?: string;
 }
+// contains the definition of the update of an extension
+export interface ExtensionUpdateInfo {
+  id: string;
+  version: string;
+  ociUri: string;
+}
 
 export interface ExtensionInfo {
   id: string;
@@ -32,4 +38,8 @@ export interface ExtensionInfo {
   state: string;
   error?: ExtensionError;
   path: string;
+  update?: {
+    version: string;
+    ociUri: string;
+  };
 }

@@ -4,6 +4,9 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faCircleQuestion, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import type { MessageBoxOptions } from './messagebox-input';
+import Button from '../ui/Button.svelte';
+import type { ButtonType } from '../ui/Button';
+import { tabWithinParent } from './dialog-utils';
 
 let currentId = 0;
 let title;
@@ -18,6 +21,7 @@ let buttonOrder;
 let display = false;
 
 let inputElement: HTMLInputElement = undefined;
+let messageBox: HTMLDivElement;
 
 const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
   currentId = options.id;
@@ -50,7 +54,7 @@ const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
   if (options.defaultId) {
     defaultId = options.defaultId;
   } else {
-    if (cancelId == 0) {
+    if (cancelId === 0) {
       defaultId = 1;
     } else {
       defaultId = 0;
@@ -59,9 +63,9 @@ const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
 
   // move cancel button to the start/left and default button to the end/right
   buttonOrder.sort((a, b) => {
-    if (a == cancelId || b == defaultId) {
+    if (a === cancelId || b === defaultId) {
       return -1;
-    } else if (a == defaultId || b == cancelId) {
+    } else if (a === defaultId || b === cancelId) {
       return 1;
     } else {
       return a - b;
@@ -98,12 +102,27 @@ function clickButton(index: number) {
 }
 
 function handleKeydown(e: KeyboardEvent) {
+  if (!display) {
+    return;
+  }
+
   if (e.key === 'Escape') {
     // if there is a cancel button use its id, otherwise undefined
     window.sendShowMessageBoxOnSelect(currentId, cancelId >= 0 ? cancelId : undefined);
     cleanup();
     e.preventDefault();
-    return;
+  }
+
+  if (e.key === 'Tab') {
+    tabWithinParent(e, messageBox);
+  }
+}
+
+function getButtonType(b: boolean): ButtonType {
+  if (b) {
+    return 'primary';
+  } else {
+    return 'secondary';
   }
 }
 </script>
@@ -113,7 +132,9 @@ function handleKeydown(e: KeyboardEvent) {
 {#if display}
   <!-- Create overlay-->
   <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 bg-blend-multiply h-full grid z-50">
-    <div class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black">
+    <div
+      class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black"
+      bind:this="{messageBox}">
       <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
         {#if type === 'error'}
           <Fa class="h-4 w-4 text-red-500" icon="{faCircleExclamation}" />
@@ -136,23 +157,20 @@ function handleKeydown(e: KeyboardEvent) {
         </button>
       </div>
 
-      <div class="px-10 py-4 text-sm text-gray-500 leading-5">{message}</div>
+      <div class="max-h-80 overflow-auto">
+        <div class="px-10 py-4 text-sm text-gray-500 leading-5">{message}</div>
 
-      {#if detail}
-        <div class="px-10 pb-4 text-sm text-gray-500 leading-5">{detail}</div>
-      {/if}
+        {#if detail}
+          <div class="px-10 pb-4 text-sm text-gray-500 leading-5">{detail}</div>
+        {/if}
+      </div>
 
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
         {#each buttonOrder as i}
-          {#if i == cancelId}
-            <button aria-label="Cancel" class="text-xs hover:underline" on:click="{() => clickButton(i)}"
-              >Cancel</button>
+          {#if i === cancelId}
+            <Button type="link" aria-label="Cancel" on:click="{() => clickButton(i)}">Cancel</Button>
           {:else}
-            <button
-              class="pf-c-button transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center pb-1"
-              class:pf-m-primary="{defaultId == i}"
-              class:pf-m-secondary="{defaultId != i}"
-              on:click="{() => clickButton(i)}">{buttons[i]}</button>
+            <Button type="{getButtonType(defaultId === i)}" on:click="{() => clickButton(i)}">{buttons[i]}</Button>
           {/if}
         {/each}
       </div>

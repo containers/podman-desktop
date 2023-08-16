@@ -139,6 +139,7 @@ declare module '@podman-desktop/api' {
   export type ProviderStatus =
     | 'not-installed'
     | 'installed'
+    | 'configuring'
     | 'configured'
     | 'ready'
     | 'started'
@@ -251,6 +252,24 @@ declare module '@podman-desktop/api' {
     create?(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
   }
 
+  export interface AuditRecord {
+    type: 'info' | 'warning' | 'error';
+    record: string;
+  }
+
+  export interface AuditResult {
+    records: AuditRecord[];
+  }
+
+  export interface AuditRequestItems {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
+  }
+
+  export interface Auditor {
+    auditItems(items: AuditRequestItems): Promise<AuditResult>;
+  }
+
   export interface Link {
     title: string;
     url: string;
@@ -302,9 +321,11 @@ declare module '@podman-desktop/api' {
   export interface Provider {
     setContainerProviderConnectionFactory(
       containerProviderConnectionFactory: ContainerProviderConnectionFactory,
+      connectionAuditor?: Auditor,
     ): Disposable;
     setKubernetesProviderConnectionFactory(
       containerProviderConnectionFactory: KubernetesProviderConnectionFactory,
+      connectionAuditor?: Auditor,
     ): Disposable;
 
     registerContainerProviderConnection(connection: ContainerProviderConnection): Disposable;
@@ -402,6 +423,19 @@ declare module '@podman-desktop/api' {
     export const onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent>;
     export const onDidRegisterContainerConnection: Event<RegisterContainerConnectionEvent>;
     export function getContainerConnections(): ProviderContainerConnection[];
+    /**
+     * It returns the lifecycle context for the provider connection.
+     * If no context is found it throws an error
+     *
+     * @param providerId the provider id
+     * @param providerConnectionInfo the connection to retrieve the lifecycle context for
+     * @returns the lifecycle context
+     * @throws if no provider with the id has been found or there is no context associate to it.
+     */
+    export function getProviderLifecycleContext(
+      providerId: string,
+      providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    ): LifecycleContext;
   }
 
   export interface ProxySettings {
@@ -444,6 +478,7 @@ declare module '@podman-desktop/api' {
     serverUrl: string;
     username: string;
     secret: string;
+    insecure?: boolean;
   }
 
   export interface RegistryProvider {
@@ -877,6 +912,115 @@ declare module '@podman-desktop/api' {
     buttons?: readonly QuickInputButton[];
   }
 
+  /**
+   * Represents an item that can be selected from
+   * a list of items.
+   */
+  export interface CustomPickSectionItem {
+    /**
+     * A human-readable string which is rendered prominent.
+     */
+    title: string;
+
+    /**
+     * A human-readable string which is rendered in a separate line.
+     */
+    content?: string;
+
+    /**
+     * A human-readable string which is rendered in a separate line. (Markdown format)
+     */
+    markDownContent?: string;
+  }
+
+  /**
+   * Represents an item that can be selected from
+   * a list of items.
+   */
+  export interface CustomPickItem {
+    /**
+     * A human-readable string which is rendered prominent.
+     */
+    title: string;
+    /**
+     * A human-readable string which is rendered less prominent in the same line.
+     */
+    description?: string;
+    /**
+     * A human-readable string which is rendered in a separate line. (Markdown format)
+     */
+    markDownContent: string;
+    /**
+     * Optional sections that will be rendered in separate lines
+     */
+    sections?: CustomPickSectionItem[];
+    /**
+     * Optional flag indicating if this item is selected initially
+     */
+    selected?: boolean;
+  }
+
+  /**
+   * A concrete CustomPick to let the user pick an item from a list of items of type T.
+   * The items are rendered using a custom UI.
+   */
+  export interface CustomPick<T extends CustomPickItem> {
+    /**
+     * An optional human-readable string which is rendered prominent.
+     */
+    title?: string;
+    /**
+     * An optional human-readable string which is rendered less prominent in a separate line.
+     */
+    description?: string;
+    /**
+     * An optional base64 PNG image
+     */
+    icon?: string | { light: string; dark: string };
+    /**
+     * Items to pick from. This can be read and updated by the extension.
+     */
+    items: T[];
+    /**
+     * If multiple items can be selected at the same time. Defaults to false.
+     */
+    canSelectMany: boolean;
+    /**
+     * If the additional sections of an item should be hidden by default when the dialog opens up.
+     * The user can still open them by clicking on the 'show more' button.
+     * Defaults to false.
+     */
+    hideItemSections: boolean;
+    /**
+     * When a custompick is closed (the sections are hidden) it is possible to set a minimum height so to force different items to have the same height.
+     * It must be set using pixels or percentage (e.g 100px or 50%)
+     * Use it carefully as it could break the layout.
+     */
+    minHeight?: string;
+    /**
+     * An event signaling when the user indicated confirmation of the selected item(s) index(es).
+     */
+    readonly onDidConfirmSelection: Event<number[]>;
+    /**
+     * An event signaling when this input UI is hidden.
+     */
+    readonly onDidHide: Event<void>;
+    /**
+     * Shows the custom pick.
+     */
+    show(): void;
+    /**
+     * Hides the custom pick.
+     */
+    hide(): void;
+
+    /**
+     * Dispose and free associated resources. Call
+     * {@link CustomPick.hide}.
+     */
+    dispose(): void;
+  }
+
   export interface NotificationOptions {
     /**
      * A title for the notification, which will be shown at the top of the notification window when it is shown.
@@ -1165,6 +1309,12 @@ declare module '@podman-desktop/api' {
       options?: QuickPickOptions,
       token?: CancellationToken,
     ): Promise<T | undefined>;
+
+    /**
+     * Creates a CustomPick to let the user pick an item from a list of items of type T using a custom UI.
+     * @return A new CustomPick
+     */
+    export function createCustomPick<T extends CustomPickItem>(): CustomPick<T>;
   }
 
   export namespace kubernetes {
@@ -1482,12 +1632,31 @@ declare module '@podman-desktop/api' {
     Type?: string;
   }
 
+  interface ContainerAuthInfo {
+    username: string;
+    password: string;
+    serveraddress: string;
+    email?: string;
+  }
+
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
     export function startContainer(engineId: string, id: string): Promise<void>;
+    export function logsContainer(
+      engineId: string,
+      id: string,
+      callback: (name: string, data: string) => void,
+    ): Promise<void>;
     export function stopContainer(engineId: string, id: string): Promise<void>;
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
+    export function tagImage(engineId: string, imageId: string, repo: string, tag?: string): Promise<void>;
+    export function pushImage(
+      engineId: string,
+      imageId: string,
+      callback: (name: string, data: string) => void,
+      authInfo?: ContainerAuthInfo,
+    ): Promise<void>;
     export const onEvent: Event<ContainerJSONEvent>;
   }
 
@@ -1764,6 +1933,30 @@ declare module '@podman-desktop/api' {
    */
   export namespace env {
     /**
+     * Flag indicating whether we are running on macOS (Mac OS X) operating system.
+     *
+     * If the value of this flag is true, it means the current system is macOS.
+     * If the value is false, it means the current system is not macOS.
+     */
+    export const isMac: boolean;
+
+    /**
+     * Flag indicating whether we are running on the Windows operating system.
+     *
+     * If the value of this flag is true, it means the current system is Windows.
+     * If the value is false, it means the current system is not Windows.
+     */
+    export const isWindows: boolean;
+
+    /**
+     * Flag indicating whether we are running on a Linux operating system.
+     *
+     * If the value of this flag is true, it means the current system is Linux.
+     * If the value is false, it means the current system is not Linux.
+     */
+    export const isLinux: boolean;
+
+    /**
      * Indicates whether the users has telemetry enabled.
      * Can be observed to determine if the extension should send telemetry.
      */
@@ -1796,6 +1989,107 @@ declare module '@podman-desktop/api' {
      * The system clipboard.
      */
     export const clipboard: Clipboard;
+  }
+
+  /**
+   * Options for running a command.
+   */
+  export interface RunOptions {
+    /**
+     * Environment variables to set for the command.
+     */
+    env?: { [key: string]: string };
+
+    /**
+     * A cancellation token used to request cancellation.
+     */
+    token?: CancellationToken;
+
+    /**
+     * A logger used to track execution events.
+     */
+    logger?: Logger;
+
+    /**
+     * custom directory
+     */
+    cwd?: string;
+  }
+
+  /**
+   * Represents the result of running a command.
+   */
+  export interface RunResult {
+    /**
+     * The command that was executed.
+     */
+    command: string;
+
+    /**
+     * The standard output (stdout) content of the command.
+     */
+    stdout: string;
+
+    /**
+     * The standard error (stderr) content of the command.
+     */
+    stderr: string;
+  }
+
+  /**
+   * Represents an error that occurred during the execution of a command.
+   */
+  export interface RunError extends Error {
+    /**
+     * The error message.
+     */
+    message: string;
+
+    /**
+     * The exit code of the command.
+     */
+    exitCode: number;
+
+    /**
+     * The command that was executed.
+     */
+    command: string;
+
+    /**
+     * The standard output (stdout) content of the command.
+     */
+    stdout: string;
+
+    /**
+     * The standard error (stderr) content of the command.
+     */
+    stderr: string;
+
+    /**
+     * Indicates whether the execution was cancelled.
+     */
+    cancelled: boolean;
+
+    /**
+     * Indicates whether the process was forcefully killed.
+     */
+    killed: boolean;
+  }
+
+  /**
+   * Namespace for environment-related utilities.
+   */
+  export namespace process {
+    /**
+     * Executes the provided command and returns an object containing the exit code,
+     * stdout, and stderr content.
+     * @param command The command to execute.
+     * @param args The command arguments.
+     * @param options Options, such as environment variables.
+     * @returns A promise that resolves to a RunResult object.
+     * @throws {@link RunError} if provided command can not be executed.
+     */
+    export function exec(command: string, args?: string[], options?: RunOptions): Promise<RunResult>;
   }
 
   /**
@@ -1942,5 +2236,23 @@ declare module '@podman-desktop/api' {
      * @returns A Promise that resolves when writing happened.
      */
     writeText(value: string): Promise<void>;
+  }
+
+  /**
+   * The context provides write access to the system's context.
+   */
+  export namespace context {
+    /**
+     * Store a new value for key in the context.
+     * This can be used in enablement of command or with the when property.
+     * The key should consists of '<extension-
+     * id>.<actual-key>'.
+     *
+     * @param key the key of the key/value pair to be added to the context
+     * @param value value associated to the key
+     * @param scope the scope to use to save the value
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    export function setValue(key: string, value: any, scope?: 'onboarding'): void;
   }
 }

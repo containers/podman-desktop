@@ -17,8 +17,8 @@
  ***********************************************************************/
 
 import { beforeAll, beforeEach, expect, expectTypeOf, test, vi, vitest } from 'vitest';
-import { CancellationTokenImpl } from './cancellation-token';
-import { CancellationTokenRegistry } from './cancellation-token-registry';
+import { CancellationTokenImpl } from './cancellation-token.js';
+import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let cancellationTokenRegistry: any;

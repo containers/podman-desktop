@@ -20,6 +20,8 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { ContainerUtils } from './container-utils';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
+import { ContextUI } from '../context/context';
+import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
 
 let containerUtils: ContainerUtils;
 
@@ -200,4 +202,50 @@ test('container group status should be degraded when the pod status is degraded'
   expect(group.name).toBe(groupName);
   expect(group.type).toBe(ContainerGroupInfoTypeUI.POD);
   expect(group.status).toBe('DEGRADED');
+});
+
+test('should expect icon to be undefined if no context/view is passed', async () => {
+  const containerInfo = {
+    Image: 'docker.io/kindest/node:foobar',
+    Ports: [
+      {
+        PublicPort: 80,
+      },
+      {
+        PublicPort: 8022,
+      },
+    ],
+  } as unknown as ContainerInfo;
+  const icon = containerUtils.iconClass(containerInfo);
+  expect(icon).toBe(undefined);
+});
+
+test('should expect icon to be valid value with context/view set', async () => {
+  const context = new ContextUI();
+  const view: ViewInfoUI = {
+    extensionId: 'extension',
+    viewId: 'id',
+    icon: '${kind-icon}',
+    when: 'io.x-k8s.kind.cluster in containerLabelKeys',
+  };
+  const containerInfo = {
+    Image: 'docker.io/kindest/node:foobar',
+    Labels: {
+      'io.x-k8s.kind.cluster': 'ok',
+    },
+  } as unknown as ContainerInfo;
+  const icon = containerUtils.iconClass(containerInfo, context, [view]);
+  expect(icon).toBe('podman-desktop-icon-kind-icon');
+});
+
+test('should expect icon to be ContainerIcon if no context/view is passed', async () => {
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'docker.io/kindest/node:foobar',
+    Names: ['container1'],
+    State: 'STOPPED',
+  } as unknown as ContainerInfo;
+  const containerUI = containerUtils.getContainerInfoUI(containerInfo);
+  expect(containerUI.icon).toBeDefined();
+  expect(typeof containerUI.icon !== 'string').toBe(true);
 });

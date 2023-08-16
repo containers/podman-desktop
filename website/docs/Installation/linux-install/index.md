@@ -21,7 +21,7 @@ Alternatively, you can install Podman Desktop from:
 #### Prerequisites
 
 - [Flatpak](https://flatpak.org/setup/)
-- [Podman](https://podman.io/whatis.html) stable version
+- [Podman](https://podman.io/) stable version
 
 #### Procedure
 
