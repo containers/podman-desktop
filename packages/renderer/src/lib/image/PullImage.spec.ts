@@ -27,6 +27,8 @@ import type { ProviderStatus } from '@podman-desktop/api';
 import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
 
+const pullImageMock = vi.fn();
+
 // fake the window.events object
 beforeAll(() => {
   (window.events as unknown) = {
@@ -40,6 +42,22 @@ beforeAll(() => {
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
   });
+  (window as any).pullImage = pullImageMock;
+
+  Object.defineProperty(window, 'matchMedia', {
+    value: () => {
+      return {
+        matches: false,
+        addListener: () => {},
+        removeListener: () => {},
+      };
+    },
+  });
+});
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  vi.restoreAllMocks();
 });
 
 const buttonText = 'Pull image';
@@ -128,5 +146,52 @@ describe('PullImage', () => {
     const button = screen.getByRole('button', { name: regButton });
     expect(button).toBeInTheDocument();
     expect(button).toBeEnabled();
+  });
+
+  test('Expect that pull image is reporting an error', async () => {
+    setup();
+    render(PullImage, { imageToPull: 'image-does-not-exist' });
+
+    // first call to pull image throw an error
+    pullImageMock.mockRejectedValueOnce(new Error('Image does not exists'));
+
+    const pullImagebutton = screen.getByRole('button', { name: 'Pull image' });
+    await userEvent.click(pullImagebutton);
+
+    // expect that the error message is displayed
+    const errorMesssage = screen.getByRole('alert', { name: 'Error Message Content' });
+    expect(errorMesssage).toBeInTheDocument();
+    expect(errorMesssage).toHaveTextContent('Image does not exists');
+  });
+
+  // pull image with error and then pull image with success
+  // error message should not be displayed anymore
+  test('Expect that pull image is reporting an error only if invalid', async () => {
+    setup();
+    const renderResult = render(PullImage, { imageToPull: 'image-does-not-exist' });
+
+    // first call to pull image throw an error
+    pullImageMock.mockRejectedValueOnce(new Error('Image does not exists'));
+
+    // next one are ok
+    pullImageMock.mockResolvedValueOnce({});
+
+    const pullImagebutton = screen.getByRole('button', { name: 'Pull image' });
+    await userEvent.click(pullImagebutton);
+
+    // expect that the error message is displayed
+    const errorMesssage = screen.getByRole('alert', { name: 'Error Message Content' });
+    expect(errorMesssage).toBeInTheDocument();
+    expect(errorMesssage).toHaveTextContent('Image does not exists');
+
+    // ok, now choose a valid image name
+    renderResult.component.$$set({ imageToPull: 'some-valid-image' });
+
+    // pull image again
+    const pullImagebutton2 = screen.getByRole('button', { name: 'Pull image' });
+    await userEvent.click(pullImagebutton2);
+
+    // expect that the error message is not displayed
+    expect(errorMesssage).not.toBeInTheDocument();
   });
 });
