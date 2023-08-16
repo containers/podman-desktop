@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import type { Page } from 'playwright';
-import { afterAll, beforeAll, test, describe } from 'vitest';
+import type { RunnerTestContext } from './testContext/runner-test-context';
+import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
@@ -35,6 +36,7 @@ const containerToRun = 'podman-hello';
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
+  pdRunner.setVideoName('containers-e2e');
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   // wait giving a time to podman desktop to load up
@@ -47,6 +49,10 @@ beforeAll(async () => {
     'Images page is empty, there are no images present',
   );
   await deleteContainer(page, containerToRun);
+});
+
+beforeEach<RunnerTestContext>(async ctx => {
+  ctx.pdRunner = pdRunner;
 });
 
 afterAll(async () => {

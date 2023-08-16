@@ -63,6 +63,7 @@ export interface IConfigurationPropertySchema {
   readonly?: boolean;
   hidden?: boolean;
   enum?: string[];
+  when?: string;
 }
 
 export type ConfigurationScope =

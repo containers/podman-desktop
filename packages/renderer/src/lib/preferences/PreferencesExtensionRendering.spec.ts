@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom';
 import { test, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, waitForElementToBeRemoved } from '@testing-library/svelte';
 import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
 import { extensionInfos } from '../../stores/extensions';
 
@@ -112,5 +112,28 @@ describe('PreferencesExtensionRendering', () => {
     const remove = screen.getByRole('button', { name: 'Remove' });
     expect(remove).toBeInTheDocument();
     expect(remove).toBeDisabled();
+  });
+
+  test('Expect empty screen if there is no matching extension (could be during providerInfos is loading)', async () => {
+    // clear store
+    extensionInfos.set([]);
+
+    // start without extension in the stores, should be empty
+    render(PreferencesExtensionRendering, { extensionId: 'test' });
+
+    // check empty page is displayed if we do not have matching of the extension
+    const emptyHeading = screen.getByRole('heading', { name: 'Extension not found', level: 1 });
+    expect(emptyHeading).toBeInTheDocument();
+
+    // now register the extension in the store
+    setup('started');
+
+    // wait empty page disappear
+    await waitForElementToBeRemoved(() => screen.queryByRole('heading', { name: 'Extension not found', level: 1 }));
+
+    // now check disable button is displayed as extension is started
+    const start = screen.getByRole('button', { name: 'Disable' });
+    expect(start).toBeInTheDocument();
+    expect(start).toBeEnabled();
   });
 });

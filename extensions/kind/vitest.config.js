@@ -18,20 +18,20 @@
 
 import path from 'node:path';
 import { coverageConfig, testConfig } from '../../vitest-shared-extensions.config';
-import {join} from 'path';
+import { join } from 'path';
 
 const PACKAGE_ROOT = __dirname;
 const PACKAGE_NAME = 'extensions/kind';
 
 const config = {
   test: {
-      ...testConfig(),
-      ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
+    ...testConfig(),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
   resolve: {
     alias: {
       '@podman-desktop/api': path.resolve('../../', '__mocks__/@podman-desktop/api.js'),
-      '/@gen/': join(PACKAGE_ROOT, 'src-generated') + '/',
+      '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
   },
 };

@@ -105,6 +105,13 @@
           "default": true,
           "scope": "ContainerProviderConnectionFactory",
           "description": "Machine with root privileges"
+        },
+        "podman.factory.machine.user-mode-networking": {
+          "type": "boolean",
+          "default": false,
+          "scope": "ContainerProviderConnectionFactory",
+          "markdownDescription": "User mode networking (traffic relayed by a user process). See [documentation](https://docs.podman.io/en/latest/markdown/podman-machine-init.1.html#user-mode-networking).",
+          "when": "podman.isUserModeNetworkingSupported == true"
         }
       }
     },
@@ -207,6 +214,7 @@
     "7zip-min": "^1.4.4",
     "hasha": "^5.2.2",
     "mkdirp": "^3.0.1",
+    "nock": "^13.3.2",
     "octokit": "^3.1.0",
     "ts-node": "^10.9.1",
     "vitest": "^0.34.1",

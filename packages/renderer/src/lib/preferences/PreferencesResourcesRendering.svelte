@@ -30,8 +30,8 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
 import PreferencesProviderInstallationModal from './PreferencesProviderInstallationModal.svelte';
-import Spinner from '../ui/Spinner.svelte';
 import { Buffer } from 'buffer';
+import Button from '../ui/Button.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
@@ -332,16 +332,12 @@ function hideInstallModal() {
                     : undefined) || 'Create new'}
                 <!-- create new provider button -->
                 <Tooltip tip="Create new {providerDisplayName}" bottom>
-                  <button
-                    class="pf-c-button pf-m-primary"
+                  <Button
                     aria-label="Create new {providerDisplayName}"
-                    type="button"
+                    inProgress="{providerInstallationInProgress.get(provider.name)}"
                     on:click="{() => doCreateNew(provider, providerDisplayName)}">
-                    {#if providerInstallationInProgress.get(provider.name) === true}
-                      <Spinner />
-                    {/if}
                     {buttonTitle} ...
-                  </button>
+                  </Button>
                 </Tooltip>
               {/if}
             </div>

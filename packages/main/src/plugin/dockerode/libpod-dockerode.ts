@@ -99,11 +99,25 @@ export interface PodRemoveOptions {
   force: boolean;
 }
 
+export interface PodmanContainerInfo {
+  Id: string;
+  Names: string[];
+  ImageID: string;
+  Image: string;
+  Created: string;
+  State: string;
+  StartedAt: number;
+  Command: string[];
+  Labels: { [label: string]: string };
+  Ports: { host_ip: string; container_port: number; host_port: number; range?: string; protocol: string }[];
+}
+
 // API of libpod that we want to expose on our side
 export interface LibPod {
   createPod(podOptions: PodCreateOptions): Promise<{ Id: string }>;
   createPodmanContainer(containerCreateOptions: ContainerCreateOptions): Promise<{ Id: string; Warnings: string[] }>;
   listPods(): Promise<PodInfo[]>;
+  listPodmanContainers(opts?: { all: boolean }): Promise<PodmanContainerInfo[]>;
   prunePods(): Promise<void>;
   getPodInspect(podId: string): Promise<PodInspectInfo>;
   startPod(podId: string): Promise<void>;
@@ -122,6 +136,27 @@ export class LibpodDockerode {
   enhancePrototypeWithLibPod() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const prototypeOfDockerode = Dockerode.prototype as any;
+    // add listPodmanContainers
+    prototypeOfDockerode.listPodmanContainers = function (opts?: { all: boolean }) {
+      const optsf = {
+        path: '/v4.2.0/libpod/containers/json?',
+        method: 'GET',
+        options: opts,
+        statusCodes: {
+          200: true,
+          400: 'bad parameter',
+          500: 'server error',
+        },
+      };
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
 
     // add createPodmanContainer
     prototypeOfDockerode.createPodmanContainer = function (containerCreateOptions: ContainerCreateOptions) {

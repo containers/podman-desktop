@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import type { Page } from 'playwright';
-import { afterAll, beforeAll, test, describe } from 'vitest';
+import type { RunnerTestContext } from './testContext/runner-test-context';
+import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
@@ -30,6 +31,7 @@ let page: Page;
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
+  pdRunner.setVideoName('pull-image-e2e');
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
@@ -37,6 +39,10 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await pdRunner.close();
+});
+
+beforeEach<RunnerTestContext>(async ctx => {
+  ctx.pdRunner = pdRunner;
 });
 
 describe('Image pull verification', async () => {

@@ -220,7 +220,8 @@ export class KubernetesClient {
           '/api/v1/namespaces/' + ns + '/pods',
           {},
           () => this.apiSender.send('pod-event'),
-          (err: unknown) => console.error('Kube event error', err),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (err: any) => console.warn('Kube watch ended', err.toString()),
         )
         .then(req => (this.kubeWatcher = req))
         .catch((err: unknown) => console.error('Kube event error', err));

@@ -67,6 +67,10 @@ export class DockerDesktopInstallation {
       });
     }
 
+    if (metadata.vm?.composefile) {
+      files.push(metadata.vm.composefile);
+    }
+
     // host binaries
     const hostFiles: string[] = [];
     if (metadata?.host?.binaries) {
@@ -377,6 +381,7 @@ export class DockerDesktopInstallation {
 
     await this.extractDockerDesktopFiles(tmpFolderPath, finalFolderPath, reportLog);
 
+    event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Loading metadata...');
     // check metadata. If name is missing, add the one from the image
     const metadata = await this.contributionManager.loadMetadata(finalFolderPath);
     if (!metadata.name) {
@@ -385,8 +390,41 @@ export class DockerDesktopInstallation {
       await this.contributionManager.saveMetadata(finalFolderPath, metadata);
     }
 
+    // if there is a VM, need to generate the updated compose file
+    let enhancedComposeFile;
+    if (metadata.vm) {
+      // check compose presence
+      event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Check compose being setup...');
+      const foundPath = await this.contributionManager.findComposeBinary();
+      if (!foundPath) {
+        event.reply('docker-desktop-plugin:install-error', logCallbackId, 'Compose binary not found.');
+        return;
+      } else {
+        event.reply('docker-desktop-plugin:install-log', logCallbackId, `Compose binary found at ${foundPath}.`);
+      }
+
+      event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Enhance compose file...');
+      // need to update the compose file
+      try {
+        enhancedComposeFile = await this.contributionManager.enhanceComposeFile(finalFolderPath, imageName, metadata);
+      } catch (error) {
+        event.reply('docker-desktop-plugin:install-error', logCallbackId, error);
+        return;
+      }
+
+      // try to start the VM
+      event.reply('docker-desktop-plugin:install-log', logCallbackId, 'Starting compose project...');
+      await this.contributionManager.startVM(metadata.name, enhancedComposeFile, true);
+    }
+
     event.reply('docker-desktop-plugin:install-end', logCallbackId, 'Extension Successfully installed.');
+
     // refresh contributions
-    await this.contributionManager.init();
+    try {
+      await this.contributionManager.init();
+    } catch (error) {
+      event.reply('docker-desktop-plugin:install-error', logCallbackId, error);
+      return;
+    }
   }
 }

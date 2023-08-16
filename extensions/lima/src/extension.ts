@@ -23,25 +23,41 @@ import * as fs from 'fs';
 
 import { configuration } from '@podman-desktop/api';
 
+type limaProviderType = 'docker' | 'podman' | 'kubernetes';
+
 function registerProvider(
   extensionContext: extensionApi.ExtensionContext,
   provider: extensionApi.Provider,
-  providerSocketPath: string,
+  providerPath: string,
 ): void {
   let providerState: extensionApi.ProviderConnectionStatus = 'unknown';
-  const providerType: 'docker' | 'podman' = configuration.getConfiguration('lima').get('type');
-  const containerProviderConnection: extensionApi.ContainerProviderConnection = {
-    name: 'Lima',
-    type: providerType,
-    status: () => providerState,
-    endpoint: {
-      socketPath: providerSocketPath,
-    },
-  };
-  providerState = 'started';
-  const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
-  provider.updateStatus('started');
-  extensionContext.subscriptions.push(disposable);
+  const providerType: limaProviderType = configuration.getConfiguration('lima').get('type');
+  if (providerType === 'podman' || providerType === 'docker') {
+    const connection: extensionApi.ContainerProviderConnection = {
+      name: 'Lima',
+      type: providerType,
+      status: () => providerState,
+      endpoint: {
+        socketPath: providerPath,
+      },
+    };
+    providerState = 'started';
+    const disposable = provider.registerContainerProviderConnection(connection);
+    provider.updateStatus('started');
+    extensionContext.subscriptions.push(disposable);
+  } else if (providerType === 'kubernetes') {
+    const connection: extensionApi.KubernetesProviderConnection = {
+      name: 'Lima',
+      status: () => providerState,
+      endpoint: {
+        apiURL: 'https://localhost:6443',
+      },
+    };
+    providerState = 'started';
+    const disposable = provider.registerKubernetesProviderConnection(connection);
+    provider.updateStatus('started');
+    extensionContext.subscriptions.push(disposable);
+  }
   console.log('Lima extension is active');
 }
 
@@ -50,9 +66,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const instanceName = configuration.getConfiguration('lima').get('name') || engineType;
   const limaHome = 'LIMA_HOME' in process.env ? process.env['LIMA_HOME'] : os.homedir() + '/.lima';
   const socketPath = path.resolve(limaHome, instanceName + '/sock/' + engineType + '.sock');
+  const configPath = path.resolve(limaHome, instanceName + '/copied-from-guest/kubeconfig.yaml');
 
   let provider;
-  if (fs.existsSync(socketPath)) {
+  if (fs.existsSync(socketPath) || fs.existsSync(configPath)) {
     provider = extensionApi.provider.createProvider({
       name: 'Lima',
       id: 'lima',
@@ -71,7 +88,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   if (fs.existsSync(socketPath)) {
     registerProvider(extensionContext, provider, socketPath);
   } else {
-    console.error(`Could not find podman socket at ${socketPath}`);
+    console.error(`Could not find socket at ${socketPath}`);
+  }
+  if (fs.existsSync(configPath)) {
+    registerProvider(extensionContext, provider, configPath);
+  } else {
+    console.error(`Could not find config at ${configPath}`);
   }
 }
 

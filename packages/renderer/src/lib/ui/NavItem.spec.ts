@@ -48,6 +48,28 @@ test('Expect selection styling', async () => {
   expect(element.firstChild).toHaveClass('border-l-purple-500');
 });
 
+test('Expect selection styling for encoded URLs', async () => {
+  const tooltip = 'Extensions';
+  const href = '/test page';
+  renderIt(tooltip, href, { url: '/test%20page' });
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element).toBeInTheDocument();
+  expect(element.firstChild).toBeInTheDocument();
+  expect(element.firstChild).toHaveClass('border-l-purple-500');
+});
+
+test('Expect selection styling for sub-pages', async () => {
+  const tooltip = 'Settings';
+  const href = '/prefs/resources';
+  renderIt(tooltip, href, { url: '/prefs/resources' });
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element).toBeInTheDocument();
+  expect(element.firstChild).toBeInTheDocument();
+  expect(element.firstChild).toHaveClass('border-l-purple-500');
+});
+
 test('Expect not to have selection styling', async () => {
   const tooltip = 'Dashboard';
   renderIt(tooltip, '/test', { url: '/elsewhere' });

@@ -1229,7 +1229,7 @@ function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld('ddExtensionDelete', async (extensionName: string): Promise<void> => {
-    return ipcRenderer.invoke('docker-desktop-plugin:delete', extensionName);
+    return ipcInvoke('docker-desktop-plugin:delete', extensionName);
   });
 
   contextBridge.exposeInMainWorld('getDDPreloadPath', async (): Promise<string> => {
