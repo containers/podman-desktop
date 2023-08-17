@@ -17,7 +17,8 @@ export function close(): void {
     <div class="flex w-full flex-row">
       <div class="w-full pl-5 pt-4">
         <div class="flex flew-row items-center">
-          <Link aria-label="back" href="{$lastPage.path}" title="Go back to {$lastPage.name}">{$lastPage.name}</Link>
+          <Link aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
+            >{$lastPage.name}</Link>
           <div class="text-xl mx-2 text-gray-700">></div>
           <div class="text-sm font-extralight text-gray-700" aria-label="name">{$currentPage.name}</div>
         </div>
