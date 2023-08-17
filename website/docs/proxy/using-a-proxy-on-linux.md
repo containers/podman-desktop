@@ -47,4 +47,18 @@ You can configure Podman to run behind a proxy.
    $ sudo update-ca-trust
    ```
 
-1. Restart Podman.
+1. Restart all `podman` processes.
+
+   ```shell-session
+   $ pkill podman
+   ``
+
+1. Restart Podman Desktop: <kbd>Ctrl</kbd> + <kbd>q</kbd>.
+
+#### Verification
+
+1. Go to **Images**.
+1. Click **Pull an image**.
+1. **Image to Pull**: `bash`
+1. Click **Pull image**.
+1. Podman Desktop reports `Download complete`.
