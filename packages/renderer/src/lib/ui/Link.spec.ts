@@ -59,7 +59,7 @@ test('Check icon styling', async () => {
 test('Check href action', async () => {
   const urlMock = vi.fn();
   (window as any).openExternal = urlMock;
-  render(Link, { href: 'http://test.com' });
+  render(Link, { externalRef: 'http://test.com' });
 
   // check href link
   const link = screen.getByRole('link');
@@ -75,7 +75,7 @@ test('Check href action', async () => {
 test('Check local href action', async () => {
   const urlMock = vi.fn();
   (window as any).openExternal = urlMock;
-  render(Link, { href: '/Pods' });
+  render(Link, { internalRef: '/Pods' });
 
   // check href link
   const link = screen.getByRole('link');
