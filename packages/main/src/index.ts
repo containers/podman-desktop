@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { BrowserWindow } from 'electron';
-import { app, ipcMain, Tray } from 'electron';
+import { app, ipcMain, netLog, Tray } from 'electron';
 import './security-restrictions';
 import { createNewWindow, restoreWindow } from '/@/mainWindow.js';
 import { TrayMenu } from './tray-menu.js';
@@ -28,6 +28,9 @@ import { StartupInstall } from './system/startup-install.js';
 import type { ExtensionLoader } from './plugin/extension-loader.js';
 import dns from 'node:dns';
 import { Deferred } from './plugin/util/deferred.js';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import { Directories } from './plugin/directories.js';
 
 let extensionLoader: ExtensionLoader | undefined;
 
@@ -158,6 +161,15 @@ app.whenReady().then(
       }
     }
 
+    // capture network logs
+    const netLogsDir = path.resolve(new Directories().getExtensionsStorageDirectory(), 'net-logs');
+    if (!fs.existsSync(netLogsDir)) {
+      await fs.promises.mkdir(netLogsDir, { recursive: true });
+    }
+
+    const networkLogFile = path.resolve(netLogsDir, 'net-logs.json');
+    await netLog.startLogging(networkLogFile);
+
     // We must create the window first before initialization so that we can load the
     // configuration as well as plugins
     // The window is hiddenly created and shown when ready
@@ -196,6 +208,7 @@ app.whenReady().then(
     // Start extensions
     const pluginSystem = new PluginSystem(trayMenu);
     extensionLoader = await pluginSystem.initExtensions();
+    console.log('Net-logs written to', networkLogFile);
 
     // Get the configuration registry (saves all our settings)
     const configurationRegistry = extensionLoader.getConfigurationRegistry();

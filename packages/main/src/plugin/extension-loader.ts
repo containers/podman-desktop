@@ -145,7 +145,7 @@ export class ExtensionLoader {
     private telemetry: Telemetry,
     private viewRegistry: ViewRegistry,
     private context: Context,
-    directories: Directories,
+    private directories: Directories,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -1167,6 +1167,10 @@ export class ExtensionLoader {
 
   getPluginsDirectory(): string {
     return this.pluginsDirectory;
+  }
+
+  getDirectories(): Directories {
+    return this.directories;
   }
 
   setExtensionsUpdates(extensionsToUpdate: ExtensionUpdateInfo[]): void {
