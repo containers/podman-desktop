@@ -23,6 +23,8 @@ export let providerInternalId: string = undefined;
 export let connection: string = undefined;
 export let name: string = undefined;
 
+let detailsPage: DetailsPage;
+
 const connectionName = Buffer.from(name, 'base64').toString();
 const socketPath: string = Buffer.from(connection, 'base64').toString();
 $: connectionStatus = new Map<string, IConnectionStatus>();
@@ -44,6 +46,11 @@ onMount(async () => {
     connectionInfo = providerInfo?.containerConnections?.find(
       connection => connection.endpoint.socketPath === socketPath && connection.name === connectionName,
     );
+    if (!connectionInfo) {
+      // closing the page of a connection that has been removed
+      detailsPage.close();
+      return;
+    }
     const containerConnectionName = getProviderConnectionName(providerInfo, connectionInfo);
     if (
       containerConnectionName &&
@@ -123,7 +130,7 @@ function setNoLogs() {
 
 {#if connectionInfo}
   <div class="bg-charcoal-700 h-full">
-    <DetailsPage title="{connectionInfo.name}">
+    <DetailsPage title="{connectionInfo.name}" bind:this="{detailsPage}">
       <svelte:fragment slot="subtitle">
         <div class="flex flex-row">
           <ConnectionStatus status="{connectionInfo.status}" />
