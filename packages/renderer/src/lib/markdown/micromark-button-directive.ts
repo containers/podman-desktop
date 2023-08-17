@@ -31,7 +31,9 @@ export function button(d) {
     return false;
   }
 
-  this.tag('<a class="pf-c-button pf-m-primary"');
+  this.tag(
+    '<a class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline"',
+  );
 
   if (d.attributes && 'href' in d.attributes) {
     this.tag(' href="' + this.encode(d.attributes.href) + '"');
