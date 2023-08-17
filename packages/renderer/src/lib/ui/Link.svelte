@@ -31,7 +31,8 @@ function click() {
 <!-- svelte-ignore a11y-no-redundant-roles -->
 <!-- svelte-ignore a11y-interactive-supports-focus -->
 <a
-  class="text-purple-400 hover:underline {$$props.class || ''}"
+  class="text-purple-400 hover:bg-white hover:bg-opacity-10 transition-all rounded-[4px] p-0.5 no-underline {$$props.class ||
+    ''}"
   on:click="{() => click()}"
   role="link"
   aria-label="{$$props['aria-label']}">

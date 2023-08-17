@@ -76,6 +76,9 @@ async function pullImage() {
   await tick();
   logsPull?.reset();
 
+  // reset error
+  pullError = '';
+
   pullInProgress = true;
   try {
     await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback);

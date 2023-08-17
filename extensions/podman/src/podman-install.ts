@@ -446,7 +446,7 @@ class WSL2Check extends BaseCheck {
       if (!isWSL) {
         if (isAdmin) {
           return this.createFailureResult(
-            'WSL2 is not installed. Call "wsl --install" in a terminal.',
+            'WSL2 is not installed. Call "wsl --install --no-distribution" in a terminal.',
             'Install WSL',
             'https://learn.microsoft.com/en-us/windows/wsl/install',
           );

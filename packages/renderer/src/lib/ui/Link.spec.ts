@@ -31,7 +31,8 @@ test('Check link styling', async () => {
   const link = screen.getByRole('link');
   expect(link).toBeInTheDocument();
   expect(link).toHaveClass('text-purple-400');
-  expect(link).toHaveClass('hover:underline');
+  expect(link).toHaveClass('hover:bg-white');
+  expect(link).toHaveClass('hover:bg-opacity-10');
 });
 
 test('Check icon styling', async () => {
