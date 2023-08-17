@@ -24,6 +24,22 @@ In the below example, we will pretend that we're upgrading from `0.11.0` to `0.1
 1. Edit the new release https://github.com/containers/podman-desktop/releases/edit/v0.12.0
 1. Select previous tag (v0.11.0) and click on `Generate release notes` and the click on `Update release`
 
+## Test release before it is rolling out.
+
+The release is a pre-release, it means it is not yet the latest version, so no clients will automatically update to this version.
+
+It allows to make QE tests of these binaries before they go live or are in the package managers.
+
+At this step, generates as well Flathub pull request so people can test the package from the builders of the pull request.
+
+## Next phase
+
+- ❌ If there is red flag from QE tests, need to fix the bugs and do a respin of the release with a new .z release like 1.3.1 instead of 1.3.0.
+
+Create a branch if it does not exist. For example 1.3.x if 1.3.0 failed. Then, cherry-pick bugfixes in that branch.
+
+- ✅ IF QE/people are giving a green light, proceed. Do not forget to change the release from 'pre-release' to 'latest release' before proceeding.
+
 ## Updating package managers (Brew, Winget, Chocolatey, Flathub)
 
 Pre-requisites:
