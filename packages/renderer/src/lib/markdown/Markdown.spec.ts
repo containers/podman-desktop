@@ -54,11 +54,11 @@ describe('Custom button', () => {
   });
 
   test('Expect with all attributes', async () => {
-    await waitRender({ markdown: ':button[Name of the button]{href=http://my-link title="tooltip text"}' });
+    await waitRender({ markdown: ':button[Name of the button]{href=https://my-link title="tooltip text"}' });
     const markdownButton = screen.getByRole('link');
     expect(markdownButton).toBeInTheDocument();
     expect(markdownButton).toHaveTextContent('Name of the button');
-    expect(markdownButton).toHaveAttribute('href', 'http://my-link');
+    expect(markdownButton).toHaveAttribute('href', 'https://my-link');
     expect(markdownButton).toHaveAttribute('title', 'tooltip text');
   });
 });
