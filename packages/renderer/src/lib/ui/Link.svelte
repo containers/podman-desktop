@@ -1,8 +1,10 @@
 <script lang="ts">
 import { onMount, createEventDispatcher } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
+import { router } from 'tinro';
 
-export let href: string = undefined;
+export let internalRef: string = undefined;
+export let externalRef: string = undefined;
 export let icon: any = undefined;
 
 let iconType: string = undefined;
@@ -18,8 +20,10 @@ onMount(() => {
 });
 
 function click() {
-  if (href) {
-    window.openExternal(href);
+  if (internalRef) {
+    router.goto(internalRef);
+  } else if (externalRef) {
+    window.openExternal(externalRef);
   } else {
     dispatch('click');
   }

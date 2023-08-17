@@ -11,7 +11,8 @@ export let showBreadcrumb = true;
     <div class="flex flex-col w-full h-fit">
       {#if showBreadcrumb}
         <div class="flex flew-row items-center">
-          <Link aria-label="back" href="{$lastPage.path}" title="Go back to {$lastPage.name}">{$lastPage.name}</Link>
+          <Link aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
+            >{$lastPage.name}</Link>
           <div class="text-xl mx-2 text-gray-700">></div>
           <div class="grow text-sm font-extralight text-gray-700" aria-label="name">{$currentPage.name}</div>
           <a href="{$lastPage.path}" title="Close" class="justify-self-end text-gray-900">
