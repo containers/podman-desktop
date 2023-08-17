@@ -18,7 +18,7 @@
 
 import type { Page } from 'playwright';
 import type { RunnerTestContext } from './testContext/runner-test-context';
-import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
+import { afterAll, beforeAll, test, describe, beforeEach, expect } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
@@ -52,7 +52,8 @@ describe('Image pull verification', async () => {
     const pullImagePage = await imagesPage.openPullImage();
     const updatedImages = await pullImagePage.pullImage('quay.io/podman/hello');
 
-    playExpect(updatedImages.imageExists('quay.io/podman/hello')).toBeTruthy();
+    const exists = await updatedImages.waitForImageExists('quay.io/podman/hello');
+    expect(exists, 'quay.io/podman/hello image not present in the list of images').toBeTruthy();
   });
 
   test('Check image details', async () => {

@@ -1,6 +1,7 @@
 <script lang="ts">
 import { lastPage, currentPage } from '../../stores/breadcrumb';
 import { router } from 'tinro';
+import Link from './Link.svelte';
 
 export let title: string;
 export let titleDetail: string = undefined;
@@ -16,11 +17,7 @@ export function close(): void {
     <div class="flex w-full flex-row">
       <div class="w-full pl-5 pt-4">
         <div class="flex flew-row items-center">
-          <a
-            class="text-violet-400 text-base hover:no-underline"
-            aria-label="back"
-            href="{$lastPage.path}"
-            title="Go back to {$lastPage.name}">{$lastPage.name}</a>
+          <Link aria-label="back" href="{$lastPage.path}" title="Go back to {$lastPage.name}">{$lastPage.name}</Link>
           <div class="text-xl mx-2 text-gray-700">></div>
           <div class="text-sm font-extralight text-gray-700" aria-label="name">{$currentPage.name}</div>
         </div>

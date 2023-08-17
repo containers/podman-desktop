@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import Link from '../ui/Link.svelte';
 
 export let provider: ProviderInfo;
 </script>
@@ -8,11 +9,9 @@ export let provider: ProviderInfo;
   <div class="mt-10 flex flex-row justify-around">
     {#each provider.links as link}
       {#if link.group === undefined}
-        <p
-          on:click="{() => window.openExternal(link.url)}"
-          class="text-sm text-center cursor-pointer text-violet-400 hover:text-violet-600 hover:no-underline">
+        <Link class="text-sm" href="{link.url}">
           {link.title}
-        </p>
+        </Link>
       {/if}
     {/each}
   </div>

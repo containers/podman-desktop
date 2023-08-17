@@ -19,7 +19,7 @@ In the below example, we will pretend that we're upgrading from `0.11.0` to `0.1
 1. Close the milestone for the respective release, make sure that all tasks within the milesetone are completed / updated before closing. https://github.com/containers/podman-desktop/milestones
 1. If not already created, click on `New Milestone` and create a new milestone for the NEXT release.
 1. Check that https://github.com/containers/podman-desktop/actions/workflows/release.yaml has been completed. Sometimes it will flake, so you may need to re-run it.
-1. There should be an automated PR that has been created. Approve this and set to auto-merge. This will be automatically merged in after all tests have been ran (takes 10-30 minutes). The title looks like `chore: 📢 Bump version to 0.13.0`.
+1. There should be an automated PR that has been created. Approve this and set to auto-merge. This will be automatically merged in after all tests have been ran (takes 10-30 minutes). The title looks like `chore: 📢 Bump version to 0.13.0`. Rerun workflow manually if some of e2e tests are failing.
 1. Above PR MUST be merged before continuing with the steps.
 1. Edit the new release https://github.com/containers/podman-desktop/releases/edit/v0.12.0
 1. Select previous tag (v0.11.0) and click on `Generate release notes` and the click on `Update release`
