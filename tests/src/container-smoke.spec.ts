@@ -18,7 +18,7 @@
 
 import type { Page } from 'playwright';
 import type { RunnerTestContext } from './testContext/runner-test-context';
-import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
+import { afterAll, beforeAll, test, describe, beforeEach, expect } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
@@ -67,7 +67,9 @@ describe('Verification of container creation workflow', async () => {
     let images = await navigationBar.openImages();
     const pullImagePage = await images.openPullImage();
     images = await pullImagePage.pullImage(imageToPull, imageTag, 45000);
-    playExpect(await images.imageExists(imageToPull)).toBeTruthy();
+
+    const exists = await images.waitForImageExists(imageToPull);
+    expect(exists, `${imageToPull} image is not present in the list of images`).toBeTruthy();
     await pdRunner.screenshot('containers-pull-image.png');
   }, 60000);
 
