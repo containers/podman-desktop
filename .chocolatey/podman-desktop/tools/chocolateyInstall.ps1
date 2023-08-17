@@ -5,9 +5,9 @@ $packageArgs = @{
   fileType       = 'exe'
   softwareName   = 'PodmanDesktop'
 
-  url64bit       = 'https://github.com/containers/podman-desktop/releases/download/v1.2.0/podman-desktop-1.2.0-setup.exe'
+  url64bit       = 'https://github.com/containers/podman-desktop/releases/download/v1.3.1/podman-desktop-1.3.1-setup.exe'
   checksumType   = 'sha256'
-  checksum64     = '68673c8d1cd943bdde6e81ee49d448c3f8570fa68ff0f6b4a4d87ee9b5351857'
+  checksum64     = '83ac2e51ba5baeb034dd352f470062da2b335d757022afd790e9c7cb4a2b2598'
 
   silentArgs     = '/S'
   validExitCodes = @(0)
