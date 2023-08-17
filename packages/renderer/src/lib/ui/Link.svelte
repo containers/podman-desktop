@@ -20,10 +20,10 @@ onMount(() => {
 
 function click() {
   if (href) {
-    if (href.startsWith('/')) {
-      router.goto(href);
-    } else {
+    if (href.startsWith('http')) {
       window.openExternal(href);
+    } else {
+      router.goto(href);
     }
   } else {
     dispatch('click');

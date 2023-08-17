@@ -74,6 +74,7 @@ test('Check href action', async () => {
 
 test('Check local href action', async () => {
   const urlMock = vi.fn();
+  (window as any).openExternal = urlMock;
   render(Link, { href: '/Pods' });
 
   // check href link
