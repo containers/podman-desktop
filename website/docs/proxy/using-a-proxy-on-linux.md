@@ -51,7 +51,7 @@ You can configure Podman to run behind a proxy.
 
    ```shell-session
    $ pkill podman
-   ``
+   ```
 
 1. Restart Podman Desktop: <kbd>Ctrl</kbd> + <kbd>q</kbd>.
 
