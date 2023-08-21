@@ -8,7 +8,7 @@ keywords: [podman, vpn, windows]
 
 # Accessing resources behind a VPN with Podman on Windows
 
-On Windows, when Podman requires to access resources that are behind a user-controlled VPN, enable the user mode networking in your Podman machine.
+On Windows, if Podman needs to access resources behind a user-controlled VPN, enable user mode networking in your Podman machine.
 
 #### Prerequisites
 
