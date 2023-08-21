@@ -23,6 +23,16 @@ import { test, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import Link from './Link.svelte';
 import { faRocket } from '@fortawesome/free-solid-svg-icons';
+import { router } from 'tinro';
+
+// mock the router
+vi.mock('tinro', () => {
+  return {
+    router: {
+      goto: vi.fn(),
+    },
+  };
+});
 
 test('Check link styling', async () => {
   render(Link);
@@ -49,7 +59,7 @@ test('Check icon styling', async () => {
 test('Check href action', async () => {
   const urlMock = vi.fn();
   (window as any).openExternal = urlMock;
-  render(Link, { href: 'test' });
+  render(Link, { externalRef: 'http://test.com' });
 
   // check href link
   const link = screen.getByRole('link');
@@ -59,6 +69,22 @@ test('Check href action', async () => {
   fireEvent.click(link);
 
   expect(urlMock).toBeCalledTimes(1);
+  expect(router.goto).not.toHaveBeenCalled();
+});
+
+test('Check local href action', async () => {
+  const urlMock = vi.fn();
+  (window as any).openExternal = urlMock;
+  render(Link, { internalRef: '/Pods' });
+
+  // check href link
+  const link = screen.getByRole('link');
+  expect(link).toBeInTheDocument();
+
+  fireEvent.click(link);
+
+  expect(router.goto).toBeCalledTimes(1);
+  expect(urlMock).not.toHaveBeenCalled();
 });
 
 test('Check on:click action', async () => {

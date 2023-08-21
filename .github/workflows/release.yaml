@@ -92,7 +92,7 @@ jobs:
           tag: ${{ steps.TAG_UTIL.outputs.githubTag }}
           name: ${{ steps.TAG_UTIL.outputs.githubTag }}
           draft: true
-          prerelease: false
+          prerelease: true
       - name: Create the PR to bump the version in the main branch (only if we're tagging from main branch)
         if: ${{ github.event.inputs.branch == 'main' }}
         run: |

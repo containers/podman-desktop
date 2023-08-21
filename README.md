@@ -105,6 +105,11 @@ Kubernetes questions & development:
 
 - [#podman-desktop](https://app.slack.com/client/T09NY5SBT/C04A0L7LUFM) on the [Kubernetes Slack](https://slack.k8s.io/)
 
+### Adopters
+
+Check out the [list of companies](https://github.com/containers/podman-desktop/blob/adopters/ADOPTERS.md) already using Podman Desktop.
+
+
 ## Code of Conduct
 
 This project uses the [Containers Community Code of Conduct](https://github.com/containers/common/blob/main/CODE-OF-CONDUCT.md).
