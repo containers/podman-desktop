@@ -70,7 +70,7 @@ Podman Desktop might fail starting a Podman machine.
    $ podman machine start
    ```
 
-1. If the operation fails, read carefully the logs to continue troubleshooting.
+1. If the creation fails, read the logs carefully to continue troubleshooting.
 
 ## Podman Desktop fails listing images or containers
 
