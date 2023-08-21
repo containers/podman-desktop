@@ -55,7 +55,7 @@ You can find here troubleshooting help for issues specific to Windows.
 
 ## Older WSL versions might lead to networking issues
 
-Older WSL versions might lead to networking issues, such as `Get-NetTCPConnection` error indicating that the WSL loopback forwarding facility is not functioning correctly.
+Older versions of WSL might cause networking issues, such as the `Get-NetTCPConnection` error, indicating that the WSL loopback forwarding facility is not functioning correctly. Recent versions of WSL do not have this issue
 Recent WSL versions do not have the issue.
 
 #### Solution
