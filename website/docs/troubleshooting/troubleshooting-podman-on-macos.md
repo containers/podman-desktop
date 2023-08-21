@@ -102,7 +102,7 @@ You should be a happy camper from here.
 
 ## Recovering from a failed start
 
-After a failed start, the Podman machine might be unable start because a QEMU process is still running and the PID file is being used.
+After a failed start, the Podman machine might be unable to start because a QEMU process is still running and the PID file is in use.
 
 #### Workaround
 
