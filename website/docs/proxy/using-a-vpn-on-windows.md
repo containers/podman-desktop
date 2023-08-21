@@ -17,7 +17,7 @@ On Windows, when Podman requires to access resources that are behind a user-cont
 
 #### Procedure
 
-1. To enable user mode networking, when creating the Podman machine, select the **User mode networking (traffic relayed by a user process).** option.
+- To enable user mode networking, when creating the Podman machine, select the **User mode networking (traffic relayed by a user process).** option.
 
 #### Verification
 
