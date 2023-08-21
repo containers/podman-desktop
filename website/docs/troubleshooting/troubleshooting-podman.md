@@ -54,7 +54,7 @@ Podman Desktop might fail creating a Podman machine.
    $ podman machine init
    ```
 
-1. If the creation fails, read carefully the logs to continue troubleshooting.
+1. If the creation fails, read the logs carefully to continue troubleshooting.
 
 ## Podman Desktop fails starting a Podman machine
 
