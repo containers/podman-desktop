@@ -78,7 +78,7 @@ Podman Desktop might fail listing images or container.
 
 #### Prerequisites
 
-- Podman 4.1.0 or greater. Podman Desktop requires the Podman machine to expose the socket on the host on macOS, and on a named pipe on Windows.
+- Podman 4.1.0 or later is needed. Podman Desktop requires the Podman machine to expose the socket on the host for macOS, and on a named pipe for Windows
 
 #### Procedure
 
