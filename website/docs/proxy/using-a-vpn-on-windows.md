@@ -25,7 +25,7 @@ On Windows, when Podman requires to access resources that are behind a user-cont
    $ podman machine ssh *<podman_machine_name>*
    ```
 
-3. Create and edit the `/etc/resolv.conf/` file:
+3. Create and edit the `/etc/resolv.conf` file:
 
    ```
    nameserver 1.1.1.1
