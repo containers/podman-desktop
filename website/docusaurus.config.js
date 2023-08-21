@@ -193,6 +193,7 @@ const config = {
       goatcounter: {
         code: 'podman-desktop-website',
       },
+      image: 'img/banner_podman-desktop.png',
     }),
 };
 
