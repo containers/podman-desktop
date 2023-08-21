@@ -25,7 +25,7 @@ Podman Desktop might fail to detect your Podman installation.
 #### Solution
 
 Try following steps to verify your Podman installation.
-After each step, quit and restart Podman Desktop to verify Podman Desktop can detect your Podman installation.
+After each step, quit and restart Podman Desktop to ensure that it can detect your Podman installation.
 
 1. In a terminal, verify you can access the Podman CLI, and verify the version.
 
