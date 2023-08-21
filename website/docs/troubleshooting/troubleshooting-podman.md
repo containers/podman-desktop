@@ -74,7 +74,7 @@ Podman Desktop might fail starting a Podman machine.
 
 ## Podman Desktop fails listing images or containers
 
-Podman Destkop might fail listing images or container.
+Podman Desktop might fail listing images or container.
 
 #### Prerequisites
 
