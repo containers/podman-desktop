@@ -17,7 +17,7 @@ On Windows, if Podman needs to access resources behind a user-controlled VPN, en
 
 #### Procedure
 
-- To enable user mode networking, when creating the Podman machine, select the **User mode networking (traffic relayed by a user process).** option.
+- When creating the Podman machine, select the **User mode networking (traffic relayed by a user process)** option to enable user mode networking.
 
 #### Verification
 
