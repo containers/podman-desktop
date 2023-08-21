@@ -21,4 +21,4 @@ On Windows, if Podman needs to access resources behind a user-controlled VPN, en
 
 #### Verification
 
-- You can access resources that are behind the VPN.
+- You can now access resources that are behind the VPN.
