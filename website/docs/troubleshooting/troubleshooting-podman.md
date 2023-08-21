@@ -98,7 +98,7 @@ Podman Desktop might fail listing images or container.
 
 #### Issue
 
-Podman Desktop might be displaying "No Containers" as shown below despite active containers runnning in the background.
+Podman Desktop might display "No Containers" as shown below, even if there are active containers running in the background.
 ![img](../img/containers_error.png)
 
 #### Solution
