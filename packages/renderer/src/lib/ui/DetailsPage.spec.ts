@@ -22,6 +22,16 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import DetailsPage from './DetailsPage.svelte';
 import { lastPage, currentPage } from '../../stores/breadcrumb';
 import type { TinroBreadcrumb } from 'tinro';
+import { router } from 'tinro';
+
+// mock the router
+vi.mock('tinro', () => {
+  return {
+    router: {
+      goto: vi.fn(),
+    },
+  };
+});
 
 test('Expect title is defined', async () => {
   const title = 'My Dummy Title';
@@ -58,12 +68,9 @@ test('Expect backlink is defined', async () => {
   expect(backElement).toBeInTheDocument();
   expect(backElement).toHaveTextContent(backName);
 
-  const urlMock = vi.fn();
-  (window as any).openExternal = urlMock;
-
   fireEvent.click(backElement);
 
-  expect(urlMock).toBeCalledWith('/back');
+  expect(router.goto).toBeCalledWith('/back');
 });
 
 test('Expect close link is defined', async () => {

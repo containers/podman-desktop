@@ -406,7 +406,7 @@ function updateKubeResult() {
           required />
         <span class="text-gray-400 text-sm ml-1">
           Update Kubernetes manifest to respect the Pod security <Link
-            href="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted"
+            externalRef="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted"
             >restricted profile</Link
           >.</span>
       </div>

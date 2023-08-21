@@ -89,7 +89,7 @@ export class ImagesPage extends PodmanDesktopPage {
     }
   }
 
-  async imageExists(name: string): Promise<boolean> {
+  protected async imageExists(name: string): Promise<boolean> {
     const result = await this.getImageRowByName(name);
     return result !== undefined;
   }
