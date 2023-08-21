@@ -86,7 +86,7 @@ async function pullImage() {
     pullFinished = true;
   } catch (error) {
     const errorMessage = error.message ? error.message : error;
-    pullError = 'Could not connect to ' + selectedProviderConnection.name + ': ' + errorMessage;
+    pullError = `Error while pulling image from ${selectedProviderConnection.name}: ${errorMessage}`;
     pullInProgress = false;
   }
 }
