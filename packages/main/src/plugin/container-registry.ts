@@ -862,6 +862,11 @@ export class ContainerProviderRegistry {
 
       return promise;
     } catch (error) {
+      // Provides a better error message for 403 errors
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (error instanceof Error && (error as any)?.statusCode === 403) {
+        error.message = `access to image "${imageName}" is denied (403 error). Can also be that image does not exist.`;
+      }
       telemetryOptions = { error: error };
       throw error;
     } finally {

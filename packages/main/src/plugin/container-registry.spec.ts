@@ -30,6 +30,7 @@ import type * as podmanDesktopAPI from '@podman-desktop/api';
 import nock from 'nock';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import moment from 'moment';
+import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -117,6 +118,10 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
 
   addContainerProvider(name: string, provider: podmanDesktopAPI.ContainerProviderConnection): void {
     this.containerProviders.set(name, provider);
+  }
+
+  getMatchingEngineFromConnection(providerContainerConnectionInfo: ProviderContainerConnectionInfo): Dockerode {
+    return this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
   }
 }
 
@@ -733,4 +738,33 @@ describe('listContainers', () => {
     });
     expect(container.State).toBe('running');
   });
+});
+
+test('pull unknown image ', async () => {
+  const getMatchingEngineFromConnectionSpy = vi.spyOn(containerRegistry, 'getMatchingEngineFromConnection');
+
+  const pullMock = vi.fn();
+
+  const fakeDockerode = {
+    pull: pullMock,
+    modem: {
+      followProgress: vi.fn(),
+    },
+  } as unknown as Dockerode;
+
+  getMatchingEngineFromConnectionSpy.mockReturnValue(fakeDockerode);
+
+  const containerConnectionInfo = {} as ProviderContainerConnectionInfo;
+
+  // add statusCode on the error
+  const error = new Error('access denied');
+  (error as any).statusCode = 403;
+
+  pullMock.mockRejectedValue(error);
+
+  const callback = vi.fn();
+  // check that we have a nice error message
+  await expect(containerRegistry.pullImage(containerConnectionInfo, 'unknown-image', callback)).rejects.toThrow(
+    'access to image "unknown-image" is denied (403 error). Can also be that image does not exist',
+  );
 });
