@@ -303,6 +303,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
             (err: unknown) => window.showErrorMessage('Kind installation failed ' + err),
           ),
         ),
+        statusBarItem,
       );
       statusBarItem.show();
     }
