@@ -6,7 +6,7 @@ description: How to set Podman machine default connection.
 
 ## Setting Podman machine default connection
 
-Each Podman machine is exposing two connections:
+Each Podman machine exposes two connections:
 
 - rootless
 - rootful
