@@ -27,9 +27,13 @@ import type { ApiSenderType } from '/@/plugin/api.js';
 import Dockerode from 'dockerode';
 import { EventEmitter } from 'node:events';
 import type * as podmanDesktopAPI from '@podman-desktop/api';
+import nock from 'nock';
+import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
+import moment from 'moment';
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-null/no-null */
 
 const fakeContainerWithComposeProject: Dockerode.ContainerInfo = {
   Id: '1234567890',
@@ -522,4 +526,211 @@ test('getFirstRunningConnection', async () => {
   // first should be podman 1 as we're first ordering podman providers
   expect(connection[0].name).toBe('podman1');
   expect(connection[0].endpoint.socketPath).toBe('/podman1.socket');
+});
+
+describe('listContainers', () => {
+  test('list containers with Podman API', async () => {
+    const containersWithPodmanAPI = [
+      {
+        AutoRemove: false,
+        Command: ['httpd-foreground'],
+        Created: '2023-08-10T15:37:44.555961563+02:00',
+        CreatedAt: '',
+        Exited: true,
+        ExitedAt: 1691674673,
+        ExitCode: 0,
+        Id: '31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4',
+        Image: 'docker.io/library/httpd:latest',
+        ImageID: '911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a',
+        IsInfra: false,
+        Labels: {
+          'io.buildah.version': '1.30.0',
+          maintainer: 'Podman Maintainers',
+        },
+        Mounts: [],
+        Names: ['admiring_wing'],
+        Namespaces: {},
+        Networks: ['podman'],
+        Pid: 0,
+        Pod: '',
+        PodName: '',
+        Ports: [
+          {
+            host_ip: '',
+            container_port: 8080,
+            host_port: 8080,
+            range: 1,
+            protocol: 'tcp',
+          },
+        ],
+        Restarts: 0,
+        Size: null,
+        StartedAt: 1691674664,
+        State: 'running',
+        Status: '',
+      },
+    ];
+
+    nock('http://localhost').get('/v4.2.0/libpod/containers/json?all=true').reply(200, containersWithPodmanAPI);
+
+    // mock listPods
+
+    nock('http://localhost').get('/v4.2.0/libpod/pods/json').reply(200, []);
+
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const libpod = new LibpodDockerode();
+    libpod.enhancePrototypeWithLibPod();
+
+    // set providers with docker being first
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const containers = await containerRegistry.listContainers();
+
+    // ensure the field are correct
+    expect(containers).toBeDefined();
+    expect(containers).toHaveLength(1);
+    const container = containers[0];
+    expect(container.engineId).toBe('podman1');
+    expect(container.engineName).toBe('podman');
+    expect(container.engineType).toBe('podman');
+    expect(container.StartedAt).toBe('2023-08-10T13:37:44.000Z');
+    expect(container.pod).toBeUndefined();
+    expect(container.Id).toBe('31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4');
+    expect(container.Command).toBe('httpd-foreground');
+    expect(container.Names).toStrictEqual(['/admiring_wing']);
+    expect(container.Image).toBe('docker.io/library/httpd:latest');
+    expect(container.ImageID).toBe('sha256:911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a');
+    expect(container.Created).toBe(1691674664);
+    expect(container.Ports).toStrictEqual([
+      {
+        IP: '',
+        PrivatePort: 8080,
+        PublicPort: 8080,
+        Type: 'tcp',
+      },
+    ]);
+    expect(container.Labels).toStrictEqual({
+      'io.buildah.version': '1.30.0',
+      maintainer: 'Podman Maintainers',
+    });
+    expect(container.State).toBe('running');
+  });
+
+  test('list containers with Docker API', async () => {
+    const containersWithDockerAPI = [
+      {
+        Id: '31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4',
+        Names: ['/admiring_wing'],
+        Image: 'docker.io/library/httpd:latest',
+        ImageID: 'sha256:911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a',
+        Command: 'httpd-foreground',
+        Created: 1691674664,
+        Ports: [
+          {
+            PrivatePort: 8080,
+            PublicPort: 8080,
+            Type: 'tcp',
+          },
+        ],
+        Labels: {
+          'io.buildah.version': '1.30.0',
+          maintainer: 'Podman Maintainers',
+        },
+        State: 'running',
+        Status: 'Up 2 minutes',
+        NetworkSettings: {
+          Networks: {
+            podman: {
+              IPAMConfig: null,
+              Links: null,
+              Aliases: ['31a4b2826914'],
+              NetworkID: 'podman',
+              EndpointID: '',
+              Gateway: '10.88.0.1',
+              IPAddress: '10.88.0.4',
+              IPPrefixLen: 16,
+              IPv6Gateway: '',
+              GlobalIPv6Address: '',
+              GlobalIPv6PrefixLen: 0,
+              MacAddress: '7e:49:fe:9b:2e:3a',
+              DriverOpts: null,
+            },
+          },
+        },
+        Mounts: [],
+        Name: '',
+        Config: null,
+        NetworkingConfig: null,
+        Platform: null,
+        AdjustCPUShares: false,
+      },
+    ];
+
+    nock('http://localhost').get('/containers/json?all=true').reply(200, containersWithDockerAPI);
+
+    // mock listPods
+
+    nock('http://localhost').get('/v4.2.0/libpod/pods/json').reply(200, []);
+
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set providers with docker being first
+    containerRegistry.addInternalProvider('docker', {
+      name: 'docker',
+      id: 'docker1',
+      api: dockerAPI,
+      connection: {
+        type: 'docker',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const containers = await containerRegistry.listContainers();
+
+    // ensure the field are correct
+    expect(containers).toBeDefined();
+    expect(containers).toHaveLength(1);
+    const container = containers[0];
+    expect(container.engineId).toBe('docker1');
+    expect(container.engineName).toBe('docker');
+    expect(container.engineType).toBe('docker');
+
+    // grab StartedAt from the containerWithDockerAPI
+    const started = container.StartedAt;
+
+    //convert with moment
+    const diff = moment.now() - moment(started).toDate().getTime();
+    const delta = Math.round(moment.duration(diff).asMinutes());
+
+    // expect delta to be 2 minutes
+    expect(delta).toBe(2);
+    expect(container.pod).toBeUndefined();
+
+    expect(container.Id).toBe('31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4');
+    expect(container.Command).toBe('httpd-foreground');
+    expect(container.Names).toStrictEqual(['/admiring_wing']);
+    expect(container.Image).toBe('docker.io/library/httpd:latest');
+    expect(container.ImageID).toBe('sha256:911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a');
+    expect(container.Created).toBe(1691674664);
+    expect(container.Ports).toStrictEqual([
+      {
+        PrivatePort: 8080,
+        PublicPort: 8080,
+        Type: 'tcp',
+      },
+    ]);
+    expect(container.Labels).toStrictEqual({
+      'io.buildah.version': '1.30.0',
+      maintainer: 'Podman Maintainers',
+    });
+    expect(container.State).toBe('running');
+  });
 });

@@ -29,6 +29,7 @@ import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
+import { lastPage } from '/@/stores/breadcrumb';
 
 test('Expect that the right machine is displayed', async () => {
   const socketPath = '/my/common-socket-path';
@@ -99,4 +100,114 @@ test('Expect that the right machine is displayed', async () => {
   // expect to have the second machine being displayed (and not the first one that also match socket path)
   const title = screen.getByRole('heading', { name: 'podman machine 2', level: 1 });
   expect(title).toBeInTheDocument();
+});
+
+test('Expect that removing the connection is going back to the previous page', async () => {
+  const socketPath = '/my/common-socket-path';
+  const podmanMachineName1 = 'podman machine 1';
+  const podmanMachineName2 = 'podman machine 2';
+  const podmanMachineName3 = 'podman machine 3';
+
+  const routerGotoSpy = vi.spyOn(router, 'goto');
+
+  const deleteMock = vi.fn();
+  (window as any).deleteProviderConnectionLifecycle = deleteMock;
+
+  const providerInfo: ProviderInfo = {
+    id: 'podman',
+    name: 'podman',
+    images: {
+      icon: 'img',
+    },
+    status: 'started',
+    warnings: undefined,
+    containerProviderConnectionCreation: true,
+    detectionChecks: undefined,
+    containerConnections: [
+      {
+        name: podmanMachineName1,
+        status: 'started',
+        endpoint: {
+          socketPath,
+        },
+        type: 'podman',
+      },
+      {
+        name: podmanMachineName2,
+        status: 'stopped',
+        endpoint: {
+          socketPath,
+        },
+        type: 'podman',
+        lifecycleMethods: ['delete'],
+      },
+      {
+        name: podmanMachineName3,
+        status: 'started',
+        endpoint: {
+          socketPath,
+        },
+        type: 'podman',
+      },
+    ],
+    installationSupport: undefined,
+    internalId: '0',
+    kubernetesConnections: [],
+    kubernetesProviderConnectionCreation: true,
+    links: undefined,
+    containerProviderConnectionInitialization: false,
+    containerProviderConnectionCreationDisplayName: 'Podman machine',
+    kubernetesProviderConnectionInitialization: false,
+  };
+
+  // 3 connections with the same socket path
+  providerInfos.set([providerInfo]);
+
+  // encode name with base64 of the second machine
+  const name = Buffer.from(podmanMachineName2).toString('base64');
+
+  const connection = Buffer.from(socketPath).toString('base64');
+
+  // defines a fake lastPage so we can check where we will be redirected
+  lastPage.set({ name: 'Fake Previous', path: '/last' });
+
+  // delete current machine 2 from the provider info
+  deleteMock.mockImplementation(() => {
+    providerInfos.update(providerInfos =>
+      providerInfos.map(provider => {
+        provider.containerConnections = provider.containerConnections.filter(
+          connection => connection.name !== podmanMachineName2,
+        );
+        return provider;
+      }),
+    );
+  });
+
+  render(PreferencesContainerConnectionRendering, {
+    name,
+    connection,
+    providerInternalId: '0',
+  });
+
+  // expect to have the second machine being displayed (and not the first one that also match socket path)
+  const title = screen.getByRole('heading', { name: 'podman machine 2', level: 1 });
+  expect(title).toBeInTheDocument();
+
+  // ok now we delete the connection
+  const deleteButton = screen.getByRole('button', { name: 'Delete' });
+
+  // grab current route
+  const currentRoute = window.location;
+  expect(currentRoute.href).toBe('http://localhost:3000/');
+
+  // click on it
+  await userEvent.click(deleteButton);
+
+  // expect that we have called the router when page has been removed
+  // to jump to the previous page
+  expect(routerGotoSpy).toBeCalledWith('/last');
+
+  // grab updated route
+  const afterRoute = window.location;
+  expect(afterRoute.href).toBe('http://localhost:3000/last');
 });

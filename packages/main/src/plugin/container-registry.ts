@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,12 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Disposable } from './types/disposable.js';
 import Dockerode from 'dockerode';
 import StreamValues from 'stream-json/streamers/StreamValues.js';
-import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info.js';
+import type {
+  ContainerCreateOptions,
+  ContainerInfo,
+  ContainerPortInfo,
+  SimpleContainerInfo,
+} from './api/container-info.js';
 import type { ImageInfo } from './api/image-info.js';
 import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
@@ -52,6 +57,7 @@ import { pipeline } from 'node:stream/promises';
 import type { ApiSenderType } from './api.js';
 import type { Stream } from 'stream';
 import { Writable } from 'stream';
+import datejs from 'date.js';
 
 export interface InternalContainerProvider {
   name: string;
@@ -290,44 +296,99 @@ export class ContainerProviderRegistry {
             return [];
           }
 
-          // grab time from the provider
-          const providerInfo = await providerApi.info();
-          // Current system-time in RFC 3339 format with nano-seconds.
-          const vmTime = providerInfo.SystemTime;
+          // local type used to convert Podman containers to Dockerode containers
+          interface CompatContainerInfo {
+            Id: string;
+            Names: string[];
+            Image: string;
+            ImageID: string;
+            Command: string;
+            Created: number;
+            Ports: ContainerPortInfo[];
+            Labels: { [label: string]: string };
+            State: string;
+            StartedAt?: string;
+            Status?: string;
+          }
 
-          // we can't trust the time from the VM, so need to compute delta
-          // between our time and the VM time
-          // https://github.com/containers/podman/issues/11541
-          const delta = moment().diff(vmTime);
+          // if we have a libpod API, grab containers using Podman API
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          let containers: CompatContainerInfo[] = [];
+          if (provider.libpodApi) {
+            const podmanContainers = await provider.libpodApi.listPodmanContainers({ all: true });
+
+            // convert Podman containers to Dockerode containers
+            containers = podmanContainers.map(podmanContainer => {
+              // get labels or nothing
+              const Labels: { [label: string]: string } = {};
+              if (podmanContainer.Labels) {
+                // copy all labels
+                for (const label of Object.keys(podmanContainer.Labels)) {
+                  Labels[label] = podmanContainer.Labels[label];
+                }
+              }
+
+              // get labels or nothing
+              let Ports: ContainerPortInfo[] = [];
+
+              if (podmanContainer.Ports) {
+                Ports = podmanContainer.Ports.map(port => {
+                  return {
+                    PrivatePort: port.container_port,
+                    PublicPort: port.host_port,
+                    Type: port.protocol,
+                    IP: port.host_ip,
+                  };
+                });
+              }
+
+              // convert StartedAt which is a unix timestamp to a iso8601 date
+              const StartedAt = moment.unix(podmanContainer.StartedAt).toISOString();
+              return {
+                Id: podmanContainer.Id,
+                Names: podmanContainer.Names.map(name => `/${name}`),
+                ImageID: `sha256:${podmanContainer.ImageID}`,
+                Image: podmanContainer.Image,
+                // convert to unix timestamp
+                Created: moment(podmanContainer.Created).unix(),
+                State: podmanContainer.State,
+                StartedAt,
+                Command: podmanContainer.Command[0],
+                Labels,
+                Ports,
+              };
+            });
+          } else {
+            containers = await providerApi.listContainers({ all: true });
+            containers.forEach(container => {
+              let StartedAt;
+              if (container.State.toUpperCase() === 'RUNNING' && !container.StartedAt && container.Status) {
+                // convert the Status like "Up 2 minutes" to a date
+                // remove up from the status
+                const status = container.Status.replace('Up ', '');
+                // add ago at the end
+                const statusWithAgo = status.concat(' ago');
+
+                try {
+                  StartedAt = new Date(datejs(statusWithAgo)).toISOString();
+                } catch (error) {
+                  StartedAt = '';
+                  telemetryOptions = { error: error };
+                }
+
+                // update the StartedAt value
+                container.StartedAt = StartedAt;
+              }
+            });
+          }
 
           let pods: LibpodPodInfo[] = [];
           if (provider.libpodApi) {
             pods = await provider.libpodApi.listPods();
           }
 
-          const containers = await providerApi.listContainers({ all: true });
           return Promise.all(
             containers.map(async container => {
-              let StartedAt;
-              if (container.State.toUpperCase() === 'RUNNING') {
-                // grab additional field like StartedAt
-                try {
-                  const containerData = providerApi.getContainer(container.Id);
-                  const containerInspect = await containerData.inspect();
-                  // needs to adjust
-                  const correctedDate = moment(containerInspect.State.StartedAt)
-                    .add(delta, 'milliseconds')
-                    .toISOString();
-                  StartedAt = correctedDate;
-                } catch (error) {
-                  console.debug('Unable to get container, probably container is gone due to a short TTL', error);
-                  StartedAt = '';
-                  telemetryOptions = { error: error };
-                }
-              } else {
-                StartedAt = '';
-              }
-
               // do we have a matching pod for this container ?
               let pod;
               const matchingPod = pods.find(pod =>
@@ -347,7 +408,8 @@ export class ContainerProviderRegistry {
                 engineName: provider.name,
                 engineId: provider.id,
                 engineType: provider.connection.type,
-                StartedAt,
+                StartedAt: container.StartedAt || '',
+                Status: container.Status,
               };
               return containerInfo;
             }),

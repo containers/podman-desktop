@@ -18,7 +18,14 @@
 
 import type Dockerode from 'dockerode';
 
-export interface ContainerInfo extends Dockerode.ContainerInfo {
+export interface ContainerPortInfo {
+  IP: string;
+  PrivatePort: number;
+  PublicPort: number;
+  Type: string;
+}
+
+export interface ContainerInfo {
   engineId: string;
   engineName: string;
   engineType: 'podman' | 'docker';
@@ -29,6 +36,16 @@ export interface ContainerInfo extends Dockerode.ContainerInfo {
     status: string;
     engineId: string;
   };
+  Id: string;
+  Names: string[];
+  Image: string;
+  ImageID: string;
+  Command: string;
+  Created: number;
+  Ports: ContainerPortInfo[];
+  Labels: { [label: string]: string };
+  State: string;
+  Status?: string;
 }
 
 export interface SimpleContainerInfo extends Dockerode.ContainerInfo {
