@@ -19,8 +19,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import '@testing-library/jest-dom';
-import { test, expect, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { test, expect, vi, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
 

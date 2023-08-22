@@ -18,8 +18,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import '@testing-library/jest-dom';
-import { test, expect } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { test, expect, beforeAll, describe } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 
