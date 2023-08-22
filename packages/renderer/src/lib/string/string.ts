@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-export function splitSpacesHandlingDoubleQuotes(inputString): string[] {
+export function splitSpacesHandlingDoubleQuotes(inputString: string): string[] {
   const tokens = [];
   let currentToken = '';
   let insideQuotes = false;

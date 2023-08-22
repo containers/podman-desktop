@@ -130,7 +130,7 @@ export class EventStore<T> {
     } finally {
       this.updateEvent(eventStoreInfo, {
         name: eventName,
-        args: args,
+        args: args || [],
         date: Date.now(),
         skipped: !needUpdate,
         length: numberOfResults,
@@ -149,7 +149,7 @@ export class EventStore<T> {
   }
 
   setup(): EventStoreInfo {
-    const bufferEvents = [];
+    const bufferEvents: EventStoreInfoEvent[] = [];
 
     // register the store in the global list
     const eventStoreInfo: EventStoreInfo = {
@@ -194,7 +194,7 @@ export class EventStore<T> {
 
         this.updateEvent(eventStoreInfo, {
           name: `debounce-${eventName}`,
-          args: args,
+          args: args || [],
           date: Date.now(),
           skipped: true,
           length: 0,

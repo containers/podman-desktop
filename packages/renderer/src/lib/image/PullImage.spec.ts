@@ -24,7 +24,7 @@ import { render, screen } from '@testing-library/svelte';
 import PullImage from './PullImage.svelte';
 import { providerInfos } from '../../stores/providers';
 import type { ProviderStatus } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
 
 const pullImageMock = vi.fn();
@@ -89,7 +89,7 @@ function setup() {
     warnings: undefined,
     images: undefined,
     installationSupport: undefined,
-  };
+  } as unknown as ProviderInfo;
   providerInfos.set([providerInfo]);
 }
 

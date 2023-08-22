@@ -120,7 +120,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-async function waitRender(customProperties): Promise<void> {
+async function waitRender(customProperties: any): Promise<void> {
   const result = render(DeployPodToKube, { resourceId: 'foo', engineId: 'bar', ...customProperties });
   // wait that result.component.$$.ctx[0] is set
   while (result.component.$$.ctx[0] === undefined) {

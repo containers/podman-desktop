@@ -52,7 +52,7 @@ const eventStore = new EventStore<ProviderInfo[]>(
 );
 eventStore.setup();
 
-const updateProviderCallbacks = [];
+const updateProviderCallbacks: string[] = [];
 export async function fetchProviders(): Promise<ProviderInfo[]> {
   const result = await window.getProviderInfos();
   providerInfos.set(result);

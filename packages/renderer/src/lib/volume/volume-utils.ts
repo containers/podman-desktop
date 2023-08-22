@@ -70,7 +70,7 @@ export class VolumeUtils {
       engineId: volumeInfo.engineId,
       engineName: volumeInfo.engineName,
       selected: false,
-      inUse: volumeInfo.UsageData?.RefCount > 0,
+      inUse: (volumeInfo.UsageData?.RefCount || 0) > 0,
       containersUsage: volumeInfo.containersUsage,
     };
   }

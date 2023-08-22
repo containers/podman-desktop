@@ -17,7 +17,7 @@ import {
   InitializeAndStartMode,
   InitializeOnlyMode,
 } from './ProviderInitUtils';
-import Steps from 'svelte-steps/Steps.svelte';
+import { Steps } from 'svelte-steps';
 import Spinner from '../ui/Spinner.svelte';
 
 export let provider: ProviderInfo;

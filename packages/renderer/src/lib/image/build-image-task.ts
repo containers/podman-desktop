@@ -85,7 +85,7 @@ export function clearBuildTask(info: BuildImageInfo): void {
   buildOnHolds.delete(info.buildImageKey);
   buildReplays.delete(info.buildImageKey);
   // remove current build
-  buildImagesInfo.set(undefined);
+  buildImagesInfo.set({ buildImageKey: getKey(), buildRunning: false });
 
   // remove the task
   const task = allTasks.get(info.buildImageKey);
@@ -197,10 +197,10 @@ export function eventCollect(key: symbol, eventName: 'finish' | 'stream' | 'erro
     }
   }
   if (eventName === 'stream') {
-    callback.onStream(data);
+    callback?.onStream(data);
   } else if (eventName === 'error') {
-    callback.onError(data);
+    callback?.onError(data);
   } else if (eventName === 'finish') {
-    callback.onEnd();
+    callback?.onEnd();
   }
 }

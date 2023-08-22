@@ -1,7 +1,10 @@
 import Loader from './Loader.svelte';
 
-const app = new Loader({
-  target: document.getElementById('app'),
-});
-
+const target = document.getElementById('app');
+let app;
+if (target) {
+  app = new Loader({
+    target,
+  });
+}
 export default app;

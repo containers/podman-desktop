@@ -16,6 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
+
 /**
  * Allow to generate a custom button markdown directive
  * syntax is the following:
@@ -26,7 +29,7 @@
  * @this {import('micromark-util-types').CompileContext}
  * @type {import('micromark-extension-directive').Handle}
  */
-export function button(d) {
+export function button(d: any) {
   if (d.type !== 'textDirective') {
     return false;
   }

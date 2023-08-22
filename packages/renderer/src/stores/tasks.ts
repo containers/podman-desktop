@@ -64,12 +64,12 @@ export function createTask(name: string): Task {
   return task;
 }
 
-window.events?.receive('task-created', task => {
+window.events?.receive('task-created', (task: Task) => {
   tasksInfo.update(tasks => [...tasks, task]);
 });
-window.events?.receive('task-updated', task => {
+window.events?.receive('task-updated', (task: Task) => {
   updateTask(task);
 });
-window.events?.receive('task-removed', task => {
+window.events?.receive('task-removed', (task: Task) => {
   removeTask(task.id);
 });

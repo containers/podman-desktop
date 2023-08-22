@@ -38,16 +38,16 @@ const myVolume: VolumeListInfo = {
       Name: 'myVolume',
       engineId: 'engine0',
       engineName: 'podman',
-      CreatedAt: undefined,
-      containersUsage: undefined,
-      Driver: undefined,
-      Mountpoint: undefined,
-      Labels: undefined,
+      CreatedAt: '',
+      containersUsage: [],
+      Driver: '',
+      Mountpoint: '',
+      Labels: {},
       Scope: 'local',
-      Options: undefined,
+      Options: {},
     },
   ],
-  Warnings: undefined,
+  Warnings: [],
 };
 
 const removeVolumeMock = vi.fn();
