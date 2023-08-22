@@ -30,7 +30,7 @@ export class TelemetryService {
     return TelemetryService.instance;
   }
 
-  private handlerFlusher;
+  private handlerFlusher: NodeJS.Timeout | undefined;
 
   public handlePageOpen(pagePath: string) {
     if (this.handlerFlusher !== undefined) {

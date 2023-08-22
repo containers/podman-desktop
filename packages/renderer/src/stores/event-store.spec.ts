@@ -103,7 +103,7 @@ test('should call fetch method using window event', async () => {
   expect(eventStoreInfo.bufferEvents.length).toBe(1);
   expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('name', windowEventName);
   expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('skipped', false);
-  expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('args', undefined);
+  expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('args', []);
   expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('length', 1);
 });
 
@@ -163,7 +163,7 @@ test('should call fetch method using listener event', async () => {
   expect(eventStoreInfo.bufferEvents.length).toBe(1);
   expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('name', windowListenerEventName);
   expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('skipped', false);
-  expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('args', undefined);
+  expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('args', []);
   expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('length', 1);
 });
 

@@ -32,19 +32,19 @@ const listContainersMock = vi.fn();
 
 const myContainer: ContainerInfo = {
   Id: 'myContainer',
-  Labels: undefined,
+  Labels: {},
   Status: 'running',
   engineId: 'engine0',
   engineName: 'podman',
   engineType: 'podman',
-  StartedAt: undefined,
+  StartedAt: '',
   Names: ['name0'],
   Image: '',
-  ImageID: undefined,
-  Command: undefined,
+  ImageID: '',
+  Command: '',
   Created: 0,
-  Ports: undefined,
-  State: undefined,
+  Ports: [],
+  State: '',
 };
 
 const deleteContainerMock = vi.fn();

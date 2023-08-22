@@ -76,7 +76,7 @@ async function createRunImage(entrypoint?: string | string[], cmd?: string[]) {
       AttachStderr: false,
       AttachStdin: false,
       AttachStdout: false,
-      Cmd: cmd,
+      Cmd: cmd || [],
       Domainname: '',
       Entrypoint: entrypoint,
       Env: [],

@@ -208,12 +208,12 @@ export function eventCollect(key: symbol, eventName: 'log' | 'warn' | 'error' | 
     }
   }
   if (eventName === 'log') {
-    callback.log(args);
+    callback?.log(args);
   } else if (eventName === 'warn') {
-    callback.warn(args);
+    callback?.warn(args);
   } else if (eventName === 'error') {
-    callback.error(args);
+    callback?.error(args);
   } else if (eventName === 'finish') {
-    callback.onEnd();
+    callback?.onEnd();
   }
 }

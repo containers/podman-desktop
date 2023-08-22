@@ -52,8 +52,8 @@ test('Check icon styling', async () => {
   const link = screen.getByRole('link');
   expect(link).toBeInTheDocument();
   expect(link.firstChild).toBeInTheDocument();
-  expect(link.firstChild.firstChild).toBeInTheDocument();
-  expect(link.firstChild.firstChild).toHaveClass('svelte-fa');
+  expect(link.firstChild?.firstChild).toBeInTheDocument();
+  expect(link.firstChild?.firstChild).toHaveClass('svelte-fa');
 });
 
 test('Check href action', async () => {

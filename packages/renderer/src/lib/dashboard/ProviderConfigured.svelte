@@ -5,7 +5,7 @@ import PreflightChecks from './PreflightChecks.svelte';
 import ProviderLinks from './ProviderLinks.svelte';
 import ProviderLogo from './ProviderLogo.svelte';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
-import Steps from 'svelte-steps/Steps.svelte';
+import { Steps } from 'svelte-steps';
 
 import { onMount } from 'svelte';
 import { InitializeAndStartMode, InitializationSteps, type InitializationContext } from './ProviderInitUtils';

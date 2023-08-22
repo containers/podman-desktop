@@ -23,7 +23,7 @@ import { test, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import { providerInfos } from '../../stores/providers';
 import type { ProviderStatus } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
 import BuildImageFromContainerfile from '/@/lib/image/BuildImageFromContainerfile.svelte';
 
@@ -70,7 +70,7 @@ function setup() {
     warnings: undefined,
     images: undefined,
     installationSupport: undefined,
-  };
+  } as unknown as ProviderInfo;
   providerInfos.set([providerInfo]);
 }
 

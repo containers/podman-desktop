@@ -205,7 +205,7 @@ export class ContainerUtils {
             containers: [],
           });
         }
-        groups.get(group.name).containers.push(containerInfo);
+        groups.get(group.name)?.containers.push(containerInfo);
       }
     });
 

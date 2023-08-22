@@ -32,10 +32,10 @@ const listImagesMock = vi.fn();
 
 const myImage: ImageInfo = {
   Id: 'myImage',
-  Labels: undefined,
+  Labels: {},
   engineId: 'engine0',
   engineName: 'podman',
-  ParentId: undefined,
+  ParentId: '',
   RepoTags: ['myImageTag'],
   Created: 0,
   Size: 0,
