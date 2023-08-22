@@ -542,7 +542,7 @@ export class ContainerProviderRegistry {
     return flatttenedNetworks;
   }
 
-  async listVolumes(): Promise<VolumeListInfo[]> {
+  async listVolumes(fetchUsage = false): Promise<VolumeListInfo[]> {
     let telemetryOptions = {};
     const volumes = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
@@ -551,31 +551,29 @@ export class ContainerProviderRegistry {
             return [];
           }
 
-          // grab the storage information
-          const storageDefinition = await provider.api.df();
-
           // grab containers
           const containers = await provider.api.listContainers({ all: true });
 
           // any as there is a CreatedAt field missing in the type
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const volumeListInfo: any = await provider.api.listVolumes();
+
+          let storageDefinition = {
+            Volumes: [],
+          };
+
+          if (fetchUsage) {
+            // grab the storage information
+            storageDefinition = await provider.api.df();
+          }
+
           const engineName = provider.name;
           const engineId = provider.id;
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const volumeInfos = volumeListInfo.Volumes.map((volumeList: any) => {
             const volumeInfo: VolumeInfo = { ...volumeList, engineName, engineId };
 
-            // do we have a matching volume in storage definition ?
-            const matchingVolume = (storageDefinition.Volumes || []).find(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (volumeStorage: any) => volumeStorage.Name === volumeInfo.Name,
-            );
-            if (matchingVolume) {
-              volumeInfo.UsageData = matchingVolume.UsageData;
-            }
-
-            // if refCount > 0, we need to find the container using it
+            // compute containers using this volume
             const containersUsingThisVolume = containers
               .filter(container => container.Mounts.find(mount => mount.Name === volumeInfo.Name))
               .map(container => {
@@ -583,11 +581,26 @@ export class ContainerProviderRegistry {
               });
             volumeInfo.containersUsage = containersUsingThisVolume;
 
-            // invalid in Podman https://github.com/containers/podman/issues/15720
-            if (volumeInfo.UsageData) {
-              volumeInfo.UsageData.RefCount = volumeInfo.containersUsage.length;
+            // no usage data, set to -1 for size and 0 for refCount
+            if (!volumeInfo.UsageData) {
+              volumeInfo.UsageData = {
+                Size: -1,
+                RefCount: 0,
+              };
             }
+            // defines the refCount
+            volumeInfo.UsageData.RefCount = volumeInfo.containersUsage.length;
 
+            // do we have a matching volume in storage definition ?
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const matchingVolume: any = (storageDefinition?.Volumes || []).find(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (volumeStorage: any) => volumeStorage.Name === volumeInfo.Name,
+            );
+            // update the size if asked and then there is a matching volume
+            if (matchingVolume) {
+              volumeInfo.UsageData.Size = matchingVolume.UsageData.Size;
+            }
             return volumeInfo;
           });
           return { Volumes: volumeInfos, Warnings: volumeListInfo.Warnings, engineName, engineId };
