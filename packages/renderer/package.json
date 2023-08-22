@@ -18,7 +18,7 @@
     "@testing-library/jest-dom": "^6.0.1",
     "@testing-library/svelte": "^4.0.3",
     "@testing-library/user-event": "^14.4.3",
-    "@tsconfig/svelte": "^4.0.1",
+    "@tsconfig/svelte": "^5.0.1",
     "@types/js-yaml": "^4.0.5",
     "@types/validator": "^13.11.1",
     "@typescript-eslint/eslint-plugin": "5.62.0",
