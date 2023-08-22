@@ -31,6 +31,8 @@ import nock from 'nock';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import moment from 'moment';
 import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
+import * as util from '../util.js';
+const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -767,4 +769,160 @@ test('pull unknown image ', async () => {
   await expect(containerRegistry.pullImage(containerConnectionInfo, 'unknown-image', callback)).rejects.toThrow(
     'access to image "unknown-image" is denied (403 error). Can also be that image does not exist',
   );
+});
+
+describe('buildImage', () => {
+  test('throw if there is no running provider', async () => {
+    const fakeDockerode = {} as Dockerode;
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'docker',
+      id: 'docker',
+      connection: {
+        type: 'docker',
+        endpoint: {
+          socketPath: 'endpoint.sock',
+        },
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+
+    const connection: ProviderContainerConnectionInfo = {
+      name: 'connection',
+      type: 'docker',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      lifecycleMethods: undefined,
+      status: 'started',
+    };
+    await expect(containerRegistry.buildImage('context', 'file', 'name', connection, () => {})).rejects.toThrow(
+      'No provider with a running engine',
+    );
+  });
+
+  test('throw if build command fail', async () => {
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set providers with docker being first
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        type: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        name: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const connection: ProviderContainerConnectionInfo = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      lifecycleMethods: undefined,
+      status: 'started',
+    };
+
+    vi.spyOn(util, 'isWindows').mockImplementation(() => false);
+    vi.spyOn(tar, 'pack').mockReturnValue({} as NodeJS.ReadableStream);
+    vi.spyOn(dockerAPI, 'buildImage').mockRejectedValue('human error message');
+
+    await expect(containerRegistry.buildImage('context', 'file', 'name', connection, () => {})).rejects.toThrow(
+      'human error message',
+    );
+  });
+
+  test('verify relativeFilePath gets sanitized on Windows', async () => {
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set providers with docker being first
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        type: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        name: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const connection: ProviderContainerConnectionInfo = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      lifecycleMethods: undefined,
+      status: 'started',
+    };
+
+    vi.spyOn(util, 'isWindows').mockImplementation(() => true);
+    vi.spyOn(tar, 'pack').mockReturnValue({} as NodeJS.ReadableStream);
+    vi.spyOn(dockerAPI, 'buildImage').mockResolvedValue({} as NodeJS.ReadableStream);
+    vi.spyOn(dockerAPI.modem, 'followProgress').mockImplementation((_s, f, _p) => {
+      return f(null, []);
+    });
+
+    await containerRegistry.buildImage('context', '\\path\\file', 'name', connection, () => {});
+
+    expect(dockerAPI.buildImage).toBeCalledWith({} as NodeJS.ReadableStream, {
+      registryconfig: {},
+      dockerfile: '/path/file',
+      t: 'name',
+    });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS', async () => {
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set providers with docker being first
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        type: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        name: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const connection: ProviderContainerConnectionInfo = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      lifecycleMethods: undefined,
+      status: 'started',
+    };
+
+    vi.spyOn(util, 'isWindows').mockImplementation(() => false);
+    vi.spyOn(tar, 'pack').mockReturnValue({} as NodeJS.ReadableStream);
+    vi.spyOn(dockerAPI, 'buildImage').mockResolvedValue({} as NodeJS.ReadableStream);
+    vi.spyOn(dockerAPI.modem, 'followProgress').mockImplementation((_e, f, _d) => {
+      return f(null, []);
+    });
+
+    await containerRegistry.buildImage('context', '/dir/dockerfile', 'name', connection, () => {});
+
+    expect(dockerAPI.buildImage).toBeCalledWith({} as NodeJS.ReadableStream, {
+      registryconfig: {},
+      dockerfile: '/dir/dockerfile',
+      t: 'name',
+    });
+  });
 });

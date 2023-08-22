@@ -58,6 +58,7 @@ import type { ApiSenderType } from './api.js';
 import type { Stream } from 'stream';
 import { Writable } from 'stream';
 import datejs from 'date.js';
+import { isWindows } from '../util.js';
 
 export interface InternalContainerProvider {
   name: string;
@@ -1663,6 +1664,10 @@ export class ContainerProviderRegistry {
         `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
       );
       const tarStream = tar.pack(containerBuildContextDirectory);
+      if (isWindows()) {
+        relativeContainerfilePath = relativeContainerfilePath.replace(/\\/g, '/');
+      }
+
       let streamingPromise: Stream;
       try {
         streamingPromise = (await matchingContainerProvider.api.buildImage(tarStream, {
