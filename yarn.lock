@@ -11332,10 +11332,10 @@ postcss-safe-parser@^6.0.0:
   resolved "https://registry.yarnpkg.com/postcss-safe-parser/-/postcss-safe-parser-6.0.0.tgz#bb4c29894171a94bc5c996b9a30317ef402adaa1"
   integrity sha512-FARHN8pwH+WiS2OPCxJI8FuRJpTVnn6ZNFiqAM2aeW2LwTHWWmWgIyKC6cUo0L8aeKiF/14MNvnpls6R2PBeMQ==
 
-postcss-scss@^4.0.6:
-  version "4.0.6"
-  resolved "https://registry.yarnpkg.com/postcss-scss/-/postcss-scss-4.0.6.tgz#5d62a574b950a6ae12f2aa89b60d63d9e4432bfd"
-  integrity sha512-rLDPhJY4z/i4nVFZ27j9GqLxj1pwxE80eAzUNRMXtcpipFYIeowerzBgG3yJhMtObGEXidtIgbUpQ3eLDsf5OQ==
+postcss-scss@^4.0.6, postcss-scss@^4.0.7:
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/postcss-scss/-/postcss-scss-4.0.7.tgz#cfe5507aaff81b3d8992039ad015da4bd3dccd2f"
+  integrity sha512-xPv2GseoyXPa58Nro7M73ZntttusuCmZdeOojUFR5PZDz2BR62vfYx1w9TyOnp1+nYFowgOMipsCBhxzVkAEPw==
 
 postcss-selector-parser@^6.0.11, postcss-selector-parser@^6.0.2, postcss-selector-parser@^6.0.4, postcss-selector-parser@^6.0.5, postcss-selector-parser@^6.0.9:
   version "6.0.11"
@@ -13173,7 +13173,7 @@ svelte-check@^3.5.0:
     svelte-preprocess "^5.0.4"
     typescript "^5.0.3"
 
-svelte-eslint-parser@^0.32.1, svelte-eslint-parser@^0.32.2:
+svelte-eslint-parser@^0.32.2:
   version "0.32.2"
   resolved "https://registry.yarnpkg.com/svelte-eslint-parser/-/svelte-eslint-parser-0.32.2.tgz#542042254feef50962dc6cb6451234f3103476ef"
   integrity sha512-Ok9D3A4b23iLQsONrjqtXtYDu5ZZ/826Blaw2LeFZVTg1pwofKDG4mz3/GYTax8fQ0plRGHI6j+d9VQYy5Lo/A==
@@ -13183,6 +13183,17 @@ svelte-eslint-parser@^0.32.1, svelte-eslint-parser@^0.32.2:
     espree "^9.0.0"
     postcss "^8.4.25"
     postcss-scss "^4.0.6"
+
+svelte-eslint-parser@^0.33.0:
+  version "0.33.0"
+  resolved "https://registry.yarnpkg.com/svelte-eslint-parser/-/svelte-eslint-parser-0.33.0.tgz#66a0779e3d336c44bfdb6e72e0a74e33b1f84fb7"
+  integrity sha512-5awZ6Bs+Tb/zQwa41PSdcLynAVQTwW0HGyCBjtbAQ59taLZqDgQSMzRlDmapjZdDtzERm0oXDZNE0E+PKJ6ryg==
+  dependencies:
+    eslint-scope "^7.0.0"
+    eslint-visitor-keys "^3.0.0"
+    espree "^9.0.0"
+    postcss "^8.4.28"
+    postcss-scss "^4.0.7"
 
 svelte-fa@^3.0.4:
   version "3.0.4"
