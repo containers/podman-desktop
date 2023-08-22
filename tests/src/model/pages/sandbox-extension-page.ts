@@ -27,7 +27,7 @@ export class SandboxExtensionPage extends SettingsPage {
   readonly status: Locator;
 
   constructor(page: Page) {
-    super(page, 'redhat-sandbox');
+    super(page, 'Red Hat OpenShift Sandbox');
     this.heading = page.getByText('Red Hat OpenShift Sandbox Extension');
     this.enableButton = page.getByRole('button', { name: ' Enable' });
     this.disableButton = page.getByRole('button', { name: ' Disable' });

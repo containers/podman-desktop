@@ -80,7 +80,9 @@ describe('Developer Sandbox installation verification', async () => {
       await playExpect(installedLabel).toBeVisible();
 
       const settingsBar = new SettingsBar(page);
-      await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: 'redhat-sandbox' })).toBeVisible();
+      await playExpect(
+        settingsBar.settingsNavBar.getByRole('link', { name: 'Red Hat OpenShift Sandbox' }),
+      ).toBeVisible();
 
       const sandboxPage = await settingsBar.openTabPage(SandboxExtensionPage);
       await playExpect(sandboxPage.heading).toBeVisible();
@@ -132,7 +134,9 @@ describe('Developer Sandbox installation verification', async () => {
       });
       await playExpect(installButton).toBeVisible();
 
-      await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: 'redhat-sandbox' })).toBeHidden();
+      await playExpect(
+        settingsBar.settingsNavBar.getByRole('link', { name: 'Red Hat OpenShift Sandbox' }),
+      ).toBeHidden();
     });
 
     test('Verify Dashboard components', async () => {
