@@ -222,7 +222,7 @@ export class ExtensionLoader {
         [ExtensionLoaderSettings.SectionName + '.' + ExtensionLoaderSettings.MaxActivationTime]: {
           description: 'Maximum activation time for an extension, in seconds.',
           type: 'number',
-          default: 5,
+          default: 10,
           minimum: 1,
           maximum: 100,
         },
