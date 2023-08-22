@@ -167,6 +167,35 @@ test('should call fetch method using listener event', async () => {
   expect(eventStoreInfo.bufferEvents[0]).toHaveProperty('length', 1);
 });
 
+test('should call fetch with arguments', async () => {
+  const myStoreInfo: Writable<MyCustomTypeInfo[]> = writable([]);
+  const checkForUpdateMock = vi.fn();
+
+  const updater = vi.fn();
+
+  // return true to trigger the update
+  checkForUpdateMock.mockResolvedValue(true);
+
+  const eventStore = new EventStore('my-listener-test', myStoreInfo, checkForUpdateMock, [], [], updater);
+  // now call the setup
+  const eventStoreInfo = eventStore.setup();
+
+  expect(eventStoreInfo.bufferEvents.length).toBe(0);
+
+  const args = ['my', 'list', 'of', 'arguments'];
+
+  // do a manual fetch
+  await eventStoreInfo.fetch(...args);
+
+  // wait updater being called
+  while (updater.mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // check the updater is called
+  expect(updater).toHaveBeenCalledWith(...args);
+});
+
 test('Check debounce', async () => {
   const myStoreInfo: Writable<MyCustomTypeInfo[]> = writable([]);
   const checkForUpdateMock = vi.fn();

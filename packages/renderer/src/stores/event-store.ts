@@ -60,7 +60,7 @@ export interface EventStoreInfo {
   clearEvents(): void;
 
   // force a fetch of the data to update the store
-  fetch(): Promise<void>;
+  fetch(...args: unknown[]): Promise<void>;
 }
 
 // Helper to manage store updated from events
@@ -80,7 +80,7 @@ export class EventStore<T> {
     private checkForUpdate: (eventName: string, args?: unknown[]) => Promise<boolean>,
     private windowEvents: string[],
     private windowListeners: string[],
-    private updater: () => Promise<T>,
+    private updater: (...args: unknown[]) => Promise<T>,
     private iconComponent?: ComponentType,
   ) {
     if (!iconComponent) {
@@ -113,7 +113,11 @@ export class EventStore<T> {
     try {
       if (needUpdate) {
         const before = performance.now();
-        const result = await this.updater();
+        const customArgs = [];
+        if (args) {
+          customArgs.push(...args);
+        }
+        const result = await this.updater(...customArgs);
         const after = performance.now();
         numberOfResults = Array.isArray(result) ? result.length : 0;
         updateDuration = humanizeDuration(after - before, { units: ['s', 'ms'], round: true, largest: 1 });
@@ -157,8 +161,8 @@ export class EventStore<T> {
         bufferEvents.length = 0;
         updateStore(eventStoreInfo);
       },
-      fetch: async () => {
-        await this.performUpdate(true, eventStoreInfo, 'manual');
+      fetch: async (...args: unknown[]) => {
+        await this.performUpdate(true, eventStoreInfo, 'manual', args);
         updateStore(eventStoreInfo);
       },
     };
