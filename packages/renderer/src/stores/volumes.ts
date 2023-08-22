@@ -65,7 +65,7 @@ export const volumesEventStore = new EventStore<VolumeListInfo[]>(
   listVolumes,
   VolumeIcon,
 );
-const volumesEventStoreInfo = volumesEventStore.setup();
+const volumesEventStoreInfo = volumesEventStore.setupWithDebounce();
 
 export const searchPattern = writable('');
 

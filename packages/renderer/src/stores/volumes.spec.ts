@@ -20,7 +20,7 @@
 
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
-import { expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 import type { VolumeInspectInfo } from '../../../main/src/plugin/api/volume-info';
 import { fetchVolumes, volumeListInfos, volumesEventStore } from './volumes';
 
@@ -84,6 +84,9 @@ test('volumes should be updated in case of a container is removed', async () => 
   const containerRemovedCallback = callbacks.get('container-removed-event');
   expect(containerRemovedCallback).toBeDefined();
   await containerRemovedCallback();
+
+  // wait debounce
+  await new Promise(resolve => setTimeout(resolve, 2000));
 
   // check if the volumes are updated
   const volumes2 = get(volumeListInfos);

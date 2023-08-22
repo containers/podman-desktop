@@ -717,9 +717,12 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listNetworks', async (): Promise<NetworkInspectInfo[]> => {
       return containerProviderRegistry.listNetworks();
     });
-    this.ipcHandle('container-provider-registry:listVolumes', async (): Promise<VolumeListInfo[]> => {
-      return containerProviderRegistry.listVolumes();
-    });
+    this.ipcHandle(
+      'container-provider-registry:listVolumes',
+      async (_listener, fetchUsage: boolean): Promise<VolumeListInfo[]> => {
+        return containerProviderRegistry.listVolumes(fetchUsage);
+      },
+    );
 
     this.ipcHandle('container-provider-registry:reconnectContainerProviders', async (): Promise<void> => {
       return containerProviderRegistry.reconnectContainerProviders();

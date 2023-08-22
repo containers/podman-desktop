@@ -64,7 +64,7 @@ const eventStore = new EventStore<PodInfo[]>(
   grabAllPods,
   PodIcon,
 );
-eventStore.setup();
+eventStore.setupWithDebounce();
 
 export async function grabAllPods(): Promise<PodInfo[]> {
   let result = await window.listPods();

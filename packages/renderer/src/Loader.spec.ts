@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 import Loader from './Loader.svelte';
 import { render } from '@testing-library/svelte';
 import { router } from 'tinro';

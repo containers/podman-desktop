@@ -740,6 +740,102 @@ describe('listContainers', () => {
     });
     expect(container.State).toBe('running');
   });
+
+  test('list containers with Podman API and null command value', async () => {
+    const containersWithPodmanAPI = [
+      {
+        AutoRemove: false,
+        Command: null,
+        Created: '2023-08-10T15:37:44.555961563+02:00',
+        CreatedAt: '',
+        Exited: true,
+        ExitedAt: 1691674673,
+        ExitCode: 0,
+        Id: '31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4',
+        Image: 'docker.io/library/httpd:latest',
+        ImageID: '911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a',
+        IsInfra: false,
+        Labels: {
+          'io.buildah.version': '1.30.0',
+          maintainer: 'Podman Maintainers',
+        },
+        Mounts: [],
+        Names: ['admiring_wing'],
+        Namespaces: {},
+        Networks: ['podman'],
+        Pid: 0,
+        Pod: '',
+        PodName: '',
+        Ports: [
+          {
+            host_ip: '',
+            container_port: 8080,
+            host_port: 8080,
+            range: 1,
+            protocol: 'tcp',
+          },
+        ],
+        Restarts: 0,
+        Size: null,
+        StartedAt: 1691674664,
+        State: 'running',
+        Status: '',
+      },
+    ];
+
+    nock('http://localhost').get('/v4.2.0/libpod/containers/json?all=true').reply(200, containersWithPodmanAPI);
+
+    // mock listPods
+
+    nock('http://localhost').get('/v4.2.0/libpod/pods/json').reply(200, []);
+
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const libpod = new LibpodDockerode();
+    libpod.enhancePrototypeWithLibPod();
+
+    // set providers with docker being first
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const containers = await containerRegistry.listContainers();
+
+    // ensure the field are correct
+    expect(containers).toBeDefined();
+    expect(containers).toHaveLength(1);
+    const container = containers[0];
+    expect(container.engineId).toBe('podman1');
+    expect(container.engineName).toBe('podman');
+    expect(container.engineType).toBe('podman');
+    expect(container.StartedAt).toBe('2023-08-10T13:37:44.000Z');
+    expect(container.pod).toBeUndefined();
+    expect(container.Id).toBe('31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4');
+    expect(container.Command).toBe(undefined);
+    expect(container.Names).toStrictEqual(['/admiring_wing']);
+    expect(container.Image).toBe('docker.io/library/httpd:latest');
+    expect(container.ImageID).toBe('sha256:911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a');
+    expect(container.Created).toBe(1691674664);
+    expect(container.Ports).toStrictEqual([
+      {
+        IP: '',
+        PrivatePort: 8080,
+        PublicPort: 8080,
+        Type: 'tcp',
+      },
+    ]);
+    expect(container.Labels).toStrictEqual({
+      'io.buildah.version': '1.30.0',
+      maintainer: 'Podman Maintainers',
+    });
+    expect(container.State).toBe('running');
+  });
 });
 
 test('pull unknown image ', async () => {
@@ -923,6 +1019,376 @@ describe('buildImage', () => {
       registryconfig: {},
       dockerfile: '/dir/dockerfile',
       t: 'name',
+    });
+  });
+});
+
+describe('listVolumes', () => {
+  test('with fetching the volumes size', async () => {
+    const volumesDataMock = {
+      Volumes: [
+        {
+          CreatedAt: '2023-08-21T18:35:28+02:00',
+          Driver: 'local',
+          Labels: {},
+          Mountpoint: '/var/lib/containers/storage/volumes/foo/_data',
+          Name: 'foo',
+          Options: {},
+          Scope: 'local',
+        },
+        {
+          CreatedAt: '2023-08-21T18:35:34+02:00',
+          Driver: 'local',
+          Labels: {},
+          Mountpoint: '/var/lib/containers/storage/volumes/fooeeee/_data',
+          Name: 'fooeeee',
+          Options: {},
+          Scope: 'local',
+        },
+        {
+          CreatedAt: '2023-08-21T10:50:52+02:00',
+          Driver: 'local',
+          Labels: {},
+          Mountpoint: '/var/lib/containers/storage/volumes/myFirstVolume/_data',
+          Name: 'myFirstVolume',
+          Options: {},
+          Scope: 'local',
+        },
+      ],
+      Warnings: [],
+    };
+
+    const systemDfDataMock = {
+      LayersSize: 0,
+      // empty images for mock
+      Images: [],
+      Containers: [
+        {
+          Id: '5c69247085f8ae225535a6051515eb08a6d1e79ff8d70d57fda52555b5fce0dd',
+          Names: ['strange_rhodes'],
+          Image: 'ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+          ImageID: 'ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+          Command: '/entrypoint.sh',
+          Created: 1692607778,
+          Ports: null,
+          SizeRw: 1921681,
+          SizeRootFs: 647340350,
+          Labels: {},
+          State: 'running',
+          Status: 'running',
+          HostConfig: {},
+          NetworkSettings: null,
+          Mounts: null,
+        },
+        {
+          Id: 'ae84549539d26cdcafb9865a77bce53ea072fd256cc419b376ce3f33d66bbe75',
+          Names: ['kind_antonelli'],
+          Image: 'ab73c7fd672341e41ec600081253d0b99ea31d0c1acdfb46a1485004472da7ac',
+          ImageID: 'ab73c7fd672341e41ec600081253d0b99ea31d0c1acdfb46a1485004472da7ac',
+          Command: 'nginx -g daemon off;',
+          Created: 1692624321,
+          Ports: null,
+          SizeRw: 12595,
+          SizeRootFs: 196209217,
+          Labels: {},
+          State: 'running',
+          Status: 'running',
+          HostConfig: {},
+          NetworkSettings: null,
+          Mounts: null,
+        },
+        {
+          Id: 'afa18fe0f64509ce24011a0a402852ceb393448951421199c214d912aadc3cf6',
+          Names: ['elegant_mirzakhani'],
+          Image: 'ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+          ImageID: 'ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+          Command: '/entrypoint.sh',
+          Created: 1692607777,
+          Ports: null,
+          SizeRw: 1921687,
+          SizeRootFs: 647340356,
+          Labels: {},
+          State: 'running',
+          Status: 'running',
+          HostConfig: {},
+          NetworkSettings: null,
+          Mounts: null,
+        },
+        {
+          Id: 'e471d29de42a8a411b7bcd6fb0fa1a0f24ce28284d42bd11bd1decd7946dfa3a',
+          Names: ['friendly_keldysh'],
+          Image: 'ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+          ImageID: 'ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+          Command: '/entrypoint.sh',
+          Created: 1692634818,
+          Ports: null,
+          SizeRw: 1920353,
+          SizeRootFs: 647339022,
+          Labels: {},
+          State: 'running',
+          Status: 'running',
+          HostConfig: {},
+          NetworkSettings: null,
+          Mounts: null,
+        },
+        {
+          Id: 'e679f6fde4504a9323810548045ac6bee8dbb006869324b0b80c446b464407f0',
+          Names: ['amazing_tharp'],
+          Image: 'ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+          ImageID: 'ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+          Command: '/entrypoint.sh',
+          Created: 1692607778,
+          Ports: null,
+          SizeRw: 1922070,
+          SizeRootFs: 647340739,
+          Labels: {},
+          State: 'running',
+          Status: 'running',
+          HostConfig: {},
+          NetworkSettings: null,
+          Mounts: null,
+        },
+      ],
+      Volumes: [
+        {
+          Driver: '',
+          Labels: {},
+          Mountpoint: '',
+          Name: 'foo',
+          Options: null,
+          Scope: 'local',
+          UsageData: { RefCount: 0, Size: 0 },
+        },
+        {
+          Driver: '',
+          Labels: {},
+          Mountpoint: '',
+          Name: 'fooeeee',
+          Options: null,
+          Scope: 'local',
+          UsageData: { RefCount: 0, Size: 0 },
+        },
+        {
+          Driver: '',
+          Labels: {},
+          Mountpoint: '',
+          Name: 'myFirstVolume',
+          Options: null,
+          Scope: 'local',
+          UsageData: { RefCount: 1, Size: 83990640 },
+        },
+      ],
+      BuildCache: [],
+    };
+
+    const containersJsonMock = [
+      {
+        Id: 'ae84549539d26cdcafb9865a77bce53ea072fd256cc419b376ce3f33d66bbe75',
+        Names: ['/kind_antonelli'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ab73c7fd672341e41ec600081253d0b99ea31d0c1acdfb46a1485004472da7ac',
+        Created: 1692624321,
+        Mounts: [
+          {
+            Type: 'volume',
+            Name: 'myFirstVolume',
+            Source: '/var/lib/containers/storage/volumes/myFirstVolume/_data',
+            Destination: '/app',
+            Driver: 'local',
+            Mode: '',
+            RW: true,
+            Propagation: 'rprivate',
+          },
+        ],
+      },
+      {
+        Id: 'afa18fe0f64509ce24011a0a402852ceb393448951421199c214d912aadc3cf6',
+        Names: ['/elegant_mirzakhani'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+        Command: '/entrypoint.sh',
+        Created: 1692607777,
+        Mounts: [],
+      },
+      {
+        Id: 'e471d29de42a8a411b7bcd6fb0fa1a0f24ce28284d42bd11bd1decd7946dfa3a',
+        Names: ['/friendly_keldysh'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+        Command: '/entrypoint.sh',
+        Created: 1692634818,
+        Mounts: [],
+      },
+      {
+        Id: 'e679f6fde4504a9323810548045ac6bee8dbb006869324b0b80c446b464407f0',
+        Names: ['/amazing_tharp'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+        Command: '/entrypoint.sh',
+        Created: 1692607778,
+        Ports: [],
+        Mounts: [],
+      },
+    ];
+
+    nock('http://localhost').get('/volumes').reply(200, volumesDataMock);
+    nock('http://localhost').get('/containers/json?all=true').reply(200, containersJsonMock);
+    nock('http://localhost').get('/system/df').reply(200, systemDfDataMock);
+
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set provider
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    // ask for volumes and data
+    const volumes = await containerRegistry.listVolumes(true);
+
+    // ensure the field are correct
+    expect(volumes).toBeDefined();
+    expect(volumes).toHaveLength(1);
+    const volume = volumes[0];
+    expect(volume.engineId).toBe('podman1');
+    expect(volume.engineName).toBe('podman');
+    expect(volume.Volumes).toHaveLength(3);
+
+    const volumeData = volume.Volumes[2];
+
+    expect(volumeData.Name).toBe('myFirstVolume');
+
+    // check UsageData is set (provided by system/df)
+    // refcount is 1 as one container is using it
+    expect(volumeData.UsageData).toStrictEqual({
+      RefCount: 1,
+      Size: 83990640,
+    });
+  });
+
+  test('without fetching the volumes size', async () => {
+    const volumesDataMock = {
+      Volumes: [
+        {
+          CreatedAt: '2023-08-21T18:35:28+02:00',
+          Driver: 'local',
+          Labels: {},
+          Mountpoint: '/var/lib/containers/storage/volumes/foo/_data',
+          Name: 'foo',
+          Options: {},
+          Scope: 'local',
+        },
+        {
+          CreatedAt: '2023-08-21T18:35:34+02:00',
+          Driver: 'local',
+          Labels: {},
+          Mountpoint: '/var/lib/containers/storage/volumes/fooeeee/_data',
+          Name: 'fooeeee',
+          Options: {},
+          Scope: 'local',
+        },
+        {
+          CreatedAt: '2023-08-21T10:50:52+02:00',
+          Driver: 'local',
+          Labels: {},
+          Mountpoint: '/var/lib/containers/storage/volumes/myFirstVolume/_data',
+          Name: 'myFirstVolume',
+          Options: {},
+          Scope: 'local',
+        },
+      ],
+      Warnings: [],
+    };
+
+    const containersJsonMock = [
+      {
+        Id: 'ae84549539d26cdcafb9865a77bce53ea072fd256cc419b376ce3f33d66bbe75',
+        Names: ['/kind_antonelli'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ab73c7fd672341e41ec600081253d0b99ea31d0c1acdfb46a1485004472da7ac',
+        Created: 1692624321,
+        Mounts: [
+          {
+            Type: 'volume',
+            Name: 'myFirstVolume',
+            Source: '/var/lib/containers/storage/volumes/myFirstVolume/_data',
+            Destination: '/app',
+            Driver: 'local',
+            Mode: '',
+            RW: true,
+            Propagation: 'rprivate',
+          },
+        ],
+      },
+      {
+        Id: 'afa18fe0f64509ce24011a0a402852ceb393448951421199c214d912aadc3cf6',
+        Names: ['/elegant_mirzakhani'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+        Command: '/entrypoint.sh',
+        Created: 1692607777,
+        Mounts: [],
+      },
+      {
+        Id: 'e471d29de42a8a411b7bcd6fb0fa1a0f24ce28284d42bd11bd1decd7946dfa3a',
+        Names: ['/friendly_keldysh'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+        Command: '/entrypoint.sh',
+        Created: 1692634818,
+        Mounts: [],
+      },
+      {
+        Id: 'e679f6fde4504a9323810548045ac6bee8dbb006869324b0b80c446b464407f0',
+        Names: ['/amazing_tharp'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+        Command: '/entrypoint.sh',
+        Created: 1692607778,
+        Ports: [],
+        Mounts: [],
+      },
+    ];
+
+    nock('http://localhost').get('/volumes').reply(200, volumesDataMock);
+    nock('http://localhost').get('/containers/json?all=true').reply(200, containersJsonMock);
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set provider
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    // ask for volumes and data
+    const volumes = await containerRegistry.listVolumes(false);
+
+    // ensure the field are correct
+    expect(volumes).toBeDefined();
+    expect(volumes).toHaveLength(1);
+    const volume = volumes[0];
+    expect(volume.engineId).toBe('podman1');
+    expect(volume.engineName).toBe('podman');
+    expect(volume.Volumes).toHaveLength(3);
+
+    const volumeData = volume.Volumes[2];
+
+    expect(volumeData.Name).toBe('myFirstVolume');
+
+    // check UsageData is set (provided by system/df)
+    // refcount is 1 as one container is using it
+    // but size is -1 as we skip system df call
+    expect(volumeData.UsageData).toStrictEqual({
+      RefCount: 1,
+      Size: -1,
     });
   });
 });

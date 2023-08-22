@@ -24,6 +24,7 @@
 
 import * as assert from 'assert';
 import { TokenType, type Token, Scanner } from './scanner';
+import { test } from 'vitest';
 
 function tokenTypeToStr(token: Token) {
   switch (token.type) {
