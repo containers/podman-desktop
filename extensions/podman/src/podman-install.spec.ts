@@ -17,10 +17,9 @@
  ***********************************************************************/
 
 import { WinInstaller } from './podman-install';
-import { beforeEach, expect, type Mock, test, vi, afterEach } from 'vitest';
+import { beforeEach, expect, test, vi, afterEach } from 'vitest';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
-import { runCliCommand } from './util';
 
 const originalConsoleError = console.error;
 const consoleErrorMock = vi.fn();
@@ -33,6 +32,9 @@ vi.mock('@podman-desktop/api', async () => {
       showErrorMessage: vi.fn(),
     },
     ProgressLocation: {},
+    process: {
+      exec: vi.fn(),
+    },
   };
 });
 
@@ -63,9 +65,15 @@ test('expect update on windows to show notification in case of 0 exit code', asy
     return task(progress, undefined);
   });
 
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        resolve({} as extensionApi.RunResult);
+      }),
+  );
+
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-  (runCliCommand as Mock).mockResolvedValue({ exitCode: 0 });
 
   const installer = new WinInstaller();
   const result = await installer.update();
@@ -77,10 +85,16 @@ test('expect update on windows not to show notification in case of 1602 exit cod
   vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((options, task) => {
     return task(progress, undefined);
   });
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>((resolve, reject) => {
+        // eslint-disable-next-line prefer-promise-reject-errors
+        reject({ exitCode: 1602 } as extensionApi.RunError);
+      }),
+  );
 
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-  (runCliCommand as Mock).mockResolvedValue({ exitCode: 1602 });
 
   const installer = new WinInstaller();
   const result = await installer.update();
@@ -93,9 +107,16 @@ test('expect update on windows to throw error if non zero exit code', async () =
     return task(progress, undefined);
   });
 
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>((resolve, reject) => {
+        // eslint-disable-next-line prefer-promise-reject-errors
+        reject({ exitCode: -1, stderr: 'CustomError' } as extensionApi.RunError);
+      }),
+  );
+
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-  (runCliCommand as Mock).mockResolvedValue({ exitCode: -1, stdErr: 'CustomError' });
 
   const installer = new WinInstaller();
   const result = await installer.update();
