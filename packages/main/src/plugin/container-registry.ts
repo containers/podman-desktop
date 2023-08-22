@@ -303,7 +303,7 @@ export class ContainerProviderRegistry {
             Names: string[];
             Image: string;
             ImageID: string;
-            Command: string;
+            Command?: string;
             Created: number;
             Ports: ContainerPortInfo[];
             Labels: { [label: string]: string };
@@ -354,7 +354,7 @@ export class ContainerProviderRegistry {
                 Created: moment(podmanContainer.Created).unix(),
                 State: podmanContainer.State,
                 StartedAt,
-                Command: podmanContainer.Command[0],
+                Command: podmanContainer.Command?.length > 0 ? podmanContainer.Command[0] : undefined,
                 Labels,
                 Ports,
               };

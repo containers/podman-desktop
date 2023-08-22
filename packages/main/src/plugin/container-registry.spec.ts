@@ -740,6 +740,102 @@ describe('listContainers', () => {
     });
     expect(container.State).toBe('running');
   });
+
+  test('list containers with Podman API and null command value', async () => {
+    const containersWithPodmanAPI = [
+      {
+        AutoRemove: false,
+        Command: null,
+        Created: '2023-08-10T15:37:44.555961563+02:00',
+        CreatedAt: '',
+        Exited: true,
+        ExitedAt: 1691674673,
+        ExitCode: 0,
+        Id: '31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4',
+        Image: 'docker.io/library/httpd:latest',
+        ImageID: '911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a',
+        IsInfra: false,
+        Labels: {
+          'io.buildah.version': '1.30.0',
+          maintainer: 'Podman Maintainers',
+        },
+        Mounts: [],
+        Names: ['admiring_wing'],
+        Namespaces: {},
+        Networks: ['podman'],
+        Pid: 0,
+        Pod: '',
+        PodName: '',
+        Ports: [
+          {
+            host_ip: '',
+            container_port: 8080,
+            host_port: 8080,
+            range: 1,
+            protocol: 'tcp',
+          },
+        ],
+        Restarts: 0,
+        Size: null,
+        StartedAt: 1691674664,
+        State: 'running',
+        Status: '',
+      },
+    ];
+
+    nock('http://localhost').get('/v4.2.0/libpod/containers/json?all=true').reply(200, containersWithPodmanAPI);
+
+    // mock listPods
+
+    nock('http://localhost').get('/v4.2.0/libpod/pods/json').reply(200, []);
+
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const libpod = new LibpodDockerode();
+    libpod.enhancePrototypeWithLibPod();
+
+    // set providers with docker being first
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const containers = await containerRegistry.listContainers();
+
+    // ensure the field are correct
+    expect(containers).toBeDefined();
+    expect(containers).toHaveLength(1);
+    const container = containers[0];
+    expect(container.engineId).toBe('podman1');
+    expect(container.engineName).toBe('podman');
+    expect(container.engineType).toBe('podman');
+    expect(container.StartedAt).toBe('2023-08-10T13:37:44.000Z');
+    expect(container.pod).toBeUndefined();
+    expect(container.Id).toBe('31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4');
+    expect(container.Command).toBe(undefined);
+    expect(container.Names).toStrictEqual(['/admiring_wing']);
+    expect(container.Image).toBe('docker.io/library/httpd:latest');
+    expect(container.ImageID).toBe('sha256:911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a');
+    expect(container.Created).toBe(1691674664);
+    expect(container.Ports).toStrictEqual([
+      {
+        IP: '',
+        PrivatePort: 8080,
+        PublicPort: 8080,
+        Type: 'tcp',
+      },
+    ]);
+    expect(container.Labels).toStrictEqual({
+      'io.buildah.version': '1.30.0',
+      maintainer: 'Podman Maintainers',
+    });
+    expect(container.State).toBe('running');
+  });
 });
 
 test('pull unknown image ', async () => {
