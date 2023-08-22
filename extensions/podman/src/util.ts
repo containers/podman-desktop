@@ -18,8 +18,7 @@
 
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { spawn } from 'node:child_process';
-import { getInstallationPath } from './podman-cli';
+import type { LifecycleContext, Logger } from '@podman-desktop/api';
 
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
@@ -47,12 +46,6 @@ export function isDev(): boolean {
   return isEnvSet ? envSet : false;
 }
 
-export interface SpawnResult {
-  exitCode: number;
-  stdOut: string;
-  stdErr: string;
-}
-
 export interface RunOptions {
   env?: NodeJS.ProcessEnv;
 }
@@ -67,44 +60,50 @@ export function getAssetsFolder(): string {
   }
 }
 
-export function runCliCommand(command: string, args: string[], options?: RunOptions): Promise<SpawnResult> {
-  return new Promise((resolve, reject) => {
-    let output = '';
-    let err = '';
-    let env = Object.assign({}, process.env); // clone original env object
+/**
+ * LoggerDelegator class implements the Logger interface and acts as a delegator for multiple Logger instances.
+ * It allows to combine multiple loggers into a single logger and forwards log, error, and warn messages to each
+ * individual logger in its internal list.
+ *
+ * This class addresses a specific use case where the new process API requires a single logger object, but we have
+ * separate loggers and lifecycle contexts, where each lifecycle context also contains a logger object.
+ * To accommodate this scenario, this adapter is created to hold multiple logger objects
+ * and delegate method calls to each of them, providing a unified logger interface for the process API.
+ *
+ * If a similar use case arises in other extensions, it will be necessary to extend the RunOptions interface
+ * by adding a new field called `lifecycleContext` that can hold a LifecycleContext instance.
+ * Subsequently, the LoggerDelegator class can be removed, and the new RunOptions interface with the `lifecycleContext`
+ * field can be used directly, simplifying the process of passing the logger to the process API while preserving
+ * the necessary functionalities.
+ */
+export class LoggerDelegator implements Logger {
+  private loggers: Logger[] = [];
 
-    // In production mode, applications don't have access to the 'user' path like brew
-    if (isMac() || isWindows()) {
-      env.PATH = getInstallationPath();
-      if (isWindows()) {
-        // Escape any whitespaces in command
-        command = `"${command}"`;
+  constructor(...loggersOrContexts: (Logger | LifecycleContext)[]) {
+    loggersOrContexts.forEach(loggerOrContext => {
+      if (loggerOrContext === undefined) {
+        return;
       }
-    } else if (env.FLATPAK_ID) {
-      // need to execute the command on the host
-      args = ['--host', command, ...args];
-      command = 'flatpak-spawn';
-    }
+      if (typeof loggerOrContext.log === 'object') {
+        this.loggers.push(loggerOrContext.log);
+      } else if (typeof loggerOrContext.log === 'function') {
+        this.loggers.push(loggerOrContext as Logger);
+      }
+    });
+  }
 
-    if (options?.env) {
-      env = Object.assign(env, options.env);
-    }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  log(...data: any[]): void {
+    this.loggers.forEach(logger => logger.log(...data));
+  }
 
-    const spawnProcess = spawn(command, args, { shell: isWindows(), env });
-    spawnProcess.on('error', err => {
-      reject(err);
-    });
-    spawnProcess.stdout.setEncoding('utf8');
-    spawnProcess.stdout.on('data', data => {
-      output += data;
-    });
-    spawnProcess.stderr.setEncoding('utf8');
-    spawnProcess.stderr.on('data', data => {
-      err += data;
-    });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error(...data: any[]): void {
+    this.loggers.forEach(logger => logger.error(...data));
+  }
 
-    spawnProcess.on('close', exitCode => {
-      resolve({ exitCode, stdOut: output, stdErr: err });
-    });
-  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  warn(...data: any[]): void {
+    this.loggers.forEach(logger => logger.warn(...data));
+  }
 }
