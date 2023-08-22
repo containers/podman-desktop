@@ -20,7 +20,7 @@
 
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
-import { expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 import type { VolumeInspectInfo } from '../../../main/src/plugin/api/volume-info';
 import { fetchVolumes, volumeListInfos, volumesEventStore } from './volumes';
 
