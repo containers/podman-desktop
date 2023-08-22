@@ -52,8 +52,10 @@ export async function checkForUpdate(eventName: string): Promise<boolean> {
 export const volumeListInfos: Writable<VolumeListInfo[]> = writable([]);
 
 // use helper here as window methods are initialized after the store in tests
-const listVolumes = (): Promise<VolumeListInfo[]> => {
-  return window.listVolumes();
+const listVolumes = (...args: unknown[]): Promise<VolumeListInfo[]> => {
+  const fetchUsage = args?.length > 0 && args[0] === 'fetchUsage';
+
+  return window.listVolumes(fetchUsage);
 };
 
 export const volumesEventStore = new EventStore<VolumeListInfo[]>(
@@ -84,13 +86,6 @@ export const filtered = derived([searchPattern, volumeListInfos], ([$searchPatte
   });
 });
 
-export let volumesInitialized = false;
-
-export const fetchVolumes = async () => {
-  await volumesEventStoreInfo.fetch();
-  volumesInitialized = true;
-};
-
-export const resetInitializationVolumes = () => {
-  volumesInitialized = false;
+export const fetchVolumesWithData = async () => {
+  await volumesEventStoreInfo.fetch('fetchUsage');
 };

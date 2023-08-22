@@ -22,7 +22,7 @@ import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
 import type { VolumeInspectInfo } from '../../../main/src/plugin/api/volume-info';
-import { fetchVolumes, volumeListInfos, volumesEventStore } from './volumes';
+import { fetchVolumesWithData, volumeListInfos, volumesEventStore } from './volumes';
 
 // first, path window object
 const callbacks = new Map<string, any>();
@@ -70,7 +70,7 @@ test('volumes should be updated in case of a container is removed', async () => 
   await callback();
 
   // now ready to fetch volumes
-  await fetchVolumes();
+  await fetchVolumesWithData();
 
   // now get list
   const volumes = get(volumeListInfos);
