@@ -62,8 +62,23 @@ jobs:
 
       - uses: actions/upload-artifact@v3.1.2
         with:
-          name: windows-exe
-          path: ./dist/podman-desktop*.exe
+          name: windows-installer-x64
+          path: ./dist/podman-desktop*-setup-x64.exe
+
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: windows-installer-arm64
+          path: ./dist/podman-desktop*-setup-arm64.exe
+
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: windows-exe-x64
+          path: ./dist/podman-desktop*-next-x64.exe
+
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: windows-exe-arm64
+          path: ./dist/podman-desktop*-next-arm64.exe
 
   linux:
     name: Linux

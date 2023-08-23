@@ -74,13 +74,22 @@ const config = {
   },
   files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**'],
   portable: {
-    artifactName: `podman-desktop${artifactNameSuffix}-\${version}.\${ext}`,
+    artifactName: `podman-desktop${artifactNameSuffix}-\${version}-\${arch}.\${ext}`,
   },
   nsis: {
-    artifactName: `podman-desktop${artifactNameSuffix}-\${version}-setup.\${ext}`,
+    artifactName: `podman-desktop${artifactNameSuffix}-\${version}-setup-\${arch}.\${ext}`,
   },
   win: {
-    target: ['portable', 'nsis'],
+    target: [
+      {
+        target: 'portable',
+        arch: ['x64', 'arm64'],
+      },
+      {
+        target: 'nsis',
+        arch: ['x64', 'arm64'],
+      },
+    ],
     sign: configuration => azureCodeSign(configuration.path),
   },
   flatpak: {
