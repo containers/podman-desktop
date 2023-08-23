@@ -99,3 +99,21 @@ $ podman machine init
 ```
 
 You should be a happy camper from here.
+
+## Recovering from a failed start
+
+After a failed start, the Podman machine might be unable to start because a QEMU process is still running and the PID file is in use.
+
+#### Workaround
+
+1. Kill the remaining QEMU process and stop the Podman machine:
+
+   ```shell-session
+   $ ps -edf | grep qemu-system | grep -v grep | awk '{print $2}' | xargs -I{} kill -9 {}; podman machine stop
+   ```
+
+2. Start the Podman machine.
+
+#### Solution
+
+Use Podman 4.6.1 or greater.

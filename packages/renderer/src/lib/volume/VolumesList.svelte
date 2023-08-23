@@ -4,7 +4,7 @@ import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
 import type { VolumeInfoUI } from './VolumeInfoUI';
-import { fetchVolumes, filtered, searchPattern, volumeListInfos, volumesInitialized } from '../../stores/volumes';
+import { fetchVolumesWithData, filtered, searchPattern, volumeListInfos } from '../../stores/volumes';
 import { providerInfos } from '../../stores/providers';
 import NavPage from '../ui/NavPage.svelte';
 import { VolumeUtils } from './volume-utils';
@@ -16,10 +16,9 @@ import StatusIcon from '../images/StatusIcon.svelte';
 import Prune from '../engine/Prune.svelte';
 import moment from 'moment';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 import Checkbox from '../ui/Checkbox.svelte';
 import Button from '../ui/Button.svelte';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPieChart, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -41,24 +40,8 @@ $: selectedAllCheckboxes = volumes.filter(volume => !volume.inUse).every(volume 
 
 const volumeUtils = new VolumeUtils();
 
-let fetchingInProgress = false;
-
 let volumesUnsubscribe: Unsubscriber;
 onMount(async () => {
-  if (!volumesInitialized) {
-    fetchingInProgress = true;
-    try {
-      await fetchVolumes();
-    } finally {
-      fetchingInProgress = false;
-    }
-  } else {
-    // fetch in background
-    fetchVolumes().catch((error: unknown) => {
-      console.error('unable to fetch the volumes', error);
-    });
-  }
-
   volumesUnsubscribe = filtered.subscribe(value => {
     const computedVolumes = value
       .map(volumeListInfo => volumeListInfo.Volumes)
@@ -187,12 +170,28 @@ function computeInterval(): number {
   // every day
   return 60 * 60 * 24 * SECOND;
 }
+
+let fetchDataInProgress = false;
+async function fetchUsageData() {
+  fetchDataInProgress = true;
+  try {
+    await fetchVolumesWithData();
+  } finally {
+    fetchDataInProgress = false;
+  }
+}
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="volumes">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     {#if $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length > 0}
       <Prune type="volumes" engines="{enginesList}" />
+
+      <Button
+        inProgress="{fetchDataInProgress}"
+        on:click="{() => fetchUsageData()}"
+        title="Collect usage data for volumes. It can take a while..."
+        icon="{faPieChart}">Collect usage data</Button>
     {/if}
   </div>
 
@@ -281,11 +280,6 @@ function computeInterval(): number {
 
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
-    {:else if fetchingInProgress}
-      <EmptyScreen
-        icon="{VolumeIcon}"
-        title="Fetching volumes..."
-        message="Grabbing volumes from your container engine(s)." />
     {:else if $filtered.map(volumeInfo => volumeInfo.Volumes).flat().length === 0}
       <VolumeEmptyScreen />
     {/if}

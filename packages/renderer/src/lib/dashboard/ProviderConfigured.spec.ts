@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, vi } from 'vitest';
 import { verifyStatus } from './ProviderStatusTestHelper.spec';
 import ProviderConfigured from '/@/lib/dashboard/ProviderConfigured.svelte';

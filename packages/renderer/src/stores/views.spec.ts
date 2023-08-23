@@ -20,7 +20,7 @@
 
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
-import { expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 import { fetchViews, viewsEventStore, viewsContributions } from './views';
 import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
 

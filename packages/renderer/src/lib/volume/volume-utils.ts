@@ -39,6 +39,10 @@ export class VolumeUtils {
   }
 
   getSize(volumeInfo: VolumeInfo): string {
+    // handle missing case
+    if (volumeInfo.UsageData?.Size === -1) {
+      return 'N/A';
+    }
     if (volumeInfo.UsageData?.Size) {
       return `${filesize(volumeInfo.UsageData?.Size, { roundingMethod: 'round' })}`;
     }

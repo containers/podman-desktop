@@ -18,10 +18,8 @@
 
 import * as os from 'node:os';
 import * as path from 'node:path';
-import type { ChildProcess } from 'node:child_process';
-import { spawn } from 'node:child_process';
 import * as sudo from 'sudo-prompt';
-import type * as extensionApi from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
 import * as http from 'node:http';
 
@@ -67,7 +65,7 @@ export function getKindPath(): string {
 // search if kind is available in the path
 export async function detectKind(pathAddition: string, installer: KindInstaller): Promise<string> {
   try {
-    await runCliCommand('kind', ['--version'], { env: { PATH: getKindPath() } });
+    await extensionApi.process.exec('kind', ['--version'], { env: { PATH: getKindPath() } });
     return 'kind';
   } catch (e) {
     // ignore and try another way
@@ -76,7 +74,7 @@ export async function detectKind(pathAddition: string, installer: KindInstaller)
   const assetInfo = await installer.getAssetInfo();
   if (assetInfo) {
     try {
-      await runCliCommand(assetInfo.name, ['--version'], {
+      await extensionApi.process.exec(assetInfo.name, ['--version'], {
         env: { PATH: getKindPath().concat(path.delimiter).concat(pathAddition) },
       });
       return pathAddition.concat(path.sep).concat(isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
@@ -85,89 +83,6 @@ export async function detectKind(pathAddition: string, installer: KindInstaller)
     }
   }
   return undefined;
-}
-
-export function runCliCommand(
-  command: string,
-  args: string[],
-  options?: RunOptions,
-  token?: extensionApi.CancellationToken,
-): Promise<SpawnResult> {
-  return new Promise((resolve, reject) => {
-    let stdOut = '';
-    let stdErr = '';
-    let err = '';
-    let env = Object.assign({}, process.env); // clone original env object
-
-    // In production mode, applications don't have access to the 'user' path like brew
-    if (isMac() || isWindows()) {
-      env.PATH = getKindPath();
-      if (isWindows()) {
-        // Escape any whitespaces in command
-        command = `"${command}"`;
-      }
-    } else if (env.FLATPAK_ID) {
-      // need to execute the command on the host
-      args = ['--host', command, ...args];
-      command = 'flatpak-spawn';
-    }
-
-    if (options?.env) {
-      env = Object.assign(env, options.env);
-    }
-
-    const spawnProcess = spawn(command, args, { shell: isWindows(), env });
-
-    // if the token is cancelled, kill the process and reject the promise
-    token?.onCancellationRequested(() => {
-      killProcess(spawnProcess);
-      options?.logger?.error('Execution cancelled');
-      // reject the promise
-      reject(new Error('Execution cancelled'));
-    });
-    // do not reject as we want to store exit code in the result
-    spawnProcess.on('error', error => {
-      if (options?.logger) {
-        options.logger.error(error);
-      }
-      stdErr += error;
-      err += error;
-    });
-
-    spawnProcess.stdout.setEncoding('utf8');
-    spawnProcess.stdout.on('data', data => {
-      if (options?.logger) {
-        options.logger.log(data);
-      }
-      stdOut += data;
-    });
-    spawnProcess.stderr.setEncoding('utf8');
-    spawnProcess.stderr.on('data', data => {
-      if (args?.[0] === 'create' || args?.[0] === 'delete') {
-        if (options?.logger) {
-          options.logger.log(data);
-        }
-        if (typeof data === 'string' && data.indexOf('error') >= 0) {
-          stdErr += data;
-        } else {
-          stdOut += data;
-        }
-      } else {
-        stdErr += data;
-      }
-    });
-
-    spawnProcess.on('close', exitCode => {
-      if (exitCode === 0) {
-        resolve({ stdOut, stdErr, error: err });
-      } else {
-        if (options?.logger) {
-          options.logger.error(stdErr);
-        }
-        reject(new Error(stdErr));
-      }
-    });
-  });
 }
 
 // Takes a binary path (e.g. /tmp/kind) and installs it to the system. Renames it based on binaryName
@@ -181,7 +96,7 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
   // Before copying the file, make sure it's executable (chmod +x) for Linux and Mac
   if (system === 'linux' || system === 'darwin') {
     try {
-      await runCliCommand('chmod', ['+x', binaryPath]);
+      await extensionApi.process.exec('chmod', ['+x', binaryPath]);
       console.log(`Made ${binaryPath} executable`);
     } catch (error) {
       throw new Error(`Error making binary executable: ${error}`);
@@ -223,20 +138,12 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
   } else {
     try {
       // Use pkexec in order to elevate the prileges / ask for password for copying to /usr/local/bin
-      await runCliCommand('pkexec', command);
+      await extensionApi.process.exec('pkexec', command);
       console.log(`Successfully installed '${binaryName}' binary.`);
     } catch (error) {
       console.error(`Failed to install '${binaryName}' binary: ${error}`);
       throw error;
     }
-  }
-}
-
-function killProcess(spawnProcess: ChildProcess) {
-  if (isWindows()) {
-    spawn('taskkill', ['/pid', spawnProcess.pid?.toString(), '/f', '/t']);
-  } else {
-    spawnProcess.kill();
   }
 }
 
