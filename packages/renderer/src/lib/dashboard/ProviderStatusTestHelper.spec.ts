@@ -24,7 +24,7 @@ import { render, screen } from '@testing-library/svelte';
 import type { ProviderStatus } from '@podman-desktop/api';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
-import { expect } from 'vitest';
+import { expect, test } from 'vitest';
 
 type Constructor<T> = new (...args: any[]) => T;
 

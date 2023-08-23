@@ -16,19 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import LinuxControlButton from './LinuxControlButton.svelte';
-
-test('Check Minimize', async () => {
-  render(LinuxControlButton, { name: 'Minimize' });
-
-  const customButton = screen.getByRole('button', { name: 'Minimize' });
-  expect(customButton).toBeInTheDocument();
-
-  // check the title of the button is 'Maximize'
-  expect(customButton).toHaveAttribute('title', 'Minimize');
-});
+export enum ExtensionLoaderSettings {
+  SectionName = 'extensions',
+  MaxActivationTime = 'maxActivationTime',
+}

@@ -8,6 +8,16 @@
 
 In the below example, we will pretend that we're upgrading from `0.11.0` to `0.12.0`. Please use the CORRECT release numbers as these are just example numbers.
 
+## Release timeline
+
+Below is what a typical release week may look like:
+
+- **Monday (Notify):** 48-hour notification. Communicate to maintainers and public channels a release will be cut on Wednesday and to merge any pending PRs. Inform QE team. Start work on blog post as it is usually the longest part of the release process.
+- **Tuesday (Staging, Testing & Blog):** Stage the release (see instructions below) to create a new cut of the release to test. Test the pre-release (master branch) build briefly. Get feedback from committers (if applicable). Push the blog post for review (as it usually takes a few back-and-forth reviews on documentation).
+- **Wednesday (Release):** Cut the new release using the below release process. The release will take 24 hours for release to hit all release channels (Flatpak, Brew, Chocolatey, etc.). We aim to have a release out _by Thursday_ so we do not have any surprises leading into the weekend.
+- **Thursday (Post-release Testing & Blog):** Test the post-release build briefly for any critical bugs. Confirm that new release has been pushed to all release channels. Push the blog post live.
+- **Friday (Communicate):** Friday is statistically the best day for new announcements. Post on internal channels. Post on reddit, hackernews, twitter, etc.
+
 ## Releasing on GitHub
 
 1. Go to https://github.com/containers/podman-desktop/actions/workflows/release.yaml

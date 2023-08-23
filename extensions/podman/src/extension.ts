@@ -24,14 +24,15 @@ import * as fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import { RegistrySetup } from './registry-setup';
 
-import { getAssetsFolder, isLinux, isMac, isWindows, appHomeDir } from './util';
+import { getAssetsFolder, isLinux, isMac, isWindows, appHomeDir, LoggerDelegator } from './util';
 import { PodmanInstall } from './podman-install';
 import type { InstalledPodman } from './podman-cli';
-import { execPromise, getPodmanCli, getPodmanInstallation } from './podman-cli';
+import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { getDetectionChecks } from './detection-checks';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { getSocketCompatibility } from './compatibility-mode';
+import type { RunError } from '@podman-desktop/api';
 import { compareVersions } from 'compare-versions';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
@@ -90,7 +91,7 @@ export type MachineInfo = {
 
 async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   // init machines available
-  const machineListOutput = await execPromise(getPodmanCli(), ['machine', 'list', '--format', 'json']);
+  const machineListOutput = await getJSONMachineList();
 
   // parse output
   const machines = JSON.parse(machineListOutput) as MachineJSON[];
@@ -152,21 +153,23 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       let socketPath;
       try {
         if (isWindows()) {
-          socketPath = await execPromise(getPodmanCli(), [
+          const { stdout: socket } = await extensionApi.process.exec(getPodmanCli(), [
             'machine',
             'inspect',
             '--format',
             '{{.ConnectionInfo.PodmanPipe.Path}}',
             machineName,
           ]);
+          socketPath = socket;
         } else {
-          socketPath = await execPromise(getPodmanCli(), [
+          const { stdout: socket } = await extensionApi.process.exec(getPodmanCli(), [
             'machine',
             'inspect',
             '--format',
             '{{.ConnectionInfo.PodmanSocket.Path}}',
             machineName,
           ]);
+          socketPath = socket;
         }
       } catch (error) {
         console.debug('Podman extension:', 'Failed to read socketPath from machine inspect');
@@ -254,7 +257,7 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
     if (result === 'Yes') {
       try {
         // make it the default to run the info command
-        await execPromise(getPodmanCli(), ['system', 'connection', 'default', runningMachine.Name]);
+        await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'default', runningMachine.Name]);
       } catch (error) {
         // eslint-disable-next-line quotes
         console.error("Error running 'podman system connection default': ", error);
@@ -265,7 +268,12 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
       try {
         // after updating the default connection using the rootless connection, we verify if the machine has been
         // created as rootful. If so, the default connection must be set to the rootful connection
-        const machineInfoJson = await execPromise(getPodmanCli(), ['machine', 'info', '--format', 'json']);
+        const { stdout: machineInfoJson } = await extensionApi.process.exec(getPodmanCli(), [
+          'machine',
+          'info',
+          '--format',
+          'json',
+        ]);
         const machineInfo = JSON.parse(machineInfoJson);
         const filepath = path.join(machineInfo.Host.MachineConfigDir, `${runningMachine.Name}.json`);
         if (fs.existsSync(filepath)) {
@@ -274,7 +282,7 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
             const machineConfig = JSON.parse(machineConfigJson);
             // if it's rootful let's update the connection to the rootful one
             if (machineConfig.Rootful) {
-              await execPromise(getPodmanCli(), [
+              await extensionApi.process.exec(getPodmanCli(), [
                 'system',
                 'connection',
                 'default',
@@ -301,7 +309,13 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
 
 async function getDefaultConnection(): Promise<ConnectionJSON | undefined> {
   // init machines available
-  const connectionListOutput = await execPromise(getPodmanCli(), ['system', 'connection', 'list', '--format', 'json']);
+  const { stdout: connectionListOutput } = await extensionApi.process.exec(getPodmanCli(), [
+    'system',
+    'connection',
+    'list',
+    '--format',
+    'json',
+  ]);
 
   // parse output
   const connections = JSON.parse(connectionListOutput) as ConnectionJSON[];
@@ -499,11 +513,13 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
       await startMachine(provider, machineInfo, context, logger);
     },
     stop: async (context, logger): Promise<void> => {
-      await execPromise(getPodmanCli(), ['machine', 'stop', machineInfo.name], { context, logger });
+      await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', machineInfo.name], {
+        logger: new LoggerDelegator(context, logger),
+      });
       provider.updateStatus('ready');
     },
     delete: async (logger): Promise<void> => {
-      await execPromise(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name], { logger });
+      await extensionApi.process.exec(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name], { logger });
     },
   };
 
@@ -546,7 +562,9 @@ export async function startMachine(
 ): Promise<void> {
   try {
     // start the machine
-    await execPromise(getPodmanCli(), ['machine', 'start', machineInfo.name], { context, logger });
+    await extensionApi.process.exec(getPodmanCli(), ['machine', 'start', machineInfo.name], {
+      logger: new LoggerDelegator(context, logger),
+    });
     provider.updateStatus('started');
   } catch (err) {
     if (skipHandleError) {
@@ -562,9 +580,16 @@ export async function startMachine(
 async function doHandleError(
   provider: extensionApi.Provider,
   machineInfo: MachineInfo,
-  error: string | Error,
+  error: string | RunError,
 ): Promise<void> {
-  const errText = error instanceof Error ? error.message : error;
+  let errText: string;
+
+  if (typeof error === 'object' && 'message' in error) {
+    errText = error.message.toString();
+  } else if (typeof error === 'string') {
+    errText = error;
+  }
+
   if (errText.toLowerCase().includes('wsl bootstrap script failed: exit status 0xffffffff')) {
     const handled = await doHandleWSLDistroNotFoundError(provider, machineInfo);
     if (handled) {
@@ -593,7 +618,7 @@ async function doHandleWSLDistroNotFoundError(
         progress.report({ increment: 5 });
         try {
           provider.updateStatus('configuring');
-          await execPromise(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name]);
+          await extensionApi.process.exec(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name]);
           progress.report({ increment: 40 });
           await createMachine(
             {
@@ -997,7 +1022,7 @@ export async function findRunningMachine(): Promise<string> {
   let runningMachine: string;
 
   // Find the machines
-  const machineListOutput = await execPromise(getPodmanCli(), ['machine', 'list', '--format', 'json']);
+  const machineListOutput = await getJSONMachineList();
   const machines = JSON.parse(machineListOutput) as MachineJSON[];
 
   // Find the machine that is running
@@ -1015,7 +1040,7 @@ async function stopAutoStartedMachine() {
     console.log('No machine to stop');
     return;
   }
-  const machineListOutput = await execPromise(getPodmanCli(), ['machine', 'list', '--format', 'json']);
+  const machineListOutput = await getJSONMachineList();
 
   const machines = JSON.parse(machineListOutput) as MachineJSON[];
 
@@ -1028,7 +1053,12 @@ async function stopAutoStartedMachine() {
     return;
   }
   console.log('stopping autostarted machine', autoMachineName);
-  await execPromise(getPodmanCli(), ['machine', 'stop', autoMachineName]);
+  await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', autoMachineName]);
+}
+
+async function getJSONMachineList(): Promise<string> {
+  const { stdout } = await extensionApi.process.exec(getPodmanCli(), ['machine', 'list', '--format', 'json']);
+  return stdout;
 }
 
 export async function deactivate(): Promise<void> {
@@ -1137,7 +1167,7 @@ export async function createMachine(
       }
     }
   }
-  await execPromise(getPodmanCli(), parameters, { logger, env }, token);
+  await extensionApi.process.exec(getPodmanCli(), parameters, { logger, env, token });
 }
 
 function setupDisguisedPodmanSocketWatcher(

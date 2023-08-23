@@ -18,13 +18,13 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import '@testing-library/jest-dom';
-import { beforeAll, test, expect, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { beforeAll, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import VolumesList from './VolumesList.svelte';
 import { get } from 'svelte/store';
 import { providerInfos } from '/@/stores/providers';
-import { fetchVolumes, resetInitializationVolumes, volumeListInfos } from '/@/stores/volumes';
+import { volumeListInfos, volumesEventStore } from '/@/stores/volumes';
 
 const listVolumesMock = vi.fn();
 const getProviderInfosMock = vi.fn();
@@ -51,6 +51,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.clearAllMocks();
   onDidUpdateProviderStatusMock.mockImplementation(() => Promise.resolve());
   getProviderInfosMock.mockResolvedValue([]);
 });
@@ -63,7 +64,7 @@ async function waitRender(customProperties: object): Promise<void> {
   }
 }
 
-test('Expect fetching in progress being displayed', async () => {
+test('Expect No Container Engine being displayed', async () => {
   listVolumesMock.mockResolvedValue([]);
   getProviderInfosMock.mockResolvedValue([
     {
@@ -83,9 +84,7 @@ test('Expect fetching in progress being displayed', async () => {
   expect(noEngine).toBeInTheDocument();
 });
 
-test('Expect no container engines being displayed', async () => {
-  resetInitializationVolumes();
-  listVolumesMock.mockResolvedValue([]);
+test('Expect volumes being displayed once extensions are started (without size data)', async () => {
   getProviderInfosMock.mockResolvedValue([
     {
       name: 'podman',
@@ -99,21 +98,57 @@ test('Expect no container engines being displayed', async () => {
       ],
     },
   ]);
+
+  listVolumesMock.mockResolvedValue([
+    {
+      Volumes: [
+        {
+          Driver: 'local',
+          Labels: {},
+          Mountpoint: '/var/lib/containers/storage/volumes/fedora/_data',
+          Name: '0052074a2ade930338c00aea982a90e4243e6cf58ba920eb411c388630b8c967',
+          Options: {},
+          Scope: 'local',
+          engineName: 'Podman',
+          engineId: 'podman.Podman Machine',
+          UsageData: { RefCount: 1, Size: -1 },
+          containersUsage: [],
+        },
+      ],
+    },
+  ]);
+
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
 
+  // ask to fetch the volumes
+  const volumesEventStoreInfo = volumesEventStore.setup();
+
+  await volumesEventStoreInfo.fetch();
+
+  // first call is with listing without details
+  expect(listVolumesMock).toHaveBeenNthCalledWith(1, false);
+
   // wait store are populated
+  while (get(volumeListInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
   while (get(providerInfos).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
   await waitRender({});
 
-  const noEngine = screen.getByRole('heading', { name: 'Fetching volumes...' });
-  expect(noEngine).toBeInTheDocument();
+  const volumeName = screen.getByRole('cell', { name: '0052074a2ade' });
+  // expect size to be N/A
+  const volumeSize = screen.getByRole('cell', { name: 'N/A' });
+  expect(volumeName).toBeInTheDocument();
+  expect(volumeSize).toBeInTheDocument();
+
+  expect(volumeName.compareDocumentPosition(volumeSize)).toBe(4);
 });
 
-test('Expect volumes being displayed once extensions are started', async () => {
+test('Expect volumes being displayed once extensions are started (with size data)', async () => {
   getProviderInfosMock.mockResolvedValue([
     {
       name: 'podman',
@@ -151,7 +186,12 @@ test('Expect volumes being displayed once extensions are started', async () => {
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
 
   // ask to fetch the volumes
-  await fetchVolumes();
+  const volumesEventStoreInfo = volumesEventStore.setup();
+
+  await volumesEventStoreInfo.fetch('fetchUsage');
+
+  // first call is with listing with details
+  expect(listVolumesMock).toHaveBeenNthCalledWith(1, true);
 
   // wait store are populated
   while (get(volumeListInfos).length === 0) {

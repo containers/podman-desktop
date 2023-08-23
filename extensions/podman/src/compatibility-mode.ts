@@ -20,7 +20,7 @@ import * as extensionApi from '@podman-desktop/api';
 import * as sudo from 'sudo-prompt';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
-import { execPromise, getPodmanCli } from './podman-cli';
+import { getPodmanCli } from './podman-cli';
 import { findRunningMachine } from './extension';
 
 const podmanSystemdSocket = 'podman.socket';
@@ -126,8 +126,8 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     );
     if (result === 'Yes') {
       // Await since we must wait for the machine to stop before starting it again
-      await execPromise(getPodmanCli(), ['machine', 'stop', machine]);
-      await execPromise(getPodmanCli(), ['machine', 'start', machine]);
+      await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', machine]);
+      await extensionApi.process.exec(getPodmanCli(), ['machine', 'start', machine]);
     }
   }
 
@@ -188,7 +188,7 @@ export class LinuxSocketCompatibility extends SocketCompatibility {
 
     try {
       // Have to run via sudo
-      await execPromise('systemctl', fullCommand);
+      await extensionApi.process.exec('systemctl', fullCommand);
     } catch (error) {
       console.error(`Error running systemctl command: ${error}`);
       await extensionApi.window.showErrorMessage(`Error running systemctl command: ${error}`, 'OK');
@@ -207,7 +207,7 @@ export class LinuxSocketCompatibility extends SocketCompatibility {
       // If the user clicked Yes, run the ln command
       if (result === 'Yes') {
         try {
-          await execPromise('pkexec', ['ln', '-s', '/run/podman/podman.sock', '/var/run/docker.sock']);
+          await extensionApi.process.exec('pkexec', ['ln', '-s', '/run/podman/podman.sock', '/var/run/docker.sock']);
           await extensionApi.window.showInformationMessage(
             'Symlink created successfully. The Podman socket is now available at /var/run/docker.sock.',
           );

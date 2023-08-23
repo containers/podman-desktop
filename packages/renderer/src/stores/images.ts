@@ -65,7 +65,7 @@ const imagesEventStore = new EventStore<ImageInfo[]>(
   listImages,
   ImageIcon,
 );
-imagesEventStore.setup();
+imagesEventStore.setupWithDebounce();
 
 export const searchPattern = writable('');
 

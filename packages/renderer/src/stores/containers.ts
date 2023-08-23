@@ -62,7 +62,7 @@ const containersEventStore = new EventStore<ContainerInfo[]>(
   listContainers,
   ContainerIcon,
 );
-containersEventStore.setup();
+containersEventStore.setupWithDebounce();
 
 export const searchPattern = writable('');
 

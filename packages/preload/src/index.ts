@@ -194,8 +194,8 @@ function initExposure(): void {
     return ipcInvoke('container-provider-registry:listImages');
   });
 
-  contextBridge.exposeInMainWorld('listVolumes', async (): Promise<VolumeListInfo[]> => {
-    return ipcInvoke('container-provider-registry:listVolumes');
+  contextBridge.exposeInMainWorld('listVolumes', async (fetchUsage = true): Promise<VolumeListInfo[]> => {
+    return ipcInvoke('container-provider-registry:listVolumes', fetchUsage);
   });
   contextBridge.exposeInMainWorld('removeVolume', async (engine: string, volumeName: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:removeVolume', engine, volumeName);
