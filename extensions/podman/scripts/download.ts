@@ -191,7 +191,7 @@ async function httpsDownloadFile(url, destFile): Promise<void> {
 }
 
 // For Windows binaries, grab the latest release from GitHub repository
-async function downloadFedoraImage(repo: string): Promise<void> {
+async function downloadFedoraImage(repo: string, arch: string): Promise<void> {
   if (downloadAttemptFedora >= MAX_DOWNLOAD_ATTEMPT) {
     console.error('Max download attempt reached, exiting...');
     process.exit(1);
@@ -217,7 +217,6 @@ async function downloadFedoraImage(repo: string): Promise<void> {
     throw new Error(`Can't find assets to download and verify for podman image from repository ${repo}`);
   }
 
-  const arch = 'x64';
   const filename = `podman-image-${arch}.tar.xz`;
   const destFile = path.resolve(destDir, filename);
   if (!fs.existsSync(destFile)) {
@@ -293,7 +292,8 @@ if (platform === 'win32') {
 
   // download the fedora image
   if (process.env.AIRGAP_DOWNLOAD) {
-    downloadFedoraImage('podman-wsl-fedora');
+    downloadFedoraImage('podman-wsl-fedora', 'x64');
+    downloadFedoraImage('podman-wsl-fedora-arm', 'arm64');
   }
 } else if (platform === 'darwin') {
   tagVersion = tools.platform.darwin.version;
