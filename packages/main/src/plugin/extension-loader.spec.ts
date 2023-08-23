@@ -705,3 +705,21 @@ describe('setContextValue', async () => {
     expect(setValueSpy).toBeCalledWith('publisher.name.onboarding.key', 'value');
   });
 });
+
+describe('Removing extension by user', async () => {
+  const ExtID = 'company.ext-id';
+  test('sends telemetry w/o error when whens succeeds', async () => {
+    extensionLoader.removeExtension = vi.fn();
+    await extensionLoader.removeExtensionPerUserRequest(ExtID);
+    expect(extensionLoader.removeExtension).toBeCalledWith(ExtID);
+    expect(telemetry.track).toBeCalledWith('removeExtension', { extensionId: ExtID });
+  });
+
+  test('sends telemetry w/ error when fails', async () => {
+    const RemoveError = 'Error';
+    extensionLoader.removeExtension = vi.fn().mockRejectedValue(RemoveError);
+    await extensionLoader.removeExtensionPerUserRequest(ExtID).catch(() => undefined);
+    expect(extensionLoader.removeExtension).toBeCalledWith(ExtID);
+    expect(telemetry.track).toBeCalledWith('removeExtension', { extensionId: ExtID, error: RemoveError });
+  });
+});

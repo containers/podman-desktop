@@ -1397,20 +1397,7 @@ export class PluginSystem {
     this.ipcHandle(
       'extension-loader:removeExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
-        const telemetryData: {
-          extensionId: string;
-          error?: unknown;
-        } = {
-          extensionId,
-        };
-        try {
-          await this.extensionLoader.removeExtension(extensionId);
-        } catch (error) {
-          telemetryData.error = error;
-          throw error;
-        } finally {
-          await telemetry.track('removeExtension', telemetryData);
-        }
+        return this.extensionLoader.removeExtensionPerUserRequest(extensionId);
       },
     );
 
