@@ -33,6 +33,7 @@ let configurationKeys: IConfigurationPropertyRecordedSchema[];
 $: configurationKeys = properties
   .filter(property => property.scope === 'KubernetesConnection')
   .sort((a, b) => a.id.localeCompare(b.id));
+let detailsPage: DetailsPage;
 
 let providersUnsubscribe: Unsubscriber;
 onMount(async () => {
@@ -40,11 +41,13 @@ onMount(async () => {
   providersUnsubscribe = providerInfos.subscribe(providerInfosValue => {
     const providers = providerInfosValue;
     providerInfo = providers.find(provider => provider.internalId === providerInternalId);
-    console.log(providerInfo.images.icon);
+
     connectionInfo = providerInfo?.kubernetesConnections?.find(
       connection => connection.endpoint.apiURL === apiURL || connection.name === connectionName,
     );
     if (!connectionInfo) {
+      // closing the page of a connection that has been removed
+      detailsPage.close();
       return;
     }
     connectionName = connectionInfo.name;
@@ -122,7 +125,7 @@ function setNoLogs() {
 
 {#if connectionInfo}
   <div class="bg-charcoal-700 h-full">
-    <DetailsPage title="{connectionInfo.name}">
+    <DetailsPage title="{connectionInfo.name}" bind:this="{detailsPage}">
       <svelte:fragment slot="subtitle">
         <div class="flex flex-row">
           <ConnectionStatus status="{connectionInfo.status}" />
