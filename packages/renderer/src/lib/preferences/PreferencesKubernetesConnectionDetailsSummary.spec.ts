@@ -20,7 +20,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import type { ProviderKubernetesConnectionInfo } from '../../../../main/src/plugin/api/provider-info';

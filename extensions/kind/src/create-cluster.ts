@@ -19,7 +19,7 @@ import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { getKindPath, getMemTotalInfo, runCliCommand } from './util';
+import { getKindPath, getMemTotalInfo } from './util';
 import mustache from 'mustache';
 import { parseAllDocuments } from 'yaml';
 
@@ -159,14 +159,21 @@ export async function createCluster(
 
   // now execute the command to create the cluster
   try {
-    await runCliCommand(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger }, token);
+    await extensionApi.process.exec(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger, token });
     if (ingressController) {
       logger.log('Creating ingress controller resources');
       await setupIngressController(clusterName);
     }
     telemetryLogger.logUsage('createCluster', { provider, httpHostPort, httpsHostPort, ingressController });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : error;
+    let errorMessage: string;
+
+    if (typeof error === 'object' && 'message' in error) {
+      errorMessage = error.message.toString();
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    }
+
     telemetryLogger.logError('createCluster', {
       provider,
       httpHostPort,

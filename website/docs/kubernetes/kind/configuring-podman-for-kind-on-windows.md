@@ -24,7 +24,7 @@ Therefore, set the Podman machine to rootful mode.
    $ podman machine stop
    ```
 
-2. Set the Podman machine in rooful mode:
+2. Set the Podman machine in rootful mode:
 
    ```shell-session
    $ podman machine set --rootful

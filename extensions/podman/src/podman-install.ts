@@ -24,8 +24,8 @@ import { compare } from 'compare-versions';
 
 import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
-import { execPromise, getPodmanInstallation } from './podman-cli';
-import { getAssetsFolder, runCliCommand } from './util';
+import { getPodmanInstallation } from './podman-cli';
+import { getAssetsFolder } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
@@ -280,14 +280,15 @@ export class WinInstaller extends BaseInstaller {
       const setupPath = path.resolve(getAssetsFolder(), `podman-${podmanTool.version}-setup.exe`);
       try {
         if (fs.existsSync(setupPath)) {
-          const runResult = await runCliCommand(setupPath, ['/install', '/norestart']);
-          //check if user cancelled installation see https://learn.microsoft.com/en-us/previous-versions//aa368542(v=vs.85)
-          if (runResult.exitCode !== 1602) {
-            if (runResult.exitCode !== 0) {
-              throw new Error(runResult.stdErr);
-            }
+          try {
+            await extensionApi.process.exec(setupPath, ['/install', '/norestart']);
             progress.report({ increment: 80 });
             extensionApi.window.showNotification({ body: 'Podman is successfully installed.' });
+          } catch (err) {
+            //check if user cancelled installation see https://learn.microsoft.com/en-us/previous-versions//aa368542(v=vs.85)
+            if ((err as extensionApi.RunError) && err.exitCode !== 1602 && err.exitCode !== 0) {
+              throw new Error(err.message);
+            }
           }
           return true;
         } else {
@@ -314,9 +315,10 @@ class MacOSInstaller extends BaseInstaller {
       const pkgPath = path.resolve(getAssetsFolder(), `podman-installer-macos-${pkgArch}-v${podmanTool.version}.pkg`);
       try {
         if (fs.existsSync(pkgPath)) {
-          const runResult = await runCliCommand('open', [pkgPath, '-W']);
-          if (runResult.exitCode !== 0) {
-            throw new Error(runResult.stdErr);
+          try {
+            await extensionApi.process.exec('open', [pkgPath, '-W']);
+          } catch (err) {
+            throw new Error((err as extensionApi.RunError).stderr);
           }
           progress.report({ increment: 80 });
           // we cannot rely on exit code, as installer could be closed and it return '0' exit code
@@ -418,7 +420,7 @@ class VirtualMachinePlatformCheck extends BaseCheck {
   async execute(): Promise<extensionApi.CheckResult> {
     try {
       // set CurrentUICulture to force output in english
-      const res = await execPromise('powershell.exe', [
+      const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
         '(Get-WmiObject -Query "Select * from Win32_OptionalFeature where InstallState = \'1\'").Name | select-string VirtualMachinePlatform',
       ]);
       if (res.indexOf('VirtualMachinePlatform') >= 0) {
@@ -482,7 +484,7 @@ class WSL2Check extends BaseCheck {
     return str;
   }
   private async isUserAdmin(): Promise<boolean> {
-    const res = await execPromise('powershell.exe', [
+    const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
       '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
     ]);
     return res.trim() === 'True';
@@ -490,7 +492,9 @@ class WSL2Check extends BaseCheck {
 
   private async isWSLPresent(): Promise<boolean> {
     try {
-      const res = await execPromise('wsl', ['--set-default-version', '2'], { env: { WSL_UTF8: '1' } });
+      const { stdout: res } = await extensionApi.process.exec('wsl', ['--set-default-version', '2'], {
+        env: { WSL_UTF8: '1' },
+      });
       const output = this.normalizeOutput(res);
       return !!output;
     } catch (error) {

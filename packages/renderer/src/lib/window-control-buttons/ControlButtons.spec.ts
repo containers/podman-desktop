@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, describe } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import ControlButtons from './ControlButtons.svelte';

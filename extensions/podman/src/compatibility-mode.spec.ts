@@ -19,16 +19,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { afterEach, expect, test, vi } from 'vitest';
-import { spawn } from 'node:child_process';
 import { getSocketCompatibility, DarwinSocketCompatibility, LinuxSocketCompatibility } from './compatibility-mode';
 import * as extensionApi from '@podman-desktop/api';
-import type { Readable } from 'node:stream';
 
 vi.mock('@podman-desktop/api', () => {
   return {
     window: {
       showErrorMessage: vi.fn(),
       showInformationMessage: vi.fn(),
+    },
+    process: {
+      exec: vi.fn(),
     },
   };
 });
@@ -103,10 +104,12 @@ test('darwin: DarwinSocketCompatibility class, test promptRestart ran within run
 
   const socketCompatClass = new DarwinSocketCompatibility();
 
-  // Mock execPromise was ran successfully
-  vi.mock('execPromise', () => {
-    return Promise.resolve();
-  });
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        resolve({} as extensionApi.RunResult);
+      }),
+  );
 
   // Mock that enable ran successfully
   const spyEnable = vi.spyOn(socketCompatClass, 'runCommand');
@@ -175,28 +178,12 @@ test('linux: pass enabling when systemctl command exists', async () => {
     value: 'linux',
   });
 
-  // Mock that execSync runs successfully
-  vi.mock('child_process', () => {
-    return {
-      execSync: vi.fn(),
-      spawn: vi.fn(),
-    };
-  });
-
-  const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
-    if (event === 'data') {
-      cb('');
-    }
-  }) as unknown as Readable;
-  vi.mocked(spawn).mockReturnValue({
-    stdout: { on, setEncoding: vi.fn() },
-    stderr: { on, setEncoding: vi.fn() },
-    on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
-      if (event === 'close') {
-        cb(0);
-      }
-    }),
-  } as any);
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        resolve({} as extensionApi.RunResult);
+      }),
+  );
 
   const socketCompatClass = new LinuxSocketCompatibility();
 
