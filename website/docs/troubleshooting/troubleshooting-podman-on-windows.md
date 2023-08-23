@@ -53,6 +53,14 @@ You can find here troubleshooting help for issues specific to Windows.
 
 - Set the environment variable `ELECTRON_NO_ATTACH_CONSOLE` to true before launching Podman Desktop.
 
+## When the host is behind a VPN, Podman cannot access network resources
+
+When the host is behind a VPN, Podman might fail to access network resources, and display errors such as _Temporary failure in name resolution_.
+
+### Solution
+
+See [Accessing resources behind a VPN with Podman on Windows](/docs/proxy/using-a-vpn-on-windows).
+
 ## Older WSL versions might lead to networking issues
 
 Older versions of WSL might cause networking issues, such as the `Get-NetTCPConnection` error, indicating that the WSL loopback forwarding facility is not functioning correctly. Recent versions of WSL do not have this issue
