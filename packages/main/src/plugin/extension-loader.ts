@@ -25,7 +25,7 @@ import * as zipper from 'zip-local';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import { Disposable } from './types/disposable.js';
 import type { ProviderRegistry } from './provider-registry.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
+import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { MessageBox } from './message-box.js';
 import type { ProgressImpl } from './progress-impl.js';
@@ -65,6 +65,7 @@ import type { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
 import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
+import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 
 /**
  * Handle the loading of an extension
@@ -212,6 +213,23 @@ export class ExtensionLoader {
     this.moduleLoader.addOverride({ '@podman-desktop/api': ext => ext.api }); // add podman desktop API
 
     this.moduleLoader.overrideRequire();
+    // register configuration for the max activation time
+    const maxActivationTimeConfiguration: IConfigurationNode = {
+      id: 'preferences.extension',
+      title: 'Extensions',
+      type: 'object',
+      properties: {
+        [ExtensionLoaderSettings.SectionName + '.' + ExtensionLoaderSettings.MaxActivationTime]: {
+          description: 'Maximum activation time for an extension, in seconds.',
+          type: 'number',
+          default: 10,
+          minimum: 1,
+          maximum: 100,
+        },
+      },
+    };
+
+    this.configurationRegistry.registerConfigurations([maxActivationTimeConfiguration]);
   }
 
   protected async setupScanningDirectory(): Promise<void> {
@@ -1045,10 +1063,35 @@ export class ExtensionLoader {
     const telemetryOptions = { extensionId: extension.id };
     try {
       if (typeof extensionMain?.['activate'] === 'function') {
+        // maximum time to wait for the extension to activate by reading from configuration
+        const delayInSeconds: number =
+          this.configurationRegistry
+            .getConfiguration(ExtensionLoaderSettings.SectionName)
+            .get(ExtensionLoaderSettings.MaxActivationTime) || 5;
+        const delayInMilliseconds = delayInSeconds * 1000;
+
+        // reject a promise after this delay
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error(`Extension ${extension.id} activation timed out after ${delayInSeconds} seconds`)),
+            delayInMilliseconds,
+          ),
+        );
+
         // it returns exports
-        console.log(`Activating extension (${extension.id})`);
-        await extensionMain['activate'].apply(undefined, [extensionContext]);
-        console.log(`Activating extension (${extension.id}) ended`);
+        console.log(`Activating extension (${extension.id}) with max activation time of ${delayInSeconds} seconds`);
+
+        const beforeActivateTime = performance.now();
+        const activatePromise = extensionMain['activate'].apply(undefined, [extensionContext]);
+
+        // if extension reach the timeout, do not wait for it to finish and flag as error
+        await Promise.race([activatePromise, timeoutPromise]);
+        const afterActivateTime = performance.now();
+        console.log(
+          `Activating extension (${extension.id}) ended in ${Math.round(
+            afterActivateTime - beforeActivateTime,
+          )} milliseconds`,
+        );
       }
       const id = extension.id;
       const activatedExtension: ActivatedExtension = {
