@@ -1189,6 +1189,23 @@ export class ExtensionLoader {
     }
   }
 
+  async removeExtensionPerUserRequest(extensionId: string): Promise<void> {
+    const telemetryData: {
+      extensionId: string;
+      error?: unknown;
+    } = {
+      extensionId,
+    };
+    try {
+      await this.removeExtension(extensionId);
+    } catch (error) {
+      telemetryData.error = error;
+      throw error;
+    } finally {
+      await this.telemetry.track('removeExtension', telemetryData);
+    }
+  }
+
   async removeExtension(extensionId: string): Promise<void> {
     const extension = this.analyzedExtensions.get(extensionId);
     if (extension) {

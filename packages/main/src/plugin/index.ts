@@ -1397,7 +1397,7 @@ export class PluginSystem {
     this.ipcHandle(
       'extension-loader:removeExtension',
       async (_listener: Electron.IpcMainInvokeEvent, extensionId: string): Promise<void> => {
-        return this.extensionLoader.removeExtension(extensionId);
+        return this.extensionLoader.removeExtensionPerUserRequest(extensionId);
       },
     );
 
