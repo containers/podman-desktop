@@ -1,5 +1,5 @@
-import '@testing-library/jest-dom';
-import { test, expect, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { test, expect, vi, beforeAll } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import ComposeDetails from './ComposeDetails.svelte';
 import { mockBreadcrumb } from '../../stores/breadcrumb';

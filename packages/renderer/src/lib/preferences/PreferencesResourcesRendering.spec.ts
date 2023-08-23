@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import '@testing-library/jest-dom';
-import { test, expect, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import { providerInfos } from '../../stores/providers';

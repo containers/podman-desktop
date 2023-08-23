@@ -18,7 +18,7 @@
 import type { KindCluster } from './extension';
 import * as extensionApi from '@podman-desktop/api';
 import { tmpName } from 'tmp-promise';
-import { getKindPath, runCliCommand } from './util';
+import { getKindPath } from './util';
 import * as fs from 'node:fs';
 
 type ImageInfo = { engineId: string; name?: string; tag?: string };
@@ -78,7 +78,7 @@ export class ImageHandler {
         await extensionApi.containerEngine.saveImage(image.engineId, name, filename);
 
         // Run the Kind load command to push the image to the cluster
-        await runCliCommand(kindCli, ['load', 'image-archive', '-n', selectedCluster.label, filename], {
+        await extensionApi.process.exec(kindCli, ['load', 'image-archive', '-n', selectedCluster.label, filename], {
           env: env,
         });
 

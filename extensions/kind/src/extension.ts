@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
-import { detectKind, getKindPath, runCliCommand } from './util';
+import { detectKind, getKindPath } from './util';
 import { KindInstaller } from './kind-installer';
 import type { AuditRequestItems, CancellationToken, Logger } from '@podman-desktop/api';
 import { window } from '@podman-desktop/api';
@@ -159,7 +159,7 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
             env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
           }
           env.PATH = getKindPath();
-          await runCliCommand(kindCli, ['delete', 'cluster', '--name', cluster.name], { env, logger });
+          await extensionApi.process.exec(kindCli, ['delete', 'cluster', '--name', cluster.name], { env, logger });
         },
       };
       // create a new connection
@@ -303,6 +303,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
             (err: unknown) => window.showErrorMessage('Kind installation failed ' + err),
           ),
         ),
+        statusBarItem,
       );
       statusBarItem.show();
     }

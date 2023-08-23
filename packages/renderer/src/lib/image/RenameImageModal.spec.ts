@@ -1,5 +1,5 @@
-import '@testing-library/jest-dom';
-import { test, expect } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { test, expect, describe } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import RenameImageModal from './RenameImageModal.svelte';
 import userEvent from '@testing-library/user-event';

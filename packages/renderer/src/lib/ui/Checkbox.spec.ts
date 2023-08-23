@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import Checkbox from './Checkbox.svelte';

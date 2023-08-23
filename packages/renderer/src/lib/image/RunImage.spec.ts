@@ -18,8 +18,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import '@testing-library/jest-dom';
-import { test, vi, type Mock } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { test, vi, type Mock, beforeAll, describe, expect } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { runImageInfo } from '../../stores/run-image-store';
 import RunImage from '/@/lib/image/RunImage.svelte';

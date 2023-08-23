@@ -11,7 +11,7 @@ export let container: ContainerInfoUI;
         <td class="pt-2 pr-2">Id</td>
         <td class="pt-2 pr-2">{container.shortId}</td>
       </tr>
-      <tr>
+      <tr class:hidden="{!container.command}">
         <td class="pt-2 pr-2">Command</td>
         <td class="pt-2 pr-2">{container.command}</td>
       </tr>

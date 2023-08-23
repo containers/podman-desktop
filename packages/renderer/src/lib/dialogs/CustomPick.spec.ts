@@ -18,8 +18,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import '@testing-library/jest-dom';
-import { beforeAll, test, expect, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { beforeAll, test, expect, vi, describe } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import type { CustomPickOptions } from './quickpick-input';
 import CustomPick from './CustomPick.svelte';

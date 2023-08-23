@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SendFeedback from './SendFeedback.svelte';
