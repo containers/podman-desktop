@@ -2,6 +2,7 @@
 
 ## Pre-requisites
 
+- Create Enhancement Issue `Release vX.X.X` for current sprint and assign it to yourself.
 - Confirm with Podman Desktop maintainers that pending / need-to-go-in PR's have been merged.
 - Notify main contributors on Discord / Slack.
 - Release notes for the blog: Communicate with the person who has been tasked with creating the documentation. If you are assigned, see the below "Documentation" section.
