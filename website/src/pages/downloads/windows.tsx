@@ -9,41 +9,78 @@ import { faMicrosoft, faWindows } from '@fortawesome/free-brands-svg-icons';
 import { faDownload, faPaste, faTerminal } from '@fortawesome/free-solid-svg-icons';
 
 async function grabfilenameforWindows(
-  setDownloadData: React.Dispatch<SetStateAction<{ version: string; binary: string; setup: string }>>,
+  setDownloadData: React.Dispatch<
+    SetStateAction<{
+      version: string;
+      binaryX64: string;
+      binaryArm64: string;
+      setupX64: string;
+      setupArm64: string;
+      airgapsetupX64: string;
+      airgapsetupArm64: string;
+    }>
+  >,
 ): Promise<void> {
   const result = await fetch('https://api.github.com/repos/containers/podman-desktop/releases/latest');
   const jsonContent = await result.json();
   const assets = jsonContent.assets;
-  const windowsSetupAssets = assets.filter(
-    asset => (asset.name as string).endsWith('-setup.exe') && !asset.name.includes('airgap'),
+  const windowsX64SetupAssets = assets.filter(
+    asset => (asset.name as string).endsWith('-setup-x64.exe') && !asset.name.includes('airgap'),
   );
-  if (windowsSetupAssets.length !== 1) {
+  if (windowsX64SetupAssets.length !== 1) {
     throw new Error('Unable to grab setup.exe');
   }
-  const windowsSetupAsset = windowsSetupAssets[0];
-
-  const binaryOnlyWindowsAssets = assets.filter(
-    asset =>
-      (asset.name as string).endsWith('.exe') &&
-      !asset.name.includes('airgap') &&
-      asset.name !== windowsSetupAsset.name,
+  const windowsArm64SetupAssets = assets.filter(
+    asset => (asset.name as string).endsWith('-setup-arm64.exe') && !asset.name.includes('airgap'),
   );
-  const binaryAsset = binaryOnlyWindowsAssets[0];
+  const setupX64Asset = windowsX64SetupAssets?.[0];
+  const setupX64 = setupX64Asset?.browser_download_url;
+  const setupArm64Asset = windowsArm64SetupAssets?.[0];
+  const setupArm64 = setupArm64Asset?.browser_download_url;
+
+  const binaryOnlyX64WindowsAssets = assets.filter(
+    asset =>
+      (asset.name as string).endsWith('x64.exe') &&
+      !asset.name.includes('airgap') &&
+      asset.name !== setupX64Asset?.name,
+  );
+  const binaryX64 = binaryOnlyX64WindowsAssets?.[0]?.browser_download_url;
+
+  const binaryOnlyArm64WindowsAssets = assets.filter(
+    asset =>
+      (asset.name as string).endsWith('arm64.exe') &&
+      !asset.name.includes('airgap') &&
+      asset.name !== setupX64Asset?.name,
+  );
+  const binaryArm64 = binaryOnlyArm64WindowsAssets?.[0]?.browser_download_url;
 
   /* Find Windows installer for restricted environment */
-  const windowsAirgapSetupAssets = assets.filter(
+  const windowsX64AirgapSetupAssets = assets.filter(
     asset =>
-      (asset.name as string).endsWith('-setup.exe') &&
+      (asset.name as string).endsWith('-setup-x64.exe') &&
       asset.name.includes('airgap') &&
-      asset.name !== windowsSetupAsset.name,
+      asset.name !== setupX64Asset?.name,
   );
-  const windowsAirgapSetupAsset = windowsAirgapSetupAssets[0];
+
+  const airgapsetupX64 = windowsX64AirgapSetupAssets?.[0]?.browser_download_url;
+
+  const windowsArm64AirgapSetupAssets = assets.filter(
+    asset =>
+      (asset.name as string).endsWith('-setup-arm64.exe') &&
+      asset.name.includes('airgap') &&
+      asset.name !== setupArm64Asset?.name,
+  );
+
+  const airgapsetupArm64 = windowsArm64AirgapSetupAssets?.[0]?.browser_download_url;
 
   const data = {
     version: jsonContent.name,
-    binary: binaryAsset.browser_download_url,
-    setup: windowsSetupAsset.browser_download_url,
-    airgapsetup: windowsAirgapSetupAsset.browser_download_url,
+    binaryX64,
+    setupX64,
+    airgapsetupX64,
+    binaryArm64,
+    setupArm64,
+    airgapsetupArm64,
   };
   setDownloadData(data);
 }
@@ -51,9 +88,12 @@ async function grabfilenameforWindows(
 export function WindowsDownloads(): JSX.Element {
   const [downloadData, setDownloadData] = useState({
     version: '',
-    binary: '',
-    setup: '',
-    airgapsetup: '',
+    binaryX64: '',
+    setupX64: '',
+    airgapsetupX64: '',
+    binaryArm64: '',
+    setupArm64: '',
+    airgapsetupArm64: '',
   });
 
   const copyCliInstructions = async () => {
@@ -76,28 +116,71 @@ export function WindowsDownloads(): JSX.Element {
           <div className="pt-8">
             <Link
               className="mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-500 rounded text-md font-semibold"
-              to={downloadData.setup}>
+              to={downloadData.setupX64}>
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               Download Now
             </Link>
             <caption className="block w-full mt-1 text/50 dark:text-white/50">
-              Windows installer, version {downloadData.version}
+              Windows installer x64, version {downloadData.version}
             </caption>
           </div>
           <div className="mt-4">
             <div>Other downloads for Windows:</div>
-            <Link
-              className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 font-semibold text-md"
-              to={downloadData.binary}>
-              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-              Windows portable executable
-            </Link>
-            <Link
-              className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 font-semibold text-md"
-              to={downloadData.airgapsetup}>
-              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-              Windows installer for restricted environments
-            </Link>
+
+            <div className="pt-4 pb-4 flex flex-col">
+              <div className="">Windows installer:</div>
+              <div className="flex flex-row justify-center">
+                <Link
+                  className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-3 font-semibold text-md"
+                  to={downloadData.setupX64}>
+                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                  x64
+                </Link>
+                <Link
+                  className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-3 font-semibold text-md"
+                  to={downloadData.setupArm64}>
+                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                  arm64
+                </Link>
+              </div>
+            </div>
+
+            <div className="pt-2 pb-4 flex flex-col">
+              <div className="">Portable binary:</div>
+              <div className="flex flex-row justify-center">
+                <Link
+                  className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-2 font-semibold text-md"
+                  to={downloadData.binaryX64}>
+                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                  x64
+                </Link>
+                <Link
+                  className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-2 font-semibold text-md"
+                  to={downloadData.binaryArm64}>
+                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                  arm64
+                </Link>
+              </div>
+            </div>
+
+            <div className="pt-2 pb-4 flex flex-col">
+              <div className="">Installer for restricted environments:</div>
+              <div className="flex flex-row justify-center">
+                <Link
+                  className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 font-semibold text-md"
+                  to={downloadData.airgapsetupX64}>
+                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                  x64
+                </Link>
+                <Link
+                  className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 font-semibold text-md"
+                  to={downloadData.airgapsetupArm64}>
+                  <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                  arm64
+                </Link>
+              </div>
+            </div>
+
             <Link
               className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 font-semibold text-md"
               to="/docs/Installation/windows-install">
