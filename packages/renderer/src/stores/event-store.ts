@@ -115,7 +115,11 @@ export class EventStore<T> {
         const before = performance.now();
         const customArgs = [];
         if (args) {
-          customArgs.push(...args);
+          if (Array.isArray(args)) {
+            customArgs.push(...args);
+          } else {
+            customArgs.push(args);
+          }
         }
         const result = await this.updater(...customArgs);
         const after = performance.now();

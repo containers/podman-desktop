@@ -196,6 +196,42 @@ test('should call fetch with arguments', async () => {
   expect(updater).toHaveBeenCalledWith(...args);
 });
 
+test('should call fetch method using window event and object argument', async () => {
+  const myStoreInfo: Writable<MyCustomTypeInfo[]> = writable([]);
+  const checkForUpdateMock = vi.fn();
+
+  const windowEventName = 'my-custom-event';
+  const updater = vi.fn();
+
+  // return true to trigger the update
+  checkForUpdateMock.mockResolvedValue(true);
+
+  const eventStore = new TestEventStore('my-test', myStoreInfo, checkForUpdateMock, [windowEventName], [], updater);
+
+  // callbacks are empty
+  expect(callbacks.size).toBe(0);
+
+  // now call the setup
+  eventStore.setup();
+
+  // check we have callbacks
+  expect(callbacks.size).toBe(1);
+
+  // now we call the listener
+  const callback = callbacks.get(windowEventName);
+  expect(callback).toBeDefined();
+
+  const myCustomTypeInfo: MyCustomTypeInfo = {
+    name: 'my-custom-type',
+  };
+  updater.mockResolvedValue([myCustomTypeInfo]);
+
+  await callback({});
+
+  // check the updater is called
+  expect(updater).toHaveBeenCalledWith({});
+});
+
 test('Check debounce', async () => {
   const myStoreInfo: Writable<MyCustomTypeInfo[]> = writable([]);
   const checkForUpdateMock = vi.fn();
