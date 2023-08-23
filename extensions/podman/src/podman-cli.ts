@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import { isMac, isWindows } from './util';
-import { configuration, process } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
@@ -51,7 +51,7 @@ export function getPodmanCli(): string {
 // Get the Podman binary path from configuration podman.binary.path
 // return string or undefined
 export function getCustomBinaryPath(): string | undefined {
-  return configuration.getConfiguration('podman').get('binary.path');
+  return extensionApi.configuration.getConfiguration('podman').get('binary.path');
 }
 
 export interface InstalledPodman {
@@ -60,7 +60,7 @@ export interface InstalledPodman {
 
 export async function getPodmanInstallation(): Promise<InstalledPodman | undefined> {
   try {
-    const { stdout: versionOut } = await process.exec(getPodmanCli(), ['--version']);
+    const { stdout: versionOut } = await extensionApi.process.exec(getPodmanCli(), ['--version']);
     const versionArr = versionOut.split(' ');
     const version = versionArr[versionArr.length - 1];
     return { version };
