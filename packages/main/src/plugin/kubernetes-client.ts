@@ -345,9 +345,7 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
     } finally {
-      this.telemetry
-        .track('kubernetesCreatePod', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('kubernetesCreatePod', telemetryOptions);
     }
   }
 
@@ -362,9 +360,7 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
     } finally {
-      this.telemetry
-        .track('kubernetesCreateService', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('kubernetesCreateService', telemetryOptions);
     }
   }
 
@@ -379,9 +375,7 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
     } finally {
-      this.telemetry
-        .track('kubernetesCreateIngress', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('kubernetesCreateIngress', telemetryOptions);
     }
   }
 
@@ -402,9 +396,7 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
     } finally {
-      this.telemetry
-        .track('kubernetesCreateRoute', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('kubernetesCreateRoute', telemetryOptions);
     }
   }
 
@@ -431,9 +423,7 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
     } finally {
-      this.telemetry
-        .track('kubernetesListNamespacePod', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('kubernetesListNamespacePod', telemetryOptions);
     }
   }
 
@@ -449,7 +439,7 @@ export class KubernetesClient {
   }
 
   async readPodLog(name: string, container: string, callback: (name: string, data: string) => void): Promise<void> {
-    this.telemetry.track('kubernetesReadPodLog').catch((err: unknown) => console.error('Unable to track', err));
+    this.telemetry.track('kubernetesReadPodLog');
     const ns = this.currentNamespace;
     if (ns) {
       const log = new Log(this.kubeConfig);
@@ -477,9 +467,7 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
     } finally {
-      this.telemetry
-        .track('kubernetesDeletePod', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('kubernetesDeletePod', telemetryOptions);
     }
   }
 
@@ -497,9 +485,7 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
     } finally {
-      this.telemetry
-        .track('kubernetesReadNamespacedPod', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('kubernetesReadNamespacedPod', telemetryOptions);
     }
   }
 
@@ -517,9 +503,7 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
     } finally {
-      this.telemetry
-        .track('kubernetesReadNamespacedConfigMap', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('kubernetesReadNamespacedConfigMap', telemetryOptions);
     }
   }
 
@@ -539,9 +523,7 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
     } finally {
-      this.telemetry
-        .track('kubernetesListNamespaces', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('kubernetesListNamespaces', telemetryOptions);
     }
   }
 
@@ -718,9 +700,7 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetry
-        .track('kubernetesCreateResourcesFromFile', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('kubernetesCreateResourcesFromFile', telemetryOptions);
     }
   }
 
@@ -800,9 +780,10 @@ export class KubernetesClient {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetry
-        .track('kubernetesCreateResource', Object.assign({ manifestsSize: manifests?.length }, telemetryOptions))
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track(
+        'kubernetesCreateResource',
+        Object.assign({ manifestsSize: manifests?.length }, telemetryOptions),
+      );
     }
   }
 }

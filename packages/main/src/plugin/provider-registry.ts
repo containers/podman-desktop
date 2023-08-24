@@ -180,9 +180,7 @@ export class ProviderRegistry {
     if (providerOptions.version) {
       trackOpts.version = providerOptions.version;
     }
-    this.telemetryService
-      .track('createProvider', trackOpts)
-      .catch((err: unknown) => console.error('Unable to track', err));
+    this.telemetryService.track('createProvider', trackOpts);
     this.apiSender.send('provider-create', id);
     providerImpl.onDidUpdateVersion(() => this.apiSender.send('provider:update-version'));
     return providerImpl;
@@ -408,11 +406,9 @@ export class ProviderRegistry {
     if (!providerInstall) {
       throw new Error(`No matching installation for provider ${provider.internalId}`);
     }
-    this.telemetryService
-      .track('installProvider', {
-        name: provider.name,
-      })
-      .catch((err: unknown) => console.error('Unable to track', err));
+    this.telemetryService.track('installProvider', {
+      name: provider.name,
+    });
     return providerInstall.install(new LoggerImpl());
   }
 
@@ -424,11 +420,9 @@ export class ProviderRegistry {
       throw new Error(`No matching update for provider ${provider.internalId}`);
     }
 
-    this.telemetryService
-      .track('updateProvider', {
-        name: provider.name,
-      })
-      .catch((err: unknown) => console.error('Unable to track', err));
+    this.telemetryService.track('updateProvider', {
+      name: provider.name,
+    });
     return providerUpdate.update(new LoggerImpl());
   }
 
@@ -473,21 +467,17 @@ export class ProviderRegistry {
     }
 
     if (provider?.containerProviderConnectionFactory?.initialize) {
-      this.telemetryService
-        .track('initializeProvider', {
-          name: provider.name,
-        })
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService.track('initializeProvider', {
+        name: provider.name,
+      });
 
       return provider.containerProviderConnectionFactory.initialize();
     }
 
     if (provider?.kubernetesProviderConnectionFactory?.initialize) {
-      this.telemetryService
-        .track('initializeProvider', {
-          name: provider.name,
-        })
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService.track('initializeProvider', {
+        name: provider.name,
+      });
 
       return provider.kubernetesProviderConnectionFactory.initialize();
     }
@@ -722,7 +712,7 @@ export class ProviderRegistry {
       telemetryData.error = err;
       throw err;
     } finally {
-      await this.telemetryService.track('createProviderConnection', telemetryData);
+      this.telemetryService.track('createProviderConnection', telemetryData);
     }
   }
 
@@ -931,9 +921,7 @@ export class ProviderRegistry {
     if (!lifecycle?.delete) {
       throw new Error('The container connection does not support delete lifecycle');
     }
-    this.telemetryService
-      .track('deleteProviderConnection', { name: providerConnectionInfo.name })
-      .catch((err: unknown) => console.error('Unable to track', err));
+    this.telemetryService.track('deleteProviderConnection', { name: providerConnectionInfo.name });
     return lifecycle.delete(logHandler);
   }
 
@@ -1031,12 +1019,10 @@ export class ProviderRegistry {
     const providerName = kubernetesProviderConnection.name;
     const id = `${provider.id}.${providerName}`;
     this.kubernetesProviders.set(id, kubernetesProviderConnection);
-    this.telemetryService
-      .track('registerKubernetesProviderConnection', {
-        name: kubernetesProviderConnection.name,
-        total: this.kubernetesProviders.size,
-      })
-      .catch((err: unknown) => console.error('Unable to track', err));
+    this.telemetryService.track('registerKubernetesProviderConnection', {
+      name: kubernetesProviderConnection.name,
+      total: this.kubernetesProviders.size,
+    });
 
     let previousStatus = kubernetesProviderConnection.status();
 

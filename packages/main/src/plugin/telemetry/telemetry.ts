@@ -161,17 +161,13 @@ export class Telemetry {
     return {
       // prefix with extension id the event
       sendEventData(eventName: string, data?: Record<string, unknown>): void {
-        thisArg.track.apply(thisArg, [`${extensionInfo.id}.${eventName}`, data]).catch((err: unknown) => {
-          console.log(`Error sending event ${eventName}: ${err}`);
-        });
+        thisArg.track.apply(thisArg, [`${extensionInfo.id}.${eventName}`, data]);
       },
       // report using the id of the extension suffixed by error
       sendErrorData(error: Error, data?: Record<string, unknown>): void {
         data = data || {};
         data.sourceError = error.message;
-        thisArg.track.apply(thisArg, [`${extensionInfo.id}.error`, data]).catch((err: unknown) => {
-          console.log(`Error sending error event: ${err}`);
-        });
+        thisArg.track.apply(thisArg, [`${extensionInfo.id}.error`, data]);
       },
       async flush(): Promise<void> {
         await instanceFlush?.();
@@ -296,7 +292,7 @@ export class Telemetry {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async track(event: EventType, eventProperties?: any): Promise<void> {
+  track(event: EventType, eventProperties?: any): void {
     // skip event ?
     if (this.shouldDropEvent(event)) {
       return;

@@ -179,9 +179,7 @@ export class ExtensionsUpdater {
       const telemetryOptions = {
         extensionsToUpdate: extensionsToUpdateFiltered,
       };
-      this.telemetry.track('extensions-updates-available', telemetryOptions).catch((err: unknown) => {
-        console.error('Error while reporting extensions-updates-available telemetry', err);
-      });
+      this.telemetry.track('extensions-updates-available', telemetryOptions);
     }
   }
 
@@ -222,9 +220,7 @@ export class ExtensionsUpdater {
       console.error(`Error while updating extension ${extensionId}:`, err);
       telemetryOptions.error = err;
     } finally {
-      this.telemetry.track(eventName, telemetryOptions).catch((err: unknown) => {
-        console.error(`Error while tracking ${eventName}`, err);
-      });
+      this.telemetry.track(eventName, telemetryOptions);
     }
   }
 }
