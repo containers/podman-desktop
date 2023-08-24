@@ -118,14 +118,21 @@ After a failed start, the Podman machine might be unable to start because a QEMU
 
 Use Podman 4.6.1 or greater.
 
-## Podman machine not starting with QEMU 8.1.0
+## Podman machine not starting with QEMU 8.1.0 from brew
 
-When QEMU version is 8.1.0, Podman machine might fail to start with an error such as:
+When you installed Podman and QEMU with brew, and QEMU version is 8.1.0, Podman machine might fail to start with an error such as:
 `Error: qemu exited unexpectedly with exit code -1, stderr: qemu-system-x86_64: Error: HV_DENIED`
+
+#### Solution
+
+- [Install Podman Desktop and Podman using the .dmg installer](https://podman-desktop.io/docs/Installation/macos-install) rather than brew.
+  The Podman installer has a QEMU binary that has been tested with Podman.
 
 #### Workaround
 
-- Rollback QEMU to v8.0.3
+Keep your brew-based installation and apply one of these workarounds:
+
+- Rollback the QEMU brew package to v8.0.3.
 
   ```shell-session
   $ brew uninstall qemu
@@ -133,7 +140,7 @@ When QEMU version is 8.1.0, Podman machine might fail to start with an error suc
   $ brew install ./qemu.rb
   ```
 
-- Alternatively, sign the QEMU binary locally:
+- Alternatively, sign the QEMU brew binary locally:
 
   ```shell-session
   $ cat >entitlements.xml <<EOF
