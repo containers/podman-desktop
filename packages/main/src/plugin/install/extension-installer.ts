@@ -225,9 +225,9 @@ export class ExtensionInstaller {
       }, []);
 
       // now analyze all these dependencies
-      for (imageName of imagesOfExtensionsToAnalyze) {
+      for (const imageNameToAnalyze of imagesOfExtensionsToAnalyze) {
         try {
-          await this.analyzeTransitiveDependencies(imageName, analyzedExtensions, errors, sendLog, sendError);
+          await this.analyzeTransitiveDependencies(imageNameToAnalyze, analyzedExtensions, errors, sendLog, sendError);
         } catch (error) {
           errors.push(`Error while analyzing extension ${imageName}: ${error}`);
         }
