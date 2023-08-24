@@ -256,12 +256,12 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                   </div>
                   <div class="flex flex-row items-center">
                     <div class="text-xs text-violet-400">{pod.shortId}</div>
-                    <div
+                    <button
                       class="ml-1 text-xs font-extra-light text-gray-900"
                       class:cursor-pointer="{pod.containers.length > 0}"
                       on:click="{() => openContainersFromPod(pod)}">
                       {pod.containers.length} container{pod.containers.length > 1 ? 's' : ''}
-                    </div>
+                    </button>
                   </div>
                   <div class="flex flex-row text-xs font-extra-light text-gray-900">
                     <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">

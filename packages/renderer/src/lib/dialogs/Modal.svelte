@@ -21,10 +21,6 @@
   border-radius: 0.2em;
   z-index: 50;
 }
-
-button {
-  display: block;
-}
 </style>
 
 <script lang="ts">
@@ -59,7 +55,7 @@ if (previously_focused) {
 
 <svelte:window on:keydown="{handle_keydown}" />
 
-<div class="modal-background" on:click="{close}"></div>
+<button class="modal-background" on:click="{close}"></button>
 
 <div class="modal" role="dialog" aria-label="{name}" aria-modal="true" bind:this="{modal}">
   <slot />
