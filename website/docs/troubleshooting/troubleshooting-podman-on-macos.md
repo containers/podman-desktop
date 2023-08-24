@@ -117,3 +117,46 @@ After a failed start, the Podman machine might be unable to start because a QEMU
 #### Solution
 
 Use Podman 4.6.1 or greater.
+
+## Podman machine not starting with QEMU 8.1.0 from brew
+
+When you installed Podman and QEMU with brew, and QEMU version is 8.1.0, Podman machine might fail to start with an error such as:
+`Error: qemu exited unexpectedly with exit code -1, stderr: qemu-system-x86_64: Error: HV_DENIED`
+
+#### Solution
+
+- [Install Podman Desktop and Podman using the .dmg installer](https://podman-desktop.io/docs/Installation/macos-install) rather than brew.
+  The Podman installer has a QEMU binary that has been tested with Podman.
+
+#### Workaround
+
+Keep your brew-based installation and apply one of these workarounds:
+
+- Rollback the QEMU brew package to v8.0.3.
+
+  ```shell-session
+  $ brew uninstall qemu
+  $ curl -OSL https://raw.githubusercontent.com/Homebrew/homebrew-core/dc0669eca9479e9eeb495397ba3a7480aaa45c2e/Formula/qemu.rb
+  $ brew install ./qemu.rb
+  ```
+
+- Alternatively, sign the QEMU brew binary locally:
+
+  ```shell-session
+  $ cat >entitlements.xml <<EOF
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+  <plist version="1.0">
+  <dict>
+    <key>com.apple.security.hypervisor</key>
+    <true/>
+  </dict>
+  </plist>
+  EOF
+  $ codesign --sign - --entitlements entitlements.xml --force /usr/local/bin/qemu-system-$(uname -m | sed -e s/arm64/aarch64/)
+  ```
+
+#### Additional resources
+
+- [Homebrew issue #140244](https://github.com/Homebrew/homebrew-core/issues/140244).
+- [Podman issue #19708](https://github.com/containers/podman/issues/19708).
