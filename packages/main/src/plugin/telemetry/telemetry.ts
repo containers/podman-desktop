@@ -304,7 +304,7 @@ export class Telemetry {
     if (!this.telemetryEnabled) {
       return;
     }
-    void this.internalTrack(event, eventProperties).catch((err: unknown) => {
+    this.internalTrack(event, eventProperties).catch((err: unknown) => {
       console.log(`Error sending event: ${event}`, err);
     });
   }
