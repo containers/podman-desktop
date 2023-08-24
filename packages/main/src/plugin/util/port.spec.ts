@@ -20,17 +20,55 @@ import { expect, test } from 'vitest';
 import * as port from './port.js';
 import * as net from 'net';
 
-test('return port range starting with port 9000', async () => {
+test('return valid port range', async () => {
   const range = await port.getFreePortRange(3);
 
-  expect(range).toBe('9000-9002');
+  const rangeValues = range.split('-');
+  expect(rangeValues.length).toBe(2);
+
+  const startRange = parseInt(rangeValues[0]);
+  const endRange = parseInt(rangeValues[1]);
+
+  expect(isNaN(startRange)).toBe(false);
+  expect(isNaN(endRange)).toBe(false);
+
+  expect(endRange + 1 - startRange).toBe(3);
+  expect(await port.isFreePort(startRange)).toBe(true);
+  expect(await port.isFreePort(endRange)).toBe(true);
 });
 
-test('return port range starting with port 9001 if 9000 is busy', async () => {
-  const server = net.createServer();
-  server.listen(9000);
+test('check that the range returns new free ports if the one in previous call are busy', async () => {
   const range = await port.getFreePortRange(3);
 
-  expect(range).toBe('9001-9003');
+  const rangeValues = range.split('-');
+  expect(rangeValues.length).toBe(2);
+
+  const startRange = parseInt(rangeValues[0]);
+  const endRange = parseInt(rangeValues[1]);
+
+  expect(isNaN(startRange)).toBe(false);
+  expect(isNaN(endRange)).toBe(false);
+
+  expect(endRange + 1 - startRange).toBe(3);
+
+  const server = net.createServer();
+  server.listen(endRange);
+
+  const newRange = await port.getFreePortRange(3);
+
   server.close();
+
+  const newRangeValues = newRange.split('-');
+  expect(newRangeValues.length).toBe(2);
+
+  const startNewRange = parseInt(newRangeValues[0]);
+  const endNewRange = parseInt(newRangeValues[1]);
+
+  expect(isNaN(startNewRange)).toBe(false);
+  expect(isNaN(endNewRange)).toBe(false);
+
+  expect(startNewRange > endRange).toBe(true);
+  expect(endNewRange + 1 - startNewRange).toBe(3);
+  expect(await port.isFreePort(startNewRange)).toBe(true);
+  expect(await port.isFreePort(endNewRange)).toBe(true);
 });

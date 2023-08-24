@@ -50,9 +50,9 @@ export async function getFreePortRange(rangeSize: number): Promise<string> {
       ++port;
       startPort = port;
     }
-  } while (port + 1 - startPort !== rangeSize);
+  } while (port + 1 - startPort <= rangeSize);
 
-  return `${startPort}-${port}`;
+  return `${startPort}-${port - 1}`;
 }
 
 export function isFreePort(port: number): Promise<boolean> {
