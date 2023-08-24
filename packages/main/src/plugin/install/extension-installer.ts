@@ -27,7 +27,6 @@ import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js'
 import type { ApiSenderType } from '../api.js';
 import type { ImageRegistry } from '../image-registry.js';
 import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
-import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
 
 export class ExtensionInstaller {
   constructor(
@@ -219,13 +218,11 @@ export class ExtensionInstaller {
       }
 
       // first, grab name of the OCI image for each extension
-      const imagesOfExtensionsToAnalyze = (
-        extensionsToAnalyze
-          .map(extensionId => {
-            return fetchableExtensions.find(extension => extension.extensionId === extensionId);
-          })
-          .filter(extension => extension !== undefined) as CatalogFetchableExtension[]
-      ).map(extension => extension.link);
+      const imagesOfExtensionsToAnalyze = extensionsToAnalyze.reduce<string[]>((prev, id) => {
+        const ext = fetchableExtensions.find(extension => extension.extensionId === id);
+        if (ext) prev.push(ext.link);
+        return prev;
+      }, []);
 
       // now analyze all these dependencies
       for (imageName of imagesOfExtensionsToAnalyze) {
