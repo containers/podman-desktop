@@ -177,36 +177,31 @@ async function getPortsInfo(portDescriptor: string): Promise<string | undefined>
     return await getPortRange(portDescriptor);
   } else {
     const localPort = await getPort(portDescriptor);
-    if (!isNaN(localPort)) {
-      return `${localPort}`;
+    if (!localPort) {
+      return undefined;
     }
+    return `${localPort}`;
   }
 }
 
+/**
+ * return a range of the same length as portDescriptor containing free ports
+ * undefined if the portDescriptor range is not valid
+ * e.g 5000:5001 -> 9000:9001
+ */
 function getPortRange(portDescriptor: string): Promise<string | undefined> {
-  if (portDescriptor.endsWith('/tcp')) {
-    portDescriptor = portDescriptor.substring(0, portDescriptor.length - 4);
-  }
-
-  const rangeValues = portDescriptor.split('-');
-  if (rangeValues.length !== 2) {
+  const rangeValues = getStartEndRange(portDescriptor);
+  if (!rangeValues) {
     return Promise.resolve(undefined);
   }
 
-  const startRange = parseInt(rangeValues[0]);
-  const endRange = parseInt(rangeValues[1]);
-
-  if (isNaN(startRange) || isNaN(endRange)) {
-    return Promise.resolve(undefined);
-  }
-
-  const rangeSize = endRange - startRange;
+  const rangeSize = rangeValues.endRange + 1 - rangeValues.startRange;
   return window.getFreePortRange(rangeSize);
 }
 
 function getPort(portDescriptor: string): Promise<number | undefined> {
   let port: number;
-  if (portDescriptor.endsWith('/tcp')) {
+  if (portDescriptor.endsWith('/tcp') || portDescriptor.endsWith('/udp')) {
     port = parseInt(portDescriptor.substring(0, portDescriptor.length - 4));
   } else {
     port = parseInt(portDescriptor);
@@ -406,6 +401,10 @@ function addPortsFromRange(
 }
 
 function getStartEndRange(range: string) {
+  if (range.endsWith('/tcp') || range.endsWith('/udp')) {
+    range = range.substring(0, range.length - 4);
+  }
+
   const rangeValues = range.split('-');
   if (rangeValues.length !== 2) {
     return undefined;
@@ -624,11 +623,13 @@ function checkContainerName(event: any) {
                     <input
                       type="text"
                       bind:value="{hostContainerPortMapping.hostPort}"
+                      aria-label="host port"
                       placeholder="Host Port"
                       class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                     <input
                       type="text"
                       bind:value="{hostContainerPortMapping.containerPort}"
+                      aria-label="container port"
                       placeholder="Container Port"
                       class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                     <button
@@ -994,7 +995,9 @@ function checkContainerName(event: any) {
           <Button on:click="{() => startContainer()}" class="w-full" icon="{faPlay}" bind:disabled="{invalidFields}">
             Start Container
           </Button>
-          <ErrorMessage class="py-2 text-sm" error="{createError}" />
+          <div aria-label="createError">
+            <ErrorMessage class="py-2 text-sm" error="{createError}" />
+          </div>
         </div>
       </div>
     </FormPage>

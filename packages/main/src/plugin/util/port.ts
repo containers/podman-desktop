@@ -43,19 +43,19 @@ export async function getFreePortRange(rangeSize: number): Promise<string> {
   let port = 9000;
   let startPort = port;
 
-  while (port - startPort !== rangeSize) {
+  do {
     if (await isFreePort(port)) {
       ++port;
     } else {
       ++port;
       startPort = port;
     }
-  }
+  } while (port + 1 - startPort !== rangeSize);
 
   return `${startPort}-${port}`;
 }
 
-function isFreePort(port: number): Promise<boolean> {
+export function isFreePort(port: number): Promise<boolean> {
   const server = net.createServer();
   return new Promise((resolve, reject) =>
     server
