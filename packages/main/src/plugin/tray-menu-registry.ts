@@ -83,9 +83,7 @@ export class TrayMenuRegistry {
     });
 
     ipcMain.on('tray:menu-provider-click', (_, param: { action: string; providerInfo: ProviderInfo }) => {
-      this.telemetryService
-        .track('tray:menu-provider-click', { action: param.action, name: param.providerInfo.name })
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService.track('tray:menu-provider-click', { action: param.action, name: param.providerInfo.name });
       const provider = this.providers.get(param.providerInfo.internalId);
       if (provider) {
         if (param.action === 'Start') {
@@ -110,12 +108,10 @@ export class TrayMenuRegistry {
           providerContainerConnectionInfo: ProviderContainerConnectionInfo;
         },
       ) => {
-        this.telemetryService
-          .track('tray:menu-provider-container-connection-click', {
-            action: param.action,
-            name: param.providerContainerConnectionInfo.name,
-          })
-          .catch((err: unknown) => console.error('Unable to track', err));
+        this.telemetryService.track('tray:menu-provider-container-connection-click', {
+          action: param.action,
+          name: param.providerContainerConnectionInfo.name,
+        });
 
         const provider = this.providers.get(param.providerInfo.internalId);
         if (provider) {

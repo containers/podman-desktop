@@ -587,9 +587,7 @@ export class ExtensionLoader {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (telemetryOptions as any).error = err;
     } finally {
-      this.telemetry.track('loadExtension', telemetryOptions).catch((error: unknown) => {
-        console.error('error while tracking loadExtension telemetry', error);
-      });
+      this.telemetry.track('loadExtension', telemetryOptions);
     }
   }
 
@@ -1109,9 +1107,7 @@ export class ExtensionLoader {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (telemetryOptions as any).error = err;
     } finally {
-      this.telemetry
-        .track('activateExtension', telemetryOptions)
-        .catch((error: unknown) => console.log(`Failed to track activateExtension telemetry event. Error: ${error}`));
+      this.telemetry.track('activateExtension', telemetryOptions);
     }
   }
 
@@ -1167,9 +1163,7 @@ export class ExtensionLoader {
     this.activatedExtensions.delete(extensionId);
     this.extensionState.set(extension.id, 'stopped');
     this.apiSender.send('extension-stopped');
-    this.telemetry
-      .track('deactivateExtension', telemetryOptions)
-      .catch((error: unknown) => console.log(`Failed to track deactivateExtension telemetry event. Error: ${error}`));
+    this.telemetry.track('deactivateExtension', telemetryOptions);
   }
 
   async stopAllExtensions(): Promise<void> {
@@ -1202,7 +1196,7 @@ export class ExtensionLoader {
       telemetryData.error = error;
       throw error;
     } finally {
-      await this.telemetry.track('removeExtension', telemetryData);
+      this.telemetry.track('removeExtension', telemetryData);
     }
   }
 
