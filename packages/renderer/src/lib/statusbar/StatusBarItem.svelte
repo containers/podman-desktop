@@ -31,7 +31,7 @@ async function executeCommand(entry: StatusBarEntry) {
 }
 </script>
 
-<div
+<button
   on:click="{() => {
     executeCommand(entry);
   }}"
@@ -43,4 +43,4 @@ async function executeCommand(entry: StatusBarEntry) {
   {#if entry.text}
     <span class="ml-1">{entry.text}</span>
   {/if}
-</div>
+</button>

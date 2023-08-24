@@ -1345,11 +1345,4 @@ export let size = '400';
       </g>
     </g>
   </g>
-  <metadata id="metadata67591">
-    <rdf:RDF>
-      <cc:Work rdf:about="">
-        <dc:title>rocketseal-rigged.svg</dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
 </svg>

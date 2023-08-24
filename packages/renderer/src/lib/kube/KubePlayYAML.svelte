@@ -176,7 +176,7 @@ async function getKubernetesfileLocation() {
 
           <div class="px-5">
             <div class="flex flex-col space-y-3">
-              <div
+              <button
                 hidden="{providerConnections.length === 0}"
                 class:border-2="{defaultContextName}"
                 class="rounded-md p-5 cursor-pointer {userChoice === 'podman'
@@ -215,8 +215,8 @@ async function getKubernetesfileLocation() {
                       bind:value="{selectedProviderConnection.name}" />
                   {/if}
                 </div>
-              </div>
-              <div
+              </button>
+              <button
                 hidden="{!defaultContextName}"
                 class="border-2 rounded-md p-5 cursor-pointer {userChoice === 'kubernetes'
                   ? 'border-dustypurple-700'
@@ -268,7 +268,7 @@ async function getKubernetesfileLocation() {
                     </select>
                   </div>
                 {/if}
-              </div>
+              </button>
             </div>
           </div>
         </div>
