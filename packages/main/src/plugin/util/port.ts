@@ -35,3 +35,32 @@ export function getFreePort(port = 0): Promise<number> {
       .listen(port),
   );
 }
+
+/**
+ * Find a free port range
+ */
+export async function getFreePortRange(rangeSize: number): Promise<string> {
+  let port = 9000;
+  let startPort = port;
+
+  do {
+    if (await isFreePort(port)) {
+      ++port;
+    } else {
+      ++port;
+      startPort = port;
+    }
+  } while (port + 1 - startPort <= rangeSize);
+
+  return `${startPort}-${port - 1}`;
+}
+
+export function isFreePort(port: number): Promise<boolean> {
+  const server = net.createServer();
+  return new Promise((resolve, reject) =>
+    server
+      .on('error', (error: NodeJS.ErrnoException) => (error.code === 'EADDRINUSE' ? resolve(false) : reject(error)))
+      .on('listening', () => server.close(() => resolve(true)))
+      .listen(port),
+  );
+}

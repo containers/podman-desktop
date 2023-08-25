@@ -99,7 +99,6 @@ onMount(async () => {
     return;
   }
 
-  exposedPorts = [];
   containerPortMapping = [];
 
   imageInspectInfo = await window.getImageInspect(image.engineId, image.id);
@@ -121,8 +120,8 @@ onMount(async () => {
   containerPortMapping = new Array<string>(exposedPorts.length);
   await Promise.all(
     exposedPorts.map(async (port, index) => {
-      const localPort = await getPort(port);
-      containerPortMapping[index] = `${localPort}`;
+      const localPorts = await getPortsInfo(port);
+      containerPortMapping[index] = localPorts;
     }),
   );
   dataReady = true;
@@ -172,9 +171,37 @@ onMount(async () => {
   }
 });
 
+async function getPortsInfo(portDescriptor: string): Promise<string | undefined> {
+  // check if portDescriptor is a range of ports
+  if (portDescriptor.includes('-')) {
+    return await getPortRange(portDescriptor);
+  } else {
+    const localPort = await getPort(portDescriptor);
+    if (!localPort) {
+      return undefined;
+    }
+    return `${localPort}`;
+  }
+}
+
+/**
+ * return a range of the same length as portDescriptor containing free ports
+ * undefined if the portDescriptor range is not valid
+ * e.g 5000:5001 -> 9000:9001
+ */
+function getPortRange(portDescriptor: string): Promise<string | undefined> {
+  const rangeValues = getStartEndRange(portDescriptor);
+  if (!rangeValues) {
+    return Promise.resolve(undefined);
+  }
+
+  const rangeSize = rangeValues.endRange + 1 - rangeValues.startRange;
+  return window.getFreePortRange(rangeSize);
+}
+
 function getPort(portDescriptor: string): Promise<number | undefined> {
   let port: number;
-  if (portDescriptor.endsWith('/tcp')) {
+  if (portDescriptor.endsWith('/tcp') || portDescriptor.endsWith('/udp')) {
     port = parseInt(portDescriptor.substring(0, portDescriptor.length - 4));
   } else {
     port = parseInt(portDescriptor);
@@ -192,19 +219,33 @@ async function startContainer() {
   const ExposedPorts = {};
 
   const PortBindings = {};
-  exposedPorts.forEach((port, index) => {
-    if (containerPortMapping[index]) {
-      PortBindings[port] = [{ HostPort: containerPortMapping[index] }];
-    }
-    ExposedPorts[port] = {};
-  });
-
-  hostContainerPortMappings
-    .filter(pair => pair.hostPort && pair.containerPort)
-    .forEach(pair => {
-      PortBindings[pair.containerPort] = [{ HostPort: pair.hostPort }];
-      ExposedPorts[pair.containerPort] = {};
+  try {
+    exposedPorts.forEach((port, index) => {
+      if (port.includes('-') || containerPortMapping[index]?.includes('-')) {
+        addPortsFromRange(ExposedPorts, PortBindings, port, containerPortMapping[index]);
+      } else {
+        if (containerPortMapping[index]) {
+          PortBindings[port] = [{ HostPort: containerPortMapping[index] }];
+        }
+        ExposedPorts[port] = {};
+      }
     });
+
+    hostContainerPortMappings
+      .filter(pair => pair.hostPort && pair.containerPort)
+      .forEach(pair => {
+        if (pair.containerPort.includes('-') || pair.hostPort.includes('-')) {
+          addPortsFromRange(ExposedPorts, PortBindings, pair.containerPort, pair.hostPort);
+        } else {
+          PortBindings[pair.containerPort] = [{ HostPort: pair.hostPort }];
+          ExposedPorts[pair.containerPort] = {};
+        }
+      });
+  } catch (e) {
+    createError = e;
+    console.error('Error while creating container', e);
+    return;
+  }
 
   const Env = environmentVariables
     // filter variables withouts keys
@@ -318,6 +359,66 @@ async function startContainer() {
   }
   // redirect to containers
   window.location.href = '#/containers';
+}
+
+function addPortsFromRange(
+  exposedPorts: { [key: string]: unknown },
+  portBindings: { [key: string]: unknown },
+  containerRange: string,
+  hostRange: string,
+) {
+  const containerRangeValues = getStartEndRange(containerRange);
+  if (!containerRangeValues) {
+    throw new Error(`range ${containerRange} is not valid. Must be in format <port>-<port> (e.g 8080-8085)`);
+  }
+  const startContainerRange = containerRangeValues.startRange;
+  const endContainerRange = containerRangeValues.endRange;
+
+  const hostRangeValues = getStartEndRange(hostRange);
+  if (!hostRangeValues) {
+    throw new Error(`range ${hostRange} is not valid. Must be in format <port>-<port> (e.g 8080-8085)`);
+  }
+  const startHostRange = hostRangeValues.startRange;
+  const endHostRange = hostRangeValues.endRange;
+
+  // if the two ranges have different size, do not proceed
+  const containerRangeSize = endContainerRange + 1 - startContainerRange;
+  const hostRangeSize = endHostRange + 1 - startHostRange;
+  if (containerRangeSize !== hostRangeSize) {
+    throw new Error(
+      `host and container port ranges (${hostRange}:${containerRange}) have different lengths: ${hostRangeSize} vs ${containerRangeSize}`,
+    );
+  }
+
+  // we add all ports separately - if we have two ranges like 8080-8082 and 9000-9002 we'll end up with a mapping like
+  // 8080 => HostPort: 9000
+  // 8081 => HostPort: 9001
+  // 8082 => HostPort: 9002
+  for (let i = 0; i < containerRangeSize; i++) {
+    portBindings[`${startContainerRange + i}`] = [{ HostPort: `${startHostRange + i}` }];
+    exposedPorts[`${startContainerRange + i}`] = {};
+  }
+}
+
+function getStartEndRange(range: string) {
+  if (range.endsWith('/tcp') || range.endsWith('/udp')) {
+    range = range.substring(0, range.length - 4);
+  }
+
+  const rangeValues = range.split('-');
+  if (rangeValues.length !== 2) {
+    return undefined;
+  }
+  const startRange = parseInt(rangeValues[0]);
+  const endRange = parseInt(rangeValues[1]);
+
+  if (isNaN(startRange) || isNaN(endRange)) {
+    return undefined;
+  }
+  return {
+    startRange,
+    endRange,
+  };
 }
 
 function addEnvVariable() {
@@ -522,11 +623,13 @@ function checkContainerName(event: any) {
                     <input
                       type="text"
                       bind:value="{hostContainerPortMapping.hostPort}"
+                      aria-label="host port"
                       placeholder="Host Port"
                       class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                     <input
                       type="text"
                       bind:value="{hostContainerPortMapping.containerPort}"
+                      aria-label="container port"
                       placeholder="Container Port"
                       class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
                     <button
@@ -892,7 +995,9 @@ function checkContainerName(event: any) {
           <Button on:click="{() => startContainer()}" class="w-full" icon="{faPlay}" bind:disabled="{invalidFields}">
             Start Container
           </Button>
-          <ErrorMessage class="py-2 text-sm" error="{createError}" />
+          <div aria-label="createError">
+            <ErrorMessage class="py-2 text-sm" error="{createError}" />
+          </div>
         </div>
       </div>
     </FormPage>
