@@ -6,7 +6,6 @@ import SettingsPage from './SettingsPage.svelte';
 import ExtensionStatus from '../ui/ExtensionStatus.svelte';
 import Button from '../ui/Button.svelte';
 import { faPlay, faPuzzlePiece, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { router } from 'tinro';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 
 export let extensionId: string | undefined = undefined;
@@ -14,8 +13,6 @@ export let extensionId: string | undefined = undefined;
 let extensionInfo: ExtensionInfo | undefined;
 
 $: extensionInfo = $extensionInfos.find(extension => extension.id === extensionId);
-$: hideOnboardingButton = true;
-$: hasOnboarding(extensionId).then(value => (hideOnboardingButton = value));
 
 async function stopExtension() {
   if (extensionInfo) {
@@ -32,14 +29,6 @@ async function removeExtension() {
     window.location.href = '#/preferences/extensions';
     await window.removeExtension(extensionInfo.id);
   }
-}
-
-async function hasOnboarding(extensionId?: string): Promise<boolean> {
-  if (!extensionId) {
-    return false;
-  }
-  const onboarding = await window.getOnboarding(extensionId);
-  return !onboarding;
 }
 </script>
 
@@ -92,11 +81,6 @@ async function hasOnboarding(extensionId?: string): Promise<boolean> {
             {/if}
           </div>
 
-          <div class="px-2 text-sm italic text-gray-700" class:hidden="{hideOnboardingButton}">
-            <Button icon="{faPlay}" on:click="{() => router.goto(`/preferences/onboarding/${extensionInfo?.id}`)}">
-              Onboarding
-            </Button>
-          </div>
           {#if extensionInfo.error}
             <div class="flex flex-col">
               <div class="py-2">Extension error: {extensionInfo.error.message}</div>

@@ -50,6 +50,7 @@ export interface ProviderKubernetesConnectionInfo {
 export interface ProviderInfo {
   internalId: string;
   id: string;
+  extension: string;
   name: string;
   containerConnections: ProviderContainerConnectionInfo[];
   kubernetesConnections: ProviderKubernetesConnectionInfo[];
