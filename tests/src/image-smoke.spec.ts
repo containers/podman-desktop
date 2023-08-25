@@ -46,7 +46,7 @@ beforeEach<RunnerTestContext>(async ctx => {
   ctx.pdRunner = pdRunner;
 });
 
-describe('Image pull verification', async () => {
+describe('Image workflow verification', async () => {
   test('Pull image', async () => {
     const navBar = new NavigationBar(page);
     const imagesPage = await navBar.openImages();
@@ -67,21 +67,16 @@ describe('Image pull verification', async () => {
     await playExpect(imageDetailPage.historyTab).toBeVisible();
     await playExpect(imageDetailPage.inspectTab).toBeVisible();
   });
-});
 
-describe('Image delete verification', async () => {
-  test('Delete image from image details', async () => {
+  test('Delete image', async () => {
     const imageDetailPage = new ImageDetailsPage(page, 'quay.io/podman/hello');
-
     await playExpect(imageDetailPage.deleteButton).toBeVisible();
     await imageDetailPage.deleteButton.click();
-  });
 
-  test('Verify image was deleted', async () => {
     const imagesPage = new ImagesPage(page);
     await playExpect(imagesPage.heading).toBeVisible();
 
-    const imageExists = await imagesPage.imageExists('quay.io/podman/hello');
-    playExpect(imageExists).toBeFalsy();
+    const imageExists = await imagesPage.waitForImageDelete('quay.io/podman/hello');
+    playExpect(imageExists).toBeTruthy();
   });
 });

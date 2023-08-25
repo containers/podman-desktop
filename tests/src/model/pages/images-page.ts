@@ -20,7 +20,7 @@ import type { Locator, Page } from 'playwright';
 import { PodmanDesktopPage } from './base-page';
 import { ImageDetailsPage } from './image-details-page';
 import { PullImagePage } from './pull-image-page';
-import { waitUntil } from '../../utility/wait';
+import { waitUntil, waitWhile } from '../../utility/wait';
 
 export class ImagesPage extends PodmanDesktopPage {
   readonly heading: Locator;
@@ -89,13 +89,18 @@ export class ImagesPage extends PodmanDesktopPage {
     }
   }
 
-  async imageExists(name: string): Promise<boolean> {
+  protected async imageExists(name: string): Promise<boolean> {
     const result = await this.getImageRowByName(name);
     return result !== undefined;
   }
 
   async waitForImageExists(name: string): Promise<boolean> {
     await waitUntil(async () => await this.imageExists(name), 3000, 900);
+    return true;
+  }
+
+  async waitForImageDelete(name: string): Promise<boolean> {
+    await waitWhile(async () => await this.imageExists(name), 3000, 900);
     return true;
   }
 }
