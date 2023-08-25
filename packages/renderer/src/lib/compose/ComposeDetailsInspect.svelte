@@ -2,6 +2,7 @@
 import type { ComposeInfoUI } from './ComposeInfoUI';
 import { onMount } from 'svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
+import type { ContainerInspectInfo } from '../../../../main/src/plugin/api/container-inspect-info';
 
 export let compose: ComposeInfoUI;
 
@@ -11,7 +12,10 @@ onMount(async () => {
   // Go through each container and grab the inspect result, add it to inspectDetails / stringify
   const mappedResults = await Promise.all(
     compose.containers.map(async container => {
-      const inspectResult = await window.getContainerInspect(container.engineId, container.id);
+      const inspectResult = (await window.getContainerInspect(
+        container.engineId,
+        container.id,
+      )) as Partial<ContainerInspectInfo>;
 
       // remove engine* properties from the inspect result as it's more internal
       delete inspectResult.engineId;

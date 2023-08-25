@@ -2,6 +2,7 @@
 import { onMount } from 'svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import type { VolumeInfoUI } from './VolumeInfoUI';
+import type { VolumeInspectInfo } from '../../../../main/src/plugin/api/volume-info';
 
 export let volume: VolumeInfoUI;
 
@@ -9,7 +10,7 @@ let inspectDetails: string;
 
 onMount(async () => {
   // grab inspect result from the container
-  const inspectResult = await window.getVolumeInspect(volume.engineId, volume.name);
+  const inspectResult = (await window.getVolumeInspect(volume.engineId, volume.name)) as Partial<VolumeInspectInfo>;
 
   // remove engine* properties from the inspect result as it's more internal
   delete inspectResult.engineId;

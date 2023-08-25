@@ -2,6 +2,7 @@
 import type { ImageInfoUI } from './ImageInfoUI';
 import { onMount } from 'svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
+import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
 
 export let image: ImageInfoUI;
 
@@ -9,7 +10,7 @@ let inspectDetails: string;
 
 onMount(async () => {
   // grab inspect result from the container
-  const inspectResult = await window.getImageInspect(image.engineId, image.id);
+  const inspectResult = (await window.getImageInspect(image.engineId, image.id)) as Partial<ImageInspectInfo>;
 
   // remove engine* properties from the inspect result as it's more internal
   delete inspectResult.engineId;
