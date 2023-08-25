@@ -24,12 +24,14 @@ export class NavigationBar {
   }
 
   async openImages(): Promise<ImagesPage> {
-    await this.imagesLink.click();
+    await this.imagesLink.waitFor({ state: 'visible', timeout: 3000 });
+    await this.imagesLink.click({ timeout: 5000 });
     return new ImagesPage(this.page);
   }
 
   async openContainers(): Promise<ContainersPage> {
-    await this.containersLink.click();
+    await this.containersLink.waitFor({ state: 'visible', timeout: 3000 });
+    await this.containersLink.click({ timeout: 5000 });
     return new ContainersPage(this.page);
   }
 }

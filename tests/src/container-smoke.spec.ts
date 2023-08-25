@@ -26,12 +26,13 @@ import { NavigationBar } from './model/workbench/navigation';
 import { waitUntil, waitWhile } from './utility/wait';
 import { deleteContainer, deleteImage } from './utility/operations';
 import { ContainerState } from './model/core/states';
+import type { ImagesPage } from './model/pages/images-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
-const imageToPull = 'quay.io/podman/hello';
+const imageToPull = 'docker.io/library/alpine';
 const imageTag = 'latest';
-const containerToRun = 'podman-hello';
+const containerToRun = 'alpine-container';
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -40,7 +41,13 @@ beforeAll(async () => {
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   // wait giving a time to podman desktop to load up
-  const images = await new NavigationBar(page).openImages();
+  let images: ImagesPage;
+  try {
+    images = await new NavigationBar(page).openImages();
+  } catch (error) {
+    console.log(`TimeError when opening images, taking a screenshot`);
+    await pdRunner.screenshot('timeerror-openImages.png');
+  }
   await waitWhile(
     async () => await images.pageIsEmpty(),
     5000,
@@ -48,7 +55,12 @@ beforeAll(async () => {
     false,
     'Images page is empty, there are no images present',
   );
-  await deleteContainer(page, containerToRun);
+  try {
+    await deleteContainer(page, containerToRun);
+  } catch (error) {
+    console.log(`Error opening Containers Page...`);
+    await pdRunner.screenshot('error-on-open-containers.png');
+  }
 });
 
 beforeEach<RunnerTestContext>(async ctx => {
@@ -84,7 +96,7 @@ describe('Verification of container creation workflow', async () => {
     await pdRunner.screenshot('containers-container-exists.png');
     await waitUntil(async () => {
       const containerDetails = await containers.openContainersDetails(containerToRun);
-      return (await containerDetails.getState()) === ContainerState.Exited;
+      return (await containerDetails.getState()) === ContainerState.Running;
     }, 5000);
   });
 
@@ -97,10 +109,10 @@ describe('Verification of container creation workflow', async () => {
     // test state of container in summary tab
     await pdRunner.screenshot('containers-container-details.png');
     const containerState = await containersDetails.getState();
-    playExpect(containerState).toContain(ContainerState.Exited);
+    playExpect(containerState).toContain(ContainerState.Running);
     // check Logs output
     await containersDetails.activateTab('Logs');
-    const helloWorldMessage = containersDetails.getPage().getByText('Hello Podman World');
+    const helloWorldMessage = containersDetails.getPage().getByText('No Log');
     await playExpect(helloWorldMessage).toBeVisible();
     // Switch between various other tabs, no checking of the content
     await containersDetails.activateTab('Inspect');
@@ -109,7 +121,7 @@ describe('Verification of container creation workflow', async () => {
     // TODO: After updating of accessibility of various element in containers pages, we can extend test
   });
 
-  test.skip('Stopping a container', async () => {
+  test('Stopping a container', async () => {
     const navigationBar = new NavigationBar(page);
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
@@ -130,7 +142,7 @@ describe('Verification of container creation workflow', async () => {
     await pdRunner.screenshot('containers-container-stopped.png');
   });
 
-  test.skip('Deleting a container', async () => {
+  test('Deleting a container', async () => {
     const navigationBar = new NavigationBar(page);
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
