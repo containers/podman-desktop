@@ -45,7 +45,7 @@ const provider: ProviderInfo = {
   containerProviderConnectionInitialization: false,
   detectionChecks: [],
   id: 'providerid',
-  images: undefined,
+  images: {},
   installationSupport: false,
   internalId: 'providerid',
   kubernetesConnections: [],
@@ -53,7 +53,7 @@ const provider: ProviderInfo = {
   kubernetesProviderConnectionInitialization: false,
   links: [],
   name: 'MyProvider',
-  status: undefined,
+  status: 'started',
   warnings: [],
 };
 

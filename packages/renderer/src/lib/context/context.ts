@@ -75,6 +75,8 @@ export class ContextUI implements IContext {
     }
     for (let i = 1; i < bits.length; i++) {
       if (contextValue) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         contextValue = contextValue[bits[i]];
       }
     }

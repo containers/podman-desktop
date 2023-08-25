@@ -49,10 +49,10 @@ Consider using the `DOCKER_HOST` environment variable to migrate transparently f
      </TabItem>
    </Tabs>
 
-2. Set the `DOCKER_HOST` environment variable to your Podman socket location:
+2. Set the `DOCKER_HOST` environment variable to your Podman socket location. Be sure to add the `unix://` scheme to the path retrieved previously:
 
    ```shell-session
-   $ export DOCKER_HOST=<your_podman_socket_location>
+   $ export DOCKER_HOST=unix://<your_podman_socket_location>
    ```
 
 #### Verification

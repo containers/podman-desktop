@@ -36,12 +36,14 @@ export type ActivateFunction = {
   (_node: unknown, binding: unknown): UpdateAction;
 };
 
-export function createFieldValidator(...validators): [SvelteStore<Validation>, ActivateFunction] {
+export function createFieldValidator(
+  ...validators: ((value: string) => [boolean, string])[]
+): [SvelteStore<Validation>, ActivateFunction] {
   const validation: Validation = { dirty: false, valid: false, message: undefined };
   const writableObject = writable<Validation>(validation);
   const validator = buildValidator(validators);
 
-  function action(_node, binding): UpdateAction {
+  function action(_node: any, binding: any): UpdateAction {
     function validate(value: string, dirty: boolean) {
       const result = validator(value, dirty);
       writableObject.set(result);

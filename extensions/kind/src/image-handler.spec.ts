@@ -21,7 +21,7 @@ import type { Mock } from 'vitest';
 import { ImageHandler } from './image-handler';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
-import { getKindPath, runCliCommand } from './util';
+import { getKindPath } from './util';
 
 let imageHandler: ImageHandler;
 vi.mock('@podman-desktop/api', async () => {
@@ -33,12 +33,14 @@ vi.mock('@podman-desktop/api', async () => {
       showNotification: vi.fn(),
       showInformationMessage: vi.fn(),
     },
+    process: {
+      exec: vi.fn().mockReturnValue({} as extensionApi.RunResult),
+    },
   };
 });
 
 vi.mock('./util', async () => {
   return {
-    runCliCommand: vi.fn().mockReturnValue({ exitCode: 0 }),
     getKindPath: vi.fn(),
   };
 });
@@ -119,9 +121,9 @@ test('expect cli is called with right PATH', async () => {
   );
   expect(getKindPath).toBeCalled();
 
-  expect(runCliCommand).toBeCalledTimes(1);
+  expect(extensionApi.process.exec).toBeCalledTimes(1);
   // grab the env parameter of the first call to runCliCommand
-  const props = (runCliCommand as Mock).mock.calls[0][2];
+  const props = (extensionApi.process.exec as Mock).mock.calls[0][2];
   expect(props).to.have.property('env');
   const env = props.env;
   expect(env).to.have.property('PATH');

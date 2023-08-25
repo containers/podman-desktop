@@ -22,7 +22,7 @@ import { providerInfos } from '../../stores/providers';
 import { render, screen } from '@testing-library/svelte';
 import KubePlayYAML from './KubePlayYAML.svelte';
 import type { ProviderStatus } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
 import type { PlayKubeInfo } from '../../../../main/src/plugin/dockerode/libpod-dockerode';
 
@@ -110,7 +110,7 @@ function setup() {
     warnings: undefined,
     images: undefined,
     installationSupport: undefined,
-  };
+  } as unknown as ProviderInfo;
   providerInfos.set([providerInfo]);
 }
 

@@ -158,6 +158,8 @@ function dragMe(node) {
               {#if items[(i / colsPerRow) * colsPerRow + j]}
                 {@const innerItem = items[(i / colsPerRow) * colsPerRow + j]}
                 <div
+                  role="button"
+                  tabindex="{0}"
                   class="flex flex-col w-[300px] mx-2 mb-4 h-fit rounded-md group/footer"
                   class:min-h-[minHeight]="{minHeight}"
                   class:is-selected="{innerItem.selected}"
@@ -212,6 +214,8 @@ function dragMe(node) {
                   </div>
                   {#if innerItem.sections}
                     <div
+                      role="button"
+                      tabindex="{0}"
                       class:relative="{usePopperForDetails}"
                       on:mousedown="{e => {
                         if (usePopperForDetails || itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)) {

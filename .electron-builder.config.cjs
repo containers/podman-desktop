@@ -34,7 +34,6 @@ if (process.env.AIRGAP_DOWNLOAD) {
   macosArches = ['universal'];
 }
 
-
 /**
  * @type {import('electron-builder').Configuration}
  * @see https://www.electron.build/configuration/configuration
@@ -66,21 +65,40 @@ const config = {
       context.packager.config.extraResources.push('extensions/podman/assets/podman-installer-macos-amd64-*.pkg');
     }
 
-    if(context.arch === Arch.x64 && context.electronPlatformName === 'win32'){
-      // add also the win-ca package
-      context.packager.config.extraResources.push({from: 'node_modules/win-ca/lib/roots.exe', to: 'win-ca/roots.exe'});
-      context.packager.config.extraResources.push('extensions/podman/assets/**');
+    if (context.electronPlatformName === 'win32') {
+      // add the win-ca package
+      context.packager.config.extraResources.push({
+        from: 'node_modules/win-ca/lib/roots.exe',
+        to: 'win-ca/roots.exe',
+      });
+      // add podman installer
+      context.packager.config.extraResources.push('extensions/podman/assets/podman-*.exe');
+    }
+    if (context.arch === Arch.x64 && context.electronPlatformName === 'win32') {
+      context.packager.config.extraResources.push('extensions/podman/assets/podman-image-x64.tar.xz');
+    }
+    if (context.arch === Arch.arm64 && context.electronPlatformName === 'win32') {
+      context.packager.config.extraResources.push('extensions/podman/assets/podman-image-arm64.tar.xz');
     }
   },
   files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**'],
   portable: {
-    artifactName: `podman-desktop${artifactNameSuffix}-\${version}.\${ext}`,
+    artifactName: `podman-desktop${artifactNameSuffix}-\${version}-\${arch}.\${ext}`,
   },
   nsis: {
-    artifactName: `podman-desktop${artifactNameSuffix}-\${version}-setup.\${ext}`,
+    artifactName: `podman-desktop${artifactNameSuffix}-\${version}-setup-\${arch}.\${ext}`,
   },
   win: {
-    target: ['portable', 'nsis'],
+    target: [
+      {
+        target: 'portable',
+        arch: ['x64', 'arm64'],
+      },
+      {
+        target: 'nsis',
+        arch: ['x64', 'arm64'],
+      },
+    ],
     sign: configuration => azureCodeSign(configuration.path),
   },
   flatpak: {

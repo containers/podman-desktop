@@ -115,7 +115,11 @@ export class EventStore<T> {
         const before = performance.now();
         const customArgs = [];
         if (args) {
-          customArgs.push(...args);
+          if (Array.isArray(args)) {
+            customArgs.push(...args);
+          } else {
+            customArgs.push(args);
+          }
         }
         const result = await this.updater(...customArgs);
         const after = performance.now();
@@ -130,7 +134,7 @@ export class EventStore<T> {
     } finally {
       this.updateEvent(eventStoreInfo, {
         name: eventName,
-        args: args,
+        args: args || [],
         date: Date.now(),
         skipped: !needUpdate,
         length: numberOfResults,
@@ -149,7 +153,7 @@ export class EventStore<T> {
   }
 
   setup(): EventStoreInfo {
-    const bufferEvents = [];
+    const bufferEvents: EventStoreInfoEvent[] = [];
 
     // register the store in the global list
     const eventStoreInfo: EventStoreInfo = {
@@ -194,7 +198,7 @@ export class EventStore<T> {
 
         this.updateEvent(eventStoreInfo, {
           name: `debounce-${eventName}`,
-          args: args,
+          args: args || [],
           date: Date.now(),
           skipped: true,
           length: 0,

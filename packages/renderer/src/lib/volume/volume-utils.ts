@@ -39,6 +39,10 @@ export class VolumeUtils {
   }
 
   getSize(volumeInfo: VolumeInfo): string {
+    // handle missing case
+    if (volumeInfo.UsageData?.Size === -1) {
+      return 'N/A';
+    }
     if (volumeInfo.UsageData?.Size) {
       return `${filesize(volumeInfo.UsageData?.Size, { roundingMethod: 'round' })}`;
     }
@@ -70,7 +74,7 @@ export class VolumeUtils {
       engineId: volumeInfo.engineId,
       engineName: volumeInfo.engineName,
       selected: false,
-      inUse: volumeInfo.UsageData?.RefCount > 0,
+      inUse: (volumeInfo.UsageData?.RefCount || 0) > 0,
       containersUsage: volumeInfo.containersUsage,
     };
   }

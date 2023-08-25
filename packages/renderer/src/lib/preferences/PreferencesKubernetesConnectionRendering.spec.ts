@@ -23,90 +23,18 @@
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import { providerInfos } from '../../stores/providers';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
-import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
+import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
 import { lastPage } from '/@/stores/breadcrumb';
-
-test('Expect that the right machine is displayed', async () => {
-  const socketPath = '/my/common-socket-path';
-  const podmanMachineName1 = 'podman machine 1';
-  const podmanMachineName2 = 'podman machine 2';
-  const podmanMachineName3 = 'podman machine 3';
-
-  const providerInfo: ProviderInfo = {
-    id: 'podman',
-    name: 'podman',
-    images: {
-      icon: 'img',
-    },
-    status: 'started',
-    warnings: [],
-    containerProviderConnectionCreation: true,
-    detectionChecks: [],
-    containerConnections: [
-      {
-        name: podmanMachineName1,
-        status: 'started',
-        endpoint: {
-          socketPath,
-        },
-        type: 'podman',
-      },
-      {
-        name: podmanMachineName2,
-        status: 'started',
-        endpoint: {
-          socketPath,
-        },
-        type: 'podman',
-      },
-      {
-        name: podmanMachineName3,
-        status: 'started',
-        endpoint: {
-          socketPath,
-        },
-        type: 'podman',
-      },
-    ],
-    installationSupport: false,
-    internalId: '0',
-    kubernetesConnections: [],
-    kubernetesProviderConnectionCreation: true,
-    links: [],
-    containerProviderConnectionInitialization: false,
-    containerProviderConnectionCreationDisplayName: 'Podman machine',
-    kubernetesProviderConnectionInitialization: false,
-  };
-
-  // 3 connections with the same socket path
-  providerInfos.set([providerInfo]);
-
-  // encode name with base64 of the second machine
-  const name = Buffer.from(podmanMachineName2).toString('base64');
-
-  const connection = Buffer.from(socketPath).toString('base64');
-
-  render(PreferencesContainerConnectionRendering, {
-    name,
-    connection,
-    providerInternalId: '0',
-  });
-
-  // expect to have the second machine being displayed (and not the first one that also match socket path)
-  const title = screen.getByRole('heading', { name: 'podman machine 2', level: 1 });
-  expect(title).toBeInTheDocument();
-});
 
 test('Expect that removing the connection is going back to the previous page', async () => {
   const socketPath = '/my/common-socket-path';
-  const podmanMachineName1 = 'podman machine 1';
-  const podmanMachineName2 = 'podman machine 2';
-  const podmanMachineName3 = 'podman machine 3';
+  const kindCluster1 = 'kind cluster 1';
+  const kindCluster2 = 'kind cluster 2';
+  const kindCluster3 = 'kind cluster 3';
 
   const routerGotoSpy = vi.spyOn(router, 'goto');
 
@@ -114,8 +42,8 @@ test('Expect that removing the connection is going back to the previous page', a
   (window as any).deleteProviderConnectionLifecycle = deleteMock;
 
   const providerInfo: ProviderInfo = {
-    id: 'podman',
-    name: 'podman',
+    id: 'kind',
+    name: 'kind',
     images: {
       icon: 'img',
     },
@@ -123,36 +51,33 @@ test('Expect that removing the connection is going back to the previous page', a
     warnings: [],
     containerProviderConnectionCreation: true,
     detectionChecks: [],
-    containerConnections: [
+    containerConnections: [],
+    installationSupport: false,
+    internalId: '0',
+    kubernetesConnections: [
       {
-        name: podmanMachineName1,
+        name: kindCluster1,
         status: 'started',
         endpoint: {
-          socketPath,
+          apiURL: 'http://localhost:8080',
         },
-        type: 'podman',
       },
       {
-        name: podmanMachineName2,
+        name: kindCluster2,
         status: 'stopped',
         endpoint: {
-          socketPath,
+          apiURL: 'http://localhost:8181',
         },
-        type: 'podman',
         lifecycleMethods: ['delete'],
       },
       {
-        name: podmanMachineName3,
+        name: kindCluster3,
         status: 'started',
         endpoint: {
-          socketPath,
+          apiURL: 'http://localhost:8282',
         },
-        type: 'podman',
       },
     ],
-    installationSupport: false,
-    internalId: '0',
-    kubernetesConnections: [],
     kubernetesProviderConnectionCreation: true,
     links: [],
     containerProviderConnectionInitialization: false,
@@ -163,34 +88,31 @@ test('Expect that removing the connection is going back to the previous page', a
   // 3 connections with the same socket path
   providerInfos.set([providerInfo]);
 
-  // encode name with base64 of the second machine
-  const name = Buffer.from(podmanMachineName2).toString('base64');
-
-  const connection = Buffer.from(socketPath).toString('base64');
+  // encode name with base64 of the second cluster
+  const apiUrlBase64 = Buffer.from('http://localhost:8181').toString('base64');
 
   // defines a fake lastPage so we can check where we will be redirected
   lastPage.set({ name: 'Fake Previous', path: '/last' });
 
-  // delete current machine 2 from the provider info
+  // delete current cluster 2 from the provider info
   deleteMock.mockImplementation(() => {
     providerInfos.update(providerInfos =>
       providerInfos.map(provider => {
-        provider.containerConnections = provider.containerConnections.filter(
-          connection => connection.name !== podmanMachineName2,
+        provider.kubernetesConnections = provider.kubernetesConnections.filter(
+          kubeConnection => kubeConnection.name !== kindCluster2,
         );
         return provider;
       }),
     );
   });
 
-  render(PreferencesContainerConnectionRendering, {
-    name,
-    connection,
+  render(PreferencesKubernetesConnectionRendering, {
+    apiUrlBase64,
     providerInternalId: '0',
   });
 
   // expect to have the second machine being displayed (and not the first one that also match socket path)
-  const title = screen.getByRole('heading', { name: 'podman machine 2', level: 1 });
+  const title = screen.getByRole('heading', { name: 'kind cluster 2', level: 1 });
   expect(title).toBeInTheDocument();
 
   // ok now we delete the connection

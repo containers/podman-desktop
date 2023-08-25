@@ -22,14 +22,14 @@ import { ContextUI } from '../lib/context/context';
 
 export const context: Writable<ContextUI> = writable(new ContextUI());
 
-window.events?.receive('context-value-updated', async value => {
+window.events?.receive('context-value-updated', async (value: { key: string; value: string }) => {
   context.update(ctx => {
     ctx.setValue(value.key, value.value);
     return ctx;
   });
 });
 
-window.events?.receive('context-key-removed', async value => {
+window.events?.receive('context-key-removed', async (value: { key: string; value: string }) => {
   context.update(ctx => {
     ctx.removeValue(value.key);
     return ctx;

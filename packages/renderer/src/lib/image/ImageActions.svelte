@@ -118,7 +118,7 @@ if (dropdownMenu) {
   {/each}
 
   {#if errorMessage}
-    <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="{0}">
+    <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="-1">
       <div class="pf-c-alert pf-m-danger pf-m-inline" aria-label="Success alert">
         <div class="pf-c-alert__icon">
           <i class="fas fa-fw fa-exclamation-circle" aria-hidden="true"></i>

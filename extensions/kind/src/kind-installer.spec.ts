@@ -21,6 +21,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { KindInstaller } from './kind-installer';
 import * as extensionApi from '@podman-desktop/api';
 import { installBinaryToSystem } from './util';
+import type { RunError } from '@podman-desktop/api';
 
 let installer: KindInstaller;
 
@@ -35,6 +36,27 @@ vi.mock('@podman-desktop/api', async () => {
     ProgressLocation: {
       APP_ICON: 1,
     },
+    process: {
+      exec: vi.fn(),
+    },
+  };
+});
+
+vi.mock('sudo-prompt', () => {
+  return {
+    exec: vi
+      .fn()
+      .mockImplementation(
+        (
+          cmd: string,
+          options?:
+            | ((error?: Error, stdout?: string | Buffer, stderr?: string | Buffer) => void)
+            | { name?: string; icns?: string; env?: { [key: string]: string } },
+          callback?: (error?: Error, stdout?: string | Buffer, stderr?: string | Buffer) => void,
+        ) => {
+          callback(undefined);
+        },
+      ),
   };
 });
 
@@ -53,10 +75,6 @@ const telemetryLoggerMock = {
   logUsage: telemetryLogUsageMock,
   logError: telemetryLogErrorMock,
 } as unknown as extensionApi.TelemetryLogger;
-
-vi.mock('runCliCommand', async () => {
-  return vi.fn();
-});
 
 beforeEach(() => {
   installer = new KindInstaller('.', telemetryLoggerMock);
@@ -85,6 +103,8 @@ test('error: expect installBinaryToSystem to fail with a non existing binary', a
   Object.defineProperty(process, 'platform', {
     value: 'linux',
   });
+
+  vi.spyOn(extensionApi.process, 'exec').mockRejectedValue({} as RunError);
 
   // Run installBinaryToSystem with a non-binary file
   try {

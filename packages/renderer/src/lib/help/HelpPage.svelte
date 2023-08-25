@@ -27,7 +27,7 @@ $: contributedLinks = $providerInfos
       <div class="bg-charcoal-600 px-3 pt-3 pb-3 rounded-lg">
         <div class="text-lg">Getting Started</div>
         <div class="grid grid-cols-1 md:grid-cols-2 py-3">
-          <div
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
             on:click="{() => window.openExternal('https://podman-desktop.io/docs/intro')}"
             title="https://podman-desktop.io/docs/intro">
@@ -35,8 +35,8 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-external-link-alt ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
-          <div
+          </button>
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:place-content-end md:ml-2"
             on:click="{() => window.openExternal('https://podman-desktop.io/docs/troubleshooting')}"
             title="https://podman-desktop.io/docs/troubleshooting">
@@ -44,8 +44,8 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-external-link-alt ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
-          <div
+          </button>
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
             on:click="{() => window.openExternal('https://podman-desktop.io/features')}"
             title="https://podman-desktop.io/features">
@@ -53,8 +53,8 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-external-link-alt ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
-          <div
+          </button>
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:place-content-end md:ml-2"
             on:click="{() => window.openExternal('https://podman-desktop.io/extend')}"
             title="https://podman-desktop.io/extend">
@@ -62,7 +62,7 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-external-link-alt ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -75,7 +75,7 @@ $: contributedLinks = $providerInfos
               <div class="grid grid-cols-1 md:grid-cols-2 py-3">
                 {#each links as link, index}
                   {@const evenItems = index % 2 !== 0}
-                  <div
+                  <button
                     class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer {evenItems
                       ? 'md:place-content-end md:ml-2'
                       : 'md:border-r-2'}"
@@ -87,7 +87,7 @@ $: contributedLinks = $providerInfos
                     <i
                       class="opacity-0 group-hover:opacity-100 fas fa-solid fa-external-link-alt ml-2 transition-opacity delay-150 duration-150 ease-in-out"
                       aria-hidden="true"></i>
-                  </div>
+                  </button>
                 {/each}
               </div>
             </div>
@@ -99,7 +99,7 @@ $: contributedLinks = $providerInfos
       <div class="bg-charcoal-600 px-3 pt-3 pb-3 rounded-lg">
         <div class="text-lg">Get in Touch</div>
         <div class="grid grid-cols-1 md:grid-cols-2 py-3">
-          <div
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
             on:click="{() => window.openExternal('https://github.com/containers/podman-desktop/issues/new/choose')}"
             title="https://github.com/containers/podman-desktop/issues/new/choose">
@@ -107,8 +107,8 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-exclamation-triangle ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
-          <div
+          </button>
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:place-content-end md:ml-2"
             on:click="{() =>
               window.openExternal('https://github.com/containers/podman-desktop/discussions/categories/general')}"
@@ -117,8 +117,8 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-exclamation-triangle ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
-          <div
+          </button>
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
             on:click="{() => window.events.send('display-feedback', undefined)}"
             title="Share your Feedback">
@@ -126,7 +126,7 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-comment ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -134,7 +134,7 @@ $: contributedLinks = $providerInfos
       <div class="bg-charcoal-600 px-3 pt-3 pb-3 rounded-lg">
         <div class="text-lg">Communication</div>
         <div class="grid grid-cols-1 md:grid-cols-2 py-3">
-          <div
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
             on:click="{() => window.openExternal('https://discord.com/invite/x5GzFF6QH4')}"
             title="https://discordapp.com/invite/TCTB38RWpf">
@@ -142,8 +142,8 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-comments ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
-          <div
+          </button>
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:place-content-end md:ml-2"
             on:click="{() => window.openExternal('https://libera.chat')}"
             title="https://libera.chat">
@@ -153,8 +153,8 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-comments ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
-          <div
+          </button>
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
             on:click="{() => window.openExternal('https://fedora.im')}"
             title="https://fedora.im">
@@ -162,8 +162,8 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-comments ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
-          <div
+          </button>
+          <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:place-content-end md:ml-2"
             on:click="{() => window.openExternal('https://slack.k8s.io')}"
             title="https://slack.k8s.io">
@@ -171,7 +171,7 @@ $: contributedLinks = $providerInfos
             <i
               class="opacity-0 group-hover:opacity-100 fas fa-solid fa-comments ml-2 transition-opacity delay-150 duration-150 ease-in-out"
               aria-hidden="true"></i>
-          </div>
+          </button>
         </div>
       </div>
     </div>

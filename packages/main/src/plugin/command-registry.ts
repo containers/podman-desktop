@@ -65,9 +65,7 @@ export class CommandRegistry {
       (telemetryOptions as any).error = err;
       throw err;
     } finally {
-      this.telemetry
-        .track('executeCommand', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetry.track('executeCommand', telemetryOptions);
     }
   }
 

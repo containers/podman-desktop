@@ -72,6 +72,6 @@ test('Check containers button is available and click on it', async () => {
 
   // check content
   expect(style).toHaveTextContent(
-    `.podman-desktop-icon-my-icon-id:before { content: '\\E01'; font-family: '${icon.definition.font.fontId}'; } @font-face { src: url('file://my-font.woff') format('woff2'); font-family: 'my-font-id'; font-display: block; }`,
+    `.podman-desktop-icon-my-icon-id:before { content: '\\E01'; font-family: '${icon.definition.font?.fontId}'; } @font-face { src: url('file://my-font.woff') format('woff2'); font-family: 'my-font-id'; font-display: block; }`,
   );
 });

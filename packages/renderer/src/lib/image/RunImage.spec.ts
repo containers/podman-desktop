@@ -25,6 +25,7 @@ import { runImageInfo } from '../../stores/run-image-store';
 import RunImage from '/@/lib/image/RunImage.svelte';
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
 import { mockBreadcrumb } from '../../stores/breadcrumb';
+import userEvent from '@testing-library/user-event';
 
 // fake the window.events object
 beforeAll(() => {
@@ -76,7 +77,7 @@ async function createRunImage(entrypoint?: string | string[], cmd?: string[]) {
       AttachStderr: false,
       AttachStdin: false,
       AttachStdout: false,
-      Cmd: cmd,
+      Cmd: cmd || [],
       Domainname: '',
       Entrypoint: entrypoint,
       Env: [],
@@ -306,6 +307,32 @@ describe('RunImage', () => {
     expect(window.createAndStartContainer).toHaveBeenCalledWith(
       'engineid',
       expect.objectContaining({ Cmd: ['command1', 'command2'] }),
+    );
+  });
+
+  test('Expect to see an error if the container/host ranges have different size', async () => {
+    await createRunImage(undefined, ['command1', 'command2']);
+
+    const customMappingButton = screen.getByRole('button', { name: 'Add custom port mapping' });
+    await fireEvent.click(customMappingButton);
+
+    const hostInput = screen.getByLabelText('host port');
+    await userEvent.click(hostInput);
+    await userEvent.clear(hostInput);
+    await userEvent.keyboard('9000-9001');
+
+    const containerInput = screen.getByLabelText('container port');
+    await userEvent.click(containerInput);
+    await userEvent.clear(containerInput);
+    await userEvent.keyboard('9000-9003');
+
+    const button = screen.getByRole('button', { name: 'Start Container' });
+
+    await fireEvent.click(button);
+
+    const errorComponent = screen.getByLabelText('createError');
+    expect(errorComponent.textContent.trim()).toBe(
+      'Error: host and container port ranges (9000-9001:9000-9003) have different lengths: 2 vs 4',
     );
   });
 });

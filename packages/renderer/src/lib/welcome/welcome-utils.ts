@@ -21,7 +21,7 @@ import { TelemetrySettings } from '../../../../main/src/plugin/telemetry/telemet
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 
 export class WelcomeUtils {
-  async getVersion(): Promise<string> {
+  async getVersion(): Promise<string | undefined> {
     return window.getConfigurationValue<string>(WelcomeSettings.SectionName + '.' + WelcomeSettings.Version);
   }
 
@@ -33,7 +33,7 @@ export class WelcomeUtils {
     );
   }
 
-  havePromptedForTelemetry(): Promise<boolean> {
+  havePromptedForTelemetry(): Promise<boolean | undefined> {
     return window.getConfigurationValue<boolean>(TelemetrySettings.SectionName + '.' + TelemetrySettings.Check);
   }
 

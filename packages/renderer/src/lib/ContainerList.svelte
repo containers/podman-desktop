@@ -479,12 +479,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               <td class="whitespace-nowrap hover:cursor-pointer">
                 <div class="flex items-center text-sm text-gray-300 overflow-hidden text-ellipsis">
                   <div class="flex flex-col flex-nowrap">
-                    <div
+                    <button
                       class="text-sm text-gray-300 overflow-hidden text-ellipsis"
                       title="{containerGroup.type}"
                       on:click="{() => openGroupDetails(containerGroup)}">
                       {containerGroup.name} ({containerGroup.type})
-                    </div>
+                    </button>
                     <div class="text-xs font-extra-light text-gray-900">
                       {containerGroup.containers.length} container{containerGroup.containers.length > 1 ? 's' : ''}
                     </div>
@@ -638,7 +638,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     on:close="{() => {
       openChoiceModal = false;
     }}">
-    <div
+    <button
       class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 h-[200px] rounded-xl shadow-xl shadow-neutral-900"
       on:keydown="{keydownChoice}">
       <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
@@ -660,6 +660,6 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
           <Button type="secondary" on:click="{() => fromExistingImage()}">Existing image</Button>
         </div>
       </div>
-    </div>
+    </button>
   </Modal>
 {/if}

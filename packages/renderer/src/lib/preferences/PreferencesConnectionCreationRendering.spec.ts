@@ -72,7 +72,9 @@ test('Expect that the create button is available', async () => {
 });
 
 test('Expect create connection successfully', async () => {
-  let providedKeyLogger;
+  let providedKeyLogger:
+    | ((key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void)
+    | undefined;
 
   const callback = vi.fn();
   callback.mockImplementation(async function (
@@ -119,22 +121,26 @@ test('Expect create connection successfully', async () => {
   expect(providedKeyLogger).toBeDefined();
 
   // simulate end of the create operation
-  providedKeyLogger(currentConnectionInfo.createKey, 'finish', []);
+  if (providedKeyLogger) {
+    providedKeyLogger(currentConnectionInfo.createKey, 'finish', []);
+  }
 
   // expect it is sucessful
   const currentConnectionInfoAfterMap = get(createConnectionsInfo);
   expect(currentConnectionInfoAfterMap).toBeDefined();
   const currentConnectionInfoAfter = currentConnectionInfoAfterMap.get(2);
 
-  expect(currentConnectionInfoAfter.creationInProgress).toBeFalsy();
-  expect(currentConnectionInfoAfter.creationStarted).toBeTruthy();
-  expect(currentConnectionInfoAfter.creationSuccessful).toBeTruthy();
+  expect(currentConnectionInfoAfter?.creationInProgress).toBeFalsy();
+  expect(currentConnectionInfoAfter?.creationStarted).toBeTruthy();
+  expect(currentConnectionInfoAfter?.creationSuccessful).toBeTruthy();
   const closeButton = screen.getByRole('button', { name: 'Close panel' });
   expect(closeButton).toBeInTheDocument();
 });
 
 test('Expect cancelling the creation, trigger the cancellation token', async () => {
-  let providedKeyLogger;
+  let providedKeyLogger:
+    | ((key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void)
+    | undefined;
 
   const callback = vi.fn();
   callback.mockImplementation(async function (
@@ -187,7 +193,9 @@ test('Expect cancelling the creation, trigger the cancellation token', async () 
   await fireEvent.click(cancelButton);
 
   // simulate end of the create operation
-  providedKeyLogger(currentConnectionInfo.createKey, 'finish', []);
+  if (providedKeyLogger) {
+    providedKeyLogger(currentConnectionInfo.createKey, 'finish', []);
+  }
 
   // expect it is sucessful
   expect(cancelTokenMock).toBeCalled;

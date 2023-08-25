@@ -23,6 +23,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable sonarjs/no-identical-functions */
 /* eslint-disable sonarjs/no-nested-switch */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import type { LexingError, Token } from './scanner.js';
 import { Scanner, TokenType } from './scanner.js';
@@ -1840,7 +1841,7 @@ export class ContextKeyAndExpr implements IContextKeyExpression {
       for (const expr of this.expr) {
         result.push(expr.negate());
       }
-      this.negated = ContextKeyOrExpr.create(result, this, true);
+      this.negated = ContextKeyOrExpr.create(result, this, true)!;
     }
     return this.negated;
   }
@@ -2027,18 +2028,18 @@ export class ContextKeyOrExpr implements IContextKeyExpression {
         const RIGHT = result.shift();
 
         const all: ContextKeyExpression[] = [];
-        for (const left of getTerminals(LEFT)) {
-          for (const right of getTerminals(RIGHT)) {
-            all.push(ContextKeyAndExpr.create([left, right], undefined, false));
+        for (const left of getTerminals(LEFT!)) {
+          for (const right of getTerminals(RIGHT!)) {
+            all.push(ContextKeyAndExpr.create([left, right], undefined, false)!);
           }
         }
 
-        result.unshift(ContextKeyOrExpr.create(all, undefined, false));
+        result.unshift(ContextKeyOrExpr.create(all, undefined, false)!);
       }
 
       this.negated = ContextKeyOrExpr.create(result, this, true);
     }
-    return this.negated;
+    return this.negated!;
   }
 }
 

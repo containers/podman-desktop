@@ -24,7 +24,7 @@ import { render, screen } from '@testing-library/svelte';
 import Checkbox from './Checkbox.svelte';
 
 function getPeer(checkbox: HTMLElement) {
-  return checkbox.parentElement.children[1];
+  return checkbox.parentElement?.children[1];
 }
 
 test('Basic check', async () => {

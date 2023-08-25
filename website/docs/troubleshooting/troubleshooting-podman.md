@@ -1,120 +1,157 @@
 ---
 sidebar_position: 10
+title: Troubleshooting Podman
+description: How to investigate when Podman does not work as expected.
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Troubleshooting Podman
 
-### Unable to see any image or container after downloading Podman Desktop
-
-#### System Requirements
-
-The tool connects to Podman using the socket on the host on macOS and on a named pipe on Windows.
-This is available only on Podman 4.0.2+
-So, please check your version and update.
-
-On Windows, the named pipe is `//./pipe/docker_engine` when Docker Desktop is not installed. It will be solved by <https://github.com/containers/podman/issues/13502> / <https://github.com/containers/podman/pull/13655>. During that time, you might start Docker Desktop so the named pipe is the one expected.
-
-#### Check connection
-
-Check at least a Podman machine is running on Windows & macOS:
-
-```bash
-podman machine list
-```
-
-And check a connection can be made with the CLI
-
-```sh
-$ podman run quay.io/podman/hello
-!... Hello Podman World ...!
-
-         .--"--.
-       / -     - \
-      / (O)   (O) \
-   ~~~| -=(,Y,)=- |
-    .---. /`  \   |~~
- ~/  o  o \~~~~.----. ~~
-  | =(X)= |~  / (O (O) \
-   ~~~~~~~  ~| =(Y_)=-  |
-  ~~~~    ~~~|   U      |~~
-
-Project:   https://github.com/containers/podman
-Website:   https://podman.io
-Documents: https://docs.podman.io
-Twitter:   @Podman_io
-```
-
-### Unable to see information about active containers
+## Podman Desktop does not find your Podman installation
 
 #### Issue
 
-In this scenario, the screen might be displaying "No Containers" as shown below despite active containers runnning in the background.
+To install Podman, you can choose between multiple installation methods:
+
+- Install from Podman Desktop.
+- Podman installer.
+- Operating system specific installer: Brew, Chocolatey, Scoop, Winget.
+- Installer for restricted environment.
+
+Podman Desktop might fail to detect your Podman installation.
+
+#### Solution
+
+Try following steps to verify your Podman installation.
+After each step, quit and restart Podman Desktop to ensure that it can detect your Podman installation.
+
+1. In a terminal, verify you can access the Podman CLI, and verify the version.
+
+   ```shell-session
+   $ podman version
+   ```
+
+1. Update Podman to the latest stable version by using your installation method.
+1. Search for errors in the installation logs (if your installation method is providing logs).
+1. Reinstall Podman with the same installation method.
+1. Reinstall Podman with the Podman Desktop installer.
+1. Reinstall Podman with the Podman installer.
+1. Reinstall Podman with another method.
+
+## Podman Desktop fails creating a Podman machine
+
+#### Issue
+
+Podman Desktop might fail creating a Podman machine.
+
+#### Workaround
+
+1. In a terminal, create the Podman machine with the Podman CLI:
+
+   ```shell-session
+   $ podman machine init
+   ```
+
+1. If the creation fails, read the logs carefully to continue troubleshooting.
+
+## Podman Desktop fails starting a Podman machine
+
+#### Issue
+
+Podman Desktop might fail starting a Podman machine.
+
+#### Workaround
+
+1. In a terminal, start the Podman machine with the Podman CLI:
+
+   ```shell-session
+   $ podman machine start
+   ```
+
+1. If the creation fails, read the logs carefully to continue troubleshooting.
+
+## Podman Desktop fails listing images or containers
+
+Podman Desktop might fail listing images or container.
+
+#### Prerequisites
+
+- Podman 4.1.0 or later is needed. Podman Desktop requires the Podman machine to expose the socket on the host for macOS, and on a named pipe for Windows
+
+#### Procedure
+
+1. On Windows and macOS: in a terminal, verify that at least one Podman machine is running:
+
+   ```shell-session
+   $ podman machine list
+   ```
+
+1. To verify you can connect by using the CLI, in a terminal, run the `hello` container:
+
+   ```shell-session
+   $ podman run quay.io/podman/hello
+   ```
+
+## Podman Destkop fails listing containers
+
+#### Issue
+
+Podman Desktop might display "No Containers" as shown below, even if there are active containers running in the background.
 ![img](../img/containers_error.png)
 
 #### Solution
 
-There are three ways to work this out.
+1. Stop and restart Podman Desktop.
+1. In Podman Desktop, restart the Podman machine.
 
-1. To solve this issue, open the Terminal and run the following commands-
+1. In a terminal, restart the Podman machine:
 
    ```shell-session
-   podman machine stop
-   podman machine start
+   $ podman machine stop
+   $ podman machine start
    ```
 
-2. If this does not work for you, you might proceed with the following commands-
+1. If the previous step did not work for you, delete your Podman machine, and create a new one:
 
    ```shell-session
    $ podman machine rm
    $ podman machine init
    ```
 
-3. If both of the abovementioned steps don't work for you, run the following commands-
+1. If the previous steps did not work for you, delete your Podman configuration files, and create a new Podman machine:
 
    ```shell-session
    $ rm -rf ~/.local/share/containers/podman
    $ rm -rf ~/.config/containers/
+   $ podman machine init
    ```
 
-   After this, you can start off again by initializing a new Podman Machine and loading up the containers.
-
-### Warning about Docker compatibility mode
+## Warning about Docker compatibility mode
 
 #### Issue
 
 When running the Podman provider, a warning shows regarding Docker compatibility mode on the dashboard:
 
-```sh
+```
 ⚠️ Docker Socket Compatibility: Podman is not emulating the default Docker socket path: '/var/run/docker.sock'. Docker-specific tools may not work. See troubleshooting page on podman-desktop.io for more information.
 ```
 
 This might appear when either:
 
-- The Docker socket is not mounted correctly
-- Docker Desktop is also being ran at the same time
+- The Docker socket is not mounted correctly.
+- Docker Desktop is also being ran at the same time.
 
 #### Solution
 
-**On macOS:**
+1. Stop Docker Desktop (if installed).
+2. On macOS, Run the `podman-mac-helper` binary:
 
-1. Stop Docker Desktop (if install)
-2. Run the `podman-mac-helper` binary:
-
-   ```sh
-   sudo podman-mac-helper install
+   ```shell-session
+   $ sudo podman-mac-helper install
    ```
 
-   for additional options please run the command:
-
-   ```sh
-   sudo podman-mac-helper install --help
-   ```
-
-3. Restart the Podman machine (the default Docker socket path will be recreated and Podman will emulate it)
-
-**On Linux / Windows:**
-
-1. Stop Docker Desktop (if installed)
-2. Restart the Podman machine (the default Docker socket path will be recreated and Podman will emulate it)
+3. Restart the Podman machine to recreate and activate the default Docker socket path.
 
 _Note:_ If Docker Desktop is started again, it will automatically re-alias the default Docker socket location and the Podman compatibilty warning will re-appear.
