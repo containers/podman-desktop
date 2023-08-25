@@ -2,6 +2,7 @@
 import { onMount } from 'svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import type { PodInfoUI } from './PodInfoUI';
+import type { PodInspectInfo } from '../../../../main/src/plugin/api/pod-info';
 
 export let pod: PodInfoUI;
 
@@ -11,7 +12,7 @@ onMount(async () => {
   // grab inspect result from the container
   let inspectResult;
   if (pod.kind === 'podman') {
-    inspectResult = await window.getPodInspect(pod.engineId, pod.id);
+    inspectResult = (await window.getPodInspect(pod.engineId, pod.id)) as Partial<PodInspectInfo>;
     // remove engine* properties from the inspect result as it's more internal
     delete inspectResult.engineId;
     delete inspectResult.engineName;
