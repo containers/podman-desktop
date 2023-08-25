@@ -12,7 +12,6 @@ export let executeCommand: (command: string) => Promise<void>;
 const onboardingContextRegex = new RegExp(/\${onboardingContext:(.+?)}/g);
 const globalContextRegex = new RegExp(/\${onContext:(.+?)}/g);
 let html: string;
-let isMarkdown = false;
 $: buttons = new Map<string, string>();
 const eventListeners: ((e: any) => void)[] = [];
 onMount(() => {
@@ -36,22 +35,7 @@ onDestroy(() => {
   eventListeners.forEach(listener => document.removeEventListener('click', listener));
 });
 function createItem(item: OnboardingStepItem): string {
-  let html = '';
-  switch (item.component) {
-    case 'button': {
-      const buttonId = `button-${buttons.size}`;
-      const value = `<button id="${buttonId}" class="bg-purple-700 py-2 px-2.5 rounded-md">${item.label}</button>`;
-      buttons.set(buttonId, item.command);
-      buttons = buttons;
-      html = value;
-      break;
-    }
-    default: {
-      html = replacePlaceholders(item.value);
-      isMarkdown = true;
-    }
-  }
-  return html;
+  return replacePlaceholders(item.value);
 }
 
 function replacePlaceholders(label: string): string {
@@ -83,11 +67,6 @@ function getNewValue(label: string, matchArray: RegExpMatchArray, prefix?: strin
 
 <div class="flex justify-center {item.highlight ? 'bg-charcoal-600' : ''} p-3 m-2 rounded-md min-w-[500px]">
   {#if html}
-    {#if !isMarkdown}
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html html}
-    {:else}
-      <Markdown>{html}</Markdown>
-    {/if}
+    <Markdown>{html}</Markdown>
   {/if}
 </div>

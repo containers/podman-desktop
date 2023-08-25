@@ -44,7 +44,7 @@ test('Expect to have italic', async () => {
 });
 
 describe('Custom button', () => {
-  test('Expect without attributes', async () => {
+  test('Expect button to be rendered as a link without attributes', async () => {
     await waitRender({ markdown: ':button[Name of the button]' });
     const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
     expect(markdownContent).toBeInTheDocument();
@@ -53,12 +53,21 @@ describe('Custom button', () => {
     );
   });
 
-  test('Expect with all attributes', async () => {
+  test('Expect button to be rendered as a link with all attributes', async () => {
     await waitRender({ markdown: ':button[Name of the button]{href=https://my-link title="tooltip text"}' });
     const markdownButton = screen.getByRole('link');
     expect(markdownButton).toBeInTheDocument();
     expect(markdownButton).toHaveTextContent('Name of the button');
     expect(markdownButton).toHaveAttribute('href', 'https://my-link');
     expect(markdownButton).toHaveAttribute('title', 'tooltip text');
+  });
+
+  test('Expect button to be rendered as a button with attributes', async () => {
+    await waitRender({ markdown: ':button[Name of the button]{id=id command=command}' });
+    const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
+    expect(markdownContent).toBeInTheDocument();
+    expect(markdownContent).toContainHTML(
+      '<button class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" id="id">Name of the button</button>',
+    );
   });
 });

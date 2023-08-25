@@ -22,27 +22,23 @@ import OnboardingItem from './OnboardingItem.svelte';
 import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import { ContextUI } from '../context/context';
 
-test('Expect button html when passing a button component', async () => {
-  const buttonComponent: OnboardingStepItem = {
-    component: 'button',
-    command: 'command',
-    label: 'button',
-    id: 'id',
+test('Expect button html when passing a button tag in markdown', async () => {
+  const textComponent: OnboardingStepItem = {
+    value: ':button[label]{id=id command=command}',
   };
   render(OnboardingItem, {
     extension: 'extension',
-    item: buttonComponent,
+    item: textComponent,
     getContext: vi.fn(),
     executeCommand: vi.fn(),
   });
-  const button = screen.getByRole('button', { name: 'button' });
+  const button = screen.getByRole('button', { name: 'label' });
   expect(button).toBeInTheDocument();
+  expect(button.id).toBe('id');
 });
 
 test('Expect markdown html when passing a text component', async () => {
   const textComponent: OnboardingStepItem = {
-    component: 'text',
-    id: 'text',
     value: 'html content here',
   };
   render(OnboardingItem, {
@@ -58,8 +54,6 @@ test('Expect markdown html when passing a text component', async () => {
 
 test('Expect placeholders are replaced when passing a text component with placeholders', async () => {
   const textComponent: OnboardingStepItem = {
-    component: 'text',
-    id: 'text',
     value: '${onboardingContext:text}',
   };
   const context = new ContextUI();
