@@ -75,8 +75,6 @@ if (dropdownMenu) {
 } else {
   actionsStyle = FlatMenu;
 }
-
-console.log('compose: ', compose);
 </script>
 
 <ListItemButtonIcon
