@@ -30,7 +30,7 @@ export class ImagesPage extends PodmanDesktopPage {
 
   constructor(page: Page) {
     super(page);
-    this.heading = page.getByRole('heading', { name: 'Images', exact: true });
+    this.heading = page.getByRole('heading', { name: 'images', exact: true });
     this.pullImageButton = page.getByRole('button', { name: 'Pull an image' });
     this.pruneImagesButton = page.getByRole('button', { name: 'Prune images' });
     this.buildImageButton = page.getByRole('button', { name: 'Build an image' });
@@ -89,7 +89,7 @@ export class ImagesPage extends PodmanDesktopPage {
     }
   }
 
-  protected async imageExists(name: string): Promise<boolean> {
+  async imageExists(name: string): Promise<boolean> {
     const result = await this.getImageRowByName(name);
     return result !== undefined;
   }
