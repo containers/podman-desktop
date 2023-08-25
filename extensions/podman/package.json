@@ -120,7 +120,6 @@
       "steps": [
         {
           "id": "checkPodmanInstalled",
-          "label": "Check Podman",
           "title": "Checking for Podman installation",
           "command": "podman.onboarding.checkPodmanInstalled",
           "completionEvents": [
@@ -129,13 +128,11 @@
         },
         {
           "id": "startPodmanInstallation",
-          "label": "Start Setup",
           "title": "We could not find Podman. Let's install it!",
           "when": "onboardingContext:podmanIsNotInstalled == true"
         },
         {
           "id": "checkPodmanRequirements",
-          "label": "Check System",
           "title": "Checking for system requirements to install Podman",
           "when": "onboardingContext:podmanIsNotInstalled == true",
           "command": "podman.onboarding.checkPodmanRequirements",
@@ -145,7 +142,6 @@
         },
         {
           "id": "missingRequirementView",
-          "label": "Fix System",
           "title": "Some system requirements are missing",
           "when": "onboardingContext:requirementsStatus == failed && onboardingContext:podmanIsNotInstalled == true",
           "completionEvents": [
@@ -174,7 +170,6 @@
         },
         {
           "id": "installPodmanView",
-          "label": "Install Podman",
           "title": "Installing Podman",
           "description": "Once installed, we will enable and configure the extension",
           "when": "onboardingContext:podmanIsNotInstalled == true",
@@ -185,15 +180,15 @@
         },
         {
           "id": "podmanFailedInstallation",
-          "label": "Done",
           "title": "Failed installing Podman",
-          "when": "onboardingContext:podmanIsNotInstalled == true"
+          "when": "onboardingContext:podmanIsNotInstalled == true",
+          "state": "failed"
         },
         {
           "id": "podmanInstalled",
-          "label": "Done",
           "title": "Podman successfully installed",
-          "when": "onboardingContext:podmanIsNotInstalled == false"
+          "when": "onboardingContext:podmanIsNotInstalled == false",
+          "state": "succeeded"
         }
       ]
     }

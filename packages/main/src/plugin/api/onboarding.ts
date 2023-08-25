@@ -41,10 +41,10 @@ export interface OnboardingStepTextItem extends OnboardingBaseItem {
 export type OnboardingStepItem = OnboardingStepTextItem | OnboardingStepButtonItem;
 
 export type OnboardingStatus = 'completed' | 'failed' | 'skipped';
+export type OnboardingState = 'completed' | 'failed';
 
 export interface OnboardingStep {
   id: string;
-  label: string;
   title: string;
   description?: string;
   media?: { path: string; altText: string };
@@ -55,6 +55,7 @@ export interface OnboardingStep {
   when?: string;
   status?: OnboardingStatus;
   showNext?: boolean;
+  state?: OnboardingState;
 }
 
 export interface Onboarding {
