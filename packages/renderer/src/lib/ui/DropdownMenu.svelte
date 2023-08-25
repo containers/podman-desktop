@@ -7,23 +7,23 @@ import DropDownMenuItems from './DropDownMenuItems.svelte';
 let showMenu = false;
 
 // If we touch outside the window, hide the menu
-let outsideWindow;
+let outsideWindow: HTMLButtonElement;
 
 // If we hit ESC while the menu is open, close it
-function handleEscape({ key }) {
+function handleEscape({ key }: any) {
   if (key === 'Escape') {
     showMenu = false;
   }
 }
 
-let clientY;
+let clientY: number;
 
 function toggleMenu() {
   showMenu = !showMenu;
 }
 
 // If we click outside the menu, close the menu
-function onWindowClick(e) {
+function onWindowClick(e: any) {
   showMenu = outsideWindow.contains(e.target);
 }
 </script>

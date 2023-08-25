@@ -14,7 +14,7 @@ export let imageInfoToPush: ImageInfoUI;
 
 let pushInProgress = false;
 let pushFinished = false;
-let logsPush;
+let logsPush: Terminal;
 
 let selectedImageTag = '';
 let imageTags: string[] = [];

@@ -7,7 +7,7 @@ import { EditorSettings } from '../../../../main/src/plugin/editor-settings';
 import type monaco from 'monaco-editor';
 import { getPanelDetailColor } from '../color/color';
 
-let divEl: HTMLDivElement = undefined;
+let divEl: HTMLDivElement;
 let editor: monaco.editor.IStandaloneCodeEditor;
 let Monaco;
 
@@ -35,7 +35,7 @@ onMount(async () => {
   Monaco.editor.defineTheme('podmanDesktopTheme', {
     base: 'vs-dark',
     inherit: true,
-    rules: [{ background: getPanelDetailColor() }],
+    rules: [{ token: 'custom-color', background: getPanelDetailColor() }],
     colors: {
       'editor.background': getPanelDetailColor(),
     },

@@ -8,19 +8,27 @@ export let featuredExtension: FeaturedExtension;
 
 let installInProgress = false;
 
-let logs = [];
+let logs: string[] = [];
 let errorInstall = '';
 
 let percentage = '0%';
 
 async function installExtension() {
+  errorInstall = '';
   console.log('User asked to install the extension with the following properties', featuredExtension);
   logs = [];
 
   installInProgress = true;
 
   // do a trim on the image name
-  const ociImage = featuredExtension.fetchLink.trim();
+  const ociImage = featuredExtension?.fetchLink?.trim();
+
+  if (!ociImage) {
+    console.log('No image to install');
+    errorInstall = 'No image to install';
+    installInProgress = false;
+    return;
+  }
 
   try {
     // download image

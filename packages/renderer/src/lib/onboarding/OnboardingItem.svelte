@@ -11,14 +11,14 @@ export let executeCommand: (command: string) => Promise<void>;
 
 const onboardingContextRegex = new RegExp(/\${onboardingContext:(.+?)}/g);
 const globalContextRegex = new RegExp(/\${onContext:(.+?)}/g);
-let html;
+let html: string;
 let isMarkdown = false;
 $: buttons = new Map<string, string>();
-const eventListeners = [];
+const eventListeners: ((e: any) => void)[] = [];
 onMount(() => {
   const itemHtml = createItem(item);
   html = itemHtml;
-  const clickListener = e => {
+  const clickListener = (e: any) => {
     if (e.target instanceof HTMLButtonElement) {
       const buttonId = e.target.id;
       let command = buttons.get(buttonId);

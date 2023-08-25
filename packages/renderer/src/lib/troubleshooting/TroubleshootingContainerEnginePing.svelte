@@ -22,7 +22,7 @@ async function pingConnection() {
     pingResult = `Responded: ${Buffer.from(String(result)).toString()}`;
   } catch (e) {
     pingResult = 'Failed';
-    pingError = e;
+    pingError = String(e);
   } finally {
     pingInProgress = false;
   }

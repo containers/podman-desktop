@@ -7,7 +7,7 @@ export let loadingWidthClass: string;
 export let loadingHeightClass: string;
 export let positionTopClass: string;
 export let positionLeftClass: string;
-export let loading: boolean;
+export let loading = false;
 export let iconSize = '';
 </script>
 

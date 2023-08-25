@@ -15,7 +15,7 @@ export let container: ContainerInfoUI;
 
 // Log
 let logsXtermDiv: HTMLDivElement;
-let refContainer;
+let refContainer: ContainerInfoUI;
 // logs has been initialized
 let noLogs = true;
 

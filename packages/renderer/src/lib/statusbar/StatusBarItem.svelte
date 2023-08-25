@@ -2,7 +2,7 @@
 import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
 import { iconClass } from './StatusBarItem';
 
-export let entry;
+export let entry: StatusBarEntry;
 
 function tooltipText(entry: StatusBarEntry): string {
   return entry.tooltip !== undefined ? entry.tooltip : '';

@@ -17,10 +17,10 @@ import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
-export let providerInternalId: string = undefined;
-export let taskId: number = undefined;
+export let providerInternalId: string | undefined = undefined;
+export let taskId: number | undefined = undefined;
 
-let showModal: ProviderInfo = undefined;
+let showModal: ProviderInfo | undefined = undefined;
 
 let providerLifecycleError = '';
 router.subscribe(() => {
@@ -50,14 +50,20 @@ async function stopProvider(): Promise<void> {
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
 }
 
-async function startReceivingLogs(provider: ProviderInfo): Promise<void> {
+async function startReceivingLogs(provider: ProviderInfo | undefined): Promise<void> {
+  if (!provider) {
+    return;
+  }
   const logHandler = (newContent: any[]) => {
     writeToTerminal(logsTerminal, newContent, '\x1b[37m');
   };
   window.startReceiveLogs(provider.internalId, logHandler, logHandler, logHandler);
 }
 
-async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
+async function stopReceivingLogs(provider: ProviderInfo | undefined): Promise<void> {
+  if (!provider) {
+    return;
+  }
   await window.stopReceiveLogs(provider.internalId);
 }
 </script>
@@ -142,7 +148,6 @@ async function stopReceivingLogs(provider: ProviderInfo): Promise<void> {
       stopReceivingLogs(showModal);
       showModal = undefined;
     }}">
-    <h2 slot="header">Logs</h2>
     <div id="log" style="height: 400px; width: 647px;">
       <div style="width:100%; height:100%; flexDirection: column;">
         <TerminalWindow bind:terminal="{logsTerminal}" on:init="{() => startReceivingLogs(showModal)}" />

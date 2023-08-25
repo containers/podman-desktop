@@ -42,7 +42,7 @@ onMount(() => {
   });
 });
 
-function inProgressCallback(inProgress: boolean, state: string): void {
+function inProgressCallback(inProgress: boolean, state: string | undefined): void {
   pod.actionInProgress = inProgress;
   if (state && inProgress) {
     pod.status = 'STARTING';

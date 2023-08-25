@@ -4,13 +4,13 @@ import { onMount } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import Spinner from './Spinner.svelte';
 
-export let title: string = undefined;
+export let title: string | undefined = undefined;
 export let inProgress = false;
 export let disabled = false;
 export let type: ButtonType = 'primary';
 export let icon: any = undefined;
 
-let iconType: string = undefined;
+let iconType: string | undefined = undefined;
 
 onMount(() => {
   if (icon?.prefix === 'fas') {

@@ -25,15 +25,15 @@ import { faCube } from '@fortawesome/free-solid-svg-icons';
 
 let buildFinished = false;
 let containerImageName = 'my-custom-image';
-let containerFilePath = undefined;
-let containerBuildContextDirectory = undefined;
+let containerFilePath: string;
+let containerBuildContextDirectory: string;
 let hasInvalidFields = true;
 
 let buildImageInfo: BuildImageInfo | undefined = undefined;
 let providers: ProviderInfo[] = [];
 let providerConnections: ProviderContainerConnectionInfo[] = [];
-let selectedProvider: ProviderContainerConnectionInfo = undefined;
-let selectedProviderConnection: ProviderContainerConnectionInfo = undefined;
+let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
+let selectedProviderConnection: ProviderContainerConnectionInfo | undefined = undefined;
 let logsTerminal: Terminal;
 
 function getTerminalCallback(): BuildImageCallback {
@@ -54,7 +54,7 @@ function getTerminalCallback(): BuildImageCallback {
 async function buildContainerImage(): Promise<void> {
   buildFinished = false;
 
-  if (containerFilePath) {
+  if (containerFilePath && selectedProvider) {
     // extract the relative path from the containerFilePath and containerBuildContextDirectory
     const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
 

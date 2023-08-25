@@ -34,7 +34,7 @@ async function runProvider() {
       });
     });
   } catch (error) {
-    runError = error;
+    runError = String(error);
     console.error('Error while starting the provider', error);
   }
   runInProgress = false;

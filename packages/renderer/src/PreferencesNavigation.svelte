@@ -4,27 +4,33 @@ import { extensionInfos } from './stores/extensions';
 import { configurationProperties } from './stores/configurationProperties';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration-registry-constants';
 import SettingsNavItem from './lib/preferences/SettingsNavItem.svelte';
+import type { TinroRouteMeta } from 'tinro';
 
-export let meta;
+export let meta: TinroRouteMeta;
 
 let configProperties: Map<string, { id: string; title: string }>;
 
 $: configProperties = new Map();
+let sectionExpanded: { [key: string]: boolean } = {};
 $: sectionExpanded = {};
+
+function sortItems(items: any): any[] {
+  return items.sort((a: { title: string }, b: { title: any }) => a.title.localeCompare(b.title));
+}
 
 onMount(async () => {
   configurationProperties.subscribe(value => {
     configProperties = value
       .filter(property => property.scope === CONFIGURATION_DEFAULT_SCOPE)
       .filter(property => !property.hidden)
-      .reduce((map, property) => {
+      .reduce((map: any, property) => {
         let [parentLeftId] = property.parentId.split('.');
 
         if (map[parentLeftId] === undefined) {
           map[parentLeftId] = [];
         }
 
-        let children = map[parentLeftId].find(item => item.id === property.parentId);
+        let children = map[parentLeftId].find((item: any) => item.id === property.parentId);
         if (children === undefined) {
           map[parentLeftId].push({ id: property.parentId, title: property.title });
         }
@@ -78,7 +84,7 @@ onMount(async () => {
         bind:meta="{meta}"
         bind:expanded="{sectionExpanded[configSection]}" />
       {#if sectionExpanded[configSection]}
-        {#each configItems.sort((a, b) => a.title.localeCompare(b.title)) as configItem}
+        {#each sortItems(configItems) as configItem}
           <SettingsNavItem
             title="{configItem.title}"
             href="/preferences/default/{configItem.id}"

@@ -4,7 +4,7 @@ import MonacoEditor from '../editor/MonacoEditor.svelte';
 import FormPage from '../ui/FormPage.svelte';
 import * as jsYaml from 'js-yaml';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
-import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
+import type { V1NamespaceList, V1Pod } from '@kubernetes/client-node/dist/api';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
@@ -18,7 +18,7 @@ export let type: string;
 
 let kubeDetails: string;
 
-let defaultContextName: string;
+let defaultContextName: string | undefined;
 let currentNamespace: string;
 let allNamespaces: V1NamespaceList;
 let deployStarted = false;
@@ -26,14 +26,14 @@ let deployFinished = false;
 let deployError = '';
 let deployWarning = '';
 let updatePodInterval: NodeJS.Timeout;
-let openshiftConsoleURL: string;
+let openshiftConsoleURL: string | undefined;
 let openshiftRouteGroupSupported = false;
 
 let deployUsingServices = true;
 let deployUsingRoutes = true;
 let deployUsingRestrictedSecurityContext = false;
-let createdPod = undefined;
-let bodyPod;
+let createdPod: V1Pod | undefined = undefined;
+let bodyPod: any;
 
 let createIngress = false;
 let ingressPort: number;
@@ -60,8 +60,14 @@ onMount(async () => {
   defaultContextName = await window.kubernetesGetCurrentContextName();
 
   // grab current namespace
-  currentNamespace = await window.kubernetesGetCurrentNamespace();
+  const grabCurrentNamespace = await window.kubernetesGetCurrentNamespace();
 
+  // check that the variable is set to a value, otherwise set to default namespace
+  if (!grabCurrentNamespace) {
+    currentNamespace = 'default';
+  } else {
+    currentNamespace = grabCurrentNamespace;
+  }
   // check that the variable is set to a value, otherwise set to default namespace
   if (!currentNamespace) {
     currentNamespace = 'default';
@@ -98,15 +104,20 @@ onMount(async () => {
 
 function openOpenshiftConsole() {
   // build link to openOpenshiftConsole
-  const linkToOpen = `${openshiftConsoleURL}/k8s/ns/${currentNamespace}/pods/${createdPod.metadata.name}`;
-  window.openExternal(linkToOpen);
+  if (createdPod?.metadata?.name) {
+    const linkToOpen = `${openshiftConsoleURL}/k8s/ns/${currentNamespace}/pods/${createdPod.metadata.name}`;
+    window.openExternal(linkToOpen);
+  }
 }
 
 async function updatePod() {
+  if (!createdPod?.metadata?.name || !createdPod?.metadata?.namespace) {
+    return;
+  }
   const updatedPod = await window.kubernetesReadNamespacedPod(createdPod.metadata.name, createdPod.metadata.namespace);
   createdPod = updatedPod;
   // stop to monitor once it is running
-  if (createdPod.status?.phase === 'Running') {
+  if (createdPod?.status?.phase === 'Running') {
     clearInterval(updatePodInterval);
     deployFinished = true;
     window.telemetryTrack('deployToKube.running', {
@@ -202,8 +213,8 @@ async function deployToKube() {
 
   // Check if we are deploying an ingress, if so, we need to create an ingress object using ingressPath and ingressDomain.
   if (createIngress) {
-    let serviceName: string;
-    let servicePort: number;
+    let serviceName = '';
+    let servicePort = 0;
 
     // Check that there are services (servicesToCreate), if there aren't. Warn that we can't create an ingress.
     // All services are always created with one port (the first one), so we can use that port to create the ingress.
@@ -261,7 +272,7 @@ async function deployToKube() {
     bodyPod.metadata.creationTimestamp = new Date(bodyPod.metadata.creationTimestamp);
   }
 
-  const eventProperties = {
+  const eventProperties: any = {
     useServices: deployUsingServices,
     useRoutes: deployUsingRoutes,
     createIngress: createIngress,
@@ -327,7 +338,7 @@ async function deployToKube() {
     updatePodInterval = setInterval(() => {
       updatePod();
     }, 2000);
-  } catch (error) {
+  } catch (error: any) {
     // Revert back to the previous bodyPod so the user can hit deploy again
     // we only update the bodyPod if we successfully create the pod.
     bodyPod = previousPod;
@@ -482,8 +493,8 @@ function updateKubeResult() {
             name="namespaceChoice"
             bind:value="{currentNamespace}">
             {#each allNamespaces.items as namespace}
-              <option value="{namespace.metadata.name}">
-                {namespace.metadata.name}
+              <option value="{namespace.metadata?.name}">
+                {namespace.metadata?.name}
               </option>
             {/each}
           </select>

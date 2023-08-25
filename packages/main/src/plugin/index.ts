@@ -1233,9 +1233,12 @@ export class PluginSystem {
       return messageBox.showMessageBox(options);
     });
 
-    this.ipcHandle('showMessageBox:onSelect', async (_listener, id: number, index: number): Promise<void> => {
-      return messageBox.onDidSelectButton(id, index);
-    });
+    this.ipcHandle(
+      'showMessageBox:onSelect',
+      async (_listener, id: number, index: number | undefined): Promise<void> => {
+        return messageBox.onDidSelectButton(id, index);
+      },
+    );
 
     this.ipcHandle('customPick:values', async (_listener, id: number, indexes: number[]): Promise<void> => {
       return customPickRegistry.onConfirmSelection(id, indexes);

@@ -25,7 +25,7 @@ import LinearProgress from '../ui/LinearProgress.svelte';
 import Spinner from '../ui/Spinner.svelte';
 import Markdown from '../markdown/Markdown.svelte';
 import type { Terminal } from 'xterm';
-import type { AuditRequestItems } from '@podman-desktop/api';
+import type { AuditRequestItems, AuditResult } from '@podman-desktop/api';
 import AuditMessageBox from '../ui/AuditMessageBox.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import { faCubes } from '@fortawesome/free-solid-svg-icons';
@@ -39,12 +39,12 @@ export let providerInfo: ProviderInfo;
 export let propertyScope: string;
 export let callback: (
   param: string,
-  data,
+  data: any,
   handlerKey: symbol,
-  collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+  collect: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
   tokenId?: number,
 ) => Promise<void>;
-export let taskId: number = undefined;
+export let taskId: number | undefined = undefined;
 
 $: configurationValues = new Map<string, string>();
 let creationInProgress = false;
@@ -54,7 +54,7 @@ let creationCancelled = false;
 let creationFailed = false;
 export let pageIsLoading = true;
 let showLogs = false;
-let tokenId: number;
+let tokenId: number | undefined;
 
 const providerDisplayName =
   (providerInfo.containerProviderConnectionCreation
@@ -63,17 +63,21 @@ const providerDisplayName =
     ? providerInfo.kubernetesProviderConnectionCreationDisplayName
     : undefined) || providerInfo.name;
 
-let osMemory, osCpu, osFreeDisk;
+let osMemory: string;
+let osCpu: string;
+let osFreeDisk: string;
+
 // get only ContainerProviderConnectionFactory scope fields that are starting by the provider id
 let configurationKeys: IConfigurationPropertyRecordedSchema[] = [];
 
 let isValid = true;
-let errorMessage = undefined;
+let errorMessage: string | undefined = undefined;
 
-let formEl;
+let formEl: HTMLFormElement;
 
 let globalContext: ContextUI;
 
+let connectionAuditResult: AuditResult | undefined;
 $: connectionAuditResult = undefined;
 
 let contextsUnsubscribe: Unsubscriber;
@@ -89,7 +93,7 @@ $: if (logsTerminal && loggerHandlerKey) {
 
 function isPropertyValidInContext(when: string, context: ContextUI) {
   const expr = ContextKeyExpr.deserialize(when);
-  return expr.evaluate(context);
+  return expr?.evaluate(context);
 }
 
 onMount(async () => {
@@ -99,7 +103,7 @@ onMount(async () => {
   contextsUnsubscribe = context.subscribe(value => (globalContext = value));
   configurationKeys = properties
     .filter(property => property.scope === propertyScope)
-    .filter(property => property.id.startsWith(providerInfo.id))
+    .filter(property => property.id?.startsWith(providerInfo.id))
     .filter(property => !property.when || isPropertyValidInContext(property.when, globalContext))
     .map(property => {
       switch (property.maximum) {
@@ -135,29 +139,34 @@ onMount(async () => {
 
   if (taskId && createConnectionInfoMap && createConnectionInfoMap.has(taskId)) {
     const value = createConnectionInfoMap.get(taskId);
-    loggerHandlerKey = value.createKey;
-    providerInfo = value.providerInfo;
-    properties = value.properties;
-    propertyScope = value.propertyScope;
+    if (value) {
+      loggerHandlerKey = value.createKey;
+      providerInfo = value.providerInfo;
+      properties = value.properties;
+      propertyScope = value.propertyScope;
 
-    // set the flag as before
-    creationInProgress = value.creationInProgress;
-    creationStarted = value.creationStarted;
-    errorMessage = value.errorMessage;
-    creationSuccessful = value.creationSuccessful;
-    tokenId = value.tokenId;
+      // set the flag as before
+      creationInProgress = value.creationInProgress;
+      creationStarted = value.creationStarted;
+      errorMessage = value.errorMessage;
+      creationSuccessful = value.creationSuccessful;
+      tokenId = value.tokenId;
+    }
   }
   if (taskId === undefined) {
     taskId = createConnectionInfoMap.size + 1;
   }
 
-  const data = {};
+  const data: any = {};
   for (let field of configurationKeys) {
-    data[field.id] = field.default;
+    const id = field.id;
+    if (id) {
+      data[id] = field.default;
+    }
   }
   try {
     connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data);
-  } catch (e) {
+  } catch (e: any) {
     console.warn(e.message);
   }
 });
@@ -179,7 +188,7 @@ async function handleValidComponent() {
   isValid = true;
 
   const formData = new FormData(formEl);
-  const data = {};
+  const data: { [key: string]: FormDataEntryValue } = {};
   for (let field of formData) {
     const [key, value] = field;
     data[key] = value;
@@ -254,26 +263,28 @@ async function cleanup() {
 // store the key
 function updateStore() {
   createConnectionsInfo.update(map => {
-    map.set(taskId, {
-      createKey: loggerHandlerKey,
-      providerInfo,
-      properties,
-      propertyScope,
-      creationInProgress,
-      creationSuccessful,
-      creationStarted,
-      errorMessage,
-      tokenId,
-    });
+    if (taskId && loggerHandlerKey) {
+      map.set(taskId, {
+        createKey: loggerHandlerKey,
+        providerInfo,
+        properties,
+        propertyScope,
+        creationInProgress,
+        creationSuccessful,
+        creationStarted,
+        errorMessage: errorMessage || '',
+        tokenId,
+      });
+    }
     return map;
   });
 }
 
-async function handleOnSubmit(e) {
+async function handleOnSubmit(e: any) {
   errorMessage = undefined;
   const formData = new FormData(e.target);
 
-  const data = {};
+  const data: { [key: string]: FormDataEntryValue } = {};
   for (let field of formData) {
     const [key, value] = field;
     data[key] = value;
@@ -296,7 +307,7 @@ async function handleOnSubmit(e) {
     );
     updateStore();
     await callback(providerInfo.internalId, data, loggerHandlerKey, eventCollect, tokenId);
-  } catch (error) {
+  } catch (error: any) {
     //display error
     tokenId = undefined;
     // filter cancellation message to avoid displaying error and allow user to restart the creation
@@ -393,7 +404,7 @@ async function close() {
         {/if}
 
         <div class="p-3 mt-2 w-4/5 h-fit {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
-          {#if connectionAuditResult?.records?.length > 0}
+          {#if connectionAuditResult && (connectionAuditResult.records?.length || 0) > 0}
             <AuditMessageBox auditResult="{connectionAuditResult}" />
           {/if}
           <form novalidate class="p-2 space-y-7 h-fit" on:submit|preventDefault="{handleOnSubmit}" bind:this="{formEl}">
@@ -405,7 +416,7 @@ async function close() {
                   {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
                     <Markdown>{configurationKey.markdownDescription}:</Markdown>
                   {/if}
-                  {#if configurationValues.has(configurationKey.id)}
+                  {#if configurationKey.id && configurationValues.has(configurationKey.id)}
                     {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
                   {:else}
                     {getDisplayConfigurationValue(configurationKey)}

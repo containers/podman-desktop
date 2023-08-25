@@ -40,10 +40,10 @@ let fetchStatsId: number;
 let firstIteration = true;
 
 // title to use on
-let cpuUsagePercentageTitle;
-let cpuUsageTitle;
-let memoryUsagePercentageTitle;
-let memoryUsageTitle;
+let cpuUsagePercentageTitle: string;
+let cpuUsageTitle: string;
+let memoryUsagePercentageTitle: string;
+let memoryUsageTitle: string;
 
 async function updateStatistics(containerStats: ContainerStatsInfo) {
   // we need enough data to compute the CPU usage

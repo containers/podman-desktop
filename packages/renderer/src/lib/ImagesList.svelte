@@ -35,14 +35,14 @@ let multipleEngines = false;
 let enginesList: EngineInfoUI[];
 
 let pushImageModal = false;
-let pushImageModalImageInfo = undefined;
+let pushImageModalImageInfo: ImageInfoUI | undefined = undefined;
 function handlePushImageModal(imageInfo: ImageInfoUI) {
   pushImageModalImageInfo = imageInfo;
   pushImageModal = true;
 }
 
 let renameImageModal = false;
-let renameImageModalImageInfo = undefined;
+let renameImageModalImageInfo: ImageInfoUI | undefined = undefined;
 function handleRenameImageModal(imageInfo: ImageInfoUI) {
   renameImageModalImageInfo = imageInfo;
   renameImageModal = true;
@@ -338,14 +338,14 @@ function computeInterval(): number {
       <ImageEmptyScreen />
     {/if}
 
-    {#if pushImageModal}
+    {#if pushImageModal && pushImageModalImageInfo}
       <PushImageModal
         imageInfoToPush="{pushImageModalImageInfo}"
         closeCallback="{() => {
           closeModals();
         }}" />
     {/if}
-    {#if renameImageModal}
+    {#if renameImageModal && renameImageModalImageInfo}
       <RenameImageModal
         imageInfoToRename="{renameImageModalImageInfo}"
         closeCallback="{() => {

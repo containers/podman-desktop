@@ -21,7 +21,7 @@ async function startCompose(composeInfoUI: ComposeInfoUI) {
   try {
     await window.startContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(composeInfoUI.containers, false, 'RUNNING');
   }
@@ -31,7 +31,7 @@ async function stopCompose(composeInfoUI: ComposeInfoUI) {
   try {
     await window.stopContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(composeInfoUI.containers, false, 'STOPPED');
   }
@@ -42,7 +42,7 @@ async function deleteCompose(composeInfoUI: ComposeInfoUI) {
   try {
     await window.deleteContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(composeInfoUI.containers, false, 'STOPPED');
   }
@@ -53,7 +53,7 @@ async function restartCompose(composeInfoUI: ComposeInfoUI) {
   try {
     await window.restartContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(composeInfoUI.containers, false);
   }
@@ -69,7 +69,7 @@ function openGenerateKube(): void {
 
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
 // otherwise, leave blank.
-let actionsStyle;
+let actionsStyle: typeof DropdownMenu | typeof FlatMenu;
 if (dropdownMenu) {
   actionsStyle = DropdownMenu;
 } else {

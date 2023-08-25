@@ -11,7 +11,7 @@ export let action: () => void = () => {};
 
 let icon: IconDefinition;
 
-let titleName;
+let titleName: string;
 
 onMount(() => {
   if (name === 'Minimize') {

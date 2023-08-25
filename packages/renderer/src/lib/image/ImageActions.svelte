@@ -22,8 +22,8 @@ export let dropdownMenu = false;
 export let detailed = false;
 export let contributions: Menu[] = [];
 
-let errorTitle: string = undefined;
-let errorMessage: string = undefined;
+let errorTitle: string | undefined = undefined;
+let errorMessage: string | undefined = undefined;
 let isAuthenticatedForThisImage = false;
 
 async function runImage(imageInfo: ImageInfoUI) {
@@ -38,7 +38,7 @@ async function deleteImage(): Promise<void> {
     await window.deleteImage(image.engineId, image.id);
   } catch (error) {
     errorTitle = 'Error while deleting image';
-    errorMessage = error;
+    errorMessage = String(error);
   }
 }
 
@@ -59,13 +59,13 @@ async function executeContribution(menu: Menu): Promise<void> {
     await window.executeCommand(menu.command, image);
   } catch (err) {
     errorTitle = `Error while executing ${menu.title}`;
-    errorMessage = err;
+    errorMessage = String(err);
   }
 }
 
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
 // otherwise, leave blank.
-let actionsStyle;
+let actionsStyle: typeof DropdownMenu | typeof FlatMenu;
 if (dropdownMenu) {
   actionsStyle = DropdownMenu;
 } else {

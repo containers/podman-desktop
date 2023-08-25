@@ -9,8 +9,8 @@ export let path = '/*';
 export let fallback = false;
 export let redirect = false;
 export let firstmatch = false;
-export let breadcrumb = undefined;
-export let navigationHint: NavigationHint = undefined;
+export let breadcrumb: string | undefined = undefined;
+export let navigationHint: NavigationHint | undefined = undefined;
 
 let showContent = false;
 let params: Record<string, string> = {};
@@ -38,7 +38,7 @@ function processMetaBreadcrumbs(breadcrumbs?: Array<TinroBreadcrumb>) {
 
     if (navigationHint === 'root') {
       listPage.set(curPage);
-      detailsPage.set(undefined);
+      detailsPage.set({ name: 'Home', path: '/' });
     } else if (navigationHint === 'details') {
       detailsPage.set(curPage);
       lastPage.set($listPage);

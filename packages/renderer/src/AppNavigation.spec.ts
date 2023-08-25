@@ -20,6 +20,7 @@ import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import AppNavigation from './AppNavigation.svelte';
+import type { TinroRouteMeta } from 'tinro';
 
 // fake the window.events object
 beforeAll(() => {
@@ -32,10 +33,13 @@ beforeAll(() => {
 });
 
 test('Test rendering of the navigation bar with empty items', () => {
+  const meta = {
+    url: '/',
+  } as unknown as TinroRouteMeta;
+
   render(AppNavigation, {
-    meta: {
-      url: '/',
-    },
+    meta,
+    exitSettingsCallback: () => {},
   });
 
   const navigationBar = screen.getByRole('navigation', { name: 'AppNavigation' });

@@ -16,7 +16,7 @@ export let showTelemetry = false;
 let telemetry = true;
 
 const welcomeUtils = new WelcomeUtils();
-let podmanDesktopVersion;
+let podmanDesktopVersion: string;
 
 onMount(async () => {
   const ver = await welcomeUtils.getVersion();

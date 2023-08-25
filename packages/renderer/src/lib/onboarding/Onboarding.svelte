@@ -151,7 +151,7 @@ async function assertStepCompleted() {
         if (!globalContext) {
           return false;
         }
-        return completionEventDeserialized.evaluate(globalContext);
+        return completionEventDeserialized?.evaluate(globalContext);
       }
 
       return false;

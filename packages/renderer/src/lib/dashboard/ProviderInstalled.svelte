@@ -33,7 +33,7 @@ let preflightChecks: CheckStatus[] = [];
 let noErrors = true;
 
 let logsXtermDiv: HTMLDivElement;
-let logsTerminal;
+let logsTerminal: Terminal;
 
 // Terminal resize
 let resizeObserver: ResizeObserver;

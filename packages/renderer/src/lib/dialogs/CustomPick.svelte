@@ -29,12 +29,12 @@ onMount(() => {
 });
 
 async function showCustomPickCallback(options?: CustomPickOptions) {
-  id = options.id;
-  title = options.title;
-  description = options.description;
-  icon = options.icon;
-  items = options.items;
-  canSelectMany = options.canSelectMany;
+  id = options?.id || 0;
+  title = options?.title || '';
+  description = options?.description || '';
+  icon = options?.icon || '';
+  items = options?.items || [];
+  canSelectMany = options?.canSelectMany || false;
 
   if (items.length > 2 && items.length % 3 !== 1) {
     colsPerRow = 3;
@@ -42,8 +42,8 @@ async function showCustomPickCallback(options?: CustomPickOptions) {
 
   usePopperForDetails = items.length > 3;
 
-  hideItemSections = usePopperForDetails || options.hideItemSections;
-  minHeight = options.minHeight;
+  hideItemSections = usePopperForDetails || options?.hideItemSections || false;
+  minHeight = options?.minHeight || '';
 
   items.forEach((_value, index) => {
     itemSectionHiddenStatus.set(index, hideItemSections);
@@ -96,7 +96,7 @@ function setSectionVisibility(index: number, show: boolean) {
   itemSectionHiddenStatus = itemSectionHiddenStatus;
 }
 
-function dragMe(node) {
+function dragMe(node: any) {
   if (usePopperForDetails) {
     let moving = false;
     let left = 0;

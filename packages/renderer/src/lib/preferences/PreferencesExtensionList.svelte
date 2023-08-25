@@ -10,18 +10,23 @@ import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
 import Button from '../ui/Button.svelte';
 
-export let ociImage: string = undefined;
+export let ociImage: string | undefined = undefined;
 
 let installInProgress = false;
 let errorInstall = '';
 let logs: string[] = [];
 
-let logElement;
+let logElement: HTMLDivElement;
 
 const buttonClass =
   'm-0.5 text-gray-400 hover:bg-charcoal-600 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 
 async function installExtensionFromImage() {
+  if (!ociImage) {
+    errorInstall = 'no OCI image provided';
+    return;
+  }
+
   errorInstall = '';
   logs.length = 0;
   installInProgress = true;
@@ -133,10 +138,11 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
                         {extension.removable ? '(user)' : '(default extension)'}
                         <span class="text-xs font-extra-light text-gray-900">v{extension.version}</span>
                         {#if extension.update}
+                          {@const extensionUpdate = extension.update}
                           <button
                             class="mx-2 px-2 text-xs font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700"
                             title="Update to {extension.update.version}"
-                            on:click="{() => updateExtension(extension, extension.update.ociUri)}">
+                            on:click="{() => updateExtension(extension, extensionUpdate.ociUri)}">
                             Update</button>
                         {/if}
                       </div>

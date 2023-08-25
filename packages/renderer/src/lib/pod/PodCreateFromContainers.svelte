@@ -13,10 +13,11 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import PodIcon from '../images/PodIcon.svelte';
 import Button from '../ui/Button.svelte';
+import type { PodCreatePortOptions } from '../../../../main/src/plugin/dockerode/libpod-dockerode';
 
 let podCreation: PodCreation;
 let createInProgress = false;
-let createError = undefined;
+let createError: string | undefined = undefined;
 $: mapPortExposed = new Map<number, { exposed: boolean; container: string }>();
 let containersPorts: { containers: string[]; ports: number[] }[];
 $: containersPorts = [];
@@ -28,7 +29,7 @@ $: providerConnections = providers
   .filter(providerContainerConnection => providerContainerConnection.type === 'podman')
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 $: selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
-let selectedProvider: ProviderContainerConnectionInfo = undefined;
+let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
 $: selectedProvider = !selectedProvider && selectedProviderConnection ? selectedProviderConnection : selectedProvider;
 
 async function createPodFromContainers() {
@@ -36,11 +37,15 @@ async function createPodFromContainers() {
   try {
     await doCreatePodFromContainers();
   } catch (error) {
-    createError = error;
+    createError = String(error);
   }
   createInProgress = false;
 }
 async function doCreatePodFromContainers() {
+  if (!selectedProvider) {
+    throw new Error('no provider selected');
+  }
+
   // fetch port info from all containers
   const portmappingsArray = await Promise.all(
     podCreation.containers.map(async container => {
@@ -48,14 +53,15 @@ async function doCreatePodFromContainers() {
 
       // convert port bindings to an port mapping object
       return Object.entries(containerInspect.HostConfig.PortBindings).map(([key, value]) => {
+        const valueAny: any = value;
         const container_port = parseInt(key.split('/')[0]);
         // we may not have any value
         if (!value) {
           return undefined;
         }
-        const host_port = parseInt(value[0].HostPort);
+        const host_port = parseInt(valueAny[0].HostPort);
 
-        const host_ip = value[0].HostIp as string;
+        const host_ip = valueAny[0].HostIp as string;
         return {
           host_ip,
           host_port,
@@ -74,8 +80,9 @@ async function doCreatePodFromContainers() {
       portmapping =>
         portmapping !== undefined &&
         mapPortExposed.has(portmapping.host_port) &&
-        mapPortExposed.get(portmapping.host_port).exposed,
-    );
+        mapPortExposed.get(portmapping.host_port)?.exposed,
+    )
+    .filter(item => item !== undefined) as PodCreatePortOptions[];
 
   // first create pod
   const { Id, engineId } = await window.createPod(selectedProvider, { name: podCreation.name, portmappings });
@@ -118,6 +125,9 @@ onMount(() => {
   });
 
   podCreationUnsubscribe = podCreationHolder.subscribe(value => {
+    if (!value) {
+      return;
+    }
     podCreation = value;
     const mapPortPrivate = new Map<number, string[]>();
     podCreation.containers.forEach(container => {
@@ -287,7 +297,7 @@ function updatePortExposure(port: number, checked: boolean) {
               </select>
             </label>
           {/if}
-          {#if providerConnections.length === 1}
+          {#if providerConnections.length === 1 && selectedProviderConnection?.name}
             <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
           {/if}
         </div>
