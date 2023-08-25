@@ -31,7 +31,7 @@ let passwordElements: { serverUrl: string; element: HTMLInputElement }[] = [];
 let suggestedRegistries: containerDesktopAPI.RegistrySuggestedProvider[] = [];
 
 // List of registries to keep track of hidden / unhidden inputs
-let listedSuggestedRegistries = [];
+let listedSuggestedRegistries: boolean[] = [];
 
 // Busy flag while attempting login
 let loggingIn = false;
@@ -73,7 +73,7 @@ function markRegistryAsClean(registry: containerDesktopAPI.Registry) {
   let originRegistry = originRegistries.find(r => r.serverUrl === registry.serverUrl);
 
   registriesInfos.update(registries => {
-    const registryInfo = registries.find(r => r.serverUrl === originRegistry.serverUrl);
+    const registryInfo = registries.find(r => r.serverUrl === originRegistry?.serverUrl);
 
     // here we check if values in edited registry are the same with the origin one and if they are differed,
     // then we roll back changes made by user when Cancel button is clicked
@@ -212,7 +212,7 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
     } else {
       await window.updateImageRegistry(registry);
     }
-  } catch (error) {
+  } catch (error: any) {
     setErrorResponse(registry.serverUrl, error.message);
   }
 

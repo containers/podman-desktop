@@ -15,7 +15,7 @@ export let compose: ComposeInfoUI;
 
 // Logging element
 let logsXtermDiv: HTMLDivElement;
-let refCompose;
+let refCompose: ComposeInfoUI;
 
 // Log initialization
 let noLogs = true;
@@ -68,7 +68,7 @@ async function fetchComposeLogs(): Promise<void> {
   // in order to add padding to each output / make it look nice.
   const promises = compose.containers.map(container => {
     // Set a customer callback that will add the container name and padding
-    const logsCallback = (name, data) => {
+    const logsCallback = (name: string, data: string) => {
       const padding = ' '.repeat(maxNameLength - container.name.length);
       const colouredName = colourizedContainerName.get(container.name);
 

@@ -20,15 +20,15 @@ let runStarted = false;
 let runFinished = false;
 let runError = '';
 let runWarning = '';
-let kubernetesYamlFilePath = undefined;
+let kubernetesYamlFilePath: string | undefined = undefined;
 let hasInvalidFields = true;
 
-let defaultContextName: string;
-let currentNamespace: string;
+let defaultContextName: string | undefined;
+let currentNamespace: string | undefined;
 let allNamespaces: V1NamespaceList;
 
-let playKubeResultRaw;
-let playKubeResultJSON;
+let playKubeResultRaw: string;
+let playKubeResultJSON: any;
 
 let userChoice: 'podman' | 'kubernetes' = 'podman';
 
@@ -40,7 +40,7 @@ $: providerConnections = providers
   .filter(providerContainerConnection => providerContainerConnection.type === 'podman')
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 $: selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
-let selectedProvider: ProviderContainerConnectionInfo = undefined;
+let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
 $: selectedProvider = !selectedProvider && selectedProviderConnection ? selectedProviderConnection : selectedProvider;
 
 function removeEmptyOrNull(obj: any) {
@@ -56,7 +56,7 @@ async function playKubeFile(): Promise<void> {
   runStarted = true;
   runFinished = false;
   runError = '';
-  if (kubernetesYamlFilePath) {
+  if (kubernetesYamlFilePath && selectedProvider) {
     // depending on the user choice, do podman or kubernetes
     if (userChoice === 'podman') {
       try {
@@ -72,28 +72,36 @@ async function playKubeFile(): Promise<void> {
         if (playKubeResultJSON.Pods.length > 0) {
           // Filter out the pods that have container errors, but check to see that container errors exists first
           const containerErrors = playKubeResultJSON.Pods.filter(
-            pod => pod.ContainerErrors && pod.ContainerErrors.length > 0,
+            (pod: any) => pod.ContainerErrors && pod.ContainerErrors.length > 0,
           );
 
           // For each Pod that has container errors, we will add the container errors to the warning message
           if (containerErrors.length > 0) {
             runWarning = `The following pods were created but failed to start: ${containerErrors
-              .map(pod => pod.ContainerErrors.join(', '))
+              .map((pod: any) => pod.ContainerErrors.join(', '))
               .join(', ')}`;
           }
         }
 
         runFinished = true;
       } catch (error) {
-        runError = error;
+        runError = String(error);
         console.error('error playing kube file', error);
       }
     } else if (userChoice === 'kubernetes') {
+      if (!defaultContextName) {
+        runError = 'No default context found';
+        return;
+      }
+      if (!currentNamespace) {
+        runError = 'No current namespace found';
+        return;
+      }
       try {
         await window.kubernetesCreateResourcesFromFile(defaultContextName, kubernetesYamlFilePath, currentNamespace);
         runFinished = true;
       } catch (error) {
-        runError = error;
+        runError = String(error);
         console.error('error playing kube file', error);
       }
     }
@@ -207,7 +215,7 @@ async function getKubernetesfileLocation() {
                       </select>
                     </label>
                   {/if}
-                  {#if providerConnections.length === 1}
+                  {#if providerConnections.length === 1 && selectedProviderConnection}
                     <input
                       type="hidden"
                       name="providerChoice"
@@ -261,8 +269,8 @@ async function getKubernetesfileLocation() {
                       name="namespaceChoice"
                       bind:value="{currentNamespace}">
                       {#each allNamespaces.items as namespace}
-                        <option value="{namespace.metadata.name}">
-                          {namespace.metadata.name}
+                        <option value="{namespace.metadata?.name}">
+                          {namespace.metadata?.name}
                         </option>
                       {/each}
                     </select>

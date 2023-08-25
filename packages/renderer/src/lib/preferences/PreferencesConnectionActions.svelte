@@ -119,7 +119,7 @@ async function deleteConnectionProvider(
       updateConnectionStatus(provider, providerConnectionInfo, 'delete', undefined, false);
     }
   } catch (e) {
-    updateConnectionStatus(provider, providerConnectionInfo, 'delete', e);
+    updateConnectionStatus(provider, providerConnectionInfo, 'delete', String(e));
     console.error(e);
   }
 }

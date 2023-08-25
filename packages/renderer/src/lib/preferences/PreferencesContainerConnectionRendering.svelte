@@ -4,7 +4,11 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import { Buffer } from 'buffer';
 import { providerInfos } from '../../stores/providers';
 import { onDestroy, onMount } from 'svelte';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type {
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../../../main/src/plugin/api/provider-info';
 import { getProviderConnectionName } from './Util';
 import type { IConnectionRestart, IConnectionStatus } from './Util';
 import Route from '../../Route.svelte';
@@ -19,23 +23,23 @@ import DetailsPage from '../ui/DetailsPage.svelte';
 import CustomIcon from '../images/CustomIcon.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
-export let providerInternalId: string = undefined;
-export let connection: string = undefined;
-export let name: string = undefined;
+export let providerInternalId: string | undefined = undefined;
+export let connection: string | undefined = undefined;
+export let name: string | undefined = undefined;
 
 let detailsPage: DetailsPage;
 
-const connectionName = Buffer.from(name, 'base64').toString();
-const socketPath: string = Buffer.from(connection, 'base64').toString();
+const connectionName = Buffer.from(name || '', 'base64').toString();
+const socketPath: string = Buffer.from(connection || '', 'base64').toString();
 $: connectionStatus = new Map<string, IConnectionStatus>();
 let noLog = true;
-let connectionInfo: ProviderContainerConnectionInfo;
-let providerInfo: ProviderInfo;
+let connectionInfo: ProviderContainerConnectionInfo | undefined;
+let providerInfo: ProviderInfo | undefined;
 let loggerHandlerKey: symbol;
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 $: configurationKeys = properties
   .filter(property => property.scope === 'ContainerConnection')
-  .sort((a, b) => a.id.localeCompare(b.id));
+  .sort((a, b) => (a.id || '').localeCompare(b.id || ''));
 
 let providersUnsubscribe: Unsubscriber;
 onMount(async () => {
@@ -51,11 +55,14 @@ onMount(async () => {
       detailsPage.close();
       return;
     }
+    if (!providerInfo) {
+      return;
+    }
     const containerConnectionName = getProviderConnectionName(providerInfo, connectionInfo);
     if (
       containerConnectionName &&
       (!connectionStatus.has(containerConnectionName) ||
-        connectionStatus.get(containerConnectionName).status !== connectionInfo.status)
+        connectionStatus.get(containerConnectionName)?.status !== connectionInfo.status)
     ) {
       if (loggerHandlerKey !== undefined) {
         connectionStatus.set(containerConnectionName, {
@@ -94,21 +101,22 @@ async function startContainerProvider(
     eventCollect,
   );
 }
-
 function updateConectionStatus(
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  containerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   action?: string,
   error?: string,
 ): void {
   const containerConnectionName = getProviderConnectionName(provider, containerConnectionInfo);
   if (error) {
     const currentStatus = connectionStatus.get(containerConnectionName);
-    connectionStatus.set(containerConnectionName, {
-      ...currentStatus,
-      inProgress: false,
-      error,
-    });
+    if (currentStatus) {
+      connectionStatus.set(containerConnectionName, {
+        ...currentStatus,
+        inProgress: false,
+        error,
+      });
+    }
   } else if (action) {
     connectionStatus.set(containerConnectionName, {
       inProgress: true,
@@ -137,16 +145,18 @@ function setNoLogs() {
         </div>
       </svelte:fragment>
       <svelte:fragment slot="actions">
-        <div class="flex justify-end">
-          <PreferencesConnectionActions
-            provider="{providerInfo}"
-            connection="{connectionInfo}"
-            connectionStatuses="{connectionStatus}"
-            updateConnectionStatus="{updateConectionStatus}"
-            addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
-        </div>
+        {#if providerInfo}
+          <div class="flex justify-end">
+            <PreferencesConnectionActions
+              provider="{providerInfo}"
+              connection="{connectionInfo}"
+              connectionStatuses="{connectionStatus}"
+              updateConnectionStatus="{updateConectionStatus}"
+              addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
+          </div>
+        {/if}
       </svelte:fragment>
-      <CustomIcon slot="icon" icon="{providerInfo?.images?.icon}" altText="{providerInfo.name}" classes="max-h-10" />
+      <CustomIcon slot="icon" icon="{providerInfo?.images?.icon}" altText="{providerInfo?.name}" classes="max-h-10" />
       <svelte:fragment slot="tabs">
         <Tab title="Summary" url="summary" />
         {#if connectionInfo.lifecycleMethods && connectionInfo.lifecycleMethods.length > 0}

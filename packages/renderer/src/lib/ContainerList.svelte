@@ -44,7 +44,7 @@ let enginesList: EngineInfoUI[];
 // groups of containers that will be displayed
 let containerGroups: ContainerGroupInfoUI[] = [];
 let viewContributions: ViewInfoUI[] = [];
-let globalContext: ContextUI = undefined;
+let globalContext: ContextUI;
 let containersInfo: ContainerInfo[] = [];
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -157,10 +157,12 @@ async function deleteSelectedContainers() {
   if (podGroups.length > 0) {
     await Promise.all(
       podGroups.map(async podGroup => {
-        try {
-          await window.removePod(podGroup.engineId, podGroup.id);
-        } catch (e) {
-          console.error('error while removing pod', e);
+        if (podGroup.engineId && podGroup.id) {
+          try {
+            await window.removePod(podGroup.engineId, podGroup.id);
+          } catch (e) {
+            console.error('error while removing pod', e);
+          }
         }
       }),
     );
@@ -181,7 +183,7 @@ async function deleteSelectedContainers() {
           await window.deleteContainer(container.engineId, container.id);
         } catch (e) {
           console.log('error while removing container', e);
-          errorCallback(container, e);
+          errorCallback(container, String(e));
         } finally {
           inProgressCallback(container, false);
         }
@@ -335,6 +337,9 @@ function keydownChoice(e: KeyboardEvent) {
 }
 
 function openGroupDetails(containerGroup: ContainerGroupInfoUI): void {
+  if (!containerGroup.engineId) {
+    return;
+  }
   if (containerGroup.type === ContainerGroupInfoTypeUI.POD) {
     router.goto(`/pods/podman/${encodeURI(containerGroup.name)}/${encodeURI(containerGroup.engineId)}/logs`);
   } else if (containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE) {
@@ -505,7 +510,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                 class="pl-6 text-right whitespace-nowrap rounded-tr-lg"
                 class:rounded-br-lg="{!containerGroup.expanded}">
                 <!-- Only show POD actions if the container group is POD, otherwise keep blank / empty (for future compose implementation) -->
-                {#if containerGroup.type === ContainerGroupInfoTypeUI.POD}
+                {#if containerGroup.type === ContainerGroupInfoTypeUI.POD && containerGroup.engineId && containerGroup.id && containerGroup.shortId && containerGroup.status && containerGroup.engineName && containerGroup.humanCreationDate && containerGroup.created}
                   <PodActions
                     pod="{{
                       id: containerGroup.id,
@@ -522,7 +527,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     }}"
                     dropdownMenu="{true}" />
                 {/if}
-                {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE}
+                {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE && containerGroup.status && containerGroup.engineId && containerGroup.engineType}
                   <ComposeActions
                     compose="{{
                       status: containerGroup.status,

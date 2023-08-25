@@ -54,7 +54,7 @@ export interface MessageBoxOptions {
 }
 
 export interface MessageBoxReturnValue {
-  response: number;
+  response: number | undefined;
 }
 
 export class MessageBox {
@@ -101,7 +101,7 @@ export class MessageBox {
       type: type,
     });
 
-    if (result.response >= 0) {
+    if (result.response && result.response >= 0) {
       return items[result.response];
     }
 
@@ -109,7 +109,7 @@ export class MessageBox {
   }
 
   // this method is called by the frontend when the user selected a button
-  async onDidSelectButton(id: number, selectedIndex: number) {
+  async onDidSelectButton(id: number, selectedIndex: number | undefined) {
     // get the callback
     const callback = this.callbacksMessageBox.get(id);
 

@@ -7,15 +7,20 @@ import SettingsPage from '../preferences/SettingsPage.svelte';
 import Button from '../ui/Button.svelte';
 import { faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 
-export let ociImage: string = undefined;
+export let ociImage: string | undefined = undefined;
 
 let installInProgress = false;
 let errorInstall = '';
 let logs: string[] = [];
 
-let logElement;
+let logElement: HTMLDivElement;
 
 async function installDDExtensionFromImage() {
+  if (!ociImage) {
+    errorInstall = 'no OCI image provided';
+    return;
+  }
+
   errorInstall = '';
   logs.length = 0;
   installInProgress = true;

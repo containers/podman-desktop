@@ -33,8 +33,8 @@ let entrypoint = '';
 let invalidFields = false;
 
 let containerPortMapping: string[];
-let exposedPorts = [];
-let createError;
+let exposedPorts: string[] = [];
+let createError: string | undefined = undefined;
 let restartPolicyName = '';
 let restartPolicyMaxRetryCount = 1;
 
@@ -121,7 +121,9 @@ onMount(async () => {
   await Promise.all(
     exposedPorts.map(async (port, index) => {
       const localPorts = await getPortsInfo(port);
-      containerPortMapping[index] = localPorts;
+      if (localPorts) {
+        containerPortMapping[index] = localPorts;
+      }
     }),
   );
   dataReady = true;
@@ -216,9 +218,9 @@ function getPort(portDescriptor: string): Promise<number | undefined> {
 async function startContainer() {
   createError = undefined;
   // create ExposedPorts objects
-  const ExposedPorts = {};
+  const ExposedPorts: any = {};
 
-  const PortBindings = {};
+  const PortBindings: any = {};
   try {
     exposedPorts.forEach((port, index) => {
       if (port.includes('-') || containerPortMapping[index]?.includes('-')) {
@@ -242,7 +244,7 @@ async function startContainer() {
         }
       });
   } catch (e) {
-    createError = e;
+    createError = String(e);
     console.error('Error while creating container', e);
     return;
   }
@@ -353,7 +355,7 @@ async function startContainer() {
   try {
     await window.createAndStartContainer(imageInspectInfo.engineId, options);
   } catch (e) {
-    createError = e;
+    createError = String(e);
     console.error('Error while creating container', e);
     return;
   }
@@ -967,7 +969,7 @@ function checkContainerName(event: any) {
                       bind:value="{networkingModeUserNetwork}">
                       {#each engineNetworks as network}
                         <option value="{network.Id}"
-                          >{network.Name} (used by {Object.keys(network.Containers).length} containers)</option>
+                          >{network.Name} (used by {Object.keys(network.Containers || {}).length} containers)</option>
                       {/each}
                     </select>
                   </div>
@@ -996,7 +998,9 @@ function checkContainerName(event: any) {
             Start Container
           </Button>
           <div aria-label="createError">
-            <ErrorMessage class="py-2 text-sm" error="{createError}" />
+            {#if createError}
+              <ErrorMessage class="py-2 text-sm" error="{createError}" />
+            {/if}
           </div>
         </div>
       </div>

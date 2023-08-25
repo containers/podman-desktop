@@ -1,6 +1,6 @@
 <script lang="ts">
-export let altText: string;
-export let icon: string | { light: string; dark: string };
+export let altText: string | undefined = '';
+export let icon: string | { light: string; dark: string } | undefined;
 export let classes = '';
 </script>
 

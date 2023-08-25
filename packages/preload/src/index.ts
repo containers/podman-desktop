@@ -623,7 +623,7 @@ function initExposure(): void {
 
   const onDataCallbacksTaskConnectionLogs = new Map<
     number,
-    (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void
+    (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void
   >();
   const onDataCallbacksTaskConnectionKeys = new Map<number, symbol>();
 
@@ -634,7 +634,7 @@ function initExposure(): void {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       params: { [key: string]: any },
       key: symbol,
-      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
       tokenId?: number,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
@@ -667,7 +667,7 @@ function initExposure(): void {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       params: { [key: string]: any },
       key: symbol,
-      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
       tokenId?: number,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
@@ -685,7 +685,7 @@ function initExposure(): void {
 
   ipcRenderer.on(
     'provider-registry:taskConnection-onData',
-    (_, onDataCallbacksTaskConnectionId: number, channel: string, data: unknown[]) => {
+    (_, onDataCallbacksTaskConnectionId: number, channel: string, data: string[]) => {
       // grab callback from the map
       const callback = onDataCallbacksTaskConnectionLogs.get(onDataCallbacksTaskConnectionId);
       const key = onDataCallbacksTaskConnectionKeys.get(onDataCallbacksTaskConnectionId);
@@ -709,7 +709,7 @@ function initExposure(): void {
       providerId: string,
       providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       key: symbol,
-      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -729,7 +729,7 @@ function initExposure(): void {
       providerId: string,
       providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       key: symbol,
-      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -749,7 +749,7 @@ function initExposure(): void {
       providerId: string,
       providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
       key: symbol,
-      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
     ): Promise<void> => {
       onDataCallbacksTaskConnectionId++;
       onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
@@ -764,7 +764,10 @@ function initExposure(): void {
   );
 
   let onDataCallbacksBuildImageId = 0;
-  const onDataCallbacksBuildImage = new Map<number, (key: symbol, eventName: string, data: string) => void>();
+  const onDataCallbacksBuildImage = new Map<
+    number,
+    (key: symbol, eventName: 'finish' | 'stream' | 'error', data: string) => void
+  >();
   const onDataCallbacksBuildImageKeys = new Map<number, symbol>();
 
   contextBridge.exposeInMainWorld(
@@ -775,7 +778,7 @@ function initExposure(): void {
       imageName: string,
       selectedProvider: ProviderContainerConnectionInfo,
       key: symbol,
-      eventCollect: (key: symbol, eventName: string, data: string) => void,
+      eventCollect: (key: symbol, eventName: 'finish' | 'stream' | 'error', data: string) => void,
     ): Promise<unknown> => {
       onDataCallbacksBuildImageId++;
       onDataCallbacksBuildImage.set(onDataCallbacksBuildImageId, eventCollect);
@@ -792,7 +795,7 @@ function initExposure(): void {
   );
   ipcRenderer.on(
     'container-provider-registry:buildImage-onData',
-    (_, onDataCallbacksBuildImageId: number, eventName: string, data: string) => {
+    (_, onDataCallbacksBuildImageId: number, eventName: 'finish' | 'stream' | 'error', data: string) => {
       // grab callback from the map
       const callback = onDataCallbacksBuildImage.get(onDataCallbacksBuildImageId);
       const key = onDataCallbacksBuildImageKeys.get(onDataCallbacksBuildImageId);
@@ -1163,7 +1166,7 @@ function initExposure(): void {
   );
   contextBridge.exposeInMainWorld(
     'sendShowMessageBoxOnSelect',
-    async (messageBoxId: number, selectedIndex: number): Promise<void> => {
+    async (messageBoxId: number, selectedIndex: number | undefined): Promise<void> => {
       return ipcInvoke('showMessageBox:onSelect', messageBoxId, selectedIndex);
     },
   );

@@ -1,10 +1,10 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 
-let dropDownHeight;
-let dropDownElement;
+let dropDownHeight: number;
+let dropDownElement: HTMLElement;
 
-export let clientY;
+export let clientY: number;
 
 const STATUS_BAR_HEIGHT = 24;
 

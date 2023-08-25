@@ -30,7 +30,7 @@ $: matchingRecords = properties
     if (!map.has(property.parentId)) {
       map.set(property.parentId, []);
     }
-    map.get(property.parentId).push(property);
+    map.get(property.parentId)?.push(property);
     return map;
   }, new Map<string, IConfigurationPropertyRecordedSchema[]>());
 
@@ -78,14 +78,17 @@ function updateSearchValue(event: any) {
         <div>No Settings Found</div>
       {:else}
         {#each [...matchingRecords.keys()].sort((a, b) => a.localeCompare(b)) as configSection}
-          <div>
-            <div class="first-letter:uppercase">{matchingRecords.get(configSection).at(0).title}</div>
-            {#each matchingRecords.get(configSection) as configItem}
-              <div class="bg-charcoal-600 rounded-md mt-2 ml-2">
-                <PreferencesRenderingItem record="{configItem}" />
-              </div>
-            {/each}
-          </div>
+          {@const records = matchingRecords.get(configSection)}
+          {#if records}
+            <div>
+              <div class="first-letter:uppercase">{records.at(0)?.title}</div>
+              {#each records as configItem}
+                <div class="bg-charcoal-600 rounded-md mt-2 ml-2">
+                  <PreferencesRenderingItem record="{configItem}" />
+                </div>
+              {/each}
+            </div>
+          {/if}
         {/each}
       {/if}
     </div>

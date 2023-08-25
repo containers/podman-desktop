@@ -22,12 +22,12 @@ import Markdown from '/@/lib/markdown/Markdown.svelte';
 import { extensionInfos } from '/@/stores/extensions';
 import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
 
-export let extensionId: string = undefined;
+export let extensionId: string | undefined = undefined;
 
 let installedExtensions: ExtensionInfo[] = [];
-let extensionDetails: CatalogExtension = undefined;
-let extensions = [];
-let title;
+let extensionDetails: CatalogExtension | undefined = undefined;
+let extensions: CatalogExtension[] = [];
+let title: string;
 let readmeContent = '';
 
 // get the content of the URL and return it using FETCH API
@@ -51,12 +51,14 @@ $: latestVersionNumber = latestVersion ? `v${latestVersion.version}` : '';
 $: latestVersionOciLink = latestVersion ? latestVersion.ociUri : undefined;
 $: latestVersionIcon = latestVersion ? latestVersion.files.find(f => f.assetType === 'icon')?.data : undefined;
 $: latestVersionReadme = latestVersion ? latestVersion.files.find(f => f.assetType === 'README')?.data : undefined;
-$: fetchReadmeContent(latestVersionReadme);
+$: if (latestVersionReadme) {
+  fetchReadmeContent(latestVersionReadme);
+}
 $: isInstalled = installedExtensions.find(e => e.id === extensionId) !== undefined;
 
 let installInProgress = false;
 
-let logs = [];
+let logs: string[] = [];
 let errorInstall = '';
 
 let percentage = 0;

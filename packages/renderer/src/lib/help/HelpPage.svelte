@@ -12,7 +12,7 @@ $: contributedLinks = $providerInfos
     if (!links.has(link['group'])) {
       links = links.set(link['group'], []);
     }
-    links.get(link['group']).push(link);
+    links.get(link['group'])?.push(link);
     return links;
   }, new Map<string, ProviderLinks[]>());
 </script>
@@ -120,7 +120,7 @@ $: contributedLinks = $providerInfos
           </button>
           <button
             class="group flex items-baseline md:text-right w-full md:whitespace-nowrap pr-2 cursor-pointer md:border-r-2"
-            on:click="{() => window.events.send('display-feedback', undefined)}"
+            on:click="{() => window.events.send('display-feedback', '')}"
             title="Share your Feedback">
             <p class="text-gray-100 py-2 md:text-ellipsis md:overflow-hidden">Share your Feedback</p>
             <i

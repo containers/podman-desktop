@@ -25,7 +25,7 @@ function disableSave(name: string, tag: string): boolean {
 }
 
 let imageNameErrorMessage = '';
-function validateImageName(event): void {
+function validateImageName(event: any): void {
   let inputName = event.target.value;
   if (inputName === undefined || inputName.trim() === '') {
     imageNameErrorMessage = 'Please enter a value';
@@ -35,7 +35,7 @@ function validateImageName(event): void {
 }
 
 let imageTagErrorMessage = '';
-function validateImageTag(event): void {
+function validateImageTag(event: any): void {
   let inputName = event.target.value;
   if (inputName === undefined || inputName.trim() === '') {
     imageTagErrorMessage = 'Please enter a value';
@@ -51,7 +51,7 @@ async function renameImage(imageName: string, imageTag: string) {
     await window.tagImage(imageInfoToRename.engineId, currentImageNameTag, imageName, imageTag);
     await window.deleteImage(imageInfoToRename.engineId, currentImageNameTag);
     closeCallback();
-  } catch (error) {
+  } catch (error: any) {
     imageNameErrorMessage = error.message;
   }
 
@@ -84,7 +84,7 @@ async function renameImage(imageName: string, imageTag: string) {
           placeholder="Enter image name (e.g. quay.io/namespace/my-image-name)"
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           on:input="{event => validateImageName(event)}"
-          aria-invalid="{imageNameErrorMessage && imageNameErrorMessage !== ''}"
+          aria-invalid="{imageNameErrorMessage !== ''}"
           required />
         {#if imageNameErrorMessage}
           <ErrorMessage error="{imageNameErrorMessage}" />
@@ -99,7 +99,7 @@ async function renameImage(imageName: string, imageTag: string) {
           placeholder="Enter image tag (e.g. latest)"
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           on:input="{event => validateImageTag(event)}"
-          aria-invalid="{imageTagErrorMessage && imageTagErrorMessage !== ''}"
+          aria-invalid="{imageTagErrorMessage !== ''}"
           required />
         {#if imageTagErrorMessage}
           <ErrorMessage error="{imageTagErrorMessage}" />

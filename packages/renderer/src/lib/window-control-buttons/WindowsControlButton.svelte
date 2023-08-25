@@ -13,7 +13,7 @@ export let name: string;
 
 export let action: () => void = () => {};
 
-let titleName;
+let titleName: string;
 
 onMount(() => {
   if (name === 'Minimize') {

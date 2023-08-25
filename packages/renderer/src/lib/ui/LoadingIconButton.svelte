@@ -6,28 +6,28 @@ import Tooltip from './Tooltip.svelte';
 
 export let action: string;
 export let icon: IconDefinition;
-export let state: IConnectionStatus;
+export let state: IConnectionStatus | undefined;
 export let leftPosition: string;
 export let clickAction: () => Promise<void> | void;
 
 $: disable =
-  state.inProgress ||
-  (action === 'start' && state.status !== 'stopped') ||
-  (action === 'restart' && state.status !== 'started') ||
-  (action === 'stop' && state.status !== 'started') ||
-  (action === 'delete' && state.status !== 'stopped' && state.status !== 'unknown');
+  state?.inProgress ||
+  (action === 'start' && state?.status !== 'stopped') ||
+  (action === 'restart' && state?.status !== 'started') ||
+  (action === 'stop' && state?.status !== 'started') ||
+  (action === 'delete' && state?.status !== 'stopped' && state?.status !== 'unknown');
 
-$: loading = state.inProgress && action === state.action;
+$: loading = state?.inProgress && action === state?.action;
 
 function capitalizeFirstLetter(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-function getStyleByState(state: IConnectionStatus, action: string) {
+function getStyleByState(state: IConnectionStatus | undefined, action: string) {
   if (
-    (action === 'start' && (state.inProgress || state.status !== 'stopped')) ||
-    ((action === 'stop' || action === 'restart') && (state.inProgress || state.status !== 'started')) ||
-    (action === 'delete' && (state.inProgress || (state.status !== 'stopped' && state.status !== 'unknown')))
+    (action === 'start' && (state?.inProgress || state?.status !== 'stopped')) ||
+    ((action === 'stop' || action === 'restart') && (state?.inProgress || state?.status !== 'started')) ||
+    (action === 'delete' && (state?.inProgress || (state?.status !== 'stopped' && state?.status !== 'unknown')))
   ) {
     return 'text-gray-900 cursor-not-allowed';
   } else {

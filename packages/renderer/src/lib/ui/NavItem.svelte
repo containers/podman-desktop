@@ -4,7 +4,7 @@ import Tooltip from './Tooltip.svelte';
 
 export let href: string;
 export let tooltip: string;
-export let ariaLabel: string = undefined;
+export let ariaLabel: string | undefined = undefined;
 export let meta: TinroRouteMeta;
 export let onClick: any = undefined;
 

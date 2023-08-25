@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "strict": false,
+    "strict": true,
     "resolveJsonModule": true,
     "preserveValueImports": false,
     "baseUrl": ".",

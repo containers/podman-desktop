@@ -17,14 +17,14 @@ let logsPull: Terminal;
 let pullError = '';
 let pullInProgress = false;
 let pullFinished = false;
-export let imageToPull: string = undefined;
+export let imageToPull: string | undefined = undefined;
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
-let selectedProviderConnection: ProviderContainerConnectionInfo;
+let selectedProviderConnection: ProviderContainerConnectionInfo | undefined;
 
 const lineNumberPerId = new Map<string, number>();
 let lineIndex = 0;
@@ -71,6 +71,16 @@ function callback(event: PullEvent) {
 }
 
 async function pullImage() {
+  if (!selectedProviderConnection) {
+    pullError = 'No current provider connection';
+    return;
+  }
+
+  if (!imageToPull) {
+    pullError = 'No image to pull';
+    return;
+  }
+
   lineNumberPerId.clear();
   lineIndex = 0;
   await tick();
@@ -84,7 +94,7 @@ async function pullImage() {
     await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback);
     pullInProgress = false;
     pullFinished = true;
-  } catch (error) {
+  } catch (error: any) {
     const errorMessage = error.message ? error.message : error;
     pullError = `Error while pulling image from ${selectedProviderConnection.name}: ${errorMessage}`;
     pullInProgress = false;
@@ -105,9 +115,9 @@ onMount(() => {
   }
 });
 
-let imageNameInvalid = undefined;
+let imageNameInvalid: string | undefined = undefined;
 let imageNameIsInvalid = imageToPull === undefined || imageToPull.trim() === '';
-function validateImageName(event): void {
+function validateImageName(event: any): void {
   imageToPull = event.target.value;
   if (imageToPull === undefined || imageToPull.trim() === '') {
     imageNameIsInvalid = true;
@@ -143,7 +153,7 @@ function validateImageName(event): void {
             disabled="{pullFinished || pullInProgress}"
             on:input="{event => validateImageName(event)}"
             bind:value="{imageToPull}"
-            aria-invalid="{imageNameInvalid && imageNameInvalid !== ''}"
+            aria-invalid="{imageNameInvalid !== ''}"
             placeholder="Image name"
             aria-label="imageName"
             required />

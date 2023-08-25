@@ -6,20 +6,22 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ContainerProviderConnection } from '@podman-desktop/api';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
-export let providerInternalId: string = undefined;
-export let containerConnectionInfo: ProviderContainerConnectionInfo = undefined;
+export let providerInternalId: string | undefined = undefined;
+export let containerConnectionInfo: ProviderContainerConnectionInfo | undefined = undefined;
 
 let tmpProviderContainerConfiguration: IProviderConnectionConfigurationPropertyRecorded[] = [];
 $: Promise.all(
   properties.map(async configurationKey => {
     return {
       ...configurationKey,
-      value: await window.getConfigurationValue(
-        configurationKey.id,
-        containerConnectionInfo as unknown as ContainerProviderConnection,
-      ),
-      connection: containerConnectionInfo.name,
-      providerId: providerInternalId,
+      value: configurationKey.id
+        ? await window.getConfigurationValue(
+            configurationKey.id,
+            containerConnectionInfo as unknown as ContainerProviderConnection,
+          )
+        : undefined,
+      connection: containerConnectionInfo?.name || '',
+      providerId: providerInternalId || '',
     };
   }),
 ).then(value => (tmpProviderContainerConfiguration = value.flat()));

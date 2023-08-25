@@ -15,7 +15,7 @@ export let pod: PodInfoUI;
 
 // Log
 let logsXtermDiv: HTMLDivElement;
-let refPod;
+let refPod: PodInfoUI;
 // Logs has been initialized
 let noLogs = true;
 let logsTerminal: Terminal;

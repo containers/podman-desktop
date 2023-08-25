@@ -38,7 +38,7 @@ onMount(() => {
   });
 });
 
-function inProgressCallback(inProgress: boolean, state: string): void {
+function inProgressCallback(inProgress: boolean, state: string | undefined): void {
   container.actionInProgress = inProgress;
   if (state && inProgress) {
     container.state = 'STARTING';

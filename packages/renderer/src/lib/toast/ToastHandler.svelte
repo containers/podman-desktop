@@ -10,7 +10,7 @@
 import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 import { onDestroy, onMount } from 'svelte';
 
-let callback;
+let callback: (object: { type: string; message: string }) => void;
 
 onMount(() => {
   callback = (object: { type: string; message: string }) => {

@@ -5,20 +5,22 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { IProviderConnectionConfigurationPropertyRecorded } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
-export let providerInternalId: string = undefined;
-export let kubernetesConnectionInfo: ProviderKubernetesConnectionInfo = undefined;
+export let providerInternalId: string | undefined = undefined;
+export let kubernetesConnectionInfo: ProviderKubernetesConnectionInfo | undefined = undefined;
 
 let tmpProviderContainerConfiguration: IProviderConnectionConfigurationPropertyRecorded[] = [];
 $: Promise.all(
   properties.map(async configurationKey => {
     return {
       ...configurationKey,
-      value: await window.getConfigurationValue(
-        configurationKey.id,
-        kubernetesConnectionInfo as unknown as KubernetesProviderConnection,
-      ),
-      connection: kubernetesConnectionInfo.name,
-      providerId: providerInternalId,
+      value: configurationKey.id
+        ? await window.getConfigurationValue(
+            configurationKey.id,
+            kubernetesConnectionInfo as unknown as KubernetesProviderConnection,
+          )
+        : undefined,
+      connection: kubernetesConnectionInfo?.name || '',
+      providerId: providerInternalId || '',
     };
   }),
 ).then(value => (tmpProviderContainerConfiguration = value.flat()));

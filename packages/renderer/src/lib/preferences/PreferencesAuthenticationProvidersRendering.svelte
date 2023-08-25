@@ -89,9 +89,10 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
           </div>
           <!-- Authentication Provider Session label start -->
           <div class="ml-4 flex items-center">
-            {#if provider.sessionRequests.length > 0}
+            {#if (provider.sessionRequests || []).length > 0}
+              {@const sessionRequests = provider.sessionRequests || []}
               <DropdownMenu>
-                {#each provider.sessionRequests as request}
+                {#each sessionRequests as request}
                   <DropdownMenuItem
                     title="Sign in to use {request.extensionLabel}"
                     onClick="{() => window.requestAuthenticationProviderSignIn(request.id)}"

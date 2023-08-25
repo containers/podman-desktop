@@ -4,7 +4,7 @@ import WindowControlWindowsButton from './WindowsControlButton.svelte';
 
 export let name: string;
 export let action: () => void = () => {};
-export let platform;
+export let platform: string;
 </script>
 
 {#if platform === 'linux'}
