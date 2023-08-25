@@ -1,8 +1,8 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
 import type { OnboardingInfo, OnboardingStep, OnboardingStatus } from '../../../../main/src/plugin/api/onboarding';
-import { faCircleCheck, faCircleQuestion, faCircleXmark, faCircle } from '@fortawesome/free-regular-svg-icons';
-import { faCircleChevronRight, faCircle as faFilledCircle, faForward } from '@fortawesome/free-solid-svg-icons';
+import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
+import { faForward } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { onboardingList } from '/@/stores/onboarding';
@@ -24,11 +24,6 @@ interface ActiveOnboardingStep {
   step: OnboardingStep;
 }
 
-interface OnboardingStepLabels {
-  label: string;
-  status?: OnboardingStatus;
-}
-
 export let extensionIds: string[] = [];
 
 let onboardings: OnboardingInfo[];
@@ -41,7 +36,6 @@ let displayCancelSetup = false;
 let displayResetSetup = false;
 
 let executedCommands: string[] = [];
-const onboardingLabels: OnboardingStepLabels[] = [];
 /*
 $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
@@ -51,18 +45,6 @@ onMount(async () => {
   onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
     if (!onboardings) {
       onboardings = onboardingItems.filter(o => extensionIds.find(extensionId => o.extension === extensionId));
-      // if there is only one extensionId, it is only executing a single extension onboarding and it needs to show its step in the top right
-      // if there are multiple steps with the same label, it only shows once
-      if (extensionIds.length === 1) {
-        onboardings[0].steps.forEach(step => {
-          if (!onboardingLabels.find(l => l.label === step.label)) {
-            onboardingLabels.push({
-              label: step.label,
-              status: undefined,
-            });
-          }
-        });
-      }
       startOnboarding();
     }
   });
@@ -185,21 +167,13 @@ async function assertStepCompleted() {
 
 async function updateOnboardingStepStatus(onboarding: OnboardingInfo, step: OnboardingStep, status: OnboardingStatus) {
   step.status = status;
-  updateStepLabel(step.label, status);
   await window.updateStepState(status, onboarding.extension, step.id);
-  // if completed view is the last of the whole step, mark this as completed
-  if (onboardingLabels[onboardingLabels.length - 1].label === step.label) {
+  // if the completed step is the last one, we mark the onboarding as completed
+  // the last step should have a completed state by default
+  const lastCompletedStep = onboarding.steps.findLast(s => s.state === 'completed');
+  if (lastCompletedStep?.id === step.id) {
     onboarding.status = STATUS_COMPLETED;
     await window.updateStepState(STATUS_COMPLETED, onboarding.extension);
-  }
-}
-
-function updateStepLabel(label: string, status: OnboardingStatus) {
-  for (const lbl of onboardingLabels) {
-    if (lbl.label === label) {
-      lbl.status = status;
-      return;
-    }
   }
 }
 
@@ -297,26 +271,6 @@ async function cleanContext() {
             <Fa icon="{faForward}" size="12" />
           </button>
         </div>
-      </div>
-      <div class="flex flex-row mt-1 mr-2">
-        {#each onboardingLabels as step}
-          <div class="flex flex-col mr-2">
-            <div class="flex justify-center mb-2">
-              {#if step.label === activeStep.step.label}
-                <Fa class="place-content-center text-purple-500" size="24" icon="{faFilledCircle}" />
-              {:else if step.status === 'completed'}
-                <Fa class="place-content-center" size="24" icon="{faCircleCheck}" />
-              {:else if step.status === 'skipped'}
-                <Fa class="place-content-center" size="24" icon="{faCircleChevronRight}" />
-              {:else if step.status === 'failed'}
-                <Fa class="place-content-center" size="24" icon="{faCircleXmark}" />
-              {:else}
-                <Fa class="place-content-center" size="24" icon="{faCircle}" />
-              {/if}
-            </div>
-            <div class="text-sm">{step.label}</div>
-          </div>
-        {/each}
       </div>
     </div>
     <div class="w-[450px] flex flex-col mx-auto">
