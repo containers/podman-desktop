@@ -380,37 +380,34 @@ function RunAnywhere() {
           </p>
         </div>
         <div className="flex flex-wrap w-full justify-center">
-          <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
-              <Link
-                title="Download for Windows"
-                className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
-                to="/downloads/Windows">
-                <div className="flex items-center mb-3 flex-col">
-                  <FontAwesomeIcon size="4x" icon={faWindows} />
-                  <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
-                  <h2 className=" text-lg title-font font-medium"> Windows</h2>
-                </div>
-              </Link>
+          <Link
+            title="Download for Windows"
+            className="p-4 w-11/12 md:w-1/2 lg:w-1/3 no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white"
+            to="/downloads/Windows">
+            <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
+              <div className="flex items-center mb-3 flex-col">
+                <FontAwesomeIcon size="4x" icon={faWindows} />
+                <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
+                <h2 className=" text-lg title-font font-medium"> Windows</h2>
+              </div>
+
               <div className="flex-grow">
                 <div className="flex-grow w-full">
                   <p className="text-base text-center">exe or setup.exe</p>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
-              <Link
-                title="Download for macOS"
-                className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
-                to="/downloads/macOS">
-                <div className="flex items-center mb-3 flex-col">
-                  <FontAwesomeIcon size="4x" icon={faApple} />
-                  <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
-                  <h2 className=" text-lg title-font font-medium"> macOS</h2>
-                </div>
-              </Link>
+          </Link>
+          <Link
+            title="Download for macOS"
+            className="no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white p-4 w-11/12 md:w-1/2 lg:w-1/3"
+            to="/downloads/macOS">
+            <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
+              <div className="flex items-center mb-3 flex-col">
+                <FontAwesomeIcon size="4x" icon={faApple} />
+                <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
+                <h2 className=" text-lg title-font font-medium"> macOS</h2>
+              </div>
               <div className="flex-grow w-full">
                 <p className="text-base text-center">arm64, x64 or unified dmg</p>
                 <p className="text-base text-center">
@@ -430,25 +427,22 @@ function RunAnywhere() {
                 </p>
               </div>
             </div>
-          </div>
-          <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
-              <Link
-                title="Download for Linux"
-                className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
-                to="/downloads/Linux">
-                <div className="flex items-center mb-3 flex-col">
-                  <FontAwesomeIcon size="4x" icon={faLinux} />
-                  <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
-                  <h2 className=" text-lg title-font font-medium"> Linux</h2>
-                </div>
-              </Link>
-
+          </Link>
+          <Link
+            title="Download for Linux"
+            className="no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white p-4 w-11/12 md:w-1/2 lg:w-1/3"
+            to="/downloads/Linux">
+            <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
+              <div className="flex items-center mb-3 flex-col">
+                <FontAwesomeIcon size="4x" icon={faLinux} />
+                <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
+                <h2 className=" text-lg title-font font-medium"> Linux</h2>
+              </div>
               <div className="flex-grow">
                 <p className="text-base text-center">Flatpak or AMD64 binary (tar.gz)</p>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </section>
