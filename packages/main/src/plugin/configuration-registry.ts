@@ -61,9 +61,17 @@ export interface IConfigurationPropertySchema {
   format?: string;
   scope?: ConfigurationScope;
   readonly?: boolean;
-  hidden?: boolean;
+  hidden?: boolean | HiddenConfiguration;
   enum?: string[];
   when?: string;
+}
+
+export type OperatorConfiguration = 'NotEqual' | 'Equal' | 'Gt' | 'In' | 'Lt' | 'NotIn';
+
+export interface HiddenConfiguration {
+  key: string;
+  operator: OperatorConfiguration;
+  values: string[];
 }
 
 export type ConfigurationScope =

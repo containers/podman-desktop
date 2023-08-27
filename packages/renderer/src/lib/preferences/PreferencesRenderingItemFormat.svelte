@@ -18,6 +18,8 @@ export let resetToDefault = false;
 export let enableAutoSave = false;
 
 export let setRecordValue = (_id: string, _value: string) => {};
+export let onRecordChange = (_id: string, _value: string) => {};
+
 export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
 
@@ -56,6 +58,7 @@ $: if (currentRecord !== record) {
   currentRecord = record;
   invalidText = undefined;
   invalidEntry = false;
+  onRecordChange(record.id, recordValue);
 }
 
 function invalid() {
@@ -65,6 +68,10 @@ function invalid() {
 
 function valid() {
   validRecord();
+}
+
+function handleChange() {
+  onRecordChange(record.id, recordValue);
 }
 
 function checkValue(record: IConfigurationPropertyRecordedSchema, event: any) {
@@ -226,6 +233,7 @@ function onNumberInputChange(event: any) {
   const resultingValue = Number(event.target.value);
   if (assertNumericValueIsValid(resultingValue)) {
     autoSave();
+    handleChange();
   }
 }
 
@@ -258,6 +266,7 @@ function assertNumericValueIsValid(value: number) {
           on:input="{event => {
             recordValue = !checkboxValue;
             checkValue(record, event);
+            handleChange();
           }}"
           class="sr-only peer"
           bind:checked="{checkboxValue}"
@@ -280,7 +289,10 @@ function assertNumericValueIsValid(value: number) {
         max="{record.maximum}"
         value="{getNormalizedDefaultNumberValue(record)}"
         aria-label="{record.description}"
-        on:input="{event => handleRangeValue(record.id, event.currentTarget)}"
+        on:input="{event => {
+          handleRangeValue(record.id, event.currentTarget);
+          handleChange();
+        }}"
         class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs mt-2" />
     {:else if record.type === 'number'}
       <div
@@ -289,7 +301,10 @@ function assertNumericValueIsValid(value: number) {
         class:border-red-500="{numberInputInvalid}">
         <button
           data-action="decrement"
-          on:click="{e => decrement(e, record)}"
+          on:click="{e => {
+            decrement(e, record);
+            handleChange();
+          }}"
           disabled="{!canDecrement(recordValue, record.minimum)}"
           class="w-11 text-white {!canDecrement(recordValue, record.minimum)
             ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
@@ -302,13 +317,22 @@ function assertNumericValueIsValid(value: number) {
             class="w-[50px] outline-none focus:outline-none text-center text-white text-sm py-0.5"
             name="{record.id}"
             bind:value="{recordValue}"
-            on:keypress="{event => onNumberInputKeyPress(event)}"
-            on:input="{event => onNumberInputChange(event)}"
+            on:keypress="{event => {
+              onNumberInputKeyPress(event);
+              handleChange();
+            }}"
+            on:input="{event => {
+              onNumberInputChange(event);
+              handleChange();
+            }}"
             aria-label="{record.description}" />
         </Tooltip>
         <button
           data-action="increment"
-          on:click="{e => increment(e, record)}"
+          on:click="{e => {
+            increment(e, record);
+            handleChange();
+          }}"
           disabled="{!canIncrement(recordValue, record.maximum)}"
           class="w-11 text-white {!canIncrement(recordValue, record.maximum)
             ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
@@ -332,11 +356,17 @@ function assertNumericValueIsValid(value: number) {
           class="relative cursor-pointer right-5"
           class:hidden="{!recordValue}"
           aria-label="clear"
-          on:click="{event => handleCleanValue(event)}">
+          on:click="{event => {
+            handleCleanValue(event);
+            handleChange();
+          }}">
           <Fa icon="{faXmark}" />
         </button>
         <Button
-          on:click="{() => selectFilePath()}"
+          on:click="{() => {
+            selectFilePath();
+            handleChange();
+          }}"
           id="rendering.FilePath.{record.id}"
           aria-invalid="{invalidEntry}"
           aria-label="button-{record.description}">Browse ...</Button>
@@ -346,7 +376,10 @@ function assertNumericValueIsValid(value: number) {
         class="border-b block w-full p-1 bg-zinc-700 border-violet-500 text-white text-sm checked:bg-violet-50"
         name="{record.id}"
         id="input-standard-{record.id}"
-        on:input="{event => checkValue(record, event)}"
+        on:input="{event => {
+          checkValue(record, event);
+          handleChange();
+        }}"
         bind:value="{recordValue}"
         aria-invalid="{invalidEntry}"
         aria-label="{record.description}">
@@ -360,7 +393,10 @@ function assertNumericValueIsValid(value: number) {
       </div>
     {:else}
       <input
-        on:input="{event => checkValue(record, event)}"
+        on:input="{event => {
+          checkValue(record, event);
+          handleChange();
+        }}"
         class="grow py-1 px-2 w-full outline-0 border-b-2 border-gray-800 hover:border-violet-500 focus:border-violet-500 placeholder-gray-900"
         name="{record.id}"
         type="text"

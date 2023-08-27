@@ -14,22 +14,22 @@ $: sectionExpanded = {};
 
 onMount(async () => {
   configurationProperties.subscribe(value => {
-    configProperties = value
-      .filter(property => property.scope === CONFIGURATION_DEFAULT_SCOPE)
-      .filter(property => !property.hidden)
-      .reduce((map, property) => {
-        let [parentLeftId] = property.parentId.split('.');
-
-        if (map[parentLeftId] === undefined) {
-          map[parentLeftId] = [];
-        }
-
-        let children = map[parentLeftId].find(item => item.id === property.parentId);
-        if (children === undefined) {
-          map[parentLeftId].push({ id: property.parentId, title: property.title });
-        }
+    configProperties = value.reduce((map, property) => {
+      if (property.scope !== CONFIGURATION_DEFAULT_SCOPE || ('boolean' === typeof property.hidden && !property.hidden))
         return map;
-      }, new Map());
+
+      let [parentLeftId] = property.parentId.split('.');
+
+      if (map[parentLeftId] === undefined) {
+        map[parentLeftId] = [];
+      }
+
+      let children = map[parentLeftId].find(item => item.id === property.parentId);
+      if (children === undefined) {
+        map[parentLeftId].push({ id: property.parentId, title: property.title });
+      }
+      return map;
+    }, new Map());
   });
 });
 </script>

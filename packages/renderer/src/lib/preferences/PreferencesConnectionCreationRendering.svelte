@@ -1,5 +1,8 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import type {
+  IConfigurationPropertyRecordedSchema,
+  HiddenConfiguration,
+} from '../../../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
@@ -15,7 +18,7 @@ import {
 } from './preferences-connection-rendering-task';
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
-import { get, type Unsubscriber } from 'svelte/store';
+import { get, writable, type Unsubscriber } from 'svelte/store';
 import { onDestroy, onMount } from 'svelte';
 /* eslint-enable import/no-duplicates */
 import { createConnectionsInfo } from '/@/stores/create-connections';
@@ -47,6 +50,9 @@ export let callback: (
 export let taskId: number = undefined;
 
 $: configurationValues = new Map<string, string>();
+
+let hiddenConfigurationStore = writable(new Map<string, boolean>());
+
 let creationInProgress = false;
 let creationStarted = false;
 let creationSuccessful = false;
@@ -85,6 +91,55 @@ $: if (logsTerminal && loggerHandlerKey) {
   } catch (error) {
     console.error('error while reconnecting', error);
   }
+}
+
+function isHiddenConfiguration(obj: any): obj is HiddenConfiguration {
+  return (
+    obj && typeof obj === 'object' && 'key' in obj && 'operator' in obj && 'values' in obj && obj.values.length > 0
+  );
+}
+
+function evaluateHiddenConfigurations() {
+  const updatedHiddenConfiguration = new Map<string, boolean>();
+
+  configurationKeys.forEach(configurationKey => {
+    if (!isHiddenConfiguration(configurationKey.hidden)) {
+      console.log(configurationKey.id, 'is not HiddenConfiguration');
+      return;
+    }
+
+    const hiddenConf = configurationKey.hidden as HiddenConfiguration;
+    const targetValue = configurationValues.get(hiddenConf.key);
+    const strTargetValue = `${targetValue}`;
+
+    console.log('hiddenConf', hiddenConf, strTargetValue);
+
+    switch (hiddenConf.operator) {
+      case 'NotEqual':
+        updatedHiddenConfiguration.set(configurationKey.id, strTargetValue !== `${hiddenConf.values[0]}`);
+        break;
+      case 'Equal':
+        updatedHiddenConfiguration.set(configurationKey.id, strTargetValue === `${hiddenConf.values[0]}`);
+        break;
+      case 'Gt':
+        updatedHiddenConfiguration.set(configurationKey.id, Number(targetValue) > Number(hiddenConf.values[0]));
+        break;
+      case 'In':
+        updatedHiddenConfiguration.set(configurationKey.id, hiddenConf.values.includes(strTargetValue));
+        break;
+      case 'Lt':
+        updatedHiddenConfiguration.set(configurationKey.id, Number(targetValue) < Number(hiddenConf.values[0]));
+        break;
+      case 'NotIn':
+        updatedHiddenConfiguration.set(configurationKey.id, !hiddenConf.values.includes(strTargetValue));
+        break;
+      default:
+        throw new Error('HiddenConfiguration has unknown operator.');
+    }
+  });
+
+  console.log('POST hiddenConfiguration: ', updatedHiddenConfiguration);
+  hiddenConfigurationStore.set(updatedHiddenConfiguration);
 }
 
 function isPropertyValidInContext(when: string, context: ContextUI) {
@@ -127,6 +182,8 @@ onMount(async () => {
       }
       return property;
     });
+
+  evaluateHiddenConfigurations();
 
   pageIsLoading = false;
 
@@ -186,6 +243,11 @@ async function handleValidComponent() {
   }
 
   connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data as AuditRequestItems);
+}
+
+function onConfigurationValueChange(id: string, value?: any) {
+  setConfigurationValue(id, value);
+  evaluateHiddenConfigurations();
 }
 
 function setConfigurationValue(id: string, value: string) {
@@ -319,6 +381,11 @@ async function cancel() {
 async function close() {
   cleanup();
 }
+
+let filteredConfigurationKeys = [];
+hiddenConfigurationStore.subscribe(value => {
+  filteredConfigurationKeys = configurationKeys.filter(configurationKey => !value.get(configurationKey.id));
+});
 </script>
 
 <div class="flex flex-col w-full h-full overflow-hidden">
@@ -397,7 +464,7 @@ async function close() {
             <AuditMessageBox auditResult="{connectionAuditResult}" />
           {/if}
           <form novalidate class="p-2 space-y-7 h-fit" on:submit|preventDefault="{handleOnSubmit}" bind:this="{formEl}">
-            {#each configurationKeys as configurationKey}
+            {#each filteredConfigurationKeys as configurationKey}
               <div class="mb-2.5">
                 <div class="font-semibold text-xs">
                   {#if configurationKey.description}
@@ -416,6 +483,7 @@ async function close() {
                   validRecord="{handleValidComponent}"
                   record="{configurationKey}"
                   setRecordValue="{setConfigurationValue}"
+                  onRecordChange="{onConfigurationValueChange}"
                   enableSlider="{true}" />
               </div>
             {/each}
