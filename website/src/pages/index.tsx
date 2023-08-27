@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import {
-  faBeer,
   faCertificate,
   faCloudArrowDown,
   faCogs,
@@ -16,7 +15,6 @@ import {
   faRocket,
   faGears,
   faRotateRight,
-  faPaste,
   faDiagramProject,
 } from '@fortawesome/free-solid-svg-icons';
 import ThemedImage from '@theme/ThemedImage';
@@ -363,10 +361,6 @@ function EnterpriseReady() {
   );
 }
 
-const copyBrewInstructions = async () => {
-  await navigator.clipboard.writeText('brew install podman-desktop');
-};
-
 function RunAnywhere() {
   return (
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font">
@@ -410,21 +404,6 @@ function RunAnywhere() {
               </div>
               <div className="flex-grow w-full">
                 <p className="text-base text-center">arm64, x64 or unified dmg</p>
-                <p className="text-base text-center">
-                  <FontAwesomeIcon size="1x" icon={faBeer} className="ml-2" /> brew install podman-desktop
-                  <button title="Copy To Clipboard" className="mr-5">
-                    <FontAwesomeIcon
-                      size="1x"
-                      icon={faPaste}
-                      className="ml-3  cursor-pointer text-3xl  text-white-500"
-                      onClick={() => {
-                        copyBrewInstructions().catch((err: unknown) => {
-                          console.error('unable to copy instructions', err);
-                        });
-                      }}
-                    />
-                  </button>
-                </p>
               </div>
             </div>
           </Link>
