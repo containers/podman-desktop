@@ -103,16 +103,11 @@ function evaluateHiddenConfigurations() {
   const updatedHiddenConfiguration = new Map<string, boolean>();
 
   configurationKeys.forEach(configurationKey => {
-    if (!isHiddenConfiguration(configurationKey.hidden)) {
-      console.log(configurationKey.id, 'is not HiddenConfiguration');
-      return;
-    }
+    if (!isHiddenConfiguration(configurationKey.hidden)) return;
 
     const hiddenConf = configurationKey.hidden as HiddenConfiguration;
     const targetValue = configurationValues.get(hiddenConf.key);
     const strTargetValue = `${targetValue}`;
-
-    console.log('hiddenConf', hiddenConf, strTargetValue);
 
     switch (hiddenConf.operator) {
       case 'NotEqual':
@@ -138,7 +133,6 @@ function evaluateHiddenConfigurations() {
     }
   });
 
-  console.log('POST hiddenConfiguration: ', updatedHiddenConfiguration);
   hiddenConfigurationStore.set(updatedHiddenConfiguration);
 }
 
