@@ -25,34 +25,54 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
 
 #### Procedure
 
-- Set up the `podman-mac-helper` service for each user.
-  Run the command:
+1. Set up the `podman-mac-helper` service: run the command in a terminal:
 
-  ```sh
-  sudo podman-mac-helper install
-  ```
+   ```shell-session
+   sudo podman-mac-helper install
+   ```
 
-  For additional install options please run the command:
-
-  ```sh
-  sudo podman-mac-helper install --help
-  ```
+1. Restart your Podman machine: go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**, and in the Podman tile, click <icon icon="fa-solid fa-repeat" size="lg" />.
 
 #### Verification
 
-1. Your tools communicating to the Docker socket, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
-
-2. Use the `podman-mac-helper` tool to run commands.
-   To run a command with Podman by using the `podman-mac-helper` tool, prefix the command with `podman-mac-helper`.
-
-   Example:
+1. The Docker socket is a symbolic link for the Podman socket:
 
    ```shell-session
-   $ podman-mac-helper run -it <your_container> bash
+   $ ls -la /var/run/docker.sock
+   ```
+
+   The output points to a `podman.sock` file such as:
+
+   ```shell-session
+   /var/run/docker.sock -> /Users/username/.local/share/containers/podman/machine/podman.sock
+   ```
+
+1. When you query the Docker socket, you receive replies from Podman rather than Docker.
+
+   For instance, this command outputs Podman version rather that Docker version:
+
+   ```shell-session
+   $ curl -s --unix-socket /var/run/docker.sock "http://v1.41/info"  | jq -r .ServerVersion
+   ```
+
+1. Your tools communicating to the Docker socket, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
+
+1. (Optionally, if the `docker` CLI is installed) The docker CLI context is set to the default value `unix:///var/run/docker.sock`:
+
+   ```shell-session
+   $ docker context list
+   NAME       TYPE  DESCRIPTION                              DOCKER ENDPOINT             KUBERNETES ENDPOINT  ORCHESTRATOR
+   default *  moby  Current DOCKER_HOST based configuration  unix:///var/run/docker.sock
+   ```
+
+1. (Optionally, if the `docker` CLI is installed) The `docker` CLI communicates with the Podman socket.
+
+   Therefore this command outputs Podman version rather that Docker version:
+
+   ```shell-session
+   $ docker info --format=json | jq -r .ServerVersion
    ```
 
 #### Additional resources
 
 - [`podman-mac-helper` source](https://github.com/containers/podman/tree/main/cmd/podman-mac-helper)
-- [`docker save` reference documentation](https://docs.docker.com/engine/reference/commandline/save/)
-- [`podman import` reference documentation](https://docs.podman.io/en/latest/markdown/podman-import.1.html)
