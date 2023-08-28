@@ -57,23 +57,20 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
 
 1. Your tools communicating to the Docker socket, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
 
+1. (Optionally, if the `docker` CLI is installed) The docker CLI context is set to the default value `unix:///var/run/docker.sock`:
+
+   ```shell-session
+   $ docker context list
+   NAME       TYPE  DESCRIPTION                              DOCKER ENDPOINT             KUBERNETES ENDPOINT  ORCHESTRATOR
+   default *  moby  Current DOCKER_HOST based configuration  unix:///var/run/docker.sock
+   ```
+
 1. (Optionally, if the `docker` CLI is installed) The `docker` CLI communicates with the Podman socket.
 
    Therefore this command outputs Podman version rather that Docker version:
 
    ```shell-session
-   $ DOCKER_HOST=unix:///var/run/docker.sock docker info --format=json | jq -r .ServerVersion
-   ```
-
-1. (Optionally, if the `docker` CLI is installed) The docker CLI context is set to the default value `unix:///var/run/docker.sock`:
-
-   ```shell-session
-   $ docker context list
-   ```
-
-   ```
-   NAME       TYPE  DESCRIPTION                              DOCKER ENDPOINT             KUBERNETES ENDPOINT  ORCHESTRATOR
-   default *  moby  Current DOCKER_HOST based configuration  unix:///var/run/docker.sock
+   $ docker info --format=json | jq -r .ServerVersion
    ```
 
 #### Additional resources
