@@ -75,7 +75,7 @@ export class ProviderImpl implements Provider, IDisposable {
 
   constructor(
     private _internalId: string,
-    private _extension: string,
+    readonly extension: string,
     private providerOptions: ProviderOptions,
     private providerRegistry: ProviderRegistry,
     private containerRegistry: ContainerProviderRegistry,
@@ -174,10 +174,6 @@ export class ProviderImpl implements Provider, IDisposable {
 
   get internalId(): string {
     return this._internalId;
-  }
-
-  get extension(): string {
-    return this._extension;
   }
 
   get id(): string {
