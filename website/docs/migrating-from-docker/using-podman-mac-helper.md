@@ -68,7 +68,7 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
 1. (Optionally, if the `docker` CLI is installed) The docker CLI context is set to the default value `unix:///var/run/docker.sock`:
 
    ```shell-session
-   $ docker context
+   $ docker context list
    ```
 
    ```
