@@ -30,7 +30,7 @@ import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding'
 const providerInfo: ProviderInfo = {
   id: 'podman',
   name: 'podman',
-  extension: 'id',
+  extensionId: 'id',
   images: {
     icon: 'img',
   },

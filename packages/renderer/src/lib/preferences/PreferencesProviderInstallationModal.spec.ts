@@ -52,7 +52,7 @@ const providerInfo: ProviderInfo = {
   containerProviderConnectionInitialization: false,
   containerProviderConnectionCreationDisplayName: 'Podman machine',
   kubernetesProviderConnectionInitialization: false,
-  extension: '',
+  extensionId: '',
 };
 
 const closeCallback = vi.fn();

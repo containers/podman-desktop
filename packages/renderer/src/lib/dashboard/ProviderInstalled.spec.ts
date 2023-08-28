@@ -63,7 +63,7 @@ test('Expect installed provider shows button', async () => {
     name: 'MyProvider',
     status: 'installed',
     warnings: [],
-    extension: '',
+    extensionId: '',
   };
 
   const initializationContext: InitializationContext = { mode: InitializeAndStartMode };

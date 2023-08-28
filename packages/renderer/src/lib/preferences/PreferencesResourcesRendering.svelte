@@ -340,11 +340,11 @@ function hideInstallModal() {
               <span class="my-auto text-gray-400 ml-3 break-words">{provider.name}</span>
             </div>
             <div class="text-center mt-10">
-              {#if extensionOnboarding.get(provider.extension) && provider.status === 'not-installed'}
+              {#if extensionOnboarding.get(provider.extensionId) && provider.status === 'not-installed'}
                 <Button
                   aria-label="Setup {provider.name}"
                   title="Setup {provider.name}"
-                  on:click="{() => router.goto(`/preferences/onboarding/${provider.extension}`)}">
+                  on:click="{() => router.goto(`/preferences/onboarding/${provider.extensionId}`)}">
                   Setup ...
                 </Button>
               {:else}
@@ -372,11 +372,11 @@ function hideInstallModal() {
                       </Button>
                     </Tooltip>
                   {/if}
-                  {#if extensionOnboarding.get(provider.extension)}
+                  {#if extensionOnboarding.get(provider.extensionId)}
                     <Button
                       aria-label="Setup {provider.name}"
                       title="Setup {provider.name}"
-                      on:click="{() => router.goto(`/preferences/onboarding/${provider.extension}`)}">
+                      on:click="{() => router.goto(`/preferences/onboarding/${provider.extensionId}`)}">
                       <Fa size="14" icon="{faGear}" />
                     </Button>
                   {/if}

@@ -81,7 +81,7 @@ test('Expect that the right machine is displayed', async () => {
     containerProviderConnectionInitialization: false,
     containerProviderConnectionCreationDisplayName: 'Podman machine',
     kubernetesProviderConnectionInitialization: false,
-    extension: '',
+    extensionId: '',
   };
 
   // 3 connections with the same socket path
@@ -159,7 +159,7 @@ test('Expect that removing the connection is going back to the previous page', a
     containerProviderConnectionInitialization: false,
     containerProviderConnectionCreationDisplayName: 'Podman machine',
     kubernetesProviderConnectionInitialization: false,
-    extension: '',
+    extensionId: '',
   };
 
   // 3 connections with the same socket path

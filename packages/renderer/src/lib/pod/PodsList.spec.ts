@@ -55,7 +55,7 @@ const provider: ProviderInfo = {
   name: 'MyProvider',
   status: 'started',
   warnings: [],
-  extension: '',
+  extensionId: '',
 };
 
 const pod1: PodInfo = {

@@ -582,7 +582,7 @@ export class ProviderRegistry {
     const providerInfo: ProviderInfo = {
       id: provider.id,
       internalId: provider.internalId,
-      extension: provider.extension,
+      extensionId: provider.extensionId,
       name: provider.name,
       containerConnections,
       kubernetesConnections,
