@@ -6,10 +6,12 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 const title = 'podman desktop';
 
+const inDevMode = process.env.NODE_ENV === 'development';
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Podman Desktop',
-  url: 'https://podman-desktop.io',
+  url: inDevMode ? 'http://localhost:3000' : 'https://podman-desktop.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
