@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import {
-  faBeer,
   faCertificate,
   faCloudArrowDown,
   faCogs,
@@ -16,7 +15,6 @@ import {
   faRocket,
   faGears,
   faRotateRight,
-  faPaste,
   faDiagramProject,
 } from '@fortawesome/free-solid-svg-icons';
 import ThemedImage from '@theme/ThemedImage';
@@ -363,10 +361,6 @@ function EnterpriseReady() {
   );
 }
 
-const copyBrewInstructions = async () => {
-  await navigator.clipboard.writeText('brew install podman-desktop');
-};
-
 function RunAnywhere() {
   return (
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font">
@@ -380,75 +374,54 @@ function RunAnywhere() {
           </p>
         </div>
         <div className="flex flex-wrap w-full justify-center">
-          <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
-              <Link
-                title="Download for Windows"
-                className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
-                to="/downloads/Windows">
-                <div className="flex items-center mb-3 flex-col">
-                  <FontAwesomeIcon size="4x" icon={faWindows} />
-                  <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
-                  <h2 className=" text-lg title-font font-medium"> Windows</h2>
-                </div>
-              </Link>
+          <Link
+            title="Download for Windows"
+            className="p-4 w-11/12 md:w-1/2 lg:w-1/3 no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white"
+            to="/downloads/Windows">
+            <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
+              <div className="flex items-center mb-3 flex-col">
+                <FontAwesomeIcon size="4x" icon={faWindows} />
+                <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
+                <h2 className=" text-lg title-font font-medium"> Windows</h2>
+              </div>
+
               <div className="flex-grow">
                 <div className="flex-grow w-full">
                   <p className="text-base text-center">exe or setup.exe</p>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
-              <Link
-                title="Download for macOS"
-                className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
-                to="/downloads/macOS">
-                <div className="flex items-center mb-3 flex-col">
-                  <FontAwesomeIcon size="4x" icon={faApple} />
-                  <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
-                  <h2 className=" text-lg title-font font-medium"> macOS</h2>
-                </div>
-              </Link>
+          </Link>
+          <Link
+            title="Download for macOS"
+            className="no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white p-4 w-11/12 md:w-1/2 lg:w-1/3"
+            to="/downloads/macOS">
+            <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
+              <div className="flex items-center mb-3 flex-col">
+                <FontAwesomeIcon size="4x" icon={faApple} />
+                <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
+                <h2 className=" text-lg title-font font-medium"> macOS</h2>
+              </div>
               <div className="flex-grow w-full">
                 <p className="text-base text-center">arm64, x64 or unified dmg</p>
-                <p className="text-base text-center">
-                  <FontAwesomeIcon size="1x" icon={faBeer} className="ml-2" /> brew install podman-desktop
-                  <button title="Copy To Clipboard" className="mr-5">
-                    <FontAwesomeIcon
-                      size="1x"
-                      icon={faPaste}
-                      className="ml-3  cursor-pointer text-3xl  text-white-500"
-                      onClick={() => {
-                        copyBrewInstructions().catch((err: unknown) => {
-                          console.error('unable to copy instructions', err);
-                        });
-                      }}
-                    />
-                  </button>
-                </p>
               </div>
             </div>
-          </div>
-          <div className="p-4 w-11/12 md:w-1/2 lg:w-1/3">
-            <div className="flex rounded-lg h-full bg-zinc-100 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
-              <Link
-                title="Download for Linux"
-                className="no-underline hover:no-underline text-gray-900 dark:text-white hover:dark:text-violet-600 "
-                to="/downloads/Linux">
-                <div className="flex items-center mb-3 flex-col">
-                  <FontAwesomeIcon size="4x" icon={faLinux} />
-                  <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
-                  <h2 className=" text-lg title-font font-medium"> Linux</h2>
-                </div>
-              </Link>
-
+          </Link>
+          <Link
+            title="Download for Linux"
+            className="no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white p-4 w-11/12 md:w-1/2 lg:w-1/3"
+            to="/downloads/Linux">
+            <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
+              <div className="flex items-center mb-3 flex-col">
+                <FontAwesomeIcon size="4x" icon={faLinux} />
+                <div className="inline-flex items-center justify-center rounded-full text-gray-900 dark:text-gray-400 flex-shrink-0"></div>
+                <h2 className=" text-lg title-font font-medium"> Linux</h2>
+              </div>
               <div className="flex-grow">
                 <p className="text-base text-center">Flatpak or AMD64 binary (tar.gz)</p>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </section>
