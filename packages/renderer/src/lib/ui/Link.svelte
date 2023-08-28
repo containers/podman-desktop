@@ -3,11 +3,11 @@ import { onMount, createEventDispatcher } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { router } from 'tinro';
 
-export let internalRef: string = undefined;
-export let externalRef: string = undefined;
+export let internalRef: string | undefined = undefined;
+export let externalRef: string | undefined = undefined;
 export let icon: any = undefined;
 
-let iconType: string = undefined;
+let iconType: string | undefined = undefined;
 
 const dispatch = createEventDispatcher<{ click: undefined }>();
 

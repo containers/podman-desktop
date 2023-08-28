@@ -11,10 +11,10 @@ export let child = false;
 let selected: boolean;
 $: selected = meta.url === href;
 
-function rotate(node, { clockwise = true }) {
+function rotate(node: unknown, { clockwise = true }) {
   return {
     duration: 200,
-    css: (t, u) => {
+    css: (t: unknown, u: number) => {
       if (!clockwise) u = -u;
       return `
         transform: rotate(${u * 90}deg);

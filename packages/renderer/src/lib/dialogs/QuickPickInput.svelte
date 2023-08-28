@@ -7,16 +7,16 @@ import { tabWithinParent } from './dialog-utils';
 const ENTER = 'Enter';
 const ESCAPE = 'Escape';
 const DEFAULT_PROMPT = `Press '${ENTER}' to confirm your input or '${ESCAPE}' to cancel`;
-let inputValue = '';
-let placeHolder = '';
+let inputValue: string | undefined = '';
+let placeHolder: string | undefined = '';
 let prompt = '';
-let markdownDescription = '';
+let markdownDescription: string | undefined = '';
 let currentId = 0;
-let title = '';
+let title: string | undefined = '';
 let multiline = false;
 
 let validationEnabled = false;
-let validationError = '';
+let validationError: string | undefined = '';
 
 let onSelectCallbackEnabled = false;
 
@@ -29,30 +29,30 @@ let quickPickSelectedIndex = 0;
 let quickPickSelectedFilteredIndex = 0;
 let quickPickCanPickMany = false;
 
-let inputElement: HTMLInputElement | HTMLTextAreaElement = undefined;
-let outerDiv: HTMLDivElement = undefined;
+let inputElement: HTMLInputElement | HTMLTextAreaElement | undefined = undefined;
+let outerDiv: HTMLDivElement | undefined = undefined;
 
 const showInputCallback = async (options?: InputBoxOptions) => {
   mode = 'InputBox';
-  inputValue = options.value;
-  placeHolder = options.placeHolder;
-  title = options.title;
-  currentId = options.id;
-  if (options.prompt) {
+  inputValue = options?.value;
+  placeHolder = options?.placeHolder;
+  title = options?.title;
+  currentId = options?.id || 0;
+  if (options?.prompt) {
     prompt = `${options.prompt} (${DEFAULT_PROMPT})`;
   } else {
     prompt = DEFAULT_PROMPT;
   }
-  markdownDescription = options.markdownDescription;
-  multiline = options.multiline;
+  markdownDescription = options?.markdownDescription;
+  multiline = options?.multiline || false;
 
-  validationEnabled = options.validate;
+  validationEnabled = options?.validate || false;
   display = true;
   await tick();
 
   if (display && inputElement) {
     inputElement.focus();
-    if (options.valueSelection) {
+    if (options?.valueSelection) {
       inputElement.setSelectionRange(options.valueSelection[0], options.valueSelection[1]);
     }
   }
@@ -60,27 +60,40 @@ const showInputCallback = async (options?: InputBoxOptions) => {
 
 const showQuickPickCallback = async (options?: QuickPickOptions) => {
   mode = 'QuickPick';
-  placeHolder = options.placeHolder;
-  title = options.title;
-  currentId = options.id;
-  if (options.prompt) {
+  placeHolder = options?.placeHolder;
+  title = options?.title;
+  currentId = options?.id || 0;
+  if (options?.prompt) {
     prompt = options.prompt;
   }
-  quickPickItems = options.items.map(item => {
-    if (typeof item === 'string') {
-      return { value: item, description: '', detail: '', checkbox: false };
-    } else {
-      // if type is QuickPickItem use label field for the display
-      return { value: item.label, description: item.description, detail: item.detail, checkbox: false };
-    }
-  });
+  quickPickItems = options?.items
+    .map(item => {
+      if (typeof item === 'string') {
+        return { value: item, description: '', detail: '', checkbox: false };
+      } else {
+        // if type is QuickPickItem use label field for the display
+        return {
+          value: item.label || '',
+          description: item.description || '',
+          detail: item.detail || '',
+          checkbox: false,
+        };
+      }
+    })
+    .filter(item => item !== undefined) as {
+    value: any;
+    description: string;
+    detail: string;
+    checkbox: boolean;
+  }[];
+
   quickPickFilteredItems = quickPickItems;
 
-  if (options.canPickMany) {
+  if (options?.canPickMany) {
     quickPickCanPickMany = true;
   }
 
-  if (options.onSelectCallback) {
+  if (options?.onSelectCallback) {
     onSelectCallbackEnabled = true;
     // if there is one item, notify that focus will be on it
     if (quickPickItems.length > 0) {
@@ -251,7 +264,7 @@ function handleKeydown(e: KeyboardEvent) {
     }
   }
 
-  if (e.key === 'Tab') {
+  if (e.key === 'Tab' && outerDiv) {
     tabWithinParent(e, outerDiv);
   }
 }
@@ -317,7 +330,7 @@ function handleMousedown(e: MouseEvent) {
             <div class="text-gray-400 border border-red-700 relative w-full bg-red-700 px-1">{validationError}</div>
           {:else}
             <div class="relative text-gray-400 pt-2 px-1 h-7 overflow-y-auto">{prompt}</div>
-            {#if markdownDescription?.length > 0}
+            {#if markdownDescription && markdownDescription.length > 0}
               <div class="relative text-gray-400 pt-2 px-1 h-fit overflow-y-auto">
                 <Markdown>{markdownDescription}</Markdown>
               </div>

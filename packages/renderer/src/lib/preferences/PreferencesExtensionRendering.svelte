@@ -9,26 +9,35 @@ import { faPlay, faPuzzlePiece, faStop, faTrash } from '@fortawesome/free-solid-
 import { router } from 'tinro';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 
-export let extensionId: string = undefined;
+export let extensionId: string | undefined = undefined;
 
-let extensionInfo: ExtensionInfo;
+let extensionInfo: ExtensionInfo | undefined;
 
 $: extensionInfo = $extensionInfos.find(extension => extension.id === extensionId);
 $: hideOnboardingButton = true;
 $: hasOnboarding(extensionId).then(value => (hideOnboardingButton = value));
 
 async function stopExtension() {
-  await window.stopExtension(extensionInfo.id);
+  if (extensionInfo) {
+    await window.stopExtension(extensionInfo.id);
+  }
 }
 async function startExtension() {
-  await window.startExtension(extensionInfo.id);
+  if (extensionInfo) {
+    await window.startExtension(extensionInfo.id);
+  }
 }
 async function removeExtension() {
-  window.location.href = '#/preferences/extensions';
-  await window.removeExtension(extensionInfo.id);
+  if (extensionInfo) {
+    window.location.href = '#/preferences/extensions';
+    await window.removeExtension(extensionInfo.id);
+  }
 }
 
-async function hasOnboarding(extensionId: string): Promise<boolean> {
+async function hasOnboarding(extensionId?: string): Promise<boolean> {
+  if (!extensionId) {
+    return false;
+  }
   const onboarding = await window.getOnboarding(extensionId);
   return !onboarding;
 }
@@ -84,7 +93,7 @@ async function hasOnboarding(extensionId: string): Promise<boolean> {
           </div>
 
           <div class="px-2 text-sm italic text-gray-700" class:hidden="{hideOnboardingButton}">
-            <Button icon="{faPlay}" on:click="{() => router.goto(`/preferences/onboarding/${extensionInfo.id}`)}">
+            <Button icon="{faPlay}" on:click="{() => router.goto(`/preferences/onboarding/${extensionInfo?.id}`)}">
               Onboarding
             </Button>
           </div>

@@ -1,8 +1,8 @@
 <script lang="ts">
 import { router } from 'tinro';
 
-export let url;
-export let title;
+export let url: string;
+export let title: string;
 
 let baseURL = $router.path.substring(0, $router.path.lastIndexOf('/'));
 </script>

@@ -8,9 +8,9 @@ import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings'
 export let terminal: Terminal;
 
 let logsXtermDiv: HTMLDivElement;
-let resizeHandler;
+let resizeHandler: () => void;
 
-const dispatch = createEventDispatcher<{ init }>();
+const dispatch = createEventDispatcher<{ init: any }>();
 
 async function refreshTerminal() {
   // missing element, return

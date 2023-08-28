@@ -31,8 +31,8 @@ import { micromark } from 'micromark';
 import { directive, directiveHtml } from 'micromark-extension-directive';
 import { button } from './micromark-button-directive';
 
-let text;
-let html;
+let text: string;
+let html: string;
 
 // Optional attribute to specify the markdown to use
 // the user can use: <Markdown>**bold</Markdown> or <Markdown markdown="**bold**" /> syntax

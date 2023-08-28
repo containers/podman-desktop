@@ -3,11 +3,12 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import TaskManagerItem from './TaskManagerItem.svelte';
 
 import type { Task } from '../../../../main/src/plugin/api/task';
+import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
-export let icon;
+export let icon: IconDefinition;
 export let tasks: Task[];
-export let title;
-export let lineColor;
+export let title: string;
+export let lineColor: string;
 
 // check if the item is the last one
 let lastItem = (a: unknown[], i: number) => i === a.length - 1;

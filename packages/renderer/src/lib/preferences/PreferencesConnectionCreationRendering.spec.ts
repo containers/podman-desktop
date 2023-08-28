@@ -73,7 +73,7 @@ test('Expect that the create button is available', async () => {
 
 test('Expect create connection successfully', async () => {
   let providedKeyLogger:
-    | ((key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void)
+    | ((key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void)
     | undefined;
 
   const callback = vi.fn();
@@ -81,7 +81,7 @@ test('Expect create connection successfully', async () => {
     _id: string,
     _params: unknown,
     _key: unknown,
-    keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
+    keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
   ): Promise<void> {
     // keep reference
     providedKeyLogger = keyLogger;
@@ -94,6 +94,7 @@ test('Expect create connection successfully', async () => {
     propertyScope,
     callback,
     pageIsLoading: false,
+    taskId: 2,
   });
   const createButton = screen.getByRole('button', { name: 'Create' });
   expect(createButton).toBeInTheDocument();
@@ -159,6 +160,7 @@ test('Expect cancelling the creation, trigger the cancellation token', async () 
     propertyScope,
     callback,
     pageIsLoading: false,
+    taskId: 2,
   });
   const createButton = screen.getByRole('button', { name: 'Create' });
   expect(createButton).toBeInTheDocument();

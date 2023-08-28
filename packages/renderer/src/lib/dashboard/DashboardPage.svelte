@@ -22,12 +22,10 @@ $: providersReady = $providerInfos.filter(provider => provider.status === 'ready
 $: providersStarting = $providerInfos.filter(provider => provider.status === 'starting');
 $: providersStopped = $providerInfos.filter(provider => provider.status === 'stopped');
 
-function getInitializationContext(id: string) {
-  let context: InitializationContext;
+function getInitializationContext(id: string): InitializationContext {
+  let context: InitializationContext | undefined = providerInitContexts.get(id);
 
-  if (providerInitContexts.has(id)) {
-    context = providerInitContexts.get(id);
-  } else {
+  if (!context) {
     context = { mode: DoNothingMode };
     providerInitContexts.set(id, context);
   }

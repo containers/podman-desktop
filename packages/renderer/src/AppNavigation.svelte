@@ -14,11 +14,12 @@ import ImageIcon from './lib/images/ImageIcon.svelte';
 import VolumeIcon from './lib/images/VolumeIcon.svelte';
 import NavItem from './lib/ui/NavItem.svelte';
 import type { TinroRouteMeta } from 'tinro';
+import type { Unsubscriber } from 'svelte/store';
 
-let podInfoSubscribe;
-let containerInfoSubscribe;
-let imageInfoSubscribe;
-let volumeInfoSubscribe;
+let podInfoSubscribe: Unsubscriber;
+let containerInfoSubscribe: Unsubscriber;
+let imageInfoSubscribe: Unsubscriber;
+let volumeInfoSubscribe: Unsubscriber;
 
 let podCount = '';
 let containerCount = '';

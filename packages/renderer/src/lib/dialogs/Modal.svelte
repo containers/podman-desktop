@@ -33,7 +33,7 @@ const close = () => dispatch('close');
 let modal: HTMLDivElement;
 export let name = '';
 
-const handle_keydown = e => {
+const handle_keydown = (e: any) => {
   if (e.key === 'Escape') {
     close();
     return;

@@ -1,5 +1,11 @@
 <script lang="ts">
-import { faClose, faInfoCircle, faSquareCheck, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import {
+  faClose,
+  faInfoCircle,
+  faSquareCheck,
+  faTriangleExclamation,
+  type IconDefinition,
+} from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { TaskManager, type TaskUI } from './task-manager';
@@ -14,8 +20,8 @@ let taskUI: TaskUI;
 $: taskUI = taskManager.toTaskUi(task);
 
 let showError = false;
-let icon;
-let iconColor;
+let icon: IconDefinition;
+let iconColor: string;
 onMount(() => {
   if (task.status === 'success') {
     icon = faSquareCheck;
@@ -38,7 +44,7 @@ function gotoTask(taskUI: TaskUI) {
   // hide the task manager
   window.events?.send('toggle-task-manager', '');
   // and open the task
-  taskUI?.gotoTask();
+  taskUI?.gotoTask?.();
 }
 </script>
 
@@ -72,7 +78,7 @@ function gotoTask(taskUI: TaskUI) {
     <!-- if in-progress task, display a link to resume-->
     {#if taskUI.status === 'in-progress'}
       <div class="flex flex-row w-full">
-        {#if taskUI.progress >= 0}
+        {#if (taskUI.progress || 0) >= 0}
           <div class="w-32">
             <div class="w-full h-4 mb-4 rounded-full bg-gray-900">
               <div class="h-4 bg-purple-500 rounded-full" style="width: {taskUI.progress}%"></div>

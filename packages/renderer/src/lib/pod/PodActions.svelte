@@ -18,7 +18,7 @@ async function startPod(podInfoUI: PodInfoUI) {
   try {
     await window.startPod(podInfoUI.engineId, podInfoUI.id);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(false, 'RUNNING');
   }
@@ -29,7 +29,7 @@ async function restartPod(podInfoUI: PodInfoUI) {
   try {
     await window.restartPod(podInfoUI.engineId, podInfoUI.id);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(false);
   }
@@ -40,7 +40,7 @@ async function stopPod(podInfoUI: PodInfoUI) {
   try {
     await window.stopPod(podInfoUI.engineId, podInfoUI.id);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(false, 'STOPPED');
   }
@@ -55,7 +55,7 @@ async function deletePod(podInfoUI: PodInfoUI): Promise<void> {
       await window.kubernetesDeletePod(podInfoUI.name);
     }
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(false);
   }
@@ -70,7 +70,7 @@ function deployToKubernetes(): void {
 }
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
 // otherwise, leave blank.
-let actionsStyle;
+let actionsStyle: typeof DropdownMenu | typeof FlatMenu;
 if (dropdownMenu) {
   actionsStyle = DropdownMenu;
 } else {

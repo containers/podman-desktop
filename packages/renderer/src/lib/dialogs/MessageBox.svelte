@@ -9,49 +9,49 @@ import type { ButtonType } from '../ui/Button';
 import { tabWithinParent } from './dialog-utils';
 
 let currentId = 0;
-let title;
-let message;
-let detail;
-let buttons;
-let type;
+let title: string;
+let message: string;
+let detail: string | undefined;
+let buttons: string[];
+let type: string | undefined;
 let cancelId = -1;
-let defaultId;
-let buttonOrder;
+let defaultId: number;
+let buttonOrder: number[];
 
 let display = false;
 
-let inputElement: HTMLInputElement = undefined;
+let inputElement: HTMLInputElement | undefined = undefined;
 let messageBox: HTMLDivElement;
 
 const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
-  currentId = options.id;
-  title = options.title;
-  message = options.message;
-  if (options.detail) {
+  currentId = options?.id || 0;
+  title = options?.title || '';
+  message = options?.message || '';
+  if (options?.detail) {
     detail = options.detail;
   } else {
     detail = undefined;
   }
 
   // use provided buttons, or a single 'OK' button if none are provided
-  if (options.buttons && options.buttons.length > 0) {
+  if (options?.buttons && options.buttons.length > 0) {
     buttons = options.buttons;
   } else {
     buttons = ['OK'];
   }
-  type = options.type;
+  type = options?.type;
 
   buttonOrder = Array.from(buttons, (value, index) => index);
 
   // use the provided cancel id, otherwise try to find a button labelled 'cancel'
-  if (options.cancelId) {
+  if (options?.cancelId) {
     cancelId = options.cancelId;
   } else {
     cancelId = buttons.findIndex(b => b.toLowerCase() === 'cancel');
   }
 
   // use the provided default (primary) id, otherwise the first non-cancel button is the default
-  if (options.defaultId) {
+  if (options?.defaultId) {
     defaultId = options.defaultId;
   } else {
     if (cancelId === 0) {
@@ -96,7 +96,7 @@ function cleanup() {
   message = '';
 }
 
-function clickButton(index: number) {
+function clickButton(index?: number) {
   window.sendShowMessageBoxOnSelect(currentId, index);
   cleanup();
 }

@@ -21,7 +21,9 @@ onMount(() => {
 
 function copyRunInstructionToClipboard() {
   const text = copyTextDivElement?.textContent;
-  window.clipboardWriteText(text);
+  if (text) {
+    window.clipboardWriteText(text);
+  }
 }
 
 let copyTextDivElement: HTMLDivElement;

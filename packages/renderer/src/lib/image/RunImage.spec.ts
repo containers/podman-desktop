@@ -331,7 +331,7 @@ describe('RunImage', () => {
     await fireEvent.click(button);
 
     const errorComponent = screen.getByLabelText('createError');
-    expect(errorComponent.textContent.trim()).toBe(
+    expect(errorComponent.textContent?.trim()).toBe(
       'Error: host and container port ranges (9000-9001:9000-9003) have different lengths: 2 vs 4',
     );
   });

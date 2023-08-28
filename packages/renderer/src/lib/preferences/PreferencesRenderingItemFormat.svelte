@@ -10,7 +10,7 @@ import Tooltip from '../ui/Tooltip.svelte';
 import Button from '../ui/Button.svelte';
 
 let invalidEntry = false;
-let invalidText = undefined;
+let invalidText: string | undefined = undefined;
 export let invalidRecord = (_error: string) => {};
 export let validRecord = () => {};
 export let updateResetButtonVisibility = (_recordValue: any) => {};
@@ -39,13 +39,15 @@ $: if (resetToDefault) {
 
 $: if (currentRecord !== record) {
   if (record.scope === CONFIGURATION_DEFAULT_SCOPE) {
-    window.getConfigurationValue(record.id, record.scope).then(value => {
-      recordValue = value;
-      if (record.type === 'boolean') {
-        recordValue = !!value;
-        checkboxValue = recordValue;
-      }
-    });
+    if (record.id) {
+      window.getConfigurationValue(record.id, record.scope).then(value => {
+        recordValue = value;
+        if (record.type === 'boolean') {
+          recordValue = !!value;
+          checkboxValue = recordValue;
+        }
+      });
+    }
   } else if (record.default !== undefined) {
     recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
     if (record.type === 'boolean') {
@@ -60,7 +62,9 @@ $: if (currentRecord !== record) {
 
 function invalid() {
   // call the callback
-  invalidRecord(invalidText);
+  if (invalidText) {
+    invalidRecord(invalidText);
+  }
 }
 
 function valid() {
@@ -113,11 +117,13 @@ function update(record: IConfigurationPropertyRecordedSchema) {
   }
 
   // save the value
-  try {
-    window.updateConfigurationValue(record.id, value, record.scope);
-  } catch (error) {
-    invalidEntry = true;
-    invalidText = error;
+  if (record.id) {
+    try {
+      window.updateConfigurationValue(record.id, value, record.scope);
+    } catch (error) {
+      invalidEntry = true;
+      invalidText = String(error);
+    }
   }
 }
 
@@ -173,8 +179,8 @@ function autoSave() {
 }
 
 function getCurrentNumericInputElement(e: HTMLButtonElement) {
-  const btn = e.parentNode.parentElement.querySelector('button[data-action="decrement"]');
-  return btn.nextElementSibling.firstElementChild.firstElementChild as unknown as HTMLInputElement;
+  const btn = e.parentNode?.parentElement?.querySelector('button[data-action="decrement"]');
+  return btn?.nextElementSibling?.firstElementChild?.firstElementChild as unknown as HTMLInputElement;
 }
 
 function canDecrement(value: number | string, minimumValue?: number) {
@@ -191,7 +197,10 @@ function canIncrement(value: number | string, maximumValue?: number | string) {
   return !maximumValue || (typeof maximumValue === 'number' && value < maximumValue);
 }
 
-function handleRangeValue(id: string, target: HTMLInputElement) {
+function handleRangeValue(id: string | undefined, target: HTMLInputElement) {
+  if (!id) {
+    return;
+  }
   setRecordValue(id, target.value);
 }
 

@@ -3,7 +3,7 @@ import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info
 
 export let provider: ProviderInfo;
 
-let logo;
+let logo: string | undefined = undefined;
 $: {
   if (provider.images.logo) {
     if (typeof provider.images.logo === 'string') {

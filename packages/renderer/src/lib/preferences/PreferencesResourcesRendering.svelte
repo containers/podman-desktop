@@ -40,8 +40,10 @@ $: providerInstallationInProgress = new Map<string, boolean>();
 
 let isStatusUpdated = false;
 let displayInstallModal = false;
-let providerToBeInstalled: { provider: ProviderInfo; displayName: string };
+let providerToBeInstalled: { provider: ProviderInfo; displayName: string } | undefined;
 let doExecuteAfterInstallation: () => void;
+let preflightChecks: CheckStatus[] = [];
+
 $: preflightChecks = [];
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
@@ -56,7 +58,7 @@ onMount(() => {
 
   providersUnsubscribe = providerInfos.subscribe(providerInfosValue => {
     providers = providerInfosValue;
-    const connectionNames = [];
+    const connectionNames: string[] = [];
     providers.forEach(provider => {
       if (
         providerToBeInstalled &&
@@ -74,7 +76,7 @@ onMount(() => {
         // update the map only if the container state is different from last time
         if (
           !containerConnectionStatus.has(containerConnectionName) ||
-          containerConnectionStatus.get(containerConnectionName).status !== container.status
+          containerConnectionStatus.get(containerConnectionName)?.status !== container.status
         ) {
           isStatusUpdated = true;
           const containerToRestart = getContainerRestarting(provider.internalId, container.name);
@@ -100,7 +102,7 @@ onMount(() => {
         // update the map only if the container state is different from last time
         if (
           !containerConnectionStatus.has(containerConnectionName) ||
-          containerConnectionStatus.get(containerConnectionName).status !== connection.status
+          containerConnectionStatus.get(containerConnectionName)?.status !== connection.status
         ) {
           isStatusUpdated = true;
           const containerToRestart = getContainerRestarting(provider.internalId, connection.name);
@@ -153,7 +155,7 @@ onDestroy(() => {
 
 $: configurationKeys = properties
   .filter(property => property.scope === 'ContainerConnection')
-  .sort((a, b) => a.id.localeCompare(b.id));
+  .sort((a, b) => (a?.id || '').localeCompare(b?.id || ''));
 
 let tmpProviderContainerConfiguration: IProviderConnectionConfigurationPropertyRecorded[] = [];
 $: Promise.all(
@@ -164,10 +166,12 @@ $: Promise.all(
           configurationKeys.map(async configurationKey => {
             return {
               ...configurationKey,
-              value: await window.getConfigurationValue(
-                configurationKey.id,
-                container as unknown as ContainerProviderConnection,
-              ),
+              value: configurationKey.id
+                ? await window.getConfigurationValue(
+                    configurationKey.id,
+                    container as unknown as ContainerProviderConnection,
+                  )
+                : undefined,
               connection: container.name,
               providerId: provider.internalId,
             };
@@ -190,7 +194,7 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration
 
 function updateContainerStatus(
   provider: ProviderInfo,
-  containerConnectionInfo: ProviderContainerConnectionInfo,
+  containerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   action?: string,
   error?: string,
   inProgress?: boolean,
@@ -198,11 +202,13 @@ function updateContainerStatus(
   const containerConnectionName = getProviderConnectionName(provider, containerConnectionInfo);
   if (error) {
     const currentStatus = containerConnectionStatus.get(containerConnectionName);
-    containerConnectionStatus.set(containerConnectionName, {
-      ...currentStatus,
-      inProgress: false,
-      error,
-    });
+    if (currentStatus) {
+      containerConnectionStatus.set(containerConnectionName, {
+        ...currentStatus,
+        inProgress: false,
+        error,
+      });
+    }
   } else if (action) {
     containerConnectionStatus.set(containerConnectionName, {
       inProgress: inProgress === undefined ? true : inProgress,
@@ -244,7 +250,7 @@ async function doCreateNew(provider: ProviderInfo, displayName: string) {
 }
 
 async function performInstallation(provider: ProviderInfo) {
-  const checksStatus = [];
+  const checksStatus: CheckStatus[] = [];
   let checkSuccess = false;
   let currentCheck: CheckStatus;
   try {
@@ -372,7 +378,7 @@ function hideInstallModal() {
                 <ConnectionStatus status="{container.status}" />
                 {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
                   {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
-                  {#if status.error}
+                  {#if status?.error}
                     <button
                       class="ml-3 text-[9px] text-red-500 underline"
                       on:click="{() => window.events?.send('toggle-task-manager', '')}">{status.action} failed</button>
@@ -381,10 +387,9 @@ function hideInstallModal() {
               </div>
 
               {#if providerContainerConfiguration.has(provider.internalId)}
+                {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}
                 <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}">
-                  {#each providerContainerConfiguration
-                    .get(provider.internalId)
-                    .filter(conf => conf.connection === container.name) as connectionSetting}
+                  {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
                     {#if connectionSetting.format === 'cpu'}
                       <div class="mr-4">
                         <div class="text-[9px]">{connectionSetting.description}</div>
@@ -454,7 +459,7 @@ function hideInstallModal() {
       </div>
     {/each}
   </div>
-  {#if displayInstallModal}
+  {#if displayInstallModal && providerToBeInstalled}
     <PreferencesProviderInstallationModal
       providerToBeInstalled="{providerToBeInstalled}"
       preflightChecks="{preflightChecks}"

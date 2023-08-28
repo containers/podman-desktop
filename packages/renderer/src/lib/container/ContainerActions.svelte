@@ -28,7 +28,7 @@ async function startContainer() {
   try {
     await window.startContainer(container.engineId, container.id);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(false, 'RUNNING');
   }
@@ -39,7 +39,7 @@ async function restartContainer() {
   try {
     await window.restartContainer(container.engineId, container.id);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(false);
   }
@@ -50,13 +50,16 @@ async function stopContainer() {
   try {
     await window.stopContainer(container.engineId, container.id);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(false, 'STOPPED');
   }
 }
 
 function openBrowser(): void {
+  if (!container.openingUrl) {
+    return;
+  }
   window.openExternal(container.openingUrl);
 }
 
@@ -69,7 +72,7 @@ async function deleteContainer(): Promise<void> {
   try {
     await window.deleteContainer(container.engineId, container.id);
   } catch (error) {
-    errorCallback(error);
+    errorCallback(String(error));
   } finally {
     inProgressCallback(false);
   }
@@ -89,7 +92,7 @@ function deployToKubernetes(): void {
 
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
 // otherwise, leave blank.
-let actionsStyle;
+let actionsStyle: typeof DropdownMenu | typeof FlatMenu;
 if (dropdownMenu) {
   actionsStyle = DropdownMenu;
 } else {

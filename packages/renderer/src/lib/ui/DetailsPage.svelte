@@ -4,8 +4,8 @@ import { router } from 'tinro';
 import Link from './Link.svelte';
 
 export let title: string;
-export let titleDetail: string = undefined;
-export let subtitle: string = undefined;
+export let titleDetail: string | undefined = undefined;
+export let subtitle: string | undefined = undefined;
 
 export function close(): void {
   router.goto($lastPage.path);

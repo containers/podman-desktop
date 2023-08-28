@@ -5,7 +5,7 @@ import { providerInfos } from '../../stores/providers';
 export let provider: ProviderInfo;
 
 // Retrieve the provider information from the store
-let providerInfo: ProviderInfo;
+let providerInfo: ProviderInfo | undefined;
 $: {
   providerInfo = $providerInfos.find(providerSearch => providerSearch.internalId === provider.internalId);
 }
@@ -13,7 +13,7 @@ $: {
 
 <div class="flex flex-col items-center text-center mt-3">
   <!-- TODO: Add dismiss button / ignore warning? -->
-  {#if providerInfo?.warnings?.length > 0}
+  {#if providerInfo && providerInfo.warnings?.length > 0}
     {#each providerInfo.warnings as warn}
       <div class="flex-row items-center align-middle mt-0.5">
         <!-- Make line height center-->

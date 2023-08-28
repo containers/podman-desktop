@@ -25,7 +25,7 @@ function clearCompleted() {
 }
 
 // If we hit ESC while the menu is open, close it
-function handleEscape({ key }) {
+function handleEscape({ key }: any) {
   // if the task manager is not open, do not check any keys
   if (!showTaskManager) {
     return;

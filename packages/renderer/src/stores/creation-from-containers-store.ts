@@ -32,4 +32,4 @@ export interface PodCreation {
   containers: PodCreationContainer[];
 }
 
-export const podCreationHolder: Writable<PodCreation> = writable();
+export const podCreationHolder: Writable<PodCreation | undefined> = writable();

@@ -47,6 +47,10 @@ beforeAll(() => {
   (window as any).kubernetesListPods = kubernetesListPodsMock;
   (window as any).getProviderInfos = getProviderInfosMock;
   (window as any).deleteContainersByLabel = deleteContainersByLabelMock;
+  const listViewsContributionsMock = vi.fn();
+  (window as any).listViewsContributions = listViewsContributionsMock;
+
+  listViewsContributionsMock.mockResolvedValue([]);
 
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
@@ -92,6 +96,8 @@ test('Delete a group of compose containers succesfully', async () => {
       Labels: { 'com.docker.compose.project': groupName },
       Names: ['container1'],
       State: 'RUNNING',
+      engineId: 'podman',
+      engineType: 'podman',
     },
     {
       Id: 'container2',
@@ -99,6 +105,8 @@ test('Delete a group of compose containers succesfully', async () => {
       Labels: { 'com.docker.compose.project': groupName },
       Names: ['container2'],
       State: 'RUNNING',
+      engineId: 'podman',
+      engineType: 'podman',
     },
   ];
   listContainersMock.mockResolvedValue(mockedContainers);
@@ -131,6 +139,6 @@ test('Delete a group of compose containers succesfully', async () => {
   }
 
   // Expect deleteContainerMock to be called / successfully clicked
-  expect(deleteContainersByLabelMock).toBeCalledWith(undefined, 'com.docker.compose.project', groupName);
+  expect(deleteContainersByLabelMock).toBeCalledWith('podman', 'com.docker.compose.project', groupName);
   expect(deleteContainersByLabelMock).toBeCalledTimes(1);
 });

@@ -13,8 +13,8 @@ import type {
 } from '../../../../main/src/plugin/api/provider-info';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
-export let providerInternalId: string = undefined;
-export let connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo = undefined;
+export let providerInternalId: string | undefined = undefined;
+export let connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo | undefined = undefined;
 export let setNoLogs: () => void;
 export let noLog: boolean;
 let logsTerminal: Terminal;
@@ -80,13 +80,15 @@ onMount(async () => {
   const logHandler = (newContent: any[], colorPrefix: string) => {
     writeToTerminal(logsTerminal, newContent, colorPrefix);
   };
-  window.startReceiveLogs(
-    providerInternalId,
-    data => logHandler(data, '\x1b[37m'),
-    data => logHandler(data, '\x1b[37m'),
-    data => logHandler(data, '\x1b[37m'),
-    connectionInfo,
-  );
+  if (providerInternalId) {
+    window.startReceiveLogs(
+      providerInternalId,
+      (data: any) => logHandler(data, '\x1b[37m'),
+      (data: any) => logHandler(data, '\x1b[37m'),
+      (data: any) => logHandler(data, '\x1b[37m'),
+      connectionInfo,
+    );
+  }
 });
 
 onDestroy(() => {

@@ -15,7 +15,7 @@ async function reconnectContainerProviders() {
   try {
     await window.reconnectContainerProviders();
   } catch (e) {
-    reconnectError = e;
+    reconnectError = String(e);
     reconnectResult = 'Failed';
   } finally {
     reconnectInProgress = false;

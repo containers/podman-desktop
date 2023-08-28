@@ -4,10 +4,10 @@ import { contributions } from '../../stores/contribs';
 import Route from '../../Route.svelte';
 
 export let name: string;
-let source;
-let arch;
-let hostname;
-let platform;
+let source: string | undefined;
+let arch: string;
+let hostname: string;
+let platform: string;
 
 let preloadPath: string;
 $: currentContrib = $contributions.find(contrib => contrib.name === name);
@@ -28,7 +28,7 @@ onMount(async () => {
   source = currentContrib?.uiUri;
 });
 
-window.events?.receive('dev-tools:open-extension', extensionId => {
+window.events?.receive('dev-tools:open-extension', (extensionId: any) => {
   const extensionElement = document.getElementById(`dd-webview-${extensionId}`);
 
   if (extensionElement) {
@@ -41,7 +41,7 @@ window.events?.receive('dev-tools:open-extension', extensionId => {
   <Route path="/*" breadcrumb="{name}">
     <webview
       id="dd-webview-{webviewId}"
-      src="{source}?extensionName={currentContrib.extensionId}&arch={arch}&hostname={hostname}&platform={platform}&vmServicePort={currentContrib.vmServicePort}"
+      src="{source}?extensionName={currentContrib?.extensionId}&arch={arch}&hostname={hostname}&platform={platform}&vmServicePort={currentContrib?.vmServicePort}"
       preload="{preloadPath}"
       style="height: 100%; width: 100%"></webview>
   </Route>
