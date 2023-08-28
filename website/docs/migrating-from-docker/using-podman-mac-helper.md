@@ -25,31 +25,30 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
 
 #### Procedure
 
-- Set up the `podman-mac-helper` service for each user.
-  Run the command:
+1. To set up the `podman-mac-helper` service: run the command in a terminal:
 
-  ```sh
-  sudo podman-mac-helper install
-  ```
+   ```shell-session
+   sudo podman-mac-helper install
+   ```
 
-  For additional install options please run the command:
-
-  ```sh
-  sudo podman-mac-helper install --help
-  ```
+1. To restart your Podman machine: go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**, and in the Podman tile, click <icon icon="fa-solid fa-repeat" size="lg" />.
 
 #### Verification
 
-1. Your tools communicating to the Docker socket, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
-
-2. Use the `podman-mac-helper` tool to run commands.
-   To run a command with Podman by using the `podman-mac-helper` tool, prefix the command with `podman-mac-helper`.
-
-   Example:
+1. The Docker socket is a symbolic link for the Podman socket:
 
    ```shell-session
-   $ podman-mac-helper run -it <your_container> bash
+   $ ls -la /var/run/docker.sock
    ```
+
+2. The `docker` CLI communicates with the Podman socket.
+   Therefore this command outputs Podman version rather that Docker version:
+
+   ```shell-session
+   $ DOCKER_HOST=unix:///var/run/docker.sock docker info --format=json | jq -r .ServerVersion
+   ```
+
+3. Your tools communicating to the Docker socket, such as [Maven](https://maven.apache.org/) or [Testcontainers](https://www.testcontainers.org/), communicate with Podman without reconfiguration.
 
 #### Additional resources
 
