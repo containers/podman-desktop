@@ -128,6 +128,40 @@ Podman Desktop might display "No Containers" as shown below, even if there are a
    $ podman machine init
    ```
 
+## Podman Desktop is failing to display the images or containers from a rootlful Podman machine
+
+The rootful configuration for a Podman machine depends on the Podman machine default connection.
+The default connection can be modified by external events, or when creating a new Podman machine.
+Podman Desktop might then reconnect in rootless mode, and fail to display the images or containers.
+
+#### Workaround
+
+1. Verify the Podman machine connection:
+
+   ```shell-session
+   $ podman system connection ls
+   ```
+
+   If the default connection does not point to the rootful connection, then continue with the next steps.
+
+1. Stop the Podman machine:
+
+   ```shell-session
+   $ podman machine stop
+   ```
+
+1. Set the Podman machine in rootful mode:
+
+   ```shell-session
+   $ podman machine set --rootful
+   ```
+
+1. Start the Podman machine:
+
+   ```shell-session
+   $ podman machine start
+   ```
+
 ## Warning about Docker compatibility mode
 
 #### Issue
