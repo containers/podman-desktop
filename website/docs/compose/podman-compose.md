@@ -1,13 +1,13 @@
 ---
-title: Podman Compose with Podman Desktop
+title: Podman Compose (Python implementation) with Podman Desktop
 sidebar_position: 2
 ---
 
 ## Introduction
 
-[Podman Compose](https://github.com/containers/podman-compose#readme) is a community-driven tool that allows developers to use the [Compose spec](https://compose-spec.io) to run many containers at the same time. Podman Compose requires a [Compose YAML](https://compose-spec.io/) file with definitions about the containers that need to communicate.
+[Podman Compose](https://github.com/containers/podman-compose#readme) is a community-driven Python implementation of the [Compose specification](https://compose-spec.io). Podman Compose requires a [Compose YAML](https://compose-spec.io/) file with definitions about the containers that need to communicate.
 
-If you have not used a [Compose file](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file) or the [Compose spec](https://compose-spec.io/), visit [this guide](https://github.com/compose-spec/compose-spec/blob/master/spec.md) for more information.
+If you have not used a [Compose file](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file) or the [Compose specification](https://compose-spec.io/), visit [this guide](https://github.com/compose-spec/compose-spec/blob/master/spec.md) for more information.
 
 ### Requirements
 
