@@ -1017,7 +1017,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   await podmanConfiguration.init();
 }
 
-// Function that checks to see if the default machine is running and return a boolean
+// Function that checks to see if the default machine is running and return a string
 export async function findRunningMachine(): Promise<string> {
   let runningMachine: string;
 

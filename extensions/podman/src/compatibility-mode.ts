@@ -119,15 +119,17 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
 
   // Prompt the user that you need to restart the current podman machine for the changes to take effect
   async promptRestart(machine: string): Promise<void> {
-    const result = await extensionApi.window.showInformationMessage(
-      `Restarting your Podman machine is required to apply the changes. Would you like to restart the Podman machine '${machine}' now?`,
-      'Yes',
-      'Cancel',
-    );
-    if (result === 'Yes') {
-      // Await since we must wait for the machine to stop before starting it again
-      await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', machine]);
-      await extensionApi.process.exec(getPodmanCli(), ['machine', 'start', machine]);
+    if (machine) {
+      const result = await extensionApi.window.showInformationMessage(
+        `Restarting your Podman machine is required to apply the changes. Would you like to restart the Podman machine '${machine}' now?`,
+        'Yes',
+        'Cancel',
+      );
+      if (result === 'Yes') {
+        // Await since we must wait for the machine to stop before starting it again
+        await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', machine]);
+        await extensionApi.process.exec(getPodmanCli(), ['machine', 'start', machine]);
+      }
     }
   }
 
@@ -137,24 +139,14 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     await this.runCommand('install', 'enabled');
 
     // Prompt the user to restart the podman machine if it's running
-    const isRunning = await findRunningMachine();
-    if (isRunning !== '') {
-      await this.promptRestart(isRunning);
-    }
-
-    return Promise.resolve();
+    return findRunningMachine().then(isRunning => this.promptRestart(isRunning));
   }
 
   async disable(): Promise<void> {
     await this.runCommand('uninstall', 'disabled');
 
     // Prompt the user to restart the podman machine if it's running
-    const isRunning = await findRunningMachine();
-    if (isRunning !== '') {
-      await this.promptRestart(isRunning);
-    }
-
-    return Promise.resolve();
+    return findRunningMachine().then(isRunning => this.promptRestart(isRunning));
   }
 }
 
