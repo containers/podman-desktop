@@ -46,6 +46,7 @@ const containerProviderInfo: ProviderInfo = {
   links: [],
   containerProviderConnectionInitialization: false,
   kubernetesProviderConnectionInitialization: false,
+  extension: '',
 };
 
 const containerConnection: ProviderContainerConnectionInfo = {
