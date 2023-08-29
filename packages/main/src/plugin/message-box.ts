@@ -101,7 +101,7 @@ export class MessageBox {
       type: type,
     });
 
-    if (result.response && result.response >= 0) {
+    if (result.response !== undefined && result.response >= 0) {
       return items[result.response];
     }
 
