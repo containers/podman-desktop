@@ -128,7 +128,7 @@ Podman Desktop might display "No Containers" as shown below, even if there are a
    $ podman machine init
    ```
 
-## Podman Desktop is failing to display the images or containers from a rootlful Podman machine
+## Podman Desktop is failing to display the images or containers from a rootful Podman machine
 
 The rootful configuration for a Podman machine depends on the Podman machine default connection.
 The default connection can be modified by external events, or when creating a new Podman machine.
