@@ -20,6 +20,10 @@ const config = {
   projectName: 'podman-desktop',
   deploymentBranch: 'gh-pages',
   trailingSlash: false,
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
   plugins: [
     async () => {
       return {
