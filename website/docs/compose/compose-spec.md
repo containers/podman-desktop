@@ -14,7 +14,6 @@ With Podman Desktop, you can create and manage multi-container applications defi
 
    - [Compose](https://github.com/docker/compose): The Go reference implementation. Podman Desktop can install and run the engine.
    - [Podman Compose](https://github.com/containers/podman-compose): Alternative Python implementation with native Podman integration. Podman Desktop can install and run the engine.
-   - Another Compose engine, such as Docker Compose. Podman Desktop cannot install or run the engine.
 
 1. The Compose engine starts the containers and services, and adds an internal label to each resource:
 
