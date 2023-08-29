@@ -37,6 +37,11 @@ let html: string;
 // Optional attribute to specify the markdown to use
 // the user can use: <Markdown>**bold</Markdown> or <Markdown markdown="**bold**" /> syntax
 export let markdown = '';
+export let inProgressMarkdownCommandExecutionCallback: (
+  command: string,
+  state: 'starting' | 'failed' | 'successful',
+  value?: unknown,
+) => void = () => {};
 
 $: markdown
   ? (html = micromark(markdown, {
@@ -61,10 +66,17 @@ onMount(() => {
     if (e.target instanceof HTMLButtonElement) {
       const command = e.target.dataset.command;
       if (command && !e.target.disabled) {
+        inProgressMarkdownCommandExecutionCallback(command, 'starting');
         e.target.disabled = true;
-        window.executeMarkdownCommand(command).finally(() => {
-          e.target.disabled = false;
-        });
+        e.target.firstChild.style.display = 'inline-block';
+        window
+          .executeCommand(command)
+          .then(value => inProgressMarkdownCommandExecutionCallback(command, 'successful', value))
+          .catch((reason: unknown) => inProgressMarkdownCommandExecutionCallback(command, 'failed', reason))
+          .finally(() => {
+            e.target.disabled = false;
+            e.target.firstChild.style.display = 'none';
+          });
       }
     }
   };

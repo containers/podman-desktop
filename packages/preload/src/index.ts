@@ -825,16 +825,9 @@ function initExposure(): void {
     return ipcInvoke('menu-registry:getContributedMenus', context);
   });
 
-  contextBridge.exposeInMainWorld('executeCommand', async (command: string, ...args: unknown[]): Promise<void> => {
+  contextBridge.exposeInMainWorld('executeCommand', async (command: string, ...args: unknown[]): Promise<unknown> => {
     return ipcInvoke('command-registry:executeCommand', command, ...args);
   });
-
-  contextBridge.exposeInMainWorld(
-    'executeMarkdownCommand',
-    async (commandId: string, ...args: unknown[]): Promise<void> => {
-      return ipcInvoke('command-registry:executeMarkdownCommand', commandId, ...args);
-    },
-  );
 
   contextBridge.exposeInMainWorld(
     'clipboardWriteText',

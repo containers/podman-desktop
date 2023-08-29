@@ -18,7 +18,6 @@ import {
   STATUS_COMPLETED,
   STATUS_SKIPPED,
 } from './onboarding-utils';
-import type { RunError, RunResult } from '@podman-desktop/api';
 
 interface ActiveOnboardingStep {
   onboarding: OnboardingInfo;
@@ -127,30 +126,26 @@ function normalize(when: string, extension: string): string {
 }
 
 async function doExecuteCommand(command: string) {
-  setExecuting(true);
-  await window.executeCommand(command);
-  if (!executedCommands.includes(command)) {
-    executedCommands.push(command);
+  inProgressCommandExecution(command, 'starting');
+  try {
+    await window.executeCommand(command);
+  } catch (e) {
+    inProgressCommandExecution(command, 'failed', e);
+    return;
   }
-  setExecuting(false);
+  inProgressCommandExecution(command, 'successful');
 }
 
-// listen to the event "markdown-command-execution-start" to enabling spinner
-window.events?.receive('markdown-command-execution-start', () => {
-  setExecuting(true);
-});
-
-// listen to the event "markdown-command-execution-end" to disabling spinner
-window.events?.receive('markdown-command-execution-end', (result: RunResult | RunError) => {
-  if (!executedCommands.includes(result.command)) {
-    executedCommands.push(result.command);
+function inProgressCommandExecution(command: string, state: 'starting' | 'failed' | 'successful', value?: unknown) {
+  setExecuting(state === 'starting');
+  if (state !== 'starting' && command && !executedCommands.includes(command)) {
+    executedCommands.push(command);
   }
-  setExecuting(false);
-  if ('exitCode' in result) {
+  if (state === 'failed' && value) {
     // to be displayed in the UI somewhere
-    console.error(result.message);
+    console.error(value);
   }
-});
+}
 
 async function assertStepCompleted() {
   const isCompleted =
@@ -334,7 +329,8 @@ async function cleanContext() {
               <OnboardingItem
                 extension="{activeStep.onboarding.extension}"
                 item="{item}"
-                getContext="{() => globalContext}" />
+                getContext="{() => globalContext}"
+                inProgressCommandExecution="{inProgressCommandExecution}" />
             {/each}
           </div>
         {/each}

@@ -30,6 +30,7 @@ test('Expect button html when passing a button tag in markdown', async () => {
     extension: 'extension',
     item: textComponent,
     getContext: vi.fn(),
+    inProgressCommandExecution: vi.fn(),
   });
   const button = screen.getByRole('button', { name: 'label' });
   expect(button).toBeInTheDocument();
@@ -44,6 +45,7 @@ test('Expect markdown html when passing a text component', async () => {
     extension: 'extension',
     item: textComponent,
     getContext: vi.fn(),
+    inProgressCommandExecution: vi.fn(),
   });
   const markdownSection = screen.getByLabelText('markdown-content');
   expect(markdownSection).toBeInTheDocument();
@@ -60,6 +62,7 @@ test('Expect placeholders are replaced when passing a text component with placeh
     extension: 'extension',
     item: textComponent,
     getContext: () => context,
+    inProgressCommandExecution: vi.fn(),
   });
   const markdownSection = screen.getByLabelText('markdown-content');
   expect(markdownSection).toBeInTheDocument();

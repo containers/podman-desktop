@@ -7,6 +7,11 @@ import { SCOPE_ONBOARDING } from './onboarding-utils';
 export let extension: string;
 export let item: OnboardingStepItem;
 export let getContext: () => ContextUI;
+export let inProgressCommandExecution: (
+  command: string,
+  state: 'starting' | 'failed' | 'successful',
+  value?: unknown,
+) => void;
 
 const onboardingContextRegex = new RegExp(/\${onboardingContext:(.+?)}/g);
 const globalContextRegex = new RegExp(/\${onContext:(.+?)}/g);
@@ -46,6 +51,6 @@ function getNewValue(label: string, matchArray: RegExpMatchArray, prefix?: strin
 
 <div class="flex justify-center {item.highlight ? 'bg-charcoal-600' : ''} p-3 m-2 rounded-md min-w-[500px]">
   {#if html}
-    <Markdown>{html}</Markdown>
+    <Markdown inProgressMarkdownCommandExecutionCallback="{inProgressCommandExecution}">{html}</Markdown>
   {/if}
 </div>
