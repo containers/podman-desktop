@@ -16,8 +16,8 @@ If you have not used a [Compose file](https://github.com/compose-spec/compose-sp
 
 There are two implementations that Podman Desktop supports:
 
-- [Podman Compose](https://github.com/containers/podman-compose): The Python implementation of the Compose specification with native Podman integration.
-- [Compose](https://github.com/docker/compose): The Go reference implementation of the Compose specification.
+- [Compose](https://github.com/docker/compose): The Go reference implementation.
+- [Podman Compose](https://github.com/containers/podman-compose): Alternative Python implementation with native Podman integration.
 
 ### Requirements
 
