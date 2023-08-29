@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 ## Introduction
 
-The [Compose spec](https://compose-spec.io) is a container specification that allows you to define a multi-container application in a simple YAML file.
+The [Compose spec](https://compose-spec.io) is a container specification that allows you to define a multi-container application in a YAML file.
 
 If you have not used a [Compose file](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file) or the [Compose spec](https://compose-spec.io/), visit [this guide](https://github.com/compose-spec/compose-spec/blob/master/spec.md) for more information.
 
