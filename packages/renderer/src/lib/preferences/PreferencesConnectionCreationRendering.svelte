@@ -333,6 +333,10 @@ async function cancel() {
 
 async function close() {
   cleanup();
+  window.telemetryTrack('closeCreateNewProviderConnection', {
+    providerId: providerInfo.id,
+    name: providerInfo.name,
+  });
 }
 </script>
 
