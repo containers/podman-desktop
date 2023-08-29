@@ -1,29 +1,26 @@
 ---
-title: Compose spec with Podman Desktop
+title: Compose specification with Podman Desktop
 sidebar_position: 1
 ---
 
-## Introduction
+Podman Desktop supports the [Compose specification](https://compose-spec.io).
 
-Podman Desktop supports the [Compose specification](https://compose-spec.io). With Podman Desktop, users can easily create and manage multi-container applications by using Compose files.
+With Podman Desktop, you can create and manage multi-container applications defined in Compose files.
 
-We support two version of the Compose specification:
+### Procedure
 
-- [Podman Compose](https://github.com/containers/podman-compose): The Python implementation of the Compose specification with native Podman integration.
-- [Compose](https://github.com/docker/compose): The Go reference implementation of the Compose specification.
+1. You have a Compose file.
+1. You run a Compose engine on the Compose file:
 
-### How does it work
+   - [Compose](https://github.com/docker/compose): The Go reference implementation. Podman Desktop can install and run the engine.
+   - [Podman Compose](https://github.com/containers/podman-compose): Alternative Python implementation with native Podman integration. Podman Desktop can install and run the engine.
+   - Another Compose engine, such as Docker Compose. Podman Desktop cannot install or run the engine.
 
-Each time you run a Compose file by using either [Podman Compose](https://github.com/containers/podman-compose) or [Compose](https://github.com/docker/compose) an internal label is assigned to each container (`com.docker.compose.project`) or service (`com.docker.compose.service`).
+1. The Compose engine starts the containers and services, and adds an internal label to each resource:
 
-Podman Desktop detects this label and lists it appropriately within the UI.
+   - Container label: `com.docker.compose.project`
+   - Service label: `com.docker.compose.service`
 
-![img2](img/compose_doc_image_2.png)
+1. Podman Desktop detects the Compose labels, and lists it appropriately within the UI.
 
-### What do you need to enable
-
-Containers deployed by a correctly implemented Compose specification are automatically detected by Podman Desktop using the assigned above labels.
-
-### What if you already have Docker Compose or Podman Compose installed
-
-Any containers already deployed by Docker Compose / Podman Compose will be automatically shown within Podman Desktop. You do not need to do anything!
+   ![img2](img/compose_doc_image_2.png)
