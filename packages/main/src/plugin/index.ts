@@ -1776,6 +1776,7 @@ export class PluginSystem {
       this.extensionLoader,
       imageRegistry,
       extensionsCatalog,
+      telemetry,
     );
     await extensionInstaller.init();
 

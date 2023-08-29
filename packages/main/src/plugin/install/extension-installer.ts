@@ -27,7 +27,7 @@ import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js'
 import type { ApiSenderType } from '../api.js';
 import type { ImageRegistry } from '../image-registry.js';
 import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
-import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
+import type { Telemetry } from '../telemetry/telemetry.js';
 
 export class ExtensionInstaller {
   constructor(
@@ -35,6 +35,7 @@ export class ExtensionInstaller {
     private extensionLoader: ExtensionLoader,
     private imageRegistry: ImageRegistry,
     private extensionCatalog: ExtensionsCatalog,
+    private telemetry: Telemetry,
   ) {}
 
   async extractExtensionFiles(tmpFolderPath: string, finalFolderPath: string, reportLog: (message: string) => void) {
@@ -169,14 +170,12 @@ export class ExtensionInstaller {
   }
 
   async analyzeTransitiveDependencies(
-    imageName: string,
+    analyzedExtension: AnalyzedExtension | undefined,
     analyzedExtensions: AnalyzedExtension[],
     errors: string[],
     sendLog: (message: string) => void,
     sendError: (message: string) => void,
   ): Promise<boolean> {
-    const analyzedExtension = await this.analyzeFromImage(sendLog, sendError, imageName);
-
     if (!analyzedExtension) {
       return false;
     }
@@ -219,20 +218,23 @@ export class ExtensionInstaller {
       }
 
       // first, grab name of the OCI image for each extension
-      const imagesOfExtensionsToAnalyze = (
-        extensionsToAnalyze
-          .map(extensionId => {
-            return fetchableExtensions.find(extension => extension.extensionId === extensionId);
-          })
-          .filter(extension => extension !== undefined) as CatalogFetchableExtension[]
-      ).map(extension => extension.link);
+      const imagesOfExtensionsToAnalyze = extensionsToAnalyze.reduce<string[]>((prev, id) => {
+        const ext = fetchableExtensions.find(extension => extension.extensionId === id);
+        if (ext) prev.push(ext.link);
+        return prev;
+      }, []);
 
       // now analyze all these dependencies
-      for (imageName of imagesOfExtensionsToAnalyze) {
+      for (const imageNameToAnalyze of imagesOfExtensionsToAnalyze) {
         try {
-          await this.analyzeTransitiveDependencies(imageName, analyzedExtensions, errors, sendLog, sendError);
+          const imageToAnalyze = await this.analyzeFromImage(sendLog, sendError, imageNameToAnalyze);
+
+          if (!imageToAnalyze) {
+            return false;
+          }
+          await this.analyzeTransitiveDependencies(imageToAnalyze, analyzedExtensions, errors, sendLog, sendError);
         } catch (error) {
-          errors.push(`Error while analyzing extension ${imageName}: ${error}`);
+          errors.push(`Error while analyzing extension ${imageNameToAnalyze}: ${error}`);
         }
       }
     }
@@ -244,12 +246,17 @@ export class ExtensionInstaller {
     sendError: (message: string) => void,
     sendEnd: (message: string) => void,
     imageName: string,
+    extensionAnalyzed?: (extension: AnalyzedExtension) => void,
   ): Promise<void> {
     // now collect all transitive dependencies
     const analyzedExtensions: AnalyzedExtension[] = [];
     const errors: string[] = [];
+    const analyzedExtension = await this.analyzeFromImage(sendLog, sendError, imageName);
+
+    if (analyzedExtension) extensionAnalyzed?.(analyzedExtension);
+
     const analyzeSuccessful = await this.analyzeTransitiveDependencies(
-      imageName,
+      analyzedExtension,
       analyzedExtensions,
       errors,
       sendLog,
@@ -282,11 +289,17 @@ export class ExtensionInstaller {
     ipcMain.on(
       'extension-installer:install-from-image',
       (event: IpcMainEvent, imageName: string, logCallbackId: number): void => {
+        const telemetryData: {
+          extensionId?: string;
+          error?: string;
+        } = {};
+
         const sendLog = (message: string): void => {
           event.reply('extension-installer:install-from-image-log', logCallbackId, message);
         };
 
         const sendError = (message: string): void => {
+          telemetryData.error = message;
           event.reply('extension-installer:install-from-image-error', logCallbackId, message);
         };
 
@@ -294,9 +307,20 @@ export class ExtensionInstaller {
           event.reply('extension-installer:install-from-image-end', logCallbackId, message);
         };
 
-        this.installFromImage(sendLog, sendError, sendEnd, imageName).catch((error: unknown) => {
-          sendError('' + error);
-        });
+        const extAnalyzed = (extension: AnalyzedExtension) => {
+          if (extension) {
+            telemetryData.extensionId = extension.id;
+          }
+        };
+
+        this.installFromImage(sendLog, sendError, sendEnd, imageName, extAnalyzed)
+          .catch((error: unknown) => {
+            sendError('' + error);
+            telemetryData.error = `${error}`;
+          })
+          .finally(() => {
+            this.telemetry.track('installedExtension', telemetryData);
+          });
       },
     );
   }
