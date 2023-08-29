@@ -325,6 +325,10 @@ async function cancel() {
     creationCancelled = true;
     tokenId = undefined;
   }
+  window.telemetryTrack('cancelCreateNewProviderConnection', {
+    providerId: providerInfo.id,
+    name: providerInfo.name,
+  });
 }
 
 async function close() {

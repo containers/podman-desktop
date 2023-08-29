@@ -45,6 +45,7 @@ beforeAll(() => {
   (window as any).getOsFreeDiskSize = vi.fn();
   (window as any).getCancellableTokenSource = vi.fn();
   (window as any).auditConnectionParameters = vi.fn();
+  (window as any).telemetryTrack = vi.fn();
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
