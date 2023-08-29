@@ -325,7 +325,7 @@ async function cancel() {
     creationCancelled = true;
     tokenId = undefined;
   }
-  window.telemetryTrack('cancelCreateNewProviderConnection', {
+  window.telemetryTrack('createNewProviderConnectionRequestUserCanceled', {
     providerId: providerInfo.id,
     name: providerInfo.name,
   });
@@ -333,7 +333,7 @@ async function cancel() {
 
 async function close() {
   cleanup();
-  window.telemetryTrack('closeCreateNewProviderConnection', {
+  window.telemetryTrack('createNewProviderConnectionPageUserClosed', {
     providerId: providerInfo.id,
     name: providerInfo.name,
   });
