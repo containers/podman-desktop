@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[10],{1670:e=>{e.exports=JSON.parse('{"label":"lima","permalink":"/docs/tags/lima","allTagsPath":"/docs/tags","count":1,"items":[{"id":"kubernetes/lima/index","title":"Working with Lima","description":"Lima is one way to get Kubernetes running on your workstation.","permalink":"/docs/kubernetes/lima/"}]}')}}]);
