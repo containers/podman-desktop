@@ -31,6 +31,28 @@ declare module '@podman-desktop/api' {
     arguments?: any[];
   }
 
+  /**
+   * A concrete Executor to let the user execute a command and listen to its events.
+   */
+  export interface CommandExecutor {
+    /**
+     * Execute the command.
+     */
+    execute(): Promise<unknown>;
+    /**
+     * An event signaling that the execution starte.
+     */
+    readonly onDidStart: Event<void>;
+    /**
+     * An event signaling that the execution ended.
+     */
+    readonly onDidEnd: Event<RunResult | RunError>;
+    /**
+     * Dispose this object.
+     */
+    dispose(): void;
+  }
+
   export interface MenuItem {
     /**
      * Unique within a single menu. Should be same as commandId for handler
@@ -377,6 +399,11 @@ declare module '@podman-desktop/api' {
     export function registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
+    /**
+     * Creates a CommandExecutor that allows to listen to command execution events.
+     * @return A new CommandExecutor
+     */
+    export function createCommandExecutor(commandId: string, ...args: unknown[]): CommandExecutor;
   }
 
   export interface ProviderEvent {

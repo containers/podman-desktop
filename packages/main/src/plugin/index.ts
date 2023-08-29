@@ -116,6 +116,7 @@ import { Context } from './context/context.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
 import { OnboardingUtils } from './onboarding/onboarding-utils.js';
+import { CommandExecutorImpl } from './command/command-executor-impl.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -1067,6 +1068,19 @@ export class PluginSystem {
     this.ipcHandle('command-registry:executeCommand', async (_, command: string, ...args: unknown[]): Promise<void> => {
       return commandRegistry.executeCommand(command, ...args);
     });
+
+    this.ipcHandle(
+      'command-registry:executeMarkdownCommand',
+      async (_, commandId: string, ...args: unknown[]): Promise<unknown> => {
+        const executor = new CommandExecutorImpl(commandRegistry, commandId, ...args);
+        executor.onDidStart(() => apiSender.send('markdown-command-execution-start', { commandId }));
+        executor.onDidEnd(() => {
+          apiSender.send('markdown-command-execution-end', { commandId });
+          executor.dispose();
+        });
+        return executor.execute();
+      },
+    );
 
     this.ipcHandle('clipboard:writeText', async (_, text: string, type?: 'selection' | 'clipboard'): Promise<void> => {
       return clipboard.writeText(text, type);

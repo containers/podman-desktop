@@ -24,17 +24,16 @@ import { ContextUI } from '../context/context';
 
 test('Expect button html when passing a button tag in markdown', async () => {
   const textComponent: OnboardingStepItem = {
-    value: ':button[label]{id=id command=command}',
+    value: ':button[label]{command=command}',
   };
   render(OnboardingItem, {
     extension: 'extension',
     item: textComponent,
     getContext: vi.fn(),
-    executeCommand: vi.fn(),
   });
   const button = screen.getByRole('button', { name: 'label' });
   expect(button).toBeInTheDocument();
-  expect(button.id).toBe('id');
+  expect(button.dataset.command).toBe('command');
 });
 
 test('Expect markdown html when passing a text component', async () => {
@@ -45,7 +44,6 @@ test('Expect markdown html when passing a text component', async () => {
     extension: 'extension',
     item: textComponent,
     getContext: vi.fn(),
-    executeCommand: vi.fn(),
   });
   const markdownSection = screen.getByLabelText('markdown-content');
   expect(markdownSection).toBeInTheDocument();
@@ -62,7 +60,6 @@ test('Expect placeholders are replaced when passing a text component with placeh
     extension: 'extension',
     item: textComponent,
     getContext: () => context,
-    executeCommand: vi.fn(),
   });
   const markdownSection = screen.getByLabelText('markdown-content');
   expect(markdownSection).toBeInTheDocument();

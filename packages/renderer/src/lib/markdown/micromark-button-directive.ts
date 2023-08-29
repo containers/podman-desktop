@@ -37,14 +37,11 @@ export function button(d: any) {
   // create button html if it has command attribute
   if (d.attributes && 'command' in d.attributes) {
     this.tag(
-      '<button class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline"',
+      '<button class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" data-command="' +
+        this.encode(d.attributes.command) +
+        '">',
     );
 
-    if (d.attributes && 'id' in d.attributes) {
-      this.tag(' id="' + this.encode(d.attributes.id) + '"');
-    }
-
-    this.tag('>');
     this.raw(d.label || '');
     this.tag('</button>');
   } else {

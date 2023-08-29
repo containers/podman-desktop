@@ -161,7 +161,7 @@
             ],
             [
               {
-                "value": ":button[Check requirements again]{id=check-requirements command=podman.onboarding.checkPodmanRequirements}"
+                "value": ":button[Check requirements again]{command=podman.onboarding.checkPodmanRequirements}"
               }
             ]
           ]

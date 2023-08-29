@@ -18,6 +18,7 @@ import {
   STATUS_COMPLETED,
   STATUS_SKIPPED,
 } from './onboarding-utils';
+import type { RunError, RunResult } from '@podman-desktop/api';
 
 interface ActiveOnboardingStep {
   onboarding: OnboardingInfo;
@@ -133,6 +134,23 @@ async function doExecuteCommand(command: string) {
   }
   setExecuting(false);
 }
+
+// listen to the event "markdown-command-execution-start" to enabling spinner
+window.events?.receive('markdown-command-execution-start', () => {
+  setExecuting(true);
+});
+
+// listen to the event "markdown-command-execution-end" to disabling spinner
+window.events?.receive('markdown-command-execution-end', (result: RunResult | RunError) => {
+  if (!executedCommands.includes(result.command)) {
+    executedCommands.push(result.command);
+  }
+  setExecuting(false);
+  if ('exitCode' in result) {
+    // to be displayed in the UI somewhere
+    console.error(result.message);
+  }
+});
 
 async function assertStepCompleted() {
   const isCompleted =
@@ -316,8 +334,7 @@ async function cleanContext() {
               <OnboardingItem
                 extension="{activeStep.onboarding.extension}"
                 item="{item}"
-                getContext="{() => globalContext}"
-                executeCommand="{command => doExecuteCommand(command)}" />
+                getContext="{() => globalContext}" />
             {/each}
           </div>
         {/each}

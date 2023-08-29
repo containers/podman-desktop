@@ -63,11 +63,11 @@ describe('Custom button', () => {
   });
 
   test('Expect button to be rendered as a button with attributes', async () => {
-    await waitRender({ markdown: ':button[Name of the button]{id=id command=command}' });
+    await waitRender({ markdown: ':button[Name of the button]{command=command}' });
     const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
     expect(markdownContent).toBeInTheDocument();
     expect(markdownContent).toContainHTML(
-      '<button class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" id="id">Name of the button</button>',
+      '<button class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" data-command="command">Name of the button</button>',
     );
   });
 });

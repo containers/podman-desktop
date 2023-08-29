@@ -26,7 +26,7 @@
 </style>
 
 <script lang="ts">
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import { micromark } from 'micromark';
 import { directive, directiveHtml } from 'micromark-extension-directive';
 import { button } from './micromark-button-directive';
@@ -45,6 +45,8 @@ $: markdown
     }))
   : undefined;
 
+const eventListeners: ((e: any) => void)[] = [];
+
 onMount(() => {
   if (markdown) {
     text = markdown;
@@ -54,6 +56,23 @@ onMount(() => {
     extensions: [directive()],
     htmlExtensions: [directiveHtml({ button })],
   });
+
+  const clickListener = (e: any) => {
+    if (e.target instanceof HTMLButtonElement) {
+      const command = e.target.dataset.command;
+      if (command && !e.target.disabled) {
+        e.target.disabled = true;
+        window.executeMarkdownCommand(command).finally(() => {
+          e.target.disabled = false;
+        });
+      }
+    }
+  };
+  eventListeners.push(clickListener);
+  document.addEventListener('click', clickListener);
+});
+onDestroy(() => {
+  eventListeners.forEach(listener => document.removeEventListener('click', listener));
 });
 </script>
 

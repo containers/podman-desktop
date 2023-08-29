@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte';
+import { onMount } from 'svelte';
 import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import Markdown from '../markdown/Markdown.svelte';
 import type { ContextUI } from '../context/context';
@@ -7,36 +7,15 @@ import { SCOPE_ONBOARDING } from './onboarding-utils';
 export let extension: string;
 export let item: OnboardingStepItem;
 export let getContext: () => ContextUI;
-export let executeCommand: (command: string) => Promise<void>;
 
 const onboardingContextRegex = new RegExp(/\${onboardingContext:(.+?)}/g);
 const globalContextRegex = new RegExp(/\${onContext:(.+?)}/g);
 let html: string;
-$: buttons = new Map<string, string>();
-const eventListeners: ((e: any) => void)[] = [];
+
 onMount(() => {
-  const itemHtml = createItem(item);
+  const itemHtml = replacePlaceholders(item.value);
   html = itemHtml;
-  const clickListener = (e: any) => {
-    if (e.target instanceof HTMLButtonElement) {
-      const buttonId = e.target.id;
-      let command = buttons.get(buttonId);
-      if (command) {
-        executeCommand(command).catch((error: unknown) => {
-          console.error(`error while executing command ${command}`, error);
-        });
-      }
-    }
-  };
-  eventListeners.push(clickListener);
-  document.addEventListener('click', clickListener);
 });
-onDestroy(() => {
-  eventListeners.forEach(listener => document.removeEventListener('click', listener));
-});
-function createItem(item: OnboardingStepItem): string {
-  return replacePlaceholders(item.value);
-}
 
 function replacePlaceholders(label: string): string {
   let newLabel = label;
