@@ -1064,9 +1064,12 @@ export class PluginSystem {
       return menuRegistry.getContributedMenus(context);
     });
 
-    this.ipcHandle('command-registry:executeCommand', async (_, command: string, ...args: unknown[]): Promise<void> => {
-      return commandRegistry.executeCommand(command, ...args);
-    });
+    this.ipcHandle(
+      'command-registry:executeCommand',
+      async (_, command: string, ...args: unknown[]): Promise<unknown> => {
+        return commandRegistry.executeCommand(command, ...args);
+      },
+    );
 
     this.ipcHandle('clipboard:writeText', async (_, text: string, type?: 'selection' | 'clipboard'): Promise<void> => {
       return clipboard.writeText(text, type);
