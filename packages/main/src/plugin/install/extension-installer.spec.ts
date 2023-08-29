@@ -27,6 +27,7 @@ import type { IpcMain, IpcMainEvent } from 'electron';
 import { ipcMain } from 'electron';
 import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
 import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
+import type { Telemetry } from '../telemetry/telemetry.js';
 
 let extensionInstaller: ExtensionInstaller;
 
@@ -69,8 +70,18 @@ vi.mock('electron', () => {
   return { ipcMain: mockIpcMain };
 });
 
+const telemetryMock = {
+  track: vi.fn(),
+} as unknown as Telemetry;
+
 beforeAll(async () => {
-  extensionInstaller = new ExtensionInstaller(apiSender, extensionLoader, imageRegistry, extensionsCatalog);
+  extensionInstaller = new ExtensionInstaller(
+    apiSender,
+    extensionLoader,
+    imageRegistry,
+    extensionsCatalog,
+    telemetryMock,
+  );
 });
 
 beforeEach(() => {
