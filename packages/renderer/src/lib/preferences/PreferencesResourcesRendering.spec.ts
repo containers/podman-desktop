@@ -70,6 +70,7 @@ beforeEach(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     receive: vi.fn(),
   };
+  (window as any).telemetryTrack = vi.fn();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
 });
