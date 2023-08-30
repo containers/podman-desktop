@@ -69,12 +69,14 @@ export async function connectionAuditor(provider: string, items: AuditRequestIte
     records: records,
   };
 
-  const image = items['kind.cluster.creation.controlPlaneImage'];
-  if (image && !image.includes('@sha256:')) {
-    records.push({
-      type: 'warning',
-      record: 'It is recommend to include the @sha256:{image digest} for the image used.',
-    });
+  if (items['kind.cluster.creation.usingControlPlaneImage']) {
+    const image = items['kind.cluster.creation.controlPlaneImage'];
+    if (image && !image.includes('@sha256:')) {
+      records.push({
+        type: 'warning',
+        record: 'It is recommend to include the @sha256:{image digest} for the image used.',
+      });
+    }
   }
 
   const providerSocket = extensionApi.provider
@@ -140,7 +142,10 @@ export async function createCluster(
   }
 
   // grab custom kind node image if defined
-  const controlPlaneImage = params['kind.cluster.creation.controlPlaneImage'];
+  let controlPlaneImage = undefined;
+  if (params['kind.cluster.creation.usingControlPlaneImage']) {
+    controlPlaneImage = params['kind.cluster.creation.controlPlaneImage'];
+  }
 
   // create the config file
   const kindClusterConfig = getKindClusterConfig(clusterName, httpHostPort, httpsHostPort, controlPlaneImage);

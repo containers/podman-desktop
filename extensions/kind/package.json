@@ -48,12 +48,19 @@
           "scope": "KubernetesProviderConnectionFactory",
           "description": "Setup an ingress controller (Contour https://projectcontour.io)"
         },
+        "kind.cluster.creation.usingControlPlaneImage": {
+          "type": "boolean",
+          "default": false,
+          "scope": "KubernetesProviderConnectionFactory",
+          "description": "Using custom node’s container image."
+        },
         "kind.cluster.creation.controlPlaneImage": {
           "type": "string",
           "default": "",
           "scope": "KubernetesProviderConnectionFactory",
-          "placeholder": "Leave empty for using latest.",
-          "markdownDescription": "Node’s container image (Available image tags on [kind/releases](https://github.com/kubernetes-sigs/kind/releases))"
+          "placeholder": "e.g. kindest/node:v1.27.3@sha256:3966ac761ae",
+          "markdownDescription": "Node’s container image (Available image tags on [kind/releases](https://github.com/kubernetes-sigs/kind/releases))",
+          "when": "kind.cluster.creation.usingControlPlaneImage == true"
         }
       }
     },
