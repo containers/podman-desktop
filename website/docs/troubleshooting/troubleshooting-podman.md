@@ -128,6 +128,84 @@ Podman Desktop might display "No Containers" as shown below, even if there are a
    $ podman machine init
    ```
 
+## Podman Desktop is failing to display the images or containers from a rootful Podman machine
+
+The rootful configuration for a Podman machine depends on the Podman machine default connection.
+The default connection can be modified by external events, or when creating a new Podman machine.
+Podman Desktop might then reconnect in rootless mode, and fail to display the images or containers.
+
+#### Workaround
+
+1. Verify that the Podman default connection is the rootful connection to your Podman machine:
+
+   ```shell-session
+   $ podman system connection ls
+   ```
+
+   The default connection has `true` at the end of the line.
+
+   The rootful connection has a `-root` name suffix, and a `ssh://root@` URI prefix.
+
+   Example default rootful connection:
+
+   ```shell-session
+   Name                        URI                                                         Identity                                      Default
+   podman-machine-default      ssh://user@127.0.0.1:54826/run/user/1000/podman/podman.sock c:\Users\username\.ssh\podman-machine-default false
+   podman-machine-default-root ssh://root@127.0.0.1:54826/run/podman/podman.sock           c:\Users\username\.ssh\podman-machine-default true
+   ```
+
+   Example default rootless connection:
+
+   ```shell-session
+   Name                        URI                                                         Identity                                      Default
+   podman-machine-default      ssh://user@127.0.0.1:54826/run/user/1000/podman/podman.sock c:\Users\username\.ssh\podman-machine-default true
+   podman-machine-default-root ssh://root@127.0.0.1:54826/run/podman/podman.sock           c:\Users\username\.ssh\podman-machine-default false
+   ```
+
+   Continue with the next steps only if the default connection is not the rootful connection to your Podman machine.
+
+1. Set the Podman machine in rootful mode:
+
+   ```shell-session
+   $ podman machine set --rootful
+   ```
+
+1. Restart the Podman machine:
+
+   ```shell-session
+   $ podman machine stop
+   $ podman machine start
+   ```
+
+1. Verify that Podman default connection points to the rootful connection:
+
+   ```shell-session
+   $ podman system connection ls
+   ```
+
+   Continue with the next steps only if the default connection is not the rootful connection to your Podman machine.
+
+1. Set the Podman machine, such as `podman-machine-default` in rootful mode:
+
+   ```shell-session
+   $ podman system connection default podman-machine-default-root
+   ```
+
+1. Restart the Podman machine:
+
+   ```shell-session
+   $ podman machine stop
+   $ podman machine start
+   ```
+
+#### Verification
+
+1. The Podman default connection is the rootful connection to your Podman machine:
+
+   ```shell-session
+   $ podman system connection ls
+   ```
+
 ## Warning about Docker compatibility mode
 
 #### Issue
