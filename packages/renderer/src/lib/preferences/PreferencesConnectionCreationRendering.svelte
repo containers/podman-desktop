@@ -30,7 +30,7 @@ import AuditMessageBox from '../ui/AuditMessageBox.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import { faCubes } from '@fortawesome/free-solid-svg-icons';
 import Button from '../ui/Button.svelte';
-import type { ContextUI } from '/@/lib/context/context';
+import { ContextUI } from '/@/lib/context/context';
 import { ContextKeyExpr } from '/@/lib/context/contextKey';
 import { context } from '/@/stores/context';
 
@@ -47,6 +47,8 @@ export let callback: (
 export let taskId: number = undefined;
 
 $: configurationValues = new Map<string, string>();
+$: configurationHidden = new Map<string, boolean>();
+
 let creationInProgress = false;
 let creationStarted = false;
 let creationSuccessful = false;
@@ -100,7 +102,6 @@ onMount(async () => {
   configurationKeys = properties
     .filter(property => property.scope === propertyScope)
     .filter(property => property.id.startsWith(providerInfo.id))
-    .filter(property => !property.when || isPropertyValidInContext(property.when, globalContext))
     .map(property => {
       switch (property.maximum) {
         case 'HOST_TOTAL_DISKSIZE': {
@@ -151,12 +152,18 @@ onMount(async () => {
     taskId = createConnectionInfoMap.size + 1;
   }
 
-  const data = {};
   for (let field of configurationKeys) {
-    data[field.id] = field.default;
+    configurationValues.set(field.id, field.default);
   }
+
+  // check if field should be hidden with default config.
+  updateConfigurationHidden();
+
   try {
-    connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data);
+    connectionAuditResult = await window.auditConnectionParameters(
+      providerInfo.internalId,
+      Object.fromEntries(configurationValues),
+    );
   } catch (e) {
     console.warn(e.message);
   }
@@ -188,9 +195,23 @@ async function handleValidComponent() {
   connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data as AuditRequestItems);
 }
 
+function updateConfigurationHidden() {
+  // concat global context + this form context (field values)
+  const context: Record<string, string> = { ...globalContext, ...Object.fromEntries(configurationValues) };
+
+  configurationHidden = configurationKeys.reduce((map, property) => {
+    if (property.when) {
+      map.set(property.id, !isPropertyValidInContext(property.when, ContextUI.fromExisting(context)));
+    }
+    return map;
+  }, new Map<string, boolean>());
+}
+
 function setConfigurationValue(id: string, value: string) {
   configurationValues.set(id, value);
   configurationValues = configurationValues;
+
+  updateConfigurationHidden();
 }
 
 function getDisplayConfigurationValue(configurationKey: IConfigurationPropertyRecordedSchema, value?: any) {
@@ -398,26 +419,28 @@ async function close() {
           {/if}
           <form novalidate class="p-2 space-y-7 h-fit" on:submit|preventDefault="{handleOnSubmit}" bind:this="{formEl}">
             {#each configurationKeys as configurationKey}
-              <div class="mb-2.5">
-                <div class="font-semibold text-xs">
-                  {#if configurationKey.description}
-                    {configurationKey.description}:
-                  {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
-                    <Markdown>{configurationKey.markdownDescription}:</Markdown>
-                  {/if}
-                  {#if configurationValues.has(configurationKey.id)}
-                    {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
-                  {:else}
-                    {getDisplayConfigurationValue(configurationKey)}
-                  {/if}
+              {#if !configurationHidden.get(configurationKey.id)}
+                <div class="mb-2.5">
+                  <div class="font-semibold text-xs">
+                    {#if configurationKey.description}
+                      {configurationKey.description}:
+                    {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
+                      <Markdown>{configurationKey.markdownDescription}:</Markdown>
+                    {/if}
+                    {#if configurationValues.has(configurationKey.id)}
+                      {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
+                    {:else}
+                      {getDisplayConfigurationValue(configurationKey)}
+                    {/if}
+                  </div>
+                  <PreferencesRenderingItemFormat
+                    invalidRecord="{handleInvalidComponent}"
+                    validRecord="{handleValidComponent}"
+                    record="{configurationKey}"
+                    setRecordValue="{setConfigurationValue}"
+                    enableSlider="{true}" />
                 </div>
-                <PreferencesRenderingItemFormat
-                  invalidRecord="{handleInvalidComponent}"
-                  validRecord="{handleValidComponent}"
-                  record="{configurationKey}"
-                  setRecordValue="{setConfigurationValue}"
-                  enableSlider="{true}" />
-              </div>
+              {/if}
             {/each}
             <div class="w-full">
               <div class="float-right">

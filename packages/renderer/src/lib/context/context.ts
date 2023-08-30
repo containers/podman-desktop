@@ -30,6 +30,12 @@ export class ContextUI implements IContext {
     this._value = {};
   }
 
+  public static fromExisting(_value: Record<string, any>) {
+    const context = new ContextUI();
+    context._value = _value;
+    return context;
+  }
+
   get value(): Record<string, any> {
     return { ...this._value };
   }
