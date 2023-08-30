@@ -23,11 +23,14 @@
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeAll } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
+import { router } from 'tinro';
 import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { get } from 'svelte/store';
 import { createConnectionsInfo } from '/@/stores/create-connections';
+
+type LoggerEventName = 'log' | 'warn' | 'error' | 'finish';
 
 const properties: IConfigurationPropertyRecordedSchema[] = [];
 const providerInfo: ProviderInfo = {
@@ -45,6 +48,7 @@ beforeAll(() => {
   (window as any).getOsFreeDiskSize = vi.fn();
   (window as any).getCancellableTokenSource = vi.fn();
   (window as any).auditConnectionParameters = vi.fn();
+  (window as any).telemetryTrack = vi.fn();
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
@@ -71,24 +75,61 @@ test('Expect that the create button is available', async () => {
   expect(createButton).toBeEnabled();
 });
 
-test('Expect create connection successfully', async () => {
-  let providedKeyLogger:
-    | ((key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void)
-    | undefined;
+function mockCallback(
+  callback: (keyLogger: (key: symbol, eventName: LoggerEventName, args: string[]) => void) => Promise<void>,
+) {
+  return vi
+    .fn()
+    .mockImplementation(async function (
+      _id: string,
+      _params: unknown,
+      _key: unknown,
+      keyLogger: (key: symbol, eventName: LoggerEventName, args: string[]) => void,
+    ): Promise<void> {
+      // keep reference
+      callback(keyLogger);
+    });
+}
 
-  const callback = vi.fn();
-  callback.mockImplementation(async function (
-    _id: string,
-    _params: unknown,
-    _key: unknown,
-    keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
-  ): Promise<void> {
-    // keep reference
+test('Expect Close button redirects to Resources page', async () => {
+  const gotoSpy = vi.spyOn(router, 'goto');
+
+  let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
+
+  const callback = mockCallback(async keyLogger => {
     providedKeyLogger = keyLogger;
   });
 
   // eslint-disable-next-line @typescript-eslint/await-thenable
-  await render(PreferencesConnectionCreationRendering, {
+  render(PreferencesConnectionCreationRendering, {
+    properties,
+    providerInfo,
+    propertyScope,
+    callback,
+    pageIsLoading: false,
+    taskId: 2,
+  });
+
+  const closeButton = screen.getByRole('button', { name: 'Close page' });
+  expect(closeButton).toBeInTheDocument();
+
+  await fireEvent.click(closeButton);
+  expect(gotoSpy).toBeCalledWith('/preferences/resources');
+  expect(window.telemetryTrack).toBeCalledWith('createNewProviderConnectionPageUserClosed', {
+    providerId: providerInfo.id,
+    name: providerInfo.name,
+  });
+});
+
+test('Expect create connection successfully', async () => {
+  let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
+
+  const callback = mockCallback(async keyLogger => {
+    providedKeyLogger = keyLogger;
+  });
+
+  // eslint-disable-next-line @typescript-eslint/await-thenable
+  render(PreferencesConnectionCreationRendering, {
     properties,
     providerInfo,
     propertyScope,
@@ -139,17 +180,9 @@ test('Expect create connection successfully', async () => {
 });
 
 test('Expect cancelling the creation, trigger the cancellation token', async () => {
-  let providedKeyLogger:
-    | ((key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void)
-    | undefined;
+  let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
 
-  const callback = vi.fn();
-  callback.mockImplementation(async function (
-    _id: string,
-    _params: unknown,
-    _key: unknown,
-    keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: unknown[]) => void,
-  ): Promise<void> {
+  const callback = mockCallback(async keyLogger => {
     // keep reference
     providedKeyLogger = keyLogger;
   });
@@ -199,6 +232,12 @@ test('Expect cancelling the creation, trigger the cancellation token', async () 
     providedKeyLogger(currentConnectionInfo.createKey, 'finish', []);
   }
 
+  expect(window.telemetryTrack).toBeCalledWith('createNewProviderConnectionRequestUserCanceled', {
+    providerId: providerInfo.id,
+    name: providerInfo.name,
+  });
   // expect it is sucessful
   expect(cancelTokenMock).toBeCalled;
 });
+
+test('Expect close button to redirect to resources page', async () => {});

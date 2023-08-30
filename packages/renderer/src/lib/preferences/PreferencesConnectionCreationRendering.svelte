@@ -319,16 +319,28 @@ async function handleOnSubmit(e: any) {
   }
 }
 
-async function cancel() {
+async function cancelCreation() {
   if (tokenId) {
     await window.cancelToken(tokenId);
     creationCancelled = true;
     tokenId = undefined;
   }
+  window.telemetryTrack('createNewProviderConnectionRequestUserCanceled', {
+    providerId: providerInfo.id,
+    name: providerInfo.name,
+  });
 }
 
-async function close() {
+async function closePanel() {
   cleanup();
+}
+
+function closePage() {
+  router.goto('/preferences/resources');
+  window.telemetryTrack('createNewProviderConnectionPageUserClosed', {
+    providerId: providerInfo.id,
+    name: providerInfo.name,
+  });
 }
 </script>
 
@@ -383,11 +395,11 @@ async function close() {
                   aria-label="Cancel creation"
                   class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
                   disabled="{!tokenId}"
-                  on:click="{cancel}">Cancel</button>
+                  on:click="{cancelCreation}">Cancel</button>
                 <button
                   class="text-xs hover:underline {creationInProgress ? 'hidden' : ''}"
                   aria-label="Close panel"
-                  on:click="{close}">Close</button>
+                  on:click="{closePanel}">Close</button>
               </div>
             </div>
             <div id="log" class="pt-2 h-80 {showLogs ? '' : 'hidden'}">
@@ -432,7 +444,7 @@ async function close() {
             {/each}
             <div class="w-full">
               <div class="float-right">
-                <Button type="link" on:click="{() => router.goto('/preferences/resources')}">Close</Button>
+                <Button type="link" aria-label="Close page" on:click="{closePage}">Close</Button>
                 <Button
                   disabled="{!isValid}"
                   inProgress="{creationInProgress}"
