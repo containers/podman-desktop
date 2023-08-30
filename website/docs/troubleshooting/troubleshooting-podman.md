@@ -144,7 +144,7 @@ Podman Desktop might then reconnect in rootless mode, and fail to display the im
 
    The default connection has `true` at the end of the line.
 
-   The rootful connection has a `-root` name suffix, and a `ssh://root@`URI prefix.
+   The rootful connection has a `-root` name suffix, and a `ssh://root@` URI prefix.
 
    Example default rootful connection:
 
