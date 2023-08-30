@@ -44,7 +44,7 @@ test('Expect to have the "Try again" button disabled if the step represent a fai
           id: 'step',
           title: 'step',
           state: 'failed',
-          completionEvents: ['onCommand:command'],
+          completionEvents: [],
         },
       ],
     },
@@ -55,6 +55,8 @@ test('Expect to have the "Try again" button disabled if the step represent a fai
   });
   const button = screen.getByRole('button', { name: 'Try again' });
   expect(button).toBeInTheDocument();
+  const infoMessage = screen.queryByLabelText('next-info-message');
+  expect(infoMessage).not.toBeInTheDocument();
 });
 
 test('Expect not to have the "Try again" button disabled if the step represent a completed state', async () => {
@@ -70,7 +72,7 @@ test('Expect not to have the "Try again" button disabled if the step represent a
           id: 'step',
           title: 'step',
           state: 'completed',
-          completionEvents: ['onCommand:command'],
+          completionEvents: [],
         },
       ],
     },
@@ -81,4 +83,6 @@ test('Expect not to have the "Try again" button disabled if the step represent a
   });
   const button = screen.queryByRole('button', { name: 'Try again' });
   expect(button).not.toBeInTheDocument();
+  const infoMessage = screen.getByLabelText('next-info-message');
+  expect(infoMessage).toBeInTheDocument();
 });

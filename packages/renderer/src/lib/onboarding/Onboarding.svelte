@@ -362,9 +362,11 @@ async function cleanContext() {
 
     {#if !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}
       <div class="grow"></div>
-      <div class="mb-10 mx-auto text-sm">
-        Press the <span class="bg-purple-700 p-0.5">Next</span> button below to proceed.
-      </div>
+      {#if activeStep.step.state !== 'failed'}
+        <div class="mb-10 mx-auto text-sm" aria-label="next-info-message">
+          Press the <span class="bg-purple-700 p-0.5">Next</span> button below to proceed.
+        </div>
+      {/if}
       <div class="flex flex-row-reverse p-6 bg-charcoal-700">
         <button
           class="py-1.5 px-5 rounded-md text-sm"
