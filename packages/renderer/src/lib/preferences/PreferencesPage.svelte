@@ -83,7 +83,7 @@ onMount(async () => {
     <PreferencesInstallExtensionFromId extensionId="{meta.params.extensionId}" />
   </Route>
 
-  <Route path="/onboarding/:extensionId" breadcrumb="Extension Onboarding" let:meta>
+  <Route path="/onboarding/:extensionId" breadcrumb="Extension Onboarding" let:meta navigationHint="details">
     <Onboarding extensionIds="{[meta.params.extensionId]}" />
   </Route>
 
