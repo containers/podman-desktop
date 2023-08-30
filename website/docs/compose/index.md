@@ -22,10 +22,9 @@ timeline
                : Podman
                : Compose engine
                : DOCKER_HOST
-    Running : Compose file
-            : Compose engine
-            : Podman labels
-            : Podman Desktop pods
+    Compose : Run compose file
+            : Add labels
+    Podman Desktop: Display pods
 
 ```
 
