@@ -167,9 +167,9 @@ export class ProviderRegistry {
     }, 2000);
   }
 
-  createProvider(providerOptions: ProviderOptions): Provider {
+  createProvider(extensionId: string, providerOptions: ProviderOptions): Provider {
     const id = `${this.count}`;
-    const providerImpl = new ProviderImpl(id, providerOptions, this, this.containerRegistry);
+    const providerImpl = new ProviderImpl(id, extensionId, providerOptions, this, this.containerRegistry);
     this.count++;
     this.providers.set(id, providerImpl);
     this.listeners.forEach(listener => listener('provider:create', this.getProviderInfo(providerImpl)));
@@ -582,6 +582,7 @@ export class ProviderRegistry {
     const providerInfo: ProviderInfo = {
       id: provider.id,
       internalId: provider.internalId,
+      extensionId: provider.extensionId,
       name: provider.name,
       containerConnections,
       kubernetesConnections,

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faGear } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { providerInfos } from '../../stores/providers';
 import type {
@@ -32,11 +32,13 @@ import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyR
 import PreferencesProviderInstallationModal from './PreferencesProviderInstallationModal.svelte';
 import { Buffer } from 'buffer';
 import Button from '../ui/Button.svelte';
+import { onboardingList } from '/@/stores/onboarding';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();
 $: providerInstallationInProgress = new Map<string, boolean>();
+$: extensionOnboarding = new Map<string, boolean>();
 
 let isStatusUpdated = false;
 let displayInstallModal = false;
@@ -51,6 +53,8 @@ let restartingQueue: IConnectionRestart[] = [];
 
 let providersUnsubscribe: Unsubscriber;
 let configurationPropertiesUnsubscribe: Unsubscriber;
+let onboardingsUnsubscribe: Unsubscriber;
+
 onMount(() => {
   configurationPropertiesUnsubscribe = configurationProperties.subscribe(value => {
     properties = value;
@@ -134,6 +138,16 @@ onMount(() => {
       containerConnectionStatus = containerConnectionStatus;
     }
   });
+
+  onboardingsUnsubscribe = onboardingList.subscribe(onboardingItems => {
+    extensionOnboarding = new Map<string, boolean>();
+    onboardingItems.forEach(o => {
+      // maybe the boolean value should represent if the onboarding has been completed, to show the setup button or not
+      // now true by default
+      extensionOnboarding.set(o.extension, true);
+    });
+    extensionOnboarding = extensionOnboarding;
+  });
 });
 
 function getContainerRestarting(provider: string, container: string): IConnectionRestart {
@@ -150,6 +164,9 @@ onDestroy(() => {
   }
   if (configurationPropertiesUnsubscribe) {
     configurationPropertiesUnsubscribe();
+  }
+  if (onboardingsUnsubscribe) {
+    onboardingsUnsubscribe();
   }
 });
 
@@ -310,7 +327,7 @@ function hideInstallModal() {
       <div class="bg-charcoal-600 mb-5 rounded-md p-3 divide-x divide-gray-900 flex">
         <div>
           <!-- left col - provider icon/name + "create new" button -->
-          <div class="min-w-[150px] max-w-[200px]">
+          <div class="min-w-[170px] max-w-[200px]">
             <div class="flex">
               {#if provider.images.icon}
                 {#if typeof provider.images.icon === 'string'}
@@ -323,28 +340,47 @@ function hideInstallModal() {
               <span class="my-auto text-gray-400 ml-3 break-words">{provider.name}</span>
             </div>
             <div class="text-center mt-10">
-              {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
-                {@const providerDisplayName =
-                  (provider.containerProviderConnectionCreation
-                    ? provider.containerProviderConnectionCreationDisplayName || undefined
-                    : provider.kubernetesProviderConnectionCreation
-                    ? provider.kubernetesProviderConnectionCreationDisplayName
-                    : undefined) || provider.name}
-                {@const buttonTitle =
-                  (provider.containerProviderConnectionCreation
-                    ? provider.containerProviderConnectionCreationButtonTitle || undefined
-                    : provider.kubernetesProviderConnectionCreation
-                    ? provider.kubernetesProviderConnectionCreationButtonTitle
-                    : undefined) || 'Create new'}
-                <!-- create new provider button -->
-                <Tooltip tip="Create new {providerDisplayName}" bottom>
-                  <Button
-                    aria-label="Create new {providerDisplayName}"
-                    inProgress="{providerInstallationInProgress.get(provider.name)}"
-                    on:click="{() => doCreateNew(provider, providerDisplayName)}">
-                    {buttonTitle} ...
-                  </Button>
-                </Tooltip>
+              {#if extensionOnboarding.get(provider.extensionId) && provider.status === 'not-installed'}
+                <Button
+                  aria-label="Setup {provider.name}"
+                  title="Setup {provider.name}"
+                  on:click="{() => router.goto(`/preferences/onboarding/${provider.extensionId}`)}">
+                  Setup ...
+                </Button>
+              {:else}
+                <div class="flex flex-row justify-around">
+                  {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
+                    {@const providerDisplayName =
+                      (provider.containerProviderConnectionCreation
+                        ? provider.containerProviderConnectionCreationDisplayName || undefined
+                        : provider.kubernetesProviderConnectionCreation
+                        ? provider.kubernetesProviderConnectionCreationDisplayName
+                        : undefined) || provider.name}
+                    {@const buttonTitle =
+                      (provider.containerProviderConnectionCreation
+                        ? provider.containerProviderConnectionCreationButtonTitle || undefined
+                        : provider.kubernetesProviderConnectionCreation
+                        ? provider.kubernetesProviderConnectionCreationButtonTitle
+                        : undefined) || 'Create new'}
+                    <!-- create new provider button -->
+                    <Tooltip tip="Create new {providerDisplayName}" bottom>
+                      <Button
+                        aria-label="Create new {providerDisplayName}"
+                        inProgress="{providerInstallationInProgress.get(provider.name)}"
+                        on:click="{() => doCreateNew(provider, providerDisplayName)}">
+                        {buttonTitle} ...
+                      </Button>
+                    </Tooltip>
+                  {/if}
+                  {#if extensionOnboarding.get(provider.extensionId)}
+                    <Button
+                      aria-label="Setup {provider.name}"
+                      title="Setup {provider.name}"
+                      on:click="{() => router.goto(`/preferences/onboarding/${provider.extensionId}`)}">
+                      <Fa size="14" icon="{faGear}" />
+                    </Button>
+                  {/if}
+                </div>
               {/if}
             </div>
           </div>

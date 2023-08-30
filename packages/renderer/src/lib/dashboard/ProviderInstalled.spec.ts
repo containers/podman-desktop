@@ -23,7 +23,7 @@ import { beforeAll, test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import ProviderInstalled from '/@/lib/dashboard/ProviderInstalled.svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
+import { InitializeAndStartMode, type InitializationContext } from '/@/lib/dashboard/ProviderInitUtils';
 import userEvent from '@testing-library/user-event';
 import { verifyStatus } from './ProviderStatusTestHelper.spec';
 
@@ -63,9 +63,10 @@ test('Expect installed provider shows button', async () => {
     name: 'MyProvider',
     status: 'installed',
     warnings: [],
+    extensionId: '',
   };
 
-  const initializationContext = { mode: InitializeAndStartMode };
+  const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
   render(ProviderInstalled, { provider: provider, initializationContext: initializationContext });
 
   const providerText = screen.getByText(

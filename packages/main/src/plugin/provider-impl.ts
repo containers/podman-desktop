@@ -75,6 +75,7 @@ export class ProviderImpl implements Provider, IDisposable {
 
   constructor(
     private _internalId: string,
+    readonly extensionId: string,
     private providerOptions: ProviderOptions,
     private providerRegistry: ProviderRegistry,
     private containerRegistry: ContainerProviderRegistry,

@@ -83,6 +83,7 @@ test('Expect that removing the connection is going back to the previous page', a
     containerProviderConnectionInitialization: false,
     containerProviderConnectionCreationDisplayName: 'Podman machine',
     kubernetesProviderConnectionInitialization: false,
+    extensionId: '',
   };
 
   // 3 connections with the same socket path

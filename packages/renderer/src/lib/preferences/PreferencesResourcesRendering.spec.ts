@@ -24,10 +24,13 @@ import { providerInfos } from '../../stores/providers';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
+import { onboardingList } from '/@/stores/onboarding';
+import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
 
 const providerInfo: ProviderInfo = {
   id: 'podman',
   name: 'podman',
+  extensionId: 'id',
   images: {
     icon: 'img',
   },
@@ -216,4 +219,28 @@ test('Expect to directly install the provider if requirements are met', async ()
   // all requirements are met so the installProvider function is called
   expect(installPreflightMock).toBeCalled();
   expect(installProviderMock).toBeCalled();
+});
+
+test('Expect to redirect to onboarding page if setup button is clicked', async () => {
+  // clone providerInfo and change id and status
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  // remove display name
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  customProviderInfo.status = 'not-installed';
+  // change name of the provider
+  customProviderInfo.name = 'foo-provider';
+  providerInfos.set([customProviderInfo]);
+
+  const onboarding: OnboardingInfo = {
+    extension: 'id',
+    steps: [],
+    title: 'onboarding',
+  };
+  onboardingList.set([onboarding]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.getByRole('button', { name: 'Setup foo-provider' });
+  expect(button).toBeInTheDocument();
+  await userEvent.click(button);
+  // redirect to create new page
+  expect(router.goto).toHaveBeenCalledWith(`/preferences/onboarding/id`);
 });
