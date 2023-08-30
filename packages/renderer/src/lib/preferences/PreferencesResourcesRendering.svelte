@@ -245,7 +245,7 @@ async function doCreateNew(provider: ProviderInfo, displayName: string) {
     doExecuteAfterInstallation = () => router.goto(`/preferences/provider/${provider.internalId}`);
     performInstallation(provider);
   } else {
-    window.telemetryTrack('createNewProviderConnection', {
+    window.telemetryTrack('createNewProviderConnectionPageRequested', {
       providerId: provider.id,
       name: provider.name,
     });

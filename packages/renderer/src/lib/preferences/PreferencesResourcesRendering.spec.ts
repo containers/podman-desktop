@@ -165,6 +165,11 @@ test('Expect to redirect to create New page if provider is installed', async () 
   const button = screen.getByRole('button', { name: 'Create new foo-provider' });
   expect(button).toBeInTheDocument();
   await userEvent.click(button);
+  // telemetry sent
+  expect(window.telemetryTrack).toBeCalledWith('createNewProviderConnectionPageRequested', {
+    providerId: customProviderInfo.id,
+    name: customProviderInfo.name,
+  });
   // redirect to create new page
   expect(router.goto).toHaveBeenCalledWith(`/preferences/provider/${customProviderInfo.internalId}`);
 });
