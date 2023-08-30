@@ -2,17 +2,22 @@
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import Tooltip from '/@/lib/ui/Tooltip.svelte';
 import { uncertainStringToNumber } from '../Util';
+import { onMount } from 'svelte';
 
 export let record: IConfigurationPropertyRecordedSchema;
 export let value: number;
 export let onChange = (_id: string, _value: number) => {};
 export let invalidRecord = (_error: string) => {};
 
-let numberInputInvalid = false;
 let numberInputErrorMessage = '';
+let numberInputInvalid = false;
+
+onMount(async () => {
+  assertNumericValueIsValid(value);
+});
 
 function onInput(event: Event) {
-  numberInputInvalid = false;
+  validRecord();
   const target = event.currentTarget as HTMLInputElement;
 
   const _value: number = uncertainStringToNumber(target.value);
@@ -24,6 +29,14 @@ function onInput(event: Event) {
   if (_value !== value) {
     onChange(record.id, _value);
   }
+}
+
+function validRecord() {
+  if (numberInputInvalid) {
+    value = 0;
+  }
+  numberInputInvalid = false;
+  numberInputErrorMessage = '';
 }
 
 function onNumberInputKeyPress(event: any) {
@@ -38,6 +51,7 @@ function onDecrement(
     currentTarget: EventTarget & HTMLButtonElement;
   },
 ) {
+  validRecord();
   onChange(record.id, value - 1);
   e.preventDefault();
 }
@@ -47,6 +61,7 @@ function onIncrement(
     currentTarget: EventTarget & HTMLButtonElement;
   },
 ) {
+  validRecord();
   onChange(record.id, value + 1);
   e.preventDefault();
 }
