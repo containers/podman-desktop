@@ -19,6 +19,7 @@ import {
   STATUS_SKIPPED,
 } from './onboarding-utils';
 import { lastPage } from '/@/stores/breadcrumb';
+import Button from '../ui/Button.svelte';
 
 interface ActiveOnboardingStep {
   onboarding: OnboardingInfo;
@@ -37,6 +38,8 @@ let displayCancelSetup = false;
 let displayResetSetup = false;
 
 let executedCommands: string[] = [];
+
+let firstStart = true;
 /*
 $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
@@ -46,15 +49,28 @@ onMount(async () => {
   onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
     if (!onboardings) {
       onboardings = onboardingItems.filter(o => extensionIds.find(extensionId => o.extension === extensionId));
-      startOnboarding();
+      if (!started) {
+        startOnboarding().then(isStartedByMe => {
+          if (isStartedByMe) {
+            assertStepCompleted().finally(() => (firstStart = false));
+          }
+        });
+      }
     }
   });
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   contextsUnsubscribe = context.subscribe(async value => {
     globalContext = value;
-    const gotStarted = await startOnboarding();
-    if (!gotStarted) {
+    if (!started) {
+      const isStartedByMe = await startOnboarding();
+      if (isStartedByMe) {
+        firstStart = false;
+        await assertStepCompleted();
+        return;
+      }
+    }
+    if (!firstStart) {
       await assertStepCompleted();
     }
   });
@@ -322,6 +338,12 @@ async function cleanContext() {
       {/if}
     </div>
 
+    {#if activeStep.step.state === 'failed'}
+      <div class="mx-auto mt-4">
+        <Button on:click="{() => restartSetup()}">Try again</Button>
+      </div>
+    {/if}
+
     <div class="flex flex-col mx-auto">
       {#if activeStep.step.content}
         {#each activeStep.step.content as row}
@@ -344,7 +366,12 @@ async function cleanContext() {
         Press the <span class="bg-purple-700 p-0.5">Next</span> button below to proceed.
       </div>
       <div class="flex flex-row-reverse p-6 bg-charcoal-700">
-        <button class="bg-purple-700 py-1.5 px-5 rounded-md text-sm" on:click="{() => next()}">Next</button>
+        <button
+          class="py-1.5 px-5 rounded-md text-sm"
+          class:bg-purple-700="{activeStep.step.state !== 'failed'}"
+          class:bg-charcoal-50="{activeStep.step.state === 'failed'}"
+          disabled="{activeStep.step.state === 'failed'}"
+          on:click="{() => next()}">Next</button>
         <button class="bg-purple-700 py-1.5 px-5 mr-2 rounded-md text-sm" on:click="{() => setDisplayCancelSetup(true)}"
           >Cancel</button>
       </div>
