@@ -25,4 +25,4 @@ Podman Desktop supports the [Compose specification](https://compose-spec.io), an
 
 1. Podman Desktop detects the Compose labels, and lists it appropriately within the UI.
 
-   ![img2](img/compose_doc_image_2.png)
+   ![img2](img/compose-in-containers-view.png)
