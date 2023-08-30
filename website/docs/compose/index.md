@@ -22,7 +22,8 @@ timeline
                : Podman
                : Compose engine
                : DOCKER_HOST
-    Compose : Run compose file
+    Compose : Compose file
+            : Run Compose file
             : Add labels
     Podman Desktop: Display pods
 
@@ -31,11 +32,11 @@ timeline
 1. [You set up Compose](compose/setting-up-compose).
 1. You have a [Compose file](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file).
 1. [You run a Compose engine on the Compose file](compose/running-compose).
-1. The Compose engine starts the containers and services, and adds an internal label to each resource:
+1. The Compose engine starts the containers and services, and adds a label to each resource:
 
    - Container label: `com.docker.compose.project`
    - Service label: `com.docker.compose.service`
 
-1. Podman Desktop detects the Compose labels, and lists it appropriately within the UI.
+1. Podman Desktop detects the Compose labels, and displays the container group as a pod.
 
    ![img2](img/compose-in-containers-view.png)
