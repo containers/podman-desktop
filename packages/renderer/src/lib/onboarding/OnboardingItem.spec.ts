@@ -21,6 +21,7 @@ import { render, screen } from '@testing-library/svelte';
 import OnboardingItem from './OnboardingItem.svelte';
 import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import { ContextUI } from '../context/context';
+import { configurationProperties } from '/@/stores/configurationProperties';
 
 test('Expect button html when passing a button tag in markdown', async () => {
   const textComponent: OnboardingStepItem = {
@@ -67,4 +68,101 @@ test('Expect placeholders are replaced when passing a text component with placeh
   const markdownSection = screen.getByLabelText('markdown-content');
   expect(markdownSection).toBeInTheDocument();
   expect(markdownSection.innerHTML.includes('placeholder content')).toBe(true);
+});
+
+test('Expect boolean configuration placeholder to be replaced with a checkbox', async () => {
+  const textComponent: OnboardingStepItem = {
+    value: '${configuration:extension.boolean.prop}',
+  };
+  configurationProperties.set([
+    {
+      parentId: '',
+      title: 'record',
+      description: 'record-description',
+      extension: {
+        id: 'extension',
+      },
+      hidden: false,
+      id: 'extension.boolean.prop',
+      type: 'boolean',
+      default: false,
+    },
+  ]);
+  render(OnboardingItem, {
+    extension: 'extension',
+    item: textComponent,
+    getContext: vi.fn(),
+    inProgressCommandExecution: vi.fn(),
+  });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLInputElement).toBe(true);
+  expect((input as HTMLInputElement).type).toBe('checkbox');
+  expect((input as HTMLInputElement).name).toBe('extension.boolean.prop');
+});
+
+test('Expect when configuration placeholder is type string and format file to be replaced with an input button with Browse', async () => {
+  const textComponent: OnboardingStepItem = {
+    value: '${configuration:extension.format.prop}',
+  };
+  configurationProperties.set([
+    {
+      parentId: '',
+      title: 'record',
+      placeholder: 'Example: text',
+      description: 'record-description',
+      extension: {
+        id: 'extension',
+      },
+      hidden: false,
+      id: 'extension.format.prop',
+      type: 'string',
+      format: 'file',
+    },
+  ]);
+  render(OnboardingItem, {
+    extension: 'extension',
+    item: textComponent,
+    getContext: vi.fn(),
+    inProgressCommandExecution: vi.fn(),
+  });
+  const readOnlyInput = screen.getByLabelText('record-description');
+  expect(readOnlyInput).toBeInTheDocument();
+  expect(readOnlyInput instanceof HTMLInputElement).toBe(true);
+  expect((readOnlyInput as HTMLInputElement).placeholder).toBe('Example: text');
+  const input = screen.getByLabelText('button-record-description');
+  expect(input).toBeInTheDocument();
+  expect(input.textContent).toBe('Browse ...');
+});
+
+test('Expect a type text configuration placeholder to be replaced by a text input', async () => {
+  const textComponent: OnboardingStepItem = {
+    value: '${configuration:extension.text.prop}',
+  };
+  configurationProperties.set([
+    {
+      parentId: '',
+      title: 'record',
+      placeholder: 'Example: text',
+      description: 'record-description',
+      extension: {
+        id: 'extension',
+      },
+      hidden: false,
+      id: 'extension.text.prop',
+      type: 'string',
+    },
+  ]);
+  render(OnboardingItem, {
+    extension: 'extension',
+    item: textComponent,
+    getContext: vi.fn(),
+    inProgressCommandExecution: vi.fn(),
+  });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLInputElement).toBe(true);
+  expect((input as HTMLInputElement).type).toBe('text');
+  expect((input as HTMLSelectElement).name).toBe('extension.text.prop');
+  expect((input as HTMLInputElement).placeholder).toBe('Example: text');
 });
