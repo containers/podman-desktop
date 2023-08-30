@@ -20,7 +20,7 @@ import type { Locator, Page } from 'playwright';
 import { PodmanDesktopPage } from './base-page';
 import { ImageDetailsPage } from './image-details-page';
 import { PullImagePage } from './pull-image-page';
-import { waitUntil } from '../../utility/wait';
+import { waitUntil, waitWhile } from '../../utility/wait';
 
 export class ImagesPage extends PodmanDesktopPage {
   readonly heading: Locator;
@@ -30,7 +30,7 @@ export class ImagesPage extends PodmanDesktopPage {
 
   constructor(page: Page) {
     super(page);
-    this.heading = page.getByRole('heading', { name: 'Images', exact: true });
+    this.heading = page.getByRole('heading', { name: 'images', exact: true });
     this.pullImageButton = page.getByRole('button', { name: 'Pull an image' });
     this.pruneImagesButton = page.getByRole('button', { name: 'Prune images' });
     this.buildImageButton = page.getByRole('button', { name: 'Build an image' });
@@ -96,6 +96,11 @@ export class ImagesPage extends PodmanDesktopPage {
 
   async waitForImageExists(name: string): Promise<boolean> {
     await waitUntil(async () => await this.imageExists(name), 3000, 900);
+    return true;
+  }
+
+  async waitForImageDelete(name: string): Promise<boolean> {
+    await waitWhile(async () => await this.imageExists(name), 3000, 900);
     return true;
   }
 }
