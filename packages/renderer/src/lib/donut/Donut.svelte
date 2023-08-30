@@ -5,9 +5,9 @@ export let size = 64;
 
 export let title = '';
 
-export let value;
+export let value: unknown;
 
-function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+function polarToCartesian(centerX: number, centerY: number, radius: number, angleInDegrees: number) {
   const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
 
   return {
@@ -16,7 +16,7 @@ function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
   };
 }
 
-function describeArc(x, y, radius, startAngle, endAngle) {
+function describeArc(x: number, y: number, radius: number, startAngle: number, endAngle: number) {
   const start = polarToCartesian(x, y, radius, endAngle);
   const end = polarToCartesian(x, y, radius, startAngle);
 
