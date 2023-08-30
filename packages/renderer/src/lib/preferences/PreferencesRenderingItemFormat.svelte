@@ -11,6 +11,7 @@ import FileItem from '/@/lib/preferences/item-formats/FileItem.svelte';
 import EnumItem from '/@/lib/preferences/item-formats/EnumItem.svelte';
 import StringItem from '/@/lib/preferences/item-formats/StringItem.svelte';
 
+let recordUpdateTimeout: NodeJS.Timeout;
 let invalidText = undefined;
 export let invalidRecord = (_error: string) => {};
 export let validRecord = () => {};
@@ -18,7 +19,7 @@ export let updateResetButtonVisibility = (_recordValue: any) => {};
 export let resetToDefault = false;
 export let enableAutoSave = false;
 
-export let setRecordValue = (_id: string, _value: string) => {};
+export let setRecordValue = (_id: string, _value: string | boolean | number) => {};
 export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
 
@@ -80,20 +81,19 @@ function autoSave() {
 }
 
 function onChange(recordId: string, value: boolean | string | number) {
-  console.log(recordId, value, typeof value);
+  clearTimeout(recordUpdateTimeout);
+
+  // update the value
   recordValue = value;
 
-  switch (typeof value) {
-    case 'boolean':
-      break;
-    case 'number':
-      break;
-    case 'string':
-      setRecordValue(recordId, value);
-      break;
-  }
+  // propagate the update to parent
+  setRecordValue(recordId, value);
 
+  // valid the value (each child component is responsible for validating the value
+  invalidText = undefined;
   validRecord();
+
+  // auto save
   autoSave();
 }
 </script>
@@ -105,7 +105,14 @@ function onChange(recordId: string, value: boolean | string | number) {
     {:else if enableSlider && record.type === 'number' && typeof record.maximum === 'number'}
       <SliderItem record="{record}" value="{getNormalizedDefaultNumberValue(record)}" onChange="{onChange}" />
     {:else if record.type === 'number'}
-      <NumberItem record="{record}" value="{recordValue}" onChange="{onChange}" invalidRecord="{invalidRecord}" />
+      <NumberItem
+        record="{record}"
+        value="{recordValue}"
+        onChange="{onChange}"
+        invalidRecord="{_error => {
+          invalidText = _error;
+          invalidRecord(_error);
+        }}" />
     {:else if record.type === 'string' && record.format === 'file'}
       <FileItem record="{record}" value="{recordValue}" onChange="{onChange}" />
     {:else if record.type === 'string' && record.enum && record.enum.length > 0}
