@@ -95,7 +95,7 @@
     "@podman-desktop/api": "^0.0.1",
     "mustache": "^4.2.0",
     "sudo-prompt": "^9.2.1",
-    "yaml": "^2.3.1"
+    "yaml": "^2.3.2"
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",

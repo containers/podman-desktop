@@ -24,6 +24,7 @@
   "dependencies": {
     "@docusaurus/core": "2.4.1",
     "@docusaurus/preset-classic": "2.4.1",
+    "@docusaurus/theme-mermaid": "^2.4.1",
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
     "@fortawesome/free-brands-svg-icons": "^6.4.2",
     "@fortawesome/free-solid-svg-icons": "^6.4.2",
@@ -42,7 +43,7 @@
     "autoprefixer": "^10.4.15",
     "markdownlint": "^0.30.0",
     "markdownlint-cli2": "^0.9.2",
-    "postcss": "^8.4.28",
+    "postcss": "^8.4.29",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.2.2"
   },

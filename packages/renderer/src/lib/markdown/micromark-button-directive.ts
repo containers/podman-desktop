@@ -34,19 +34,37 @@ export function button(d: any) {
     return false;
   }
 
-  this.tag(
-    '<a class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline"',
-  );
+  // create button html if it has command attribute
+  if (d.attributes && 'command' in d.attributes) {
+    this.tag(
+      '<button class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" data-command="' +
+        this.encode(d.attributes.command) +
+        '">',
+    );
 
-  if (d.attributes && 'href' in d.attributes) {
-    this.tag(' href="' + this.encode(d.attributes.href) + '"');
+    this.tag(
+      '<i class="pf-c-button__progress" style="position: relative; margin-right:5px; display: none;"><span class="pf-c-spinner pf-m-sm" role="progressbar"><span class="pf-c-spinner__clipper">' +
+        '</span><span class="pf-c-spinner__lead-ball"></span><span class="pf-c-spinner__tail-ball"></span></span></i>',
+    );
+
+    this.raw(d.label || '');
+    this.tag('</button>');
+  } else {
+    // it is a link
+    this.tag(
+      '<a class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline"',
+    );
+
+    if (d.attributes && 'href' in d.attributes) {
+      this.tag(' href="' + this.encode(d.attributes.href) + '"');
+    }
+
+    if (d.attributes && 'title' in d.attributes) {
+      this.tag(' title="' + this.encode(d.attributes.title) + '"');
+    }
+
+    this.tag('>');
+    this.raw(d.label || '');
+    this.tag('</a>');
   }
-
-  if (d.attributes && 'title' in d.attributes) {
-    this.tag(' title="' + this.encode(d.attributes.title) + '"');
-  }
-
-  this.tag('>');
-  this.raw(d.label || '');
-  this.tag('</a>');
 }

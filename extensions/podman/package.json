@@ -161,9 +161,7 @@
             ],
             [
               {
-                "label": "Check requirements again",
-                "command": "podman.onboarding.checkPodmanRequirements",
-                "component": "button"
+                "value": ":button[Check requirements again]{command=podman.onboarding.checkPodmanRequirements}"
               }
             ]
           ]

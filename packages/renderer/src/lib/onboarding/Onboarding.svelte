@@ -126,12 +126,25 @@ function normalize(when: string, extension: string): string {
 }
 
 async function doExecuteCommand(command: string) {
-  setExecuting(true);
-  await window.executeCommand(command);
-  if (!executedCommands.includes(command)) {
+  inProgressCommandExecution(command, 'starting');
+  try {
+    await window.executeCommand(command);
+  } catch (e) {
+    inProgressCommandExecution(command, 'failed', e);
+    return;
+  }
+  inProgressCommandExecution(command, 'successful');
+}
+
+function inProgressCommandExecution(command: string, state: 'starting' | 'failed' | 'successful', value?: unknown) {
+  setExecuting(state === 'starting');
+  if (state !== 'starting' && command && !executedCommands.includes(command)) {
     executedCommands.push(command);
   }
-  setExecuting(false);
+  if (state === 'failed' && value) {
+    // to be displayed in the UI somewhere
+    console.error(value);
+  }
 }
 
 async function assertStepCompleted() {
@@ -317,7 +330,7 @@ async function cleanContext() {
                 extension="{activeStep.onboarding.extension}"
                 item="{item}"
                 getContext="{() => globalContext}"
-                executeCommand="{command => doExecuteCommand(command)}" />
+                inProgressCommandExecution="{inProgressCommandExecution}" />
             {/each}
           </div>
         {/each}

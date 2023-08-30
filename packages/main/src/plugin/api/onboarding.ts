@@ -22,23 +22,10 @@ export interface OnboardingCommandResponse {
   body: any;
 }
 
-export interface OnboardingBaseItem {
-  id: string;
+export interface OnboardingStepItem {
+  value: string;
   highlight?: boolean;
 }
-
-export interface OnboardingStepButtonItem extends OnboardingBaseItem {
-  component: 'button';
-  label: string;
-  command: string;
-}
-
-export interface OnboardingStepTextItem extends OnboardingBaseItem {
-  component: 'text';
-  value: string;
-}
-
-export type OnboardingStepItem = OnboardingStepTextItem | OnboardingStepButtonItem;
 
 export type OnboardingStatus = 'completed' | 'failed' | 'skipped';
 export type OnboardingState = 'completed' | 'failed';

@@ -6,10 +6,12 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 const title = 'podman desktop';
 
+const inDevMode = process.env.NODE_ENV === 'development';
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Podman Desktop',
-  url: 'https://podman-desktop.io',
+  url: inDevMode ? 'http://localhost:3000' : 'https://podman-desktop.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -18,6 +20,10 @@ const config = {
   projectName: 'podman-desktop',
   deploymentBranch: 'gh-pages',
   trailingSlash: false,
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
   plugins: [
     async () => {
       return {
@@ -187,6 +193,7 @@ const config = {
       goatcounter: {
         code: 'podman-desktop-website',
       },
+      image: 'img/banner_podman-desktop.png',
     }),
 };
 
