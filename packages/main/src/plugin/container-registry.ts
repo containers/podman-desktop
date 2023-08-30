@@ -1940,9 +1940,7 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService
-        .track('info', telemetryOptions)
-        .catch((err: unknown) => console.error('Unable to track', err));
+      this.telemetryService.track('info', telemetryOptions);
     }
   }
 }
