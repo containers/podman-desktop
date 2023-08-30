@@ -26,7 +26,7 @@ function onInput(event: Event) {
     return;
   }
 
-  if (_value !== value) {
+  if (record.id && _value !== value) {
     onChange(record.id, _value);
   }
 }
@@ -51,6 +51,7 @@ function onDecrement(
     currentTarget: EventTarget & HTMLButtonElement;
   },
 ) {
+  if (!record.id) return;
   validRecord();
   onChange(record.id, value - 1);
   e.preventDefault();
@@ -61,6 +62,7 @@ function onIncrement(
     currentTarget: EventTarget & HTMLButtonElement;
   },
 ) {
+  if (!record.id) return;
   validRecord();
   onChange(record.id, value + 1);
   e.preventDefault();
