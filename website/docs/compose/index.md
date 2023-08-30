@@ -15,6 +15,20 @@ Podman Desktop supports the [Compose specification](https://compose-spec.io), an
 
 ### Procedure
 
+```mermaid
+timeline
+    title Working with Compose
+    Setting up : Podman Desktop
+               : Podman
+               : Compose engine
+               : DOCKER_HOST
+    Running : Compose file
+            : Compose engine
+            : Podman labels
+            : Podman Desktop pods
+
+```
+
 1. [You set up Compose](compose/setting-up-compose).
 1. You have a [Compose file](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file).
 1. [You run a Compose engine on the Compose file](compose/running-compose).
