@@ -91,3 +91,8 @@ export function getNormalizedDefaultNumberValue(configurationKey: IConfiguration
   }
   return configurationKey.maximum;
 }
+
+export function uncertainStringToNumber(value: string | number): number {
+  if (typeof value === 'number') return value;
+  return parseFloat(value);
+}

@@ -1,0 +1,25 @@
+<script lang="ts">
+import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
+import { uncertainStringToNumber } from '../Util';
+
+export let record: IConfigurationPropertyRecordedSchema;
+export let value: number = uncertainStringToNumber(record.maximum);
+export let onChange = (_id: string, _value: number) => {};
+
+function onInput(event: Event) {
+  const target = event.currentTarget as HTMLInputElement;
+  const _value = uncertainStringToNumber(target.value);
+  if (_value !== value) onChange(record.id, _value);
+}
+</script>
+
+<input
+  id="input-slider-{record.id}"
+  type="range"
+  name="{record.id}"
+  min="{record.minimum}"
+  max="{record.maximum}"
+  value="{value}"
+  aria-label="{record.description}"
+  on:input="{onInput}"
+  class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs mt-2" />
