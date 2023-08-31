@@ -20,6 +20,7 @@ import {
 } from './onboarding-utils';
 import { lastPage } from '/@/stores/breadcrumb';
 import Button from '../ui/Button.svelte';
+import Link from '../ui/Link.svelte';
 
 interface ActiveOnboardingStep {
   onboarding: OnboardingInfo;
@@ -365,6 +366,10 @@ async function cleanContext() {
       {#if activeStep.step.state !== 'failed'}
         <div class="mb-10 mx-auto text-sm" aria-label="next-info-message">
           Press the <span class="bg-purple-700 p-0.5">Next</span> button below to proceed.
+        </div>
+      {:else}
+        <div class="mb-10 mx-auto text-sm" aria-label="exit-info-message">
+          <Link on:click="{() => setDisplayCancelSetup(true)}">Exit</Link> the setup. You can try again later.
         </div>
       {/if}
       <div class="flex flex-row-reverse p-6 bg-charcoal-700">
