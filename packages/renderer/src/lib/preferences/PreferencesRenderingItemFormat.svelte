@@ -26,16 +26,16 @@ export let initialValue: Promise<any>;
 let currentRecord: IConfigurationPropertyRecordedSchema;
 let recordUpdateTimeout: NodeJS.Timeout;
 
-let recordValue: any;
+let recordValue: string | boolean | number;
 $: recordValue;
 $: updateResetButtonVisibility?.(recordValue);
-let checkboxValue = false;
+
 $: if (resetToDefault) {
   recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
-  if (typeof recordValue === 'boolean') {
-    checkboxValue = recordValue;
+  if (ensureType(recordValue)) {
+    update(record);
   }
-  update(record);
+
   resetToDefault = false;
 }
 
@@ -44,7 +44,6 @@ $: if (currentRecord !== record) {
     recordValue = value;
     if (record.type === 'boolean') {
       recordValue = !!value;
-      checkboxValue = recordValue;
     }
   });
 
@@ -52,20 +51,13 @@ $: if (currentRecord !== record) {
 }
 
 function update(record: IConfigurationPropertyRecordedSchema) {
-  let value: any = recordValue;
-  if (record.type === 'number') {
-    value = parseFloat(value);
-  } else if (record.type === 'boolean') {
-    value = checkboxValue;
-  }
-
   // save the value
   if (record.id) {
     try {
-      window.updateConfigurationValue(record.id, value, record.scope);
+      window.updateConfigurationValue(record.id, recordValue, record.scope);
     } catch (error) {
       invalidText = String(error);
-      invalidRecord(error);
+      invalidRecord(invalidText);
     }
   }
 }
@@ -76,7 +68,26 @@ function autoSave() {
   }
 }
 
+function ensureType(value: any): boolean {
+  switch (typeof value) {
+    case 'boolean':
+      return record.type === 'boolean';
+    case 'number':
+      return record.type === 'number';
+    case 'string':
+      return record.type === 'string';
+    default:
+      return false;
+  }
+}
+
 function onChange(recordId: string, value: boolean | string | number) {
+  if (!ensureType(value)) {
+    invalidText = `Value type provided is ${typeof value} instead of ${record.type}.`;
+    invalidRecord(invalidText);
+    return;
+  }
+
   clearTimeout(recordUpdateTimeout);
 
   // update the value
@@ -97,28 +108,30 @@ function onChange(recordId: string, value: boolean | string | number) {
 <div class="flex flex-row mb-1 pt-2">
   <div class="flex flex-col text-start w-full justify-center items-start">
     {#if record.type === 'boolean'}
-      <BooleanItem record="{record}" checked="{checkboxValue}" onChange="{onChange}" />
+      <BooleanItem record="{record}" checked="{!!recordValue}" onChange="{onChange}" />
     {:else if enableSlider && record.type === 'number' && typeof record.maximum === 'number'}
       <SliderItem record="{record}" value="{getNormalizedDefaultNumberValue(record)}" onChange="{onChange}" />
     {:else if record.type === 'number'}
       <NumberItem
         record="{record}"
-        value="{recordValue}"
+        value="{getNormalizedDefaultNumberValue(record)}"
         onChange="{onChange}"
         invalidRecord="{_error => {
           invalidText = _error;
           invalidRecord(_error);
         }}" />
-    {:else if record.type === 'string' && record.format === 'file'}
-      <FileItem record="{record}" value="{recordValue}" onChange="{onChange}" />
-    {:else if record.type === 'string' && record.enum && record.enum.length > 0}
-      <EnumItem record="{record}" value="{recordValue}" onChange="{onChange}" />
+    {:else if record.type === 'string' && (typeof recordValue === 'string' || recordValue === undefined)}
+      {#if record.format === 'file'}
+        <FileItem record="{record}" value="{recordValue}" onChange="{onChange}" />
+      {:else if record.enum && record.enum.length > 0}
+        <EnumItem record="{record}" value="{recordValue}" onChange="{onChange}" />
+      {:else}
+        <StringItem record="{record}" value="{recordValue}" onChange="{onChange}" />
+      {/if}
     {:else if record.type === 'markdown'}
       <div class="text-sm">
         <Markdown>{record.markdownDescription}</Markdown>
       </div>
-    {:else}
-      <StringItem record="{record}" value="{recordValue}" onChange="{onChange}" />
     {/if}
 
     {#if invalidText}
