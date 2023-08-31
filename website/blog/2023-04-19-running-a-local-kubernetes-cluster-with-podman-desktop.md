@@ -54,7 +54,7 @@ Consider installing the Podman container engine for:
 Containers are a Linux technology.
 
 - On Linux, you can install Podman natively.
-  See: [Installing Podman on Linux](https://podman.io/getting-started/installation#installing-on-linux).
+  See: [Installing Podman on Linux](https://podman.io/docs/installation#installing-on-linux).
 - On macOS and Windows, Podman requires to run in a Linux virtual machine: the Podman machine.
   Use Podman Desktop to install Podman and initialize your Podman machine:
 
@@ -85,7 +85,7 @@ Podman Desktop helps you [installing the `kind` CLI](/docs/kubernetes/kind/insta
 
 1. In the status bar, click on **Kind**, and follow the prompts.
 1. When the `kind` CLI is available, the status bar does not display **Kind**.
-1. On Windows, [configure Podman in rootful mode](docs/kubernetes/kind/configuring-podman-for-kind-on-windows)
+1. On Windows, [configure Podman in rootful mode](/docs/kubernetes/kind/configuring-podman-for-kind-on-windows)
 
    ```shell-session
    $ podman system connection default podman-machine-default-root
@@ -117,7 +117,7 @@ Podman Desktop helps you [installing the `kind` CLI](/docs/kubernetes/kind/insta
 
 #### Additional resources
 
-- [Creating a local Kind-powered Kubernetes cluster](docs/kubernetes/kind/creating-a-kind-cluster)
+- [Creating a local Kind-powered Kubernetes cluster](/docs/kubernetes/kind/creating-a-kind-cluster)
 
 ## Starting the Redis leader
 
