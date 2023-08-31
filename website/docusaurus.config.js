@@ -42,11 +42,7 @@ const config = {
         redirects: [
           {
             to: '/docs/compose',
-            from: '/docs/compose/compose-spec',
-          },
-          {
-            to: '/docs/compose/running-compose',
-            from: '/docs/compose/podman-compose',
+            from: ['/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
         ],
       },
