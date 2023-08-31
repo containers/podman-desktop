@@ -4,7 +4,7 @@ title: Setting Podman machine default connection
 description: How to set Podman machine default connection.
 ---
 
-## Setting Podman machine default connection
+# Setting Podman machine default connection
 
 Each Podman machine exposes two connections:
 
