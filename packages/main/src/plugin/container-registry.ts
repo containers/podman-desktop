@@ -1305,6 +1305,8 @@ export class ContainerProviderRegistry {
     engineId: string,
     id: string,
     onData: (data: Buffer) => void,
+    onError: (error: string) => void,
+    onEnd: () => void,
   ): Promise<(param: string) => void> {
     let telemetryOptions = {};
     try {
@@ -1324,6 +1326,14 @@ export class ContainerProviderRegistry {
 
       execStream.on('data', chunk => {
         onData(chunk.toString('utf-8'));
+      });
+
+      execStream.on('error', err => {
+        onError(err.toString());
+      });
+
+      execStream.on('end', () => {
+        onEnd();
       });
 
       return (param: string) => {

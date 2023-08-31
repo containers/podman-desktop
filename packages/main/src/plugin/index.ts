@@ -996,6 +996,14 @@ export class PluginSystem {
           (content: Buffer) => {
             this.getWebContentsSender().send('container-provider-registry:shellInContainer-onData', onDataId, content);
           },
+          (error: string) => {
+            this.getWebContentsSender().send('container-provider-registry:shellInContainer-onError', onDataId, error);
+          },
+          () => {
+            this.getWebContentsSender().send('container-provider-registry:shellInContainer-onEnd', onDataId);
+            // delete the callback
+            containerProviderRegistryShellInContainerSendCallback.delete(onDataId);
+          },
         );
         // store the callback
         containerProviderRegistryShellInContainerSendCallback.set(onDataId, shellInContainerInvocation);
