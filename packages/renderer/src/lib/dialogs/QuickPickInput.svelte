@@ -66,26 +66,19 @@ const showQuickPickCallback = async (options?: QuickPickOptions) => {
   if (options?.prompt) {
     prompt = options.prompt;
   }
-  quickPickItems = options?.items
-    .map(item => {
-      if (typeof item === 'string') {
-        return { value: item, description: '', detail: '', checkbox: false };
-      } else {
-        // if type is QuickPickItem use label field for the display
-        return {
-          value: item.label || '',
-          description: item.description || '',
-          detail: item.detail || '',
-          checkbox: false,
-        };
-      }
-    })
-    .filter(item => item !== undefined) as {
-    value: any;
-    description: string;
-    detail: string;
-    checkbox: boolean;
-  }[];
+  quickPickItems = (options?.items || []).map(item => {
+    if (typeof item === 'string') {
+      return { value: item, description: '', detail: '', checkbox: false };
+    } else {
+      // if type is QuickPickItem use label field for the display
+      return {
+        value: item.label || '',
+        description: item.description || '',
+        detail: item.detail || '',
+        checkbox: false,
+      };
+    }
+  });
 
   quickPickFilteredItems = quickPickItems;
 
