@@ -18,6 +18,7 @@ import {
   STATUS_COMPLETED,
   STATUS_SKIPPED,
 } from './onboarding-utils';
+import { lastPage } from '/@/stores/breadcrumb';
 
 interface ActiveOnboardingStep {
   onboarding: OnboardingInfo;
@@ -118,7 +119,7 @@ async function setActiveStep() {
   }
 
   // if it reaches this point it means that the onboarding is fully completed and the user is redirected to the dashboard
-  router.goto('/');
+  router.goto($lastPage.path);
 }
 
 function normalize(when: string, extension: string): string {
@@ -231,7 +232,7 @@ async function cancelSetup() {
   // TODO: it cancels all running commands
   // it redirect the user to the dashboard
   await cleanContext();
-  router.goto('/');
+  router.goto($lastPage.path);
 }
 
 async function restartSetup() {
