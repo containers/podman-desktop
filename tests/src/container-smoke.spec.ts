@@ -30,7 +30,7 @@ import type { ImagesPage } from './model/pages/images-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
-const imageToPull = 'docker.io/library/alpine';
+const imageToPull = 'ghcr.io/linuxcontainers/alpine';
 const imageTag = 'latest';
 const containerToRun = 'alpine-container';
 
