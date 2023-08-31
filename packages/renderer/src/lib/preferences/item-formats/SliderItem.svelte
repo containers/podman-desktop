@@ -9,7 +9,7 @@ export let onChange = (_id: string, _value: number) => {};
 function onInput(event: Event) {
   const target = event.currentTarget as HTMLInputElement;
   const _value = uncertainStringToNumber(target.value);
-  if (_value !== value) onChange(record.id, _value);
+  if (record.id && _value !== value) onChange(record.id, _value);
 }
 </script>
 

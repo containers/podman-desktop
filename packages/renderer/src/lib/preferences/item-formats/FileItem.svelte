@@ -8,7 +8,7 @@ export let value: string | undefined;
 export let onChange = (_id: string, _value: string) => {};
 async function selectFilePath() {
   const result = await window.openFileDialog(`Select ${record.description}`);
-  if (!result.canceled && result.filePaths.length === 1) {
+  if (record.id && !result.canceled && result.filePaths.length === 1) {
     onChange(record.id, result.filePaths[0]);
   }
 }
@@ -18,7 +18,7 @@ function handleCleanValue(
     currentTarget: EventTarget & HTMLButtonElement;
   },
 ) {
-  onChange(record.id, '');
+  if (record.id) onChange(record.id, '');
   event.preventDefault();
 }
 </script>

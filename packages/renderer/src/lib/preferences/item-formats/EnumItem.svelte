@@ -7,7 +7,7 @@ export let onChange = (_id: string, _value: string) => {};
 function onInput(event: Event) {
   const target = event.target as HTMLInputElement;
   console.log(event);
-  if (target.value !== value) onChange(record.id, target.value);
+  if (record.id && target.value !== value) onChange(record.id, target.value);
 }
 </script>
 
@@ -18,7 +18,9 @@ function onInput(event: Event) {
   on:input="{onInput}"
   bind:value="{value}"
   aria-label="{record.description}">
-  {#each record.enum as recordEnum}
-    <option value="{recordEnum}">{recordEnum}</option>
-  {/each}
+  {#if record.enum}
+    {#each record.enum as recordEnum}
+      <option value="{recordEnum}">{recordEnum}</option>
+    {/each}
+  {/if}
 </select>

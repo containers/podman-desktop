@@ -7,7 +7,7 @@ export let onChange = (_id: string, _value: boolean) => {};
 
 function onInput(event: Event) {
   const target = event.target as HTMLInputElement;
-  if (target.checked !== checked) onChange(record.id, target.checked);
+  if (record.id && target.checked !== checked) onChange(record.id, target.checked);
 }
 </script>
 

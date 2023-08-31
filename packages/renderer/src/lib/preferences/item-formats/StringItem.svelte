@@ -6,7 +6,7 @@ export let onChange = (_id: string, _value: string) => {};
 
 function onInput(event: Event) {
   const target = event.target as HTMLInputElement;
-  if (target.value !== value) onChange(record.id, value);
+  if (record.id && target.value !== value) onChange(record.id, target.value);
 }
 </script>
 

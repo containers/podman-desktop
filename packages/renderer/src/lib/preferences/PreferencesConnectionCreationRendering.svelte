@@ -47,7 +47,7 @@ export let taskId: number | undefined = undefined;
 export let disableEmptyScreen = false;
 export let hideCloseButton = false;
 
-$: configurationValues = new Map<string, string>();
+$: configurationValues = new Map<string, string | boolean | number>();
 let creationInProgress = false;
 let creationStarted = false;
 let creationSuccessful = false;
@@ -201,7 +201,7 @@ async function handleValidComponent() {
   }
 }
 
-function setConfigurationValue(id: string, value: string) {
+function setConfigurationValue(id: string, value: string | boolean | number) {
   configurationValues.set(id, value);
   configurationValues = configurationValues;
 }
