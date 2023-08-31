@@ -45,8 +45,8 @@ beforeAll(async () => {
   try {
     images = await new NavigationBar(page).openImages();
   } catch (error) {
-    console.log(`TimeError when opening images, taking a screenshot`);
-    await pdRunner.screenshot('timeerror-openImages.png');
+    await pdRunner.screenshot('error-on-open-images.png');
+    throw error;
   }
   await waitWhile(
     async () => await images.pageIsEmpty(),
@@ -58,8 +58,8 @@ beforeAll(async () => {
   try {
     await deleteContainer(page, containerToRun);
   } catch (error) {
-    console.log(`Error opening Containers Page...`);
     await pdRunner.screenshot('error-on-open-containers.png');
+    throw error;
   }
 });
 
