@@ -36,6 +36,7 @@ const config = {
       };
     },
     'docusaurus-plugin-goatcounter',
+    ['@docusaurus/plugin-client-redirects', { redirects: [] }],
   ],
   presets: [
     [
