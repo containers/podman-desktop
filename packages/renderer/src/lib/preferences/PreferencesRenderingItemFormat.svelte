@@ -109,17 +109,19 @@ function onChange(recordId: string, value: boolean | string | number) {
   <div class="flex flex-col text-start w-full justify-center items-start">
     {#if record.type === 'boolean'}
       <BooleanItem record="{record}" checked="{!!recordValue}" onChange="{onChange}" />
-    {:else if enableSlider && record.type === 'number' && typeof record.maximum === 'number'}
-      <SliderItem record="{record}" value="{getNormalizedDefaultNumberValue(record)}" onChange="{onChange}" />
     {:else if record.type === 'number'}
-      <NumberItem
-        record="{record}"
-        value="{getNormalizedDefaultNumberValue(record)}"
-        onChange="{onChange}"
-        invalidRecord="{_error => {
-          invalidText = _error;
-          invalidRecord(_error);
-        }}" />
+      {#if enableSlider && typeof record.maximum === 'number'}
+        <SliderItem record="{record}" value="{getNormalizedDefaultNumberValue(record)}" onChange="{onChange}" />
+      {:else}
+        <NumberItem
+          record="{record}"
+          value="{typeof recordValue === 'number' ? recordValue : getNormalizedDefaultNumberValue(record)}"
+          onChange="{onChange}"
+          invalidRecord="{_error => {
+            invalidText = _error;
+            invalidRecord(_error);
+          }}" />
+      {/if}
     {:else if record.type === 'string' && (typeof recordValue === 'string' || recordValue === undefined)}
       {#if record.format === 'file'}
         <FileItem record="{record}" value="{recordValue}" onChange="{onChange}" />
