@@ -86,10 +86,10 @@ Podman machine is running as a `x86_64` process and it could be due to a dual in
 
 You can
 
-1. Uninstall Podman machine on your `x86_64` brew install (for example from a terminal running under rosetta) `brew uninstall podman-machine`
+1. Uninstall Podman machine on your `x86_64` brew install (for example from a terminal running under rosetta) `brew uninstall podman`
 2. or uninstall brew `x86_64` as most brew receipe have now arm64 support: follow [these instructions](https://github.com/homebrew/install#uninstall-homebrew) from a terminal running under rosetta
 
-Then run a terminal in native mode (default) and install Podman machine `brew install podman-machine`
+Then run a terminal in native mode (default) and install Podman machine `brew install podman`
 
 Finally clean the Podman machine VMs that had been previously created, and create new ones.
 
