@@ -6,7 +6,7 @@ tags: [podman-desktop, installing, windows, chocolatey]
 keywords: [podman desktop, containers, podman, installing, installation, windows, chocolatey]
 ---
 
-## Installing Podman Desktop on Windows with Chocolatey
+# Installing Podman Desktop on Windows with Chocolatey
 
 #### Prerequisites
 
