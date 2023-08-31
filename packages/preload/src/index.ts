@@ -411,12 +411,21 @@ function initExposure(): void {
 
   // callbacks for shellInContainer
   let onDataCallbacksShellInContainerId = 0;
-  const onDataCallbacksShellInContainer = new Map<number, (data: Buffer) => void>();
+  const onDataCallbacksShellInContainer = new Map<
+    number,
+    { onData: (data: Buffer) => void; onError: (error: string) => void; onEnd: () => void }
+  >();
   contextBridge.exposeInMainWorld(
     'shellInContainer',
-    async (engine: string, containerId: string, onData: (data: Buffer) => void): Promise<number> => {
+    async (
+      engine: string,
+      containerId: string,
+      onData: (data: Buffer) => void,
+      onError: (error: string) => void,
+      onEnd: () => void,
+    ): Promise<number> => {
       onDataCallbacksShellInContainerId++;
-      onDataCallbacksShellInContainer.set(onDataCallbacksShellInContainerId, onData);
+      onDataCallbacksShellInContainer.set(onDataCallbacksShellInContainerId, { onData, onError, onEnd });
       return ipcInvoke(
         'container-provider-registry:shellInContainer',
         engine,
@@ -436,7 +445,30 @@ function initExposure(): void {
       // grab callback from the map
       const callback = onDataCallbacksShellInContainer.get(onDataCallbacksShellInContainerId);
       if (callback) {
-        callback(data);
+        callback.onData(data);
+      }
+    },
+  );
+  ipcRenderer.on(
+    'container-provider-registry:shellInContainer-onError',
+    (_, onDataCallbacksShellInContainerId: number, error: string) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInContainer.get(onDataCallbacksShellInContainerId);
+      if (callback) {
+        callback.onError(error);
+      }
+    },
+  );
+
+  ipcRenderer.on(
+    'container-provider-registry:shellInContainer-onEnd',
+    (_, onDataCallbacksShellInContainerId: number) => {
+      // grab callback from the map
+      const callback = onDataCallbacksShellInContainer.get(onDataCallbacksShellInContainerId);
+      if (callback) {
+        callback.onEnd();
+        // remove callback from the map
+        onDataCallbacksShellInContainer.delete(onDataCallbacksShellInContainerId);
       }
     },
   );

@@ -32,7 +32,13 @@ async function executeShellIntoContainer() {
   }
 
   // grab logs of the container
-  const sendCallbackId = await window.shellInContainer(container.engineId, container.id, receiveCallback);
+  const sendCallbackId = await window.shellInContainer(
+    container.engineId,
+    container.id,
+    receiveCallback,
+    () => {},
+    () => {},
+  );
 
   // pass data from xterm to container
   shellTerminal?.onData(data => {
