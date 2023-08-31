@@ -189,6 +189,26 @@ describe('getInstallationPath', () => {
     expect(path).toBe('c:\\Program Files\\RedHat\\Podman;');
   });
 
+  test('should return the installation path for Windows with pre-filled PATH', () => {
+    vi.spyOn(util, 'isWindows').mockImplementation(() => true);
+    vi.spyOn(util, 'isMac').mockImplementation(() => false);
+    process.env.PATH = 'c:\\Local';
+
+    const path = getInstallationPath();
+
+    expect(path).toBe('c:\\Program Files\\RedHat\\Podman;c:\\Local');
+  });
+
+  test('should return the installation path for Windows with defined param', () => {
+    vi.spyOn(util, 'isWindows').mockImplementation(() => true);
+    vi.spyOn(util, 'isMac').mockImplementation(() => false);
+    process.env.PATH = 'c:\\Local';
+
+    const path = getInstallationPath('c:\\Directory');
+
+    expect(path).toBe('c:\\Program Files\\RedHat\\Podman;c:\\Directory');
+  });
+
   test('should return the installation path for macOS', () => {
     vi.spyOn(util, 'isWindows').mockImplementation(() => false);
     vi.spyOn(util, 'isMac').mockImplementation(() => true);
@@ -200,6 +220,17 @@ describe('getInstallationPath', () => {
     expect(path).toBe(`/usr/bin:${macosExtraPath}`);
   });
 
+  test('should return the installation path for macOS with defined param', () => {
+    vi.spyOn(util, 'isWindows').mockImplementation(() => false);
+    vi.spyOn(util, 'isMac').mockImplementation(() => true);
+
+    process.env.PATH = '/usr/bin';
+
+    const path = getInstallationPath('/usr/other');
+
+    expect(path).toBe(`/usr/other:${macosExtraPath}`);
+  });
+
   test('should return the installation path for other platforms', () => {
     vi.spyOn(util, 'isWindows').mockImplementation(() => false);
     vi.spyOn(util, 'isMac').mockImplementation(() => false);
@@ -208,5 +239,15 @@ describe('getInstallationPath', () => {
     const path = getInstallationPath();
 
     expect(path).toBe('/usr/bin');
+  });
+
+  test('should return the installation path for other platforms with defined param', () => {
+    vi.spyOn(util, 'isWindows').mockImplementation(() => false);
+    vi.spyOn(util, 'isMac').mockImplementation(() => false);
+    process.env.PATH = '/usr/bin'; // Example PATH for other platforms
+
+    const path = getInstallationPath('/usr/other');
+
+    expect(path).toBe('/usr/other');
   });
 });
