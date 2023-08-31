@@ -20,7 +20,7 @@ export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
 export let taskId: number | undefined = undefined;
 
-let showModal: ProviderInfo | undefined = undefined;
+let showModalProviderInfo: ProviderInfo | undefined = undefined;
 
 let providerLifecycleError = '';
 router.subscribe(() => {
@@ -50,21 +50,15 @@ async function stopProvider(): Promise<void> {
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
 }
 
-async function startReceivingLogs(provider: ProviderInfo | undefined): Promise<void> {
-  if (!provider) {
-    return;
-  }
+async function startReceivingLogs(providerInternalId: string): Promise<void> {
   const logHandler = (newContent: any[]) => {
     writeToTerminal(logsTerminal, newContent, '\x1b[37m');
   };
-  window.startReceiveLogs(provider.internalId, logHandler, logHandler, logHandler);
+  window.startReceiveLogs(providerInternalId, logHandler, logHandler, logHandler);
 }
 
-async function stopReceivingLogs(provider: ProviderInfo | undefined): Promise<void> {
-  if (!provider) {
-    return;
-  }
-  await window.stopReceiveLogs(provider.internalId);
+async function stopReceivingLogs(providerInternalId: string): Promise<void> {
+  await window.stopReceiveLogs(providerInternalId);
 }
 </script>
 
@@ -107,7 +101,7 @@ async function stopReceivingLogs(provider: ProviderInfo | undefined): Promise<vo
         <div class="px-2 text-sm italic text-gray-700">
           <Button
             on:click="{() => {
-              showModal = providerInfo;
+              showModalProviderInfo = providerInfo;
               // startReceivinLogs(providerInfo);
             }}"
             icon="{faHistory}">
@@ -142,15 +136,18 @@ async function stopReceivingLogs(provider: ProviderInfo | undefined): Promise<vo
     {/if}
   </div>
 </Route>
-{#if showModal}
+{#if showModalProviderInfo}
+  {@const showModalProviderInfoInternalId = showModalProviderInfo.internalId}
   <Modal
     on:close="{() => {
-      stopReceivingLogs(showModal);
-      showModal = undefined;
+      stopReceivingLogs(showModalProviderInfoInternalId);
+      showModalProviderInfo = undefined;
     }}">
     <div id="log" style="height: 400px; width: 647px;">
       <div style="width:100%; height:100%; flexDirection: column;">
-        <TerminalWindow bind:terminal="{logsTerminal}" on:init="{() => startReceivingLogs(showModal)}" />
+        <TerminalWindow
+          bind:terminal="{logsTerminal}"
+          on:init="{() => startReceivingLogs(showModalProviderInfoInternalId)}" />
       </div>
     </div>
   </Modal>
