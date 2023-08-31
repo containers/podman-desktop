@@ -2,18 +2,21 @@
 import type { ContainerInfoUI } from './ContainerInfoUI';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { router } from 'tinro';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
 import { getPanelDetailColor } from '../color/color';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
+import { getExistingTerminal, registerTerminal } from '/@/stores/container-terminal-store';
 
 export let container: ContainerInfoUI;
+export let screenReaderMode = false;
 let terminalXtermDiv: HTMLDivElement;
 let shellTerminal: Terminal;
 let currentRouterPath: string;
+let sendCallbackId: number | undefined;
 
 // update current route scheme
 router.subscribe(route => {
@@ -21,8 +24,21 @@ router.subscribe(route => {
 });
 
 // update terminal when receiving data
-function receiveCallback(data: Buffer) {
+function receiveDataCallback(data: Buffer) {
   shellTerminal.write(data.toString());
+}
+
+function receiveEndCallback() {
+  // need to reopen a new terminal
+  window
+    .shellInContainer(container.engineId, container.id, receiveDataCallback, () => {}, receiveEndCallback)
+    .then(id => {
+      sendCallbackId = id;
+
+      shellTerminal?.onData(data => {
+        window.shellInContainerSend(id, data);
+      });
+    });
 }
 
 // call exec command
@@ -31,19 +47,23 @@ async function executeShellIntoContainer() {
     return;
   }
 
-  // grab logs of the container
-  const sendCallbackId = await window.shellInContainer(
-    container.engineId,
-    container.id,
-    receiveCallback,
-    () => {},
-    () => {},
-  );
+  if (!sendCallbackId) {
+    // grab logs of the container
+    const callbackId = await window.shellInContainer(
+      container.engineId,
+      container.id,
+      receiveDataCallback,
+      () => {},
+      receiveEndCallback,
+    );
+    // pass data from xterm to container
+    shellTerminal?.onData(data => {
+      window.shellInContainerSend(callbackId, data);
+    });
 
-  // pass data from xterm to container
-  shellTerminal?.onData(data => {
-    window.shellInContainerSend(sendCallbackId, data);
-  });
+    // store it
+    sendCallbackId = callbackId;
+  }
 }
 
 // refresh
@@ -60,13 +80,24 @@ async function refreshTerminal() {
   const lineHeight = await window.getConfigurationValue<number>(
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
-  shellTerminal = new Terminal({
-    fontSize,
-    lineHeight,
-    theme: {
-      background: getPanelDetailColor(),
-    },
-  });
+
+  // get terminal if any
+  const existingTerminal = getExistingTerminal(container.engineId, container.id);
+
+  if (existingTerminal) {
+    sendCallbackId = existingTerminal.callbackId;
+    shellTerminal = existingTerminal.terminal;
+  } else {
+    shellTerminal = new Terminal({
+      fontSize,
+      lineHeight,
+      screenReaderMode,
+      theme: {
+        background: getPanelDetailColor(),
+      },
+    });
+  }
+
   const fitAddon = new FitAddon();
   shellTerminal.loadAddon(fitAddon);
 
@@ -81,8 +112,18 @@ async function refreshTerminal() {
   fitAddon.fit();
 }
 onMount(async () => {
-  refreshTerminal();
-  executeShellIntoContainer();
+  await refreshTerminal();
+  await executeShellIntoContainer();
+});
+
+onDestroy(() => {
+  // register terminal for reusing it
+  registerTerminal({
+    engineId: container.engineId,
+    containerId: container.id,
+    terminal: shellTerminal,
+    callbackId: sendCallbackId,
+  });
 });
 </script>
 
