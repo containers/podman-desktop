@@ -33,6 +33,9 @@ const getConfigurationDirectoryMock = vi.fn();
 const directories = {
   getConfigurationDirectory: getConfigurationDirectoryMock,
 } as unknown as Directories;
+const apiSender = {
+  send: vi.fn(),
+} as unknown as ApiSenderType;
 
 let registerConfigurationsDisposable: Disposable;
 
@@ -46,7 +49,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
 
-  configurationRegistry = new ConfigurationRegistry({} as ApiSenderType, directories);
+  configurationRegistry = new ConfigurationRegistry(apiSender, directories);
   readFileSync.mockReturnValue(JSON.stringify({}));
 
   configurationRegistry.init();
