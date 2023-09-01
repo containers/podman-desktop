@@ -59,7 +59,7 @@ export interface IConfigurationPropertySchema {
   minimum?: number;
   maximum?: number | string;
   format?: string;
-  scope?: ConfigurationScope;
+  scope?: ConfigurationScope | ConfigurationScope[];
   readonly?: boolean;
   hidden?: boolean;
   enum?: string[];
@@ -215,12 +215,41 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     return this.configurationProperties;
   }
 
+  async updateConfigurationValue(
+    key: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any,
+    scope?: containerDesktopAPI.ConfigurationScope | containerDesktopAPI.ConfigurationScope[],
+  ) {
+    if (Array.isArray(scope)) {
+      for (const scopeItem of scope) {
+        await this.updateSingleScopeConfigurationValue(key, value, scopeItem);
+      }
+    } else {
+      await this.updateSingleScopeConfigurationValue(key, value, scope);
+    }
+
+    const affectsConfiguration = function (affectedSection: string, affectedScope?: ConfigurationScope): boolean {
+      if (affectedScope) {
+        if (Array.isArray(scope) && !scope.find(s => s === affectedScope)) {
+          return false;
+        }
+        if (affectedScope !== scope) {
+          return false;
+        }
+      }
+      return key.startsWith(affectedSection);
+    };
+    this._onDidChangeConfigurationAPI.fire({ affectsConfiguration });
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async updateConfigurationValue(key: string, value: any, scope?: containerDesktopAPI.ConfigurationScope) {
+  async updateSingleScopeConfigurationValue(key: string, value: any, scope?: containerDesktopAPI.ConfigurationScope) {
     // extract parent key with first name before first . notation
     const parentKey = key.substring(0, key.indexOf('.'));
     // extract child key with first name after first . notation
     const childKey = key.substring(key.indexOf('.') + 1);
+
     const promise = await this.getConfiguration(parentKey, scope).update(childKey, value);
     if (scope === CONFIGURATION_DEFAULT_SCOPE) {
       this.saveDefault();
@@ -231,13 +260,6 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     const event = { key, value, scope };
     this._onDidChangeConfiguration.fire(event);
 
-    const affectsConfiguration = function (affectedSection: string, affectedScope?: ConfigurationScope): boolean {
-      if (affectedScope && affectedScope !== scope) {
-        return false;
-      }
-      return key.startsWith(affectedSection);
-    };
-    this._onDidChangeConfigurationAPI.fire({ affectsConfiguration });
     return promise;
   }
 

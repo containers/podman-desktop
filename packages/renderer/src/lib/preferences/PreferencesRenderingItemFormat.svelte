@@ -5,7 +5,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Markdown from '../markdown/Markdown.svelte';
-import { getNormalizedDefaultNumberValue } from './Util';
+import { getNormalizedDefaultNumberValue, isDefaultScope } from './Util';
 import Tooltip from '../ui/Tooltip.svelte';
 import Button from '../ui/Button.svelte';
 
@@ -38,9 +38,9 @@ $: if (resetToDefault) {
 }
 
 $: if (currentRecord !== record) {
-  if (record.scope === CONFIGURATION_DEFAULT_SCOPE) {
+  if (isDefaultScope(record.scope)) {
     if (record.id) {
-      window.getConfigurationValue(record.id, record.scope).then(value => {
+      window.getConfigurationValue(record.id, CONFIGURATION_DEFAULT_SCOPE).then(value => {
         recordValue = value;
         if (record.type === 'boolean') {
           recordValue = !!value;

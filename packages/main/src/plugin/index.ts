@@ -1364,7 +1364,7 @@ export class PluginSystem {
         _listener: Electron.IpcMainInvokeEvent,
         key: string,
         value: unknown,
-        scope?: containerDesktopAPI.ConfigurationScope,
+        scope?: containerDesktopAPI.ConfigurationScope | containerDesktopAPI.ConfigurationScope[],
       ): Promise<void> => {
         return configurationRegistry.updateConfigurationValue(key, value, scope);
       },

@@ -941,8 +941,12 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'updateConfigurationValue',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (key: string, value: any, scope?: containerDesktopAPI.ConfigurationScope): Promise<void> => {
+    async (
+      key: string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      value: any,
+      scope?: containerDesktopAPI.ConfigurationScope | containerDesktopAPI.ConfigurationScope[],
+    ): Promise<void> => {
       return ipcInvoke('configuration-registry:updateConfigurationValue', key, value, scope);
     },
   );

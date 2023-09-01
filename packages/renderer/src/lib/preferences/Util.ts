@@ -16,12 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ConfigurationScope } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 
 export interface IProviderConnectionConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,4 +92,18 @@ export function getNormalizedDefaultNumberValue(configurationKey: IConfiguration
     return configurationKey.default;
   }
   return configurationKey.maximum;
+}
+
+export function isDefaultScope(scope?: ConfigurationScope | ConfigurationScope[]): boolean {
+  return isTargetScope(CONFIGURATION_DEFAULT_SCOPE, scope);
+}
+
+export function isTargetScope(
+  targetScope: ConfigurationScope,
+  scope?: ConfigurationScope | ConfigurationScope[],
+): boolean {
+  if (Array.isArray(scope) && scope.find(s => s === targetScope)) {
+    return true;
+  }
+  return scope === targetScope;
 }
