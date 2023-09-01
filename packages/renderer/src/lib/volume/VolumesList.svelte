@@ -18,7 +18,7 @@ import moment from 'moment';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import Checkbox from '../ui/Checkbox.svelte';
 import Button from '../ui/Button.svelte';
-import { faPieChart, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPieChart, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -180,10 +180,17 @@ async function fetchUsageData() {
     fetchDataInProgress = false;
   }
 }
+
+function gotoCreateVolume(): void {
+  router.goto('/volumes/create');
+}
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="volumes">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+    {#if providerConnections.length > 0}
+      <Button on:click="{() => gotoCreateVolume()}" icon="{faPlusCircle}">Create a volume</Button>
+    {/if}
     {#if $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length > 0}
       <Prune type="volumes" engines="{enginesList}" />
 

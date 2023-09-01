@@ -41,6 +41,7 @@ import TroubleshootingPage from './lib/troubleshooting/TroubleshootingPage.svelt
 import IconsStyle from './lib/style/IconsStyle.svelte';
 import CustomPick from './lib/dialogs/CustomPick.svelte';
 import ContextKey from './lib/context/ContextKey.svelte';
+import CreateVolume from './lib/volume/CreateVolume.svelte';
 
 router.mode.hash();
 
@@ -153,6 +154,9 @@ window.events?.receive('display-troubleshooting', () => {
         </Route>
         <Route path="/volumes" breadcrumb="Volumes" navigationHint="root">
           <VolumesList />
+        </Route>
+        <Route path="/volumes/create" breadcrumb="Create a Volume">
+          <CreateVolume />
         </Route>
         <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta navigationHint="details">
           <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />

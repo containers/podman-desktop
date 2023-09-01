@@ -19,12 +19,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi, beforeEach } from 'vitest';
+import { beforeAll, test, expect, vi, beforeEach, describe } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import VolumesList from './VolumesList.svelte';
 import { get } from 'svelte/store';
 import { providerInfos } from '/@/stores/providers';
 import { volumeListInfos, volumesEventStore } from '/@/stores/volumes';
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import userEvent from '@testing-library/user-event';
 
 const listVolumesMock = vi.fn();
 const getProviderInfosMock = vi.fn();
@@ -209,4 +211,49 @@ test('Expect volumes being displayed once extensions are started (with size data
   expect(volumeSize).toBeInTheDocument();
 
   expect(volumeName.compareDocumentPosition(volumeSize)).toBe(4);
+});
+
+describe('Create volume', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    vi.clearAllMocks();
+  });
+
+  const createVolumeButtonTitle = 'Create a volume';
+  test('no create volume button if no providers', async () => {
+    providerInfos.set([]);
+    await waitRender({});
+
+    // now check if we have a create volume button, it should not be there
+    const createVolumeButton = screen.queryByRole('button', { name: createVolumeButtonTitle });
+    expect(createVolumeButton).not.toBeInTheDocument();
+  });
+
+  test('create volume button is there if there is one provider', async () => {
+    providerInfos.set([
+      {
+        name: 'podman',
+        status: 'started',
+        internalId: 'podman-internal-id',
+        containerConnections: [
+          {
+            name: 'podman-machine-default',
+            status: 'started',
+          },
+        ],
+      } as unknown as ProviderInfo,
+    ]);
+
+    await waitRender({});
+
+    // now check if we have a create volume button, it should not be there
+    const createVolumeButton = screen.getByRole('button', { name: createVolumeButtonTitle });
+    expect(createVolumeButton).toBeInTheDocument();
+
+    // click on the button
+    await userEvent.click(createVolumeButton);
+
+    // check we are redirected to the right page
+    expect(window.location.pathname).toBe('/volumes/create');
+  });
 });
