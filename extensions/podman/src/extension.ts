@@ -117,7 +117,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       try {
         machineInfo = await extensionApi.containerEngine.info(`podman.${prettyMachineName(machine.Name)}`);
       } catch (err: unknown) {
-        console.error(` Can't get machine ${machine.Name} resource usage error ${err}`);
+        console.warn(` Can't get machine ${machine.Name} resource usage error ${err}`);
       }
     }
 

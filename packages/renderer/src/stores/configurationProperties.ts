@@ -20,7 +20,7 @@ import { writable, type Writable } from 'svelte/store';
 import type { IConfigurationPropertyRecordedSchema } from '../../../main/src/plugin/configuration-registry';
 import { EventStore } from './event-store';
 
-const windowEvents = ['extensions-started', 'extension-started', 'extension-stopped'];
+const windowEvents = ['extensions-started', 'extension-started', 'extension-stopped', 'configuration-changed'];
 const windowListeners = ['system-ready', 'extensions-already-started'];
 
 export async function checkForUpdate(): Promise<boolean> {
