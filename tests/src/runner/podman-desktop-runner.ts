@@ -115,9 +115,7 @@ export class PodmanDesktopRunner {
     const directory = join(this._testOutput, 'videos');
     console.log(`video will be written to: ${directory}`);
     const env = this.setupPodmanDesktopCustomFolder();
-    return {
-      args: ['.'],
-      env,
+    const recorder = {
       recordVideo: {
         dir: directory,
         size: {
@@ -125,6 +123,21 @@ export class PodmanDesktopRunner {
           height: 700,
         },
       },
+    };
+    let args = {};
+    if (process.env.PODMAN_DESKTOP_BINARY) {
+      args = {
+        executablePath: process.env.PODMAN_DESKTOP_BINARY,
+      };
+    } else {
+      args = {
+        args: ['.'],
+      };
+    }
+    return {
+      ...args,
+      env,
+      ...recorder,
     };
   }
 
