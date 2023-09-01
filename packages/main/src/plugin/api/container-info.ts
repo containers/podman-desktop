@@ -85,3 +85,7 @@ export interface ContainerCreateOptions {
   Cmd?: string[];
   Entrypoint?: string | string[];
 }
+
+export interface VolumeCreateOptions {
+  Name?: string;
+}

@@ -25,6 +25,7 @@ import type {
   ContainerInfo,
   ContainerPortInfo,
   SimpleContainerInfo,
+  VolumeCreateOptions,
 } from './api/container-info.js';
 import type { ImageInfo } from './api/image-info.js';
 import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
@@ -1365,6 +1366,29 @@ export class ContainerProviderRegistry {
       throw error;
     } finally {
       this.telemetryService.track('createAndStartContainer', telemetryOptions);
+    }
+  }
+
+  async createVolume(selectedProvider: ProviderContainerConnectionInfo, options: VolumeCreateOptions): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      // filter from connections
+      const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+        containerProvider =>
+          containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
+          containerProvider.connection.name === selectedProvider.name &&
+          selectedProvider.status === 'started',
+      );
+      if (!matchingContainerProvider?.api) {
+        throw new Error('No provider with a running engine');
+      }
+
+      await matchingContainerProvider.api.createVolume(options);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService.track('createVolume', telemetryOptions);
     }
   }
 

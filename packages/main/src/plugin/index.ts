@@ -41,7 +41,12 @@ import type {
 } from './api/provider-info.js';
 import type { WebContents } from 'electron';
 import { app, ipcMain, BrowserWindow, shell, clipboard } from 'electron';
-import type { ContainerCreateOptions, ContainerInfo, SimpleContainerInfo } from './api/container-info.js';
+import type {
+  ContainerCreateOptions,
+  ContainerInfo,
+  SimpleContainerInfo,
+  VolumeCreateOptions,
+} from './api/container-info.js';
 import type { ImageInfo } from './api/image-info.js';
 import type { PullEvent } from './api/pull-event.js';
 import type { ExtensionInfo } from './api/extension-info.js';
@@ -952,6 +957,17 @@ export class PluginSystem {
       'container-provider-registry:createAndStartContainer',
       async (_listener, engine: string, options: ContainerCreateOptions): Promise<void> => {
         return containerProviderRegistry.createAndStartContainer(engine, options);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:createVolume',
+      async (
+        _listener,
+        providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+        options: VolumeCreateOptions,
+      ): Promise<void> => {
+        return containerProviderRegistry.createVolume(providerContainerConnectionInfo, options);
       },
     );
 
