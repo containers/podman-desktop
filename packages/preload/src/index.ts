@@ -27,6 +27,7 @@ import type {
   ContainerCreateOptions,
   ContainerInfo,
   SimpleContainerInfo,
+  VolumeCreateOptions,
 } from '../../main/src/plugin/api/container-info';
 import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
@@ -372,6 +373,16 @@ function initExposure(): void {
     'createAndStartContainer',
     async (engine: string, options: ContainerCreateOptions): Promise<void> => {
       return ipcInvoke('container-provider-registry:createAndStartContainer', engine, options);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'createVolume',
+    async (
+      providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+      options: VolumeCreateOptions,
+    ): Promise<void> => {
+      return ipcInvoke('container-provider-registry:createVolume', providerContainerConnectionInfo, options);
     },
   );
 

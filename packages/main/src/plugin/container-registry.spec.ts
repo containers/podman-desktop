@@ -1392,3 +1392,75 @@ describe('listVolumes', () => {
     });
   });
 });
+
+describe('createVolume', () => {
+  test('provided name', async () => {
+    nock('http://localhost').post('/volumes/create?Name=myFirstVolume').reply(200, '');
+
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const internalContainerProvider: InternalContainerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        status: () => 'started',
+      },
+    };
+
+    const providerConnectionInfo: ProviderContainerConnectionInfo = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: 'started',
+    } as unknown as ProviderContainerConnectionInfo;
+
+    // set provider
+    containerRegistry.addInternalProvider('podman', internalContainerProvider);
+
+    // check that it's calling the right nock method
+    await containerRegistry.createVolume(providerConnectionInfo, { Name: 'myFirstVolume' });
+  });
+
+  test('no name', async () => {
+    nock('http://localhost').post('/volumes/create').reply(200, '');
+
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const internalContainerProvider: InternalContainerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        status: () => 'started',
+      },
+    };
+
+    const providerConnectionInfo: ProviderContainerConnectionInfo = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: 'started',
+    } as unknown as ProviderContainerConnectionInfo;
+
+    // set provider
+    containerRegistry.addInternalProvider('podman', internalContainerProvider);
+
+    // check that it's calling the right nock method
+    await containerRegistry.createVolume(providerConnectionInfo, {});
+  });
+});
