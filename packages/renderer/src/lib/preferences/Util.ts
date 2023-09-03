@@ -96,7 +96,6 @@ export function getNormalizedDefaultNumberValue(configurationKey: IConfiguration
   return configurationKey.maximum;
 }
 
-<<<<<<< HEAD
 export function isDefaultScope(scope?: ConfigurationScope | ConfigurationScope[]): boolean {
   return isTargetScope(CONFIGURATION_DEFAULT_SCOPE, scope);
 }
@@ -145,15 +144,4 @@ export function isPropertyValidInContext(when: string | undefined, context: Cont
 export function uncertainStringToNumber(value: string | number): number {
   if (typeof value === 'number') return value;
   return parseFloat(value);
-=======
-export function uncertainStringToNumber(value: string | number | undefined): number {
-  switch (typeof value) {
-    case 'number':
-      return value;
-    case 'string':
-      return parseFloat(value);
-    default:
-      return NaN;
-  }
->>>>>>> 8c04b4ad2 (fix: linter)
 }
