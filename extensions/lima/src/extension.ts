@@ -22,6 +22,7 @@ import * as os from 'os';
 import * as fs from 'fs';
 
 import { configuration } from '@podman-desktop/api';
+import { getLimaInstallation } from './limactl';
 
 type limaProviderType = 'docker' | 'podman' | 'kubernetes';
 
@@ -68,12 +69,16 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const socketPath = path.resolve(limaHome, instanceName + '/sock/' + engineType + '.sock');
   const configPath = path.resolve(limaHome, instanceName + '/copied-from-guest/kubeconfig.yaml');
 
+  const installedLima = await getLimaInstallation();
+  const version: string | undefined = installedLima?.version;
+
   let provider;
   if (fs.existsSync(socketPath) || fs.existsSync(configPath)) {
     provider = extensionApi.provider.createProvider({
       name: 'Lima',
       id: 'lima',
       status: 'unknown',
+      version,
       images: {
         icon: './icon.png',
         logo: {

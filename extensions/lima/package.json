@@ -20,6 +20,12 @@
     "configuration": {
       "title": "Lima",
       "properties": {
+        "lima.binary.path": {
+          "type": "string",
+          "format": "file",
+          "default": "",
+          "description": "Custom path to limactl binary (Default is blank)"
+        },
         "lima.type": {
           "type": "string",
           "default": "podman",
