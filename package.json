@@ -139,7 +139,7 @@
     "date.js": "^0.3.3",
     "dockerode": "^3.3.5",
     "electron-context-menu": "^3.6.1",
-    "electron-updater": "6.1.1",
+    "electron-updater": "6.1.4",
     "electron-util": "^0.17.2",
     "getos": "^3.2.1",
     "got": "^13.0.0",
