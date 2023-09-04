@@ -1312,7 +1312,7 @@ export class ContainerProviderRegistry {
         AttachStdin: true,
         AttachStdout: true,
         AttachStderr: true,
-        Cmd: ['/bin/sh', '-c', '(bash || clear && sh)'],
+        Cmd: ['/bin/sh', '-c', 'if command -v bash >/dev/null 2>&1; then bash; else sh; fi'],
         Tty: true,
       });
 
