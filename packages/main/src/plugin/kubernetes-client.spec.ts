@@ -21,6 +21,7 @@ import { KubernetesClient } from './kubernetes-client.js';
 import type { ApiSenderType } from './api.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { Watch } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as fs from 'node:fs';
@@ -33,6 +34,16 @@ const telemetry: Telemetry = {
   }),
 } as unknown as Telemetry;
 const makeApiClientMock = vi.fn();
+
+class TestKubernetesClient extends KubernetesClient {
+  public createWatchObject(): Watch {
+    return super.createWatchObject();
+  }
+
+  public setCurrentNamespace(namespace: string): void {
+    this.currentNamespace = namespace;
+  }
+}
 
 beforeAll(() => {
   vi.mock('@kubernetes/client-node', async () => {
@@ -240,4 +251,35 @@ test('Check update with empty kubeconfig file', async () => {
   const client = new KubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
   await client.refresh();
   expect(consoleErrorSpy).toBeCalledWith(expect.stringContaining('is empty. Skipping'));
+});
+
+test('kube watcher', () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('fooNS');
+  let path;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let errorHandler: any;
+
+  // mock TestKubernetesClient.createWatchObject
+  const watchMethodMock = vi.fn().mockImplementation((pathMethod, _ignore1, _ignore2, c) => {
+    path = pathMethod;
+    errorHandler = c;
+    return Promise.resolve();
+  });
+
+  const createWatchObjectSpy = vi
+    .spyOn(client, 'createWatchObject')
+    .mockReturnValue({ watch: watchMethodMock } as unknown as Watch);
+
+  client.setupKubeWatcher();
+
+  expect(path).toBe('/api/v1/namespaces/fooNS/pods');
+  expect(errorHandler).toBeDefined();
+
+  // call the error Handler with undefined
+  if (errorHandler !== undefined) {
+    errorHandler(undefined);
+  }
+
+  expect(createWatchObjectSpy).toBeCalled();
 });

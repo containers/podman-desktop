@@ -109,7 +109,7 @@ export class KubernetesClient {
   // Custom path to the location of the kubeconfig file
   private kubeconfigPath: string = KubernetesClient.DEFAULT_KUBECONFIG_PATH;
 
-  private currentNamespace: string | undefined;
+  protected currentNamespace: string | undefined;
   private currentContextName: string | undefined;
 
   private kubeConfigWatcher: containerDesktopAPI.FileSystemWatcher | undefined;
@@ -210,18 +210,22 @@ export class KubernetesClient {
     });
   }
 
+  protected createWatchObject(): Watch {
+    return new Watch(this.kubeConfig);
+  }
+
   setupKubeWatcher() {
     this.kubeWatcher?.abort();
     const ns = this.currentNamespace;
     if (ns) {
-      const watch = new Watch(this.kubeConfig);
+      const watch = this.createWatchObject();
+
       watch
         .watch(
           '/api/v1/namespaces/' + ns + '/pods',
           {},
           () => this.apiSender.send('pod-event'),
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (err: any) => console.warn('Kube watch ended', err.toString()),
+          err => console.warn('Kube watch ended', String(err)),
         )
         .then(req => (this.kubeWatcher = req))
         .catch((err: unknown) => console.error('Kube event error', err));
