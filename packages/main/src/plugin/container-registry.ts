@@ -1312,7 +1312,7 @@ export class ContainerProviderRegistry {
         AttachStdin: true,
         AttachStdout: true,
         AttachStderr: true,
-        Cmd: ['/bin/sh', '-c', 'clear; (bash || sh)'],
+        Cmd: ['/bin/sh', '-c', '(bash || clear && sh)'],
         Tty: true,
       });
 
