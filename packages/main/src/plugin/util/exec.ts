@@ -26,15 +26,15 @@ export const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/
 export function exec(command: string, args?: string[], options?: RunOptions): Promise<RunResult> {
   let env = Object.assign({}, process.env);
 
+  if (options?.env) {
+    env = Object.assign(env, options.env);
+  }
+
   if (isMac() || isWindows()) {
-    env.PATH = getInstallationPath();
+    env.PATH = getInstallationPath(env.PATH);
   } else if (env.FLATPAK_ID) {
     args = ['--host', command, ...(args || [])];
     command = 'flatpak-spawn';
-  }
-
-  if (options?.env) {
-    env = Object.assign(env, options.env);
   }
 
   let cwd: string;
@@ -132,18 +132,20 @@ export function exec(command: string, args?: string[], options?: RunOptions): Pr
   });
 }
 
-export function getInstallationPath(): string {
-  const env = process.env;
+export function getInstallationPath(envPATH?: string): string {
+  if (!envPATH) {
+    envPATH = process.env.PATH;
+  }
 
   if (isWindows()) {
-    return `c:\\Program Files\\RedHat\\Podman;${env.PATH}`;
+    return `c:\\Program Files\\RedHat\\Podman;${envPATH}`;
   } else if (isMac()) {
-    if (!env.PATH) {
+    if (!envPATH) {
       return macosExtraPath;
     } else {
-      return env.PATH.concat(':').concat(macosExtraPath);
+      return envPATH.concat(':').concat(macosExtraPath);
     }
   } else {
-    return env.PATH || '';
+    return envPATH || '';
   }
 }
