@@ -111,4 +111,28 @@ describe('should be notified when a configuration is changed', async () => {
     expect(called).toBeTruthy();
     expect(expectAffectsConfiguration).toBeFalsy();
   });
+
+  test('affectsConfiguration called twice when updating value with two scopes', async () => {
+    let expectAffectsConfiguration: boolean;
+    let called = false;
+    let callNumber = 0;
+    let updatedValue: unknown;
+    configurationRegistry.onDidChangeConfiguration(() => {
+      callNumber += 1;
+    });
+    configurationRegistry.onDidChangeConfigurationAPI(e => {
+      called = true;
+      // use a parent property name
+      expectAffectsConfiguration = e.affectsConfiguration('my.fake');
+      if (expectAffectsConfiguration) {
+        updatedValue = configurationRegistry.getConfiguration('my.fake')?.get<string>('property');
+      }
+    });
+
+    await configurationRegistry.updateConfigurationValue('my.fake.property', 'myValue', ['DEFAULT', 'scope']);
+
+    expect(called).toBeTruthy();
+    expect(callNumber).toBe(2);
+    expect(updatedValue).toEqual('myValue');
+  });
 });

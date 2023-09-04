@@ -1,10 +1,10 @@
 <script lang="ts">
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 
 import PreferencesRenderingItem from './PreferencesRenderingItem.svelte';
 import SettingsPage from './SettingsPage.svelte';
 import Route from '../../Route.svelte';
+import { isDefaultScope } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let key: string;
@@ -16,9 +16,7 @@ export let searchValue = '';
 $: searchValue;
 
 $: matchingRecords = properties
-  .filter(
-    property => property.parentId.startsWith(key) && property.scope === CONFIGURATION_DEFAULT_SCOPE && !property.hidden,
-  )
+  .filter(property => property.parentId.startsWith(key) && isDefaultScope(property.scope) && !property.hidden)
   .filter(
     property =>
       !searchValue ||

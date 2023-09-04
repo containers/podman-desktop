@@ -3,7 +3,6 @@ import { configurationProperties } from '../../stores/configurationProperties';
 import { onMount } from 'svelte';
 import Route from '../../Route.svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import PreferencesRendering from './PreferencesRendering.svelte';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
 import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
@@ -17,6 +16,7 @@ import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelt
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
 import Onboarding from '../onboarding/Onboarding.svelte';
+import { isDefaultScope } from './Util';
 
 let properties: IConfigurationPropertyRecordedSchema[];
 let defaultPrefPageId: string;
@@ -26,7 +26,7 @@ onMount(async () => {
     properties = value;
 
     const iterator = value
-      .filter(property => property.scope === CONFIGURATION_DEFAULT_SCOPE)
+      .filter(property => isDefaultScope(property.scope))
       .values()
       .next().value;
 

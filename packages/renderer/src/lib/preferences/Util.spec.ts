@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { test, expect, vi, afterEach } from 'vitest';
-import { getNormalizedDefaultNumberValue, writeToTerminal } from './Util';
+import { getNormalizedDefaultNumberValue, isTargetScope, writeToTerminal } from './Util';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 
 const xtermMock = {
@@ -121,4 +121,29 @@ test('return default number value if less than maximum number value', () => {
   };
   const res = getNormalizedDefaultNumberValue(record);
   expect(res).equal(8);
+});
+
+test('return false if scope is undefined and targetScope is defined', () => {
+  const result = isTargetScope('DEFAULT', undefined);
+  expect(result).toBe(false);
+});
+
+test('return false if scope is an array and targetScope is not contained in it', () => {
+  const result = isTargetScope('DEFAULT', ['Onboarding']);
+  expect(result).toBe(false);
+});
+
+test('return false if scope is a string and it is different from targetScope', () => {
+  const result = isTargetScope('DEFAULT', 'Onboarding');
+  expect(result).toBe(false);
+});
+
+test('return true if scope is an array and targetScope is contained in it', () => {
+  const result = isTargetScope('DEFAULT', ['scope', 'DEFAULT']);
+  expect(result).toBe(true);
+});
+
+test('return true if scope is a string and it is equal to targetScope', () => {
+  const result = isTargetScope('DEFAULT', 'DEFAULT');
+  expect(result).toBe(true);
 });
