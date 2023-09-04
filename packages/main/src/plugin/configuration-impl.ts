@@ -18,7 +18,7 @@
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
-import type { ApiSenderType } from '/@/plugin/api.js';
+import type { ApiSenderType } from './api.js';
 
 /**
  * Local view of the configuration values for a given scope

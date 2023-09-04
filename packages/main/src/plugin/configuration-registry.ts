@@ -26,6 +26,7 @@ import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.
 import type { Directories } from './directories.js';
 import { Disposable } from './types/disposable.js';
 import type { ApiSenderType } from '/@/plugin/api.js';
+import type { ApiSenderType } from './api.js';
 
 export type IConfigurationPropertySchemaType =
   | 'markdown'
