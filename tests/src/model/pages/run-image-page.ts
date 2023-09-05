@@ -58,6 +58,7 @@ export class RunImagePage extends PodmanDesktopPage {
       await containers.heading.waitFor({ state: 'visible', timeout: 3000 });
     } catch (error) {
       console.log(`Containers Page seems not to be visible`);
+      // consume the error
     }
     return containers;
   }

@@ -70,11 +70,17 @@ export class ContainersPage extends PodmanDesktopPage {
     const rows = await containersTable.getByRole('row').all();
     for (const row of rows) {
       // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
-      const zeroCell = await row.getByRole('cell').nth(0).innerText();
+      const zeroCell = await row.getByRole('cell').nth(0).innerText({ timeout: 500 });
       if (zeroCell.indexOf(String.fromCharCode(160)) === 0) {
         continue;
       }
-      const thirdCell = await row.getByRole('cell').nth(3).innerText();
+      let thirdCell = undefined;
+      try {
+        thirdCell = await row.getByRole('cell').nth(3).innerText({ timeout: 1000 });
+      } catch (error) {
+        thirdCell = await row.getByRole('cell').nth(3).allInnerTexts();
+        console.log(`We got an timeout error on innertext, allinnerTexts: ${thirdCell}`);
+      }
       const index = thirdCell.indexOf(name);
       if (index >= 0) {
         return row;

@@ -232,6 +232,14 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+      
+      - name: Update podman
+        run: |
+          sudo sh -c "echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_22.04/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list"
+          curl -L https://build.opensuse.org/projects/devel:kubic:libcontainers:unstable/signing_keys/download?kind=gpg | sudo apt-key add -
+          sudo apt-get update -qq
+          sudo apt-get install -y podman
+          podman version
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
