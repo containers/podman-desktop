@@ -63,7 +63,7 @@ jobs:
       run:
         shell: powershell
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install the Chocolatey Automatic Package Updater Module
         run: choco install au -y
       - name: Build the Podman Desktop chocolatey Package by making sure we're using the latest release

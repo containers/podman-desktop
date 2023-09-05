@@ -50,7 +50,7 @@ jobs:
             version="${version:1}"
           fi
           echo "desktopVersion=$version" >> ${GITHUB_OUTPUT}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: containers/podman.io
           ref: refs/heads/main

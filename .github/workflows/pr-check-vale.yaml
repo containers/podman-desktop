@@ -28,7 +28,7 @@ jobs:
     name: runner / vale
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: errata-ai/vale-action@13d79669d1c7cf33b26fc5607214ef529f071cdc # reviewdog branch, https://github.com/errata-ai/vale-action/commit/13d79669d1c7cf33b26fc5607214ef529f071cdc
         env:
           # Required, set by GitHub actions automatically:
