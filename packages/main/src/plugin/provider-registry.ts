@@ -863,36 +863,41 @@ export class ProviderRegistry {
       throw new Error('The connection does not have context to start');
     }
 
+    const provider = this.providers.get(internalProviderId);
+    if (!provider) {
+      throw new Error('Cannot find provider');
+    }
+
     try {
       await lifecycle.start(context, logHandler);
     } finally {
       if (this.isProviderContainerConnection(providerConnectionInfo)) {
         const event = {
-          providerId: internalProviderId,
+          providerId: provider.id,
           connection: {
             name: providerConnectionInfo.name,
             type: providerConnectionInfo.type,
             endpoint: providerConnectionInfo.endpoint,
             status: (): ProviderConnectionStatus => {
-              return providerConnectionInfo.status;
+              return 'started';
             },
           },
-          status: providerConnectionInfo.status,
+          status: 'started' as ProviderConnectionStatus,
         };
         this._onBeforeDidUpdateContainerConnection.fire(event);
         this._onDidUpdateContainerConnection.fire(event);
         this._onAfterDidUpdateContainerConnection.fire(event);
       } else {
         this._onDidUpdateKubernetesConnection.fire({
-          providerId: internalProviderId,
+          providerId: provider.id,
           connection: {
             name: providerConnectionInfo.name,
             endpoint: providerConnectionInfo.endpoint,
             status: (): ProviderConnectionStatus => {
-              return providerConnectionInfo.status;
+              return 'started';
             },
           },
-          status: providerConnectionInfo.status,
+          status: 'started',
         });
       }
     }
@@ -916,36 +921,41 @@ export class ProviderRegistry {
       throw new Error('The connection does not have context to start');
     }
 
+    const provider = this.providers.get(internalProviderId);
+    if (!provider) {
+      throw new Error('Cannot find provider');
+    }
+
     try {
       await lifecycle.stop(context, logHandler);
     } finally {
       if (this.isProviderContainerConnection(providerConnectionInfo)) {
         const event = {
-          providerId: internalProviderId,
+          providerId: provider.id,
           connection: {
             name: providerConnectionInfo.name,
             type: providerConnectionInfo.type,
             endpoint: providerConnectionInfo.endpoint,
             status: (): ProviderConnectionStatus => {
-              return providerConnectionInfo.status;
+              return 'stopped';
             },
           },
-          status: providerConnectionInfo.status,
+          status: 'stopped' as ProviderConnectionStatus,
         };
         this._onBeforeDidUpdateContainerConnection.fire(event);
         this._onDidUpdateContainerConnection.fire(event);
         this._onAfterDidUpdateContainerConnection.fire(event);
       } else {
         this._onDidUpdateKubernetesConnection.fire({
-          providerId: internalProviderId,
+          providerId: provider.id,
           connection: {
             name: providerConnectionInfo.name,
             endpoint: providerConnectionInfo.endpoint,
             status: (): ProviderConnectionStatus => {
-              return providerConnectionInfo.status;
+              return 'stopped';
             },
           },
-          status: providerConnectionInfo.status,
+          status: 'stopped',
         });
       }
     }
