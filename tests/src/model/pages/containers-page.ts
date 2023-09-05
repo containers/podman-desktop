@@ -24,20 +24,12 @@ export class ContainersPage extends MainPage {
   readonly pruneContainersButton: Locator;
   readonly createContainerButton: Locator;
   readonly playKubernetesYAMLButton: Locator;
-  readonly deleteSelectedButton: Locator;
-  readonly createPodButton: Locator;
 
   constructor(page: Page) {
     super(page, 'containers');
     this.pruneContainersButton = this.additionalActions.getByRole('button', { name: 'Prune containers' });
     this.createContainerButton = this.additionalActions.getByRole('button', { name: 'Create a container' });
     this.playKubernetesYAMLButton = this.additionalActions.getByRole('button', { name: 'Play Kubernetes YAML' });
-    this.deleteSelectedButton = this.bottomAdditionalActions.getByRole('button', {
-      name: 'Delete selected containers and pods',
-    });
-    this.createPodButton = this.bottomAdditionalActions.getByRole('button', {
-      name: /Create Pod with \d+ selected items/,
-    });
   }
 
   async openContainersDetails(name: string): Promise<ContainerDetailsPage> {

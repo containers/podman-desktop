@@ -26,14 +26,12 @@ export class ImagesPage extends MainPage {
   readonly pullImageButton: Locator;
   readonly pruneImagesButton: Locator;
   readonly buildImageButton: Locator;
-  readonly deleteSelectedButton: Locator;
 
   constructor(page: Page) {
     super(page, 'images');
     this.pullImageButton = this.additionalActions.getByRole('button', { name: 'Pull an image' });
     this.pruneImagesButton = this.additionalActions.getByRole('button', { name: 'Prune images' });
     this.buildImageButton = this.additionalActions.getByRole('button', { name: 'Build an image' });
-    this.deleteSelectedButton = this.bottomAdditionalActions.getByRole('button', { name: /Delete \d+ selected items/ });
   }
 
   async openPullImage(): Promise<PullImagePage> {
