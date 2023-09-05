@@ -1315,7 +1315,7 @@ export class ContainerProviderRegistry {
         AttachStdin: true,
         AttachStdout: true,
         AttachStderr: true,
-        Cmd: ['/bin/sh'],
+        Cmd: ['/bin/sh', '-c', 'if command -v bash >/dev/null 2>&1; then bash; else sh; fi'],
         Tty: true,
       });
 
