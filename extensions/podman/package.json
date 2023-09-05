@@ -185,6 +185,25 @@
         {
           "id": "podmanInstalled",
           "title": "Podman successfully installed",
+          "when": "onboardingContext:podmanIsNotInstalled == false"
+        },
+        {
+          "id": "preCreatePodmanMachine",
+          "title": "We could not find any Podman machine. Let's create one!",
+          "when": "onboardingContext:podmanMachineExists == false && onboardingContext:isLinux == false"
+        },
+        {
+          "id": "createPodmanMachine",
+          "title": "Create a Podman machine",
+          "when": "onboardingContext:podmanMachineExists == false && onboardingContext:isLinux == false",
+          "completionEvents": [
+            "onboardingContext:podmanMachineExists == true"
+          ],
+          "component": "create"
+        },
+        {
+          "id": "podmanSuccessfullySetup",
+          "title": "Podman successfully setup",
           "when": "onboardingContext:podmanIsNotInstalled == false",
           "state": "succeeded"
         }

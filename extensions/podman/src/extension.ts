@@ -95,6 +95,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
 
   // parse output
   const machines = JSON.parse(machineListOutput) as MachineJSON[];
+  extensionApi.context.setValue('podmanMachineExists', machines.length > 0, 'onboarding');
 
   // update status of existing machines
   for (const machine of machines) {
@@ -1168,6 +1169,7 @@ export async function createMachine(
     }
   }
   await extensionApi.process.exec(getPodmanCli(), parameters, { logger, env, token });
+  extensionApi.context.setValue('podmanMachineExists', true, 'onboarding');
 }
 
 function setupDisguisedPodmanSocketWatcher(

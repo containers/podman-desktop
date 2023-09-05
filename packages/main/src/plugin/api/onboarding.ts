@@ -29,6 +29,7 @@ export interface OnboardingStepItem {
 
 export type OnboardingStatus = 'completed' | 'failed' | 'skipped';
 export type OnboardingState = 'completed' | 'failed';
+export type OnboardingEmbeddedComponentId = 'create';
 
 export interface OnboardingStep {
   id: string;
@@ -39,6 +40,7 @@ export interface OnboardingStep {
   enableCompletionEvents?: string[];
   completionEvents?: string[];
   content?: OnboardingStepItem[][];
+  component?: OnboardingEmbeddedComponentId;
   when?: string;
   status?: OnboardingStatus;
   showNext?: boolean;
