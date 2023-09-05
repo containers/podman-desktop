@@ -86,3 +86,61 @@ test('Expect not to have the "Try again" button disabled if the step represent a
   const infoMessage = screen.getByLabelText('next-info-message');
   expect(infoMessage).toBeInTheDocument();
 });
+
+test('Expect to have the "step body" div if the step does not include a component', async () => {
+  (window as any).resetOnboarding = vi.fn();
+  (window as any).updateStepState = vi.fn();
+
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+    },
+  ]);
+  context.set(new ContextUI());
+  await waitRender({
+    extensionIds: ['id'],
+  });
+  const bodyDiv = screen.getByLabelText('step body');
+  expect(bodyDiv).toBeInTheDocument();
+  const embeddedComponent = screen.queryByLabelText('embed component');
+  expect(embeddedComponent).not.toBeInTheDocument();
+});
+
+test('Expect to have the embedded component if the step includes a component', async () => {
+  (window as any).resetOnboarding = vi.fn();
+  (window as any).updateStepState = vi.fn();
+
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          component: 'create',
+          completionEvents: [],
+        },
+      ],
+    },
+  ]);
+  context.set(new ContextUI());
+  await waitRender({
+    extensionIds: ['id'],
+  });
+
+  const embeddedComponent = screen.getByLabelText('embed component');
+  expect(embeddedComponent).toBeInTheDocument();
+  const bodyDiv = screen.queryByLabelText('step body');
+  expect(bodyDiv).not.toBeInTheDocument();
+});

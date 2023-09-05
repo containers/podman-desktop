@@ -359,7 +359,7 @@ function closePage() {
     </EmptyScreen>
   {:else}
     {#if !isEmbedded}
-      <div class="my-2 px-6">
+      <div class="my-2 px-6" aria-label="main image">
         {#if providerInfo?.images?.icon}
           {#if typeof providerInfo.images.icon === 'string'}
             <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
@@ -370,7 +370,7 @@ function closePage() {
         {/if}
       </div>
     {/if}
-    <h1 class="font-semibold px-6 pb-2">
+    <h1 class="font-semibold px-6 pb-2" aria-label="title">
       {creationInProgress ? 'Creating' : 'Create a'}
       {providerDisplayName}
       {creationInProgress ? '...' : ''}

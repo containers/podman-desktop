@@ -306,13 +306,13 @@ async function cleanContext() {
       </div>
     </div>
     {#if activeStep.step.component}
-      <div class="min-w-[700px] mx-auto overflow-y-auto">
+      <div class="min-w-[700px] mx-auto overflow-y-auto" aria-label="embed component">
         <OnboardingEmbeddedComponent
           embeddedComponent="{activeStep.step.component}"
           extensionId="{activeStep.onboarding.extension}" />
       </div>
     {:else}
-      <div class="w-[450px] flex flex-col mt-16 mx-auto">
+      <div class="w-[450px] flex flex-col mt-16 mx-auto" aria-label="step body">
         {#if activeStep.step.media}
           <div class="mx-auto">
             <img
