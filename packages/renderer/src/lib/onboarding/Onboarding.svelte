@@ -41,7 +41,6 @@ let displayResetSetup = false;
 
 let executedCommands: string[] = [];
 
-let firstStart = true;
 /*
 $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
@@ -51,35 +50,19 @@ onMount(async () => {
   onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
     if (!onboardings) {
       onboardings = onboardingItems.filter(o => extensionIds.find(extensionId => o.extension === extensionId));
-      if (!started) {
-        startOnboarding().then(isStartedByMe => {
-          if (isStartedByMe) {
-            assertStepCompleted().finally(() => (firstStart = false));
-          }
-        });
-      }
+      startOnboarding();
     }
   });
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  contextsUnsubscribe = context.subscribe(async value => {
+  contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
-    if (!started) {
-      const isStartedByMe = await startOnboarding();
-      if (isStartedByMe) {
-        firstStart = false;
-        await assertStepCompleted();
-        return;
-      }
-    }
-    if (!firstStart) {
-      await assertStepCompleted();
-    }
+    startOnboarding();
   });
 });
 
 let started = false;
-async function startOnboarding(): Promise<boolean> {
+async function startOnboarding(): Promise<void> {
   if (!started && globalContext && onboardings) {
     started = true;
     if (isOnboardingsSetupCompleted(onboardings)) {
@@ -88,9 +71,7 @@ async function startOnboarding(): Promise<boolean> {
     } else {
       await restartSetup();
     }
-    return true;
   }
-  return false;
 }
 
 onDestroy(() => {
@@ -135,7 +116,6 @@ async function setActiveStep() {
       }
     }
   }
-
   // if it reaches this point it means that the onboarding is fully completed and the user is redirected to the dashboard
   router.goto($lastPage.path);
 }
