@@ -18,7 +18,7 @@ Podman Desktop can install the Compose engine.
 #### Verification
 
 1. Open a terminal.
-1. The Compose engine is in your PATH, therefore, you can display the Compose engine version:
+1. The Compose reference implementation is in your PATH, therefore, you can display the Compose engine version:
 
    ```shell-session
    $ docker-compose version
