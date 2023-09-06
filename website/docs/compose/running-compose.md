@@ -6,7 +6,7 @@ keywords: [compose]
 tags: [compose]
 ---
 
-With Podman Desktop, you can manage multi-container applications defined in Compose files.
+With Podman Desktop, you can manage multi-container applications defined in a Compose file.
 
 #### Prerequisites
 
