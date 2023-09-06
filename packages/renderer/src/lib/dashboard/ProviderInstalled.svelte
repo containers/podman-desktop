@@ -189,7 +189,6 @@ function onInstallationClick() {
       {#if installationOptionSelected === InitializeAndStartMode}
         <Steps
           steps="{InitializationSteps}"
-          primary="var(--pf-global--primary-color--300)"
           size="1.7rem"
           line="1px"
           current="{0}"
