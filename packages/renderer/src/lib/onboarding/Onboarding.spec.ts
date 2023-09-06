@@ -111,8 +111,8 @@ test('Expect to have the "step body" div if the step does not include a componen
   });
   const bodyDiv = screen.getByLabelText('step body');
   expect(bodyDiv).toBeInTheDocument();
-  const embeddedComponent = screen.queryByLabelText('embed component');
-  expect(embeddedComponent).not.toBeInTheDocument();
+  const onboardingComponent = screen.queryByLabelText('onboarding component');
+  expect(onboardingComponent).not.toBeInTheDocument();
 });
 
 test('Expect to have the embedded component if the step includes a component', async () => {
@@ -128,7 +128,7 @@ test('Expect to have the embedded component if the step includes a component', a
           id: 'step',
           title: 'step',
           state: 'failed',
-          component: 'create',
+          component: 'createContainerProviderConnection',
           completionEvents: [],
         },
       ],
@@ -139,8 +139,8 @@ test('Expect to have the embedded component if the step includes a component', a
     extensionIds: ['id'],
   });
 
-  const embeddedComponent = screen.getByLabelText('embed component');
-  expect(embeddedComponent).toBeInTheDocument();
+  const onboardingComponent = screen.getByLabelText('onboarding component');
+  expect(onboardingComponent).toBeInTheDocument();
   const bodyDiv = screen.queryByLabelText('step body');
   expect(bodyDiv).not.toBeInTheDocument();
 });

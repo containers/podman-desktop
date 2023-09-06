@@ -5,9 +5,9 @@ import { providerInfos } from '/@/stores/providers';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesConnectionCreationRendering from '../preferences/PreferencesConnectionCreationRendering.svelte';
-import type { OnboardingEmbeddedComponentId } from '../../../../main/src/plugin/api/onboarding';
+import type { OnboardingEmbeddedComponentType } from '../../../../main/src/plugin/api/onboarding';
 
-export let embeddedComponent: OnboardingEmbeddedComponentId;
+export let component: OnboardingEmbeddedComponentType;
 export let extensionId: string;
 
 let configurationItems: IConfigurationPropertyRecordedSchema[];
@@ -28,23 +28,28 @@ onMount(() => {
 });
 </script>
 
-{#if embeddedComponent === 'create' && providerInfo && configurationItems}
-  {#if providerInfo?.containerProviderConnectionCreation === true}
+{#if providerInfo && configurationItems}
+  {#if component === 'createContainerProviderConnection' && providerInfo?.containerProviderConnectionCreation === true}
     <PreferencesConnectionCreationRendering
       providerInfo="{providerInfo}"
       properties="{configurationItems}"
       propertyScope="ContainerProviderConnectionFactory"
       callback="{window.createContainerProviderConnection}"
-      isEmbedded="{true}" />
-  {/if}
-
-  <!-- Create connection panel-->
-  {#if providerInfo?.kubernetesProviderConnectionCreation === true}
+      disableEmptyScreen="{true}"
+      hideProviderImage="{true}"
+      hideCloseButton="{true}" />
+  {:else if component === 'createKubernetesProviderConnection' && providerInfo?.kubernetesProviderConnectionCreation === true}
     <PreferencesConnectionCreationRendering
       providerInfo="{providerInfo}"
       properties="{configurationItems}"
       propertyScope="KubernetesProviderConnectionFactory"
       callback="{window.createKubernetesProviderConnection}"
-      isEmbedded="{true}" />
+      disableEmptyScreen="{true}"
+      hideProviderImage="{true}"
+      hideCloseButton="{true}" />
+  {:else}
+    <div aria-label="not supported warning" class="flex min-h-[500px] items-center justify-center">
+      This provider does not support this mode
+    </div>
   {/if}
 {/if}

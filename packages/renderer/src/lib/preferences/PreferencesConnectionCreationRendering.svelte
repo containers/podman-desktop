@@ -45,7 +45,9 @@ export let callback: (
   tokenId?: number,
 ) => Promise<void>;
 export let taskId: number | undefined = undefined;
-export let isEmbedded = false;
+export let disableEmptyScreen = false;
+export let hideProviderImage = false;
+export let hideCloseButton = false;
 
 $: configurationValues = new Map<string, string>();
 let creationInProgress = false;
@@ -346,7 +348,7 @@ function closePage() {
 </script>
 
 <div class="flex flex-col w-full h-full overflow-hidden">
-  {#if creationSuccessful && !isEmbedded}
+  {#if creationSuccessful && !disableEmptyScreen}
     <EmptyScreen icon="{faCubes}" title="Creation" message="Successful operation">
       <Button
         class="py-3"
@@ -358,7 +360,7 @@ function closePage() {
       </Button>
     </EmptyScreen>
   {:else}
-    {#if !isEmbedded}
+    {#if !hideProviderImage}
       <div class="my-2 px-6" aria-label="main image">
         {#if providerInfo?.images?.icon}
           {#if typeof providerInfo.images.icon === 'string'}
@@ -447,7 +449,7 @@ function closePage() {
             {/each}
             <div class="w-full">
               <div class="float-right">
-                {#if !isEmbedded}
+                {#if !hideCloseButton}
                   <Button type="link" aria-label="Close page" on:click="{closePage}">Close</Button>
                 {/if}
                 <Button

@@ -18,7 +18,7 @@
 import '@testing-library/jest-dom/vitest';
 import { test, expect, beforeAll, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import OnboardingEmbeddedComponent from './OnboardingEmbeddedComponent.svelte';
+import OnboardingComponent from './OnboardingComponent.svelte';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { providerInfos } from '/@/stores/providers';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
@@ -56,8 +56,8 @@ const providerInfo: ProviderInfo = {
 };
 
 async function waitRender(customProperties: any): Promise<void> {
-  const result = render(OnboardingEmbeddedComponent, { ...customProperties });
-  // wait that result.component.$$.ctx[0] is set
+  const result = render(OnboardingComponent, { ...customProperties });
+  // wait that result.component.$$.ctx[2] is set
   while (result.component.$$.ctx[2] === undefined) {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
@@ -88,10 +88,24 @@ test('Expect to find PreferencesConnectionCreationRendering component if step in
   configurationProperties.set([]);
   providerInfos.set([providerInfo]);
   await waitRender({
-    embeddedComponent: 'create',
+    component: 'createContainerProviderConnection',
     extensionId: 'id',
   });
 
   const title = screen.getAllByRole('heading', { name: 'title' });
   expect(title[0].textContent).equal('Create a Podman machine ');
+});
+
+test('Expect to find "not supported" message if step includes a component not supported by the provider', async () => {
+  const customProviderInfo = providerInfo;
+  customProviderInfo.containerProviderConnectionCreation = false;
+  configurationProperties.set([]);
+  providerInfos.set([customProviderInfo]);
+  await waitRender({
+    component: 'createContainerProviderConnection',
+    extensionId: 'id',
+  });
+
+  const div = screen.getByLabelText('not supported warning');
+  expect(div).toBeInTheDocument();
 });

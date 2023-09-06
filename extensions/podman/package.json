@@ -199,7 +199,7 @@
           "completionEvents": [
             "onboardingContext:podmanMachineExists == true"
           ],
-          "component": "create"
+          "component": "createContainerProviderConnection"
         },
         {
           "id": "podmanSuccessfullySetup",

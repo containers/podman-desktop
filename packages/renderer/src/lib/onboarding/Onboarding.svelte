@@ -21,7 +21,7 @@ import {
 import { lastPage } from '/@/stores/breadcrumb';
 import Button from '../ui/Button.svelte';
 import Link from '../ui/Link.svelte';
-import OnboardingEmbeddedComponent from './OnboardingEmbeddedComponent.svelte';
+import OnboardingComponent from './OnboardingComponent.svelte';
 
 interface ActiveOnboardingStep {
   onboarding: OnboardingInfo;
@@ -306,10 +306,8 @@ async function cleanContext() {
       </div>
     </div>
     {#if activeStep.step.component}
-      <div class="min-w-[700px] mx-auto overflow-y-auto" aria-label="embed component">
-        <OnboardingEmbeddedComponent
-          embeddedComponent="{activeStep.step.component}"
-          extensionId="{activeStep.onboarding.extension}" />
+      <div class="min-w-[700px] mx-auto overflow-y-auto" aria-label="onboarding component">
+        <OnboardingComponent component="{activeStep.step.component}" extensionId="{activeStep.onboarding.extension}" />
       </div>
     {:else}
       <div class="w-[450px] flex flex-col mt-16 mx-auto" aria-label="step body">

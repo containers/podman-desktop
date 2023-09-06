@@ -240,7 +240,7 @@ test('Expect cancelling the creation, trigger the cancellation token', async () 
   expect(cancelTokenMock).toBeCalled;
 });
 
-test('Expect Close button and main image to not be visible if component is embedded', async () => {
+test('Expect Close button and main image to not be visible if hidden using properties', async () => {
   let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
 
   const callback = mockCallback(async keyLogger => {
@@ -255,7 +255,8 @@ test('Expect Close button and main image to not be visible if component is embed
     callback,
     pageIsLoading: false,
     taskId: 2,
-    isEmbedded: true,
+    hideCloseButton: true,
+    hideProviderImage: true,
   });
 
   const closeButton = screen.queryByRole('button', { name: 'Close page' });
