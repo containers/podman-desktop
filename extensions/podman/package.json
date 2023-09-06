@@ -205,7 +205,7 @@
           "id": "podmanSuccessfullySetup",
           "title": "Podman successfully setup",
           "when": "onboardingContext:podmanIsNotInstalled == false",
-          "state": "succeeded"
+          "state": "completed"
         }
       ]
     }

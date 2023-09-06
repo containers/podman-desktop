@@ -31,7 +31,7 @@ async function waitRender(customProperties: object): Promise<void> {
   }
 }
 
-test('Expect to have the "Try again" button disabled if the step represent a failed state', async () => {
+test('Expect to have the "Try again" and Cancel buttons if the step represent a failed state', async () => {
   (window as any).resetOnboarding = vi.fn();
   (window as any).updateStepState = vi.fn();
 
@@ -55,11 +55,13 @@ test('Expect to have the "Try again" button disabled if the step represent a fai
   });
   const button = screen.getByRole('button', { name: 'Try again' });
   expect(button).toBeInTheDocument();
+  const buttonCancel = screen.getByRole('button', { name: 'Cancel setup' });
+  expect(buttonCancel).toBeInTheDocument();
   const infoMessage = screen.queryByLabelText('next-info-message');
   expect(infoMessage).not.toBeInTheDocument();
 });
 
-test('Expect not to have the "Try again" button disabled if the step represent a completed state', async () => {
+test('Expect not to have the "Try again" and "Cancel" buttons if the step represent a completed state', async () => {
   (window as any).resetOnboarding = vi.fn();
   (window as any).updateStepState = vi.fn();
 
@@ -81,8 +83,10 @@ test('Expect not to have the "Try again" button disabled if the step represent a
   await waitRender({
     extensionIds: ['id'],
   });
-  const button = screen.queryByRole('button', { name: 'Try again' });
-  expect(button).not.toBeInTheDocument();
+  const buttonTryAgain = screen.queryByRole('button', { name: 'Try again' });
+  expect(buttonTryAgain).not.toBeInTheDocument();
+  const buttonCancel = screen.queryByRole('button', { name: 'Cancel setup' });
+  expect(buttonCancel).not.toBeInTheDocument();
   const infoMessage = screen.getByLabelText('next-info-message');
   expect(infoMessage).toBeInTheDocument();
 });
