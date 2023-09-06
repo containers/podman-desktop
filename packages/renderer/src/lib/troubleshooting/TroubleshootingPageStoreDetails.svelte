@@ -24,7 +24,7 @@ async function fetch(): Promise<void> {
 
 <Modal name="Details of {eventStoreInfo.name}" on:close="{() => closeCallback()}">
   <div
-    class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 rounded-xl shadow-xl shadow-neutral-900">
+    class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 rounded-xl shadow-xl shadow-charcoal-900">
     <div class="flex items-center justify-between px-5 py-4 mb-4">
       <h1 class="text-md font-semibold">
         <div class="flex flex-row items-center">
