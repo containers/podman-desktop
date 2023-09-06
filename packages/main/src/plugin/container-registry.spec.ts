@@ -1464,3 +1464,31 @@ describe('createVolume', () => {
     await containerRegistry.createVolume(providerConnectionInfo, {});
   });
 });
+
+test('container logs callback notified when messages arrive', async () => {
+  const stream = new EventEmitter();
+  const dockerodeContainer = {
+    logs: vi.fn().mockResolvedValue(stream),
+  } as unknown as Dockerode.Container;
+
+  vi.spyOn(containerRegistry, 'getMatchingContainer').mockReturnValue(dockerodeContainer);
+  let deferredResolve: (value: unknown) => void;
+  const firstMessagePromise = new Promise(resolve => {
+    deferredResolve = resolve;
+  });
+  const callback = vi.fn().mockImplementation(() => {
+    deferredResolve(undefined);
+  });
+  await containerRegistry.logsContainer('podman', 'containerId', callback);
+
+  setTimeout(() => {
+    stream.emit('data', 'log message');
+    stream.emit('end', '');
+  });
+
+  await firstMessagePromise;
+  expect(callback).toHaveBeenCalledWith('first-message', '');
+  expect(callback).toHaveBeenCalledWith('data', 'log message');
+  expect(callback).toHaveBeenCalledWith('end', '');
+  expect(telemetry.track).toHaveBeenCalled;
+});

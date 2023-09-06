@@ -1211,32 +1211,31 @@ export class ContainerProviderRegistry {
 
   async logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void): Promise<void> {
     let telemetryOptions = {};
-    try {
-      let firstMessage = true;
-      const container = this.getMatchingContainer(engineId, id);
-      const containerStream = await container.logs({
+    let firstMessage = true;
+    const container = this.getMatchingContainer(engineId, id);
+    container
+      .logs({
         follow: true,
         stdout: true,
         stderr: true,
-      });
-
-      containerStream.on('end', () => {
-        callback('end', '');
-      });
-
-      containerStream.on('data', chunk => {
-        if (firstMessage) {
-          firstMessage = false;
-          callback('first-message', '');
-        }
-        callback('data', chunk.toString('utf-8'));
-      });
-    } catch (error) {
-      telemetryOptions = { error: error };
-      throw error;
-    } finally {
-      this.telemetryService.track('logsContainer', telemetryOptions);
-    }
+      })
+      .then(containerStream => {
+        containerStream.on('end', () => {
+          callback('end', '');
+        });
+        containerStream.on('data', chunk => {
+          if (firstMessage) {
+            firstMessage = false;
+            callback('first-message', '');
+          }
+          callback('data', chunk.toString('utf-8'));
+        });
+      })
+      .catch((error: unknown) => {
+        telemetryOptions = { error: error };
+        throw error;
+      })
+      .finally(() => this.telemetryService.track('logsContainer', telemetryOptions));
   }
 
   async execInContainer(
