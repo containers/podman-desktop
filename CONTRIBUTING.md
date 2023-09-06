@@ -16,6 +16,7 @@ that we follow.
 - [Submitting Pull Requests](#submitting-pull-requests)
 - [Communication](#communication)
 - [Code Architecture](#code-architecture)
+- [Experimental Features](#experimental-features)
 
 ## Reporting Issues
 
@@ -353,3 +354,14 @@ If you're unsure where to add code (renderer, UI, extensions, plugins) see the b
 Podman Desktop is moduralized into extensions for each 'Provider'. You can also create and add your own extension.
 
 See our [EXTENSIONS.md](/EXTENSIONS.md) document for more details.
+
+## Experimental Features
+
+Some features are experimental but we wish to test it out in the main branch / release process.
+
+###  Enabling experimental onboarding features
+
+1. Close Podman Desktop
+2. Edit `$HOME/.local/share/containers/podman-desktop/configuration/settings.json`
+3. Add `"experimental.onboarding": true` to the JSON
+4. Re-open Podman Desktop
