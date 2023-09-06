@@ -187,12 +187,7 @@ function onInstallationClick() {
 
     <div class="mt-5" class:hidden="{!initializeInProgress}">
       {#if installationOptionSelected === InitializeAndStartMode}
-        <Steps
-          steps="{InitializationSteps}"
-          size="1.7rem"
-          line="1px"
-          current="{0}"
-          clickable="{false}" />
+        <Steps steps="{InitializationSteps}" size="1.7rem" line="1px" current="{0}" clickable="{false}" />
       {/if}
       <div class="flex flex-col text-gray-700">
         <div>Initializing</div>
