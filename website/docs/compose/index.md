@@ -25,7 +25,7 @@ timeline
     Compose : Compose file
             : Run Compose file
             : Add labels
-    Podman Desktop: Display pods
+    Podman Desktop: Display multi-container applications
 
 ```
 
