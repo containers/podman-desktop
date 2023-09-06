@@ -350,9 +350,12 @@ async function updateContainerConfiguration(
   const containerConfiguration = extensionApi.configuration.getConfiguration('podman', containerProviderConnection);
 
   // Set values for the machine
-  await containerConfiguration.update('machine.cpus', [machineInfo.cpus, machineInfo.cpuUsage]);
-  await containerConfiguration.update('machine.memory', [machineInfo.memory, machineInfo.memoryUsage]);
-  await containerConfiguration.update('machine.diskSize', [machineInfo.diskSize, machineInfo.diskUsage]);
+  await containerConfiguration.update('machine.cpus', machineInfo.cpus);
+  await containerConfiguration.update('machine.cpusUsage', machineInfo.cpuUsage);
+  await containerConfiguration.update('machine.memory', machineInfo.memory);
+  await containerConfiguration.update('machine.memoryUsage', machineInfo.memoryUsage);
+  await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
+  await containerConfiguration.update('machine.diskSizeUsage', machineInfo.diskUsage);
 }
 
 function calcMacosSocketPath(machineName: string): string {

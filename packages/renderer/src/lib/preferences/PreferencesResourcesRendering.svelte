@@ -335,6 +335,30 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
   const isEnabled = whenDeserialized?.evaluate(globalContext);
   return isEnabled || false;
 }
+
+function isPeerProperty(peerProperties: string[], id?: string): boolean {
+  return peerProperties.some(value => value === id);
+}
+
+function getStringArray(): string[] {
+  return [];
+}
+
+function getPeerProperty(
+  peerProperties: string[],
+  id: string | undefined,
+  properties: IProviderConnectionConfigurationPropertyRecorded[],
+): any {
+  if (id) {
+    const peerId = id + 'Usage';
+    const peerProperty = properties.find(property => property.id === peerId);
+    if (peerProperty?.id) {
+      peerProperties.push(peerProperty.id);
+      return peerProperty.value;
+    }
+  }
+  return '';
+}
 </script>
 
 <SettingsPage title="Resources">
@@ -423,6 +447,7 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
             message="{provider.emptyConnectionMarkdownDescription}"
             hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
           {#each provider.containerConnections as container}
+            {@const peerProperties = getStringArray()}
             <div class="px-5 py-2 w-[240px]">
               <div class="float-right">
                 <Tooltip tip="{provider.name} details" bottom>
@@ -459,19 +484,33 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
                 <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}">
                   {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
                     {#if connectionSetting.format === 'cpu'}
-                      <div class="mr-4">
-                        <Donut
-                          title="{connectionSetting.description}"
-                          value="{connectionSetting.value[0]}"
-                          percent="{connectionSetting.value[1]}" />
-                      </div>
+                      {#if !isPeerProperty(peerProperties, connectionSetting.id)}
+                        {@const peerValue = getPeerProperty(
+                          peerProperties,
+                          connectionSetting.id,
+                          providerConfiguration.filter(conf => conf.connection === container.name),
+                        )}
+                        <div class="mr-4">
+                          <Donut
+                            title="{connectionSetting.description}"
+                            value="{connectionSetting.value}"
+                            percent="{peerValue}" />
+                        </div>
+                      {/if}
                     {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
-                      <div class="mr-4">
-                        <Donut
-                          title="{connectionSetting.description}"
-                          value="{filesize(connectionSetting.value[0])}"
-                          percent="{connectionSetting.value[1]}" />
-                      </div>
+                      {#if !isPeerProperty(peerProperties, connectionSetting.id)}
+                        {@const peerValue = getPeerProperty(
+                          peerProperties,
+                          connectionSetting.id,
+                          providerConfiguration.filter(conf => conf.connection === container.name),
+                        )}
+                        <div class="mr-4">
+                          <Donut
+                            title="{connectionSetting.description}"
+                            value="{filesize(connectionSetting.value)}"
+                            percent="{peerValue}" />
+                        </div>
+                      {/if}
                     {:else}
                       {connectionSetting.description}: {connectionSetting.value}
                     {/if}

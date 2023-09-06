@@ -39,20 +39,32 @@
           "description": "Custom path to Podman binary (Default is blank)"
         },
         "podman.machine.cpus": {
-          "type": "array",
+          "type": "number",
           "format": "cpu",
           "minimum": 1,
           "default": 2,
           "scope": "ContainerConnection",
           "description": "CPU(s)"
         },
+        "podman.machine.cpusUsage": {
+          "type": "number",
+          "format": "cpu",
+          "scope": "ContainerConnection",
+          "description": "CPU(s) usage"
+        },
         "podman.machine.memory": {
-          "type": "array",
+          "type": "number",
           "format": "memory",
           "minimum": 1000000000,
           "default": 4000000000,
           "scope": "ContainerConnection",
           "description": "Memory"
+        },
+        "podman.machine.memoryUsage": {
+          "type": "number",
+          "format": "memory",
+          "scope": "ContainerConnection",
+          "description": "Memory usage"
         },
         "podman.machine.diskSize": {
           "type": "array",
@@ -60,6 +72,12 @@
           "default": 100000000000,
           "scope": "ContainerConnection",
           "description": "Disk size"
+        },
+        "podman.machine.diskSizeUsage": {
+          "type": "number",
+          "format": "diskSize",
+          "scope": "ContainerConnection",
+          "description": "Disk size usage"
         },
         "podman.factory.machine.name": {
           "type": "string",
