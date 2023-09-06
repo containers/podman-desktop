@@ -569,7 +569,7 @@ export class ContainerProviderRegistry {
 
             // compute containers using this volume
             const containersUsingThisVolume = containers
-              .filter(container => container.Mounts.find(mount => mount.Name === volumeInfo.Name))
+              .filter(container => container.Mounts?.find(mount => mount.Name === volumeInfo.Name))
               .map(container => {
                 return { id: container.Id, names: container.Names };
               });
