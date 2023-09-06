@@ -37,6 +37,6 @@ timeline
    - Container label: `com.docker.compose.project`
    - Service label: `com.docker.compose.service`
 
-1. Podman Desktop detects the Compose labels, and displays the container group as a pod.
+1. Podman Desktop detects the Compose labels, and displays the container group as a group of containers.
 
    ![img2](img/compose-in-containers-view.png)
