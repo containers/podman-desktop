@@ -160,9 +160,6 @@ module.exports = {
         600: tailwindColors.zinc[600],
         700: tailwindColors.zinc[700],
       },
-      'neutral': {
-        900: tailwindColors.neutral[900],
-      },
       'blue': {
         500: tailwindColors.blue[500],
       },
