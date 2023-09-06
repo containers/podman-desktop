@@ -6,6 +6,8 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesConnectionCreationRendering from '../preferences/PreferencesConnectionCreationRendering.svelte';
 import type { OnboardingEmbeddedComponentType } from '../../../../main/src/plugin/api/onboarding';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa/src/fa.svelte';
 
 export let component: OnboardingEmbeddedComponentType;
 export let extensionId: string;
@@ -48,8 +50,9 @@ onMount(() => {
       hideProviderImage="{true}"
       hideCloseButton="{true}" />
   {:else}
-    <div aria-label="not supported warning" class="flex min-h-[500px] items-center justify-center">
-      This provider does not support this mode
+    <div aria-label="not supported warning" class="flex flex-row min-h-[500px] items-center justify-center">
+      <Fa size="18" class="flex text-amber-400 mr-3" icon="{faTriangleExclamation}" />
+      <span>This extension does not provide a component of type "{component}"</span>
     </div>
   {/if}
 {/if}

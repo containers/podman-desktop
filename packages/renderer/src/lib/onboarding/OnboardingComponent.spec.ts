@@ -108,4 +108,7 @@ test('Expect to find "not supported" message if step includes a component not su
 
   const div = screen.getByLabelText('not supported warning');
   expect(div).toBeInTheDocument();
+  expect(div.textContent).toContain(
+    'This extension does not provide a component of type "createContainerProviderConnection"',
+  );
 });
