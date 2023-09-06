@@ -127,7 +127,9 @@ vi.mock('@podman-desktop/api', async () => {
     window: {
       showInformationMessage: vi.fn(),
     },
-
+    context: {
+      setValue: vi.fn(),
+    },
     process: {
       exec: vi.fn(),
     },

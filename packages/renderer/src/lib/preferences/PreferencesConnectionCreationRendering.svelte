@@ -45,6 +45,9 @@ export let callback: (
   tokenId?: number,
 ) => Promise<void>;
 export let taskId: number | undefined = undefined;
+export let disableEmptyScreen = false;
+export let hideProviderImage = false;
+export let hideCloseButton = false;
 
 $: configurationValues = new Map<string, string>();
 let creationInProgress = false;
@@ -345,7 +348,7 @@ function closePage() {
 </script>
 
 <div class="flex flex-col w-full h-full overflow-hidden">
-  {#if creationSuccessful}
+  {#if creationSuccessful && !disableEmptyScreen}
     <EmptyScreen icon="{faCubes}" title="Creation" message="Successful operation">
       <Button
         class="py-3"
@@ -357,17 +360,19 @@ function closePage() {
       </Button>
     </EmptyScreen>
   {:else}
-    <div class="my-2 px-6">
-      {#if providerInfo?.images?.icon}
-        {#if typeof providerInfo.images.icon === 'string'}
-          <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
-          <!-- TODO check theme used for image, now use dark by default -->
-        {:else}
-          <img src="{providerInfo.images.icon.dark}" alt="{providerInfo.name}" class="max-h-10" />
+    {#if !hideProviderImage}
+      <div class="my-2 px-6" aria-label="main image">
+        {#if providerInfo?.images?.icon}
+          {#if typeof providerInfo.images.icon === 'string'}
+            <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
+            <!-- TODO check theme used for image, now use dark by default -->
+          {:else}
+            <img src="{providerInfo.images.icon.dark}" alt="{providerInfo.name}" class="max-h-10" />
+          {/if}
         {/if}
-      {/if}
-    </div>
-    <h1 class="font-semibold px-6 pb-2">
+      </div>
+    {/if}
+    <h1 class="font-semibold px-6 pb-2" aria-label="title">
       {creationInProgress ? 'Creating' : 'Create a'}
       {providerDisplayName}
       {creationInProgress ? '...' : ''}
@@ -444,7 +449,9 @@ function closePage() {
             {/each}
             <div class="w-full">
               <div class="float-right">
-                <Button type="link" aria-label="Close page" on:click="{closePage}">Close</Button>
+                {#if !hideCloseButton}
+                  <Button type="link" aria-label="Close page" on:click="{closePage}">Close</Button>
+                {/if}
                 <Button
                   disabled="{!isValid}"
                   inProgress="{creationInProgress}"

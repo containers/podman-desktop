@@ -21,6 +21,7 @@ import {
 import { lastPage } from '/@/stores/breadcrumb';
 import Button from '../ui/Button.svelte';
 import Link from '../ui/Link.svelte';
+import OnboardingComponent from './OnboardingComponent.svelte';
 
 interface ActiveOnboardingStep {
   onboarding: OnboardingInfo;
@@ -282,7 +283,7 @@ async function cleanContext() {
 
 {#if activeStep}
   <div class="flex flex-col bg-[#36373a] h-full">
-    <div class="flex flex-row justify-between mt-5 mx-5 mb-20">
+    <div class="flex flex-row justify-between mt-5 mx-5 mb-5">
       <div class="flex flew-row">
         {#if activeStep.onboarding.media}
           <img
@@ -304,62 +305,68 @@ async function cleanContext() {
         </div>
       </div>
     </div>
-    <div class="w-[450px] flex flex-col mx-auto">
-      {#if activeStep.step.media}
-        <div class="mx-auto">
-          <img
-            class="w-24 h-24 object-contain"
-            alt="{activeStep.step.media.altText}"
-            src="{activeStep.step.media.path}" />
-        </div>
-      {:else if activeStep.onboarding.media}
-        <div class="mx-auto">
-          <img
-            class="w-24 h-24 object-contain"
-            alt="{activeStep.onboarding.media.altText}"
-            src="{activeStep.onboarding.media.path}" />
-        </div>
-      {/if}
-      <div class="flex flex-row mx-auto">
-        {#if executing}
-          <div class="mt-1 mr-6">
-            <i class="pf-c-button__progress text-purple-400">
-              <span class="pf-c-spinner pf-m-md" role="progressbar">
-                <span class="pf-c-spinner__clipper"></span>
-                <span class="pf-c-spinner__lead-ball"></span>
-                <span class="pf-c-spinner__tail-ball"></span>
-              </span>
-            </i>
+    {#if activeStep.step.component}
+      <div class="min-w-[700px] mx-auto overflow-y-auto" aria-label="onboarding component">
+        <OnboardingComponent component="{activeStep.step.component}" extensionId="{activeStep.onboarding.extension}" />
+      </div>
+    {:else}
+      <div class="w-[450px] flex flex-col mt-16 mx-auto" aria-label="step body">
+        {#if activeStep.step.media}
+          <div class="mx-auto">
+            <img
+              class="w-24 h-24 object-contain"
+              alt="{activeStep.step.media.altText}"
+              src="{activeStep.step.media.path}" />
+          </div>
+        {:else if activeStep.onboarding.media}
+          <div class="mx-auto">
+            <img
+              class="w-24 h-24 object-contain"
+              alt="{activeStep.onboarding.media.altText}"
+              src="{activeStep.onboarding.media.path}" />
           </div>
         {/if}
-        <div class="text-lg text-white">{activeStep.step.title}</div>
+        <div class="flex flex-row mx-auto">
+          {#if executing}
+            <div class="mt-1 mr-6">
+              <i class="pf-c-button__progress text-purple-400">
+                <span class="pf-c-spinner pf-m-md" role="progressbar">
+                  <span class="pf-c-spinner__clipper"></span>
+                  <span class="pf-c-spinner__lead-ball"></span>
+                  <span class="pf-c-spinner__tail-ball"></span>
+                </span>
+              </i>
+            </div>
+          {/if}
+          <div class="text-lg text-white">{activeStep.step.title}</div>
+        </div>
+        {#if activeStep.step.description}
+          <div class="text-sm text-white mx-auto">{activeStep.step.description}</div>
+        {/if}
       </div>
-      {#if activeStep.step.description}
-        <div class="text-sm text-white mx-auto">{activeStep.step.description}</div>
-      {/if}
-    </div>
 
-    {#if activeStep.step.state === 'failed'}
-      <div class="mx-auto mt-4">
-        <Button on:click="{() => restartSetup()}">Try again</Button>
+      {#if activeStep.step.state === 'failed'}
+        <div class="mx-auto mt-4">
+          <Button on:click="{() => restartSetup()}">Try again</Button>
+        </div>
+      {/if}
+
+      <div class="flex flex-col mx-auto">
+        {#if activeStep.step.content}
+          {#each activeStep.step.content as row}
+            <div class="flex flex-row mx-auto">
+              {#each row as item}
+                <OnboardingItem
+                  extension="{activeStep.onboarding.extension}"
+                  item="{item}"
+                  getContext="{() => globalContext}"
+                  inProgressCommandExecution="{inProgressCommandExecution}" />
+              {/each}
+            </div>
+          {/each}
+        {/if}
       </div>
     {/if}
-
-    <div class="flex flex-col mx-auto">
-      {#if activeStep.step.content}
-        {#each activeStep.step.content as row}
-          <div class="flex flex-row mx-auto">
-            {#each row as item}
-              <OnboardingItem
-                extension="{activeStep.onboarding.extension}"
-                item="{item}"
-                getContext="{() => globalContext}"
-                inProgressCommandExecution="{inProgressCommandExecution}" />
-            {/each}
-          </div>
-        {/each}
-      {/if}
-    </div>
 
     {#if !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}
       <div class="grow"></div>

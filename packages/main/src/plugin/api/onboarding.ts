@@ -29,6 +29,9 @@ export interface OnboardingStepItem {
 
 export type OnboardingStatus = 'completed' | 'failed' | 'skipped';
 export type OnboardingState = 'completed' | 'failed';
+export type OnboardingEmbeddedComponentType =
+  | 'createContainerProviderConnection'
+  | 'createKubernetesProviderConnection';
 
 export interface OnboardingStep {
   id: string;
@@ -39,6 +42,7 @@ export interface OnboardingStep {
   enableCompletionEvents?: string[];
   completionEvents?: string[];
   content?: OnboardingStepItem[][];
+  component?: OnboardingEmbeddedComponentType;
   when?: string;
   status?: OnboardingStatus;
   showNext?: boolean;

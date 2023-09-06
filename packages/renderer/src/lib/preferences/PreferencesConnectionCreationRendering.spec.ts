@@ -240,4 +240,27 @@ test('Expect cancelling the creation, trigger the cancellation token', async () 
   expect(cancelTokenMock).toBeCalled;
 });
 
-test('Expect close button to redirect to resources page', async () => {});
+test('Expect Close button and main image to not be visible if hidden using properties', async () => {
+  let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
+
+  const callback = mockCallback(async keyLogger => {
+    providedKeyLogger = keyLogger;
+  });
+
+  // eslint-disable-next-line @typescript-eslint/await-thenable
+  render(PreferencesConnectionCreationRendering, {
+    properties,
+    providerInfo,
+    propertyScope,
+    callback,
+    pageIsLoading: false,
+    taskId: 2,
+    hideCloseButton: true,
+    hideProviderImage: true,
+  });
+
+  const closeButton = screen.queryByRole('button', { name: 'Close page' });
+  expect(closeButton).not.toBeInTheDocument();
+  const mainImage = screen.queryByLabelText('main image');
+  expect(mainImage).not.toBeInTheDocument();
+});
