@@ -5,7 +5,7 @@ import PreflightChecks from './PreflightChecks.svelte';
 import ProviderLinks from './ProviderLinks.svelte';
 import ProviderLogo from './ProviderLogo.svelte';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
-import { Steps } from 'svelte-steps';
+import Steps from '../ui/Steps.svelte';
 
 import { onMount } from 'svelte';
 import { InitializeAndStartMode, InitializationSteps, type InitializationContext } from './ProviderInitUtils';
@@ -74,7 +74,7 @@ onMount(() => {
     {#if runAtStart || runInProgress}
       <div class="mt-5">
         {#if initializationContext.mode === InitializeAndStartMode}
-          <Steps steps="{InitializationSteps}" size="1.7rem" line="1px" current="{1}" clickable="{false}" />
+          <Steps steps="{InitializationSteps}" current="{1}" />
         {/if}
         <div class="flex flex-col text-gray-700">
           <div>Starting</div>
