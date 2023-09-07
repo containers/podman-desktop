@@ -1,4 +1,4 @@
-{
+"{
   "name": "Podman Desktop",
   "build": {
     "dockerfile": "Containerfile"
@@ -39,4 +39,4 @@
   "hostRequirements": {
     "memory": "8gb"
   }
-}
+}"
