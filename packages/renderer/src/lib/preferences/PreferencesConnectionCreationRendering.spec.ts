@@ -78,17 +78,15 @@ test('Expect that the create button is available', async () => {
 function mockCallback(
   callback: (keyLogger: (key: symbol, eventName: LoggerEventName, args: string[]) => void) => Promise<void>,
 ) {
-  return vi
-    .fn()
-    .mockImplementation(async function (
-      _id: string,
-      _params: unknown,
-      _key: unknown,
-      keyLogger: (key: symbol, eventName: LoggerEventName, args: string[]) => void,
-    ): Promise<void> {
-      // keep reference
-      callback(keyLogger);
-    });
+  return vi.fn().mockImplementation(async function (
+    _id: string,
+    _params: unknown,
+    _key: unknown,
+    keyLogger: (key: symbol, eventName: LoggerEventName, args: string[]) => void,
+  ): Promise<void> {
+    // keep reference
+    callback(keyLogger);
+  });
 }
 
 test('Expect Close button redirects to Resources page', async () => {

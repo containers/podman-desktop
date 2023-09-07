@@ -40,7 +40,10 @@ export class ExtensionsCatalog {
   private cachedCatalog: InternalCatalogJSON | undefined;
   static readonly CACHE_TIMEOUT = 1000 * 60 * 60 * 4; // 4 hours
 
-  constructor(private certificates: Certificates, private proxy: Proxy) {
+  constructor(
+    private certificates: Certificates,
+    private proxy: Proxy,
+  ) {
     this.proxy.onDidUpdateProxy(settings => {
       this.proxySettings = settings;
     });

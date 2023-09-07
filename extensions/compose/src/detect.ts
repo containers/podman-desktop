@@ -26,7 +26,11 @@ export class Detect {
   static readonly WINDOWS_SOCKET_PATH = '//./pipe/docker_engine';
   static readonly UNIX_SOCKET_PATH = '/var/run/docker.sock';
 
-  constructor(private cliRun: CliRun, private os: OS, private storagePath: string) {}
+  constructor(
+    private cliRun: CliRun,
+    private os: OS,
+    private storagePath: string,
+  ) {}
 
   // search if docker-compose is available in the path (+ include storage/bin folder)
   async checkForDockerCompose(): Promise<boolean> {

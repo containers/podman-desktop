@@ -847,7 +847,10 @@ export class ContextKeyDefinedExpr implements IContextKeyExpression {
 
   public readonly type = ContextKeyExprType.Defined;
 
-  protected constructor(readonly key: string, private negated: ContextKeyExpression | undefined) {}
+  protected constructor(
+    readonly key: string,
+    private negated: ContextKeyExpression | undefined,
+  ) {}
 
   public cmp(other: ContextKeyExpression): number {
     if (other.type !== this.type) {
@@ -977,7 +980,10 @@ export class ContextKeyInExpr implements IContextKeyExpression {
   public readonly type = ContextKeyExprType.In;
   private negated: ContextKeyExpression | undefined = undefined;
 
-  private constructor(private readonly key: string, private readonly valueKey: string) {}
+  private constructor(
+    private readonly key: string,
+    private readonly valueKey: string,
+  ) {}
 
   public cmp(other: ContextKeyExpression): number {
     if (other.type !== this.type) {
@@ -1045,7 +1051,10 @@ export class ContextKeyNotInExpr implements IContextKeyExpression {
 
   private readonly _negated: ContextKeyInExpr;
 
-  private constructor(private readonly key: string, private readonly valueKey: string) {
+  private constructor(
+    private readonly key: string,
+    private readonly valueKey: string,
+  ) {
     this._negated = ContextKeyInExpr.create(key, valueKey);
   }
 
@@ -1176,7 +1185,10 @@ export class ContextKeyNotExpr implements IContextKeyExpression {
 
   public readonly type = ContextKeyExprType.Not;
 
-  private constructor(private readonly key: string, private negated: ContextKeyExpression | undefined) {}
+  private constructor(
+    private readonly key: string,
+    private negated: ContextKeyExpression | undefined,
+  ) {}
 
   public cmp(other: ContextKeyExpression): number {
     if (other.type !== this.type) {
@@ -1496,7 +1508,10 @@ export class ContextKeyRegexExpr implements IContextKeyExpression {
   public readonly type = ContextKeyExprType.Regex;
   private negated: ContextKeyExpression | undefined = undefined;
 
-  private constructor(private readonly key: string, private readonly regexp: RegExp | undefined) {
+  private constructor(
+    private readonly key: string,
+    private readonly regexp: RegExp | undefined,
+  ) {
     //
   }
 

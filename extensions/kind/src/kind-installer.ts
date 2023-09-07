@@ -59,7 +59,10 @@ export class KindInstaller {
 
   private assetPromise: Promise<AssetInfo>;
 
-  constructor(private readonly storagePath: string, private telemetryLogger: extensionApi.TelemetryLogger) {
+  constructor(
+    private readonly storagePath: string,
+    private telemetryLogger: extensionApi.TelemetryLogger,
+  ) {
     this.assetNames.set(WINDOWS_X64_PLATFORM, WINDOWS_X64_ASSET_NAME);
     this.assetNames.set(LINUX_X64_PLATFORM, LINUX_X64_ASSET_NAME);
     this.assetNames.set(LINUX_ARM64_PLATFORM, LINUX_ARM64_ASSET_NAME);

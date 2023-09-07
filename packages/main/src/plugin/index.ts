@@ -562,14 +562,17 @@ export class PluginSystem {
       }
 
       // Create an interval to check for updates every 12 hours
-      setInterval(() => {
-        autoUpdater
-          .checkForUpdates()
-          .then(result => (updateCheckResult = result))
-          .catch((error: unknown) => {
-            console.log('unable to check for updates', error);
-          });
-      }, 1000 * 60 * 60 * 12);
+      setInterval(
+        () => {
+          autoUpdater
+            .checkForUpdates()
+            .then(result => (updateCheckResult = result))
+            .catch((error: unknown) => {
+              console.log('unable to check for updates', error);
+            });
+        },
+        1000 * 60 * 60 * 12,
+      );
 
       // Update will create a standard "autoUpdater" dialog / update process
       commandRegistry.registerCommand('update', async () => {

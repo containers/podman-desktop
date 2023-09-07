@@ -32,7 +32,11 @@ export class CustomPickImpl<T extends CustomPickItem> implements CustomPick<T>, 
   private readonly _onDidConfirmSelection = new Emitter<number[]>();
   private readonly _onDidHide = new Emitter<void>();
 
-  constructor(private id: number, private registry: CustomPickRegistry, private apiSender: ApiSenderType) {}
+  constructor(
+    private id: number,
+    private registry: CustomPickRegistry,
+    private apiSender: ApiSenderType,
+  ) {}
 
   readonly onDidConfirmSelection: Event<number[]> = this._onDidConfirmSelection.event;
   readonly onDidHide: Event<void> = this._onDidHide.event;

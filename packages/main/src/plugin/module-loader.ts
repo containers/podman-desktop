@@ -40,7 +40,10 @@ export class ModuleLoader {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _overrides = new Map<string, object | OverrideFunction>();
 
-  constructor(private _module: NodeInternalModule, private _analyzedExtensions: Map<string, ExtensionModule>) {}
+  constructor(
+    private _module: NodeInternalModule,
+    private _analyzedExtensions: Map<string, ExtensionModule>,
+  ) {}
 
   addOverride(lookup: Record<string, object | OverrideFunction>) {
     Object.keys(lookup).forEach(entry => {

@@ -20,7 +20,10 @@ import type { ConfigurationRegistry, IConfigurationNode } from './configuration-
 import type { ProviderRegistry } from './provider-registry.js';
 
 export class AutostartEngine {
-  constructor(private configurationRegistry: ConfigurationRegistry, private providerRegistry: ProviderRegistry) {}
+  constructor(
+    private configurationRegistry: ConfigurationRegistry,
+    private providerRegistry: ProviderRegistry,
+  ) {}
 
   async init(): Promise<void> {
     // add configuration

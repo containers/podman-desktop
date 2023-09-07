@@ -41,7 +41,10 @@ const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin';
 const localBinDir = '/usr/local/bin';
 
 export class CliRun {
-  constructor(private readonly extensionContext: extensionApi.ExtensionContext, private os: OS) {}
+  constructor(
+    private readonly extensionContext: extensionApi.ExtensionContext,
+    private os: OS,
+  ) {}
 
   getPath(): string {
     const env = process.env;

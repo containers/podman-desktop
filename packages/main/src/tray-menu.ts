@@ -52,7 +52,10 @@ export class TrayMenu {
   private menuCustomItems = new Map<string, MenuItemConstructorOptions>();
   private menuContainerProviderConnectionItems = new Map<string, ProviderContainerConnectionInfoMenuItem>();
 
-  constructor(private readonly tray: Tray, private readonly animatedTray: AnimatedTray) {
+  constructor(
+    private readonly tray: Tray,
+    private readonly animatedTray: AnimatedTray,
+  ) {
     ipcMain.on(
       'tray:add-provider-menu-item',
       (_, param: { providerId: string; menuItem: MenuItemConstructorOptions }) => {

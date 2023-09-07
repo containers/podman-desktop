@@ -28,7 +28,10 @@ import type { FeaturedExtension } from '/@/plugin/featured/featured-api.js';
 export class Featured {
   private fetchableExtensions: CatalogFetchableExtension[] = [];
 
-  constructor(private extensionLoader: ExtensionLoader, private extensionsCatalog: ExtensionsCatalog) {}
+  constructor(
+    private extensionLoader: ExtensionLoader,
+    private extensionsCatalog: ExtensionsCatalog,
+  ) {}
 
   async init(): Promise<void> {
     this.fetchableExtensions = await this.extensionsCatalog.getFetchableExtensions();
