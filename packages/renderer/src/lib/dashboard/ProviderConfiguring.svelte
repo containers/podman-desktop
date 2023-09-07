@@ -11,7 +11,7 @@ import 'xterm/css/xterm.css';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
 import { type InitializationContext, InitializationSteps, InitializeAndStartMode } from './ProviderInitUtils';
-import { Steps } from 'svelte-steps';
+import Steps from '../ui/Steps.svelte';
 import Spinner from '../ui/Spinner.svelte';
 
 export let provider: ProviderInfo;
@@ -99,7 +99,7 @@ onDestroy(() => {
 
     <div class="mt-5">
       {#if initializationContext.mode === InitializeAndStartMode}
-        <Steps steps="{InitializationSteps}" size="1.7rem" line="1px" current="{0}" clickable="{false}" />
+        <Steps steps="{InitializationSteps}" />
       {/if}
       <div class="flex flex-col text-gray-700">
         <div>Initializing</div>
