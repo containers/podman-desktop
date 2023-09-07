@@ -46,10 +46,10 @@ $: errorRecords = auditResult?.records.filter(record => record.type === 'error')
 
 {#if infoRecords && infoRecords.length > 0}
   {#each infoRecords as record}
-    <div class="bg-charcoal-600 border-t-2 border-blue-500 p-4 mb-2" role="alert" aria-label="info">
+    <div class="bg-charcoal-600 border-t-2 border-purple-500 p-4 mb-2" role="alert" aria-label="info">
       <div class="flex flex-row">
         <div class="mr-3">
-          <Fa size="18" class="text-blue-500" icon="{faCircleInfo}" />
+          <Fa size="18" class="text-purple-500" icon="{faCircleInfo}" />
         </div>
         <div class="text-sm text-white">
           {record.record}
