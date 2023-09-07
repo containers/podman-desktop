@@ -1391,6 +1391,67 @@ describe('listVolumes', () => {
       Size: -1,
     });
   });
+  test('without mounts being populated', async () => {
+    const volumesDataMock = {
+      Volumes: [
+        {
+          CreatedAt: '2023-08-21T18:35:28+02:00',
+          Driver: 'local',
+          Labels: {},
+          Mountpoint: '/var/lib/containers/storage/volumes/foo/_data',
+          Name: 'foo',
+          Options: {},
+          Scope: 'local',
+        },
+      ],
+      Warnings: [],
+    };
+
+    const containersJsonMock = [
+      {
+        Id: 'ae84549539d26cdcafb9865a77bce53ea072fd256cc419b376ce3f33d66bbe75',
+        Names: ['/kind_antonelli'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ab73c7fd672341e41ec600081253d0b99ea31d0c1acdfb46a1485004472da7ac',
+        Created: 1692624321,
+        Mounts: null,
+      },
+      {
+        Id: 'afa18fe0f64509ce24011a0a402852ceb393448951421199c214d912aadc3cf6',
+        Names: ['/elegant_mirzakhani'],
+        Image: 'foo-image',
+        ImageID: 'sha256:ee9bfd27b1dbb584a40687ec1f9db5f5c16c53c2f3041cf702e9495ceda22195',
+        Command: '/entrypoint.sh',
+        Created: 1692607777,
+        Mounts: null,
+      },
+    ];
+
+    nock('http://localhost').get('/volumes').reply(200, volumesDataMock);
+    nock('http://localhost').get('/containers/json?all=true').reply(200, containersJsonMock);
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set provider
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    // ask for volumes and data
+    const volumes = await containerRegistry.listVolumes(false);
+
+    // ensure the field are correct
+    expect(volumes).toBeDefined();
+    expect(volumes).toHaveLength(1);
+    const volume = volumes[0];
+    expect(volume.engineId).toBe('podman1');
+    expect(volume.engineName).toBe('podman');
+    expect(volume.Volumes).toHaveLength(1);
+  });
 });
 
 describe('createVolume', () => {
