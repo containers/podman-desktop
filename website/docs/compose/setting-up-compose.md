@@ -12,7 +12,7 @@ Podman Desktop can install the Compose engine.
 
 #### Procedure
 
-1. Install the Compose engine: in the Podman Desktop status bar, click on **<icon icon="fa-solid fa-download" size="lg" />Compose**, and follow the prompts.
+1. Install the Compose engine: in the Podman Desktop status bar, click **<icon icon="fa-solid fa-download" size="lg" />Compose**, and follow the prompts.
 1. To use the Compose engine from your terminal, [set the DOCKER_HOST variable](/docs/migrating-from-docker/using-the-docker_host-environment-variable).
 
 #### Verification
