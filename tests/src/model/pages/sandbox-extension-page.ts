@@ -16,22 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from 'playwright';
-import { SettingsPage } from './settings-page';
+import type { Page } from 'playwright';
+import { ExtensionPage } from './extension-page';
 
-export class SandboxExtensionPage extends SettingsPage {
-  readonly heading: Locator;
-  readonly enableButton: Locator;
-  readonly disableButton: Locator;
-  readonly removeExtensionButton: Locator;
-  readonly status: Locator;
-
+export class SandboxExtensionPage extends ExtensionPage {
   constructor(page: Page) {
-    super(page, 'Red Hat OpenShift Sandbox');
-    this.heading = page.getByText('Red Hat OpenShift Sandbox Extension');
-    this.enableButton = page.getByRole('button', { name: ' Enable' });
-    this.disableButton = page.getByRole('button', { name: ' Disable' });
-    this.removeExtensionButton = page.getByRole('button', { name: ' Remove' });
-    this.status = page.getByLabel('connection-status-label');
+    super(page, 'Red Hat OpenShift Sandbox', 'Red Hat OpenShift Sandbox Extension');
   }
 }

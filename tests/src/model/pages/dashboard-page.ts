@@ -18,6 +18,7 @@
 
 import type { Locator, Page } from 'playwright';
 import { BasePage } from './base-page';
+import * as os from 'os';
 
 export class DashboardPage extends BasePage {
   readonly mainPage: Locator;
@@ -27,6 +28,10 @@ export class DashboardPage extends BasePage {
   readonly featuredExtensions: Locator;
   readonly devSandboxProvider: Locator;
   readonly devSandboxBox: Locator;
+  readonly devSandboxEnabledStatus: Locator;
+  readonly openshiftLocalProvider: Locator;
+  readonly openshiftLocalBox: Locator;
+  openshiftLocalEnabledStatus: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -35,7 +40,22 @@ export class DashboardPage extends BasePage {
     this.content = this.mainPage.getByRole('region', { name: 'content' });
     this.featuredExtensions = page.getByLabel('FeaturedExtensions');
     this.heading = page.getByRole('heading', { name: 'Dashboard' });
+
     this.devSandboxProvider = page.getByLabel('Developer Sandbox Provider');
     this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
+    this.devSandboxEnabledStatus = page.getByText('Developer Sandbox is running');
+
+    this.openshiftLocalProvider = page.getByLabel('OpenShift Local Provider');
+    this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
+    this.openshiftLocalEnabledStatus = this.getOpenShiftStatus(page);
+  }
+
+  getOpenShiftStatus(page: Page) {
+    const currentOS = os.platform();
+    if (currentOS === 'linux') {
+      return page.getByText('Podman Desktop was not able to find an installation of OpenShift Local.');
+    }
+    const pattern = new RegExp('OpenShift Local v([0-9.]*) is installed but not ready');
+    return page.getByText(pattern);
   }
 }
