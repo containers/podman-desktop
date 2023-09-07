@@ -197,7 +197,15 @@ async function handleValidComponent() {
     data[key] = value;
   }
 
-  connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data as AuditRequestItems);
+  try {
+    connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data as AuditRequestItems);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.warn(err.message);
+    } else {
+      console.warn(String(err));
+    }
+  }
 }
 
 function setConfigurationValue(id: string, value: string) {
