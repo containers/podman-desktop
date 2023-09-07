@@ -73,3 +73,30 @@ describe('Custom button', () => {
     );
   });
 });
+
+describe('Custom link', () => {
+  test('Expect link to be rendered as a link without attributes', async () => {
+    await waitRender({ markdown: ':link[Name of the link]' });
+    const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
+    expect(markdownContent).toBeInTheDocument();
+    expect(markdownContent).toContainHTML('<a>Name of the link</a>');
+  });
+
+  test('Expect link to be rendered as a link with all attributes', async () => {
+    await waitRender({ markdown: ':link[Name of the link]{href=https://my-link title="tooltip text"}' });
+    const markdownLink = screen.getByRole('link');
+    expect(markdownLink).toBeInTheDocument();
+    expect(markdownLink).toHaveTextContent('Name of the link');
+    expect(markdownLink).toHaveAttribute('href', 'https://my-link');
+    expect(markdownLink).toHaveAttribute('title', 'tooltip text');
+  });
+
+  test('Expect link to be rendered as a link without href and with command attribute', async () => {
+    await waitRender({ markdown: ':link[Name of the link]{command=example.onboarding.command.checkRequirements}' });
+    const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
+    expect(markdownContent).toBeInTheDocument();
+    expect(markdownContent).toContainHTML(
+      '<a data-command="example.onboarding.command.checkRequirements">Name of the link</a>',
+    );
+  });
+});
