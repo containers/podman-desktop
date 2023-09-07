@@ -1,24 +1,20 @@
-`"containers
-    /
-    "Projects
-    /
-    "Podman Desktop Planning
+`".$_-0/build_containers_bug_report_yml.js
+    #Projects
+    #Podman Desktop Planning
 
-"Podman Desktop Planning
-"Backlog
-"Backlog Board
-"By priority
-"By size
-"Current Sprint (per assignee)
-"Next Sprint (per assignee)
-"Previous Sprint (per assignee)
-"Kind Support (tasks not done)
-"Milestone 1.3.0 Bugs
-"191 (191) matching items
-
-"Podman podman@lists.podman.io
-"Summary
-
+#Podman Desktop Planning
+#Backlog
+#Backlog Board
+#By priority
+#By size
+#Current Sprint (per assignee)
+#Next Sprint (per assignee)
+#Previous Sprint (per assignee)
+#Kind Support (tasks not done)
+#Milestone 1.3.0 Bugs
+#191 (191) matching items
+#Podman podman@lists.podman.io
+#Summary
 "A mailing list for all things Podman (https://github.com/containers/podman)
 
 "Podman manages pods, containers, container images, and container volumes.
@@ -42,7 +38,7 @@ At a high level, the scope of Podman and libpod is the following:
 "IRC: Libera.Chat #podman
 "Twitter: @Podman_io
 "YouTube: https://www.youtube.com/channel/UCk8PKFfMXESWNXgGG5U_F_w
-
+   -----------------------------------------------------------------------------------------
 To contact the list owners, use the following email address: podman-owner@lists.podman.io
 "name: Bug 🐞
 description: Report a bug report
