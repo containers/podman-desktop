@@ -2254,5 +2254,16 @@ declare module '@podman-desktop/api' {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function setValue(key: string, value: any, scope?: 'onboarding'): void;
+
+    /**
+     * Retrieve a value from the context.
+     *
+     * @param key the key to retrieve the value for
+     * @param scope the scope to use to retrieve the value
+     * @return the value for the given key or undefined if not set.
+     *
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    export function getValue(key: string, scope?: 'onboarding'): any;
   }
 }

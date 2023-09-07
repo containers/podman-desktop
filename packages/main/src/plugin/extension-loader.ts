@@ -942,6 +942,13 @@ export class ExtensionLoader {
         }
         this.context.setValue(key, value);
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getValue: (key: string, scope?: 'onboarding'): any => {
+        if (scope === 'onboarding') {
+          key = `${extensionInfo.id}.${scope}.${key}`;
+        }
+        return this.context.getValue(key);
+      },
     };
 
     return <typeof containerDesktopAPI>{
