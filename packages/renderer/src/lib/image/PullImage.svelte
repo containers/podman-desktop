@@ -167,7 +167,7 @@ function validateImageName(event: any): void {
                 <label for="providerChoice">Container Engine:</label>
                 <select
                   id="providerChoice"
-                  class="w-auto border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
+                  class="w-auto border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
                   name="providerChoice"
                   bind:value="{selectedProviderConnection}">
                   {#each providerConnections as providerConnection}
