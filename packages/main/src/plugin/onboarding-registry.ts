@@ -27,7 +27,10 @@ import type { Context } from './context/context.js';
 export class OnboardingRegistry {
   private onboardingInfos: Map<string, OnboardingInfo> = new Map<string, OnboardingInfo>();
 
-  constructor(private configurationRegistry: ConfigurationRegistry, private context: Context) {}
+  constructor(
+    private configurationRegistry: ConfigurationRegistry,
+    private context: Context,
+  ) {}
 
   registerOnboarding(extension: AnalyzedExtension, onboarding: Onboarding): void {
     const onInfo = this.createOnboardingInfo(extension, onboarding);

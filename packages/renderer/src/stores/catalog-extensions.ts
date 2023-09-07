@@ -45,8 +45,11 @@ export const catalogExtensionEventStore = new EventStore<CatalogExtension[]>(
 export const catalogExtensionEventStoreInfo = catalogExtensionEventStore.setup();
 
 // and refresh every 4 hours from client side
-setInterval(() => {
-  catalogExtensionEventStoreInfo.fetch().catch((e: unknown) => {
-    console.error('Unable to fetch catalog extensions', e);
-  });
-}, 4 * 60 * 60 * 1000);
+setInterval(
+  () => {
+    catalogExtensionEventStoreInfo.fetch().catch((e: unknown) => {
+      console.error('Unable to fetch catalog extensions', e);
+    });
+  },
+  4 * 60 * 60 * 1000,
+);

@@ -26,7 +26,10 @@ import batMustacheTemplate from './templates/podman-compose.bat.mustache?raw';
 
 // Generate the script to run docker-compose by setting up all environment variables
 export class ComposeWrapperGenerator {
-  constructor(private os: OS, private binFolder: string) {}
+  constructor(
+    private os: OS,
+    private binFolder: string,
+  ) {}
 
   protected async generateContent(connection: extensionApi.ProviderContainerConnection): Promise<string> {
     // take first one

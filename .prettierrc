@@ -8,5 +8,6 @@
   "arrowParens": "avoid",
   "printWidth": 120,
   "trailingComma": "all",
+  "plugins": ["prettier-plugin-svelte"]
 }
 

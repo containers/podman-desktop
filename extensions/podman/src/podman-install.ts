@@ -45,7 +45,10 @@ export interface PodmanInfo {
 }
 
 export class PodmanInfoImpl implements PodmanInfo {
-  constructor(private podmanInfo: PodmanInfo, private readonly storagePath: string) {
+  constructor(
+    private podmanInfo: PodmanInfo,
+    private readonly storagePath: string,
+  ) {
     if (!podmanInfo) {
       this.podmanInfo = { lastUpdateCheck: 0 } as PodmanInfo;
     }

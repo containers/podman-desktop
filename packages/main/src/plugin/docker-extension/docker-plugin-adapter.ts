@@ -19,7 +19,10 @@ export interface RawExecResult {
 export class DockerPluginAdapter {
   static MACOS_EXTRA_PATH = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
-  constructor(private contributionManager: ContributionManager, private containerRegistry: ContainerProviderRegistry) {}
+  constructor(
+    private contributionManager: ContributionManager,
+    private containerRegistry: ContainerProviderRegistry,
+  ) {}
 
   filterDockerArgs(cmd: string, args: string[]): string[] {
     // filter out the "-v", "/var/run/docker.sock:/var/run/docker.sock" from args
