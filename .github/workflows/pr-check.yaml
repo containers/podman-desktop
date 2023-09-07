@@ -209,6 +209,14 @@ jobs:
       - name: Execute yarn
         run: yarn --frozen-lockfile
 
+      # Check we don't have changes in git
+      - name: Check no changes in git
+        run: |
+          if ! git diff --exit-code; then
+            echo "Found changes in git"
+            exit 1
+          fi
+
       - name: Run linter
         run: yarn lint:check
 
