@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-if (process.env.VITE_APP_VERSION === undefined) {
+`"build.electron-builder.config.js"
+if 
+"(process.env.VITE_APP_VERSION === undefined) {
   const now = new Date();
   process.env.VITE_APP_VERSION = `${now.getUTCFullYear() - 2000}.${now.getUTCMonth() + 1}.${now.getUTCDate()}-${
     now.getUTCHours() * 60 + now.getUTCMinutes()
@@ -103,4 +105,5 @@ const config = {
   },*/
 };
 
-module.exports = config;
+module.exports = config"`;
+))"`
