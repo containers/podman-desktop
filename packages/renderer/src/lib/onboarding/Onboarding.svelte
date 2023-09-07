@@ -386,8 +386,12 @@ async function cleanContext() {
           class:bg-charcoal-50="{activeStep.step.state === 'failed'}"
           disabled="{activeStep.step.state === 'failed'}"
           on:click="{() => next()}">Next</button>
-        <button class="bg-purple-700 py-1.5 px-5 mr-2 rounded-md text-sm" on:click="{() => setDisplayCancelSetup(true)}"
-          >Cancel</button>
+        {#if activeStep.step.state !== 'completed'}
+          <button
+            aria-label="Cancel setup"
+            class="bg-purple-700 py-1.5 px-5 mr-2 rounded-md text-sm"
+            on:click="{() => setDisplayCancelSetup(true)}">Cancel</button>
+        {/if}
       </div>
     {/if}
   </div>
