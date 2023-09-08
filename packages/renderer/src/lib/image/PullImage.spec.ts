@@ -164,6 +164,23 @@ describe('PullImage', () => {
     expect(errorMesssage).toHaveTextContent('Image does not exists');
   });
 
+  test('Expect that you can type an image name and hit Enter', async () => {
+    setup();
+    render(PullImage);
+
+    // first call to pull image throw an error
+    pullImageMock.mockRejectedValueOnce(new Error('Image does not exists'));
+
+    const pullImageInput = screen.getByRole('textbox', { name: 'imageName' });
+    await userEvent.click(pullImageInput);
+    await userEvent.keyboard('image-does-not-exist[Enter]');
+
+    // expect that the error message is displayed
+    const errorMesssage = screen.getByRole('alert', { name: 'Error Message Content' });
+    expect(errorMesssage).toBeInTheDocument();
+    expect(errorMesssage).toHaveTextContent('Image does not exists');
+  });
+
   // pull image with error and then pull image with success
   // error message should not be displayed anymore
   test('Expect that pull image is reporting an error only if invalid', async () => {

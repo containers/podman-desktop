@@ -149,9 +149,14 @@ function validateImageName(event: any): void {
             id="imageName"
             class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
             type="text"
-            name="serverUrl"
+            name="imageName"
             disabled="{pullFinished || pullInProgress}"
             on:input="{event => validateImageName(event)}"
+            on:keypress="{event => {
+              if (event.key === 'Enter') {
+                pullImage();
+              }
+            }}"
             bind:value="{imageToPull}"
             aria-invalid="{imageNameInvalid !== ''}"
             placeholder="Image name"
