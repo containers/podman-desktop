@@ -56,6 +56,7 @@ export interface IConfigurationPropertySchema {
   description?: string;
   placeholder?: string;
   markdownDescription?: string;
+  name?: string;
   minimum?: number;
   maximum?: number | string;
   format?: string;

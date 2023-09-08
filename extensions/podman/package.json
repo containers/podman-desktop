@@ -33,6 +33,7 @@
       "title": "Podman",
       "properties": {
         "podman.binary.path": {
+          "name": "Path to Podman Binary",
           "type": "string",
           "format": "file",
           "default": "",

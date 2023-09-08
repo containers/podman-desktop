@@ -12,6 +12,7 @@ let recordUI: {
   breadCrumb: string;
   description?: string;
   markdownDescription?: string;
+  name?: string;
   original: IConfigurationPropertyRecordedSchema;
 };
 
@@ -36,7 +37,7 @@ function update() {
   const breadCrumbUI = breadCrumb.replace(/\./g, ' > ').concat(':');
 
   recordUI = {
-    title: startCase(key),
+    title: record.name || startCase(key),
     breadCrumb: breadCrumbUI,
     description: record.description,
     markdownDescription: record.markdownDescription,
