@@ -97,3 +97,28 @@ export async function deleteImage(page: Page, name: string) {
     }
   }
 }
+
+export async function deletePod(page: Page, name: string) {
+  const navigationBar = new NavigationBar(page);
+  const pods = await navigationBar.openPods();
+  const pod = await pods.getPodRowByName(name);
+  // check if pod exists
+  if (pod === undefined) {
+    console.log(`pod '${name}' does not exist, skipping...`);
+  } else {
+    // delete the pod
+    const deleteButton = pod.getByRole('button').and(pod.getByLabel('Delete Pod'));
+    await deleteButton.click();
+    // wait for pod to disappear
+    try {
+      console.log(`Waiting for pod to get deleted ...`);
+      await waitWhile(async () => {
+        return (await pods.getPodRowByName(name)) ? true : false;
+      }, 5000);
+    } catch (error) {
+      if ((error as Error).message.indexOf('Pods page is empty') < 0) {
+        throw Error(`Error waiting for pod '${name}' to get removed, ${error}`);
+      }
+    }
+  }
+}
