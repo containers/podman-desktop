@@ -22,6 +22,7 @@ import { lastPage } from '/@/stores/breadcrumb';
 import Button from '../ui/Button.svelte';
 import Link from '../ui/Link.svelte';
 import OnboardingComponent from './OnboardingComponent.svelte';
+import Spinner from '../ui/Spinner.svelte';
 
 interface ActiveOnboardingStep {
   onboarding: OnboardingInfo;
@@ -309,13 +310,7 @@ async function cleanContext() {
         <div class="flex flex-row mx-auto">
           {#if executing}
             <div class="mt-1 mr-6">
-              <i class="pf-c-button__progress text-purple-400">
-                <span class="pf-c-spinner pf-m-md" role="progressbar">
-                  <span class="pf-c-spinner__clipper"></span>
-                  <span class="pf-c-spinner__lead-ball"></span>
-                  <span class="pf-c-spinner__tail-ball"></span>
-                </span>
-              </i>
+              <Spinner />
             </div>
           {/if}
           <div class="text-lg text-white">{activeStep.step.title}</div>
