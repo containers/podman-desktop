@@ -29,7 +29,7 @@ $: window.hasAuthconfigForImage(image.name).then(result => (isAuthenticatedForTh
 
 async function deleteImage(): Promise<void> {
   try {
-    await window.deleteImage(image.engineId, image.id);
+    await window.deleteImage(image.engineId, `${image.name}:${image.tag}`);
   } catch (error) {
     errorTitle = 'Error while deleting image';
     errorMessage = String(error);
