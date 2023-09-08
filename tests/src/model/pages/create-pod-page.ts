@@ -32,7 +32,7 @@ export class CreatePodsPage extends BasePage {
     super(page);
     this.heading = this.page.getByRole('heading', { name: 'Copy containers to a pod' });
     this.closeLink = this.page.getByRole('link', { name: 'Close' });
-    this.podNameBox = this.page.getByRole('textbox');
+    this.podNameBox = this.page.getByRole('textbox', { name: 'Pod name' });
     this.closeButton = this.page.getByRole('button', { name: 'Close' });
     this.createPodButton = this.page.getByRole('button', { name: 'Create Pod' });
   }
@@ -44,7 +44,7 @@ export class CreatePodsPage extends BasePage {
       await waitWhile(async () => await this.createPodButton.isVisible(), 10000, 700);
     } catch (err) {
       const errLocator = this.page.getByRole('alert', { name: 'Error Message Content' });
-      await errLocator.waitFor({ state: 'visible', timeout: 2000 });
+      await errLocator.waitFor({ state: 'visible', timeout: 5000 });
       const errMessage = await errLocator.innerText({ timeout: 1000 });
       throw new Error(`Error creating pod: ${errMessage}`);
     }

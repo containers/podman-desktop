@@ -29,14 +29,15 @@ export enum ContainerState {
 }
 
 export enum PodState {
+  Created = 'CREATED',
+  Running = 'RUNNING',
+  Stopped = 'STOPPED',
+  Exited = 'EXITED',
+  Dead = 'DEAD',
   Starting = 'STARTING',
   Stopping = 'STOPPING',
-  Running = 'RUNNING',
-  Error = 'ERROR',
-  Exited = 'EXITED',
   Deleting = 'DELETING',
-  Created = 'CREATED',
+  Degraded = 'DEGRADED',
   Paused = 'PAUSED',
   Unknown = 'UNKNOWN',
-  Degraded = 'DEGRADED',
 }

@@ -64,7 +64,7 @@ export class PodDetailsPage extends BasePage {
 
   async stopPod(failIfStopped = false): Promise<void> {
     try {
-      await waitUntil(async () => (await this.getState()) === PodState.Degraded, 3000, 900);
+      await waitUntil(async () => (await this.getState()) === PodState.Running, 3000, 900);
       const stopButton = this.page.getByRole('button').and(this.page.getByLabel('Stop Pod'));
       await stopButton.waitFor({ state: 'visible', timeout: 2000 });
       await stopButton.click();
@@ -81,7 +81,7 @@ export class PodDetailsPage extends BasePage {
     await waitWhile(
       async () => await this.heading.isVisible(),
       timeout,
-      1000,
+      5000,
       true,
       `Pod was not deleted in ${timeout / 1000}s`,
     );

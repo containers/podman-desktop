@@ -30,10 +30,10 @@ import { ContainerState, PodState } from './model/core/states';
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
-const imageToPull = 'ghcr.io/linuxcontainers/alpine';
+const imageToPull = 'docker.io/library/nginx';
 const imageTag = 'latest';
-const containerToRun = 'alpine-container';
-const podToRun = 'alpine-pod';
+const containerToRun = 'nginx-container';
+const podToRun = 'nginx-pod';
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -72,7 +72,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const navigationBar = new NavigationBar(page);
       let images = await navigationBar.openImages();
       const pullImagePage = await images.openPullImage();
-      images = await pullImagePage.pullImage(imageToPull, imageTag, 180000);
+      images = await pullImagePage.pullImage(imageToPull, imageTag, 60000);
 
       const exists = await images.waitForImageExists(imageToPull);
       expect(exists, `${imageToPull} image is not present in the list of images`).toBeTruthy();
@@ -106,9 +106,9 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const podDetails = await pods.openPodDetails(podToRun);
       await waitUntil(
         async () => {
-          return (await podDetails.getState()) === PodState.Degraded;
+          return (await podDetails.getState()) === PodState.Running;
         },
-        7000,
+        10000,
         1000,
       );
       await pdRunner.screenshot('pods-pod-created.png');
@@ -143,7 +143,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await pdRunner.screenshot('pods-pod-containers-exist.png');
     });
 
-    test.skip(`Stopping pod '${podToRun}'`, async () => {
+    test(`Stopping pod '${podToRun}'`, async () => {
       // skipped because it is already stopped for some pods
       const navigationBar = new NavigationBar(page);
       const pods = await navigationBar.openPods();
