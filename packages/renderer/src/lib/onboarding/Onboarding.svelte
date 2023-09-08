@@ -50,14 +50,14 @@ onMount(async () => {
   onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
     if (!onboardings) {
       onboardings = onboardingItems.filter(o => extensionIds.find(extensionId => o.extension === extensionId));
-      startOnboarding();
+      startOnboarding().catch((err: unknown) => console.warn(String(err)));
     }
   });
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
-    startOnboarding();
+    startOnboarding().catch((err: unknown) => console.warn(String(err)));
   });
 });
 
