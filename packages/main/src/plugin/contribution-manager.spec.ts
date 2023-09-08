@@ -31,6 +31,7 @@ import * as exec from './util/exec.js';
 import type { RunResult } from '@podman-desktop/api';
 import { EventEmitter } from 'stream-json/Assembler.js';
 import type { ContributionInfo } from './api/contribution-info.js';
+import type { Proxy } from './proxy.js';
 let contributionManager: TestContributionManager;
 
 let composeFileExample: any;
@@ -86,8 +87,12 @@ const directories = {
   getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
 } as unknown as Directories;
 
+const proxy = {
+  isEnabled: vi.fn().mockReturnValue(false),
+} as unknown as Proxy;
+
 beforeAll(() => {
-  contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+  contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, proxy);
 });
 
 const originalConsoleLogMethod = console.log;
@@ -435,7 +440,7 @@ describe('startVms', () => {
 
 describe('startVM', () => {
   beforeAll(() => {
-    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, proxy);
   });
 
   test('start a VM without compose file', async () => {
@@ -473,7 +478,7 @@ describe('startVM', () => {
 
 describe('isPodmanDesktopServiceAlive', () => {
   beforeAll(() => {
-    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, proxy);
   });
 
   test('is Alive', async () => {
@@ -544,7 +549,7 @@ describe('isPodmanDesktopServiceAlive', () => {
 
 describe('waitForRunningState', () => {
   beforeAll(() => {
-    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, proxy);
   });
 
   test('should work after few times', async () => {
@@ -597,6 +602,7 @@ test('execComposeCommand', async () => {
   // check
   expect(exec.exec).toBeCalledWith(
     '/my/compose',
+    proxy,
     ['arg1', 'arg2'],
     expect.objectContaining({ env: { DOCKER_HOST: 'unix:///my/socket' }, cwd: '/fake/directory' }),
   );

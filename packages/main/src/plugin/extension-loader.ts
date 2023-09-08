@@ -930,7 +930,7 @@ export class ExtensionLoader {
         args?: string[],
         options?: containerDesktopAPI.RunOptions,
       ): Promise<containerDesktopAPI.RunResult> => {
-        return exec(command, args, options);
+        return exec(command, this.proxy, args, options);
       },
     };
 

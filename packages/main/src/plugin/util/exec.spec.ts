@@ -22,10 +22,15 @@ import * as util from '../../util.js';
 import type { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'child_process';
 import type { Readable } from 'node:stream';
+import type { Proxy } from '../proxy.js';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 describe('exec', () => {
+  const proxy: Proxy = {
+    isEnabled: vi.fn().mockReturnValue(false),
+  } as unknown as Proxy;
+
   test('should run the command and resolve with the result', async () => {
     const command = 'echo';
     const args = ['Hello, World!'];
@@ -51,7 +56,7 @@ describe('exec', () => {
       }),
     } as any);
 
-    const { stdout } = await exec(command, args);
+    const { stdout } = await exec(command, proxy, args);
 
     expect(spawnMock).toHaveBeenCalledWith(command, args, { env: expect.any(Object) });
     expect(stdout).toBeDefined();
@@ -84,7 +89,7 @@ describe('exec', () => {
       }),
     } as any);
 
-    const { stdout } = await exec(command, args, { cwd });
+    const { stdout } = await exec(command, proxy, args, { cwd });
 
     // caller should contains the cwd provided
     expect(spawnMock).toHaveBeenCalledWith(command, args, expect.objectContaining({ cwd: cwd }));
@@ -116,7 +121,7 @@ describe('exec', () => {
       }),
     } as any);
 
-    await expect(exec(command)).rejects.toThrowError(/Command execution failed with exit code 1/);
+    await expect(exec(command, proxy)).rejects.toThrowError(/Command execution failed with exit code 1/);
   });
 
   test('should reject with an error when the execution is cancelled', async () => {
@@ -154,10 +159,131 @@ describe('exec', () => {
       handler();
     });
 
-    await expect(exec(command, args, options)).rejects.toThrowError(/Execution cancelled/);
+    await expect(exec(command, proxy, args, options)).rejects.toThrowError(/Execution cancelled/);
 
     expect((childProcessMock as any).kill).toHaveBeenCalled();
     expect(options.logger.error).toHaveBeenCalledWith('Execution cancelled');
+  });
+
+  test('should run the command and set HTTP_PROXY', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+
+    vi.mock('child_process', () => {
+      return {
+        spawn: vi.fn(),
+      };
+    });
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    const httpProxy = {
+      isEnabled: vi.fn().mockReturnValue(true),
+      proxy: {
+        httpProxy: '127.0.0.1:8888',
+      },
+    } as unknown as Proxy;
+
+    const { stdout } = await exec(command, httpProxy, args);
+
+    expect(spawnMock).toHaveBeenCalledWith(command, args, {
+      env: expect.objectContaining({ HTTP_PROXY: 'http://127.0.0.1:8888' }),
+    });
+    expect(stdout).toBeDefined();
+    expect(stdout).toContain('Hello, World!');
+  });
+
+  test('should run the command and set HTTPS_PROXY', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+
+    vi.mock('child_process', () => {
+      return {
+        spawn: vi.fn(),
+      };
+    });
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    const httpsProxy = {
+      isEnabled: vi.fn().mockReturnValue(true),
+      proxy: {
+        httpsProxy: '127.0.0.1:8888',
+      },
+    } as unknown as Proxy;
+
+    const { stdout } = await exec(command, httpsProxy, args);
+
+    expect(spawnMock).toHaveBeenCalledWith(command, args, {
+      env: expect.objectContaining({ HTTPS_PROXY: 'http://127.0.0.1:8888' }),
+    });
+    expect(stdout).toBeDefined();
+    expect(stdout).toContain('Hello, World!');
+  });
+
+  test('should run the command and set NO_PROXY', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+
+    vi.mock('child_process', () => {
+      return {
+        spawn: vi.fn(),
+      };
+    });
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    const noProxy = {
+      isEnabled: vi.fn().mockReturnValue(true),
+      proxy: {
+        noProxy: '127.0.0.1',
+      },
+    } as unknown as Proxy;
+
+    const { stdout } = await exec(command, noProxy, args);
+
+    expect(spawnMock).toHaveBeenCalledWith(command, args, { env: expect.objectContaining({ NO_PROXY: '127.0.0.1' }) });
+    expect(stdout).toBeDefined();
+    expect(stdout).toContain('Hello, World!');
   });
 });
 

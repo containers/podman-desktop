@@ -20,14 +20,27 @@ import type { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'child_process';
 import type { RunError, RunOptions, RunResult } from '@podman-desktop/api';
 import { isMac, isWindows } from '../../util.js';
+import type { Proxy } from '../proxy.js';
 
 export const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
-export function exec(command: string, args?: string[], options?: RunOptions): Promise<RunResult> {
+export function exec(command: string, proxy: Proxy, args?: string[], options?: RunOptions): Promise<RunResult> {
   let env = Object.assign({}, process.env);
 
   if (options?.env) {
     env = Object.assign(env, options.env);
+  }
+
+  if (proxy.isEnabled()) {
+    if (proxy.proxy?.httpsProxy) {
+      env.HTTPS_PROXY = 'http://' + proxy.proxy.httpsProxy;
+    }
+    if (proxy.proxy?.httpProxy) {
+      env.HTTP_PROXY = 'http://' + proxy.proxy.httpProxy;
+    }
+    if (proxy.proxy?.noProxy) {
+      env.NO_PROXY = proxy.proxy.noProxy;
+    }
   }
 
   if (isMac() || isWindows()) {

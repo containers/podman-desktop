@@ -27,6 +27,7 @@ import * as jsYaml from 'js-yaml';
 import type { RunResult } from '@podman-desktop/api';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import { isLinux, isMac, isWindows } from '../util.js';
+import type { Proxy } from './proxy.js';
 
 export interface DockerExtensionMetadata {
   name: string;
@@ -73,6 +74,7 @@ export class ContributionManager {
     private apiSender: ApiSenderType,
     private directories: Directories,
     private containerRegistry: ContainerProviderRegistry,
+    private proxy: Proxy,
   ) {}
 
   // load the existing contributions
@@ -169,7 +171,7 @@ export class ContributionManager {
 
       // check if docker-compose can be executed
       try {
-        await exec(binary, ['--version']);
+        await exec(binary, this.proxy, ['--version']);
         // yes, return it
         return binary;
       } catch (error) {
@@ -346,7 +348,7 @@ export class ContributionManager {
       // add DOCKER_HOST
       DOCKER_HOST: DOCKER_HOST,
     };
-    return exec(composeBinary, args, { env, cwd });
+    return exec(composeBinary, this.proxy, args, { env, cwd });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
