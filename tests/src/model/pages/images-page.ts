@@ -17,44 +17,27 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './base-page';
+import { MainPage } from './main-page';
 import { ImageDetailsPage } from './image-details-page';
 import { PullImagePage } from './pull-image-page';
 import { waitUntil, waitWhile } from '../../utility/wait';
 
-export class ImagesPage extends PodmanDesktopPage {
-  readonly heading: Locator;
+export class ImagesPage extends MainPage {
   readonly pullImageButton: Locator;
   readonly pruneImagesButton: Locator;
   readonly buildImageButton: Locator;
 
   constructor(page: Page) {
-    super(page);
-    this.heading = page.getByRole('heading', { name: 'images', exact: true });
-    this.pullImageButton = page.getByRole('button', { name: 'Pull an image' });
-    this.pruneImagesButton = page.getByRole('button', { name: 'Prune images' });
-    this.buildImageButton = page.getByRole('button', { name: 'Build an image' });
-  }
-
-  async pageIsEmpty(): Promise<boolean> {
-    const noImagesHeading = this.page.getByRole('heading', { name: 'No images', exact: true });
-    try {
-      await noImagesHeading.waitFor({ state: 'visible', timeout: 500 });
-    } catch (err) {
-      return false;
-    }
-    return true;
-  }
-
-  async getTable(): Promise<Locator> {
-    if (!(await this.pageIsEmpty())) {
-      return this.page.getByRole('table');
-    } else {
-      throw Error('Images page is empty, there are no images');
-    }
+    super(page, 'images');
+    this.pullImageButton = this.additionalActions.getByRole('button', { name: 'Pull an image' });
+    this.pruneImagesButton = this.additionalActions.getByRole('button', { name: 'Prune images' });
+    this.buildImageButton = this.additionalActions.getByRole('button', { name: 'Build an image' });
   }
 
   async openPullImage(): Promise<PullImagePage> {
+    if (await this.noContainerEngine()) {
+      throw Error('No Container Engine is present, cannot pull an image');
+    }
     await this.pullImageButton.click();
     return new PullImagePage(this.page);
   }

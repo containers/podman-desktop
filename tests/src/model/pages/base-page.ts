@@ -18,8 +18,9 @@
 
 import type { Page } from 'playwright';
 
-export abstract class PodmanDesktopPage {
+export abstract class BasePage {
   readonly page: Page;
+  // TODO: extract header and content locators into base class, add that roles into all pages
 
   constructor(page: Page) {
     this.page = page;

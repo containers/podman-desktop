@@ -17,39 +17,19 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './base-page';
+import { MainPage } from './main-page';
 import { ContainerDetailsPage } from './container-details-page';
 
-export class ContainersPage extends PodmanDesktopPage {
-  readonly heading: Locator;
+export class ContainersPage extends MainPage {
   readonly pruneContainersButton: Locator;
   readonly createContainerButton: Locator;
   readonly playKubernetesYAMLButton: Locator;
 
   constructor(page: Page) {
-    super(page);
-    this.heading = this.page.getByRole('heading', { name: 'Containers', exact: true });
-    this.pruneContainersButton = this.page.getByRole('button', { name: 'Prune containers' });
-    this.createContainerButton = this.page.getByRole('button', { name: 'Create a container' });
-    this.playKubernetesYAMLButton = this.page.getByRole('button', { name: 'Play Kubernetes YAML' });
-  }
-
-  async getTable(): Promise<Locator> {
-    if (!(await this.pageIsEmpty())) {
-      return this.page.getByRole('table');
-    } else {
-      throw Error('Containers page is empty, there are no containers');
-    }
-  }
-
-  async pageIsEmpty(): Promise<boolean> {
-    const noContainersHeading = this.page.getByRole('heading', { name: 'No containers', exact: true });
-    try {
-      await noContainersHeading.waitFor({ state: 'visible', timeout: 500 });
-    } catch (err) {
-      return false;
-    }
-    return true;
+    super(page, 'containers');
+    this.pruneContainersButton = this.additionalActions.getByRole('button', { name: 'Prune containers' });
+    this.createContainerButton = this.additionalActions.getByRole('button', { name: 'Create a container' });
+    this.playKubernetesYAMLButton = this.additionalActions.getByRole('button', { name: 'Play Kubernetes YAML' });
   }
 
   async openContainersDetails(name: string): Promise<ContainerDetailsPage> {

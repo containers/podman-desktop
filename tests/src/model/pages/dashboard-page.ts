@@ -17,17 +17,23 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './base-page';
+import { BasePage } from './base-page';
 
-export class DashboardPage extends PodmanDesktopPage {
+export class DashboardPage extends BasePage {
+  readonly mainPage: Locator;
+  readonly header: Locator;
+  readonly content: Locator;
   readonly heading: Locator;
   readonly devSandboxBox: Locator;
   readonly devSandboxStatus: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.heading = page.getByRole('heading', { name: 'Dashboard' });
-    this.devSandboxBox = page.getByTitle('Free remote OpenShift sandbox environment for immediate access');
-    this.devSandboxStatus = page.getByText('Developer Sandbox is running');
+    this.mainPage = page.getByRole('region', { name: 'Dashboard' });
+    this.header = this.mainPage.getByRole('region', { name: 'header' });
+    this.content = this.mainPage.getByRole('region', { name: 'content' });
+    this.heading = this.header.getByRole('heading', { name: 'dashboard' });
+    this.devSandboxBox = this.content.getByTitle('Free remote OpenShift sandbox environment for immediate access');
+    this.devSandboxStatus = this.content.getByText('Developer Sandbox is running');
   }
 }

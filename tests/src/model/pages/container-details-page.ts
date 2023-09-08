@@ -17,12 +17,12 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './base-page';
+import { BasePage } from './base-page';
 import { ContainersPage } from './containers-page';
 import { waitUntil, waitWhile } from '../../utility/wait';
 import { ContainerState } from '../core/states';
 
-export class ContainerDetailsPage extends PodmanDesktopPage {
+export class ContainerDetailsPage extends BasePage {
   readonly labelName: Locator;
   readonly heading: Locator;
   readonly closeLink: Locator;

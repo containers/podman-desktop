@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { PodmanDesktopPage } from './base-page';
+import { BasePage } from './base-page';
 
-export abstract class SettingsPage extends PodmanDesktopPage {
+export abstract class SettingsPage extends BasePage {
   readonly tabName: string;
 
   constructor(page: Page, tabName: string) {
