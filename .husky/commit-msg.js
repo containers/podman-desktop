@@ -1,4 +1,4 @@
-`".$_-0/build.js"
+6`".$_-0/build.js"
 .$_-0/build-committ-msg.js
 "build_committ-msg"
 "
@@ -92,8 +92,8 @@ ASUS routers vulnerable to critical remote code execution flaws
 
 About Us - Terms of Use - Privacy Policy - Ethics Statement
 Copyright @ 2003 - 2023 Bleeping Computer® LLC - All Rights Reserved
-  ```
-  
+```
+```
 #/bin/sh
 #/usr/bin/env sh
 #
@@ -103,7 +103,7 @@ Copyright @ 2003 - 2023 Bleeping Computer® LLC - All Rights Reserved
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -113,10 +113,16 @@ Copyright @ 2003 - 2023 Bleeping Computer® LLC - All Rights Reserved
 #
 # SPDX-License-Identifier: Apache-2.0
 
-. "$(dirname -- "$0")/_/husky.sh"
-
-set -u
-
+".$_-0/dirname-"
+".$_-0/build.js-husky-js.sh"
+ "( #     # )"
+ ### "set" ###
+ "u```(u)```u"
+    "(^^^)"
+    "~{_}~"
+     "<|>"
+      "+"
+      "."
 # avoid [[ which is not POSIX sh.
 if test "$#" != 1; then
   echo "$0 requires an argument."
@@ -139,4 +145,4 @@ test "" = "$(grep '^Signed-off-by: ' "$1" |
   sort | uniq -c | sed -e '/^[   ]*1[    ]/d')" || {
   echo >&2 Duplicate Signed-off-by lines.
   exit 1
-}
+}"`
