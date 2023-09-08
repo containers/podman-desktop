@@ -209,14 +209,6 @@ jobs:
       - name: Execute yarn
         run: yarn --frozen-lockfile
 
-      # Check we don't have changes in git
-      - name: Check no changes in git
-        run: |
-          if ! git diff --exit-code; then
-            echo "Found changes in git"
-            exit 1
-          fi
-
       - name: Run linter
         run: yarn lint:check
 
@@ -232,6 +224,14 @@ jobs:
       - name: Run svelte check
         run: yarn svelte:check
 
+      # Check we don't have changes in git
+      - name: Check no changes in git
+        run: |
+          if ! git diff --exit-code; then
+            echo "Found changes in git"
+            exit 1
+          fi
+
   smoke-e2e-tests:
     name: smoke e2e tests
     runs-on: ubuntu-22.04
@@ -240,7 +240,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      
+
       - name: Update podman
         run: |
           sudo sh -c "echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_22.04/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list"
