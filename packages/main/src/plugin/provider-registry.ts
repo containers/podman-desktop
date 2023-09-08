@@ -57,6 +57,7 @@ import { ProviderImpl } from './provider-impl.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
 import type { ApiSenderType } from './api.js';
+import type { AutostartEngine } from './autostart-engine.js';
 
 export type ProviderEventListener = (name: string, providerInfo: ProviderInfo) => void;
 export type ProviderLifecycleListener = (
@@ -85,6 +86,7 @@ export class ProviderRegistry {
   private providerInstallations: Map<string, ProviderInstallation> = new Map();
   private providerUpdates: Map<string, ProviderUpdate> = new Map();
   private providerAutostarts: Map<string, ProviderAutostart> = new Map();
+  private autostartEngine: AutostartEngine | undefined = undefined;
 
   private connectionLifecycleContexts: Map<
     ContainerProviderConnection | KubernetesProviderConnection,
@@ -167,9 +169,16 @@ export class ProviderRegistry {
     }, 2000);
   }
 
-  createProvider(extensionId: string, providerOptions: ProviderOptions): Provider {
+  createProvider(extensionId: string, extensionDisplayName: string, providerOptions: ProviderOptions): Provider {
     const id = `${this.count}`;
-    const providerImpl = new ProviderImpl(id, extensionId, providerOptions, this, this.containerRegistry);
+    const providerImpl = new ProviderImpl(
+      id,
+      extensionId,
+      extensionDisplayName,
+      providerOptions,
+      this,
+      this.containerRegistry,
+    );
     this.count++;
     this.providers.set(id, providerImpl);
     this.listeners.forEach(listener => listener('provider:create', this.getProviderInfo(providerImpl)));
@@ -226,11 +235,24 @@ export class ProviderRegistry {
     });
   }
 
-  registerAutostart(providerImpl: ProviderImpl, autostart: ProviderAutostart): Disposable {
-    this.providerAutostarts.set(providerImpl.internalId, autostart);
+  registerAutostartEngine(engine: AutostartEngine) {
+    this.autostartEngine = engine;
+  }
 
+  registerAutostart(providerImpl: ProviderImpl, autostart: ProviderAutostart): Disposable {
+    if (!this.autostartEngine) {
+      throw new Error('no autostart engine has been registered. Autostart feature is disabled');
+    }
+
+    this.providerAutostarts.set(providerImpl.internalId, autostart);
+    const disposable = this.autostartEngine.registerProvider(
+      providerImpl.extensionId,
+      providerImpl.extensionDisplayName,
+      providerImpl.internalId,
+    );
     return Disposable.create(() => {
       this.providerAutostarts.delete(providerImpl.internalId);
+      disposable.dispose();
     });
   }
 
@@ -335,22 +357,24 @@ export class ProviderRegistry {
   }
 
   // run autostart on all providers supporting this option
-  async runAutostart(): Promise<void> {
-    // grab auto start providers
-
-    for (const [internalId, autoStart] of this.providerAutostarts) {
-      // grab the provider
-      const provider = this.getMatchingProvider(internalId);
-
-      await autoStart.start(new LoggerImpl());
-
-      // send the event
-      this._onDidUpdateProvider.fire({
-        id: provider.id,
-        name: provider.name,
-        status: provider.status,
-      });
+  async runAutostart(internalId: string): Promise<void> {
+    // grab auto start provider
+    const autoStart = this.providerAutostarts.get(internalId);
+    if (!autoStart) {
+      throw new Error(`no autostart matching provider id ${internalId}`);
     }
+
+    // grab the provider
+    const provider = this.getMatchingProvider(internalId);
+
+    await autoStart.start(new LoggerImpl());
+
+    // send the event
+    this._onDidUpdateProvider.fire({
+      id: provider.id,
+      name: provider.name,
+      status: provider.status,
+    });
   }
 
   async runPreflightChecks(

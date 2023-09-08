@@ -400,8 +400,8 @@ export class PluginSystem {
       await trayIconColor.init();
     }
 
-    const autoStartConfiguration = new AutostartEngine(configurationRegistry, providerRegistry);
-    await autoStartConfiguration.init();
+    const autoStartEngine = new AutostartEngine(configurationRegistry, providerRegistry);
+    providerRegistry.registerAutostartEngine(autoStartEngine);
 
     providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
       if (name === 'provider:update-status') {
@@ -1837,7 +1837,7 @@ export class PluginSystem {
       this.markAsExtensionsStarted();
     }
     extensionsUpdater.init().catch((err: unknown) => console.error('Unable to perform extension updates', err));
-    autoStartConfiguration.start().catch((err: unknown) => console.error('Unable to perform autostart', err));
+    autoStartEngine.start().catch((err: unknown) => console.error('Unable to perform autostart', err));
     return this.extensionLoader;
   }
 
