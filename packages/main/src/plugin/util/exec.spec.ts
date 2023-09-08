@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { expect, describe, test, vi, beforeEach, afterEach } from 'vitest';
-import { getInstallationPath, macosExtraPath, exec } from './exec.js';
+import { getInstallationPath, macosExtraPath, Exec } from './exec.js';
 import * as util from '../../util.js';
 import type { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'child_process';
@@ -30,6 +30,8 @@ describe('exec', () => {
   const proxy: Proxy = {
     isEnabled: vi.fn().mockReturnValue(false),
   } as unknown as Proxy;
+
+  const exec = new Exec(proxy);
 
   test('should run the command and resolve with the result', async () => {
     const command = 'echo';
@@ -56,7 +58,7 @@ describe('exec', () => {
       }),
     } as any);
 
-    const { stdout } = await exec(command, proxy, args);
+    const { stdout } = await exec.exec(command, args);
 
     expect(spawnMock).toHaveBeenCalledWith(command, args, { env: expect.any(Object) });
     expect(stdout).toBeDefined();
@@ -89,7 +91,7 @@ describe('exec', () => {
       }),
     } as any);
 
-    const { stdout } = await exec(command, proxy, args, { cwd });
+    const { stdout } = await exec.exec(command, args, { cwd });
 
     // caller should contains the cwd provided
     expect(spawnMock).toHaveBeenCalledWith(command, args, expect.objectContaining({ cwd: cwd }));
@@ -121,7 +123,7 @@ describe('exec', () => {
       }),
     } as any);
 
-    await expect(exec(command, proxy)).rejects.toThrowError(/Command execution failed with exit code 1/);
+    await expect(exec.exec(command)).rejects.toThrowError(/Command execution failed with exit code 1/);
   });
 
   test('should reject with an error when the execution is cancelled', async () => {
@@ -159,7 +161,7 @@ describe('exec', () => {
       handler();
     });
 
-    await expect(exec(command, proxy, args, options)).rejects.toThrowError(/Execution cancelled/);
+    await expect(exec.exec(command, args, options)).rejects.toThrowError(/Execution cancelled/);
 
     expect((childProcessMock as any).kill).toHaveBeenCalled();
     expect(options.logger.error).toHaveBeenCalledWith('Execution cancelled');
@@ -196,8 +198,9 @@ describe('exec', () => {
         httpProxy: '127.0.0.1:8888',
       },
     } as unknown as Proxy;
+    const httpExec = new Exec(httpProxy);
 
-    const { stdout } = await exec(command, httpProxy, args);
+    const { stdout } = await httpExec.exec(command, args);
 
     expect(spawnMock).toHaveBeenCalledWith(command, args, {
       env: expect.objectContaining({ HTTP_PROXY: 'http://127.0.0.1:8888' }),
@@ -237,8 +240,9 @@ describe('exec', () => {
         httpsProxy: '127.0.0.1:8888',
       },
     } as unknown as Proxy;
+    const httpsExec = new Exec(httpsProxy);
 
-    const { stdout } = await exec(command, httpsProxy, args);
+    const { stdout } = await httpsExec.exec(command, args);
 
     expect(spawnMock).toHaveBeenCalledWith(command, args, {
       env: expect.objectContaining({ HTTPS_PROXY: 'http://127.0.0.1:8888' }),
@@ -278,8 +282,9 @@ describe('exec', () => {
         noProxy: '127.0.0.1',
       },
     } as unknown as Proxy;
+    const noProxyExec = new Exec(noProxy);
 
-    const { stdout } = await exec(command, noProxy, args);
+    const { stdout } = await noProxyExec.exec(command, args);
 
     expect(spawnMock).toHaveBeenCalledWith(command, args, { env: expect.objectContaining({ NO_PROXY: '127.0.0.1' }) });
     expect(stdout).toBeDefined();

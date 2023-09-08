@@ -22,12 +22,11 @@ import type { ContributionInfo } from './api/contribution-info.js';
 import type { ApiSenderType } from './api.js';
 import type { Directories } from './directories.js';
 import { getFreePort } from './util/port.js';
-import { exec } from './util/exec.js';
+import type { Exec } from './util/exec.js';
 import * as jsYaml from 'js-yaml';
 import type { RunResult } from '@podman-desktop/api';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import { isLinux, isMac, isWindows } from '../util.js';
-import type { Proxy } from './proxy.js';
 
 export interface DockerExtensionMetadata {
   name: string;
@@ -74,7 +73,7 @@ export class ContributionManager {
     private apiSender: ApiSenderType,
     private directories: Directories,
     private containerRegistry: ContainerProviderRegistry,
-    private proxy: Proxy,
+    private exec: Exec,
   ) {}
 
   // load the existing contributions
@@ -171,7 +170,7 @@ export class ContributionManager {
 
       // check if docker-compose can be executed
       try {
-        await exec(binary, this.proxy, ['--version']);
+        await this.exec.exec(binary, ['--version']);
         // yes, return it
         return binary;
       } catch (error) {
@@ -348,7 +347,7 @@ export class ContributionManager {
       // add DOCKER_HOST
       DOCKER_HOST: DOCKER_HOST,
     };
-    return exec(composeBinary, this.proxy, args, { env, cwd });
+    return this.exec.exec(composeBinary, args, { env, cwd });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

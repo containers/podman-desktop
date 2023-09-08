@@ -24,115 +24,67 @@ import type { Proxy } from '../proxy.js';
 
 export const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
-export function exec(command: string, proxy: Proxy, args?: string[], options?: RunOptions): Promise<RunResult> {
-  let env = Object.assign({}, process.env);
+export class Exec {
+  constructor(private proxy: Proxy) {}
 
-  if (options?.env) {
-    env = Object.assign(env, options.env);
-  }
+  exec(command: string, args?: string[], options?: RunOptions): Promise<RunResult> {
+    let env = Object.assign({}, process.env);
 
-  if (proxy.isEnabled()) {
-    if (proxy.proxy?.httpsProxy) {
-      env.HTTPS_PROXY = 'http://' + proxy.proxy.httpsProxy;
+    if (options?.env) {
+      env = Object.assign(env, options.env);
     }
-    if (proxy.proxy?.httpProxy) {
-      env.HTTP_PROXY = 'http://' + proxy.proxy.httpProxy;
-    }
-    if (proxy.proxy?.noProxy) {
-      env.NO_PROXY = proxy.proxy.noProxy;
-    }
-  }
 
-  if (isMac() || isWindows()) {
-    env.PATH = getInstallationPath(env.PATH);
-  } else if (env.FLATPAK_ID) {
-    args = ['--host', command, ...(args || [])];
-    command = 'flatpak-spawn';
-  }
-
-  let cwd: string;
-  if (options?.cwd) {
-    cwd = options.cwd;
-  }
-
-  return new Promise((resolve, reject) => {
-    let stdout = '';
-    let stderr = '';
-
-    const childProcess: ChildProcessWithoutNullStreams = spawn(command, args, { env, cwd });
-
-    options?.token?.onCancellationRequested(() => {
-      if (!childProcess.killed) {
-        childProcess.kill();
-        options?.logger?.error('Execution cancelled');
-        const errResult: RunError = {
-          name: 'Execution cancelled',
-          message: 'Failed to execute command: Execution cancelled',
-          exitCode: 1,
-          command,
-          stdout: stdout.trim(),
-          stderr: stderr.trim(),
-          cancelled: true,
-          killed: childProcess.killed,
-        };
-        reject(errResult);
+    if (this.proxy.isEnabled()) {
+      if (this.proxy.proxy?.httpsProxy) {
+        env.HTTPS_PROXY = `http://${this.proxy.proxy.httpsProxy}`;
       }
-      options?.logger?.error('Failed to execute cancel: Process has been already killed');
-      const errResult: RunError = {
-        name: 'Failed to execute cancel: Process has been already killed',
-        message: 'Failed to execute cancel: Process has been already killed',
-        exitCode: 1,
-        command,
-        stdout: stdout.trim(),
-        stderr: stderr.trim(),
-        cancelled: false,
-        killed: childProcess.killed,
-      };
-      reject(errResult);
-    });
+      if (this.proxy.proxy?.httpProxy) {
+        env.HTTP_PROXY = `http://${this.proxy.proxy.httpProxy}`;
+      }
+      if (this.proxy.proxy?.noProxy) {
+        env.NO_PROXY = this.proxy.proxy.noProxy;
+      }
+    }
 
-    childProcess.stdout.setEncoding('utf8');
-    childProcess.stderr.setEncoding('utf8');
+    if (isMac() || isWindows()) {
+      env.PATH = getInstallationPath(env.PATH);
+    } else if (env.FLATPAK_ID) {
+      args = ['--host', command, ...(args || [])];
+      command = 'flatpak-spawn';
+    }
 
-    childProcess.stdout.on('data', data => {
-      stdout += data.toString();
-      options?.logger?.log(data);
-    });
+    let cwd: string;
+    if (options?.cwd) {
+      cwd = options.cwd;
+    }
 
-    childProcess.stderr.on('data', data => {
-      stderr += data.toString();
-      options?.logger?.warn(data);
-    });
+    return new Promise((resolve, reject) => {
+      let stdout = '';
+      let stderr = '';
 
-    childProcess.on('error', error => {
-      options?.logger?.error(`Failed to execute command: ${error.message}`);
-      const errResult: RunError = {
-        name: error.name,
-        message: `Failed to execute command: ${error.message}`,
-        exitCode: 1,
-        command,
-        stdout: stdout.trim(),
-        stderr: stderr.trim(),
-        cancelled: false,
-        killed: childProcess.killed,
-      };
-      reject(errResult);
-    });
+      const childProcess: ChildProcessWithoutNullStreams = spawn(command, args, { env, cwd });
 
-    childProcess.on('exit', exitCode => {
-      if (exitCode === 0) {
-        const result: RunResult = {
-          command,
-          stdout: stdout.trim(),
-          stderr: stderr.trim(),
-        };
-        resolve(result);
-      } else {
-        options?.logger?.error(`Command execution failed with exit code ${exitCode}`);
+      options?.token?.onCancellationRequested(() => {
+        if (!childProcess.killed) {
+          childProcess.kill();
+          options?.logger?.error('Execution cancelled');
+          const errResult: RunError = {
+            name: 'Execution cancelled',
+            message: 'Failed to execute command: Execution cancelled',
+            exitCode: 1,
+            command,
+            stdout: stdout.trim(),
+            stderr: stderr.trim(),
+            cancelled: true,
+            killed: childProcess.killed,
+          };
+          reject(errResult);
+        }
+        options?.logger?.error('Failed to execute cancel: Process has been already killed');
         const errResult: RunError = {
-          name: `Command execution failed with exit code ${exitCode}`,
-          message: `Command execution failed with exit code ${exitCode}`,
-          exitCode: exitCode || 1,
+          name: 'Failed to execute cancel: Process has been already killed',
+          message: 'Failed to execute cancel: Process has been already killed',
+          exitCode: 1,
           command,
           stdout: stdout.trim(),
           stderr: stderr.trim(),
@@ -140,9 +92,61 @@ export function exec(command: string, proxy: Proxy, args?: string[], options?: R
           killed: childProcess.killed,
         };
         reject(errResult);
-      }
+      });
+
+      childProcess.stdout.setEncoding('utf8');
+      childProcess.stderr.setEncoding('utf8');
+
+      childProcess.stdout.on('data', data => {
+        stdout += data.toString();
+        options?.logger?.log(data);
+      });
+
+      childProcess.stderr.on('data', data => {
+        stderr += data.toString();
+        options?.logger?.warn(data);
+      });
+
+      childProcess.on('error', error => {
+        options?.logger?.error(`Failed to execute command: ${error.message}`);
+        const errResult: RunError = {
+          name: error.name,
+          message: `Failed to execute command: ${error.message}`,
+          exitCode: 1,
+          command,
+          stdout: stdout.trim(),
+          stderr: stderr.trim(),
+          cancelled: false,
+          killed: childProcess.killed,
+        };
+        reject(errResult);
+      });
+
+      childProcess.on('exit', exitCode => {
+        if (exitCode === 0) {
+          const result: RunResult = {
+            command,
+            stdout: stdout.trim(),
+            stderr: stderr.trim(),
+          };
+          resolve(result);
+        } else {
+          options?.logger?.error(`Command execution failed with exit code ${exitCode}`);
+          const errResult: RunError = {
+            name: `Command execution failed with exit code ${exitCode}`,
+            message: `Command execution failed with exit code ${exitCode}`,
+            exitCode: exitCode || 1,
+            command,
+            stdout: stdout.trim(),
+            stderr: stderr.trim(),
+            cancelled: false,
+            killed: childProcess.killed,
+          };
+          reject(errResult);
+        }
+      });
     });
-  });
+  }
 }
 
 export function getInstallationPath(envPATH?: string): string {
