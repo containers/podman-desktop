@@ -29,7 +29,12 @@ import { getAssetsFolder } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
-import { isUserModeNetworkingSupported, USER_MODE_NETWORKING_SUPPORTED_KEY } from './extension';
+import {
+  isRootfulMachineInitSupported,
+  ROOTFUL_MACHINE_INIT_SUPPORTED_KEY,
+  isUserModeNetworkingSupported,
+  USER_MODE_NETWORKING_SUPPORTED_KEY,
+} from './extension';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -133,6 +138,10 @@ export class PodmanInstall {
       if (newInstalledPodman) {
         this.podmanInfo.podmanVersion = newInstalledPodman.version;
         extensionApi.context.setValue(
+          ROOTFUL_MACHINE_INIT_SUPPORTED_KEY,
+          isRootfulMachineInitSupported(newInstalledPodman.version),
+        );
+        extensionApi.context.setValue(
           USER_MODE_NETWORKING_SUPPORTED_KEY,
           isUserModeNetworkingSupported(newInstalledPodman.version),
         );
@@ -181,6 +190,10 @@ export class PodmanInstall {
         provider.updateDetectionChecks(getDetectionChecks(installedPodman));
         provider.updateVersion(updateInfo.bundledVersion);
         this.podmanInfo.ignoreVersionUpdate = undefined;
+        extensionApi.context.setValue(
+          ROOTFUL_MACHINE_INIT_SUPPORTED_KEY,
+          isRootfulMachineInitSupported(updateInfo.bundledVersion),
+        );
         extensionApi.context.setValue(
           USER_MODE_NETWORKING_SUPPORTED_KEY,
           isUserModeNetworkingSupported(updateInfo.bundledVersion),
