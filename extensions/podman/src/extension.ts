@@ -41,6 +41,7 @@ const listeners = new Set<StatusHandler>();
 const podmanMachineSocketsDirectory = path.resolve(os.homedir(), appHomeDir(), 'machine');
 const podmanMachineSocketsSymlinkDirectoryMac = path.resolve(os.homedir(), '.podman');
 const MACOS_MAX_SOCKET_PATH_LENGTH = 104;
+let isMovedPodmanSocket = false;
 let storedExtensionContext;
 let stopLoop = false;
 let autoMachineStarted = false;
@@ -347,7 +348,11 @@ function calcMacosSocketPath(machineName: string): string {
 }
 
 function calcLinuxSocketPath(machineName: string): string {
-  return path.resolve(podmanMachineSocketsDirectory, machineName, 'podman.sock');
+  let socketPath = path.resolve(podmanMachineSocketsDirectory, machineName, 'podman.sock');
+  if (isMovedPodmanSocket) {
+    socketPath = path.resolve(podmanMachineSocketsDirectory, 'qemu', 'podman.sock');
+  }
+  return socketPath;
 }
 
 function calcWinPipeName(machineName: string): string {
@@ -670,6 +675,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   if (version) {
     extensionApi.context.setValue(USER_MODE_NETWORKING_SUPPORTED_KEY, isUserModeNetworkingSupported(version));
+    isMovedPodmanSocket = isPodmanSocketLocationMoved(version);
   }
 
   const detectionChecks: extensionApi.ProviderDetectionCheck[] = [];
@@ -1070,6 +1076,12 @@ export async function deactivate(): Promise<void> {
       console.log('stopped autostarted machine', autoMachineName);
     }
   });
+}
+
+const PODMAN_MINIMUM_VERSION_FOR_NEW_SOCKET_LOCATION = '4.5.0';
+
+export function isPodmanSocketLocationMoved(podmanVersion: string) {
+  return isLinux() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_NEW_SOCKET_LOCATION) >= 0;
 }
 
 const PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING = '4.6.0';
