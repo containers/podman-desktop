@@ -88,12 +88,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   if (fs.existsSync(socketPath)) {
     registerProvider(extensionContext, provider, socketPath);
   } else {
-    console.error(`Could not find socket at ${socketPath}`);
+    console.debug(`Could not find socket at ${socketPath}`);
   }
   if (fs.existsSync(configPath)) {
     registerProvider(extensionContext, provider, configPath);
   } else {
-    console.error(`Could not find config at ${configPath}`);
+    console.debug(`Could not find config at ${configPath}`);
   }
 }
 
