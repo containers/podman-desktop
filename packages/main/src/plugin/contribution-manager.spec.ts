@@ -27,10 +27,11 @@ import type { Directories } from './directories.js';
 import * as jsYaml from 'js-yaml';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import * as util from '../util.js';
-import * as exec from './util/exec.js';
+import { Exec } from './util/exec.js';
 import type { RunResult } from '@podman-desktop/api';
 import { EventEmitter } from 'stream-json/Assembler.js';
 import type { ContributionInfo } from './api/contribution-info.js';
+import type { Proxy } from './proxy.js';
 let contributionManager: TestContributionManager;
 
 let composeFileExample: any;
@@ -86,8 +87,14 @@ const directories = {
   getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
 } as unknown as Directories;
 
+const proxy = {
+  isEnabled: vi.fn().mockReturnValue(false),
+} as unknown as Proxy;
+
+const exec = new Exec(proxy);
+
 beforeAll(() => {
-  contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+  contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, exec);
 });
 
 const originalConsoleLogMethod = console.log;
@@ -435,7 +442,7 @@ describe('startVms', () => {
 
 describe('startVM', () => {
   beforeAll(() => {
-    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, exec);
   });
 
   test('start a VM without compose file', async () => {
@@ -473,7 +480,7 @@ describe('startVM', () => {
 
 describe('isPodmanDesktopServiceAlive', () => {
   beforeAll(() => {
-    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, exec);
   });
 
   test('is Alive', async () => {
@@ -544,7 +551,7 @@ describe('isPodmanDesktopServiceAlive', () => {
 
 describe('waitForRunningState', () => {
   beforeAll(() => {
-    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry);
+    contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, exec);
   });
 
   test('should work after few times', async () => {

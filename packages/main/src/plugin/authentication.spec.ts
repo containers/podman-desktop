@@ -52,6 +52,7 @@ import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
 import { getBase64Image } from '../util.js';
+import type { Exec } from './util/exec.js';
 
 vi.mock('../util.js', async () => {
   return {
@@ -270,6 +271,7 @@ suite('Authentication', () => {
       vi.fn() as unknown as ViewRegistry,
       vi.fn() as unknown as Context,
       directories,
+      vi.fn() as unknown as Exec,
     );
     providerMock = {
       onDidChangeSessions: vi.fn(),

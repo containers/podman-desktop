@@ -58,7 +58,7 @@ import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
 import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
-import { exec } from './util/exec.js';
+import type { Exec } from './util/exec.js';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
@@ -147,6 +147,7 @@ export class ExtensionLoader {
     private viewRegistry: ViewRegistry,
     private context: Context,
     directories: Directories,
+    private exec: Exec,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -930,7 +931,7 @@ export class ExtensionLoader {
         args?: string[],
         options?: containerDesktopAPI.RunOptions,
       ): Promise<containerDesktopAPI.RunResult> => {
-        return exec(command, args, options);
+        return this.exec.exec(command, args, options);
       },
     };
 

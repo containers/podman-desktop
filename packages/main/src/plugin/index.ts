@@ -121,6 +121,7 @@ import { Context } from './context/context.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
 import { OnboardingUtils } from './onboarding/onboarding-utils.js';
+import { Exec } from './util/exec.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -369,6 +370,8 @@ export class PluginSystem {
 
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
+
+    const exec = new Exec(proxy);
 
     const commandRegistry = new CommandRegistry(telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
@@ -688,6 +691,7 @@ export class PluginSystem {
       viewRegistry,
       context,
       directories,
+      exec,
     );
     await this.extensionLoader.init();
 
@@ -701,7 +705,7 @@ export class PluginSystem {
     // setup security restrictions on links
     await this.setupSecurityRestrictionsOnLinks(messageBox);
 
-    const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry);
+    const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
     });

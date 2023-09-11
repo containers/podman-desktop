@@ -48,6 +48,7 @@ import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { ViewRegistry } from './view-registry.js';
 import { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
+import { Exec } from './util/exec.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -133,6 +134,8 @@ const directories = {
   getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
 } as unknown as Directories;
 
+const exec = new Exec(proxy);
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
   extensionLoader = new TestExtensionLoader(
@@ -160,6 +163,7 @@ beforeAll(() => {
     viewRegistry,
     context,
     directories,
+    exec,
   );
 });
 
