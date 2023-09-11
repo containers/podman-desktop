@@ -40,7 +40,7 @@ The configuration does not apply to:
 
 1. You can install extensions such as:
 
-   - [Installing Compose](/docs/compose)
+   - [Installing Compose](/docs/compose/compose-spec)
    - [Installing Kind](/docs/kubernetes/kind/installing-kind).
 
 2. Podman can pull images.
