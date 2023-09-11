@@ -32,6 +32,7 @@ let page: Page;
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
+  pdRunner.setVideoName('sandbox-installation-e2e');
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
@@ -39,7 +40,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await pdRunner.close();
-});
+}, 90000);
 
 describe('Developer Sandbox installation verification', async () => {
   describe('Check installation availability', async () => {
@@ -70,15 +71,12 @@ describe('Developer Sandbox installation verification', async () => {
       name: 'Install redhat.redhat-sandbox Extension',
     });
     await installButton.click();
-    await page.waitForTimeout(180000);
+    const installedLabel = extensionsPage.devSandboxBox.getByText('installed');
+    await playExpect(installedLabel).toBeVisible({ timeout: 180000 });
   }, 200000);
 
   describe('Verify UI components after installation', async () => {
     test('Verify Settings components', async () => {
-      const extensionsPage = new SettingsExtensionsPage(page);
-      const installedLabel = extensionsPage.devSandboxBox.getByText('installed');
-      await playExpect(installedLabel).toBeVisible();
-
       const settingsBar = new SettingsBar(page);
       await playExpect(
         settingsBar.settingsNavBar.getByRole('link', { name: 'Red Hat OpenShift Sandbox' }),

@@ -101,14 +101,27 @@ export class PodmanDesktopRunner {
       throw Error('Podman Desktop is not running');
     }
     if (this.getElectronApp()) {
-      await this.getElectronApp().close();
+      const elapsed = await this.trackTime(async () => await this.getElectronApp().close());
+      console.log(`Elapsed time of closing the electron app: ${elapsed} ms`);
     }
     if (this._videoName) {
       const videoPath = join(this._testOutput, 'videos', `${this._videoName}.webm`);
-      await this.saveVideoAs(videoPath);
-      console.log(`Saving a video file as: ${videoPath}`);
+      const elapsed = await this.trackTime(async () => await this.saveVideoAs(videoPath));
+      console.log(`Saving a video file took: ${elapsed} ms`);
+      console.log(`Video file saved as: ${videoPath}`);
     }
     this._running = false;
+  }
+
+  protected async trackTime(fn: () => Promise<void>): Promise<number> {
+    const start = performance.now();
+    return await fn
+      .call(() => {
+        /* no actual logic */
+      })
+      .then(() => {
+        return performance.now() - start;
+      });
   }
 
   private defaultOptions() {

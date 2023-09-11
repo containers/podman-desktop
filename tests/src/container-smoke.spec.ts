@@ -92,10 +92,10 @@ describe('Verification of container creation workflow', async () => {
     const runImage = await imageDetails.openRunImage();
     await pdRunner.screenshot('containers-run-image.png');
     const containers = await runImage.startContainer(containerToRun);
-    await waitUntil(async () => containers.containerExists(containerToRun), 10000, 1000);
+    await waitUntil(async () => await containers.containerExists(containerToRun), 10000, 1000);
     await pdRunner.screenshot('containers-container-exists.png');
+    const containerDetails = await containers.openContainersDetails(containerToRun);
     await waitUntil(async () => {
-      const containerDetails = await containers.openContainersDetails(containerToRun);
       return (await containerDetails.getState()) === ContainerState.Running;
     }, 5000);
   });
