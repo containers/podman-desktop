@@ -22,12 +22,12 @@ import { afterAll, beforeAll, test, describe, beforeEach, expect } from 'vitest'
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
-import { ImagesPage } from './model/pages/images-page';
 import { NavigationBar } from './model/workbench/navigation';
 import { ImageDetailsPage } from './model/pages/image-details-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
+let navBar: NavigationBar;
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -36,6 +36,7 @@ beforeAll(async () => {
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
+  navBar = new NavigationBar(page); // always present on the left side of the page
 });
 
 afterAll(async () => {
@@ -47,8 +48,15 @@ beforeEach<RunnerTestContext>(async ctx => {
 });
 
 describe('Image workflow verification', async () => {
+  async function pullImageByName(imageName: string) {
+    let imagesPage = await navBar.openImages();
+    const pullImagePage = await imagesPage.openPullImage();
+    imagesPage = await pullImagePage.pullImage(imageName);
+    await imagesPage.waitForImageExists(imageName);
+    return imagesPage;
+  }
+
   test('Pull image', async () => {
-    const navBar = new NavigationBar(page);
     const imagesPage = await navBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
@@ -60,7 +68,7 @@ describe('Image workflow verification', async () => {
   });
 
   test('Check image details', async () => {
-    const imagesPage = new ImagesPage(page);
+    const imagesPage = await navBar.openImages();
     const imageDetailPage = await imagesPage.openImageDetails('quay.io/podman/hello');
 
     await playExpect(imageDetailPage.summaryTab).toBeVisible();
@@ -68,15 +76,29 @@ describe('Image workflow verification', async () => {
     await playExpect(imageDetailPage.inspectTab).toBeVisible();
   });
 
+  test('Rename image', async () => {
+    const imageDetailsPage = new ImageDetailsPage(page, 'quay.io/podman/hello');
+    const editPage = await imageDetailsPage.openEditImage();
+    await playExpect(editPage.cancelButton).toBeEnabled();
+    await playExpect(editPage.saveButton).toBeVisible();
+    await playExpect(editPage.saveButton).toBeDisabled();
+    await editPage.imageName.fill('quay.io/podman/hi');
+    await playExpect(editPage.saveButton).toBeEnabled();
+    await editPage.saveButton.click();
+    const imagesPage = await navBar.openImages();
+    expect(await imagesPage.waitForImageExists('quay.io/podman/hi')).equals(true);
+  });
+
   test('Delete image', async () => {
-    const imageDetailPage = new ImageDetailsPage(page, 'quay.io/podman/hello');
+    const imagesPage = await pullImageByName('quay.io/podman/hello');
+    expect(await imagesPage.waitForImageExists('quay.io/podman/hello')).equals(true);
+
+    const imageDetailPage = await imagesPage.openImageDetails('quay.io/podman/hello');
     await playExpect(imageDetailPage.deleteButton).toBeVisible();
     await imageDetailPage.deleteButton.click();
 
-    const imagesPage = new ImagesPage(page);
-    await playExpect(imagesPage.heading).toBeVisible();
-
-    const imageExists = await imagesPage.waitForImageDelete('quay.io/podman/hello');
-    playExpect(imageExists).toBeTruthy();
+    const imageDeleted = await imagesPage.waitForImageDelete('quay.io/podman/hello');
+    expect(imageDeleted).equals(true);
+    expect(await imagesPage.waitForImageExists('quay.io/podman/hi')).equals(true);
   });
 });
