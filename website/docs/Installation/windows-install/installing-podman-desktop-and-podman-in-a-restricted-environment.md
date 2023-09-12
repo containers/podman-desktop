@@ -12,8 +12,9 @@ Consider using the Windows installer for restricted environments to install the 
 
 The Windows installer for restricted environments:
 
-- Has all artifacts required for installation
-- Does not require Internet access to download resources during installation
+- Has all artifacts required to install Podman Desktop and Podman.
+- Does not require Internet access to download resources during installation.
+- Does not contain additional utilities such as Compose or Kind.
 
 #### Prerequisites
 
@@ -33,10 +34,12 @@ The Windows installer for restricted environments:
 #### Procedure
 
 1. [Download the Windows installer for restricted environments](/downloads), and copy the downloaded file to the Windows host in a restricted environment.
-2. Run the Windows installer for restricted environments to install Podman Desktop.
-3. Open Podman Desktop and click on the **Install** button to install Podman.
-4. Click on **Initialize Podman**.
+1. Run the Windows installer for restricted environments to install Podman Desktop.
+1. Open Podman Desktop and click the **Install** button to install Podman.
+1. (Optionally) [Configure Podman Desktop to run behind your proxy](/docs/proxy/using-a-proxy).
+1. (Optionally) [Configure Podman to run behind your VPN](/docs/proxy/using-a-vpn-on-windows).
+1. [Create and start a Podman machine](/docs/Installation/creating-a-podman-machine-with-podman-desktop)
 
 #### Next steps
 
-- [Getting Started with Podman Desktop](/docs/getting-started/getting-started)
+- [Getting Started with Podman Desktop](/docs/getting-started/getting-started).
