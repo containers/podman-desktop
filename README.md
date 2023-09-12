@@ -107,7 +107,7 @@ Kubernetes questions & development:
 
 ### Adopters
 
-Check out the [list of companies](https://github.com/containers/podman-desktop/blob/main/ADOPTERS.md) already using Podman Desktop.
+Check out the [list of companies](./ADOPTERS.md) already using Podman Desktop.
 
 
 ## Code of Conduct
