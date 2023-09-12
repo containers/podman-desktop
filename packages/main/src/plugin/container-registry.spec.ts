@@ -28,10 +28,12 @@ import Dockerode from 'dockerode';
 import { EventEmitter } from 'node:events';
 import type * as podmanDesktopAPI from '@podman-desktop/api';
 import nock from 'nock';
+import type { LibPod } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import moment from 'moment';
 import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
 import * as util from '../util.js';
+import { PassThrough } from 'node:stream';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -125,12 +127,33 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
   getMatchingEngineFromConnection(providerContainerConnectionInfo: ProviderContainerConnectionInfo): Dockerode {
     return this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
   }
+
+  setStreamsOutputPerContainerId(id: string, data: Buffer[]) {
+    this.streamsOutputPerContainerId.set(id, data);
+  }
+
+  getStreamsOutputPerContainerId(): Map<string, Buffer[]> {
+    return this.streamsOutputPerContainerId;
+  }
+
+  getStreamsPerContainerId(): Map<string, NodeJS.ReadWriteStream> {
+    return this.streamsPerContainerId;
+  }
+
+  setStreamsPerContainerId(id: string, data: NodeJS.ReadWriteStream) {
+    this.streamsPerContainerId.set(id, data);
+  }
 }
 
 let containerRegistry: TestContainerProviderRegistry;
 
 const telemetryTrackMock = vi.fn().mockResolvedValue({});
 const telemetry: Telemetry = { track: telemetryTrackMock } as unknown as Telemetry;
+
+const apiSender: ApiSenderType = {
+  send: vi.fn(),
+  receive: vi.fn(),
+};
 
 beforeEach(() => {
   const certificates: Certificates = {
@@ -144,7 +167,7 @@ beforeEach(() => {
   } as unknown as Proxy;
 
   const imageRegistry = new ImageRegistry({} as ApiSenderType, telemetry, certificates, proxy);
-  containerRegistry = new TestContainerProviderRegistry({} as ApiSenderType, imageRegistry, telemetry);
+  containerRegistry = new TestContainerProviderRegistry(apiSender, imageRegistry, telemetry);
 });
 
 test('tag should reject if no provider', async () => {
@@ -1558,9 +1581,17 @@ test('test createAndStartContainer', async () => {
   const createdId = '1234';
 
   const startMock = vi.fn();
+  const inspectMock = vi.fn();
   const createContainerMock = vi
     .fn()
-    .mockResolvedValue({ id: createdId, start: startMock } as unknown as Dockerode.Container);
+    .mockResolvedValue({ id: createdId, start: startMock, inspect: inspectMock } as unknown as Dockerode.Container);
+
+  inspectMock.mockResolvedValue({
+    Config: {
+      Tty: false,
+      OpenStdin: false,
+    },
+  });
 
   const fakeDockerode = {
     createContainer: createContainerMock,
@@ -1580,4 +1611,316 @@ test('test createAndStartContainer', async () => {
   expect(container.id).toBe(createdId);
   expect(createContainerMock).toHaveBeenCalled();
   expect(startMock).toHaveBeenCalled();
+});
+
+describe('attach container', () => {
+  test('container attach stream', async () => {
+    // create a read/write stream
+    const stream = new PassThrough();
+
+    const spyStream = vi.spyOn(stream, 'write');
+    const attachMock = vi.fn();
+    // need to reply with a stream
+    attachMock.mockResolvedValue(stream);
+
+    const dockerodeContainer = {
+      id: '1234',
+      attach: attachMock,
+    } as unknown as Dockerode.Container;
+
+    vi.spyOn(containerRegistry, 'getMatchingContainer').mockReturnValue(dockerodeContainer);
+
+    const onData = vi.fn();
+    const onError = vi.fn();
+    const onEnd = vi.fn();
+
+    const response = await containerRegistry.attachContainer('podman', dockerodeContainer.id, onData, onError, onEnd);
+
+    // wait for having init
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    response('log message');
+    stream.end();
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    expect(onData).toBeCalledWith('log message');
+    expect(onError).not.toBeCalled();
+    expect(onEnd).toBeCalled();
+
+    // expect we wrote something on the stream
+    expect(spyStream).toHaveBeenNthCalledWith(1, 'log message');
+
+    expect(telemetry.track).toHaveBeenCalled();
+  });
+
+  test('container attach stream with previous data', async () => {
+    // create a read/write stream
+    const stream = new PassThrough();
+    const attachMock = vi.fn();
+    // need to reply with a stream
+    attachMock.mockResolvedValue(stream);
+
+    const dockerodeContainer = {
+      id: '1234',
+      attach: attachMock,
+    } as unknown as Dockerode.Container;
+
+    vi.spyOn(containerRegistry, 'getMatchingContainer').mockReturnValue(dockerodeContainer);
+
+    // add some previous data
+    const buffer: Buffer = Buffer.from('previous data');
+    containerRegistry.setStreamsOutputPerContainerId(dockerodeContainer.id, [buffer]);
+
+    const onData = vi.fn();
+    const onError = vi.fn();
+    const onEnd = vi.fn();
+
+    await containerRegistry.attachContainer('podman', dockerodeContainer.id, onData, onError, onEnd);
+
+    // send data
+    setTimeout(() => {
+      stream.write('log message');
+      stream.end();
+    });
+
+    // wait for having some output
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    expect(onData).toHaveBeenNthCalledWith(1, 'previous data');
+    expect(onData).toHaveBeenNthCalledWith(2, 'log message');
+    expect(onError).not.toBeCalled();
+    expect(onEnd).toBeCalled();
+
+    expect(telemetry.track).toHaveBeenCalled();
+  });
+
+  test('container attach stream with previous stream', async () => {
+    // create a read/write stream
+    const stream = new PassThrough();
+
+    const dockerodeContainer = {
+      id: '1234',
+    } as unknown as Dockerode.Container;
+
+    containerRegistry.setStreamsPerContainerId(dockerodeContainer.id, stream);
+
+    const onData = vi.fn();
+    const onError = vi.fn();
+    const onEnd = vi.fn();
+
+    await containerRegistry.attachContainer('podman', dockerodeContainer.id, onData, onError, onEnd);
+
+    // send data
+    setTimeout(() => {
+      stream.write('log message');
+      stream.end();
+    });
+
+    // wait for having some output
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    expect(onData).toBeCalledWith('log message');
+    expect(onError).not.toBeCalled();
+    expect(onEnd).toBeCalled();
+
+    expect(telemetry.track).toHaveBeenCalled();
+  });
+
+  test('container attach stream error', async () => {
+    // create a read/write stream
+    const stream = new PassThrough();
+    const attachMock = vi.fn();
+    // need to reply with a stream
+    attachMock.mockResolvedValue(stream);
+
+    const dockerodeContainer = {
+      id: '1234',
+      attach: attachMock,
+    } as unknown as Dockerode.Container;
+
+    vi.spyOn(containerRegistry, 'getMatchingContainer').mockReturnValue(dockerodeContainer);
+
+    const onData = vi.fn();
+    const onError = vi.fn();
+    const onEnd = vi.fn();
+
+    await containerRegistry.attachContainer('podman', dockerodeContainer.id, onData, onError, onEnd);
+
+    const customError = new Error('my custom error');
+    // send data
+    setTimeout(() => {
+      stream.emit('error', customError);
+      stream.end();
+    });
+
+    // wait for having some output
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    expect(onData).not.toBeCalled();
+    expect(onError).toBeCalledWith(String(customError));
+    expect(onEnd).toBeCalled();
+
+    expect(telemetry.track).toHaveBeenCalled();
+  });
+});
+
+describe('attachToContainer', () => {
+  test('container attach stream compat API', async () => {
+    const fakeDockerode = {} as Dockerode;
+
+    const engine = {
+      name: 'docker1',
+      id: 'docker1',
+      connection: {
+        type: 'docker',
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider;
+
+    const attachMock = vi.fn();
+    const inspectMock = vi.fn();
+
+    const dockerodeContainer = {
+      id: '1234',
+      attach: attachMock,
+      inspect: inspectMock,
+    } as unknown as Dockerode.Container;
+
+    inspectMock.mockResolvedValue({
+      Config: {
+        Tty: true,
+        OpenStdin: true,
+      },
+    });
+
+    // create a read/write stream
+    const stream = new PassThrough();
+    // need to reply with a stream
+    attachMock.mockResolvedValue(stream);
+
+    await containerRegistry.attachToContainer(engine, dockerodeContainer);
+
+    const data = 'log message';
+    //send some data
+    stream.write(data);
+
+    expect(attachMock).toBeCalledWith({ stream: true, stdin: true, stdout: true, stderr: true, hijack: true });
+
+    const streams = containerRegistry.getStreamsOutputPerContainerId().get(dockerodeContainer.id);
+    expect(streams).toBeDefined();
+
+    expect(String(streams)).toBe(data);
+
+    const streamPerContainer = containerRegistry.getStreamsPerContainerId().get(dockerodeContainer.id);
+    expect(streamPerContainer).toBeDefined();
+    expect(streamPerContainer).toBe(stream);
+
+    // now end the stream
+    stream.end();
+
+    // wait a little
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // check that the data has been cleaned-up
+    expect(containerRegistry.getStreamsOutputPerContainerId().get(dockerodeContainer.id)).toBeUndefined();
+    expect(containerRegistry.getStreamsPerContainerId().get(dockerodeContainer.id)).toBeUndefined();
+  });
+
+  test('container attach stream LIBPOD API', async () => {
+    const attachMock = vi.fn();
+
+    const fakeLibPod = {
+      podmanAttach: attachMock,
+    } as unknown as LibPod;
+
+    const engine = {
+      name: 'podman1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      libpodApi: fakeLibPod,
+    } as InternalContainerProvider;
+
+    const container = {
+      id: '1234',
+    } as unknown as Dockerode.Container;
+
+    // create a read/write stream
+    const stream = new PassThrough();
+    // need to reply with a stream
+    attachMock.mockResolvedValue(stream);
+
+    await containerRegistry.attachToContainer(engine, container, true, true);
+
+    const data = 'log message';
+    //send some data
+    stream.write(data);
+
+    expect(attachMock).toBeCalledWith(container.id);
+
+    const streams = containerRegistry.getStreamsOutputPerContainerId().get(container.id);
+    expect(streams).toBeDefined();
+
+    expect(String(streams)).toBe(data);
+
+    const streamPerContainer = containerRegistry.getStreamsPerContainerId().get(container.id);
+    expect(streamPerContainer).toBeDefined();
+    expect(streamPerContainer).toBe(stream);
+
+    // now end the stream
+    stream.end();
+
+    // wait a little
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // check that the data has been cleaned-up
+    expect(containerRegistry.getStreamsOutputPerContainerId().get(container.id)).toBeUndefined();
+    expect(containerRegistry.getStreamsPerContainerId().get(container.id)).toBeUndefined();
+  });
+
+  test('container do not attach stream as no tty', async () => {
+    const fakeDockerode = {} as Dockerode;
+
+    const engine = {
+      name: 'docker1',
+      id: 'docker1',
+      connection: {
+        type: 'docker',
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider;
+
+    const attachMock = vi.fn();
+    const inspectMock = vi.fn();
+
+    const dockerodeContainer = {
+      id: '1234',
+      attach: attachMock,
+      inspect: inspectMock,
+    } as unknown as Dockerode.Container;
+
+    inspectMock.mockResolvedValue({
+      Config: {
+        Tty: false,
+        OpenStdin: false,
+      },
+    });
+
+    // create a read/write stream
+    const stream = new PassThrough();
+    // need to reply with a stream
+    attachMock.mockResolvedValue(stream);
+
+    await containerRegistry.attachToContainer(engine, dockerodeContainer);
+
+    const data = 'log message';
+    //send some data
+    stream.write(data);
+
+    expect(attachMock).not.toBeCalled();
+    expect(containerRegistry.getStreamsOutputPerContainerId().get(dockerodeContainer.id)).toBeUndefined();
+    expect(containerRegistry.getStreamsPerContainerId().get(dockerodeContainer.id)).toBeUndefined();
+  });
 });
