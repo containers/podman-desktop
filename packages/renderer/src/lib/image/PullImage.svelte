@@ -127,6 +127,10 @@ function validateImageName(event: any): void {
     imageNameInvalid = undefined;
   }
 }
+
+function requestFocus(element: HTMLInputElement) {
+  element.focus();
+}
 </script>
 
 <FormPage title="Pull Image From a Registry">
@@ -161,7 +165,8 @@ function validateImageName(event: any): void {
             aria-invalid="{imageNameInvalid !== ''}"
             placeholder="Image name"
             aria-label="imageName"
-            required />
+            required
+            use:requestFocus />
           {#if imageNameInvalid}
             <ErrorMessage error="{imageNameInvalid}" />
           {/if}

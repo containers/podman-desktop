@@ -164,6 +164,14 @@ describe('PullImage', () => {
     expect(errorMesssage).toHaveTextContent('Image does not exists');
   });
 
+  test('Expect that focus is in `Image to Pull` field after page is opened', async () => {
+    setup();
+    render(PullImage);
+
+    const pullImageInput = screen.getByRole('textbox', { name: 'imageName' });
+    expect(pullImageInput.matches(':focus')).toBe(true);
+  });
+
   test('Expect that you can type an image name and hit Enter', async () => {
     setup();
     render(PullImage);
@@ -171,8 +179,6 @@ describe('PullImage', () => {
     // first call to pull image throw an error
     pullImageMock.mockRejectedValueOnce(new Error('Image does not exists'));
 
-    const pullImageInput = screen.getByRole('textbox', { name: 'imageName' });
-    await userEvent.click(pullImageInput);
     await userEvent.keyboard('image-does-not-exist[Enter]');
 
     // expect that the error message is displayed
