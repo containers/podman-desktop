@@ -508,7 +508,7 @@ function prettyMachineName(machineName: string): string {
     const sub = machineName.substring('podman-machine-'.length);
     name = `Podman Machine ${sub}`;
   } else {
-    name = `Podman Machine ${machineName}`;
+    name = machineName;
   }
   return name;
 }
