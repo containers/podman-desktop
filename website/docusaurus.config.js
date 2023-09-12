@@ -36,7 +36,17 @@ const config = {
       };
     },
     'docusaurus-plugin-goatcounter',
-    ['@docusaurus/plugin-client-redirects', { redirects: [] }],
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          {
+            to: '/docs/compose',
+            from: ['/docs/compose/compose-spec', '/docs/compose/podman-compose'],
+          },
+        ],
+      },
+    ],
   ],
   presets: [
     [
