@@ -119,6 +119,7 @@ export interface LibPod {
   listPods(): Promise<PodInfo[]>;
   listPodmanContainers(opts?: { all: boolean }): Promise<PodmanContainerInfo[]>;
   prunePods(): Promise<void>;
+  podmanAttach(containerId: string): Promise<NodeJS.ReadWriteStream>;
   getPodInspect(podId: string): Promise<PodInspectInfo>;
   startPod(podId: string): Promise<void>;
   stopPod(podId: string): Promise<void>;
@@ -202,6 +203,44 @@ export class LibpodDockerode {
             return reject(err);
           }
           resolve(data);
+        });
+      });
+    };
+
+    // add attach
+    prototypeOfDockerode.podmanAttach = function (containerId: string) {
+      const optsf = {
+        path: `/v4.2.0/libpod/containers/${containerId}/attach?stdin=true&stdout=true&stderr=true&`,
+        method: 'POST',
+        isStream: true,
+        openStdin: true,
+        allowEmpty: true,
+        statusCodes: {
+          200: true,
+          404: 'no such container',
+          500: 'server error',
+        },
+        options: {},
+      };
+
+      // patch the modem to not send any data. By default dockerode send query parameters as JSON payload
+      // but podman REST API will then echo the response, so send empty data '' instead
+      const originalBuildRequest = this.modem.buildRequest;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.modem.buildRequest = function (options: unknown, context: any, data: unknown, callback: unknown) {
+        if (context.allowEmpty && context.path.includes('/attach?')) {
+          data = '';
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return originalBuildRequest.call(this, options, context, data, callback);
+      };
+
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, stream: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(stream);
         });
       });
     };
