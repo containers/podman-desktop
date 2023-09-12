@@ -87,7 +87,7 @@ function toPodInfo(pod: V1Pod, contextName?: string): PodInfo {
     Name: pod.metadata?.name || '',
     Namespace: pod.metadata?.namespace || '',
     Networks: [],
-    Status: pod.status?.phase || '',
+    Status: pod.metadata?.deletionTimestamp ? 'DELETING' : pod.status?.phase || '',
     engineId: contextName ?? 'kubernetes',
     engineName: 'k8s',
     kind: 'kubernetes',
@@ -160,7 +160,6 @@ export class KubernetesClient {
     this.configurationRegistry.registerConfigurations([kubeconfigConfigurationNode]);
 
     // grab the value from the configuration
-    // grab value
     const kubernetesConfiguration = this.configurationRegistry.getConfiguration('kubernetes');
     const userKubeconfigPath = kubernetesConfiguration.get<string>('Kubeconfig');
     if (userKubeconfigPath) {
