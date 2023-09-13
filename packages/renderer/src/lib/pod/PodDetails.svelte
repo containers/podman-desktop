@@ -45,7 +45,7 @@ onMount(() => {
 function inProgressCallback(inProgress: boolean, state: string | undefined): void {
   pod.actionInProgress = inProgress;
   if (state && inProgress) {
-    pod.status = 'STARTING';
+    pod.status = state;
   }
 }
 
