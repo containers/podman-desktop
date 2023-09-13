@@ -96,7 +96,7 @@
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^18",
     "@types/tar": "^6.1.6",
-    "@types/tar-fs": "^2.0.1",
+    "@types/tar-fs": "^2.0.2",
     "@types/validator": "^13.11.1",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
