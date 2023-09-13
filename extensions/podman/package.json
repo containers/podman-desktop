@@ -115,6 +115,15 @@
         }
       }
     },
+    "icons": {
+      "podman-icon": {
+        "description": "Podman icon",
+        "default": {
+          "fontPath": "podman.woff2",
+          "fontCharacter": "\\0041"
+        }
+      }
+    },
     "onboarding": {
       "title": "Podman Setup",
       "steps": [
