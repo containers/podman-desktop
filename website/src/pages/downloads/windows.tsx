@@ -50,7 +50,7 @@ async function grabfilenameforWindows(
     asset =>
       (asset.name as string).endsWith('arm64.exe') &&
       !asset.name.includes('airgap') &&
-      asset.name !== setupX64Asset?.name,
+      asset.name !== setupArm64Asset?.name,
   );
   const binaryArm64 = binaryOnlyArm64WindowsAssets?.[0]?.browser_download_url;
 
@@ -125,10 +125,10 @@ export function WindowsDownloads(): JSX.Element {
             </caption>
           </div>
           <div className="mt-4">
-            <div>Other downloads for Windows:</div>
+            <div>Other Windows downloads:</div>
 
             <div className="pt-4 pb-4 flex flex-col">
-              <div className="">Windows installer:</div>
+              <div className="">Installer:</div>
               <div className="flex flex-row justify-center">
                 <Link
                   className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-3 font-semibold text-md"
