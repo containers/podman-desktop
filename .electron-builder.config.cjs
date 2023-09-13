@@ -132,6 +132,7 @@ const config = {
     ],
   },
   linux: {
+    category: 'Development',
     icon: './buildResources/icon-512x512.png',
     target: ['flatpak', 'tar.gz'],
   },
