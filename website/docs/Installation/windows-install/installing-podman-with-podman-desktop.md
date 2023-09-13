@@ -57,4 +57,4 @@ Consider rather [installing Podman with OpenShift Local](installing-podman-with-
 
 #### Next steps
 
-- [Getting Started with Podman Desktop](/docs/getting-started/getting-started)
+- [Getting Started with Podman Desktop](/docs/getting-started)

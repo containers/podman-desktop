@@ -42,4 +42,4 @@ The Windows installer for restricted environments:
 
 #### Next steps
 
-- [Getting Started with Podman Desktop](/docs/getting-started/getting-started).
+- [Getting Started with Podman Desktop](/docs/getting-started).
