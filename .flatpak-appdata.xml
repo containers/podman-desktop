@@ -30,6 +30,9 @@
     </ul>
     <p>You can also bring new features with Podman Desktop plug-ins or Docker Desktop extensions.</p>
   </description>
+  <categories>
+    <category>Development</category>
+  </categories>
   <screenshots>
     <screenshot>
       <caption>Podman Desktop UI</caption>
