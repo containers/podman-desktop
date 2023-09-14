@@ -61,7 +61,7 @@ const containerProviderConnections = new Map<string, extensionApi.ContainerProvi
 // Warning to check to see if the socket is a disguised Podman socket,
 // by default we assume it is until proven otherwise when we check
 let isDisguisedPodmanSocket = true;
-let disguisedPodmanSocketWatcher: extensionApi.FileSystemWatcher;
+let disguisedPodmanSocketWatcher: extensionApi.FileSystemWatcher | undefined;
 
 export type MachineJSON = {
   Name: string;
@@ -753,7 +753,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Update the status of the provider if the socket is changed, created or deleted
   disguisedPodmanSocketWatcher = setupDisguisedPodmanSocketWatcher(provider, getSocketPath());
-  extensionContext.subscriptions.push(disguisedPodmanSocketWatcher);
+  if (disguisedPodmanSocketWatcher) {
+    extensionContext.subscriptions.push(disguisedPodmanSocketWatcher);
+  }
 
   // Compatibility mode status bar item
   // only available for macOS or Linux (for now).
@@ -1187,7 +1189,7 @@ export async function createMachine(
 function setupDisguisedPodmanSocketWatcher(
   provider: extensionApi.Provider,
   socketFile: string,
-): extensionApi.FileSystemWatcher {
+): extensionApi.FileSystemWatcher | undefined {
   // Monitor the socket file for any changes, creation or deletion
   // and trigger a change if that happens
 
@@ -1198,10 +1200,10 @@ function setupDisguisedPodmanSocketWatcher(
     });
   });
 
-  let socketWatcher: extensionApi.FileSystemWatcher;
-  if (isLinux) {
+  let socketWatcher: extensionApi.FileSystemWatcher | undefined = undefined;
+  if (isLinux()) {
     socketWatcher = extensionApi.fs.createFileSystemWatcher(socketFile);
-  } else {
+  } else if (isMac()) {
     // watch parent directory
     socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
   }
@@ -1213,15 +1215,15 @@ function setupDisguisedPodmanSocketWatcher(
     }
   };
 
-  socketWatcher.onDidChange(async uri => {
+  socketWatcher?.onDidChange(async uri => {
     await updateSocket(uri);
   });
 
-  socketWatcher.onDidCreate(async uri => {
+  socketWatcher?.onDidCreate(async uri => {
     await updateSocket(uri);
   });
 
-  socketWatcher.onDidDelete(async uri => {
+  socketWatcher?.onDidDelete(async uri => {
     await updateSocket(uri);
   });
 
