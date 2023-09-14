@@ -962,7 +962,7 @@ export class PluginSystem {
 
     this.ipcHandle(
       'container-provider-registry:createAndStartContainer',
-      async (_listener, engine: string, options: ContainerCreateOptions): Promise<void> => {
+      async (_listener, engine: string, options: ContainerCreateOptions): Promise<{ id: string }> => {
         return containerProviderRegistry.createAndStartContainer(engine, options);
       },
     );

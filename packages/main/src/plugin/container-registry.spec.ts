@@ -1553,3 +1553,31 @@ test('container logs callback notified when messages arrive', async () => {
   expect(callback).toHaveBeenCalledWith('end', '');
   expect(telemetry.track).toHaveBeenCalled;
 });
+
+test('test createAndStartContainer', async () => {
+  const createdId = '1234';
+
+  const startMock = vi.fn();
+  const createContainerMock = vi
+    .fn()
+    .mockResolvedValue({ id: createdId, start: startMock } as unknown as Dockerode.Container);
+
+  const fakeDockerode = {
+    createContainer: createContainerMock,
+  } as unknown as Dockerode;
+
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+    },
+    api: fakeDockerode,
+  } as InternalContainerProvider);
+
+  const container = await containerRegistry.createAndStartContainer('podman1', {});
+
+  expect(container.id).toBe(createdId);
+  expect(createContainerMock).toHaveBeenCalled();
+  expect(startMock).toHaveBeenCalled();
+});

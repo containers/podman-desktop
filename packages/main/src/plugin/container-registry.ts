@@ -1347,7 +1347,7 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async createAndStartContainer(engineId: string, options: ContainerCreateOptions): Promise<void> {
+  async createAndStartContainer(engineId: string, options: ContainerCreateOptions): Promise<{ id: string }> {
     let telemetryOptions = {};
     try {
       // need to find the container engine of the container
@@ -1359,7 +1359,8 @@ export class ContainerProviderRegistry {
         throw new Error('no running provider for the matching container');
       }
       const container = await engine.api.createContainer(options);
-      return container.start();
+      await container.start();
+      return { id: container.id };
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
