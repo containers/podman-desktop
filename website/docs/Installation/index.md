@@ -14,70 +14,56 @@ You can install Podman Desktop on:
 - [macOS](./installation/macos-install)
 - [Linux](./installation/linux-install)
 
-[![](https://mermaid.ink/img/pako:eNqNVG1vmzAQ_iuWpyiblFUESkL5uERrpSZd10yTNvHF4INYAV9kjjQsyn-fIaUJ096-wPnueZ570dkHnqAEHvLB4BBpxpRWFLLWZGyYY7aAHeTDkA0lxFU2HL1EaA0FNO5YlND3fhVGiTiHcvgqZENbowph6hnmaBremyD2k3TSUc-IL7CnMypJkgtICQlq2ZdJg7H0LjAEhlQPIqfuOE1_J_MBjQRzRjqOcwFLUdNHUai8boJLeyrBGEHDE-LY_OznOBhEmlQBudLQWJQDWwGR0hmrtqzGyjDQO2VQF6CJPStas0eUhdBsDuWGcBtpS2jAD0DPaDaWekoSskeD-zrSszViCScxK0WVyFkhkrXNacWzNvULoVXuTk8g2Z0g9mkLerVWKbEFJiLvwgs7885-EKR2wN6itm5d7d_1s9qZkbB5zF_zzTHZgOkz76sYjAaCkklVklFxRQpfKfdKy85e2gXcWPify18JLWPcd4BzwJb9j2aXKjH4v-BvXeVN46nK-i0ZyNpOoOw3zu6q-NfaP1ei7ny3ii4Qt4iZXZbZ62SfTrJ1r4iXXDUf8QJMIZS097W9WRFvb1zEQ2vahd5E3O6jxYmKcFXrhIdkKhjxaisFwVyJzIiCh6nIS-sFqQjN8vQAtO_AiG-F5uGB73n43vOuvKnv-r4fXE_Hk2DEax56N9dXzk0w9a-DwA3Grn8c8R-IVnR85UxvfMcNJt7Uc1x3MmnVvrfBpozjT6SPZ-E?type=png)](https://mermaid.live/edit#pako:eNqNVG1vmzAQ_iuWpyiblFUESkL5uERrpSZd10yTNvHF4INYAV9kjjQsyn-fIaUJ096-wPnueZ570dkHnqAEHvLB4BBpxpRWFLLWZGyYY7aAHeTDkA0lxFU2HL1EaA0FNO5YlND3fhVGiTiHcvgqZENbowph6hnmaBremyD2k3TSUc-IL7CnMypJkgtICQlq2ZdJg7H0LjAEhlQPIqfuOE1_J_MBjQRzRjqOcwFLUdNHUai8boJLeyrBGEHDE-LY_OznOBhEmlQBudLQWJQDWwGR0hmrtqzGyjDQO2VQF6CJPStas0eUhdBsDuWGcBtpS2jAD0DPaDaWekoSskeD-zrSszViCScxK0WVyFkhkrXNacWzNvULoVXuTk8g2Z0g9mkLerVWKbEFJiLvwgs7885-EKR2wN6itm5d7d_1s9qZkbB5zF_zzTHZgOkz76sYjAaCkklVklFxRQpfKfdKy85e2gXcWPify18JLWPcd4BzwJb9j2aXKjH4v-BvXeVN46nK-i0ZyNpOoOw3zu6q-NfaP1ei7ny3ii4Qt4iZXZbZ62SfTrJ1r4iXXDUf8QJMIZS097W9WRFvb1zEQ2vahd5E3O6jxYmKcFXrhIdkKhjxaisFwVyJzIiCh6nIS-sFqQjN8vQAtO_AiG-F5uGB73n43vOuvKnv-r4fXE_Hk2DEax56N9dXzk0w9a-DwA3Grn8c8R-IVnR85UxvfMcNJt7Uc1x3MmnVvrfBpozjT6SPZ-E)
-
-<!--
-https://mermaid.live/edit#pako:eNqNVG1vmzAQ_iuWpyiblFUESkL5uERrpSZd10yTNvHF4INYAV9kjjQsyn-fIaUJ096-wPnueZ570dkHnqAEHvLB4BBpxpRWFLLWZGyYY7aAHeTDkA0lxFU2HL1EaA0FNO5YlND3fhVGiTiHcvgqZENbowph6hnmaBremyD2k3TSUc-IL7CnMypJkgtICQlq2ZdJg7H0LjAEhlQPIqfuOE1_J_MBjQRzRjqOcwFLUdNHUai8boJLeyrBGEHDE-LY_OznOBhEmlQBudLQWJQDWwGR0hmrtqzGyjDQO2VQF6CJPStas0eUhdBsDuWGcBtpS2jAD0DPaDaWekoSskeD-zrSszViCScxK0WVyFkhkrXNacWzNvULoVXuTk8g2Z0g9mkLerVWKbEFJiLvwgs7885-EKR2wN6itm5d7d_1s9qZkbB5zF_zzTHZgOkz76sYjAaCkklVklFxRQpfKfdKy85e2gXcWPify18JLWPcd4BzwJb9j2aXKjH4v-BvXeVN46nK-i0ZyNpOoOw3zu6q-NfaP1ei7ny3ii4Qt4iZXZbZ62SfTrJ1r4iXXDUf8QJMIZS097W9WRFvb1zEQ2vahd5E3O6jxYmKcFXrhIdkKhjxaisFwVyJzIiCh6nIS-sFqQjN8vQAtO_AiG-F5uGB73n43vOuvKnv-r4fXE_Hk2DEax56N9dXzk0w9a-DwA3Grn8c8R-IVnR85UxvfMcNJt7Uc1x3MmnVvrfBpozjT6SPZ-E
-
-```mermaid
-%%{
-  init: {
-    'logLevel': 'debug',
-    'theme': 'base',
-    'themeVariables': {
-      'primaryColor': '#8b5cf6',
-      'primaryTextColor': '#ccc',
-      'secondaryColor': '#8f81d3',
-      'tertiaryColor': '#d721ff',
-      'secondaryBorderColor': '#000',
-      'fontFamily': 'Montserrat'
-    }
-  }
-}%%
-
-title Setting up your environment with Podman Desktop
-Set up Networking
-    : Proxy
-Choose your virtual machine engine
-    : Podman
-    : Red Hat OpenShift Local
-    : Lima
-    : Native (on Linux)
-Choose your container engine
-    : Podman
-    : Docker
-Choose your Kubernetes distribution
-    : Kind
-    : Minikube
-    : Red Hat OpenShift Sandbox
-    : OpenShift on Red Hat OpenShift Local
-    : MicroShift on Red Hat OpenShift Local
-    : Your Kube config
-Choose your registries
-    : Docker Hub
-    : Red Hat Quay
-    : GitHub
-    : Google Container Registry
-    : Your registry
-``` -->
-
-Podman Desktop requires you to install at least one container engine.
+## Understanding what you need for container workloads
 
 Podman Desktop does not install any container engine automatically.
+
+To run container workloads, Podman Desktop requires you to install at least one container engine: Podman or Docker.
+
+[![](https://mermaid.ink/img/pako:eNptUcFOAyEQ_RUyZ_ZQNTHhZuyxNkYTD4bLuEx3yS7DBlhtbfrvUmh0NYYD7817b5gwR2i9IVDQNI3m1vPOdkqzEBF5oEOBmfT-4wXHmaISOxwj1TLn6N1oO3bESYlguz5pLp1qvHmjhJrrefTGIQuHbW-ZZKVy9SPJJ-_TSDGKPEfCbArxrF_UfC3p2bybxz_eb_neu8lHqjXNW0z2ncTG8rxfPP2rvPbtQKEmNtbhwlfoUq9YGIpD8tNCuqD_p7uIi9lAgqPg0Jq8g-P5WzWknhxpUBkaDIMGzafswzn55wO3oFKYScI8GUy0ttgFdKDKXiSQscmHh7rUslsJEzKoI-xBXd9KOIC6ulmdJHx6n3Oror8WXHqcvgDTMroa?type=png)](https://mermaid.live/edit#pako:eNptUcFOAyEQ_RUyZ_ZQNTHhZuyxNkYTD4bLuEx3yS7DBlhtbfrvUmh0NYYD7817b5gwR2i9IVDQNI3m1vPOdkqzEBF5oEOBmfT-4wXHmaISOxwj1TLn6N1oO3bESYlguz5pLp1qvHmjhJrrefTGIQuHbW-ZZKVy9SPJJ-_TSDGKPEfCbArxrF_UfC3p2bybxz_eb_neu8lHqjXNW0z2ncTG8rxfPP2rvPbtQKEmNtbhwlfoUq9YGIpD8tNCuqD_p7uIi9lAgqPg0Jq8g-P5WzWknhxpUBkaDIMGzafswzn55wO3oFKYScI8GUy0ttgFdKDKXiSQscmHh7rUslsJEzKoI-xBXd9KOIC6ulmdJHx6n3Oror8WXHqcvgDTMroa)
+
+Podman can run:
+
+- Rootless containers
+- Pods
+- Rootful containers
+- Compose
+
+Docker can run:
+
+- Rootful containers
+- Compose
+
+Consider installing the Podman container engine also for:
+
+- Added security
+- No daemon
+- Open source
 
 Podman Desktop can use different virtual machines, such as:
 
 - Lima
 - Podman Machine
 
-Podman Desktop can control various container engines, such as:
+## Understanding what you need for Kubernetes workloads
 
-- Docker
-- Podman
+Podman Desktop does not install any Kubernetes cluster automatically.
 
-Consider installing the Podman container engine for:
+To run Kubernetes workloads, Podman Desktop requires you to:
 
-- Added security
-- No daemon
-- Open source
-- Rootless
+- Connect to a remote Kubernetes cluster.
+- Install a local Kubernetes cluster.
+
+[![](https://mermaid.ink/img/pako:eNp1Uk1rwzAM_StGZ2c0KynMt7EeBm0ZrDDY8EWN1cQ0kYvjsHal_32OwwZd15Of9J4e-vAJSmcIFGRZprl0vLWV0ixEh7yjY4IxqN3nGzY9dUpsseloTHMsfWxsxS1xUMLbqg6ak9NYnm0ooGbNT44DWiYviKv4yoVlI_N_iJVlu-s3NJCal7ZFuZh2Mhc_QeQ8U6BuVLySEc8YxMueeF3bbRBLV2ITfUrvUmLQ3VL9xrfM1shm4w5_he-u92JoU4wru-Sv2MtmrujLma7pYX6Q0JJv0Zp4rNOwfw2hppY0qAgN-p0Gzeeowz649ZFLUMH3JKHfGww0t1h5bEGlA0ogY4Pzq_H66RNI2CODOsEB1ETCEVRRFHeTfPqQzyZ5MbsvzhK-nIseedJ-JJz8zt9tMMjJ?type=png)](https://mermaid.live/edit#pako:eNp1Uk1rwzAM_StGZ2c0KynMt7EeBm0ZrDDY8EWN1cQ0kYvjsHal_32OwwZd15Of9J4e-vAJSmcIFGRZprl0vLWV0ixEh7yjY4IxqN3nGzY9dUpsseloTHMsfWxsxS1xUMLbqg6ak9NYnm0ooGbNT44DWiYviKv4yoVlI_N_iJVlu-s3NJCal7ZFuZh2Mhc_QeQ8U6BuVLySEc8YxMueeF3bbRBLV2ITfUrvUmLQ3VL9xrfM1shm4w5_he-u92JoU4wru-Sv2MtmrujLma7pYX6Q0JJv0Zp4rNOwfw2hppY0qAgN-p0Gzeeowz649ZFLUMH3JKHfGww0t1h5bEGlA0ogY4Pzq_H66RNI2CODOsEB1ETCEVRRFHeTfPqQzyZ5MbsvzhK-nIseedJ-JJz8zt9tMMjJ)
+
+To connect to a remote Kubernetes, you can:
+
+- Use your kube configuration
+- Connect to Red Hat OpenShift Sandbox
+
+To install a local Kubernetes cluster, you can:
+
+- Install Kind and create a cluster on your container engine.
+- Install Minikube and create a cluster on your container engine.
+- Use a Lima virtual machine with k3s or Kubernetes.
+- Install Red Hat OpenShift Local, and create a MicroShift or OpenShift instance.
