@@ -19,13 +19,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, vi, type Mock, beforeAll, describe, expect } from 'vitest';
+import { test, vi, type Mock, beforeAll, describe, expect, beforeEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { runImageInfo } from '../../stores/run-image-store';
 import RunImage from '/@/lib/image/RunImage.svelte';
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
 import { mockBreadcrumb } from '../../stores/breadcrumb';
 import userEvent from '@testing-library/user-event';
+import { router } from 'tinro';
 
 // fake the window.events object
 beforeAll(() => {
@@ -38,17 +39,21 @@ beforeAll(() => {
   (window as any).getImageInspect = vi.fn();
   (window as any).listNetworks = vi.fn().mockResolvedValue([]);
   (window as any).listContainers = vi.fn().mockResolvedValue([]);
-  (window as any).createAndStartContainer = vi.fn();
+  (window as any).createAndStartContainer = vi.fn().mockResolvedValue({ id: '1234' });
 
   mockBreadcrumb();
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
 });
 
 async function waitRender() {
   const result = render(RunImage);
 
   //wait until dataReady is true
-  while (result.component.$$.ctx[29] !== true) {
-    await new Promise(resolve => setTimeout(resolve, 100));
+  while (result.component.$$.ctx[30] !== true) {
+    await new Promise(resolve => setTimeout(resolve, 150));
   }
   return result;
 }
@@ -311,7 +316,12 @@ describe('RunImage', () => {
   });
 
   test('Expect to see an error if the container/host ranges have different size', async () => {
+    router.goto('/basic');
+
     await createRunImage(undefined, ['command1', 'command2']);
+
+    const link1 = screen.getByRole('link', { name: 'Basic' });
+    await fireEvent.click(link1);
 
     const customMappingButton = screen.getByRole('button', { name: 'Add custom port mapping' });
     await fireEvent.click(customMappingButton);
@@ -334,5 +344,59 @@ describe('RunImage', () => {
     expect(errorComponent.textContent?.trim()).toBe(
       'Error: host and container port ranges (9000-9001:9000-9003) have different lengths: 2 vs 4',
     );
+  });
+
+  test('Expect that container is created and redirected to tty page', async () => {
+    const gotoSpy = vi.spyOn(router, 'goto');
+
+    await createRunImage('entrypoint', []);
+
+    const link = screen.getByRole('button', { name: 'Start Container' });
+
+    await fireEvent.click(link);
+
+    // wait few time
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    // expect to be redirected to tty page
+    expect(gotoSpy).toHaveBeenCalledWith('/containers/1234/tty');
+  });
+
+  test('Expect that container is created and redirected to containers page', async () => {
+    const gotoSpy = vi.spyOn(router, 'goto');
+
+    router.goto('/advanced');
+
+    await createRunImage('', []);
+
+    const link1 = screen.getByRole('link', { name: 'Basic' });
+    await fireEvent.click(link1);
+
+    // select another tab
+    const advancedTab = screen.getByRole('link', { name: 'Advanced' });
+    await fireEvent.click(advancedTab);
+
+    // wait
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    // remove the tty and openStdin checkboxes
+
+    // uncheck tty box Attach a pseudo terminal
+    const ttyCheckbox = screen.getByRole('checkbox', { name: 'Attach a pseudo terminal' });
+    await fireEvent.click(ttyCheckbox);
+
+    // uncheck openStdin box Keep STDIN open even if not attached
+    const openStdinCheckbox = screen.getByRole('checkbox', { name: 'Use interactive' });
+    await fireEvent.click(openStdinCheckbox);
+
+    const link = screen.getByRole('button', { name: 'Start Container' });
+
+    await fireEvent.click(link);
+
+    // wait few time
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    // expect to be redirected to containers page as there is no tty
+    expect(gotoSpy).toHaveBeenCalledWith('/containers');
   });
 });

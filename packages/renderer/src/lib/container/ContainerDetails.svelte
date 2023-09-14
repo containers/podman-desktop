@@ -18,19 +18,45 @@ import ContainerStatistics from './ContainerStatistics.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import ContainerDetailsTtyTerminal from './ContainerDetailsTtyTerminal.svelte';
+import { router } from 'tinro';
 
 export let containerID: string;
 
 let container: ContainerInfoUI;
+
 let detailsPage: DetailsPage;
+
+let displayTty = false;
+
+// update current route scheme
+let currentRouterPath: string;
 
 onMount(() => {
   const containerUtils = new ContainerUtils();
+
+  router.subscribe(route => {
+    currentRouterPath = route.path;
+  });
+
   // loading container info
   return containersInfos.subscribe(containers => {
     const matchingContainer = containers.find(c => c.Id === containerID);
     if (matchingContainer) {
       container = containerUtils.getContainerInfoUI(matchingContainer);
+
+      // look if tty is supported by this container
+      window.getContainerInspect(container.engineId, container.id).then(inspect => {
+        displayTty = (inspect.Config.Tty || false) && (inspect.Config.OpenStdin || false);
+        // if we comes with a / redirect to /logs or to /tty if tty is supported
+        if (currentRouterPath.endsWith('/')) {
+          if (displayTty) {
+            router.goto(`${currentRouterPath}tty`);
+          } else {
+            router.goto(`${currentRouterPath}logs`);
+          }
+        }
+      });
     } else if (detailsPage) {
       // the container has been deleted
       detailsPage.close();
@@ -80,6 +106,9 @@ function errorCallback(errorMessage: string): void {
         <Tab title="Kube" url="kube" />
       {/if}
       <Tab title="Terminal" url="terminal" />
+      {#if displayTty}
+        <Tab title="Tty" url="tty" />
+      {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
@@ -96,6 +125,9 @@ function errorCallback(errorMessage: string): void {
       </Route>
       <Route path="/terminal" breadcrumb="Terminal" navigationHint="tab">
         <ContainerDetailsTerminal container="{container}" />
+      </Route>
+      <Route path="/tty" breadcrumb="Tty" navigationHint="tab">
+        <ContainerDetailsTtyTerminal container="{container}" />
       </Route>
     </svelte:fragment>
   </DetailsPage>
