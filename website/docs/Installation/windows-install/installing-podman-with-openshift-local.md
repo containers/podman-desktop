@@ -51,4 +51,4 @@ Consider installing the Podman Preset in OpenShift Local rather than [installing
 
 #### Next steps
 
-- [Getting Started with Podman Desktop](/docs/getting-started/getting-started)
+- [Getting Started with Podman Desktop](/docs/getting-started)
