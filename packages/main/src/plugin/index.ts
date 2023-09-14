@@ -81,7 +81,17 @@ import { AutostartEngine } from './autostart-engine.js';
 import { CloseBehavior } from './close-behavior.js';
 import { TrayIconColor } from './tray-icon-color.js';
 import { KubernetesClient } from './kubernetes-client.js';
-import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service, V1Ingress } from '@kubernetes/client-node';
+import type {
+  V1Pod,
+  V1ConfigMap,
+  V1NamespaceList,
+  V1PodList,
+  V1Service,
+  V1Ingress,
+  V1Deployment,
+  V1PersistentVolume,
+  V1PersistentVolumeClaim,
+} from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
@@ -1633,6 +1643,30 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:listPods', async (): Promise<PodInfo[]> => {
       return kubernetesClient.listPods();
+    });
+
+    this.ipcHandle('kubernetes-client:listRawPods', async (): Promise<V1Pod[]> => {
+      return kubernetesClient.listRawPods();
+    });
+
+    this.ipcHandle('kubernetes-client:listDeployments', async (): Promise<V1Deployment[]> => {
+      return kubernetesClient.listDeployments();
+    });
+
+    this.ipcHandle('kubernetes-client:listIngresses', async (): Promise<V1Ingress[]> => {
+      return kubernetesClient.listIngresses();
+    });
+
+    this.ipcHandle('kubernetes-client:listServices', async (): Promise<V1Service[]> => {
+      return kubernetesClient.listServices();
+    });
+
+    this.ipcHandle('kubernetes-client:listConfigMaps', async (): Promise<V1ConfigMap[]> => {
+      return kubernetesClient.listConfigMaps();
+    });
+
+    this.ipcHandle('kubernetes-client:listPVCs', async (): Promise<V1PersistentVolumeClaim[]> => {
+      return kubernetesClient.listPVCs();
     });
 
     this.ipcHandle(

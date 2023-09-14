@@ -11,6 +11,7 @@ import ContainerList from './lib/ContainerList.svelte';
 import ImagesList from './lib/ImagesList.svelte';
 import ProviderList from './lib/ProviderList.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
+import KubePage from './lib/kube/KubePage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
 import PullImage from './lib/image/PullImage.svelte';
 import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
@@ -22,6 +23,7 @@ import StatusBar from './lib/statusbar/StatusBar.svelte';
 import ImageDetails from './lib/image/ImageDetails.svelte';
 import PodsList from './lib/pod/PodsList.svelte';
 import PreferencesNavigation from './PreferencesNavigation.svelte';
+import KubeNavigation from './KubeNavigation.svelte';
 import AppNavigation from './AppNavigation.svelte';
 import VolumesList from './lib/volume/VolumesList.svelte';
 import VolumeDetails from './lib/volume/VolumeDetails.svelte';
@@ -79,6 +81,10 @@ window.events?.receive('display-troubleshooting', () => {
       <AppNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
       {#if meta.url.startsWith('/preferences')}
         <PreferencesNavigation meta="{meta}" />
+      {/if}
+
+      {#if meta.url.startsWith('/kubernetes')}
+        <KubeNavigation meta="{meta}" />
       {/if}
 
       <div
@@ -154,6 +160,9 @@ window.events?.receive('display-troubleshooting', () => {
         </Route>
         <Route path="/volumes" breadcrumb="Volumes" navigationHint="root">
           <VolumesList />
+        </Route>
+        <Route path="/kubernetes/*" breadcrumb="Kubernetes">
+          <KubePage />
         </Route>
         <Route path="/volumes/create" breadcrumb="Create a Volume">
           <CreateVolume />

@@ -28,6 +28,8 @@ import type {
   V1ContainerState,
   V1APIResource,
   V1APIGroup,
+  V1Deployment,
+  V1PersistentVolumeClaim,
 } from '@kubernetes/client-node';
 import {
   ApisApi,
@@ -438,6 +440,87 @@ export class KubernetesClient {
     if (ns && connected) {
       const pods = await this.listNamespacedPod(ns);
       return pods.items.map(pod => toPodInfo(pod, this.getCurrentContextName()));
+    }
+    return [];
+  }
+
+  async listRawPods(): Promise<V1Pod[]> {
+    const ns = this.getCurrentNamespace();
+    // Only retrieve pods if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
+      const pods = await this.listNamespacedPod(ns);
+      return pods.items;
+    }
+    return [];
+  }
+
+  // List all deployments
+  async listDeployments(): Promise<V1Deployment[]> {
+    const ns = this.getCurrentNamespace();
+    // Only retrieve deployments if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
+      // Get the deployments via the kubernetes api
+      const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
+      const deployments = await k8sAppsApi.listNamespacedDeployment(ns);
+      return deployments.body.items;
+    }
+    return [];
+  }
+
+  // List all ingresses
+  async listIngresses(): Promise<V1Ingress[]> {
+    const ns = this.getCurrentNamespace();
+    // Only retrieve ingresses if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
+      // Get the ingresses via the kubernetes api
+      const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
+      const ingresses = await k8sNetworkingApi.listNamespacedIngress(ns);
+      return ingresses.body.items;
+    }
+    return [];
+  }
+
+  // List all services
+  async listServices(): Promise<V1Service[]> {
+    const ns = this.getCurrentNamespace();
+    // Only retrieve services if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
+      // Get the services via the kubernetes api
+      const k8sCoreApi = this.kubeConfig.makeApiClient(CoreV1Api);
+      const services = await k8sCoreApi.listNamespacedService(ns);
+      return services.body.items;
+    }
+    return [];
+  }
+
+  // List all configmaps
+  async listConfigMaps(): Promise<V1ConfigMap[]> {
+    const ns = this.getCurrentNamespace();
+    // Only retrieve configmaps if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
+      // Get the configmaps via the kubernetes api
+      const k8sCoreApi = this.kubeConfig.makeApiClient(CoreV1Api);
+      const configmaps = await k8sCoreApi.listNamespacedConfigMap(ns);
+      return configmaps.body.items;
+    }
+    return [];
+  }
+
+  // List all Persistent Volume Claims
+  async listPVCs(): Promise<V1PersistentVolumeClaim[]> {
+    const ns = this.getCurrentNamespace();
+    // Only retrieve Persistent Volume Claims if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
+      // Get the Persistent Volume Claims via the kubernetes api
+      const k8sCoreApi = this.kubeConfig.makeApiClient(CoreV1Api);
+      const persistentVolumeClaims = await k8sCoreApi.listNamespacedPersistentVolumeClaim(ns);
+      return persistentVolumeClaims.body.items;
     }
     return [];
   }

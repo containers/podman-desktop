@@ -50,7 +50,9 @@ export function close(): void {
     <div class="flex flex-row px-2 border-b border-charcoal-400">
       <slot name="tabs" />
     </div>
-    <div class="h-full bg-charcoal-900">
+
+    <!-- Details page has A LOT of scrollable content, so let's add a scrollbar too.-->
+    <div class="h-full bg-charcoal-900 overflow-y-auto">
       <slot name="content" />
     </div>
   </div>

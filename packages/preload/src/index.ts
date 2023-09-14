@@ -61,7 +61,16 @@ import type {
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
-import type { V1ConfigMap, V1Ingress, V1NamespaceList, V1Pod, V1PodList, V1Service } from '@kubernetes/client-node';
+import type {
+  V1ConfigMap,
+  V1Deployment,
+  V1Ingress,
+  V1NamespaceList,
+  V1PersistentVolumeClaim,
+  V1Pod,
+  V1PodList,
+  V1Service,
+} from '@kubernetes/client-node';
 import type { Menu } from '../../main/src/plugin/menu-registry';
 import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
 import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
@@ -1347,6 +1356,30 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesListPods', async (): Promise<PodInfo[]> => {
     return ipcInvoke('kubernetes-client:listPods');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesListRawPods', async (): Promise<V1Pod[]> => {
+    return ipcInvoke('kubernetes-client:listRawPods');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesListDeployments', async (): Promise<V1Deployment[]> => {
+    return ipcInvoke('kubernetes-client:listDeployments');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesListIngresses', async (): Promise<V1Ingress[]> => {
+    return ipcInvoke('kubernetes-client:listIngresses');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesListServices', async (): Promise<V1Service[]> => {
+    return ipcInvoke('kubernetes-client:listServices');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesListConfigMaps', async (): Promise<V1ConfigMap[]> => {
+    return ipcInvoke('kubernetes-client:listConfigMaps');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesListPVCs', async (): Promise<V1PersistentVolumeClaim[]> => {
+    return ipcInvoke('kubernetes-client:listPVCs');
   });
 
   let onDataCallbacksKubernetesPodLogId = 0;

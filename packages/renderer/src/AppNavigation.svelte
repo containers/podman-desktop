@@ -10,6 +10,7 @@ import { ImageUtils } from './lib/image/image-utils';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import ContainerIcon from './lib/images/ContainerIcon.svelte';
 import PodIcon from './lib/images/PodIcon.svelte';
+import KubeIcon from './lib/images/KubeIcon.svelte';
 import ImageIcon from './lib/images/ImageIcon.svelte';
 import VolumeIcon from './lib/images/VolumeIcon.svelte';
 import NavItem from './lib/ui/NavItem.svelte';
@@ -124,6 +125,9 @@ export let meta: TinroRouteMeta;
   </NavItem>
   <NavItem href="/volumes" tooltip="Volumes{volumeCount}" ariaLabel="Volumes" bind:meta="{meta}">
     <VolumeIcon size="24" />
+  </NavItem>
+  <NavItem href="/kubernetes/components/pods" tooltip="Kubernetes" ariaLabel="Kubernetes" bind:meta="{meta}">
+    <KubeIcon size="24" />
   </NavItem>
 
   {#if $contributions.length > 0}
