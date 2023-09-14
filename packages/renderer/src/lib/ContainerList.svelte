@@ -331,7 +331,7 @@ onDestroy(() => {
 });
 
 function openDetailsContainer(container: ContainerInfoUI) {
-  router.goto(`/containers/${container.id}/logs`);
+  router.goto(`/containers/${container.id}/`);
 }
 
 function keydownChoice(e: KeyboardEvent) {

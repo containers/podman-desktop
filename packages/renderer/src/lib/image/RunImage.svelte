@@ -80,6 +80,7 @@ let networkingModeUserContainer = '';
 
 // tty
 let useTty = true;
+let useInteractive = true;
 
 let runUser: string | undefined = undefined;
 let dataReady = false;
@@ -303,6 +304,7 @@ async function startContainer() {
 
   const ReadonlyRootfs = readOnly;
   const Tty = useTty;
+  const OpenStdin = useInteractive;
   const HostConfig: HostConfig = {
     Binds,
     AutoRemove: autoRemove,
@@ -336,6 +338,7 @@ async function startContainer() {
     HostConfig,
     ExposedPorts,
     Tty,
+    OpenStdin,
   };
   if (command.trim().length > 0) {
     options.Cmd = splitSpacesHandlingDoubleQuotes(command);
@@ -353,14 +356,19 @@ async function startContainer() {
   }
 
   try {
-    await window.createAndStartContainer(imageInspectInfo.engineId, options);
+    const data = await window.createAndStartContainer(imageInspectInfo.engineId, options);
+
+    // redirect to containers if no tty, else redirect to the container details
+    if (Tty && OpenStdin) {
+      router.goto(`/containers/${data.id}/tty`);
+    } else {
+      router.goto('/containers');
+    }
   } catch (e) {
     createError = String(e);
     console.error('Error while creating container', e);
     return;
   }
-  // redirect to containers
-  window.location.href = '#/containers';
 }
 
 function addPortsFromRange(
@@ -681,8 +689,20 @@ function checkContainerName(event: any) {
                 <label for="containerTty" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                   >Use TTY:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <input type="checkbox" bind:checked="{useTty}" class="mx-2 outline-none text-sm" />
+                  <input
+                    type="checkbox"
+                    bind:checked="{useTty}"
+                    class="mx-2 outline-none text-sm"
+                    aria-label="Attach a pseudo terminal" />
                   Attach a pseudo terminal
+                </div>
+                <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
+                  <input
+                    type="checkbox"
+                    bind:checked="{useInteractive}"
+                    class="mx-2 outline-none text-sm"
+                    aria-label="Use interactive" />
+                  Interactive: Keep STDIN open even if not attached
                 </div>
 
                 <!-- Specify user-->
