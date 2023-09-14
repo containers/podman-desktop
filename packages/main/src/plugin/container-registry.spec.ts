@@ -1923,4 +1923,48 @@ describe('attachToContainer', () => {
     expect(containerRegistry.getStreamsOutputPerContainerId().get(dockerodeContainer.id)).toBeUndefined();
     expect(containerRegistry.getStreamsPerContainerId().get(dockerodeContainer.id)).toBeUndefined();
   });
+
+  test('container do not attach stream as tty but no OpenStdin', async () => {
+    const fakeDockerode = {} as Dockerode;
+
+    const engine = {
+      name: 'docker1',
+      id: 'docker1',
+      connection: {
+        type: 'docker',
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider;
+
+    const attachMock = vi.fn();
+    const inspectMock = vi.fn();
+
+    const dockerodeContainer = {
+      id: '1234',
+      attach: attachMock,
+      inspect: inspectMock,
+    } as unknown as Dockerode.Container;
+
+    inspectMock.mockResolvedValue({
+      Config: {
+        Tty: true,
+        OpenStdin: false,
+      },
+    });
+
+    // create a read/write stream
+    const stream = new PassThrough();
+    // need to reply with a stream
+    attachMock.mockResolvedValue(stream);
+
+    await containerRegistry.attachToContainer(engine, dockerodeContainer);
+
+    const data = 'log message';
+    //send some data
+    stream.write(data);
+
+    expect(attachMock).not.toBeCalled();
+    expect(containerRegistry.getStreamsOutputPerContainerId().get(dockerodeContainer.id)).toBeUndefined();
+    expect(containerRegistry.getStreamsPerContainerId().get(dockerodeContainer.id)).toBeUndefined();
+  });
 });

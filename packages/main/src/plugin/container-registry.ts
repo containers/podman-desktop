@@ -1480,7 +1480,7 @@ export class ContainerProviderRegistry {
       openStdin = containerInspectInfo.Config.OpenStdin;
     }
     // no tty and no stdin, do not need to try to attach a terminal
-    if (!hasTty && !openStdin) {
+    if (!hasTty || !openStdin) {
       return;
     }
 
