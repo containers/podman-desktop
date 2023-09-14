@@ -126,6 +126,11 @@ export class ImageUtils {
     }
   }
 
+  deleteImage(image: ImageInfoUI) {
+    const imageId = image.name === '<none>' ? image.id : `${image.name}:${image.tag}`;
+    return window.deleteImage(image.engineId, imageId);
+  }
+
   getImageInfoUI(imageInfo: ImageInfo, base64RepoTag: string): ImageInfoUI | undefined {
     const images = this.getImagesInfoUI(imageInfo, []);
     return images.find(image => image.base64RepoTag === base64RepoTag);

@@ -168,7 +168,7 @@ async function deleteSelectedImages() {
   const selectedImages = images.filter(image => image.selected);
   await selectedImages.reduce((prev: Promise<void>, image) => {
     return prev
-      .then(() => window.deleteImage(image.engineId, `${image.name}:${image.tag}`))
+      .then(() => imageUtils.deleteImage(image))
       .catch((e: unknown) => console.log('error while removing image', e));
   }, Promise.resolve());
   bulkDeleteInProgress = false;
