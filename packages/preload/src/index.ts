@@ -371,7 +371,7 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'createAndStartContainer',
-    async (engine: string, options: ContainerCreateOptions): Promise<void> => {
+    async (engine: string, options: ContainerCreateOptions): Promise<{ id: string }> => {
       return ipcInvoke('container-provider-registry:createAndStartContainer', engine, options);
     },
   );
