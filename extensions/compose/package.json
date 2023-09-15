@@ -13,7 +13,11 @@
     "commands": [
       {
         "command": "compose.install",
-        "title": "Install Compose"
+        "title": "Compose: Install..."
+      },
+      {
+        "command": "compose.checks",
+        "title": "Compose: Checks..."
       }
     ]
   },
