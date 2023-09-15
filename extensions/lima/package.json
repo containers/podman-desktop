@@ -11,12 +11,6 @@
   },
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "docker.info",
-        "title": "Lima: Specific info about Lima"
-      }
-    ],
     "configuration": {
       "title": "Lima",
       "properties": {
