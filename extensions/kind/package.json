@@ -81,7 +81,17 @@
           "icon": "${kind-icon}"
         }
       ]
-    }
+    },
+    "commands": [
+      {
+        "command": "kind.install",
+        "title": "Kind: Install..."
+      },
+      {
+        "command": "kind.image.move",
+        "title": "Kind: Move image to cluster..."
+      }
+    ]
   },
   "scripts": {
     "install:contour": "npx ts-node ./scripts/download.ts",
