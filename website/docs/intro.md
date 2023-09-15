@@ -4,37 +4,11 @@ sidebar_position: 1
 
 # Introduction
 
-Let's discover **Podman Desktop in less than 5 minutes**.
+Podman Desktop is an open source graphical tool enabling you to seamlessly work with containers and Kubernetes from your local environment.
 
-## Getting Started
+With Podman Desktop, you can
 
-Get started by **[Downloading](/downloads) the product** for your operating system.
+- Run container workflows such as rootless containers, pods, rootful containers, and Compose.
+- Use Podman or Docker engine.
 
-### What you'll need
-
-- Podman 4.x
-  - Check there is a Podman machine running
-
-### Check Podman CLI is working
-
-Run the development server:
-
-```sh
-$ podman run quay.io/podman/hello
-!... Hello Podman World ...!
-
-         .--"--.
-       / -     - \
-      / (O)   (O) \
-   ~~~| -=(,Y,)=- |
-    .---. /`  \   |~~
- ~/  o  o \~~~~.----. ~~
-  | =(X)= |~  / (O (O) \
-   ~~~~~~~  ~| =(Y_)=-  |
-  ~~~~    ~~~|   U      |~~
-
-Project:   https://github.com/containers/podman
-Website:   https://podman.io
-Documents: https://docs.podman.io
-Twitter:   @Podman_io
-```
+[![](https://mermaid.ink/img/pako:eNptUcFOAyEQ_RUyZ_ZQNTHhZuyxNkYTD4bLuEx3yS7DBlhtbfrvUmh0NYYD7817b5gwR2i9IVDQNI3m1vPOdkqzEBF5oEOBmfT-4wXHmaISOxwj1TLn6N1oO3bESYlguz5pLp1qvHmjhJrrefTGIQuHbW-ZZKVy9SPJJ-_TSDGKPEfCbArxrF_UfC3p2bybxz_eb_neu8lHqjXNW0z2ncTG8rxfPP2rvPbtQKEmNtbhwlfoUq9YGIpD8tNCuqD_p7uIi9lAgqPg0Jq8g-P5WzWknhxpUBkaDIMGzafswzn55wO3oFKYScI8GUy0ttgFdKDKXiSQscmHh7rUslsJEzKoI-xBXd9KOIC6ulmdJHx6n3Oror8WXHqcvgDTMroa?type=png)](https://mermaid.live/edit#pako:eNptUcFOAyEQ_RUyZ_ZQNTHhZuyxNkYTD4bLuEx3yS7DBlhtbfrvUmh0NYYD7817b5gwR2i9IVDQNI3m1vPOdkqzEBF5oEOBmfT-4wXHmaISOxwj1TLn6N1oO3bESYlguz5pLp1qvHmjhJrrefTGIQuHbW-ZZKVy9SPJJ-_TSDGKPEfCbArxrF_UfC3p2bybxz_eb_neu8lHqjXNW0z2ncTG8rxfPP2rvPbtQKEmNtbhwlfoUq9YGIpD8tNCuqD_p7uIi9lAgqPg0Jq8g-P5WzWknhxpUBkaDIMGzafswzn55wO3oFKYScI8GUy0ttgFdKDKXiSQscmHh7rUslsJEzKoI-xBXd9KOIC6ulmdJHx6n3Oror8WXHqcvgDTMroa)
