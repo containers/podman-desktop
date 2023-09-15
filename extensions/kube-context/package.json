@@ -15,6 +15,10 @@
       {
         "command": "kubecontext.switch",
         "title": "Kube Context: switch context"
+      },
+      {
+        "command": "kubecontext.quickpick",
+        "title": "Kube Context: select a context"
       }
     ],
     "icons": {
