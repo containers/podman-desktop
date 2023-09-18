@@ -45,7 +45,7 @@ const config = {
             from: ['/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
           {
-            to: '/docs/compose',
+            to: '/docs/getting-started',
             from: '/docs/getting-started/getting-started',
           },
           {
