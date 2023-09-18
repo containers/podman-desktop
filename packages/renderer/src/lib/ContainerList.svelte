@@ -546,7 +546,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       name: containerGroup.name,
                       engineId: containerGroup.engineId,
                       engineType: containerGroup.engineType,
-                      containers: containerGroup.containers,
+                      containers: [],
                     }}"
                     dropdownMenu="{true}"
                     inProgressCallback="{(containers, flag, state) =>
