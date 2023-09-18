@@ -49,19 +49,19 @@ const config = {
             from: '/docs/getting-started/getting-started',
           },
           {
-            to: '/docs/onboarding/installing-podman-with-podman-desktop-on-windows',
+            to: '/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows',
             from: '/docs/Installation/windows-install/installing-podman-with-podman-desktop',
           },
           {
-            to: '/docs/onboarding/installing-podman-with-openshift-local-on-windows',
+            to: '/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows',
             from: '/docs/Installation/windows-install/installing-podman-with-openshift-local',
           },
           {
-            to: '/docs/onboarding/creating-a-lima-instance-with-podman-desktop',
+            to: '/docs/onboarding/containers/creating-a-lima-instance-with-podman-desktop',
             from: '/docs/Installation/creating-a-lima-instance-with-podman-desktop',
           },
           {
-            to: '/docs/onboarding/creating-a-podman-machine-with-podman-desktop',
+            to: '/docs/onboarding/caontainers/creating-a-podman-machine-with-podman-desktop',
             from: ['/docs/Installation/creating-a-podman-machine-with-podman-desktop'],
           },
         ],

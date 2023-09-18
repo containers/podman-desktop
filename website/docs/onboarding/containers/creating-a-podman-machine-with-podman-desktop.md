@@ -47,4 +47,4 @@ Consider creating a custom Podman machine to:
       Required to access resources behind your VPN connection.
    1. Click **Create**
 
-   ![Create a Podman machine](../Installation/img/create-a-podman-machine.png)
+   ![Create a Podman machine](../../Installation/img/create-a-podman-machine.png)

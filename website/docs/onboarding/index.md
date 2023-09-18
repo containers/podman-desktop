@@ -8,9 +8,9 @@ keywords: [podman desktop, containers, podman, kubernetes, onboarding]
 
 # Onboarding for your container and Kubernetes workloads
 
-Set up the resources that your workload requires.
+Set up the resources that your container and Kubernetes workloads require.
 
 Podman Desktop does not automatically set up resources that you might not need.
 
-- [Onboarding for container workloads](/docs/onboarding/onboarding-for-container-workloads)
-- [Onboarding for Kubernetes workloads](/docs/onboarding/onboarding-for-kubernetes-workloads)
+- [Onboarding for container workloads](/docs/onboarding/containers)
+- [Onboarding for Kubernetes workloads](/docs/onboarding/kubernetes)

@@ -16,7 +16,7 @@ Main benefits are:
 - Ease of use
 - Windows native virtualization performance
 
-Consider rather [installing Podman with OpenShift Local](installing-podman-with-openshift-local-on-windows) if:
+Consider rather [installing Podman with OpenShift Local](./installing-podman-with-openshift-local-on-windows) if:
 
 - You prefer working with a RHEL distribution of Linux
 - Your environment doesn't allow you to meet the prerequisites
@@ -43,7 +43,7 @@ Consider rather [installing Podman with OpenShift Local](installing-podman-with-
 
 2. The **Home** screen displays _Podman Desktop was not able to find an installation of Podman_. Click on **Install**.
 
-   ![img1](img/windows-homescreen.png)
+   ![img1](../img/windows-homescreen.png)
 
 3. Podman Desktop checks the prerequites to install Podman Engine. When necessary, follow the instructions to install prerequisites.
 
