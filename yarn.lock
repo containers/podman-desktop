@@ -9976,10 +9976,10 @@ markdownlint@0.30.0:
     markdown-it "13.0.1"
     markdownlint-micromark "0.1.7"
 
-markdownlint@^0.31.0:
-  version "0.31.0"
-  resolved "https://registry.yarnpkg.com/markdownlint/-/markdownlint-0.31.0.tgz#7beba2e5d944d4334523e73c8aca13bdcc788fde"
-  integrity sha512-e+jZGRGZrz1s0T4wiPDFtyQafq7sKgdbf2sdL46gRT8zLEvDDihQmGeSCV6VXp9BsfkuZ0dPTAg9hf4j6NFgjg==
+markdownlint@^0.31.1:
+  version "0.31.1"
+  resolved "https://registry.yarnpkg.com/markdownlint/-/markdownlint-0.31.1.tgz#f014ed2d3614c5dbc351b7f65641ccc0a5facdb7"
+  integrity sha512-CKMR2hgcIBrYlIUccDCOvi966PZ0kJExDrUi1R+oF9PvqQmCrTqjOsgIvf2403OmJ+CWomuzDoylr6KbuMyvHA==
   dependencies:
     markdown-it "13.0.1"
     markdownlint-micromark "0.1.7"
