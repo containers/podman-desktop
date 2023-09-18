@@ -18,10 +18,10 @@ Podman Desktop does not automatically set up container engine resources that you
 
    | Workload            | Podman | Docker |
    | :------------------ | :----: | :----: |
-   | Rootless containers |  yes   |   no   |
-   | Rootful containers  |  yes   |  yes   |
-   | Compose             |  yes   |  yes   |
-   | Pods                |  yes   |   no   |
+   | Rootless containers | ✅ yes | ❌ no  |
+   | Rootful containers  | ✅ yes | ✅ yes |
+   | Compose             | ✅ yes | ✅ yes |
+   | Pods                | ✅ yes | ❌ no  |
 
    Podman supports rootless container and pods, in addition to rootful containers and Compose.
 
@@ -31,17 +31,17 @@ Podman Desktop does not automatically set up container engine resources that you
 
      | Host operating system | Native containers | Podman machine | Lima machine |
      | :-------------------- | :---------------: | :------------: | :----------: |
-     | Windows               |        no         |      yes       |      no      |
-     | macOS                 |        no         |      yes       |     yes      |
-     | Linux                 |        yes        |       no       |      no      |
+     | Windows               |       ❌ no       |     ✅ yes     |    ❌ no     |
+     | macOS                 |       ❌ no       |     ✅ yes     |    ✅ yes    |
+     | Linux                 |      ✅ yes       |     ❌ no      |    ❌ no     |
 
    - Select a Docker execution environment:
 
      | Host operating system | Native containers | Lima machine | Docker Desktop |
      | :-------------------- | :---------------: | :----------: | :------------: |
-     | Windows               |        no         |      no      |      yes       |
-     | macOS                 |        no         |     yes      |      yes       |
-     | Linux                 |        yes        |      no      |      yes       |
+     | Windows               |       ❌ no       |    ❌ no     |     ✅ yes     |
+     | macOS                 |       ❌ no       |    ✅ yes    |     ✅ yes     |
+     | Linux                 |      ✅ yes       |    ❌ no     |     ✅ yes     |
 
 3. Setup your container engine.
 
