@@ -23,12 +23,14 @@ import type { ProviderRegistry } from './provider-registry.js';
 export class AutostartEngine {
   private providerExtension = new Map<string, string>();
 
-  constructor(private configurationRegistry: ConfigurationRegistry, private providerRegistry: ProviderRegistry) {}
+  constructor(
+    private configurationRegistry: ConfigurationRegistry,
+    private providerRegistry: ProviderRegistry,
+  ) {}
 
   registerProvider(extensionId: string, extensionDisplayName: string, providerInternalId: string): Disposable {
     this.providerExtension.set(providerInternalId, extensionId);
     const autostartConfiguration = this.registerProviderConfiguration(extensionId, extensionDisplayName);
-
     return Disposable.create(() => {
       this.providerExtension.delete(providerInternalId);
       this.configurationRegistry.deregisterConfigurations([autostartConfiguration]);
