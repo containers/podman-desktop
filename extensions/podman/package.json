@@ -129,12 +129,12 @@
         {
           "id": "startPodmanInstallation",
           "title": "We could not find Podman. Let's install it!",
-          "when": "onboardingContext:podmanIsNotInstalled == true"
+          "when": "onboardingContext:podmanIsNotInstalled"
         },
         {
           "id": "checkPodmanRequirements",
           "title": "Checking for system requirements to install Podman",
-          "when": "onboardingContext:podmanIsNotInstalled == true",
+          "when": "onboardingContext:podmanIsNotInstalled",
           "command": "podman.onboarding.checkPodmanRequirements",
           "completionEvents": [
             "onCommand:podman.onboarding.checkPodmanRequirements"
@@ -143,7 +143,7 @@
         {
           "id": "missingRequirementView",
           "title": "Some system requirements are missing",
-          "when": "onboardingContext:requirementsStatus == failed && onboardingContext:podmanIsNotInstalled == true",
+          "when": "onboardingContext:requirementsStatus == failed && onboardingContext:podmanIsNotInstalled",
           "completionEvents": [
             "onboardingContext:requirementsStatus == ok"
           ],
@@ -170,7 +170,7 @@
           "id": "installPodmanView",
           "title": "Installing Podman",
           "description": "Once installed, we will enable and configure the extension",
-          "when": "onboardingContext:podmanIsNotInstalled == true",
+          "when": "onboardingContext:podmanIsNotInstalled",
           "command": "podman.onboarding.installPodman",
           "completionEvents": [
             "onCommand:podman.onboarding.installPodman"
@@ -179,32 +179,32 @@
         {
           "id": "podmanFailedInstallation",
           "title": "Failed installing Podman",
-          "when": "onboardingContext:podmanIsNotInstalled == true",
+          "when": "onboardingContext:podmanIsNotInstalled",
           "state": "failed"
         },
         {
           "id": "podmanInstalled",
           "title": "Podman successfully installed",
-          "when": "onboardingContext:podmanIsNotInstalled == false"
+          "when": "!onboardingContext:podmanIsNotInstalled"
         },
         {
           "id": "preCreatePodmanMachine",
           "title": "We could not find any Podman machine. Let's create one!",
-          "when": "onboardingContext:podmanMachineExists == false && onboardingContext:isLinux == false"
+          "when": "!onboardingContext:podmanMachineExists && !isLinux"
         },
         {
           "id": "createPodmanMachine",
           "title": "Create a Podman machine",
-          "when": "onboardingContext:podmanMachineExists == false && onboardingContext:isLinux == false",
+          "when": "!onboardingContext:podmanMachineExists && !isLinux",
           "completionEvents": [
-            "onboardingContext:podmanMachineExists == true"
+            "onboardingContext:podmanMachineExists"
           ],
           "component": "createContainerProviderConnection"
         },
         {
           "id": "podmanSuccessfullySetup",
           "title": "Podman successfully setup",
-          "when": "onboardingContext:podmanIsNotInstalled == false",
+          "when": "!onboardingContext:podmanIsNotInstalled",
           "state": "completed"
         }
       ]

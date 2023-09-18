@@ -27,8 +27,11 @@ import type { ContainerProviderConnection, KubernetesProviderConnection } from '
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 import type { ApiSenderType } from './api.js';
 import { LifecycleContextImpl } from './lifecycle-context.js';
+import type { ProviderImpl } from './provider-impl.js';
+import type { AutostartEngine } from './autostart-engine.js';
 
 let providerRegistry: ProviderRegistry;
+let autostartEngine: AutostartEngine;
 
 const telemetryTrackMock = vi.fn();
 const apiSenderSendMock = vi.fn();
@@ -46,6 +49,9 @@ beforeEach(() => {
     registerContainerConnection: vi.fn(),
   } as unknown as ContainerProviderRegistry;
   providerRegistry = new ProviderRegistry(apiSender, containerRegistry, telemetry);
+  autostartEngine = {
+    registerProvider: vi.fn(),
+  } as unknown as AutostartEngine;
 });
 
 test('should initialize provider if there is kubernetes connection provider', async () => {
@@ -57,7 +63,11 @@ test('should initialize provider if there is kubernetes connection provider', as
     providerInternalId = data;
   });
 
-  const provider = providerRegistry.createProvider('id', { id: 'internal', name: 'internal', status: 'installed' });
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
 
   let initalizeCalled = false;
   provider.setKubernetesProviderConnectionFactory({
@@ -90,7 +100,11 @@ test('should send version event if update', async () => {
     }
   });
 
-  const provider = providerRegistry.createProvider('id', { id: 'internal', name: 'internal', status: 'installed' });
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
 
   let updateCalled = false;
   provider.registerUpdate({
@@ -122,7 +136,11 @@ test('should initialize provider if there is container connection provider', asy
     providerInternalId = data;
   });
 
-  const provider = providerRegistry.createProvider('id', { id: 'internal', name: 'internal', status: 'installed' });
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
 
   let initalizeCalled = false;
   provider.setContainerProviderConnectionFactory({
@@ -199,7 +217,11 @@ test('expect isProviderContainerConnection returns false with a ProviderKubernet
 });
 
 test('should register kubernetes provider', async () => {
-  const provider = providerRegistry.createProvider('id', { id: 'internal', name: 'internal', status: 'installed' });
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
   const connection: KubernetesProviderConnection = {
     name: 'connection',
     endpoint: {
@@ -218,7 +240,11 @@ test('should register kubernetes provider', async () => {
 });
 
 test('should send events when starting a container connection', async () => {
-  const provider = providerRegistry.createProvider('id', { id: 'internal', name: 'internal', status: 'installed' });
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
     type: 'docker',
@@ -261,7 +287,11 @@ test('should send events when starting a container connection', async () => {
 });
 
 test('should send events when stopping a container connection', async () => {
-  const provider = providerRegistry.createProvider('id', { id: 'internal', name: 'internal', status: 'installed' });
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
     type: 'docker',
@@ -304,7 +334,11 @@ test('should send events when stopping a container connection', async () => {
 });
 
 test('runAutostartContainer should start container and send event', async () => {
-  const provider = providerRegistry.createProvider('id', { id: 'internal', name: 'internal', status: 'installed' });
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
 
   const autostartMock = vi.fn();
 
@@ -315,11 +349,13 @@ test('runAutostartContainer should start container and send event', async () => 
     notified = true;
   });
 
+  providerRegistry.registerAutostartEngine(autostartEngine);
+
   provider.registerAutostart({
     start: autostartMock,
   });
 
-  await providerRegistry.runAutostart();
+  await providerRegistry.runAutostart((provider as ProviderImpl).internalId);
 
   // check we have been notified
   expect(notified).toBeTruthy();
@@ -328,8 +364,28 @@ test('runAutostartContainer should start container and send event', async () => 
   expect(autostartMock).toBeCalled();
 });
 
+test('should throw if provider try to register autostart but there is no engine registered', async () => {
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
+
+  const autostartMock = vi.fn();
+
+  expect(() =>
+    provider.registerAutostart({
+      start: autostartMock,
+    }),
+  ).toThrowError(new Error('no autostart engine has been registered. Autostart feature is disabled'));
+});
+
 test('should retrieve context of container provider', async () => {
-  const provider = providerRegistry.createProvider('id', { id: 'internal', name: 'internal', status: 'installed' });
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
   const connection: ProviderContainerConnectionInfo = {
     name: 'connection',
     type: 'docker',
@@ -368,7 +424,11 @@ test('should retrieve context of kubernetes provider', async () => {
     providerInternalId = data;
   });
 
-  const provider = providerRegistry.createProvider('id', { id: 'internal', name: 'internal', status: 'installed' });
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
 
   let initalizeCalled = false;
   provider.setKubernetesProviderConnectionFactory({
@@ -412,7 +472,11 @@ test('should retrieve context of kubernetes provider', async () => {
 });
 
 test('should retrieve provider internal id from id', async () => {
-  const provider = providerRegistry.createProvider('id', { id: 'internal', name: 'internal', status: 'installed' });
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
 
   const startMock = vi.fn();
   const stopMock = vi.fn();

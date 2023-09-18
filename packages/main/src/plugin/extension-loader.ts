@@ -626,7 +626,7 @@ export class ExtensionLoader {
           images.icon = instance.updateImage(images.icon, extensionPath);
           images.logo = instance.updateImage(images.logo, extensionPath);
         }
-        return providerRegistry.createProvider(extensionInfo.id, providerOptions);
+        return providerRegistry.createProvider(extensionInfo.id, extensionInfo.label, providerOptions);
       },
       onDidUpdateProvider: (listener, thisArg, disposables) => {
         return providerRegistry.onDidUpdateProvider(listener, thisArg, disposables);

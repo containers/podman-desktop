@@ -84,6 +84,12 @@ export interface ContainerCreateOptions {
   Tty?: boolean;
   Cmd?: string[];
   Entrypoint?: string | string[];
+  AttachStdin?: boolean;
+  AttachStdout?: boolean;
+  AttachStderr?: boolean;
+  OpenStdin?: boolean;
+  StdinOnce?: boolean;
+  Detach?: boolean;
 }
 
 export interface VolumeCreateOptions {
