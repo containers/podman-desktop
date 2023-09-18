@@ -1143,7 +1143,7 @@ export class ContainerProviderRegistry {
         await this.attachToContainer(engine, container);
       }
 
-      return this.getMatchingContainer(engineId, id).restart();
+      return container.restart();
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
