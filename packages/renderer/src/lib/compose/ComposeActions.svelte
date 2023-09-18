@@ -128,7 +128,7 @@ if (dropdownMenu) {
     detailed="{detailed}"
     icon="{faArrowsRotate}" />
   <ContributionActions
-    args="{[{ ...compose, containers: compose.containers.map(c => ({ ...c, icon: undefined })) }]}"
+    args="{[compose]}"
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
     onError="{errorCallback}" />

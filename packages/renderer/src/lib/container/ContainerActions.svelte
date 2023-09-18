@@ -177,7 +177,7 @@ if (dropdownMenu) {
     detailed="{detailed}"
     icon="{faArrowsRotate}" />
   <ContributionActions
-    args="{[{ ...container, icon: undefined }]}"
+    args="{[container]}"
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
     onError="{errorCallback}" />
