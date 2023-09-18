@@ -16,16 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
+import { beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
 import { MenuRegistry } from './menu-registry.js';
 import { CommandRegistry } from './command-registry.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+import type { Disposable } from './types/disposable.js';
 
 let menuRegistry: MenuRegistry;
 let commandRegistry;
 
+let registerMenuDisposable: Disposable;
+
 /* eslint-disable @typescript-eslint/no-empty-function */
-beforeAll(() => {
+beforeEach(() => {
   commandRegistry = new CommandRegistry({} as Telemetry);
   menuRegistry = new MenuRegistry(commandRegistry);
   const manifest = {
@@ -56,7 +59,7 @@ beforeAll(() => {
       },
     },
   };
-  menuRegistry.registerMenus(manifest.contributes.menus);
+  registerMenuDisposable = menuRegistry.registerMenus(manifest.contributes.menus);
   commandRegistry.registerCommand('image.command1', () => {});
   commandRegistry.registerCommand('container.command1', () => {});
   commandRegistry.registerCommand('container.command2', () => {});
@@ -98,4 +101,10 @@ test('Menus with unregistered commands should not be returned', async () => {
   expect(menus).toBeDefined();
   expectTypeOf(menus).toBeArray();
   expect(menus.length).toBe(0);
+});
+
+test('Should not find menus after dispose', async () => {
+  registerMenuDisposable.dispose();
+  const menus = menuRegistry.getContributedMenus('dashboard/image');
+  expect(menus).toStrictEqual([]);
 });

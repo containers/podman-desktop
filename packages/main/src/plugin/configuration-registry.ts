@@ -24,6 +24,7 @@ import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
 import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
 import type { Directories } from './directories.js';
+import { Disposable } from './types/disposable.js';
 
 export type IConfigurationPropertySchemaType =
   | 'markdown'
@@ -140,8 +141,11 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     this.configurationValues.set(CONFIGURATION_DEFAULT_SCOPE, JSON.parse(settingsRawContent));
   }
 
-  public registerConfigurations(configurations: IConfigurationNode[]): void {
+  public registerConfigurations(configurations: IConfigurationNode[]): Disposable {
     this.doRegisterConfigurations(configurations, true);
+    return Disposable.create(() => {
+      this.deregisterConfigurations(configurations);
+    });
   }
 
   doRegisterConfigurations(configurations: IConfigurationNode[], notify?: boolean): string[] {
