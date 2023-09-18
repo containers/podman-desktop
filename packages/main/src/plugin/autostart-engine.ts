@@ -19,6 +19,7 @@
 import { Disposable } from './types/disposable.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import type { ProviderRegistry } from './provider-registry.js';
+import { CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE } from './configuration-registry-constants.js';
 
 export class AutostartEngine {
   private providerExtension = new Map<string, string>();
@@ -58,6 +59,7 @@ export class AutostartEngine {
           description: `Autostart ${extensionDisplayName} engine when launching Podman Desktop`,
           type: 'boolean',
           default: autostart !== undefined ? autostart : true,
+          scope: [CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE],
         },
       },
     };

@@ -185,7 +185,14 @@
         {
           "id": "podmanInstalled",
           "title": "Podman successfully installed",
-          "when": "!onboardingContext:podmanIsNotInstalled"
+          "when": "!onboardingContext:podmanIsNotInstalled",
+          "content": [
+            [
+              {
+                "value": "${configuration:preferences.podman-desktop.podman.engine.autostart}"
+              }
+            ]
+          ]
         },
         {
           "id": "preCreatePodmanMachine",
