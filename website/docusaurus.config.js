@@ -45,16 +45,20 @@ const config = {
             from: ['/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
           {
+            to: '/docs/compose',
+            from: '/docs/getting-started/getting-started',
+          },
+          {
             to: '/docs/onboarding/installing-podman-with-podman-desktop-on-windows',
-            from: ['/docs/Installation/windows-install/installing-podman-with-podman-desktop'],
+            from: '/docs/Installation/windows-install/installing-podman-with-podman-desktop',
           },
           {
             to: '/docs/onboarding/installing-podman-with-openshift-local-on-windows',
-            from: ['/docs/Installation/windows-install/installing-podman-with-openshift-local'],
+            from: '/docs/Installation/windows-install/installing-podman-with-openshift-local',
           },
           {
             to: '/docs/onboarding/creating-a-lima-instance-with-podman-desktop',
-            from: ['/docs/Installation/creating-a-lima-instance-with-podman-desktop'],
+            from: '/docs/Installation/creating-a-lima-instance-with-podman-desktop',
           },
           {
             to: '/docs/onboarding/creating-a-podman-machine-with-podman-desktop',
