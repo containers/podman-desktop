@@ -1,5 +1,5 @@
 ---
-sidebar_position: 10
+sidebar_position: 50
 title: Setting Podman machine default connection
 description: How to set Podman machine default connection.
 ---

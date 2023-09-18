@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 22
 title: Pulling an image
 description: Pulling an image to your container engine.
 keywords: [podman desktop, podman, containers, images]

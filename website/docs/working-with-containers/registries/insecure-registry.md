@@ -26,7 +26,7 @@ In this guide, you will learn how to add an insecure registry to Podman Desktop.
 
 2. Click "Yes" to the insecure registry warning.
 
-![Podman Desktop Registry Warning](img/registry-warning-insecure.png)
+![Podman Desktop Registry Warning](./img/registry-warning-insecure.png)
 
 3. SSH into the Podman Machine to edit `registries.conf`.
 
@@ -68,7 +68,7 @@ $ podman machine start
 
 2. Click "Yes" to the insecure registry warning.
 
-![Podman Desktop Registry Warning](img/registry-warning-insecure.png)
+![Podman Desktop Registry Warning](./img/registry-warning-insecure.png)
 
 3. Open `registries.conf`.
 

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 10
+sidebar_position: 20
 title: Building an image
 description: Building an image on your container engine.
 keywords: [podman desktop, podman, containers, images]
