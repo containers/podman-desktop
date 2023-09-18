@@ -35,11 +35,11 @@ export class AutostartEngine {
     });
   }
 
-  registerProviderConfiguration(extensionId: string, extensionDisplayName: string): IConfigurationNode {
+  private registerProviderConfiguration(extensionId: string, extensionDisplayName: string): IConfigurationNode {
     const extensionConfiguration = this.configurationRegistry.getConfiguration(`preferences.${extensionId}`);
     let autostart = extensionConfiguration.get<boolean>('engine.autostart');
     // if there is no configuration set, we try to retrieve the value of the old deprecated preferences.engine.autostart setting
-    if (!autostart) {
+    if (autostart === undefined) {
       const autoStartConfigurationGlobal = this.configurationRegistry.getConfiguration('preferences.engine');
       autostart = autoStartConfigurationGlobal.get<boolean>('autostart');
     }
@@ -55,7 +55,7 @@ export class AutostartEngine {
         [`preferences.${extensionId}.engine.autostart`]: {
           description: `Autostart ${extensionDisplayName} engine when launching Podman Desktop`,
           type: 'boolean',
-          default: autostart || true,
+          default: autostart !== undefined ? autostart : true,
         },
       },
     };
