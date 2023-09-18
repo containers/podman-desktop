@@ -43,7 +43,7 @@ Consider rather [installing Podman with OpenShift Local](./installing-podman-wit
 
 2. The **Home** screen displays _Podman Desktop was not able to find an installation of Podman_. Click on **Install**.
 
-   ![img1](../img/windows-homescreen.png)
+   ![img1](./img/windows-homescreen.png)
 
 3. Podman Desktop checks the prerequites to install Podman Engine. When necessary, follow the instructions to install prerequisites.
 
