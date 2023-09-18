@@ -190,12 +190,12 @@
         {
           "id": "preCreatePodmanMachine",
           "title": "We could not find any Podman machine. Let's create one!",
-          "when": "onboardingContext:podmanMachineExists == false && onboardingContext:isLinux == false"
+          "when": "onboardingContext:podmanMachineExists == false && isLinux == false"
         },
         {
           "id": "createPodmanMachine",
           "title": "Create a Podman machine",
-          "when": "onboardingContext:podmanMachineExists == false && onboardingContext:isLinux == false",
+          "when": "onboardingContext:podmanMachineExists == false && isLinux == false",
           "completionEvents": [
             "onboardingContext:podmanMachineExists == true"
           ],
