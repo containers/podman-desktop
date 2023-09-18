@@ -6,9 +6,9 @@ sidebar_position: 1
 
 Podman Desktop is an open source graphical tool enabling you to seamlessly work with containers and Kubernetes from your local environment.
 
-With Podman Desktop, you can
+With Podman Desktop, you can:
 
-- Run container workflows such as rootless containers, pods, rootful containers, and Compose.
-- Use Podman or Docker engine.
-
-[![](https://mermaid.ink/img/pako:eNptUcFOAyEQ_RUyZ_ZQNTHhZuyxNkYTD4bLuEx3yS7DBlhtbfrvUmh0NYYD7817b5gwR2i9IVDQNI3m1vPOdkqzEBF5oEOBmfT-4wXHmaISOxwj1TLn6N1oO3bESYlguz5pLp1qvHmjhJrrefTGIQuHbW-ZZKVy9SPJJ-_TSDGKPEfCbArxrF_UfC3p2bybxz_eb_neu8lHqjXNW0z2ncTG8rxfPP2rvPbtQKEmNtbhwlfoUq9YGIpD8tNCuqD_p7uIi9lAgqPg0Jq8g-P5WzWknhxpUBkaDIMGzafswzn55wO3oFKYScI8GUy0ttgFdKDKXiSQscmHh7rUslsJEzKoI-xBXd9KOIC6ulmdJHx6n3Oror8WXHqcvgDTMroa?type=png)](https://mermaid.live/edit#pako:eNptUcFOAyEQ_RUyZ_ZQNTHhZuyxNkYTD4bLuEx3yS7DBlhtbfrvUmh0NYYD7817b5gwR2i9IVDQNI3m1vPOdkqzEBF5oEOBmfT-4wXHmaISOxwj1TLn6N1oO3bESYlguz5pLp1qvHmjhJrrefTGIQuHbW-ZZKVy9SPJJ-_TSDGKPEfCbArxrF_UfC3p2bybxz_eb_neu8lHqjXNW0z2ncTG8rxfPP2rvPbtQKEmNtbhwlfoUq9YGIpD8tNCuqD_p7uIi9lAgqPg0Jq8g-P5WzWknhxpUBkaDIMGzafswzn55wO3oFKYScI8GUy0ttgFdKDKXiSQscmHh7rUslsJEzKoI-xBXd9KOIC6ulmdJHx6n3Oror8WXHqcvgDTMroa)
+- [Onboard for container workloads](/docs/onboarding/onboarding-for-container-workloads).
+- [Onboard for Kubernetes workloads](/docs/onboarding/onboarding-for-kubernetes-workloads).
+- [Work with containers](/docs/getting-started/getting-started).
+- [Work with Kubernetes](/docs/kubernetes).

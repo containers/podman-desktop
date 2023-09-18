@@ -1,5 +1,5 @@
 ---
-sidebar_position: 11
+sidebar_position: 20
 title: Custom Podman machine
 description: Podman Desktop can assist you to create custom Podman machine on Windows and macOS.
 tags: [podman-desktop, podman, installing, windows, macOS]
@@ -47,4 +47,4 @@ Consider creating a custom Podman machine to:
       Required to access resources behind your VPN connection.
    1. Click **Create**
 
-   ![Create a Podman machine](img/create-a-podman-machine.png)
+   ![Create a Podman machine](../Installation/img/create-a-podman-machine.png)
