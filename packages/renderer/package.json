@@ -25,7 +25,7 @@
     "autoprefixer": "^10.4.15",
     "eslint-plugin-svelte": "^2.33.1",
     "filesize": "^10.0.12",
-    "humanize-duration": "^3.29.0",
+    "humanize-duration": "^3.30.0",
     "jsdom": "^22.1.0",
     "micromark": "^4.0.0",
     "micromark-extension-directive": "^3.0.0",
