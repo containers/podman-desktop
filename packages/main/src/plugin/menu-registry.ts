@@ -21,6 +21,7 @@ import { Disposable } from './types/disposable.js';
 export interface Menu {
   command: string;
   title: string;
+  when?: string;
 }
 
 export enum MenuContext {

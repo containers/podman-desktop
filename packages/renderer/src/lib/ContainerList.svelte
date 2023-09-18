@@ -19,7 +19,7 @@ import { ContainerUtils } from './container/container-utils';
 import { providerInfos } from '../stores/providers';
 import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
 import moment from 'moment';
-import { get, type Unsubscriber } from 'svelte/store';
+import { get, type Unsubscriber, writable } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
 import { faChevronDown, faChevronRight, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
@@ -36,9 +36,10 @@ import { PodUtils } from '../lib/pod/pod-utils';
 import ComposeActions from './compose/ComposeActions.svelte';
 import { CONTAINER_LIST_VIEW } from './view/views';
 import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
-import type { ContextUI } from './context/context';
+import { ContextUI } from './context/context';
 import Button from './ui/Button.svelte';
 import { type Menu, MenuContext } from '../../../main/src/plugin/menu-registry';
+import { ContextKeyExpr } from '/@/lib/context/contextKey';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -223,7 +224,31 @@ let contextsUnsubscribe: Unsubscriber;
 let podUnsubscribe: Unsubscriber;
 let viewsUnsubscribe: Unsubscriber;
 let pods: PodInfo[];
-let contributedMenus: Menu[];
+
+let contributedMenusStore = writable<Menu[]>([]);
+
+let matchingContributionMenus: {
+  [id: string]: Menu[];
+};
+
+$: {
+  matchingContributionMenus = Object.fromEntries(
+    containerGroups.reduce(
+      (previousValue, currentValue) => {
+        console.log('containerGroup', currentValue);
+        if (currentValue.id)
+          previousValue = [...previousValue, [currentValue.id, applyObjectAsContext('containerGroup', currentValue)]];
+
+        currentValue.containers.forEach(container => {
+          previousValue = [...previousValue, [container.id, applyObjectAsContext('container', container)]];
+        });
+
+        return previousValue;
+      },
+      [] as [string, Menu[]][],
+    ),
+  );
+}
 
 onMount(async () => {
   // grab previous groups
@@ -251,8 +276,42 @@ onMount(async () => {
     pods = podInfos;
   });
 
-  contributedMenus = await window.getContributedMenus(MenuContext.DASHBOARD_CONTAINER);
+  // globalContext
+  contributedMenusStore.set(await window.getContributedMenus(MenuContext.DASHBOARD_CONTAINER));
 });
+
+function getObjectProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+function applyObjectAsContext<T>(prefix: string, obj: T): Menu[] {
+  const contributedMenus = get(contributedMenusStore);
+  console.log('applyObjectAsContext', contributedMenus);
+  if (contributedMenus === undefined) return [];
+
+  return contributedMenus.reduce((previousValue, currentValue) => {
+    if (currentValue.when === undefined) return [...previousValue, currentValue];
+
+    // First check the global context
+    const whenDeserialized = ContextKeyExpr.deserialize(currentValue.when);
+    if (whenDeserialized?.evaluate(globalContext)) {
+      return [...previousValue, currentValue];
+    }
+
+    // Transform our generic object as context
+    const context = new ContextUI();
+    for (const key in obj) {
+      context.setValue(`${prefix}:${key}`, getObjectProperty(obj, key as keyof T));
+    }
+
+    console.log('evaluating ', context);
+    if (whenDeserialized?.evaluate(context)) {
+      return [...previousValue, currentValue];
+    }
+
+    return previousValue;
+  }, [] as Menu[]);
+}
 
 function updateContainers(containers: ContainerInfo[], globalContext: ContextUI, viewContributions: ViewInfoUI[]) {
   containersInfo = containers;
@@ -537,9 +596,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       kind: 'podman',
                     }}"
                     dropdownMenu="{true}"
-                    contributions="{contributedMenus}" />
+                    contributions="{matchingContributionMenus[containerGroup.id]}" />
                 {/if}
-                {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE && containerGroup.status && containerGroup.engineId && containerGroup.engineType}
+                {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE && containerGroup.status && containerGroup.engineId && containerGroup.engineType && containerGroup.id !== undefined}
                   <ComposeActions
                     compose="{{
                       status: containerGroup.status,
@@ -551,7 +610,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                     dropdownMenu="{true}"
                     inProgressCallback="{(containers, flag, state) =>
                       composeGroupInProgressCallback(containerGroup.containers, flag, state)}"
-                    contributions="{contributedMenus}" />
+                    contributions="{matchingContributionMenus[containerGroup.id]}" />
                 {/if}
               </td>
             </tr>
@@ -632,7 +691,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                         inProgressCallback="{(flag, state) => inProgressCallback(container, flag, state)}"
                         container="{container}"
                         dropdownMenu="{true}"
-                        contributions="{contributedMenus}" />
+                        contributions="{matchingContributionMenus[container.id]}" />
                     </div>
                   </div>
                 </td>

@@ -154,6 +154,7 @@ export class ContainerUtils {
     const composeProject = containerInfo.Labels?.['com.docker.compose.project'];
     if (composeProject) {
       return {
+        id: containerInfo.Labels?.['com.docker.compose.project.config_files'],
         name: composeProject,
         type: ContainerGroupInfoTypeUI.COMPOSE,
         engineId: containerInfo.engineId,
