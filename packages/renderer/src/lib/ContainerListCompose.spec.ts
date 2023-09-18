@@ -28,6 +28,7 @@ import { providerInfos } from '../stores/providers';
 
 const listContainersMock = vi.fn();
 const getProviderInfosMock = vi.fn();
+const getContributedMenusMock = vi.fn();
 
 const listPodsMock = vi.fn();
 
@@ -49,8 +50,10 @@ beforeAll(() => {
   (window as any).deleteContainersByLabel = deleteContainersByLabelMock;
   const listViewsContributionsMock = vi.fn();
   (window as any).listViewsContributions = listViewsContributionsMock;
+  (window as any).getContributedMenus = getContributedMenusMock;
 
   listViewsContributionsMock.mockResolvedValue([]);
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
