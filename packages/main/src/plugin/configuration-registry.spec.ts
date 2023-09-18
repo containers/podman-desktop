@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, describe, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import type { IConfigurationNode } from './configuration-registry.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
 import type { Directories } from './directories.js';
+import type { Disposable } from './types/disposable.js';
 
 let configurationRegistry: ConfigurationRegistry;
 
@@ -32,10 +33,16 @@ const directories = {
   getConfigurationDirectory: getConfigurationDirectoryMock,
 } as unknown as Directories;
 
+let registerConfigurationsDisposable: Disposable;
+
 beforeAll(() => {
   // mock the fs module
   vi.mock('node:fs');
+});
 
+beforeEach(() => {
+  vi.resetAllMocks();
+  vi.clearAllMocks();
   getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
 
   configurationRegistry = new ConfigurationRegistry(directories);
@@ -56,7 +63,7 @@ beforeAll(() => {
     },
   };
 
-  configurationRegistry.registerConfigurations([node]);
+  registerConfigurationsDisposable = configurationRegistry.registerConfigurations([node]);
 });
 
 describe('should be notified when a configuration is changed', async () => {
@@ -135,4 +142,16 @@ describe('should be notified when a configuration is changed', async () => {
     expect(callNumber).toBe(2);
     expect(updatedValue).toEqual('myValue');
   });
+});
+
+test('Should not find configuration after dispose', async () => {
+  let records = configurationRegistry.getConfigurationProperties();
+  const record = records['my.fake.property'];
+  expect(record).toBeDefined();
+  registerConfigurationsDisposable.dispose();
+
+  // should be removed after disposable
+  records = configurationRegistry.getConfigurationProperties();
+  const afterDisposeRecord = records['my.fake.property'];
+  expect(afterDisposeRecord).toBeUndefined();
 });
