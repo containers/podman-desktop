@@ -8,39 +8,7 @@ import { onDestroy, onMount } from 'svelte';
 import { context } from '/@/stores/context';
 import type { Unsubscriber } from 'svelte/store';
 import { ContextKeyExpr } from '/@/lib/context/contextKey';
-import { transformObjectToContext } from '/@/lib/context/contextUtils';
-
-function isSerializable(value: any): boolean {
-  switch (typeof value) {
-    case 'string':
-    case 'number':
-    case 'boolean':
-    case 'object':
-      return true;
-    default:
-      return false;
-  }
-}
-
-function removeNonSerializableProperties<T>(obj: T): T {
-  if (typeof obj !== 'object' || obj === undefined) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map(item => removeNonSerializableProperties(item)) as any;
-  }
-
-  const result: Partial<T> = {};
-
-  for (const key in obj) {
-    if (isSerializable(obj[key])) {
-      result[key] = removeNonSerializableProperties(obj[key]);
-    }
-  }
-
-  return result as T;
-}
+import { transformObjectToContext } from '/@/lib/context/ContextUtils';
 
 export let args: unknown[];
 

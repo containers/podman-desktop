@@ -223,7 +223,6 @@ let contextsUnsubscribe: Unsubscriber;
 let podUnsubscribe: Unsubscriber;
 let viewsUnsubscribe: Unsubscriber;
 let pods: PodInfo[];
-
 let contributedMenus: Menu[] = [];
 
 onMount(async () => {
