@@ -1,6 +1,6 @@
 ---
-sidebar_position: 10
-title: Creating a pod
+sidebar_position: 40
+title: Pods
 description: Creating a pod from selected containers.
 keywords: [podman desktop, podman, containers, pods]
 tags: [pods]

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 10
+sidebar_position: 21
 title: Pushing an image to a registry
 description: Pushing an image to a registry.
 keywords: [podman desktop, podman, containers, image, registry, registries]

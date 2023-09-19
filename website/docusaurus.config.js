@@ -45,8 +45,40 @@ const config = {
             from: ['/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
           {
-            to: '/docs/getting-started',
-            from: ['/docs/getting-started/getting-started'],
+            to: '/docs/working-with-containers',
+            from: ['/docs/getting-started/getting-started', '/docs/getting-started'],
+          },
+          {
+            to: '/docs/working-with-containers/registries/authenticating-to-a-preconfigured-registry',
+            from: '/docs/getting-started/authenticating-to-a-preconfigured-registry',
+          },
+          {
+            to: '/docs/working-with-containers/registries/insecure-registry',
+            from: '/docs/getting-started/insecure-registry',
+          },
+          {
+            to: '/docs/working-with-containers/images/building-an-image',
+            from: '/docs/getting-started/building-an-image',
+          },
+          {
+            to: '/docs/working-with-containers/images/pushing-an-image-to-a-registry',
+            from: '/docs/getting-started/pushing-an-image-to-a-registry',
+          },
+          {
+            to: '/docs/working-with-containers/images/pulling-an-image',
+            from: '/docs/getting-started/pulling-an-image',
+          },
+          {
+            to: '/docs/working-with-containers/starting-a-container',
+            from: '/docs/getting-started/starting-a-container',
+          },
+          {
+            to: '/docs/working-with-containers/creating-a-pod',
+            from: '/docs/getting-started/creating-a-pod',
+          },
+          {
+            to: '/docs/working-with-containers/switching-podman-machine-default-connection',
+            from: '/docs/getting-started/switching-podman-machine-default-connection',
           },
         ],
       },
