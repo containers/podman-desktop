@@ -355,17 +355,10 @@ async function cleanContext() {
         </div>
       {/if}
       <div class="flex flex-row-reverse p-6 bg-charcoal-700">
-        <button
-          class="py-1.5 px-5 rounded-md text-sm"
-          class:bg-purple-700="{activeStep.step.state !== 'failed'}"
-          class:bg-charcoal-50="{activeStep.step.state === 'failed'}"
-          disabled="{activeStep.step.state === 'failed'}"
-          on:click="{() => next()}">Next</button>
+        <Button type="primary" disabled="{activeStep.step.state === 'failed'}" on:click="{() => next()}">Next</Button>
         {#if activeStep.step.state !== 'completed'}
-          <button
-            aria-label="Cancel setup"
-            class="bg-purple-700 py-1.5 px-5 mr-2 rounded-md text-sm"
-            on:click="{() => setDisplayCancelSetup(true)}">Cancel</button>
+          <Button type="secondary" aria-label="Cancel setup" class="mr-2" on:click="{() => setDisplayCancelSetup(true)}"
+            >Cancel</Button>
         {/if}
       </div>
     {/if}
@@ -385,9 +378,8 @@ async function cleanContext() {
       </div>
 
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
-        <button aria-label="Cancel" class="text-xs hover:underline" on:click="{() => setDisplayCancelSetup(false)}"
-          >Cancel</button>
-        <button class="bg-purple-700 py-1.5 px-5 mr-2 rounded-md text-xs" on:click="{() => cancelSetup()}">Ok</button>
+        <Button type="secondary" aria-label="Cancel" on:click="{() => setDisplayCancelSetup(false)}">Cancel</Button>
+        <Button type="primary" class="mr-2" on:click="{() => cancelSetup()}">Ok</Button>
       </div>
     </div>
   </div>
@@ -406,14 +398,14 @@ async function cleanContext() {
       </div>
 
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
-        <button
+        <Button
+          type="secondary"
           aria-label="Cancel"
-          class="text-xs hover:underline"
           on:click="{() => {
             setDisplayResetSetup(false);
             cancelSetup();
-          }}">No</button>
-        <button class="bg-purple-700 py-1.5 px-5 mr-2 rounded-md text-xs" on:click="{() => restartSetup()}">Yes</button>
+          }}">No</Button>
+        <Button type="primary" class="mr-2" on:click="{() => restartSetup()}">Yes</Button>
       </div>
     </div>
   </div>
