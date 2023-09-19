@@ -527,7 +527,11 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       age: containerGroup.humanCreationDate,
                       created: containerGroup.created,
                       selected: false,
-                      containers: [],
+                      containers: containerGroup.containers.map(container => ({
+                        Id: container.id,
+                        Names: container.name,
+                        Status: container.state,
+                      })),
                       kind: 'podman',
                     }}"
                     dropdownMenu="{true}"
