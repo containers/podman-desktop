@@ -37,5 +37,5 @@ export interface PodInfoUI {
   actionInProgress?: boolean;
   actionError?: string;
   kind: 'kubernetes' | 'podman';
-  type: ContainerGroupInfoTypeUI;
+  type: ContainerGroupInfoTypeUI.POD;
 }

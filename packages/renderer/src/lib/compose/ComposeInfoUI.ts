@@ -26,5 +26,5 @@ export interface ComposeInfoUI {
   actionInProgress?: boolean;
   actionError?: string;
   containers: ContainerInfoUI[];
-  type: ContainerGroupInfoTypeUI;
+  type: ContainerGroupInfoTypeUI.COMPOSE;
 }

@@ -19,10 +19,7 @@ export let contributions: Menu[] = [];
 
 let filteredContributions: Menu[] = [];
 $: {
-  console.log('filteredContributions');
   filteredContributions = contributions.reduce((previousValue, currentValue) => {
-    console.log('contributions', currentValue);
-
     // If no when property is set, we keep all additional menus
     if (currentValue.when === undefined) return [...previousValue, currentValue];
 
@@ -36,7 +33,6 @@ $: {
 
     // Transform the unknown[] args objects as contexts
     const argsContexts = args.map(arg => transformObjectToContext(arg, contextPrefix));
-    console.log('argsContexts', argsContexts);
 
     // Evaluate the arguments as context
     for (let argsContext of argsContexts) {

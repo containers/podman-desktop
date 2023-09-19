@@ -535,7 +535,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                         Status: container.state,
                       })),
                       kind: 'podman',
-                      type: containerGroup.type,
+                      type: ContainerGroupInfoTypeUI.POD,
                     }}"
                     dropdownMenu="{true}"
                     contributions="{contributedMenus}" />
@@ -548,7 +548,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       engineId: containerGroup.engineId,
                       engineType: containerGroup.engineType,
                       containers: [],
-                      type: containerGroup.type,
+                      type: ContainerGroupInfoTypeUI.COMPOSE,
                     }}"
                     dropdownMenu="{true}"
                     inProgressCallback="{(containers, flag, state) =>
