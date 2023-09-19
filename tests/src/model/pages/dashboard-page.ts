@@ -24,16 +24,18 @@ export class DashboardPage extends BasePage {
   readonly header: Locator;
   readonly content: Locator;
   readonly heading: Locator;
-  readonly devSandboxBox: Locator;
+  readonly featuredExtensions: Locator;
   readonly devSandboxStatus: Locator;
+  readonly devSandboxBox: Locator;
 
   constructor(page: Page) {
     super(page);
     this.mainPage = page.getByRole('region', { name: 'Dashboard' });
     this.header = this.mainPage.getByRole('region', { name: 'header' });
     this.content = this.mainPage.getByRole('region', { name: 'content' });
-    this.heading = this.header.getByRole('heading', { name: 'dashboard' });
-    this.devSandboxBox = this.content.getByTitle('Free remote OpenShift sandbox environment for immediate access');
-    this.devSandboxStatus = this.content.getByText('Developer Sandbox is running');
+    this.featuredExtensions = page.getByLabel('FeaturedExtensions');
+    this.heading = page.getByRole('heading', { name: 'Dashboard' });
+    this.devSandboxStatus = page.getByLabel('Developer Sandbox Status');
+    this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
   }
 }

@@ -7,12 +7,16 @@ import FeaturedExtensionDownload from './FeaturedExtensionDownload.svelte';
 
 <!--Title-->
 <p class="text-lg first-letter:uppercase font-bold">featured extensions:</p>
-<div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 pb-4">
+<div
+  class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 pb-4"
+  role="region"
+  aria-label="FeaturedExtensions">
   {#each $featuredExtensionInfos as featuredExtension}
     <div
       title="{featuredExtension.description}"
       class="rounded-md
-               bg-charcoal-800 flex flex-row justify-center p-4 h-20 border-2 border-charcoal-800 hover:border-dustypurple-500">
+               bg-charcoal-800 flex flex-row justify-center p-4 h-20 border-2 border-charcoal-800 hover:border-dustypurple-500"
+      aria-label="{featuredExtension.displayName}">
       <div class=" flex flex-col flex-1">
         <div class="flex flex-row place-items-center flex-1">
           <div>
