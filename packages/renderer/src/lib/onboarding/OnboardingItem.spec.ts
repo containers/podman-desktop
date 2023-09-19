@@ -22,6 +22,7 @@ import OnboardingItem from './OnboardingItem.svelte';
 import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import { ContextUI } from '../context/context';
 import { configurationProperties } from '/@/stores/configurationProperties';
+import { CONFIGURATION_ONBOARDING_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 
 test('Expect button html when passing a button tag in markdown', async () => {
   const textComponent: OnboardingStepItem = {
@@ -86,6 +87,7 @@ test('Expect boolean configuration placeholder to be replaced with a checkbox', 
       id: 'extension.boolean.prop',
       type: 'boolean',
       default: false,
+      scope: CONFIGURATION_ONBOARDING_SCOPE,
     },
   ]);
   render(OnboardingItem, {
@@ -118,6 +120,7 @@ test('Expect when configuration placeholder is type string and format file to be
       id: 'extension.format.prop',
       type: 'string',
       format: 'file',
+      scope: CONFIGURATION_ONBOARDING_SCOPE,
     },
   ]);
   render(OnboardingItem, {
@@ -151,6 +154,7 @@ test('Expect a type text configuration placeholder to be replaced by a text inpu
       hidden: false,
       id: 'extension.text.prop',
       type: 'string',
+      scope: CONFIGURATION_ONBOARDING_SCOPE,
     },
   ]);
   render(OnboardingItem, {

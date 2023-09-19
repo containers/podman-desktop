@@ -23,6 +23,7 @@ import type { Directories } from './directories.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import { AutostartEngine } from './autostart-engine.js';
 import type { Configuration } from '@podman-desktop/api';
+import { CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE } from './configuration-registry-constants.js';
 
 let configurationRegistry: ConfigurationRegistry;
 let providerRegistry: ProviderRegistry;
@@ -73,6 +74,7 @@ test('Check that default value is false if provider autostart setting is undefin
         description: `Autostart ${extensionDisplayName} engine when launching Podman Desktop`,
         type: 'boolean',
         default: false,
+        scope: [CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE],
       },
     },
   };
@@ -114,6 +116,7 @@ test('Check that default value is true if neither provider autostart setting nor
         description: `Autostart ${extensionDisplayName} engine when launching Podman Desktop`,
         type: 'boolean',
         default: true,
+        scope: [CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE],
       },
     },
   };

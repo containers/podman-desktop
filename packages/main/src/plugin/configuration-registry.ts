@@ -72,7 +72,8 @@ export type ConfigurationScope =
   | 'ContainerConnection'
   | 'KubernetesConnection'
   | 'ContainerProviderConnectionFactory'
-  | 'KubernetesProviderConnectionFactory';
+  | 'KubernetesProviderConnectionFactory'
+  | 'Onboarding';
 
 export interface IConfigurationExtensionInfo {
   id: string;
