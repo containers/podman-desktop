@@ -5,5 +5,5 @@ Terminal=false
 Type=Application
 Icon=io.podman_desktop.PodmanDesktop
 StartupWMClass=Podman Desktop
-Categories=Utility;Development;
+Categories=Development
 X-Flatpak=io.podman_desktop.PodmanDesktop
