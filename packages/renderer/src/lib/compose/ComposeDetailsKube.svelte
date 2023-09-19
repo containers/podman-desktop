@@ -11,10 +11,13 @@ onMount(async () => {
   // Grab all the container ID's from compose.containers
   const containerIds = compose.containers.map(container => container.id);
 
+  // Extracting the potential kubeGenerator from the query parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const kubeGenerator = urlParams.has('kubeGenerator') ? urlParams.get('kubeGenerator') : undefined;
+
   // Generate the kube yaml using the generatePodmanKube function which
   // only has to take in the engineID and an array of container ID's to generate from
-  const kubeResult = await window.generatePodmanKube(compose.engineId, containerIds);
-  kubeDetails = kubeResult;
+  kubeDetails = await window.generatePodmanKube(compose.engineId, containerIds, kubeGenerator);
 });
 </script>
 

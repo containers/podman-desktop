@@ -66,6 +66,7 @@ import type { OnboardingRegistry } from './onboarding-registry.js';
 import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
+import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -152,6 +153,7 @@ export class ExtensionLoader {
     private context: Context,
     directories: Directories,
     private exec: Exec,
+    private kubeGeneratorRegistry: KubeGeneratorRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -559,6 +561,11 @@ export class ExtensionLoader {
     const onboarding = extension.manifest?.contributes?.onboarding;
     if (onboarding) {
       extension.subscriptions.push(this.onboardingRegistry.registerOnboarding(extension, onboarding));
+    }
+
+    const kubeGenerators = extension.manifest?.contributes?.kubeGenerators;
+    if (kubeGenerators) {
+      extension.subscriptions.push(this.kubeGeneratorRegistry.registerKubeGenerators(kubeGenerators));
     }
 
     this.analyzedExtensions.set(extension.id, extension);

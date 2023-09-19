@@ -246,9 +246,12 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('restartPod', async (engine: string, podId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:restartPod', engine, podId);
   });
-  contextBridge.exposeInMainWorld('generatePodmanKube', async (engine: string, names: string[]): Promise<string> => {
-    return ipcInvoke('container-provider-registry:generatePodmanKube', engine, names);
-  });
+  contextBridge.exposeInMainWorld(
+    'generatePodmanKube',
+    async (engine: string, names: string[], kubeGeneratorId: string | undefined = undefined): Promise<string> => {
+      return ipcInvoke('container-provider-registry:generatePodmanKube', engine, names, kubeGeneratorId);
+    },
+  );
 
   contextBridge.exposeInMainWorld(
     'playKube',

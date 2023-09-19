@@ -122,6 +122,7 @@ import { OnboardingRegistry } from './onboarding-registry.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
 import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 import { Exec } from './util/exec.js';
+import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 import type { CommandInfo } from './api/command-info.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -376,6 +377,7 @@ export class PluginSystem {
 
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
+    const kubeGeneratorRegistry = new KubeGeneratorRegistry();
     const certificates = new Certificates();
     await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
@@ -693,6 +695,7 @@ export class PluginSystem {
       context,
       directories,
       exec,
+      kubeGeneratorRegistry,
     );
     await this.extensionLoader.init();
 
@@ -826,8 +829,18 @@ export class PluginSystem {
     );
     this.ipcHandle(
       'container-provider-registry:generatePodmanKube',
-      async (_listener, engine: string, names: string[]): Promise<string> => {
-        return containerProviderRegistry.generatePodmanKube(engine, names);
+      async (
+        _listener,
+        engine: string,
+        names: string[],
+        kubeGeneratorId: string | undefined = undefined,
+      ): Promise<string> => {
+        if (!kubeGeneratorId) return containerProviderRegistry.generatePodmanKube(engine, names);
+
+        const kubeGenerator = kubeGeneratorRegistry.getKubeGenerator(kubeGeneratorId);
+        if (!kubeGenerator) throw new Error(`kubeGenerator with id ${kubeGenerator} cannot be found.`);
+
+        return (await commandRegistry.executeCommand(kubeGenerator.command, engine, names)) as string;
       },
     );
 
