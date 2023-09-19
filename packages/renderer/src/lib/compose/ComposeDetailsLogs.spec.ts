@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import { mockBreadcrumb } from '../../stores/breadcrumb';
 import ComposeDetailsLogs from './ComposeDetailsLogs.svelte';
@@ -53,6 +53,7 @@ const composeInfoUIMock: ComposeInfoUI = {
   name: 'foobar',
   status: 'running',
   containers: [containerInfoUIMock],
+  type: ContainerGroupInfoTypeUI.COMPOSE,
 };
 
 test('Render compose logs and expect EmptyScreen and no loading via logsContainer', async () => {
