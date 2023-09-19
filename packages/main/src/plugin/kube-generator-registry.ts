@@ -20,19 +20,19 @@ import { Disposable } from '/@/plugin/types/disposable.js';
 export interface GenerateKubeResult {
   yaml: string;
 }
-export interface Provider {
+export interface KubernetesGeneratorProvider {
   id: string;
   generate(engineId: string, ids: string[]): GenerateKubeResult;
 }
 
 export class KubeGeneratorRegistry {
-  private kubeGenerators = new Map<string, Provider>();
+  private kubeGenerators = new Map<string, KubernetesGeneratorProvider>();
 
-  unregisterKubeGenerator(kubeGenerator: Provider): void {
+  unregisterKubeGenerator(kubeGenerator: KubernetesGeneratorProvider): void {
     this.kubeGenerators.delete(kubeGenerator.id);
   }
 
-  registerKubeGenerator(kubeGenerator: Provider): Disposable {
+  registerKubeGenerator(kubeGenerator: KubernetesGeneratorProvider): Disposable {
     console.log('registerKubeGenerator');
     this.kubeGenerators.set(kubeGenerator.id, kubeGenerator);
 
@@ -41,7 +41,7 @@ export class KubeGeneratorRegistry {
     });
   }
 
-  getKubeGenerator(kubeGeneratorId: string): Provider | undefined {
+  getKubeGenerator(kubeGeneratorId: string): KubernetesGeneratorProvider | undefined {
     console.log('getKubeGenerator');
     return this.kubeGenerators.get(kubeGeneratorId);
   }

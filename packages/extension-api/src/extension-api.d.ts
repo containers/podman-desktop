@@ -1333,15 +1333,9 @@ declare module '@podman-desktop/api' {
 
     /**
      * Add a KubernetesGenerator to KubernetesGeneratorRegistry
-     * @param kubeGenerator the generator to add
+     * @param KubernetesGeneratorProvider the generator to add
      */
-    export function registerKubernetesGeneratorProvider(kubeGenerator: KubeGenerator): Disposable;
-
-    /**
-     * Remove a provider from the KubernetesGeneratorRegistry
-     * @param kubeGenerator the generator to remove
-     */
-    export function unregisterKubernetesGeneratorProvider(kubeGenerator: KubeGenerator): void;
+    export function registerKubernetesGeneratorProvider(provider: KubernetesGeneratorProvider): Disposable;
   }
   /**
    * An event describing the update in kubeconfig location
