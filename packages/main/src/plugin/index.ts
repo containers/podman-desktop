@@ -840,7 +840,7 @@ export class PluginSystem {
         const kubeGenerator = kubeGeneratorRegistry.getKubeGenerator(kubeGeneratorId);
         if (!kubeGenerator) throw new Error(`kubeGenerator with id ${kubeGenerator} cannot be found.`);
 
-        return (await commandRegistry.executeCommand(kubeGenerator.command, engine, names)) as string;
+        return kubeGenerator.generate(engine, names).yaml;
       },
     );
 

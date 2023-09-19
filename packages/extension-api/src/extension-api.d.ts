@@ -506,20 +506,6 @@ declare module '@podman-desktop/api' {
     export const onDidUnregisterRegistry: Event<Registry>;
   }
 
-  export namespace kubernetesGenerator {
-    /**
-     * Add a KubernetesGenerator to KubernetesGeneratorRegistry
-     * @param kubeGenerator the generator to add
-     */
-    export function registerKubernetesGeneratorProvider(kubeGenerator: KubeGenerator): Disposable;
-
-    /**
-     * Remove a provider from the KubernetesGeneratorRegistry
-     * @param kubeGenerator the generator to remove
-     */
-    export function unregisterKubernetesGeneratorProvider(kubeGenerator: KubeGenerator): void;
-  }
-
   export namespace tray {
     /**
      * Creates a menu not related to a Provider
@@ -1344,6 +1330,18 @@ declare module '@podman-desktop/api' {
      * @param manifests the manifests to create as JSON objects
      */
     export function createResources(context: string, manifests: unknown[]): Promise<void>;
+
+    /**
+     * Add a KubernetesGenerator to KubernetesGeneratorRegistry
+     * @param kubeGenerator the generator to add
+     */
+    export function registerKubernetesGeneratorProvider(kubeGenerator: KubeGenerator): Disposable;
+
+    /**
+     * Remove a provider from the KubernetesGeneratorRegistry
+     * @param kubeGenerator the generator to remove
+     */
+    export function unregisterKubernetesGeneratorProvider(kubeGenerator: KubeGenerator): void;
   }
   /**
    * An event describing the update in kubeconfig location

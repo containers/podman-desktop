@@ -66,7 +66,7 @@ import type { OnboardingRegistry } from './onboarding-registry.js';
 import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
-import type { KubeGenerator, KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import type { Provider, KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -627,16 +627,6 @@ export class ExtensionLoader {
       },
     };
 
-    const kubernetesGeneratorRegistry = this.kubeGeneratorRegistry;
-    const kubernetesGenerator: typeof containerDesktopAPI.kubernetesGenerator = {
-      registerKubernetesGeneratorProvider(kubeGenerator: KubeGenerator): containerDesktopAPI.Disposable {
-        return kubernetesGeneratorRegistry.registerKubeGenerator(kubeGenerator);
-      },
-      unregisterKubernetesGeneratorProvider(kubeGenerator: KubeGenerator) {
-        kubernetesGeneratorRegistry.unregisterKubeGenerator(kubeGenerator);
-      },
-    };
-
     //export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
 
     const providerRegistry = this.providerRegistry;
@@ -828,6 +818,7 @@ export class ExtensionLoader {
     };
 
     const kubernetesClient = this.kubernetesClient;
+    const kubernetesGeneratorRegistry = this.kubeGeneratorRegistry;
     const kubernetes: typeof containerDesktopAPI.kubernetes = {
       getKubeconfig(): containerDesktopAPI.Uri {
         return kubernetesClient.getKubeconfig();
@@ -840,6 +831,12 @@ export class ExtensionLoader {
       },
       async createResources(context, manifests): Promise<void> {
         return kubernetesClient.createResources(context, manifests);
+      },
+      registerKubernetesGeneratorProvider(provider: Provider): containerDesktopAPI.Disposable {
+        return kubernetesGeneratorRegistry.registerKubeGenerator(provider);
+      },
+      unregisterKubernetesGeneratorProvider(provider: Provider) {
+        kubernetesGeneratorRegistry.unregisterKubeGenerator(provider);
       },
     };
 
@@ -998,7 +995,6 @@ export class ExtensionLoader {
       QuickPickItemKind,
       authentication,
       context: contextAPI,
-      kubernetesGenerator,
     };
   }
 

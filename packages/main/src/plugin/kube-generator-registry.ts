@@ -17,19 +17,23 @@
  ***********************************************************************/
 import { Disposable } from '/@/plugin/types/disposable.js';
 
-export interface KubeGenerator {
-  command: string;
+export interface GenerateKubeResult {
+  yaml: string;
+}
+export interface Provider {
   id: string;
+  generate(engineId: string, ids: string[]): GenerateKubeResult;
 }
 
 export class KubeGeneratorRegistry {
-  private kubeGenerators = new Map<string, KubeGenerator>();
+  private kubeGenerators = new Map<string, Provider>();
 
-  unregisterKubeGenerator(kubeGenerator: KubeGenerator): void {
+  unregisterKubeGenerator(kubeGenerator: Provider): void {
     this.kubeGenerators.delete(kubeGenerator.id);
   }
 
-  registerKubeGenerator(kubeGenerator: KubeGenerator): Disposable {
+  registerKubeGenerator(kubeGenerator: Provider): Disposable {
+    console.log('registerKubeGenerator');
     this.kubeGenerators.set(kubeGenerator.id, kubeGenerator);
 
     return Disposable.create(() => {
@@ -37,7 +41,8 @@ export class KubeGeneratorRegistry {
     });
   }
 
-  getKubeGenerator(kubeGeneratorId: string): KubeGenerator | undefined {
+  getKubeGenerator(kubeGeneratorId: string): Provider | undefined {
+    console.log('getKubeGenerator');
     return this.kubeGenerators.get(kubeGeneratorId);
   }
 }
