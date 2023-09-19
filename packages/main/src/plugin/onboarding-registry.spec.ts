@@ -23,6 +23,7 @@ import type { AnalyzedExtension } from './extension-loader.js';
 import * as fs from 'node:fs';
 import { Context } from './context/context.js';
 import type { ApiSenderType } from './api.js';
+import type { Disposable } from './types/disposable.js';
 
 let onboardingRegistry: OnboardingRegistry;
 const extensionId = 'myextension.id';
@@ -43,6 +44,8 @@ const readFileSync = vi.spyOn(fs, 'readFileSync');
 const bufferFrom = vi.spyOn(Buffer, 'from');
 const apiSender: ApiSenderType = { send: vi.fn() } as unknown as ApiSenderType;
 const context = new Context(apiSender);
+
+let registerOnboardingDisposable: Disposable;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeEach(() => {
@@ -70,7 +73,7 @@ beforeEach(() => {
     path: extensionPath,
     id: extensionId,
   } as AnalyzedExtension;
-  onboardingRegistry.registerOnboarding(extension, manifest.contributes.onboarding);
+  registerOnboardingDisposable = onboardingRegistry.registerOnboarding(extension, manifest.contributes.onboarding);
   getConfigMock.mockReturnValue(true);
 
   vi.mock('node:fs');
@@ -93,6 +96,12 @@ test('Should onboarding for known extension', async () => {
   const onbording = onboardingRegistry.getOnboarding(extensionId);
   expect(onbording).toBeDefined();
   expect(onbording?.title).toBe('Get started with Podman Desktop');
+});
+
+test('Should not find onboarding after dispose', async () => {
+  registerOnboardingDisposable.dispose();
+  const onbording = onboardingRegistry.getOnboarding(extensionId);
+  expect(onbording).toBe(undefined);
 });
 
 test('Should not find onboarding after unregistered', async () => {

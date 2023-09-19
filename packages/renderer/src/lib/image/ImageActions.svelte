@@ -1,12 +1,5 @@
 <script lang="ts">
-import {
-  faArrowUp,
-  faEllipsisVertical,
-  faLayerGroup,
-  faPlay,
-  faTrash,
-  faEdit,
-} from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faLayerGroup, faPlay, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -14,6 +7,7 @@ import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import { runImageInfo } from '../../stores/run-image-store';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
+import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 export let onRenameImage: (imageInfo: ImageInfoUI) => void;
@@ -54,15 +48,6 @@ async function showLayersImage(): Promise<void> {
   router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/history`);
 }
 
-async function executeContribution(menu: Menu): Promise<void> {
-  try {
-    await window.executeCommand(menu.command, image);
-  } catch (err) {
-    errorTitle = `Error while executing ${menu.title}`;
-    errorMessage = String(err);
-  }
-}
-
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
 // otherwise, leave blank.
 let actionsStyle: typeof DropdownMenu | typeof FlatMenu;
@@ -70,6 +55,11 @@ if (dropdownMenu) {
   actionsStyle = DropdownMenu;
 } else {
   actionsStyle = FlatMenu;
+}
+
+function onError(error: string): void {
+  errorTitle = 'Something went wrong.';
+  errorMessage = error;
 }
 </script>
 
@@ -109,13 +99,11 @@ if (dropdownMenu) {
       icon="{faLayerGroup}" />
   {/if}
 
-  {#each contributions as menu}
-    <ListItemButtonIcon
-      title="{menu.title}"
-      onClick="{() => executeContribution(menu)}"
-      menu="{dropdownMenu}"
-      icon="{faEllipsisVertical}" />
-  {/each}
+  <ContributionActions
+    args="{[image]}"
+    dropdownMenu="{dropdownMenu}"
+    contributions="{contributions}"
+    onError="{onError}" />
 
   {#if errorMessage}
     <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="-1">

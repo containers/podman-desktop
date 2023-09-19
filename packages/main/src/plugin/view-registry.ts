@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type { ViewContribution, ViewInfoUI } from './api/view-info.js';
+import { Disposable } from './types/disposable.js';
 
 export class ViewRegistry {
   private extViewContribution: Map<string, Map<string, ViewContribution[]>>;
@@ -32,7 +33,7 @@ export class ViewRegistry {
     this.extViewContribution.set(extensionId, view);
   }
 
-  registerViews(extensionId: string, views: { [key: string]: ViewContribution[] }): void {
+  registerViews(extensionId: string, views: { [key: string]: ViewContribution[] }): Disposable {
     // register each view contribution
     Object.entries(views).forEach(([viewId, viewContributions]) => {
       viewContributions.forEach(viewContribution => {
@@ -42,6 +43,10 @@ export class ViewRegistry {
         }
         this.registerView(extensionId, viewId, viewContribution);
       });
+    });
+
+    return Disposable.create(() => {
+      this.unregisterViews(extensionId);
     });
   }
 
