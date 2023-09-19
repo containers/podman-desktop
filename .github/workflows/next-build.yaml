@@ -134,7 +134,7 @@ jobs:
           sudo apt-get install flatpak-builder -y
           sudo apt-get install elfutils -y
           flatpak remote-add --if-not-exists flathub --user https://flathub.org/repo/flathub.flatpakrepo
-          flatpak install flathub --user -y org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
+          flatpak install flathub --user -y org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
 
       - name: Set macOS environment variables
         if: startsWith(matrix.os, 'macos')
