@@ -16,13 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
+import { beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
 import { ViewRegistry } from './view-registry.js';
+import type { Disposable } from './types/disposable.js';
 
 let viewRegistry: ViewRegistry;
 
+let registerViewsDisposable: Disposable;
+
 /* eslint-disable @typescript-eslint/no-empty-function */
-beforeAll(() => {
+beforeEach(() => {
   viewRegistry = new ViewRegistry();
   const manifest = {
     contributes: {
@@ -36,7 +39,7 @@ beforeAll(() => {
       },
     },
   };
-  viewRegistry.registerViews('extension', manifest.contributes.views);
+  registerViewsDisposable = viewRegistry.registerViews('extension', manifest.contributes.views);
 });
 
 beforeEach(() => {
@@ -57,4 +60,10 @@ test('View context should have a single entry', async () => {
   expect(views.length).toBe(1);
   expect(views[0].when).toBe('io.x-k8s.kind.cluster in containerLabelKeys');
   expect(views[0].icon).toBe('${kind-icon}');
+});
+
+test('Should not find menus after dispose', async () => {
+  registerViewsDisposable.dispose();
+  const views = viewRegistry.fetchViewsContributions('extension');
+  expect(views).toStrictEqual([]);
 });

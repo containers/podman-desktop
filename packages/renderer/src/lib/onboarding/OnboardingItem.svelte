@@ -7,6 +7,8 @@ import { SCOPE_ONBOARDING } from './onboarding-utils';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import PreferencesRenderingItem from '../preferences/PreferencesRenderingItem.svelte';
+import { CONFIGURATION_ONBOARDING_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import { isTargetScope } from '../preferences/Util';
 export let extension: string;
 export let item: OnboardingStepItem;
 export let getContext: () => ContextUI;
@@ -31,7 +33,11 @@ onMount(() => {
     const matches = [...item.value.matchAll(configurationRegex)];
     if (matches.length > 0 && matches[0].length > 1) {
       configurationItem = configurationItems.find(
-        config => !config.hidden && config.extension?.id === extension && config.id === matches[0][1],
+        config =>
+          !config.hidden &&
+          isTargetScope(CONFIGURATION_ONBOARDING_SCOPE, config.scope) &&
+          config.extension?.id === extension &&
+          config.id === matches[0][1],
       );
     }
   });

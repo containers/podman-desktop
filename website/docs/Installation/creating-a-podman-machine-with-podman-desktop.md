@@ -17,6 +17,7 @@ Consider creating a custom Podman machine to:
 - Control the assigned resources: CPUs, memory, and disk size.
 - Use a custom boot image.
 - Use the rootful connection by default, for example to run Kind.
+- (On Windows) Route the traffic through the network connection from your Windows session.
 
 #### Prerequisites
 
@@ -41,6 +42,9 @@ Consider creating a custom Podman machine to:
    1. **Machine with root privileges**:
       Enable to use the rootful connection by default.
       Required to use Kind on Windows.
+   1. (On Windows) **User mode networking (traffic relayed by a user process)**:
+      Enable to route the traffic through the network connection from your Windows session.
+      Required to access resources behind your VPN connection.
    1. Click **Create**
 
    ![Create a Podman machine](img/create-a-podman-machine.png)

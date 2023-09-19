@@ -85,15 +85,22 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     extensionContext.subscriptions.push(provider);
   }
 
-  if (fs.existsSync(socketPath)) {
-    registerProvider(extensionContext, provider, socketPath);
-  } else {
-    console.error(`Could not find socket at ${socketPath}`);
-  }
-  if (fs.existsSync(configPath)) {
-    registerProvider(extensionContext, provider, configPath);
-  } else {
-    console.error(`Could not find config at ${configPath}`);
+  switch (engineType) {
+    case 'podman':
+    case 'docker':
+      if (fs.existsSync(socketPath)) {
+        registerProvider(extensionContext, provider, socketPath);
+      } else {
+        console.debug(`Could not find socket at ${socketPath}`);
+      }
+      break;
+    case 'kubernetes':
+      if (fs.existsSync(configPath)) {
+        registerProvider(extensionContext, provider, configPath);
+      } else {
+        console.debug(`Could not find config at ${configPath}`);
+      }
+      break;
   }
 }
 

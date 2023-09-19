@@ -90,6 +90,10 @@ export interface AnalyzedExtension {
 
   missingDependencies?: string[];
   circularDependencies?: string[];
+
+  readonly subscriptions: { dispose(): unknown }[];
+
+  dispose(): void;
 }
 
 export interface ActivatedExtension {
@@ -106,8 +110,8 @@ export class ExtensionLoader {
 
   private moduleLoader: ModuleLoader;
 
-  private activatedExtensions = new Map<string, ActivatedExtension>();
-  private analyzedExtensions = new Map<string, AnalyzedExtension>();
+  protected activatedExtensions = new Map<string, ActivatedExtension>();
+  protected analyzedExtensions = new Map<string, AnalyzedExtension>();
   private watcherExtensions = new Map<string, containerDesktopAPI.FileSystemWatcher>();
   private reloadInProgressExtensions = new Map<string, boolean>();
   protected extensionState = new Map<string, string>();
@@ -324,6 +328,7 @@ export class ExtensionLoader {
     // create api object
     const api = this.createApi(extensionPath, manifest);
 
+    const disposables: Disposable[] = [];
     const analyzedExtension: AnalyzedExtension = {
       id: `${manifest.publisher}.${manifest.name}`,
       name: manifest.name,
@@ -332,6 +337,10 @@ export class ExtensionLoader {
       mainPath: manifest.main ? path.resolve(extensionPath, manifest.main) : undefined,
       api,
       removable,
+      subscriptions: disposables,
+      dispose(): void {
+        disposables.forEach(disposable => disposable.dispose());
+      },
     };
 
     return analyzedExtension;
@@ -524,12 +533,12 @@ export class ExtensionLoader {
       extensionConfiguration.title = `Extension: ${extensionConfiguration.title}`;
       extensionConfiguration.id = 'preferences.' + extension.id;
 
-      this.configurationRegistry.registerConfigurations([extensionConfiguration]);
+      extension.subscriptions.push(this.configurationRegistry.registerConfigurations([extensionConfiguration]));
     }
 
     const menus = extension.manifest?.contributes?.menus;
     if (menus) {
-      this.menuRegistry.registerMenus(menus);
+      extension.subscriptions.push(this.menuRegistry.registerMenus(menus));
     }
 
     const icons = extension.manifest?.contributes?.icons;
@@ -539,12 +548,12 @@ export class ExtensionLoader {
 
     const views = extension.manifest?.contributes?.views;
     if (views) {
-      this.viewRegistry.registerViews(extension.id, views);
+      extension.subscriptions.push(this.viewRegistry.registerViews(extension.id, views));
     }
 
     const onboarding = extension.manifest?.contributes?.onboarding;
     if (onboarding) {
-      this.onboardingRegistry.registerOnboarding(extension, onboarding);
+      extension.subscriptions.push(this.onboardingRegistry.registerOnboarding(extension, onboarding));
     }
 
     this.analyzedExtensions.set(extension.id, extension);
@@ -626,7 +635,7 @@ export class ExtensionLoader {
           images.icon = instance.updateImage(images.icon, extensionPath);
           images.logo = instance.updateImage(images.logo, extensionPath);
         }
-        return providerRegistry.createProvider(extensionInfo.id, providerOptions);
+        return providerRegistry.createProvider(extensionInfo.id, extensionInfo.label, providerOptions);
       },
       onDidUpdateProvider: (listener, thisArg, disposables) => {
         return providerRegistry.onDidUpdateProvider(listener, thisArg, disposables);
@@ -1040,7 +1049,7 @@ export class ExtensionLoader {
     this.extensionStateErrors.delete(extension.id);
     this.apiSender.send('extension-starting', {});
 
-    const subscriptions: containerDesktopAPI.Disposable[] = [];
+    const subscriptions: containerDesktopAPI.Disposable[] = extension.subscriptions;
 
     const storagePath = path.resolve(this.extensionsStorageDirectory, extension.id);
     const oldStoragePath = path.resolve(this.extensionsStorageDirectory, extension.name);
@@ -1136,31 +1145,9 @@ export class ExtensionLoader {
     const watcher = this.watcherExtensions.get(extensionId);
     watcher?.dispose();
 
-    // dispose subscriptions
-    for (const subscription of extension.extensionContext.subscriptions) {
-      await subscription.dispose();
-    }
-
     const analyzedExtension = this.analyzedExtensions.get(extensionId);
-    if (analyzedExtension) {
-      const extensionConfiguration = analyzedExtension.manifest?.contributes?.configuration;
-      if (extensionConfiguration) {
-        this.configurationRegistry.deregisterConfigurations([extensionConfiguration]);
-      }
-      const menus = analyzedExtension.manifest?.contributes?.menus;
-      if (menus) {
-        this.menuRegistry.unregisterMenus(menus);
-      }
-      const views = analyzedExtension.manifest?.contributes?.views;
-      if (views) {
-        this.viewRegistry.unregisterViews(extensionId);
-      }
-
-      const onboarding = analyzedExtension.manifest?.contributes?.onboarding;
-      if (onboarding) {
-        this.onboardingRegistry.unregisterOnboarding(extensionId);
-      }
-    }
+    // dispose subscriptions if any
+    analyzedExtension?.dispose();
     this.activatedExtensions.delete(extensionId);
     this.extensionState.set(extension.id, 'stopped');
     this.apiSender.send('extension-stopped');

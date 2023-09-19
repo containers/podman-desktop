@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+import { test, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 
 import ContainerDetails from './ContainerDetails.svelte';
@@ -29,6 +29,8 @@ import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
 
 const listContainersMock = vi.fn();
+
+const getContainerInspectMock = vi.fn();
 
 const myContainer: ContainerInfo = {
   Id: 'myContainer',
@@ -49,12 +51,93 @@ const myContainer: ContainerInfo = {
 
 const deleteContainerMock = vi.fn();
 
+vi.mock('xterm', () => {
+  return {
+    Terminal: vi.fn().mockReturnValue({ loadAddon: vi.fn(), open: vi.fn(), write: vi.fn(), clear: vi.fn() }),
+  };
+});
+
 beforeAll(() => {
   (window as any).listContainers = listContainersMock;
   (window as any).deleteContainer = deleteContainerMock;
+  (window as any).getContainerInspect = getContainerInspectMock;
+
+  (window as any).getConfigurationValue = vi.fn().mockReturnValue(12);
+
+  (window as any).logsContainer = vi.fn();
+  (window as any).matchMedia = vi.fn().mockReturnValue({
+    addListener: vi.fn(),
+  });
+  (window as any).ResizeObserver = vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
+});
+
+beforeEach(() => {});
+
+test('Expect logs when tty is not enabled', async () => {
+  router.goto('/');
+
+  containersInfos.set([myContainer]);
+
+  // spy router.goto
+  const routerGotoSpy = vi.spyOn(router, 'goto');
+
+  getContainerInspectMock.mockResolvedValue({
+    Config: {
+      Tty: false,
+    },
+  });
+
+  // render the component
+  render(ContainerDetails, { containerID: 'myContainer' });
+
+  // wait router.goto is called
+  while (routerGotoSpy.mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // grab current route and check we have been redirected to tty
+  const currentRoute = window.location;
+  expect(currentRoute.href).toBe('http://localhost:3000/logs');
+
+  expect(routerGotoSpy).toBeCalledWith('/logs');
+});
+
+test('Expect show tty if container has tty enabled', async () => {
+  router.goto('/');
+
+  containersInfos.set([myContainer]);
+
+  // spy router.goto
+  const routerGotoSpy = vi.spyOn(router, 'goto');
+
+  getContainerInspectMock.mockResolvedValue({
+    Config: {
+      Tty: true,
+      OpenStdin: true,
+    },
+  });
+
+  // render the component
+  render(ContainerDetails, { containerID: 'myContainer' });
+
+  // wait router.goto is called
+  while (routerGotoSpy.mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // grab current route and check we have been redirected to tty
+  const currentRoute = window.location;
+  expect(currentRoute.href).toBe('http://localhost:3000/tty');
+
+  expect(routerGotoSpy).toBeCalledWith('/tty');
 });
 
 test('Expect redirect to previous page if container is deleted', async () => {
+  router.goto('/');
+
+  getContainerInspectMock.mockResolvedValue({
+    Config: {},
+  });
   const routerGotoSpy = vi.spyOn(router, 'goto');
   listContainersMock.mockResolvedValue([myContainer]);
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
@@ -74,9 +157,14 @@ test('Expect redirect to previous page if container is deleted', async () => {
   // render the component
   render(ContainerDetails, { containerID: 'myContainer' });
 
+  // wait router.goto is called
+  while (routerGotoSpy.mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
   // grab current route
   const currentRoute = window.location;
-  expect(currentRoute.href).toBe('http://localhost:3000/');
+  expect(currentRoute.href).toBe('http://localhost:3000/logs');
 
   // click on delete container button
   const deleteButton = screen.getByRole('button', { name: 'Delete Container' });

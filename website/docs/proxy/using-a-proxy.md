@@ -9,7 +9,16 @@ keywords: [podman desktop, containers, podman, proxy, windows, macos]
 # Using Podman Desktop behind a proxy on macOS and Windows
 
 You can configure Podman Desktop to run behind a proxy.
-The configuration applies to the Podman engine, but not to your containers.
+
+The configuration applies to:
+
+- Processes that Podman Desktop started, such as downloading Podman, Compose, or Kind installers.
+- Podman engine.
+
+The configuration does not apply to:
+
+- Your Podman containers.
+- Command line tools that Podman Desktop did not start.
 
 #### Prerequisites
 
@@ -29,8 +38,18 @@ The configuration applies to the Podman engine, but not to your containers.
 
 #### Verification
 
-1. Go to **Images**.
-1. Click **Pull an image**.
-1. **Image to Pull**: `bash`
-1. Click **Pull image**.
-1. Podman Desktop reports `Download complete`.
+1. You can install extensions such as:
+
+   - [Installing Compose](/docs/compose/compose-spec)
+   - [Installing Kind](/docs/kubernetes/kind/installing-kind).
+
+2. Podman can pull images.
+   1. Go to **Images**.
+   2. Click **Pull an image**.
+   3. **Image to Pull**: `bash`
+   4. Click **Pull image**.
+   5. Podman Desktop reports `Download complete`.
+
+#### Additional resources
+
+- [Using a proxy in your containers on macOS and Windows](/docs/proxy/using-a-proxy-in-your-containers)

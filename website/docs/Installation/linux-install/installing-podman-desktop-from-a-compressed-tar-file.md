@@ -27,4 +27,4 @@ Consider installing from an archive rather than [from Flathub](../linux-install)
 
 #### Next steps
 
-- [Getting started](../../getting-started/getting-started)
+- [Getting started](/docs/getting-started)

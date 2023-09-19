@@ -41,6 +41,7 @@ const listeners = new Set<StatusHandler>();
 const podmanMachineSocketsDirectory = path.resolve(os.homedir(), appHomeDir(), 'machine');
 const podmanMachineSocketsSymlinkDirectoryMac = path.resolve(os.homedir(), '.podman');
 const MACOS_MAX_SOCKET_PATH_LENGTH = 104;
+let isMovedPodmanSocket = false;
 let storedExtensionContext;
 let stopLoop = false;
 let autoMachineStarted = false;
@@ -60,7 +61,7 @@ const containerProviderConnections = new Map<string, extensionApi.ContainerProvi
 // Warning to check to see if the socket is a disguised Podman socket,
 // by default we assume it is until proven otherwise when we check
 let isDisguisedPodmanSocket = true;
-let disguisedPodmanSocketWatcher: extensionApi.FileSystemWatcher;
+let disguisedPodmanSocketWatcher: extensionApi.FileSystemWatcher | undefined;
 
 export type MachineJSON = {
   Name: string;
@@ -347,7 +348,11 @@ function calcMacosSocketPath(machineName: string): string {
 }
 
 function calcLinuxSocketPath(machineName: string): string {
-  return path.resolve(podmanMachineSocketsDirectory, machineName, 'podman.sock');
+  let socketPath = path.resolve(podmanMachineSocketsDirectory, machineName, 'podman.sock');
+  if (isMovedPodmanSocket) {
+    socketPath = path.resolve(podmanMachineSocketsDirectory, 'qemu', 'podman.sock');
+  }
+  return socketPath;
 }
 
 function calcWinPipeName(machineName: string): string {
@@ -670,6 +675,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   if (version) {
     extensionApi.context.setValue(USER_MODE_NETWORKING_SUPPORTED_KEY, isUserModeNetworkingSupported(version));
+    isMovedPodmanSocket = isPodmanSocketLocationMoved(version);
   }
 
   const detectionChecks: extensionApi.ProviderDetectionCheck[] = [];
@@ -747,7 +753,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Update the status of the provider if the socket is changed, created or deleted
   disguisedPodmanSocketWatcher = setupDisguisedPodmanSocketWatcher(provider, getSocketPath());
-  extensionContext.subscriptions.push(disguisedPodmanSocketWatcher);
+  if (disguisedPodmanSocketWatcher) {
+    extensionContext.subscriptions.push(disguisedPodmanSocketWatcher);
+  }
 
   // Compatibility mode status bar item
   // only available for macOS or Linux (for now).
@@ -1072,6 +1080,12 @@ export async function deactivate(): Promise<void> {
   });
 }
 
+const PODMAN_MINIMUM_VERSION_FOR_NEW_SOCKET_LOCATION = '4.5.0';
+
+export function isPodmanSocketLocationMoved(podmanVersion: string) {
+  return isLinux() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_NEW_SOCKET_LOCATION) >= 0;
+}
+
 const PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING = '4.6.0';
 
 // Checks if user mode networking is supported. Only Windows platform allows this parameter to be tuned
@@ -1175,7 +1189,7 @@ export async function createMachine(
 function setupDisguisedPodmanSocketWatcher(
   provider: extensionApi.Provider,
   socketFile: string,
-): extensionApi.FileSystemWatcher {
+): extensionApi.FileSystemWatcher | undefined {
   // Monitor the socket file for any changes, creation or deletion
   // and trigger a change if that happens
 
@@ -1186,10 +1200,10 @@ function setupDisguisedPodmanSocketWatcher(
     });
   });
 
-  let socketWatcher: extensionApi.FileSystemWatcher;
-  if (isLinux) {
+  let socketWatcher: extensionApi.FileSystemWatcher | undefined = undefined;
+  if (isLinux()) {
     socketWatcher = extensionApi.fs.createFileSystemWatcher(socketFile);
-  } else {
+  } else if (isMac()) {
     // watch parent directory
     socketWatcher = extensionApi.fs.createFileSystemWatcher(path.dirname(socketFile));
   }
@@ -1201,15 +1215,15 @@ function setupDisguisedPodmanSocketWatcher(
     }
   };
 
-  socketWatcher.onDidChange(async uri => {
+  socketWatcher?.onDidChange(async uri => {
     await updateSocket(uri);
   });
 
-  socketWatcher.onDidCreate(async uri => {
+  socketWatcher?.onDidCreate(async uri => {
     await updateSocket(uri);
   });
 
-  socketWatcher.onDidDelete(async uri => {
+  socketWatcher?.onDidDelete(async uri => {
     await updateSocket(uri);
   });
 

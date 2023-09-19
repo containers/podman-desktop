@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type { CommandRegistry } from './command-registry.js';
+import { Disposable } from './types/disposable.js';
 
 export interface Menu {
   command: string;
@@ -24,6 +25,7 @@ export interface Menu {
 
 export enum MenuContext {
   DASHBOARD_IMAGE = 'dashboard/image',
+  DASHBOARD_CONTAINER = 'dashboard/container',
 }
 
 export class MenuRegistry {
@@ -31,11 +33,15 @@ export class MenuRegistry {
 
   constructor(private commandRegisty: CommandRegistry) {}
 
-  registerMenus(menus: { [key: string]: Menu[] }): void {
+  registerMenus(menus: { [key: string]: Menu[] }): Disposable {
     for (const name in menus) {
       const contextMenus = menus[name];
       contextMenus.forEach(menu => this.registerMenu(name, menu));
     }
+
+    return Disposable.create(() => {
+      this.unregisterMenus(menus);
+    });
   }
 
   unregisterMenus(menus: { [key: string]: Menu[] }): void {

@@ -17,3 +17,4 @@
  ***********************************************************************/
 
 export const CONFIGURATION_DEFAULT_SCOPE = 'DEFAULT';
+export const CONFIGURATION_ONBOARDING_SCOPE = 'Onboarding';

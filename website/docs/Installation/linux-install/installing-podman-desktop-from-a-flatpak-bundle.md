@@ -46,4 +46,4 @@ Consider installing a Flatpak bundle rather than [from Flathub](../linux-install
 
 #### Next steps
 
-- [Getting started](../../getting-started/getting-started).
+- [Getting started](/docs/getting-started).

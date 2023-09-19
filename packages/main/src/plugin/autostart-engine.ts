@@ -16,50 +16,77 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { Disposable } from './types/disposable.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import type { ProviderRegistry } from './provider-registry.js';
+import { CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE } from './configuration-registry-constants.js';
 
 export class AutostartEngine {
+  private providerExtension = new Map<string, string>();
+
   constructor(
     private configurationRegistry: ConfigurationRegistry,
     private providerRegistry: ProviderRegistry,
   ) {}
 
-  async init(): Promise<void> {
-    // add configuration
+  registerProvider(extensionId: string, extensionDisplayName: string, providerInternalId: string): Disposable {
+    this.providerExtension.set(providerInternalId, extensionId);
+    const autostartConfiguration = this.registerProviderConfiguration(extensionId, extensionDisplayName);
+    return Disposable.create(() => {
+      this.providerExtension.delete(providerInternalId);
+      this.configurationRegistry.deregisterConfigurations([autostartConfiguration]);
+    });
+  }
+
+  private registerProviderConfiguration(extensionId: string, extensionDisplayName: string): IConfigurationNode {
+    const extensionConfiguration = this.configurationRegistry.getConfiguration(`preferences.${extensionId}`);
+    let autostart = extensionConfiguration.get<boolean>('engine.autostart');
+    // if there is no configuration set, we try to retrieve the value of the old deprecated preferences.engine.autostart setting
+    if (autostart === undefined) {
+      const autoStartConfigurationGlobal = this.configurationRegistry.getConfiguration('preferences.engine');
+      autostart = autoStartConfigurationGlobal.get<boolean>('autostart');
+    }
+
     const autoStartConfigurationNode: IConfigurationNode = {
-      id: 'preferences.engine.autostart',
-      title: 'Autostart container engine',
+      id: `preferences.${extensionId}.engine.autostart`,
+      title: `Autostart ${extensionDisplayName} engine`,
       type: 'object',
+      extension: {
+        id: extensionId,
+      },
       properties: {
-        ['preferences.engine.autostart']: {
-          description: 'Autostart container engine when launching Podman Desktop',
+        [`preferences.${extensionId}.engine.autostart`]: {
+          description: `Autostart ${extensionDisplayName} engine when launching Podman Desktop`,
           type: 'boolean',
-          default: true,
+          default: autostart !== undefined ? autostart : true,
+          scope: [CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE],
         },
       },
     };
 
     this.configurationRegistry.registerConfigurations([autoStartConfigurationNode]);
+    return autoStartConfigurationNode;
   }
 
   async start(): Promise<void> {
-    // grab value
-    const autoStartConfiguration = this.configurationRegistry.getConfiguration('preferences.engine');
-    const autostart = autoStartConfiguration.get<boolean>('autostart');
-    if (autostart) {
-      console.log('Autostarting container engine');
-      // send autostart
-      this.providerRegistry.runAutostart().catch((e: unknown) => {
-        console.error('Failed to autostart container engine', e);
-      });
-    }
-
-    // start the engine if we toggle the property
-    this.configurationRegistry.onDidChangeConfiguration(async e => {
-      if (e.key === 'preferences.engine.autostart' && e.value === true) {
-        await this.providerRegistry.runAutostart();
+    this.providerExtension.forEach((extensionId, providerInternalId) => {
+      // grab value
+      const autoStartConfiguration = this.configurationRegistry.getConfiguration(`preferences.${extensionId}`);
+      const autostart = autoStartConfiguration.get<boolean>('engine.autostart');
+      if (autostart) {
+        console.log(`Autostarting ${extensionId} container engine`);
+        // send autostart
+        this.providerRegistry.runAutostart(providerInternalId).catch((e: unknown) => {
+          console.error(`Failed to autostart ${extensionId} container engine`, e);
+        });
       }
+
+      // start the engine if we toggle the property
+      this.configurationRegistry.onDidChangeConfiguration(async e => {
+        if (e.key === `${extensionId}.engine.autostart` && e.value === true) {
+          await this.providerRegistry.runAutostart(providerInternalId);
+        }
+      });
     });
   }
 }

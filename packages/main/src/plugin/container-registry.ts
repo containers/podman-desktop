@@ -18,6 +18,7 @@
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Disposable } from './types/disposable.js';
+import type { ContainerAttachOptions } from 'dockerode';
 import Dockerode from 'dockerode';
 import StreamValues from 'stream-json/streamers/StreamValues.js';
 import type {
@@ -56,8 +57,7 @@ import { Emitter } from './events/emitter.js';
 import fs from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import type { ApiSenderType } from './api.js';
-import type { Stream } from 'stream';
-import { Writable } from 'stream';
+import { type Stream, Writable } from 'node:stream';
 import datejs from 'date.js';
 import { isWindows } from '../util.js';
 
@@ -93,10 +93,17 @@ export class ContainerProviderRegistry {
   ) {
     const libPodDockerode = new LibpodDockerode();
     libPodDockerode.enhancePrototypeWithLibPod();
+
+    // setup listeners
+    this.setupListeners();
   }
 
   protected containerProviders: Map<string, containerDesktopAPI.ContainerProviderConnection> = new Map();
   protected internalProviders: Map<string, InternalContainerProvider> = new Map();
+
+  // map of streams per container id
+  protected streamsPerContainerId: Map<string, NodeJS.ReadWriteStream> = new Map();
+  protected streamsOutputPerContainerId: Map<string, Buffer[]> = new Map();
 
   handleEvents(api: Dockerode) {
     const eventEmitter = new EventEmitter();
@@ -160,6 +167,29 @@ export class ContainerProviderRegistry {
           eventEmitter.emit('event', data.value);
         }
       });
+    });
+  }
+
+  setupListeners() {
+    const cleanStreamMap = (containerId: string) => {
+      this.streamsPerContainerId.delete(containerId);
+      this.streamsOutputPerContainerId.delete(containerId);
+    };
+
+    this.apiSender.receive('container-stopped-event', (containerId: string) => {
+      cleanStreamMap(containerId);
+    });
+
+    this.apiSender.receive('container-die-event', (containerId: string) => {
+      cleanStreamMap(containerId);
+    });
+
+    this.apiSender.receive('container-kill-event', (containerId: string) => {
+      cleanStreamMap(containerId);
+    });
+
+    this.apiSender.receive('container-removed-event', (containerId: string) => {
+      cleanStreamMap(containerId);
     });
   }
 
@@ -924,7 +954,14 @@ export class ContainerProviderRegistry {
   async startContainer(engineId: string, id: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingContainer(engineId, id).start();
+      const engine = this.internalProviders.get(engineId);
+      const container = this.getMatchingContainer(engineId, id);
+
+      if (engine) {
+        await this.attachToContainer(engine, container);
+      }
+
+      return container.start();
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -1099,7 +1136,14 @@ export class ContainerProviderRegistry {
   async restartContainer(engineId: string, id: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingContainer(engineId, id).restart();
+      const engine = this.internalProviders.get(engineId);
+      const container = this.getMatchingContainer(engineId, id);
+
+      if (engine) {
+        await this.attachToContainer(engine, container);
+      }
+
+      return container.restart();
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -1347,7 +1391,136 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async createAndStartContainer(engineId: string, options: ContainerCreateOptions): Promise<void> {
+  async attachContainer(
+    engineId: string,
+    containerId: string,
+    onData: (data: string) => void,
+    onError: (error: string) => void,
+    onEnd: () => void,
+  ): Promise<(param: string) => void> {
+    // check if we have an existing stream
+    let attachStream = this.streamsPerContainerId.get(containerId);
+
+    const setupStream = (stream: NodeJS.ReadWriteStream) => {
+      stream.on('data', chunk => {
+        onData(chunk.toString('utf-8'));
+      });
+
+      stream.on('error', err => {
+        onError(String(err));
+      });
+
+      stream.on('end', () => {
+        onEnd();
+      });
+
+      // do we have previous data?
+      const previousData = this.streamsOutputPerContainerId.get(containerId);
+      if (previousData) {
+        const concat = Buffer.concat(previousData);
+        // replay
+        onData(concat.toString('utf-8'));
+      }
+    };
+
+    if (!attachStream) {
+      // grab the container object
+      const container = this.getMatchingContainer(engineId, containerId);
+
+      const getAttachStream = async () => {
+        // use either podman specific API or compat API
+        try {
+          const libpod = this.getMatchingPodmanEngine(engineId);
+          return libpod.podmanAttach(container.id);
+        } catch (error) {
+          // run attach
+          const compatAttachOptions: ContainerAttachOptions = {
+            stream: true,
+            stdin: true,
+            stdout: true,
+            stderr: true,
+            hijack: true,
+          };
+          return container.attach(compatAttachOptions);
+        }
+      };
+
+      getAttachStream()
+        .then(readWriteStream => {
+          attachStream = readWriteStream;
+          setupStream(attachStream);
+        })
+        .catch((err: unknown) => {
+          console.log('error in attach', err);
+        });
+    } else {
+      setupStream(attachStream);
+    }
+
+    this.telemetryService.track('attachContainer');
+
+    return (param: string) => {
+      attachStream?.write(param);
+    };
+  }
+
+  // keep a reference to the input/output stream of a container
+  // can be used before starting the container
+  // it only keep data if tty is specified on the container
+  async attachToContainer(
+    engine: InternalContainerProvider,
+    container: Dockerode.Container,
+    hasTty?: boolean,
+    openStdin?: boolean,
+  ): Promise<void> {
+    // if option is not specified, try to look if the container is using tty or not
+    if (hasTty === undefined || openStdin === undefined) {
+      const containerInspectInfo = await container.inspect();
+      hasTty = containerInspectInfo.Config.Tty;
+      openStdin = containerInspectInfo.Config.OpenStdin;
+    }
+    // no tty and no stdin, do not need to try to attach a terminal
+    if (!hasTty || !openStdin) {
+      return;
+    }
+
+    // if tty, attach a terminal using compat API or Podman API
+    let attachStream;
+    if (engine.libpodApi) {
+      attachStream = await engine.libpodApi.podmanAttach(container.id);
+    } else {
+      const attachOptions: ContainerAttachOptions = {
+        stdin: true,
+        stream: true,
+        stdout: true,
+        stderr: true,
+        hijack: true,
+      };
+      attachStream = await container.attach(attachOptions);
+    }
+
+    if (attachStream) {
+      this.streamsPerContainerId.set(container.id, attachStream);
+
+      // if stream is closed, cleanup
+      attachStream.on('end', () => {
+        this.streamsPerContainerId.delete(container.id);
+        this.streamsOutputPerContainerId.delete(container.id);
+      });
+
+      const chunks: Buffer[] = [];
+      // keep last chunks of the buffer to replay them later
+      attachStream.on('data', (data: Buffer) => {
+        chunks.push(data);
+        if (chunks.length > 100) {
+          chunks.shift();
+        }
+        this.streamsOutputPerContainerId.set(container.id, chunks);
+      });
+    }
+  }
+
+  async createAndStartContainer(engineId: string, options: ContainerCreateOptions): Promise<{ id: string }> {
     let telemetryOptions = {};
     try {
       // need to find the container engine of the container
@@ -1359,7 +1532,9 @@ export class ContainerProviderRegistry {
         throw new Error('no running provider for the matching container');
       }
       const container = await engine.api.createContainer(options);
-      return container.start();
+      await this.attachToContainer(engine, container, options.Tty, options.OpenStdin);
+      await container.start();
+      return { id: container.id };
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;

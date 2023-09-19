@@ -45,7 +45,7 @@ export class ContainerDetailsPage extends BasePage {
   }
 
   async activateTab(tabName: string) {
-    const tabItem = this.page.getByRole('link', { name: tabName });
+    const tabItem = this.page.getByRole('link', { name: tabName, exact: true });
     await tabItem.waitFor({ state: 'visible', timeout: 2000 });
     await tabItem.click();
   }

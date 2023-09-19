@@ -6,10 +6,13 @@ import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
+import type { Menu } from '../../../../main/src/plugin/menu-registry';
+import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 
 export let compose: ComposeInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
+export let contributions: Menu[] = [];
 
 export let inProgressCallback: (containers: ContainerInfoUI[], inProgress: boolean, state?: string) => void = () => {};
 export let errorCallback: (erroMessage: string) => void = () => {};
@@ -124,4 +127,9 @@ if (dropdownMenu) {
     menu="{dropdownMenu}"
     detailed="{detailed}"
     icon="{faArrowsRotate}" />
+  <ContributionActions
+    args="{[compose]}"
+    dropdownMenu="{dropdownMenu}"
+    contributions="{contributions}"
+    onError="{errorCallback}" />
 </svelte:component>

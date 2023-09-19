@@ -43,13 +43,21 @@ export class RunImagePage extends BasePage {
     await tabactive.click();
   }
 
-  async startContainer(customName = ''): Promise<ContainersPage> {
+  async startContainer(customName = '', interactive?: boolean): Promise<ContainersPage> {
     if (customName !== '') {
       await this.activateTab('Basic');
       // ToDo: improve UI side with aria-labels
       const textbox = this.page.locator(`input[type='text'][name='modalContainerName']`);
       await textbox.fill(customName);
     }
+
+    if (!interactive) {
+      // disable the checkbox in advanced tab
+      await this.activateTab('Advanced');
+      const checkbox = this.page.getByRole('checkbox', { name: 'Attach a pseudo terminal' });
+      await checkbox.uncheck();
+    }
+
     await this.startContainerButton.waitFor({ state: 'visible', timeout: 1000 });
     await this.startContainerButton.click();
     // wait for containers page to appear

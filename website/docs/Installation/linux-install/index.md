@@ -60,4 +60,4 @@ Alternatively, you can install Podman Desktop from:
 
 #### Next steps
 
-- [Getting started](../getting-started/getting-started)
+- [Getting started](/docs/getting-started)

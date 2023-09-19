@@ -10,14 +10,6 @@
     "podman-desktop": "^0.0.1"
   },
   "main": "./dist/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "docker.info",
-        "title": "Docker: Specific info about Docker"
-      }
-    ]
-  },
   "scripts": {
     "build": "tsc && node ./scripts/build.js",
     "test": "vitest run --coverage --passWithNoTests",

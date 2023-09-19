@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 /* eslint-disable no-null/no-null */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { beforeAll, expect, test } from 'vitest';
 import { type LibPod, LibpodDockerode } from '/@/plugin/dockerode/libpod-dockerode.js';
@@ -136,4 +137,25 @@ test('Check list of containers using Podman API and all true options', async () 
   expect(listOfContainers.length).toBe(1);
   const firstContainer = listOfContainers[0];
   expect(firstContainer.Id).toBe('37a54a845ef27a212634ef00c994c0793b5f19ec16853d606beb1c929461c1cd');
+});
+
+test('Check attach API', async () => {
+  const containerPrompt = `#`;
+  const containerId = '12345678';
+  nock('http://localhost')
+    .post(`/v4.2.0/libpod/containers/${containerId}/attach?stdin=true&stdout=true&stderr=true`)
+    .reply(200, containerPrompt);
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  const libPod = api as any;
+
+  // patch libpod to not wait for the test as websocket is not supported by nock
+  const originalBuildRequest = libPod.modem.buildRequest;
+  libPod.modem.buildRequest = function (options: unknown, context: any, data: unknown, callback: unknown) {
+    context.openStdin = false;
+    return originalBuildRequest.call(this, options, context, data, callback);
+  };
+
+  const stream = await (api as unknown as LibPod).podmanAttach(containerId);
+  expect(stream.on).toBeDefined();
 });

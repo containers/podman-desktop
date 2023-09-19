@@ -371,7 +371,7 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'createAndStartContainer',
-    async (engine: string, options: ContainerCreateOptions): Promise<void> => {
+    async (engine: string, options: ContainerCreateOptions): Promise<{ id: string }> => {
       return ipcInvoke('container-provider-registry:createAndStartContainer', engine, options);
     },
   );
@@ -483,6 +483,61 @@ function initExposure(): void {
       }
     },
   );
+
+  // callbacks for attachContainer
+  let onDataCallbacksAttachContainerId = 0;
+  const onDataCallbacksAttachContainer = new Map<
+    number,
+    { onData: (data: Buffer) => void; onError: (error: string) => void; onEnd: () => void }
+  >();
+  contextBridge.exposeInMainWorld(
+    'attachContainer',
+    async (
+      engine: string,
+      containerId: string,
+      onData: (data: Buffer) => void,
+      onError: (error: string) => void,
+      onEnd: () => void,
+    ): Promise<number> => {
+      onDataCallbacksAttachContainerId++;
+      onDataCallbacksAttachContainer.set(onDataCallbacksAttachContainerId, { onData, onError, onEnd });
+      return ipcInvoke(
+        'container-provider-registry:attachContainer',
+        engine,
+        containerId,
+        onDataCallbacksAttachContainerId,
+      );
+    },
+  );
+
+  contextBridge.exposeInMainWorld('attachContainerSend', async (dataId: number, content: string): Promise<void> => {
+    return ipcInvoke('container-provider-registry:attachContainerSend', dataId, content);
+  });
+
+  ipcRenderer.on('container-provider-registry:attachContainer-onData', (_, callbackId: number, data: Buffer) => {
+    // grab callback from the map
+    const callback = onDataCallbacksAttachContainer.get(callbackId);
+    if (callback) {
+      callback.onData(data);
+    }
+  });
+  ipcRenderer.on('container-provider-registry:attachContainer-onError', (_, callbackId: number, error: string) => {
+    // grab callback from the map
+    const callback = onDataCallbacksAttachContainer.get(callbackId);
+    if (callback) {
+      callback.onError(error);
+    }
+  });
+
+  ipcRenderer.on('container-provider-registry:attachContainer-onEnd', (_, callbackId: number) => {
+    // grab callback from the map
+    const callback = onDataCallbacksAttachContainer.get(callbackId);
+    if (callback) {
+      callback.onEnd();
+      // remove callback from the map
+      onDataCallbacksAttachContainer.delete(callbackId);
+    }
+  });
 
   contextBridge.exposeInMainWorld(
     'getContainerInspect',
