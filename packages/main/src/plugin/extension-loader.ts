@@ -66,7 +66,7 @@ import type { OnboardingRegistry } from './onboarding-registry.js';
 import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
-import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import type { KubeGenerator, KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -563,11 +563,6 @@ export class ExtensionLoader {
       extension.subscriptions.push(this.onboardingRegistry.registerOnboarding(extension, onboarding));
     }
 
-    const kubeGenerators = extension.manifest?.contributes?.kubeGenerators;
-    if (kubeGenerators) {
-      extension.subscriptions.push(this.kubeGeneratorRegistry.registerKubeGenerators(kubeGenerators));
-    }
-
     this.analyzedExtensions.set(extension.id, extension);
     this.extensionState.delete(extension.id);
     this.extensionStateErrors.delete(extension.id);
@@ -629,6 +624,16 @@ export class ExtensionLoader {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       executeCommand<T = unknown>(commandId: string, ...args: any[]): PromiseLike<T> {
         return commandRegistry.executeCommand(commandId, ...args);
+      },
+    };
+
+    const kubernetesGeneratorRegistry = this.kubeGeneratorRegistry;
+    const kubernetesGenerator: typeof containerDesktopAPI.kubernetesGenerator = {
+      registerKubernetesGeneratorProvider(kubeGenerator: KubeGenerator): containerDesktopAPI.Disposable {
+        return kubernetesGeneratorRegistry.registerKubeGenerator(kubeGenerator);
+      },
+      unregisterKubernetesGeneratorProvider(kubeGenerator: KubeGenerator) {
+        kubernetesGeneratorRegistry.unregisterKubeGenerator(kubeGenerator);
       },
     };
 
@@ -993,6 +998,7 @@ export class ExtensionLoader {
       QuickPickItemKind,
       authentication,
       context: contextAPI,
+      kubernetesGenerator,
     };
   }
 

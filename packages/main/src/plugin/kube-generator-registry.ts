@@ -25,28 +25,16 @@ export interface KubeGenerator {
 export class KubeGeneratorRegistry {
   private kubeGenerators = new Map<string, KubeGenerator>();
 
-  registerKubeGenerators(kubeGenerators: KubeGenerator[]): Disposable {
-    for (const kubeGenerator of kubeGenerators) {
-      this.registerKubeGenerator(kubeGenerator);
-    }
-
-    return Disposable.create(() => {
-      this.unregisterKubeGenerators(kubeGenerators);
-    });
-  }
-
-  unregisterKubeGenerators(kubeGenerators: KubeGenerator[]): void {
-    for (const kubeGenerator of kubeGenerators) {
-      this.unregisterKubeGenerator(kubeGenerator);
-    }
-  }
-
   unregisterKubeGenerator(kubeGenerator: KubeGenerator): void {
     this.kubeGenerators.delete(kubeGenerator.id);
   }
 
-  registerKubeGenerator(kubeGenerator: KubeGenerator): void {
+  registerKubeGenerator(kubeGenerator: KubeGenerator): Disposable {
     this.kubeGenerators.set(kubeGenerator.id, kubeGenerator);
+
+    return Disposable.create(() => {
+      this.unregisterKubeGenerator(kubeGenerator);
+    });
   }
 
   getKubeGenerator(kubeGeneratorId: string): KubeGenerator | undefined {
