@@ -24,5 +24,5 @@ To setup Kubernetes on your workstation, you can:
 
 - [Setup Kind on your container engine](/docs/kubernetes/kind).
 - [Setup Minikube on your container engine](/docs/kubernetes/minikube).
-- [Setup a Lima machine with k3s or Kubernetes](/docs/onboarding/creating-a-lima-instance-with-podman-desktop).
+- [Setup a Lima machine with k3s or Kubernetes](/docs/onboarding/containers/creating-a-lima-instance-with-podman-desktop).
 - [Setup Red Hat OpenShift Local with MicroShift or OpenShift](/docs/kubernetes/openshift/creating-an-openshift-local-cluster).
