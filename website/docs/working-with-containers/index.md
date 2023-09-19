@@ -26,7 +26,7 @@ With Podman Desktop, you can manage your container engine workloads.
 
 1. [Work with images](/docs/working-with-containers/images).
    1. [Build an image from Containerfile](/docs/working-with-containers/images/building-an-image).
-   1. [Push an image](/docs/working-with-containers/images/pushing-an-image).
+   1. [Push an image](/docs/working-with-containers/images/pushing-an-image-to-a-registry).
    1. [Pull an image](/docs/working-with-containers/images/pulling-an-image).
 1. [Start a container from an image](/docs/working-with-containers/starting-a-container).
 1. [Create a pod from selected containers](/docs/working-with-containers/creating-a-pod).
