@@ -15,6 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import type { ContainerGroupInfoTypeUI } from '/@/lib/container/ContainerInfoUI';
 
 export interface PodInfoContainerUI {
   Id: string;
@@ -36,4 +37,5 @@ export interface PodInfoUI {
   actionInProgress?: boolean;
   actionError?: string;
   kind: 'kubernetes' | 'podman';
+  type: ContainerGroupInfoTypeUI;
 }
