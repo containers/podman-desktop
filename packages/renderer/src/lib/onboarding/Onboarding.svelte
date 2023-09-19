@@ -46,6 +46,8 @@ let executedCommands: string[] = [];
 $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
 let contextsUnsubscribe: Unsubscriber;
+// variable used to mark if the onboarding is running or not
+let started = false;
 onMount(async () => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
@@ -58,11 +60,18 @@ onMount(async () => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
-    startOnboarding().catch((err: unknown) => console.warn(String(err)));
+    // when the context is updated it checks if the onboarding already started
+    if (started) {
+      //if the onboarding is running, it means there is an active step and verifies if it is complete.
+      // e.g the step depends on the value of context.item, context has been refreshed and we verify context.item has the value needed to mark the step as completed.
+      assertStepCompleted().catch((err: unknown) => console.warn(String(err)));
+    } else {
+      //if the onboarding has not started yet, start it
+      startOnboarding().catch((err: unknown) => console.warn(String(err)));
+    }
   });
 });
 
-let started = false;
 async function startOnboarding(): Promise<void> {
   if (!started && globalContext && onboardings) {
     started = true;
@@ -106,7 +115,8 @@ async function setActiveStep() {
             };
             if (step.command) {
               await doExecuteCommand(step.command);
-              await assertStepCompleted();
+              // after command has been executed, we check if the step must be marked as completed
+              await assertStepCompletedAfterCommandExecution();
             }
             return;
           } else {
@@ -147,6 +157,31 @@ function inProgressCommandExecution(command: string, state: 'starting' | 'failed
   }
 }
 
+/**
+ * it verifies if a step must be marked as completed by checking that the step does not depend on any completion event or, if any, that they only
+ * contains name of commands that have been executed.
+ * If the step depends on the value of a context item, it returns false
+ * N.B: if you need to verify that a step is completed by looking at some context values use `assertStepCompleted`
+ */
+async function assertStepCompletedAfterCommandExecution() {
+  const isCompleted =
+    !activeStep.step.completionEvents ||
+    activeStep.step.completionEvents.length === 0 ||
+    activeStep.step.completionEvents.every(cmp => {
+      // check if command has been executed
+      return cmp.startsWith(ON_COMMAND_PREFIX) && executedCommands.includes(cmp.replace(ON_COMMAND_PREFIX, ''));
+    });
+
+  if (isCompleted) {
+    await updateOnboardingStep();
+  }
+}
+
+/**
+ * it verifies if a step must be marked as completed by checking that the step does not depend on any completion event or, if any, that they have
+ * been satisfied.
+ * Most probably it is only called when the context is updated.
+ */
 async function assertStepCompleted() {
   const isCompleted =
     !activeStep.step.completionEvents ||
@@ -171,22 +206,7 @@ async function assertStepCompleted() {
     });
 
   if (isCompleted) {
-    await updateOnboardingStepStatus(activeStep.onboarding, activeStep.step, STATUS_COMPLETED);
-    // reset executeCommands list
-    executedCommands = [];
-    await setActiveStep();
-  }
-}
-
-async function updateOnboardingStepStatus(onboarding: OnboardingInfo, step: OnboardingStep, status: OnboardingStatus) {
-  step.status = status;
-  await window.updateStepState(status, onboarding.extension, step.id);
-  // if the completed step is the last one, we mark the onboarding as completed
-  // the last step should have a completed state by default
-  const lastCompletedStep = onboarding.steps.findLast(s => s.state === 'completed');
-  if (lastCompletedStep?.id === step.id) {
-    onboarding.status = STATUS_COMPLETED;
-    await window.updateStepState(STATUS_COMPLETED, onboarding.extension);
+    await updateOnboardingStep();
   }
 }
 
@@ -216,7 +236,32 @@ function setExecuting(isExecuting: boolean) {
 }
 
 function next() {
-  assertStepCompleted();
+  const isCompleted = !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0;
+  if (isCompleted) {
+    updateOnboardingStep().catch((err: unknown) => console.warn(String(err)));
+  }
+}
+
+/*
+ * it update the status of the step in the backend and calculate which is the new active step to display
+ */
+async function updateOnboardingStep() {
+  await updateOnboardingStepStatus(activeStep.onboarding, activeStep.step, STATUS_COMPLETED);
+  // reset executeCommands list
+  executedCommands = [];
+  await setActiveStep();
+}
+
+async function updateOnboardingStepStatus(onboarding: OnboardingInfo, step: OnboardingStep, status: OnboardingStatus) {
+  step.status = status;
+  await window.updateStepState(status, onboarding.extension, step.id);
+  // if the completed step is the last one, we mark the onboarding as completed
+  // the last step should have a completed state by default
+  const lastCompletedStep = onboarding.steps.findLast(s => s.state === 'completed');
+  if (lastCompletedStep?.id === step.id) {
+    onboarding.status = STATUS_COMPLETED;
+    await window.updateStepState(STATUS_COMPLETED, onboarding.extension);
+  }
 }
 
 function setDisplayCancelSetup(display: boolean) {
