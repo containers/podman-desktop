@@ -29,6 +29,7 @@ import { providerInfos } from '../stores/providers';
 const listContainersMock = vi.fn();
 const getProviderInfosMock = vi.fn();
 const listViewsMock = vi.fn();
+const getContributedMenusMock = vi.fn();
 
 const deleteContainerMock = vi.fn();
 const removePodMock = vi.fn();
@@ -44,6 +45,7 @@ beforeAll(() => {
   listPodsMock.mockImplementation(() => Promise.resolve([]));
   kubernetesListPodsMock.mockImplementation(() => Promise.resolve([]));
   listViewsMock.mockImplementation(() => Promise.resolve([]));
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
   (window as any).listViewsContributions = listViewsMock;
   (window as any).listContainers = listContainersMock;
   (window as any).listPods = listPodsMock;
@@ -51,6 +53,7 @@ beforeAll(() => {
   (window as any).getProviderInfos = getProviderInfosMock;
   (window as any).removePod = removePodMock;
   (window as any).deleteContainer = deleteContainerMock;
+  (window as any).getContributedMenus = getContributedMenusMock;
 
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
