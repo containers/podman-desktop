@@ -11,6 +11,7 @@ import { ContainerUtils } from '../container/container-utils';
 import ComposeDetailsLogs from './ComposeDetailsLogs.svelte';
 import ComposeDetailsKube from './ComposeDetailsKube.svelte';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
+import { ContainerGroupInfoTypeUI } from '../container/ContainerInfoUI';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
 import ComposeDetailsSummary from './ComposeDetailsSummary.svelte';
@@ -73,6 +74,7 @@ onMount(() => {
       engineType: engineType,
       status: status,
       containers: convertedContainers,
+      type: ContainerGroupInfoTypeUI.COMPOSE,
     };
   });
 });
