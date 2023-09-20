@@ -171,12 +171,16 @@ const config = {
             title: 'Documentation',
             items: [
               {
-                label: 'Introduction',
-                to: '/docs/intro',
-              },
-              {
                 label: 'Installing Podman Desktop',
                 to: '/docs/Installation',
+              },
+              {
+                label: 'Onboarding for containers',
+                to: '/docs/onboarding/containers',
+              },
+              {
+                label: 'Onboarding for Kubernetes',
+                to: '/docs/onboarding/kubernetes',
               },
               {
                 label: 'Working with containers',
@@ -187,8 +191,12 @@ const config = {
                 to: '/docs/migrating-from-docker',
               },
               {
-                label: 'Using Compose',
+                label: 'Working with Compose',
                 to: '/docs/compose',
+              },
+              {
+                label: 'Working with Kubernetes',
+                to: '/docs/kubernetes',
               },
               {
                 label: 'Troubleshooting',
