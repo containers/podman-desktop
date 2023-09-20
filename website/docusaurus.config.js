@@ -45,6 +45,22 @@ const config = {
             from: ['/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
           {
+            to: '/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows',
+            from: '/docs/Installation/windows-install/installing-podman-with-podman-desktop',
+          },
+          {
+            to: '/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows',
+            from: '/docs/Installation/windows-install/installing-podman-with-openshift-local',
+          },
+          {
+            to: '/docs/onboarding/containers/creating-a-lima-instance-with-podman-desktop',
+            from: '/docs/Installation/creating-a-lima-instance-with-podman-desktop',
+          },
+          {
+            to: '/docs/onboarding/containers/creating-a-podman-machine-with-podman-desktop',
+            from: ['/docs/Installation/creating-a-podman-machine-with-podman-desktop'],
+          },
+          {
             to: '/docs/working-with-containers',
             from: ['/docs/getting-started/getting-started', '/docs/getting-started'],
           },
@@ -163,8 +179,8 @@ const config = {
                 to: '/docs/Installation',
               },
               {
-                label: 'Getting started',
-                to: '/docs/getting-started/getting-started',
+                label: 'Working with containers',
+                to: '/docs/working-with-containers',
               },
               {
                 label: 'Migrating from Docker',
@@ -172,7 +188,7 @@ const config = {
               },
               {
                 label: 'Using Compose',
-                to: '/docs/compose/podman-compose',
+                to: '/docs/compose',
               },
               {
                 label: 'Troubleshooting',

@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import type { OnboardingInfo, OnboardingStep, OnboardingStatus } from '../../../../main/src/plugin/api/onboarding';
+import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
 import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import { faForward } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
@@ -12,22 +12,20 @@ import { ContextKeyExpr } from '../context/contextKey';
 import { router } from 'tinro';
 import { context } from '/@/stores/context';
 import {
-  ON_COMMAND_PREFIX,
-  ONBOARDING_CONTEXT_PREFIX,
-  SCOPE_ONBOARDING,
   STATUS_COMPLETED,
   STATUS_SKIPPED,
+  updateOnboardingStepStatus,
+  type ActiveOnboardingStep,
+  isStepCompleted,
+  isOnboardingsSetupCompleted,
+  normalizeOnboardingWhenClause,
+  cleanSetup,
 } from './onboarding-utils';
 import { lastPage } from '/@/stores/breadcrumb';
 import Button from '../ui/Button.svelte';
 import Link from '../ui/Link.svelte';
 import OnboardingComponent from './OnboardingComponent.svelte';
 import Spinner from '../ui/Spinner.svelte';
-
-interface ActiveOnboardingStep {
-  onboarding: OnboardingInfo;
-  step: OnboardingStep;
-}
 
 export let extensionIds: string[] = [];
 
@@ -46,6 +44,8 @@ let executedCommands: string[] = [];
 $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
 let contextsUnsubscribe: Unsubscriber;
+// variable used to mark if the onboarding is running or not
+let started = false;
 onMount(async () => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
@@ -58,11 +58,18 @@ onMount(async () => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
-    startOnboarding().catch((err: unknown) => console.warn(String(err)));
+    // when the context is updated it checks if the onboarding already started
+    if (started) {
+      //if the onboarding is running, it means there is an active step and verifies if it is complete.
+      // e.g the step depends on the value of context.item, context has been refreshed and we verify context.item has the value needed to mark the step as completed.
+      assertStepCompleted().catch((err: unknown) => console.warn(String(err)));
+    } else {
+      //if the onboarding has not started yet, start it
+      startOnboarding().catch((err: unknown) => console.warn(String(err)));
+    }
   });
 });
 
-let started = false;
 async function startOnboarding(): Promise<void> {
   if (!started && globalContext && onboardings) {
     started = true;
@@ -96,7 +103,7 @@ async function setActiveStep() {
         if (!step.status) {
           let whenDeserialized;
           if (step.when) {
-            const when = normalize(step.when, onboarding.extension);
+            const when = normalizeOnboardingWhenClause(step.when, onboarding.extension);
             whenDeserialized = ContextKeyExpr.deserialize(when);
           }
           if (!step.when || whenDeserialized?.evaluate(globalContext)) {
@@ -106,7 +113,8 @@ async function setActiveStep() {
             };
             if (step.command) {
               await doExecuteCommand(step.command);
-              await assertStepCompleted();
+              // after command has been executed, we check if the step must be marked as completed
+              await assertStepCompletedAfterCommandExecution();
             }
             return;
           } else {
@@ -119,10 +127,6 @@ async function setActiveStep() {
   }
   // if it reaches this point it means that the onboarding is fully completed and the user is redirected to the dashboard
   router.goto($lastPage.path);
-}
-
-function normalize(when: string, extension: string): string {
-  return when.replaceAll(ONBOARDING_CONTEXT_PREFIX, `${extension}.${SCOPE_ONBOARDING}.`);
 }
 
 async function doExecuteCommand(command: string) {
@@ -147,68 +151,28 @@ function inProgressCommandExecution(command: string, state: 'starting' | 'failed
   }
 }
 
+/**
+ * it verifies if a step must be marked as completed by checking that the step does not depend on any completion event or, if any, that they only
+ * contains name of commands that have been executed.
+ *
+ * N.B: If the step depends on the value of a context item, the step will not be updated.
+ *      if you need to verify that a step is completed by looking at some context values use `assertStepCompleted`
+ */
+async function assertStepCompletedAfterCommandExecution() {
+  if (isStepCompleted(activeStep, executedCommands)) {
+    await updateOnboardingStep();
+  }
+}
+
+/**
+ * it verifies if a step must be marked as completed by checking that the step does not depend on any completion event or, if any, that they have
+ * been satisfied.
+ * Most probably it is only called when the context is updated.
+ */
 async function assertStepCompleted() {
-  const isCompleted =
-    !activeStep.step.completionEvents ||
-    activeStep.step.completionEvents.length === 0 ||
-    activeStep.step.completionEvents.every(cmp => {
-      // check if command has been executed
-      if (cmp.startsWith(ON_COMMAND_PREFIX) && executedCommands.includes(cmp.replace(ON_COMMAND_PREFIX, ''))) {
-        return true;
-      }
-
-      // check if cmp string is an onContext event, check the value from context
-      if (cmp.startsWith(ONBOARDING_CONTEXT_PREFIX)) {
-        cmp = cmp.replace(ONBOARDING_CONTEXT_PREFIX, `${activeStep.onboarding.extension}.${SCOPE_ONBOARDING}.`);
-        const completionEventDeserialized = ContextKeyExpr.deserialize(cmp);
-        if (!globalContext) {
-          return false;
-        }
-        return completionEventDeserialized?.evaluate(globalContext);
-      }
-
-      return false;
-    });
-
-  if (isCompleted) {
-    await updateOnboardingStepStatus(activeStep.onboarding, activeStep.step, STATUS_COMPLETED);
-    // reset executeCommands list
-    executedCommands = [];
-    await setActiveStep();
+  if (isStepCompleted(activeStep, executedCommands, globalContext)) {
+    await updateOnboardingStep();
   }
-}
-
-async function updateOnboardingStepStatus(onboarding: OnboardingInfo, step: OnboardingStep, status: OnboardingStatus) {
-  step.status = status;
-  await window.updateStepState(status, onboarding.extension, step.id);
-  // if the completed step is the last one, we mark the onboarding as completed
-  // the last step should have a completed state by default
-  const lastCompletedStep = onboarding.steps.findLast(s => s.state === 'completed');
-  if (lastCompletedStep?.id === step.id) {
-    onboarding.status = STATUS_COMPLETED;
-    await window.updateStepState(STATUS_COMPLETED, onboarding.extension);
-  }
-}
-
-function isOnboardingsSetupCompleted(onboardings: OnboardingInfo[]): boolean {
-  for (const onboarding of onboardings) {
-    if (!isOnboardingCompleted(onboarding)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function isOnboardingCompleted(onboarding: OnboardingInfo): boolean {
-  if (!onboarding.status) {
-    return false;
-  }
-  for (const step of onboarding.steps) {
-    if (!step.status) {
-      return false;
-    }
-  }
-  return true;
 }
 
 function setExecuting(isExecuting: boolean) {
@@ -216,7 +180,20 @@ function setExecuting(isExecuting: boolean) {
 }
 
 function next() {
-  assertStepCompleted();
+  const isCompleted = !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0;
+  if (isCompleted) {
+    updateOnboardingStep().catch((err: unknown) => console.warn(String(err)));
+  }
+}
+
+/*
+ * it update the status of the step in the backend and calculate which is the new active step to display
+ */
+async function updateOnboardingStep() {
+  await updateOnboardingStepStatus(activeStep.onboarding, activeStep.step, STATUS_COMPLETED);
+  // reset executeCommands list
+  executedCommands = [];
+  await setActiveStep();
 }
 
 function setDisplayCancelSetup(display: boolean) {
@@ -230,35 +207,14 @@ function setDisplayResetSetup(display: boolean) {
 async function cancelSetup() {
   // TODO: it cancels all running commands
   // it redirect the user to the dashboard
-  await cleanContext();
+  await cleanSetup(onboardings, globalContext);
   router.goto($lastPage.path);
 }
 
 async function restartSetup() {
-  await cleanContext();
-  onboardings.forEach(onboarding => {
-    onboarding.status = undefined;
-    onboarding.steps.forEach(step => {
-      step.status = undefined;
-    });
-  });
+  await cleanSetup(onboardings, globalContext);
   setDisplayResetSetup(false);
   await setActiveStep();
-}
-
-async function cleanContext() {
-  // reset onboarding on backend
-  await window.resetOnboarding(extensionIds);
-  // clean ui context
-  const contextValues = globalContext.collectAllValues();
-  onboardings.forEach(onboarding => {
-    // remove context key added during the onboarding
-    for (const key in contextValues) {
-      if (key.startsWith(`${onboarding.extension}.${SCOPE_ONBOARDING}`)) {
-        globalContext.removeValue(key);
-      }
-    }
-  });
 }
 </script>
 

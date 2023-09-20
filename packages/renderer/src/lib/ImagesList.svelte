@@ -165,21 +165,14 @@ function toggleAllImages(checked: boolean) {
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedImages() {
+  bulkDeleteInProgress = true;
   const selectedImages = images.filter(image => image.selected);
-
-  if (selectedImages.length > 0) {
-    bulkDeleteInProgress = true;
-    await Promise.all(
-      selectedImages.map(async image => {
-        try {
-          await window.deleteImage(image.engineId, image.id);
-        } catch (e) {
-          console.log('error while removing image', e);
-        }
-      }),
-    );
-    bulkDeleteInProgress = false;
-  }
+  await selectedImages.reduce((prev: Promise<void>, image) => {
+    return prev
+      .then(() => imageUtils.deleteImage(image))
+      .catch((e: unknown) => console.log('error while removing image', e));
+  }, Promise.resolve());
+  bulkDeleteInProgress = false;
 }
 
 let refreshTimeouts: NodeJS.Timeout[] = [];

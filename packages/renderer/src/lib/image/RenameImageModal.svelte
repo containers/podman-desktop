@@ -62,6 +62,7 @@ async function renameImage(imageName: string, imageTag: string) {
 </script>
 
 <Modal
+  name="Edit Image"
   on:close="{() => {
     closeCallback();
   }}">
@@ -85,6 +86,7 @@ async function renameImage(imageName: string, imageTag: string) {
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           on:input="{event => validateImageName(event)}"
           aria-invalid="{imageNameErrorMessage !== ''}"
+          aria-label="imageName"
           required />
         {#if imageNameErrorMessage}
           <ErrorMessage error="{imageNameErrorMessage}" />
@@ -100,6 +102,7 @@ async function renameImage(imageName: string, imageTag: string) {
           class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           on:input="{event => validateImageTag(event)}"
           aria-invalid="{imageTagErrorMessage !== ''}"
+          aria-label="imageTag"
           required />
         {#if imageTagErrorMessage}
           <ErrorMessage error="{imageTagErrorMessage}" />

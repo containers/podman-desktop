@@ -42,13 +42,13 @@ onMount(() => {
   // loading image info
   return imagesInfos.subscribe(images => {
     const matchingImage = images.find(c => c.Id === imageID && c.engineId === engineId);
+    let tempImage;
     if (matchingImage) {
-      try {
-        image = imageUtils.getImageInfoUI(matchingImage, base64RepoTag);
-      } catch (err) {
-        console.error(err);
-      }
-    } else if (detailsPage) {
+      tempImage = imageUtils.getImageInfoUI(matchingImage, base64RepoTag);
+    }
+    if (tempImage) {
+      image = tempImage;
+    } else {
       // the image has been deleted
       detailsPage.close();
     }

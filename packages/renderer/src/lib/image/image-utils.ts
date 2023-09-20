@@ -126,12 +126,13 @@ export class ImageUtils {
     }
   }
 
-  getImageInfoUI(imageInfo: ImageInfo, base64RepoTag: string): ImageInfoUI {
+  deleteImage(image: ImageInfoUI) {
+    const imageId = image.name === '<none>' ? image.id : `${image.name}:${image.tag}`;
+    return window.deleteImage(image.engineId, imageId);
+  }
+
+  getImageInfoUI(imageInfo: ImageInfo, base64RepoTag: string): ImageInfoUI | undefined {
     const images = this.getImagesInfoUI(imageInfo, []);
-    const matchingImages = images.filter(image => image.base64RepoTag === base64RepoTag);
-    if (matchingImages.length === 1) {
-      return matchingImages[0];
-    }
-    throw new Error(`Unable to find a matching image for id ${imageInfo.Id} and tag ${base64RepoTag}`);
+    return images.find(image => image.base64RepoTag === base64RepoTag);
   }
 }

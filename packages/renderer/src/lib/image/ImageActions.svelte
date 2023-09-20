@@ -8,6 +8,7 @@ import FlatMenu from '../ui/FlatMenu.svelte';
 import { runImageInfo } from '../../stores/run-image-store';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import { ImageUtils } from './image-utils';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 export let onRenameImage: (imageInfo: ImageInfoUI) => void;
@@ -19,6 +20,7 @@ export let contributions: Menu[] = [];
 let errorTitle: string | undefined = undefined;
 let errorMessage: string | undefined = undefined;
 let isAuthenticatedForThisImage = false;
+const imageUtils = new ImageUtils();
 
 async function runImage(imageInfo: ImageInfoUI) {
   runImageInfo.set(imageInfo);
@@ -29,7 +31,7 @@ $: window.hasAuthconfigForImage(image.name).then(result => (isAuthenticatedForTh
 
 async function deleteImage(): Promise<void> {
   try {
-    await window.deleteImage(image.engineId, image.id);
+    await imageUtils.deleteImage(image);
   } catch (error) {
     errorTitle = 'Error while deleting image';
     errorMessage = String(error);
