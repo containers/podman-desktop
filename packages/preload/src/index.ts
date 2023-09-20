@@ -68,6 +68,7 @@ import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/pl
 import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
 import type { ContextInfo } from '../../main/src/plugin/api/context-info';
 import type { OnboardingInfo, OnboardingStatus } from '../../main/src/plugin/api/onboarding';
+import type { KubernetesGeneratorType } from '../../main/src/plugin/kube-generator-registry';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -930,6 +931,13 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('getContributedMenus', async (context: string): Promise<Menu[]> => {
     return ipcInvoke('menu-registry:getContributedMenus', context);
   });
+
+  contextBridge.exposeInMainWorld(
+    'getKubeGeneratorsIdsByType',
+    async (type: KubernetesGeneratorType): Promise<string[]> => {
+      return ipcInvoke('kube-generator-registry:getKubeGeneratorsIdsByType', type);
+    },
+  );
 
   contextBridge.exposeInMainWorld('executeCommand', async (command: string, ...args: unknown[]): Promise<unknown> => {
     return ipcInvoke('command-registry:executeCommand', command, ...args);
