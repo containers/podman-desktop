@@ -643,7 +643,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
-      {#if searchTerm.length > 0}
+      {#if searchTerm}
         <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
       {:else}
         <ContainerEmptyScreen />
