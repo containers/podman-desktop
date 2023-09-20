@@ -12,9 +12,9 @@ With Podman Desktop, you can build an image with your container engine, and test
 
 #### Prerequisites
 
-- Podman Desktop has access to:
-  - A running container engine.
-  - A running Kind cluster.
+- [You onboarded a container engine](/docs/onboarding/containers).
+- [You onboarded a Kind cluster](/docs/onboarding/kubernetes/kind).
+- [You have set your Kubernetes context to your local Kind-powered Kubernetes cluster](/docs/kubernetes/kind/working-with-your-local-kind-cluster).
 - A container definition file: `Containerfile` or `Dockerfile`.
 
 #### Procedure

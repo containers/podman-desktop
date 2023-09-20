@@ -13,7 +13,7 @@ With Podman Desktop, you can view and select your current Kubernetes context in 
 #### Prerequisites
 
 - You have a Kubernetes context in your kubeconfig file: _<your_kubernetes_cluster>_.
-  For example, [Creating a kind cluster](kind/creating-a-kind-cluster).
+  For example, [Creating a kind cluster](../onboarding/kubernetes/kind/creating-a-kind-cluster).
 
 #### Procedure
 

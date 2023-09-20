@@ -1,5 +1,5 @@
 ---
-sidebar_position: 7
+sidebar_position: 5
 title: Restarting your Kind cluster
 description: Restarting your local Kind-powered Kubernetes cluster.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
@@ -32,4 +32,4 @@ The Kind cluster might not restart successfully.
 In that case:
 
 - Consider replacing Kind with a local Kubernetes cluster that you can restart, such as [OpenShift Local](https://developers.redhat.com/products/openshift-local/).
-- Consider [deleting your Kind cluster](deleting-your-kind-cluster), and [creating a Kind cluster](creating-a-kind-cluster).
+- Consider [deleting your Kind cluster](./deleting-your-kind-cluster), and [creating a Kind cluster](./creating-a-kind-cluster).

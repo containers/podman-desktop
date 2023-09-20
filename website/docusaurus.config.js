@@ -61,6 +61,26 @@ const config = {
             from: ['/docs/Installation/creating-a-podman-machine-with-podman-desktop'],
           },
           {
+            to: '/docs/onboarding/kubernetes/kind/installing-kind',
+            from: '/docs/kubernetes/kind/installing-kind',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/kind/configuring-podman-for-kind-on-windows',
+            from: '/docs/kubernetes/kind/configuring-podman-for-kind-on-windows',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/kind/creating-a-kind-cluster',
+            from: '/docs/kubernetes/kind/creating-a-kind-cluster',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/kind/restarting-your-kind-cluster',
+            from: '/docs/kubernetes/kind/restarting-your-kind-cluster',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/kind/deleting-your-kind-cluster',
+            from: '/docs/kubernetes/kind/deleting-your-kind-cluster',
+          },
+          {
             to: '/docs/working-with-containers',
             from: ['/docs/getting-started/getting-started', '/docs/getting-started'],
           },

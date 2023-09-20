@@ -12,8 +12,8 @@ You can create multiple local Kind-powered Kubernetes clusters.
 
 #### Prerequisites
 
-- [You installed Kind](installing-kind).
-- [On Windows, you configured Podman](configuring-podman-for-kind-on-windows).
+- [You installed Kind](./installing-kind).
+- [On Windows, you configured Podman](./configuring-podman-for-kind-on-windows).
 
 #### Procedure
 
