@@ -11,7 +11,9 @@ import { router } from 'tinro';
 import { ContainerGroupInfoTypeUI, type ContainerGroupInfoUI, type ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
 import PodActions from './pod/PodActions.svelte';
+import ContainerIcon from './images/ContainerIcon.svelte';
 import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';
+import FilteredEmptyScreen from './ui/FilteredEmptyScreen.svelte';
 import Modal from './dialogs/Modal.svelte';
 import { ContainerUtils } from './container/container-utils';
 import { providerInfos } from '../stores/providers';
@@ -641,7 +643,11 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
-      <ContainerEmptyScreen />
+      {#if searchTerm.length > 0}
+        <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
+      {:else}
+        <ContainerEmptyScreen />
+      {/if}
     {/if}
   </div>
 </NavPage>

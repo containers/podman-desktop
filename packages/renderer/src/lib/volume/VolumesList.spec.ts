@@ -257,3 +257,62 @@ describe('Create volume', () => {
     expect(window.location.pathname).toBe('/volumes/create');
   });
 });
+
+test('Expect filter empty screen', async () => {
+  getProviderInfosMock.mockResolvedValue([
+    {
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          status: 'started',
+        },
+      ],
+    },
+  ]);
+
+  listVolumesMock.mockResolvedValue([
+    {
+      Volumes: [
+        {
+          Driver: 'local',
+          Labels: {},
+          Mountpoint: '/var/lib/containers/storage/volumes/fedora/_data',
+          Name: '0052074a2ade930338c00aea982a90e4243e6cf58ba920eb411c388630b8c967',
+          Options: {},
+          Scope: 'local',
+          engineName: 'Podman',
+          engineId: 'podman.Podman Machine',
+          UsageData: { RefCount: 1, Size: -1 },
+          containersUsage: [],
+        },
+      ],
+    },
+  ]);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+
+  // ask to fetch the volumes
+  const volumesEventStoreInfo = volumesEventStore.setup();
+
+  await volumesEventStoreInfo.fetch();
+
+  // first call is with listing without details
+  expect(listVolumesMock).toHaveBeenNthCalledWith(1, false);
+
+  // wait store are populated
+  while (get(volumeListInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  while (get(providerInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  await waitRender({ searchTerm: 'No match' });
+
+  const filterButton = screen.getByRole('button', { name: 'Clear filter' });
+  expect(filterButton).toBeInTheDocument();
+});
