@@ -163,8 +163,8 @@ const config = {
                 to: '/docs/Installation',
               },
               {
-                label: 'Getting started',
-                to: '/docs/getting-started/getting-started',
+                label: 'Working with containers',
+                to: '/docs/working-with-containers',
               },
               {
                 label: 'Migrating from Docker',
@@ -172,7 +172,7 @@ const config = {
               },
               {
                 label: 'Using Compose',
-                to: '/docs/compose/podman-compose',
+                to: '/docs/compose',
               },
               {
                 label: 'Troubleshooting',
