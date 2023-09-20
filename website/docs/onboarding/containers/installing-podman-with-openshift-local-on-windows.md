@@ -1,16 +1,16 @@
 ---
-sidebar_position: 12
+sidebar_position: 11
 title: Installing Podman with OpenShift Local
 description: OpenShift Local can assist you to install Podman on Windows.
 tags: [openshift-local, podman, installing, windows]
 keywords: [podman desktop, containers, podman, installing, installation, windows]
 ---
 
-# Installing the Podman Preset with OpenShift Local
+# Installing the Podman Preset with OpenShift Local on Windows
 
 On Windows, running the Podman container engine requires running a Linux distribution on a virtual machine.
 
-Consider installing the Podman Preset in OpenShift Local rather than [installing Podman with Podman Desktop](installing-podman-with-podman-desktop) when you require one of following:
+Consider installing the Podman Preset in OpenShift Local rather than [installing Podman with Podman Desktop](/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows) when you require one of following:
 
 - No WSL 2
 - Full control on the HyperV virtual machine
@@ -25,21 +25,23 @@ Consider installing the Podman Preset in OpenShift Local rather than [installing
 
 #### Procedure
 
-1. [Install OpenShift Local](https://console.redhat.com/openshift/create/local)
+1. Install the OpenShift Local extension.
 
-2. Select the Podman container runtime preset:
+1. Install OpenShift Local.
+
+1. Select the Podman container runtime preset:
 
    ```shell-session
    $ crc config set preset podman
    ```
 
-3. Set up your host machine for Red Hat OpenShift Local:
+1. Set up your host machine for Red Hat OpenShift Local:
 
    ```shell-session
    $ crc setup
    ```
 
-4. Start the Red Hat OpenShift instance:
+1. Start the Red Hat OpenShift instance:
 
    ```shell-session
    $ crc start

@@ -24,5 +24,4 @@ Consider using this installation method if you don't require another method such
 
 #### Next steps
 
-- [Installing Podman](windows-install/installing-podman-with-podman-desktop)
-- [Getting Started with Podman Desktop](/docs/getting-started)
+- [Onboarding](/docs/onboarding)
