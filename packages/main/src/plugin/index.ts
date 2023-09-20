@@ -834,7 +834,7 @@ export class PluginSystem {
         _listener,
         engine: string,
         names: string[],
-        kubeGeneratorId: string | undefined = undefined,
+        kubeGeneratorId?: string,
       ): Promise<string> => {
         if (!kubeGeneratorId) return containerProviderRegistry.generatePodmanKube(engine, names);
 
