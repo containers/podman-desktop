@@ -36,26 +36,13 @@ export type KubeGeneratorsInfo = Omit<KubernetesGeneratorProvider, 'generate'>;
 
 export class KubeGeneratorRegistry {
   private kubeGenerators = new Map<string, KubernetesGeneratorProvider>();
-  private kubeGeneratorsSelectors = new Map<KubernetesGeneratorType, string[]>();
 
   unregisterKubeGenerator(kubeGenerator: KubernetesGeneratorProvider): void {
     this.kubeGenerators.delete(kubeGenerator.id);
-
-    for (const [key, value] of this.kubeGeneratorsSelectors) {
-      const updatedIds = value.filter(existingId => existingId !== kubeGenerator.id);
-      this.kubeGeneratorsSelectors.set(key, updatedIds);
-    }
   }
 
   registerKubeGenerator(kubeGenerator: KubernetesGeneratorProvider): Disposable {
     this.kubeGenerators.set(kubeGenerator.id, kubeGenerator);
-
-    const selectors = Array.isArray(kubeGenerator.types) ? kubeGenerator.types : [kubeGenerator.types];
-
-    for (const s of selectors) {
-      this.kubeGeneratorsSelectors.set(s, [...(this.kubeGeneratorsSelectors.get(s) ?? []), kubeGenerator.id]);
-    }
-
     return Disposable.create(() => {
       this.unregisterKubeGenerator(kubeGenerator);
     });
@@ -65,7 +52,7 @@ export class KubeGeneratorRegistry {
     return this.kubeGenerators.get(kubeGeneratorId);
   }
 
-  getKubeGeneratorsInfos(selector: KubernetesGeneratorSelector | undefined): KubeGeneratorsInfo[] {
+  getKubeGeneratorsInfos(selector: KubernetesGeneratorSelector | undefined = undefined): KubeGeneratorsInfo[] {
     return Array.from(this.kubeGenerators.values()).reduce((filteredGenerators, generator) => {
       const isMatchingGenerator =
         selector === undefined ||
