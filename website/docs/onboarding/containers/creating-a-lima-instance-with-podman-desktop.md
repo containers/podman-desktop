@@ -42,7 +42,7 @@ Consider creating a custom Lima instance to:
      $ limactl start --name=podman template://podman-rootful
      ```
 
-   - To create an Lima machine with Docker, use the `docker` template:
+   - To create an Lima machine with rootless Docker, use the `docker` template:
 
      ```shell-session
      $ limactl start --name=docker template://docker
@@ -66,6 +66,6 @@ Consider creating a custom Lima instance to:
 
 - To verify the connection to a running "docker" instance:
 
-  ```cshell-session
+  ```shell-session
   $ docker.lima version
   ```
