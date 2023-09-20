@@ -1161,7 +1161,7 @@ export class PluginSystem {
 
     this.ipcHandle(
       'kube-generator-registry:getKubeGeneratorsInfos',
-      async (_, selector: KubernetesGeneratorSelector | undefined = undefined): Promise<KubeGeneratorsInfo[]> => {
+      async (_, selector?: KubernetesGeneratorSelector): Promise<KubeGeneratorsInfo[]> => {
         return kubeGeneratorRegistry.getKubeGeneratorsInfos(selector);
       },
     );
