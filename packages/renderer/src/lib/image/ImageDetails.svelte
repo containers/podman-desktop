@@ -14,6 +14,7 @@ import PushImageModal from './PushImageModal.svelte';
 import RenameImageModal from './RenameImageModal.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
+import { containersInfos } from '/@/stores/containers';
 
 export let imageID: string;
 export let engineId: string;
@@ -44,7 +45,7 @@ onMount(() => {
     const matchingImage = images.find(c => c.Id === imageID && c.engineId === engineId);
     let tempImage;
     if (matchingImage) {
-      tempImage = imageUtils.getImageInfoUI(matchingImage, base64RepoTag);
+      tempImage = imageUtils.getImageInfoUI(matchingImage, base64RepoTag, $containersInfos);
     }
     if (tempImage) {
       image = tempImage;

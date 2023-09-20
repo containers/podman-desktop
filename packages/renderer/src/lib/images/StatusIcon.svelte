@@ -18,6 +18,7 @@ $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' ||
     class:border-2="{!solid}"
     class:border-gray-700="{!solid}"
     class:text-gray-700="{!solid}"
+    role="status"
     title="{status}">
     {#if typeof icon === 'string'}
       <span class="{icon}" aria-hidden="true"></span>
