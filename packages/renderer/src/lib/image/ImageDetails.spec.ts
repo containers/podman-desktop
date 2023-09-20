@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll, afterEach } from 'vitest';
+import { describe, test, expect, vi, beforeAll, afterEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 
 import ImageDetails from './ImageDetails.svelte';
@@ -27,6 +27,8 @@ import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 
 import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
+import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
+import { containersInfos } from '/@/stores/containers';
 
 const listImagesMock = vi.fn();
 
@@ -54,6 +56,7 @@ const hasAuthMock = vi.fn();
 
 beforeAll(() => {
   (window as any).listImages = listImagesMock;
+  (window as any).listContainers = vi.fn();
   (window as any).deleteImage = deleteImageMock;
   (window as any).hasAuthconfigForImage = hasAuthMock;
 });
@@ -130,4 +133,69 @@ test('expect delete image called with image id when image name is <none>', async
 
   // check that delete method has been called
   expect(deleteImageMock).toHaveBeenCalledWith(myNoneNameImage.engineId, myNoneNameImage.Id);
+});
+
+describe('expect display usage of an image', () => {
+  test('expect used', async () => {
+    const imageID = 'abcd12345';
+
+    const containerInfo = {
+      ImageID: imageID,
+    } as unknown as ContainerInfo;
+    containersInfos.set([containerInfo]);
+
+    const myImage = {
+      engineId: 'podman',
+      Id: imageID,
+      Size: 0,
+    } as unknown as ImageInfo;
+    imagesInfos.set([myImage]);
+
+    hasAuthMock.mockImplementation(() => {
+      return new Promise(() => false);
+    });
+
+    // render the component
+    render(ImageDetails, {
+      imageID: imageID,
+      engineId: 'podman',
+      base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
+    });
+
+    //  now check that we have the image saying it's in used
+    const usage = screen.getByRole('status', { name: 'USED' });
+    expect(usage).toBeInTheDocument();
+  });
+
+  test('expect unused', async () => {
+    const imageID = 'abcd12345';
+
+    // containers but not using the image
+    const containerInfo = {
+      ImageID: 'anotherID',
+    } as unknown as ContainerInfo;
+    containersInfos.set([containerInfo]);
+
+    const myImage = {
+      engineId: 'podman',
+      Id: imageID,
+      Size: 0,
+    } as unknown as ImageInfo;
+    imagesInfos.set([myImage]);
+
+    hasAuthMock.mockImplementation(() => {
+      return new Promise(() => false);
+    });
+
+    // render the component
+    render(ImageDetails, {
+      imageID: imageID,
+      engineId: 'podman',
+      base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
+    });
+
+    //  now check that we have the image saying it's in used
+    const usage = screen.getByRole('status', { name: 'UNUSED' });
+    expect(usage).toBeInTheDocument();
+  });
 });
