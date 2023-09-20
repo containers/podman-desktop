@@ -16,12 +16,12 @@ Podman Desktop does not automatically set up container engine resources that you
 
 1. Select a container engine supporting your workload.
 
-   | Workload            | Podman | Docker |
-   | :------------------ | :----: | :----: |
-   | Rootless containers | ✅ yes | ❌ no  |
-   | Rootful containers  | ✅ yes | ✅ yes |
-   | Compose             | ✅ yes | ✅ yes |
-   | Pods                | ✅ yes | ❌ no  |
+   | Workload            | Podman | Native Docker | Docker Desktop |
+   | :------------------ | :----: | :-----------: | :------------: |
+   | Rootless containers | ✅ yes |    ✅ yes     |     ❌ no      |
+   | Rootful containers  | ✅ yes |    ✅ yes     |     ✅ yes     |
+   | Compose             | ✅ yes |    ✅ yes     |     ✅ yes     |
+   | Pods                | ✅ yes |     ❌ no     |     ❌ no      |
 
    Podman supports rootless container and pods, in addition to rootful containers and Compose.
 
@@ -29,11 +29,11 @@ Podman Desktop does not automatically set up container engine resources that you
 
    - Select a Podman execution environment:
 
-     | Host operating system | Native containers | Podman machine | Lima machine |
-     | :-------------------- | :---------------: | :------------: | :----------: |
-     | Windows               |       ❌ no       |     ✅ yes     |    ❌ no     |
-     | macOS                 |       ❌ no       |     ✅ yes     |    ✅ yes    |
-     | Linux                 |      ✅ yes       |     ❌ no      |    ❌ no     |
+     | Host operating system | Native containers |        Podman machine         |  Lima machine   |
+     | :-------------------- | :---------------: | :---------------------------: | :-------------: |
+     | Windows               |       ❌ no       |            ✅ yes             | ❌ experimental |
+     | macOS                 |       ❌ no       |            ✅ yes             |     ✅ yes      |
+     | Linux                 |      ✅ yes       | ❌ disabled in Podman Desktop |     ✅ yes      |
 
    - Select a Docker execution environment:
 
