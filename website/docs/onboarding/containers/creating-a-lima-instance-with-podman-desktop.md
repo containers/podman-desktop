@@ -1,14 +1,14 @@
 ---
 sidebar_position: 30
-title: Custom Lima instance
-description: Podman Desktop can assist you to create custom Lima instance on Linux and macOS.
-tags: [podman-desktop, podman, installing, linux, macOS]
-keywords: [podman desktop, containers, lima, installing, installation, linux, macos]
+title: Custom Lima machine
+description: Podman Desktop can assist you to create a custom Lima machine on Linux and macOS.
+tags: [podman-desktop, podman, onboarding, containers, linux, macOS]
+keywords: [podman desktop, containers, lima, onboarding, linux, macos]
 ---
 
-# Creating a Lima instance with Podman Desktop
+# Creating a Lima machine for container workloads with Podman Desktop
 
-To use the Lima provider you need a Lima instance running a Linux virtual machine.
+To use the Lima provider you need a Lima machine running a Linux virtual machine.
 
 In the future, Podman Desktop might be able to create Lima instances.
 
@@ -20,79 +20,52 @@ Consider creating a custom Lima instance to:
 #### Prerequisites
 
 - The `limactl` executable is installed.
+  See [Installing Lima](https://lima-vm.io/docs/installation/).
 
-```shell
-brew install lima
-```
-
-See <https://lima-vm.io>
+  ```shell-session
+  $ brew install lima
+  ```
 
 #### Procedure
 
-Currently you need to use the console, to create a new Lima instance.
+1. In a terminal, create the Lima machine.
 
-After the instance is started, you need to restart the Lima extension.
+   - To create a Lima machine with rootless Podman, use the `podman` template:
 
-Examples:
+     ```shell-session
+     $ limactl start --name=podman template://podman
+     ```
 
-To create an instance "podman" from a template "podman":
+   - To create a Lima machine with rootful Podman, use the `podman-rootful` template:
 
-```console
-$ limactl start --name=podman template://podman
-```
+     ```shell-session
+     $ limactl start --name=podman template://podman-rootful
+     ```
 
-To create an instance "docker" from a template "docker":
+   - To create an Lima machine with Docker, use the `docker` template:
 
-```console
-$ limactl start --name=docker template://docker
-```
+     ```shell-session
+     $ limactl start --name=docker template://docker
+     ```
 
-To select the number of CPUs and the memory or disk size:
+   - To select the number of CPUs, the memory, and the disk size, add the `--set` option to the `limactl start` command:
 
-```console
-$ limactl start --set='.cpus = 2 | .memory = "2GiB" | .disk = "50GiB"' ...
-```
+     ```shell-session
+     --set='.cpus = 2 | .memory = "2GiB" | .disk = "50GiB"'
+     ```
 
-To create a rootful instance, use the rootful template:
-
-```console
-$ limactl start --name=podman template://podman-rootful
-```
+2. Wait for the instance to start, and restart the Lima extension.
 
 #### Verification
 
-To verify the connection to a running "podman" instance:
+- To verify the connection to a running "podman" instance:
 
-```console
-$ podman.lima version
-```
+  ```shell-session
+  $ podman.lima version
+  ```
 
-To verify the connection to a running "docker" instance:
+- To verify the connection to a running "docker" instance:
 
-```console
-$ docker.lima version
-```
-
-#### Kubernetes
-
-To create a single-node Kubernetes cluster running [k3s](https://k3s.io/):
-
-```console
-$ limactl start template://k3s
-```
-
-To create a single-node Kubernetes cluster running [k8s](https://k8s.io/):
-
-```console
-$ limactl start template://k8s
-```
-
-When the installation is done, the location of the KUBECONFIG file is printed:
-
-- [Configuring access to a Kubernetes cluster](/docs/kubernetes/configuring-access-to-a-kubernetes-cluster)
-
-You can also use the `kubectl.lima` wrapper script, to connect to the cluster:
-
-```console
-$ kubectl.lima version
-```
+  ```cshell-session
+  $ docker.lima version
+  ```
