@@ -22,7 +22,7 @@ To connect to a remote Kubernetes, you can:
 
 To setup Kubernetes on your workstation, you can:
 
-- [Setup Kind on your container engine](/docs/kubernetes/kind).
+- [Setup Kind on your container engine](/docs/onboarding/kubernetes/kind).
 - [Setup Minikube on your container engine](/docs/kubernetes/minikube).
 - [Setup a Lima machine with Kubernetes](/docs/onboarding/containers/creating-a-lima-instance-with-podman-desktop).
 - [Setup Red Hat OpenShift Local with MicroShift or OpenShift](/docs/kubernetes/openshift/creating-an-openshift-local-cluster).
