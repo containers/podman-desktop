@@ -21,6 +21,7 @@ import { MenuRegistry } from './menu-registry.js';
 import { CommandRegistry } from './command-registry.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import type { Disposable } from './types/disposable.js';
+import type { ApiSenderType } from './api.js';
 
 let menuRegistry: MenuRegistry;
 let commandRegistry;
@@ -29,7 +30,12 @@ let registerMenuDisposable: Disposable;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeEach(() => {
-  commandRegistry = new CommandRegistry({} as Telemetry);
+  commandRegistry = new CommandRegistry(
+    {
+      send: vi.fn(),
+    } as unknown as ApiSenderType,
+    {} as Telemetry,
+  );
   menuRegistry = new MenuRegistry(commandRegistry);
   const manifest = {
     contributes: {

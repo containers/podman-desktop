@@ -122,6 +122,7 @@ import { OnboardingRegistry } from './onboarding-registry.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
 import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 import { Exec } from './util/exec.js';
+import type { CommandInfo } from './api/command-info.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -373,7 +374,7 @@ export class PluginSystem {
 
     const exec = new Exec(proxy);
 
-    const commandRegistry = new CommandRegistry(telemetry);
+    const commandRegistry = new CommandRegistry(apiSender, telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const certificates = new Certificates();
     await certificates.init();
@@ -1451,6 +1452,10 @@ export class PluginSystem {
 
     this.ipcHandle('catalog:getExtensions', async (): Promise<CatalogExtension[]> => {
       return extensionsCatalog.getExtensions();
+    });
+
+    this.ipcHandle('commands:getCommandPaletteCommands', async (): Promise<CommandInfo[]> => {
+      return commandRegistry.getCommandPaletteCommands();
     });
 
     this.ipcHandle(

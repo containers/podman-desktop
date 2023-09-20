@@ -540,6 +540,11 @@ export class ExtensionLoader {
     if (menus) {
       extension.subscriptions.push(this.menuRegistry.registerMenus(menus));
     }
+    const extensionCommands = extension.manifest?.contributes?.commands;
+    if (extensionCommands) {
+      const disposable = this.commandRegistry.registerCommandsFromExtension(extension.id, extensionCommands);
+      extension.subscriptions.push(disposable);
+    }
 
     const icons = extension.manifest?.contributes?.icons;
     if (icons) {
