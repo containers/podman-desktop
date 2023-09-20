@@ -249,7 +249,7 @@ function initExposure(): void {
   });
   contextBridge.exposeInMainWorld(
     'generatePodmanKube',
-    async (engine: string, names: string[], kubeGeneratorId: string | undefined = undefined): Promise<string> => {
+    async (engine: string, names: string[], kubeGeneratorId?: string): Promise<string> => {
       return ipcInvoke('container-provider-registry:generatePodmanKube', engine, names, kubeGeneratorId);
     },
   );
