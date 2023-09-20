@@ -6,7 +6,7 @@ export let icon: any;
 export let kind: string;
 export let searchTerm: string;
 
-$: filter = searchTerm && searchTerm.length > 20 ? 'filter' : `'` + searchTerm + `'`;
+$: filter = searchTerm && searchTerm.length > 20 ? 'filter' : `'${searchTerm}'`;
 </script>
 
 <EmptyScreen

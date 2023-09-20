@@ -6,7 +6,7 @@ import { onMount } from 'svelte';
 export let icon: any;
 export let title = 'No title';
 export let message = 'Message';
-export let detail = undefined;
+export let detail = '';
 export let commandline = '';
 export let hidden = false;
 
@@ -50,7 +50,7 @@ let copyTextDivElement: HTMLDivElement;
     {#if detail}
       <span class="text-gray-700">{detail}</span>
     {/if}
-    {#if commandline.length > 0}
+    {#if commandline}
       <div class="flex flex-row bg-charcoal-900 items-center justify-between rounded-sm p-3 mt-4">
         <div class="font-mono text-gray-400" bind:this="{copyTextDivElement}" data-testid="copyTextDivElement">
           {commandline}
