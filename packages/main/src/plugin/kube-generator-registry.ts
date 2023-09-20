@@ -19,7 +19,7 @@ import { Disposable } from './types/disposable.js';
 
 export type KubernetesGeneratorType = 'Compose' | 'Pod' | 'Container';
 
-export type KubernetesGeneratorSelector = KubernetesGeneratorType | ReadonlyArray<KubernetesGeneratorType[]>;
+export type KubernetesGeneratorSelector = KubernetesGeneratorType | ReadonlyArray<KubernetesGeneratorType>;
 
 export interface GenerateKubeResult {
   yaml: string;
@@ -27,8 +27,12 @@ export interface GenerateKubeResult {
 
 export interface KubernetesGeneratorProvider {
   id: string;
+  name: string;
   generate(engineId: string, ids: string[]): GenerateKubeResult;
+  types: KubernetesGeneratorSelector;
 }
+
+export type KubeGeneratorsInfo = Omit<KubernetesGeneratorProvider, 'generate'>;
 
 export class KubeGeneratorRegistry {
   private kubeGenerators = new Map<string, KubernetesGeneratorProvider>();
@@ -43,10 +47,10 @@ export class KubeGeneratorRegistry {
     }
   }
 
-  registerKubeGenerator(selector: KubernetesGeneratorSelector, kubeGenerator: KubernetesGeneratorProvider): Disposable {
+  registerKubeGenerator(kubeGenerator: KubernetesGeneratorProvider): Disposable {
     this.kubeGenerators.set(kubeGenerator.id, kubeGenerator);
 
-    const selectors = Array.isArray(selector) ? selector : [selector];
+    const selectors = Array.isArray(kubeGenerator.types) ? kubeGenerator.types : [kubeGenerator.types];
 
     for (const s of selectors) {
       this.kubeGeneratorsSelectors.set(s, [...(this.kubeGeneratorsSelectors.get(s) ?? []), kubeGenerator.id]);
@@ -61,7 +65,19 @@ export class KubeGeneratorRegistry {
     return this.kubeGenerators.get(kubeGeneratorId);
   }
 
-  getKubeGeneratorsIdsByType(type: KubernetesGeneratorType): string[] {
-    return this.kubeGeneratorsSelectors.get(type) ?? [];
+  getKubeGeneratorsInfos(selector: KubernetesGeneratorSelector): KubeGeneratorsInfo[] {
+    return Array.from(this.kubeGenerators.values()).reduce((filteredGenerators, generator) => {
+      const isMatchingGenerator = (Array.isArray(selector) ? selector : [selector]).every(type =>
+        generator.types.includes(type),
+      );
+
+      if (isMatchingGenerator) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { generate: _, ...serializable } = generator;
+        filteredGenerators.push(serializable);
+      }
+
+      return filteredGenerators;
+    }, [] as KubeGeneratorsInfo[]);
   }
 }

@@ -1336,10 +1336,7 @@ declare module '@podman-desktop/api' {
      * @param selector
      * @param provider the custom provider to add
      */
-    export function registerKubernetesGenerator(
-      selector: KubernetesGeneratorSelector,
-      provider: KubernetesGeneratorProvider,
-    ): Disposable;
+    export function registerKubernetesGenerator(provider: KubernetesGeneratorProvider): Disposable;
   }
   /**
    * An event describing the update in kubeconfig location
@@ -1349,7 +1346,7 @@ declare module '@podman-desktop/api' {
     readonly location: Uri;
   }
 
-  export type KubernetesGeneratorSelector = KubernetesGeneratorType | ReadonlyArray<KubernetesGeneratorType[]>;
+  export type KubernetesGeneratorSelector = KubernetesGeneratorType | ReadonlyArray<KubernetesGeneratorType>;
 
   export type KubernetesGeneratorType = 'Compose' | 'Pod' | 'Container';
 
@@ -1369,6 +1366,8 @@ declare module '@podman-desktop/api' {
      * A unique identifier for the provider.
      */
     id: string;
+    name: string;
+    types: KubernetesGeneratorSelector;
     generate(engineId: string, ids: string[]): GenerateKubeResult;
   }
 

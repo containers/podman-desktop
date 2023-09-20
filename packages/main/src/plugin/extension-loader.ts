@@ -66,11 +66,7 @@ import type { OnboardingRegistry } from './onboarding-registry.js';
 import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
-import type {
-  KubeGeneratorRegistry,
-  KubernetesGeneratorProvider,
-  KubernetesGeneratorSelector,
-} from '/@/plugin/kube-generator-registry.js';
+import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -836,11 +832,8 @@ export class ExtensionLoader {
       async createResources(context, manifests): Promise<void> {
         return kubernetesClient.createResources(context, manifests);
       },
-      registerKubernetesGenerator(
-        selector: KubernetesGeneratorSelector,
-        provider: KubernetesGeneratorProvider,
-      ): containerDesktopAPI.Disposable {
-        return kubernetesGeneratorRegistry.registerKubeGenerator(selector, provider);
+      registerKubernetesGenerator(provider: KubernetesGeneratorProvider): containerDesktopAPI.Disposable {
+        return kubernetesGeneratorRegistry.registerKubeGenerator(provider);
       },
     };
 

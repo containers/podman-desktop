@@ -122,7 +122,8 @@ import { OnboardingRegistry } from './onboarding-registry.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
 import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 import { Exec } from './util/exec.js';
-import { KubeGeneratorRegistry, type KubernetesGeneratorType } from '/@/plugin/kube-generator-registry.js';
+import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import type { KubeGeneratorsInfo, KubernetesGeneratorSelector } from '/@/plugin/kube-generator-registry.js';
 import type { CommandInfo } from './api/command-info.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -1159,9 +1160,9 @@ export class PluginSystem {
     });
 
     this.ipcHandle(
-      'kube-generator-registry:getKubeGeneratorsIdsByType',
-      async (_, type: KubernetesGeneratorType): Promise<string[]> => {
-        return kubeGeneratorRegistry.getKubeGeneratorsIdsByType(type);
+      'kube-generator-registry:getKubeGeneratorsInfos',
+      async (_, selector: KubernetesGeneratorSelector): Promise<KubeGeneratorsInfo[]> => {
+        return kubeGeneratorRegistry.getKubeGeneratorsInfos(selector);
       },
     );
 
