@@ -934,7 +934,7 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'getKubeGeneratorsInfos',
-    async (selector: KubernetesGeneratorSelector): Promise<string[]> => {
+    async (selector: KubernetesGeneratorSelector | undefined = undefined): Promise<string[]> => {
       return ipcInvoke('kube-generator-registry:getKubeGeneratorsInfos', selector);
     },
   );

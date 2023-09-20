@@ -65,11 +65,11 @@ export class KubeGeneratorRegistry {
     return this.kubeGenerators.get(kubeGeneratorId);
   }
 
-  getKubeGeneratorsInfos(selector: KubernetesGeneratorSelector): KubeGeneratorsInfo[] {
+  getKubeGeneratorsInfos(selector: KubernetesGeneratorSelector | undefined): KubeGeneratorsInfo[] {
     return Array.from(this.kubeGenerators.values()).reduce((filteredGenerators, generator) => {
-      const isMatchingGenerator = (Array.isArray(selector) ? selector : [selector]).every(type =>
-        generator.types.includes(type),
-      );
+      const isMatchingGenerator =
+        selector === undefined ||
+        (Array.isArray(selector) ? selector : [selector]).every(type => generator.types.includes(type));
 
       if (isMatchingGenerator) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
