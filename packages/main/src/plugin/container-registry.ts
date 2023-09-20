@@ -1342,7 +1342,7 @@ export class ContainerProviderRegistry {
         },
         resize: (w: number, h: number) => {
           exec.resize({ w, h }).catch((err: unknown) => {
-            // resize sets the size correctly and returns status code 201, but dockerode
+            // the resize call sets the size correctly and returns status code 201, but dockerode
             // interprets it as an error
             if (err.statusCode !== 201) {
               // ignore status code 201
