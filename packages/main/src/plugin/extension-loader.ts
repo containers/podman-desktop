@@ -66,7 +66,8 @@ import type { OnboardingRegistry } from './onboarding-registry.js';
 import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
-import type { KubernetesGeneratorProvider, KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
+import { KubernetesGeneratorType } from '/@/plugin/kube-generator-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -992,6 +993,7 @@ export class ExtensionLoader {
       QuickPickItemKind,
       authentication,
       context: contextAPI,
+      KubernetesGeneratorType,
     };
   }
 

@@ -17,11 +17,19 @@
  ***********************************************************************/
 import { Disposable } from '/@/plugin/types/disposable.js';
 
+export enum KubernetesGeneratorType {
+  COMPOSE = 'Compose',
+  POD = 'Pod',
+  Container = 'Container',
+}
+
 export interface GenerateKubeResult {
   yaml: string;
 }
+
 export interface KubernetesGeneratorProvider {
   id: string;
+  accept?(type: KubernetesGeneratorType): boolean;
   generate(engineId: string, ids: string[]): GenerateKubeResult;
 }
 

@@ -1333,7 +1333,7 @@ declare module '@podman-desktop/api' {
 
     /**
      * Add a KubernetesGenerator to KubernetesGeneratorRegistry
-     * @param KubernetesGeneratorProvider the generator to add
+     * @param provider the custom provider to add
      */
     export function registerKubernetesGeneratorProvider(provider: KubernetesGeneratorProvider): Disposable;
   }
@@ -1343,6 +1343,37 @@ declare module '@podman-desktop/api' {
   export interface KubeconfigUpdateEvent {
     readonly type: 'CREATE' | 'UPDATE' | 'DELETE';
     readonly location: Uri;
+  }
+
+  export enum KubernetesGeneratorType {
+    COMPOSE = 'Compose',
+    POD = 'Pod',
+    Container = 'Container',
+  }
+
+  /**
+   * The result containing a Kubernetes config files
+   */
+  export interface GenerateKubeResult {
+    yaml: string;
+  }
+
+  /**
+   * The KubernetesGeneratorProvider allows an extension to register a custom Kube Generator for a specific
+   * KubernetesGeneratorType.
+   */
+  export interface KubernetesGeneratorProvider {
+    /**
+     * A unique identifier for the provider.
+     */
+    id: string;
+
+    /**
+     * Optional accept function, if undefined we consider it accepts all types.
+     * @param type the type we want to know if the provider accept or not.
+     */
+    accept?(type: KubernetesGeneratorType): boolean;
+    generate(engineId: string, ids: string[]): GenerateKubeResult;
   }
 
   export interface ContainerInfo {
