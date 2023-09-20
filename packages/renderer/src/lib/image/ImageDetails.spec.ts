@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+import { test, expect, vi, beforeAll, afterEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 
 import ImageDetails from './ImageDetails.svelte';
@@ -44,6 +44,11 @@ const myImage: ImageInfo = {
   Containers: 0,
 };
 
+const myNoneNameImage: ImageInfo = {
+  ...myImage,
+};
+delete myNoneNameImage.RepoTags;
+
 const deleteImageMock = vi.fn();
 const hasAuthMock = vi.fn();
 
@@ -51,6 +56,10 @@ beforeAll(() => {
   (window as any).listImages = listImagesMock;
   (window as any).deleteImage = deleteImageMock;
   (window as any).hasAuthconfigForImage = hasAuthMock;
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
 });
 
 test('Expect redirect to previous page if image is deleted', async () => {
@@ -94,4 +103,31 @@ test('Expect redirect to previous page if image is deleted', async () => {
   // grab updated route
   const afterRoute = window.location;
   expect(afterRoute.href).toBe('http://localhost:3000/last');
+});
+
+test('expect delete image called with image id when image name is <none>', async () => {
+  listImagesMock.mockResolvedValue([myNoneNameImage]);
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  while (get(imagesInfos).length !== 1) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  hasAuthMock.mockImplementation(() => {
+    return new Promise(() => false);
+  });
+
+  // render the component
+  render(ImageDetails, {
+    imageID: 'myImage',
+    engineId: 'engine0',
+    base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
+  });
+
+  // click on delete image button
+  const deleteButton = screen.getByRole('button', { name: 'Delete Image' });
+  await fireEvent.click(deleteButton);
+
+  // check that delete method has been called
+  expect(deleteImageMock).toHaveBeenCalledWith(myNoneNameImage.engineId, myNoneNameImage.Id);
 });
