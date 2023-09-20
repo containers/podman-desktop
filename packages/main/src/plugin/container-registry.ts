@@ -1341,8 +1341,13 @@ export class ContainerProviderRegistry {
           execStream.write(param);
         },
         resize: (w: number, h: number) => {
-          exec.resize({ w, h }).catch(() => {
-            return; /*ignore error*/
+          exec.resize({ w, h }).catch((err: unknown) => {
+            // resize sets the size correctly and returns status code 201, but dockerode
+            // interprets it as an error
+            if (err.statusCode !== 201) {
+              // ignore status code 201
+              throw err;
+            }
           });
         },
       };
