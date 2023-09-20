@@ -2,6 +2,7 @@
 import { filtered, searchPattern, imagesInfos } from '../stores/images';
 import { onDestroy, onMount } from 'svelte';
 import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
+import FilteredEmptyScreen from './ui/FilteredEmptyScreen.svelte';
 
 import { router } from 'tinro';
 import type { ImageInfoUI } from './image/ImageInfoUI';
@@ -27,7 +28,7 @@ import Checkbox from './ui/Checkbox.svelte';
 import Button from './ui/Button.svelte';
 import { faArrowCircleDown, faCube, faTrash } from '@fortawesome/free-solid-svg-icons';
 
-let searchTerm = '';
+export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let images: ImageInfoUI[] = [];
@@ -335,7 +336,11 @@ function computeInterval(): number {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
-      <ImageEmptyScreen />
+      {#if searchTerm.length > 0}
+        <FilteredEmptyScreen icon="{ImageIcon}" kind="images" bind:searchTerm="{searchTerm}" />
+      {:else}
+        <ImageEmptyScreen />
+      {/if}
     {/if}
 
     {#if pushImageModal && pushImageModalImageInfo}
