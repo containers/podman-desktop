@@ -52,7 +52,7 @@ export class KubeGeneratorRegistry {
     return this.kubeGenerators.get(kubeGeneratorId);
   }
 
-  getKubeGeneratorsInfos(selector: KubernetesGeneratorSelector | undefined = undefined): KubeGeneratorsInfo[] {
+  getKubeGeneratorsInfos(selector?: KubernetesGeneratorSelector): KubeGeneratorsInfo[] {
     return Array.from(this.kubeGenerators.values()).reduce((filteredGenerators, generator) => {
       const isMatchingGenerator =
         selector === undefined ||
