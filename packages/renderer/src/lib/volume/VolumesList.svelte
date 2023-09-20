@@ -289,7 +289,7 @@ function gotoCreateVolume(): void {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.map(volumeInfo => volumeInfo.Volumes).flat().length === 0}
-      {#if searchTerm.length > 0}
+      {#if searchTerm}
         <FilteredEmptyScreen icon="{VolumeIcon}" kind="volumes" bind:searchTerm="{searchTerm}" />
       {:else}
         <VolumeEmptyScreen />

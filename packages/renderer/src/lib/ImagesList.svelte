@@ -329,7 +329,7 @@ function computeInterval(): number {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
-      {#if searchTerm.length > 0}
+      {#if searchTerm}
         <FilteredEmptyScreen icon="{ImageIcon}" kind="images" bind:searchTerm="{searchTerm}" />
       {:else}
         <ImageEmptyScreen />

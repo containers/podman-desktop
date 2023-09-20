@@ -307,7 +307,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
     {#if $filtered.length === 0 && providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
-      {#if searchTerm.length > 0}
+      {#if searchTerm}
         <FilteredEmptyScreen icon="{PodIcon}" kind="pods" bind:searchTerm="{searchTerm}" />
       {:else}
         <PodEmptyScreen />
