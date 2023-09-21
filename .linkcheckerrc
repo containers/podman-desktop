@@ -1,0 +1,18 @@
+[checking]
+anchors=1
+checkcss=0
+checkhtml=0
+recursionlevel=-1
+internlinks=
+    /docs/*
+    /blog/*
+    /assets/*
+
+[filtering]
+
+; ignore=file:///
+
+[output]
+fileoutput=html
+log=text
+verbose=1

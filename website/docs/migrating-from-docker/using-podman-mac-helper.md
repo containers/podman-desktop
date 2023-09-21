@@ -20,7 +20,7 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
 #### Prerequisites
 
 - macOS
-- [Podman](../Installation/macos-install)
+- [Podman](/docs/installation/macos-install)
 - Docker service is [paused](https://docs.docker.com/desktop/use-desktop/pause/) and [_Start Docker Desktop when you log in_ is disabled](https://docs.docker.com/desktop/settings/mac/), or Docker is [uninstalled](https://docs.docker.com/desktop/uninstall/).
 
 #### Procedure
