@@ -272,7 +272,7 @@ function assertNumericValueIsValid(value: number) {
           bind:checked="{checkboxValue}"
           name="{record.id}"
           type="checkbox"
-          readonly="{!!record.readonly}"
+          disabled="{!!record.readonly}"
           id="input-standard-{record.id}"
           aria-invalid="{invalidEntry}"
           aria-label="{record.description || record.markdownDescription}" />
