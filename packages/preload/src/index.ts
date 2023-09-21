@@ -68,7 +68,13 @@ import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/pl
 import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
 import type { ContextInfo } from '../../main/src/plugin/api/context-info';
 import type { OnboardingInfo, OnboardingStatus } from '../../main/src/plugin/api/onboarding';
-import type { KubernetesGeneratorSelector } from '../../main/src/plugin/kube-generator-registry';
+import type {
+  KubernetesGeneratorSelector,
+  GenerateKubeResult,
+  KubernetesGeneratorArgument,
+} from '../../main/src/plugin/kube-generator-registry';
+
+import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -251,6 +257,16 @@ function initExposure(): void {
     'generatePodmanKube',
     async (engine: string, names: string[], kubeGeneratorId?: string): Promise<string> => {
       return ipcInvoke('container-provider-registry:generatePodmanKube', engine, names, kubeGeneratorId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'generateKube',
+    async (
+      kubeGeneratorId: string,
+      kubernetesGeneratorArgument: KubernetesGeneratorArgument,
+    ): Promise<GenerateKubeResult> => {
+      return ipcInvoke('kubernetes-generator-registry:generateKube', kubeGeneratorId, kubernetesGeneratorArgument);
     },
   );
 
@@ -934,7 +950,7 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'getKubeGeneratorsInfos',
-    async (selector?: KubernetesGeneratorSelector): Promise<string[]> => {
+    async (selector?: KubernetesGeneratorSelector): Promise<KubernetesGeneratorInfo[]> => {
       return ipcInvoke('kube-generator-registry:getKubeGeneratorsInfos', selector);
     },
   );

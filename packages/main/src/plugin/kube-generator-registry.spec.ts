@@ -28,7 +28,6 @@ test('Creating KubeGeneratorRegistry and getting KubeGeneratorsInfos', async () 
 test('Registering a provider', async () => {
   const kubeGeneratorRegistry = new KubeGeneratorRegistry();
   kubeGeneratorRegistry.registerKubeGenerator({
-    id: 'dummy',
     name: 'Dummy',
     types: [],
     generate: vi.fn(),
@@ -36,8 +35,8 @@ test('Registering a provider', async () => {
 
   const kubeGeneratorsInfos = kubeGeneratorRegistry.getKubeGeneratorsInfos();
   expect(kubeGeneratorsInfos).lengthOf(1);
-  expect(kubeGeneratorsInfos[0]).toStrictEqual({
-    id: 'dummy',
+  expect(kubeGeneratorsInfos[0]).toMatchObject({
+    id: expect.any(String),
     name: 'Dummy',
     types: [],
   });
@@ -57,6 +56,10 @@ test('Registering multiple providers', async () => {
 
   const kubeGeneratorsInfos = kubeGeneratorRegistry.getKubeGeneratorsInfos();
   expect(kubeGeneratorsInfos).lengthOf(5);
+
+  // Ensuring only unique ids are provided.
+  const ids = kubeGeneratorsInfos.map(k => k.id);
+  expect(new Set(ids).size).toBe(ids.length);
 });
 
 test('Dispose multiple providers', async () => {
@@ -81,9 +84,8 @@ test('getKubeGeneratorsInfos by types', async () => {
 
   const typesTests: KubernetesGeneratorSelector[] = [['Compose'], ['Compose', 'Pod'], ['Pod', 'Container']];
 
-  typesTests.forEach((typesTest, index) => {
+  typesTests.forEach(typesTest => {
     kubeGeneratorRegistry.registerKubeGenerator({
-      id: `${index}`,
       name: 'Dummy',
       types: typesTest,
       generate: vi.fn(),

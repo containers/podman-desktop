@@ -1357,6 +1357,12 @@ declare module '@podman-desktop/api' {
     yaml: string;
   }
 
+  type KubernetesGeneratorArgument = {
+    containers?: string[];
+    pods?: string[];
+    compose?: string[];
+  };
+
   /**
    * The KubernetesGeneratorProvider allows an extension to register a custom Kube Generator for a specific
    * KubernetesGeneratorType.
@@ -1368,7 +1374,7 @@ declare module '@podman-desktop/api' {
     id: string;
     name: string;
     types: KubernetesGeneratorSelector;
-    generate(engineId: string, ids: string[]): GenerateKubeResult;
+    generate(kubernetesGeneratorArgument: KubernetesGeneratorArgument): GenerateKubeResult;
   }
 
   export interface ContainerInfo {

@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import { Disposable } from './types/disposable.js';
+import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
 
 export type KubernetesGeneratorType = 'Compose' | 'Pod' | 'Container';
 
@@ -25,26 +26,32 @@ export interface GenerateKubeResult {
   yaml: string;
 }
 
-export interface KubernetesGeneratorProvider {
-  id: string;
-  name: string;
-  generate(engineId: string, ids: string[]): GenerateKubeResult;
-  types: KubernetesGeneratorSelector;
-}
+export type KubernetesGeneratorArgument = {
+  containers?: string[];
+  pods?: string[];
+  compose?: string[];
+};
 
-export type KubeGeneratorsInfo = Omit<KubernetesGeneratorProvider, 'generate'>;
+export interface KubernetesGeneratorProvider {
+  readonly name: string;
+  readonly types: KubernetesGeneratorSelector;
+  generate(argument: KubernetesGeneratorArgument): GenerateKubeResult;
+}
 
 export class KubeGeneratorRegistry {
   private kubeGenerators = new Map<string, KubernetesGeneratorProvider>();
+  private count = 0;
 
-  unregisterKubeGenerator(kubeGenerator: KubernetesGeneratorProvider): void {
-    this.kubeGenerators.delete(kubeGenerator.id);
+  unregisterKubeGenerator(providerId: string): void {
+    this.kubeGenerators.delete(providerId);
   }
 
   registerKubeGenerator(kubeGenerator: KubernetesGeneratorProvider): Disposable {
-    this.kubeGenerators.set(kubeGenerator.id, kubeGenerator);
+    const providerId = `${this.count}`;
+    this.count += 1;
+    this.kubeGenerators.set(providerId, kubeGenerator);
     return Disposable.create(() => {
-      this.unregisterKubeGenerator(kubeGenerator);
+      this.unregisterKubeGenerator(providerId);
     });
   }
 
@@ -52,19 +59,22 @@ export class KubeGeneratorRegistry {
     return this.kubeGenerators.get(kubeGeneratorId);
   }
 
-  getKubeGeneratorsInfos(selector?: KubernetesGeneratorSelector): KubeGeneratorsInfo[] {
-    return Array.from(this.kubeGenerators.values()).reduce((filteredGenerators, generator) => {
+  getKubeGeneratorsInfos(selector?: KubernetesGeneratorSelector): KubernetesGeneratorInfo[] {
+    return Array.from(this.kubeGenerators.entries()).reduce((previousValue, currentValue) => {
+      const provider = currentValue[1];
       const isMatchingGenerator =
         selector === undefined ||
-        (Array.isArray(selector) ? selector : [selector]).every(type => generator.types.includes(type));
+        (Array.isArray(selector) ? selector : [selector]).every(type => provider.types.includes(type));
 
       if (isMatchingGenerator) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { generate: _, ...serializable } = generator;
-        filteredGenerators.push(serializable);
+        previousValue.push({
+          id: currentValue[0],
+          name: provider.name,
+          types: provider.types,
+        });
       }
 
-      return filteredGenerators;
-    }, [] as KubeGeneratorsInfo[]);
+      return previousValue;
+    }, [] as KubernetesGeneratorInfo[]);
   }
 }

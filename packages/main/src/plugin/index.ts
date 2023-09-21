@@ -123,7 +123,12 @@ import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
 import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 import { Exec } from './util/exec.js';
 import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
-import type { KubeGeneratorsInfo, KubernetesGeneratorSelector } from '/@/plugin/kube-generator-registry.js';
+import type {
+  KubernetesGeneratorSelector,
+  GenerateKubeResult,
+  KubernetesGeneratorArgument,
+} from '/@/plugin/kube-generator-registry.js';
+import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
 import type { CommandInfo } from './api/command-info.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -830,18 +835,22 @@ export class PluginSystem {
     );
     this.ipcHandle(
       'container-provider-registry:generatePodmanKube',
+      async (_listener, engine: string, names: string[]): Promise<string> => {
+        return containerProviderRegistry.generatePodmanKube(engine, names);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-generator-registry:generateKube',
       async (
         _listener,
-        engine: string,
-        names: string[],
-        kubeGeneratorId?: string,
-      ): Promise<string> => {
-        if (!kubeGeneratorId) return containerProviderRegistry.generatePodmanKube(engine, names);
-
+        kubeGeneratorId: string,
+        kubernetesGeneratorArgument: KubernetesGeneratorArgument,
+      ): Promise<GenerateKubeResult> => {
         const kubeGenerator = kubeGeneratorRegistry.getKubeGenerator(kubeGeneratorId);
         if (!kubeGenerator) throw new Error(`kubeGenerator with id ${kubeGenerator} cannot be found.`);
 
-        return kubeGenerator.generate(engine, names).yaml;
+        return kubeGenerator.generate(kubernetesGeneratorArgument);
       },
     );
 
@@ -1161,7 +1170,7 @@ export class PluginSystem {
 
     this.ipcHandle(
       'kube-generator-registry:getKubeGeneratorsInfos',
-      async (_, selector?: KubernetesGeneratorSelector): Promise<KubeGeneratorsInfo[]> => {
+      async (_, selector?: KubernetesGeneratorSelector): Promise<KubernetesGeneratorInfo[]> => {
         return kubeGeneratorRegistry.getKubeGeneratorsInfos(selector);
       },
     );
