@@ -12,6 +12,6 @@ With Podman Desktop, you can work on [Lima-powered](https://lima-vm.io/) local K
 
 #### Procedure
 
-1. [Start a Lima instance running Kubernetes](/docs/Installation/creating-a-lima-instance-with-podman-desktop)
+1. [Start a Lima instance running Kubernetes](/docs/installation/creating-a-lima-instance-with-podman-desktop)
 1. [Configure the path to the kubeconfig file](/docs/kubernetes/configuring-access-to-a-kubernetes-cluster)
 1. Set the Kubernetes context to the Lima cluster

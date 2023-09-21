@@ -58,7 +58,7 @@ const config = {
           },
           {
             to: '/docs/onboarding/containers/creating-a-podman-machine-with-podman-desktop',
-            from: ['/docs/Installation/creating-a-podman-machine-with-podman-desktop'],
+            from: '/docs/Installation/creating-a-podman-machine-with-podman-desktop',
           },
           {
             to: '/docs/onboarding/kubernetes/kind/installing-kind',
@@ -192,7 +192,7 @@ const config = {
             items: [
               {
                 label: 'Installing Podman Desktop',
-                to: '/docs/Installation',
+                to: '/docs/installation',
               },
               {
                 label: 'Onboarding for containers',
