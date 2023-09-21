@@ -22,7 +22,7 @@
     "@types/js-yaml": "^4.0.6",
     "@types/validator": "^13.11.1",
     "@typescript-eslint/eslint-plugin": "5.62.0",
-    "autoprefixer": "^10.4.15",
+    "autoprefixer": "^10.4.16",
     "eslint-plugin-svelte": "^2.33.2",
     "filesize": "^10.0.12",
     "humanize-duration": "^3.30.0",
