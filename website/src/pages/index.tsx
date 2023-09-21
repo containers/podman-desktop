@@ -27,12 +27,15 @@ function DownloadClientLinks() {
 
   if (userAgent.indexOf('Windows') !== -1) {
     operatingSystem = 'Windows';
+    url = 'windows';
     varIcon = 'faWindows';
   } else if (userAgent.indexOf('Mac') !== -1) {
     operatingSystem = 'macOS';
+    url = 'macos';
     varIcon = 'faApple';
   } else if (userAgent.indexOf('Linux') !== -1) {
     operatingSystem = 'Linux';
+    url = 'linux';
     varIcon = 'faLinux';
   }
 
@@ -44,7 +47,7 @@ function DownloadClientLinks() {
       <div>
         <Link
           className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-violet-600 border-0 py-4 px-8 mt-6 mb-1 focus:outline-none hover:bg-violet-700 rounded text-lg"
-          to={'/downloads/' + operatingSystem}>
+          to={'/downloads/' + url}>
           <FontAwesomeIcon size="2x" icon={varIcon as IconProp} className="px-2" /> Download Now
         </Link>
         <caption className="block mt-0 dark:text-gray-400">
@@ -554,7 +557,7 @@ function Pods() {
                 </h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faDiagramProject} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  <a href="docs/getting-started/creating-a-pod">Create Pods from existing containers</a>
+                  <a href="/docs/working-with-containers/creating-a-pod">Create Pods from existing containers</a>
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
@@ -580,11 +583,13 @@ function Pods() {
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  <a href="docs/kubernetes/deploying-a-pod-to-kubernetes">Deploy to existing Kubernetes environments</a>
+                  <a href="/docs/kubernetes/deploying-a-pod-to-kubernetes">
+                    Deploy to existing Kubernetes environments
+                  </a>
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  <a href="docs/kubernetes/kind">Running Kubernetes on your workstation with Kind and Podman</a>
+                  <a href="/docs/kubernetes/kind">Running Kubernetes on your workstation with Kind and Podman</a>
                 </p>
               </div>
             </div>
