@@ -1368,10 +1368,6 @@ declare module '@podman-desktop/api' {
    * KubernetesGeneratorType.
    */
   export interface KubernetesGeneratorProvider {
-    /**
-     * A unique identifier for the provider.
-     */
-    id: string;
     name: string;
     types: KubernetesGeneratorSelector;
     generate(kubernetesGeneratorArgument: KubernetesGeneratorArgument): GenerateKubeResult;
