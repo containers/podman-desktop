@@ -361,7 +361,7 @@ List of maintainer tasks to help the project run smoothly.
 
 ### Triaging
 
-New issues will have the [triage](https://github.com/containers/podman-desktop/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%2Fneed-triage) label assigned. As a maintainer, you'll have to curate these issues into the appropriate [area labels](https://github.com/containers/podman-desktop/labels).
+New issues will have the [status/need-triage](https://github.com/containers/podman-desktop/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%2Fneed-triage) label assigned. As a maintainer, you'll have to curate these issues into the appropriate [area labels](https://github.com/containers/podman-desktop/labels?q=area%2F).
 
 Ideally complete the task every morning:
 
