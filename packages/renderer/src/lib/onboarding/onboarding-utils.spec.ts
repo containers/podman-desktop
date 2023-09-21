@@ -78,6 +78,7 @@ test('Expect cleanContext to remove onboarding values from context and reset the
     ],
     title: 'onboarding',
     status: 'completed',
+    enablement: 'true',
   };
   const context = new ContextUI();
   context.setValue('id.onboarding.key1', 'value');
@@ -109,6 +110,7 @@ test('Expect that the onboarding is not completed if atleast one step has not be
     ],
     title: 'onboarding',
     status: 'skipped',
+    enablement: 'true',
   };
   const complete = isOnboardingCompleted(onboarding);
   expect(complete).toBeFalsy();
@@ -131,6 +133,7 @@ test('Expect that the onboarding is not completed if its status is not set', asy
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const complete = isOnboardingCompleted(onboarding);
   expect(complete).toBeFalsy();
@@ -153,6 +156,7 @@ test('Expect that the onboarding is completed if all its steps are completed and
     ],
     title: 'onboarding',
     status: 'completed',
+    enablement: 'true',
   };
   const complete = isOnboardingCompleted(onboarding);
   expect(complete).toBeTruthy();
@@ -175,6 +179,7 @@ test('Expect the setup of multiple onboardings to be completed if all have been 
     ],
     title: 'onboarding',
     status: 'completed',
+    enablement: 'true',
   };
   const onboarding2: OnboardingInfo = {
     extension: 'id',
@@ -192,6 +197,7 @@ test('Expect the setup of multiple onboardings to be completed if all have been 
     ],
     title: 'onboarding',
     status: 'completed',
+    enablement: 'true',
   };
   const complete = isOnboardingsSetupCompleted([onboarding1, onboarding2]);
   expect(complete).toBeTruthy();
@@ -214,6 +220,7 @@ test('Expect the setup of multiple onboardings to be uncompleted if atleast one 
     ],
     title: 'onboarding',
     status: 'completed',
+    enablement: 'true',
   };
   const onboarding2: OnboardingInfo = {
     extension: 'id',
@@ -231,6 +238,7 @@ test('Expect the setup of multiple onboardings to be uncompleted if atleast one 
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const complete = isOnboardingsSetupCompleted([onboarding1, onboarding2]);
   expect(complete).toBeFalsy();
@@ -255,6 +263,7 @@ test('Expect the step to be completed if the active step have not completion eve
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -284,6 +293,7 @@ test('Expect the step to be completed if the step is considered completed if onl
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -313,6 +323,7 @@ test('Expect the step to NOT be completed if the step is considered completed if
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -342,6 +353,7 @@ test('Expect the step to be completed if the step is considered completed if a c
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -376,6 +388,7 @@ test('Expect the step to NOT be completed if the step is considered completed if
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -410,6 +423,7 @@ test('Expect the step to NOT be completed if the step is considered completed if
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -443,6 +457,7 @@ test('Expect the step to NOT be completed if the step is considered completed if
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -473,6 +488,7 @@ test('Expect the step status to be updated but not the onboarding as it is not t
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   await updateOnboardingStepStatus(onboarding, step, 'completed');
   expect(step.status).equal('completed');
@@ -493,6 +509,7 @@ test('Expect the step and the onboarding status to be updated as it is the last 
     steps: [step],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   await updateOnboardingStepStatus(onboarding, step, 'completed');
   expect(step.status).equal('completed');
