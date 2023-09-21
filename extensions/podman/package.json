@@ -214,7 +214,8 @@
           "when": "!onboardingContext:podmanIsNotInstalled",
           "state": "completed"
         }
-      ]
+      ],
+      "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || !onboardingContext:podmanMachineExists"
     }
   },
   "scripts": {

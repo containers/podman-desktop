@@ -33,12 +33,16 @@ import PreferencesProviderInstallationModal from './PreferencesProviderInstallat
 import { Buffer } from 'buffer';
 import Button from '../ui/Button.svelte';
 import { onboardingList } from '/@/stores/onboarding';
+import { context } from '/@/stores/context';
+import type { ContextUI } from '../context/context';
+import { ContextKeyExpr } from '../context/contextKey';
+import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();
 $: providerInstallationInProgress = new Map<string, boolean>();
-$: extensionOnboarding = new Map<string, boolean>();
+$: extensionOnboardingEnablement = new Map<string, string>();
 
 let isStatusUpdated = false;
 let displayInstallModal = false;
@@ -50,10 +54,12 @@ $: preflightChecks = [];
 
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 let restartingQueue: IConnectionRestart[] = [];
+let globalContext: ContextUI;
 
 let providersUnsubscribe: Unsubscriber;
 let configurationPropertiesUnsubscribe: Unsubscriber;
 let onboardingsUnsubscribe: Unsubscriber;
+let contextsUnsubscribe: Unsubscriber;
 
 onMount(() => {
   configurationPropertiesUnsubscribe = configurationProperties.subscribe(value => {
@@ -140,13 +146,17 @@ onMount(() => {
   });
 
   onboardingsUnsubscribe = onboardingList.subscribe(onboardingItems => {
-    extensionOnboarding = new Map<string, boolean>();
+    extensionOnboardingEnablement = new Map<string, string>();
     onboardingItems.forEach(o => {
       // maybe the boolean value should represent if the onboarding has been completed, to show the setup button or not
       // now true by default
-      extensionOnboarding.set(o.extension, true);
+      extensionOnboardingEnablement.set(o.extension, o.enablement);
     });
-    extensionOnboarding = extensionOnboarding;
+    extensionOnboardingEnablement = extensionOnboardingEnablement;
+  });
+
+  contextsUnsubscribe = context.subscribe(value => {
+    globalContext = value;
   });
 });
 
@@ -167,6 +177,9 @@ onDestroy(() => {
   }
   if (onboardingsUnsubscribe) {
     onboardingsUnsubscribe();
+  }
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
   }
 });
 
@@ -311,6 +324,17 @@ async function performInstallation(provider: ProviderInfo) {
 function hideInstallModal() {
   displayInstallModal = false;
 }
+
+function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): boolean {
+  let whenEnablement = extensionOnboardingEnablement.get(provider.extensionId);
+  if (!whenEnablement) {
+    return false;
+  }
+  whenEnablement = normalizeOnboardingWhenClause(whenEnablement, provider.extensionId);
+  const whenDeserialized = ContextKeyExpr.deserialize(whenEnablement);
+  const isEnabled = whenDeserialized?.evaluate(globalContext);
+  return isEnabled || false;
+}
 </script>
 
 <SettingsPage title="Resources">
@@ -344,7 +368,7 @@ function hideInstallModal() {
               <span class="my-auto text-gray-400 ml-3 break-words">{provider.name}</span>
             </div>
             <div class="text-center mt-10">
-              {#if extensionOnboarding.get(provider.extensionId) && provider.status === 'not-installed'}
+              {#if isOnboardingEnabled(provider, globalContext) && provider.status === 'not-installed'}
                 <Button
                   aria-label="Setup {provider.name}"
                   title="Setup {provider.name}"
@@ -376,14 +400,18 @@ function hideInstallModal() {
                       </Button>
                     </Tooltip>
                   {/if}
-                  {#if extensionOnboarding.get(provider.extensionId)}
-                    <Button
-                      aria-label="Setup {provider.name}"
-                      title="Setup {provider.name}"
-                      on:click="{() => router.goto(`/preferences/onboarding/${provider.extensionId}`)}">
-                      <Fa size="14" icon="{faGear}" />
-                    </Button>
-                  {/if}
+                  <Button
+                    aria-label="Setup {provider.name}"
+                    title="Setup {provider.name}"
+                    on:click="{() => {
+                      if (isOnboardingEnabled(provider, globalContext)) {
+                        router.goto(`/preferences/onboarding/${provider.extensionId}`);
+                      } else {
+                        router.goto(`/preferences/default/preferences.${provider.extensionId}`);
+                      }
+                    }}">
+                    <Fa size="14" icon="{faGear}" />
+                  </Button>
                 </div>
               {/if}
             </div>
