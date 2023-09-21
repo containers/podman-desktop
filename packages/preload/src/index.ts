@@ -450,6 +450,10 @@ function initExposure(): void {
     return ipcInvoke('container-provider-registry:shellInContainerSend', dataId, content);
   });
 
+  contextBridge.exposeInMainWorld('shellInContainerResize', async (dataId: number, width: number, height: number) => {
+    return ipcInvoke('container-provider-registry:shellInContainerResize', dataId, width, height);
+  });
+
   ipcRenderer.on(
     'container-provider-registry:shellInContainer-onData',
     (_, onDataCallbacksShellInContainerId: number, data: Buffer) => {

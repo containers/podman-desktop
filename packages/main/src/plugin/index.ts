@@ -1008,7 +1008,10 @@ export class PluginSystem {
       },
     );
 
-    const containerProviderRegistryShellInContainerSendCallback = new Map<number, (param: string) => void>();
+    const containerProviderRegistryShellInContainerSendCallback = new Map<
+      number,
+      { write: (param: string) => void; resize: (w: number, h: number) => void }
+    >();
     this.ipcHandle(
       'container-provider-registry:shellInContainer',
       async (_listener, engine: string, containerId: string, onDataId: number): Promise<number> => {
@@ -1039,7 +1042,17 @@ export class PluginSystem {
       async (_listener, onDataId: number, content: string): Promise<void> => {
         const callback = containerProviderRegistryShellInContainerSendCallback.get(onDataId);
         if (callback) {
-          callback(content);
+          callback.write(content);
+        }
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:shellInContainerResize',
+      async (_listener, onDataId: number, width: number, height: number): Promise<void> => {
+        const callback = containerProviderRegistryShellInContainerSendCallback.get(onDataId);
+        if (callback) {
+          callback.resize(width, height);
         }
       },
     );

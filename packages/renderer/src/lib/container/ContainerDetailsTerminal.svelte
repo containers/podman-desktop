@@ -56,6 +56,7 @@ async function executeShellIntoContainer() {
       () => {},
       receiveEndCallback,
     );
+    await window.shellInContainerResize(callbackId, shellTerminal.cols, shellTerminal.rows);
     // pass data from xterm to container
     shellTerminal?.onData(data => {
       window.shellInContainerSend(callbackId, data);
@@ -107,6 +108,9 @@ async function refreshTerminal() {
   window.addEventListener('resize', () => {
     if (currentRouterPath === `/containers/${container.id}/terminal`) {
       fitAddon.fit();
+      if (sendCallbackId) {
+        window.shellInContainerResize(sendCallbackId, shellTerminal.cols, shellTerminal.rows);
+      }
     }
   });
   fitAddon.fit();
