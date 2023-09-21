@@ -32,4 +32,4 @@ The Kind cluster might not restart successfully.
 In that case:
 
 - Consider replacing Kind with a local Kubernetes cluster that you can restart, such as [OpenShift Local](https://developers.redhat.com/products/openshift-local/).
-- Consider [deleting your Kind cluster](./deleting-your-kind-cluster), and [creating a Kind cluster](./creating-a-kind-cluster).
+- Consider [deleting your Kind cluster](/docs/onboarding/kubernetes/kind/deleting-your-kind-cluster), and [creating a Kind cluster](/docs/onboarding/kubernetes/kind/creating-a-kind-cluster).

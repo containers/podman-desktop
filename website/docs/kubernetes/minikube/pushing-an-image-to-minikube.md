@@ -13,7 +13,7 @@ With Podman Desktop, you can push an image to your local Minikube-powered Kubern
 #### Prerequisites
 
 - Your image is available on the **Images** page: `<my_image>:<my_tag>`.
-- [You created a minikube cluster](creating-a-minikube-cluster).
+- [You created a minikube cluster](/docs/kubernetes/minikube/creating-a-minikube-cluster).
 
 #### Procedure
 

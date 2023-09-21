@@ -34,9 +34,9 @@ timeline
 ```
 -->
 
-1. [You set up Compose](compose/setting-up-compose).
+1. [You set up Compose](/docs/compose/setting-up-compose).
 1. You have a [Compose file](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file).
-1. [You run a Compose engine on the Compose file](compose/running-compose).
+1. [You run a Compose engine on the Compose file](/docs/compose/running-compose).
 1. The Compose engine starts the containers and services, and adds a label to each resource:
 
    - Container label: `com.docker.compose.project`

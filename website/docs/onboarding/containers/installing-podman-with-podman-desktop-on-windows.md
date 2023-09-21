@@ -16,7 +16,7 @@ Main benefits are:
 - Ease of use
 - Windows native virtualization performance
 
-Consider rather [installing Podman with OpenShift Local](./installing-podman-with-openshift-local-on-windows) if:
+Consider rather [installing Podman with OpenShift Local](/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows) if:
 
 - You prefer working with a RHEL distribution of Linux
 - Your environment doesn't allow you to meet the prerequisites
@@ -57,4 +57,4 @@ Consider rather [installing Podman with OpenShift Local](./installing-podman-wit
 
 #### Next steps
 
-- [Getting Started with Podman Desktop](/docs/getting-started)
+- [Getting Started with Podman Desktop](/docs/working-with-containers)

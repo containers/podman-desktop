@@ -13,7 +13,7 @@ To enable users to install your extension, consider publishing your extension to
 #### Prerequisites
 
 - The extension builds successfully.
-  See [Writing a Podman Desktop extension](write).
+  See [Writing a Podman Desktop extension](/docs/extensions/write).
 
 - All runtime dependencies are inside the final binary.
 
@@ -65,4 +65,4 @@ To enable users to install your extension, consider publishing your extension to
 
 #### Next steps
 
-- [Installing a Podman Desktop extension](install)
+- [Installing a Podman Desktop extension](/docs/extensions/install)

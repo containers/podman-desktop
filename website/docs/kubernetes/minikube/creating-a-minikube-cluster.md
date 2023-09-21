@@ -12,8 +12,8 @@ You can create multiple local Minikube-powered Kubernetes clusters.
 
 #### Prerequisites
 
-- [You installed Minikube](installing-minikube).
-- [On Windows, you configured Podman](configuring-podman-for-minikube-on-windows).
+- [You installed Minikube](/docs/kubernetes/minikube/installing-minikube).
+- [On Windows, you configured Podman](/docs/kubernetes/minikube/configuring-podman-for-minikube-on-windows).
 
 #### Procedure
 

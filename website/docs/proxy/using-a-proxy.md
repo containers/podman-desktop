@@ -23,7 +23,7 @@ The configuration does not apply to:
 #### Prerequisites
 
 - Your proxy URL: `<your.proxy.tld:port>`.
-- Your proxy does not require a custom Certificate Authorities. Else see [Using a proxy requiring a custom Certificate Authorities](using-a-proxy-requiring-a-custom-ca).
+- Your proxy does not require a custom Certificate Authorities. Else see [Using a proxy requiring a custom Certificate Authorities](/docs/proxy/using-a-proxy-requiring-a-custom-ca).
 
 #### Procedure
 

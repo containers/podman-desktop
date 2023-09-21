@@ -16,10 +16,10 @@ When you have configured your host to use Podman rather then Docker, consider ve
 #### Prerequisites
 
 - Docker service is stopped, or not installed.
-- [Saved containers are imported to Podman](importing-saved-containers)
-- [The `DOCKER_HOST` environment variable is set](using-the-docker_host-environment-variable)
-- [On macOS, the `podman-mac-helper` service is running](using-podman-mac-helper)
-- [Podman is emulating Docker CLI](emulating-docker-cli-with-podman)
+- [Saved containers are imported to Podman](/docs/migrating-from-docker/importing-saved-containers)
+- [The `DOCKER_HOST` environment variable is set](/docs/migrating-from-docker/using-the-docker_host-environment-variable)
+- [On macOS, the `podman-mac-helper` service is running](/docs/migrating-from-docker/using-podman-mac-helper)
+- [Podman is emulating Docker CLI](/docs/migrating-from-docker/emulating-docker-cli-with-podman)
 
 #### Procedure
 

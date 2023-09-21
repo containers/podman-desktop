@@ -81,10 +81,10 @@ With Podman Desktop and the OpenShift Local extension, you can manage your OpenS
 
    ![Developer Sandbox is running](img/resources-openshift-local-running.png)
 
-1. [Select your OpenShift Local instance the Podman Desktop tray](../viewing-and-selecting-current-kubernete-context).
+1. [Select your OpenShift Local instance the Podman Desktop tray](/docs/kubernetes/viewing-and-selecting-current-kubernete-context).
 1. Run basic tasks such as:
-   - [Deploying a container](../deploying-a-container-to-kubernetes)
-   - [Deploying a pod](../deploying-a-pod-to-kubernetes)
+   - [Deploying a container](/docs/kubernetes/deploying-a-container-to-kubernetes)
+   - [Deploying a pod](/docs/kubernetes/deploying-a-pod-to-kubernetes)
 
 #### Additional resources
 
