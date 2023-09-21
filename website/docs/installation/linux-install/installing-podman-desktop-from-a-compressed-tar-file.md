@@ -8,7 +8,7 @@ keywords: [podman desktop, podman, containers, installing, installation, linux, 
 
 # Installing Podman Desktop from a compressed tar file {#archive}
 
-Consider installing from an archive rather than [from Flathub](../linux-install), or [from a Flatpak bundle](installing-podman-desktop-from-a-flatpak-bundle) when:
+Consider installing from an archive rather than [from Flathub](/docs/installation/linux-install), or [from a Flatpak bundle](/docs/installation/linux-install/installing-podman-desktop-from-a-flatpak-bundle) when:
 
 - You cannot use Flatpak.
 - You install in a restricted environment.
@@ -27,4 +27,4 @@ Consider installing from an archive rather than [from Flathub](../linux-install)
 
 #### Next steps
 
-- [Getting started](/docs/getting-started)
+- [Getting started](/docs/working-with-containers)

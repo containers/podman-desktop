@@ -10,9 +10,9 @@ keywords: [podman desktop, containers, podman, installing, installation]
 
 You can install Podman Desktop on:
 
-- [Windows](./installation/windows-install)
-- [macOS](./installation/macos-install)
-- [Linux](./installation/linux-install)
+- [Windows](/docs/installation/windows-install)
+- [macOS](/docs/installation/macos-install)
+- [Linux](/docs/installation/linux-install)
 
 #### Next steps
 
