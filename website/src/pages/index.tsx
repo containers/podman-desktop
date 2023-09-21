@@ -23,6 +23,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 function DownloadClientLinks() {
   let operatingSystem = '';
   let varIcon = undefined;
+  let url = 'macos'; // Just use macos by default as the url before checking the user agent in case of an odd issue (unable to get userAgent / it's blank / etc.)
   const userAgent = navigator.userAgent;
 
   if (userAgent.indexOf('Windows') !== -1) {
