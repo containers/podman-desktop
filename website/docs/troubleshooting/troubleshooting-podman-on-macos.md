@@ -125,7 +125,7 @@ When you installed Podman and QEMU with brew, and QEMU version is 8.1.0, Podman 
 
 #### Solution
 
-- [Install Podman Desktop and Podman using the .dmg installer](https://podman-desktop.io/docs/Installation/macos-install) rather than brew.
+- [Install Podman Desktop and Podman using the .dmg installer](/docs/installation/macos-install) rather than brew.
   The Podman installer has a QEMU binary that has been tested with Podman.
 
 #### Workaround

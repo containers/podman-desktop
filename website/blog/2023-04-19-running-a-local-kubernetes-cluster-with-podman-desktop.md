@@ -26,7 +26,7 @@ On the agenda:
 
 You need Podman Desktop.
 
-1. Go to [Podman Desktop installation documentation](/docs/Installation).
+1. Go to [Podman Desktop installation documentation](/docs/installation).
 1. Click on your platform name: [Windows](/docs/installation/windows-install), [macOS](/docs/installation/macos-install), or [Linux](/docs/installation/linux-install).
 1. Follow the instructions. Stick to the default installation method.
 1. Start **Podman Desktop**.

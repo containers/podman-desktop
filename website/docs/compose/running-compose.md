@@ -10,7 +10,7 @@ With Podman Desktop, you can manage multi-container applications defined in a Co
 
 #### Prerequisites
 
-- [You have set up a Compose engine](setting-up-compose).
+- [You have set up a Compose engine](/docs/compose/setting-up-compose).
 - You have a [Compose file](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file), such as `compose.yaml`.
 
 #### Procedure

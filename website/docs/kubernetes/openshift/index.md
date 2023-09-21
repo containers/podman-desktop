@@ -12,5 +12,5 @@ With Podman Desktop, you can work on [OpenShift-powered](https://openshift.com/)
 
 To get started, configure access to an OpenShift cluster, and optionally, create the cluster:
 
-- [Creating an OpenShift Local cluster](openshift/creating-an-openshift-local-cluster).
-- [Configuring access to a Developer Sandbox](openshift/configuring-access-to-a-developer-sandbox).
+- [Creating an OpenShift Local cluster](/docs/kubernetes/openshift/creating-an-openshift-local-cluster).
+- [Configuring access to a Developer Sandbox](/docs/kubernetes/openshift/configuring-access-to-a-developer-sandbox).

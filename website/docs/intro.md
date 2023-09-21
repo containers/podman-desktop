@@ -10,5 +10,5 @@ With Podman Desktop, you can:
 
 - [Onboard for container workloads](/docs/onboarding/containers).
 - [Onboard for Kubernetes workloads](/docs/onboarding/kubernetes).
-- [Work with containers](/docs/getting-started).
+- [Work with containers](/docs/working-with-containers).
 - [Work with Kubernetes](/docs/kubernetes).
