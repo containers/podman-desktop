@@ -19,6 +19,8 @@
 import type { ProxySettings, Event } from '@podman-desktop/api';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import { Emitter } from './events/emitter.js';
+import { getProxyUrl } from '/@/plugin/proxy-resolver.js';
+import { ProxyAgent } from 'undici';
 
 /**
  * Handle proxy settings for Podman Desktop
@@ -79,6 +81,7 @@ export class Proxy {
 
     // read initial value
     this.updateFromConfiguration();
+    this.overrideFetch();
   }
 
   updateFromConfiguration(): void {
@@ -130,5 +133,20 @@ export class Proxy {
 
     // notify
     this._onDidStateChange.fire(this.proxyState);
+  }
+
+  private overrideFetch() {
+    const original = globalThis.fetch;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const _me = this;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    globalThis.fetch = function (url: RequestInfo | URL, opts?: any) {
+      const proxyurl = getProxyUrl(_me);
+      if (proxyurl) {
+        opts = Object.assign({}, opts, { dispatcher: new ProxyAgent(proxyurl) });
+      }
+
+      return original(url, opts);
+    };
   }
 }
