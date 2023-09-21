@@ -42,6 +42,7 @@ import type { IconInfo } from '../../main/src/plugin/api/icon-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
+import type { CommandInfo } from '../../main/src/plugin/api/command-info';
 
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
@@ -1058,6 +1059,10 @@ function initExposure(): void {
   });
   contextBridge.exposeInMainWorld('getCatalogExtensions', async (): Promise<CatalogExtension[]> => {
     return ipcInvoke('catalog:getExtensions');
+  });
+
+  contextBridge.exposeInMainWorld('getCommandPaletteCommands', async (): Promise<CommandInfo[]> => {
+    return ipcInvoke('commands:getCommandPaletteCommands');
   });
 
   contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
