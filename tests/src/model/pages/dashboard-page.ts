@@ -25,7 +25,7 @@ export class DashboardPage extends BasePage {
   readonly content: Locator;
   readonly heading: Locator;
   readonly featuredExtensions: Locator;
-  readonly devSandboxStatus: Locator;
+  readonly devSandboxProvider: Locator;
   readonly devSandboxBox: Locator;
 
   constructor(page: Page) {
@@ -35,7 +35,7 @@ export class DashboardPage extends BasePage {
     this.content = this.mainPage.getByRole('region', { name: 'content' });
     this.featuredExtensions = page.getByLabel('FeaturedExtensions');
     this.heading = page.getByRole('heading', { name: 'Dashboard' });
-    this.devSandboxStatus = page.getByLabel('Developer Sandbox Status');
+    this.devSandboxProvider = page.getByLabel('Developer Sandbox Provider');
     this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
   }
 }
