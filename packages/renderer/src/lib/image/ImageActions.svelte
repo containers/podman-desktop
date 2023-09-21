@@ -105,6 +105,7 @@ function onError(error: string): void {
     args="{[image]}"
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
+    contextPrefix="imageListItem"
     onError="{onError}" />
 
   {#if errorMessage}

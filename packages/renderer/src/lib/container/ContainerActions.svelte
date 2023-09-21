@@ -178,6 +178,7 @@ if (dropdownMenu) {
     icon="{faArrowsRotate}" />
   <ContributionActions
     args="{[container]}"
+    contextPrefix="containerListItem"
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
     onError="{errorCallback}" />

@@ -131,6 +131,7 @@ if (dropdownMenu) {
   {/if}
   <ContributionActions
     args="{[pod]}"
+    contextPrefix="podListItem"
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
     onError="{errorCallback}" />
