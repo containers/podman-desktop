@@ -529,7 +529,11 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       age: containerGroup.humanCreationDate,
                       created: containerGroup.created,
                       selected: false,
-                      containers: [],
+                      containers: containerGroup.containers.map(container => ({
+                        Id: container.id,
+                        Names: container.name,
+                        Status: container.state,
+                      })),
                       kind: 'podman',
                     }}"
                     dropdownMenu="{true}"
@@ -542,7 +546,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       name: containerGroup.name,
                       engineId: containerGroup.engineId,
                       engineType: containerGroup.engineType,
-                      containers: [],
+                      containers: containerGroup.containers,
                     }}"
                     dropdownMenu="{true}"
                     inProgressCallback="{(containers, flag, state) =>
