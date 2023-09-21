@@ -104,7 +104,7 @@
     "@vitest/coverage-v8": "0.34.4",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
-    "electron": "^26.2.1",
+    "electron": "^26.2.2",
     "electron-builder": "23.6.0",
     "electron-builder-notarize": "^1.5.1",
     "electron-devtools-installer": "^3.2.0",
