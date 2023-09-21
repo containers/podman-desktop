@@ -3308,10 +3308,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/getos@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@types/getos/-/getos-3.0.1.tgz#6812bfdca81aaeba7ac2d0f4ad002b7e6566fc3b"
-  integrity sha512-igBIU7ZwzRrVGYf0nQyISMJZjuDF+5T2v8gnqXGpIbMN7j/pk6s4uSHXfolXPMUZET6aCfG9xoPDT47oM9RN6A==
+"@types/getos@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/getos/-/getos-3.0.2.tgz#2db1318213ae59fcfb28e9ba0ee5b2f30cff7efd"
+  integrity sha512-ihkx3uJrI84JknOr9f0eF9ucJM3OLG8LTr9Yts6uTnsBlFBIETF1KdujTfAqY5+YKcRyQKDUBJYOuNUgwcdirQ==
 
 "@types/glob@^7.1.1":
   version "7.2.0"
