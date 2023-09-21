@@ -366,5 +366,5 @@ New issues will have the [triage](https://github.com/containers/podman-desktop/i
 Ideally complete the task every morning:
 
 1. [View all the current triage labeled issues.](https://github.com/containers/podman-desktop/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%2Fneed-triage)
-2. Add the appropriate [area label](https://github.com/containers/podman-desktop/labels) that matches the issue. You can use "bulk edit" by clicking the checkmark of the issues and using the label dropdown selection.
+2. Add the appropriate [area label](https://github.com/containers/podman-desktop/labels?q=area%2F) that matches the issue. You can use "bulk edit" by clicking the checkmark of the issues and using the label dropdown selection.
 3. Remove the `status/need-triage` label.
