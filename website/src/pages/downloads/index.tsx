@@ -2,7 +2,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import React from 'react';
 import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
-import { MacOSDownloads } from '@site/src/pages/downloads/macOS';
+import { MacOSDownloads } from '@site/src/pages/downloads/macos';
 import { WindowsDownloads } from '@site/src/pages/downloads/windows';
 import { LinuxDownloads } from '@site/src/pages/downloads/linux';
 
