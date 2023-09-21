@@ -170,3 +170,36 @@ test('Expect a type text configuration placeholder to be replaced by a text inpu
   expect((input as HTMLSelectElement).name).toBe('extension.text.prop');
   expect((input as HTMLInputElement).placeholder).toBe('Example: text');
 });
+
+test('Expect a configuration to be visible in the onboarding even if hidden property is set to true', async () => {
+  const textComponent: OnboardingStepItem = {
+    value: '${configuration:extension.text.prop}',
+  };
+  configurationProperties.set([
+    {
+      parentId: '',
+      title: 'record',
+      placeholder: 'Example: text',
+      description: 'record-description',
+      extension: {
+        id: 'extension',
+      },
+      hidden: true,
+      id: 'extension.text.prop',
+      type: 'string',
+      scope: CONFIGURATION_ONBOARDING_SCOPE,
+    },
+  ]);
+  render(OnboardingItem, {
+    extension: 'extension',
+    item: textComponent,
+    getContext: vi.fn(),
+    inProgressCommandExecution: vi.fn(),
+  });
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+  expect(input instanceof HTMLInputElement).toBe(true);
+  expect((input as HTMLInputElement).type).toBe('text');
+  expect((input as HTMLSelectElement).name).toBe('extension.text.prop');
+  expect((input as HTMLInputElement).placeholder).toBe('Example: text');
+});

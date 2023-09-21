@@ -34,7 +34,6 @@ onMount(() => {
     if (matches.length > 0 && matches[0].length > 1) {
       configurationItem = configurationItems.find(
         config =>
-          !config.hidden &&
           isTargetScope(CONFIGURATION_ONBOARDING_SCOPE, config.scope) &&
           config.extension?.id === extension &&
           config.id === matches[0][1],
