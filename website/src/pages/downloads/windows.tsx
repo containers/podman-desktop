@@ -183,7 +183,7 @@ export function WindowsDownloads(): JSX.Element {
 
             <Link
               className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 font-semibold text-md"
-              to="/docs/Installation/windows-install">
+              to="/docs/installation/windows-install">
               <FontAwesomeIcon size="1x" icon={faWindows} className="mr-2" />
               Package Managers Guide
             </Link>
