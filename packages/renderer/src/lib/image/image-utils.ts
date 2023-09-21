@@ -131,8 +131,12 @@ export class ImageUtils {
     return window.deleteImage(image.engineId, imageId);
   }
 
-  getImageInfoUI(imageInfo: ImageInfo, base64RepoTag: string): ImageInfoUI | undefined {
-    const images = this.getImagesInfoUI(imageInfo, []);
+  getImageInfoUI(
+    imageInfo: ImageInfo,
+    base64RepoTag: string,
+    containersInfo: ContainerInfo[],
+  ): ImageInfoUI | undefined {
+    const images = this.getImagesInfoUI(imageInfo, containersInfo);
     return images.find(image => image.base64RepoTag === base64RepoTag);
   }
 }

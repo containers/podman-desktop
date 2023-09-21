@@ -236,7 +236,7 @@ test('Expect the setup of multiple onboardings to be uncompleted if atleast one 
   expect(complete).toBeFalsy();
 });
 
-test('Expect the step to be completed if the active step have not completion events', async () => {
+test('Expect the step to be considered NOT completed if the active step have not completion events', async () => {
   const step: OnboardingStep = {
     id: 'id1',
     title: 'title 1',
@@ -261,7 +261,7 @@ test('Expect the step to be completed if the active step have not completion eve
     step,
   };
   const isCompleted = isStepCompleted(activeStep, []);
-  expect(isCompleted).toBeTruthy();
+  expect(isCompleted).toBeFalsy();
 });
 
 test('Expect the step to be completed if the step is considered completed if only a command has been executed and it has actually been executed', async () => {

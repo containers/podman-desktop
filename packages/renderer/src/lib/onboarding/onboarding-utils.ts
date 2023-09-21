@@ -53,8 +53,7 @@ export async function updateOnboardingStepStatus(
 }
 
 /**
- * it verifies if a step must be marked as completed by checking that the step does not depend on any completion event or, if any, that that they have
- * been satisfied.
+ * it verifies if a step must be marked as completed by checking that all completion events have been satisied.
  */
 export function isStepCompleted(
   activeStep: ActiveOnboardingStep,
@@ -62,9 +61,7 @@ export function isStepCompleted(
   globalContext?: ContextUI,
 ): boolean {
   return (
-    !activeStep.step.completionEvents ||
-    activeStep.step.completionEvents.length === 0 ||
-    activeStep.step.completionEvents.every(cmp => {
+    activeStep.step?.completionEvents?.every(cmp => {
       // check if command has been executed
       if (cmp.startsWith(ON_COMMAND_PREFIX) && executedCommands.includes(cmp.replace(ON_COMMAND_PREFIX, ''))) {
         return true;
@@ -81,7 +78,7 @@ export function isStepCompleted(
       }
 
       return false;
-    })
+    }) || false
   );
 }
 
