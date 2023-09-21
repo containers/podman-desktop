@@ -64,6 +64,7 @@ beforeEach(() => {
             completionEvents: ['onCommand:podman.onboarding.checkPodmanInstalled'],
           },
         ],
+        enablement: 'true',
       },
     },
   };
