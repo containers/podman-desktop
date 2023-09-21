@@ -37,8 +37,8 @@ beforeAll(() => {
       func();
     },
   };
-  (window as any).telemetryPage = vi.fn();
-  (window as any).getConfigurationValue = vi.fn();
+  (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
+  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
   });

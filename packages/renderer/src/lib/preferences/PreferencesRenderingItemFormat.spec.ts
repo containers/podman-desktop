@@ -28,7 +28,7 @@ import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.sve
 import userEvent from '@testing-library/user-event';
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = vi.fn();
+  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
 });
 
 test('Expect to see checkbox enabled', async () => {
