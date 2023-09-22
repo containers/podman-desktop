@@ -35,11 +35,6 @@ vi.mock('@podman-desktop/api', () => {
   };
 });
 
-// macOS tests
-vi.mock('runSudoMacHelperCommand', () => {
-  return vi.fn();
-});
-
 afterEach(() => {
   vi.resetAllMocks();
   vi.restoreAllMocks();
@@ -61,7 +56,7 @@ test('darwin: compatibility mode binary not found failure', async () => {
   expect(extensionApi.window.showErrorMessage).toHaveBeenCalledWith('podman-mac-helper binary not found.', 'OK');
 });
 
-test('darwin: DarwinSocketCompatibility class, test runSudoMacHelperCommand ran within runCommand', async () => {
+test('darwin: DarwinSocketCompatibility class, test runMacHelperCommandWithAdminPriv ran within runCommand', async () => {
   // Mock platform to be darwin
   Object.defineProperty(process, 'platform', {
     value: 'darwin',
@@ -73,8 +68,8 @@ test('darwin: DarwinSocketCompatibility class, test runSudoMacHelperCommand ran 
   const spyFindPodmanHelper = vi.spyOn(socketCompatClass, 'findPodmanHelper');
   spyFindPodmanHelper.mockReturnValue('/opt/podman/bin/podman-mac-helper');
 
-  // Mock that sudo ran successfully (since we cannot test sudo-prompt in vitest / has to be integration tests)
-  const spyMacHelperCommand = vi.spyOn(socketCompatClass, 'runSudoMacHelperCommand');
+  // Mock that admin command ran successfully (since we cannot test interactive mode priv in vitest / has to be integration tests)
+  const spyMacHelperCommand = vi.spyOn(socketCompatClass, 'runMacHelperCommandWithAdminPriv');
   spyMacHelperCommand.mockImplementation(() => {
     return Promise.resolve();
   });

@@ -18,7 +18,6 @@
 
 import * as os from 'node:os';
 import * as path from 'node:path';
-import * as sudo from 'sudo-prompt';
 import * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
 import * as http from 'node:http';
@@ -86,10 +85,6 @@ export async function detectKind(pathAddition: string, installer: KindInstaller)
 }
 
 // Takes a binary path (e.g. /tmp/kind) and installs it to the system. Renames it based on binaryName
-// supports Windows, Linux and macOS
-// If using Windows or Mac, we will use sudo-prompt in order to elevate the privileges
-// If using Linux, we'll use pkexec and polkit support to ask for privileges.
-// When running in a flatpak, we'll use flatpak-spawn to execute the command on the host
 export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<void> {
   const system = process.platform;
 
@@ -106,44 +101,25 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
   // Create the appropriate destination path (Windows uses AppData/Local, Linux and Mac use /usr/local/bin)
   // and the appropriate command to move the binary to the destination path
   let destinationPath: string;
-  let command: string[];
+  let command: string;
+  let args: string[];
   if (system === 'win32') {
     destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
-    command = ['copy', `"${binaryPath}"`, `"${destinationPath}"`];
+    command = 'copy';
+    args = [`"${binaryPath}"`, `"${destinationPath}"`];
   } else {
     destinationPath = path.join('/usr/local/bin', binaryName);
-    command = ['cp', binaryPath, destinationPath];
+    command = 'cp';
+    args = [binaryPath, destinationPath];
   }
 
-  // If windows or mac, use sudo-prompt to elevate the privileges
-  // if Linux, use sudo and polkit support
-  if (system === 'win32' || system === 'darwin') {
-    return new Promise<void>((resolve, reject) => {
-      // Convert the command array to a string for sudo prompt
-      // the name is used for the prompt
-      const sudoOptions = {
-        name: `${binaryName} Binary Installation`,
-      };
-      const sudoCommand = command.join(' ');
-      sudo.exec(sudoCommand, sudoOptions, error => {
-        if (error) {
-          console.error(`Failed to install '${binaryName}' binary: ${error}`);
-          reject(error);
-        } else {
-          console.log(`Successfully installed '${binaryName}' binary.`);
-          resolve();
-        }
-      });
-    });
-  } else {
-    try {
-      // Use pkexec in order to elevate the prileges / ask for password for copying to /usr/local/bin
-      await extensionApi.process.exec('pkexec', command);
-      console.log(`Successfully installed '${binaryName}' binary.`);
-    } catch (error) {
-      console.error(`Failed to install '${binaryName}' binary: ${error}`);
-      throw error;
-    }
+  try {
+    // Use admin prileges / ask for password for copying to /usr/local/bin
+    await extensionApi.process.exec(command, args, { isAdmin: true });
+    console.log(`Successfully installed '${binaryName}' binary.`);
+  } catch (error) {
+    console.error(`Failed to install '${binaryName}' binary: ${error}`);
+    throw error;
   }
 }
 

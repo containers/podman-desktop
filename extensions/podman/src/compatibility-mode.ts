@@ -17,7 +17,6 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
-import * as sudo from 'sudo-prompt';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { getPodmanCli } from './podman-cli';
@@ -73,28 +72,17 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     return fs.existsSync(filename);
   }
 
-  // Run sudo command for podman mac helper
-  async runSudoMacHelperCommand(command: string): Promise<void> {
-    const sudoOptions = {
-      name: 'Podman Desktop Compatibility Mode',
-    };
-    return new Promise((resolve, reject) => {
-      sudo.exec(command, sudoOptions, (error, stdout, stderr) => {
-        // podman-mac-helper does not error out on failure for some reason, so we need to check the output for
-        // 'Error:' to determine if the command failed despite the exit code being 0
-        // Issue: https://github.com/containers/podman/issues/17785
-        // we'll most likely need to keep this check for old releases of podman-mac-helper.
-        if (stderr?.includes('Error:')) {
-          reject(stderr);
-        }
-
-        if (error) {
-          reject(error);
-        } else {
-          resolve();
-        }
-      });
-    });
+  // Run command for podman mac helper in admin mode
+  async runMacHelperCommandWithAdminPriv(command: string, args: string[]): Promise<void> {
+    try {
+      // Have to run with admin mode
+      const result = await extensionApi.process.exec(command, args, { isAdmin: true });
+      if (result.stderr?.includes('Error:')) {
+        throw new Error(result.stderr);
+      }
+    } catch (error) {
+      throw new Error(`Unable to run command: ${String(error)}`);
+    }
   }
 
   async runCommand(command: string, description: string): Promise<void> {
@@ -105,9 +93,8 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
       return;
     }
 
-    const fullCommand = `${podmanHelperBinary} ${command}`;
     try {
-      await this.runSudoMacHelperCommand(fullCommand);
+      await this.runMacHelperCommandWithAdminPriv(podmanHelperBinary, [command]);
       await extensionApi.window.showInformationMessage(
         `Docker socket compatibility mode for Podman has been ${description}.`,
       );
@@ -134,7 +121,7 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
   }
 
   // Enable the compatibility mode by running podman-mac-helper install
-  // Run the command with sudo privileges and output the result to the user
+  // Run the command with admin privileges and output the result to the user
   async enable(): Promise<void> {
     await this.runCommand('install', 'enabled');
 
