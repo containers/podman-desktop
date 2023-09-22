@@ -31,6 +31,7 @@ import type { ContainerInfo } from '../../../../main/src/plugin/api/container-in
 import { containersInfos } from '/@/stores/containers';
 
 const listImagesMock = vi.fn();
+const getContributedMenusMock = vi.fn();
 
 const myImage: ImageInfo = {
   Id: 'myImage',
@@ -59,6 +60,9 @@ beforeAll(() => {
   (window as any).listContainers = vi.fn();
   (window as any).deleteImage = deleteImageMock;
   (window as any).hasAuthconfigForImage = hasAuthMock;
+
+  (window as any).getContributedMenus = getContributedMenusMock;
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 
 afterEach(() => {
