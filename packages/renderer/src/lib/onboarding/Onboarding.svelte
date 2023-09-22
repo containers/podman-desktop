@@ -20,6 +20,7 @@ import {
   isOnboardingsSetupCompleted,
   normalizeOnboardingWhenClause,
   cleanSetup,
+  replaceContextKeyPlaceholders,
 } from './onboarding-utils';
 import { lastPage } from '/@/stores/breadcrumb';
 import Button from '../ui/Button.svelte';
@@ -229,9 +230,17 @@ async function restartSetup() {
             src="{activeStep.onboarding.media.path}" />
         {/if}
         <div class="flex flex-col ml-8 my-2">
-          <div class="text-lg font-bold text-white">{activeStep.onboarding.title}</div>
+          <div class="text-lg font-bold text-white">
+            {replaceContextKeyPlaceholders(activeStep.onboarding.title, activeStep.onboarding.extension, globalContext)}
+          </div>
           {#if activeStep.onboarding.description}
-            <div class="text-sm text-white">{activeStep.onboarding.description}</div>
+            <div class="text-sm text-white">
+              {replaceContextKeyPlaceholders(
+                activeStep.onboarding.description,
+                activeStep.onboarding.extension,
+                globalContext,
+              )}
+            </div>
           {/if}
           <button
             class="flex flex-row text-xs items-center hover:underline"
@@ -269,10 +278,14 @@ async function restartSetup() {
               <Spinner />
             </div>
           {/if}
-          <div class="text-lg text-white">{activeStep.step.title}</div>
+          <div class="text-lg text-white">
+            {replaceContextKeyPlaceholders(activeStep.step.title, activeStep.onboarding.extension, globalContext)}
+          </div>
         </div>
         {#if activeStep.step.description}
-          <div class="text-sm text-white mx-auto">{activeStep.step.description}</div>
+          <div class="text-sm text-white mx-auto">
+            {replaceContextKeyPlaceholders(activeStep.step.description, activeStep.onboarding.extension, globalContext)}
+          </div>
         {/if}
       </div>
 
