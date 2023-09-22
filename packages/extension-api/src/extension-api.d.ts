@@ -2049,6 +2049,11 @@ declare module '@podman-desktop/api' {
      * custom directory
      */
     cwd?: string;
+
+    /**
+     * admin privileges required
+     */
+    isAdmin?: boolean;
   }
 
   /**
