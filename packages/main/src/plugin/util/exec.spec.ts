@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Mock } from 'vitest';
 import { expect, describe, test, vi, beforeEach, afterEach } from 'vitest';
 import { getInstallationPath, macosExtraPath, Exec } from './exec.js';
 import * as util from '../../util.js';
@@ -23,13 +24,34 @@ import type { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'child_process';
 import type { Readable } from 'node:stream';
 import type { Proxy } from '../proxy.js';
+import * as sudo from 'sudo-prompt';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+// Mock sudo-prompt exec to resolve everytime.
+vi.mock('sudo-prompt', async () => {
+  return {
+    exec: vi.fn(),
+  };
+});
+
+vi.mock('../../util', async () => {
+  return {
+    isWindows: vi.fn(),
+    isMac: vi.fn(),
+    isLinux: vi.fn(),
+  };
+});
 
 describe('exec', () => {
   const proxy: Proxy = {
     isEnabled: vi.fn().mockReturnValue(false),
   } as unknown as Proxy;
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+    vi.clearAllMocks();
+  });
 
   const exec = new Exec(proxy);
 
@@ -289,6 +311,124 @@ describe('exec', () => {
     expect(spawnMock).toHaveBeenCalledWith(command, args, { env: expect.objectContaining({ NO_PROXY: '127.0.0.1' }) });
     expect(stdout).toBeDefined();
     expect(stdout).toContain('Hello, World!');
+  });
+
+  test('should run the command with privileges on macOS', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+
+    (util.isMac as Mock).mockReturnValue(true);
+
+    vi.mock('child_process', () => {
+      return {
+        spawn: vi.fn(),
+      };
+    });
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    const { stdout } = await exec.exec(command, args, { isAdmin: true });
+
+    // caller should contains the cwd provided
+    expect(spawnMock).toHaveBeenCalledWith(
+      'osascript',
+      expect.arrayContaining([
+        '-e',
+        'do shell script "echo Hello, World!" with prompt "Podman Desktop requires admin privileges " with administrator privileges',
+      ]),
+      expect.anything(),
+    );
+    expect(stdout).toBeDefined();
+    expect(stdout).toContain('Hello, World!');
+  });
+
+  test('should run the command with privileges on Linux', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+
+    (util.isLinux as Mock).mockReturnValue(true);
+
+    vi.mock('child_process', () => {
+      return {
+        spawn: vi.fn(),
+      };
+    });
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    const { stdout } = await exec.exec(command, args, { isAdmin: true });
+
+    // caller should contains the cwd provided
+    expect(spawnMock).toHaveBeenCalledWith(
+      'pkexec',
+      expect.arrayContaining(['echo', 'Hello, World!']),
+      expect.anything(),
+    );
+    expect(stdout).toBeDefined();
+    expect(stdout).toContain('Hello, World!');
+  });
+
+  test('should run the command with privileges on Windows', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+    (util.isWindows as Mock).mockReturnValue(true);
+
+    (sudo.exec as Mock).mockImplementation((_command, _options, callback) => {
+      callback(undefined);
+    });
+
+    vi.mock('child_process', () => {
+      return {
+        spawn: vi.fn(),
+      };
+    });
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    await exec.exec(command, args, { isAdmin: true });
+
+    // caller should not have called spawn but the sudo.exec api
+    expect(spawnMock).not.toHaveBeenCalled();
+    expect(sudo.exec).toBeCalledWith('echo Hello, World!', expect.anything(), expect.anything());
   });
 });
 

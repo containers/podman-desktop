@@ -19,8 +19,9 @@
 import type { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'child_process';
 import type { RunError, RunOptions, RunResult } from '@podman-desktop/api';
-import { isMac, isWindows } from '../../util.js';
+import { isLinux, isMac, isWindows } from '../../util.js';
 import type { Proxy } from '../proxy.js';
+import * as sudo from 'sudo-prompt';
 
 export const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
@@ -51,6 +52,63 @@ export class Exec {
     } else if (env.FLATPAK_ID) {
       args = ['--host', command, ...(args || [])];
       command = 'flatpak-spawn';
+    }
+
+    // do we have an admin task ?
+    // if yes, will use sudo-prompt on windows and osascript on mac and pkexec on linux
+    if (options?.isAdmin) {
+      if (isWindows()) {
+        return new Promise<RunResult>((resolve, reject) => {
+          // Convert the command array to a string for sudo prompt
+          // the name is used for the prompt
+
+          // convert process.env to { [key: string]: string; }'
+          const sudoEnv = env as { [key: string]: string };
+          const sudoOptions = {
+            name: 'Admin usage',
+            env: sudoEnv,
+          };
+          const sudoCommand = `${command} ${args || [].join(' ')}`;
+
+          const callback = (error?: Error, stdout?: string | Buffer, stderr?: string | Buffer) => {
+            if (error) {
+              // need to return a RunError
+              const errResult: RunError = {
+                name: error.name,
+                message: `Failed to execute command: ${error.message}`,
+                exitCode: 1,
+                command: sudoCommand,
+                stdout: stdout?.toString() || '',
+                stderr: stderr?.toString() || '',
+                cancelled: false,
+                killed: false,
+              };
+
+              reject(errResult);
+            }
+            const result: RunResult = {
+              command,
+              stdout: stdout?.toString() || '',
+              stderr: stderr?.toString() || '',
+            };
+            // in case of success
+            resolve(result);
+          };
+
+          sudo.exec(sudoCommand, sudoOptions, callback);
+        });
+      } else if (isMac()) {
+        args = [
+          '-e',
+          `do shell script "${command} ${(args || []).join(
+            ' ',
+          )}" with prompt "Podman Desktop requires admin privileges " with administrator privileges`,
+        ];
+        command = 'osascript';
+      } else if (isLinux()) {
+        args = [command, ...(args || [])];
+        command = 'pkexec';
+      }
     }
 
     let cwd: string;
