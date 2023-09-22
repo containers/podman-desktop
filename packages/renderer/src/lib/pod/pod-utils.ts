@@ -20,7 +20,6 @@ import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 import type { PodInfoUI } from './PodInfoUI';
-import { ContainerGroupInfoTypeUI } from '/@/lib/container/ContainerInfoUI';
 
 export class PodUtils {
   getStatus(podinfo: PodInfo): string {
@@ -63,7 +62,6 @@ export class PodUtils {
       containers: podinfo.Containers,
       selected: false,
       kind: podinfo.kind,
-      type: ContainerGroupInfoTypeUI.POD,
     };
   }
 

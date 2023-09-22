@@ -53,7 +53,6 @@ const composeInfoUIMock: ComposeInfoUI = {
   name: 'foobar',
   status: 'running',
   containers: [containerInfoUIMock],
-  type: ContainerGroupInfoTypeUI.COMPOSE,
 };
 
 test('Render compose logs and expect EmptyScreen and no loading via logsContainer', async () => {
