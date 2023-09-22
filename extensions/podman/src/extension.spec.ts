@@ -207,6 +207,42 @@ test('verify create command called with correct values with user mode networking
   expect(console.error).not.toBeCalled();
 });
 
+test('verify create command called with now flag if start machine after creation is enabled', async () => {
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.resolve({} as extensionApi.RunResult);
+  });
+  await extension.createMachine(
+    {
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.image-path': 'path',
+      'podman.factory.machine.memory': '1048000000',
+      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.now': true,
+    },
+    undefined,
+    undefined,
+  );
+  const parameters = [
+    'machine',
+    'init',
+    '--cpus',
+    '2',
+    '--memory',
+    '999',
+    '--disk-size',
+    '232',
+    '--image-path',
+    'path',
+    '--now',
+  ];
+  expect(spyExecPromise).toBeCalledWith(getPodmanCli(), parameters, {
+    env: {},
+    logger: undefined,
+  });
+  expect(console.error).not.toBeCalled();
+});
+
 test('test checkDefaultMachine, if the machine running is not default, the function will prompt', async () => {
   await extension.checkDefaultMachine(fakeMachineJSON);
 
