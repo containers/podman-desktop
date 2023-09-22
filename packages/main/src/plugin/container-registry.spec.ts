@@ -34,6 +34,7 @@ import moment from 'moment';
 import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
 import * as util from '../util.js';
 import { PassThrough } from 'node:stream';
+import type { EnvfileParser } from './env-file-parser.js';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -1577,40 +1578,93 @@ test('container logs callback notified when messages arrive', async () => {
   expect(telemetry.track).toHaveBeenCalled;
 });
 
-test('test createAndStartContainer', async () => {
-  const createdId = '1234';
+describe('createAndStartContainer', () => {
+  test('test createAndStartContainer', async () => {
+    const createdId = '1234';
 
-  const startMock = vi.fn();
-  const inspectMock = vi.fn();
-  const createContainerMock = vi
-    .fn()
-    .mockResolvedValue({ id: createdId, start: startMock, inspect: inspectMock } as unknown as Dockerode.Container);
+    const startMock = vi.fn();
+    const inspectMock = vi.fn();
+    const createContainerMock = vi
+      .fn()
+      .mockResolvedValue({ id: createdId, start: startMock, inspect: inspectMock } as unknown as Dockerode.Container);
 
-  inspectMock.mockResolvedValue({
-    Config: {
-      Tty: false,
-      OpenStdin: false,
-    },
+    inspectMock.mockResolvedValue({
+      Config: {
+        Tty: false,
+        OpenStdin: false,
+      },
+    });
+
+    const fakeDockerode = {
+      createContainer: createContainerMock,
+    } as unknown as Dockerode;
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+
+    const container = await containerRegistry.createAndStartContainer('podman1', {});
+
+    expect(container.id).toBe(createdId);
+    expect(createContainerMock).toHaveBeenCalled();
+    expect(startMock).toHaveBeenCalled();
   });
 
-  const fakeDockerode = {
-    createContainer: createContainerMock,
-  } as unknown as Dockerode;
+  test('test createAndStartContainer with envfiles', async () => {
+    const createdId = '1234';
 
-  containerRegistry.addInternalProvider('podman1', {
-    name: 'podman1',
-    id: 'podman1',
-    connection: {
-      type: 'podman',
-    },
-    api: fakeDockerode,
-  } as InternalContainerProvider);
+    const startMock = vi.fn();
+    const inspectMock = vi.fn();
+    const createContainerMock = vi
+      .fn()
+      .mockResolvedValue({ id: createdId, start: startMock, inspect: inspectMock } as unknown as Dockerode.Container);
 
-  const container = await containerRegistry.createAndStartContainer('podman1', {});
+    inspectMock.mockResolvedValue({
+      Config: {
+        Tty: false,
+        OpenStdin: false,
+      },
+    });
 
-  expect(container.id).toBe(createdId);
-  expect(createContainerMock).toHaveBeenCalled();
-  expect(startMock).toHaveBeenCalled();
+    const fakeDockerode = {
+      createContainer: createContainerMock,
+    } as unknown as Dockerode;
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+
+    const spyEnvParser = vi.spyOn(containerRegistry, 'getEnvFileParser');
+    const parseEnvFilesMock = vi.fn();
+    parseEnvFilesMock.mockReturnValueOnce(['HELLO=WORLD', 'FOO=']);
+
+    spyEnvParser.mockReturnValue({ parseEnvFiles: parseEnvFilesMock } as unknown as EnvfileParser);
+
+    const container = await containerRegistry.createAndStartContainer('podman1', { EnvFiles: ['file1', 'file2'] });
+
+    expect(container.id).toBe(createdId);
+    expect(createContainerMock).toHaveBeenCalled();
+    expect(startMock).toHaveBeenCalled();
+
+    // expect we received a call to parse the env files
+    expect(parseEnvFilesMock).toHaveBeenCalledWith(['file1', 'file2']);
+
+    // expect content of env files to be set
+    expect(createContainerMock).toHaveBeenCalledWith(expect.objectContaining({ Env: ['HELLO=WORLD', 'FOO='] }));
+
+    // Check EnvFiles is not propagated to the remote
+    expect(createContainerMock).toHaveBeenCalledWith(expect.not.objectContaining({ EnvFiles: ['file1', 'file2'] }));
+  });
 });
 
 describe('attach container', () => {

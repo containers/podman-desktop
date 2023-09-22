@@ -77,6 +77,10 @@ export interface ContainerCreateOptions {
   User?: string;
   // Env using ["MYVAR=value", ...]
   Env?: string[];
+
+  // environment files to use
+  EnvFiles?: string[];
+
   // eslint-disable-next-line @typescript-eslint/ban-types
   ExposedPorts?: { [port: string]: {} };
   HostConfig?: HostConfig;

@@ -60,6 +60,7 @@ import type { ApiSenderType } from './api.js';
 import { type Stream, Writable } from 'node:stream';
 import datejs from 'date.js';
 import { isWindows } from '../util.js';
+import { EnvfileParser } from './env-file-parser.js';
 
 export interface InternalContainerProvider {
   name: string;
@@ -85,6 +86,8 @@ interface JSONEvent {
 export class ContainerProviderRegistry {
   private readonly _onEvent = new Emitter<JSONEvent>();
   readonly onEvent: Event<JSONEvent> = this._onEvent.event;
+
+  private envfileParser = new EnvfileParser();
 
   constructor(
     private apiSender: ApiSenderType,
@@ -1543,6 +1546,19 @@ export class ContainerProviderRegistry {
       if (!engine.api) {
         throw new Error('no running provider for the matching container');
       }
+
+      // handle EnvFile by adding to Env the other variables
+      if (options.EnvFiles) {
+        const envFiles = options.EnvFiles || [];
+        const envFileContent = await this.getEnvFileParser().parseEnvFiles(envFiles);
+
+        const env = options.Env || [];
+        env.push(...envFileContent);
+        options.Env = env;
+        // remove EnvFiles from options
+        delete options.EnvFiles;
+      }
+
       const container = await engine.api.createContainer(options);
       await this.attachToContainer(engine, container, options.Tty, options.OpenStdin);
       await container.start();
@@ -1884,5 +1900,9 @@ export class ContainerProviderRegistry {
     } finally {
       this.telemetryService.track('buildImage', telemetryOptions);
     }
+  }
+
+  getEnvFileParser(): EnvfileParser {
+    return this.envfileParser;
   }
 }
