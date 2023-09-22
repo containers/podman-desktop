@@ -26,6 +26,8 @@ import {
   type ActiveOnboardingStep,
   isStepCompleted,
   updateOnboardingStepStatus,
+  replaceContextKeyPlaceholders,
+  replaceContextKeyPlaceHoldersByRegex,
 } from './onboarding-utils';
 import type { OnboardingInfo, OnboardingStep } from '../../../../main/src/plugin/api/onboarding';
 import { ContextKeyExpr, type ContextKeyExpression } from '../context/contextKey';
@@ -514,4 +516,56 @@ test('Expect the step and the onboarding status to be updated as it is the last 
   await updateOnboardingStepStatus(onboarding, step, 'completed');
   expect(step.status).equal('completed');
   expect(onboarding.status).equal('completed');
+});
+
+test('Expect the onboarding context key placeholder is replaced with its context value', async () => {
+  const context = new ContextUI();
+  context.setValue('id.onboarding.myvalue', 'value');
+
+  const newString = replaceContextKeyPlaceholders('${onboardingContext:myvalue}', 'id', context);
+  expect(newString).equal('value');
+});
+
+test('Expect the global context key placeholder is replaced with its context value', async () => {
+  const context = new ContextUI();
+  context.setValue('myvalue', 'value');
+
+  const newString = replaceContextKeyPlaceholders('${onContext:myvalue}', 'id', context);
+  expect(newString).equal('value');
+});
+
+test('Expect multiple context key placeholders are replaced with their context values', async () => {
+  const context = new ContextUI();
+  context.setValue('id.onboarding.myvalue1', 'value1');
+  context.setValue('id.onboarding.myvalue2', 'value2');
+  context.setValue('myvalue3', 'value3');
+  context.setValue('myvalue4', 'value4');
+
+  const newString = replaceContextKeyPlaceholders(
+    '${onboardingContext:myvalue1} ${onboardingContext:myvalue2} ${onContext:myvalue3} ${onContext:myvalue4}',
+    'id',
+    context,
+  );
+  expect(newString).equal('value1 value2 value3 value4');
+});
+
+test('Expect a string without any context placeholder is returned as it is', async () => {
+  const context = new ContextUI();
+
+  const newString = replaceContextKeyPlaceholders('no placeholders', 'id', context);
+  expect(newString).equal('no placeholders');
+});
+
+test('Expect the replacement is used when defined even if the value is in context', async () => {
+  const context = new ContextUI();
+  context.setValue('id.onboarding.myvalue1', 'value1');
+
+  const newString = replaceContextKeyPlaceHoldersByRegex(
+    new RegExp(/\${onboardingContext:(.+?)}/g),
+    '${onboardingContext:myvalue1}',
+    context,
+    undefined,
+    'replacement',
+  );
+  expect(newString).equal('replacement');
 });

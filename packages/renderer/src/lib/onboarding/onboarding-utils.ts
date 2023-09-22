@@ -28,6 +28,9 @@ export const STATUS_SKIPPED = 'skipped';
 export const ON_COMMAND_PREFIX = 'onCommand:';
 export const ONBOARDING_CONTEXT_PREFIX = 'onboardingContext:';
 
+const ONBOARDING_CONTEXT_REGEX = new RegExp(/\${onboardingContext:(.+?)}/g);
+const GLOBAL_CONTEXT_REGEX = new RegExp(/\${onContext:(.+?)}/g);
+
 export interface ActiveOnboardingStep {
   onboarding: OnboardingInfo;
   step: OnboardingStep;
@@ -136,4 +139,62 @@ export async function cleanSetup(onboardings: OnboardingInfo[], globalContext: C
       step.status = undefined;
     });
   });
+}
+
+/*
+ * it replace all context key placeholders with their context values and return the new string
+ * e.g onboardingContext:contextitem.key will be replaced by the corresponding contextitem.value
+ * if there are no context key placeholder, the original string is returned
+ */
+export function replaceContextKeyPlaceholders(value: string, extension: string, context: ContextUI): string {
+  let valueWithContextValue = value;
+  valueWithContextValue = replaceContextKeyPlaceHoldersByRegex(
+    ONBOARDING_CONTEXT_REGEX,
+    valueWithContextValue,
+    context,
+    `${extension}.${SCOPE_ONBOARDING}`,
+  );
+  valueWithContextValue = replaceContextKeyPlaceHoldersByRegex(GLOBAL_CONTEXT_REGEX, valueWithContextValue, context);
+  return valueWithContextValue;
+}
+
+/*
+ * it finds context key placeholders with regex rule and replace them with the corresponding context values
+ */
+export function replaceContextKeyPlaceHoldersByRegex(
+  regex: RegExp,
+  value: string,
+  context?: ContextUI,
+  prefix?: string,
+  replacement?: string,
+) {
+  const matches = [...value.matchAll(regex)];
+  for (const match of matches) {
+    value = getStringWithContextKeyReplaced(value, match, context, prefix, replacement);
+  }
+  return value;
+}
+
+/*
+ * it replaces the regex match with the replacement (if any) or with the context value
+ * the key is calculated by appending the match to the prefix, if specified
+ * e.g extensionid.onboarding.matchvalue which defines the key in the onboarding context
+ */
+function getStringWithContextKeyReplaced(
+  value: string,
+  matchArray: RegExpMatchArray,
+  context?: ContextUI,
+  prefix?: string,
+  replacement?: string,
+) {
+  if (matchArray.length > 1) {
+    if (replacement === undefined && context) {
+      const key = prefix ? `${prefix}.${matchArray[1]}` : matchArray[1];
+      replacement = context.getValue(key);
+    }
+    if (replacement !== undefined) {
+      return value.replace(matchArray[0], String(replacement));
+    }
+  }
+  return value;
 }

@@ -51,7 +51,11 @@ export class ContextUI implements IContext {
   }
 
   getValue<T>(key: string): T | undefined {
-    return this._value[key] || this.getDottedKeyValue(key);
+    const contextValue = this._value[key];
+    if (contextValue !== undefined) {
+      return contextValue;
+    }
+    return this.getDottedKeyValue(key);
   }
 
   /**
