@@ -129,7 +129,7 @@ if (dropdownMenu) {
     icon="{faArrowsRotate}" />
   <ContributionActions
     args="{[compose]}"
-    contextPrefix="composeListItem"
+    contextPrefix="composeItem"
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
     onError="{errorCallback}" />
