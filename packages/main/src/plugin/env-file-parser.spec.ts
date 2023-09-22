@@ -182,6 +182,20 @@ test('check parseEnvFiles', async () => {
   expect(result).toEqual(['HI=FOO', 'HELLO=WORLD', 'ANOTHER=', 'YETANOTHER=VALUE']);
 });
 
+test('check parseEnvFile with comments', async () => {
+  const content1 = 'HI=FOO\n# this is a commented line\nHELLO=WORLD';
+
+  const readFileMock = vi.spyOn(promises, 'readFile');
+  readFileMock.mockResolvedValue(content1);
+
+  const statsFileMock = vi.spyOn(promises, 'stat');
+  statsFileMock.mockResolvedValue({ size: 100 } as any);
+
+  const result = await envfileParser.parseEnvFile('foo1');
+
+  expect(result).toEqual(['HI=FOO', 'HELLO=WORLD']);
+});
+
 test('check parseEnvFile and expect error with a file too big', async () => {
   // big file
   const statsFileMock = vi.spyOn(promises, 'stat');
