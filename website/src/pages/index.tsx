@@ -381,7 +381,7 @@ function RunAnywhere() {
           <Link
             title="Download for Windows"
             className="p-4 w-11/12 md:w-1/2 lg:w-1/3 no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white"
-            to="/downloads/Windows">
+            to="/downloads/windows">
             <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
               <div className="flex items-center mb-3 flex-col">
                 <FontAwesomeIcon size="4x" icon={faWindows} />
@@ -399,7 +399,7 @@ function RunAnywhere() {
           <Link
             title="Download for macOS"
             className="no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white p-4 w-11/12 md:w-1/2 lg:w-1/3"
-            to="/downloads/macOS">
+            to="/downloads/macos">
             <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
               <div className="flex items-center mb-3 flex-col">
                 <FontAwesomeIcon size="4x" icon={faApple} />
@@ -414,7 +414,7 @@ function RunAnywhere() {
           <Link
             title="Download for Linux"
             className="no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white p-4 w-11/12 md:w-1/2 lg:w-1/3"
-            to="/downloads/Linux">
+            to="/downloads/linux">
             <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
               <div className="flex items-center mb-3 flex-col">
                 <FontAwesomeIcon size="4x" icon={faLinux} />

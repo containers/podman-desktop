@@ -40,7 +40,7 @@ $ podman machine ssh [optional-machine-name]
 $ sudo vi /etc/containers/registries.conf
 ```
 
-5. Add the insecure registry: Add a new [[registry]] section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at http://registry.example.com, add the following lines:
+5. Add the insecure registry: Add a new [[registry]] section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at `http://registry.example.com`, add the following lines:
 
 ```sh
 [[registry]]
@@ -76,7 +76,7 @@ $ podman machine start
 $ sudo vi /etc/containers/registries.conf
 ```
 
-4. Add the insecure registry: Add a new [[registry]] section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at http://registry.example.com, add the following lines:
+4. Add the insecure registry: Add a new [[registry]] section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at `http://registry.example.com`, add the following lines:
 
 ```sh
 [[registry]]

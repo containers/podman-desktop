@@ -41,6 +41,18 @@ const config = {
       {
         redirects: [
           {
+            to: '/downloads/windows',
+            from: '/downloads/Windows',
+          },
+          {
+            to: '/downloads/macos',
+            from: '/downloads/macOS',
+          },
+          {
+            to: '/downloads/linux',
+            from: '/downloads/Linux',
+          },
+          {
             to: '/docs/compose',
             from: ['/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
