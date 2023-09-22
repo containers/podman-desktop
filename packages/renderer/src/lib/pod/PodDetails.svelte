@@ -14,6 +14,7 @@ import PodDetailsLogs from './PodDetailsLogs.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import StateChange from '../ui/StateChange.svelte';
 
 export let podName: string;
 export let engineId: string;
@@ -72,6 +73,9 @@ function errorCallback(errorMessage: string): void {
         errorCallback="{error => errorCallback(error)}"
         detailed="{true}" />
     </svelte:fragment>
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+      <StateChange state="{pod.status}" />
+    </div>
     <svelte:fragment slot="tabs">
       <Tab title="Summary" url="summary" />
       <Tab title="Logs" url="logs" />

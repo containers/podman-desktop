@@ -38,6 +38,7 @@ import { CONTAINER_LIST_VIEW } from './view/views';
 import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
 import type { ContextUI } from './context/context';
 import Button from './ui/Button.svelte';
+import StateChange from './ui/StateChange.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -605,7 +606,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                   </div></td>
                 <td class="whitespace-nowrap pl-4">
                   <div class="flex items-center">
-                    <div class="text-sm text-gray-700">{container.uptime}</div>
+                    <div class="text-sm text-gray-700">
+                      <StateChange state="{container.state}">{container.uptime}</StateChange>
+                    </div>
                   </div>
                 </td>
                 <td
