@@ -53,7 +53,7 @@ $: {
   {#if icon}
     <div class="flex flex-row p-0 m-0 bg-transparent justify-center space-x-[4px]">
       {#if inProgress}
-        <Spinner size="sm" relative="{true}" />
+        <Spinner size="1em" />
       {:else if iconType === 'fa'}
         <Fa icon="{icon}" />
       {:else if iconType === 'pd'}
