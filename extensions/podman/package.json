@@ -184,7 +184,7 @@
         },
         {
           "id": "podmanInstalled",
-          "title": "Podman successfully installed",
+          "title": "${onboardingContext:podmanInstalledTitle}",
           "when": "!onboardingContext:podmanIsNotInstalled",
           "content": [
             [
