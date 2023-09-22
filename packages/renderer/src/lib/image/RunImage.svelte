@@ -5,7 +5,7 @@ import type { ContainerCreateOptions, HostConfig } from '../../../../main/src/pl
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
 import FormPage from '../ui/FormPage.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
-import { faFolderOpen, faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faFolderOpen, faMinusCircle, faPlay, faPlusCircle, faXmark } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { router } from 'tinro';
 import Route from '../../Route.svelte';
@@ -40,6 +40,7 @@ let restartPolicyMaxRetryCount = 1;
 
 // initialize with empty array
 let environmentVariables: { key: string; value: string }[] = [{ key: '', value: '' }];
+let environmentFiles: string[] = [''];
 let volumeMounts: { source: string; target: string }[] = [{ source: '', target: '' }];
 let hostContainerPortMappings: { hostPort: string; containerPort: string }[] = [];
 
@@ -188,6 +189,16 @@ async function getPortsInfo(portDescriptor: string): Promise<string | undefined>
 }
 
 /**
+ * Select an environment file
+ */
+async function selectEnvironmentFile(index: number) {
+  const result = await window.openFileDialog('Select environment file');
+  if (!result.canceled && result.filePaths.length === 1) {
+    environmentFiles[index] = result.filePaths[0];
+  }
+}
+
+/**
  * return a range of the same length as portDescriptor containing free ports
  * undefined if the portDescriptor range is not valid
  * e.g 5000:5001 -> 9000:9001
@@ -255,6 +266,9 @@ async function startContainer() {
     .filter(env => env.key)
     // no value, use empty string
     .map(env => `${env.key}=${env.value || ''}`);
+
+  // filter empty files
+  const EnvFiles = environmentFiles.filter(env => env);
 
   const Image = image.tag ? `${image.name}:${image.tag}` : image.id;
 
@@ -334,6 +348,7 @@ async function startContainer() {
   const options: ContainerCreateOptions = {
     Image,
     Env,
+    EnvFiles,
     name: containerName,
     HostConfig,
     ExposedPorts,
@@ -437,6 +452,24 @@ function addEnvVariable() {
 
 function deleteEnvVariable(index: number) {
   environmentVariables = environmentVariables.filter((_, i) => i !== index);
+}
+
+function addEnvFile() {
+  environmentFiles = [...environmentFiles, ''];
+}
+
+function deleteEnvFile(index: number) {
+  environmentFiles = environmentFiles.filter((_, i) => i !== index);
+}
+
+function handleCleanValueEnvFile(
+  event: MouseEvent & {
+    currentTarget: EventTarget & HTMLButtonElement;
+  },
+  index: number,
+) {
+  environmentFiles[index] = '';
+  event.preventDefault();
 }
 
 function addHostContainerPorts() {
@@ -682,6 +715,49 @@ function checkContainerName(event: any) {
                   </div>
                 {/each}
               </div>
+
+              <label
+                for="modalEnvironmentFiles"
+                class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400">Environment files:</label>
+              <!-- Display the list of existing environment files -->
+              {#each environmentFiles as environmentFile, index}
+                <div class="flex flex-row justify-center items-center w-full py-1">
+                  <div class="w-full flex">
+                    <input
+                      class="grow py-1 px-2 outline-0 text-sm bg-charcoal-800 text-gray-700 placeholder-gray-700"
+                      readonly
+                      type="text"
+                      placeholder="Environment file containing KEY=VALUE items"
+                      bind:value="{environmentFile}"
+                      aria-label="environmentFile.{index}" />
+                    <button
+                      class="relative cursor-pointer right-5"
+                      class:hidden="{!environmentFile}"
+                      aria-label="clear"
+                      on:click="{event => handleCleanValueEnvFile(event, index)}">
+                      <Fa icon="{faXmark}" />
+                    </button>
+                    <Button
+                      on:click="{() => selectEnvironmentFile(index)}"
+                      id="filePath.{index}"
+                      aria-label="button-select-env-file-{index}">Browse ...</Button>
+                  </div>
+                  <button
+                    class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+                    hidden="{index === environmentFiles.length - 1}"
+                    aria-label="Delete env file at index {index}"
+                    on:click="{() => deleteEnvFile(index)}">
+                    <Fa class="h-4 w-4 text-xl" icon="{faMinusCircle}" />
+                  </button>
+                  <button
+                    class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+                    hidden="{index < environmentFiles.length - 1}"
+                    aria-label="Add env file after index {index}"
+                    on:click="{addEnvFile}">
+                    <Fa class="h-4 w-4 text-xl" icon="{faPlusCircle}" />
+                  </button>
+                </div>
+              {/each}
             </Route>
             <Route path="/advanced" breadcrumb="Advanced" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">

@@ -52,8 +52,8 @@ async function waitRender() {
   const result = render(RunImage);
 
   //wait until dataReady is true
-  while (result.component.$$.ctx[30] !== true) {
-    await new Promise(resolve => setTimeout(resolve, 150));
+  while (result.component.$$.ctx[31] !== true) {
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
   return result;
 }
@@ -398,5 +398,53 @@ describe('RunImage', () => {
 
     // expect to be redirected to containers page as there is no tty
     expect(gotoSpy).toHaveBeenCalledWith('/containers');
+  });
+
+  test('Expect able to play with environment files', async () => {
+    await createRunImage('', []);
+
+    const link1 = screen.getByRole('link', { name: 'Basic' });
+    await fireEvent.click(link1);
+
+    // set the input field for the path
+    const envFileInput = screen.getByRole('textbox', { name: 'environmentFile.0' });
+
+    // remove readonly flag
+    envFileInput.removeAttribute('readonly');
+    const customEnvFile = '/my/custom-env-file';
+    // set the value
+    await userEvent.type(envFileInput, customEnvFile);
+
+    // add a new element
+    const addEnvFileButton = screen.getByRole('button', { name: 'Add env file after index 0' });
+    await fireEvent.click(addEnvFileButton);
+
+    // again (should be 3 now)
+    await fireEvent.click(addEnvFileButton);
+
+    // now set the input for fields 2 and 3
+    const envFileInput2 = screen.getByRole('textbox', { name: 'environmentFile.1' });
+    envFileInput2.removeAttribute('readonly');
+    await userEvent.type(envFileInput2, 'foo2');
+
+    const envFileInput3 = screen.getByRole('textbox', { name: 'environmentFile.2' });
+    envFileInput3.removeAttribute('readonly');
+    await userEvent.type(envFileInput3, 'foo3');
+
+    // delete the entry 2
+    const deleteEnvFileButton = screen.getByRole('button', { name: 'Delete env file at index 1' });
+    await fireEvent.click(deleteEnvFileButton);
+
+    // now click on start
+
+    const button = screen.getByRole('button', { name: 'Start Container' });
+
+    await fireEvent.click(button);
+
+    // should have item 1 and item 3 as we deleted item 2
+    expect(window.createAndStartContainer).toHaveBeenCalledWith(
+      'engineid',
+      expect.objectContaining({ EnvFiles: [customEnvFile, 'foo3'] }),
+    );
   });
 });
