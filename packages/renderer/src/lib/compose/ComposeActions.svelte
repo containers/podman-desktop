@@ -8,16 +8,22 @@ import FlatMenu from '../ui/FlatMenu.svelte';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import { onMount } from 'svelte';
+import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 
 export let compose: ComposeInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
-export let contributions: Menu[] = [];
 
 export let inProgressCallback: (containers: ContainerInfoUI[], inProgress: boolean, state?: string) => void = () => {};
 export let errorCallback: (erroMessage: string) => void = () => {};
 
 const composeLabel = 'com.docker.compose.project';
+
+let contributions: Menu[] = [];
+onMount(async () => {
+  contributions = await window.getContributedMenus(MenuContext.DASHBOARD_COMPOSE);
+});
 
 async function startCompose(composeInfoUI: ComposeInfoUI) {
   inProgressCallback(composeInfoUI.containers, true, 'STARTING');

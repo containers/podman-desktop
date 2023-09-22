@@ -9,18 +9,24 @@ import { runImageInfo } from '../../stores/run-image-store';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { ImageUtils } from './image-utils';
+import { onMount } from 'svelte';
+import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 export let onRenameImage: (imageInfo: ImageInfoUI) => void;
 export let image: ImageInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
-export let contributions: Menu[] = [];
 
 let errorTitle: string | undefined = undefined;
 let errorMessage: string | undefined = undefined;
 let isAuthenticatedForThisImage = false;
 const imageUtils = new ImageUtils();
+
+let contributions: Menu[] = [];
+onMount(async () => {
+  contributions = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
+});
 
 async function runImage(imageInfo: ImageInfoUI) {
   runImageInfo.set(imageInfo);

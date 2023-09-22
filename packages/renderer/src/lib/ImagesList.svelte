@@ -22,8 +22,6 @@ import type { ContainerInfo } from '../../../main/src/plugin/api/container-info'
 import moment from 'moment';
 import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
-import type { Menu } from '../../../main/src/plugin/menu-registry';
-import { MenuContext } from '../../../main/src/plugin/menu-registry';
 import Checkbox from './ui/Checkbox.svelte';
 import Button from './ui/Button.svelte';
 import { faArrowCircleDown, faCube, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -108,7 +106,6 @@ let imagesUnsubscribe: Unsubscriber;
 let containersUnsubscribe: Unsubscriber;
 let storeContainers: ContainerInfo[] = [];
 let storeImages: ImageInfo[] = [];
-let contributedMenus: Menu[];
 
 onMount(async () => {
   containersUnsubscribe = containersInfos.subscribe(value => {
@@ -120,8 +117,6 @@ onMount(async () => {
     storeImages = value;
     updateImages();
   });
-
-  contributedMenus = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
 });
 
 onDestroy(() => {
@@ -317,8 +312,7 @@ function computeInterval(): number {
                 image="{image}"
                 onPushImage="{handlePushImageModal}"
                 onRenameImage="{handleRenameImageModal}"
-                dropdownMenu="{true}"
-                contributions="{contributedMenus}" />
+                dropdownMenu="{true}" />
             </td>
           </tr>
           <tr><td class="leading-[8px]">&nbsp;</td></tr>

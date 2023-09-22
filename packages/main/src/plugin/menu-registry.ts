@@ -27,6 +27,8 @@ export interface Menu {
 export enum MenuContext {
   DASHBOARD_IMAGE = 'dashboard/image',
   DASHBOARD_CONTAINER = 'dashboard/container',
+  DASHBOARD_POD = 'dashboard/pod',
+  DASHBOARD_COMPOSE = 'dashboard/compose',
 }
 
 export class MenuRegistry {
