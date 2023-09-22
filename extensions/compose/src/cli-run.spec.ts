@@ -19,8 +19,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import type { OS } from './os';
 import { CliRun } from './cli-run';
-import type * as extensionApi from '@podman-desktop/api';
-import * as sudo from 'sudo-prompt';
+import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 
 const osMock = {
@@ -37,18 +36,12 @@ vi.mock('@podman-desktop/api', async () => {
       withProgress: vi.fn(),
       showNotification: vi.fn(),
     },
+    process: {
+      exec: vi.fn(),
+    },
     ProgressLocation: {
       APP_ICON: 1,
     },
-  };
-});
-
-// Mock sudo-prompt exec to resolve everytime.
-vi.mock('sudo-prompt', async () => {
-  return {
-    exec: vi.fn().mockImplementation(callback => {
-      callback(undefined);
-    }),
   };
 });
 
@@ -94,15 +87,15 @@ test('success: installBinaryToSystem on mac with /usr/local/bin already created'
     return true;
   });
 
-  // When exec is called, expect the following
-  vi.spyOn(sudo, 'exec').mockImplementation((command, options, callback) => {
-    expect(options.name).toBe('Binary Installation');
-    expect(command).toBe('cp test /usr/local/bin/tmpBinary');
-    callback(undefined);
-  });
-
   // Run installBinaryToSystem which will trigger the spyOn mock
   await cliRun.installBinaryToSystem('test', 'tmpBinary');
+
+  // check called with admin being true
+  expect(extensionApi.process.exec).toBeCalledWith(
+    'exec',
+    expect.arrayContaining(['cp', 'test', '/usr/local/bin/tmpBinary']),
+    expect.objectContaining({ isAdmin: true }),
+  );
 });
 
 test('success: installBinaryToSystem on mac with /usr/local/bin NOT created yet (expect mkdir -p command)', async () => {
@@ -120,15 +113,15 @@ test('success: installBinaryToSystem on mac with /usr/local/bin NOT created yet 
     return false;
   });
 
-  // When exec is called, expect the following
-  vi.spyOn(sudo, 'exec').mockImplementation((command, options, callback) => {
-    expect(options.name).toBe('Binary Installation');
-    expect(command).toBe('mkdir -p /usr/local/bin && cp test /usr/local/bin/tmpBinary');
-    callback(undefined);
-  });
-
   // Run installBinaryToSystem which will trigger the spyOn mock
   await cliRun.installBinaryToSystem('test', 'tmpBinary');
+
+  // check called with admin being true
+  expect(extensionApi.process.exec).toBeCalledWith(
+    'exec',
+    expect.arrayContaining(['mkdir', '-p', '/usr/local/bin']),
+    expect.objectContaining({ isAdmin: true }),
+  );
 });
 
 test('success: installBinaryToSystem on linux with /usr/local/bin NOT created yet (expect mkdir -p command)', async () => {
@@ -146,13 +139,13 @@ test('success: installBinaryToSystem on linux with /usr/local/bin NOT created ye
     return false;
   });
 
-  // When exec is called, expect the following
-  vi.spyOn(sudo, 'exec').mockImplementation((command, options, callback) => {
-    expect(options.name).toBe('Binary Installation');
-    expect(command).toBe('mkdir -p /usr/local/bin && cp test /usr/local/bin/tmpBinary');
-    callback(undefined);
-  });
-
   // Run installBinaryToSystem which will trigger the spyOn mock
   await cliRun.installBinaryToSystem('test', 'tmpBinary');
+
+  // check called with admin being true
+  expect(extensionApi.process.exec).toBeCalledWith(
+    'exec',
+    expect.arrayContaining(['mkdir', '-p', '/usr/local/bin', '&&', 'cp', 'test', '/usr/local/bin/tmpBinary']),
+    expect.objectContaining({ isAdmin: true }),
+  );
 });
