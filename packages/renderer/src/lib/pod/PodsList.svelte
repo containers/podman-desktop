@@ -24,6 +24,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Checkbox from '../ui/Checkbox.svelte';
 import Button from '../ui/Button.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import StateChange from '../ui/StateChange.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -276,7 +277,9 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-300">{pod.age}</div>
+                <div class="text-sm text-gray-300">
+                  <StateChange state="{pod.status}">{pod.age}</StateChange>
+                </div>
               </div>
             </td>
 

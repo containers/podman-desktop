@@ -20,6 +20,7 @@ import Tab from '../ui/Tab.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import ContainerDetailsTtyTerminal from './ContainerDetailsTtyTerminal.svelte';
 import { router } from 'tinro';
+import StateChange from '../ui/StateChange.svelte';
 
 export let containerID: string;
 
@@ -94,7 +95,8 @@ function errorCallback(errorMessage: string): void {
         container="{container}"
         detailed="{true}" />
     </svelte:fragment>
-    <div slot="detail" class="flex py-2 w-full justify-end">
+    <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
+      <StateChange state="{container.state}" />
       <ContainerStatistics container="{container}" />
     </div>
     <svelte:fragment slot="tabs">
