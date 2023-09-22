@@ -71,6 +71,23 @@ test('Expect placeholders are replaced when passing a text component with placeh
   expect(markdownSection.innerHTML.includes('placeholder content')).toBe(true);
 });
 
+test('Expect when in content to not show up when validation is false', async () => {
+  const textComponent: OnboardingStepItem = {
+    value: '${onboardingContext:text}',
+    when: 'extension.onboarding.test',
+  };
+  const context = new ContextUI();
+  context.setValue('extension.onboarding.text', false);
+  render(OnboardingItem, {
+    extension: 'extension',
+    item: textComponent,
+    getContext: () => context,
+    inProgressCommandExecution: vi.fn(),
+  });
+  // Expect that the content does not show up (markdown-content wont show)
+  expect(screen.queryByLabelText('markdown-content')).not.toBeInTheDocument();
+});
+
 test('Expect boolean configuration placeholder to be replaced with a checkbox', async () => {
   const textComponent: OnboardingStepItem = {
     value: '${configuration:extension.boolean.prop}',

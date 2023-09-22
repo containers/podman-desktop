@@ -3,7 +3,12 @@ import { onMount } from 'svelte';
 import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import Markdown from '../markdown/Markdown.svelte';
 import type { ContextUI } from '../context/context';
-import { replaceContextKeyPlaceHoldersByRegex, replaceContextKeyPlaceholders } from './onboarding-utils';
+import {
+  replaceContextKeyPlaceHoldersByRegex,
+  replaceContextKeyPlaceholders,
+  normalizeOnboardingWhenClause,
+} from './onboarding-utils';
+import { ContextKeyExpr } from '../context/contextKey';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import PreferencesRenderingItem from '../preferences/PreferencesRenderingItem.svelte';
@@ -24,8 +29,15 @@ $: html;
 let configurationItems: IConfigurationPropertyRecordedSchema[];
 let configurationItem: IConfigurationPropertyRecordedSchema | undefined;
 $: configurationItem;
+let whenEvaluated: boolean | undefined;
 
 onMount(() => {
+  if (item.when) {
+    const when = normalizeOnboardingWhenClause(item.when, extension);
+    const whenDeserialized = ContextKeyExpr.deserialize(when);
+    whenEvaluated = whenDeserialized?.evaluate(getContext());
+  }
+
   configurationProperties.subscribe(value => {
     configurationItems = value;
     const matches = [...item.value.matchAll(configurationRegex)];
@@ -52,13 +64,16 @@ function replacePlaceholders(label: string): string {
 }
 </script>
 
-<div class="flex justify-center {item.highlight ? 'bg-charcoal-600' : ''} p-3 m-2 rounded-md min-w-[500px]">
-  {#if html}
-    <Markdown inProgressMarkdownCommandExecutionCallback="{inProgressCommandExecution}">{html}</Markdown>
-  {/if}
-  {#if configurationItem}
-    <div class="min-w-[500px] bg-charcoal-600 rounded-md">
-      <PreferencesRenderingItem record="{configurationItem}" />
-    </div>
-  {/if}
-</div>
+<!-- Only show if "when" is true / allows us -->
+{#if !item.when || whenEvaluated}
+  <div class="flex justify-center {item.highlight ? 'bg-charcoal-600' : ''} p-3 m-2 rounded-md min-w-[500px]">
+    {#if html}
+      <Markdown inProgressMarkdownCommandExecutionCallback="{inProgressCommandExecution}">{html}</Markdown>
+    {/if}
+    {#if configurationItem}
+      <div class="min-w-[500px] bg-charcoal-600 rounded-md">
+        <PreferencesRenderingItem record="{configurationItem}" />
+      </div>
+    {/if}
+  </div>
+{/if}
