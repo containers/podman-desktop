@@ -387,8 +387,8 @@ function closePage() {
     </h1>
     <div class="flex flex-col px-6 w-full h-full overflow-auto">
       {#if pageIsLoading}
-        <div class="text-center mt-16" role="status">
-          <Spinner size="lg" />
+        <div class="text-center mt-16 p-2" role="status">
+          <Spinner size="2em" />
         </div>
       {:else}
         {#if creationStarted}

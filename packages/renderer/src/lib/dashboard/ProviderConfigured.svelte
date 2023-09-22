@@ -78,7 +78,7 @@ onMount(() => {
         {/if}
         <div class="flex flex-col text-gray-700">
           <div>Starting</div>
-          <div class="my-2 pr-5 relative">
+          <div class="my-2">
             <Spinner />
           </div>
         </div>
