@@ -254,7 +254,9 @@ async function restartSetup() {
 </script>
 
 {#if activeStep}
-  <div class="flex flex-col bg-[#36373a] h-full">
+  <div
+    class="flex flex-col bg-[#36373a] h-full overflow-y-auto w-full overflow-x-hidden"
+    class:pb-20="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
     <div class="flex flex-row justify-between mt-5 mx-5 mb-5">
       <div class="flex flew-row">
         {#if activeStep.onboarding.media}
@@ -357,7 +359,8 @@ async function restartSetup() {
           <Link on:click="{() => setDisplayCancelSetup(true)}">Exit</Link> the setup. You can try again later.
         </div>
       {/if}
-      <div class="flex flex-row-reverse p-6 bg-charcoal-700">
+      <div
+        class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-[calc(100%_-_17rem)] bottom-0 mb-5 pr-10 max-h-20 opacity-80">
         <Button type="primary" disabled="{activeStep.step.state === 'failed'}" on:click="{() => next()}">Next</Button>
         {#if activeStep.step.state !== 'completed'}
           <Button type="secondary" aria-label="Cancel setup" class="mr-2" on:click="{() => setDisplayCancelSetup(true)}"
