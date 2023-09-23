@@ -27,6 +27,7 @@ export interface GenerateKubeResult {
 }
 
 export type KubernetesGeneratorArgument = {
+  engineId: string;
   containers?: string[];
   pods?: string[];
   compose?: string[];
@@ -35,10 +36,11 @@ export type KubernetesGeneratorArgument = {
 export interface KubernetesGeneratorProvider {
   readonly name: string;
   readonly types: KubernetesGeneratorSelector;
-  generate(argument: KubernetesGeneratorArgument): GenerateKubeResult;
+  generate(argument: KubernetesGeneratorArgument): Promise<GenerateKubeResult>;
 }
 
 export class KubeGeneratorRegistry {
+  private defaultProvider?: string;
   private kubeGenerators = new Map<string, KubernetesGeneratorProvider>();
   private count = 0;
 
@@ -46,17 +48,33 @@ export class KubeGeneratorRegistry {
     this.kubeGenerators.delete(providerId);
   }
 
-  registerKubeGenerator(kubeGenerator: KubernetesGeneratorProvider): Disposable {
+  private generateProviderId(): string {
     const providerId = `${this.count}`;
     this.count += 1;
+    return providerId;
+  }
+
+  registerDefaultKubeGenerator(kubeGenerator: KubernetesGeneratorProvider): Disposable {
+    const providerId = this.generateProviderId();
+    this.defaultProvider = providerId;
     this.kubeGenerators.set(providerId, kubeGenerator);
     return Disposable.create(() => {
       this.unregisterKubeGenerator(providerId);
     });
   }
 
-  getKubeGenerator(kubeGeneratorId: string): KubernetesGeneratorProvider | undefined {
-    return this.kubeGenerators.get(kubeGeneratorId);
+  registerKubeGenerator(kubeGenerator: KubernetesGeneratorProvider): Disposable {
+    const providerId = this.generateProviderId();
+    this.kubeGenerators.set(providerId, kubeGenerator);
+    return Disposable.create(() => {
+      this.unregisterKubeGenerator(providerId);
+    });
+  }
+
+  getKubeGenerator(kubeGeneratorId?: string): KubernetesGeneratorProvider | undefined {
+    if (kubeGeneratorId) return this.kubeGenerators.get(kubeGeneratorId);
+    else if (this.defaultProvider) return this.kubeGenerators.get(this.defaultProvider);
+    return undefined;
   }
 
   getKubeGeneratorsInfos(selector?: KubernetesGeneratorSelector): KubernetesGeneratorInfo[] {
@@ -71,6 +89,7 @@ export class KubeGeneratorRegistry {
           id: currentValue[0],
           name: provider.name,
           types: provider.types,
+          default: this.defaultProvider === currentValue[0],
         });
       }
 

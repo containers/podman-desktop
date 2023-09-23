@@ -253,20 +253,22 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('restartPod', async (engine: string, podId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:restartPod', engine, podId);
   });
-  contextBridge.exposeInMainWorld(
-    'generatePodmanKube',
-    async (engine: string, names: string[], kubeGeneratorId?: string): Promise<string> => {
-      return ipcInvoke('container-provider-registry:generatePodmanKube', engine, names, kubeGeneratorId);
-    },
-  );
+
+  /**
+   * @deprecated This method is deprecated and will be removed in a future release.
+   * Use generateKube instead.
+   */
+  contextBridge.exposeInMainWorld('generatePodmanKube', async (engine: string, names: string[]): Promise<string> => {
+    return ipcInvoke('container-provider-registry:generatePodmanKube', engine, names);
+  });
 
   contextBridge.exposeInMainWorld(
     'generateKube',
     async (
-      kubeGeneratorId: string,
       kubernetesGeneratorArgument: KubernetesGeneratorArgument,
+      kubeGeneratorId?: string,
     ): Promise<GenerateKubeResult> => {
-      return ipcInvoke('kubernetes-generator-registry:generateKube', kubeGeneratorId, kubernetesGeneratorArgument);
+      return ipcInvoke('kubernetes-generator-registry:generateKube', kubernetesGeneratorArgument, kubeGeneratorId);
     },
   );
 

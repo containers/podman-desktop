@@ -21,4 +21,5 @@ export interface KubernetesGeneratorInfo {
   id: string;
   name: string;
   types: KubernetesGeneratorSelector;
+  default: boolean;
 }
