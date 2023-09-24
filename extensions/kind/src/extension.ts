@@ -20,7 +20,7 @@ import * as extensionApi from '@podman-desktop/api';
 import { detectKind, getKindPath } from './util';
 import { KindInstaller } from './kind-installer';
 import type { AuditRequestItems, CancellationToken, Logger } from '@podman-desktop/api';
-import { window } from '@podman-desktop/api';
+import { ProgressLocation, window } from '@podman-desktop/api';
 import { ImageHandler } from './image-handler';
 import { createCluster, connectionAuditor } from './create-cluster';
 
@@ -251,7 +251,15 @@ async function createProvider(
   extensionContext.subscriptions.push(
     extensionApi.commands.registerCommand(KIND_MOVE_IMAGE_COMMAND, async image => {
       telemetryLogger.logUsage('moveImage');
-      await imageHandler.moveImage(image, kindClusters, kindCli);
+
+      return extensionApi.window.withProgress(
+        { location: ProgressLocation.TASK_WIDGET, title: `Loading ${image.name} to kind.` },
+        async progress => {
+          await imageHandler.moveImage(image, kindClusters, kindCli);
+          // Mark the task as completed
+          progress.report({ increment: -1, message: `Image ${image.name} loaded to kind.` });
+        },
+      );
     }),
   );
 
