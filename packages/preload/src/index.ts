@@ -265,10 +265,10 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld(
     'generateKube',
     async (
-      kubernetesGeneratorArgument: KubernetesGeneratorArgument,
+      kubernetesGeneratorArguments: KubernetesGeneratorArgument[],
       kubeGeneratorId?: string,
     ): Promise<GenerateKubeResult> => {
-      return ipcInvoke('kubernetes-generator-registry:generateKube', kubernetesGeneratorArgument, kubeGeneratorId);
+      return ipcInvoke('kubernetes-generator-registry:generateKube', kubernetesGeneratorArguments, kubeGeneratorId);
     },
   );
 

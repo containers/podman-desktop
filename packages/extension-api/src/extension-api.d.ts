@@ -1371,7 +1371,7 @@ declare module '@podman-desktop/api' {
   export interface KubernetesGeneratorProvider {
     name: string;
     types: KubernetesGeneratorSelector;
-    generate(kubernetesGeneratorArgument: KubernetesGeneratorArgument): Promise<GenerateKubeResult>;
+    generate(kubernetesGeneratorArguments: KubernetesGeneratorArgument[]): Promise<GenerateKubeResult>;
   }
 
   export interface ContainerInfo {

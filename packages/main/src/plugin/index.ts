@@ -412,18 +412,21 @@ export class PluginSystem {
     kubeGeneratorRegistry.registerDefaultKubeGenerator({
       name: 'PodmanKube',
       types: ['Compose', 'Container', 'Pod'],
-      generate: async (argument: KubernetesGeneratorArgument) => {
-        let yaml: string;
-        if (argument.containers)
-          yaml = await containerProviderRegistry.generatePodmanKube(argument.engineId, argument.containers);
-        else if (argument.compose)
-          yaml = await containerProviderRegistry.generatePodmanKube(argument.engineId, argument.compose);
-        else if (argument.pods)
-          yaml = await containerProviderRegistry.generatePodmanKube(argument.engineId, argument.pods);
-        else throw new Error('Either containers, compose or pods property must be defined.');
+      generate: async (kubernetesGeneratorArguments: KubernetesGeneratorArgument[]) => {
+        const results: string[] = await Promise.all(
+          kubernetesGeneratorArguments.map(argument => {
+            if (argument.containers)
+              return containerProviderRegistry.generatePodmanKube(argument.engineId, argument.containers);
+            else if (argument.compose)
+              return containerProviderRegistry.generatePodmanKube(argument.engineId, argument.compose);
+            else if (argument.pods)
+              return containerProviderRegistry.generatePodmanKube(argument.engineId, argument.pods);
+            else throw new Error('Either containers, compose or pods property must be defined.');
+          }),
+        );
 
         return {
-          yaml,
+          yaml: results.join('\n---\n'),
         };
       },
     });
@@ -859,10 +862,12 @@ export class PluginSystem {
         if (!kubeGenerator) throw new Error(`Cannot find default KubeGenerator.`);
 
         return (
-          await kubeGenerator.generate({
-            engineId: engine,
-            containers: names,
-          })
+          await kubeGenerator.generate([
+            {
+              engineId: engine,
+              containers: names,
+            },
+          ])
         ).yaml;
       },
     );
@@ -871,13 +876,13 @@ export class PluginSystem {
       'kubernetes-generator-registry:generateKube',
       async (
         _listener,
-        kubernetesGeneratorArgument: KubernetesGeneratorArgument,
+        kubernetesGeneratorArguments: KubernetesGeneratorArgument[],
         kubeGeneratorId?: string,
       ): Promise<GenerateKubeResult> => {
         const kubeGenerator = kubeGeneratorRegistry.getKubeGenerator(kubeGeneratorId);
         if (!kubeGenerator) throw new Error(`kubeGenerator with id ${kubeGeneratorId} cannot be found.`);
 
-        return kubeGenerator.generate(kubernetesGeneratorArgument);
+        return kubeGenerator.generate(kubernetesGeneratorArguments);
       },
     );
 

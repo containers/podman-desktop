@@ -36,7 +36,7 @@ export type KubernetesGeneratorArgument = {
 export interface KubernetesGeneratorProvider {
   readonly name: string;
   readonly types: KubernetesGeneratorSelector;
-  generate(argument: KubernetesGeneratorArgument): Promise<GenerateKubeResult>;
+  generate(kubernetesGeneratorArguments: KubernetesGeneratorArgument[]): Promise<GenerateKubeResult>;
 }
 
 export class KubeGeneratorRegistry {
