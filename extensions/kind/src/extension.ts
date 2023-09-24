@@ -257,7 +257,7 @@ async function createProvider(
         async progress => {
           await imageHandler.moveImage(image, kindClusters, kindCli);
           // Mark the task as completed
-          progress.report({ increment: -1, message: `Image ${image.name} loaded to kind.` });
+          progress.report({ increment: -1 });
         },
       );
     }),
