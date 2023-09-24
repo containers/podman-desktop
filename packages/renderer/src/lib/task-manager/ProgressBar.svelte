@@ -24,9 +24,9 @@ export let progress: number | undefined;
 <div class="w-32">
   <div class="w-full h-4 mb-4 rounded-full bg-gray-900 progress-bar overflow-hidden">
     {#if progress !== undefined}
-      <div class="h-4 bg-purple-500 rounded-full" style="width {progress}%"></div>
+      <div class="h-4 bg-purple-500 rounded-full" role="progressbar" style="width {progress}%"></div>
     {:else}
-      <div class="h-4 bg-purple-500 rounded-full progress-bar-indeterminate"></div>
+      <div class="h-4 bg-purple-500 rounded-full progress-bar-indeterminate" role="progressbar"></div>
     {/if}
   </div>
 </div>
