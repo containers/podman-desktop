@@ -12,6 +12,8 @@ To run container workloads, set up at least one container engine.
 
 Podman Desktop does not automatically set up container engine resources that you might not need.
 
+![Onboarding for containers](img/onboarding-for-containers.mmd.svg)
+
 #### Procedure
 
 1. Select a container engine supporting your workload.
