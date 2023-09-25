@@ -21,11 +21,14 @@ import { Disposable } from './types/disposable.js';
 export interface Menu {
   command: string;
   title: string;
+  when?: string;
 }
 
 export enum MenuContext {
   DASHBOARD_IMAGE = 'dashboard/image',
   DASHBOARD_CONTAINER = 'dashboard/container',
+  DASHBOARD_POD = 'dashboard/pod',
+  DASHBOARD_COMPOSE = 'dashboard/compose',
 }
 
 export class MenuRegistry {

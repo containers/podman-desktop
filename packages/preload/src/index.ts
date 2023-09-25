@@ -68,6 +68,13 @@ import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/pl
 import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
 import type { ContextInfo } from '../../main/src/plugin/api/context-info';
 import type { OnboardingInfo, OnboardingStatus } from '../../main/src/plugin/api/onboarding';
+import type {
+  KubernetesGeneratorSelector,
+  GenerateKubeResult,
+  KubernetesGeneratorArgument,
+} from '../../main/src/plugin/kube-generator-registry';
+
+import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -246,9 +253,24 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('restartPod', async (engine: string, podId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:restartPod', engine, podId);
   });
+
+  /**
+   * @deprecated This method is deprecated and will be removed in a future release.
+   * Use generateKube instead.
+   */
   contextBridge.exposeInMainWorld('generatePodmanKube', async (engine: string, names: string[]): Promise<string> => {
     return ipcInvoke('container-provider-registry:generatePodmanKube', engine, names);
   });
+
+  contextBridge.exposeInMainWorld(
+    'generateKube',
+    async (
+      kubernetesGeneratorArguments: KubernetesGeneratorArgument[],
+      kubeGeneratorId?: string,
+    ): Promise<GenerateKubeResult> => {
+      return ipcInvoke('kubernetes-generator-registry:generateKube', kubernetesGeneratorArguments, kubeGeneratorId);
+    },
+  );
 
   contextBridge.exposeInMainWorld(
     'playKube',
@@ -927,6 +949,13 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('getContributedMenus', async (context: string): Promise<Menu[]> => {
     return ipcInvoke('menu-registry:getContributedMenus', context);
   });
+
+  contextBridge.exposeInMainWorld(
+    'getKubeGeneratorsInfos',
+    async (selector?: KubernetesGeneratorSelector): Promise<KubernetesGeneratorInfo[]> => {
+      return ipcInvoke('kube-generator-registry:getKubeGeneratorsInfos', selector);
+    },
+  );
 
   contextBridge.exposeInMainWorld('executeCommand', async (command: string, ...args: unknown[]): Promise<unknown> => {
     return ipcInvoke('command-registry:executeCommand', command, ...args);

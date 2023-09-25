@@ -53,8 +53,56 @@ const config = {
             from: '/downloads/Linux',
           },
           {
+            to: '/docs/intro',
+            from: '/docs',
+          },
+          {
+            to: '/docs/installation',
+            from: '/docs/Installation',
+          },
+          {
+            to: '/docs/installation/windows-install',
+            from: '/docs/Installation/windows-install',
+          },
+          {
+            to: '/docs/installation/windows-install/installing-podman-desktop-silently-with-the-windows-installer',
+            from: '/docs/Installation/windows-install/installing-podman-desktop-silently-with-the-windows-installer',
+          },
+          {
+            to: '/docs/installation/windows-install/installing-podman-desktop-with-chocolatey',
+            from: '/docs/Installation/windows-install/installing-podman-desktop-with-chocolatey',
+          },
+          {
+            to: '/docs/installation/windows-install/installing-podman-desktop-with-scoop',
+            from: '/docs/Installation/windows-install/installing-podman-desktop-with-scoop',
+          },
+          {
+            to: '/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
+            from: '/docs/Installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
+          },
+          {
+            to: '/docs/installation/windows-install/installing-podman-desktop-with-winget',
+            from: '/docs/Installation/windows-install/installing-podman-desktop-with-winget',
+          },
+          {
+            to: '/docs/installation/macos-install',
+            from: '/docs/Installation/macos-install',
+          },
+          {
+            to: '/docs/installation/linux-install',
+            from: '/docs/Installation/linux-install',
+          },
+          {
+            to: '/docs/installation/linux-install/installing-podman-desktop-from-a-flatpak-bundle',
+            from: '/docs/Installation/linux-install/installing-podman-desktop-from-a-flatpak-bundle',
+          },
+          {
+            to: '/docs/installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
+            from: '/docs/Installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
+          },
+          {
             to: '/docs/compose',
-            from: ['/docs/compose/compose-spec', '/docs/compose/podman-compose'],
+            from: ['/docs/podman-compose', '/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
           {
             to: '/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows',

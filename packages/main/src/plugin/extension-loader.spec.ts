@@ -49,6 +49,7 @@ import type { ViewRegistry } from './view-registry.js';
 import { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
 import { Exec } from './util/exec.js';
+import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -89,6 +90,8 @@ let extensionLoader: TestExtensionLoader;
 const commandRegistry: CommandRegistry = {} as unknown as CommandRegistry;
 
 const menuRegistry: MenuRegistry = {} as unknown as MenuRegistry;
+
+const kubernetesGeneratorRegistry: KubeGeneratorRegistry = {} as unknown as KubeGeneratorRegistry;
 
 const providerRegistry: ProviderRegistry = {} as unknown as ProviderRegistry;
 
@@ -172,6 +175,7 @@ beforeAll(() => {
     context,
     directories,
     exec,
+    kubernetesGeneratorRegistry,
   );
 });
 
