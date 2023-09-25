@@ -12,6 +12,8 @@ To run Kubernetes workloads, set up at least one Kubernetes context.
 
 Podman Desktop does not automatically set up Kubernetes resources that you might not need.
 
+![Onboarding for Kubernetes in Podman Desktop](img/onboarding-for-kubernetes.mmd.svg)
+
 #### Procedure
 
 To connect to a remote Kubernetes, you can:
