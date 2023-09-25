@@ -585,16 +585,19 @@ function checkContainerName(event: any) {
                   class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border {containerNameError
                     ? 'border-red-500'
                     : 'border-charcoal-800'}" />
-                <ErrorMessage class="h-1 text-sm" error="{containerNameError}" />
-                <label for="modalEntrypoint" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
-                  >Entrypoint:</label>
+                {#if containerNameError}
+                  <ErrorMessage class="text-sm" error="{containerNameError}" />
+                {/if}
+                <label
+                  for="modalEntrypoint"
+                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400">Entrypoint:</label>
                 <input
                   type="text"
                   bind:value="{entrypoint}"
                   name="modalEntrypoint"
                   id="modalEntrypoint"
                   class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border border-charcoal-800" />
-                <label for="modalCommand" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="modalCommand" class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                   >Command:</label>
                 <input
                   type="text"
