@@ -11,6 +11,7 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { TaskManager, type TaskUI } from './task-manager';
 import { removeTask } from '/@/stores/tasks';
 import type { Task } from '../../../../main/src/plugin/api/task';
+import ProgressBar from '/@/lib/task-manager/ProgressBar.svelte';
 
 export let task: Task;
 
@@ -79,12 +80,7 @@ function gotoTask(taskUI: TaskUI) {
     {#if taskUI.status === 'in-progress'}
       <div class="flex flex-row w-full">
         {#if (taskUI.progress || 0) >= 0}
-          <div class="w-32">
-            <div class="w-full h-4 mb-4 rounded-full bg-gray-900">
-              <div class="h-4 bg-purple-500 rounded-full" style="width: {taskUI.progress}%"></div>
-            </div>
-          </div>
-          <div class="ml-2 text-xs">{taskUI.progress}%</div>
+          <ProgressBar progress="{taskUI.progress}" />
         {/if}
         <div class="flex flex-1 flex-col w-full items-end text-purple-500 text-xs">
           {#if taskUI.hasGotoTask}
