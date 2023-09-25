@@ -20,16 +20,36 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 import * as podmanDesktopApi from '@podman-desktop/api';
-import { refreshKindClustersOnProviderConnectionUpdate } from './extension';
+import { createProvider, refreshKindClustersOnProviderConnectionUpdate } from './extension';
+import type * as extensionApi from '@podman-desktop/api';
+
+vi.mock('./image-handler', async () => {
+  return {
+    ImageHandler: vi.fn(),
+  };
+});
 
 vi.mock('@podman-desktop/api', async () => {
   return {
-    provider: {
-      onDidUpdateContainerConnection: vi.fn(),
+    window: {
+      withProgress: vi.fn(),
     },
-
+    ProgressLocation: {
+      TASK_WIDGET: 'TASK_WIDGET',
+    },
+    provider: {
+      onDidRegisterContainerConnection: vi.fn(),
+      onDidUnregisterContainerConnection: vi.fn(),
+      onDidUpdateProvider: vi.fn(),
+      onDidUpdateContainerConnection: vi.fn(),
+      createProvider: vi.fn(),
+    },
     containerEngine: {
       listContainers: vi.fn(),
+      onEvent: vi.fn(),
+    },
+    commands: {
+      registerCommand: vi.fn(),
     },
   };
 });
@@ -56,4 +76,45 @@ test('check we received notifications ', async () => {
   refreshKindClustersOnProviderConnectionUpdate(fakeProvider);
   expect(callbackCalled).toBeTruthy();
   expect(listContainersMock).toBeCalledTimes(1);
+});
+
+test('', async () => {
+  const commandRegistry: { [id: string]: (image: { image: string }) => Promise<void> } = {};
+
+  const registerCommandMock = vi.fn();
+  (podmanDesktopApi.commands as any).registerCommand = registerCommandMock;
+
+  registerCommandMock.mockImplementation((command: string, callback: (image: { image: string }) => Promise<void>) => {
+    commandRegistry[command] = callback;
+  });
+
+  const createProviderMock = vi.fn();
+  (podmanDesktopApi.provider as any).createProvider = createProviderMock;
+  createProviderMock.mockImplementation(() => ({ setKubernetesProviderConnectionFactory: vi.fn() }));
+
+  const listContainersMock = vi.fn();
+  (podmanDesktopApi.containerEngine as any).listContainers = listContainersMock;
+  listContainersMock.mockResolvedValue([]);
+
+  const withProgressMock = vi.fn();
+  (podmanDesktopApi.window as any).withProgress = withProgressMock;
+
+  await createProvider(
+    vi.mocked<extensionApi.ExtensionContext>({
+      subscriptions: {
+        push: vi.fn(),
+      },
+    } as unknown as extensionApi.ExtensionContext),
+    vi.mocked<extensionApi.TelemetryLogger>({
+      logUsage: vi.fn(),
+    } as unknown as extensionApi.TelemetryLogger),
+  );
+
+  // ensure the command has been registered
+  expect(commandRegistry['kind.image.move']).toBeDefined();
+
+  // simulate a call to the command
+  await commandRegistry['kind.image.move']({ image: 'hello:world' });
+
+  expect(withProgressMock).toHaveBeenCalled();
 });
