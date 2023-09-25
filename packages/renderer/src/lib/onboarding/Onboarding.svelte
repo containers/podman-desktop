@@ -41,6 +41,10 @@ let displayResetSetup = false;
 
 let executedCommands: string[] = [];
 
+let activeStepDiv: HTMLDivElement;
+let bottomToolbarDiv: HTMLDivElement;
+let resizeObserver: ResizeObserver;
+
 /*
 $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
@@ -79,6 +83,12 @@ onMount(async () => {
       startOnboarding().catch((err: unknown) => console.warn(String(err)));
     }
   });
+
+  // Resize the bottom toolbar each time we change the div size
+  resizeObserver = new ResizeObserver(() => {
+    const parentWidth = activeStepDiv.getBoundingClientRect().width;
+    bottomToolbarDiv.style.width = parentWidth + 'px';
+  });
 });
 
 async function startOnboarding(): Promise<void> {
@@ -89,6 +99,8 @@ async function startOnboarding(): Promise<void> {
       setDisplayResetSetup(true);
     } else {
       await restartSetup();
+      // Observe the terminal div
+      resizeObserver.observe(activeStepDiv);
     }
   }
 }
@@ -99,6 +111,10 @@ onDestroy(() => {
   }
   if (contextsUnsubscribe) {
     contextsUnsubscribe();
+  }
+  // Cleanup the observer on destroy
+  if (activeStepDiv) {
+    resizeObserver?.unobserve(activeStepDiv);
   }
 });
 
@@ -257,117 +273,133 @@ async function restartSetup() {
   <div
     class="flex flex-col bg-[#36373a] h-full overflow-y-auto w-full overflow-x-hidden"
     class:pb-20="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
-    <div class="flex flex-row justify-between mt-5 mx-5 mb-5">
-      <div class="flex flew-row">
-        {#if activeStep.onboarding.media}
-          <img
-            class="w-14 h-14 object-contain"
-            alt="{activeStep.onboarding.media.altText}"
-            src="{activeStep.onboarding.media.path}" />
-        {/if}
-        <div class="flex flex-col ml-8 my-2">
-          <div class="text-lg font-bold text-white">
-            {replaceContextKeyPlaceholders(activeStep.onboarding.title, activeStep.onboarding.extension, globalContext)}
-          </div>
-          {#if activeStep.onboarding.description}
-            <div class="text-sm text-white">
+    <div class="flex flex-col" bind:this="{activeStepDiv}">
+      <div class="flex flex-row justify-between mt-5 mx-5 mb-5">
+        <div class="flex flew-row">
+          {#if activeStep.onboarding.media}
+            <img
+              class="w-14 h-14 object-contain"
+              alt="{activeStep.onboarding.media.altText}"
+              src="{activeStep.onboarding.media.path}" />
+          {/if}
+          <div class="flex flex-col ml-8 my-2">
+            <div class="text-lg font-bold text-white">
               {replaceContextKeyPlaceholders(
-                activeStep.onboarding.description,
+                activeStep.onboarding.title,
+                activeStep.onboarding.extension,
+                globalContext,
+              )}
+            </div>
+            {#if activeStep.onboarding.description}
+              <div class="text-sm text-white">
+                {replaceContextKeyPlaceholders(
+                  activeStep.onboarding.description,
+                  activeStep.onboarding.extension,
+                  globalContext,
+                )}
+              </div>
+            {/if}
+            <button
+              class="flex flex-row text-xs items-center hover:underline"
+              on:click="{() => setDisplayCancelSetup(true)}">
+              <span class="mr-1">Skip this entire setup</span>
+              <Fa icon="{faForward}" size="12" />
+            </button>
+          </div>
+        </div>
+      </div>
+      {#if activeStep.step.component}
+        <div class="min-w-[700px] mx-auto overflow-y-auto" aria-label="onboarding component">
+          <OnboardingComponent
+            component="{activeStep.step.component}"
+            extensionId="{activeStep.onboarding.extension}" />
+        </div>
+      {:else}
+        <div class="w-[450px] flex flex-col mt-16 mx-auto" aria-label="step body">
+          {#if activeStep.step.media}
+            <div class="mx-auto">
+              <img
+                class="w-24 h-24 object-contain"
+                alt="{activeStep.step.media.altText}"
+                src="{activeStep.step.media.path}" />
+            </div>
+          {:else if activeStep.onboarding.media}
+            <div class="mx-auto">
+              <img
+                class="w-24 h-24 object-contain"
+                alt="{activeStep.onboarding.media.altText}"
+                src="{activeStep.onboarding.media.path}" />
+            </div>
+          {/if}
+          <div class="flex flex-row mx-auto">
+            {#if executing}
+              <div class="mt-1 mr-6">
+                <Spinner />
+              </div>
+            {/if}
+            <div class="text-lg text-white">
+              {replaceContextKeyPlaceholders(activeStep.step.title, activeStep.onboarding.extension, globalContext)}
+            </div>
+          </div>
+          {#if activeStep.step.description}
+            <div class="text-sm text-white mx-auto">
+              {replaceContextKeyPlaceholders(
+                activeStep.step.description,
                 activeStep.onboarding.extension,
                 globalContext,
               )}
             </div>
           {/if}
-          <button
-            class="flex flex-row text-xs items-center hover:underline"
-            on:click="{() => setDisplayCancelSetup(true)}">
-            <span class="mr-1">Skip this entire setup</span>
-            <Fa icon="{faForward}" size="12" />
-          </button>
         </div>
-      </div>
-    </div>
-    {#if activeStep.step.component}
-      <div class="min-w-[700px] mx-auto overflow-y-auto" aria-label="onboarding component">
-        <OnboardingComponent component="{activeStep.step.component}" extensionId="{activeStep.onboarding.extension}" />
-      </div>
-    {:else}
-      <div class="w-[450px] flex flex-col mt-16 mx-auto" aria-label="step body">
-        {#if activeStep.step.media}
-          <div class="mx-auto">
-            <img
-              class="w-24 h-24 object-contain"
-              alt="{activeStep.step.media.altText}"
-              src="{activeStep.step.media.path}" />
-          </div>
-        {:else if activeStep.onboarding.media}
-          <div class="mx-auto">
-            <img
-              class="w-24 h-24 object-contain"
-              alt="{activeStep.onboarding.media.altText}"
-              src="{activeStep.onboarding.media.path}" />
+
+        {#if activeStep.step.state === 'failed'}
+          <div class="mx-auto mt-4">
+            <Button on:click="{() => restartSetup()}">Try again</Button>
           </div>
         {/if}
-        <div class="flex flex-row mx-auto">
-          {#if executing}
-            <div class="mt-1 mr-6">
-              <Spinner />
-            </div>
+
+        <div class="flex flex-col mx-auto">
+          {#if activeStepContent}
+            {#each activeStepContent as row}
+              <div class="flex flex-row mx-auto">
+                {#each row as item}
+                  <OnboardingItem
+                    extension="{activeStep.onboarding.extension}"
+                    item="{item}"
+                    getContext="{() => globalContext}"
+                    inProgressCommandExecution="{inProgressCommandExecution}" />
+                {/each}
+              </div>
+            {/each}
           {/if}
-          <div class="text-lg text-white">
-            {replaceContextKeyPlaceholders(activeStep.step.title, activeStep.onboarding.extension, globalContext)}
-          </div>
-        </div>
-        {#if activeStep.step.description}
-          <div class="text-sm text-white mx-auto">
-            {replaceContextKeyPlaceholders(activeStep.step.description, activeStep.onboarding.extension, globalContext)}
-          </div>
-        {/if}
-      </div>
-
-      {#if activeStep.step.state === 'failed'}
-        <div class="mx-auto mt-4">
-          <Button on:click="{() => restartSetup()}">Try again</Button>
         </div>
       {/if}
 
-      <div class="flex flex-col mx-auto">
-        {#if activeStepContent}
-          {#each activeStepContent as row}
-            <div class="flex flex-row mx-auto">
-              {#each row as item}
-                <OnboardingItem
-                  extension="{activeStep.onboarding.extension}"
-                  item="{item}"
-                  getContext="{() => globalContext}"
-                  inProgressCommandExecution="{inProgressCommandExecution}" />
-              {/each}
-            </div>
-          {/each}
+      {#if !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}
+        <div class="grow"></div>
+        {#if activeStep.step.state !== 'failed'}
+          <div class="mb-10 mx-auto text-sm" aria-label="next-info-message">
+            Press the <span class="bg-purple-700 p-0.5">Next</span> button below to proceed.
+          </div>
+        {:else}
+          <div class="mb-10 mx-auto text-sm" aria-label="exit-info-message">
+            <Link on:click="{() => setDisplayCancelSetup(true)}">Exit</Link> the setup. You can try again later.
+          </div>
         {/if}
-      </div>
-    {/if}
-
-    {#if !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}
-      <div class="grow"></div>
-      {#if activeStep.step.state !== 'failed'}
-        <div class="mb-10 mx-auto text-sm" aria-label="next-info-message">
-          Press the <span class="bg-purple-700 p-0.5">Next</span> button below to proceed.
-        </div>
-      {:else}
-        <div class="mb-10 mx-auto text-sm" aria-label="exit-info-message">
-          <Link on:click="{() => setDisplayCancelSetup(true)}">Exit</Link> the setup. You can try again later.
+        <div
+          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-full bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90"
+          bind:this="{bottomToolbarDiv}">
+          <Button type="primary" disabled="{activeStep.step.state === 'failed'}" on:click="{() => next()}">Next</Button>
+          {#if activeStep.step.state !== 'completed'}
+            <Button
+              type="secondary"
+              aria-label="Cancel setup"
+              class="mr-2 opacity-100"
+              on:click="{() => setDisplayCancelSetup(true)}">Cancel</Button>
+          {/if}
         </div>
       {/if}
-      <div
-        class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-[calc(100%_-_17rem)] bottom-0 mb-5 pr-10 max-h-20 opacity-80">
-        <Button type="primary" disabled="{activeStep.step.state === 'failed'}" on:click="{() => next()}">Next</Button>
-        {#if activeStep.step.state !== 'completed'}
-          <Button type="secondary" aria-label="Cancel setup" class="mr-2" on:click="{() => setDisplayCancelSetup(true)}"
-            >Cancel</Button>
-        {/if}
-      </div>
-    {/if}
+    </div>
   </div>
 {/if}
 {#if displayCancelSetup}
