@@ -122,6 +122,13 @@ import { OnboardingRegistry } from './onboarding-registry.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
 import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 import { Exec } from './util/exec.js';
+import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import type {
+  KubernetesGeneratorSelector,
+  GenerateKubeResult,
+  KubernetesGeneratorArgument,
+} from '/@/plugin/kube-generator-registry.js';
+import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
 import type { CommandInfo } from './api/command-info.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -376,6 +383,7 @@ export class PluginSystem {
 
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
+    const kubeGeneratorRegistry = new KubeGeneratorRegistry();
     const certificates = new Certificates();
     await certificates.init();
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
@@ -400,6 +408,28 @@ export class PluginSystem {
       const trayIconColor = new TrayIconColor(configurationRegistry, providerRegistry);
       await trayIconColor.init();
     }
+
+    kubeGeneratorRegistry.registerDefaultKubeGenerator({
+      name: 'PodmanKube',
+      types: ['Compose', 'Container', 'Pod'],
+      generate: async (kubernetesGeneratorArguments: KubernetesGeneratorArgument[]) => {
+        const results: string[] = await Promise.all(
+          kubernetesGeneratorArguments.map(argument => {
+            if (argument.containers)
+              return containerProviderRegistry.generatePodmanKube(argument.engineId, argument.containers);
+            else if (argument.compose)
+              return containerProviderRegistry.generatePodmanKube(argument.engineId, argument.compose);
+            else if (argument.pods)
+              return containerProviderRegistry.generatePodmanKube(argument.engineId, argument.pods);
+            else throw new Error('Either containers, compose or pods property must be defined.');
+          }),
+        );
+
+        return {
+          yaml: results.join('\n---\n'),
+        };
+      },
+    });
 
     const autoStartEngine = new AutostartEngine(configurationRegistry, providerRegistry);
     providerRegistry.registerAutostartEngine(autoStartEngine);
@@ -693,6 +723,7 @@ export class PluginSystem {
       context,
       directories,
       exec,
+      kubeGeneratorRegistry,
     );
     await this.extensionLoader.init();
 
@@ -827,7 +858,31 @@ export class PluginSystem {
     this.ipcHandle(
       'container-provider-registry:generatePodmanKube',
       async (_listener, engine: string, names: string[]): Promise<string> => {
-        return containerProviderRegistry.generatePodmanKube(engine, names);
+        const kubeGenerator = kubeGeneratorRegistry.getKubeGenerator();
+        if (!kubeGenerator) throw new Error(`Cannot find default KubeGenerator.`);
+
+        return (
+          await kubeGenerator.generate([
+            {
+              engineId: engine,
+              containers: names,
+            },
+          ])
+        ).yaml;
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-generator-registry:generateKube',
+      async (
+        _listener,
+        kubernetesGeneratorArguments: KubernetesGeneratorArgument[],
+        kubeGeneratorId?: string,
+      ): Promise<GenerateKubeResult> => {
+        const kubeGenerator = kubeGeneratorRegistry.getKubeGenerator(kubeGeneratorId);
+        if (!kubeGenerator) throw new Error(`kubeGenerator with id ${kubeGeneratorId} cannot be found.`);
+
+        return kubeGenerator.generate(kubernetesGeneratorArguments);
       },
     );
 
@@ -1144,6 +1199,13 @@ export class PluginSystem {
     this.ipcHandle('menu-registry:getContributedMenus', async (_, context: string): Promise<Menu[]> => {
       return menuRegistry.getContributedMenus(context);
     });
+
+    this.ipcHandle(
+      'kube-generator-registry:getKubeGeneratorsInfos',
+      async (_, selector?: KubernetesGeneratorSelector): Promise<KubernetesGeneratorInfo[]> => {
+        return kubeGeneratorRegistry.getKubeGeneratorsInfos(selector);
+      },
+    );
 
     this.ipcHandle(
       'command-registry:executeCommand',
