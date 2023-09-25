@@ -1,5 +1,5 @@
 ---
-sidebar_position: 7
+sidebar_position: 6
 title: Restarting your Minikube cluster
 description: Restarting your local Minikube-powered Kubernetes cluster.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, minikube]
@@ -32,4 +32,4 @@ The Minikube cluster might not restart successfully.
 In that case:
 
 - Consider replacing Minikube with a local Kubernetes cluster that you can restart, such as [OpenShift Local](https://developers.redhat.com/products/openshift-local/).
-- Consider [deleting your Minikube cluster](/docs/kubernetes/minikube/deleting-your-minikube-cluster), and [creating a Minikube cluster](/docs/kubernetes/minikube/creating-a-minikube-cluster).
+- Consider [deleting your Minikube cluster](/docs/onboarding/kubernetes/minikube/deleting-your-minikube-cluster), and [creating a Minikube cluster](/docs/onboarding/kubernetes/minikube/creating-a-minikube-cluster).

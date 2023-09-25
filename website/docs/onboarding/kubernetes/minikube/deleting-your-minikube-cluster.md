@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 7
 title: Deleting your Minikube cluster
 description: Deleting your local Minikube-powered Kubernetes cluster.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, minikube]
@@ -10,7 +10,7 @@ tags: [migrating-to-kubernetes, minikube]
 
 #### Prerequisites
 
-- [You configured Podman](creating-a-minikube-cluster.md).
+- [You configured Podman](./creating-a-minikube-cluster).
 - [You installed Minikube](https://minikube.sigs.k8s.io/).
 
 #### Procedure
