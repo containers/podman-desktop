@@ -879,15 +879,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     });
   }
 
-  // no podman for now, skip
-  if (isMac()) {
-    if (!fs.existsSync(podmanMachineSocketsDirectory)) {
-      return;
-    }
-    monitorMachines(provider).catch((error: unknown) => {
-      console.error('Error while monitoring machines', error);
-    });
-  } else if (isLinux()) {
+  if (isLinux()) {
     // on Linux, need to run the system service for unlimited time
     let command = 'podman';
     let args = ['system', 'service', '--time=0'];
@@ -928,7 +920,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     initDefaultLinux(provider).catch((error: unknown) => {
       console.error('Error while initializing default linux', error);
     });
-  } else if (isWindows()) {
+  } else if (isWindows() || isMac()) {
     monitorMachines(provider).catch((error: unknown) => {
       console.error('Error while monitoring machines', error);
     });
