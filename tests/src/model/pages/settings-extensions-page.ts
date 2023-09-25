@@ -21,11 +21,13 @@ import { SettingsPage } from './settings-page';
 
 export class SettingsExtensionsPage extends SettingsPage {
   readonly heading: Locator;
+  readonly featuredExtensions: Locator;
   readonly devSandboxBox: Locator;
 
   constructor(page: Page) {
     super(page, 'Extensions');
     this.heading = page.getByRole('heading', { name: 'Extensions' });
-    this.devSandboxBox = page.getByTitle('Free remote OpenShift sandbox environment for immediate access');
+    this.featuredExtensions = page.getByLabel('FeaturedExtensions');
+    this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
   }
 }

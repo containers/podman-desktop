@@ -96,7 +96,7 @@ describe('Developer Sandbox installation verification', async () => {
 
         await goToDashboard();
         const dashboardPage = new DashboardPage(page);
-        await playExpect(dashboardPage.devSandboxStatus).toBeHidden();
+        await playExpect(dashboardPage.devSandboxProvider).toBeHidden();
       });
 
       test('Enable extension and verify Dashboard components', async () => {
@@ -110,7 +110,7 @@ describe('Developer Sandbox installation verification', async () => {
 
         await goToDashboard();
         const dashboardPage = new DashboardPage(page);
-        await playExpect(dashboardPage.devSandboxStatus).toBeVisible();
+        await playExpect(dashboardPage.devSandboxProvider).toBeVisible();
       });
     });
   });
