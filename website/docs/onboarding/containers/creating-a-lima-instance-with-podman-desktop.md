@@ -48,6 +48,12 @@ Consider creating a custom Lima instance to:
      $ limactl start --name=docker template://docker
      ```
 
+   - To create an Lima instance with rootful Docker, use the `docker-rootful` template:
+
+     ```shell-session
+     $ limactl start --name=docker template://docker-rootful
+     ```
+
    - To select the number of CPUs, the memory, and the disk size, add the `--set` option to the `limactl start` command:
 
      ```shell-session
