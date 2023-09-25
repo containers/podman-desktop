@@ -223,7 +223,7 @@ export function refreshKindClustersOnProviderConnectionUpdate(provider: extensio
   });
 }
 
-async function createProvider(
+export async function createProvider(
   extensionContext: extensionApi.ExtensionContext,
   telemetryLogger: extensionApi.TelemetryLogger,
 ): Promise<void> {
