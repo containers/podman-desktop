@@ -34,6 +34,8 @@ import {
   ROOTFUL_MACHINE_INIT_SUPPORTED_KEY,
   isUserModeNetworkingSupported,
   USER_MODE_NETWORKING_SUPPORTED_KEY,
+  START_NOW_MACHINE_INIT_SUPPORTED_KEY,
+  isStartNowAtMachineInitSupported,
 } from './extension';
 
 const readFile = promisify(fs.readFile);
@@ -145,6 +147,10 @@ export class PodmanInstall {
           USER_MODE_NETWORKING_SUPPORTED_KEY,
           isUserModeNetworkingSupported(newInstalledPodman.version),
         );
+        extensionApi.context.setValue(
+          START_NOW_MACHINE_INIT_SUPPORTED_KEY,
+          isStartNowAtMachineInitSupported(newInstalledPodman.version),
+        );
       }
       // update detections checks
       provider.updateDetectionChecks(getDetectionChecks(newInstalledPodman));
@@ -197,6 +203,10 @@ export class PodmanInstall {
         extensionApi.context.setValue(
           USER_MODE_NETWORKING_SUPPORTED_KEY,
           isUserModeNetworkingSupported(updateInfo.bundledVersion),
+        );
+        extensionApi.context.setValue(
+          START_NOW_MACHINE_INIT_SUPPORTED_KEY,
+          isStartNowAtMachineInitSupported(updateInfo.bundledVersion),
         );
       } else if (answer === 'Ignore') {
         this.podmanInfo.ignoreVersionUpdate = updateInfo.bundledVersion;

@@ -666,6 +666,7 @@ async function registerUpdatesIfAny(
 
 export const ROOTFUL_MACHINE_INIT_SUPPORTED_KEY = 'podman.isRootfulMachineInitSupported';
 export const USER_MODE_NETWORKING_SUPPORTED_KEY = 'podman.isUserModeNetworkingSupported';
+export const START_NOW_MACHINE_INIT_SUPPORTED_KEY = 'podman.isStartNowAtMachineInitSupported';
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   storedExtensionContext = extensionContext;
@@ -676,6 +677,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   if (version) {
     extensionApi.context.setValue(ROOTFUL_MACHINE_INIT_SUPPORTED_KEY, isRootfulMachineInitSupported(version));
+    extensionApi.context.setValue(START_NOW_MACHINE_INIT_SUPPORTED_KEY, isStartNowAtMachineInitSupported(version));
     extensionApi.context.setValue(USER_MODE_NETWORKING_SUPPORTED_KEY, isUserModeNetworkingSupported(version));
     isMovedPodmanSocket = isPodmanSocketLocationMoved(version);
   }
@@ -1085,6 +1087,13 @@ export async function deactivate(): Promise<void> {
       console.log('stopped autostarted machine', autoMachineName);
     }
   });
+}
+
+const PODMAN_MINIMUM_VERSION_FOR_NOW_FLAG_INIT = '4.0.0';
+
+// Checks if start now flag at machine init is supported.
+export function isStartNowAtMachineInitSupported(podmanVersion: string) {
+  return compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_NOW_FLAG_INIT) >= 0;
 }
 
 const PODMAN_MINIMUM_VERSION_FOR_ROOTFUL_MACHINE_INIT = '4.1.0';
