@@ -17,12 +17,13 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+import { test, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import FormPage from './FormPage.svelte';
 import { lastPage, currentPage } from '../../stores/breadcrumb';
 import type { TinroBreadcrumb } from 'tinro';
 import { router } from 'tinro';
+import userEvent from '@testing-library/user-event';
 
 // mock the router
 vi.mock('tinro', () => {
@@ -31,6 +32,10 @@ vi.mock('tinro', () => {
       goto: vi.fn(),
     },
   };
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
 });
 
 test('Expect title is defined', async () => {
@@ -81,9 +86,9 @@ test('Expect backlink is defined', async () => {
   expect(backElement).toBeInTheDocument();
   expect(backElement).toHaveTextContent(backName);
 
-  fireEvent.click(backElement);
+  await fireEvent.click(backElement);
 
-  expect(router.goto).toBeCalledWith('/back');
+  expect(router.goto).toHaveBeenCalledWith('/back');
 });
 
 test('Expect close link is defined', async () => {
@@ -96,4 +101,16 @@ test('Expect close link is defined', async () => {
   const closeElement = screen.getByTitle('Close');
   expect(closeElement).toBeInTheDocument();
   expect(closeElement).toHaveAttribute('href', backPath);
+});
+
+test('Expect Escape key works', async () => {
+  const backPath = '/back';
+  lastPage.set({ name: 'Back', path: backPath } as TinroBreadcrumb);
+  render(FormPage, {
+    title: 'No Title',
+  });
+
+  await userEvent.keyboard('{Escape}');
+
+  expect(router.goto).toHaveBeenCalledWith('/back');
 });
