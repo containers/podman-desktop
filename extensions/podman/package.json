@@ -118,7 +118,8 @@
           "type": "boolean",
           "default": true,
           "scope": "ContainerProviderConnectionFactory",
-          "description": "Start the machine now"
+          "description": "Start the machine now",
+          "when": "podman.isStartNowAtMachineInitSupported"
         }
       }
     },
