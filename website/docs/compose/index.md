@@ -15,11 +15,24 @@ Podman Desktop supports the [Compose specification](https://compose-spec.io), an
 
 ### Procedure
 
-[![](https://mermaid.ink/img/pako:eNp9Udtq20AQ_ZVhwOhFMZF8UbRvJS4ttCUlDhSKoKytiTJ4L2I1cusK_XvXclJ6o_O0e86Zs7NzBtz7mlBh5WazgR2LggES45v3dCSTKEhq2vVNkkIiT2RpQnQ4JDDCOJtVTtiSYUeVqxzEEhZD8MmHA7sGvrI8wa23re_owm9J5Mz0LSj46GurHWyoO4hvL4Jf6kXwD-LZE8g10-N_CTZ3t-9e3395e7d9iKIjB-8sOYGjDqx35rnlxUbBG5Kft0c2f1gquO_df_lXdQ1G78h0F-b3r8V5uGuNPoHtjfDV3jvRcfAAum0N77Wwd7ETU7QUrOY6ZjKcnSqc9l6hisfz5quY1Rh1uhe_Pbk9Kgk9pdi3tRbasG6CtqgetekiSjWLDx8uIU9Zp9hqh2rAb6iusuU8vynLYp1lZVmusqxI8YQqX6zmRZnneXa9LheLVbkcU_zuffTN5hGMlV0vb9ZFsVhOfp8n7jzI-AMypLOM?type=png)](https://mermaid.live/edit#pako:eNp9Udtq20AQ_ZVhwOhFMZF8UbRvJS4ttCUlDhSKoKytiTJ4L2I1cusK_XvXclJ6o_O0e86Zs7NzBtz7mlBh5WazgR2LggES45v3dCSTKEhq2vVNkkIiT2RpQnQ4JDDCOJtVTtiSYUeVqxzEEhZD8MmHA7sGvrI8wa23re_owm9J5Mz0LSj46GurHWyoO4hvL4Jf6kXwD-LZE8g10-N_CTZ3t-9e3395e7d9iKIjB-8sOYGjDqx35rnlxUbBG5Kft0c2f1gquO_df_lXdQ1G78h0F-b3r8V5uGuNPoHtjfDV3jvRcfAAum0N77Wwd7ETU7QUrOY6ZjKcnSqc9l6hisfz5quY1Rh1uhe_Pbk9Kgk9pdi3tRbasG6CtqgetekiSjWLDx8uIU9Zp9hqh2rAb6iusuU8vynLYp1lZVmusqxI8YQqX6zmRZnneXa9LheLVbkcU_zuffTN5hGMlV0vb9ZFsVhOfp8n7jzI-AMypLOM)
+[![](https://mermaid.ink/img/pako:eNp9kluL2zAQhf-KUAl-cUJk52a9tUkv0JYtm6WFxVAUa5wV0cVIcrrZkP9e2c51u1QPtjznm6MxOntcGA6Y4lz3evtcIyS08BS1W4QiadbfYAsyoijisKrXUXxU_BMoaMor5uC2-pNZwVYSXHQ2ClJlhWJ2NzfS2Kbv3Ww1LsrJqfVCPMCzv1BFUVwhDgqj-a1NOSM8vWI8WC9uED5NSFm-ZfPBWA72Qg6HwyusNNp_YkrIXSM6pl3fgRVl1BGH5hUeh14v114okEJDrjvRCy8B_TJ2I_Qa_RH-Cc2NqoyDTl-C941SV4iiH4YrptEC3Mab6nT-eZ2AN4SjJwK9bg__B1jczb9-vP_95W75EKCtsEYr0B5tj5fUtZxsKPoM_vxVCvnKkqL7Wv9Xf885kmwF0nXK7a-FeYSrJNshVUsv-uEaPAuDW8SqSoqCeWF06MQxVmAVEzxks81Qjtts5ZiGbbi6TR4yewgcq71Z7nSBqbc1xLiuOPOwEGxtmcK0ZNKFKnDhjf3ehb3NfIwrpjHd42dM-2Q0SGZZNp0QkmXZmJBpjHeYJul4MM2SJCHDSZam42x0iPGLMcGXDEIxLEJGKZnMZmnr99hqzSCHvyR1ASU?type=png)](https://mermaid.live/edit#pako:eNp9kluL2zAQhf-KUAl-cUJk52a9tUkv0JYtm6WFxVAUa5wV0cVIcrrZkP9e2c51u1QPtjznm6MxOntcGA6Y4lz3evtcIyS08BS1W4QiadbfYAsyoijisKrXUXxU_BMoaMor5uC2-pNZwVYSXHQ2ClJlhWJ2NzfS2Kbv3Ww1LsrJqfVCPMCzv1BFUVwhDgqj-a1NOSM8vWI8WC9uED5NSFm-ZfPBWA72Qg6HwyusNNp_YkrIXSM6pl3fgRVl1BGH5hUeh14v114okEJDrjvRCy8B_TJ2I_Qa_RH-Cc2NqoyDTl-C941SV4iiH4YrptEC3Mab6nT-eZ2AN4SjJwK9bg__B1jczb9-vP_95W75EKCtsEYr0B5tj5fUtZxsKPoM_vxVCvnKkqL7Wv9Xf885kmwF0nXK7a-FeYSrJNshVUsv-uEaPAuDW8SqSoqCeWF06MQxVmAVEzxks81Qjtts5ZiGbbi6TR4yewgcq71Z7nSBqbc1xLiuOPOwEGxtmcK0ZNKFKnDhjf3ehb3NfIwrpjHd42dM-2Q0SGZZNp0QkmXZmJBpjHeYJul4MM2SJCHDSZam42x0iPGLMcGXDEIxLEJGKZnMZmnr99hqzSCHvyR1ASU)
 
 <!--
 ```mermaid
-%%{init: { 'logLevel': 'debug', 'theme': 'dark' } }%%
+%%{
+  init: {
+    'logLevel': 'debug',
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#8b5cf6',
+      'primaryTextColor': '#ccc',
+      'secondaryColor': '#8f81d3',
+      'tertiaryColor': '#d721ff',
+      'secondaryBorderColor': '#000',
+      'fontFamily': 'sans-serif'
+    }
+  }
+}%%
 timeline
 
     title Working with Compose
