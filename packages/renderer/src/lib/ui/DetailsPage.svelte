@@ -10,7 +10,16 @@ export let subtitle: string | undefined = undefined;
 export function close(): void {
   router.goto($lastPage.path);
 }
+
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    close();
+    e.preventDefault();
+  }
+}
 </script>
+
+<svelte:window on:keydown="{handleKeydown}" />
 
 <div class="w-full h-full">
   <div class="flex h-full flex-col">

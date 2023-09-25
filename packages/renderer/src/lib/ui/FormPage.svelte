@@ -1,10 +1,24 @@
 <script lang="ts">
 import { lastPage, currentPage } from '../../stores/breadcrumb';
+import { router } from 'tinro';
 import Link from './Link.svelte';
 
 export let title: string;
 export let showBreadcrumb = true;
+
+export function close(): void {
+  router.goto($lastPage.path);
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    close();
+    e.preventDefault();
+  }
+}
 </script>
+
+<svelte:window on:keydown="{handleKeydown}" />
 
 <div class="flex flex-col w-full h-full shadow-pageheader">
   <div class="flex flex-row w-full h-fit px-5 py-4">
