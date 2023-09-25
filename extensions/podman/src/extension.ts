@@ -483,12 +483,14 @@ async function monitorProvider(provider: extensionApi.Provider) {
       // update version
       if (!installedPodman) {
         provider.updateStatus('not-installed');
+        extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
       } else if (installedPodman.version) {
         provider.updateVersion(installedPodman.version);
         // update provider status if someone has installed podman externally
         if (provider.status === 'not-installed') {
           provider.updateStatus('installed');
         }
+        extensionApi.context.setValue('podmanIsNotInstalled', false, 'onboarding');
       }
     } catch (error) {
       // ignore the update
@@ -953,7 +955,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const onboardingCheckReqsCommand = extensionApi.commands.registerCommand(
     'podman.onboarding.checkPodmanRequirements',
     async () => {
-      const checks = podmanInstall.getInstallChecks();
+      const checks = podmanInstall.getInstallChecks() || [];
       const result = [];
       let successful = true;
       for (const check of checks) {

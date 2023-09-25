@@ -169,8 +169,23 @@
         {
           "id": "installPodmanView",
           "title": "Installing Podman",
+          "when": "onboardingContext:podmanIsNotInstalled && isLinux",
+          "completionEvents": [
+            "!onboardingContext:podmanIsNotInstalled"
+          ],
+          "content": [
+            [
+              {
+                "value": "To install Podman please follow these :link[installation instructions]{href=https://podman.io/docs/installation#installing-on-linux}"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "installPodmanView",
+          "title": "Installing Podman",
           "description": "Once installed, we will enable and configure the extension",
-          "when": "onboardingContext:podmanIsNotInstalled",
+          "when": "onboardingContext:podmanIsNotInstalled && !isLinux",
           "command": "podman.onboarding.installPodman",
           "completionEvents": [
             "onCommand:podman.onboarding.installPodman"
