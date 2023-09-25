@@ -249,3 +249,29 @@ test('should expect icon to be ContainerIcon if no context/view is passed', asyn
   expect(containerUI.icon).toBeDefined();
   expect(typeof containerUI.icon !== 'string').toBe(true);
 });
+
+test('check parsing of container info without names', async () => {
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'registry.k8s.io/pause:3.7',
+    Labels: {
+      'io.cri-containerd.kind': 'sandbox',
+    },
+    Names: '',
+    State: 'RUNNING',
+  } as unknown as ContainerInfo;
+  const name = containerUtils.getName(containerInfo);
+  expect(name).toBe('');
+});
+
+test('check parsing of container info without labels', async () => {
+  const context = new ContextUI();
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'registry.k8s.io/pause:3.7',
+    Labels: '',
+    Names: ['container1'],
+    State: 'RUNNING',
+  } as unknown as ContainerInfo;
+  containerUtils.adaptContextOnContainer(context, containerInfo);
+});
