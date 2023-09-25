@@ -129,6 +129,8 @@ import type {
 } from '/@/plugin/kube-generator-registry.js';
 import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
 import type { CommandInfo } from './api/command-info.js';
+import { BinaryRegistry } from '/@/plugin/binary-registry.js';
+import { Octokit } from '@octokit/rest';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -380,6 +382,7 @@ export class PluginSystem {
 
     const exec = new Exec(proxy);
 
+    const binaryRegistry = new BinaryRegistry(new Octokit(), '.');
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const kubeGeneratorRegistry = new KubeGeneratorRegistry();
@@ -1932,6 +1935,7 @@ export class PluginSystem {
       configurationRegistry,
       extensionInstaller,
       telemetry,
+      binaryRegistry,
     );
 
     await contributionManager.init();
