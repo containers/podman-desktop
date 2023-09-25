@@ -13,20 +13,20 @@
   "contributes": {
     "commands": [
       {
-        "command": "podman.info",
-        "title": "podman: Specific info about podman"
+        "command": "podman.socketCompatibilityMode",
+        "title": "Podman: Socket Compatibility Mode"
       },
       {
         "command": "podman.onboarding.checkPodmanInstalled",
-        "title": "podman: Check podman installation"
+        "title": "Podman: Check podman installation"
       },
       {
         "command": "podman.onboarding.checkPodmanRequirements",
-        "title": "podman: Check system requirements to install podman"
+        "title": "Podman: Check system requirements to install podman"
       },
       {
         "command": "podman.onboarding.installPodman",
-        "title": "podman: Install podman"
+        "title": "Podman: Install podman"
       }
     ],
     "configuration": {
