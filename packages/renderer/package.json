@@ -22,7 +22,7 @@
     "@types/js-yaml": "^4.0.6",
     "@types/validator": "^13.11.1",
     "@typescript-eslint/eslint-plugin": "5.62.0",
-    "autoprefixer": "^10.4.15",
+    "autoprefixer": "^10.4.16",
     "eslint-plugin-svelte": "^2.33.2",
     "filesize": "^10.0.12",
     "humanize-duration": "^3.30.0",
@@ -43,9 +43,9 @@
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
-    "vitest": "^0.34.4",
+    "vitest": "^0.34.5",
     "xterm": "^5.3.0",
-    "xterm-addon-fit": "^0.7.0",
+    "xterm-addon-fit": "^0.8.0",
     "yaml": "^2.3.2"
   },
   "dependencies": {

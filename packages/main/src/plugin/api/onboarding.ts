@@ -54,6 +54,7 @@ export interface Onboarding {
   description?: string;
   media?: { path: string; altText: string };
   steps: OnboardingStep[];
+  enablement: string;
 }
 
 export interface OnboardingInfo extends Onboarding {

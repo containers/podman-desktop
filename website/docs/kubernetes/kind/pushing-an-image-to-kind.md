@@ -12,8 +12,10 @@ With Podman Desktop, you can push an image to your local Kind-powered Kubernetes
 
 #### Prerequisites
 
+- [You onboarded a container engine](/docs/onboarding/containers).
+- [You onboarded a Kind cluster](/docs/onboarding/kubernetes/kind).
+- [You have set your Kubernetes context to your local Kind-powered Kubernetes cluster](/docs/kubernetes/kind/working-with-your-local-kind-cluster).
 - Your image is available on the **Images** page: `<my_image>:<my_tag>`.
-- [You created a Kind cluster](creating-a-kind-cluster).
 
 #### Procedure
 

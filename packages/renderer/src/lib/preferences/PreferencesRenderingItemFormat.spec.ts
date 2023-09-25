@@ -28,7 +28,7 @@ import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.sve
 import userEvent from '@testing-library/user-event';
 
 beforeAll(() => {
-  (window as any).getConfigurationValue = vi.fn();
+  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
 });
 
 test('Expect to see checkbox enabled', async () => {
@@ -44,6 +44,23 @@ test('Expect to see checkbox enabled', async () => {
   const button = screen.getByRole('checkbox');
   expect(button).toBeInTheDocument();
   expect(button).toBeChecked();
+});
+
+test('Expect to see the checkbox disabled / unable to press when readonly is passed into record', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'my boolean property',
+    id: 'myid',
+    parentId: '',
+    type: 'boolean',
+    default: true,
+    readonly: true,
+  };
+  // remove display name
+  render(PreferencesRenderingItemFormat, { record });
+  const button = screen.getByRole('checkbox');
+  expect(button).toBeInTheDocument();
+  expect(button).toBeChecked();
+  expect(button).toBeDisabled();
 });
 
 test('Expect to see checkbox enabled', async () => {

@@ -23,16 +23,20 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 function DownloadClientLinks() {
   let operatingSystem = '';
   let varIcon = undefined;
+  let url = 'macos'; // Just use macos by default as the url before checking the user agent in case of an odd issue (unable to get userAgent / it's blank / etc.)
   const userAgent = navigator.userAgent;
 
   if (userAgent.indexOf('Windows') !== -1) {
     operatingSystem = 'Windows';
+    url = 'windows';
     varIcon = 'faWindows';
   } else if (userAgent.indexOf('Mac') !== -1) {
     operatingSystem = 'macOS';
+    url = 'macos';
     varIcon = 'faApple';
   } else if (userAgent.indexOf('Linux') !== -1) {
     operatingSystem = 'Linux';
+    url = 'linux';
     varIcon = 'faLinux';
   }
 
@@ -44,7 +48,7 @@ function DownloadClientLinks() {
       <div>
         <Link
           className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-violet-600 border-0 py-4 px-8 mt-6 mb-1 focus:outline-none hover:bg-violet-700 rounded text-lg"
-          to={'/downloads/' + operatingSystem}>
+          to={'/downloads/' + url}>
           <FontAwesomeIcon size="2x" icon={varIcon as IconProp} className="px-2" /> Download Now
         </Link>
         <caption className="block mt-0 dark:text-gray-400">
@@ -377,7 +381,7 @@ function RunAnywhere() {
           <Link
             title="Download for Windows"
             className="p-4 w-11/12 md:w-1/2 lg:w-1/3 no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white"
-            to="/downloads/Windows">
+            to="/downloads/windows">
             <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
               <div className="flex items-center mb-3 flex-col">
                 <FontAwesomeIcon size="4x" icon={faWindows} />
@@ -395,7 +399,7 @@ function RunAnywhere() {
           <Link
             title="Download for macOS"
             className="no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white p-4 w-11/12 md:w-1/2 lg:w-1/3"
-            to="/downloads/macOS">
+            to="/downloads/macos">
             <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
               <div className="flex items-center mb-3 flex-col">
                 <FontAwesomeIcon size="4x" icon={faApple} />
@@ -410,7 +414,7 @@ function RunAnywhere() {
           <Link
             title="Download for Linux"
             className="no-underline hover:no-underline hover:text-white text-gray-900 dark:text-white p-4 w-11/12 md:w-1/2 lg:w-1/3"
-            to="/downloads/Linux">
+            to="/downloads/linux">
             <div className="flex rounded-lg h-full bg-zinc-100  hover:bg-purple-500 dark:hover:bg-purple-700 dark:bg-charcoal-800 bg-opacity-60 p-8 flex-col">
               <div className="flex items-center mb-3 flex-col">
                 <FontAwesomeIcon size="4x" icon={faLinux} />
@@ -554,7 +558,7 @@ function Pods() {
                 </h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faDiagramProject} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  <a href="docs/getting-started/creating-a-pod">Create Pods from existing containers</a>
+                  <a href="/docs/working-with-containers/creating-a-pod">Create Pods from existing containers</a>
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
@@ -580,11 +584,13 @@ function Pods() {
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  <a href="docs/kubernetes/deploying-a-pod-to-kubernetes">Deploy to existing Kubernetes environments</a>
+                  <a href="/docs/kubernetes/deploying-a-pod-to-kubernetes">
+                    Deploy to existing Kubernetes environments
+                  </a>
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  <a href="docs/kubernetes/kind">Running Kubernetes on your workstation with Kind and Podman</a>
+                  <a href="/docs/kubernetes/kind">Running Kubernetes on your workstation with Kind and Podman</a>
                 </p>
               </div>
             </div>

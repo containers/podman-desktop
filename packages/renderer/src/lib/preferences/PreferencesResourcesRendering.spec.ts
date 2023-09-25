@@ -73,7 +73,7 @@ beforeEach(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     receive: vi.fn(),
   };
-  (window as any).telemetryTrack = vi.fn();
+  (window as any).telemetryTrack = vi.fn().mockResolvedValue(undefined);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
 });
@@ -241,6 +241,7 @@ test('Expect to redirect to onboarding page if setup button is clicked', async (
     extension: 'id',
     steps: [],
     title: 'onboarding',
+    enablement: 'true',
   };
   onboardingList.set([onboarding]);
   render(PreferencesResourcesRendering, {});
@@ -249,4 +250,54 @@ test('Expect to redirect to onboarding page if setup button is clicked', async (
   await userEvent.click(button);
   // redirect to create new page
   expect(router.goto).toHaveBeenCalledWith(`/preferences/onboarding/id`);
+});
+
+test('Expect to redirect to extension preferences page if onboarding is disabled and the cog button is clicked', async () => {
+  // clone providerInfo and change id and status
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  // remove display name
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  customProviderInfo.status = 'installed';
+  // change name of the provider
+  customProviderInfo.name = 'foo-provider';
+  providerInfos.set([customProviderInfo]);
+
+  const onboarding: OnboardingInfo = {
+    extension: 'id',
+    steps: [],
+    title: 'onboarding',
+    enablement: 'false',
+  };
+  onboardingList.set([onboarding]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.getByRole('button', { name: 'Setup foo-provider' });
+  expect(button).toBeInTheDocument();
+  await userEvent.click(button);
+  // redirect to create new page
+  expect(router.goto).toHaveBeenCalledWith('/preferences/default/preferences.id');
+});
+
+test('Expect to redirect to extension onboarding page if onboarding is enabled and the cog button is clicked', async () => {
+  // clone providerInfo and change id and status
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  // remove display name
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  customProviderInfo.status = 'installed';
+  // change name of the provider
+  customProviderInfo.name = 'foo-provider';
+  providerInfos.set([customProviderInfo]);
+
+  const onboarding: OnboardingInfo = {
+    extension: 'id',
+    steps: [],
+    title: 'onboarding',
+    enablement: 'true',
+  };
+  onboardingList.set([onboarding]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.getByRole('button', { name: 'Setup foo-provider' });
+  expect(button).toBeInTheDocument();
+  await userEvent.click(button);
+  // redirect to create new page
+  expect(router.goto).toHaveBeenCalledWith('/preferences/onboarding/id');
 });

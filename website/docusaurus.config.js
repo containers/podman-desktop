@@ -41,8 +41,68 @@ const config = {
       {
         redirects: [
           {
+            to: '/downloads/windows',
+            from: '/downloads/Windows',
+          },
+          {
+            to: '/downloads/macos',
+            from: '/downloads/macOS',
+          },
+          {
+            to: '/downloads/linux',
+            from: '/downloads/Linux',
+          },
+          {
+            to: '/docs/intro',
+            from: '/docs',
+          },
+          {
+            to: '/docs/installation',
+            from: '/docs/Installation',
+          },
+          {
+            to: '/docs/installation/windows-install',
+            from: '/docs/Installation/windows-install',
+          },
+          {
+            to: '/docs/installation/windows-install/installing-podman-desktop-silently-with-the-windows-installer',
+            from: '/docs/Installation/windows-install/installing-podman-desktop-silently-with-the-windows-installer',
+          },
+          {
+            to: '/docs/installation/windows-install/installing-podman-desktop-with-chocolatey',
+            from: '/docs/Installation/windows-install/installing-podman-desktop-with-chocolatey',
+          },
+          {
+            to: '/docs/installation/windows-install/installing-podman-desktop-with-scoop',
+            from: '/docs/Installation/windows-install/installing-podman-desktop-with-scoop',
+          },
+          {
+            to: '/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
+            from: '/docs/Installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
+          },
+          {
+            to: '/docs/installation/windows-install/installing-podman-desktop-with-winget',
+            from: '/docs/Installation/windows-install/installing-podman-desktop-with-winget',
+          },
+          {
+            to: '/docs/installation/macos-install',
+            from: '/docs/Installation/macos-install',
+          },
+          {
+            to: '/docs/installation/linux-install',
+            from: '/docs/Installation/linux-install',
+          },
+          {
+            to: '/docs/installation/linux-install/installing-podman-desktop-from-a-flatpak-bundle',
+            from: '/docs/Installation/linux-install/installing-podman-desktop-from-a-flatpak-bundle',
+          },
+          {
+            to: '/docs/installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
+            from: '/docs/Installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
+          },
+          {
             to: '/docs/compose',
-            from: ['/docs/compose/compose-spec', '/docs/compose/podman-compose'],
+            from: ['/docs/podman-compose', '/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
           {
             to: '/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows',
@@ -58,7 +118,27 @@ const config = {
           },
           {
             to: '/docs/onboarding/containers/creating-a-podman-machine-with-podman-desktop',
-            from: ['/docs/Installation/creating-a-podman-machine-with-podman-desktop'],
+            from: '/docs/Installation/creating-a-podman-machine-with-podman-desktop',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/kind/installing-kind',
+            from: '/docs/kubernetes/kind/installing-kind',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/kind/configuring-podman-for-kind-on-windows',
+            from: '/docs/kubernetes/kind/configuring-podman-for-kind-on-windows',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/kind/creating-a-kind-cluster',
+            from: '/docs/kubernetes/kind/creating-a-kind-cluster',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/kind/restarting-your-kind-cluster',
+            from: '/docs/kubernetes/kind/restarting-your-kind-cluster',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/kind/deleting-your-kind-cluster',
+            from: '/docs/kubernetes/kind/deleting-your-kind-cluster',
           },
           {
             to: '/docs/working-with-containers',
@@ -172,7 +252,7 @@ const config = {
             items: [
               {
                 label: 'Installing Podman Desktop',
-                to: '/docs/Installation',
+                to: '/docs/installation',
               },
               {
                 label: 'Onboarding for containers',

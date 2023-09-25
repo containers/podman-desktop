@@ -11,6 +11,7 @@ import { PodUtils } from './pod-utils';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import PodEmptyScreen from './PodEmptyScreen.svelte';
+import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import PodIcon from '../images/PodIcon.svelte';
 import PodActions from './PodActions.svelte';
@@ -24,7 +25,7 @@ import Checkbox from '../ui/Checkbox.svelte';
 import Button from '../ui/Button.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-let searchTerm = '';
+export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let pods: PodInfoUI[] = [];
@@ -306,7 +307,11 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
     {#if $filtered.length === 0 && providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
-      <PodEmptyScreen />
+      {#if searchTerm}
+        <FilteredEmptyScreen icon="{PodIcon}" kind="pods" bind:searchTerm="{searchTerm}" />
+      {:else}
+        <PodEmptyScreen />
+      {/if}
     {/if}
   </div>
 </NavPage>

@@ -26,6 +26,8 @@ import {
   type ActiveOnboardingStep,
   isStepCompleted,
   updateOnboardingStepStatus,
+  replaceContextKeyPlaceholders,
+  replaceContextKeyPlaceHoldersByRegex,
 } from './onboarding-utils';
 import type { OnboardingInfo, OnboardingStep } from '../../../../main/src/plugin/api/onboarding';
 import { ContextKeyExpr, type ContextKeyExpression } from '../context/contextKey';
@@ -78,6 +80,7 @@ test('Expect cleanContext to remove onboarding values from context and reset the
     ],
     title: 'onboarding',
     status: 'completed',
+    enablement: 'true',
   };
   const context = new ContextUI();
   context.setValue('id.onboarding.key1', 'value');
@@ -109,6 +112,7 @@ test('Expect that the onboarding is not completed if atleast one step has not be
     ],
     title: 'onboarding',
     status: 'skipped',
+    enablement: 'true',
   };
   const complete = isOnboardingCompleted(onboarding);
   expect(complete).toBeFalsy();
@@ -131,6 +135,7 @@ test('Expect that the onboarding is not completed if its status is not set', asy
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const complete = isOnboardingCompleted(onboarding);
   expect(complete).toBeFalsy();
@@ -153,6 +158,7 @@ test('Expect that the onboarding is completed if all its steps are completed and
     ],
     title: 'onboarding',
     status: 'completed',
+    enablement: 'true',
   };
   const complete = isOnboardingCompleted(onboarding);
   expect(complete).toBeTruthy();
@@ -175,6 +181,7 @@ test('Expect the setup of multiple onboardings to be completed if all have been 
     ],
     title: 'onboarding',
     status: 'completed',
+    enablement: 'true',
   };
   const onboarding2: OnboardingInfo = {
     extension: 'id',
@@ -192,6 +199,7 @@ test('Expect the setup of multiple onboardings to be completed if all have been 
     ],
     title: 'onboarding',
     status: 'completed',
+    enablement: 'true',
   };
   const complete = isOnboardingsSetupCompleted([onboarding1, onboarding2]);
   expect(complete).toBeTruthy();
@@ -214,6 +222,7 @@ test('Expect the setup of multiple onboardings to be uncompleted if atleast one 
     ],
     title: 'onboarding',
     status: 'completed',
+    enablement: 'true',
   };
   const onboarding2: OnboardingInfo = {
     extension: 'id',
@@ -231,12 +240,13 @@ test('Expect the setup of multiple onboardings to be uncompleted if atleast one 
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const complete = isOnboardingsSetupCompleted([onboarding1, onboarding2]);
   expect(complete).toBeFalsy();
 });
 
-test('Expect the step to be completed if the active step have not completion events', async () => {
+test('Expect the step to be considered NOT completed if the active step have not completion events', async () => {
   const step: OnboardingStep = {
     id: 'id1',
     title: 'title 1',
@@ -255,13 +265,14 @@ test('Expect the step to be completed if the active step have not completion eve
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
     step,
   };
   const isCompleted = isStepCompleted(activeStep, []);
-  expect(isCompleted).toBeTruthy();
+  expect(isCompleted).toBeFalsy();
 });
 
 test('Expect the step to be completed if the step is considered completed if only a command has been executed and it has actually been executed', async () => {
@@ -284,6 +295,7 @@ test('Expect the step to be completed if the step is considered completed if onl
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -313,6 +325,7 @@ test('Expect the step to NOT be completed if the step is considered completed if
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -342,6 +355,7 @@ test('Expect the step to be completed if the step is considered completed if a c
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -376,6 +390,7 @@ test('Expect the step to NOT be completed if the step is considered completed if
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -410,6 +425,7 @@ test('Expect the step to NOT be completed if the step is considered completed if
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -443,6 +459,7 @@ test('Expect the step to NOT be completed if the step is considered completed if
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   const activeStep: ActiveOnboardingStep = {
     onboarding,
@@ -473,6 +490,7 @@ test('Expect the step status to be updated but not the onboarding as it is not t
     ],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   await updateOnboardingStepStatus(onboarding, step, 'completed');
   expect(step.status).equal('completed');
@@ -493,8 +511,61 @@ test('Expect the step and the onboarding status to be updated as it is the last 
     steps: [step],
     title: 'onboarding',
     status: undefined,
+    enablement: 'true',
   };
   await updateOnboardingStepStatus(onboarding, step, 'completed');
   expect(step.status).equal('completed');
   expect(onboarding.status).equal('completed');
+});
+
+test('Expect the onboarding context key placeholder is replaced with its context value', async () => {
+  const context = new ContextUI();
+  context.setValue('id.onboarding.myvalue', 'value');
+
+  const newString = replaceContextKeyPlaceholders('${onboardingContext:myvalue}', 'id', context);
+  expect(newString).equal('value');
+});
+
+test('Expect the global context key placeholder is replaced with its context value', async () => {
+  const context = new ContextUI();
+  context.setValue('myvalue', 'value');
+
+  const newString = replaceContextKeyPlaceholders('${onContext:myvalue}', 'id', context);
+  expect(newString).equal('value');
+});
+
+test('Expect multiple context key placeholders are replaced with their context values', async () => {
+  const context = new ContextUI();
+  context.setValue('id.onboarding.myvalue1', 'value1');
+  context.setValue('id.onboarding.myvalue2', 'value2');
+  context.setValue('myvalue3', 'value3');
+  context.setValue('myvalue4', 'value4');
+
+  const newString = replaceContextKeyPlaceholders(
+    '${onboardingContext:myvalue1} ${onboardingContext:myvalue2} ${onContext:myvalue3} ${onContext:myvalue4}',
+    'id',
+    context,
+  );
+  expect(newString).equal('value1 value2 value3 value4');
+});
+
+test('Expect a string without any context placeholder is returned as it is', async () => {
+  const context = new ContextUI();
+
+  const newString = replaceContextKeyPlaceholders('no placeholders', 'id', context);
+  expect(newString).equal('no placeholders');
+});
+
+test('Expect the replacement is used when defined even if the value is in context', async () => {
+  const context = new ContextUI();
+  context.setValue('id.onboarding.myvalue1', 'value1');
+
+  const newString = replaceContextKeyPlaceHoldersByRegex(
+    new RegExp(/\${onboardingContext:(.+?)}/g),
+    '${onboardingContext:myvalue1}',
+    context,
+    undefined,
+    'replacement',
+  );
+  expect(newString).equal('replacement');
 });

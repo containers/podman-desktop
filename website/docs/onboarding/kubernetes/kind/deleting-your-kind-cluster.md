@@ -10,7 +10,7 @@ tags: [migrating-to-kubernetes, kind]
 
 #### Prerequisites
 
-- [You configured Podman](creating-a-kind-cluster.md).
+- [You configured Podman](/docs/onboarding/kubernetes/kind/creating-a-kind-cluster).
 - [You installed Kind](https://kind.sigs.k8s.io/).
 
 #### Procedure

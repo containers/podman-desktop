@@ -104,7 +104,8 @@
           "type": "boolean",
           "default": true,
           "scope": "ContainerProviderConnectionFactory",
-          "description": "Machine with root privileges"
+          "description": "Machine with root privileges",
+          "when": "podman.isRootfulMachineInitSupported == true"
         },
         "podman.factory.machine.user-mode-networking": {
           "type": "boolean",
@@ -184,7 +185,7 @@
         },
         {
           "id": "podmanInstalled",
-          "title": "Podman successfully installed",
+          "title": "${onboardingContext:podmanInstalledTitle}",
           "when": "!onboardingContext:podmanIsNotInstalled",
           "content": [
             [
@@ -214,7 +215,8 @@
           "when": "!onboardingContext:podmanIsNotInstalled",
           "state": "completed"
         }
-      ]
+      ],
+      "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || !onboardingContext:podmanMachineExists"
     }
   },
   "scripts": {
@@ -236,7 +238,7 @@
     "nock": "^13.3.3",
     "octokit": "^3.1.0",
     "ts-node": "^10.9.1",
-    "vitest": "^0.34.4",
+    "vitest": "^0.34.5",
     "zip-local": "^0.3.5"
   }
 }

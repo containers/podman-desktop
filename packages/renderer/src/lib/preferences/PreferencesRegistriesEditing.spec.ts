@@ -28,8 +28,8 @@ import { registriesInfos } from '../../stores/registries';
 import type { Registry } from '@podman-desktop/api';
 
 beforeAll(() => {
-  (window as any).window.ddExtensionInstall = vi.fn();
-  (window as any).window.getImageRegistryProviderNames = vi.fn();
+  (window as any).window.ddExtensionInstall = vi.fn().mockResolvedValue(undefined);
+  (window as any).window.getImageRegistryProviderNames = vi.fn().mockResolvedValue(undefined);
 });
 
 describe('PreferencesRegistriesEditing', () => {

@@ -50,6 +50,7 @@ const myContainer: ContainerInfo = {
 };
 
 const deleteContainerMock = vi.fn();
+const getContributedMenusMock = vi.fn();
 
 vi.mock('xterm', () => {
   return {
@@ -69,6 +70,9 @@ beforeAll(() => {
     addListener: vi.fn(),
   });
   (window as any).ResizeObserver = vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() });
+
+  (window as any).getContributedMenus = getContributedMenusMock;
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 
 beforeEach(() => {});

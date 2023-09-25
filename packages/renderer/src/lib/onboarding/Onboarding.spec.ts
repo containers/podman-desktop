@@ -47,6 +47,7 @@ test('Expect to have the "Try again" and Cancel buttons if the step represent a 
           completionEvents: [],
         },
       ],
+      enablement: 'true',
     },
   ]);
   context.set(new ContextUI());
@@ -77,6 +78,7 @@ test('Expect not to have the "Try again" and "Cancel" buttons if the step repres
           completionEvents: [],
         },
       ],
+      enablement: 'true',
     },
   ]);
   context.set(new ContextUI());
@@ -107,6 +109,7 @@ test('Expect to have the "step body" div if the step does not include a componen
           completionEvents: [],
         },
       ],
+      enablement: 'true',
     },
   ]);
   context.set(new ContextUI());
@@ -136,6 +139,7 @@ test('Expect to have the embedded component if the step includes a component', a
           completionEvents: [],
         },
       ],
+      enablement: 'true',
     },
   ]);
   context.set(new ContextUI());

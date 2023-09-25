@@ -2,6 +2,7 @@
 import { filtered, searchPattern, imagesInfos } from '../stores/images';
 import { onDestroy, onMount } from 'svelte';
 import ImageEmptyScreen from './image/ImageEmptyScreen.svelte';
+import FilteredEmptyScreen from './ui/FilteredEmptyScreen.svelte';
 
 import { router } from 'tinro';
 import type { ImageInfoUI } from './image/ImageInfoUI';
@@ -21,13 +22,11 @@ import type { ContainerInfo } from '../../../main/src/plugin/api/container-info'
 import moment from 'moment';
 import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
-import type { Menu } from '../../../main/src/plugin/menu-registry';
-import { MenuContext } from '../../../main/src/plugin/menu-registry';
 import Checkbox from './ui/Checkbox.svelte';
 import Button from './ui/Button.svelte';
 import { faArrowCircleDown, faCube, faTrash } from '@fortawesome/free-solid-svg-icons';
 
-let searchTerm = '';
+export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let images: ImageInfoUI[] = [];
@@ -107,7 +106,6 @@ let imagesUnsubscribe: Unsubscriber;
 let containersUnsubscribe: Unsubscriber;
 let storeContainers: ContainerInfo[] = [];
 let storeImages: ImageInfo[] = [];
-let contributedMenus: Menu[];
 
 onMount(async () => {
   containersUnsubscribe = containersInfos.subscribe(value => {
@@ -119,8 +117,6 @@ onMount(async () => {
     storeImages = value;
     updateImages();
   });
-
-  contributedMenus = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
 });
 
 onDestroy(() => {
@@ -316,8 +312,7 @@ function computeInterval(): number {
                 image="{image}"
                 onPushImage="{handlePushImageModal}"
                 onRenameImage="{handleRenameImageModal}"
-                dropdownMenu="{true}"
-                contributions="{contributedMenus}" />
+                dropdownMenu="{true}" />
             </td>
           </tr>
           <tr><td class="leading-[8px]">&nbsp;</td></tr>
@@ -328,7 +323,11 @@ function computeInterval(): number {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
-      <ImageEmptyScreen />
+      {#if searchTerm}
+        <FilteredEmptyScreen icon="{ImageIcon}" kind="images" bind:searchTerm="{searchTerm}" />
+      {:else}
+        <ImageEmptyScreen />
+      {/if}
     {/if}
 
     {#if pushImageModal && pushImageModalImageInfo}

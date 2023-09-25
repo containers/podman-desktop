@@ -664,6 +664,7 @@ async function registerUpdatesIfAny(
   }
 }
 
+export const ROOTFUL_MACHINE_INIT_SUPPORTED_KEY = 'podman.isRootfulMachineInitSupported';
 export const USER_MODE_NETWORKING_SUPPORTED_KEY = 'podman.isUserModeNetworkingSupported';
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
@@ -674,6 +675,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const version: string | undefined = installedPodman?.version;
 
   if (version) {
+    extensionApi.context.setValue(ROOTFUL_MACHINE_INIT_SUPPORTED_KEY, isRootfulMachineInitSupported(version));
     extensionApi.context.setValue(USER_MODE_NETWORKING_SUPPORTED_KEY, isUserModeNetworkingSupported(version));
     isMovedPodmanSocket = isPodmanSocketLocationMoved(version);
   }
@@ -942,6 +944,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       const installation = await getPodmanInstallation();
       const installed = installation ? true : false;
       extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
+      if (installed) {
+        extensionApi.context.setValue('podmanInstalledTitle', 'Podman already installed', 'onboarding');
+      } else {
+        extensionApi.context.setValue('podmanInstalledTitle', 'Podman successfully installed', 'onboarding');
+      }
     },
   );
 
@@ -1078,6 +1085,13 @@ export async function deactivate(): Promise<void> {
       console.log('stopped autostarted machine', autoMachineName);
     }
   });
+}
+
+const PODMAN_MINIMUM_VERSION_FOR_ROOTFUL_MACHINE_INIT = '4.1.0';
+
+// Checks if rootful machine init is supported.
+export function isRootfulMachineInitSupported(podmanVersion: string) {
+  return compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_ROOTFUL_MACHINE_INIT) >= 0;
 }
 
 const PODMAN_MINIMUM_VERSION_FOR_NEW_SOCKET_LOCATION = '4.5.0';

@@ -334,3 +334,50 @@ test('Try to delete a pod without deleting container', async () => {
   // and the standalone container has not been deleted
   expect(deleteContainerMock).not.toHaveBeenCalled();
 });
+
+test('Expect filter empty screen', async () => {
+  getProviderInfosMock.mockResolvedValue([
+    {
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          status: 'started',
+        },
+      ],
+    },
+  ]);
+
+  const singleContainer = {
+    Id: 'sha256:1234567890123',
+    Image: 'sha256:123',
+    Names: ['foo'],
+    Status: 'Running',
+    engineId: 'podman',
+    engineName: 'podman',
+  };
+
+  // one single container
+  const mockedContainers = [singleContainer];
+
+  listContainersMock.mockResolvedValue(mockedContainers);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('tray:update-provider'));
+
+  // wait store are populated
+  while (get(containersInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  while (get(providerInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  await waitRender({ searchTerm: 'No match' });
+
+  const filterButton = screen.getByRole('button', { name: 'Clear filter' });
+  expect(filterButton).toBeInTheDocument();
+});

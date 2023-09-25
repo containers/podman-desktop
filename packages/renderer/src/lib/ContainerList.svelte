@@ -11,7 +11,9 @@ import { router } from 'tinro';
 import { ContainerGroupInfoTypeUI, type ContainerGroupInfoUI, type ContainerInfoUI } from './container/ContainerInfoUI';
 import ContainerActions from './container/ContainerActions.svelte';
 import PodActions from './pod/PodActions.svelte';
+import ContainerIcon from './images/ContainerIcon.svelte';
 import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';
+import FilteredEmptyScreen from './ui/FilteredEmptyScreen.svelte';
 import Modal from './dialogs/Modal.svelte';
 import { ContainerUtils } from './container/container-utils';
 import { providerInfos } from '../stores/providers';
@@ -36,7 +38,6 @@ import { CONTAINER_LIST_VIEW } from './view/views';
 import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
 import type { ContextUI } from './context/context';
 import Button from './ui/Button.svelte';
-import { type Menu, MenuContext } from '../../../main/src/plugin/menu-registry';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -221,7 +222,6 @@ let contextsUnsubscribe: Unsubscriber;
 let podUnsubscribe: Unsubscriber;
 let viewsUnsubscribe: Unsubscriber;
 let pods: PodInfo[];
-let contributedMenus: Menu[];
 
 onMount(async () => {
   // grab previous groups
@@ -248,8 +248,6 @@ onMount(async () => {
   podUnsubscribe = podsInfos.subscribe(podInfos => {
     pods = podInfos;
   });
-
-  contributedMenus = await window.getContributedMenus(MenuContext.DASHBOARD_CONTAINER);
 });
 
 function updateContainers(containers: ContainerInfo[], globalContext: ContextUI, viewContributions: ViewInfoUI[]) {
@@ -527,11 +525,14 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       age: containerGroup.humanCreationDate,
                       created: containerGroup.created,
                       selected: false,
-                      containers: [],
+                      containers: containerGroup.containers.map(container => ({
+                        Id: container.id,
+                        Names: container.name,
+                        Status: container.state,
+                      })),
                       kind: 'podman',
                     }}"
-                    dropdownMenu="{true}"
-                    contributions="{contributedMenus}" />
+                    dropdownMenu="{true}" />
                 {/if}
                 {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE && containerGroup.status && containerGroup.engineId && containerGroup.engineType}
                   <ComposeActions
@@ -540,12 +541,11 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       name: containerGroup.name,
                       engineId: containerGroup.engineId,
                       engineType: containerGroup.engineType,
-                      containers: [],
+                      containers: containerGroup.containers,
                     }}"
                     dropdownMenu="{true}"
                     inProgressCallback="{(containers, flag, state) =>
-                      composeGroupInProgressCallback(containerGroup.containers, flag, state)}"
-                    contributions="{contributedMenus}" />
+                      composeGroupInProgressCallback(containerGroup.containers, flag, state)}" />
                 {/if}
               </td>
             </tr>
@@ -625,8 +625,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                         errorCallback="{error => errorCallback(container, error)}"
                         inProgressCallback="{(flag, state) => inProgressCallback(container, flag, state)}"
                         container="{container}"
-                        dropdownMenu="{true}"
-                        contributions="{contributedMenus}" />
+                        dropdownMenu="{true}" />
                     </div>
                   </div>
                 </td>
@@ -641,7 +640,11 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
-      <ContainerEmptyScreen />
+      {#if searchTerm}
+        <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
+      {:else}
+        <ContainerEmptyScreen />
+      {/if}
     {/if}
   </div>
 </NavPage>

@@ -10,6 +10,7 @@ import NavPage from '../ui/NavPage.svelte';
 import { VolumeUtils } from './volume-utils';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import VolumeEmptyScreen from './VolumeEmptyScreen.svelte';
+import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import VolumeActions from './VolumeActions.svelte';
 import VolumeIcon from '../images/VolumeIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
@@ -20,7 +21,7 @@ import Checkbox from '../ui/Checkbox.svelte';
 import Button from '../ui/Button.svelte';
 import { faPieChart, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
 
-let searchTerm = '';
+export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let volumes: VolumeInfoUI[] = [];
@@ -288,7 +289,11 @@ function gotoCreateVolume(): void {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.map(volumeInfo => volumeInfo.Volumes).flat().length === 0}
-      <VolumeEmptyScreen />
+      {#if searchTerm}
+        <FilteredEmptyScreen icon="{VolumeIcon}" kind="volumes" bind:searchTerm="{searchTerm}" />
+      {:else}
+        <VolumeEmptyScreen />
+      {/if}
     {/if}
   </div>
 </NavPage>

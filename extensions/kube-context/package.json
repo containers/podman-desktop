@@ -45,7 +45,7 @@
     "7zip-min": "^1.4.4",
     "@types/js-yaml": "^4.0.6",
     "mkdirp": "^3.0.1",
-    "vitest": "^0.34.4",
+    "vitest": "^0.34.5",
     "zip-local": "^0.3.5"
   }
 }

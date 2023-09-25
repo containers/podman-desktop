@@ -50,7 +50,7 @@ export function close(): void {
     <div class="flex flex-row px-2 border-b border-charcoal-400">
       <slot name="tabs" />
     </div>
-    <div class="h-full bg-charcoal-900">
+    <div class="h-full bg-charcoal-900 min-h-0">
       <slot name="content" />
     </div>
   </div>

@@ -73,15 +73,15 @@ beforeAll(() => {
       func();
     },
   };
-  (window as any).getConfigurationValue = vi.fn();
+  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
   });
   (window as any).openFileDialog = vi.fn().mockResolvedValue({ canceled: false, filePaths: ['Containerfile'] });
-  (window as any).telemetryPage = vi.fn();
-  (window as any).kubernetesGetCurrentContextName = vi.fn();
-  (window as any).kubernetesGetCurrentNamespace = vi.fn();
-  (window as any).kubernetesListNamespaces = vi.fn();
+  (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
+  (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue(undefined);
+  (window as any).kubernetesGetCurrentNamespace = vi.fn().mockResolvedValue(undefined);
+  (window as any).kubernetesListNamespaces = vi.fn().mockResolvedValue(undefined);
 });
 
 function setup() {

@@ -135,3 +135,48 @@ test('Expect images being ordered by newest first', async () => {
   expect(fedoraRecent.compareDocumentPosition(veryOld)).toBe(4);
   expect(fedoraOld.compareDocumentPosition(veryOld)).toBe(4);
 });
+
+test('Expect filter empty screen', async () => {
+  getProviderInfosMock.mockResolvedValue([
+    {
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          status: 'started',
+        },
+      ],
+    },
+  ]);
+
+  listImagesMock.mockResolvedValue([
+    {
+      Id: 'sha256:1234567890123',
+      RepoTags: ['fedora:old'],
+      Created: 1644009612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+  ]);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('image-build'));
+
+  // wait store are populated
+  while (get(imagesInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  while (get(providerInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  await waitRender({ searchTerm: 'No match' });
+
+  const filterButton = screen.getByRole('button', { name: 'Clear filter' });
+  expect(filterButton).toBeInTheDocument();
+});

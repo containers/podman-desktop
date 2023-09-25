@@ -53,6 +53,7 @@ import type { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
 import { getBase64Image } from '../util.js';
 import type { Exec } from './util/exec.js';
+import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 
 vi.mock('../util.js', async () => {
   return {
@@ -272,6 +273,7 @@ suite('Authentication', () => {
       vi.fn() as unknown as Context,
       directories,
       vi.fn() as unknown as Exec,
+      vi.fn() as unknown as KubeGeneratorRegistry,
     );
     providerMock = {
       onDidChangeSessions: vi.fn(),

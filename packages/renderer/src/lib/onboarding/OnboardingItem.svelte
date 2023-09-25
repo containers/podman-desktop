@@ -3,7 +3,7 @@ import { onMount } from 'svelte';
 import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import Markdown from '../markdown/Markdown.svelte';
 import type { ContextUI } from '../context/context';
-import { SCOPE_ONBOARDING } from './onboarding-utils';
+import { replaceContextKeyPlaceHoldersByRegex, replaceContextKeyPlaceholders } from './onboarding-utils';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import PreferencesRenderingItem from '../preferences/PreferencesRenderingItem.svelte';
@@ -18,9 +18,7 @@ export let inProgressCommandExecution: (
   value?: unknown,
 ) => void;
 
-const onboardingContextRegex = new RegExp(/\${onboardingContext:(.+?)}/g);
 const configurationRegex = new RegExp(/\${configuration:(.+?)}/g);
-const globalContextRegex = new RegExp(/\${onContext:(.+?)}/g);
 let html: string;
 $: html;
 let configurationItems: IConfigurationPropertyRecordedSchema[];
@@ -34,7 +32,6 @@ onMount(() => {
     if (matches.length > 0 && matches[0].length > 1) {
       configurationItem = configurationItems.find(
         config =>
-          !config.hidden &&
           isTargetScope(CONFIGURATION_ONBOARDING_SCOPE, config.scope) &&
           config.extension?.id === extension &&
           config.id === matches[0][1],
@@ -48,31 +45,10 @@ onMount(() => {
 
 function replacePlaceholders(label: string): string {
   let newLabel = label;
-  newLabel = replacePlaceHoldersRegex(onboardingContextRegex, newLabel, `${extension}.${SCOPE_ONBOARDING}`);
-  newLabel = replacePlaceHoldersRegex(globalContextRegex, newLabel);
-  newLabel = replacePlaceHoldersRegex(configurationRegex, newLabel, undefined, '');
+  const context = getContext();
+  newLabel = replaceContextKeyPlaceholders(newLabel, extension, context);
+  newLabel = replaceContextKeyPlaceHoldersByRegex(configurationRegex, newLabel, undefined, undefined, '');
   return newLabel;
-}
-
-function replacePlaceHoldersRegex(regex: RegExp, label: string, prefix?: string, replacement?: string) {
-  const matches = [...label.matchAll(regex)];
-  for (const match of matches) {
-    label = getNewValue(label, match, prefix, replacement);
-  }
-  return label;
-}
-
-function getNewValue(label: string, matchArray: RegExpMatchArray, prefix?: string, replacement?: string) {
-  if (matchArray.length > 1) {
-    const key = prefix ? `${prefix}.${matchArray[1]}` : matchArray[1];
-    if (replacement === undefined) {
-      replacement = getContext().getValue(key);
-    }
-    if (replacement !== undefined) {
-      return label.replace(matchArray[0], replacement.toString());
-    }
-  }
-  return label;
 }
 </script>
 

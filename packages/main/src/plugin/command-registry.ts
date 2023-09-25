@@ -18,6 +18,17 @@
 
 import { Disposable } from './types/disposable.js';
 import type { Telemetry } from './telemetry/telemetry.js';
+import { type CommandInfo } from './api/command-info.js';
+import { type ApiSenderType } from './api.js';
+
+export interface RawCommand {
+  command?: string;
+  title?: string;
+  category?: string;
+  description?: string;
+  icon?: string | { light: string; dark: string };
+  keybinding?: string;
+}
 
 export interface CommandHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,9 +38,18 @@ export interface CommandHandler {
 }
 
 export class CommandRegistry {
-  constructor(private readonly telemetry: Telemetry) {}
+  constructor(
+    private apiSender: ApiSenderType,
+    private readonly telemetry: Telemetry,
+  ) {
+    // init empty array
+    this.commandPaletteCommands.set(CommandRegistry.GLOBAL, []);
+  }
 
   private commands = new Map<string, CommandHandler>();
+
+  static readonly GLOBAL = 'GLOBAL';
+  private commandPaletteCommands = new Map<string, RawCommand[]>();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable {
@@ -71,5 +91,73 @@ export class CommandRegistry {
 
   hasCommand(commandId: string): boolean {
     return this.commands.has(commandId);
+  }
+
+  getCommandPaletteCommands(): CommandInfo[] {
+    // we return the commands from commandPaletteCommands map
+    const commandInfos: CommandInfo[] = [];
+    this.commandPaletteCommands.forEach(commands => {
+      commands.forEach(command => {
+        if (!command.command) {
+          return;
+        }
+        commandInfos.push({
+          id: command.command,
+          title: command.title,
+        });
+      });
+    });
+
+    // need to sort based on the title
+    commandInfos.sort((a, b) => {
+      if (a.title && b.title) {
+        return a.title.localeCompare(b.title);
+      }
+      return 0;
+    });
+
+    return commandInfos;
+  }
+
+  registerCommandPalette(...extensionCommands: RawCommand[]): Disposable {
+    const disposables: Disposable[] = [];
+
+    extensionCommands.forEach(command => {
+      this.commandPaletteCommands.get(CommandRegistry.GLOBAL)?.push(command);
+      disposables.push(
+        Disposable.create(() => {
+          // grab the global commands
+          const globalCommands = this.commandPaletteCommands.get(CommandRegistry.GLOBAL);
+          if (globalCommands) {
+            // search matching command
+            const index = globalCommands.findIndex(cmd => cmd.command === command.command);
+            if (index > -1) {
+              // remove it
+              globalCommands.splice(index, 1);
+            }
+          }
+        }),
+      );
+    });
+    this.apiSender.send('commands-added');
+
+    disposables.push(
+      Disposable.create(() => {
+        this.apiSender.send('commands-removed');
+      }),
+    );
+
+    return Disposable.from(...disposables);
+  }
+
+  registerCommandsFromExtension(extensionId: string, extensionCommands: RawCommand[]): Disposable {
+    // add the commands
+    this.commandPaletteCommands.set(extensionId, extensionCommands);
+    this.apiSender.send('commands-added');
+
+    return Disposable.create(() => {
+      this.commandPaletteCommands.delete(extensionId);
+      this.apiSender.send('commands-removed');
+    });
   }
 }

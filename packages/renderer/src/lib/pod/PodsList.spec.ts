@@ -31,6 +31,7 @@ import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 const getProvidersInfoMock = vi.fn();
 const listPodsMock = vi.fn();
 const kubernetesListPodsMock = vi.fn();
+const getContributedMenusMock = vi.fn();
 
 const provider: ProviderInfo = {
   containerConnections: [
@@ -133,6 +134,9 @@ beforeAll(() => {
       func();
     },
   };
+
+  (window as any).getContributedMenus = getContributedMenusMock;
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 
 test('Expect no pods being displayed', async () => {
@@ -230,4 +234,24 @@ test('Expect 2 kubernetes pods being displayed', async () => {
   expect(pod1Details).toBeInTheDocument();
   const pod2Details = screen.getByRole('cell', { name: 'kubepod2 e8129c57 0 container k8s context2 tooltip' });
   expect(pod2Details).toBeInTheDocument();
+});
+
+test('Expect filter empty screen', async () => {
+  getProvidersInfoMock.mockResolvedValue([provider]);
+  listPodsMock.mockResolvedValue([pod1]);
+  kubernetesListPodsMock.mockResolvedValue([]);
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  while (get(providerInfos).length !== 1) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  while (get(podsInfos).length !== 1) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  render(PodsList, { searchTerm: 'No match' });
+  const filterButton = screen.getByRole('button', { name: 'Clear filter' });
+  expect(filterButton).toBeInTheDocument();
 });

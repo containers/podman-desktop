@@ -19,6 +19,14 @@
 import { expect, test } from 'vitest';
 import { ContextUI } from './context';
 
+test('check that a false value is correctly returned', async () => {
+  const context = new ContextUI();
+  context.setValue('key', 'false');
+
+  const value = context.getValue('key');
+  expect(value).toBe('false');
+});
+
 test('check that value is correctly returned', async () => {
   const context = new ContextUI();
   context.setValue('key', 'value');

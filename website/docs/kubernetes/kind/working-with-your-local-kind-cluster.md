@@ -10,6 +10,11 @@ tags: [migrating-to-kubernetes, kind]
 
 Set your Kubernetes context to your local Kind-powered Kubernetes cluster.
 
+#### Prerequisites
+
+- [You onboarded a Kind cluster](/docs/onboarding/kubernetes/kind).
+- [You have set your Kubernetes context to your local Kind-powered Kubernetes cluster](/docs/kubernetes/kind/working-with-your-local-kind-cluster).
+
 #### Procedure
 
 1. Open the Podman Desktop tray.

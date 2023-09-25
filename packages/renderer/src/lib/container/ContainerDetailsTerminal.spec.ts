@@ -26,10 +26,12 @@ import { containerTerminals } from '/@/stores/container-terminal-store';
 
 const getConfigurationValueMock = vi.fn();
 const shellInContainerMock = vi.fn();
+const shellInContainerResizeMock = vi.fn();
 
 beforeAll(() => {
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).shellInContainer = shellInContainerMock;
+  (window as any).shellInContainerResize = shellInContainerResizeMock;
 
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
