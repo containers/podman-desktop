@@ -141,6 +141,26 @@ const config = {
             from: '/docs/kubernetes/kind/deleting-your-kind-cluster',
           },
           {
+            to: '/docs/onboarding/kubernetes/minikube/installing-minikube',
+            from: '/docs/kubernetes/minikube/installing-minikube',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/minikube/configuring-podman-for-minikube-on-windows',
+            from: '/docs/kubernetes/minikube/configuring-podman-for-minikube-on-windows',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/minikube/creating-a-minikube-cluster',
+            from: '/docs/kubernetes/minikube/creating-a-minikube-cluster',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/minikube/restarting-your-minikube-cluster',
+            from: '/docs/kubernetes/minikube/restarting-your-minikube-cluster',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/minikube/deleting-your-minikube-cluster',
+            from: '/docs/kubernetes/minikube/deleting-your-minikube-cluster',
+          },
+          {
             to: '/docs/working-with-containers',
             from: ['/docs/getting-started/getting-started', '/docs/getting-started'],
           },

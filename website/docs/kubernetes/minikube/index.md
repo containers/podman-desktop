@@ -10,10 +10,12 @@ tags: [migrating-to-kubernetes, minikube]
 
 Podman Desktop can help you run [Minikube-powered](https://minikube.sigs.k8s.io/) local Kubernetes clusters on a container engine, such as Podman.
 
+#### Prerequisites
+
+- [You onboarded a Minikube cluster](/docs/onboarding/kubernetes/minikube).
+
 #### Procedure
 
-1. Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions**.
-1. Install the _Minikube_ extension:
-   1. Go to **Install a new extension from OCI Image**
-   1. Enter the **Name of the Image**: `ghcr.io/containers/podman-desktop-extension-minikube`
-   1. Click **<icon icon="fa-solid fa-download" size="lg" /> Install extension from the OCI image**
+1. [Set your Kubernetes context to your Minikube cluster](/docs/kubernetes/minikube/working-with-your-local-minikube-cluster).
+2. [Build an image and test it in Minikube](/docs/kubernetes/minikube/building-an-image-and-testing-it-in-minikube).
+3. [Push an image to Minikube](/docs/kubernetes/minikube/pushing-an-image-to-minikube).
