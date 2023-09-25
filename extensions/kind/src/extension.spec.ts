@@ -78,7 +78,7 @@ test('check we received notifications ', async () => {
   expect(listContainersMock).toBeCalledTimes(1);
 });
 
-test('', async () => {
+test('Ensuring a progress task is created when calling kind.image.move command', async () => {
   const commandRegistry: { [id: string]: (image: { image: string }) => Promise<void> } = {};
 
   const registerCommandMock = vi.fn();
