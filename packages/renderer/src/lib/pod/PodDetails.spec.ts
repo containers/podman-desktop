@@ -48,11 +48,14 @@ const myPod: PodInfo = {
 };
 
 const removePodMock = vi.fn();
+const getContributedMenusMock = vi.fn();
 
 beforeAll(() => {
   (window as any).listPods = listPodsMock;
   (window as any).kubernetesListPods = kubernetesListPodsMock;
   (window as any).removePod = removePodMock;
+  (window as any).getContributedMenus = getContributedMenusMock;
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 
 test('Expect redirect to previous page if pod is deleted', async () => {

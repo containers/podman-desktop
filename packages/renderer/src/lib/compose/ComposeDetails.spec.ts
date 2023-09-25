@@ -10,6 +10,7 @@ import { get } from 'svelte/store';
 
 const listContainersMock = vi.fn();
 const getProviderInfosMock = vi.fn();
+const getContributedMenusMock = vi.fn();
 
 vi.mock('xterm', () => {
   return {
@@ -41,6 +42,8 @@ beforeAll(() => {
   (window as any).logsContainer = vi.fn();
   (window as any).listViewsContributions = vi.fn();
   (window as any).generatePodmanKube = vi.fn();
+  (window as any).getContributedMenus = getContributedMenusMock;
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
   mockBreadcrumb();
 });
 

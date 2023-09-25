@@ -108,3 +108,69 @@ test('Expect executeCommand to be called with sanitize object nested', async () 
   await fireEvent.click(item);
   expect(executeCommand).toBeCalledWith('dummy.command', { parent: { serializable: 'hello' } });
 });
+
+test('Expect when property to be true', async () => {
+  render(ContributionActions, {
+    args: [
+      {
+        property: 'hello',
+      },
+    ],
+    contributions: [
+      {
+        command: 'dummy.command',
+        title: 'dummy-title',
+        when: 'property === hello',
+      },
+    ],
+    onError: () => {},
+    dropdownMenu: true,
+  });
+  const item = screen.getByText('dummy-title');
+  expect(item).toBeInTheDocument();
+});
+
+test('Expect when property to be false', async () => {
+  render(ContributionActions, {
+    args: [
+      {
+        property: 'hello',
+      },
+    ],
+    contributions: [
+      {
+        command: 'dummy.command',
+        title: 'dummy-title',
+        when: 'property === world',
+      },
+    ],
+    onError: () => {},
+    dropdownMenu: true,
+  });
+  const item = screen.queryByText('dummy-title');
+  expect(item).toBeNull();
+});
+
+test('Expect when property to be true multiple args', async () => {
+  render(ContributionActions, {
+    args: [
+      {
+        property: 'hello',
+      },
+      {
+        property: 'world',
+      },
+    ],
+    contributions: [
+      {
+        command: 'dummy.command',
+        title: 'dummy-title',
+        when: 'property === world',
+      },
+    ],
+    onError: () => {},
+    dropdownMenu: true,
+  });
+  const item = screen.getByText('dummy-title');
+  expect(item).toBeInTheDocument();
+});

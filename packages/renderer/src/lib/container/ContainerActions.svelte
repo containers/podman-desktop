@@ -18,13 +18,19 @@ import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import { MenuContext } from '../../../../main/src/plugin/menu-registry';
+import { onMount } from 'svelte';
 export let container: ContainerInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
-export let contributions: Menu[] = [];
 
 export let inProgressCallback: (inProgress: boolean, state?: string) => void = () => {};
 export let errorCallback: (erroMessage: string) => void = () => {};
+
+let contributions: Menu[] = [];
+onMount(async () => {
+  contributions = await window.getContributedMenus(MenuContext.DASHBOARD_CONTAINER);
+});
 
 async function startContainer() {
   inProgressCallback(true, 'STARTING');
@@ -178,6 +184,7 @@ if (dropdownMenu) {
     icon="{faArrowsRotate}" />
   <ContributionActions
     args="{[container]}"
+    contextPrefix="containerItem"
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
     onError="{errorCallback}" />

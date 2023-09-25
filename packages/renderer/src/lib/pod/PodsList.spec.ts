@@ -31,6 +31,7 @@ import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 const getProvidersInfoMock = vi.fn();
 const listPodsMock = vi.fn();
 const kubernetesListPodsMock = vi.fn();
+const getContributedMenusMock = vi.fn();
 
 const provider: ProviderInfo = {
   containerConnections: [
@@ -133,6 +134,9 @@ beforeAll(() => {
       func();
     },
   };
+
+  (window as any).getContributedMenus = getContributedMenusMock;
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 
 test('Expect no pods being displayed', async () => {

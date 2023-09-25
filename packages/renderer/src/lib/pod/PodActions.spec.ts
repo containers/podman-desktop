@@ -27,11 +27,15 @@ const pod: PodInfoUI = {
 } as PodInfoUI;
 
 const errorCallback = vi.fn();
+const getContributedMenusMock = vi.fn();
 
 beforeEach(() => {
   (window as any).kubernetesDeletePod = vi.fn();
   vi.resetAllMocks();
   vi.clearAllMocks();
+
+  (window as any).getContributedMenus = getContributedMenusMock;
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 
 test('Expect no error deleting pod', async () => {
