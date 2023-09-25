@@ -1,14 +1,14 @@
 ---
 sidebar_position: 30
-title: Custom Lima machine
-description: Podman Desktop can assist you to create a custom Lima machine on Linux and macOS.
+title: Custom Lima instance
+description: Podman Desktop can assist you to create a custom Lima instance on Linux and macOS.
 tags: [podman-desktop, kubernetes, onboarding, linux, macOS]
 keywords: [podman desktop, kubernetes, lima, onboarding, linux, macos]
 ---
 
-# Creating a Lima machine for Kubernetes workloads with Podman Desktop
+# Creating a Lima instance for Kubernetes workloads with Podman Desktop
 
-To use the Lima provider you need a Lima machine running a Linux virtual machine.
+To use the Lima provider you need a Lima instance running a Linux virtual machine.
 
 In the future, Podman Desktop might be able to create Lima instances.
 
@@ -27,7 +27,7 @@ Consider creating a custom Lima instance to:
 
 #### Procedure
 
-1. In a terminal, create the Lima machine.
+1. In a terminal, create the Lima instance.
 
    - To create a single-node Kubernetes cluster running [k3s](https://k3s.io/):
 

@@ -29,7 +29,7 @@ Podman Desktop does not automatically set up container engine resources that you
 
    - Select a Podman execution environment:
 
-     | Host operating system | Native containers |        Podman machine         |  Lima machine   |
+     | Host operating system | Native containers |        Podman machine         |  Lima instance  |
      | :-------------------- | :---------------: | :---------------------------: | :-------------: |
      | Windows               |       ❌ no       |            ✅ yes             | ❌ experimental |
      | macOS                 |       ❌ no       |            ✅ yes             |     ✅ yes      |
@@ -37,11 +37,11 @@ Podman Desktop does not automatically set up container engine resources that you
 
    - Select a Docker execution environment:
 
-     | Host operating system | Native containers | Lima machine | Docker Desktop |
-     | :-------------------- | :---------------: | :----------: | :------------: |
-     | Windows               |       ❌ no       |    ❌ no     |     ✅ yes     |
-     | macOS                 |       ❌ no       |    ✅ yes    |     ✅ yes     |
-     | Linux                 |      ✅ yes       |    ❌ no     |     ✅ yes     |
+     | Host operating system | Native containers | Lima instance | Docker Desktop |
+     | :-------------------- | :---------------: | :-----------: | :------------: |
+     | Windows               |       ❌ no       |     ❌ no     |     ✅ yes     |
+     | macOS                 |       ❌ no       |    ✅ yes     |     ✅ yes     |
+     | Linux                 |      ✅ yes       |     ❌ no     |     ✅ yes     |
 
 3. Setup your container engine.
 
@@ -51,7 +51,7 @@ Podman Desktop does not automatically set up container engine resources that you
      - [Installing Podman with OpenShift Local on Windows](/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows).
      - [Creating a Podman machine with Podman Desktop](/docs/onboarding/containers/creating-a-podman-machine-with-podman-desktop).
 
-   - Podman Desktop consumes your native containers, Lima machine or Docker setup.
+   - Podman Desktop consumes your native containers, Lima instance or Docker setup.
 
-     - [Creating a Lima machine](/docs/onboarding/containers/creating-a-lima-instance-with-podman-desktop).
+     - [Creating a Lima instance](/docs/onboarding/containers/creating-a-lima-instance-with-podman-desktop).
      - [Installing Podman on Linux](https://podman.io/docs/installation#installing-on-linux).
