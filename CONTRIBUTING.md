@@ -16,6 +16,7 @@ that we follow.
 - [Submitting Pull Requests](#submitting-pull-requests)
 - [Communication](#communication)
 - [Code Architecture](#code-architecture)
+- [Maintainer Tasks](#maintainer-tasks)
 
 ## Reporting Issues
 
@@ -353,3 +354,17 @@ If you're unsure where to add code (renderer, UI, extensions, plugins) see the b
 Podman Desktop is moduralized into extensions for each 'Provider'. You can also create and add your own extension.
 
 See our [EXTENSIONS.md](/EXTENSIONS.md) document for more details.
+
+## Maintainer tasks
+
+List of maintainer tasks to help the project run smoothly.
+
+### Triaging
+
+New issues will have the [status/need-triage](https://github.com/containers/podman-desktop/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%2Fneed-triage) label assigned. As a maintainer, you'll have to curate these issues into the appropriate [area labels](https://github.com/containers/podman-desktop/labels?q=area%2F).
+
+Ideally complete the task every morning:
+
+1. [View all the current triage labeled issues.](https://github.com/containers/podman-desktop/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%2Fneed-triage)
+2. Add the appropriate [area label](https://github.com/containers/podman-desktop/labels?q=area%2F) that matches the issue. You can use "bulk edit" by clicking the checkmark of the issues and using the label dropdown selection.
+3. Remove the `status/need-triage` label.
