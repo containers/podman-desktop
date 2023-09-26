@@ -42,10 +42,10 @@ Consider creating a custom Lima instance to:
      $ limactl start template://k8s
      ```
 
-   - To select the number of CPUs, the memory, and the disk size, add the `--set` option to the `limactl start` command:
+   - To select the number of CPUs, the memory, and the disk size, add the options to the `limactl start` command:
 
      ```shell-session
-     --set='.cpus = 4 | .memory = "4GiB" | .disk = "100GiB"'
+     --cpus=4 --memory=4 --disk=100
      ```
 
 2. Wait for the instance to start, and restart the Lima extension.
