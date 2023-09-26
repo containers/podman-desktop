@@ -25,6 +25,7 @@ export interface OnboardingCommandResponse {
 export interface OnboardingStepItem {
   value: string;
   highlight?: boolean;
+  when?: string;
 }
 
 export type OnboardingStatus = 'completed' | 'failed' | 'skipped';

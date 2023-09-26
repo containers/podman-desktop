@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
+import type { OnboardingInfo, OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import { faForward } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
@@ -34,6 +34,11 @@ let onboardings: OnboardingInfo[];
 let activeStep: ActiveOnboardingStep;
 $: activeStep;
 
+// Content may be dynamically updated via "when" statements
+// this allows us to show warnings when clicking buttons, etc
+let activeStepContent: OnboardingStepItem[][];
+$: activeStepContent;
+
 $: executing = false;
 let globalContext: ContextUI;
 let displayCancelSetup = false;
@@ -59,6 +64,17 @@ onMount(async () => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
+
+    // When the context is updated while on the content page,
+    // update the step content to show / hide rows based on the "when" clause
+    if (activeStep?.step.content) {
+      activeStepContent = activeStep.step.content.map(row => {
+        return row.filter(item => {
+          return evaluateWhen(item.when, activeStep.onboarding.extension);
+        });
+      });
+    }
+
     // when the context is updated it checks if the onboarding already started
     if (started) {
       //if the onboarding is running, it means there is an active step and verifies if it is complete.
@@ -112,6 +128,15 @@ async function setActiveStep() {
               onboarding,
               step,
             };
+            // When the context is updated while on the content page,
+            // update the step content to show / hide rows based on the "when" clause
+            if (step.content) {
+              activeStepContent = step.content.map(row => {
+                return row.filter(item => {
+                  return evaluateWhen(item.when, onboarding.extension);
+                });
+              });
+            }
             if (step.command) {
               await doExecuteCommand(step.command);
               // after command has been executed, we check if the step must be marked as completed
@@ -128,6 +153,22 @@ async function setActiveStep() {
   }
   // if it reaches this point it means that the onboarding is fully completed and the user is redirected to the dashboard
   router.goto($lastPage.path);
+}
+
+// Evaluate the "when" clause with the extension and return true / false
+function evaluateWhen(when: string | undefined, extension: string): boolean {
+  // If there's no when, just return true
+  if (!when) {
+    return true;
+  }
+
+  // Serialize and return the evaluation of the when clause
+  // based upon the global context
+  const whenDeserialized = ContextKeyExpr.deserialize(normalizeOnboardingWhenClause(when, extension));
+  if (whenDeserialized) {
+    return whenDeserialized.evaluate(globalContext);
+  }
+  return false;
 }
 
 async function doExecuteCommand(command: string) {
@@ -296,8 +337,8 @@ async function restartSetup() {
       {/if}
 
       <div class="flex flex-col mx-auto">
-        {#if activeStep.step.content}
-          {#each activeStep.step.content as row}
+        {#if activeStepContent}
+          {#each activeStepContent as row}
             <div class="flex flex-row mx-auto">
               {#each row as item}
                 <OnboardingItem
