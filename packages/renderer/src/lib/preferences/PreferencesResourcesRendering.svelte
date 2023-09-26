@@ -336,7 +336,6 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
   const isEnabled = whenDeserialized?.evaluate(globalContext);
   return isEnabled || false;
 }
-
 </script>
 
 <SettingsPage title="Resources">
