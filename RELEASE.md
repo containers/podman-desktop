@@ -48,7 +48,7 @@ At this step, generates as well Flathub pull request so people can test the pack
 
 Create a branch if it does not exist. For example 1.3.x if 1.3.0 failed. Then, cherry-pick bugfixes in that branch.
 
-- ✅ If committers agree we have a green light, proceed. Do not forget to change the release from 'pre-release' to 'latest release' before proceeding.
+- ✅ If committers agree we have a green light, proceed. **Do not forget to change the release from 'pre-release' to 'latest release' before proceeding**.
 
 ## Updating package managers (Brew, Winget, Chocolatey, Flathub)
 
@@ -101,13 +101,17 @@ You can view the progress at: https://community.chocolatey.org/packages/podman-d
 1. Fork the repository https://github.com/flathub/io.podman_desktop.PodmanDesktop and clone your repository (example https://github.com/benoitf/io.podman_desktop.PodmanDesktop)
 1. Edit the file: `io.podman_desktop.PodmanDesktop.yml`
 1. Replace url: https://github.com/containers/podman-desktop/archive/refs/tags/vXXX.tar.gz by the correct version (`0.12.0`)
-1. Download the package: `wget https://github.com/containers/podman-desktop/archive/refs/tags/v0.12.0.tar.gz`
+1. Download the package: `wget https://github.com/containers/podman-desktop/archive/refs/tags/v0.12.0.tar.gz` or `curl -O -L https://github.com/containers/podman-desktop/archive/refs/tags/v0.12.0.tar.gz`
 1. Get the SHA256: `shasum -a 256 v0.12.0.tar.gz`
 1. Update `io.podman_desktop.PodmanDesktop.yml` with the new SHA256.
 1. Unpack the tar: `tar zxf v0.12.0.tar.gz`
 1. Run the command (updating the `0.12.0` volume mount path)
    ```sh
    podman run --rm -it -v $(pwd)/podman-desktop-0.12.0:/podman quay.io/podman-desktop/flatpak-node-generator yarn /podman/yarn.lock -o /podman/generated-sources.json
+   ```
+   or (for Windows users)
+   ```sh
+   podman run --rm -it -v %CD%\podman-desktop-0.12.0:/podman quay.io/podman-desktop/flatpak-node-generator yarn /podman/yarn.lock -o /podman/generated-sources.json
    ```
 1. Copy the file `$(pwd)/podman-desktop-0.12.0/generated-sources.json` to `generated-sources.json`
 1. Only commit the files:
