@@ -288,7 +288,7 @@ export interface LibPod {
   generateKube(names: string[]): Promise<string>;
   playKube(yamlContentFilePath: string): Promise<PlayKubeInfo>;
   pruneAllImages(dangling: boolean): Promise<void>;
-  info(): Promise<Info>;
+  podmanInfo(): Promise<Info>;
 }
 
 // tweak Dockerode by adding the support of libpod API
@@ -664,7 +664,7 @@ export class LibpodDockerode {
     };
 
     // info
-    prototypeOfDockerode.info = function () {
+    prototypeOfDockerode.podmanInfo = function () {
       const optsf = {
         path: '/v4.2.0/libpod/info',
         method: 'GET',

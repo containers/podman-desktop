@@ -67,7 +67,6 @@ import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
-import type { Info } from '/@/plugin/dockerode/libpod-dockerode.js';
 
 /**
  * Handle the loading of an extension
@@ -891,7 +890,7 @@ export class ExtensionLoader {
       deleteImage(engineId: string, id: string) {
         return containerProviderRegistry.deleteImage(engineId, id);
       },
-      info(engineId: string): Promise<Info> {
+      info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
         return containerProviderRegistry.info(engineId);
       },
       onEvent: (listener, thisArg, disposables) => {

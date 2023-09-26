@@ -48,7 +48,7 @@
         },
         "podman.machine.cpusUsage": {
           "type": "number",
-          "format": "cpu",
+          "format": "cpuUsage",
           "scope": "ContainerConnection",
           "description": "CPU(s) usage"
         },
@@ -62,7 +62,7 @@
         },
         "podman.machine.memoryUsage": {
           "type": "number",
-          "format": "memory",
+          "format": "memoryUsage",
           "scope": "ContainerConnection",
           "description": "Memory usage"
         },
@@ -75,7 +75,7 @@
         },
         "podman.machine.diskSizeUsage": {
           "type": "number",
-          "format": "diskSize",
+          "format": "diskSizeUsage",
           "scope": "ContainerConnection",
           "description": "Disk size usage"
         },

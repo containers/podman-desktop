@@ -38,6 +38,7 @@ import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
 import Donut from '/@/lib/donut/Donut.svelte';
+import { PeerProperties } from './PeerProperties';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();
@@ -336,29 +337,6 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
   return isEnabled || false;
 }
 
-function isPeerProperty(peerProperties: string[], id?: string): boolean {
-  return peerProperties.some(value => value === id);
-}
-
-function getStringArray(): string[] {
-  return [];
-}
-
-function getPeerProperty(
-  peerProperties: string[],
-  id: string | undefined,
-  properties: IProviderConnectionConfigurationPropertyRecorded[],
-): any {
-  if (id) {
-    const peerId = id + 'Usage';
-    const peerProperty = properties.find(property => property.id === peerId);
-    if (peerProperty?.id) {
-      peerProperties.push(peerProperty.id);
-      return peerProperty.value;
-    }
-  }
-  return '';
-}
 </script>
 
 <SettingsPage title="Resources">
@@ -447,7 +425,7 @@ function getPeerProperty(
             message="{provider.emptyConnectionMarkdownDescription}"
             hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
           {#each provider.containerConnections as container}
-            {@const peerProperties = getStringArray()}
+            {@const peerProperties = new PeerProperties()}
             <div class="px-5 py-2 w-[240px]">
               <div class="float-right">
                 <Tooltip tip="{provider.name} details" bottom>
@@ -483,10 +461,9 @@ function getPeerProperty(
                 {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}
                 <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}">
                   {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
-                    {#if connectionSetting.format === 'cpu'}
-                      {#if !isPeerProperty(peerProperties, connectionSetting.id)}
-                        {@const peerValue = getPeerProperty(
-                          peerProperties,
+                    {#if connectionSetting.format === 'cpu' || connectionSetting.format === 'cpuUsage'}
+                      {#if !peerProperties.isPeerProperty(connectionSetting.id)}
+                        {@const peerValue = peerProperties.getPeerProperty(
                           connectionSetting.id,
                           providerConfiguration.filter(conf => conf.connection === container.name),
                         )}
@@ -497,10 +474,9 @@ function getPeerProperty(
                             percent="{peerValue}" />
                         </div>
                       {/if}
-                    {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
-                      {#if !isPeerProperty(peerProperties, connectionSetting.id)}
-                        {@const peerValue = getPeerProperty(
-                          peerProperties,
+                    {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'memoryUsage' || connectionSetting.format === 'diskSize' || connectionSetting.format === 'diskSizeUsage'}
+                      {#if !peerProperties.isPeerProperty(connectionSetting.id)}
+                        {@const peerValue = peerProperties.getPeerProperty(
                           connectionSetting.id,
                           providerConfiguration.filter(conf => conf.connection === container.name),
                         )}

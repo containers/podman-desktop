@@ -32,7 +32,7 @@ import { PodmanConfiguration } from './podman-configuration';
 import { getDetectionChecks } from './detection-checks';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { getSocketCompatibility } from './compatibility-mode';
-import type { RunError } from '@podman-desktop/api';
+import type { ContainerEngineInfo, RunError } from '@podman-desktop/api';
 import { compareVersions } from 'compare-versions';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
@@ -112,7 +112,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       status = 'starting';
     }
 
-    let machineInfo = undefined;
+    let machineInfo: ContainerEngineInfo | undefined = undefined;
     if (running) {
       try {
         machineInfo = await extensionApi.containerEngine.info(`podman.${prettyMachineName(machine.Name)}`);
@@ -131,15 +131,15 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     const userModeNetworking = isWindows() ? machine.UserModeNetworking : true;
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
-      memory: machineInfo ? machineInfo.host.memTotal : 0,
-      cpus: machineInfo ? machineInfo.host.cpus : 0,
-      diskSize: machineInfo ? machineInfo.store.graphRootAllocated : 0,
+      memory: machineInfo?.memory,
+      cpus: machineInfo?.cpus,
+      diskSize: machineInfo?.diskSize,
       userModeNetworking: userModeNetworking,
-      cpuUsage: machineInfo ? 100 - machineInfo.host.cpuUtilization.idlePercent : 0,
-      diskUsage: machineInfo ? (machineInfo.store.graphRootUsed * 100) / machineInfo.store.graphRootAllocated : 0,
-      memoryUsage: machineInfo
-        ? ((machineInfo.host.memTotal - machineInfo.host.memFree) * 100) / machineInfo.host.memTotal
-        : 0,
+      cpuUsage: machineInfo?.cpuIdle ? 100 - machineInfo?.cpuIdle : 0,
+      diskUsage:
+        machineInfo?.diskUsed && machineInfo?.diskSize ? (machineInfo?.diskUsed * 100) / machineInfo?.diskSize : 0,
+      memoryUsage:
+        machineInfo?.memory && machineInfo?.memoryUsed ? (machineInfo?.memoryUsed * 100) / machineInfo?.memory : 0,
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {

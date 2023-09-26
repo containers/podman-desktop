@@ -17,8 +17,6 @@
  ***********************************************************************/
 
 declare module '@podman-desktop/api' {
-  import type { Info } from '../../main/src/plugin/dockerode/libpod-dockerode';
-
   /**
    * Represents a reference to a command. Provides a title which
    * will be used to represent a command in the UI and, optionally,
@@ -1767,6 +1765,15 @@ declare module '@podman-desktop/api' {
     Id: string;
   }
 
+  interface ContainerEngineInfo {
+    cpus?: number;
+    cpuIdle?: number;
+    memory?: number;
+    memoryUsed?: number;
+    diskSize?: number;
+    diskUsed?: number;
+  }
+
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
@@ -1800,7 +1807,7 @@ declare module '@podman-desktop/api' {
     ): Promise<void>;
     export function deleteImage(engineId: string, id: string): Promise<void>;
 
-    export function info(engineId: string): Promise<Info>;
+    export function info(engineId: string): Promise<ContainerEngineInfo>;
     export const onEvent: Event<ContainerJSONEvent>;
 
     export function listNetworks(): Promise<NetworkInspectInfo[]>;

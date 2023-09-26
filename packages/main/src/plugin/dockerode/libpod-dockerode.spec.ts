@@ -164,7 +164,7 @@ test('Check attach API', async () => {
 test('Check info', async () => {
   nock('http://localhost').get('/v4.2.0/libpod/info').reply(200, podmanInfo);
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
-  const info = await (api as unknown as LibPod).info();
+  const info = await (api as unknown as LibPod).podmanInfo();
   expect(info).toBeDefined();
   expect(info).toStrictEqual(podmanInfo);
 });
