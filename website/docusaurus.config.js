@@ -215,7 +215,7 @@ const config = {
           postsPerPage: 'ALL',
           feedOptions: {
             type: 'all',
-            copyright: `Copyright © ${new Date().getFullYear()} Podman Desktop`,
+            copyright: `Copyright © ${new Date().getFullYear()} Red Hat, Inc.`,
           },
         },
         theme: {
@@ -258,6 +258,7 @@ const config = {
           { to: '/downloads', label: 'Downloads', position: 'left' },
           { to: '/extend', label: 'Extend', position: 'left' },
           { to: '/blog', label: 'Blog', position: 'left' },
+          { to: '/license', label: 'License', position: 'left' },
           {
             href: 'https://github.com/containers/podman-desktop',
             className: 'header-github-link',
@@ -338,7 +339,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} ${title}<br/>Apache License 2.0 License`,
+        copyright: `<a href="/license">Copyright © ${new Date().getFullYear()} Red Hat, Inc.<br/>Apache License 2.0 License</a>`,
       },
       prism: {
         theme: lightCodeTheme,
