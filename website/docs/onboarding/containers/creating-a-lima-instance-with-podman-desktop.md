@@ -62,6 +62,22 @@ Consider creating a custom Lima instance to:
 
 2. Wait for the instance to start, and restart the Lima extension.
 
+   - Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Extension: Lima**, to change the instance name and type.
+
+     - Podman (default)
+
+       - Type: podman
+       - Name: podman
+         ![Lima preferences Podman](img/lima-preferences-podman.png)
+
+     - Docker
+
+       - Type: docker
+       - Name: docker
+         ![Lima preferences Docker](img/lima-preferences-docker.png)
+
+   - Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions > Lima**, to disable and enable the extension after changes.
+
 #### Verification
 
 - To verify the connection to a running "podman" instance:

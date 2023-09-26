@@ -43,6 +43,22 @@ Consider creating a custom Lima instance to:
 
 2. Wait for the instance to start, and restart the Lima extension.
 
+   - Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Extension: Lima**, to change the instance name and type.
+
+     - k3s
+
+       - Type: kubernetes
+       - Name: k3s
+         ![Lima preferences k3s](img/lima-preferences-k3s.png)
+
+     - k8s
+
+       - Type: kubernetes
+       - Name: k8s
+         ![Lima preferences k8s](img/lima-preferences-k8s.png)
+
+   - Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions > Lima**, to disable and enable the extension after changes.
+
 #### Verification
 
 1. When the installation is done, the location of the KUBECONFIG file is printed. See [Configuring access to a Kubernetes cluster](/docs/kubernetes/configuring-access-to-a-kubernetes-cluster).
