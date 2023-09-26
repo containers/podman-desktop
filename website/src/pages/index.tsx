@@ -266,7 +266,11 @@ function Configure() {
               </div>
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Registries</h2>
-                <p className="leading-relaxed text-base">Manage OCI registries. Add/edit/delete registries.</p>
+                <p className="leading-relaxed text-base">
+                  <a href="/docs/working-with-containers/registries">
+                    Manage OCI registries. Add/edit/delete registries.
+                  </a>
+                </p>
               </div>
             </div>
 
@@ -276,7 +280,9 @@ function Configure() {
               </div>
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Proxy</h2>
-                <p className="leading-relaxed text-base">Configure your proxy settings.</p>
+                <p className="leading-relaxed text-base">
+                  <a href="/docs/proxy">Configure your proxy settings.</a>
+                </p>
               </div>
             </div>
 
@@ -301,7 +307,9 @@ function Configure() {
                   Container Engines
                 </h2>
                 <p className="leading-relaxed text-base">
-                  Handle multiple container engines at the same time: Podman, Docker.
+                  <a href="/docs/onboarding/containers">
+                    Handle multiple container engines at the same time: Podman, Docker.
+                  </a>
                 </p>
               </div>
             </div>
@@ -335,7 +343,9 @@ function EnterpriseReady() {
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Code signing</h2>
 
-                <p className="leading-relaxed text-base">Signed binaries for both macOS and Windows</p>
+                <p className="leading-relaxed text-base">
+                  <a href="/downloads">Signed binaries for both macOS and Windows</a>
+                </p>
               </div>
             </div>
             <div className="p-4 md:w-1/3 flex">
@@ -345,7 +355,7 @@ function EnterpriseReady() {
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100  text-lg title-font font-medium mb-2">Proxy</h2>
                 <p className="leading-relaxed text-base">
-                  Configure proxy within the tool. Avoid any painful files to edit.
+                  <a href="/docs/proxy">Configure proxy within the tool. Avoid any painful files to edit.</a>
                 </p>
               </div>
             </div>
@@ -355,7 +365,9 @@ function EnterpriseReady() {
               </div>
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Registries</h2>
-                <p className="leading-relaxed text-base">Manage OCI registries. Add/edit/delete registries.</p>
+                <p className="leading-relaxed text-base">
+                  <a href="/docs/proxy">Manage OCI registries. Add/edit/delete registries.</a>
+                </p>
               </div>
             </div>
           </div>
@@ -452,8 +464,10 @@ function MainFeatures() {
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Build</h2>
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  Build images from Containerfile or Dockerfile
+                  <a href="/docs/working-with-containers/images/building-an-image">
+                    <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
+                    Build images from Containerfile or Dockerfile
+                  </a>
                 </p>
               </div>
             </div>
@@ -465,12 +479,16 @@ function MainFeatures() {
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Run</h2>
 
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faDiagramProject} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  Pull images from remote registries
+                  <a href="/docs/working-with-containers/images/pulling-an-image">
+                    <FontAwesomeIcon icon={faDiagramProject} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
+                    Pull images from remote registries
+                  </a>
                 </p>
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  Start / Stop / Restart containers
+                  <a href="/docs/working-with-containers/starting-a-container">
+                    <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
+                    Start / Stop / Restart containers
+                  </a>
                 </p>
               </div>
             </div>
@@ -497,8 +515,10 @@ function MainFeatures() {
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Push</h2>
                 <p className="leading-relaxed text-base list-disc">
-                  <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  Push images to OCI registries
+                  <a href="/docs/working-with-containers/images/pushing-an-image-to-a-registry">
+                    <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
+                    Push images to OCI registries
+                  </a>
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
