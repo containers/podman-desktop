@@ -1,6 +1,5 @@
 ---
-sidebar_position: 10
-title: Onboarding Kind
+title: Kind
 description: Kind is one way to get Kubernetes running on your workstation.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
 tags: [migrating-to-kubernetes, kind]

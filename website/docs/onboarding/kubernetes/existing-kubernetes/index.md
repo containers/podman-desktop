@@ -1,6 +1,5 @@
 ---
-sidebar_position: 1
-title: Configuring access
+title: Existing Kubernetes
 description: Configuring access to a Kubernetes cluster
 keywords: [podman desktop, podman, containers, pods, migrating, kubernetes]
 tags: [migrating-to-kubernetes]

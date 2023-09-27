@@ -121,6 +121,14 @@ const config = {
             from: '/docs/Installation/creating-a-podman-machine-with-podman-desktop',
           },
           {
+            to: '/docs/onboarding/kubernetes/developer-sandbox',
+            from: '/docs/kubernetes/openshift/configuring-access-to-a-developer-sandbox',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/existing-kubernetes',
+            from: '/docs/kubernetes/configuring-access-to-a-kubernetes-cluster',
+          },
+          {
             to: '/docs/onboarding/kubernetes/kind/installing-kind',
             from: '/docs/kubernetes/kind/installing-kind',
           },
@@ -141,6 +149,10 @@ const config = {
             from: '/docs/kubernetes/kind/deleting-your-kind-cluster',
           },
           {
+            to: '/docs/onboarding/kubernetes/lima',
+            from: '/docs/onboarding/kubernetes/creating-a-lima-instance-with-podman-desktop',
+          },
+          {
             to: '/docs/onboarding/kubernetes/minikube/installing-minikube',
             from: '/docs/kubernetes/minikube/installing-minikube',
           },
@@ -159,6 +171,10 @@ const config = {
           {
             to: '/docs/onboarding/kubernetes/minikube/deleting-your-minikube-cluster',
             from: '/docs/kubernetes/minikube/deleting-your-minikube-cluster',
+          },
+          {
+            to: '/docs/onboarding/kubernetes/openshift-local',
+            from: '/docs/kubernetes/openshift/creating-an-openshift-local-cluster',
           },
           {
             to: '/docs/working-with-containers',
@@ -195,6 +211,10 @@ const config = {
           {
             to: '/docs/working-with-containers/switching-podman-machine-default-connection',
             from: '/docs/getting-started/switching-podman-machine-default-connection',
+          },
+          {
+            to: '/docs/kubernetes',
+            from: '/docs/kubernetes/openshift',
           },
         ],
       },

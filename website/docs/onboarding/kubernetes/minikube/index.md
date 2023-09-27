@@ -1,7 +1,6 @@
 ---
-sidebar_position: 10
-title: Onboarding Minikube
-description: Kind is one way to get Kubernetes running on your workstation.
+title: Minikube
+description: Minikube is one way to get Kubernetes running on your workstation.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, minikube]
 tags: [migrating-to-kubernetes, minikube]
 ---

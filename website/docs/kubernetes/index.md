@@ -10,6 +10,12 @@ tags: [migrating-to-kubernetes]
 
 Podman Desktop and Podman have many features allowing easy migration from containers to Kubernetes:
 
-- [Kind support](/docs/kubernetes/kind)
-- [Lima support](/docs/kubernetes/lima)
-- [Minikube support](/docs/kubernetes/minikube)
+#### Prerequisites
+
+- [You onboarded a Kubernetes cluster](/docs/onboarding/kubernetes)
+
+#### Procedure
+
+1. [Select your Kubernetes context](/docs/kubernetes/viewing-and-selecting-current-kubernete-context-in-the-status-bar).
+2. [Deploy a container](/docs/kubernetes/deploying-a-container-to-kubernetes).
+3. [Deply a pod](/docs/kubernetes/deploying-a-pod-to-kubernetes).
