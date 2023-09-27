@@ -32,7 +32,6 @@ export let extensionIds: string[] = [];
 
 let onboardings: OnboardingInfo[];
 let activeStep: ActiveOnboardingStep;
-$: activeStep;
 let activeStepContent: OnboardingStepItem[][];
 
 $: executing = false;
