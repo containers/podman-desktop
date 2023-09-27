@@ -1,3 +1,22 @@
+<style>
+#stepBody::-webkit-scrollbar {
+  width: 1em;
+}
+#stepBody::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+#stepBody::-webkit-scrollbar-thumb {
+  background-color: #5c5c5c;
+}
+#stepBody::-webkit-scrollbar-thumb:hover {
+  background-color: #707073;
+}
+.bodyWithBar::-webkit-scrollbar-track-piece:end {
+  background: transparent;
+  margin-bottom: 70px;
+}
+</style>
+
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
 import type { OnboardingInfo, OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
@@ -87,7 +106,7 @@ onMount(async () => {
   // Resize the bottom toolbar each time we change the div size
   resizeObserver = new ResizeObserver(() => {
     const parentWidth = activeStepDiv.getBoundingClientRect().width;
-    bottomToolbarDiv.style.width = parentWidth + 'px';
+    bottomToolbarDiv.style.width = parentWidth + 16 + 'px';
   });
 });
 
@@ -271,10 +290,11 @@ async function restartSetup() {
 
 {#if activeStep}
   <div
-    class="flex flex-col bg-[#36373a] h-full overflow-y-auto w-full overflow-x-hidden"
-    class:pb-20="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
-    <div class="flex flex-col" bind:this="{activeStepDiv}">
-      <div class="flex flex-row justify-between mt-5 mx-5 mb-5">
+    id="stepBody"
+    class="flex flex-col bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden"
+    class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
+    <div class="flex flex-col h-full" bind:this="{activeStepDiv}">
+      <div class="flex flex-row justify-between m-5">
         <div class="flex flew-row">
           {#if activeStep.onboarding.media}
             <img
@@ -309,7 +329,7 @@ async function restartSetup() {
         </div>
       </div>
       {#if activeStep.step.component}
-        <div class="min-w-[700px] mx-auto overflow-y-auto" aria-label="onboarding component">
+        <div class="min-w-[700px] mx-auto" aria-label="onboarding component">
           <OnboardingComponent
             component="{activeStep.step.component}"
             extensionId="{activeStep.onboarding.extension}" />
@@ -378,11 +398,11 @@ async function restartSetup() {
       {#if !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}
         <div class="grow"></div>
         {#if activeStep.step.state !== 'failed'}
-          <div class="mb-10 mx-auto text-sm" aria-label="next-info-message">
+          <div class="mt-10 mx-auto text-sm min-h-[120px]" aria-label="next-info-message">
             Press the <span class="bg-purple-700 p-0.5">Next</span> button below to proceed.
           </div>
         {:else}
-          <div class="mb-10 mx-auto text-sm" aria-label="exit-info-message">
+          <div class="mt-10 mx-auto text-sm min-h-[120px]" aria-label="exit-info-message">
             <Link on:click="{() => setDisplayCancelSetup(true)}">Exit</Link> the setup. You can try again later.
           </div>
         {/if}
