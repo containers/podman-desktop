@@ -11,7 +11,7 @@ import StatusIcon from '../images/StatusIcon.svelte';
 import ContainerIcon from '../images/ContainerIcon.svelte';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
-import PodIcon from '../images/PodIcon.svelte';
+import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import Button from '../ui/Button.svelte';
 import type { PodCreatePortOptions } from '../../../../main/src/plugin/dockerode/libpod-dockerode';
 
@@ -195,7 +195,7 @@ function updatePortExposure(port: number, checked: boolean) {
 </script>
 
 <FormPage title="Copy containers to a pod">
-  <PodIcon slot="icon" solid="{true}" />
+  <SolidPodIcon slot="icon" size="40" />
 
   <div class="min-w-full h-fit" slot="content">
     <div class="m-5 p-6 bg-charcoal-800 rounded-sm text-gray-700">
@@ -306,7 +306,7 @@ function updatePortExposure(port: number, checked: boolean) {
           <div>
             <Button type="link" on:click="{() => router.goto('/containers')}">Close</Button>
             <Button
-              icon="{PodIcon}"
+              icon="{SolidPodIcon}"
               bind:disabled="{createInProgress}"
               on:click="{() => {
                 createPodFromContainers();
