@@ -1,5 +1,4 @@
 ---
-sidebar_position: 1
 title: Developer Sandbox
 description: Configuring access to a Developer Sandbox
 keywords: [podman desktop, podman, containers, pods, migrating, kubernetes, openshift]

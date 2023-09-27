@@ -1,6 +1,5 @@
 ---
-sidebar_position: 30
-title: Custom Lima instance
+title: Lima
 description: Podman Desktop can assist you to create a custom Lima instance on Linux and macOS.
 tags: [podman-desktop, kubernetes, onboarding, linux, macOS]
 keywords: [podman desktop, kubernetes, lima, onboarding, linux, macos]
