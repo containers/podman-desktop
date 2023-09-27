@@ -42,6 +42,7 @@ import IconsStyle from './lib/style/IconsStyle.svelte';
 import CustomPick from './lib/dialogs/CustomPick.svelte';
 import ContextKey from './lib/context/ContextKey.svelte';
 import CreateVolume from './lib/volume/CreateVolume.svelte';
+import CommandPalette from './lib/dialogs/CommandPalette.svelte';
 
 router.mode.hash();
 
@@ -76,6 +77,7 @@ window.events?.receive('display-troubleshooting', () => {
       <MessageBox />
       <QuickPickInput />
       <CustomPick />
+      <CommandPalette />
       <AppNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
       {#if meta.url.startsWith('/preferences')}
         <PreferencesNavigation meta="{meta}" />
