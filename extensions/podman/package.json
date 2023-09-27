@@ -32,7 +32,7 @@
     "configuration": {
       "title": "Podman",
       "properties": {
-        "podman.binary.path": {
+        "podman.binary.pathToBinary": {
           "type": "string",
           "format": "file",
           "default": "",

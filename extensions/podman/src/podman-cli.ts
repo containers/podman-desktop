@@ -51,7 +51,7 @@ export function getPodmanCli(): string {
 // Get the Podman binary path from configuration podman.binary.path
 // return string or undefined
 export function getCustomBinaryPath(): string | undefined {
-  return extensionApi.configuration.getConfiguration('podman').get('binary.path');
+  return extensionApi.configuration.getConfiguration('podman').get('binary.pathToBinary');
 }
 
 export interface InstalledPodman {
