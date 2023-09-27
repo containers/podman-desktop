@@ -54,13 +54,29 @@ Consider creating a custom Lima instance to:
      $ limactl start --name=docker template://docker-rootful
      ```
 
-   - To select the number of CPUs, the memory, and the disk size, add the `--set` option to the `limactl start` command:
+   - To select the number of CPUs, the memory, and the disk size, add the options to the `limactl start` command:
 
      ```shell-session
-     --set='.cpus = 2 | .memory = "2GiB" | .disk = "50GiB"'
+     --cpus=2 --memory=2 --disk=50
      ```
 
 2. Wait for the instance to start, and restart the Lima extension.
+
+   - Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Extension: Lima**, to change the instance name and type.
+
+     - Podman (default)
+
+       - Type: podman
+       - Name: podman
+         ![Lima preferences Podman](img/lima-preferences-podman.png)
+
+     - Docker
+
+       - Type: docker
+       - Name: docker
+         ![Lima preferences Docker](img/lima-preferences-docker.png)
+
+   - Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions > Lima**, to disable and enable the extension after changes.
 
 #### Verification
 

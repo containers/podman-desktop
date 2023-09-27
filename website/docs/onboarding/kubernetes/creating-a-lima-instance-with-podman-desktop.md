@@ -15,6 +15,7 @@ In the future, Podman Desktop might be able to create Lima instances.
 Consider creating a custom Lima instance to:
 
 - Control the assigned resources: CPUs, memory, and disk size.
+- Control which Kubernetes distribution (`template`) to install.
 
 #### Prerequisites
 
@@ -41,11 +42,35 @@ Consider creating a custom Lima instance to:
      $ limactl start template://k8s
      ```
 
+   - To select the number of CPUs, the memory, and the disk size, add the options to the `limactl start` command:
+
+     ```shell-session
+     --cpus=4 --memory=4 --disk=100
+     ```
+
 2. Wait for the instance to start, and restart the Lima extension.
+
+   - Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Extension: Lima**, to change the instance name and type.
+
+     - k3s
+
+       - Type: kubernetes
+       - Name: k3s
+         ![Lima preferences k3s](img/lima-preferences-k3s.png)
+
+     - k8s
+
+       - Type: kubernetes
+       - Name: k8s
+         ![Lima preferences k8s](img/lima-preferences-k8s.png)
+
+   - Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions > Lima**, to disable and enable the extension after changes.
 
 #### Verification
 
 1. When the installation is done, the location of the KUBECONFIG file is printed. See [Configuring access to a Kubernetes cluster](/docs/kubernetes/configuring-access-to-a-kubernetes-cluster).
+
+   - Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Path to the kubeconfig file**, to set the path of the file.
 
 1. Use the `kubectl.lima` wrapper script to connect to the cluster:
 
