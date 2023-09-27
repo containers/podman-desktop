@@ -33,11 +33,7 @@ export let extensionIds: string[] = [];
 let onboardings: OnboardingInfo[];
 let activeStep: ActiveOnboardingStep;
 $: activeStep;
-
-// Content may be dynamically updated via "when" statements
-// this allows us to show warnings when clicking buttons, etc
 let activeStepContent: OnboardingStepItem[][];
-$: activeStepContent;
 
 $: executing = false;
 let globalContext: ContextUI;
