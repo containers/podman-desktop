@@ -152,3 +152,124 @@ test('Expect to have the embedded component if the step includes a component', a
   const bodyDiv = screen.queryByLabelText('step body');
   expect(bodyDiv).not.toBeInTheDocument();
 });
+
+test('Expect content to show / render when when clause is true', async () => {
+  (window as any).resetOnboarding = vi.fn();
+  (window as any).updateStepState = vi.fn();
+
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'completed',
+          completionEvents: [],
+          content: [
+            [
+              {
+                value: 'helloworld',
+                when: 'true',
+              },
+            ],
+          ],
+        },
+      ],
+      enablement: 'true',
+    },
+  ]);
+  context.set(new ContextUI());
+  await waitRender({
+    extensionIds: ['id'],
+  });
+  // Get by specifically the paragraph element with the text helloworld
+  const paragraph = screen.getAllByText('helloworld');
+  expect(paragraph[0]).toBeInTheDocument();
+});
+
+test('Expect content to NOT show / render when when clause is false', async () => {
+  (window as any).resetOnboarding = vi.fn();
+  (window as any).updateStepState = vi.fn();
+
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'completed',
+          completionEvents: [],
+          content: [
+            [
+              {
+                value: 'helloworld',
+                when: 'false',
+              },
+            ],
+          ],
+        },
+      ],
+      enablement: 'true',
+    },
+  ]);
+  context.set(new ContextUI());
+  await waitRender({
+    extensionIds: ['id'],
+  });
+  const helloDoesntExist = screen.queryByText('helloworld');
+  expect(helloDoesntExist).not.toBeInTheDocument();
+});
+
+test('Expect content with "when" to change dynamically when setting has been updated via context.', async () => {
+  (window as any).resetOnboarding = vi.fn();
+  (window as any).updateStepState = vi.fn();
+
+  const contextConfig = new ContextUI();
+  context.set(contextConfig);
+  contextConfig.setValue('config.test', false);
+
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'completed',
+          completionEvents: [],
+          content: [
+            [
+              {
+                value: 'helloworld',
+                when: 'config.test',
+              },
+            ],
+          ],
+        },
+      ],
+      enablement: 'true',
+    },
+  ]);
+
+  await waitRender({
+    extensionIds: ['id'],
+  });
+
+  // Expect "helloworld" to not be in the document
+  const helloDoesntExist = screen.queryByText('helloworld');
+  expect(helloDoesntExist).not.toBeInTheDocument();
+
+  contextConfig.setValue('config.test', true);
+  await waitRender({
+    extensionIds: ['id'],
+  });
+
+  // Expect "helloworld" to exist
+  const helloExists = screen.getAllByText('helloworld');
+  expect(helloExists[0]).toBeInTheDocument();
+});
