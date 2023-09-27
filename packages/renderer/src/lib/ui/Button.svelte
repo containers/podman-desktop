@@ -15,8 +15,6 @@ let iconType: string | undefined = undefined;
 onMount(() => {
   if (icon?.prefix === 'fas') {
     iconType = 'fa';
-  } else if (icon?.name.includes('PodIcon')) {
-    iconType = 'pd';
   } else {
     iconType = 'unknown';
   }
@@ -56,8 +54,6 @@ $: {
         <Spinner size="1em" />
       {:else if iconType === 'fa'}
         <Fa icon="{icon}" />
-      {:else if iconType === 'pd'}
-        <svelte:component this="{icon}" size="1em" solid="{true}" />
       {:else if iconType === 'unknown'}
         <svelte:component this="{icon}" />
       {/if}

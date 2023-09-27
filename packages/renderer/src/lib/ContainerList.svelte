@@ -39,6 +39,7 @@ import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
 import type { ContextUI } from './context/context';
 import Button from './ui/Button.svelte';
 import StateChange from './ui/StateChange.svelte';
+import SolidPodIcon from './images/SolidPodIcon.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -434,7 +435,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       <Button
         on:click="{() => createPodFromContainers()}"
         title="Create Pod with {selectedItemsNumber} selected items"
-        icon="{PodIcon}" />
+        icon="{SolidPodIcon}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
   </div>
