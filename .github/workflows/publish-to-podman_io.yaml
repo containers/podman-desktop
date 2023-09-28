@@ -59,9 +59,14 @@ jobs:
 
       - name: Replace the content of the file
         run: |
-          # Replace the version in static/data/global.ts file (replace the 1.0.1 value)
-          # export const LATEST_DESKTOP_VERSION = '1.0.1';
+          # Replace the version in static/data/global.ts file (replace the xxx value)
+          # export const LATEST_DESKTOP_VERSION = 'xxx';
           sed -i "s/export const LATEST_DESKTOP_VERSION = '.*';/export const LATEST_DESKTOP_VERSION = '${{ steps.VERSION.outputs.desktopVersion }}';/g" static/data/global.ts
+          # Replace the version of the blog post
+          # export const LATEST_DESKTOP_DOWNLOAD_URL = 'https://podman-desktop.io/blog/podman-desktop-release-xxx';
+          # need to strip out the last digit after the last . to get the blog post version (so for example 1.4.1 becomes 1.4)
+          blogPostVersion=$(echo ${{ steps.VERSION.outputs.desktopVersion }} | sed 's/\.[^.]*$//')
+          sed -i "s/export const LATEST_DESKTOP_DOWNLOAD_URL = '.*';/export const LATEST_DESKTOP_DOWNLOAD_URL = 'https:\/\/podman-desktop.io\/blog\/podman-desktop-release-$blogPostVersion';/g" static/data/global.ts
           echo "New content of the file:"
           cat static/data/global.ts
 
