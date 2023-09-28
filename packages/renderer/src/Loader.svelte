@@ -8,9 +8,9 @@ let systemReady = false;
 
 let toggle = false;
 
-let loadingSequence: NodeJS.Timer;
+let loadingSequence: NodeJS.Timeout;
 
-let extensionsStarterChecker: NodeJS.Timer;
+let extensionsStarterChecker: NodeJS.Timeout;
 
 onMount(async () => {
   loadingSequence = setInterval(() => {
