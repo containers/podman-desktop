@@ -67,6 +67,10 @@ import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
+import type { BinaryRegistry } from './binaries/binary-registry.js';
+import { UpdateProvider } from './binaries/update-provider.js';
+import { GithubUpdateProvider } from './binaries/github-update-provider.js';
+import { Octokit } from '@octokit/rest';
 
 /**
  * Handle the loading of an extension
@@ -154,6 +158,7 @@ export class ExtensionLoader {
     directories: Directories,
     private exec: Exec,
     private kubeGeneratorRegistry: KubeGeneratorRegistry,
+    private binaryRegistry: BinaryRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -817,6 +822,19 @@ export class ExtensionLoader {
       },
     };
 
+    const binaryRegistry = this.binaryRegistry;
+    const binaries: typeof containerDesktopAPI.binaries = {
+      registerBinary(provider: BinaryProvider): Disposable {
+        return binaryRegistry.registerProvider(provider);
+      },
+      registerGithubBinary(githubOrganization: string, githubRepo: string) {
+        return binaryRegistry.registerProvider({
+          name: `${githubOrganization}/${githubRepo}`,
+          updater: new GithubUpdateProvider(new Octokit(), githubOrganization, githubRepo),
+        });
+      },
+    };
+
     const kubernetesClient = this.kubernetesClient;
     const kubernetesGeneratorRegistry = this.kubeGeneratorRegistry;
     const kubernetes: typeof containerDesktopAPI.kubernetes = {
@@ -1026,6 +1044,8 @@ export class ExtensionLoader {
       QuickPickItemKind,
       authentication,
       context: contextAPI,
+      UpdateProvider,
+      binaries,
     };
   }
 

@@ -24,7 +24,7 @@ import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
 import { compareVersions } from 'compare-versions';
 import type { ExtensionUpdateInfo } from '/@/plugin/api/extension-info.js';
 import type { ExtensionInstaller } from '/@/plugin/install/extension-installer.js';
-import type { BinaryRegistry } from '/@/plugin/binary-registry.js';
+import type { BinaryRegistry } from '/src/plugin/binaries/binary-registry.js';
 
 export class ExtensionsUpdater {
   static readonly CHECK_FOR_UPDATES_INTERVAL = 1000 * 60 * 60 * 12; // 12 hours

@@ -1317,6 +1317,26 @@ declare module '@podman-desktop/api' {
     export function createCustomPick<T extends CustomPickItem>(): CustomPick<T>;
   }
 
+  export interface AssetInfo {
+    id: number;
+    name: string;
+  }
+
+  export abstract class UpdateProvider {
+    abstract getVersions(): Promise<AssetInfo[]>;
+    abstract performInstall(asset: AssetInfo, destination: string): Promise<void>;
+  }
+
+  export interface BinaryProvider {
+    name: string;
+    updater: UpdateProvider;
+  }
+
+  export namespace binaries {
+    export function registerBinary(provider: BinaryProvider): Disposable;
+    export function registerGithubBinary(githubOrganization: string, githubRepo: string): Disposable;
+  }
+
   export namespace kubernetes {
     // Path to the configuration file
     export function getKubeconfig(): Uri;

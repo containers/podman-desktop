@@ -18,8 +18,8 @@
 
 import { test, vi, expect, beforeAll } from 'vitest';
 import { dir } from 'tmp-promise';
-import type { AssetInfo } from '/@/plugin/binary-registry.js';
-import { BinaryRegistry } from '/@/plugin/binary-registry.js';
+import type { AssetInfo } from './binary-registry.js';
+import { BinaryRegistry } from './binary-registry.js';
 import type { Octokit } from '@octokit/rest';
 import fs from 'node:fs';
 
