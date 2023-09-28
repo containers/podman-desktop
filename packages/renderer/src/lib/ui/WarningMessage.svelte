@@ -15,9 +15,9 @@ export let icon = false;
   {/if}
 {:else}
   <div
-    class="text-amber-500 p-1 flex flex-row items-top {$$props.class}"
+    class="text-amber-500 p-1 flex flex-row items-center {$$props.class}"
     class:opacity-0="{error === undefined || error === ''}">
-    <Fa size="18" class="cursor-pointer text-amber-500 mt-1" icon="{faTriangleExclamation}" />
-    <div class="ml-2">{error}</div>
+    <Fa size="18" class="cursor-pointer text-amber-500" icon="{faTriangleExclamation}" />
+    <div role="alert" aria-label="Warning Message Content" class="ml-2">{error}</div>
   </div>
 {/if}

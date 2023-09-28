@@ -5,6 +5,7 @@ import Modal from '../dialogs/Modal.svelte';
 import type { FeedbackProperties } from '../../../../preload/src/index';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Button from '../ui/Button.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
 let displayModal = false;
 
 // feedback of the user
@@ -99,9 +100,10 @@ async function sendFeedback(): Promise<void> {
           maxlength="1000"
           name="tellUsWhyFeedback"
           id="tellUsWhyFeedback"
+          data-testid="tellUsWhyFeedback"
           bind:value="{tellUsWhyFeedback}"
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
-        ></textarea>
+          placeholder="Please enter your feedback here, we appreciate and review all comments"></textarea>
 
         <label for="contactInformation" class="block mt-4 mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
           >Share your contact information if you'd like us to answer you:</label>
@@ -110,17 +112,27 @@ async function sendFeedback(): Promise<void> {
           name="contactInformation"
           id="contactInformation"
           bind:value="{contactInformation}"
-          placeholder="Enter email address, phone number or leave blank for anonymous feedback"
+          placeholder="Enter email address, phone number, or leave blank for anonymous feedback"
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
 
-        <div class="pt-5 flex flex-row w-full">
-          {#if smileyRating === 0}
-            <ErrorMessage class="flex flex-row w-[350px] text-xs" error="Please select an experience smiley" />
-          {/if}
-
-          <div class="flex flex-row justify-end w-full">
-            <Button disabled="{smileyRating === 0}" on:click="{() => sendFeedback()}">Send feedback</Button>
+        <div class="pt-5 flex flex-row w-full justify-between">
+          <div>
+            {#if smileyRating === 0}
+              <ErrorMessage class="flex flex-row w-[350px] text-xs" error="Please select an experience smiley" />
+            {:else if smileyRating === 1 && !tellUsWhyFeedback && !contactInformation}
+              <ErrorMessage
+                class="flex flex-row w-[350px] text-xs"
+                error="Please share contact info or details on how we can improve" />
+            {:else if smileyRating === 2 && !tellUsWhyFeedback}
+              <WarningMessage
+                class="flex flex-row w-[350px] text-xs"
+                error="We would really appreciate knowing how we can improve" />
+            {/if}
           </div>
+
+          <Button
+            disabled="{smileyRating === 0 || (smileyRating === 1 && !tellUsWhyFeedback && !contactInformation)}"
+            on:click="{() => sendFeedback()}">Send feedback</Button>
         </div>
       </div>
     </div>

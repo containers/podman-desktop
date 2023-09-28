@@ -20,6 +20,7 @@ import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SendFeedback from './SendFeedback.svelte';
+import userEvent from '@testing-library/user-event';
 
 // fake the window.events object
 beforeAll(() => {
@@ -54,4 +55,59 @@ test('Expect that the button is enabled after clicking on a smiley', async () =>
 
   // and the indication is gone
   expect(screen.queryByText('Please select an experience smiley')).not.toBeInTheDocument();
+});
+
+test('Expect very sad smiley errors without feedback', async () => {
+  render(SendFeedback, {});
+  const button = screen.getByRole('button', { name: 'Send feedback' });
+  expect(button).toBeDisabled();
+
+  // expect to have indication why the button is disabled
+  expect(screen.getByText('Please select an experience smiley')).toBeInTheDocument();
+
+  // click on very sad smiley
+  const smiley = screen.getByRole('button', { name: 'very-sad-smiley' });
+  await fireEvent.click(smiley);
+
+  // expect button is still disabled, but with different indication
+  expect(button).toBeDisabled();
+  const message = screen.getByText('Please share contact info or details on how we can improve');
+  expect(message).toBeInTheDocument();
+
+  // add some text
+  const feedback = screen.getByTestId('tellUsWhyFeedback');
+  expect(feedback).toBeInTheDocument();
+
+  await userEvent.type(feedback, 'PD is awesome');
+
+  // button is enabled and the indication is gone
+  expect(button).toBeEnabled();
+  expect(message).not.toBeInTheDocument();
+});
+
+test('Expect sad smiley warns without feedback', async () => {
+  render(SendFeedback, {});
+  const button = screen.getByRole('button', { name: 'Send feedback' });
+  expect(button).toBeDisabled();
+
+  // expect to have indication why the button is disabled
+  expect(screen.getByText('Please select an experience smiley')).toBeInTheDocument();
+
+  // click on very sad smiley
+  const smiley = screen.getByRole('button', { name: 'sad-smiley' });
+  await fireEvent.click(smiley);
+
+  // expect button is now enabled, but with different indication
+  expect(button).toBeEnabled();
+  const warn = screen.getByText('We would really appreciate knowing how we can improve');
+  expect(warn).toBeInTheDocument();
+
+  // add some text
+  const feedback = screen.getByTestId('tellUsWhyFeedback');
+  expect(feedback).toBeInTheDocument();
+
+  await userEvent.type(feedback, 'PD is awesome');
+
+  // and the indication is gone
+  expect(warn).not.toBeInTheDocument();
 });
