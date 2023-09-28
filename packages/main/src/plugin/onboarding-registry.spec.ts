@@ -82,10 +82,9 @@ beforeEach(() => {
   bufferFrom.mockReturnValue(Buffer.from(''));
 });
 
-test('Should return no onboarding if experimental onboarding setting is disabled', async () => {
-  getConfigMock.mockReturnValue(false);
+test('Should always return onboarding', async () => {
   const onbording = onboardingRegistry.getOnboarding(extensionId);
-  expect(onbording).toBe(undefined);
+  expect(onbording).not.toBe(undefined);
 });
 
 test('Should return no onboarding for unknown extension', async () => {
