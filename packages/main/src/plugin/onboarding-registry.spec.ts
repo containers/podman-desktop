@@ -83,31 +83,31 @@ beforeEach(() => {
 });
 
 test('Should always return onboarding', async () => {
-  const onbording = onboardingRegistry.getOnboarding(extensionId);
-  expect(onbording).not.toBe(undefined);
+  const onboarding = onboardingRegistry.getOnboarding(extensionId);
+  expect(onboarding).not.toBe(undefined);
 });
 
 test('Should return no onboarding for unknown extension', async () => {
-  const onbording = onboardingRegistry.getOnboarding('unknown');
-  expect(onbording).toBe(undefined);
+  const onboarding = onboardingRegistry.getOnboarding('unknown');
+  expect(onboarding).toBe(undefined);
 });
 
 test('Should onboarding for known extension', async () => {
-  const onbording = onboardingRegistry.getOnboarding(extensionId);
-  expect(onbording).toBeDefined();
-  expect(onbording?.title).toBe('Get started with Podman Desktop');
+  const onboarding = onboardingRegistry.getOnboarding(extensionId);
+  expect(onboarding).toBeDefined();
+  expect(onboarding?.title).toBe('Get started with Podman Desktop');
 });
 
 test('Should not find onboarding after dispose', async () => {
   registerOnboardingDisposable.dispose();
-  const onbording = onboardingRegistry.getOnboarding(extensionId);
-  expect(onbording).toBe(undefined);
+  const onboarding = onboardingRegistry.getOnboarding(extensionId);
+  expect(onboarding).toBe(undefined);
 });
 
 test('Should not find onboarding after unregistered', async () => {
   onboardingRegistry.unregisterOnboarding(extensionId);
-  const onbording = onboardingRegistry.getOnboarding(extensionId);
-  expect(onbording).toBe(undefined);
+  const onboarding = onboardingRegistry.getOnboarding(extensionId);
+  expect(onboarding).toBe(undefined);
 });
 
 test('Should return list of registered onboarding', async () => {
