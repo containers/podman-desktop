@@ -120,7 +120,6 @@ import type { ViewInfoUI } from './api/view-info.js';
 import { Context } from './context/context.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
-import { OnboardingUtils } from './onboarding/onboarding-utils.js';
 import { Exec } from './util/exec.js';
 import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 import type {
@@ -686,10 +685,6 @@ export class PluginSystem {
     // init welcome configuration
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
-
-    // init onboarding configuration
-    const onboardingUtils = new OnboardingUtils(configurationRegistry);
-    onboardingUtils.init();
 
     const messageBox = new MessageBox(apiSender);
 

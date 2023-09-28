@@ -47,11 +47,7 @@ export class OnboardingRegistry {
   }
 
   getOnboarding(extension: string): OnboardingInfo | undefined {
-    const isOnboardingEnabled = this.configurationRegistry.getConfiguration('experimental').get('onboarding');
-    if (isOnboardingEnabled) {
-      return this.onboardingInfos.get(extension);
-    }
-    return undefined;
+    return this.onboardingInfos.get(extension);
   }
 
   createOnboardingInfo(extension: AnalyzedExtension, onboarding: Onboarding): OnboardingInfo {
