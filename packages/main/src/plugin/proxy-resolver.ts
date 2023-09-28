@@ -47,18 +47,18 @@ function createProxyAgent(secure: boolean, proxyUrl: string) {
     proxy: proxyUrl,
   };
   return secure
-    ? new HttpsProxyAgent(options as HttpProxyAgentOptions)
-    : new HttpProxyAgent(options as HttpsProxyAgentOptions);
+    ? new HttpsProxyAgent(options as HttpsProxyAgentOptions)
+    : new HttpProxyAgent(options as HttpProxyAgentOptions);
 }
 
-function getProxyUrl(proxy: Proxy): string | undefined {
+export function getProxyUrl(proxy: Proxy): string | undefined {
   if (proxy.isEnabled()) {
     // use HTTPS proxy if it is configured, because HTTPS proxy works for both HTTP/HTTPS
     // servers
     if (proxy.proxy?.httpsProxy) {
-      return proxy.proxy?.httpsProxy;
+      return `https://${proxy.proxy?.httpsProxy}`;
     }
-    return proxy.proxy?.httpProxy;
+    return `http://${proxy.proxy?.httpProxy}`;
   }
 }
 

@@ -132,6 +132,7 @@
     "postcss-import": "^15.1.0",
     "prettier": "^3.0.3",
     "prettier-plugin-svelte": "^3.0.3",
+    "proxy": "^2.1.1",
     "typescript": "5.2.2",
     "validator": "^13.11.0",
     "vite": "^4.4.9",
@@ -160,6 +161,7 @@
     "sudo-prompt": "^9.2.1",
     "tar": "^6.2.0",
     "tar-fs": "^3.0.4",
+    "undici": "^5.25.1",
     "win-ca": "^3.5.0",
     "yaml": "^2.3.2",
     "zip-local": "^0.3.5"

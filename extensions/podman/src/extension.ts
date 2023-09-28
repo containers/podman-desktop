@@ -1187,27 +1187,7 @@ export async function createMachine(
     parameters.push('--now');
   }
 
-  // Add proxy environment variables if proxy is enabled
-  const proxyEnabled = extensionApi.proxy.isEnabled();
-  const env = {};
-  if (proxyEnabled) {
-    const proxySettings = extensionApi.proxy.getProxySettings();
-    if (proxySettings?.httpProxy) {
-      if (isWindows()) {
-        env['env:http_proxy'] = proxySettings.httpProxy;
-      } else {
-        env['http_proxy'] = proxySettings.httpProxy;
-      }
-    }
-    if (proxySettings?.httpsProxy) {
-      if (isWindows()) {
-        env['env:https_proxy'] = proxySettings.httpsProxy;
-      } else {
-        env['https_proxy'] = proxySettings.httpsProxy;
-      }
-    }
-  }
-  await extensionApi.process.exec(getPodmanCli(), parameters, { logger, env, token });
+  await extensionApi.process.exec(getPodmanCli(), parameters, { logger, token });
   extensionApi.context.setValue('podmanMachineExists', true, 'onboarding');
 }
 

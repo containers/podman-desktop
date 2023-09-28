@@ -164,7 +164,6 @@ test('verify create command called with correct values', async () => {
     getPodmanCli(),
     ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path'],
     {
-      env: {},
       logger: undefined,
       token: undefined,
     },
@@ -201,7 +200,6 @@ test('verify create command called with correct values with user mode networking
     '--user-mode-networking',
   ];
   expect(spyExecPromise).toBeCalledWith(getPodmanCli(), parameters, {
-    env: {},
     logger: undefined,
   });
   expect(console.error).not.toBeCalled();
