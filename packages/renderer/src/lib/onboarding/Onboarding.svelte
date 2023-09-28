@@ -62,13 +62,12 @@ onMount(async () => {
 
     // When the context is updated while on the content page,
     // update the step content to show / hide rows based on the "when" clause
-    if (activeStep?.step.content) {
-      activeStepContent = activeStep.step.content.map(row => {
+    activeStepContent =
+      activeStep?.step.content?.map(row => {
         return row.filter(item => {
           return evaluateWhen(item.when, activeStep.onboarding.extension);
         });
-      });
-    }
+      }) || [];
 
     // when the context is updated it checks if the onboarding already started
     if (started) {
@@ -125,13 +124,12 @@ async function setActiveStep() {
             };
             // When the context is updated while on the content page,
             // update the step content to show / hide rows based on the "when" clause
-            if (step.content) {
-              activeStepContent = step.content.map(row => {
+            activeStepContent =
+              step.content?.map(row => {
                 return row.filter(item => {
                   return evaluateWhen(item.when, onboarding.extension);
                 });
-              });
-            }
+              }) || [];
             if (step.command) {
               await doExecuteCommand(step.command);
               // after command has been executed, we check if the step must be marked as completed

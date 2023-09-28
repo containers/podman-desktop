@@ -17,7 +17,7 @@
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import Onboarding from './Onboarding.svelte';
 import { ContextUI } from '../context/context';
 import { onboardingList } from '/@/stores/onboarding';
@@ -272,4 +272,60 @@ test('Expect content with "when" to change dynamically when setting has been upd
   // Expect "helloworld" to exist
   const helloExists = screen.getAllByText('helloworld');
   expect(helloExists[0]).toBeInTheDocument();
+});
+
+test('Expect step body to clean up if new step has no content to display.', async () => {
+  (window as any).resetOnboarding = vi.fn();
+  (window as any).updateStepState = vi.fn();
+
+  const contextConfig = new ContextUI();
+  context.set(contextConfig);
+  contextConfig.setValue('config.test', false);
+
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          content: [
+            [
+              {
+                value: 'helloworld',
+              },
+            ],
+          ],
+        },
+        {
+          id: 'step2',
+          title: 'step2',
+          state: 'completed',
+        },
+      ],
+      enablement: 'true',
+    },
+  ]);
+
+  await waitRender({
+    extensionIds: ['id'],
+  });
+
+  // Expect "helloworld" to exist
+  const helloExists = screen.getAllByText('helloworld');
+  expect(helloExists[0]).toBeInTheDocument();
+
+  // click on the next button
+  const nextButton = screen.getByRole('button', { name: 'Next' });
+  expect(nextButton).toBeInTheDocument();
+  await fireEvent.click(nextButton);
+
+  while (screen.queryAllByText('helloworld').length !== 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // Expect "helloworld" to not be in the document
+  const helloDoesntExist = screen.queryByText('helloworld');
+  expect(helloDoesntExist).not.toBeInTheDocument();
 });
