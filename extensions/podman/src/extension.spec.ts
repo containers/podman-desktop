@@ -235,7 +235,6 @@ test('verify create command called with now flag if start machine after creation
     '--now',
   ];
   expect(spyExecPromise).toBeCalledWith(getPodmanCli(), parameters, {
-    env: {},
     logger: undefined,
   });
   expect(console.error).not.toBeCalled();
