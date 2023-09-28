@@ -38,6 +38,9 @@ export class ContainerUtils {
         return `${composeService}-${composeContainerNumber}`;
       }
     }
+    if (containerInfo.Names.length === 0) {
+      return '';
+    }
     return containerInfo.Names[0].replace(/^\//, '');
   }
 
@@ -263,6 +266,6 @@ export class ContainerUtils {
   }
 
   adaptContextOnContainer(context: ContextUI, container: ContainerInfo): void {
-    context.setValue('containerLabelKeys', Object.keys(container.Labels));
+    context.setValue('containerLabelKeys', container.Labels ? Object.keys(container.Labels) : []);
   }
 }

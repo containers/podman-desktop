@@ -881,15 +881,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     });
   }
 
-  // no podman for now, skip
-  if (isMac()) {
-    if (!fs.existsSync(podmanMachineSocketsDirectory)) {
-      return;
-    }
-    monitorMachines(provider).catch((error: unknown) => {
-      console.error('Error while monitoring machines', error);
-    });
-  } else if (isLinux()) {
+  if (isLinux()) {
     // on Linux, need to run the system service for unlimited time
     let command = 'podman';
     let args = ['system', 'service', '--time=0'];
@@ -930,7 +922,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     initDefaultLinux(provider).catch((error: unknown) => {
       console.error('Error while initializing default linux', error);
     });
-  } else if (isWindows()) {
+  } else if (isWindows() || isMac()) {
     monitorMachines(provider).catch((error: unknown) => {
       console.error('Error while monitoring machines', error);
     });
@@ -1187,27 +1179,7 @@ export async function createMachine(
     parameters.push('--now');
   }
 
-  // Add proxy environment variables if proxy is enabled
-  const proxyEnabled = extensionApi.proxy.isEnabled();
-  const env = {};
-  if (proxyEnabled) {
-    const proxySettings = extensionApi.proxy.getProxySettings();
-    if (proxySettings?.httpProxy) {
-      if (isWindows()) {
-        env['env:http_proxy'] = proxySettings.httpProxy;
-      } else {
-        env['http_proxy'] = proxySettings.httpProxy;
-      }
-    }
-    if (proxySettings?.httpsProxy) {
-      if (isWindows()) {
-        env['env:https_proxy'] = proxySettings.httpsProxy;
-      } else {
-        env['https_proxy'] = proxySettings.httpsProxy;
-      }
-    }
-  }
-  await extensionApi.process.exec(getPodmanCli(), parameters, { logger, env, token });
+  await extensionApi.process.exec(getPodmanCli(), parameters, { logger, token });
   extensionApi.context.setValue('podmanMachineExists', true, 'onboarding');
 }
 
