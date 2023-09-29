@@ -23,37 +23,53 @@ Consider using the `DOCKER_HOST` environment variable to migrate transparently f
 
 #### Procedure
 
-1. Identify the location of your Podman socket
+ <Tabs groupId="operating-systems">
+   <TabItem value="win" label="Windows">
+     
+  1. Identify the location of your Podman socket
+     
+   ```shell-session
+   $ podman machine inspect --format '{{.ConnectionInfo.PodmanPipe.Path}}'
+   ```
 
-   <Tabs groupId="operating-systems">
-     <TabItem value="win" label="Windows">
+  2. Set the `DOCKER_HOST` environment variable to your Podman socket location. Be sure to add the `npipe://` scheme to the path retrieved previously:
+  
+   ```shell-session
+   $ export DOCKER_HOST=npipe://<your_podman_socket_location>
+   ```
 
+  Note that setting the `DOCKER_HOST` environment variable isn't neccesary on windows since Podman also listens to the default `docker_engine` pipe.
+   </TabItem>
+   <TabItem value="mac" label="macOS">
+
+  1. Identify the location of your Podman socket
+  
    ```shell-session
    $ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
    ```
 
-     </TabItem>
-     <TabItem value="mac" label="macOS">
+  2. Set the `DOCKER_HOST` environment variable to your Podman socket location. Be sure to add the `unix://` scheme to the path retrieved previously:
 
    ```shell-session
-   $ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
+   $ export DOCKER_HOST=unix://<your_podman_socket_location>
    ```
+   </TabItem>
+   <TabItem value="linux" label="Linux">
 
-     </TabItem>
-     <TabItem value="linux" label="Linux">
+  1. Identify the location of your Podman socket
 
    ```shell-session
    $ podman info --format '{{.Host.RemoteSocket.Path}}'
    ```
 
-     </TabItem>
-   </Tabs>
-
-2. Set the `DOCKER_HOST` environment variable to your Podman socket location. Be sure to add the `unix://` scheme to the path retrieved previously:
-
+  2. Set the `DOCKER_HOST` environment variable to your Podman socket location. Be sure to add the `unix://` scheme to the path retrieved previously:
+  
    ```shell-session
    $ export DOCKER_HOST=unix://<your_podman_socket_location>
    ```
+   </TabItem>
+
+ </Tabs>
 
 #### Verification
 
