@@ -13,6 +13,10 @@ let smileyRating = 0;
 let tellUsWhyFeedback = '';
 let contactInformation = '';
 
+$: hasFeedback =
+  (tellUsWhyFeedback && tellUsWhyFeedback.trim().length > 4) ||
+  (contactInformation && contactInformation.trim().length > 4);
+
 window.events?.receive('display-feedback', () => {
   displayModal = true;
 });
@@ -119,11 +123,11 @@ async function sendFeedback(): Promise<void> {
           <div>
             {#if smileyRating === 0}
               <ErrorMessage class="flex flex-row w-[350px] text-xs" error="Please select an experience smiley" />
-            {:else if smileyRating === 1 && !tellUsWhyFeedback && !contactInformation}
+            {:else if smileyRating === 1 && !hasFeedback}
               <ErrorMessage
                 class="flex flex-row w-[350px] text-xs"
                 error="Please share contact info or details on how we can improve" />
-            {:else if smileyRating === 2 && !tellUsWhyFeedback}
+            {:else if smileyRating === 2 && !hasFeedback}
               <WarningMessage
                 class="flex flex-row w-[350px] text-xs"
                 error="We would really appreciate knowing how we can improve" />
@@ -131,7 +135,7 @@ async function sendFeedback(): Promise<void> {
           </div>
 
           <Button
-            disabled="{smileyRating === 0 || (smileyRating === 1 && !tellUsWhyFeedback && !contactInformation)}"
+            disabled="{smileyRating === 0 || (smileyRating === 1 && !hasFeedback)}"
             on:click="{() => sendFeedback()}">Send feedback</Button>
         </div>
       </div>
