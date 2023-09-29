@@ -24,6 +24,8 @@ import type {
 } from '../../../../main/src/plugin/api/provider-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import { ContextKeyExpr } from '../context/contextKey';
+import type { ContextUI } from '../context/context';
 
 export interface IProviderConnectionConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,4 +108,17 @@ export function isTargetScope(
     return true;
   }
   return scope === targetScope;
+}
+
+export function isPropertyValidInContext(when: string | undefined, context: ContextUI): boolean {
+  if (!when) {
+    return true;
+  }
+  const expr = ContextKeyExpr.deserialize(when);
+
+  // Only evaluate if context is not undefined
+  if (expr && context !== undefined) {
+    return expr.evaluate(context);
+  }
+  return false;
 }

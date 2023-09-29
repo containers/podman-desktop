@@ -3,7 +3,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
-import { getNormalizedDefaultNumberValue, writeToTerminal } from './Util';
+import { getNormalizedDefaultNumberValue, writeToTerminal, isPropertyValidInContext } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
   clearCreateTask,
@@ -31,7 +31,6 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
 import { faCubes } from '@fortawesome/free-solid-svg-icons';
 import Button from '../ui/Button.svelte';
 import type { ContextUI } from '/@/lib/context/context';
-import { ContextKeyExpr } from '/@/lib/context/contextKey';
 import { context } from '/@/stores/context';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
@@ -94,11 +93,6 @@ $: if (logsTerminal && loggerHandlerKey) {
   }
 }
 
-function isPropertyValidInContext(when: string, context: ContextUI) {
-  const expr = ContextKeyExpr.deserialize(when);
-  return expr?.evaluate(context);
-}
-
 onMount(async () => {
   osMemory = await window.getOsMemory();
   osCpu = await window.getOsCpu();
@@ -107,7 +101,7 @@ onMount(async () => {
   configurationKeys = properties
     .filter(property => property.scope === propertyScope)
     .filter(property => property.id?.startsWith(providerInfo.id))
-    .filter(property => !property.when || isPropertyValidInContext(property.when, globalContext))
+    .filter(property => isPropertyValidInContext(property.when, globalContext))
     .map(property => {
       switch (property.maximum) {
         case 'HOST_TOTAL_DISKSIZE': {
