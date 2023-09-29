@@ -754,7 +754,7 @@ export class ContainerProviderRegistry {
   }
 
   protected getMatchingEngineFromConnection(
-    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
   ): Dockerode {
     // grab all connections
     const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
@@ -861,8 +861,9 @@ export class ContainerProviderRegistry {
       );
     }
   }
+
   async pullImage(
-    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     imageName: string,
     callback: (event: PullEvent) => void,
   ): Promise<void> {
