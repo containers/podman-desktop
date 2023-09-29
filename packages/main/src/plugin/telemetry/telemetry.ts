@@ -36,6 +36,7 @@ import type {
 } from '@podman-desktop/api';
 import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry.js';
 import { stoppedExtensions } from '../../util.js';
+import type { Proxy } from '/@/plugin/proxy.js';
 
 export const TRACK_EVENT_TYPE = 'track';
 export const PAGE_EVENT_TYPE = 'page';
@@ -76,7 +77,10 @@ export class Telemetry {
   private readonly _onDidChangeTelemetryEnabled = new Emitter<boolean>();
   readonly onDidChangeTelemetryEnabled: Event<boolean> = this._onDidChangeTelemetryEnabled.event;
 
-  constructor(private configurationRegistry: ConfigurationRegistry) {
+  constructor(
+    private configurationRegistry: ConfigurationRegistry,
+    private proxy: Proxy,
+  ) {
     this.identity = new Identity();
     this.lastTimeEvents = new Map();
   }

@@ -26,6 +26,7 @@ import { TelemetrySettings } from './telemetry-settings.js';
 import type { ExtensionInfo } from '../api/extension-info.js';
 import type { TelemetrySender } from '@podman-desktop/api';
 import { TelemetryTrustedValue } from '../types/telemetry.js';
+import type { Proxy } from '/@/plugin/proxy.js';
 
 const getConfigurationMock = vi.fn();
 const onDidChangeConfigurationMock = vi.fn();
@@ -37,7 +38,7 @@ const configurationRegistryMock = {
 
 class TelemetryTest extends Telemetry {
   constructor() {
-    super(configurationRegistryMock);
+    super(configurationRegistryMock, {} as Proxy);
   }
   public getLastTimeEvents(): Map<string, number> {
     return this.lastTimeEvents;

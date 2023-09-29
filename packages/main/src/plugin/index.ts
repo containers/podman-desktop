@@ -375,7 +375,7 @@ export class PluginSystem {
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
 
-    const telemetry = new Telemetry(configurationRegistry);
+    const telemetry = new Telemetry(configurationRegistry, proxy);
     await telemetry.init();
 
     const exec = new Exec(proxy);
