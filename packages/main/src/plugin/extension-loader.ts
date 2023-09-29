@@ -865,6 +865,13 @@ export class ExtensionLoader {
       ): Promise<void> {
         return containerProviderRegistry.pushImage(engineId, imageId, callback, authInfo);
       },
+      pullImage(
+        providerContainerConnection: containerDesktopAPI.ContainerProviderConnection,
+        imageName: string,
+        callback: (event: containerDesktopAPI.PullEvent) => void,
+      ): Promise<void> {
+        return containerProviderRegistry.pullImage(providerContainerConnection, imageName, callback);
+      },
       tagImage(engineId: string, imageId: string, repo: string, tag: string | undefined): Promise<void> {
         return containerProviderRegistry.tagImage(engineId, imageId, repo, tag);
       },

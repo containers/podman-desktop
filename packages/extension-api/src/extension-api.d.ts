@@ -1673,6 +1673,18 @@ declare module '@podman-desktop/api' {
     serveraddress: string;
     email?: string;
   }
+  interface PullEvent {
+    stream?: string;
+    id?: string;
+    status?: string;
+    progress?: string;
+    progressDetail?: {
+      current?: number;
+      total?: number;
+    };
+    error?: string;
+    errorDetails?: { message?: string };
+  }
 
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
@@ -1692,6 +1704,13 @@ declare module '@podman-desktop/api' {
       callback: (name: string, data: string) => void,
       authInfo?: ContainerAuthInfo,
     ): Promise<void>;
+
+    export function pullImage(
+      containerProviderConnection: ContainerProviderConnection,
+      imageName: string,
+      callback: (event: PullEvent) => void,
+    ): Promise<void>;
+
     export const onEvent: Event<ContainerJSONEvent>;
   }
 
