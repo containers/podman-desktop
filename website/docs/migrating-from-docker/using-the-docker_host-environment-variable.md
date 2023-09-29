@@ -26,16 +26,16 @@ Consider using the `DOCKER_HOST` environment variable to migrate transparently f
  <Tabs groupId="operating-systems">
    <TabItem value="win" label="Windows">
 
-1. Identify the location of your Podman socket
+1. Identify the location of your Podman pipe
 
 ```shell-session
 $ podman machine inspect --format '{{.ConnectionInfo.PodmanPipe.Path}}'
 ```
 
-2. Set the `DOCKER_HOST` environment variable to your Podman socket location. You'll need to replace back slashes with forward slashes and add the `npipe://` scheme to the path retrieved previously:
+2. Set the `DOCKER_HOST` environment variable to your Podman pipe location. You'll need to replace back slashes with forward slashes and add the `npipe://` scheme to the path retrieved previously:
 
 ```shell-session
-$ export DOCKER_HOST=npipe://<your_podman_socket_location>
+$ export DOCKER_HOST=npipe://<your_podman_pipe_location>
 ```
 
 Note that setting the `DOCKER_HOST` environment variable isn't neccesary on windows since Podman also listens to the default `docker_engine` pipe.
