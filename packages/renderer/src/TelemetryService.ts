@@ -33,10 +33,7 @@ export class TelemetryService {
   private handlerFlusher: NodeJS.Timeout | undefined;
 
   public handlePageOpen(pagePath: string) {
-    if (this.handlerFlusher !== undefined) {
-      clearTimeout(this.handlerFlusher);
-      this.handlerFlusher = undefined;
-    }
+    this.handlePageClose();
 
     this.handlerFlusher = setTimeout(() => {
       if (window.telemetryPage) {
@@ -45,5 +42,13 @@ export class TelemetryService {
         });
       }
     }, 200);
+  }
+
+  // clear timeout
+  public handlePageClose() {
+    if (this.handlerFlusher) {
+      clearTimeout(this.handlerFlusher);
+      this.handlerFlusher = undefined;
+    }
   }
 }

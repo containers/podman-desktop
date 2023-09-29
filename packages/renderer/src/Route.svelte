@@ -4,6 +4,7 @@ import type { TinroBreadcrumb, TinroRouteMeta } from 'tinro';
 import { TelemetryService } from './TelemetryService';
 import { lastPage, currentPage, listPage, detailsPage } from './stores/breadcrumb';
 import type { NavigationHint } from './Route';
+import { onDestroy } from 'svelte';
 
 export let path = '/*';
 export let fallback = false;
@@ -70,6 +71,10 @@ $: route.update({
   redirect,
   firstmatch,
   breadcrumb,
+});
+
+onDestroy(() => {
+  TelemetryService.getService().handlePageClose();
 });
 </script>
 
