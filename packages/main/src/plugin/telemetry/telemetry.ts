@@ -36,7 +36,7 @@ import type {
 } from '@podman-desktop/api';
 import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry.js';
 import { stoppedExtensions } from '../../util.js';
-import type { Proxy } from '/@/plugin/proxy.js';
+import type { Proxy } from '../proxy.js';
 
 export const TRACK_EVENT_TYPE = 'track';
 export const PAGE_EVENT_TYPE = 'page';

@@ -19,7 +19,7 @@
 import type { ProxySettings, Event } from '@podman-desktop/api';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import { Emitter } from './events/emitter.js';
-import { getProxyUrl } from '/@/plugin/proxy-resolver.js';
+import { getProxyUrl } from './proxy-resolver.js';
 import { ProxyAgent } from 'undici';
 
 /**

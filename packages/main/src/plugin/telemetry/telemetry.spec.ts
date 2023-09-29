@@ -26,7 +26,7 @@ import { TelemetrySettings } from './telemetry-settings.js';
 import type { ExtensionInfo } from '../api/extension-info.js';
 import type { TelemetrySender } from '@podman-desktop/api';
 import { TelemetryTrustedValue } from '../types/telemetry.js';
-import type { Proxy } from '/@/plugin/proxy.js';
+import type { Proxy } from '../proxy.js';
 
 const getConfigurationMock = vi.fn();
 const onDidChangeConfigurationMock = vi.fn();
