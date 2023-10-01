@@ -4,7 +4,7 @@
   <name>Podman Desktop</name>
   <project_license>Apache-2.0</project_license>
   <developer_name>Red Hat, Inc.</developer_name>
-  <summary>Manage Podman and other container engines from a single UI and tray.</summary>
+  <summary>Manage Podman and other container engines from a single UI and tray</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <url type="homepage">https://podman-desktop.io/</url>
   <url type="bugtracker">https://github.com/containers/podman-desktop/issues</url>
