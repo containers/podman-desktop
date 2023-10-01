@@ -1323,7 +1323,7 @@ declare module '@podman-desktop/api' {
   }
 
   export abstract class UpdateProvider {
-    abstract getVersions(): Promise<AssetInfo[]>;
+    abstract getCandidateVersions(): Promise<AssetInfo[]>;
     abstract performInstall(asset: AssetInfo, destination: string): Promise<void>;
   }
 
@@ -1333,7 +1333,19 @@ declare module '@podman-desktop/api' {
   }
 
   export namespace binaries {
+    /**
+     * Generic method to register a binary to keep track
+     *
+     * @param provider the generic BinaryProvider managing the logic of fetching, and updating a binary
+     */
     export function registerBinary(provider: BinaryProvider): Disposable;
+
+    /**
+     * Method to register a binary using the build-in GithubUpdateProvider extending the generic BinaryProvider
+     *
+     * @param githubOrganization the GitHub organisation
+     * @param githubRepo the project containing the binary in its releases
+     */
     export function registerGithubBinary(githubOrganization: string, githubRepo: string): Disposable;
   }
 

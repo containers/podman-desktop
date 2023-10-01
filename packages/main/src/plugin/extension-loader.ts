@@ -67,7 +67,7 @@ import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
-import type { BinaryRegistry } from './binaries/binary-registry.js';
+import type { BinaryProvider, BinaryRegistry } from './binaries/binary-registry.js';
 import { UpdateProvider } from './binaries/update-provider.js';
 import { GithubUpdateProvider } from './binaries/github-update-provider.js';
 import { Octokit } from '@octokit/rest';
@@ -824,10 +824,10 @@ export class ExtensionLoader {
 
     const binaryRegistry = this.binaryRegistry;
     const binaries: typeof containerDesktopAPI.binaries = {
-      registerBinary(provider: BinaryProvider): Disposable {
+      registerBinary(provider: BinaryProvider): containerDesktopAPI.Disposable {
         return binaryRegistry.registerProvider(provider);
       },
-      registerGithubBinary(githubOrganization: string, githubRepo: string) {
+      registerGithubBinary(githubOrganization: string, githubRepo: string): containerDesktopAPI.Disposable {
         return binaryRegistry.registerProvider({
           name: `${githubOrganization}/${githubRepo}`,
           updater: new GithubUpdateProvider(new Octokit(), githubOrganization, githubRepo),

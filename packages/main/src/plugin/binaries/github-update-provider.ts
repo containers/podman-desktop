@@ -47,7 +47,7 @@ export class GithubUpdateProvider extends UpdateProvider {
     }));
   }
 
-  async getVersions(): Promise<AssetInfo[]> {
+  async getCandidateVersions(): Promise<AssetInfo[]> {
     const releases = await this.octokit.repos.listReleases({
       owner: this.githubOrganization,
       repo: this.githubRepo,

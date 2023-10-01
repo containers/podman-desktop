@@ -1,4 +1,4 @@
-import { Disposable } from '/@/plugin/types/disposable.js';
+import { Disposable } from './types/disposable.js';
 
 export abstract class Registry<T> {
   protected providers = new Map<string, T>();

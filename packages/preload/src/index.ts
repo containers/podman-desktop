@@ -951,6 +951,13 @@ function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld(
+    'getBinaryProviderInfos',
+    async (providerIds?: string[]): Promise<KubernetesGeneratorInfo[]> => {
+      return ipcInvoke('binaries:getBinaryProviderInfos', providerIds);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'getKubeGeneratorsInfos',
     async (selector?: KubernetesGeneratorSelector): Promise<KubernetesGeneratorInfo[]> => {
       return ipcInvoke('kube-generator-registry:getKubeGeneratorsInfos', selector);

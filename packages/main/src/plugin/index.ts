@@ -129,8 +129,8 @@ import type {
 } from '/@/plugin/kube-generator-registry.js';
 import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
 import type { CommandInfo } from './api/command-info.js';
-import { BinaryRegistry } from '/src/plugin/binaries/binary-registry.js';
-import { Octokit } from '@octokit/rest';
+import { BinaryRegistry } from './binaries/binary-registry.js';
+import type { BinaryProviderInfo } from '/@/plugin/api/BinaryProviderInfo.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -382,7 +382,7 @@ export class PluginSystem {
 
     const exec = new Exec(proxy);
 
-    const binaryRegistry = new BinaryRegistry(new Octokit(), '.');
+    const binaryRegistry = new BinaryRegistry('.');
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const kubeGeneratorRegistry = new KubeGeneratorRegistry();
@@ -598,14 +598,17 @@ export class PluginSystem {
       }
 
       // Create an interval to check for updates every 12 hours
-      setInterval(() => {
-        autoUpdater
-          .checkForUpdates()
-          .then(result => (updateCheckResult = result))
-          .catch((error: unknown) => {
-            console.log('unable to check for updates', error);
-          });
-      }, 1000 * 60 * 60 * 12);
+      setInterval(
+        () => {
+          autoUpdater
+            .checkForUpdates()
+            .then(result => (updateCheckResult = result))
+            .catch((error: unknown) => {
+              console.log('unable to check for updates', error);
+            });
+        },
+        1000 * 60 * 60 * 12,
+      );
 
       // Update will create a standard "autoUpdater" dialog / update process
       commandRegistry.registerCommand('update', async () => {
@@ -719,6 +722,7 @@ export class PluginSystem {
       directories,
       exec,
       kubeGeneratorRegistry,
+      binaryRegistry,
     );
     await this.extensionLoader.init();
 
@@ -1194,6 +1198,13 @@ export class PluginSystem {
     this.ipcHandle('menu-registry:getContributedMenus', async (_, context: string): Promise<Menu[]> => {
       return menuRegistry.getContributedMenus(context);
     });
+
+    this.ipcHandle(
+      'binaries:getBinaryProviderInfos',
+      async (_, providerIds?: string[]): Promise<BinaryProviderInfo[]> => {
+        return binaryRegistry.getBinaryProviderInfos(providerIds);
+      },
+    );
 
     this.ipcHandle(
       'kube-generator-registry:getKubeGeneratorsInfos',
@@ -1932,7 +1943,6 @@ export class PluginSystem {
       configurationRegistry,
       extensionInstaller,
       telemetry,
-      binaryRegistry,
     );
 
     await contributionManager.init();
