@@ -1,9 +1,9 @@
-import type { UpdateProvider } from '/@/plugin/binaries/update-provider.js';
-import type { AssetInfo, BinaryProviderInfo, BinaryDisposable } from '/@/plugin/api/BinaryProviderInfo.js';
+import type { UpdateProvider } from './update-provider.js';
+import type { AssetInfo, BinaryProviderInfo, BinaryDisposable } from '../api/BinaryProviderInfo.js';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Disposable } from '/@/plugin/types/disposable.js';
-import { isAlphanumeric, isWindows } from '/@/util.js';
+import { Disposable } from '../types/disposable.js';
+import { isAlphanumeric, isWindows } from '../../util.js';
 
 export interface BinaryProvider {
   name: string;
