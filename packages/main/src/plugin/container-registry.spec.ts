@@ -126,7 +126,7 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
   }
 
   getMatchingEngineFromConnection(providerContainerConnectionInfo: ProviderContainerConnectionInfo): Dockerode {
-    return this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
+    return super.getMatchingEngineFromConnection(providerContainerConnectionInfo);
   }
 
   setStreamsOutputPerContainerId(id: string, data: Buffer[]) {
@@ -1478,6 +1478,101 @@ describe('listVolumes', () => {
   });
 });
 
+describe('listNetworks', () => {
+  test('listNetworks with podman', async () => {
+    const networksDataMock = [
+      {
+        Name: 'podify',
+        Id: '621fda08b8bc4c2fc',
+        Created: '2023-09-28T13:40:45.534269058+02:00',
+        Scope: 'local',
+        Driver: 'bridge',
+        EnableIPv6: false,
+        IPAM: {
+          Driver: 'default',
+          Options: {
+            driver: 'host-local',
+          },
+          Config: [
+            {
+              Subnet: '10.89.2.0/24',
+              Gateway: '10.89.2.1',
+            },
+          ],
+        },
+        Internal: false,
+        Attachable: false,
+        Ingress: false,
+        ConfigFrom: {
+          Network: '',
+        },
+        ConfigOnly: false,
+        Containers: {
+          '45dc7a4d75056f281ecdf4c292879c572fface4f37454fa921e9dcffe4a250d1': {},
+          '7770a57a1579ec7523800cb18976248e0efccae920680f4889d65ba3fb48d384': {},
+        },
+        Options: {},
+        Labels: {},
+      },
+      {
+        Name: 'bridge',
+        Id: '123456',
+        Created: '2023-10-02T14:44:37.092685487+02:00',
+        Scope: 'local',
+        Driver: 'bridge',
+        EnableIPv6: false,
+        IPAM: {
+          Driver: 'default',
+          Options: {
+            driver: 'host-local',
+          },
+          Config: [
+            {
+              Subnet: '10.88.0.0/16',
+              Gateway: '10.88.0.1',
+            },
+          ],
+        },
+        Internal: false,
+        Attachable: false,
+        Ingress: false,
+        ConfigFrom: {
+          Network: '',
+        },
+        ConfigOnly: false,
+        Containers: {},
+        Options: {},
+        Labels: {},
+      },
+    ];
+
+    nock('http://localhost').get('/networks').reply(200, networksDataMock);
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    // set provider
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    // ask for networks
+    const networks = await containerRegistry.listNetworks();
+
+    // ensure the field are correct
+    expect(networks).toBeDefined();
+    expect(networks).toHaveLength(2);
+    const network = networks[0];
+    expect(network.engineId).toBe('podman1');
+    expect(network.engineName).toBe('podman');
+
+    expect(network.Name).toBe('podify');
+  });
+});
+
 describe('createVolume', () => {
   test('provided name', async () => {
     nock('http://localhost').post('/volumes/create?Name=myFirstVolume').reply(200, '');
@@ -2021,4 +2116,39 @@ describe('attachToContainer', () => {
     expect(containerRegistry.getStreamsOutputPerContainerId().get(dockerodeContainer.id)).toBeUndefined();
     expect(containerRegistry.getStreamsPerContainerId().get(dockerodeContainer.id)).toBeUndefined();
   });
+});
+
+test('createNetwork', async () => {
+  nock('http://localhost').post('/networks/create?Name=myNetwork').reply(200, '');
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const internalContainerProvider: InternalContainerProvider = {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    connection: {
+      type: 'podman',
+      name: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: () => 'started',
+    },
+  };
+
+  const providerConnectionInfo: ProviderContainerConnectionInfo = {
+    name: 'podman',
+    type: 'podman',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status: 'started',
+  } as unknown as ProviderContainerConnectionInfo;
+
+  // set provider
+  containerRegistry.addInternalProvider('podman', internalContainerProvider);
+
+  // check that it's calling the right nock method
+  await containerRegistry.createNetwork(providerConnectionInfo, { Name: 'myNetwork' });
 });

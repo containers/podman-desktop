@@ -25,6 +25,8 @@ import type {
   ContainerCreateOptions,
   ContainerInfo,
   ContainerPortInfo,
+  NetworkCreateOptions,
+  NetworkCreateResult,
   SimpleContainerInfo,
   VolumeCreateOptions,
 } from './api/container-info.js';
@@ -572,6 +574,23 @@ export class ContainerProviderRegistry {
     this.telemetryService.track('listNetworks', Object.assign({ total: flatttenedNetworks.length }, telemetryOptions));
 
     return flatttenedNetworks;
+  }
+
+  async createNetwork(
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
+    options: NetworkCreateOptions,
+  ): Promise<NetworkCreateResult> {
+    let telemetryOptions = {};
+    try {
+      const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
+      const network = await matchingEngine.createNetwork(options);
+      return { Id: network.id };
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService.track('createNetwork', telemetryOptions);
+    }
   }
 
   async listVolumes(fetchUsage = false): Promise<VolumeListInfo[]> {
