@@ -1317,6 +1317,12 @@ declare module '@podman-desktop/api' {
     export function createCustomPick<T extends CustomPickItem>(): CustomPick<T>;
   }
 
+  export interface BinaryInfo {
+    providerId: string;
+    path: string;
+    assetInfo: AssetInfo;
+  }
+
   export interface AssetInfo {
     id: number;
     name: string;
@@ -1332,21 +1338,39 @@ declare module '@podman-desktop/api' {
     updater: UpdateProvider;
   }
 
+  export interface BinaryDisposable {
+    providerId: string;
+    /**
+     * Dispose and free associated resources. Call
+     */
+    dispose(): void;
+  }
+
   export namespace binaries {
     /**
      * Generic method to register a binary to keep track
      *
      * @param provider the generic BinaryProvider managing the logic of fetching, and updating a binary
      */
-    export function registerBinary(provider: BinaryProvider): Disposable;
+    export function registerBinary(provider: BinaryProvider): BinaryDisposable;
 
     /**
      * Method to register a binary using the build-in GithubUpdateProvider extending the generic BinaryProvider
      *
+     * @param name the name of the binary provider
      * @param githubOrganization the GitHub organisation
      * @param githubRepo the project containing the binary in its releases
      */
-    export function registerGithubBinary(githubOrganization: string, githubRepo: string): Disposable;
+    export function registerGithubBinary(
+      name: string,
+      githubOrganization: string,
+      githubRepo: string,
+      assetName: string,
+    ): BinaryDisposable;
+
+    export function getBinariesInstalled(providersIds?: string[]): Promise<BinaryInfo[]>;
+
+    export function requestInstallOrUpdate(providerId: string): Promise<boolean>;
   }
 
   export namespace kubernetes {

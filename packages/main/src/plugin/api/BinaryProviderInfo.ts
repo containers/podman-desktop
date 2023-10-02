@@ -24,6 +24,14 @@ export interface AssetInfo {
 export interface BinaryProviderInfo {
   providerId: string;
   name: string;
-  installedVersion?: string;
+  installedAsset?: AssetInfo;
   candidates: AssetInfo[];
+}
+
+export interface BinaryDisposable {
+  providerId: string;
+  /**
+   * Dispose and free associated resources. Call
+   */
+  dispose(): void;
 }

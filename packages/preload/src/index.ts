@@ -75,6 +75,8 @@ import type {
 } from '../../main/src/plugin/kube-generator-registry';
 
 import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
+import type { BinaryProviderInfo } from '../../main/src/plugin/api/BinaryProviderInfo';
+import type { BinaryInfo } from '../../main/src/plugin/binaries/binary-registry';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -952,10 +954,14 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'getBinaryProviderInfos',
-    async (providerIds?: string[]): Promise<KubernetesGeneratorInfo[]> => {
+    async (providerIds?: string[]): Promise<BinaryProviderInfo[]> => {
       return ipcInvoke('binaries:getBinaryProviderInfos', providerIds);
     },
   );
+
+  contextBridge.exposeInMainWorld('getBinariesInstalled', async (providerIds?: string[]): Promise<BinaryInfo[]> => {
+    return ipcInvoke('binaries:getBinariesInstalled', providerIds);
+  });
 
   contextBridge.exposeInMainWorld(
     'getKubeGeneratorsInfos',

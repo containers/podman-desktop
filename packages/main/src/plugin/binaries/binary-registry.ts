@@ -1,6 +1,9 @@
-import { Registry } from '../registry.js';
 import type { UpdateProvider } from '/@/plugin/binaries/update-provider.js';
-import type { AssetInfo, BinaryProviderInfo } from '/@/plugin/api/BinaryProviderInfo.js';
+import type { AssetInfo, BinaryProviderInfo, BinaryDisposable } from '/@/plugin/api/BinaryProviderInfo.js';
+import * as fs from 'fs';
+import * as path from 'path';
+import { Disposable } from '/@/plugin/types/disposable.js';
+import { isAlphanumeric, isWindows } from '/@/util.js';
 
 export interface BinaryProvider {
   name: string;
@@ -10,7 +13,11 @@ export interface BinaryProvider {
 export interface BinaryInfo {
   providerId: string;
   path: string;
-  version: string;
+  assetInfo: AssetInfo;
+}
+
+function isBinaryInfo(obj: unknown): boolean {
+  return typeof obj === 'object' && !!obj && 'providerId' in obj && 'path' in obj && 'assetInfo' in obj;
 }
 
 export interface UpdateInfo {
@@ -18,12 +25,62 @@ export interface UpdateInfo {
   candidates: AssetInfo[];
 }
 
-export class BinaryRegistry extends Registry<BinaryProvider> {
+export const BINARIES_INFO_FILE = 'binaries.json';
+
+export class BinaryRegistry {
+  protected providers = new Map<string, BinaryProvider>();
+  protected count = 0;
   private readonly storagePath: string;
 
   constructor(storagePath: string) {
-    super();
     this.storagePath = storagePath;
+  }
+
+  protected generateProviderId(): string {
+    const providerId = `${this.count}`;
+    this.count += 1;
+    return providerId;
+  }
+
+  registerProvider(provider: BinaryProvider): BinaryDisposable {
+    if (!isAlphanumeric(provider.name))
+      throw new Error('The provider name can only be alphanumeric since it used as name for the binary.');
+
+    const providerId = this.generateProviderId();
+    this.providers.set(providerId, provider);
+    return {
+      providerId: providerId,
+      dispose: Disposable.create(() => {
+        this.unregisterProvider(providerId);
+      }).dispose,
+    };
+  }
+
+  unregisterProvider(providerId: string): void {
+    this.providers.delete(providerId);
+  }
+
+  private getFilename(): string {
+    return path.join(this.storagePath, BINARIES_INFO_FILE);
+  }
+  private loadBinariesInfo(): BinaryInfo[] {
+    const filename = this.getFilename();
+    if (!fs.existsSync(filename)) return [];
+
+    const content = fs.readFileSync(filename, { encoding: 'utf-8' });
+
+    if (!Array.isArray(content)) throw new Error(`${filename} is malformed.`);
+
+    for (const contentElement of content) {
+      if (!isBinaryInfo(contentElement)) throw new Error(`${filename} is malformed.`);
+    }
+
+    return JSON.parse(content) as BinaryInfo[];
+  }
+
+  private saveBinariesInfo(binariesInfo: BinaryInfo[]): void {
+    const filename = this.getFilename();
+    fs.writeFileSync(filename, JSON.stringify(binariesInfo), { encoding: 'utf-8' });
   }
 
   async checkUpdates(providerIds?: string[]): Promise<UpdateInfo[]> {
@@ -43,14 +100,27 @@ export class BinaryRegistry extends Registry<BinaryProvider> {
     );
   }
 
-  public async getBinaryInstalled(_providerIds?: string[]): Promise<BinaryInfo[]> {
-    // TODO: create the logic of versioning binary files (local json file?)
-    return [];
+  public async getBinariesInstalled(_providerIds?: string[]): Promise<BinaryInfo[]> {
+    const binariesInfo = this.loadBinariesInfo();
+    if (_providerIds) return binariesInfo.filter(binaryInfo => _providerIds.includes(binaryInfo.providerId));
+    return binariesInfo;
+  }
+
+  public async setOrUpdateBinaryInstalled(binaryInfo: BinaryInfo) {
+    const binariesInfos = this.loadBinariesInfo();
+
+    const index = binariesInfos.findIndex(item => item.providerId === binaryInfo.providerId);
+    if (index !== -1) {
+      binariesInfos[index] = binaryInfo;
+      this.saveBinariesInfo(binariesInfos);
+    } else {
+      this.saveBinariesInfo([...binariesInfos, binaryInfo]);
+    }
   }
 
   public async getBinaryProviderInfos(providerIds?: string[]): Promise<BinaryProviderInfo[]> {
     const updates = await this.checkUpdates(providerIds);
-    const binaries = await this.getBinaryInstalled(providerIds);
+    const binaries = await this.getBinariesInstalled(providerIds);
 
     return updates.map(({ providerId, candidates }) => {
       const provider = this.providers.get(providerId);
@@ -59,7 +129,7 @@ export class BinaryRegistry extends Registry<BinaryProvider> {
       return {
         providerId,
         name: provider.name,
-        installedVersion: binaries.find(binary => binary.providerId === providerId)?.version,
+        installedAsset: binaries.find(binary => binary.providerId === providerId)?.assetInfo,
         candidates,
       };
     });
@@ -69,6 +139,14 @@ export class BinaryRegistry extends Registry<BinaryProvider> {
     const provider = this.providers.get(providerId);
     if (!provider) throw new Error('The provider does not exist.');
 
-    return provider.updater.performInstall(assetInfo, this.storagePath);
+    const destFile = path.resolve(this.storagePath, isWindows() ? provider.name + '.exe' : provider.name);
+
+    console.log(`Provider ${provider.name} will install at ${destFile}.`);
+
+    // perform install using update provider
+    await provider.updater.performInstall(assetInfo, destFile);
+
+    // save the
+    await this.setOrUpdateBinaryInstalled({ providerId: providerId, assetInfo: assetInfo, path: destFile });
   }
 }

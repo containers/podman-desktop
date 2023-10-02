@@ -129,6 +129,7 @@ import type {
 } from '/@/plugin/kube-generator-registry.js';
 import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
 import type { CommandInfo } from './api/command-info.js';
+import type { BinaryInfo } from './binaries/binary-registry.js';
 import { BinaryRegistry } from './binaries/binary-registry.js';
 import type { BinaryProviderInfo } from '/@/plugin/api/BinaryProviderInfo.js';
 
@@ -382,7 +383,7 @@ export class PluginSystem {
 
     const exec = new Exec(proxy);
 
-    const binaryRegistry = new BinaryRegistry('.');
+    const binaryRegistry = new BinaryRegistry('C:\\Users\\axels\\Downloads\\test');
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const kubeGeneratorRegistry = new KubeGeneratorRegistry();
@@ -1205,6 +1206,10 @@ export class PluginSystem {
         return binaryRegistry.getBinaryProviderInfos(providerIds);
       },
     );
+
+    this.ipcHandle('binaries:getBinariesInstalled', async (_, providerIds?: string[]): Promise<BinaryInfo[]> => {
+      return binaryRegistry.getBinariesInstalled(providerIds);
+    });
 
     this.ipcHandle(
       'kube-generator-registry:getKubeGeneratorsInfos',

@@ -12,10 +12,12 @@ export class GithubUpdateProvider extends UpdateProvider {
     private readonly octokit: Octokit,
     private readonly githubOrganization: string,
     private readonly githubRepo: string,
+    private readonly assetName: string,
   ) {
     super();
   }
   async performInstall(assetInfo: AssetInfo, destination: string): Promise<void> {
+    console.log('performInstall', assetInfo, destination, this.githubOrganization, this.githubRepo);
     const asset = await this.octokit.repos.getReleaseAsset({
       owner: this.githubOrganization,
       repo: this.githubRepo,
@@ -29,10 +31,6 @@ export class GithubUpdateProvider extends UpdateProvider {
       throw new Error(`cannot get release asset of ${this.githubOrganization}/${this.githubRepo}.`);
     }
 
-    if (!fs.existsSync(destination)) {
-      fs.mkdirSync(destination);
-    }
-
     fs.appendFileSync(destination, Buffer.from(asset.data as unknown as ArrayBuffer));
     if (!isWindows()) {
       const stat = fs.statSync(destination);
@@ -41,10 +39,18 @@ export class GithubUpdateProvider extends UpdateProvider {
   }
 
   private async getAssetInfo(data: GitHubRelease[]): Promise<AssetInfo[]> {
-    return data.map(release => ({
-      name: release.name ?? release.tag_name,
-      id: release.id,
-    }));
+    return data.reduce((previousValue, release) => {
+      const asset = release.assets.find(asset => asset.name === this.assetName);
+      if (asset)
+        return [
+          ...previousValue,
+          {
+            name: `${asset.name} - ${release.name ?? release.tag_name}`,
+            id: asset.id,
+          },
+        ];
+      return previousValue;
+    }, [] as AssetInfo[]);
   }
 
   async getCandidateVersions(): Promise<AssetInfo[]> {

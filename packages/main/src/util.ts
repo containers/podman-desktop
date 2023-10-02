@@ -54,3 +54,8 @@ export function getBase64Image(imagePath: string): string | undefined {
   }
   return undefined;
 }
+
+export function isAlphanumeric(input: string): boolean {
+  const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+  return alphanumericRegex.test(input);
+}

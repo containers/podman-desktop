@@ -67,10 +67,11 @@ import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
-import type { BinaryProvider, BinaryRegistry } from './binaries/binary-registry.js';
+import type { BinaryInfo, BinaryProvider, BinaryRegistry } from './binaries/binary-registry.js';
 import { UpdateProvider } from './binaries/update-provider.js';
 import { GithubUpdateProvider } from './binaries/github-update-provider.js';
 import { Octokit } from '@octokit/rest';
+import type { BinaryDisposable } from '/@/plugin/api/BinaryProviderInfo.js';
 
 /**
  * Handle the loading of an extension
@@ -824,14 +825,46 @@ export class ExtensionLoader {
 
     const binaryRegistry = this.binaryRegistry;
     const binaries: typeof containerDesktopAPI.binaries = {
-      registerBinary(provider: BinaryProvider): containerDesktopAPI.Disposable {
+      registerBinary(provider: BinaryProvider): BinaryDisposable {
         return binaryRegistry.registerProvider(provider);
       },
-      registerGithubBinary(githubOrganization: string, githubRepo: string): containerDesktopAPI.Disposable {
+      registerGithubBinary(
+        name: string,
+        githubOrganization: string,
+        githubRepo: string,
+        assetName: string,
+      ): BinaryDisposable {
         return binaryRegistry.registerProvider({
-          name: `${githubOrganization}/${githubRepo}`,
-          updater: new GithubUpdateProvider(new Octokit(), githubOrganization, githubRepo),
+          name: name,
+          updater: new GithubUpdateProvider(new Octokit(), githubOrganization, githubRepo, assetName),
         });
+      },
+      getBinariesInstalled(providersIds?: string[]): Promise<BinaryInfo[]> {
+        return binaryRegistry.getBinariesInstalled(providersIds);
+      },
+      async requestInstallOrUpdate(providerId: string): Promise<boolean> {
+        const binaries = await binaryRegistry.checkUpdates([providerId]);
+        if (binaries.length === 0) {
+          console.log(`requestInstallOrUpdate failed: checkUpdates returned empty array for providerId ${providerId}`);
+          return false;
+        }
+
+        const result = await windowObj.showQuickPick(binaries[0].candidates.map(candidate => candidate.name));
+        if (result === undefined) {
+          console.log('requestInstallOrUpdate failed: user did not pick any options.');
+          return false;
+        }
+
+        console.log(`User requested to install ${result}`);
+
+        const assetInfo = binaries[0].candidates.find(candidate => candidate.name === result);
+        if (assetInfo === undefined) {
+          console.log('requestInstallOrUpdate failed: user picked unknown option.');
+          return false;
+        }
+        await binaryRegistry.performInstall(providerId, assetInfo);
+
+        return true;
       },
     };
 
