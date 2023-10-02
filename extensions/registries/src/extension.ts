@@ -34,8 +34,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       registry.icon = await base64EncodeFile(iconLocation);
     }
 
-    // Suggest it to the registry
-    extensionApi.registry.suggestRegistry(registry);
+    // Suggest it to the registry and add to subscriptions
+    const disposable = extensionApi.registry.suggestRegistry(registry);
+    extensionContext.subscriptions.push(disposable);
   }
 }
 
