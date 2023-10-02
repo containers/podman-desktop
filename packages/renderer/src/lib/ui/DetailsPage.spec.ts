@@ -85,7 +85,7 @@ test('Expect close link is defined', async () => {
     title: 'No Title',
   });
 
-  const closeElement = screen.getByTitle('Close Details');
+  const closeElement = screen.getByTitle('Close');
   expect(closeElement).toBeInTheDocument();
   expect(closeElement).toHaveAttribute('href', backPath);
 });
