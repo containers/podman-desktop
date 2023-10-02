@@ -6,17 +6,20 @@ import Spinner from '../ui/Spinner.svelte';
 // any other status will result in a standard outlined box
 export let status = '';
 export let icon: any = undefined;
+export let size = 20;
 
 $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' || status === 'DEGRADED';
 </script>
 
 <div class="grid place-content-center" style="position:relative">
   <div
-    class="grid place-content-center w-7 h-7 rounded"
+    class="grid place-content-center rounded aspect-square"
     class:bg-green-400="{status === 'RUNNING' || status === 'USED'}"
     class:bg-green-600="{status === 'STARTING'}"
     class:bg-amber-600="{status === 'DEGRADED'}"
     class:border-2="{!solid && status !== 'DELETING'}"
+    class:p-0.5="{!solid}"
+    class:p-1="{solid}"
     class:border-gray-700="{!solid}"
     class:text-gray-700="{!solid}"
     role="status"
@@ -26,7 +29,7 @@ $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' ||
     {:else if typeof icon === 'string'}
       <span class="{icon}" aria-hidden="true"></span>
     {:else}
-      <svelte:component this="{icon}" size="20" solid="{solid}" />
+      <svelte:component this="{icon}" size="{size}" solid="{solid}" />
     {/if}
   </div>
   {#if status === 'CREATED'}

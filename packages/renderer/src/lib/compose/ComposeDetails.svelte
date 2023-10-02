@@ -86,7 +86,7 @@ onDestroy(() => {
 
 {#if compose}
   <DetailsPage title="{composeName}" subtitle="">
-    <StatusIcon slot="icon" icon="{ComposeIcon}" status="{compose.status}" />
+    <StatusIcon slot="icon" icon="{ComposeIcon}" size="{24}" status="{compose.status}" />
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         <div>&nbsp;</div>

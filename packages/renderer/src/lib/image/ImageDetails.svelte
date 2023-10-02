@@ -59,7 +59,7 @@ onMount(() => {
 
 {#if image}
   <DetailsPage title="{image.name}" titleDetail="{image.shortId}" subtitle="{image.tag}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
+    <StatusIcon slot="icon" icon="{ImageIcon}" size="{24}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
     <ImageActions
       slot="actions"
       image="{image}"

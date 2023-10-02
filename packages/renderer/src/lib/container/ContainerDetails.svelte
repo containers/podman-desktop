@@ -80,7 +80,7 @@ function errorCallback(errorMessage: string): void {
 
 {#if container}
   <DetailsPage title="{container.name}" subtitle="{container.shortImage}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{ContainerIcon}" status="{container.state}" />
+    <StatusIcon slot="icon" icon="{ContainerIcon}" size="{24}" status="{container.state}" />
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         {#if container.actionError}

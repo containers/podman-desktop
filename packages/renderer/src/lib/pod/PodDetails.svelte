@@ -58,7 +58,7 @@ function errorCallback(errorMessage: string): void {
 
 {#if pod}
   <DetailsPage title="{pod.name}" subtitle="{pod.shortId}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{PodIcon}" status="{pod.status}" />
+    <StatusIcon slot="icon" icon="{PodIcon}" size="{24}" status="{pod.status}" />
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         {#if pod.actionError}
