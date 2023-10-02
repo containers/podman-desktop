@@ -21,4 +21,5 @@ import type Dockerode from 'dockerode';
 export interface NetworkInspectInfo extends Dockerode.NetworkInspectInfo {
   engineId: string;
   engineName: string;
+  engineType: 'podman' | 'docker';
 }

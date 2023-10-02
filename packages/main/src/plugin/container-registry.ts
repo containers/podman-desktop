@@ -553,7 +553,12 @@ export class ContainerProviderRegistry {
           }
           const networks = await provider.api.listNetworks();
           return networks.map(network => {
-            const networkInfo: NetworkInspectInfo = { ...network, engineName: provider.name, engineId: provider.id };
+            const networkInfo: NetworkInspectInfo = {
+              ...network,
+              engineName: provider.name,
+              engineId: provider.id,
+              engineType: provider.connection.type,
+            };
             return networkInfo;
           });
         } catch (error) {
