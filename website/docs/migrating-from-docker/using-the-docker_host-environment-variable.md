@@ -38,7 +38,7 @@ $ podman machine inspect --format '{{.ConnectionInfo.PodmanPipe.Path}}'
 $ export DOCKER_HOST=npipe://<your_podman_pipe_location>
 ```
 
-Note that setting the `DOCKER_HOST` environment variable isn't neccesary on windows since Podman also listens to the default `docker_engine` pipe.
+Note: Setting the `DOCKER_HOST` environment variable isn't necessary on Windows since Podman also listens to the default `docker_engine` pipe.
 </TabItem>
 <TabItem value="mac" label="macOS">
 
