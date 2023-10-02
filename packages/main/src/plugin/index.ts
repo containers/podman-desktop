@@ -383,7 +383,7 @@ export class PluginSystem {
 
     const exec = new Exec(proxy);
 
-    const binaryRegistry = new BinaryRegistry('C:\\Users\\axels\\Downloads\\test');
+    const binaryRegistry = new BinaryRegistry('.');
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const kubeGeneratorRegistry = new KubeGeneratorRegistry();
