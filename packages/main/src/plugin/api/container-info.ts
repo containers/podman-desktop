@@ -96,6 +96,14 @@ export interface ContainerCreateOptions {
   Detach?: boolean;
 }
 
+export interface NetworkCreateOptions {
+  Name: string;
+}
+
+export interface NetworkCreateResult {
+  Id: string;
+}
+
 export interface VolumeCreateOptions {
   Name?: string;
 }
