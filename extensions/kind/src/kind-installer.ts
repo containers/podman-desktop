@@ -143,7 +143,7 @@ export class KindInstaller {
                 // Explain to the user that the binary has been successfully installed to the storage path
                 // prompt and ask if they want to install it system-wide (copied to /usr/bin/, or AppData for Windows)
                 const result = await extensionApi.window.showInformationMessage(
-                  `Kind binary has been succesfully downloaded to ${destFile}.\n\nWould you like to install it system-wide for accessibility on the command line? This will require administrative privileges.`,
+                  `Kind binary has been successfully downloaded to ${destFile}.\n\nWould you like to install it system-wide for accessibility on the command line? This will require administrative privileges.`,
                   'Yes',
                   'Cancel',
                 );
