@@ -18,7 +18,6 @@
 
 import { Octokit } from '@octokit/rest';
 import type * as extensionApi from '@podman-desktop/api';
-import { CliRun } from './cli-run';
 import { Detect } from './detect';
 import { ComposeExtension } from './compose-extension';
 import { ComposeGitHubReleases } from './compose-github-releases';
@@ -39,11 +38,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   const octokit = new Octokit();
   const os = new OS();
-  const cliRun = new CliRun(extensionContext, os);
   const podmanComposeGenerator = new ComposeWrapperGenerator(os, path.resolve(extensionContext.storagePath, 'bin'));
   composeExtension = new ComposeExtension(
     extensionContext,
-    new Detect(cliRun, os, extensionContext.storagePath),
+    new Detect(os, extensionContext.storagePath),
     new ComposeGitHubReleases(octokit),
     os,
     podmanComposeGenerator,

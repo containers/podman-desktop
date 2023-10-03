@@ -17,16 +17,9 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { OS } from './os';
-import { CliRun } from './cli-run';
+import { installBinaryToSystem } from './cli-run';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
-
-const osMock = {
-  isLinux: vi.fn(),
-  isMac: vi.fn(),
-  isWindows: vi.fn(),
-};
 
 vi.mock('@podman-desktop/api', async () => {
   return {
@@ -63,13 +56,26 @@ test('error: expect installBinaryToSystem to fail with a non existing binary', a
     value: 'linux',
   });
 
-  // Create the CliRun object to call installBinaryToSystem
-  let fakeContext: extensionApi.ExtensionContext;
-  let fakeOs: OS;
-  const cliRun = new CliRun(fakeContext, fakeOs);
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>((_, reject) => {
+        const error: extensionApi.RunError = {
+          name: '',
+          message: 'Command failed',
+          exitCode: 1603,
+          command: 'command',
+          stdout: 'stdout',
+          stderr: 'stderr',
+          cancelled: false,
+          killed: false,
+        };
+
+        reject(error);
+      }),
+  );
 
   // Expect await installBinaryToSystem to throw an error
-  await expect(cliRun.installBinaryToSystem('test', 'tmpBinary')).rejects.toThrowError();
+  await expect(installBinaryToSystem('test', 'tmpBinary')).rejects.toThrowError();
 });
 
 test('success: installBinaryToSystem on mac with /usr/local/bin already created', async () => {
@@ -78,48 +84,18 @@ test('success: installBinaryToSystem on mac with /usr/local/bin already created'
     value: 'darwin',
   });
 
-  // Create the CliRun object to call installBinaryToSystem
-  let fakeContext: extensionApi.ExtensionContext;
-  const cliRun = new CliRun(fakeContext, osMock);
-
   // Mock existsSync to be true since within the function it's doing: !fs.existsSync(localBinDir)
   vi.spyOn(fs, 'existsSync').mockImplementation(() => {
     return true;
   });
 
   // Run installBinaryToSystem which will trigger the spyOn mock
-  await cliRun.installBinaryToSystem('test', 'tmpBinary');
+  await installBinaryToSystem('test', 'tmpBinary');
 
   // check called with admin being true
   expect(extensionApi.process.exec).toBeCalledWith(
     'exec',
     expect.arrayContaining(['cp', 'test', '/usr/local/bin/tmpBinary']),
-    expect.objectContaining({ isAdmin: true }),
-  );
-});
-
-test('success: installBinaryToSystem on mac with /usr/local/bin NOT created yet (expect mkdir -p command)', async () => {
-  // Mock the platform to be darwin
-  Object.defineProperty(process, 'platform', {
-    value: 'darwin',
-  });
-
-  // Create the CliRun object to call installBinaryToSystem
-  let fakeContext: extensionApi.ExtensionContext;
-  const cliRun = new CliRun(fakeContext, osMock);
-
-  // Mock existsSync to be false since within the function it's doing: !fs.existsSync(localBinDir)
-  vi.spyOn(fs, 'existsSync').mockImplementation(() => {
-    return false;
-  });
-
-  // Run installBinaryToSystem which will trigger the spyOn mock
-  await cliRun.installBinaryToSystem('test', 'tmpBinary');
-
-  // check called with admin being true
-  expect(extensionApi.process.exec).toBeCalledWith(
-    'exec',
-    expect.arrayContaining(['mkdir', '-p', '/usr/local/bin']),
     expect.objectContaining({ isAdmin: true }),
   );
 });
@@ -130,17 +106,13 @@ test('success: installBinaryToSystem on linux with /usr/local/bin NOT created ye
     value: 'linux',
   });
 
-  // Create the CliRun object to call installBinaryToSystem
-  let fakeContext: extensionApi.ExtensionContext;
-  const cliRun = new CliRun(fakeContext, osMock);
-
   // Mock existsSync to be false since within the function it's doing: !fs.existsSync(localBinDir)
   vi.spyOn(fs, 'existsSync').mockImplementation(() => {
     return false;
   });
 
   // Run installBinaryToSystem which will trigger the spyOn mock
-  await cliRun.installBinaryToSystem('test', 'tmpBinary');
+  await installBinaryToSystem('test', 'tmpBinary');
 
   // check called with admin being true
   expect(extensionApi.process.exec).toBeCalledWith(
