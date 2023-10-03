@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import { test, expect, vi, afterEach } from 'vitest';
-import { getNormalizedDefaultNumberValue, isTargetScope, writeToTerminal } from './Util';
+import { getNormalizedDefaultNumberValue, isPropertyValidInContext, isTargetScope, writeToTerminal } from './Util';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import { ContextUI } from '../context/context';
 
 const xtermMock = {
   write: vi.fn(),
@@ -146,4 +147,29 @@ test('return true if scope is an array and targetScope is contained in it', () =
 test('return true if scope is a string and it is equal to targetScope', () => {
   const result = isTargetScope('DEFAULT', 'DEFAULT');
   expect(result).toBe(true);
+});
+
+test('test isPropertyValidInContext returns true if when is undefined', () => {
+  const contextMock = new ContextUI();
+  const result = isPropertyValidInContext(undefined, contextMock);
+  expect(result).toBe(true);
+});
+
+test('test isPropertyValidInContext returns false if when is defined but context is empty / undefined', () => {
+  const result = isPropertyValidInContext('config.test', new ContextUI());
+  expect(result).toBe(false);
+});
+
+test('test isPropertyValidInContext with valid when statements', () => {
+  const contextMock = new ContextUI();
+  contextMock.setValue('config.test', false);
+
+  // Test with single when statements
+  expect(isPropertyValidInContext('config.test', contextMock)).toBe(false);
+  expect(isPropertyValidInContext('!config.test', contextMock)).toBe(true);
+
+  // Test with multiple when statements
+  contextMock.setValue('config.test2', true);
+  expect(isPropertyValidInContext('config.test && config.test2', contextMock)).toBe(false);
+  expect(isPropertyValidInContext('config.test && !config.test2', contextMock)).toBe(false);
 });

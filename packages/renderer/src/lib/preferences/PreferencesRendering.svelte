@@ -4,19 +4,27 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import PreferencesRenderingItem from './PreferencesRenderingItem.svelte';
 import SettingsPage from './SettingsPage.svelte';
 import Route from '../../Route.svelte';
-import { isDefaultScope } from './Util';
+import { isDefaultScope, isPropertyValidInContext } from './Util';
+import type { ContextUI } from '../context/context';
+import { context } from '/@/stores/context';
+import { onDestroy, onMount } from 'svelte';
+import { type Unsubscriber } from 'svelte/store';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let key: string;
 
-let updateSearchValueTimeout: NodeJS.Timeout;
+// Context variables
+let contextsUnsubscribe: Unsubscriber;
+let globalContext: ContextUI;
 
+// Search and matching records
+let updateSearchValueTimeout: NodeJS.Timeout;
 let matchingRecords: Map<string, IConfigurationPropertyRecordedSchema[]>;
 export let searchValue = '';
 $: searchValue;
-
 $: matchingRecords = properties
   .filter(property => property.parentId.startsWith(key) && isDefaultScope(property.scope) && !property.hidden)
+  .filter(property => isPropertyValidInContext(property.when, globalContext))
   .filter(
     property =>
       !searchValue ||
@@ -31,6 +39,18 @@ $: matchingRecords = properties
     map.get(property.parentId)?.push(property);
     return map;
   }, new Map<string, IConfigurationPropertyRecordedSchema[]>());
+
+onMount(async () => {
+  contextsUnsubscribe = context.subscribe(value => {
+    globalContext = value;
+  });
+});
+
+onDestroy(() => {
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
+  }
+});
 
 function matchValue(text: string, searchValue: string): boolean {
   if (!text) {

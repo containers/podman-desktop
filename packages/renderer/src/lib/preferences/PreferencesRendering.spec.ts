@@ -26,6 +26,16 @@ import { render, screen } from '@testing-library/svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRendering from './PreferencesRendering.svelte';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import { ContextUI } from '../context/context';
+import { context } from '/@/stores/context';
+
+async function waitRender(customProperties: any): Promise<void> {
+  const result = render(PreferencesRendering, { ...customProperties });
+  // wait that result.component.$$.ctx[0] is set
+  while (result.component.$$.ctx[0] === undefined) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+}
 
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn().mockResolvedValue(true);
@@ -76,4 +86,52 @@ test('Expect extension title used a section name', async () => {
   render(PreferencesRendering, { properties: records, key: 'key' });
   const sectionName = screen.getAllByText('my boolean property');
   expect(sectionName.length > 0).toBe(true);
+});
+
+test('Expect example when property to be missing if when statement is not satisfied from context', async () => {
+  const contextConfig = new ContextUI();
+  context.set(contextConfig);
+  contextConfig.setValue('config.test', true);
+  expect(contextConfig.getValue('config.test')).toBe(true);
+
+  const whenProperty: IConfigurationPropertyRecordedSchema = {
+    title: 'example when property',
+    id: 'foobar',
+    parentId: 'key',
+    type: 'boolean',
+    default: true,
+    when: '!config.test',
+    markdownDescription: 'foobar',
+    scope: CONFIGURATION_DEFAULT_SCOPE,
+  };
+
+  waitRender({ properties: [whenProperty], key: 'key' });
+
+  // Expect "example when property" to NOT be found when running getByLabelText
+  const exampleWhenProperty = screen.queryByLabelText('example when property');
+  expect(exampleWhenProperty).not.toBeInTheDocument();
+});
+
+test('Expect example when property to show if when statement is satisfied from context', async () => {
+  const contextConfig = new ContextUI();
+  context.set(contextConfig);
+  contextConfig.setValue('config.test', true);
+  expect(contextConfig.getValue('config.test')).toBe(true);
+
+  const whenProperty: IConfigurationPropertyRecordedSchema = {
+    title: 'example when property',
+    id: 'foobar',
+    parentId: 'key',
+    type: 'boolean',
+    default: true,
+    when: 'config.test', // If config.test is false, this will be shown in the render
+    markdownDescription: 'foobar',
+    scope: CONFIGURATION_DEFAULT_SCOPE,
+  };
+
+  waitRender({ properties: [whenProperty], key: 'key' });
+
+  // Expect "example when property" to be found when running getByLabelText
+  const exampleWhenProperty = screen.queryByLabelText('example when property');
+  expect(exampleWhenProperty).not.toBeInTheDocument();
 });
