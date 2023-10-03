@@ -83,13 +83,13 @@ export class BinaryRegistry {
     fs.writeFileSync(filename, JSON.stringify(binariesInfo), { encoding: 'utf-8' });
   }
 
-  async checkUpdates(providerIds?: string[]): Promise<UpdateInfo[]> {
+  async checkUpdates(providerIds?: string[], limit = 10): Promise<UpdateInfo[]> {
     return Promise.all(
       Array.from(this.providers.entries()).reduce((previousValue, [providerId, binaryProvider]) => {
         if (providerIds !== undefined && !providerIds?.includes(providerId)) return previousValue;
 
         previousValue.push(
-          binaryProvider.updater.getCandidateVersions().then(versions => ({
+          binaryProvider.updater.getCandidateVersions(limit).then(versions => ({
             providerId: providerId,
             candidates: versions,
           })),
@@ -146,7 +146,7 @@ export class BinaryRegistry {
     // perform install using update provider
     await provider.updater.performInstall(assetInfo, destFile);
 
-    // save the
+    // save on persistent storage the information related to the installed version
     await this.setOrUpdateBinaryInstalled({ providerId: providerId, assetInfo: assetInfo, path: destFile });
   }
 }

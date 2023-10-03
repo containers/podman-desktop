@@ -1360,6 +1360,7 @@ declare module '@podman-desktop/api' {
      * @param name the name of the binary provider
      * @param githubOrganization the GitHub organisation
      * @param githubRepo the project containing the binary in its releases
+     * @param assetName the name of the asset (e.g. kind-amd64 or kind-darwin)
      */
     export function registerGithubBinary(
       name: string,

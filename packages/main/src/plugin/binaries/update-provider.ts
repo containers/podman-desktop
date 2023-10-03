@@ -4,6 +4,6 @@ export interface AssetInfo {
 }
 
 export abstract class UpdateProvider {
-  abstract getCandidateVersions(): Promise<AssetInfo[]>;
+  abstract getCandidateVersions(limit?: number): Promise<AssetInfo[]>;
   abstract performInstall(asset: AssetInfo, destination: string): Promise<void>;
 }

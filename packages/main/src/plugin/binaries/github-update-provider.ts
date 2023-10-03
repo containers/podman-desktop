@@ -53,10 +53,11 @@ export class GithubUpdateProvider extends UpdateProvider {
     }, [] as AssetInfo[]);
   }
 
-  async getCandidateVersions(): Promise<AssetInfo[]> {
+  async getCandidateVersions(limit?: number): Promise<AssetInfo[]> {
     const releases = await this.octokit.repos.listReleases({
       owner: this.githubOrganization,
       repo: this.githubRepo,
+      per_page: limit,
     });
 
     return this.getAssetInfo(releases.data);
