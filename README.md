@@ -89,7 +89,7 @@ Interested in fixing issues or contributing to Podman Desktop?
 
 For all bug and feature requests please [file a GitHub issue](https://github.com/containers/podman-desktop/issues/new/choose).
 
-Discussions are done using [Github Discussions](https://github.com/containers/podman-desktop/discussions/).
+Discussions are done using [GitHub Discussions](https://github.com/containers/podman-desktop/discussions/).
 
 ### Chatting
 
