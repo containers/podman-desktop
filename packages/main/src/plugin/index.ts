@@ -369,7 +369,7 @@ export class PluginSystem {
     const iconRegistry = new IconRegistry(apiSender);
     const directories = new Directories();
 
-    const configurationRegistry = new ConfigurationRegistry(directories);
+    const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
     configurationRegistry.init();
 
     const proxy = new Proxy(configurationRegistry);

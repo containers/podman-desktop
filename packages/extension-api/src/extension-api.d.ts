@@ -1765,6 +1765,15 @@ declare module '@podman-desktop/api' {
     Id: string;
   }
 
+  interface ContainerEngineInfo {
+    cpus?: number;
+    cpuIdle?: number;
+    memory?: number;
+    memoryUsed?: number;
+    diskSize?: number;
+    diskUsed?: number;
+  }
+
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
@@ -1797,6 +1806,8 @@ declare module '@podman-desktop/api' {
       callback: (event: PullEvent) => void,
     ): Promise<void>;
     export function deleteImage(engineId: string, id: string): Promise<void>;
+
+    export function info(engineId: string): Promise<ContainerEngineInfo>;
     export const onEvent: Event<ContainerJSONEvent>;
 
     export function listNetworks(): Promise<NetworkInspectInfo[]>;

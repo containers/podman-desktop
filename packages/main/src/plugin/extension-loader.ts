@@ -890,6 +890,9 @@ export class ExtensionLoader {
       deleteImage(engineId: string, id: string) {
         return containerProviderRegistry.deleteImage(engineId, id);
       },
+      info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
+        return containerProviderRegistry.info(engineId);
+      },
       onEvent: (listener, thisArg, disposables) => {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
       },

@@ -112,6 +112,166 @@ export interface PodmanContainerInfo {
   Ports: { host_ip: string; container_port: number; host_port: number; range?: string; protocol: string }[];
 }
 
+export interface Info {
+  host: Host;
+  store: Store;
+  registries: Registries;
+  plugins: Plugins;
+  version: Version;
+}
+
+export interface Host {
+  arch: string;
+  buildahVersion: string;
+  cgroupManager: string;
+  cgroupVersion: string;
+  cgroupControllers: unknown[];
+  conmon: Conmon;
+  cpus: number;
+  cpuUtilization: CpuUtilization;
+  databaseBackend: string;
+  distribution: Distribution;
+  eventLogger: string;
+  hostname: string;
+  idMappings: IdMappings;
+  kernel: string;
+  logDriver: string;
+  memFree: number;
+  memTotal: number;
+  networkBackend: string;
+  ociRuntime: OciRuntime;
+  os: string;
+  remoteSocket: RemoteSocket;
+  serviceIsRemote: boolean;
+  security: Security;
+  slirp4netns: Slirp4netns;
+  swapFree: number;
+  swapTotal: number;
+  uptime: string;
+  linkmode: string;
+}
+
+export interface Conmon {
+  package: string;
+  path: string;
+  version: string;
+}
+
+export interface CpuUtilization {
+  userPercent: number;
+  systemPercent: number;
+  idlePercent: number;
+}
+
+export interface Distribution {
+  distribution: string;
+  variant: string;
+  version: string;
+}
+
+export interface IdMappings {
+  gidmap: Gidmap[];
+  uidmap: Uidmap[];
+}
+
+export interface Gidmap {
+  container_id: number;
+  host_id: number;
+  size: number;
+}
+
+export interface Uidmap {
+  container_id: number;
+  host_id: number;
+  size: number;
+}
+
+export interface OciRuntime {
+  name: string;
+  package: string;
+  path: string;
+  version: string;
+}
+
+export interface RemoteSocket {
+  path: string;
+  exists: boolean;
+}
+
+export interface Security {
+  apparmorEnabled: boolean;
+  capabilities: string;
+  rootless: boolean;
+  seccompEnabled: boolean;
+  seccompProfilePath: string;
+  selinuxEnabled: boolean;
+}
+
+export interface Slirp4netns {
+  executable: string;
+  package: string;
+  version: string;
+}
+
+export interface Store {
+  configFile: string;
+  containerStore: ContainerStore;
+  graphDriverName: string;
+  graphOptions: GraphOptions;
+  graphRoot: string;
+  graphRootAllocated: number;
+  graphRootUsed: number;
+  graphStatus: GraphStatus;
+  imageCopyTmpDir: string;
+  imageStore: ImageStore;
+  runRoot: string;
+  volumePath: string;
+  transientStore: boolean;
+}
+
+export interface ContainerStore {
+  number: number;
+  paused: number;
+  running: number;
+  stopped: number;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface GraphOptions {}
+
+export interface GraphStatus {
+  'Backing Filesystem': string;
+  'Native Overlay Diff': string;
+  'Supports d_type': string;
+  'Using metacopy': string;
+}
+
+export interface ImageStore {
+  number: number;
+}
+
+export interface Registries {
+  search: string[];
+}
+
+export interface Plugins {
+  volume: string[];
+  network: string[];
+  log: string[];
+  authorization: unknown;
+}
+
+export interface Version {
+  APIVersion: string;
+  Version: string;
+  GoVersion: string;
+  GitCommit: string;
+  BuiltTime: string;
+  Built: number;
+  OsArch: string;
+  Os: string;
+}
+
 // API of libpod that we want to expose on our side
 export interface LibPod {
   createPod(podOptions: PodCreateOptions): Promise<{ Id: string }>;
@@ -128,6 +288,7 @@ export interface LibPod {
   generateKube(names: string[]): Promise<string>;
   playKube(yamlContentFilePath: string): Promise<PlayKubeInfo>;
   pruneAllImages(dangling: boolean): Promise<void>;
+  podmanInfo(): Promise<Info>;
 }
 
 // tweak Dockerode by adding the support of libpod API
@@ -487,6 +648,28 @@ export class LibpodDockerode {
         statusCodes: {
           200: true,
           204: true,
+          500: 'server error',
+        },
+        options: {},
+      };
+
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // info
+    prototypeOfDockerode.podmanInfo = function () {
+      const optsf = {
+        path: '/v4.2.0/libpod/info',
+        method: 'GET',
+        statusCodes: {
+          200: true,
           500: 'server error',
         },
         options: {},

@@ -18,6 +18,7 @@
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
+import type { ApiSenderType } from './api.js';
 
 /**
  * Local view of the configuration values for a given scope
@@ -29,6 +30,7 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
   private scope: containerDesktopAPI.ConfigurationScope;
 
   constructor(
+    private apiSender: ApiSenderType,
     private updateCallback: (scope: containerDesktopAPI.ConfigurationScope) => void,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private configurationValues: Map<string, any>,
@@ -81,10 +83,12 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
       if (localView[localKey]) {
         delete localView[section];
         delete this[localKey];
+        this.apiSender.send('configuration-changed');
       }
     } else {
       localView[localKey] = value;
       this[section] = value;
+      this.apiSender.send('configuration-changed');
     }
     // call only for default scope to save
     this.updateCallback(this.scope);

@@ -22,6 +22,7 @@ import type { IConfigurationNode } from './configuration-registry.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
 import type { Directories } from './directories.js';
 import type { Disposable } from './types/disposable.js';
+import type { ApiSenderType } from '/@/plugin/api.js';
 
 let configurationRegistry: ConfigurationRegistry;
 
@@ -32,6 +33,9 @@ const getConfigurationDirectoryMock = vi.fn();
 const directories = {
   getConfigurationDirectory: getConfigurationDirectoryMock,
 } as unknown as Directories;
+const apiSender = {
+  send: vi.fn(),
+} as unknown as ApiSenderType;
 
 let registerConfigurationsDisposable: Disposable;
 
@@ -45,7 +49,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
 
-  configurationRegistry = new ConfigurationRegistry(directories);
+  configurationRegistry = new ConfigurationRegistry(apiSender, directories);
   readFileSync.mockReturnValue(JSON.stringify({}));
 
   configurationRegistry.init();
