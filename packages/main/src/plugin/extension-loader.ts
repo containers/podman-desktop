@@ -28,14 +28,13 @@ import type { ProviderRegistry } from './provider-registry.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { MessageBox } from './message-box.js';
-import type { ProgressImpl } from './progress-impl.js';
-import { ProgressLocation } from './progress-impl.js';
+import { type ProgressImpl, ProgressLocation } from './progress-impl.js';
 import type { NotificationImpl } from './notification-impl.js';
 import {
-  StatusBarItemImpl,
   StatusBarAlignLeft,
   StatusBarAlignRight,
   StatusBarItemDefaultPriority,
+  StatusBarItemImpl,
 } from './statusbar/statusbar-item.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
@@ -44,7 +43,7 @@ import type { KubernetesClient } from './kubernetes-client.js';
 import type { Proxy } from './proxy.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
-import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry.js';
+import { InputBoxValidationSeverity, QuickPickItemKind } from './input-quickpick/input-quickpick-registry.js';
 import type { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { Emitter } from './events/emitter.js';
 import { CancellationTokenSource } from './cancellation-token.js';
@@ -849,22 +848,38 @@ export class ExtensionLoader {
           return false;
         }
 
-        const result = await windowObj.showQuickPick(binaries[0].candidates.map(candidate => candidate.name));
-        if (result === undefined) {
-          console.log('requestInstallOrUpdate failed: user did not pick any options.');
-          return false;
-        }
-
+        const result = await windowObj.showQuickPick(
+          binaries[0].candidates.map(candidate => candidate.name),
+          { title: 'Select a versions to install' },
+        );
         console.log(`User requested to install ${result}`);
 
-        const assetInfo = binaries[0].candidates.find(candidate => candidate.name === result);
-        if (assetInfo === undefined) {
-          console.log('requestInstallOrUpdate failed: user picked unknown option.');
-          return false;
-        }
-        await binaryRegistry.performInstall(providerId, assetInfo);
+        return windowObj.withProgress<boolean>(
+          { location: ProgressLocation.TASK_WIDGET, title: `Installing ${result}` },
+          async progress => {
+            const assetInfo = binaries[0].candidates.find(candidate => candidate.name === result);
+            if (assetInfo === undefined) {
+              console.log('requestInstallOrUpdate failed: user picked unknown option.');
+              progress.report({ increment: -1 });
+              return false;
+            }
 
-        return true;
+            try {
+              await binaryRegistry.performInstall(providerId, assetInfo);
+              progress.report({ message: 'Installation finished.', increment: -1 });
+              windowObj.showNotification({ body: `${result} installed successfully.` });
+              return true;
+            } catch (e) {
+              console.error(`Something went wrong with provider ${providerId} while performing installation.`);
+              await windowObj.showErrorMessage(
+                `Something went wrong with provider ${providerId} while performing installation. ${e}`,
+              );
+              return false;
+            } finally {
+              progress.report({ increment: -1 });
+            }
+          },
+        );
       },
     };
 
