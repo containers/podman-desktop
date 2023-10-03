@@ -1374,6 +1374,49 @@ declare module '@podman-desktop/api' {
     generate(kubernetesGeneratorArguments: KubernetesGeneratorArgument[]): Promise<GenerateKubeResult>;
   }
 
+  export interface ImageInfo {
+    engineId: string;
+    engineName: string;
+    Id: string;
+    ParentId: string;
+    RepoTags: string[] | undefined;
+    RepoDigests?: string[];
+    Created: number;
+    Size: number;
+    VirtualSize: number;
+    SharedSize: number;
+    Labels: { [label: string]: string };
+    Containers: number;
+  }
+
+  export interface NetworkContainer {
+    Name: string;
+    EndpointID: string;
+    MacAddress: string;
+    IPv4Address: string;
+    IPv6Address: string;
+  }
+  export interface NetworkInspectInfo {
+    engineId: string;
+    engineName: string;
+    engineType: 'podman' | 'docker';
+    Name: string;
+    Id: string;
+    Created: string;
+    Scope: string;
+    Driver: string;
+    EnableIPv6: boolean;
+    IPAM?: IPAM;
+    Internal: boolean;
+    Attachable: boolean;
+    Ingress: boolean;
+    ConfigFrom?: { Network: string };
+    ConfigOnly: boolean;
+    Containers?: { [id: string]: NetworkContainer };
+    Options?: { [key: string]: string };
+    Labels?: { [key: string]: string };
+  }
+
   export interface ContainerInfo {
     engineId: string;
     engineName: string;
@@ -1470,12 +1513,12 @@ declare module '@podman-desktop/api' {
     VolumeDriver?: string;
     VolumesFrom?: unknown;
     Mounts?: MountConfig;
-    CapAdd?: unknown;
-    CapDrop?: unknown;
-    Dns?: unknown[];
+    CapAdd?: string[];
+    CapDrop?: string[];
+    Dns?: string[];
     DnsOptions?: unknown[];
     DnsSearch?: string[];
-    ExtraHosts?: unknown;
+    ExtraHosts?: string[];
     GroupAdd?: string[];
     IpcMode?: string;
     Cgroup?: string;
@@ -1485,7 +1528,7 @@ declare module '@podman-desktop/api' {
     Privileged?: boolean;
     PublishAllPorts?: boolean;
     ReadonlyRootfs?: boolean;
-    SecurityOpt?: unknown;
+    SecurityOpt?: string[];
     StorageOpt?: { [option: string]: string };
     Tmpfs?: { [dir: string]: string };
     UTSMode?: string;
@@ -1686,9 +1729,50 @@ declare module '@podman-desktop/api' {
     errorDetails?: { message?: string };
   }
 
+  export interface ContainerCreateOptions {
+    name?: string;
+    Hostname?: string;
+    User?: string;
+    Env?: string[];
+
+    // environment files to use
+    EnvFiles?: string[];
+
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    ExposedPorts?: { [port: string]: {} };
+    HostConfig?: HostConfig;
+    Image?: string;
+    Tty?: boolean;
+    Cmd?: string[];
+    Entrypoint?: string | string[];
+    AttachStdin?: boolean;
+    AttachStdout?: boolean;
+    AttachStderr?: boolean;
+    OpenStdin?: boolean;
+    StdinOnce?: boolean;
+    Detach?: boolean;
+  }
+
+  export interface ContainerCreateResult {
+    id: string;
+  }
+
+  export interface NetworkCreateOptions {
+    Name: string;
+  }
+
+  export interface NetworkCreateResult {
+    Id: string;
+  }
+
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
+
+    export function createContainer(
+      engineId: string,
+      containerCreateOptions: ContainerCreateOptions,
+    ): Promise<ContainerCreateResult>;
     export function startContainer(engineId: string, id: string): Promise<void>;
     export function logsContainer(
       engineId: string,
@@ -1698,6 +1782,7 @@ declare module '@podman-desktop/api' {
     export function stopContainer(engineId: string, id: string): Promise<void>;
     export function deleteContainer(engineId: string, id: string): Promise<void>;
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
+    export function listImages(): Promise<ImageInfo[]>;
     export function tagImage(engineId: string, imageId: string, repo: string, tag?: string): Promise<void>;
     export function pushImage(
       engineId: string,
@@ -1713,6 +1798,12 @@ declare module '@podman-desktop/api' {
     ): Promise<void>;
     export function deleteImage(engineId: string, id: string): Promise<void>;
     export const onEvent: Event<ContainerJSONEvent>;
+
+    export function listNetworks(): Promise<NetworkInspectInfo[]>;
+    export function createNetwork(
+      containerProviderConnection: ContainerProviderConnection,
+      networkCreateOptions: NetworkCreateOptions,
+    ): Promise<NetworkCreateResult>;
   }
 
   /**
