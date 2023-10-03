@@ -372,11 +372,11 @@ export class PluginSystem {
     const configurationRegistry = new ConfigurationRegistry(directories);
     configurationRegistry.init();
 
-    const telemetry = new Telemetry(configurationRegistry);
-    await telemetry.init();
-
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
+
+    const telemetry = new Telemetry(configurationRegistry, proxy);
+    await telemetry.init();
 
     const exec = new Exec(proxy);
 

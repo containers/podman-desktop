@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import Analytics from 'analytics-node';
+import { Analytics, type UserTraits } from '@segment/analytics-node';
 import { app } from 'electron';
 import { Identity } from './identity.js';
 import * as os from 'node:os';
@@ -36,6 +36,7 @@ import type {
 } from '@podman-desktop/api';
 import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry.js';
 import { stoppedExtensions } from '../../util.js';
+import type { Proxy } from '../proxy.js';
 
 export const TRACK_EVENT_TYPE = 'track';
 export const PAGE_EVENT_TYPE = 'page';
@@ -76,7 +77,10 @@ export class Telemetry {
   private readonly _onDidChangeTelemetryEnabled = new Emitter<boolean>();
   readonly onDidChangeTelemetryEnabled: Event<boolean> = this._onDidChangeTelemetryEnabled.event;
 
-  constructor(private configurationRegistry: ConfigurationRegistry) {
+  constructor(
+    private configurationRegistry: ConfigurationRegistry,
+    private proxy: Proxy,
+  ) {
     this.identity = new Identity();
     this.lastTimeEvents = new Map();
   }
@@ -112,10 +116,9 @@ export class Telemetry {
     this.listenForTelemetryUpdates();
 
     // initalize objects
-    this.analytics = new Analytics(Telemetry.SEGMENT_KEY, {
-      errorHandler: err => {
-        console.log(`Telemetry request error: ${err}`);
-      },
+    this.analytics = new Analytics({ writeKey: Telemetry.SEGMENT_KEY });
+    this.analytics.on('error', err => {
+      console.log(`Telemetry request error: ${err}`);
     });
 
     if (check) {
@@ -157,7 +160,7 @@ export class Telemetry {
   }): TelemetrySender {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const thisArg = this;
-    const instanceFlush = this.analytics?.flush;
+    const instanceFlush = this.analytics?.closeAndFlush;
     return {
       // prefix with extension id the event
       sendEventData(eventName: string, data?: Record<string, unknown>): void {
@@ -217,7 +220,7 @@ export class Telemetry {
           this.internalTrack(SHUTDOWN_EVENT_TYPE).catch((err: unknown) => {
             console.log(`Error sending shutdown event: ${err}`);
           });
-          this.analytics?.flush().catch((err: unknown) => {
+          this.analytics?.closeAndFlush().catch((err: unknown) => {
             console.log(`Error flushing analytics: ${err}`);
           });
         } catch (err) {
@@ -325,7 +328,7 @@ export class Telemetry {
     return this.locale;
   }
 
-  protected async getSegmentIdentifyTraits(): Promise<unknown> {
+  protected async getSegmentIdentifyTraits(): Promise<UserTraits> {
     const locale = await this.getLocale();
 
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -342,7 +345,8 @@ export class Telemetry {
     };
   }
 
-  protected async getContext(): Promise<unknown> {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  protected async getContext(): Promise<Object> {
     const locale = await this.getLocale();
 
     return {
