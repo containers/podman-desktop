@@ -854,6 +854,9 @@ export class ExtensionLoader {
       stopContainer(engineId: string, id: string) {
         return containerProviderRegistry.stopContainer(engineId, id);
       },
+      deleteContainer(engineId: string, id: string) {
+        return containerProviderRegistry.deleteContainer(engineId, id);
+      },
       saveImage(engineId: string, id: string, filename: string) {
         return containerProviderRegistry.saveImage(engineId, id, filename);
       },
@@ -874,6 +877,9 @@ export class ExtensionLoader {
       },
       tagImage(engineId: string, imageId: string, repo: string, tag: string | undefined): Promise<void> {
         return containerProviderRegistry.tagImage(engineId, imageId, repo, tag);
+      },
+      deleteImage(engineId: string, id: string) {
+        return containerProviderRegistry.deleteImage(engineId, id);
       },
       onEvent: (listener, thisArg, disposables) => {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
