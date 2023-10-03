@@ -32,6 +32,10 @@ export function iconClass(entry: StatusBarEntry): string | undefined {
     if (match?.length === 2) {
       const className = match[1];
       iconClass = iconClass.replace(match[0], `podman-desktop-icon-${className}`);
+    } else if (iconClass.endsWith('~spin')) {
+      // check if the iconClass ends with ~spin
+      // and then remove the ~spin suffix and use animate-spin
+      iconClass = iconClass.replace('~spin', ' animate-spin');
     }
   }
   return iconClass;

@@ -39,3 +39,13 @@ test('check iconClass with custom icon name', () => {
   const icon = iconClass(statusBarEntry);
   expect(icon).toBe('podman-desktop-icon-podman');
 });
+
+test('check iconClass with font awesome icons and spinning', () => {
+  const statusBarEntry: StatusBarEntry = {
+    enabled: true,
+    activeIconClass: 'fas fa-sync~spin',
+  };
+
+  const icon = iconClass(statusBarEntry);
+  expect(icon).toBe('fas fa-sync animate-spin');
+});
