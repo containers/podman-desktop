@@ -2,7 +2,6 @@ import type { UpdateProvider } from './update-provider.js';
 import type { AssetInfo, BinaryProviderInfo, BinaryDisposable } from '../api/BinaryProviderInfo.js';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Disposable } from '../types/disposable.js';
 import { isAlphanumeric, isWindows } from '../../util.js';
 
 export interface BinaryProvider {
@@ -50,9 +49,7 @@ export class BinaryRegistry {
     this.providers.set(providerId, provider);
     return {
       providerId: providerId,
-      dispose: Disposable.create(() => {
-        this.unregisterProvider(providerId);
-      }).dispose,
+      dispose: () => this.unregisterProvider(providerId),
     };
   }
 
