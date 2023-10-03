@@ -277,10 +277,17 @@ declare module '@podman-desktop/api' {
   }
   export type CheckResultLink = Link;
 
+  export interface CheckResultFixCommand {
+    id: string;
+    title: string;
+  }
+
   export interface CheckResult {
     successful: boolean;
     description?: string;
+    docLinksDescription?: string;
     docLinks?: CheckResultLink[];
+    fixFailedCheckCommand?: CheckResultFixCommand;
   }
 
   export interface InstallCheck {

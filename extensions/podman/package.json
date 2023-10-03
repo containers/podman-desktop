@@ -158,8 +158,7 @@
           "content": [
             [
               {
-                "value": "${onboardingContext:warningsMarkdown}",
-                "highlight": true
+                "value": ":warnings[${onboardingContext:warningsMarkdown}]"
               }
             ],
             [

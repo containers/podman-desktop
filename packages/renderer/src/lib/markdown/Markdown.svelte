@@ -33,6 +33,7 @@ import { micromark } from 'micromark';
 import { directive, directiveHtml } from 'micromark-extension-directive';
 import { button } from './micromark-button-directive';
 import { link } from './micromark-link-directive';
+import { warnings } from './micromark-warnings-directive';
 
 let text: string;
 let html: string;
@@ -57,7 +58,7 @@ const eventListeners: ((e: any) => void)[] = [];
 $: markdown
   ? (html = micromark(markdown, {
       extensions: [directive()],
-      htmlExtensions: [directiveHtml({ button, link })],
+      htmlExtensions: [directiveHtml({ button, link, warnings })],
     }))
   : undefined;
 
@@ -69,7 +70,7 @@ onMount(() => {
   // Provide micromark + extensions
   html = micromark(text, {
     extensions: [directive()],
-    htmlExtensions: [directiveHtml({ button, link })],
+    htmlExtensions: [directiveHtml({ button, link, warnings })],
   });
 
   // We create a click listener in order to execute any internal commands using:

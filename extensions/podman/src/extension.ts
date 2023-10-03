@@ -963,6 +963,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
             successful: checkResult.successful,
             description: checkResult.description,
             docLinks: checkResult.docLinks,
+            docLinksDescription: checkResult.docLinksDescription,
+            fixFailedCheckCommand: checkResult.fixFailedCheckCommand,
           });
 
           if (!checkResult.successful) {
@@ -979,24 +981,21 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         }
       }
 
-      let warningsMarkdown = '';
+      const warnings = [];
 
       for (const res of result) {
-        warningsMarkdown += `* ${res.successful ? '✅' : '❌'} ${res.name} \n`;
-        if (res.description) {
-          warningsMarkdown += res.description;
-          if (res.docLinks) {
-            warningsMarkdown += ' See: ';
-            for (const link of res.docLinks) {
-              warningsMarkdown += `[${link.title}](${link.url}) `;
-            }
-            warningsMarkdown += '\n';
-          }
-        }
+        const warning = {
+          state: res.successful ? 'successful' : 'failed',
+          description: res.description ? res.description : res.name,
+          docDescription: res.docLinksDescription,
+          docLinks: res.docLinks,
+          command: res.fixFailedCheckCommand,
+        };
+        warnings.push(warning);
       }
 
       extensionApi.context.setValue('requirementsStatus', successful ? 'ok' : 'failed', 'onboarding');
-      extensionApi.context.setValue('warningsMarkdown', warningsMarkdown, 'onboarding');
+      extensionApi.context.setValue('warningsMarkdown', warnings, 'onboarding');
     },
   );
 

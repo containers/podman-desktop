@@ -392,6 +392,8 @@ class WinBitCheck extends BaseCheck {
     } else {
       return this.createFailureResult(
         'WSL2 works only on 64bit OS.',
+        'Learn about WSL requirements:',
+        'WSL2 Install Manual',
         'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
       );
     }
@@ -412,6 +414,7 @@ class WinVersionCheck extends BaseCheck {
       } else {
         return this.createFailureResult(
           'To be able to run WSL2 you need Windows 10 Build 18362 or later.',
+          'Learn about WSL requirements:',
           'WSL2 Install Manual',
           'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
         );
@@ -419,6 +422,7 @@ class WinVersionCheck extends BaseCheck {
     } else {
       return this.createFailureResult(
         'WSL2 works only on Windows 10 and newest OS',
+        'Learn about WSL requirements:',
         'WSL2 Install Manual',
         'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
       );
@@ -457,6 +461,7 @@ class VirtualMachinePlatformCheck extends BaseCheck {
     }
     return this.createFailureResult(
       'Virtual Machine Platform should be enabled to be able to run Podman.',
+      'Learn about how to enable the Virtual Machine Platform feature:',
       'Enable Virtual Machine Platform',
       'https://learn.microsoft.com/en-us/windows/wsl/install-manual#step-3---enable-virtual-machine-feature',
     );
@@ -474,14 +479,16 @@ class WSL2Check extends BaseCheck {
       if (!isWSL) {
         if (isAdmin) {
           return this.createFailureResult(
-            'WSL2 is not installed. Call "wsl --install --no-distribution" in a terminal.',
-            'Install WSL',
+            'WSL2 is not installed.',
+            "Call 'wsl --install --no-distribution' in a terminal.",
+            'WSL2 Install Manual',
             'https://learn.microsoft.com/en-us/windows/wsl/install',
           );
         } else {
           return this.createFailureResult(
-            'WSL2 is not installed or you do not have permissions to run WSL2. Contact your Administrator to setup WSL2.',
-            'More info',
+            'WSL2 is not installed or you do not have permissions to run WSL2.',
+            'Contact your Administrator to setup WSL2.',
+            'WSL2 Install Manual',
             'https://learn.microsoft.com/en-us/windows/wsl/install',
           );
         }
@@ -489,7 +496,8 @@ class WSL2Check extends BaseCheck {
     } catch (err) {
       return this.createFailureResult(
         'Could not detect WSL2',
-        'Install WSL',
+        '',
+        'WSL2 Install Manual',
         'https://learn.microsoft.com/en-us/windows/wsl/install',
       );
     }

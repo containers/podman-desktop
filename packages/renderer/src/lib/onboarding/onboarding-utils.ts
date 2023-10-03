@@ -188,12 +188,17 @@ function getStringWithContextKeyReplaced(
   replacement?: string,
 ) {
   if (matchArray.length > 1) {
+    let replacementUnknown: unknown = replacement;
     if (replacement === undefined && context) {
       const key = prefix ? `${prefix}.${matchArray[1]}` : matchArray[1];
-      replacement = context.getValue(key);
+      replacementUnknown = context.getValue(key);
     }
-    if (replacement !== undefined) {
-      return value.replace(matchArray[0], String(replacement));
+    if (replacementUnknown !== undefined) {
+      if (typeof replacementUnknown === 'string') {
+        return value.replace(matchArray[0], replacementUnknown);
+      } else {
+        return value.replace(matchArray[0], JSON.stringify(replacementUnknown));
+      }
     }
   }
   return value;

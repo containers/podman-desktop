@@ -21,11 +21,28 @@ export abstract class BaseCheck implements extensionApi.InstallCheck {
   abstract title: string;
   abstract execute(): Promise<extensionApi.CheckResult>;
 
-  protected createFailureResult(description?: string, title?: string, url?: string): extensionApi.CheckResult {
+  protected createFailureResult(
+    description?: string,
+    linksDescription?: string,
+    linkTitle?: string,
+    linkUrl?: string,
+    fixFailedCheckCommandId?: string,
+    fixFailedCheckCommandTitle?: string,
+  ): extensionApi.CheckResult {
     const result: extensionApi.CheckResult = { successful: false, description };
-    if (title && url) {
-      result.docLinks = [{ url, title }];
+    if (linkTitle && linkUrl) {
+      result.docLinks = [{ url: linkUrl, title: linkTitle }];
     }
+    if (linksDescription) {
+      result.docLinksDescription = linksDescription;
+    }
+    if (fixFailedCheckCommandId) {
+      result.fixFailedCheckCommand = {
+        id: fixFailedCheckCommandId,
+        title: fixFailedCheckCommandTitle,
+      };
+    }
+
     return result;
   }
 
