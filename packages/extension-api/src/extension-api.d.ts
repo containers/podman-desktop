@@ -1696,6 +1696,7 @@ declare module '@podman-desktop/api' {
       callback: (name: string, data: string) => void,
     ): Promise<void>;
     export function stopContainer(engineId: string, id: string): Promise<void>;
+    export function deleteContainer(engineId: string, id: string): Promise<void>;
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
     export function tagImage(engineId: string, imageId: string, repo: string, tag?: string): Promise<void>;
     export function pushImage(
@@ -1710,7 +1711,7 @@ declare module '@podman-desktop/api' {
       imageName: string,
       callback: (event: PullEvent) => void,
     ): Promise<void>;
-
+    export function deleteImage(engineId: string, id: string): Promise<void>;
     export const onEvent: Event<ContainerJSONEvent>;
   }
 
