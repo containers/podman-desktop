@@ -23,23 +23,15 @@ import * as shellPath from 'shell-path';
 import { EventEmitter } from 'node:events';
 import { afterEach, beforeEach, describe, expect, test, vi, vitest } from 'vitest';
 import { Detect } from './detect';
-import type { CliRun } from './cli-run';
 import type { OS } from './os';
 import * as http from 'node:http';
+import * as extensionApi from '@podman-desktop/api';
 
 const osMock: OS = {
   isWindows: vi.fn(),
   isLinux: vi.fn(),
   isMac: vi.fn(),
 };
-
-const cliRunMock: CliRun = {
-  extensionContext: {
-    storagePath: '/storage-path',
-  },
-  runCommand: vi.fn(),
-  getPath: vi.fn(),
-} as unknown as CliRun;
 
 let detect: Detect;
 
@@ -49,11 +41,19 @@ vi.mock('shell-path', () => {
   };
 });
 
+vi.mock('@podman-desktop/api', async () => {
+  return {
+    process: {
+      exec: vi.fn(),
+    },
+  };
+});
+
 const originalConsoleDebug = console.debug;
 
 beforeEach(() => {
   console.debug = vi.fn();
-  detect = new Detect(cliRunMock, osMock, '/storage-path');
+  detect = new Detect(osMock, '/storage-path');
 });
 
 afterEach(() => {
@@ -64,13 +64,24 @@ afterEach(() => {
 
 describe('Check for Docker Compose', async () => {
   test('not installed', async () => {
-    (cliRunMock.runCommand as Mock).mockResolvedValue({ exitCode: -1 });
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+      () =>
+        new Promise<extensionApi.RunResult>((resolve, reject) => {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject({ exitCode: -1 } as extensionApi.RunError);
+        }),
+    );
     const result = await detect.checkForDockerCompose();
     expect(result).toBeFalsy();
   });
 
   test('installed', async () => {
-    (cliRunMock.runCommand as Mock).mockResolvedValue({ exitCode: 0 });
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+      () =>
+        new Promise<extensionApi.RunResult>(resolve => {
+          resolve({} as extensionApi.RunResult);
+        }),
+    );
     const result = await detect.checkForDockerCompose();
     expect(result).toBeTruthy();
   });
@@ -78,14 +89,26 @@ describe('Check for Docker Compose', async () => {
 
 describe('Check for path', async () => {
   test('not included', async () => {
-    (cliRunMock.runCommand as Mock).mockResolvedValue({ exitCode: -1 });
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+      () =>
+        new Promise<extensionApi.RunResult>((resolve, reject) => {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject({ exitCode: -1 } as extensionApi.RunError);
+        }),
+    );
     vitest.spyOn(shellPath, 'shellPath').mockResolvedValue('/different-path');
     const result = await detect.checkStoragePath();
     expect(result).toBeFalsy();
   });
 
   test('included', async () => {
-    (cliRunMock.runCommand as Mock).mockResolvedValue({ exitCode: -1 });
+    vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+      () =>
+        new Promise<extensionApi.RunResult>((resolve, reject) => {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject({ exitCode: -1 } as extensionApi.RunError);
+        }),
+    );
     vitest.spyOn(shellPath, 'shellPath').mockResolvedValue('/storage-path/bin');
     const result = await detect.checkStoragePath();
     expect(result).toBeTruthy();

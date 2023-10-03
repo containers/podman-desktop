@@ -16,26 +16,29 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CliRun } from './cli-run';
 import { shellPath } from 'shell-path';
 import { resolve } from 'path';
 import * as http from 'node:http';
 import type { OS } from './os';
+import * as extensionApi from '@podman-desktop/api';
 
 export class Detect {
   static readonly WINDOWS_SOCKET_PATH = '//./pipe/docker_engine';
   static readonly UNIX_SOCKET_PATH = '/var/run/docker.sock';
 
   constructor(
-    private cliRun: CliRun,
     private os: OS,
     private storagePath: string,
   ) {}
 
   // search if docker-compose is available in the path (+ include storage/bin folder)
   async checkForDockerCompose(): Promise<boolean> {
-    const result = await this.cliRun.runCommand('docker-compose', ['--version']);
-    return result.exitCode === 0;
+    try {
+      await extensionApi.process.exec('docker-compose', ['--version']);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   // search if the podman-compose is available in the storage/bin path
