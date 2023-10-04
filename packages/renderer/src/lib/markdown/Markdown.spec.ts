@@ -100,3 +100,64 @@ describe('Custom link', () => {
     );
   });
 });
+
+describe('Custom warnings', () => {
+  test('Expect warning failed status and description', async () => {
+    const warnings = [
+      {
+        state: 'failed',
+        description: 'description',
+      },
+    ];
+
+    await waitRender({ markdown: `:warnings[${JSON.stringify(warnings)}]` });
+    const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
+    expect(markdownContent).toBeInTheDocument();
+    expect(markdownContent.textContent).toContain('description');
+    expect(markdownContent.textContent).toContain('❌');
+  });
+
+  test('Expect warning successful status and description', async () => {
+    const warnings = [
+      {
+        state: 'successful',
+        description: 'successful description',
+      },
+    ];
+
+    await waitRender({ markdown: `:warnings[${JSON.stringify(warnings)}]` });
+    const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
+    expect(markdownContent).toBeInTheDocument();
+    expect(markdownContent.textContent).toContain('successful description');
+    expect(markdownContent.textContent).toContain('✅');
+  });
+
+  test('Expect command, docdescription and links to be rendered correctly', async () => {
+    const warnings = [
+      {
+        state: 'successful',
+        description: 'successful description',
+        command: {
+          id: 'command',
+          title: 'command title',
+        },
+        docDescription: 'this is the doc description',
+        docLinks: [
+          {
+            url: 'url',
+            title: 'first link',
+          },
+        ],
+      },
+    ];
+
+    await waitRender({ markdown: `:warnings[${JSON.stringify(warnings)}]` });
+    const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
+    expect(markdownContent).toBeInTheDocument();
+    expect(markdownContent.textContent).toContain('this is the doc description');
+    const button = screen.getByRole('button', { name: 'command title' });
+    expect(button).toBeDefined();
+    const link = screen.getByRole('link', { name: 'first link' });
+    expect(link).toBeDefined();
+  });
+});
