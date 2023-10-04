@@ -369,7 +369,8 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
               <span class="my-auto text-gray-400 ml-3 break-words">{provider.name}</span>
             </div>
             <div class="text-center mt-10">
-              {#if isOnboardingEnabled(provider, globalContext) && provider.status === 'not-installed'}
+              <!-- Some providers have a status of 'unknown' so that they do not appear in the dashboard, this allows onboarding to still show. -->
+              {#if isOnboardingEnabled(provider, globalContext) && (provider.status === 'not-installed' || provider.status === 'unknown')}
                 <Button
                   aria-label="Setup {provider.name}"
                   title="Setup {provider.name}"
