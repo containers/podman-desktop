@@ -379,7 +379,9 @@ export const enum CharCode {
   NEXT_LINE = 0x0085,
 
   // http://www.fileformat.info/info/unicode/category/Sk/list.htm
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   U_CIRCUMFLEX = 0x005e, // U+005E	CIRCUMFLEX
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   U_GRAVE_ACCENT = 0x0060, // U+0060	GRAVE ACCENT
   U_DIAERESIS = 0x00a8, // U+00A8	DIAERESIS
   U_MACRON = 0x00af, // U+00AF	MACRON
