@@ -1,5 +1,5 @@
 <script lang="ts">
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import { createEventDispatcher } from 'svelte';
 import { faCheckSquare, faMinusSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { faSquare as faOutlineSquare } from '@fortawesome/free-regular-svg-icons';

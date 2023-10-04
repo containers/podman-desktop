@@ -5,7 +5,7 @@ import { type Unsubscriber } from 'svelte/store';
 import type { EventStoreInfo } from '/@/stores/event-store';
 import { allEventStoresInfo } from '/@/stores/event-store-manager';
 import TroubleshootingPageStore from './TroubleshootingPageStore.svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import { faDatabase } from '@fortawesome/free-solid-svg-icons';
 
 let allEventstores: EventStoreInfo[] = [];

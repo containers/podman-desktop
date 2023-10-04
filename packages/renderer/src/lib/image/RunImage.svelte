@@ -6,7 +6,7 @@ import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-ins
 import FormPage from '../ui/FormPage.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { faFolderOpen, faMinusCircle, faPlay, faPlusCircle, faXmark } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import { router } from 'tinro';
 import Route from '../../Route.svelte';
 import type { NetworkInspectInfo } from '../../../../main/src/plugin/api/network-info';

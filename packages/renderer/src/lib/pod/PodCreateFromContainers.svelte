@@ -10,7 +10,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import ContainerIcon from '../images/ContainerIcon.svelte';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import Button from '../ui/Button.svelte';
 import type { PodCreatePortOptions } from '../../../../main/src/plugin/dockerode/libpod-dockerode';

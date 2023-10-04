@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import { faPlay, faWrench } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import type { ProviderDetectionCheck } from '@podman-desktop/api';
 
 export const DoNothingMode = 'Do nothing';

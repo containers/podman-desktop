@@ -3,7 +3,7 @@ import { onDestroy, onMount } from 'svelte';
 import type { OnboardingInfo, OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import { faForward } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import type { Unsubscriber } from 'svelte/store';
 import { onboardingList } from '/@/stores/onboarding';
 import OnboardingItem from './OnboardingItem.svelte';

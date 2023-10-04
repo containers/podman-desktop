@@ -1,5 +1,5 @@
 <script lang="ts">
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import { faPuzzlePiece, faTrash, faPlay, faStop, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 import { afterUpdate } from 'svelte';
 import { extensionInfos } from '../../stores/extensions';
