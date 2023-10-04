@@ -67,6 +67,7 @@ import { createHttpPatchedModules } from './proxy-resolver.js';
 import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
+import type { CliToolRegistry } from './cli-tool-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -154,6 +155,7 @@ export class ExtensionLoader {
     directories: Directories,
     private exec: Exec,
     private kubeGeneratorRegistry: KubeGeneratorRegistry,
+    private cliToolRegistry: CliToolRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -999,6 +1001,15 @@ export class ExtensionLoader {
       },
     };
 
+    const cli: typeof containerDesktopAPI.cli = {
+      createCliTool: (options: containerDesktopAPI.CliToolOptions) => {
+        if (options.images) {
+          options.images.icon = instance.updateImage(options?.images?.icon, extensionPath);
+        }
+        return this.cliToolRegistry.createCliTool(extensionInfo.id, extensionInfo.name, options);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -1026,6 +1037,7 @@ export class ExtensionLoader {
       QuickPickItemKind,
       authentication,
       context: contextAPI,
+      cli,
     };
   }
 

@@ -15,6 +15,7 @@ import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
+import PreferencesCliToolsRendering from './PreferencesCliToolsRendering.svelte';
 import Onboarding from '../onboarding/Onboarding.svelte';
 import { isDefaultScope } from './Util';
 
@@ -71,6 +72,9 @@ onMount(async () => {
   </Route>
   <Route path="/authentication-providers" breadcrumb="Authentication">
     <PreferencesAuthenticationProvidersRendering />
+  </Route>
+  <Route path="/cli-tools" breadcrumb="Authentication">
+    <PreferencesCliToolsRendering />
   </Route>
   <Route path="/proxies" breadcrumb="Proxy">
     <PreferencesProxiesRendering />

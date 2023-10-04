@@ -135,6 +135,21 @@ export class ComposeExtension {
       this.statusBarItem.show();
       this.extensionContext.subscriptions.push(this.statusBarItem);
     }
+    const description = `Compose is a tool for defining and running multi-container Docker applications. 
+    With Compose, you use a YAML file to configure your application's services. Then, with a single command, 
+    you create and start all the services from your configuration.
+    Compose works in all environments; production, staging, development, testing, as well as CI workflows. 
+    It also provides commands for managing the whole lifecycle of your application.`;
+
+    extensionApi.cli.createCliTool({
+      id: 'docker-compose',
+      name: 'docker-compose',
+      displayName: 'Compose',
+      description: description.replace('\n', ''),
+      images: {
+        icon: 'compose.png',
+      },
+    });
 
     // run init checks
     await this.runChecks(true);

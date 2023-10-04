@@ -2425,4 +2425,16 @@ declare module '@podman-desktop/api' {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function setValue(key: string, value: any, scope?: 'onboarding'): void;
   }
+
+  export interface CliToolOptions {
+    id: string;
+    name: string;
+    displayName: string;
+    description: string;
+    images: ProviderImages;
+  }
+
+  export namespace cli {
+    export function createCliTool(options: CliToolOptions): Disposable;
+  }
 }
