@@ -112,11 +112,11 @@ async function sendFeedback(): Promise<void> {
         <label for="contactInformation" class="block mt-4 mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
           >Share your contact information if you'd like us to answer you:</label>
         <input
-          type="text"
+          type="email"
           name="contactInformation"
           id="contactInformation"
           bind:value="{contactInformation}"
-          placeholder="Enter email address, phone number, or leave blank for anonymous feedback"
+          placeholder="Enter email address, or leave blank for anonymous feedback"
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
 
         <div class="pt-5 flex flex-row w-full justify-between">
