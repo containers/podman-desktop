@@ -499,7 +499,7 @@ export class LibpodDockerode {
         this.modem.dial(optsf, (err: any, data: unknown) => {
           if (err) {
             // check that err.json is a JSON
-            if (err?.statusCode === 409 && err?.json && err.json.Errs) {
+            if (err?.statusCode === 409 && err?.json?.Errs) {
               return reject(err.json.Errs.join(' '));
             }
 
