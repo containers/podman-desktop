@@ -1,5 +1,5 @@
 <script lang="ts">
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import TaskManagerItem from './TaskManagerItem.svelte';
 
 import type { Task } from '../../../../main/src/plugin/api/task';

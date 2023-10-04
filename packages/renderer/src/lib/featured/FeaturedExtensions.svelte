@@ -1,7 +1,7 @@
 <script lang="ts">
 import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
 import { faCheckCircle, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import FeaturedExtensionDownload from './FeaturedExtensionDownload.svelte';
 </script>
 

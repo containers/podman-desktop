@@ -12,7 +12,7 @@ import PreferencesConnectionCreationRendering from './PreferencesConnectionCreat
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
 import { faHistory, faPlay, faStop, faXmark } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
 

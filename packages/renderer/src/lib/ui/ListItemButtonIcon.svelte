@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import DropdownMenuItem from './DropDownMenuItem.svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 
 export let title: string;
 export let icon: IconDefinition;

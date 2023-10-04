@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import DropDownMenuItems from './DropDownMenuItems.svelte';
 
 // Show and hide the menu using clickOutside

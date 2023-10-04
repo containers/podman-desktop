@@ -1,7 +1,7 @@
 <script lang="ts">
 import bgImage from './background.png';
 import DesktopIcon from '../images/DesktopIcon.svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import { WelcomeUtils } from './welcome-utils';

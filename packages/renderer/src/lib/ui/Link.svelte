@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onMount, createEventDispatcher } from 'svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
 export let internalRef: string | undefined = undefined;

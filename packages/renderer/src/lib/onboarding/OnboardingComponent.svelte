@@ -7,7 +7,7 @@ import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info
 import PreferencesConnectionCreationRendering from '../preferences/PreferencesConnectionCreationRendering.svelte';
 import type { OnboardingEmbeddedComponentType } from '../../../../main/src/plugin/api/onboarding';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 
 export let component: OnboardingEmbeddedComponentType;
 export let extensionId: string;
