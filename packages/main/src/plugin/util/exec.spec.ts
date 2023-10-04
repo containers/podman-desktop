@@ -483,6 +483,48 @@ describe('exec', () => {
     expect(spawnMock).not.toHaveBeenCalled();
     expect(sudo.exec).toBeCalledWith('echo Hello, World!', expect.anything(), expect.anything());
   });
+
+  test('should run the command with privileges on Windows and remove unsupported environment', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+    (util.isWindows as Mock).mockReturnValue(true);
+    let options: any;
+
+    (sudo.exec as Mock).mockImplementation((_command, _options, callback) => {
+      callback(undefined);
+      options = _options;
+    });
+
+    vi.mock('child_process', () => {
+      return {
+        spawn: vi.fn(),
+      };
+    });
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    await exec.exec(command, args, { isAdmin: true, env: { 'MY(VAR': 'myvalue' } });
+
+    // caller should not have called spawn but the sudo.exec api
+    expect(spawnMock).not.toHaveBeenCalled();
+    expect(sudo.exec).toBeCalledWith('echo Hello, World!', expect.anything(), expect.anything());
+    expect(options).toBeDefined();
+    expect(options.env).toBeDefined();
+    expect(options.env['MY(VAR']).not.toBeDefined();
+  });
 });
 
 vi.mock('./util', () => {
