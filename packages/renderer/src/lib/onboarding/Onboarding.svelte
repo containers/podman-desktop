@@ -1,4 +1,4 @@
-<style>
+<style lang="postcss">
 #stepBody::-webkit-scrollbar {
   width: 1em;
 }
@@ -6,10 +6,13 @@
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
 }
 #stepBody::-webkit-scrollbar-thumb {
-  background-color: #5c5c5c;
+  background-color: theme(colors.charcoal.100);
 }
 #stepBody::-webkit-scrollbar-thumb:hover {
-  background-color: #707073;
+  background-color: theme(colors.charcoal.50);
+}
+#stepBody::-webkit-scrollbar-thumb:active {
+  background-color: theme(colors.gray.700);
 }
 .bodyWithBar::-webkit-scrollbar-track-piece:end {
   background: transparent;
