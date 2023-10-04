@@ -287,7 +287,7 @@ declare module '@podman-desktop/api' {
     description?: string;
     docLinksDescription?: string;
     docLinks?: CheckResultLink[];
-    fixFailedCheckCommand?: CheckResultFixCommand;
+    fixCommand?: CheckResultFixCommand;
   }
 
   export interface InstallCheck {

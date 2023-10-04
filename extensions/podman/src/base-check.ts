@@ -17,32 +17,31 @@
  ***********************************************************************/
 import type * as extensionApi from '@podman-desktop/api';
 
+export interface FailureObject {
+  description: string;
+  docLinksDescription?: string;
+  docLinks?: extensionApi.CheckResultLink;
+  fixCommand?: extensionApi.CheckResultFixCommand;
+}
+
 export abstract class BaseCheck implements extensionApi.InstallCheck {
   abstract title: string;
   abstract execute(): Promise<extensionApi.CheckResult>;
 
-  protected createFailureResult(
-    description?: string,
-    linksDescription?: string,
-    linkTitle?: string,
-    linkUrl?: string,
-    fixFailedCheckCommandId?: string,
-    fixFailedCheckCommandTitle?: string,
-  ): extensionApi.CheckResult {
-    const result: extensionApi.CheckResult = { successful: false, description };
-    if (linkTitle && linkUrl) {
-      result.docLinks = [{ url: linkUrl, title: linkTitle }];
+  protected createFailureResult(failureObject: FailureObject): extensionApi.CheckResult {
+    const result: extensionApi.CheckResult = { successful: false, description: failureObject.description };
+    if (failureObject.docLinksDescription) {
+      result.docLinksDescription = failureObject.docLinksDescription;
     }
-    if (linksDescription) {
-      result.docLinksDescription = linksDescription;
+    if (failureObject.docLinks) {
+      result.docLinks = [{ url: failureObject.docLinks.url, title: failureObject.docLinks.title }];
     }
-    if (fixFailedCheckCommandId) {
-      result.fixFailedCheckCommand = {
-        id: fixFailedCheckCommandId,
-        title: fixFailedCheckCommandTitle,
+    if (failureObject.fixCommand) {
+      result.fixCommand = {
+        id: failureObject.fixCommand.id,
+        title: failureObject.fixCommand.title,
       };
     }
-
     return result;
   }
 

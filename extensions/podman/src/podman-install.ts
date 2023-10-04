@@ -390,12 +390,14 @@ class WinBitCheck extends BaseCheck {
     if (this.ARCH_X64 === currentArch || this.ARCH_ARM === currentArch) {
       return this.createSuccessfulResult();
     } else {
-      return this.createFailureResult(
-        'WSL2 works only on 64bit OS.',
-        'Learn about WSL requirements:',
-        'WSL2 Install Manual',
-        'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
-      );
+      return this.createFailureResult({
+        description: 'WSL2 works only on 64bit OS.',
+        docLinksDescription: 'Learn about WSL requirements:',
+        docLinks: {
+          url: 'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
+          title: 'WSL2 Install Manual',
+        },
+      });
     }
   }
 }
@@ -412,20 +414,24 @@ class WinVersionCheck extends BaseCheck {
       if (Number.parseInt(winBuild) >= this.MIN_BUILD) {
         return { successful: true };
       } else {
-        return this.createFailureResult(
-          'To be able to run WSL2 you need Windows 10 Build 18362 or later.',
-          'Learn about WSL requirements:',
-          'WSL2 Install Manual',
-          'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
-        );
+        return this.createFailureResult({
+          description: 'To be able to run WSL2 you need Windows 10 Build 18362 or later.',
+          docLinksDescription: 'Learn about WSL requirements:',
+          docLinks: {
+            url: 'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
+            title: 'WSL2 Install Manual',
+          },
+        });
       }
     } else {
-      return this.createFailureResult(
-        'WSL2 works only on Windows 10 and newest OS',
-        'Learn about WSL requirements:',
-        'WSL2 Install Manual',
-        'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
-      );
+      return this.createFailureResult({
+        description: 'WSL2 works only on Windows 10 and newest OS',
+        docLinksDescription: 'Learn about WSL requirements:',
+        docLinks: {
+          url: 'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
+          title: 'WSL2 Install Manual',
+        },
+      });
     }
   }
 }
@@ -439,7 +445,9 @@ class WinMemoryCheck extends BaseCheck {
     if (this.REQUIRED_MEM <= totalMem) {
       return this.createSuccessfulResult();
     } else {
-      return this.createFailureResult('You need at least 6GB to run Podman.');
+      return this.createFailureResult({
+        description: 'You need at least 6GB to run Podman.',
+      });
     }
   }
 }
@@ -459,12 +467,14 @@ class VirtualMachinePlatformCheck extends BaseCheck {
     } catch (err) {
       // ignore error, this means that VirtualMachinePlatform not enabled
     }
-    return this.createFailureResult(
-      'Virtual Machine Platform should be enabled to be able to run Podman.',
-      'Learn about how to enable the Virtual Machine Platform feature:',
-      'Enable Virtual Machine Platform',
-      'https://learn.microsoft.com/en-us/windows/wsl/install-manual#step-3---enable-virtual-machine-feature',
-    );
+    return this.createFailureResult({
+      description: 'Virtual Machine Platform should be enabled to be able to run Podman.',
+      docLinksDescription: 'Learn about how to enable the Virtual Machine Platform feature:',
+      docLinks: {
+        url: 'https://learn.microsoft.com/en-us/windows/wsl/install-manual#step-3---enable-virtual-machine-feature',
+        title: 'Enable Virtual Machine Platform',
+      },
+    });
   }
 }
 
@@ -478,28 +488,33 @@ class WSL2Check extends BaseCheck {
 
       if (!isWSL) {
         if (isAdmin) {
-          return this.createFailureResult(
-            'WSL2 is not installed.',
-            "Call 'wsl --install --no-distribution' in a terminal.",
-            'WSL2 Install Manual',
-            'https://learn.microsoft.com/en-us/windows/wsl/install',
-          );
+          return this.createFailureResult({
+            description: 'WSL2 is not installed.',
+            docLinksDescription: `Call 'wsl --install --no-distribution' in a terminal.`,
+            docLinks: {
+              url: 'https://learn.microsoft.com/en-us/windows/wsl/install',
+              title: 'WSL2 Install Manual',
+            },
+          });
         } else {
-          return this.createFailureResult(
-            'WSL2 is not installed or you do not have permissions to run WSL2.',
-            'Contact your Administrator to setup WSL2.',
-            'WSL2 Install Manual',
-            'https://learn.microsoft.com/en-us/windows/wsl/install',
-          );
+          return this.createFailureResult({
+            description: 'WSL2 is not installed or you do not have permissions to run WSL2.',
+            docLinksDescription: 'Contact your Administrator to setup WSL2.',
+            docLinks: {
+              url: 'https://learn.microsoft.com/en-us/windows/wsl/install',
+              title: 'WSL2 Install Manual',
+            },
+          });
         }
       }
     } catch (err) {
-      return this.createFailureResult(
-        'Could not detect WSL2',
-        '',
-        'WSL2 Install Manual',
-        'https://learn.microsoft.com/en-us/windows/wsl/install',
-      );
+      return this.createFailureResult({
+        description: 'Could not detect WSL2',
+        docLinks: {
+          url: 'https://learn.microsoft.com/en-us/windows/wsl/install',
+          title: 'WSL2 Install Manual',
+        },
+      });
     }
 
     return this.createSuccessfulResult();
