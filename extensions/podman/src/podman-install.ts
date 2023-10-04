@@ -395,7 +395,7 @@ class WinBitCheck extends BaseCheck {
         docLinksDescription: 'Learn about WSL requirements:',
         docLinks: {
           url: 'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
-          title: 'WSL2 Install Manual',
+          title: 'WSL2 Manual Installation Steps',
         },
       });
     }
@@ -419,7 +419,7 @@ class WinVersionCheck extends BaseCheck {
           docLinksDescription: 'Learn about WSL requirements:',
           docLinks: {
             url: 'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
-            title: 'WSL2 Install Manual',
+            title: 'WSL2 Manual Installation Steps',
           },
         });
       }
@@ -429,7 +429,7 @@ class WinVersionCheck extends BaseCheck {
         docLinksDescription: 'Learn about WSL requirements:',
         docLinks: {
           url: 'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
-          title: 'WSL2 Install Manual',
+          title: 'WSL2 Manual Installation Steps',
         },
       });
     }
@@ -493,7 +493,7 @@ class WSL2Check extends BaseCheck {
             docLinksDescription: `Call 'wsl --install --no-distribution' in a terminal.`,
             docLinks: {
               url: 'https://learn.microsoft.com/en-us/windows/wsl/install',
-              title: 'WSL2 Install Manual',
+              title: 'WSL2 Manual Installation Steps',
             },
           });
         } else {
@@ -502,7 +502,7 @@ class WSL2Check extends BaseCheck {
             docLinksDescription: 'Contact your Administrator to setup WSL2.',
             docLinks: {
               url: 'https://learn.microsoft.com/en-us/windows/wsl/install',
-              title: 'WSL2 Install Manual',
+              title: 'WSL2 Manual Installation Steps',
             },
           });
         }
@@ -512,7 +512,7 @@ class WSL2Check extends BaseCheck {
         description: 'Could not detect WSL2',
         docLinks: {
           url: 'https://learn.microsoft.com/en-us/windows/wsl/install',
-          title: 'WSL2 Install Manual',
+          title: 'WSL2 Manual Installation Steps',
         },
       });
     }

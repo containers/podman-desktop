@@ -964,7 +964,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
             description: checkResult.description,
             docLinks: checkResult.docLinks,
             docLinksDescription: checkResult.docLinksDescription,
-            fixFailedCheckCommand: checkResult.fixFailedCheckCommand,
+            fixCommand: checkResult.fixCommand,
           });
 
           if (!checkResult.successful) {
@@ -989,7 +989,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           description: res.description ? res.description : res.name,
           docDescription: res.docLinksDescription,
           docLinks: res.docLinks,
-          command: res.fixFailedCheckCommand,
+          command: res.fixCommand,
         };
         warnings.push(warning);
       }

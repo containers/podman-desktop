@@ -27,7 +27,9 @@ export class MacCPUCheck extends BaseCheck {
   async execute(): Promise<extensionApi.CheckResult> {
     const cpus = os.cpus();
     if (cpus.length < this.MIN_CPU_NUMBER) {
-      return this.createFailureResult(`You need to have at least ${this.MIN_CPU_NUMBER} CPU cores to install podman.`);
+      return this.createFailureResult({
+        description: `You need to have at least ${this.MIN_CPU_NUMBER} CPU cores to install podman.`,
+      });
     }
 
     return this.createSuccessfulResult();
@@ -43,7 +45,9 @@ export class MacMemoryCheck extends BaseCheck {
     if (this.REQUIRED_MEM <= totalMem) {
       return this.createSuccessfulResult();
     } else {
-      return this.createFailureResult('You need at least 4GB to install Podman.');
+      return this.createFailureResult({
+        description: 'You need at least 4GB to install Podman.',
+      });
     }
   }
 }
@@ -57,8 +61,9 @@ export class MacVersionCheck extends BaseCheck {
     if (compare(darwinVersion, this.MINIMUM_VERSION, '>=')) {
       return this.createSuccessfulResult();
     }
-
-    return this.createFailureResult('To be able to install podman you need to update to macOS Catalina.');
+    return this.createFailureResult({
+      description: 'To be able to install podman you need to update to macOS Catalina.',
+    });
   }
 }
 
@@ -82,10 +87,13 @@ export class MacPodmanInstallCheck extends BaseCheck {
       return this.createSuccessfulResult();
     }
 
-    return this.createFailureResult(
-      'You have podman installed with "brew", run "brew update && brew upgrade podman" to install new version',
-      'Brew Documentation',
-      'https://docs.brew.sh/Manpage#upgrade-options-outdated_formulaoutdated_cask-',
-    );
+    return this.createFailureResult({
+      description:
+        'You have podman installed with "brew", run "brew update && brew upgrade podman" to install new version',
+      docLinks: {
+        url: 'https://docs.brew.sh/Manpage#upgrade-options-outdated_formulaoutdated_cask-',
+        title: 'Brew Documentation',
+      },
+    });
   }
 }
