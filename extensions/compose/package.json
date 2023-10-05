@@ -3,6 +3,7 @@
   "displayName": "Compose",
   "description": "Install Compose binary to work with Podman",
   "version": "0.0.1",
+  "icon": "icon.png",
   "publisher": "podman-desktop",
   "license": "Apache-2.0",
   "engines": {
@@ -19,7 +20,38 @@
         "command": "compose.checks",
         "title": "Compose: Checks..."
       }
-    ]
+    ],
+    "onboarding": {
+      "title": "Compose Setup",
+      "enablement": "!compose.isComposeInstalledSystemWide",
+      "steps": [
+        {
+          "id": "composeSettings",
+          "label": "Compose Settings",
+          "title": "Compose Settings",
+          "content": [
+            [
+              {
+                "value": "${configuration:compose.binary.installComposeSystemWide}",
+                "when": "!compose.isComposeInstalledSystemWide"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Compose",
+      "properties": {
+        "compose.binary.installComposeSystemWide": {
+          "type": "boolean",
+          "default": false,
+          "scope": ["DEFAULT", "Onboarding"],
+          "hidden": true,
+          "description": "Install system-wide instead of just your user directory, so compose can be accessed on the command line. Note: You will be prompted for system privileges when enabling this. "
+        }
+      }
+    }
   },
   "scripts": {
     "build": "vite build && node ./scripts/build.js",

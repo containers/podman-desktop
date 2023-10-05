@@ -26,6 +26,7 @@ import { Detect } from './detect';
 import type { OS } from './os';
 import * as http from 'node:http';
 import * as extensionApi from '@podman-desktop/api';
+import * as fs from 'node:fs';
 
 const osMock: OS = {
   isWindows: vi.fn(),
@@ -112,6 +113,23 @@ describe('Check for path', async () => {
     vitest.spyOn(shellPath, 'shellPath').mockResolvedValue('/storage-path/bin');
     const result = await detect.checkStoragePath();
     expect(result).toBeTruthy();
+  });
+});
+
+// Write a test for getStoragePath
+describe('Check storage path', async () => {
+  test('not found', async () => {
+    const result = await detect.getStoragePath();
+    expect(result).toBe('');
+  });
+
+  test('found', async () => {
+    vi.mock('node:fs');
+    const existSyncSpy = vi.spyOn(fs, 'existsSync');
+    existSyncSpy.mockImplementation(() => true);
+
+    const result = await detect.getStoragePath();
+    expect(result).toBe('/storage-path/bin/docker-compose');
   });
 });
 
