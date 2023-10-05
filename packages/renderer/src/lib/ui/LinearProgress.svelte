@@ -52,6 +52,5 @@
 }
 </style>
 
-<progress
-  class="w-full appearance-none border-none h-0.5 text-[var(--pf-global--primary-color--100)] text-base pure-material-progress-linear"
+<progress class="w-full appearance-none border-none h-0.5 text-purple-500 text-base pure-material-progress-linear"
 ></progress>
