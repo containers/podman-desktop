@@ -480,6 +480,13 @@ class VirtualMachinePlatformCheck extends BaseCheck {
 
 class WSL2Check extends BaseCheck {
   title = 'WSL2 Installed';
+  installWSLCommandId = 'podman.onboarding.installWSL';
+
+  async init(): Promise<void> {
+    extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
+      return await this.installWSL();
+    });
+  }
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
@@ -494,6 +501,10 @@ class WSL2Check extends BaseCheck {
             docLinks: {
               url: 'https://learn.microsoft.com/en-us/windows/wsl/install',
               title: 'WSL2 Manual Installation Steps',
+            },
+            fixCommand: {
+              id: this.installWSLCommandId,
+              title: 'Install WSL2',
             },
           });
         } else {
@@ -548,6 +559,19 @@ class WSL2Check extends BaseCheck {
       return !!output;
     } catch (error) {
       return false;
+    }
+  }
+
+  private async installWSL(): Promise<string> {
+    try {
+      const { stdout: res } = await extensionApi.process.exec('wsl', ['--install', '--no-distribution'], {
+        env: { WSL_UTF8: '1' },
+      });
+      return this.normalizeOutput(res);
+    } catch (error) {
+      let message = error.message ? `${error.message}\n` : '';
+      message += error.stdout || '';
+      return message;
     }
   }
 }

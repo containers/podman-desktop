@@ -86,15 +86,15 @@ export function warnings(d: any) {
     if (item.command) {
       // Make this a button
       this.tag(
-        '<button class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" data-command="' +
+        '<button class="flex flex-row items-center justify-center px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" data-command="' +
           this.encode(item.command.id) +
           '">',
       );
 
       // Add the "progress" spinner
       this.tag(
-        `<i class="flex justify-center items-center">
-          <svg width="2em" height="2em" viewBox="0 0 100 100">
+        `<i class="flex justify-center items-center mr-2" style="display: none;">
+          <svg width="1em" height="1em" viewBox="0 0 100 100">
             <defs>
               <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style="stop-color:rgb(0,0,0);stop-opacity:1"></stop>
@@ -105,7 +105,7 @@ export function warnings(d: any) {
             <mask id="myMask">
               <rect x="0" y="0" width="100" height="100" fill="white"></rect>
               <rect x="-25" y="-25" width="150" height="75" fill="black"></rect>
-              <g transform="translate(50,50)" style="width='2em'; height='2em'">
+              <g transform="translate(50,50)" style="width='1em'; height='1em'">
                 <g>
                   <rect x="-75" y="-75" width="150" height="75" fill="url(#grad1)"></rect>
                   <rect x="-75" y="-70" width="100" height="75" fill="black"></rect>

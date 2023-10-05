@@ -876,9 +876,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // provide an installation path ?
   if (podmanInstall.isAbleToInstall()) {
+    // init all install checks
+    const installChecks = podmanInstall.getInstallChecks();
+    for (const check of installChecks) {
+      await check.init?.();
+    }
     provider.registerInstallation({
       install: () => podmanInstall.doInstallPodman(provider),
-      preflightChecks: () => podmanInstall.getInstallChecks(),
+      preflightChecks: () => installChecks,
     });
   }
 
