@@ -34,6 +34,7 @@ import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from 
 import { getSocketCompatibility } from './compatibility-mode';
 import type { ContainerEngineInfo, RunError } from '@podman-desktop/api';
 import { compareVersions } from 'compare-versions';
+import { getDockerCli } from './docker-cli';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -194,13 +195,7 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
         console.debug('Podman extension:', 'Failed to read socketPath from machine inspect');
       }
       if (!socketPath) {
-        if (isMac()) {
-          socketPath = calcMacosSocketPath(machineName);
-        } else if (isLinux()) {
-          socketPath = calcLinuxSocketPath(machineName);
-        } else if (isWindows()) {
-          socketPath = calcWinPipeName(machineName);
-        }
+        socketPath = calculateSocketPath(machineName);
       }
       await registerProviderFor(provider, podmanMachinesInfo.get(machineName), socketPath);
     }),
@@ -388,6 +383,16 @@ function getLinuxSocketPath(): string {
   return `/run/user/${uid}/podman/podman.sock`;
 }
 
+function calculateSocketPath(machineName: string): string {
+  if (isMac()) {
+    return calcMacosSocketPath(machineName);
+  } else if (isLinux()) {
+    return calcLinuxSocketPath(machineName);
+  } else if (isWindows()) {
+    return calcWinPipeName(machineName);
+  }
+}
+
 // on linux, socket is started by the system service on a path like /run/user/1000/podman/podman.sock
 async function initDefaultLinux(provider: extensionApi.Provider) {
   const socketPath = getLinuxSocketPath();
@@ -413,7 +418,7 @@ async function initDefaultLinux(provider: extensionApi.Provider) {
   storedExtensionContext.subscriptions.push(disposable);
 }
 
-async function isPodmanSocketAlive(socketPath: string): Promise<boolean> {
+async function isDaemonSocketAlive(socketPath: string): Promise<boolean> {
   const pingUrl = {
     path: '/_ping',
     socketPath,
@@ -441,7 +446,7 @@ async function monitorPodmanSocket(socketPath: string, machineName?: string) {
   // call us again
   if (!stopMonitoringPodmanSocket(machineName)) {
     try {
-      const alive = await isPodmanSocketAlive(socketPath);
+      const alive = await isDaemonSocketAlive(socketPath);
       if (!alive) {
         updateProviderStatus('stopped', machineName);
       } else {
@@ -538,7 +543,7 @@ function prettyMachineName(machineName: string): string {
 async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (context, logger): Promise<void> => {
-      await startMachine(provider, machineInfo, context, logger);
+      await startMachine(provider, machineInfo, socketPath, context, logger);
     },
     stop: async (context, logger): Promise<void> => {
       await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', machineInfo.name], {
@@ -548,6 +553,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     },
     delete: async (logger): Promise<void> => {
       await extensionApi.process.exec(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name], { logger });
+      await unregisterDockerContext(machineInfo.name);
     },
   };
 
@@ -582,9 +588,34 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   storedExtensionContext.subscriptions.push(disposable);
 }
 
+async function registerDockerContext(name: string, socketPath: string) {
+  try {
+    const dockerCli = await getDockerCli();
+    if (dockerCli?.isContextSupported()) {
+      const defaultSocketPath = await dockerCli.getDefaultSocketPath();
+      const alive = defaultSocketPath ? await isDaemonSocketAlive(defaultSocketPath) : false;
+      await dockerCli.registerMachine(name, socketPath, !alive);
+    }
+  } catch (err) {
+    console.warn(`Can't register Docker context for machine ${name} ${err}`);
+  }
+}
+
+async function unregisterDockerContext(name: string) {
+  try {
+    const dockerCli = await getDockerCli();
+    if (dockerCli?.isContextSupported()) {
+      await dockerCli.unregisterMachine(name);
+    }
+  } catch (err) {
+    console.warn(`Can't unregister Docker context for machine ${name} ${err}`);
+  }
+}
+
 export async function startMachine(
   provider: extensionApi.Provider,
   machineInfo: MachineInfo,
+  socketPath: string,
   context?: extensionApi.LifecycleContext,
   logger?: extensionApi.Logger,
   skipHandleError?: boolean,
@@ -595,6 +626,7 @@ export async function startMachine(
       logger: new LoggerDelegator(context, logger),
     });
     provider.updateStatus('started');
+    await registerDockerContext(machineInfo.name, socketPath);
   } catch (err) {
     if (skipHandleError) {
       console.error(err);
@@ -882,7 +914,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
               provider.id,
               containerProviderConnection,
             );
-            await startMachine(provider, machineInfo, context, logger);
+            await startMachine(provider, machineInfo, containerProviderConnection.endpoint.socketPath, context, logger);
             autoMachineStarted = true;
             autoMachineName = machineName;
           }
@@ -1202,6 +1234,8 @@ export async function createMachine(
 
   await extensionApi.process.exec(getPodmanCli(), parameters, { logger, token });
   extensionApi.context.setValue('podmanMachineExists', true, 'onboarding');
+  const name = params['podman.factory.machine.name'];
+  await registerDockerContext(name, calculateSocketPath(name));
 }
 
 function setupDisguisedPodmanSocketWatcher(

@@ -293,7 +293,7 @@ test('if a machine is successfully started it changes its state to started', asy
         resolve({} as extensionApi.RunResult);
       }),
   );
-  await extension.startMachine(provider, machineInfo);
+  await extension.startMachine(provider, machineInfo, undefined);
 
   expect(spyExecPromise).toBeCalledWith(getPodmanCli(), ['machine', 'start', 'name'], {
     logger: new LoggerDelegator(),
@@ -311,7 +311,7 @@ test('if a machine failed to start with a generic error, this is thrown', async 
       }),
   );
 
-  await expect(extension.startMachine(provider, machineInfo)).rejects.toThrow('generic error');
+  await expect(extension.startMachine(provider, machineInfo, undefined)).rejects.toThrow('generic error');
   expect(console.error).toBeCalled();
 });
 
@@ -324,7 +324,7 @@ test('if a machine failed to start with a wsl distro not found error, the user i
       }),
   );
 
-  await expect(extension.startMachine(provider, machineInfo)).rejects.toThrow(
+  await expect(extension.startMachine(provider, machineInfo, undefined)).rejects.toThrow(
     'wsl bootstrap script failed: exit status 0xffffffff',
   );
   expect(extensionApi.window.showInformationMessage).toBeCalledWith(
@@ -340,7 +340,7 @@ test('if a machine failed to start with a wsl distro not found error but the ski
   spyExecPromise.mockImplementation(() => {
     return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
   });
-  await expect(extension.startMachine(provider, machineInfo, undefined, undefined, true)).rejects.toThrow(
+  await expect(extension.startMachine(provider, machineInfo, undefined, undefined, undefined, true)).rejects.toThrow(
     'wsl bootstrap script failed: exit status 0xffffffff',
   );
   expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
