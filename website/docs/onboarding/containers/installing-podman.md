@@ -16,10 +16,7 @@ Main benefits are:
 - Ease of use.
 - On Windows: Windows Subsystem for Linux version 2 (WSL 2) native virtualization performance.
 
-Consider rather [installing Podman with OpenShift Local](/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows) if:
-
-- You prefer working with a RHEL distribution of Linux.
-- Your environment doesn't allow you to meet the prerequisites.
+Consider rather [installing Podman with OpenShift Local](/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows) if your environment doesn't allow you to meet the prerequisites.
 
 #### Prerequisites
 
