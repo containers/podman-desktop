@@ -252,6 +252,28 @@ test('Expect to redirect to onboarding page if setup button is clicked', async (
   expect(router.goto).toHaveBeenCalledWith(`/preferences/onboarding/id`);
 });
 
+test('Expect setup button to appear even if provider status is set to unknown and enablement is true', async () => {
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  customProviderInfo.status = 'unknown';
+  customProviderInfo.name = 'foobar';
+  providerInfos.set([customProviderInfo]);
+
+  // Onboarding is enabled
+  const onboarding: OnboardingInfo = {
+    extension: 'id',
+    steps: [],
+    title: 'onboarding',
+    enablement: 'true',
+  };
+  onboardingList.set([onboarding]);
+  render(PreferencesResourcesRendering, {});
+
+  // Expect the setup button to appear
+  const button = screen.getByRole('button', { name: 'Setup foobar' });
+  expect(button).toBeInTheDocument();
+});
+
 test('Expect to redirect to extension preferences page if onboarding is disabled and the cog button is clicked', async () => {
   // clone providerInfo and change id and status
   const customProviderInfo: ProviderInfo = { ...providerInfo };
