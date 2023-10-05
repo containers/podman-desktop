@@ -154,7 +154,23 @@ export class FoobarClient {
 }
 ```
 
-4. Last step! Call the new API call to the extension you are implementing from your extension:
+4.In package.json / configuration settings the property: `podman.binary.path` becomes: Path, and if you change it to `podman.binary.pathToBinary ` it becomes Path To Binary in the title.
+
+```ts
+
+    "configuration": {
+      "title": "Podman",
+      "properties": {
+        "podman.binary.path": {
+          "name": "Path to Podman Binary",
+          "type": "string",
+          "format": "file",
+          "default": "",
+          "description": "Custom path to Podman binary (Default is blank)"
+        },
+```
+
+5. Last step! Call the new API call to the extension you are implementing from your extension:
 
 ```ts
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
