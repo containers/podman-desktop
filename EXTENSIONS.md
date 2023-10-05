@@ -154,7 +154,9 @@ export class FoobarClient {
 }
 ```
 
-4.In package.json / configuration settings the property: `podman.binary.path` becomes: Path, and if you change it to `podman.binary.pathToBinary ` it becomes Path To Binary in the title.
+4.In package.json you can register some setting through the configuration settings property
+
+For example if you contribute a property named `podman.binary.path` it will display `Path` in Podman Desktop UI setting, and if you change it to `podman.binary.pathToBinary ` it becomes `Path To Binary` in the title.
 
 ```ts
 
