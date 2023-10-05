@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CliToolOptions } from '@podman-desktop/api';
+import type { CliToolOptions, Disposable } from '@podman-desktop/api';
 import type { CliToolInfo } from './api/cli-tool-info.js';
 import type { ApiSenderType } from './api.js';
 import type { Telemetry } from './telemetry/telemetry.js';
@@ -43,7 +43,7 @@ export class CliToolImpl implements Disposable {
     return Object.freeze(this.options.images);
   }
 
-  [Symbol.dispose](): void {
+  dispose(): void {
     throw new Error('Method not implemented.');
   }
 }
