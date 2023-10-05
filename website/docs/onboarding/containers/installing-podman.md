@@ -27,7 +27,6 @@ Consider rather [installing Podman with OpenShift Local](/docs/onboarding/contai
 - 6 GB RAM.
 - The host runs Windows or macOS.
 - Windows prerequisites:
-  - No VPN.
   - [WSL prerequisites](https://learn.microsoft.com/en-us/windows/wsl/troubleshooting#error-0x80370102-the-virtual-machine-could-not-be-started-because-a-required-feature-is-not-installed):
     - User with administrator privileges.
     - Windows 64bit.
