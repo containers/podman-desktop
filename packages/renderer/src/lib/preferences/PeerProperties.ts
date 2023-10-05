@@ -15,22 +15,28 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { faPlay, faWrench } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa';
-import type { ProviderDetectionCheck } from '@podman-desktop/api';
 
-export const DoNothingMode = 'Do nothing';
-export const InitializeOnlyMode = 'Initialize';
-export const InitializeAndStartMode = 'Initialize and start';
+import type { IProviderConnectionConfigurationPropertyRecorded } from './Util';
 
-export type InitializationMode = typeof DoNothingMode | typeof InitializeOnlyMode | typeof InitializeAndStartMode;
+export class PeerProperties {
+  private peerProperties: string[];
+  constructor(readonly suffix: string = 'Usage') {
+    this.peerProperties = [];
+  }
 
-export interface InitializationContext {
-  mode: InitializationMode;
-  promise?: Promise<ProviderDetectionCheck[]>;
+  public isPeerProperty(id?: string): boolean {
+    return this.peerProperties.some(value => value === id);
+  }
+
+  public getPeerProperty(id: string | undefined, properties: IProviderConnectionConfigurationPropertyRecorded[]): any {
+    if (id) {
+      const peerId = id + this.suffix;
+      const peerProperty = properties.find(property => property.id === peerId);
+      if (peerProperty?.id) {
+        this.peerProperties.push(peerProperty.id);
+        return peerProperty.value;
+      }
+    }
+    return '';
+  }
 }
-
-export const InitializationSteps = [
-  { icon: Fa, iconProps: { icon: faWrench } },
-  { icon: Fa, iconProps: { icon: faPlay } },
-];

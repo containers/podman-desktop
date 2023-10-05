@@ -2,7 +2,7 @@
 import { authenticationProviders } from '../../stores/authenticationProviders';
 import { faCircle, faRightFromBracket, faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons';
 import SettingsPage from './SettingsPage.svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import KeyIcon from '../images/KeyIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';

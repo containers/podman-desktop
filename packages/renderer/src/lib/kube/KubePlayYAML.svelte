@@ -13,7 +13,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import Button from '../ui/Button.svelte';
 
 let runStarted = false;

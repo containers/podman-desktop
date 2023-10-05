@@ -842,6 +842,12 @@ export class ExtensionLoader {
       listContainers(): Promise<containerDesktopAPI.ContainerInfo[]> {
         return containerProviderRegistry.listSimpleContainers();
       },
+      createContainer(
+        engineId: string,
+        containerCreateOptions: containerDesktopAPI.ContainerCreateOptions,
+      ): Promise<containerDesktopAPI.ContainerCreateResult> {
+        return containerProviderRegistry.createAndStartContainer(engineId, containerCreateOptions);
+      },
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);
       },
@@ -853,6 +859,12 @@ export class ExtensionLoader {
       },
       stopContainer(engineId: string, id: string) {
         return containerProviderRegistry.stopContainer(engineId, id);
+      },
+      deleteContainer(engineId: string, id: string) {
+        return containerProviderRegistry.deleteContainer(engineId, id);
+      },
+      listImages(): Promise<containerDesktopAPI.ImageInfo[]> {
+        return containerProviderRegistry.listImages();
       },
       saveImage(engineId: string, id: string, filename: string) {
         return containerProviderRegistry.saveImage(engineId, id, filename);
@@ -875,8 +887,23 @@ export class ExtensionLoader {
       tagImage(engineId: string, imageId: string, repo: string, tag: string | undefined): Promise<void> {
         return containerProviderRegistry.tagImage(engineId, imageId, repo, tag);
       },
+      deleteImage(engineId: string, id: string) {
+        return containerProviderRegistry.deleteImage(engineId, id);
+      },
+      info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
+        return containerProviderRegistry.info(engineId);
+      },
       onEvent: (listener, thisArg, disposables) => {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
+      },
+      listNetworks(): Promise<containerDesktopAPI.NetworkInspectInfo[]> {
+        return containerProviderRegistry.listNetworks();
+      },
+      createNetwork(
+        providerContainerConnection: containerDesktopAPI.ContainerProviderConnection,
+        networkCreateOptions: containerDesktopAPI.NetworkCreateOptions,
+      ): Promise<containerDesktopAPI.NetworkCreateResult> {
+        return containerProviderRegistry.createNetwork(providerContainerConnection, networkCreateOptions);
       },
     };
 

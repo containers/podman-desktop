@@ -7,7 +7,7 @@ import {
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import { TaskManager, type TaskUI } from './task-manager';
 import { removeTask } from '/@/stores/tasks';
 import type { Task } from '../../../../main/src/plugin/api/task';

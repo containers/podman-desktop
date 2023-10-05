@@ -3,7 +3,7 @@ import { onMount } from 'svelte';
 import type { CustomPickOptions } from './quickpick-input';
 import type { CustomPickItem } from '@podman-desktop/api';
 import Markdown from '../markdown/Markdown.svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import { faCircleCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 let id = -1;

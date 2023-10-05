@@ -17,7 +17,7 @@
  ***********************************************************************/
 import * as path from 'node:path';
 import { existsSync, promises } from 'node:fs';
-import { CliRun } from './cli-run';
+import { installBinaryToSystem } from './cli-run';
 import * as extensionApi from '@podman-desktop/api';
 import type { Detect } from './detect';
 import type { ComposeGitHubReleases } from './compose-github-releases';
@@ -149,9 +149,6 @@ export class ComposeExtension {
   }
 
   async installDockerCompose(): Promise<void> {
-    // Create cliRun instance
-    const cliRun = new CliRun(this.extensionContext, this.os);
-
     const telemetryLogger = extensionApi.env.createTelemetryLogger();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const telemetryOptions: Record<string, any> = {};
@@ -199,7 +196,7 @@ export class ComposeExtension {
         if (result === 'Yes') {
           try {
             // Move the binary file to the system from destFile and rename to 'docker-compose'
-            await cliRun.installBinaryToSystem(dockerComposeDownloadLocation, 'docker-compose');
+            await installBinaryToSystem(dockerComposeDownloadLocation, 'docker-compose');
             await extensionApi.window.showInformationMessage(
               'Docker Compose binary has been successfully installed system-wide.',
             );

@@ -4,6 +4,8 @@ import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugi
 import { filesize } from 'filesize';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
+import Donut from '/@/lib/donut/Donut.svelte';
+import { PeerProperties } from './PeerProperties';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
@@ -33,6 +35,7 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
 
 <div class="h-full bg-zinc-900">
   {#if containerConnectionInfo}
+    {@const peerProperties = new PeerProperties()}
     <div class="flex pl-8 py-4 flex-col w-full text-sm">
       <div class="flex flex-row mt-5">
         <span class="font-semibold min-w-[150px]">Name</span>
@@ -41,8 +44,19 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
       {#each providerContainerConfiguration as connectionSetting}
         <div class="flex flex-row mt-5">
           <span class="font-semibold min-w-[150px]">{connectionSetting.description}</span>
-          {#if connectionSetting.format === 'memory' || connectionSetting.format === 'diskSize'}
-            <span>{filesize(connectionSetting.value)}</span>
+          {#if connectionSetting.format === 'cpu' || connectionSetting.format === 'cpuUsage'}
+            {#if !peerProperties.isPeerProperty(connectionSetting.id)}
+              {@const peerValue = peerProperties.getPeerProperty(connectionSetting.id, providerContainerConfiguration)}
+              <Donut title="{connectionSetting.description}" value="{connectionSetting.value}" percent="{peerValue}" />
+            {/if}
+          {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'memoryUsage' || connectionSetting.format === 'diskSize' || connectionSetting.format === 'diskSizeUsage'}
+            {#if !peerProperties.isPeerProperty(connectionSetting.id)}
+              {@const peerValue = peerProperties.getPeerProperty(connectionSetting.id, providerContainerConfiguration)}
+              <Donut
+                title="{connectionSetting.description}"
+                value="{filesize(connectionSetting.value)}"
+                percent="{peerValue}" />
+            {/if}
           {:else}
             <span>{connectionSetting.value}</span>
           {/if}

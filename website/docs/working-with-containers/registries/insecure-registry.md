@@ -44,7 +44,7 @@ $ sudo vi /etc/containers/registries.conf
 
 ```sh
 [[registry]]
-location = registry.example.com
+location = "registry.example.com"
 insecure = true
 ```
 
@@ -80,7 +80,7 @@ $ sudo vi /etc/containers/registries.conf
 
 ```sh
 [[registry]]
-location = registry.example.com
+location = "registry.example.com"
 insecure = true
 ```
 

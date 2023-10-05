@@ -32,7 +32,7 @@ import { PodmanConfiguration } from './podman-configuration';
 import { getDetectionChecks } from './detection-checks';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { getSocketCompatibility } from './compatibility-mode';
-import type { RunError } from '@podman-desktop/api';
+import type { ContainerEngineInfo, RunError } from '@podman-desktop/api';
 import { compareVersions } from 'compare-versions';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
@@ -88,6 +88,9 @@ export type MachineInfo = {
   memory: number;
   diskSize: number;
   userModeNetworking: boolean;
+  cpuUsage: number;
+  diskUsage: number;
+  memoryUsage: number;
 };
 
 async function updateMachines(provider: extensionApi.Provider): Promise<void> {
@@ -109,6 +112,15 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
       status = 'starting';
     }
 
+    let machineInfo: ContainerEngineInfo | undefined = undefined;
+    if (running) {
+      try {
+        machineInfo = await extensionApi.containerEngine.info(`podman.${prettyMachineName(machine.Name)}`);
+      } catch (err: unknown) {
+        console.warn(` Can't get machine ${machine.Name} resource usage error ${err}`);
+      }
+    }
+
     const previousStatus = podmanMachinesStatuses.get(machine.Name);
     if (previousStatus !== status) {
       // notify status change
@@ -119,10 +131,15 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     const userModeNetworking = isWindows() ? machine.UserModeNetworking : true;
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
-      memory: parseInt(machine.Memory),
-      cpus: machine.CPUs,
-      diskSize: parseInt(machine.DiskSize),
+      memory: machineInfo?.memory,
+      cpus: machineInfo?.cpus,
+      diskSize: machineInfo?.diskSize,
       userModeNetworking: userModeNetworking,
+      cpuUsage: machineInfo?.cpuIdle ? 100 - machineInfo?.cpuIdle : 0,
+      diskUsage:
+        machineInfo?.diskUsed && machineInfo?.diskSize ? (machineInfo?.diskUsed * 100) / machineInfo?.diskSize : 0,
+      memoryUsage:
+        machineInfo?.memory && machineInfo?.memoryUsed ? (machineInfo?.memoryUsed * 100) / machineInfo?.memory : 0,
     });
 
     if (!podmanMachinesStatuses.has(machine.Name)) {
@@ -334,8 +351,11 @@ async function updateContainerConfiguration(
 
   // Set values for the machine
   await containerConfiguration.update('machine.cpus', machineInfo.cpus);
+  await containerConfiguration.update('machine.cpusUsage', machineInfo.cpuUsage);
   await containerConfiguration.update('machine.memory', machineInfo.memory);
+  await containerConfiguration.update('machine.memoryUsage', machineInfo.memoryUsage);
   await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
+  await containerConfiguration.update('machine.diskSizeUsage', machineInfo.diskUsage);
 }
 
 function calcMacosSocketPath(machineName: string): string {
@@ -556,6 +576,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   await containerConfiguration.update('machine.cpus', machineInfo.cpus);
   await containerConfiguration.update('machine.memory', machineInfo.memory);
   await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
+  await containerConfiguration.update('machine.cpuUsage', machineInfo.cpuUsage);
 
   currentConnections.set(machineInfo.name, disposable);
   storedExtensionContext.subscriptions.push(disposable);
@@ -963,6 +984,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
             successful: checkResult.successful,
             description: checkResult.description,
             docLinks: checkResult.docLinks,
+            docLinksDescription: checkResult.docLinksDescription,
+            fixCommand: checkResult.fixCommand,
           });
 
           if (!checkResult.successful) {
@@ -979,24 +1002,21 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         }
       }
 
-      let warningsMarkdown = '';
+      const warnings = [];
 
       for (const res of result) {
-        warningsMarkdown += `* ${res.successful ? '✅' : '❌'} ${res.name} \n`;
-        if (res.description) {
-          warningsMarkdown += res.description;
-          if (res.docLinks) {
-            warningsMarkdown += ' See: ';
-            for (const link of res.docLinks) {
-              warningsMarkdown += `[${link.title}](${link.url}) `;
-            }
-            warningsMarkdown += '\n';
-          }
-        }
+        const warning = {
+          state: res.successful ? 'successful' : 'failed',
+          description: res.description ? res.description : res.name,
+          docDescription: res.docLinksDescription,
+          docLinks: res.docLinks,
+          command: res.fixCommand,
+        };
+        warnings.push(warning);
       }
 
       extensionApi.context.setValue('requirementsStatus', successful ? 'ok' : 'failed', 'onboarding');
-      extensionApi.context.setValue('warningsMarkdown', warningsMarkdown, 'onboarding');
+      extensionApi.context.setValue('warningsMarkdown', warnings, 'onboarding');
     },
   );
 

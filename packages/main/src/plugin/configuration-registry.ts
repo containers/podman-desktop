@@ -25,6 +25,7 @@ import { Emitter } from './events/emitter.js';
 import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
 import type { Directories } from './directories.js';
 import { Disposable } from './types/disposable.js';
+import type { ApiSenderType } from './api.js';
 
 export type IConfigurationPropertySchemaType =
   | 'markdown'
@@ -117,7 +118,10 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private configurationValues: Map<string, any>;
 
-  constructor(private directories: Directories) {
+  constructor(
+    private apiSender: ApiSenderType,
+    private directories: Directories,
+  ) {
     this.configurationProperties = {};
     this.configurationContributors = [];
     this.configurationValues = new Map();
@@ -293,6 +297,6 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
         this.saveDefault();
       }
     };
-    return new ConfigurationImpl(callback, this.configurationValues, section, scope);
+    return new ConfigurationImpl(this.apiSender, callback, this.configurationValues, section, scope);
   }
 }

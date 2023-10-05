@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount, tick } from 'svelte';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import { faCircleQuestion, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import type { MessageBoxOptions } from './messagebox-input';

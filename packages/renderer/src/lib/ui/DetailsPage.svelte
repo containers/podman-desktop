@@ -25,11 +25,11 @@ function handleKeydown(e: KeyboardEvent) {
   <div class="flex h-full flex-col">
     <div class="flex w-full flex-row">
       <div class="w-full pl-5 pt-4">
-        <div class="flex flew-row items-center">
+        <div class="flex flew-row items-center text-sm text-gray-700">
           <Link aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
             >{$lastPage.name}</Link>
-          <div class="text-xl mx-2 text-gray-700">></div>
-          <div class="text-sm font-extralight text-gray-700" aria-label="name">{$currentPage.name}</div>
+          <div class="mx-2">&gt;</div>
+          <div class="font-extralight" aria-label="name">{$currentPage.name}</div>
         </div>
         <div class="text-lg flex flex-row items-start pt-1">
           <div class="pr-3 pt-1">
@@ -53,7 +53,7 @@ function handleKeydown(e: KeyboardEvent) {
         </div>
         <slot name="detail" />
       </div>
-      <a href="{$lastPage.path}" title="Close Details" class="mt-2 mr-2 text-gray-900"
+      <a href="{$lastPage.path}" title="Close" class="mt-2 mr-2 text-gray-900"
         ><i class="fas fa-times" aria-hidden="true"></i></a>
     </div>
     <div class="flex flex-row px-2 border-b border-charcoal-400">

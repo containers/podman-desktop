@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import Modal from '../dialogs/Modal.svelte';
 import ProviderLogo from '../dashboard/ProviderLogo.svelte';
 import type { ProviderInfo, CheckStatus } from '../../../../main/src/plugin/api/provider-info';

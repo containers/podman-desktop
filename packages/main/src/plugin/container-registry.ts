@@ -1930,4 +1930,39 @@ export class ContainerProviderRegistry {
   getEnvFileParser(): EnvfileParser {
     return this.envfileParser;
   }
+
+  async info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
+    let telemetryOptions = {};
+    try {
+      const provider = this.internalProviders.get(engineId);
+      if (!provider) {
+        throw new Error('no engine matching this container');
+      }
+      if (!provider.api) {
+        throw new Error('no running provider for the matching container');
+      }
+      if (provider.libpodApi) {
+        const podmanInfo = await provider.libpodApi.podmanInfo();
+        return {
+          cpus: podmanInfo.host.cpus,
+          cpuIdle: podmanInfo.host.cpuUtilization.idlePercent,
+          memory: podmanInfo.host.memTotal,
+          memoryUsed: podmanInfo.host.memTotal - podmanInfo.host.memFree,
+          diskSize: podmanInfo.store.graphRootAllocated,
+          diskUsed: podmanInfo.store.graphRootUsed,
+        };
+      } else {
+        const dockerInfo = await provider.api.info();
+        return {
+          cpus: dockerInfo.NCPU,
+          memory: dockerInfo.MemTotal,
+        };
+      }
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService.track('info', telemetryOptions);
+    }
+  }
 }

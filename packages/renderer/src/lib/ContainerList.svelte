@@ -22,7 +22,7 @@ import moment from 'moment';
 import { get, type Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
 import { faChevronDown, faChevronRight, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import ErrorMessage from './ui/ErrorMessage.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
 import { podsInfos } from '../stores/pods';
