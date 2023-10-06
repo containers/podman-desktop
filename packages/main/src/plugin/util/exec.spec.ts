@@ -574,6 +574,4 @@ describe('getInstallationPath', () => {
 
     expect(path).toBe('/usr/other');
   });
-
-  test('should reject promises with instance of Error class', async () => {});
 });
